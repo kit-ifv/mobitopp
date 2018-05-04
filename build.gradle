@@ -8,9 +8,7 @@ subprojects {
     apply plugin: 'jacoco'
   
     group = 'edu.kit.ifv.mobitopp'
-    // When a version is set, it is included in the jar file name.
-    // Start scripts are not currently created by the build script and do not include the jar file version.
-    //version = '0.1'
+    version = '0.1'
     
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
