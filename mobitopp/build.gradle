@@ -1,0 +1,130 @@
+apply plugin: 'java'
+apply plugin: 'distribution'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+apply plugin: 'jacoco'
+
+dependencies {
+    compile 'edu.kit.ifv.mobitopp:actitopp:0.1',
+        'net.sf.opencsv:opencsv:2.3',
+        'org.apache.commons:commons-compress:1.12',
+        'org.yaml:snakeyaml:1.18'
+    
+    testCompile 'junit:junit:4.12',
+        'org.hamcrest:hamcrest-all:1.3',
+        'com.github.npathai:hamcrest-optional:1.0',
+        'org.mockito:mockito-core:2.+',
+        'nl.jqno.equalsverifier:equalsverifier:2.2.+'
+}
+
+task syncDependencies(type: Sync) {
+    group = 'build setup'
+    from project.ext["mobitopp.repository.url"]
+    into project.ext["local.cache.path"] as File
+}
+
+compileJava.dependsOn syncDependencies
+
+tasks.withType(JavaCompile) { 
+    options.compilerArgs << "-Xlint:all" 
+}
+
+eclipse.classpath {
+    downloadSources=true
+}
+
+sourceSets {
+    integrationTest {
+        compileClasspath += sourceSets.test.runtimeClasspath
+        runtimeClasspath += sourceSets.test.runtimeClasspath
+        java.srcDirs = ['src/integration-test/java']
+        resources.srcDirs = ['src/integration-test/resources']
+    }
+}
+
+test {
+    enableAssertions = "true"
+    maxHeapSize = "2G"
+    testLogging.showStandardStreams = true
+}
+
+jar {
+    archiveName = 'mobitopp.jar'
+    manifest.attributes("Class-Path": configurations.runtime.collect { "lib/$it.name" }.join(' '))
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+jar.doLast {
+    File distDir = new File(buildDir, 'dist')
+    File oldDistribution = new File("dist")
+    createDistDir(oldDistribution)
+}
+
+task copyDependencies(type: Copy, dependsOn: jar) {
+    from configurations.runtime
+    into "dist/lib"
+}
+
+task copyMobitopp(type: Copy, dependsOn: jar) {
+    from jar
+    into "dist"
+}
+
+distZip.dependsOn copyDependencies
+distZip.dependsOn copyMobitopp
+
+void createDistDir(File parent) {
+    File libDir = new File(parent, 'lib')
+    libDir.mkdirs()
+}
+
+distributions {
+    main {
+        contents {
+            baseName = 'mobitopp'
+            into('dist') {
+                from jar
+                into('lib') {
+                    from(project.configurations.runtime)
+                }
+            }
+            into('bin') {
+                from('bin.run') {
+                    fileMode 0755
+                    include 'run*.sh'
+                }
+            }
+            into('config') {
+                from('config') {
+                    include '*.txt'
+                    include 'TargetParameterRepetition2.csv'
+                    include '*.yaml'
+                }
+            }
+            into('') {
+                from { "$buildDir/dist" }
+            }
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+           repository(url: project.ext["mobitopp.repository.url"])
+        }
+    }
+}

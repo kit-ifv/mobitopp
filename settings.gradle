@@ -1,0 +1,4 @@
+rootProject.name = 'mobitopp-parent'
+
+include ':mobitopp'
+include ':example'

@@ -1,0 +1,55 @@
+package edu.kit.ifv.mobitopp.simulation;
+
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.time.Time;
+
+public class Trip_Stub
+	implements TripIfc
+{
+
+	private final String name; 
+	private final ZoneAndLocation origin; 
+	private final ZoneAndLocation destination; 
+	private final Time startDate; 
+
+	public Trip_Stub (
+		String name,
+		ZoneAndLocation origin,
+		ZoneAndLocation destination,
+		Time startDate
+	) {
+		this.name=name;
+		this.origin=origin;
+		this.destination=destination;
+		this.startDate=startDate;
+	}
+
+	public String toString() {
+		return name;
+	}
+
+	public Mode mode() { return null; }
+
+	public Time startDate() { return startDate; };
+
+  public int plannedDuration() { return -1; }
+
+
+  public ActivityIfc previousActivity() { return null; }
+  public ActivityIfc nextActivity() { return null; }
+
+	public int getOid() { return -1; }
+  public Time calculatePlannedEndDate() {return null; }
+
+	@Override
+	public ZoneAndLocation origin() {
+		return origin;
+	}
+
+	@Override
+	public ZoneAndLocation destination() {
+		return destination;
+	}
+
+}
+
