@@ -2,3 +2,31 @@ dependencies {
     compile project(':mobitopp')
 }
 
+distributions {
+    main {
+        contents {
+            into('dist') {
+                from jar
+                into('lib') {
+                    from(project.configurations.runtime)
+                }
+            }
+            into('bin') {
+                from('bin.run') {
+                    fileMode 0755
+                    include 'run*.sh'
+                }
+            }
+            into('config') {
+                from('config') {
+                    include '*.txt'
+                    include 'TargetParameterRepetition2.csv'
+                    include '*.yaml'
+                }
+            }
+            into('') {
+                from { "$buildDir/dist" }
+            }
+        }
+    }
+}
