@@ -65,7 +65,7 @@ public class DynamicTimeMatrices<S> {
 
 	@Override
 	public String toString() {
-		return "TypeToMatrices [matrices=" + matrices + "]";
+		return getClass().getName() + " [matrices=" + matrices + "]";
 	}
 
 }

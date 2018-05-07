@@ -119,8 +119,8 @@ public class StoredMatrices {
 
 	@Override
 	public String toString() {
-		return "StoredMatrices [costMatrices=" + costMatrices + ", travelTimeMatrices="
-				+ travelTimeMatrices + "]";
+		return getClass().getName() + " [costMatrices=" + costMatrices + ", travelTimeMatrices="
+				+ travelTimeMatrices + ", fixedDistributionTypes=" + fixedDistributionTypes + "]";
 	}
 
 }
