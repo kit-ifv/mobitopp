@@ -57,7 +57,7 @@ public class TripfileCategories {
 
 	private Category activity() {
 		List<String> header = new ArrayList<>();
-		header.add("A;");
+		header.add("A");
 		header.add("personOid");
 		header.add("startDay");
 		header.add("startTime");
@@ -71,7 +71,7 @@ public class TripfileCategories {
 
 	private Category tour() {
 		List<String> header = new ArrayList<>();
-		header.add("T;");
+		header.add("T");
 		header.add("personOid");
 		header.add("forLogging");
 		header.add("tourDestinationOid");
