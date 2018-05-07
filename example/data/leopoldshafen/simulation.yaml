@@ -4,7 +4,7 @@ dataSource: !file
   attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
   #charging: unlimited
   defaultChargingPower: data/leopoldshafen/parameters/ChargingPower.txt
-days: 1
+days: 7
 destinationChoice:
   repetition: data/leopoldshafen/parameters/TargetParameterRepetition2.csv
   cost: data/leopoldshafen/parameters/TargetParameterCost.txt
