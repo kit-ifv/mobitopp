@@ -4,9 +4,21 @@ costMatrices:
       weekdays:
         between:
           0 to 23: cost.car.mtx
+      saturday:
+        between:
+          0 to 23: cost.car.mtx
+      sunday:
+        between:
+          0 to 23: cost.car.mtx
   constant:
     at:
       weekdays:
+        between:
+          0 to 23: cost.car.mtx
+      saturday:
+        between:
+          0 to 23: cost.car.mtx
+      sunday:
         between:
           0 to 23: cost.car.mtx
   parkingstress:
@@ -14,9 +26,21 @@ costMatrices:
       weekdays:
         between:
           0 to 23: cost.car.mtx
+      saturday:
+        between:
+          0 to 23: cost.car.mtx
+      sunday:
+        between:
+          0 to 23: cost.car.mtx
   distance:
     at:
       weekdays:
+        between:
+          0 to 23: distance.car.mtx
+      saturday:
+        between:
+          0 to 23: distance.car.mtx
+      sunday:
         between:
           0 to 23: distance.car.mtx
   parking:
@@ -24,9 +48,21 @@ costMatrices:
       weekdays:
         between:
           0 to 23: cost.car.mtx
+      saturday:
+        between:
+          0 to 23: cost.car.mtx
+      sunday:
+        between:
+          0 to 23: cost.car.mtx
   publictransport:
     at:
       weekdays:
+        between:
+          0 to 23: cost.pt.mtx
+      saturday:
+        between:
+          0 to 23: cost.pt.mtx
+      sunday:
         between:
           0 to 23: cost.pt.mtx
 fixedDistributionMatrices:
@@ -42,9 +78,21 @@ travelTimeMatrices:
       weekdays:
         between:
           0 to 23: traveltime.bike.mtx
+      saturday:
+        between:
+          0 to 23: traveltime.bike.mtx
+      sunday:
+        between:
+          0 to 23: traveltime.bike.mtx
   car:
     at:
       weekdays:
+        between:
+          0 to 23: traveltime.car.mtx
+      saturday:
+        between:
+          0 to 23: traveltime.car.mtx
+      sunday:
         between:
           0 to 23: traveltime.car.mtx
   publictransport:
@@ -52,8 +100,20 @@ travelTimeMatrices:
       weekdays:
         between:
           0 to 23: traveltime.put.mtx
+      saturday:
+        between:
+          0 to 23: traveltime.put.mtx
+      sunday:
+        between:
+          0 to 23: traveltime.put.mtx
   bike:
     at:
       weekdays:
+        between:
+          0 to 23: traveltime.bike.mtx
+      saturday:
+        between:
+          0 to 23: traveltime.bike.mtx
+      sunday:
         between:
           0 to 23: traveltime.bike.mtx
