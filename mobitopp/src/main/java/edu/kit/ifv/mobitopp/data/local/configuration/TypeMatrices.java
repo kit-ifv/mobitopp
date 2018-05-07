@@ -72,7 +72,7 @@ public class TypeMatrices {
 
 	@Override
 	public String toString() {
-		return "ModeMatrices [at=" + at + "]";
+		return getClass().getName() + " [at=" + at + "]";
 	}
 
 }
