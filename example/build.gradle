@@ -2,6 +2,23 @@ dependencies {
     compile project(':mobitopp')
 }
 
+task runPopulationSynthesis(type: JavaExec) {
+    args = ['data/leopoldshafen/population-synthesis.yaml']
+    main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisExample"
+}
+
+task runSimulation(type: JavaExec, dependsOn: compileJava) {
+    args = ['data/leopoldshafen/simulation.yaml']
+    main = "edu.kit.ifv.mobitopp.simulation.SimulationExample"
+}
+
+tasks.withType(JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    dependsOn check
+    enableAssertions = "true"
+    group = "application"
+}
+
 distributions {
     main {
         contents {
