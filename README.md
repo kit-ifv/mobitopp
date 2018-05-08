@@ -1,6 +1,17 @@
 # mobiTopp
 [mobiTopp](http://mobitopp.ifv.kit.edu/) is an agent-based travel demand model developed at the [Institute for transport studies at the Karlsruhe Institute of Technology](http://www.ifv.kit.edu/english/index.php). Publications about mobiTopp can be found on the [project site](http://mobitopp.ifv.kit.edu/28.php).
 
+## Execution
+### Using gradle
+The example project comes shipped with gradle tasks to run it directly from source. A population can be generated with the `runPopulationSynthesis` task and travel demand can be simulated using the `runSimulation` task. 
+
+```
+./gradlew runPopulationSynthesis runSimulation
+```
+
+### Using eclipse
+The example project contains preconfigured launch configurations to create a population and simulate the travel demand. Eclipse automatically detects them and you can run them from the toolbar as every other launch configuration.
+
 ## Results
 mobiTopp generates various output files during population synthesis and simulation. Most of the output data is self-explanatory. For those values which are not, the following tables map the codes to their values.
 
