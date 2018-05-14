@@ -112,6 +112,10 @@ public class DemandSimulatorPassenger
 	public ReschedulingStrategy rescheduling() { return this.rescheduling; }
 	public ZoneBasedRouteChoice routeChoice() { return this.routeChoice; }
 
+	protected SimulationContext context() {
+		return context;
+	}
+	
 	public ImpedanceIfc impedance() {
 		return context.impedance();
 	}
