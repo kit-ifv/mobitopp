@@ -23,7 +23,7 @@ public class WaitingAreaTest {
 	private static final int twoPersons = 2;
 
 	private WaitingArea waiting;
-	private PublicTransportLogger logger;
+	private PublicTransportResults results;
 	private SimulationPerson somePerson;
 	private SimulationPerson anotherPerson;
 
@@ -31,7 +31,7 @@ public class WaitingAreaTest {
 	public void initialise() {
 		somePerson = mock(SimulationPerson.class);
 		anotherPerson = mock(SimulationPerson.class);
-		logger = mock(PublicTransportLogger.class);
+		results = mock(PublicTransportResults.class);
 
 		waiting = new WaitingArea();
 	}
@@ -42,10 +42,10 @@ public class WaitingAreaTest {
 		waiting.enterAt(someStop(), anotherPerson);
 		waiting.leaveFrom(someStop(), somePerson);
 		
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 		
-		verify(logger).waitingAt(someStop(), someTime(), onePerson);
-		verifyNoMoreInteractions(logger);
+		verify(results).waitingAt(someStop(), someTime(), onePerson);
+		verifyNoMoreInteractions(results);
 	}
 
 	@Test
@@ -54,62 +54,62 @@ public class WaitingAreaTest {
 		waiting.enterAt(anotherStop(), anotherPerson);
 		waiting.leaveFrom(someStop(), somePerson);
 
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 		
-		verify(logger).waitingAt(someStop(), someTime(), noPerson);
-		verify(logger).waitingAt(anotherStop(), someTime(), onePerson);
-		verifyNoMoreInteractions(logger);
+		verify(results).waitingAt(someStop(), someTime(), noPerson);
+		verify(results).waitingAt(anotherStop(), someTime(), onePerson);
+		verifyNoMoreInteractions(results);
 	}
 
 	@Test
 	public void logsNothingWhenNoPersonIsWaiting() throws Exception {
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(results);
 	}
 
 	@Test
 	public void logsSingleWaitingPersonAtOneStop() throws Exception {
 		waiting.enterAt(someStop(), somePerson);
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verify(logger).waitingAt(someStop(), someTime(), onePerson);
+		verify(results).waitingAt(someStop(), someTime(), onePerson);
 	}
 
 	@Test
 	public void logsSeveralWaitingPersonsAtOneStop() throws Exception {
 		waiting.enterAt(someStop(), somePerson);
 		waiting.enterAt(someStop(), anotherPerson);
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verify(logger).waitingAt(someStop(), someTime(), twoPersons);
+		verify(results).waitingAt(someStop(), someTime(), twoPersons);
 	}
 
 	@Test
 	public void logsSeveralWaitingPersonsAtSeveralStops() throws Exception {
 		waiting.enterAt(someStop(), somePerson);
 		waiting.enterAt(anotherStop(), anotherPerson);
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verify(logger).waitingAt(someStop(), someTime(), onePerson);
-		verify(logger).waitingAt(anotherStop(), someTime(), onePerson);
+		verify(results).waitingAt(someStop(), someTime(), onePerson);
+		verify(results).waitingAt(anotherStop(), someTime(), onePerson);
 	}
 
 	@Test
 	public void logsOneWaitingPersonWhenPersonIsAddedSeveralTimesAtTheSameStop() throws Exception {
 		waiting.enterAt(someStop(), somePerson);
 		waiting.enterAt(someStop(), somePerson);
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verify(logger).waitingAt(someStop(), someTime(), onePerson);
+		verify(results).waitingAt(someStop(), someTime(), onePerson);
 	}
 
 	@Test
 	public void remainsEmptyOnClear() throws Exception {
 		waiting.clearEmptyStops();
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(results);
 	}
 
 	@Test
@@ -117,18 +117,18 @@ public class WaitingAreaTest {
 		waiting.enterAt(someStop(), somePerson);
 		waiting.leaveFrom(someStop(), somePerson);
 		waiting.clearEmptyStops();
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(results);
 	}
 
 	@Test
 	public void logsStopWithWaitingPassengerAfterClear() throws Exception {
 		waiting.enterAt(someStop(), somePerson);
 		waiting.clearEmptyStops();
-		waiting.logOn(logger, someTime());
+		waiting.logOn(results, someTime());
 
-		verify(logger).waitingAt(someStop(), someTime(), onePerson);
+		verify(results).waitingAt(someStop(), someTime(), onePerson);
 	}
 	
 	@Test

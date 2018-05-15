@@ -11,41 +11,45 @@ public class VehicleConnections {
 
 	private final Iterator<Connection> connections;
 	private final Time firstDeparture;
-	private Optional<Time> nextDeparture;
-	private Optional<Time> nextArrival;
+	private Optional<Connection> next;
 
 	public VehicleConnections(Collection<Connection> connections) {
 		super();
 		this.connections = connections.iterator();
-		assignNextTimes();
-		firstDeparture = nextDeparture.get();
+		assignNext();
+		firstDeparture = nextDeparture().get();
 	}
 
 	public Optional<Time> nextDeparture() {
-		return nextDeparture;
+		return next.map(Connection::departure);
+	}
+
+	public Optional<Time> nextArrival() {
+		return next.map(Connection::arrival);
+	}
+
+	public Optional<Connection> nextConnection() {
+		return next;
 	}
 
 	public void move() {
 		if (connections.hasNext()) {
-			assignNextTimes();
+			assignNext();
 			return;
 		}
-		nextDeparture = Optional.empty();
-		nextArrival = Optional.empty();
+		next = assignEnd();
 	}
 
-	private void assignNextTimes() {
-		Connection next = connections.next();
-		nextDeparture = Optional.of(next.departure());
-		nextArrival = Optional.of(next.arrival());
+	private void assignNext() {
+		next = Optional.of(connections.next());
+	}
+
+	private Optional<Connection> assignEnd() {
+		return Optional.empty();
 	}
 
 	public Time firstDeparture() {
 		return firstDeparture;
-	}
-
-	public Optional<Time> nextArrival() {
-		return nextArrival;
 	}
 
 }

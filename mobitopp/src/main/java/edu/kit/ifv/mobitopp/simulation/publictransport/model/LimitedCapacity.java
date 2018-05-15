@@ -6,8 +6,8 @@ import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
 public class LimitedCapacity extends BasicPublicTransportBehaviour {
 
 	public LimitedCapacity(
-			RouteSearch routeSearch, PublicTransportLogger logger, Vehicles vehicles) {
-		super(routeSearch, logger, vehicles);
+			RouteSearch routeSearch, PublicTransportResults results, Vehicles vehicles) {
+		super(routeSearch, results, vehicles);
 	}
 
 	@Override

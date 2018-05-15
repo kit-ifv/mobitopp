@@ -13,6 +13,7 @@ public class TripfileCategories {
 	public final Category subtour;
 	public final Category route;
 	public final Category car;
+	public final Category stateChange;
 
 	public TripfileCategories() {
 		this.result = result();
@@ -21,6 +22,7 @@ public class TripfileCategories {
 		this.subtour = subtour();
 		this.route = route();
 		this.car = car();
+		this.stateChange = stateChange();
 	}
 
 	private Category result() {
@@ -133,5 +135,15 @@ public class TripfileCategories {
 		header.add("locationRoadAccessEdgeId");
 		header.add("locationRoadPosition");
 		return new Category("demandsimulationResultCar", header);
+	}
+
+	private Category stateChange() {
+		List<String> header = new ArrayList<>();
+		header.add("personOid");
+		header.add("day");
+		header.add("time");
+		header.add("previousState");
+		header.add("nextState");
+		return new Category("demandsimulationStateChange", header);
 	}
 }

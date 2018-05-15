@@ -1,11 +1,13 @@
-package edu.kit.ifv.mobitopp.simulation;
+package edu.kit.ifv.mobitopp.simulation.person;
 
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
-public interface TripIfc extends OccupationIfc {
+public interface FinishedTrip {
+
+	int getOid();
 
 	ZoneAndLocation origin();
 
@@ -15,12 +17,16 @@ public interface TripIfc extends OccupationIfc {
 
 	Time startDate();
 
+	Time endDate();
+
+	Time plannedEndDate();
+
 	int plannedDuration();
 
 	ActivityIfc previousActivity();
 
 	ActivityIfc nextActivity();
 
-  FinishedTrip finish(Time currentDate);
+	Statistic statistic();
 
 }

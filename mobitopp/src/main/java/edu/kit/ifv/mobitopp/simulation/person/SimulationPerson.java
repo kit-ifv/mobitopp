@@ -97,6 +97,7 @@ public interface SimulationPerson
 		Time currentDate
 	);
 	
+	void enterFirstStop(Time time);
 	public boolean isPublicTransportVehicleAvailable(Time time);
 	public boolean hasPlaceInPublicTransportVehicle();
 	public void changeToNewTrip(Time time);
@@ -104,5 +105,6 @@ public interface SimulationPerson
 	public void getOffPublicTransportVehicle(Time time);
 	public boolean hasArrivedAtNextActivity();
 	public void wait(Time currentTime);
+	public boolean hasPublicTransportVehicleDeparted(Time time);
 
 }

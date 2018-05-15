@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 
 public class Impedance_Stub
 	implements ImpedanceIfc 
@@ -47,6 +48,11 @@ public class Impedance_Stub
 	public Optional<PublicTransportRoute> getPublicTransportRoute(Location source, Location target, Mode mode, Time date) {
 		return Optional.empty();
 	}
+	
+	@Override
+	public Optional<PublicTransportRoute> getPublicTransportRoute(Stop start, Stop end, Mode mode, Time date) {
+		return Optional.empty();
+	}
 
 	@Override
 	public float getTravelCost(int source, int target, Mode mode, Time date) {
@@ -77,6 +83,5 @@ public class Impedance_Stub
 	public float getOpportunities(ActivityType activityType, int zoneOid) {	
 		return this.opportunities;
 	}
-
 
 }

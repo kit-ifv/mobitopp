@@ -2,6 +2,8 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
 public class Trip_Stub
 	implements TripIfc
@@ -49,6 +51,11 @@ public class Trip_Stub
 	@Override
 	public ZoneAndLocation destination() {
 		return destination;
+	}
+
+	@Override
+	public FinishedTrip finish(Time currentDate) {
+		return new BeamedTrip(this, currentDate);
 	}
 
 }

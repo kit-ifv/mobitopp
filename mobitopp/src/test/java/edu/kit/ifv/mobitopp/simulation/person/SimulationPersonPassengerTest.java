@@ -1,13 +1,17 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.oneMinuteLater;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
+import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.another;
+import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.some;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -22,14 +26,13 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
-import edu.kit.ifv.mobitopp.publictransport.model.Data;
-import edu.kit.ifv.mobitopp.result.ResultsForTests;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -41,13 +44,13 @@ import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
+import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
-import edu.kit.ifv.mobitopp.simulation.TripfileWriter;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
-import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimulationPersonPassengerTest {
 
@@ -56,7 +59,9 @@ public class SimulationPersonPassengerTest {
 	private static final int seed = 0;
 	
 	@Rule
-	public TemporaryFolder baseFolder = new TemporaryFolder();
+	public final TemporaryFolder baseFolder = new TemporaryFolder();
+	@Rule
+	public final ExpectedException thrown = ExpectedException.none();
 	
 	private PublicTransportBehaviour boarder;
 	private Person person;
@@ -102,7 +107,7 @@ public class SimulationPersonPassengerTest {
 		impedance = mock(ImpedanceIfc.class);
 		personId = mock(PersonId.class);
 		rescheduling = mock(ReschedulingStrategy.class);
-		results = new TripfileWriter(ResultsForTests.at(baseFolder), impedance);
+		results = mock(PersonResults.class);
 	}
 
 	private void initializeBehaviour() {
@@ -115,14 +120,15 @@ public class SimulationPersonPassengerTest {
 		when(destinationChoice.selectDestination(eq(person), any(), eq(firstActivity), eq(firstActivity),
 				anyDouble())).thenReturn(zone);
 		when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
-		when(firstActivity.startDate()).thenReturn(someDate());
+		when(firstActivity.startDate()).thenReturn(someTime());
 		when(firstActivity.location()).thenReturn(someLocation());
 		when(firstActivity.zone()).thenReturn(someZone());
 		when(person.currentActivity()).thenReturn(firstActivity);
-		when(mockedTrip.startDate()).thenReturn(someDate());
-		when(mockedTrip.calculatePlannedEndDate()).thenReturn(someDate());
+		when(mockedTrip.startDate()).thenReturn(someTime());
+		when(mockedTrip.calculatePlannedEndDate()).thenReturn(someTime());
 		when(person.currentTrip()).thenReturn(trip);
-		when(options.simulationEnd()).thenReturn(someDate());
+		when(options.simulationStart()).thenReturn(someTime());
+		when(options.simulationEnd()).thenReturn(someTime());
 		when(schedule.nextActivity(firstActivity)).thenReturn(firstActivity);
 		when(schedule.currentTrip()).thenReturn(trip);
 		when(mockedTrip.previousActivity()).thenReturn(firstActivity);
@@ -133,7 +139,7 @@ public class SimulationPersonPassengerTest {
 		when(mockedTrip.mode()).thenReturn(Mode.PUBLICTRANSPORT);
 		when(person.employment()).thenReturn(someEmploymentType);
 		when(person.getId()).thenReturn(personId);
-		when(firstActivity.calculatePlannedEndDate()).thenReturn(someDate());
+		when(firstActivity.calculatePlannedEndDate()).thenReturn(someTime());
 		when(options.rescheduling()).thenReturn(rescheduling);
 		when(person.gender()).thenReturn(Gender.MALE);
 		when(mockedTrip.origin()).thenReturn(someZoneAndLocation());
@@ -156,11 +162,11 @@ public class SimulationPersonPassengerTest {
 	public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
 		SimulationPerson simulationPerson = person();
 
-		simulationPerson.boardPublicTransportVehicle(someDate());
-		simulationPerson.getOffPublicTransportVehicle(someDate());
+		simulationPerson.boardPublicTransportVehicle(someTime());
+		simulationPerson.getOffPublicTransportVehicle(someTime());
 
-		verify(boarder).board(simulationPerson, someDate(), singleLeg);
-		verify(boarder).getOff(simulationPerson, someDate(), singleLeg);
+		verify(boarder).board(simulationPerson, someTime(), singleLeg, trip);
+		verify(boarder).getOff(simulationPerson, someTime(), singleLeg, trip);
 	}
 
 	@Test
@@ -169,8 +175,8 @@ public class SimulationPersonPassengerTest {
 
 		assertThat(simulationPerson.hasArrivedAtNextActivity(), is(false));
 
-		simulationPerson.boardPublicTransportVehicle(someDate());
-		simulationPerson.getOffPublicTransportVehicle(someDate());
+		simulationPerson.boardPublicTransportVehicle(someTime());
+		simulationPerson.getOffPublicTransportVehicle(someTime());
 
 		assertThat(simulationPerson.hasArrivedAtNextActivity(), is(true));
 	}
@@ -181,7 +187,7 @@ public class SimulationPersonPassengerTest {
 		when(boarder.isVehicleAvailable(singleLeg)).thenReturn(available);
 		SimulationPerson simulationPerson = person();
 
-		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someDate()), is(available));
+		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(available));
 
 		verify(boarder).isVehicleAvailable(singleLeg);
 	}
@@ -192,9 +198,19 @@ public class SimulationPersonPassengerTest {
 		when(boarder.isVehicleAvailable(singleLeg)).thenReturn(notAvailable);
 		SimulationPerson simulationPerson = person();
 
-		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someDate()), is(notAvailable));
+		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(notAvailable));
 
 		verify(boarder).isVehicleAvailable(singleLeg);
+	}
+
+	@Test
+	public void failToEnterFirstStopWithoutPublicTransportTrip() {
+		when(person.currentTrip()).thenReturn(mockedTrip);
+		when(mockedTrip.mode()).thenReturn(Mode.CAR);
+		SimulationPersonPassenger simulationPerson = person();
+		
+		thrown.expect(IllegalArgumentException.class);
+		simulationPerson.enterFirstStop(someTime());
 	}
 
 	@Test
@@ -202,7 +218,7 @@ public class SimulationPersonPassengerTest {
 		when(singleLeg.start()).thenReturn(someStop());
 		SimulationPerson simulationPerson = person();
 
-		simulationPerson.startTrip(impedance, trip, someDate());
+		simulationPerson.enterFirstStop(someTime());
 
 		verify(boarder).enterWaitingArea(simulationPerson, someStop());
 	}
@@ -212,7 +228,7 @@ public class SimulationPersonPassengerTest {
 		when(singleLeg.end()).thenReturn(anotherStop());
 		SimulationPerson simulationPerson = person();
 
-		simulationPerson.endTrip(impedance, rescheduling, someDate());
+		simulationPerson.endTrip(impedance, rescheduling, someTime());
 
 		verify(boarder).leaveWaitingArea(simulationPerson, anotherStop());
 	}
@@ -243,20 +259,30 @@ public class SimulationPersonPassengerTest {
 	public void searchesANewTripWhenAsked() throws Exception {
 		SimulationPerson person = person();
 		TripIfc newTrip = mock(TripIfc.class);
-		when(boarder.searchNewTrip(person, someDate(), trip)).thenReturn(newTrip);
+		when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
 
-		person.changeToNewTrip(someDate());
+		person.changeToNewTrip(someTime());
 
-		verify(boarder).searchNewTrip(person, someDate(), trip);
+		verify(boarder).searchNewTrip(person, someTime(), trip);
 		verify(this.person).currentTrip(newTrip);
 	}
 
-	private Time someDate() {
-		return Data.someTime();
+	@Test
+	public void notifiesAboutStateChange() {
+		SimulationPersonPassenger simulatedPerson = person();
+		DemandSimulationEventIfc event = mock(DemandSimulationEventIfc.class);
+		when(event.getPerson()).thenReturn(simulatedPerson);
+		when(event.getSimulationDate()).thenReturn(oneMinuteLater());
+		
+		simulatedPerson.notify(queue, event, oneMinuteLater());
+		
+		verify(results).notifyStateChanged(new StateChange(simulatedPerson, someTime(), some, another));
+		verify(results)
+				.notifyStateChanged(new StateChange(simulatedPerson, oneMinuteLater(), another, some));
 	}
-
-	private SimulationPerson person() {
-		PersonState initialState = PersonStatePublicTransport.UNINITIALIZED;
+	
+	private SimulationPersonPassenger person() {
+		PersonState initialState = DummyStates.some;
 		return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null,
 				initialState, boarder, seed, results) {
 			private static final long serialVersionUID = 1L;

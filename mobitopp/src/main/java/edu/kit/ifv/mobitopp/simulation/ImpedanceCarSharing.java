@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ImpedanceCarSharing
@@ -87,6 +88,11 @@ public class ImpedanceCarSharing
 	
 	@Override
 	public Optional<PublicTransportRoute> getPublicTransportRoute(Location source, Location target, Mode mode, Time date) {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<PublicTransportRoute> getPublicTransportRoute(Stop start, Stop end, Mode mode, Time date) {
 		return Optional.empty();
 	}
 

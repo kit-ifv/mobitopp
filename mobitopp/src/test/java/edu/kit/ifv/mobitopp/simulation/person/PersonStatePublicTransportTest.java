@@ -16,7 +16,6 @@ import static edu.kit.ifv.mobitopp.simulation.person.PersonStatePublicTransport.
 import static edu.kit.ifv.mobitopp.simulation.person.PersonStatePublicTransport.USE_PUBLIC_TRANSPORT;
 import static edu.kit.ifv.mobitopp.simulation.person.PersonStatePublicTransport.WAIT_FOR_VEHICLE;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -207,11 +206,23 @@ public class PersonStatePublicTransportTest {
 	public void switchesFromSearchVehicleToWaitForVehicleWhenNoVehicleIsAvailableAtCurrentStop()
 			throws Exception {
 		boolean notAbleToBoard = false;
+		boolean notYetDeparted = false;
+		when(person.hasPublicTransportVehicleDeparted(someDate())).thenReturn(notYetDeparted);
 		when(person.isPublicTransportVehicleAvailable(someDate())).thenReturn(notAbleToBoard);
 
 		PersonState nextState = SEARCH_VEHICLE.nextState(person, someDate());
 
 		assertThat(nextState, is(WAIT_FOR_VEHICLE));
+	}
+
+	@Test
+	public void switchesFromSearchVehicleToSearchVehicleWhenVehicleHasAlreadyDepartedAtTheStop() {
+		boolean vehicleAlreadyDeparted = true;
+		when(person.hasPublicTransportVehicleDeparted(someDate())).thenReturn(vehicleAlreadyDeparted);
+
+		PersonState nextState = SEARCH_VEHICLE.nextState(person, someDate());
+
+		assertThat(nextState, is(SEARCH_VEHICLE));
 	}
 
 	@Test
@@ -240,7 +251,7 @@ public class PersonStatePublicTransportTest {
 		assertThat(EXECUTE_ACTIVITY, isNotInstantaneous());
 		assertThat(SELECT_MODE, isInstantaneous());
 		assertThat(USE_OTHER_MODE, isInstantaneous());
-		assertThat(USE_PUBLIC_TRANSPORT, isInstantaneous());
+		assertThat(USE_PUBLIC_TRANSPORT, isNotInstantaneous());
 		assertThat(SEARCH_VEHICLE, isInstantaneous());
 		assertThat(TRY_BOARDING, isInstantaneous());
 		assertThat(RIDE_VEHICLE, isNotInstantaneous());
@@ -265,7 +276,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void selectsRouteAndStartsTripInMakeTripState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		MAKE_TRIP.doActionAtStart(person, someDate());
 
@@ -273,14 +284,25 @@ public class PersonStatePublicTransportTest {
 		verify(person).startTrip(any(), any(), eq(someDate()));
 	}
 
+	private void optionsAreNeeded() {
+		when(person.options()).thenReturn(options);
+	}
+
 	@Test
 	public void selectsRouteAndStartsTripInUsePublicTransportState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		USE_PUBLIC_TRANSPORT.doActionAtStart(person, someDate());
 
 		verify(person).selectRoute(any(), any(), eq(someDate()));
 		verify(person).startTrip(any(), any(), eq(someDate()));
+	}
+
+	@Test
+	public void entersWaitingAreaAfterAccessPath() {
+		USE_PUBLIC_TRANSPORT.doActionAtEnd(person, someDate());
+		
+		verify(person).enterFirstStop(eq(someDate()));
 	}
 
 	@Test
@@ -306,6 +328,17 @@ public class PersonStatePublicTransportTest {
 	}
 
 	@Test
+	public void searchesNewTripWhenVehicleAlreadyDeparted() throws Exception {
+		boolean vehicleDeparted = true;
+		when(person.hasPublicTransportVehicleDeparted(someDate())).thenReturn(vehicleDeparted);
+		
+		SEARCH_VEHICLE.doActionAtStart(person, someDate());
+		
+		verify(person).hasPublicTransportVehicleDeparted(someDate());
+		verify(person).changeToNewTrip(someDate());
+	}
+
+	@Test
 	public void selectsRouteAndStartsTripInRideVehicleState() throws Exception {
 		RIDE_VEHICLE.doActionAtStart(person, someDate());
 
@@ -321,7 +354,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void startsActivityInExecuteActivityState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		EXECUTE_ACTIVITY.doActionAtStart(person, someDate());
 
@@ -330,7 +363,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void selectsDestinationAndModeDuringModeSelection() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		SELECT_MODE.doActionAtStart(person, someDate());
 
@@ -339,7 +372,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void allocatesCarAtStartOfDriveCarState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 		when(person.currentTrip()).thenReturn(trip);
 
 		USE_OTHER_MODE.doActionAtStart(person, someDate());
@@ -363,7 +396,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void endsTripAfterMakeTripState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		MAKE_TRIP.doActionAtEnd(person, someDate());
 
@@ -372,7 +405,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void endsTripAfterFinishPublicTransportState() throws Exception {
-		when(person.options()).thenReturn(options);
+		optionsAreNeeded();
 
 		FINISH_PUBLIC_TRANSPORT.doActionAtEnd(person, someDate());
 
@@ -440,7 +473,7 @@ public class PersonStatePublicTransportTest {
 	}
 
 	@Test
-	public void createsRideEndingEventWithArrivalTimeOfVehicleAtTheNextStop() throws Exception {
+	public void passengerWillBeNotifiedToLeaveTheVehicle() throws Exception {
 		Time arrival = oneMinuteLater();
 		TripIfc publicTransportTrip = newTrip(existingRoute, singlePart(arrival));
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
@@ -481,20 +514,37 @@ public class PersonStatePublicTransportTest {
 	}
 
 	@Test
-	public void createsWaitEventWithDepartureTimeOfVehicle() throws Exception {
+	public void passengerWillBeNotifiedByVehicleAtWaitingStop() throws Exception {
 		Optional<DemandSimulationEventIfc> nextEvent = WAIT_FOR_VEHICLE.nextEvent(person,
 				someDate());
 
 		assertThat(nextEvent, isEmpty());
 	}
 
+	@Test
+	public void createsEnterStartStopEvent() {
+		Time departure = oneMinuteLater();
+		Connection connection = connection().departsAndArrivesAt(departure).build();
+		List<PublicTransportLeg> part = legsFor(connection);
+		TripIfc publicTransportTrip = newTrip(existingRoute, part);
+		when(person.currentTrip()).thenReturn(publicTransportTrip);
+		Optional<DemandSimulationEventIfc> nextEvent = USE_PUBLIC_TRANSPORT.nextEvent(person, someDate());
+		
+		Time nextTrigger = departure;
+		assertThat(nextEvent, hasValue(Event.enterStartStop(person, publicTransportTrip, nextTrigger)));
+	}
+
 	private TripIfc newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {
-		TripIfc publicTransportTrip = new PublicTransportTrip(trip, route, parts);
-		return publicTransportTrip;
+		return new PublicTransportTrip(trip, route, parts);
 	}
 
 	private static List<PublicTransportLeg> singlePart(Time arrival) {
-		PublicTransportLeg part = new PublicTransportLeg(null, null, null, null, arrival, emptyList());
+		Connection connection = connection().arrivesAt(arrival).build();
+		return legsFor(connection);
+	}
+
+	private static List<PublicTransportLeg> legsFor(Connection connection) {
+		PublicTransportLeg part = Data.newLeg(connection);
 		return Collections.singletonList(part);
 	}
 

@@ -19,19 +19,19 @@ public class LimitedCapacityTest {
 	private BasicPublicTransportBehaviour journeys;
 	private Vehicle someVehicle;
 	private RouteSearch routeSearch;
-	private PublicTransportLogger logger;
+	private PublicTransportResults results;
 	private Vehicles vehicles;
 
 	@Before
 	public void initialise() throws Exception {
-		logger = mock(PublicTransportLogger.class);
+		results = mock(PublicTransportResults.class);
 		someJourney = mock(Journey.class);
 		routeSearch = mock(RouteSearch.class);
 		vehicles = mock(Vehicles.class);
 		someVehicle = mock(Vehicle.class);
 		when(vehicles.vehicleServing(someJourney)).thenReturn(someVehicle);
 
-		journeys = new LimitedCapacity(routeSearch, logger, vehicles);
+		journeys = new LimitedCapacity(routeSearch, results, vehicles);
 	}
 
 	@Test

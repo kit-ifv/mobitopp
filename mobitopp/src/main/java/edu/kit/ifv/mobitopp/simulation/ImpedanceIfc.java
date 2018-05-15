@@ -5,6 +5,7 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 
 public interface ImpedanceIfc
 {
@@ -30,5 +31,7 @@ public interface ImpedanceIfc
 	default public float getTravelTime(Zone origin, Zone destination, Mode mode, Time date) {		
 		return getTravelTime(origin.getOid(), destination.getOid(), mode, date);
 	}
+
+	Optional<PublicTransportRoute> getPublicTransportRoute(Stop start, Stop end, Mode mode, Time date);
 
 }
