@@ -39,8 +39,8 @@ public class DemandSimulatorPassenger
 
 	private final EventQueue queue;
 	private final VehicleBehaviour vehicleBehaviour;
-	private final Set<Mode> modesInSimulation;
-	private final PersonState initialState;
+	protected final Set<Mode> modesInSimulation;
+	protected final PersonState initialState;
 	private final RideSharingOffers rideOffers;
 	private final int max_difference_minutes;
 	private final Hooks beforeTimeSlice;
@@ -183,7 +183,7 @@ public class DemandSimulatorPassenger
 		}
 	}
 
-	private PersonResults results() {
+	protected PersonResults results() {
 		return context.personResults();
 	}
 
