@@ -18,21 +18,23 @@ import edu.kit.ifv.mobitopp.time.Time;
 public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour {
 
 	private static final int oneMinute = 1;
-	private final PublicTransportLogger logger;
+	private final PublicTransportResults results;
 	private final WaitingArea waitingArea;
 	private final RouteSearch viaRouteSearch;
 	private final Vehicles vehicles;
 	private final VehicleQueue nextDepartures;
-	private final WaitingVehicles waitingVehicles;
+	private final VehiclesAtStops waitingVehicles;
+	private final DepartedVehicles departedVehicles;
 
 	public BasicPublicTransportBehaviour(
-			RouteSearch routeSearch, PublicTransportLogger logger, Vehicles vehicles) {
+			RouteSearch routeSearch, PublicTransportResults results, Vehicles vehicles) {
 		super();
 		viaRouteSearch = routeSearch;
-		this.logger = logger;
+		this.results = results;
 		this.vehicles = vehicles;
 		nextDepartures = new SimulatedVehicleQueue();
-		waitingVehicles = new WaitingVehicles();
+		waitingVehicles = new VehiclesAtStops();
+		departedVehicles = new DepartedVehicles();
 		waitingArea = new WaitingArea();
 	}
 
@@ -50,8 +52,8 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 		vehicle.moveToNextStop();
 		vehicle.nextDeparture().ifPresent(
 				departure -> nextDepartures.add(departure, vehicle));
-		waitingVehicles.wait(vehicle, vehicle.currentStop());
-		logger.arrive(currentDate, vehicle);
+		waitingVehicles.add(vehicle, vehicle.currentStop());
+		results.arrive(currentDate, vehicle);
 	}
 
 	@Override
@@ -60,13 +62,14 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 			Vehicle vehicle = nextDepartures.next();
 			depart(vehicle, currentDate);
 		}
-		waitingArea.logOn(logger, currentDate);
+		waitingArea.logOn(results, currentDate);
 		waitingArea.clearEmptyStops();
 	}
 
 	private void depart(Vehicle vehicle, Time currentDate) {
-		logger.depart(currentDate, vehicle);
-		waitingVehicles.drive(vehicle, vehicle.currentStop());
+		results.depart(currentDate, vehicle);
+		waitingVehicles.remove(vehicle, vehicle.currentStop());
+		departedVehicles.add(vehicle);
 		addNextArrival(vehicle);
 	}
 
@@ -76,12 +79,21 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	}
 
 	@Override
+	public boolean hasVehicleDeparted(PublicTransportLeg leg) {
+		return departedVehicles.hasDeparted(leg);
+	}
+
+	@Override
 	public boolean isVehicleAvailable(PublicTransportLeg leg) {
 		return isFootJourney(leg) || vehicleIsAvailable(leg);
 	}
 
 	private boolean vehicleIsAvailable(PublicTransportLeg leg) {
-		return waitingVehicles.isWaiting(vehicles.vehicleServing(leg.journey()), leg.start());
+		return waitingVehicles.contains(vehicleServing(leg), leg.start());
+	}
+
+	private Vehicle vehicleServing(PublicTransportLeg leg) {
+		return vehicles.vehicleServing(leg.journey());
 	}
 
 	private boolean isFootJourney(PublicTransportLeg leg) {
@@ -96,39 +108,39 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	protected abstract boolean hasPlaceInVehicle(Vehicles vehicles, PublicTransportLeg leg);
 
 	@Override
-	public void board(SimulationPerson person, Time time, PublicTransportLeg part) {
-		Vehicle vehicle = vehicles.vehicleServing(part.journey());
-		logCrowded(vehicle, part);
-		vehicle.board(person, part.end());
-		logger.board(person, time, part);
-		leaveWaitingArea(person, part.start());
+	public void board(SimulationPerson person, Time time, PublicTransportLeg leg, TripIfc trip) {
+		Vehicle vehicle = vehicleServing(leg);
+		logCrowded(vehicle, leg);
+		vehicle.board(person, leg.end());
+		results.board(person, time, leg, trip);
+		leaveWaitingArea(person, leg.start());
 	}
 
 	private void logCrowded(Vehicle vehicle, PublicTransportLeg leg) {
 		if (vehicle.hasFreePlace()) {
 			return;
 		}
-		logger.vehicleCrowded(vehicle, leg);
+		results.vehicleCrowded(vehicle, leg);
 	}
 
 	@Override
-	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part) {
-		vehicles.vehicleServing(part.journey()).getOff(person);
-		logger.getOff(person, time, part);
+	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+		vehicleServing(part).getOff(person);
+		results.getOff(person, time, part, trip);
 		enterWaitingArea(person, part.end());
 	}
 
 	@Override
 	public TripIfc searchNewTrip(
 			SimulationPerson person, Time time, PublicTransportTrip trip) {
-		logger.vehicleFull(person, time, trip);
+		results.vehicleFull(person, time, trip);
 		Time inOneMinute = time.plusMinutes(oneMinute);
 		return trip.derive(inOneMinute, viaRouteSearch);
 	}
 
 	@Override
-	public void wait(SimulationPerson person, Time time, PublicTransportLeg part) {
-		logger.wait(person, time, part);
+	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+		results.wait(person, time, part, trip);
 	}
 
 	@Override

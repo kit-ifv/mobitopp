@@ -5,12 +5,11 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
-import edu.kit.ifv.mobitopp.simulation.PublicTransportResults;
+import edu.kit.ifv.mobitopp.simulation.PublicTransportWriter;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportImpedance;
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportTimetable;
-import edu.kit.ifv.mobitopp.simulation.publictransport.model.PublicTransportLogger;
-import edu.kit.ifv.mobitopp.simulation.publictransport.model.TripfileLogger;
+import edu.kit.ifv.mobitopp.simulation.publictransport.model.PublicTransportResults;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicles;
 
 public class ExistingPublicTransportData implements PublicTransportData {
@@ -30,9 +29,8 @@ public class ExistingPublicTransportData implements PublicTransportData {
 	@Override
 	public VehicleBehaviour vehicleBehaviour(ResultWriter results) {
 		Vehicles vehicles = timetable.vehicles();
-		PublicTransportResults ptResults = new PublicTransportResults(results);
-		PublicTransportLogger logger = new TripfileLogger(ptResults);
-		return capacity.createVehicleBehaviour(routeSearch, logger, vehicles);
+		PublicTransportResults ptResults = new PublicTransportWriter(results);
+		return capacity.createVehicleBehaviour(routeSearch, ptResults, vehicles);
 	}
 
 	@Override

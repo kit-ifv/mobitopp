@@ -164,6 +164,9 @@ public enum PersonStatePublicTransport implements PersonState {
 
 		@Override
 		public PersonState nextState(SimulationPerson person, Time currentTime) {
+			if (person.hasPublicTransportVehicleDeparted(currentTime)) {
+				return SEARCH_VEHICLE;
+			}
 			return person.isPublicTransportVehicleAvailable(currentTime) ? TRY_BOARDING
 					: WAIT_FOR_VEHICLE;
 		}
@@ -171,6 +174,13 @@ public enum PersonStatePublicTransport implements PersonState {
 		@Override
 		public boolean instantaneous() {
 			return true;
+		}
+		
+		@Override
+		public void doActionAtStart(SimulationPerson person, Time currentTime) {
+			if (person.hasPublicTransportVehicleDeparted(currentTime)) {
+				person.changeToNewTrip(currentTime);
+			}
 		}
 	},
 
@@ -202,15 +212,29 @@ public enum PersonStatePublicTransport implements PersonState {
 		}
 
 		@Override
-		public boolean instantaneous() {
-			return true;
-		}
-
-		@Override
 		public void doActionAtStart(SimulationPerson person, Time currentTime) {
 			person.selectRoute(person.options().routeChoice(), person.currentTrip(), currentTime);
 			person.startTrip(person.options().impedance(), person.currentTrip(), currentTime);
 		}
+		
+		@Override
+		public void doActionAtEnd(SimulationPerson person, Time currentTime) {
+			person.enterFirstStop(currentTime);
+		}
+		
+		@Override
+		public Optional<DemandSimulationEventIfc> nextEvent(
+				SimulationPerson person, Time currentDate) {
+			TripIfc currentTrip = person.currentTrip();
+			if (currentTrip instanceof PublicTransportTrip) {
+				PublicTransportLeg leg = ((PublicTransportTrip) currentTrip).currentLeg().get();
+				Time departure = leg.departure();
+				return Optional
+						.of(Event.enterStartStop(person, currentTrip, departure));
+			}
+			return Optional.empty();
+		}
+		
 	},
 
 	SELECT_MODE {
@@ -291,6 +315,9 @@ public enum PersonStatePublicTransport implements PersonState {
 	public void doActionAtEnd(SimulationPerson person, Time currentTime) {
 	}
 
+	/**
+	 * Must be implemented, when {@link #instantaneous()} returns <code>false</code>.
+	 */
 	@Override
 	public Optional<DemandSimulationEventIfc> nextEvent(
 			SimulationPerson person, Time currentDate) {

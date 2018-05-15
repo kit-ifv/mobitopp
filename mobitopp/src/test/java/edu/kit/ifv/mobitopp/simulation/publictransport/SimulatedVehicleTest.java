@@ -4,6 +4,7 @@ import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -135,7 +136,7 @@ public class SimulatedVehicleTest {
 		Stop end = vehicle.currentStop();
 		Optional<Time> departureAtEnd = vehicle.nextDeparture();
 
-		assertThat(depot, is(equalTo(start)));
+		assertThat(depot, is(not(equalTo(start))));
 		assertThat(start, is(equalTo(firstConnection.start())));
 		assertThat(end, is(equalTo(firstConnection.end())));
 		assertThat(departureAtDepot, hasValue(firstConnection.departure()));

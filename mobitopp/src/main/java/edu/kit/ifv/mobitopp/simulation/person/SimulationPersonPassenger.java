@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffer;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
+import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
@@ -36,6 +37,7 @@ import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -56,6 +58,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	private	final Set<Mode> modesInSimulation;
 	private boolean rideOfferAccepted = false;
 	private transient PersonState state;
+	private Events events;
 
 	public SimulationPersonPassenger(
 		Person person,
@@ -79,6 +82,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		this.modesInSimulation = modesInSimulation;
 		this.results = results;
 		this.publicTransportBehaviour = publicTransportBehaviour;
+		events = new Events();
 
 		initFirstActivity(queue);
 	}
@@ -171,9 +175,11 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 	private void changeState(Time currentTime) {
+		PersonState previous = currentState();
 		currentState().doActionAtEnd(this, currentTime);
 		setState(currentState().nextState(this, currentTime));
 		currentState().doActionAtStart(this, currentTime);
+		results.notifyStateChanged(new StateChange(this, currentTime, previous, currentState()));
 	}
 
 	public boolean hasNextActivity() {
@@ -585,7 +591,9 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 			assert activity != null : person().activitySchedule().toString();
 
-			notifyEndTrip(trip, activity);
+			FinishedTrip finishedTrip = finish(currentDate, trip);
+
+			notifyEndTrip(finishedTrip, activity);
 
 			finishCarTrip(currentDate, trip, activity);
 			
@@ -598,7 +606,14 @@ public class SimulationPersonPassenger extends PersonDecorator
 			startActivityInternal(rescheduling, activity, currentDate, trip);
 	}
 
-	private void notifyEndTrip(TripIfc trip, ActivityIfc activity) {
+	private FinishedTrip finish(Time currentDate, TripIfc trip) {
+		if (trip instanceof PublicTransportTrip) {
+			return ((PublicTransportTrip) trip).finish(currentDate, events);
+		}
+		return trip.finish(currentDate);
+	}
+	
+	private void notifyEndTrip(FinishedTrip trip, ActivityIfc activity) {
 		results.notifyEndTrip(person(), trip, activity);
 	}
 	
@@ -738,6 +753,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Time date
 	) {
 		assert trip != null;
+		events = new Events();
 		person().currentTrip(trip);
 		if (trip.mode().usesCarAsDriver()) {
 			assert whichCar() != null;
@@ -748,12 +764,12 @@ public class SimulationPersonPassenger extends PersonDecorator
 			person().whichCar().start(date);
 			driveCar(person().whichCar(), trip, impedance); 
 		}
-		enterFirstStop(trip);
 	}
 	
-	private void enterFirstStop(TripIfc trip) {
-		if (notPublicTransport(trip)) {
-			return;
+	@Override
+	public void enterFirstStop(Time time) {
+		if (notPublicTransport(currentTrip())) {
+			throw new IllegalArgumentException("Trip does not use public transport: " + currentTrip());
 		}
 		currentPart().ifPresent(part -> publicTransportBehaviour.enterWaitingArea(this, part.start()));
 	}
@@ -774,6 +790,11 @@ public class SimulationPersonPassenger extends PersonDecorator
 		}
 
 		return ((CarSharingPerson)person()). isCarSharingCustomer(company);
+	}
+
+	@Override
+	public boolean hasPublicTransportVehicleDeparted(Time time) {
+		return currentPart().map(leg -> publicTransportBehaviour.hasVehicleDeparted(leg)).orElse(false);
 	}
 
 	@Override
@@ -799,13 +820,23 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	@Override
 	public void boardPublicTransportVehicle(Time time) {
-		currentPart().ifPresent(part -> publicTransportBehaviour.board(this, time, part));
+		currentPart().ifPresent(part -> board(time, part));
+	}
+
+	private void board(Time time, PublicTransportLeg part) {
+		publicTransportBehaviour.board(this, time, part, currentTrip());
+		events.add(new Event(PassengerEvent.board, time, part.journey()));
 	}
 
 	@Override
 	public void getOffPublicTransportVehicle(Time time) {
-		currentPart().ifPresent(part -> publicTransportBehaviour.getOff(this, time, part));
+		currentPart().ifPresent(part -> getOff(time, part));
 		publicTransportTrip().nextLeg();
+	}
+	
+	private void getOff(Time time, PublicTransportLeg part) {
+		publicTransportBehaviour.getOff(this, time, part, currentTrip());
+		events.add(new Event(PassengerEvent.getOff, time, part.journey()));
 	}
 	
 	@Override
@@ -815,7 +846,12 @@ public class SimulationPersonPassenger extends PersonDecorator
 	
 	@Override
 	public void wait(Time time) {
-		currentPart().ifPresent(part -> publicTransportBehaviour.wait(this, time, part));
+		currentPart().ifPresent(part -> wait(time, part));
+	}
+
+	private void wait(Time time, PublicTransportLeg part) {
+		publicTransportBehaviour.wait(this, time, part, currentTrip());
+		events.add(new Event(PassengerEvent.wait, time, part.journey()));
 	}
 
 	@Override

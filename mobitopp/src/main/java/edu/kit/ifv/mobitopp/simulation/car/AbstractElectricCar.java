@@ -213,9 +213,7 @@ abstract public class AbstractElectricCar
 	}
 
 	@Override
-	public String statusForLogging()
-	{
-
+	public String statusForLogging() {
 		String cartype 					= getType().substring(0,1).toUpperCase();
 		int carid 							= id();
 		Car.Segment carSegment 	= carSegment();
@@ -230,20 +228,18 @@ abstract public class AbstractElectricCar
 		double batteryLevel 	= Math.floor(100.0f*currentBatteryLevel())/100.0f;
 		int remainingRange 		= remainingRange();
 
-    CsvBuilder buf = new CsvBuilder(); 
-
-		buf.append(cartype);
-		buf.append(carid);
-		buf.append(carSegment);
-		buf.append(currentMileage);
-		buf.append(fuelLevel);
-		buf.append(batteryLevel);
-		buf.append(electricCarMode);
-		buf.append(remainingRange);
-		buf.append(driveroid);
-		buf.append(passengers);
-
-		return buf.toString();
+		CsvBuilder builder = new CsvBuilder();
+		builder.append(cartype);
+		builder.append(carid);
+		builder.append(carSegment);
+		builder.append(currentMileage);
+		builder.append(fuelLevel);
+		builder.append(batteryLevel);
+		builder.append(electricCarMode);
+		builder.append(remainingRange);
+		builder.append(driveroid);
+		builder.append(passengers);
+		return builder.toString();
 	}
 
 	public boolean isElectric() {

@@ -57,8 +57,8 @@ public class VisumNetworkBuilder {
 
 	public VisumNetworkBuilder() {
 		super();
-		linkTypes = new VisumLinkTypes(Collections.emptyMap());
 		transportSystems = new HashMap<>();
+		linkTypes = new VisumLinkTypes(Collections.emptyMap());
 		nodes = new HashMap<>();
 		links = new HashMap<>();
 		turns = Collections.emptyMap();

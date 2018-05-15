@@ -35,8 +35,8 @@ public abstract class Event {
 			SimulationPerson person, TripIfc trip, Time date) {
 		return new DemandSimulationEvent(0, person, trip, date);
 	}
-
-	public static DemandSimulationEventIfc boardVehicle(
+	
+	public static DemandSimulationEventIfc enterStartStop(
 			SimulationPerson person, TripIfc trip, Time date) {
 		return new DemandSimulationEvent(10, person, trip, date);
 	}

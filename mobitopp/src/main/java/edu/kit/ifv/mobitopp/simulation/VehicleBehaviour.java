@@ -21,6 +21,11 @@ public interface VehicleBehaviour extends PublicTransportBehaviour {
 		}
 
 		@Override
+		public boolean hasVehicleDeparted(PublicTransportLeg leg) {
+			return false;
+		}
+
+		@Override
 		public boolean isVehicleAvailable(PublicTransportLeg leg) {
 			return false;
 		}
@@ -31,11 +36,11 @@ public interface VehicleBehaviour extends PublicTransportBehaviour {
 		}
 
 		@Override
-		public void board(SimulationPerson person, Time time, PublicTransportLeg part) {
+		public void board(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
 		}
 
 		@Override
-		public void getOff(SimulationPerson person, Time time, PublicTransportLeg part) {
+		public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
 		}
 
 		@Override
@@ -45,7 +50,7 @@ public interface VehicleBehaviour extends PublicTransportBehaviour {
 		}
 
 		@Override
-		public void wait(SimulationPerson person, Time time, PublicTransportLeg part) {
+		public void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
 		}
 
 		@Override

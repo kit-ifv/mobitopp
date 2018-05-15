@@ -1,9 +1,10 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.publictransport.model.ConnectionBuilder.connection;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.FootJourney.footJourney;
-import static java.util.Collections.emptyList;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,12 +16,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
+import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -35,7 +38,7 @@ public class BasicPublicTransportBehaviourTest {
 	private static final int noPerson = 0;
 	private static final int onePerson = 1;
 
-	private PublicTransportLogger logger;
+	private PublicTransportResults results;
 	private Journey someJourney;
 	private RouteSearch routeSearch;
 	private PublicTransportTrip someTrip;
@@ -48,7 +51,7 @@ public class BasicPublicTransportBehaviourTest {
 
 	@Before
 	public void initialise() throws Exception {
-		logger = mock(PublicTransportLogger.class);
+		results = mock(PublicTransportResults.class);
 		someJourney = mock(Journey.class);
 		routeSearch = mock(RouteSearch.class);
 		someTrip = mock(PublicTransportTrip.class);
@@ -56,12 +59,10 @@ public class BasicPublicTransportBehaviourTest {
 		queue = mock(EventQueue.class);
 		someVehicle = mock(Vehicle.class);
 		when(vehicles.vehicleServing(someJourney)).thenReturn(someVehicle);
-		legStart = Data.someStop();
-		leg = mock(PublicTransportLeg.class);
-		when(leg.journey()).thenReturn(someJourney);
-		when(leg.start()).thenReturn(legStart);
+		legStart = someStop();
+		leg = newLeg();
 
-		journeys = new BasicPublicTransportBehaviour(routeSearch, logger, vehicles) {
+		journeys = new BasicPublicTransportBehaviour(routeSearch, results, vehicles) {
 
 			@Override
 			protected boolean hasPlaceInVehicle(Vehicles vehicles, PublicTransportLeg leg) {
@@ -79,8 +80,8 @@ public class BasicPublicTransportBehaviourTest {
 		journeys.letVehiclesArriveAt(someDate(), queue);
 		journeys.letVehiclesDepartAt(someDate());
 
-		verify(logger, never()).arrive(someDate(), someVehicle);
-		verify(logger, never()).depart(someDate(), someVehicle);
+		verify(results, never()).arrive(someDate(), someVehicle);
+		verify(results, never()).depart(someDate(), someVehicle);
 	}
 
 	@Test
@@ -89,8 +90,8 @@ public class BasicPublicTransportBehaviourTest {
 
 		journeys.letVehiclesArriveAt(earliestDate(), queue);
 
-		verify(logger).arrive(earliestDate(), someVehicle);
-		verifyZeroInteractions(logger);
+		verify(results).arrive(earliestDate(), someVehicle);
+		verifyZeroInteractions(results);
 	}
 
 	@Test
@@ -112,7 +113,7 @@ public class BasicPublicTransportBehaviourTest {
 
 		journeys.letVehiclesDepartAt(earliestDate());
 
-		verify(logger).depart(earliestDate(), someVehicle);
+		verify(results).depart(earliestDate(), someVehicle);
 		verify(someVehicle).nextArrival();
 		verify(vehicles).add(someVehicle, anotherDate());
 	}
@@ -124,7 +125,7 @@ public class BasicPublicTransportBehaviourTest {
 
 		journeys.letVehiclesDepartAt(someDate());
 
-		verify(logger, never()).depart(any(), any(Vehicle.class));
+		verify(results, never()).depart(any(), any(Vehicle.class));
 		verify(vehicles, never()).add(any(), any());
 	}
 
@@ -139,8 +140,10 @@ public class BasicPublicTransportBehaviourTest {
 		when(someVehicle.currentStop()).thenReturn(legStart);
 		journeys.letVehiclesArriveAt(earliestDate(), queue);
 
+		boolean hasVehicleDeparted = journeys.hasVehicleDeparted(leg);
 		boolean isVehicleAvailable = journeys.isVehicleAvailable(leg);
 
+		assertFalse(hasVehicleDeparted);
 		assertTrue(isVehicleAvailable);
 	}
 
@@ -150,32 +153,56 @@ public class BasicPublicTransportBehaviourTest {
 		when(someVehicle.currentStop()).thenReturn(Data.anotherStop());
 		journeys.letVehiclesArriveAt(earliestDate(), queue);
 
+		boolean hasVehicleDeparted = journeys.hasVehicleDeparted(leg);
 		boolean isVehicleAvailable = journeys.isVehicleAvailable(leg);
 
+		assertFalse(hasVehicleDeparted);
 		assertFalse(isVehicleAvailable);
 	}
 
 	@Test
 	public void vehicleHasNotArrived() throws Exception {
 		hasSingleNextVehicle();
-		when(someVehicle.currentStop()).thenReturn(legStart);
 
+		boolean hasVehicleDeparted = journeys.hasVehicleDeparted(leg);
 		boolean isVehicleAvailable = journeys.isVehicleAvailable(leg);
 
+		assertFalse(hasVehicleDeparted);
 		assertFalse(isVehicleAvailable);
 	}
 
 	@Test
 	public void vehicleHasDeparted() throws Exception {
-		when(someVehicle.nextDeparture()).thenReturn(Optional.of(earliestDate()));
+		Time departure = someConnection().departure();
+		when(someVehicle.nextConnection()).thenReturn(Optional.of(someConnection()));
+		when(someVehicle.nextDeparture()).thenReturn(Optional.of(departure));
 		hasSingleNextVehicle();
-		when(someVehicle.currentStop()).thenReturn(legStart);
-		journeys.letVehiclesArriveAt(earliestDate(), queue);
-		journeys.letVehiclesDepartAt(earliestDate());
+		journeys.letVehiclesArriveAt(departure, queue);
+		journeys.letVehiclesDepartAt(departure);
 
+		boolean hasVehicleDeparted = journeys.hasVehicleDeparted(leg);
 		boolean isVehicleAvailable = journeys.isVehicleAvailable(leg);
 
+		assertTrue(hasVehicleDeparted);
 		assertFalse(isVehicleAvailable);
+	}
+
+	private PublicTransportLeg newLeg() {
+		Stop start = legStart;
+		Stop end = someConnection().end();
+		Journey journey = someJourney;
+		Time departure = someConnection().departure();
+		Time arrival = someConnection().arrival();
+		List<Connection> connections = someConnections();
+		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+	}
+
+	private List<Connection> someConnections() {
+		return asList(someConnection());
+	}
+
+	private Connection someConnection() {
+		return connection().startsAt(legStart).departsAndArrivesAt(earliestDate()).build();
 	}
 
 	@Test
@@ -194,16 +221,16 @@ public class BasicPublicTransportBehaviourTest {
 		SimulationPerson person = mock(SimulationPerson.class);
 
 		journeys.enterWaitingArea(person, someStop());
-		journeys.board(person, someDate(), somePart());
-		verify(logger).board(person, someDate(), somePart());
-		verify(logger).vehicleCrowded(someVehicle, somePart());
-		verifyNoMoreInteractions(logger);
+		journeys.board(person, someDate(), somePart(), someTrip);
+		verify(results).board(person, someDate(), somePart(), someTrip);
+		verify(results).vehicleCrowded(someVehicle, somePart());
+		verifyNoMoreInteractions(results);
 		verify(someVehicle).board(person, somePart().end());
 		verifyZeroInteractions(someJourney);
 
-		journeys.getOff(person, someDate(), somePart());
-		verify(logger).getOff(person, someDate(), somePart());
-		verifyNoMoreInteractions(logger);
+		journeys.getOff(person, someDate(), somePart(), someTrip);
+		verify(results).getOff(person, someDate(), somePart(), someTrip);
+		verifyNoMoreInteractions(results);
 		verify(someVehicle).getOff(person);
 		verifyZeroInteractions(someJourney);
 	}
@@ -214,29 +241,29 @@ public class BasicPublicTransportBehaviourTest {
 		SimulationPerson somePerson = mock(SimulationPerson.class);
 		SimulationPerson anotherPerson = mock(SimulationPerson.class);
 
-		journeys.getOff(somePerson, someDate(), somePart());
-		verify(logger).getOff(somePerson, someDate(), somePart());
-		verifyNoMoreInteractions(logger);
+		journeys.getOff(somePerson, someDate(), somePart(), someTrip);
+		verify(results).getOff(somePerson, someDate(), somePart(), someTrip);
+		verifyNoMoreInteractions(results);
 		verify(someVehicle).getOff(somePerson);
 		verifyNoMoreInteractions(someJourney);
 
-		journeys.getOff(anotherPerson, someDate(), somePart());
-		verify(logger).getOff(anotherPerson, someDate(), somePart());
-		verifyNoMoreInteractions(logger);
+		journeys.getOff(anotherPerson, someDate(), somePart(), someTrip);
+		verify(results).getOff(anotherPerson, someDate(), somePart(), someTrip);
+		verifyNoMoreInteractions(results);
 		verify(someVehicle).getOff(anotherPerson);
 		verifyNoMoreInteractions(someJourney);
 
-		journeys.board(somePerson, someDate(), anotherPart());
-		verify(logger).board(somePerson, someDate(), anotherPart());
+		journeys.board(somePerson, someDate(), anotherPart(), someTrip);
+		verify(results).board(somePerson, someDate(), anotherPart(), someTrip);
 		verify(someVehicle).board(somePerson, anotherPart().end());
 		verifyZeroInteractions(someJourney);
-		verify(logger).vehicleCrowded(someVehicle, anotherPart());
-		verifyNoMoreInteractions(logger);
+		verify(results).vehicleCrowded(someVehicle, anotherPart());
+		verifyNoMoreInteractions(results);
 
-		journeys.board(anotherPerson, someDate(), anotherPart());
-		verify(logger).board(anotherPerson, someDate(), anotherPart());
-		verify(logger, times(2)).vehicleCrowded(someVehicle, anotherPart());
-		verifyNoMoreInteractions(logger);
+		journeys.board(anotherPerson, someDate(), anotherPart(), someTrip);
+		verify(results).board(anotherPerson, someDate(), anotherPart(), someTrip);
+		verify(results, times(2)).vehicleCrowded(someVehicle, anotherPart());
+		verifyNoMoreInteractions(results);
 		verify(someVehicle).board(anotherPerson, anotherPart().end());
 		verifyZeroInteractions(someJourney);
 	}
@@ -245,9 +272,9 @@ public class BasicPublicTransportBehaviourTest {
 	public void logsWaitingOfPassenger() throws Exception {
 		SimulationPerson person = mock(SimulationPerson.class);
 
-		journeys.wait(person, someDate(), somePart());
+		journeys.wait(person, someDate(), somePart(), someTrip);
 
-		verify(logger).wait(person, someDate(), somePart());
+		verify(results).wait(person, someDate(), somePart(), someTrip);
 	}
 
 	@Test
@@ -259,7 +286,7 @@ public class BasicPublicTransportBehaviourTest {
 		journeys.leaveWaitingArea(person, someStop());
 		journeys.letVehiclesDepartAt(someDate());
 
-		verify(logger).waitingAt(someStop(), someDate(), noPerson);
+		verify(results).waitingAt(someStop(), someDate(), noPerson);
 	}
 
 	@Test
@@ -273,7 +300,7 @@ public class BasicPublicTransportBehaviourTest {
 		journeys.leaveWaitingArea(somePerson, someStop());
 		journeys.letVehiclesDepartAt(someDate());
 
-		verify(logger).waitingAt(someStop(), someDate(), onePerson);
+		verify(results).waitingAt(someStop(), someDate(), onePerson);
 	}
 
 	@Test
@@ -282,15 +309,15 @@ public class BasicPublicTransportBehaviourTest {
 
 		journeys.enterWaitingArea(person, someStop());
 		journeys.letVehiclesDepartAt(someDate());
-		verify(logger).waitingAt(someStop(), someDate(), onePerson);
+		verify(results).waitingAt(someStop(), someDate(), onePerson);
 
 		journeys.leaveWaitingArea(person, someStop());
 		journeys.letVehiclesDepartAt(someDate());
-		verify(logger).waitingAt(someStop(), someDate(), noPerson);
+		verify(results).waitingAt(someStop(), someDate(), noPerson);
 
 		journeys.letVehiclesDepartAt(someDate());
-		verify(logger, never()).depart(someDate(), someVehicle);
-		verifyNoMoreInteractions(logger);
+		verify(results, never()).depart(someDate(), someVehicle);
+		verifyNoMoreInteractions(results);
 	}
 
 	@Test
@@ -304,12 +331,12 @@ public class BasicPublicTransportBehaviourTest {
 
 	private PublicTransportLeg somePart() {
 		return new PublicTransportLeg(someStop(), anotherStop(), someJourney, someTime(),
-				oneMinuteLater(), emptyList());
+				oneMinuteLater(), someConnections());
 	}
 
 	private PublicTransportLeg anotherPart() {
 		return new PublicTransportLeg(anotherStop(), someStop(), someJourney, someTime(),
-				oneMinuteLater(), emptyList());
+				oneMinuteLater(), someConnections());
 	}
 
 	private static Time someTime() {

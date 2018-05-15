@@ -64,5 +64,18 @@ public class VehicleConnectionsTest {
 
 		assertThat(start, is(equalTo(end)));
 	}
+	
+	@Test
+	public void switchConnections() {
+		Optional<Connection> start = vehicleConnections.nextConnection();
+		vehicleConnections.move();
+		Optional<Connection> intermediate = vehicleConnections.nextConnection();
+		vehicleConnections.move();
+		Optional<Connection> end = vehicleConnections.nextConnection();
+		
+		assertThat(start, hasValue(firstConnection));
+		assertThat(intermediate, hasValue(secondConnection));
+		assertThat(end, isEmpty());
+	}
 
 }

@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.data.local.configuration;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -26,6 +27,11 @@ public class ZoneProfileImpedance implements ImpedanceIfc {
 			return zoneProfiles.getTravelTime(source, target, date);
 		}
 		return impedance.getTravelTime(source, target, mode, date);
+	}
+	
+	@Override
+	public Optional<PublicTransportRoute> getPublicTransportRoute(Stop start, Stop end, Mode mode, Time date) {
+		return Optional.empty();
 	}
 
 	@Override

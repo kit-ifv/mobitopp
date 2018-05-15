@@ -888,8 +888,12 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	}
 
 	protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
-		return lineRouteDirection.equals("H") ? VisumPtLineRouteDirection.H
+		return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
 		                    																						: VisumPtLineRouteDirection.R;
+	}
+
+	private boolean isInDirection(String lineRouteDirection) {
+		return "H".equals(lineRouteDirection) || ">".equals(lineRouteDirection);
 	}
 
 	private void readPtLineRouteElements(

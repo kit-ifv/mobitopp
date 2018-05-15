@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
 public class TripfileWriter implements PersonResults {
 
@@ -34,7 +35,7 @@ public class TripfileWriter implements PersonResults {
   }
 
 	@Override
-	public void notifyEndTrip(Person person, TripIfc trip, ActivityIfc activity) {
+	public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
 		ActivityIfc prevActivity = trip.previousActivity();
 		assert prevActivity != null;
 		
@@ -46,7 +47,7 @@ public class TripfileWriter implements PersonResults {
 
 	private void writeTripToFile(
       Person person,
-      TripIfc trip,
+      FinishedTrip finishedTrip,
       ActivityIfc previousActivity,
       ActivityIfc activity,
 			Location location_from,
@@ -55,36 +56,35 @@ public class TripfileWriter implements PersonResults {
 
     String sourceZone = null;
     String targetZone = null;
-		String homeZone = null;
 
       targetZone = activity.zone().getId();
 
-			sourceZone = trip.origin().zone().getId();
+			sourceZone = finishedTrip.origin().zone().getId();
 
 
-		float distance = impedance.getDistance(trip.origin().zone().getOid(),
-				trip.destination().zone().getOid());
+		float distance = impedance.getDistance(finishedTrip.origin().zone().getOid(),
+				finishedTrip.destination().zone().getOid());
 
 			double distance_km = distance/1000.0;
 
 			Household hh = person.household();
 
-			homeZone = hh.homeZone().getId();
+		String homeZone = hh.homeZone().getId();
 
 
-			int duration_trip = trip.plannedDuration();
+			int duration_trip = finishedTrip.plannedDuration();
 
-			int modeType = trip.mode().getTypeAsInt();
+			int modeType = finishedTrip.mode().getTypeAsInt();
 
 			String vehicleId = "";
 
-			if (trip.mode() == Mode.CAR
-					|| trip.mode() == Mode.CARSHARING_STATION
-					|| trip.mode() == Mode.CARSHARING_FREE
+			if (finishedTrip.mode() == Mode.CAR
+					|| finishedTrip.mode() == Mode.CARSHARING_STATION
+					|| finishedTrip.mode() == Mode.CARSHARING_FREE
 			) {
 				vehicleId = "" + person.whichCar().id();
 			}
-			if (trip.mode() == Mode.PASSENGER) {
+			if (finishedTrip.mode() == Mode.PASSENGER) {
 				if (person.isCarPassenger()) {
 					vehicleId = "" + person.whichCar().id();
 				} else {
@@ -110,8 +110,7 @@ public class TripfileWriter implements PersonResults {
 		String tripBeginDay = format.asDay(begin);
 		String tripBeginTime = format.asTime(begin);
 
-
-			Time end = trip.calculatePlannedEndDate();
+			Time end = finishedTrip.plannedEndDate();
 
 		String tripEndDay = format.asDay(end);
 		String tripEndTime = format.asTime(end);
@@ -162,8 +161,8 @@ public class TripfileWriter implements PersonResults {
 			message.append(tourPurpose);
 			message.append(isMainActivity);
 
-			if ( trip.mode() == Mode.CARSHARING_STATION
-					|| trip.mode() == Mode.CARSHARING_FREE
+			if ( finishedTrip.mode() == Mode.CARSHARING_STATION
+					|| finishedTrip.mode() == Mode.CARSHARING_FREE
 			) {
 				message.append( ((CarSharingCar)person.whichCar()).owner().name() );
 			}
@@ -328,5 +327,16 @@ public class TripfileWriter implements PersonResults {
 		message.append(route);
 
 		results().write(this.categories.route, message.toString());
+	}
+	
+	@Override
+	public void notifyStateChanged(StateChange change) {
+		CsvBuilder message = new CsvBuilder();
+		message.append(change.person().getOid());
+		message.append(format.asDay(change.date()));
+		message.append(format.asTime(change.date()));
+		message.append(change.previous());
+		message.append(change.next());
+		results().write(this.categories.stateChange, message.toString());
 	}
 }

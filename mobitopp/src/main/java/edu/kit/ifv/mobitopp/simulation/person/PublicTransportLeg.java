@@ -23,7 +23,14 @@ public class PublicTransportLeg {
 		this.journey = journey;
 		this.departure = departure;
 		this.arrival = arrival;
+		verify(connections);
 		this.connections = connections;
+	}
+
+	private void verify(List<Connection> connections) {
+		if (connections.isEmpty()) {
+			throw new IllegalArgumentException("Leg must contain connections, but does not. Leg: " + this);
+		}
 	}
 
 	public int journeyId() {
@@ -52,6 +59,10 @@ public class PublicTransportLeg {
 
 	public List<Connection> connections() {
 		return connections;
+	}
+
+	public Connection firstConnection() {
+		return connections.iterator().next();
 	}
 
 	@Override
@@ -118,8 +129,9 @@ public class PublicTransportLeg {
 
 	@Override
 	public String toString() {
-		return "JourneyPart [start=" + start + ", end=" + end + ", journey=" + journey + ", departure="
-				+ departure + ", arrival=" + arrival + "]";
+		return "PublicTransportLeg [start=" + start + ", end=" + end + ", journey=" + journey
+				+ ", departure=" + departure + ", arrival=" + arrival + ", connections=" + connections
+				+ "]";
 	}
 
 }

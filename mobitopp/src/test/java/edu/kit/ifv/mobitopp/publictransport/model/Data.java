@@ -3,12 +3,15 @@ package edu.kit.ifv.mobitopp.publictransport.model;
 import static edu.kit.ifv.mobitopp.publictransport.model.ConnectionBuilder.connection;
 import static edu.kit.ifv.mobitopp.publictransport.model.StopBuilder.stop;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Arrays.asList;
 
 import java.awt.geom.Point2D;
+import java.util.List;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
 
 public class Data {
 
@@ -26,6 +29,10 @@ public class Data {
 
 	public static Time oneMinuteEarlier() {
 		return someTime().minus(RelativeTime.of(1, MINUTES));
+	}
+
+	public static Time someDay() {
+		return someTime();
 	}
 
 	public static Time someTime() {
@@ -120,4 +127,26 @@ public class Data {
 				.build();
 	}
 
+	public static Connection laterFromAnotherToOther() {
+		return connection()
+				.startsAt(anotherStop())
+				.endsAt(otherStop())
+				.departsAt(twoMinutesLater())
+				.arrivesAt(threeMinutesLater())
+				.build();
+	}
+	
+	public static PublicTransportLeg someLeg() {
+		return newLeg(fromSomeToAnother());
+	}
+	
+	public static PublicTransportLeg newLeg(Connection connection) {
+		Stop start = connection.start();
+		Stop end = connection.end();
+		Journey journey = connection.journey();
+		Time departure = connection.departure();
+		Time arrival = connection.arrival();
+		List<Connection> connections = asList(connection);
+		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+	}
 }

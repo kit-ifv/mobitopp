@@ -35,9 +35,9 @@ class WaitingArea {
 		waiting.put(stop, persons);
 	}
 
-	void logOn(PublicTransportLogger logger, Time time) {
+	void logOn(PublicTransportResults results, Time time) {
 		for (Entry<Stop, Set<SimulationPerson>> entry : waiting.entrySet()) {
-			logger.waitingAt(entry.getKey(), time, entry.getValue().size());
+			results.waitingAt(entry.getKey(), time, entry.getValue().size());
 		}
 	}
 

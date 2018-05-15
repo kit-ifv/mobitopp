@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class PublicTransportTrip implements TripIfc {
@@ -127,6 +128,31 @@ public class PublicTransportTrip implements TripIfc {
 	@Override
 	public ZoneAndLocation destination() {
 		return trip.destination();
+	}
+
+	public FinishedTrip finish(Time currentDate) {
+		Statistic statistic = new Statistic();
+		return new FinishedPublicTransport(this, currentDate, statistic);
+	}
+
+	public FinishedTrip finish(Time currentDate, Events events) {
+		Statistic statistic = events.statistic();
+		statistic.add(Element.plannedDuration, asTime(plannedDuration()));
+		statistic.add(Element.realDuration, duration(currentDate));
+		statistic.add(Element.additionalDuration, additionalDuration(currentDate));
+		return new FinishedPublicTransport(this, currentDate, statistic);
+	}
+
+	private RelativeTime additionalDuration(Time currentDate) {
+		return duration(currentDate).minus(asTime(plannedDuration()));
+	}
+
+	private RelativeTime duration(Time currentDate) {
+		return currentDate.differenceTo(startDate());
+	}
+
+	static RelativeTime asTime(int minutes) {
+		return RelativeTime.ofMinutes(minutes);
 	}
 
 }
