@@ -42,6 +42,10 @@ public class WrittenConfiguration {
 		this.dataSource = other.dataSource;
 		this.publicTransport = other.publicTransport;
 		this.resultFolder = other.resultFolder;
+		this.visumFile = other.visumFile;
+		this.destinationChoice = other.destinationChoice;
+		this.timeStepLength = other.timeStepLength;
+		this.experimental = other.experimental;
 	}
 
 	public float getFractionOfPopulation() {
