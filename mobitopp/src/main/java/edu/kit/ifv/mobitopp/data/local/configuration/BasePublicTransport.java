@@ -29,10 +29,14 @@ public abstract class BasePublicTransport {
 		PublicTransportFromVisum converter = converter(input, network);
 		Time startTime = input.startDate();
 		JourneyFactory factory = new DefaultJourneyFactory();
-		if (timetableFiles.exist()) {
+		if (useSerialized() && timetableFiles.exist()) {
 			return loadSerialized(input, timetableFiles, converter, startTime, factory);
 		}
 		return loadVisum(timetableFiles, converter, startTime, factory);
+	}
+
+	protected boolean useSerialized() {
+		return true;
 	}
 
 	private PublicTransportTimetable loadVisum(
@@ -68,7 +72,7 @@ public abstract class BasePublicTransport {
 
 	protected abstract TimetableFiles timetableFiles();
 
-	PublicTransportFromVisum converter(InputSpecification input, VisumNetwork network) {
+	protected PublicTransportFromVisum converter(InputSpecification input, VisumNetwork network) {
 		return new PublicTransportFromVisum(input.simulationDates(), network);
 	}
 
