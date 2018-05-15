@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.publictransport.model;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.ConnectionBuilder.connection;
+import static edu.kit.ifv.mobitopp.publictransport.model.JourneyBuilder.journey;
 import static edu.kit.ifv.mobitopp.publictransport.model.StopBuilder.stop;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Arrays.asList;
@@ -134,6 +135,20 @@ public class Data {
 				.departsAt(twoMinutesLater())
 				.arrivesAt(threeMinutesLater())
 				.build();
+	}
+	
+	public static Connection fromAnotherToOtherByOtherJourney() {
+		return connection()
+				.startsAt(anotherStop())
+				.endsAt(otherStop())
+				.departsAt(oneMinuteLater())
+				.arrivesAt(twoMinutesLater())
+				.partOf(otherJourney())
+				.build();
+	}
+
+	private static Journey otherJourney() {
+		return journey().withId(1).build();
 	}
 	
 	public static PublicTransportLeg someLeg() {
