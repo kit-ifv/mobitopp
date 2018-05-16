@@ -39,8 +39,8 @@ public class DemandSimulatorPassenger
 
 	private final EventQueue queue;
 	private final VehicleBehaviour vehicleBehaviour;
-	protected final Set<Mode> modesInSimulation;
-	protected final PersonState initialState;
+	private final Set<Mode> modesInSimulation;
+	private final PersonState initialState;
 	private final RideSharingOffers rideOffers;
 	private final int max_difference_minutes;
 	private final Hooks beforeTimeSlice;
@@ -152,7 +152,7 @@ public class DemandSimulatorPassenger
 	}
 
 	public void startSimulation() {
-		initFractionOfHouseholds(queue, this.vehicleBehaviour, context.seed(), results());
+		initFractionOfHouseholds(queue, this.vehicleBehaviour, context.seed(), results(), modesInSimulation, initialState);
 
 		simulate();
 	}
@@ -183,7 +183,7 @@ public class DemandSimulatorPassenger
 		}
 	}
 
-	protected PersonResults results() {
+	private PersonResults results() {
 		return context.personResults();
 	}
 
@@ -197,7 +197,9 @@ public class DemandSimulatorPassenger
 		EventQueue queue,
 		PublicTransportBehaviour boarder,
 		long seed,
-		PersonResults results
+		PersonResults results, 
+		Set<Mode> modesInSimulation, 
+		PersonState initialState
 	) {
 
 		float fraction = context.fractionOfPopulation();
@@ -216,7 +218,7 @@ public class DemandSimulatorPassenger
       	Household household = personLoader().getHouseholdByOid(aHouseholdOid);      
 
 				for(Person p: household.getPersons()) {
-					createSimulatedPerson(queue, boarder, seed, p, results);
+					createSimulatedPerson(queue, boarder, seed, p, results, modesInSimulation, initialState);
 				} 
 
 				remainder -= Math.floor(remainder);
@@ -240,14 +242,14 @@ public class DemandSimulatorPassenger
 
 	private SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
-			PersonResults results) {
+			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonPassenger(p, 
 																					zoneRepository(),
 																					queue,
 																					simulationOptions(), 
 																					simulationDays(),
-																					this.modesInSimulation,
-																					this.initialState,
+																					modesInSimulation,
+																					initialState,
 																					boarder,
 																					seed,
 																					results
