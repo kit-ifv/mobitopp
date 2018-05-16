@@ -97,7 +97,11 @@ public class ContextBuilder {
 	}
 
 	private void personResults() {
-		personResults = new TripfileWriter(resultWriter, dataRepository.impedance());
+		personResults = createResults();
+	}
+
+	protected PersonResults createResults() {
+		return new TripfileWriter(resultWriter, dataRepository.impedance());
 	}
 
 	private SimulationContext createContext() {
