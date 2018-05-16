@@ -1,9 +1,11 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public interface TripIfc extends OccupationIfc {
 
@@ -21,6 +23,8 @@ public interface TripIfc extends OccupationIfc {
 
 	ActivityIfc nextActivity();
 
+	Optional<Time> timeOfNextChange();
+	
   FinishedTrip finish(Time currentDate);
 
 }

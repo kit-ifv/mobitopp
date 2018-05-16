@@ -129,6 +129,11 @@ public class PublicTransportTrip implements TripIfc {
 	public ZoneAndLocation destination() {
 		return trip.destination();
 	}
+	
+	@Override
+	public Optional<Time> timeOfNextChange() {
+		return currentLeg().map(PublicTransportLeg::departure);
+	}
 
 	public FinishedTrip finish(Time currentDate) {
 		Statistic statistic = new Statistic();

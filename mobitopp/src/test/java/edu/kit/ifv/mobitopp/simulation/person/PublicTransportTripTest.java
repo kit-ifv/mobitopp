@@ -27,8 +27,10 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class PublicTransportTripTest {
 
@@ -126,6 +128,22 @@ public class PublicTransportTripTest {
 		statistic.add(Element.realDuration, realDuration);
 		statistic.add(Element.additionalDuration, additionalDuration);
 		assertThat(finished.statistic(), is(equalTo(statistic)));
+	}
+	
+	@Test
+	public void nextChangeAtLegDeparture() {
+		Time departure = someTime();
+		when(singlePart.departure()).thenReturn(departure);
+		PublicTransportTrip trip = newTrip();
+		
+		Optional<Time> nextChange = trip.timeOfNextChange();
+		
+		assertThat(nextChange, hasValue(departure));
+	}
+
+	protected DemandSimulationEventIfc enterStartStop(
+			SimulationPerson person, PublicTransportTrip trip, Time departure) {
+		return edu.kit.ifv.mobitopp.simulation.events.Event.enterStartStop(person, trip, departure);
 	}
 
 }

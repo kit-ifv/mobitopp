@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
@@ -51,6 +53,11 @@ public class Trip_Stub
 	@Override
 	public ZoneAndLocation destination() {
 		return destination;
+	}
+	
+	@Override
+	public Optional<Time> timeOfNextChange() {
+		return Optional.empty();
 	}
 
 	@Override
