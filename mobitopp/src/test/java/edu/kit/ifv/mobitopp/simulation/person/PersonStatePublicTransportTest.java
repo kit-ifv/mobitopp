@@ -527,11 +527,13 @@ public class PersonStatePublicTransportTest {
 		Connection connection = connection().departsAndArrivesAt(departure).build();
 		List<PublicTransportLeg> part = legsFor(connection);
 		TripIfc publicTransportTrip = newTrip(existingRoute, part);
+		Time nextTrigger = departure;
+		when(trip.timeOfNextChange()).thenReturn(Optional.of(nextTrigger));
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 		Optional<DemandSimulationEventIfc> nextEvent = USE_PUBLIC_TRANSPORT.nextEvent(person, someDate());
 		
-		Time nextTrigger = departure;
-		assertThat(nextEvent, hasValue(Event.enterStartStop(person, publicTransportTrip, nextTrigger)));
+		DemandSimulationEventIfc event = Event.enterStartStop(person, publicTransportTrip, nextTrigger);
+		assertThat(nextEvent, hasValue(event));
 	}
 
 	private TripIfc newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {

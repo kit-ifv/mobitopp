@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -223,16 +224,11 @@ public enum PersonStatePublicTransport implements PersonState {
 		}
 		
 		@Override
-		public Optional<DemandSimulationEventIfc> nextEvent(
-				SimulationPerson person, Time currentDate) {
+		public Optional<DemandSimulationEventIfc> nextEvent(SimulationPerson person, Time currentDate) {
 			TripIfc currentTrip = person.currentTrip();
-			if (currentTrip instanceof PublicTransportTrip) {
-				PublicTransportLeg leg = ((PublicTransportTrip) currentTrip).currentLeg().get();
-				Time departure = leg.departure();
-				return Optional
-						.of(Event.enterStartStop(person, currentTrip, departure));
-			}
-			return Optional.empty();
+			Function<Time, DemandSimulationEventIfc> toEvent = departure -> Event.enterStartStop(person,
+					currentTrip, departure);
+			return currentTrip.timeOfNextChange().map(toEvent);
 		}
 		
 	},

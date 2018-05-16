@@ -1,9 +1,11 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class Trip
 	implements TripIfc
@@ -89,6 +91,11 @@ public class Trip
 		Time date = startDate().plusMinutes(plannedDuration());
     
     return date;
+  }
+  
+  @Override
+  public Optional<Time> timeOfNextChange() {
+  	return Optional.empty();
   }
 
   @Override
