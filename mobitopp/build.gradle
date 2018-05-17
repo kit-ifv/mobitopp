@@ -1,5 +1,5 @@
 dependencies {
-    compile 'edu.kit.ifv.mobitopp:actitopp:1.1',
+    compile 'edu.kit.ifv.mobitopp:actitopp:0.1',
         'net.sf.opencsv:opencsv:2.3',
         'org.apache.commons:commons-compress:1.12',
         'org.yaml:snakeyaml:1.18'
