@@ -4,14 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.CombinedUtilityFunctions;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceSchaufenster;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceUtility;
-import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceUtilitySchaufenster;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceWithFixedLocations;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.SimpleRepeatedDestinationChoice;
@@ -33,7 +32,7 @@ public class SimulationConfiguration extends Simulation {
 	protected DemandSimulator simulator() {
 		ModeAvailabilityModel modeAvailabilityModel = new ModeAvailabilityModelAddingCarsharing(
 				impedance());
-		DestinationChoiceModel targetSelector = destinationChoiceModel(impedance(), modeAvailabilityModel,
+		DestinationChoiceModel targetSelector = destinationChoiceModel(modeAvailabilityModel,
 				zoneRepository());
 		ModeChoiceModel modeSelector = modeChoiceModel(impedance(), modeAvailabilityModel);
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
@@ -54,82 +53,22 @@ public class SimulationConfiguration extends Simulation {
 	}
 
 	private DestinationChoiceModel destinationChoiceModel(
-			ImpedanceIfc impedance, ModeAvailabilityModel modeAvailabilityModel,
-			ZoneRepository zoneRepository) {
+			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
 		Map<String, String> destinationChoiceFiles = context().configuration().getDestinationChoice();
-		DestinationAndModeChoiceUtility utility1 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("work"));
+		DestinationAndModeChoiceSchaufenster destinationModeModel = createDestinationAndModeChoiceModel(
+				modeAvailabilityModel, zoneRepository);
 
-		DestinationAndModeChoiceUtility utility2 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("business"));
-
-		DestinationAndModeChoiceUtility utility3 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("education"));
-
-		DestinationAndModeChoiceUtility utility6 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("service"));
-
-		DestinationAndModeChoiceUtility utility7 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("home"));
-
-		DestinationAndModeChoiceUtility utility8 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("undefined"));
-
-		DestinationAndModeChoiceUtility utility9 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("otherhome"));
-
-		DestinationAndModeChoiceUtility utility11 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("privateBusiness"));
-
-		DestinationAndModeChoiceUtility utility12 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("privateVisit"));
-
-		DestinationAndModeChoiceUtility utility41 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("shoppingDaily"));
-
-		DestinationAndModeChoiceUtility utility42 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("shoppingOther"));
-
-		DestinationAndModeChoiceUtility utility51 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("leisureIndoor"));
-
-		DestinationAndModeChoiceUtility utility52 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("leisureOutdoor"));
-
-		DestinationAndModeChoiceUtility utility53 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("leisureOther"));
-
-		DestinationAndModeChoiceUtility utility77 = new DestinationAndModeChoiceUtilitySchaufenster(
-				impedance, destinationChoiceFiles.get("leisureWalk"));
-
-		Map<ActivityType, DestinationAndModeChoiceUtility> utilityFunctions = new HashMap<ActivityType, DestinationAndModeChoiceUtility>();
-
-		utilityFunctions.put(ActivityType.WORK, utility1);
-		utilityFunctions.put(ActivityType.BUSINESS, utility2);
-		utilityFunctions.put(ActivityType.EDUCATION, utility3);
-		utilityFunctions.put(ActivityType.SERVICE, utility6);
-		utilityFunctions.put(ActivityType.HOME, utility7);
-		utilityFunctions.put(ActivityType.UNDEFINED, utility8);
-		utilityFunctions.put(ActivityType.OTHERHOME, utility9);
-
-		utilityFunctions.put(ActivityType.PRIVATE_BUSINESS, utility11);
-		utilityFunctions.put(ActivityType.PRIVATE_VISIT, utility12);
-		utilityFunctions.put(ActivityType.SHOPPING_DAILY, utility41);
-		utilityFunctions.put(ActivityType.SHOPPING_OTHER, utility42);
-		utilityFunctions.put(ActivityType.LEISURE_INDOOR, utility51);
-		utilityFunctions.put(ActivityType.LEISURE_OUTDOOR, utility52);
-		utilityFunctions.put(ActivityType.LEISURE_OTHER, utility53);
-		utilityFunctions.put(ActivityType.LEISURE_WALK, utility77);
-
-		DestinationAndModeChoiceSchaufenster destinationModeModel = new DestinationAndModeChoiceSchaufenster(
-				zoneRepository.zones(), modeAvailabilityModel, utilityFunctions);
-
-		return new DestinationChoiceWithFixedLocations(
-				zoneRepository().zones(),
-				new SimpleRepeatedDestinationChoice(
-						zoneRepository().zones(),
-						destinationModeModel, 
+		return new DestinationChoiceWithFixedLocations(zoneRepository().zones(),
+				new SimpleRepeatedDestinationChoice(zoneRepository().zones(), destinationModeModel,
 						destinationChoiceFiles.get("repetition")));
+	}
+
+	protected DestinationAndModeChoiceSchaufenster createDestinationAndModeChoiceModel(
+			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
+		Map<ActivityType, DestinationAndModeChoiceUtility> utilityFunctions = new CombinedUtilityFunctions(
+				context()).load();
+		return new DestinationAndModeChoiceSchaufenster(zoneRepository.zones(), modeAvailabilityModel,
+				utilityFunctions);
 	}
 
 	public static void main(String... args) throws IOException {
