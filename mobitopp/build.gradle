@@ -111,13 +111,6 @@ distributions {
                     include 'run*.sh'
                 }
             }
-            into('config') {
-                from('config') {
-                    include '*.txt'
-                    include 'TargetParameterRepetition2.csv'
-                    include '*.yaml'
-                }
-            }
             into('') {
                 from { "$buildDir/dist" }
             }
