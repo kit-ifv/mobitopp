@@ -71,15 +71,22 @@ public class StoredMatrices {
 	}
 
 	public void forEach(Consumer<StoredMatrix> consumer) {
-		costMatrices
-				.asMap()
-				.values()
-				.stream()
+		Stream
+				.concat(costMatrices(), travelTimeMatrices())
 				.map(TypeMatrices::getAt)
 				.map(Map::values)
 				.flatMap(Collection::stream)
 				.flatMap(this::storedMatrices)
 				.forEach(consumer);
+		fixedDistributionTypes.matrices().forEach(consumer);
+	}
+
+	private Stream<TypeMatrices> costMatrices() {
+		return costMatrices.asMap().values().stream();
+	}
+
+	private Stream<TypeMatrices> travelTimeMatrices() {
+		return travelTimeMatrices.asMap().values().stream();
 	}
 	
 	public Stream<StoredMatrix> storedMatrices(DayTypeMatrices matrices) {

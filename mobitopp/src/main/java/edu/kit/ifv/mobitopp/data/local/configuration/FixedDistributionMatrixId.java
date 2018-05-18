@@ -21,4 +21,9 @@ public class FixedDistributionMatrixId {
 		return Stream.of(this);
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getName() + " [type=" + type + "]";
+	}
+
 }

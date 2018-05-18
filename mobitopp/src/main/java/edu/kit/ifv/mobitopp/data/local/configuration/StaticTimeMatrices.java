@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.data.local.configuration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class StaticTimeMatrices<T> {
 
@@ -31,5 +32,9 @@ public class StaticTimeMatrices<T> {
 			return new StoredMatrix(path);
 		}
 		throw new IllegalArgumentException("No matrix found for " + matrixType);
+	}
+
+	public Stream<StoredMatrix> matrices() {
+		return matrices.values().stream().map(StoredMatrix::new);
 	}
 }
