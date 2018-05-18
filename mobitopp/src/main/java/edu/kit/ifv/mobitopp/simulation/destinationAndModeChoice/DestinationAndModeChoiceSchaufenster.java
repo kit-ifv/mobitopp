@@ -172,6 +172,9 @@ public class DestinationAndModeChoiceSchaufenster
 		DestinationAndModeChoiceUtility utilityFunction = utilityFunctions.get(activityType);
 
 		assert utilityFunction != null : activityType;
+		
+		Set<Mode> availableModes = modeAvailabilityModel.filterAvailableModes(person, source,
+				destination, previousActivity, nextActivity, choiceSet);
 
 		Set<Mode> filteredModes =  modeAvailabilityModel.modesWithReasonableTravelTime(
 																	person,
@@ -179,7 +182,7 @@ public class DestinationAndModeChoiceSchaufenster
 																	destination,
 																	previousActivity,
 																	nextActivity,
-																	choiceSet,
+																	availableModes,
 																	true
 															);
 
