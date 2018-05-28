@@ -1,6 +1,9 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import java.io.File;
 import java.util.Map;
+
+import edu.kit.ifv.mobitopp.data.local.Convert;
 
 public class DynamicParameters {
 
@@ -32,6 +35,10 @@ public class DynamicParameters {
 
 	public boolean valueAsBoolean(String parameter) {
 		return Boolean.parseBoolean(value(parameter));
+	}
+	
+	public File valueAsFile(String parameter) {
+		return Convert.asFile(value(parameter));
 	}
 
 	@Override
