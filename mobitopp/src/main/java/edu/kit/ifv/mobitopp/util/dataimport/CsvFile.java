@@ -10,12 +10,19 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class CsvFile {
 
+	private static final char defaultSeparator = ';';
+	private final char separator;
 	private final List<String> columnNames;
 	private final Map<String,Integer> columnMapping;
 	private final Map<Integer,Map<Integer,String>> data;
 	private int length;
 
 	public CsvFile(String filename) {
+		this(filename, defaultSeparator);
+	}
+	
+	public CsvFile(String filename, char separator) {
+		this.separator = separator;
 		columnNames = new ArrayList<>();
 		columnMapping = new HashMap<>();
 		data = new HashMap<>();
@@ -23,7 +30,7 @@ public class CsvFile {
 	}
 
 	private void init(String filename) {
-		try (CSVReader reader = new CSVReader(new FileReader(filename), ';')) {
+		try (CSVReader reader = new CSVReader(new FileReader(filename), separator)) {
 
 		String[] header = reader.readNext();
 
@@ -112,6 +119,10 @@ public class CsvFile {
 		String val = row.get(col);
 
 		return val;
+	}
+	
+	public double getDouble(int row_num, String attribute) {
+		return Double.parseDouble(getValue(row_num, attribute));
 	}
 }
 	
