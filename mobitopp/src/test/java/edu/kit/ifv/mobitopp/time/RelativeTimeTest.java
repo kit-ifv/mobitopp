@@ -1,8 +1,11 @@
 package edu.kit.ifv.mobitopp.time;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.time.temporal.ChronoUnit;
 
@@ -52,6 +55,30 @@ public class RelativeTimeTest {
 		RelativeTime sum = some.minus(another);
 		
 		assertThat(sum, is(RelativeTime.ofSeconds(0)));
+	}
+	
+	@Test
+	public void multiply() {
+		RelativeTime some = RelativeTime.ofSeconds(1);
+		RelativeTime another = RelativeTime.ofSeconds(2);
+		
+		RelativeTime product = some.multiplyBy(2.0d);
+		
+		assertThat(product, is(equalTo(another)));
+	}
+	
+	@Test
+	public void isNegative() {
+		RelativeTime time = RelativeTime.ofSeconds(-1);
+		
+		assertTrue(time.isNegative());
+	}
+	
+	@Test
+	public void isPositive() {
+		RelativeTime time = RelativeTime.ofSeconds(1);
+		
+		assertFalse(time.isNegative());
 	}
 
 	@Test

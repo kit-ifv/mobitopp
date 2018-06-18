@@ -6,12 +6,12 @@ import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
+import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
 public class TripfileWriter implements PersonResults {
 
@@ -132,6 +132,9 @@ public class TripfileWriter implements PersonResults {
 				
 				assert isFirstActivity == isStartOfTour;
 			}
+			Time realEnd = finishedTrip.endDate();
+			String realEndDay = format.asDay(realEnd);
+			String realEndTime = format.asTime(realEnd);
 
       CsvBuilder message = new CsvBuilder();
 			message.append("W");
@@ -160,6 +163,8 @@ public class TripfileWriter implements PersonResults {
 			message.append(isStartOfTour);
 			message.append(tourPurpose);
 			message.append(isMainActivity);
+			message.append(realEndDay);
+			message.append(realEndTime);
 
 			if ( finishedTrip.mode() == Mode.CARSHARING_STATION
 					|| finishedTrip.mode() == Mode.CARSHARING_FREE
@@ -168,6 +173,10 @@ public class TripfileWriter implements PersonResults {
 			}
 
 		results().write(this.categories.result, message.toString());
+		CsvBuilder statistics = new CsvBuilder();
+		statistics.append(personOid);
+		finishedTrip.statistic().forAllElements(statistics::append);
+		results().write(categories.ptTimes, statistics.toString());
     }
 
 

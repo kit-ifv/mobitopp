@@ -101,18 +101,32 @@ public class PublicTransportTrip implements TripIfc {
 		return leg.size() - 1;
 	}
 
-	public TripIfc derive(Time time, RouteSearch routeSearch) {
+	public TripIfc derive(Time currentTime, RouteSearch routeSearch) {
 		if (lastLeg().isPresent()) {
-			return deriveToEnd(time, routeSearch);
+			return deriveToEnd(currentTime, routeSearch);
 		}
 		return this;
 	}
 
-	private TripIfc deriveToEnd(Time time, RouteSearch routeSearch) {
-		Stop end = lastLeg().get().end();
+	private TripIfc deriveToEnd(Time currentTime, RouteSearch routeSearch) {
 		Optional<PublicTransportRoute> tour = currentLeg()
-				.flatMap(part -> routeSearch.findRoute(part.start(), end, time));
+				.flatMap(part -> searchNewTour(routeSearch, part, currentTime));
 		return PublicTransportTrip.of(this, tour);
+	}
+
+	private Optional<PublicTransportRoute> searchNewTour(
+			RouteSearch routeSearch, PublicTransportLeg part, Time currentTime) {
+		Stop end = lastLeg().get().end();
+		Time partDeparture = part.departure();
+		Time searchTime = latestTimeOf(currentTime, partDeparture).plusSeconds(1);
+		return routeSearch.findRoute(part.start(), end, searchTime);
+	}
+
+	private Time latestTimeOf(Time currentTime, Time partDeparture) {
+		if (currentTime.isAfter(partDeparture)) {
+			return currentTime;
+		}
+		return partDeparture;
 	}
 
 	@Override

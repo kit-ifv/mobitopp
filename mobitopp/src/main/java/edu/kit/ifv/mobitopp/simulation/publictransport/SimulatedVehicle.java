@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,7 @@ public class SimulatedVehicle implements Vehicle {
 
 	private SimulatedVehicle(
 			Journey journey, VehicleLocation location, VehicleConnections connections,
-			HashMap<Stop, Set<Passenger>> passengersPerStop) {
+			Map<Stop, Set<Passenger>> passengersPerStop) {
 		super();
 		verifyExisting(journey);
 		this.journey = journey;
@@ -48,7 +49,7 @@ public class SimulatedVehicle implements Vehicle {
 		Route route = Route.from(connectionsFromDepot);
 		VehicleConnections connections = new VehicleConnections(connectionsFromDepot);
 		VehicleLocation location = new VehicleLocation(route);
-		HashMap<Stop, Set<Passenger>> passengersPerStop = initialisePassengerSpace(route);
+		Map<Stop, Set<Passenger>> passengersPerStop = initialisePassengerSpace(route);
 		return new SimulatedVehicle(journey, location, connections, passengersPerStop);
 	}
 
@@ -76,10 +77,10 @@ public class SimulatedVehicle implements Vehicle {
 		return new Stop(depot.id(), "depot", depotLocation, RelativeTime.ZERO, depot, depot.id());
 	}
 
-	private static HashMap<Stop, Set<Passenger>> initialisePassengerSpace(Route route) {
+	private static Map<Stop, Set<Passenger>> initialisePassengerSpace(Route route) {
 		HashMap<Stop, Set<Passenger>> space = new HashMap<>();
 		route.forEach(stop -> space.put(stop, new TreeSet<>(Comparator.comparing(Passenger::getOid))));
-		return space;
+		return Collections.unmodifiableMap(space);
 	}
 
 	private static void verifyExisting(Journey journey) {

@@ -46,6 +46,11 @@ public class SimpleTime implements Time, Comparable<Time> {
 	public long toSeconds() {
 		return this.seconds;
 	}
+	
+	@Override
+	public long toMinutes() {
+		return RelativeTime.ofSeconds(seconds).toMinutes();
+	}
 
 	@Override
 	public int getDay() {

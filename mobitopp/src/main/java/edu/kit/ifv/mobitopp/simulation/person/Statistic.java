@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 
@@ -50,6 +51,13 @@ public class Statistic {
 	@Override
 	public String toString() {
 		return "Statistic [elements=" + elements + "]";
+	}
+
+	public void forAllElements(Consumer<Long> consumer) {
+		for (Element element : Element.values()) {
+			long seconds = elements.getOrDefault(element, RelativeTime.ZERO).seconds();
+			consumer.accept(seconds);
+		}
 	}
 
 }

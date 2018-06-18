@@ -82,14 +82,18 @@ public class PublicTransportTripTest {
 	public void searchesNewTourFromStartOfCurrentPartToEndOfTrip() throws Exception {
 		Stop start = someStop();
 		Stop end = anotherStop();
+		Time departureOfPart = someTime().plusMinutes(1);
+		Time currentTime = someTime();
 		when(singlePart.start()).thenReturn(start);
 		when(singlePart.end()).thenReturn(end);
-		when(routeSearch.findRoute(start, end, someTime())).thenReturn(Optional.empty());
+		when(singlePart.departure()).thenReturn(departureOfPart);
+		when(routeSearch.findRoute(start, end, currentTime)).thenReturn(Optional.empty());
 		PublicTransportTrip trip = newTrip();
 
-		trip.derive(someTime(), routeSearch);
+		trip.derive(currentTime, routeSearch);
 
-		verify(routeSearch).findRoute(start, end, someTime());
+		Time afterDepartureOfPart = departureOfPart.plusSeconds(1);
+		verify(routeSearch).findRoute(start, end, afterDepartureOfPart);
 	}
 
 	private PublicTransportTrip newTrip() {
