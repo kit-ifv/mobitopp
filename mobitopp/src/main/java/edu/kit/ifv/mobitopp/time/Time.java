@@ -9,6 +9,7 @@ public interface Time extends Comparable<Time> {
 	int getMinute();
 	int getSecond();
 	long toSeconds();
+	long toMinutes();
 
 	Time previousDay();
 	Time nextDay();

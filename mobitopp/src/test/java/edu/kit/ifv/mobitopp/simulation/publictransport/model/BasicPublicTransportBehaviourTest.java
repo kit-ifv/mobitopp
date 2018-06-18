@@ -324,9 +324,10 @@ public class BasicPublicTransportBehaviourTest {
 	public void searchesNewTourAndLogsThatAPersonNeedsANewTour() throws Exception {
 		SimulationPerson person = mock(SimulationPerson.class);
 
-		journeys.searchNewTrip(person, someDate(), someTrip);
+		Time currentTime = someDate();
+		journeys.searchNewTrip(person, currentTime, someTrip);
 
-		verify(someTrip).derive(oneMinuteLater(), routeSearch);
+		verify(someTrip).derive(currentTime, routeSearch);
 	}
 
 	private PublicTransportLeg somePart() {

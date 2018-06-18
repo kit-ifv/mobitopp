@@ -68,9 +68,18 @@ public class RelativeTime implements Comparable<RelativeTime> {
 	public RelativeTime minusDays(long days) {
 		return new RelativeTime(duration.minusDays(days));
 	}
+	
+	public RelativeTime multiplyBy(double multiplicant) {
+		long product = (long) (seconds() * multiplicant);
+		return RelativeTime.ofSeconds(product);
+	}
 
 	public Duration toDuration() {
 		return duration;
+	}
+	
+	public boolean isNegative() {
+		return duration.isNegative();
 	}
 
 	@Override
@@ -132,6 +141,5 @@ public class RelativeTime implements Comparable<RelativeTime> {
 	public static RelativeTime of(Duration duration) {
 		return new RelativeTime(duration);
 	}
-
 
 }

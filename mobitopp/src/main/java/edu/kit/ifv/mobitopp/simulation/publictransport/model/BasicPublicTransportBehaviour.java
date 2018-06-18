@@ -17,7 +17,6 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour {
 
-	private static final int oneMinute = 1;
 	private final PublicTransportResults results;
 	private final WaitingArea waitingArea;
 	private final RouteSearch viaRouteSearch;
@@ -134,8 +133,7 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	public TripIfc searchNewTrip(
 			SimulationPerson person, Time time, PublicTransportTrip trip) {
 		results.vehicleFull(person, time, trip);
-		Time inOneMinute = time.plusMinutes(oneMinute);
-		return trip.derive(inOneMinute, viaRouteSearch);
+		return trip.derive(time, viaRouteSearch);
 	}
 
 	@Override

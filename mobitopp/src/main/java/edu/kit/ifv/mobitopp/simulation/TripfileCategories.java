@@ -1,9 +1,11 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.result.Category;
+import edu.kit.ifv.mobitopp.simulation.person.Element;
 
 public class TripfileCategories {
 
@@ -14,6 +16,7 @@ public class TripfileCategories {
 	public final Category route;
 	public final Category car;
 	public final Category stateChange;
+	public final Category ptTimes;
 
 	public TripfileCategories() {
 		this.result = result();
@@ -23,6 +26,7 @@ public class TripfileCategories {
 		this.route = route();
 		this.car = car();
 		this.stateChange = stateChange();
+		this.ptTimes = ptTimes();
 	}
 
 	private Category result() {
@@ -145,5 +149,12 @@ public class TripfileCategories {
 		header.add("previousState");
 		header.add("nextState");
 		return new Category("demandsimulationStateChange", header);
+	}
+	
+	private Category ptTimes() {
+		List<String> header = new ArrayList<>();
+		header.add("personOid");
+		Arrays.stream(Element.values()).map(Element::toString).forEach(header::add);
+		return new Category("ptTimes", header);
 	}
 }

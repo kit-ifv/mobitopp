@@ -116,12 +116,37 @@ public class DiscreteRandomVariable<T> {
 
 		return entry != null ? entry.getValue() :  cumulativeDistribution.lastEntry().getValue();
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((cumulativeDistribution == null) ? 0 : cumulativeDistribution.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		DiscreteRandomVariable other = (DiscreteRandomVariable) obj;
+		if (cumulativeDistribution == null) {
+			if (other.cumulativeDistribution != null)
+				return false;
+		} else if (!cumulativeDistribution.equals(other.cumulativeDistribution))
+			return false;
+		return true;
+	}
 
 	public String toString() {
 		return this.cumulativeDistribution.toString();
 	}
-
-
 
 }
 
