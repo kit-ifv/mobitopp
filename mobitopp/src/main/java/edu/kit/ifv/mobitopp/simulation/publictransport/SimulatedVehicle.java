@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
@@ -28,8 +29,7 @@ public class SimulatedVehicle implements Vehicle {
 	private final Journey journey;
 	private final VehicleLocation location;
 	private final VehicleConnections connections;
-	private final Map<Stop, Set<Passenger>> passengersPerStop;
-	private int passengerCount;
+	private final PassengerSpace passengers;
 
 	private SimulatedVehicle(
 			Journey journey, VehicleLocation location, VehicleConnections connections,
@@ -39,8 +39,7 @@ public class SimulatedVehicle implements Vehicle {
 		this.journey = journey;
 		this.location = location;
 		this.connections = connections;
-		this.passengersPerStop = passengersPerStop;
-		passengerCount = 0;
+		passengers = new PassengerSpace(passengersPerStop);
 	}
 
 	public static Vehicle from(Journey journey) {
@@ -96,19 +95,17 @@ public class SimulatedVehicle implements Vehicle {
 
 	@Override
 	public void board(Passenger person, Stop exitStop) {
-		passengersPerStop.get(exitStop).add(person);
-		passengerCount++;
+		passengers.board(person, exitStop);
 	}
 
 	@Override
 	public void getOff(Passenger person) {
-		passengersPerStop.get(currentStop()).remove(person);
-		passengerCount--;
+		passengers.getOff(person, currentStop());
 	}
 
 	@Override
 	public int passengerCount() {
-		return passengerCount;
+		return passengers.count();
 	}
 
 	@Override
@@ -149,11 +146,8 @@ public class SimulatedVehicle implements Vehicle {
 
 	@Override
 	public void notifyPassengers(EventQueue queue, Time currentDate) {
-		TreeSet<Passenger> treeSet = new TreeSet<>(Comparator.comparing(Passenger::getOid));
-		treeSet.addAll(passengersPerStop.get(currentStop()));
-		for (Passenger passenger : treeSet) {
-			passenger.arriveAtStop(queue, currentDate);
-		}
+		Consumer<Passenger> notify = passenger -> passenger.arriveAtStop(queue, currentDate);
+		passengers.forEachAt(currentStop(), notify);
 	}
 
 	@Override
