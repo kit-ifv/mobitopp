@@ -42,7 +42,7 @@ public class SimulatedVehicle implements Vehicle {
 		Route route = Route.from(connectionsFromDepot);
 		VehicleConnections connections = new VehicleConnections(connectionsFromDepot);
 		VehicleLocation location = new VehicleLocation(route);
-		PassengerCompartment passengersPerStop = initialisePassengerSpace(route);
+		PassengerCompartment passengersPerStop = initialisePassengerSpace(route, journey);
 		return new SimulatedVehicle(journey, location, connections, passengersPerStop);
 	}
 
@@ -70,8 +70,8 @@ public class SimulatedVehicle implements Vehicle {
 		return new Stop(depot.id(), "depot", depotLocation, RelativeTime.ZERO, depot, depot.id());
 	}
 
-	private static PassengerCompartment initialisePassengerSpace(Route route) {
-		return PassengerCompartment.forAll(route.stream());
+	private static PassengerCompartment initialisePassengerSpace(Route route, Journey journey) {
+		return PassengerCompartment.forAll(route.stream(), journey.capacity());
 	}
 
 	private static void verifyExisting(Journey journey) {
@@ -102,7 +102,7 @@ public class SimulatedVehicle implements Vehicle {
 
 	@Override
 	public boolean hasFreePlace() {
-		return journey.capacity() > passengerCount();
+		return passengers.hasFreePlace();
 	}
 
 	@Override
