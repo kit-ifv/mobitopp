@@ -23,7 +23,8 @@ public class VehicleFactory {
 		VehicleConnections connections = new VehicleConnections(connectionsFromDepot);
 		VehicleLocation location = new VehicleLocation(route);
 		PassengerCompartment passengersPerStop = initialisePassengerSpace(route, journey);
-		return new SimulatedVehicle(journey, location, connections, passengersPerStop);
+		VehicleRoute vehicleRoute = new VehicleRoute(journey, location, connections);
+		return new SimulatedVehicle(vehicleRoute, passengersPerStop);
 	}
 
 	private List<Connection> includeDepot(Journey journey) {

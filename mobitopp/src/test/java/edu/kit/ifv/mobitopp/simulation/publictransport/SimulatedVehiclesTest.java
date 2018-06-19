@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.FootJourney.footJourney;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.SimulatedVehicles.footVehicle;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -53,7 +54,7 @@ public class SimulatedVehiclesTest {
 
 		Vehicle vehicle = vehicles.vehicleServing(someJourney);
 
-		assertThat(vehicle, is(someVehicle));
+		assertThat(vehicle, is(equalTo(someVehicle)));
 	}
 
 	@Test

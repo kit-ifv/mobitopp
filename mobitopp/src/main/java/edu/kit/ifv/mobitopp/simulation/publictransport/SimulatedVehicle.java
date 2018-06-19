@@ -13,19 +13,13 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimulatedVehicle implements Vehicle {
 
-	private final Journey journey;
-	private final VehicleLocation location;
-	private final VehicleConnections connections;
 	private final PassengerCompartment passengers;
+	private final VehicleRoute vehicleRoute;
 
-	SimulatedVehicle(
-			Journey journey, VehicleLocation location, VehicleConnections connections,
-			PassengerCompartment passengersPerStop) {
+	SimulatedVehicle(VehicleRoute vehicleRoute, PassengerCompartment passengersPerStop) {
 		super();
-		this.journey = journey;
-		this.location = location;
-		this.connections = connections;
 		passengers = passengersPerStop;
+		this.vehicleRoute = vehicleRoute;
 	}
 
 	public static Vehicle from(Journey journey) {
@@ -35,7 +29,7 @@ public class SimulatedVehicle implements Vehicle {
 
 	@Override
 	public int journeyId() {
-		return journey.id();
+		return vehicleRoute.journeyId();
 	}
 
 	@Override
@@ -60,33 +54,32 @@ public class SimulatedVehicle implements Vehicle {
 
 	@Override
 	public void moveToNextStop() {
-		location.move();
-		connections.move();
+		vehicleRoute.moveToNextStop();
 	}
 
 	@Override
 	public Stop currentStop() {
-		return location.current();
+		return vehicleRoute.currentStop();
 	}
 
 	@Override
 	public Optional<Connection> nextConnection() {
-		return connections.nextConnection();
+		return vehicleRoute.nextConnection();
 	}
 	
 	@Override
 	public Optional<Time> nextDeparture() {
-		return connections.nextDeparture();
+		return vehicleRoute.nextDeparture();
 	}
 
 	@Override
 	public Optional<Time> nextArrival() {
-		return connections.nextArrival();
+		return vehicleRoute.nextArrival();
 	}
 
 	@Override
 	public Time firstDeparture() {
-		return connections.firstDeparture();
+		return vehicleRoute.firstDeparture();
 	}
 
 	@Override
@@ -99,7 +92,7 @@ public class SimulatedVehicle implements Vehicle {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((journey == null) ? 0 : journey.hashCode());
+		result = prime * result + ((vehicleRoute == null) ? 0 : vehicleRoute.hashCode());
 		return result;
 	}
 
@@ -112,17 +105,17 @@ public class SimulatedVehicle implements Vehicle {
 		if (getClass() != obj.getClass())
 			return false;
 		SimulatedVehicle other = (SimulatedVehicle) obj;
-		if (journey == null) {
-			if (other.journey != null)
+		if (vehicleRoute == null) {
+			if (other.vehicleRoute != null)
 				return false;
-		} else if (!journey.equals(other.journey))
+		} else if (!vehicleRoute.equals(other.vehicleRoute))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "SimulatedVehicle [journey=" + journey + "]";
+		return getClass().getName() + " [journeyId()=" + journeyId() + "]";
 	}
 
 }
