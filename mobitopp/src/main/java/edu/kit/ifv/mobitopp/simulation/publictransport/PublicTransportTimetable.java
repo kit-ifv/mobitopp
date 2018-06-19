@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.ConnectionScan;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.TransitNetwork;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -45,7 +46,7 @@ public class PublicTransportTimetable implements StationFinder, Timetable {
 	}
 
 	@Override
-	public Connection connectionFor(int id) {
+	public Connection connectionFor(ConnectionId id) {
 		return connections.get(id);
 	}
 	

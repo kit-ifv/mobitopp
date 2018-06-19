@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 
 public interface Timetable {
@@ -9,6 +10,6 @@ public interface Timetable {
 	
 	Stop stopByExternal(int id);
 
-	Connection connectionFor(int id);
+	Connection connectionFor(ConnectionId id);
 
 }

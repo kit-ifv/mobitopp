@@ -46,7 +46,7 @@ public class LegBuilderTest {
 		Time departure = someConnection().departure();
 		Time arrival = someConnection().arrival();
 		List<Connection> connections = asList(someConnection());
-		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+		return new VehicleLeg(start, end, journey, departure, arrival, connections);
 	}
 
 	private Connection someConnection() {
@@ -69,7 +69,7 @@ public class LegBuilderTest {
 		Time departure = someConnection().departure();
 		Time arrival = anotherConnection().arrival();
 		List<Connection> connections = asList(someConnection(), anotherConnection());
-		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+		return new VehicleLeg(start, end, journey, departure, arrival, connections);
 	}
 
 	private Connection anotherConnection() {

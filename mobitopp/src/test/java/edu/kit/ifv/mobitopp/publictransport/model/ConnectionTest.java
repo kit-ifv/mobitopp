@@ -36,7 +36,7 @@ public class ConnectionTest {
 		Connection connection = Connection.byFootFrom(someStop(), anotherStop(), someTime(),
 				someTime());
 
-		assertThat(connection.id(), is(-1));
+		assertThat(connection.id(), is(ConnectionId.of(-1)));
 	}
 
 	@Test

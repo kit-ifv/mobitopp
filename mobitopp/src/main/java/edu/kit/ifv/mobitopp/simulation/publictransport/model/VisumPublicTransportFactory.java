@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.DefaultModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
@@ -37,8 +38,8 @@ public class VisumPublicTransportFactory implements PublicTransportFactory {
 		return Connection.from(nextConnection(), start, end, departure, arrival, journey, route);
 	}
 
-	private int nextConnection() {
-		return connections++;
+	private ConnectionId nextConnection() {
+		return ConnectionId.of(connections++);
 	}
 	
 	@Override

@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.publictransport.matcher.connection.StartAt;
 import edu.kit.ifv.mobitopp.publictransport.matcher.connection.TraversePoints;
 import edu.kit.ifv.mobitopp.publictransport.matcher.connection.Valid;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -51,7 +52,7 @@ public class ConnectionMatchers {
 		return new PartOf(journey);
 	}
 
-	public static Matcher<Connection> hasId(int id) {
+	public static Matcher<Connection> hasId(ConnectionId id) {
 		return new HasId(id);
 	}
 

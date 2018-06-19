@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -44,10 +45,10 @@ public class VehicleFactoryTest {
 		Vehicle vehicle = createVehicle();
 
 		Stop currentStop = vehicle.currentStop();
-		Optional<Connection> nextConnection = vehicle.nextConnection();
+		Optional<ConnectionId> nextConnection = vehicle.nextConnection();
 
 		assertThat(currentStop, is(equalTo(depot())));
-		assertThat(nextConnection, hasValue(depotExit()));
+		assertThat(nextConnection, hasValue(depotExit().id()));
 	}
 
 	private Connection someConnection() {
@@ -59,8 +60,12 @@ public class VehicleFactoryTest {
 	}
 
 	private Connection depotExit() {
-		return Connection.from(depot().id(), depot(), someConnection().start(),
+		return Connection.from(connectionId(), depot(), someConnection().start(),
 				someConnection().departure(), someConnection().departure(), journey,
 				RoutePoints.from(depot(), someConnection().start()));
+	}
+
+	private ConnectionId connectionId() {
+		return ConnectionId.of(depot().id());
 	}
 }

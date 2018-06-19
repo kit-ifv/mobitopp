@@ -38,7 +38,7 @@ public class VehicleRouteTest {
 	@Test
 	public void startsAtBeginning() {
 		assertThat(vehicleRoute.currentStop(), is(equalTo(someConnection().start())));
-		assertThat(vehicleRoute.nextConnection(), hasValue(someConnection()));
+		assertThat(vehicleRoute.nextConnection(), hasValue(someConnection().id()));
 		assertThat(vehicleRoute.nextDeparture(), hasValue(someConnection().departure()));
 		assertThat(vehicleRoute.nextArrival(), hasValue(someConnection().arrival()));
 	}
@@ -48,7 +48,7 @@ public class VehicleRouteTest {
 		vehicleRoute.moveToNextStop();
 		
 		assertThat(vehicleRoute.currentStop(), is(equalTo(someConnection().end())));
-		assertThat(vehicleRoute.nextConnection(), hasValue(anotherConnection()));
+		assertThat(vehicleRoute.nextConnection(), hasValue(anotherConnection().id()));
 		assertThat(vehicleRoute.nextDeparture(), hasValue(anotherConnection().departure()));
 		assertThat(vehicleRoute.nextArrival(), hasValue(anotherConnection().arrival()));
 	}

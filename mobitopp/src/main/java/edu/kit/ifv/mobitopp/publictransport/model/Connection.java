@@ -7,7 +7,7 @@ public class Connection {
 
 	private static final int footId = -1;
 
-	private final int id;
+	private final ConnectionId id;
 	private final Stop start;
 	private final Stop end;
 	private final Time arrival;
@@ -16,7 +16,7 @@ public class Connection {
 	private final Journey journey;
 
 	private Connection(
-			int id, Stop start, Stop end, Time departure, Time arrival, Journey journey,
+			ConnectionId id, Stop start, Stop end, Time departure, Time arrival, Journey journey,
 			RoutePoints points) {
 		this.id = id;
 		this.start = start;
@@ -38,17 +38,18 @@ public class Connection {
 	}
 
 	public static Connection from(
-			int id, Stop start, Stop end, Time departure, Time arrival, Journey journey,
+			ConnectionId id, Stop start, Stop end, Time departure, Time arrival, Journey journey,
 			RoutePoints route) {
 		return new Connection(id, start, end, departure, arrival, journey, route);
 	}
 
 	public static Connection byFootFrom(Stop stop, Stop neighbour, Time departure, Time arrival) {
 		RoutePoints route = RoutePoints.from(stop, neighbour);
-		return Connection.from(footId, stop, neighbour, departure, arrival, FootJourney.footJourney, route);
+		return from(ConnectionId.of(footId), stop, neighbour, departure, arrival,
+				FootJourney.footJourney, route);
 	}
 
-	public int id() {
+	public ConnectionId id() {
 		return id;
 	}
 
@@ -79,11 +80,11 @@ public class Connection {
 	public Journey journey() {
 		return journey;
 	}
-	
+
 	public int positionInJourney() {
 		return journey.connections().positionOf(this);
 	}
-	
+
 	public boolean isValid() {
 		return differentStartAndEnd() && departsBeforeOrAtSameTimeAsItArrives();
 	}
@@ -164,11 +165,10 @@ public class Connection {
 
 	@Override
 	public String toString() {
-		return "Connection [" + System.lineSeparator() + "id=" + id + System.lineSeparator()
-				+ "start=" + start + System.lineSeparator() + "end=" + end + System.lineSeparator()
-				+ "arrival=" + arrival + System.lineSeparator() + "departure=" + departure
-				+ System.lineSeparator() + "trip=" + journey + System.lineSeparator() + "points="
-				+ points + "]";
+		return "Connection [" + System.lineSeparator() + "id=" + id + System.lineSeparator() + "start="
+				+ start + System.lineSeparator() + "end=" + end + System.lineSeparator() + "arrival="
+				+ arrival + System.lineSeparator() + "departure=" + departure + System.lineSeparator()
+				+ "trip=" + journey + System.lineSeparator() + "points=" + points + "]";
 	}
 
 }

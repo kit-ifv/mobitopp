@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -67,14 +68,14 @@ public class VehicleConnectionsTest {
 	
 	@Test
 	public void switchConnections() {
-		Optional<Connection> start = vehicleConnections.nextConnection();
+		Optional<ConnectionId> start = vehicleConnections.nextConnection();
 		vehicleConnections.move();
-		Optional<Connection> intermediate = vehicleConnections.nextConnection();
+		Optional<ConnectionId> intermediate = vehicleConnections.nextConnection();
 		vehicleConnections.move();
-		Optional<Connection> end = vehicleConnections.nextConnection();
+		Optional<ConnectionId> end = vehicleConnections.nextConnection();
 		
-		assertThat(start, hasValue(firstConnection));
-		assertThat(intermediate, hasValue(secondConnection));
+		assertThat(start, hasValue(firstConnection.id()));
+		assertThat(intermediate, hasValue(secondConnection.id()));
 		assertThat(end, isEmpty());
 	}
 

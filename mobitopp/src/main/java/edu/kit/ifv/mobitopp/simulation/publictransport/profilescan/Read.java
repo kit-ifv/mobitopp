@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.Timetable;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
@@ -75,8 +76,12 @@ public class Read implements ProfileReader {
 		StringTokenizer parts = new StringTokenizer(serializedEntry, entrySeparator);
 		Time departure = SimpleTime.ofSeconds(parseLong(parts.nextToken()));
 		Time arrivalAtTarget = SimpleTime.ofSeconds(parseLong(parts.nextToken()));
-		Connection connection = timetable.connectionFor(parseInt(parts.nextToken()));
+		Connection connection = timetable.connectionFor(connectionIdOf(parts.nextToken()));
 		return newEntry(departure, arrivalAtTarget, connection);
+	}
+
+	private ConnectionId connectionIdOf(String nextToken) {
+		return ConnectionId.of(parseInt(nextToken));
 	}
 
 	private FunctionEntry newEntry(

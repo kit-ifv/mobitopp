@@ -28,6 +28,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
+import edu.kit.ifv.mobitopp.simulation.person.VehicleLeg;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
@@ -174,7 +175,7 @@ public class BasicPublicTransportBehaviourTest {
 	@Test
 	public void vehicleHasDeparted() throws Exception {
 		Time departure = someConnection().departure();
-		when(someVehicle.nextConnection()).thenReturn(Optional.of(someConnection()));
+		when(someVehicle.nextConnection()).thenReturn(Optional.of(someConnection().id()));
 		when(someVehicle.nextDeparture()).thenReturn(Optional.of(departure));
 		hasSingleNextVehicle();
 		journeys.letVehiclesArriveAt(departure, queue);
@@ -194,7 +195,7 @@ public class BasicPublicTransportBehaviourTest {
 		Time departure = someConnection().departure();
 		Time arrival = someConnection().arrival();
 		List<Connection> connections = someConnections();
-		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+		return new VehicleLeg(start, end, journey, departure, arrival, connections);
 	}
 
 	private List<Connection> someConnections() {
@@ -207,7 +208,7 @@ public class BasicPublicTransportBehaviourTest {
 
 	@Test
 	public void footVehicleIsAlwaysAvailable() throws Exception {
-		PublicTransportLeg leg = mock(PublicTransportLeg.class);
+		PublicTransportLeg leg = mock(VehicleLeg.class);
 		when(leg.journey()).thenReturn(footJourney);
 		when(leg.departure()).thenReturn(someTime());
 
@@ -331,12 +332,12 @@ public class BasicPublicTransportBehaviourTest {
 	}
 
 	private PublicTransportLeg somePart() {
-		return new PublicTransportLeg(someStop(), anotherStop(), someJourney, someTime(),
+		return new VehicleLeg(someStop(), anotherStop(), someJourney, someTime(),
 				oneMinuteLater(), someConnections());
 	}
 
 	private PublicTransportLeg anotherPart() {
-		return new PublicTransportLeg(anotherStop(), someStop(), someJourney, someTime(),
+		return new VehicleLeg(anotherStop(), someStop(), someJourney, someTime(),
 				oneMinuteLater(), someConnections());
 	}
 

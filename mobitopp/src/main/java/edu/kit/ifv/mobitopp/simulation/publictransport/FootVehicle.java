@@ -4,7 +4,7 @@ import static edu.kit.ifv.mobitopp.publictransport.model.FootJourney.footJourney
 
 import java.util.Optional;
 
-import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
@@ -51,7 +51,7 @@ public class FootVehicle implements Vehicle {
 	}
 
 	@Override
-	public Optional<Connection> nextConnection() {
+	public Optional<ConnectionId> nextConnection() {
 		return Optional.empty();
 	}
 

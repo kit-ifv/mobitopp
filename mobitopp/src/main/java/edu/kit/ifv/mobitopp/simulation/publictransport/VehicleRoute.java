@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import java.util.Optional;
 
-import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -24,7 +24,7 @@ public class VehicleRoute {
 		return location.current();
 	}
 
-	public Optional<Connection> nextConnection() {
+	public Optional<ConnectionId> nextConnection() {
 		return connections.nextConnection();
 	}
 

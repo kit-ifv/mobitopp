@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class VehicleConnections {
@@ -28,8 +29,8 @@ public class VehicleConnections {
 		return next.map(Connection::arrival);
 	}
 
-	public Optional<Connection> nextConnection() {
-		return next;
+	public Optional<ConnectionId> nextConnection() {
+		return next.map(Connection::id);
 	}
 
 	public void move() {

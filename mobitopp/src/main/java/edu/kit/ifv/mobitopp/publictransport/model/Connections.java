@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class Connections {
 
-	private final Map<Integer, Connection> idToConnection;
+	private final Map<ConnectionId, Connection> idToConnection;
 	private final List<Connection> connections;
 
 	public Connections() {
@@ -32,7 +32,7 @@ public class Connections {
 		idToConnection.putAll(newConnections.idToConnection);
 	}
 
-	public Connection get(int id) {
+	public Connection get(ConnectionId id) {
 		return idToConnection.get(id);
 	}
 

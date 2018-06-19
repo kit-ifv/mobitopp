@@ -16,7 +16,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class ConnectionBuilder {
 
-	private static final int defaultId = 0;
+	private static final ConnectionId defaultId = ConnectionId.of(0);
 	private static final Time defaultDeparture = Data.someTime();
 	private static final Time defaultArrival = defaultDeparture.plus(RelativeTime.of(1, MINUTES));
 	private static final Stop defaultStart = someStop();
@@ -24,7 +24,7 @@ public class ConnectionBuilder {
 	private static final Journey defaultJourney = journey().build();
 	private static final List<Point2D> defaultPoints = emptyList();
 
-	private int id;
+	private ConnectionId id;
 	private Stop start;
 	private Stop end;
 	private Time departure;
@@ -64,6 +64,11 @@ public class ConnectionBuilder {
 	}
 
 	public ConnectionBuilder withId(int id) {
+		this.id = ConnectionId.of(id);
+		return this;
+	}
+
+	public ConnectionBuilder withId(ConnectionId id) {
 		this.id = id;
 		return this;
 	}

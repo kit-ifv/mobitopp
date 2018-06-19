@@ -49,7 +49,7 @@ public class WriteBinary implements ProfileWriter {
 	private void writeEntry(FunctionEntry entry) throws IOException {
 		output.writeInt(asSeconds(entry.departure()));
 		output.writeInt(asSeconds(entry.arrivalAtTarget()));
-		output.writeInt(entry.connection().id());
+		output.writeInt(entry.connection().id().asInteger());
 	}
 
 	private int asSeconds(Time departure) {

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
@@ -41,8 +42,12 @@ public class VehicleFactory {
 		Stop start = firstConnection.start();
 		Stop depot = depot();
 		Time departure = firstConnection.departure();
-		return Connection.from(depot.id(), depot, start, departure, departure, journey,
+		return Connection.from(connectionId(depot), depot, start, departure, departure, journey,
 				RoutePoints.from(depot, start));
+	}
+
+	private ConnectionId connectionId(Stop depot) {
+		return ConnectionId.of(depot.id());
 	}
 
 	Stop depot() {

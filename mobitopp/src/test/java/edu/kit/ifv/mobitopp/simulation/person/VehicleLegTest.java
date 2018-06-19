@@ -8,31 +8,31 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PublicTransportLegTest {
-	
+public class VehicleLegTest {
+
 	@Test
 	public void findFirstConnection() {
 		PublicTransportLeg leg = newLeg();
 
-		Connection firstConnection = leg.firstConnection();
+		ConnectionId firstConnection = leg.firstConnection();
 
-		assertThat(firstConnection, is(equalTo(someConnection())));
+		assertThat(firstConnection, is(equalTo(someConnection().id())));
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void legWithoutConnectionIsNotAllowed() {
-		Connection connection = Data.fromSomeToAnother();
-		Stop start = connection.start();
-		Stop end = connection.end();
-		Journey journey = connection.journey();
-		Time departure = connection.departure();
-		Time arrival = connection.arrival();
-		new PublicTransportLeg(start, end, journey, departure, arrival, emptyList());
+		Stop start = someConnection().start();
+		Stop end = someConnection().end();
+		Journey journey = someConnection().journey();
+		Time departure = someConnection().departure();
+		Time arrival = someConnection().arrival();
+		new VehicleLeg(start, end, journey, departure, arrival, emptyList());
 	}
 
 	private PublicTransportLeg newLeg() {
