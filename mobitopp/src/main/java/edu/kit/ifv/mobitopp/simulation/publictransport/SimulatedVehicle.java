@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
@@ -63,7 +63,7 @@ public class SimulatedVehicle implements Vehicle {
 	}
 
 	@Override
-	public Optional<Connection> nextConnection() {
+	public Optional<ConnectionId> nextConnection() {
 		return vehicleRoute.nextConnection();
 	}
 	

@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.ConnectionScan;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.TransitNetwork;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.DefaultModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.DefaultStation;
@@ -104,22 +105,22 @@ public class SimpleNetwork {
 
 	public Connection amsterdamToChemnitz() {
 		RoutePoints route = RoutePoints.from(amsterdam, chemnitz);
-		return Connection.from(0, amsterdam, chemnitz, noon, twoOClock, ice1, route);
+		return Connection.from(ConnectionId.of(0), amsterdam, chemnitz, noon, twoOClock, ice1, route);
 	}
 
 	public Connection amsterdamToDortmund() {
 		RoutePoints route = RoutePoints.from(amsterdam, dortmund);
-		return Connection.from(1, amsterdam, dortmund, noon, oneOClock, ice2, route);
+		return Connection.from(ConnectionId.of(1), amsterdam, dortmund, noon, oneOClock, ice2, route);
 	}
 
 	public Connection chemnitzToBerlin() {
 		RoutePoints route = RoutePoints.from(amsterdam, chemnitz);
-		return Connection.from(2, chemnitz, berlin, twoOClock, fourOClock, ice3, route);
+		return Connection.from(ConnectionId.of(2), chemnitz, berlin, twoOClock, fourOClock, ice3, route);
 	}
 
 	public Connection dortmundToBerlin() {
 		RoutePoints route = RoutePoints.from(dortmund, berlin);
-		return Connection.from(3, dortmund, berlin, oneOClock, threeOClock, ice2, route);
+		return Connection.from(ConnectionId.of(3), dortmund, berlin, oneOClock, threeOClock, ice2, route);
 	}
 
 	public Time noon() {

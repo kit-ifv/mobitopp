@@ -173,7 +173,7 @@ public class ConnectionsTest {
 
 	@Test
 	public void addAllConnections() throws Exception {
-		int id = 0;
+		ConnectionId id = ConnectionId.of(0);
 		Connection connection = connection().withId(id).build();
 		Connections newOnes = new Connections();
 		newOnes.add(connection);

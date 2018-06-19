@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
@@ -54,8 +55,8 @@ public class VisumPublicTransportFactoryTest {
 		Connection firstConnection = createConnection();
 		Connection secondConnection = createConnection();
 
-		assertThat(firstConnection.id(), is(0));
-		assertThat(secondConnection.id(), is(1));
+		assertThat(firstConnection.id(), is(ConnectionId.of(0)));
+		assertThat(secondConnection.id(), is(ConnectionId.of(1)));
 	}
 
 	private Connection createConnection() {

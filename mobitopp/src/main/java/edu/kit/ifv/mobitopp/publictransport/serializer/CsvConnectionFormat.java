@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static java.lang.Integer.parseInt;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.awt.geom.Point2D;
@@ -9,6 +10,7 @@ import java.util.StringJoiner;
 import java.util.StringTokenizer;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -56,7 +58,7 @@ class CsvConnectionFormat extends CsvFormat implements ConnectionFormat {
 	public Connection deserialize(
 			String serialized, StopResolver stopResolver, JourneyProvider journeyProvider, Time day) {
 		String[] fields = serialized.split(separator);
-		int id = idOf(fields);
+		ConnectionId id = idOf(fields);
 		Stop start = startOf(fields, stopResolver);
 		Stop end = endOf(fields, stopResolver);
 		Time departure = departureOf(fields, day);
@@ -88,8 +90,8 @@ class CsvConnectionFormat extends CsvFormat implements ConnectionFormat {
 		return stopResolver.resolve(Integer.parseInt(fields[startIndex]));
 	}
 
-	private int idOf(String[] fields) {
-		return Integer.parseInt(fields[idIndex]);
+	private ConnectionId idOf(String[] fields) {
+		return ConnectionId.of(parseInt(fields[idIndex]));
 	}
 
 	private RoutePoints pointsOf(String[] fields, Stop start, Stop end) {

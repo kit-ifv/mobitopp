@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.Timetable;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
@@ -56,7 +57,7 @@ public class ReadBinary implements ProfileReader {
 	}
 
 	private Connection nextConnection() throws IOException {
-		return timetable.connectionFor(input.readInt());
+		return timetable.connectionFor(ConnectionId.of(input.readInt()));
 	}
 
 	private Time nextTime() throws IOException {

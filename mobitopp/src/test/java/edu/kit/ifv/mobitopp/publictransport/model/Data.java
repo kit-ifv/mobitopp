@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
+import edu.kit.ifv.mobitopp.simulation.person.VehicleLeg;
 
 public class Data {
 
@@ -168,6 +169,6 @@ public class Data {
 		Time departure = connection.departure();
 		Time arrival = connection.arrival();
 		List<Connection> connections = asList(connection);
-		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+		return new VehicleLeg(start, end, journey, departure, arrival, connections);
 	}
 }

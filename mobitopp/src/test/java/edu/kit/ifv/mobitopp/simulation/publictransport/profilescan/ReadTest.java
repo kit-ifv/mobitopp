@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.Timetable;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
@@ -25,7 +26,7 @@ public class ReadTest {
 
 	private static final int departure = 0;
 	private static final int arrival = 60;
-	private static final int connectionId = 1;
+	private static final ConnectionId connectionId = ConnectionId.of(1);
 	private static final String serializedEntry = departure + entrySeparator + arrival
 			+ entrySeparator + connectionId;
 	private static final String serializedFunction = "1;" + serializedEntry;

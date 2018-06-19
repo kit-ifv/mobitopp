@@ -44,7 +44,7 @@ public class LegBuilder {
 	}
 
 	private PublicTransportLeg createLeg() {
-		return new PublicTransportLeg(start, end, journey, departure, arrival, connections);
+		return new VehicleLeg(start, end, journey, departure, arrival, connections);
 	}
 
 	public boolean needsToSplit(Connection connection) {
