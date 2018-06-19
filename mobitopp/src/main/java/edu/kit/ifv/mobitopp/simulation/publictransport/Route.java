@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -36,5 +37,9 @@ public class Route implements Iterable<Stop> {
 		}
 		stops.add(connection.end());
 		return new Route(stops);
+	}
+	
+	public Stream<Stop> stream() {
+		return stops.stream();
 	}
 }
