@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -81,19 +82,23 @@ public class SimulatedVehicleTest {
 	@Test
 	public void isNotFullWhenVehicleIsEmpty() throws Exception {
 		useSmallVehicle();
+		
+		Vehicle vehicle = simulatedVehicle();
 
 		assertTrue(vehicle.hasFreePlace());
-		verify(journey).capacity();
+		verify(journey, atLeastOnce()).capacity();
 	}
 
 	@Test
 	public void isNotFullWhenCapacityIsNotReached() throws Exception {
 		useBigVehicle();
+		
+		Vehicle vehicle = simulatedVehicle();
 
 		vehicle.board(person, firstConnection.end());
 
 		assertTrue(vehicle.hasFreePlace());
-		verify(journey).capacity();
+		verify(journey, atLeastOnce()).capacity();
 	}
 
 	@Test

@@ -6,7 +6,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +25,7 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
 
 public class PassengerCompartmentTest {
 
+	private static final int capacity = 2;
 	private Passenger passenger;
 	private PassengerCompartment space;
 
@@ -30,7 +33,7 @@ public class PassengerCompartmentTest {
 	public void initialise() {
 		passenger = newPassengerWithId(0);
 		Stream<Stop> stops = Stream.of(someStop(), anotherStop());
-		space = PassengerCompartment.forAll(stops);
+		space = PassengerCompartment.forAll(stops, capacity);
 	}
 
 	private Passenger newPassengerWithId(int id) {
@@ -94,5 +97,20 @@ public class PassengerCompartmentTest {
 		space.forEachAt(someStop(), getOff);
 		
 		assertThat(space.count(), is(equalTo(0)));
+	}
+	
+	@Test
+	public void isFull() {
+		space.board(passenger, someStop());
+		space.board(newPassengerWithId(1), anotherStop());
+		
+		assertFalse(space.hasFreePlace());
+	}
+	
+	@Test
+	public void hasFreePlace() {
+		space.board(passenger, someStop());
+		
+		assertTrue(space.hasFreePlace());
 	}
 }
