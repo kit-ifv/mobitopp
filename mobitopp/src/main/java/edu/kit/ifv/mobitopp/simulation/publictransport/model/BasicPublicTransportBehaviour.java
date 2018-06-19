@@ -38,21 +38,21 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	}
 
 	@Override
-	public void letVehiclesArriveAt(Time currentDate, EventQueue queue) {
-		while (vehicles.hasNextUntil(currentDate)) {
+	public void letVehiclesArriveAt(Time current, EventQueue queue) {
+		while (vehicles.hasNextUntil(current)) {
 			Vehicle vehicle = vehicles.next();
-			arrive(vehicle, currentDate);
-			vehicle.notifyPassengers(queue, currentDate);
-			waitingArea.notifyWaitingPassengers(queue, vehicle, currentDate);
+			arrive(vehicle, current);
+			vehicle.notifyPassengers(queue, current);
+			waitingArea.notifyWaitingPassengers(queue, vehicle, current);
 		}
 	}
 
-	private void arrive(Vehicle vehicle, Time currentDate) {
+	private void arrive(Vehicle vehicle, Time current) {
 		vehicle.moveToNextStop();
 		vehicle.nextDeparture().ifPresent(
 				departure -> nextDepartures.add(departure, vehicle));
 		waitingVehicles.add(vehicle, vehicle.currentStop());
-		results.arrive(currentDate, vehicle);
+		results.arrive(current, vehicle);
 	}
 
 	@Override
