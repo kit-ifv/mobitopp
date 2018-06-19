@@ -100,6 +100,11 @@ public class PassengerCompartmentTest {
 	}
 	
 	@Test
+	public void isEmptyWhenNobodyBoarded() {
+		assertThat(space.count(), is(equalTo(0)));
+	}
+	
+	@Test
 	public void isFull() {
 		space.board(passenger, someStop());
 		space.board(newPassengerWithId(1), anotherStop());
