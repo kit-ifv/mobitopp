@@ -119,7 +119,7 @@ public class SimulatedVehicleTest {
 		assertThat(firstDeparture, is(equalTo(departureOfFirstConnection)));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void verifyConnectionsAreExisting() {
 		when(journey.connections()).thenReturn(new Connections());
 		simulatedVehicle();
