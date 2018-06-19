@@ -94,6 +94,7 @@ public class Data {
 
 	public static Connection fromSomeToAnother() {
 		return connection()
+				.withId(1)
 				.startsAt(someStop())
 				.endsAt(anotherStop())
 				.departsAt(someTime())
@@ -103,6 +104,7 @@ public class Data {
 
 	public static Connection laterFromSomeToAnother() {
 		return connection()
+				.withId(2)
 				.startsAt(someStop())
 				.endsAt(anotherStop())
 				.departsAt(oneMinuteLater())
@@ -112,6 +114,7 @@ public class Data {
 
 	public static Connection fromOtherToAnother() {
 		return connection()
+				.withId(3)
 				.startsAt(otherStop())
 				.endsAt(anotherStop())
 				.departsAt(someTime())
@@ -121,6 +124,7 @@ public class Data {
 
 	public static Connection fromAnotherToOther() {
 		return connection()
+				.withId(4)
 				.startsAt(anotherStop())
 				.endsAt(otherStop())
 				.departsAt(oneMinuteLater())
@@ -130,6 +134,7 @@ public class Data {
 
 	public static Connection laterFromAnotherToOther() {
 		return connection()
+				.withId(5)
 				.startsAt(anotherStop())
 				.endsAt(otherStop())
 				.departsAt(twoMinutesLater())
@@ -139,6 +144,7 @@ public class Data {
 	
 	public static Connection fromAnotherToOtherByOtherJourney() {
 		return connection()
+				.withId(6)
 				.startsAt(anotherStop())
 				.endsAt(otherStop())
 				.departsAt(oneMinuteLater())
