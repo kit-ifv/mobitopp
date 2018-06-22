@@ -3,6 +3,9 @@ package edu.kit.ifv.mobitopp.publictransport.connectionscan;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresent;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.fromSomeToAnother;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.laterFromAnotherToOther;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.otherStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
@@ -23,7 +26,12 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.Connections;
+import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import edu.kit.ifv.mobitopp.publictransport.model.StopPath;
+import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ConnectionScanTest {
@@ -144,6 +152,44 @@ public class ConnectionScanTest {
 
 	private void scanNotNeeded(StopPaths starts, StopPaths ends, Time time) {
 		when(transitNetwork.scanNotNeeded(starts, ends, time)).thenReturn(true);
+	}
+	
+	@Test
+	public void considersPathToDestination() {
+		ConnectionScan connectionScan = new ConnectionScan(simpleNetwork());
+		StopPaths fromStart = DefaultStopPaths.from(asList(originPath()));
+		StopPaths toEnd = DefaultStopPaths.from(asList(longPath(), shortPath()));
+		
+		Optional<PublicTransportRoute> route = connectionScan.findRoute(fromStart, toEnd, searchTime);
+		
+		assertThat(route, hasValue(routeViaOtherStop()));
+	}
+
+	protected TransitNetwork simpleNetwork() {
+		Collection<Stop> stops = asList(someStop(), anotherStop(), otherStop());
+		Connections connections = new Connections();
+		connections.add(Data.fromSomeToAnother());
+		connections.add(Data.laterFromAnotherToOther());
+		return TransitNetwork.createOf(stops, connections);
+	}
+
+	private PublicTransportRoute routeViaOtherStop() {
+		Time arrival = laterFromAnotherToOther().arrival();
+		List<Connection> connections = asList(fromSomeToAnother(), laterFromAnotherToOther());
+		PublicTransportRoute route = new ScannedRoute(someStop(), otherStop(), searchTime, arrival, connections);
+		return new RouteIncludingFootpaths(route, originPath(), shortPath());
+	}
+
+	private StopPath longPath() {
+		return new StopPath(anotherStop(), RelativeTime.ofMinutes(10));
+	}
+
+	private StopPath shortPath() {
+		return new StopPath(otherStop(), RelativeTime.ofMinutes(1));
+	}
+
+	private StopPath originPath() {
+		return new StopPath(someStop(), RelativeTime.ZERO);
 	}
 
 }

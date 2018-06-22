@@ -23,17 +23,17 @@ class MultipleSearchRequest extends BaseSearchRequest {
 		this.toEnds = toEnds;
 	}
 
-	static PreparedSearchRequest from(StopPaths fromStarts, StopPaths toEnds, Time atTime, int numberOfStops) {
+	static MultipleSearchRequest from(StopPaths fromStarts, StopPaths toEnds, Time atTime, int numberOfStops) {
 		ArrivalTimes times = MultipleStarts.create(fromStarts, atTime, numberOfStops);
 		UsedConnections usedConnections = new DefaultUsedConnections(numberOfStops);
 		UsedJourneys usedJourneys = new DefaultUsedJourneys();
 		return from(fromStarts, toEnds, times, usedConnections, usedJourneys);
 	}
 
-	static PreparedSearchRequest from(
+	static MultipleSearchRequest from(
 			StopPaths fromStarts, StopPaths toEnds, ArrivalTimes times, UsedConnections usedConnections,
 			UsedJourneys usedJourneys) {
-		BaseSearchRequest searchRequest = new MultipleSearchRequest(fromStarts, toEnds, times, usedConnections,
+		MultipleSearchRequest searchRequest = new MultipleSearchRequest(fromStarts, toEnds, times, usedConnections,
 				usedJourneys);
 		times.initialise(searchRequest::initialise);
 		return searchRequest;
@@ -69,7 +69,7 @@ class MultipleSearchRequest extends BaseSearchRequest {
 			Time includingFootpath = path.arrivalTimeStartingAt(currentTime);
 			if (null == currentArrival || includingFootpath.isBefore(currentArrival)) {
 				stop = current;
-				currentArrival = currentTime;
+				currentArrival = includingFootpath;
 			}
 		}
 		return ofNullable(stop);
@@ -81,8 +81,11 @@ class MultipleSearchRequest extends BaseSearchRequest {
 	}
 	
 	private boolean isAfterArrivalAtEnd(Time departure) {
-		for (Stop stop : toEnds.stops()) {
-			if (isAfterArrivalAt(departure, stop)) {
+		for (StopPath stopPath : toEnds.stopPaths()) {
+			Stop stop = stopPath.stop();
+			Time arrivalAtStop = arrivalAt(stop);
+			Time arrival = stopPath.arrivalTimeStartingAt(arrivalAtStop);
+			if (arrival.isBefore(departure)) {
 				return true;
 			}
 		}
