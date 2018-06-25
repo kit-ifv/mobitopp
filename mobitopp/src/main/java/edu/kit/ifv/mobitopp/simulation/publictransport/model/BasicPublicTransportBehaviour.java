@@ -48,7 +48,7 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	}
 
 	private void arrive(Vehicle vehicle, Time current) {
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(current);
 		vehicle.nextDeparture().ifPresent(
 				departure -> nextDepartures.add(departure, vehicle));
 		waitingVehicles.add(vehicle, vehicle.currentStop());

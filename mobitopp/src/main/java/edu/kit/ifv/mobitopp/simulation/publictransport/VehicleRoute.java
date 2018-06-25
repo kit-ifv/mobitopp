@@ -40,9 +40,9 @@ public class VehicleRoute {
 		return connections.firstDeparture();
 	}
 
-	public void moveToNextStop() {
+	public void moveToNextStop(Time current) {
 		location.move();
-		connections.move();
+		connections.move(current);
 	}
 
 	public int journeyId() {

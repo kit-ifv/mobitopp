@@ -2,12 +2,18 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
+import static edu.kit.ifv.mobitopp.publictransport.model.ConnectionBuilder.connection;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.fourMinutesLater;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.otherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.twoMinutesLater;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -27,17 +33,32 @@ public class VehicleConnectionsTest {
 	@Before
 	public void initialise() {
 		firstConnection = Data.fromSomeToAnother();
-		secondConnection = Data.fromAnotherToOther();
+		secondConnection = longFromAnotherToOther();
 		Collection<Connection> connections = asList(firstConnection, secondConnection);
 		vehicleConnections = new VehicleConnections(connections);
 	}
 
+	public static Connection longFromAnotherToOther() {
+		return connection()
+				.withId(7)
+				.startsAt(anotherStop())
+				.endsAt(otherStop())
+				.departsAt(twoMinutesLater())
+				.arrivesAt(fourMinutesLater())
+				.build();
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void failForEmptyConnections() {
+		new VehicleConnections(Collections.emptyList());
+	}
+
 	@Test
-	public void switchesConnections() {
+	public void switchesDepartureTime() {
 		Optional<Time> start = vehicleConnections.nextDeparture();
-		vehicleConnections.move();
+		vehicleConnections.move(firstConnection.arrival());
 		Optional<Time> intermediate = vehicleConnections.nextDeparture();
-		vehicleConnections.move();
+		vehicleConnections.move(secondConnection.arrival());
 		Optional<Time> end = vehicleConnections.nextDeparture();
 
 		assertThat(start, hasValue(firstConnection.departure()));
@@ -46,11 +67,11 @@ public class VehicleConnectionsTest {
 	}
 
 	@Test
-	public void switchesArrivalTimes() {
+	public void switchesArrivalTime() {
 		Optional<Time> start = vehicleConnections.nextArrival();
-		vehicleConnections.move();
+		vehicleConnections.move(firstConnection.arrival());
 		Optional<Time> intermediate = vehicleConnections.nextArrival();
-		vehicleConnections.move();
+		vehicleConnections.move(secondConnection.arrival());
 		Optional<Time> end = vehicleConnections.nextArrival();
 
 		assertThat(start, hasValue(firstConnection.arrival()));
@@ -67,11 +88,11 @@ public class VehicleConnectionsTest {
 	}
 	
 	@Test
-	public void switchConnections() {
+	public void switchConnectionId() {
 		Optional<ConnectionId> start = vehicleConnections.nextConnection();
-		vehicleConnections.move();
+		vehicleConnections.move(firstConnection.arrival());
 		Optional<ConnectionId> intermediate = vehicleConnections.nextConnection();
-		vehicleConnections.move();
+		vehicleConnections.move(secondConnection.arrival());
 		Optional<ConnectionId> end = vehicleConnections.nextConnection();
 		
 		assertThat(start, hasValue(firstConnection.id()));

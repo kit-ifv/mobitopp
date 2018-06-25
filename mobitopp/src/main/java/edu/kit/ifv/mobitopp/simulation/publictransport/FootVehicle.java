@@ -42,7 +42,7 @@ public class FootVehicle implements Vehicle {
 	}
 
 	@Override
-	public void moveToNextStop() {
+	public void moveToNextStop(Time current) {
 	}
 
 	@Override

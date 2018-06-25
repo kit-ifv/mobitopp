@@ -13,7 +13,7 @@ public interface Vehicle extends Boardable {
 
 	Time firstDeparture();
 
-	void moveToNextStop();
+	void moveToNextStop(Time current);
 
 	Stop currentStop();
 
@@ -24,5 +24,6 @@ public interface Vehicle extends Boardable {
 	Optional<Time> nextArrival();
 
 	void notifyPassengers(EventQueue queue, Time currentDate);
+
 
 }
