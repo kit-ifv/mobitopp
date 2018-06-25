@@ -30,7 +30,7 @@ public class SimulatedVehicleQueueTest {
 		firstJourney = mock(ModifiableJourney.class);
 		secondJourney = mock(ModifiableJourney.class);
 		initialiseJourneys();
-		VehicleFactory factory = new VehicleFactory();
+		VehicleFactory factory = new DefaultVehicleFactory();
 		firstVehicle = factory.createFrom(firstJourney);
 		secondVehicle = factory.createFrom(secondJourney);
 	}

@@ -62,7 +62,11 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 	}
 
 	protected Vehicles convertVehicles(ModifiableJourneys journeys) {
-		return SimulatedVehicles.from(journeys);
+		return vehicleConverter().convert(journeys);
+	}
+
+	protected VehiclesConverter vehicleConverter() {
+		return new VehiclesConverter();
 	}
 
 	protected abstract StopPoints convertStopPoints(Stations stations);

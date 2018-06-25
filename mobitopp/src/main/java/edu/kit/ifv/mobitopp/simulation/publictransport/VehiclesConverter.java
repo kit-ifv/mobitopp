@@ -25,7 +25,7 @@ public class VehiclesConverter {
 	}
 
 	public VehiclesConverter() {
-		this(new VehicleFactory());
+		this(new DefaultVehicleFactory());
 	}
 
 	public Vehicles convert(ModifiableJourneys journeys) {
