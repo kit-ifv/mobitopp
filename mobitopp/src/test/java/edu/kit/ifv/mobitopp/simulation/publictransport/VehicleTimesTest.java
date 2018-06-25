@@ -24,9 +24,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class VehicleConnectionsTest {
+public class VehicleTimesTest {
 
-	private VehicleConnections vehicleConnections;
+	private VehicleTimes vehicleConnections;
 	private Connection firstConnection;
 	private Connection secondConnection;
 
@@ -35,7 +35,7 @@ public class VehicleConnectionsTest {
 		firstConnection = Data.fromSomeToAnother();
 		secondConnection = longFromAnotherToOther();
 		Collection<Connection> connections = asList(firstConnection, secondConnection);
-		vehicleConnections = new VehicleConnections(connections);
+		vehicleConnections = VehicleTimesConverter.from(connections);
 	}
 
 	public static Connection longFromAnotherToOther() {
@@ -50,7 +50,7 @@ public class VehicleConnectionsTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void failForEmptyConnections() {
-		new VehicleConnections(Collections.emptyList());
+		VehicleTimesConverter.from(Collections.emptyList());
 	}
 
 	@Test

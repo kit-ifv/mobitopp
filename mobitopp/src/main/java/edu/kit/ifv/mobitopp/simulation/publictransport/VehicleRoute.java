@@ -11,13 +11,13 @@ public class VehicleRoute {
 
 	private final Journey journey;
 	private final VehicleLocation location;
-	private final VehicleConnections connections;
+	private final VehicleTimes times;
 
-	public VehicleRoute(Journey journey, VehicleLocation location, VehicleConnections connections) {
+	public VehicleRoute(Journey journey, VehicleLocation location, VehicleTimes times) {
 		super();
 		this.journey = journey;
 		this.location = location;
-		this.connections = connections;
+		this.times = times;
 	}
 
 	public Stop currentStop() {
@@ -25,24 +25,24 @@ public class VehicleRoute {
 	}
 
 	public Optional<ConnectionId> nextConnection() {
-		return connections.nextConnection();
+		return times.nextConnection();
 	}
 
 	public Optional<Time> nextDeparture() {
-		return connections.nextDeparture();
+		return times.nextDeparture();
 	}
 
 	public Optional<Time> nextArrival() {
-		return connections.nextArrival();
+		return times.nextArrival();
 	}
 
 	public Time firstDeparture() {
-		return connections.firstDeparture();
+		return times.firstDeparture();
 	}
 
 	public void moveToNextStop(Time current) {
 		location.move();
-		connections.move(current);
+		times.move(current);
 	}
 
 	public int journeyId() {

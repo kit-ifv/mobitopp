@@ -17,11 +17,17 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class VehicleFactory {
 
+	private final VehicleTimesConverter vehicleTimes;
+
+	public VehicleFactory() {
+		vehicleTimes = new VehicleTimesConverter();
+	}
+
 	public Vehicle createFrom(Journey journey) {
 		verifyExisting(journey);
 		Collection<Connection> connectionsFromDepot = includeDepot(journey);
 		Route route = Route.from(connectionsFromDepot);
-		VehicleConnections connections = new VehicleConnections(connectionsFromDepot);
+		VehicleTimes connections = vehicleTimes.convert(connectionsFromDepot);
 		VehicleLocation location = new VehicleLocation(route);
 		PassengerCompartment passengersPerStop = initialisePassengerSpace(route, journey);
 		VehicleRoute vehicleRoute = new VehicleRoute(journey, location, connections);
