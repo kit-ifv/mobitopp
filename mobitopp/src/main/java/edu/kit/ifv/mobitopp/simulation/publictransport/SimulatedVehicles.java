@@ -3,7 +3,6 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
-import edu.kit.ifv.mobitopp.simulation.publictransport.model.ModifiableJourneys;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicles;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -20,10 +19,6 @@ public class SimulatedVehicles implements Vehicles {
 		this.queue = queue;
 	}
 	
-	public static Vehicles from(ModifiableJourneys journeys) {
-		return new VehiclesConverter().convert(journeys);
-	}
-
 	@Override
 	public Vehicle vehicleServing(Journey journey) {
 		if (journeyToVehicle.containsKey(journey)) {

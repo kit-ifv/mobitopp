@@ -34,7 +34,7 @@ public class SimulatedVehiclesTest {
 		someJourney = mock(ModifiableJourney.class);
 		mock(ModifiableJourney.class);
 		initialiseJourneys();
-		VehicleFactory factory = new VehicleFactory();
+		VehicleFactory factory = new DefaultVehicleFactory();
 		someVehicle = factory.createFrom(someJourney);
 		someJourneys = new ModifiableJourneys();
 	}
@@ -85,6 +85,6 @@ public class SimulatedVehiclesTest {
 	}
 
 	private Vehicles vehicles() {
-		return SimulatedVehicles.from(someJourneys);
+		return new VehiclesConverter().convert(someJourneys);
 	}
 }

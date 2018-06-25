@@ -19,10 +19,10 @@ import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 
-public class VehicleFactoryTest {
+public class DefaultVehicleFactoryTest {
 
 	private Journey journey;
-	private VehicleFactory factory;
+	private DefaultVehicleFactory factory;
 
 	@Before
 	public void initialise() {
@@ -35,7 +35,7 @@ public class VehicleFactoryTest {
 	}
 
 	private Vehicle createVehicle() {
-		factory = new VehicleFactory();
+		factory = new DefaultVehicleFactory();
 		return factory.createFrom(journey);
 	}
 
