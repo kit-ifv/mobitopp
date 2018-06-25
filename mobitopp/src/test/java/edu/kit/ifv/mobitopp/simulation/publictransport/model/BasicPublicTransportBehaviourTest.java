@@ -101,7 +101,7 @@ public class BasicPublicTransportBehaviourTest {
 
 		journeys.letVehiclesArriveAt(earliestDate(), queue);
 
-		verify(someVehicle).moveToNextStop();
+		verify(someVehicle).moveToNextStop(earliestDate());
 		verify(someVehicle).notifyPassengers(queue, earliestDate());
 	}
 

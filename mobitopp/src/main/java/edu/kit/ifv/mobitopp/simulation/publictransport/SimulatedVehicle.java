@@ -53,8 +53,8 @@ public class SimulatedVehicle implements Vehicle {
 	}
 
 	@Override
-	public void moveToNextStop() {
-		vehicleRoute.moveToNextStop();
+	public void moveToNextStop(Time current) {
+		vehicleRoute.moveToNextStop(current);
 	}
 
 	@Override

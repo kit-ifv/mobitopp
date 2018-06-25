@@ -55,7 +55,7 @@ public class SimulatedVehicleTest {
 	}
 
 	private void exitDepot() {
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(firstConnection.departure());
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class SimulatedVehicleTest {
 	@Test
 	public void doesNotHavePassengerOnBoardWhenPassengerAlreadyGetOff() throws Exception {
 		vehicle.board(person, firstConnection.end());
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(firstConnection.arrival());
 		vehicle.getOff(person);
 
 		assertThat(vehicle.passengerCount(), is(0));
@@ -134,10 +134,10 @@ public class SimulatedVehicleTest {
 
 		Stop depot = vehicle.currentStop();
 		Optional<Time> departureAtDepot = vehicle.nextDeparture();
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(firstConnection.departure());
 		Stop start = vehicle.currentStop();
 		Optional<Time> departureAtStart = vehicle.nextDeparture();
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(firstConnection.arrival());
 		Stop end = vehicle.currentStop();
 		Optional<Time> departureAtEnd = vehicle.nextDeparture();
 
@@ -163,7 +163,7 @@ public class SimulatedVehicleTest {
 		
 		vehicle.board(person, exitStop);
 		vehicle.board(anotherPerson, laterExit);
-		vehicle.moveToNextStop();
+		vehicle.moveToNextStop(currentDate);
 		vehicle.notifyPassengers(queue, currentDate);
 		
 		verify(person).arriveAtStop(queue, currentDate);
