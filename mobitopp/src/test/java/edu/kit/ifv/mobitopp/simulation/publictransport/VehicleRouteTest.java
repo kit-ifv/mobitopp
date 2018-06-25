@@ -26,7 +26,7 @@ public class VehicleRouteTest {
 	public void initialise() {
 		Journey journey = journey().build();
 		VehicleLocation location = new VehicleLocation(Route.from(connections()));
-		VehicleConnections connections = new VehicleConnections(connections());
+		VehicleTimes connections = VehicleTimesConverter.from(connections());
 		vehicleRoute = new VehicleRoute(journey, location, connections);
 	}
 
