@@ -150,7 +150,8 @@ public class SimulatedVehicleTest {
 	}
 
 	private Vehicle simulatedVehicle() {
-		return SimulatedVehicle.from(journey);
+		VehicleFactory factory = new VehicleFactory();
+		return factory.createFrom(journey);
 	}
 	
 	@Test

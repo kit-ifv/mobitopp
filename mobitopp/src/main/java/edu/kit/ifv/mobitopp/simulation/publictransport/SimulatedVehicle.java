@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
-import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
@@ -16,15 +15,10 @@ public class SimulatedVehicle implements Vehicle {
 	private final PassengerCompartment passengers;
 	private final VehicleRoute vehicleRoute;
 
-	SimulatedVehicle(VehicleRoute vehicleRoute, PassengerCompartment passengersPerStop) {
+	public SimulatedVehicle(VehicleRoute vehicleRoute, PassengerCompartment passengersPerStop) {
 		super();
 		passengers = passengersPerStop;
 		this.vehicleRoute = vehicleRoute;
-	}
-
-	public static Vehicle from(Journey journey) {
-		VehicleFactory factory = new VehicleFactory();
-		return factory.createFrom(journey);
 	}
 
 	@Override

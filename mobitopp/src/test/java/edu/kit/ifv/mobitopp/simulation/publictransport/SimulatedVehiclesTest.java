@@ -34,7 +34,8 @@ public class SimulatedVehiclesTest {
 		someJourney = mock(ModifiableJourney.class);
 		mock(ModifiableJourney.class);
 		initialiseJourneys();
-		someVehicle = SimulatedVehicle.from(someJourney);
+		VehicleFactory factory = new VehicleFactory();
+		someVehicle = factory.createFrom(someJourney);
 		someJourneys = new ModifiableJourneys();
 	}
 
