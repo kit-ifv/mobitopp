@@ -11,8 +11,8 @@ import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
-import edu.kit.ifv.mobitopp.simulation.publictransport.SimulatedVehicleQueue;
-import edu.kit.ifv.mobitopp.simulation.publictransport.VehicleQueue;
+import edu.kit.ifv.mobitopp.simulation.publictransport.vehicle.SimulatedVehicleQueue;
+import edu.kit.ifv.mobitopp.simulation.publictransport.vehicle.VehicleQueue;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour {

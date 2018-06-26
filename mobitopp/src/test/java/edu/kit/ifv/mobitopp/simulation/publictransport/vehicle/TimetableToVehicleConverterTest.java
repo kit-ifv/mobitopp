@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.util.Arrays.asList;

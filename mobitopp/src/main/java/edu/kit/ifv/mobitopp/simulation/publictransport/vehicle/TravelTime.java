@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import java.util.Optional;
 
@@ -6,12 +6,12 @@ import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class VehicleDriving {
+public class TravelTime {
 
 	private final RelativeTime travelTime;
 	private final ConnectionId id;
 
-	public VehicleDriving(ConnectionId id, RelativeTime travelTime) {
+	public TravelTime(ConnectionId id, RelativeTime travelTime) {
 		super();
 		this.travelTime = travelTime;
 		this.id = id;
@@ -42,7 +42,7 @@ public class VehicleDriving {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VehicleDriving other = (VehicleDriving) obj;
+		TravelTime other = (TravelTime) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

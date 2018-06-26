@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
+import edu.kit.ifv.mobitopp.simulation.publictransport.PassengerCompartment;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.time.Time;

@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -8,15 +8,15 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class VehicleTimes {
 
-	private final Iterator<VehicleWaiting> waiting;
-	private final Iterator<VehicleDriving> driving;
+	private final Iterator<WaitTime> waiting;
+	private final Iterator<TravelTime> driving;
 	private final Time firstDeparture;
 	private Optional<Time> nextDeparture;
 	private Optional<Time> nextArrival;
 	private Optional<ConnectionId> nextConnection;
 
 	public VehicleTimes(
-			Time firstDeparture, Iterator<VehicleDriving> driving, Iterator<VehicleWaiting> waiting) {
+			Time firstDeparture, Iterator<TravelTime> driving, Iterator<WaitTime> waiting) {
 		super();
 		this.waiting = waiting;
 		this.driving = driving;
@@ -60,7 +60,7 @@ public class VehicleTimes {
 	}
 
 	private void assignArrival() {
-		VehicleDriving nextVehicleLink = driving.next();
+		TravelTime nextVehicleLink = driving.next();
 		this.nextArrival = nextVehicleLink.nextArrival(nextDeparture);
 		this.nextConnection = Optional.of(nextVehicleLink.nextConnection());
 	}

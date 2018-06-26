@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -11,12 +11,12 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-public class VehicleWaitingTest {
+public class WaitTimeTest {
 
 	@Test
 	public void nextDeparture() {
 		RelativeTime waitTime = RelativeTime.ofMinutes(5);
-		VehicleWaiting waiting = new VehicleWaiting(waitTime);
+		WaitTime waiting = new WaitTime(waitTime);
 
 		Time currentTime = Data.someTime();
 		Time nextDeparture = waiting.nextDeparture(currentTime);
@@ -26,6 +26,6 @@ public class VehicleWaitingTest {
 	
 	@Test
 	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(VehicleWaiting.class).usingGetClass().verify();
+		EqualsVerifier.forClass(WaitTime.class).usingGetClass().verify();
 	}
 }
