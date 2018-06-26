@@ -21,14 +21,6 @@ dependencies {
         'nl.jqno.equalsverifier:equalsverifier:2.2.+'
 }
 
-task syncDependencies(type: Sync) {
-    group = 'build setup'
-    from project.ext["mobitopp.repository.url"]
-    into project.ext["local.cache.path"] as File
-}
-
-compileJava.dependsOn syncDependencies
-
 tasks.withType(JavaCompile) { 
     options.compilerArgs << "-Xlint:all" 
 }
