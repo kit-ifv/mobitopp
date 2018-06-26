@@ -25,7 +25,7 @@ public class ZoneBasedPublicTransport implements PublicTransportData {
 
 	@Override
 	public VehicleBehaviour vehicleBehaviour(ResultWriter results) {
-		return VehicleBehaviour.empty;
+		return VehicleBehaviour.noBehaviour;
 	}
 
 	@Override
