@@ -9,6 +9,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class VehicleWaitingTest {
 
@@ -21,5 +22,10 @@ public class VehicleWaitingTest {
 		Time nextDeparture = waiting.nextDeparture(currentTime);
 
 		assertThat(nextDeparture, is(equalTo(currentTime.plus(waitTime))));
+	}
+	
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(VehicleWaiting.class).usingGetClass().verify();
 	}
 }

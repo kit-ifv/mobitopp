@@ -61,7 +61,7 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 		return new PublicTransportTimetable(connections, stopPoints, journeys, finder, stations, vehicles);
 	}
 
-	protected Vehicles convertVehicles(ModifiableJourneys journeys) {
+	public Vehicles convertVehicles(ModifiableJourneys journeys) {
 		return vehicleConverter().convert(journeys);
 	}
 

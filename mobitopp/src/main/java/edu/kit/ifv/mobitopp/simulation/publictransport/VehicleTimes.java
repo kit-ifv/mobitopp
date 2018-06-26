@@ -15,7 +15,7 @@ public class VehicleTimes {
 	private Optional<Time> nextArrival;
 	private Optional<ConnectionId> nextConnection;
 
-	VehicleTimes(
+	public VehicleTimes(
 			Time firstDeparture, Iterator<VehicleDriving> driving, Iterator<VehicleWaiting> waiting) {
 		super();
 		this.waiting = waiting;

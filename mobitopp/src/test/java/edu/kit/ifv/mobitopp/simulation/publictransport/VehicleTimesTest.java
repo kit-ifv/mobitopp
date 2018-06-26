@@ -35,7 +35,7 @@ public class VehicleTimesTest {
 		firstConnection = Data.fromSomeToAnother();
 		secondConnection = longFromAnotherToOther();
 		Collection<Connection> connections = asList(firstConnection, secondConnection);
-		vehicleConnections = VehicleTimesConverter.from(connections);
+		vehicleConnections = TimetableToVehicleConverter.from(connections);
 	}
 
 	public static Connection longFromAnotherToOther() {
@@ -50,7 +50,7 @@ public class VehicleTimesTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void failForEmptyConnections() {
-		VehicleTimesConverter.from(Collections.emptyList());
+		TimetableToVehicleConverter.from(Collections.emptyList());
 	}
 
 	@Test
