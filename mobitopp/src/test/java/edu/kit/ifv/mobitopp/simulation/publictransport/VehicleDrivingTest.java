@@ -11,6 +11,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class VehicleDrivingTest {
 
@@ -24,5 +25,10 @@ public class VehicleDrivingTest {
 		Optional<Time> nextArrival = driving.nextArrival(nextDeparture);
 
 		assertThat(nextArrival, hasValue(someTime().plus(travelTime)));
+	}
+	
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(VehicleDriving.class).usingGetClass().verify();
 	}
 }

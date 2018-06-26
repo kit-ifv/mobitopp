@@ -20,7 +20,12 @@ public class DefaultVehicleFactory implements VehicleFactory {
 	private final VehicleTimesConverter vehicleTimes;
 
 	public DefaultVehicleFactory() {
-		vehicleTimes = new VehicleTimesConverter();
+		this(new TimetableToVehicleConverter());
+	}
+	
+	public DefaultVehicleFactory(VehicleTimesConverter vehicleTimes) {
+		super();
+		this.vehicleTimes = vehicleTimes;
 	}
 
 	@Override

@@ -15,11 +15,11 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class VehicleTimesConverterTest {
+public class TimetableToVehicleConverterTest {
 
 	@Test
 	public void convertsDrivingBetweenStops() {
-		VehicleTimesConverter converter = new VehicleTimesConverter();
+		VehicleTimesConverter converter = new TimetableToVehicleConverter();
 
 		VehicleTimes times = converter.convert(singleConnection());
 
@@ -40,7 +40,7 @@ public class VehicleTimesConverterTest {
 	@Test
 	public void convertsSeveralConnections() {
 		RelativeTime delay = RelativeTime.ofMinutes(5);
-		VehicleTimesConverter converter = new VehicleTimesConverter();
+		VehicleTimesConverter converter = new TimetableToVehicleConverter();
 		
 		VehicleTimes times = converter.convert(severalConnections());
 		Time current = secondConnection().departure().plus(delay);

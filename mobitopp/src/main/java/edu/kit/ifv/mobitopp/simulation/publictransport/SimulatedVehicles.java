@@ -9,7 +9,6 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimulatedVehicles implements Vehicles {
 
-	static final Vehicle footVehicle = new FootVehicle();
 	private final Map<Journey, Vehicle> journeyToVehicle;
 	private final VehicleQueue queue;
 
