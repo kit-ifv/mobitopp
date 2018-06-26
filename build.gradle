@@ -17,7 +17,6 @@ subprojects {
         mavenCentral()
         jcenter()
         maven { url "http://mvn.collide.info/content/repositories/releases/" }
-        maven { url project.ext["local.cache.path"] }
         maven { url project.ext["mobitopp.repository.url"] }
         maven { url "https://jitpack.io" }
     }
