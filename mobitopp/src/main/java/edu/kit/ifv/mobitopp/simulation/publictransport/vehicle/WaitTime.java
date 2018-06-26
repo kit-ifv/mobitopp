@@ -1,13 +1,13 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class VehicleWaiting {
+public class WaitTime {
 
 	private final RelativeTime waitTime;
 
-	public VehicleWaiting(RelativeTime waitTime) {
+	public WaitTime(RelativeTime waitTime) {
 		super();
 		this.waitTime = waitTime;
 	}
@@ -32,7 +32,7 @@ public class VehicleWaiting {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VehicleWaiting other = (VehicleWaiting) obj;
+		WaitTime other = (WaitTime) obj;
 		if (waitTime == null) {
 			if (other.waitTime != null)
 				return false;

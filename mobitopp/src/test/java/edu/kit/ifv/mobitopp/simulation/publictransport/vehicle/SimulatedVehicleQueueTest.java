@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

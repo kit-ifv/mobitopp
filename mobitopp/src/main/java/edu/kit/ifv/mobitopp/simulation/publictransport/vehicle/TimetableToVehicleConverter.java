@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import java.util.Collection;
 
@@ -13,13 +13,13 @@ public class TimetableToVehicleConverter extends BaseVehicleConverter
 		return converter.convert(connections);
 	}
 
-	protected VehicleDriving travelTimeOf(Connection current) {
-		return new VehicleDriving(current.id(), current.duration());
+	protected TravelTime travelTimeOf(Connection current) {
+		return new TravelTime(current.id(), current.duration());
 	}
 
-	protected VehicleWaiting waitingBetween(Connection previous, Connection current) {
+	protected WaitTime waitingBetween(Connection previous, Connection current) {
 		RelativeTime waitTime = current.departure().differenceTo(previous.arrival());
-		return new VehicleWaiting(waitTime);
+		return new WaitTime(waitTime);
 	}
 
 }

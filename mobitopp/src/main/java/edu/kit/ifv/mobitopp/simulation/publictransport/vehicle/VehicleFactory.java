@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;

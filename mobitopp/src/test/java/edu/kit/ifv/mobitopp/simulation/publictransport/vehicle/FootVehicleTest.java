@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.FootJourney.footJourney;
 import static org.hamcrest.Matchers.equalTo;

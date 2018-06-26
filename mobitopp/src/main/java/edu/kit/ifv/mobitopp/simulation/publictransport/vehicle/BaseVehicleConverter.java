@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,8 +17,8 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 	@Override
 	public VehicleTimes convert(Collection<Connection> connections) {
 		verify(connections);
-		Iterator<VehicleWaiting> waiting = waiting(connections);
-		Iterator<VehicleDriving> driving = driving(connections);
+		Iterator<WaitTime> waiting = waiting(connections);
+		Iterator<TravelTime> driving = driving(connections);
 		Time firstDeparture = connections.iterator().next().departure();
 		return new VehicleTimes(firstDeparture, driving, waiting);
 	}
@@ -29,8 +29,8 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 		}
 	}
 
-	private Iterator<VehicleWaiting> waiting(Collection<Connection> connections) {
-		List<VehicleWaiting> waiting = new ArrayList<>();
+	private Iterator<WaitTime> waiting(Collection<Connection> connections) {
+		List<WaitTime> waiting = new ArrayList<>();
 		Iterator<Connection> iterator = connections.iterator();
 		Connection previous = iterator.next();
 		while (iterator.hasNext()) {
@@ -41,12 +41,12 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 		return waiting.iterator();
 	}
 
-	private Iterator<VehicleDriving> driving(Collection<Connection> connections) {
+	private Iterator<TravelTime> driving(Collection<Connection> connections) {
 		return connections.stream().map(this::travelTimeOf).iterator();
 	}
 
-	protected abstract VehicleDriving travelTimeOf(Connection current);
+	protected abstract TravelTime travelTimeOf(Connection current);
 
-	protected abstract VehicleWaiting waitingBetween(Connection previous, Connection current);
+	protected abstract WaitTime waitingBetween(Connection previous, Connection current);
 
 }

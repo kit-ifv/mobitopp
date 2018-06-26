@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.publictransport;
+package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
@@ -13,13 +13,13 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-public class VehicleDrivingTest {
+public class TravelTimeTest {
 
 	@Test
 	public void nextArrival() {
 		ConnectionId id = ConnectionId.of(0);
 		RelativeTime travelTime = RelativeTime.ofMinutes(4);
-		VehicleDriving driving = new VehicleDriving(id, travelTime);
+		TravelTime driving = new TravelTime(id, travelTime);
 
 		Optional<Time> nextDeparture = Optional.of(someTime());
 		Optional<Time> nextArrival = driving.nextArrival(nextDeparture);
@@ -29,6 +29,6 @@ public class VehicleDrivingTest {
 	
 	@Test
 	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(VehicleDriving.class).usingGetClass().verify();
+		EqualsVerifier.forClass(TravelTime.class).usingGetClass().verify();
 	}
 }
