@@ -50,7 +50,7 @@ public class DemandSimulatorPassengerTest {
 		when(context.simulationDays()).thenReturn(simulationDays);
 		when(context.configuration()).thenReturn(new WrittenConfiguration());
 		when(context.zoneRepository()).thenReturn(zoneRepository);
-		when(context.vehicleBehaviour()).thenReturn(VehicleBehaviour.empty);
+		when(context.vehicleBehaviour()).thenReturn(VehicleBehaviour.noBehaviour);
 		PersonResults results = new TripfileWriter(ResultsForTests.at(baseFolder), impedance);
 		when(context.personResults()).thenReturn(results);
 		simulator = new DemandSimulatorPassenger(null, null, null,

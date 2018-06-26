@@ -35,7 +35,7 @@ public class NoPublicTransport implements PublicTransport {
 
 	@Override
 	public PublicTransportData loadData(VisumNetwork network, SimulationDays simulationDays) {
-		return PublicTransportData.empty();
+		return PublicTransportData.noAssignement;
 	}
 
 }
