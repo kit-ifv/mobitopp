@@ -7,7 +7,7 @@ public class FootJourney implements Journey {
 	public static final Journey footJourney = new FootJourney();
 	private static final TransportSystem footSystem = new TransportSystem("foot");
 	private static final int unlimited = Integer.MAX_VALUE;
-	private static int footId = -1;
+	private static final int footId = -1;
 
 	private FootJourney() {
 		super();
