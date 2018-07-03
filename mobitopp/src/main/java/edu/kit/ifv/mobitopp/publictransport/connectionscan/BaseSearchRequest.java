@@ -28,23 +28,10 @@ abstract class BaseSearchRequest implements PreparedSearchRequest {
 	protected void initialise(Stop start, Time departure) {
 		for (Stop neighbour : start.neighbours()) {
 			start.arrivalAt(neighbour, departure).ifPresent(
-					arrival -> updateTransfer(start, neighbour, departure, arrival));
+					arrival -> updateArrivalByFoot(start, neighbour, departure, arrival));
 		}
 	}
 
-	private void updateTransfer(Stop fromStart, Stop end, Time departure, Time arrival) {
-		Connection connection = Connection.byFootFrom(fromStart, end, departure, arrival);
-		updateTimeAndConnection(connection);
-	}
-
-	private void updateTimeAndConnection(Connection connection) {
-		Stop end = connection.end();
-		Time arrival = connection.arrival();
-		times.set(end, arrival);
-		usedConnections.update(end, connection);
-		usedJourneys.use(connection.journey());
-	}
-	
 	protected Time arrivalAt(Stop stop) {
 		return times.get(stop);
 	}
@@ -78,6 +65,14 @@ abstract class BaseSearchRequest implements PreparedSearchRequest {
 		updateArrivalAtNeighbours(connection);
 	}
 
+	private void updateTimeAndConnection(Connection connection) {
+		Stop end = connection.end();
+		Time arrival = connection.arrival();
+		times.set(end, arrival);
+		usedConnections.update(end, connection);
+		usedJourneys.use(connection.journey());
+	}
+
 	private void updateArrivalAtNeighbours(Connection connection) {
 		Stop end = connection.end();
 		Time arrival = connection.arrival();
@@ -92,6 +87,11 @@ abstract class BaseSearchRequest implements PreparedSearchRequest {
 		if (currentArrival.isAfter(arrivalAtEnd)) {
 			updateTransfer(start, end, arrivalAtStart, arrivalAtEnd);
 		}
+	}
+
+	private void updateTransfer(Stop fromStart, Stop end, Time departure, Time arrival) {
+		Connection connection = Connection.byFootFrom(fromStart, end, departure, arrival);
+		updateTimeAndConnection(connection);
 	}
 
 	protected boolean isAfterArrivalAt(Time departure, Stop end) {
