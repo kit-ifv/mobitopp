@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumReader;
+import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 
 public class ContextBuilder {
 
@@ -118,7 +119,7 @@ public class ContextBuilder {
 		log("Create road network");
 	}
 
-	protected SimpleRoadNetwork createRoadNetwork(VisumNetwork network) {
+	protected SimpleRoadNetwork createRoadNetwork(VisumRoadNetwork network) {
 		return new SimpleRoadNetwork(network);
 	}
 
