@@ -268,16 +268,12 @@ public class DefaultTour
 			ActivityType type = current.activityType();
 			
 			Integer cnt = activitiesByType.getOrDefault(type, 0);
-	//		System.out.println(type + " " + cnt);
 			
 			activitiesByType.put(type, 1+cnt);
 			
 			current = schedule.nextActivity(current);
 		}
 		
-//		System.out.println(this);
-	//	System.out.println(activitiesByType);
-	
 		return activitiesByType;
 	}
 	
@@ -455,31 +451,6 @@ public class DefaultTour
 
 	@Override
 	public String forLogging() {
-	
-		/*
-			System.out.println("tour -- > " + this);
-		if (purpose() == ActivityType.UNDEFINED) {
-			System.out.println(this);
-		}
-		
-		if (purpose() == ActivityType.HOME) {
-			System.out.println(this);
-			System.out.println("-- ");
-			System.out.println(schedule.correspondingTour(schedule.prevActivity(mainActivity())));
-			System.out.println("-- ");
-			System.out.println(mainActivity());
-			System.out.println("-- ");
-			System.out.println(schedule.startOfFirstTour());
-			System.out.println("-- ");
-			System.out.println(schedule.correspondingTour(schedule.startOfFirstTour()));
-			System.out.println("-- ");
-			System.out.println(schedule);
-			
-			throw new AssertionError();
-		}
-		*/
-		
-		// return toString();
 		return ""
 							+ firstActivity().startDate().weekDay() + ";"
 							+ firstActivity().startDate().getHour() + ";"

@@ -1,14 +1,11 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
-
 import java.io.Serializable;
-import java.io.ObjectStreamException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class VisumSurface 
@@ -167,14 +164,5 @@ System.out.println("calculating combinedArea for " + areas.size() + " faces");
 
 		return enc == 1;
 	}
-
-
-	/*
-	private Object readResolve() 
-		throws ObjectStreamException
-	{
-		return new VisumSurface(id, faces, enclave);
-	}
-	*/
 
 }

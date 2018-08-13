@@ -104,12 +104,6 @@ public class ContextBuilder {
 	}
 
 	private void visumNetwork() {
-		/*
-		VisumReader reader = new VisumReader();
-		VisumNetworkReader networkReader = createNetworkReader(reader);
-		File visumFile = Convert.asFile(configuration.getVisumFile());
-		network = networkReader.readNetwork(visumFile);
-		*/
 		network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 		log("Load visum network");
 	}

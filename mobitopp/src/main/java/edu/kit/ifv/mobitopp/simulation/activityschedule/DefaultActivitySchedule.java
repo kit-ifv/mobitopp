@@ -16,7 +16,6 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 
 
 public class DefaultActivitySchedule 
-	// extends ActivityPeriodWithPrecedingAndSucceeding	
 	extends ActivityPeriodWithExtendedFirstAndLastActivity
 	implements ActivitySchedule, ActivityScheduleWithState
 		, ModifiableActivityScheduleWithState 

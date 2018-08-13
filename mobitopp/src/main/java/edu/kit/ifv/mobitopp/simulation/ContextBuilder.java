@@ -12,8 +12,6 @@ import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
-import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
-import edu.kit.ifv.mobitopp.visum.VisumReader;
 
 public class ContextBuilder {
 
@@ -82,10 +80,6 @@ public class ContextBuilder {
 	}
 
 	private void visumNetwork() {
-		// VisumReader reader = new VisumReader();
-		// File visumNetworkFile = Convert.asFile(configuration.getVisumFile());
-		// VisumNetworkReader networkReader = new VisumNetworkReader(reader);
-		// network = networkReader.readNetwork(visumNetworkFile);
 		 network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 	}
 
