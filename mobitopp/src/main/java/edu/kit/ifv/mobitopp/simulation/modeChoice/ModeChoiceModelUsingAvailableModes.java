@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
+import edu.kit.ifv.mobitopp.simulation.tour.TourModeChoiceModelWithTimeRestrictions;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 
@@ -28,7 +29,8 @@ public class ModeChoiceModelUsingAvailableModes
 
 	public ModeChoiceModelUsingAvailableModes(
 		ModeAvailabilityModel modeAvailabilityModel,
-		TourBasedModeChoiceModel modeChoiceModel, ResultWriter results
+		TourBasedModeChoiceModel modeChoiceModel, 
+		ResultWriter results
 	) {
 		this.modeAvailabilityModel = modeAvailabilityModel;
 		this.modeChoiceModel =  modeChoiceModel;
@@ -37,7 +39,7 @@ public class ModeChoiceModelUsingAvailableModes
 	}
 
 	public boolean isTourBased() {
-		return false;
+		return this.modeChoiceModel instanceof TourModeChoiceModelWithTimeRestrictions;
 	}
 
 	@Override

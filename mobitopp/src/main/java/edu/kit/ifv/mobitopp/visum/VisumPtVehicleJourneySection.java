@@ -1,6 +1,11 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public class VisumPtVehicleJourneySection {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class VisumPtVehicleJourneySection 
+	implements Serializable
+{
 
 	public final int id;
 	public final int journeyId;

@@ -23,6 +23,32 @@ public class Subtour
 		this.number = number;
 	}
 
+
+	/*
+	@Override
+	public boolean hasPreviousTour() {
+		
+		return schedule.hasPrevActivity(first) 
+				&& schedule.hasPrevActivity(schedule.prevActivity(first));
+	}
+	*/
+
+	/*
+	@Override
+	public Tour previousTour() {
+		
+		if (!hasPreviousTour()) { 
+			throw new AssertionError("no previous Tour found -- use 'hasPreviousTour' to check");
+		}
+		
+		ActivityIfc prev = schedule.prevActivity(first);
+	
+		assert prev != null;
+		
+		return schedule.correspondingTour(prev);
+	}
+	*/
+
 	@Override
 	public int tourNumber() {
 
@@ -52,6 +78,7 @@ public class Subtour
 		
 		ActivityType purpose = purpose();
 		
+		// Optional<ActivityIfc> mainActivity = firstActivity(purpose);
 		Optional<ActivityIfc> mainActivity = activityWithMaxDuration(purpose);
 		
 		assert mainActivity.isPresent();

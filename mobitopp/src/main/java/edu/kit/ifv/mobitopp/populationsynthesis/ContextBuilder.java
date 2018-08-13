@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
@@ -103,10 +104,13 @@ public class ContextBuilder {
 	}
 
 	private void visumNetwork() {
+		/*
 		VisumReader reader = new VisumReader();
 		VisumNetworkReader networkReader = createNetworkReader(reader);
 		File visumFile = Convert.asFile(configuration.getVisumFile());
 		network = networkReader.readNetwork(visumFile);
+		*/
+		network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 		log("Load visum network");
 	}
 

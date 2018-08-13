@@ -1,7 +1,11 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import java.io.Serializable;
 
-public class VisumPtStop {
+@SuppressWarnings("serial")
+public class VisumPtStop 
+	implements Serializable
+{
 
 	public final int id;
 	public final String code;

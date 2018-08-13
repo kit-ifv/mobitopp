@@ -12,6 +12,8 @@ import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.tour.TourOnlyModeChoiceModel;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public interface SimulationPerson 
@@ -56,7 +58,7 @@ public interface SimulationPerson
 
 	public void selectDestinationAndMode(
 		DestinationChoiceModel targetSelector,
-		ModeChoiceModel modeChoiceModel,
+		TourBasedModeChoiceModel modeChoiceModel,
 		ImpedanceIfc impedance,
 		boolean passengerAsOption
 	);

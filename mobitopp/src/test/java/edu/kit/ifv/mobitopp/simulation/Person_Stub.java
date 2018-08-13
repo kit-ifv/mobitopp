@@ -10,7 +10,9 @@ import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class Person_Stub
@@ -75,7 +77,7 @@ public class Person_Stub
 	public PersonId getId() { return null; }
 
 	public ModifiableActivityScheduleWithState activitySchedule() { return null; }
-	public void initSchedule(ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days) {}
+	public void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days) {}
 
 	public Gender gender() { return null; }
 	public Employment employment() { return null; }
@@ -139,5 +141,16 @@ public class Person_Stub
 	public void takeCarFromParking() {
 		
 	}
+
+	@Override
+	public ModeChoicePreferences modeChoicePrefsSurvey() {
+		return null;
+	}
+
+	@Override
+	public ModeChoicePreferences modeChoicePreferences() {
+		return null;
+	}
+
 
 }

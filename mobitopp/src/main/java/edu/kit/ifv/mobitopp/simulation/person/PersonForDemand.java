@@ -23,6 +23,8 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithStat
 import edu.kit.ifv.mobitopp.simulation.activityschedule.DefaultActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -52,6 +54,10 @@ public class PersonForDemand
 	private final boolean hasAccessToCar;
 	private final boolean hasPersonalCar;
 	private final boolean hasCommuterTicket;
+	private final boolean hasLicense;
+	
+	private final ModeChoicePreferences modeChoicePrefsSurvey;
+	private final ModeChoicePreferences modeChoicePreferences;
   
 	private Map<ActivityType,Zone> fixedDestinationZones = new HashMap<ActivityType,Zone>();
 	private Map<ActivityType,Location> fixedDestinations = new HashMap<ActivityType,Location>();
@@ -84,7 +90,10 @@ public class PersonForDemand
 		boolean hasAccessToCar,
 		boolean hasPersonalCar,
 		boolean hasCommuterTicket,
-		PatternActivityWeek activitySchedule
+		boolean hasLicense,
+		PatternActivityWeek activitySchedule,
+    ModeChoicePreferences modeChoicePrefsSurvey,
+    ModeChoicePreferences modeChoicePreferences
 	)
   {
 		this.oid = oid;
@@ -104,8 +113,13 @@ public class PersonForDemand
 		this.hasAccessToCar = hasAccessToCar;
 		this.hasPersonalCar = hasPersonalCar;
 		this.hasCommuterTicket = hasCommuterTicket;
+		this.hasLicense = hasLicense;
 		
 		fixedDestinationElements = new ArrayList<>();
+		
+		this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
+    this.modeChoicePreferences = modeChoicePreferences;
+
   }
 
 	public int getOid() {
@@ -405,10 +419,11 @@ public class PersonForDemand
 	}
 
 	public void initSchedule(
+		TourFactory tourFactory,
 		ActivityStartAndDurationRandomizer activityDurationRandomizer, 
 		List<Time> days
 	) {
-		this.activitySchedule = new DefaultActivitySchedule(this.activityPattern, activityDurationRandomizer, days);
+		this.activitySchedule = new DefaultActivitySchedule(tourFactory, this.activityPattern, activityDurationRandomizer, days);
 	}
 
 	public void assignPersonalCar(PrivateCar personalCar) {
@@ -518,7 +533,7 @@ public class PersonForDemand
 	@Override
 	public PersonAttributes attributes() {
 		return new PersonAttributes(oid, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense);
 	}
 
 	public String forDebug() {
@@ -553,6 +568,15 @@ public class PersonForDemand
 	public Collection<FixedDestination> getFixedDestinations() {
 		return Collections.unmodifiableCollection(fixedDestinationElements);
 	}
+	
+  @Override
+  public ModeChoicePreferences modeChoicePrefsSurvey() {
+    return this.modeChoicePrefsSurvey;
+  }
 
+  @Override
+  public ModeChoicePreferences modeChoicePreferences() {
+    return this.modeChoicePreferences;
+  }
 
 }

@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 
 public class DefaultPersonFormatTest {
@@ -123,7 +124,10 @@ public class DefaultPersonFormatTest {
 				valueOf(Example.hasBike), 
 				valueOf(Example.hasAccessToCar),
 				valueOf(Example.hasPersonalCar), 
-				valueOf(Example.hasCommuterTicket) 
+				valueOf(Example.hasCommuterTicket),
+				valueOf(Example.hasLicense), 
+				valueOf(ModeChoicePreferences.NOPREFERENCES), 
+				valueOf(ModeChoicePreferences.NOPREFERENCES)
 			);
 	}
 

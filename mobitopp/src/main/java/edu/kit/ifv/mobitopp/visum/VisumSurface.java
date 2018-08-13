@@ -10,20 +10,18 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.io.ObjectStreamException;
 
+@SuppressWarnings("serial")
 public class VisumSurface 
 	implements Serializable
 {
-
-	private static final long serialVersionUID = 1L;
 
 	public final Integer id;
 
 	private final List<VisumFace> faces;
 	private final List<Integer> enclave;
 
-	transient private List<Area> areas;
-	transient private Area totalArea;
-	transient private Area area;
+	private List<Area> areas;
+	private Area totalArea;
 
 	public VisumSurface(Integer id, List<VisumFace> faces,  List<Integer> enclave) {
 
@@ -38,7 +36,8 @@ public class VisumSurface
 		this(null, faces, enclave);
 	}
 
-	private List<Area> areasFromFaces(List<VisumFace> faces,  List<Integer> enclave) {
+
+	protected List<Area> areasFromFaces(List<VisumFace> faces,  List<Integer> enclave) {
 
 		List<Area> positive = new ArrayList<Area>();
 		List<Area> negative = new ArrayList<Area>();
@@ -73,6 +72,7 @@ public class VisumSurface
 		return positive;
 	}
 
+
 	public List<Area> areas() {
 
 		if (this.areas == null) {
@@ -101,26 +101,26 @@ public class VisumSurface
 	public Area area() {
 
 		if (totalArea == null) {
-			totalArea = combinedArea();
+			totalArea = combinedArea(areas());
 		}
 
 		return totalArea;
 	}
 
-	private Area combinedArea() {
+	private static Area combinedArea(List<Area> areas) {
 
-System.out.println("calculating combinedArea for " + areas().size() + " faces");
+System.out.println("calculating combinedArea for " + areas.size() + " faces");
 
 		Area area = new Area();
 
-		for (Area a : areas()) {
+		for (Area a : areas) {
 			area.add(a);
 		}
 
 		return area;
 	}
 
-	private Area asArea() {
+	private static Area asArea(List<VisumFace> faces, List<Integer> enclave) {
 
 		Area a = new Area();
 
@@ -142,17 +142,39 @@ System.out.println("calculating combinedArea for " + areas().size() + " faces");
 	}
 
 	public boolean isPointInside(Point2D p) {
-		if (null == area) {
-			area = asArea();
-		}
-		return area.contains(p);
+
+		return asArea(this.faces, this.enclave).contains(p);
 	}
 
-	// Serialization
+	public int numFaces() {
+		return this.faces.size();
+	}
+
+	public VisumFace face(int n) {
+		assert n < this.faces.size();
+
+		return this.faces.get(n);
+	}
+
+	public boolean enclave(int n) {
+
+		assert n < this.faces.size();
+		assert n < this.enclave.size();
+
+		int enc = this.enclave.get(n);
+
+		assert enc == 1 || enc == 0;
+
+		return enc == 1;
+	}
+
+
+	/*
 	private Object readResolve() 
 		throws ObjectStreamException
 	{
 		return new VisumSurface(id, faces, enclave);
 	}
+	*/
 
 }

@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.util.Map;
+import java.io.Serializable;
 import java.util.Collections;
 
-public class VisumPtTimeProfile {
+@SuppressWarnings("serial")
+public class VisumPtTimeProfile 
+	implements Serializable
+{
 
 
 	public String name;

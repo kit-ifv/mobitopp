@@ -17,6 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
+import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -56,7 +57,7 @@ public class ActivityPeriodWithPrecedingAndSucceedingTest {
 		
 		dates = SimpleTime.oneWeek();
 		
-		week = new ActivityPeriodWithPrecedingAndSucceeding(new ActivityDurationNoRandomizer(), pattern, dates);
+		week = new ActivityPeriodWithPrecedingAndSucceeding(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), pattern, dates);
 	}
 
 

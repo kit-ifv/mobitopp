@@ -18,14 +18,17 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 public class PaneldataReader {
 
+
 	public final Map<String,List<PaneldataInfo>> data;
+
 	
 	public PaneldataReader(File file) {
 		super();
+
 		List<PaneldataInfo> input = readFile(file);
 		this.data = groupByHousehold(input);
 	}
-	
+
 	public List<HouseholdOfPanelData> readHouseholds() {
 
 		return createHouseholds(this.data);
@@ -118,8 +121,6 @@ public class PaneldataReader {
 		info.household.area_type 					= java.lang.Integer.parseInt(field[columnNames.get("areatype")]);
 		info.household.household_size 		= java.lang.Integer.parseInt(field[columnNames.get("size")]);
 		info.household.domcode 						= java.lang.Integer.parseInt(field[columnNames.get("hhtype")]);
-		info.household.additionalchildren	= java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildren")]);
-		info.household.additionalchildrenmaxage	= java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildrenmaxage")]);
 		info.household.cars							= java.lang.Integer.parseInt(field[columnNames.get("cars")]);
 		info.person.pole								= java.lang.Integer.parseInt(field[columnNames.get("pole")]);
 		info.person.weight							= java.lang.Float.parseFloat(field[columnNames.get("weight")]);
@@ -134,6 +135,20 @@ public class PaneldataReader {
 		info.person.ppkwverf 						= field[columnNames.get("personalcar")].trim().equals("1");
 		info.person.relvmselbst 				= field[columnNames.get("mw4")].trim().equals("1");
 		info.person.relvmoev 						= field[columnNames.get("mw5")].trim().equals("1");
+		
+		info.person.licence 						= columnNames.containsKey("licence")
+																		? field[columnNames.get("licence")].trim().equals("1") 
+																		: field[columnNames.get("caravailable")].trim().equals("1") || field[columnNames.get("personalcar")].trim().equals("1");
+		
+		info.household.additionalchildren	= columnNames.containsKey("notcontainedchildren")
+															? java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildren")])
+															: (
+																	columnNames.containsKey("children")
+															? java.lang.Integer.parseInt(field[columnNames.get("children")]) : -1
+																	);
+		
+		info.household.additionalchildrenmaxage	= columnNames.containsKey("notcontainedchildrenmaxage") 
+															? java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildrenmaxage")]) : -1;
 
 		info.household.income	=  columnNames.containsKey("hhincome")
 															? java.lang.Integer.parseInt(field[columnNames.get("hhincome")]) : 0;
@@ -143,12 +158,35 @@ public class PaneldataReader {
 
 		info.day 			= java.lang.Integer.parseInt(field[columnNames.get("day")]);
 		info.month 			= java.lang.Integer.parseInt(field[columnNames.get("month")]);
+		
+		info.person.pref_cardriver = columnNames.containsKey("pref_cardriver")
+															? java.lang.Float.parseFloat(field[columnNames.get("pref_cardriver")]) : 0.0f;
+		info.person.pref_carpassenger = columnNames.containsKey("pref_cardriver")
+															? java.lang.Float.parseFloat(field[columnNames.get("pref_carpassenger")]) : 0.0f;
+		info.person.pref_walking = columnNames.containsKey("pref_walking")
+															? java.lang.Float.parseFloat(field[columnNames.get("pref_walking")]) : 0.0f;
+		info.person.pref_cycling = columnNames.containsKey("pref_cycling")
+															? java.lang.Float.parseFloat(field[columnNames.get("pref_cycling")]) : 0.0f;
+		info.person.pref_publictransport = columnNames.containsKey("pref_publictransport")
+															? java.lang.Float.parseFloat(field[columnNames.get("pref_publictransport")]) : 0.0f;
 
 		int startPattern = columnNames.get("activitypattern");
 
+//		System.out.println("info: " + info);
+//		System.out.println("line: " + line);
+//		System.out.println("startPattern: " + startPattern);
+
+
 		for (int i=startPattern; i<field.length; i+=4) {
+//				 System.out.println("i:" + i);
+//				 System.out.println(field[i] + ", " + field[i+1] + ", " + field[i+2] + ", " + field[i+3]);
+
+
 			int purpose = java.lang.Integer.parseInt(field[i+1]);
 			if (purpose == 10) { purpose=9; }
+			
+			
+
 			info.activity_pattern.add(
 				new ActivityOfPanelData(
 					java.lang.Integer.parseInt(field[i]),
@@ -165,6 +203,7 @@ public class PaneldataReader {
 
 	private Map<String,List<PaneldataInfo>> groupByHousehold(List<PaneldataInfo> input) {
 
+		List<HouseholdOfPanelData> households = new ArrayList<HouseholdOfPanelData>();
 		List<String> hhIds = new ArrayList<String>();
 
 		Map<String,List<PaneldataInfo>> infoByHousehold = new LinkedHashMap<String,List<PaneldataInfo>>();
@@ -221,7 +260,10 @@ public class PaneldataReader {
 																			: info.person.income*info.household.household_size;
 
 			HouseholdOfPanelData hh = new HouseholdOfPanelData(
-																	new HouseholdOfPanelDataId(info.household.year, info.household.household_number),
+																		new HouseholdOfPanelDataId(	
+																																info.household.year,
+																																info.household.household_number
+																														),
 																	info.household.area_type,
 																	info.household.household_size,
 																	info.household.domcode,
@@ -229,6 +271,7 @@ public class PaneldataReader {
 																	minors,
 																	info.household.additionalchildren,
 																	info.household.cars,
+																	// info.person.income*info.household.household_size
 																	income
 																);
 
@@ -316,10 +359,15 @@ public class PaneldataReader {
 				int income = info.person.income > 0 ? info.person.income 
 																						: info.household.income / info.household.household_size;
 
+//				System.out.println( info.household.year + ", " + info.person.birth_year + ": " +
+//																	(info.household.year - info.person.birth_year));
 				PersonOfPanelData p  = new PersonOfPanelData(
 																	new PersonOfPanelDataId(
-																		new HouseholdOfPanelDataId(info.household.year, info.household.household_number),
-																		cnt++ // person number may not be unique
+																			new HouseholdOfPanelDataId(
+																																info.household.year,
+																																info.household.household_number
+																															),
+																		cnt++ 
 																	),
 																	info.person.sex,
 																	info.person.birth_year,
@@ -327,13 +375,21 @@ public class PaneldataReader {
 																	info.person.employment_type,
 																	info.person.pole_distance,
 																	info.person.commutation_ticket,
+																	info.person.licence,
 																	info.person.fahrrad,
 																	info.person.ppkwverf,
 																	info.person.apkwverf,
 																	info.person.weight,
 																	income,
-																	activitiesAsString(info.activity_pattern)
+																	activitiesAsString(info.activity_pattern),
+																	info.person.pref_cardriver,
+																	info.person.pref_carpassenger,
+																	info.person.pref_walking,
+																	info.person.pref_cycling,
+																	info.person.pref_publictransport
 																);
+
+
 				result.add(p);
 			}
 		}
@@ -357,4 +413,34 @@ public class PaneldataReader {
 		return result.substring(0,result.lastIndexOf(";"));
 	}
 
+
+
+
+	public static void main (String[] args) {
+
+		if (args.length != 1) {
+			System.out.println("Usage: java PaneldataReader <file>");
+
+			System.exit(0);
+		}
+
+		File file = new File(args[0]);
+
+		PaneldataReader reader = new PaneldataReader(file);
+
+
+		// List<PaneldataInfo> data = reader.readFile(file);
+
+		// System.out.println("Read " + data.size() + " lines");
+
+		// Map<String,List<PaneldataInfo>> infoByHousehold = reader.groupByHousehold(data);
+
+		// System.out.println("Read " + infoByHousehold.size() + " households.");
+
+		List<HouseholdOfPanelData> households = reader.readHouseholds();
+		List<PersonOfPanelData> persons = reader.readPersons();
+
+		System.out.println("Found " + households.size() + " households.");
+		System.out.println("Found " + persons.size() + " persons.");
+	}
 }

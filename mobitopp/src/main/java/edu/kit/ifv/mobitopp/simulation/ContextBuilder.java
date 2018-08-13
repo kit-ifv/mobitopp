@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
+import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
@@ -50,10 +51,15 @@ public class ContextBuilder {
 		experimentalParameters();
 		resultWriter();
 		simulationDays();
+		System.out.println("Reading VISUM network");
 		visumNetwork();
+		System.out.println("creating road network");
 		roadNetwork();
+		System.out.println("reading PT network");
 		publicTransport();
+		System.out.println("Creating data repository");
 		dataRepository();
+		System.out.println("Preparing output ");
 		personResults();
 		return createContext();
 	}
@@ -76,10 +82,11 @@ public class ContextBuilder {
 	}
 
 	private void visumNetwork() {
-		VisumReader reader = new VisumReader();
-		VisumNetworkReader networkReader = new VisumNetworkReader(reader);
-		File visumNetworkFile = Convert.asFile(configuration.getVisumFile());
-		network = networkReader.readNetwork(visumNetworkFile);
+		// VisumReader reader = new VisumReader();
+		// File visumNetworkFile = Convert.asFile(configuration.getVisumFile());
+		// VisumNetworkReader networkReader = new VisumNetworkReader(reader);
+		// network = networkReader.readNetwork(visumNetworkFile);
+		 network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 	}
 
 	private void roadNetwork() {

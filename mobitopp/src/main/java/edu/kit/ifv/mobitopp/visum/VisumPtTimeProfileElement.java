@@ -1,10 +1,15 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import java.io.Serializable;
+
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class VisumPtTimeProfileElement {
+@SuppressWarnings("serial")
+public class VisumPtTimeProfileElement 
+	implements Serializable
+{
 
 	public final VisumPtLineRoute route;
 

@@ -69,7 +69,7 @@ public class SubtourTest {
 	public void setUp() {
 		
 		
-		scheduleWithoutSubtour 						=	new ActivityPeriod();
+		scheduleWithoutSubtour 						=	new ActivityPeriod(new DefaultTourFactory());
 	
 		scheduleWithoutSubtour.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(5,0,hour0,ActivityType.HOME,6*60,1)
@@ -90,7 +90,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(10,3,hour22,ActivityType.HOME,4*60,30)
 		);
 		
-		scheduleWithSubtourFromWork 			= new ActivityPeriod();
+		scheduleWithSubtourFromWork 			= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithSubtourFromWork.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(11,0,hour0,ActivityType.HOME,6*60,1)
@@ -108,7 +108,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(15,3,hour20,ActivityType.HOME,7*60,15)
 		);
 		
-		scheduleWithSubtourFromEducation 	= new ActivityPeriod();
+		scheduleWithSubtourFromEducation 	= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithSubtourFromEducation.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(21,0,hour0,ActivityType.HOME,6*60,1)
@@ -129,7 +129,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(26,3,hour20,ActivityType.HOME,6*60,15)
 		);
 		
-		scheduleWithSubtourFromService 		= new ActivityPeriod();
+		scheduleWithSubtourFromService 		= new ActivityPeriod(new DefaultTourFactory());
 		scheduleWithSubtourFromService.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(31,0,hour0,ActivityType.HOME,12*60,1)
 		);
@@ -146,7 +146,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(35,3,hour20,ActivityType.HOME,8*60,15)
 		);
 		
-		scheduleWithSubtourFromVisit 			= new ActivityPeriod();
+		scheduleWithSubtourFromVisit 			= new ActivityPeriod(new DefaultTourFactory());
 		scheduleWithSubtourFromVisit.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(41,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -163,7 +163,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(45,3,hour17,ActivityType.HOME,8*60,15)
 		);
 		
-		scheduleWithTwoLeisureActivities 	= new ActivityPeriod();
+		scheduleWithTwoLeisureActivities 	= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithTwoLeisureActivities.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(41,0,hour0,ActivityType.HOME,6*60,1)
@@ -182,7 +182,7 @@ public class SubtourTest {
 		);
 		
 		
-		scheduleWithTwoSubtoursFromWork 		= new ActivityPeriod();
+		scheduleWithTwoSubtoursFromWork 		= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithTwoSubtoursFromWork.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(51,0,hour0,ActivityType.HOME,6*60,1)
@@ -206,7 +206,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(57,0,hour20,ActivityType.HOME,6*60,1)
 		);
 		
-		scheduleWithSubtourFromWorkThreeActivities 		= new ActivityPeriod();
+		scheduleWithSubtourFromWorkThreeActivities 		= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithSubtourFromWorkThreeActivities.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(61,0,hour0,ActivityType.HOME,6*60,1)
@@ -230,7 +230,7 @@ public class SubtourTest {
 				ActivitySequenceAsLinkedList.newActivity(67,0,hour19,ActivityType.HOME,6*60,1)
 		);
 		
-		scheduleWithTwoServiceActivities 	= new ActivityPeriod();
+		scheduleWithTwoServiceActivities 	= new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWithTwoServiceActivities.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(71,0,hour0,ActivityType.HOME,13*60,1)

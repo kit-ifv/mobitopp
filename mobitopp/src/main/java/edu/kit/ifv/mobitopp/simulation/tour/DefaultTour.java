@@ -34,6 +34,7 @@ public class DefaultTour
 		
 		List<ActivityIfc> tourList = asList();
 		
+		// Tour kann u.U. nur den Heimweg enthalten
 		assert tourList.size() >= 1 : (tourList.size() + "\n" + this.first + "\n" + this.last);
 		
 		assert tourList.get(0) == first;
@@ -52,6 +53,11 @@ public class DefaultTour
 			cnt++;
 		}
 		return cnt;
+	}
+	
+	protected ActivityIfc nextActivity(ActivityIfc currentActivity) {
+		
+		return schedule.nextActivity(currentActivity);
 	}
 
 	@Override
@@ -99,6 +105,7 @@ public class DefaultTour
 		
 		while(current != last) {
 			
+			// if (current.duration() > maxDuration) {
 			if (current.duration() > maxDuration && !current.activityType().isHomeActivity()) {
 				maxDuration = current.duration();
 				maxDurationActivity = current;
@@ -183,7 +190,7 @@ public class DefaultTour
 	
 	public String toString() {
 		
-		return  "(" + asList().stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
+		return  "Tour(" + asList().stream().map(Object::toString).collect(Collectors.joining(",")) + ")";
 	}
 
 	@Override
@@ -251,7 +258,7 @@ public class DefaultTour
 	}
 	
 	
-	private Map<ActivityType, Integer> numberOfActivitiesByType() {
+	protected Map<ActivityType, Integer> numberOfActivitiesByType() {
 		
 		Map<ActivityType, Integer> activitiesByType = new LinkedHashMap<ActivityType, Integer>();
 		
@@ -261,16 +268,20 @@ public class DefaultTour
 			ActivityType type = current.activityType();
 			
 			Integer cnt = activitiesByType.getOrDefault(type, 0);
+	//		System.out.println(type + " " + cnt);
 			
 			activitiesByType.put(type, 1+cnt);
 			
 			current = schedule.nextActivity(current);
 		}
 		
+//		System.out.println(this);
+	//	System.out.println(activitiesByType);
+	
 		return activitiesByType;
 	}
 	
-	private boolean canHaveSubtours(ActivityType purpose) {
+	protected boolean canHaveSubtours(ActivityType purpose) {
 	
 		return purpose == ActivityType.WORK
 					|| purpose == ActivityType.EDUCATION
@@ -353,7 +364,11 @@ public class DefaultTour
 		
 		assert schedule.hasNextActivity(firstOccurance);
 		
-		return new Subtour(1+n, schedule.nextActivity(firstOccurance),secondOccurance,schedule);
+		return createSubtour(n, schedule.nextActivity(firstOccurance), secondOccurance);
+	}
+
+	protected Subtour createSubtour(int n, ActivityIfc first, ActivityIfc last) {
+		return new Subtour(1+n, first,last,schedule);
 	}
 
 	
@@ -440,16 +455,41 @@ public class DefaultTour
 
 	@Override
 	public String forLogging() {
+	
+		/*
+			System.out.println("tour -- > " + this);
+		if (purpose() == ActivityType.UNDEFINED) {
+			System.out.println(this);
+		}
 		
-		return "Tour("
-							+ tourNumber() + "," 
-							+ purpose() + "," 
-							+ mode() + "," 
-							+ numberOfTrips() + "," 
-							+ containsSubtour() + "," 
-							+ numberOfSubtours() + ","
-							+ firstActivity()
-					+ ")";
+		if (purpose() == ActivityType.HOME) {
+			System.out.println(this);
+			System.out.println("-- ");
+			System.out.println(schedule.correspondingTour(schedule.prevActivity(mainActivity())));
+			System.out.println("-- ");
+			System.out.println(mainActivity());
+			System.out.println("-- ");
+			System.out.println(schedule.startOfFirstTour());
+			System.out.println("-- ");
+			System.out.println(schedule.correspondingTour(schedule.startOfFirstTour()));
+			System.out.println("-- ");
+			System.out.println(schedule);
+			
+			throw new AssertionError();
+		}
+		*/
+		
+		// return toString();
+		return ""
+							+ firstActivity().startDate().weekDay() + ";"
+							+ firstActivity().startDate().getHour() + ";"
+							+ firstActivity().startDate().getMinute() + ";"
+							+ tourNumber() + ";" 
+							+ purpose() + ";" 
+							+ mode() + ";" 
+							+ numberOfTrips() + ";" 
+							+ containsSubtour() + ";" 
+							+ numberOfSubtours();
 	}
 	
 

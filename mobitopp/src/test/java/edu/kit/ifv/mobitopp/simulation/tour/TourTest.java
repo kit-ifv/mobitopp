@@ -45,7 +45,7 @@ public class TourTest {
 	@Before
 	public void setUp() {
 		
-		schedule = new ActivityPeriod();
+		schedule = new ActivityPeriod(new DefaultTourFactory());
 		
 		homeActivityBefore = ActivitySequenceAsLinkedList.newActivity(0,0,hour0,ActivityType.HOME,7*60,30);
 		
@@ -60,7 +60,7 @@ public class TourTest {
 		schedule.addAsLastActivity(thirdActivity);
 		schedule.addAsLastActivity(fourthActivity);
 
-		scheduleWork = new ActivityPeriod();
+		scheduleWork = new ActivityPeriod(new DefaultTourFactory());
 		
 		scheduleWork.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(5,0,hour0,ActivityType.HOME,6*60,1)
@@ -81,7 +81,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(10,3,hour22,ActivityType.HOME,4*60,30)
 		);
 		
-		scheduleEducation = new ActivityPeriod();
+		scheduleEducation = new ActivityPeriod(new DefaultTourFactory());
 		scheduleEducation.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(11,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -98,7 +98,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(15,3,hour20,ActivityType.HOME,7*60,15)
 		);
 		
-		scheduleService = new ActivityPeriod();
+		scheduleService = new ActivityPeriod(new DefaultTourFactory());
 		scheduleService.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(21,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -112,7 +112,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(24,3,hour20,ActivityType.HOME,6*60,15)
 		);
 		
-		scheduleShopping = new ActivityPeriod();
+		scheduleShopping = new ActivityPeriod(new DefaultTourFactory());
 		scheduleShopping.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(31,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -126,7 +126,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(34,3,hour20,ActivityType.HOME,8*60,15)
 		);
 		
-		scheduleLeisure = new ActivityPeriod();
+		scheduleLeisure = new ActivityPeriod(new DefaultTourFactory());
 		scheduleLeisure.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(41,0,hour0,ActivityType.HOME,6*60,1)
 		);

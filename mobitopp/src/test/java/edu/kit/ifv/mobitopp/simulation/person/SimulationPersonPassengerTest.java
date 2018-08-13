@@ -284,7 +284,7 @@ public class SimulationPersonPassengerTest {
 	private SimulationPersonPassenger person() {
 		PersonState initialState = DummyStates.some;
 		return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null,
-				initialState, boarder, seed, results) {
+				null, initialState, boarder, seed, results) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

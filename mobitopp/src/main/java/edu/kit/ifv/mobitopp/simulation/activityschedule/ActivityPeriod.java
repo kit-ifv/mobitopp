@@ -1,27 +1,27 @@
 package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
 import java.util.List;
+import java.util.Map;
 import java.io.Serializable;
 
 import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
-
-
-
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.LinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
-import edu.kit.ifv.mobitopp.simulation.tour.DefaultTour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 
 public class ActivityPeriod extends ActivitySequenceAsLinkedList
@@ -34,17 +34,23 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 	
 	private static int occupationCounter = 1;
+
+	private final TourFactory tourFactory;
 	
-	public ActivityPeriod() {
+	
+	public ActivityPeriod(TourFactory tourFactory) {
 		super();
+		
+		this.tourFactory = tourFactory;
 	}
 	
 	public ActivityPeriod(
+		TourFactory tourFactory,
 		ActivityStartAndDurationRandomizer durationRandomizer,
 		PatternActivityWeek patternWeek,
 		List<Time> dates
 	) {
-		super();
+		this(tourFactory);
 		init(durationRandomizer, patternWeek, dates);
 	}
 	
@@ -58,6 +64,9 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		
 		assert patternWeek.getPatternActivities().size() == origPatternWeek.getPatternActivities().size();
 		
+		// TODO: NM: Dauern der ersten und letzten Aktivität verlängern
+		// bzw. mit vorhergehender und nachfolgender Aktivität verschmelzen
+
 			for (Time currentDay : dates) {
 
 				List<PatternActivity> patternActivities =
@@ -66,6 +75,8 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		    for (int i=0; i<patternActivities.size(); i++)
 		    {
 		      PatternActivity aPatternActivity = patternActivities.get(i);
+		      
+		      
 		      if (aPatternActivity.getActivityType() != ActivityType.LEISURE_WALK) {
 		      	createAndAddActivity(currentDay, aPatternActivity, i);
 		      } else {
@@ -205,6 +216,7 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		return ok;
 	}
 
+
 	public void fixStartTimeOfActivities() {
 
 		if (isEmpty()) { return; }
@@ -230,6 +242,9 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 			curr = nextActivity(curr);
 		}
 	}
+
+
+	
 
   protected static ActivityIfc instantiateLastActivity(
   		ActivityStartAndDurationRandomizer durationRandomizer,
@@ -274,7 +289,8 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		DayOfWeek weekDay
 	) {
 
-		for (PatternActivity act : patternWeek.getPatternActivities()) {
+			for (PatternActivity act : 
+							patternWeek.getPatternActivities()) {
 
 				if (act.getWeekDayTypeAsInt() >= weekDay.getTypeAsInt()) {
 
@@ -382,7 +398,7 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 			beginOfTour = prevActivity(beginOfTour);
 		}
 		
-		return new DefaultTour(beginOfTour, endOfTour, this);
+		return this.tourFactory.createTour(beginOfTour, endOfTour, this);
 	}
 	
 	@Override
@@ -463,6 +479,32 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		System.out.println("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act
 												+ "\nisHomeActivity? " + act.activityType().isHomeActivity());
 		throw new AssertionError();
+
+		// return null;
 	}
+
+	@Override
+	public Map<Mode, Integer> alreadyUsedTourmodes(ActivityIfc activity) {
+		
+		LinkedHashMap<Mode,Integer> modes = new LinkedHashMap<Mode,Integer>();
+
+		for (ActivityIfc act = firstActivity(); act != activity; act = nextActivity(act)) {
+
+      if ( isStartOfTour(act) && act.isModeSet() ) {
+      	
+      	Mode mode = act.mode();
+      	
+      	if (!modes.containsKey(mode)) {
+      		modes.put(mode, 0);
+      	}
+      	modes.put(mode, 1+modes.get(mode));
+      }
+		}
+
+		return modes;
+	}
+	
+
+
  
 }

@@ -12,11 +12,11 @@ public class VisumTerritory
 
 	private static final long serialVersionUID = 1L;
 
-	protected int id;
-	public String code;
-	public String name;
+	public final int id;
+	public final String code;
+	public final String name;
 
-	protected int surfaceId;
+	public final int surfaceId;
 
 	protected	VisumSurface surface;
 
@@ -33,6 +33,7 @@ public class VisumTerritory
 		this.surfaceId = surfaceId;
 		this.surface = surface;
 	}
+	
 
 	public List<Area> areas() {
 		return surface.areas();

@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -27,11 +28,12 @@ public class ActivityPeriodWithPrecedingAndSucceeding
 
 
 	public ActivityPeriodWithPrecedingAndSucceeding(	
+		TourFactory tourFactory,
 		ActivityStartAndDurationRandomizer durationRandomizer,
 		PatternActivityWeek activityPattern,
 		List<Time> dates
 	) {
-		super(durationRandomizer, activityPattern, dates);
+		super(tourFactory, durationRandomizer, activityPattern, dates);
 		
 		Time firstDay = dates.get(0);
 		Time lastDay = dates.get(dates.size()-1);
