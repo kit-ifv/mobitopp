@@ -72,7 +72,6 @@ public class DefaultPersonCreator
 			Person person = newPerson(
     										personIdCounter++,
 												panelPerson, 
-												panelHousehold,
 												household,
 												hasCommuterTicket,
 												activitySchedule
@@ -86,7 +85,6 @@ public class DefaultPersonCreator
 	protected Person newPerson(
 			int oid,
 			PersonOfPanelData personOfPanelData,
-			HouseholdOfPanelData panelHousehold,
 			Household household,
 			boolean hasCommuterTicket,
 			PatternActivityWeek activitySchedule
@@ -98,13 +96,9 @@ public class DefaultPersonCreator
       new PersonId(
         household.getId(), panel_id.getPersonNumber());
 
-    float poleDistance = personOfPanelData.getPoleDistance();
-
-		int age 										= personOfPanelData.age();
+    int age 										= personOfPanelData.age();
 		Employment employment 			= personOfPanelData.employment();
-		int household_oid 					= household.getOid();
 		Gender gender 					= personOfPanelData.gender();
-		// float weight								= personOfPanelData.getWeight();
 		int income 							= personOfPanelData.getIncome();
 		
 		Map<Mode,Double> preferences = new LinkedHashMap<Mode,Double>();
@@ -136,12 +130,6 @@ public class DefaultPersonCreator
 
 
 		return person;
-	}
-
-	protected Person newPerson(int oid, PersonOfPanelData personOfPanelData, Household household,
-			boolean hasCommuterTicket, PatternActivityWeek activitySchedule) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
