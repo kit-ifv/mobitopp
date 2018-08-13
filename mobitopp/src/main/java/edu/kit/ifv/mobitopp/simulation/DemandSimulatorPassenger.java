@@ -20,6 +20,9 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
+import edu.kit.ifv.mobitopp.simulation.tour.TourWithWalkAsSubtourFactory;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -32,24 +35,26 @@ public class DemandSimulatorPassenger
 	
 	private final SimulationContext context;
   private final DestinationChoiceModel destinationChoiceModel;
-	private final ModeChoiceModel modeSelector;
+	private final TourBasedModeChoiceModel modeChoice;
 	private final ActivityStartAndDurationRandomizer activityDurationRandomizer;
 	private final ReschedulingStrategy rescheduling;
 	private final ZoneBasedRouteChoice routeChoice;
 
 	private final EventQueue queue;
 	private final VehicleBehaviour vehicleBehaviour;
-	private final Set<Mode> modesInSimulation;
-	private final PersonState initialState;
+	protected final Set<Mode> modesInSimulation;
+	protected final PersonState initialState;
 	private final RideSharingOffers rideOffers;
 	private final int max_difference_minutes;
 	private final Hooks beforeTimeSlice;
 	private final Hooks afterTimeSlice;
 
+	protected final TourFactory tourFactory = new TourWithWalkAsSubtourFactory();
+
 	
   public DemandSimulatorPassenger(
       final DestinationChoiceModel destinationChoiceModel,
-			final ModeChoiceModel modeChoiceModel,
+			final TourBasedModeChoiceModel modeChoiceModel,
 			final ZoneBasedRouteChoice routeChoice,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
       final ReschedulingStrategy rescheduling,
@@ -60,7 +65,7 @@ public class DemandSimulatorPassenger
   {
 		this.context = context;
 		this.destinationChoiceModel = destinationChoiceModel;
-		this.modeSelector = modeChoiceModel;
+		this.modeChoice = modeChoiceModel;
 		this.routeChoice = routeChoice;
 		this.activityDurationRandomizer = activityDurationRandomizer;
 
@@ -80,7 +85,7 @@ public class DemandSimulatorPassenger
   
   public DemandSimulatorPassenger(
       final DestinationChoiceModel destinationChoiceModelForDemandSimulation_,
-			final ModeChoiceModel modeSelector_,
+			final TourBasedModeChoiceModel modeSelector_,
 			final ZoneBasedRouteChoice routeChoice,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
       final ReschedulingStrategy rescheduling,
@@ -100,7 +105,7 @@ public class DemandSimulatorPassenger
 	}
 
 	public DemandSimulatorPassenger(
-			DestinationChoiceModel targetSelector, ModeChoiceModel modeSelector,
+			DestinationChoiceModel targetSelector, TourBasedModeChoiceModel modeSelector,
 			ZoneBasedRouteChoice routeChoice, ReschedulingStrategy rescheduling, PersonState initialState,
 			SimulationContext context) {
 		this(targetSelector, modeSelector, routeChoice, new DefaultActivityDurationRandomizer(context.seed()),
@@ -108,7 +113,7 @@ public class DemandSimulatorPassenger
 	}
 
 	public DestinationChoiceModel destinationChoiceModel() { return this.destinationChoiceModel; }
-	public ModeChoiceModel modeChoiceModel() { return this.modeSelector; }
+	public TourBasedModeChoiceModel modeChoiceModel() { return this.modeChoice; }
 	public ReschedulingStrategy rescheduling() { return this.rescheduling; }
 	public ZoneBasedRouteChoice routeChoice() { return this.routeChoice; }
 
@@ -240,7 +245,7 @@ public class DemandSimulatorPassenger
 		return context.personLoader();
 	}
 
-	private SimulationPersonPassenger createSimulatedPerson(
+	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonPassenger(p, 
@@ -249,6 +254,7 @@ public class DemandSimulatorPassenger
 																					simulationOptions(), 
 																					simulationDays(),
 																					modesInSimulation,
+																					tourFactory,
 																					initialState,
 																					boarder,
 																					seed,
@@ -256,15 +262,15 @@ public class DemandSimulatorPassenger
 																				);
 	}
 
-	private SimulationOptions simulationOptions() {
+	protected SimulationOptions simulationOptions() {
 		return this;
 	}
 
-	private ZoneRepository zoneRepository() {
+	protected ZoneRepository zoneRepository() {
 		return context.zoneRepository();
 	}
 
-	private List<Time> simulationDays() {
+	protected List<Time> simulationDays() {
 		return context.simulationDays().simulationDates();
 	}
 

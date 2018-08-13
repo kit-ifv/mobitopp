@@ -2,10 +2,14 @@ package edu.kit.ifv.mobitopp.visum;
 
 import java.util.SortedMap;
 import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 
-public class VisumPtLineRoute {
+@SuppressWarnings("serial")
+public class VisumPtLineRoute 
+	implements Serializable
+{
 
 
 	public final VisumPtLine line;

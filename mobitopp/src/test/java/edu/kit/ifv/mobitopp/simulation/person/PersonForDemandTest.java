@@ -21,6 +21,7 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class PersonForDemandTest {
@@ -36,9 +37,12 @@ public class PersonForDemandTest {
 	private boolean hasAccessToCar;
 	private boolean hasPersonalCar;
 	private boolean hasCommuterTicket;
+	private boolean hasLicense;
 	private PatternActivityWeek activitySchedule;
 	private PersonForDemand person;
 	private Car car;
+	private ModeChoicePreferences prefSurvey;
+	private ModeChoicePreferences prefSimulation;
 
 	@Before
 	public void initialise() {
@@ -53,14 +57,17 @@ public class PersonForDemandTest {
 		hasAccessToCar = false;
 		hasPersonalCar = true;
 		hasCommuterTicket = false;
+		hasLicense = false;
 		activitySchedule = mock(PatternActivityWeek.class);
 		car = mock(Car.class);
 		person = newPerson();
+		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
+		prefSimulation = ModeChoicePreferences.NOPREFERENCES;
 	}
 
 	private PersonForDemand newPerson() {
 		return new PersonForDemand(oid, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, activitySchedule);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, prefSurvey, prefSimulation);
 	}
 
 	@Test
@@ -107,6 +114,6 @@ public class PersonForDemandTest {
 
 	private PersonAttributes personAttributes() {
 		return new PersonAttributes(oid, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense);
 	}
 }

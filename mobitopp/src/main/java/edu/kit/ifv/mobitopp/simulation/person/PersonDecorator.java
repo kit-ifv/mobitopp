@@ -22,6 +22,8 @@ import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 
@@ -191,11 +193,13 @@ public class PersonDecorator
   	person().currentTrip(trip);
 	}
 
+	@Override
 	public void initSchedule(
-		ActivityStartAndDurationRandomizer activityDurationRandomizer, 
-		List<Time> days
-	) {
-		person().initSchedule(activityDurationRandomizer, days);
+			TourFactory tourFactory, 
+			ActivityStartAndDurationRandomizer activityDurationRandomizer,
+			List<Time> days) {
+		person().initSchedule(tourFactory, activityDurationRandomizer, days);
+		
 	}
 
 	public boolean isFemale() {
@@ -241,5 +245,16 @@ public class PersonDecorator
 	public void takeCarFromParking() {
 		person().takeCarFromParking();
 	}
+
+	@Override
+	public ModeChoicePreferences modeChoicePrefsSurvey() {
+		return person.modeChoicePrefsSurvey();
+	}
+
+	@Override
+	public ModeChoicePreferences modeChoicePreferences() {
+		return person.modeChoicePreferences();
+	}
+
 
 }

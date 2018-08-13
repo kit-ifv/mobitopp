@@ -1,8 +1,12 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
-public abstract class VisumPtStopPoint {
+@SuppressWarnings("serial")
+public abstract class VisumPtStopPoint
+	implements Serializable
+{
 
 	public final int id;
 	public final VisumPtStopArea stopArea;

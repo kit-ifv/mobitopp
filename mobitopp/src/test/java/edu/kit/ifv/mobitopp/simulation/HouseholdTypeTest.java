@@ -55,46 +55,46 @@ public class HouseholdTypeTest {
 		withKids8to12 = new HouseholdForDemand(0, null, 4, 0, null, null, 0, 0, 0, false);
 		withKids13plus = new HouseholdForDemand(0, null, 4, 0, null, null, 0, 0, 0, false);
 		
-		personSingle = new PersonForDemand(0, null, single, 20, null, null, 0, false, false, false, false, null);
+		personSingle = new PersonForDemand(0, null, single, 20, null, null, 0, false, false, false, false, false, null, null, null);
 		single.addPerson(personSingle);
 		
-		person1Couple = new PersonForDemand(0, null, couple, 20, null, null, 0, false, false, false, false, null);
-		person2Couple = new PersonForDemand(0, null, couple, 22, null, null, 0, false, false, false, false, null);
+		person1Couple = new PersonForDemand(0, null, couple, 20, null, null, 0, false, false, false, false, false, null, null, null);
+		person2Couple = new PersonForDemand(0, null, couple, 22, null, null, 0, false, false, false, false, false, null, null, null);
 		couple.addPerson(person1Couple);
 		couple.addPerson(person2Couple);
 		
-		person1Multiadult = new PersonForDemand(0, null, multiadult, 20, null, null, 0, false, false, false, false, null);
-		person2Multiadult = new PersonForDemand(0, null, multiadult, 25, null, null, 0, false, false, false, false, null);
-		person3Multiadult = new PersonForDemand(0, null, multiadult, 30, null, null, 0, false, false, false, false, null);
+		person1Multiadult = new PersonForDemand(0, null, multiadult, 20, null, null, 0, false, false, false, false, false, null, null, null);
+		person2Multiadult = new PersonForDemand(0, null, multiadult, 25, null, null, 0, false, false, false, false, false, null, null, null);
+		person3Multiadult = new PersonForDemand(0, null, multiadult, 30, null, null, 0, false, false, false, false, false, null, null, null);
 		multiadult.addPerson(person1Multiadult);
 		multiadult.addPerson(person2Multiadult);
 		multiadult.addPerson(person3Multiadult);
 		
-		person1Multigeneration = new PersonForDemand(0, null, multigeneration, 20, null, null, 0, false, false, false, false, null);
-		person2Multigeneration = new PersonForDemand(0, null, multigeneration, 40, null, null, 0, false, false, false, false, null);
+		person1Multigeneration = new PersonForDemand(0, null, multigeneration, 20, null, null, 0, false, false, false, false, false, null, null, null);
+		person2Multigeneration = new PersonForDemand(0, null, multigeneration, 40, null, null, 0, false, false, false, false, false, null, null, null);
 		multigeneration.addPerson(person1Multigeneration);
 		multigeneration.addPerson(person2Multigeneration);
 		
-		adultWithKids0to7 = new PersonForDemand(0, null, withKids0to7, 30, null, null, 0, false, false, false, false, null);
-		kid1WithKids0to7 = new PersonForDemand(0, null, withKids0to7, 10, null, null, 0, false, false, false, false, null);
-		kid2WithKids0to7 = new PersonForDemand(0, null, withKids0to7, 5, null, null, 0, false, false, false, false, null);
+		adultWithKids0to7 = new PersonForDemand(0, null, withKids0to7, 30, null, null, 0, false, false, false, false, false, null, null, null);
+		kid1WithKids0to7 = new PersonForDemand(0, null, withKids0to7, 10, null, null, 0, false, false, false, false, false, null, null, null);
+		kid2WithKids0to7 = new PersonForDemand(0, null, withKids0to7, 5, null, null, 0, false, false, false, false, false, null, null, null);
 		withKids0to7.addPerson(adultWithKids0to7);
 		withKids0to7.addPerson(kid1WithKids0to7);
 		withKids0to7.addPerson(kid2WithKids0to7);
 	
-		adult1WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 40, null, null, 0, false, false, false, false, null);
-		adult2WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 35, null, null, 0, false, false, false, false, null);
-		kid1WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 12, null, null, 0, false, false, false, false, null);
-		kid2WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 10, null, null, 0, false, false, false, false, null);
+		adult1WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 40, null, null, 0, false, false, false, false, false, null, null, null);
+		adult2WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 35, null, null, 0, false, false, false, false, false, null, null, null);
+		kid1WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 12, null, null, 0, false, false, false, false, false, null, null, null);
+		kid2WithKids8to12 = new PersonForDemand(0, null, withKids8to12, 10, null, null, 0, false, false, false, false, false, null, null, null);
 		withKids8to12.addPerson(adult1WithKids8to12);
 		withKids8to12.addPerson(adult2WithKids8to12);
 		withKids8to12.addPerson(kid1WithKids8to12);
 		withKids8to12.addPerson(kid2WithKids8to12);
 	
-		adult1WithKids13plus = new PersonForDemand(0, null, withKids13plus, 50, null, null, 0, false, false, false, false, null);
-		adult2WithKids13plus = new PersonForDemand(0, null, withKids13plus, 45, null, null, 0, false, false, false, false, null);
-		kidWithKids13plus = new PersonForDemand(0, null, withKids13plus, 13, null, null, 0, false, false, false, false, null);
-		adultkidWithKids13plus = new PersonForDemand(0, null, withKids13plus, 19, null, null, 0, false, false, false, false, null);
+		adult1WithKids13plus = new PersonForDemand(0, null, withKids13plus, 50, null, null, 0, false, false, false, false, false, null, null, null);
+		adult2WithKids13plus = new PersonForDemand(0, null, withKids13plus, 45, null, null, 0, false, false, false, false, false, null, null, null);
+		kidWithKids13plus = new PersonForDemand(0, null, withKids13plus, 13, null, null, 0, false, false, false, false, false, null, null, null);
+		adultkidWithKids13plus = new PersonForDemand(0, null, withKids13plus, 19, null, null, 0, false, false, false, false, false, null, null, null);
 		withKids13plus.addPerson(adult1WithKids13plus);
 		withKids13plus.addPerson(adult2WithKids13plus);
 		withKids13plus.addPerson(kidWithKids13plus);

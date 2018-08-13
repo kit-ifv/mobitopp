@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class VisumPtLine {
+@SuppressWarnings("serial")
+public class VisumPtLine 
+	implements Serializable
+{
 
 	public final String name;
 

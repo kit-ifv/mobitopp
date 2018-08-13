@@ -1,6 +1,11 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public class VisumPtLineRouteElement {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class VisumPtLineRouteElement 
+	implements Serializable
+{
 
 	public final VisumPtLineRoute lineRoute;
 

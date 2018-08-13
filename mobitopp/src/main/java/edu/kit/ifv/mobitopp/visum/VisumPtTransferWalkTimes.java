@@ -1,6 +1,11 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public class VisumPtTransferWalkTimes {
+import java.io.Serializable;
+
+@SuppressWarnings("serial")
+public class VisumPtTransferWalkTimes 
+	implements Serializable
+{
 
 	public final VisumPtStopArea fromArea;
 	public final VisumPtStopArea toArea;

@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
+import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -60,7 +61,7 @@ public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 		dates.add(SimpleTime.of(6,0,0,0));
 
 		
-		week = new ActivityPeriodWithExtendedFirstAndLastActivity(new ActivityDurationNoRandomizer(), pattern, dates);
+		week = new ActivityPeriodWithExtendedFirstAndLastActivity(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), pattern, dates);
 	}
 
 

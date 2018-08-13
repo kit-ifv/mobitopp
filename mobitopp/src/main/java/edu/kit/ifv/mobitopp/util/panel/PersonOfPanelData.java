@@ -24,9 +24,18 @@ public class PersonOfPanelData
   private final float poleDistance;
 
 	private final boolean commuterTicket;
+	private final boolean licence;
 	private final boolean bicycle;
 	private final boolean personalCar;
 	private final boolean carAvailable;
+	
+	public final float pref_cardriver;
+	public final float pref_carpassenger;
+	public final float pref_walking;
+	public final float pref_cycling;
+	public final float pref_publictransport;
+
+
 
 	public PersonOfPanelData(
 		PersonOfPanelDataId personId,
@@ -35,13 +44,21 @@ public class PersonOfPanelData
 		int  age,
 		int employmentType,
 		float poleDistance,	
+		// int commutationTicketType,
 		boolean commuterTicket,
+		boolean licence,
 		boolean bicycle,
 		boolean personalCar,
 		boolean carAvailable,
+		// String modeTypeWeights,
 		float weight,
 		Integer income,
-		String activityPattern
+		String activityPattern,
+		float pref_cardriver,
+		float pref_carpassenger,
+		float pref_walking,
+		float pref_cycling,
+		float pref_publictransport
 	) {
 		assert personId != null;
 		assert age >= 0 && age <= 120 : age;
@@ -56,6 +73,7 @@ public class PersonOfPanelData
     this.poleDistance = poleDistance;
 
 		this.commuterTicket = commuterTicket;
+		this.licence = licence;
 		this.bicycle = bicycle;
 		this.personalCar = personalCar;
 		this.carAvailable = carAvailable;
@@ -63,6 +81,12 @@ public class PersonOfPanelData
     this.weight = weight;
 		this.income = income;
 		this.activityPattern = activityPattern;
+		
+		this.pref_cardriver = pref_cardriver;
+		this.pref_carpassenger = pref_carpassenger;
+		this.pref_walking = pref_walking;
+		this.pref_cycling = pref_cycling;
+		this.pref_publictransport = pref_publictransport;
 	}
 
   public PersonOfPanelDataId getId()
@@ -109,20 +133,25 @@ public class PersonOfPanelData
   }
 
 	public boolean hasCommuterTicket() {
+		
 		return this.commuterTicket;
 	}
 
 	public boolean hasBicycle() {
+
 		return this.bicycle;
 	}
 
 	public boolean hasAccessToCar() {
+
 		return this.carAvailable;
 	}
 
 	public boolean hasPersonalCar() {
+
 		return this.personalCar;
 	}
+
 
   public float getWeight()
   {
@@ -138,33 +167,34 @@ public class PersonOfPanelData
     return this.income;
   }
 
+
   public Gender gender()
   {
     return Gender.getTypeFromInt(getGenderTypeAsInt());
   }
+
 
   public Employment employment()
   {
     return Employment.getTypeFromInt(getEmploymentTypeAsInt());
   }
 
+
   public int age()
   {
 		return this.age;
   }
+  
+  public boolean hasLicence()
+  {
+		return this.licence;
+  }
+
+
 
 	public int compareTo(PersonOfPanelData o) {
 		PersonOfPanelDataId id = getId();
 		return id.compareTo(o.getId());
 	}
-
-	@Override
-	public String toString() {
-		return getClass().getName() + " [id=" + id + ", employmentType=" + employmentType
-				+ ", genderType=" + genderType + ", birthyear=" + birthyear + ", age=" + age
-				+ ", activityPattern=" + activityPattern + ", weight=" + weight + ", income=" + income
-				+ ", poleDistance=" + poleDistance + ", commuterTicket=" + commuterTicket + ", bicycle="
-				+ bicycle + ", personalCar=" + personalCar + ", carAvailable=" + carAvailable + "]";
-	}
-	
 }
+

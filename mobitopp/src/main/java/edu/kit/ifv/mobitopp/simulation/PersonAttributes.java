@@ -15,11 +15,12 @@ public class PersonAttributes {
 	public final boolean hasAccessToCar;
 	public final boolean hasPersonalCar;
 	public final boolean hasCommuterTicket;
+	public final boolean hasLicense;
 
 	public PersonAttributes(
 			int oid, PersonId id, Household household, int age, Employment employment, Gender gender,
 			int income, boolean hasBike, boolean hasAccessToCar, boolean hasPersonalCar,
-			boolean hasCommuterTicket) {
+			boolean hasCommuterTicket, boolean hasLicense) {
 		super();
 		this.oid = oid;
 		this.id = id;
@@ -32,6 +33,7 @@ public class PersonAttributes {
 		this.hasAccessToCar = hasAccessToCar;
 		this.hasPersonalCar = hasPersonalCar;
 		this.hasCommuterTicket = hasCommuterTicket;
+		this.hasLicense = hasLicense;
 	}
 
 	@Override
@@ -44,6 +46,7 @@ public class PersonAttributes {
 		result = prime * result + (hasAccessToCar ? 1231 : 1237);
 		result = prime * result + (hasBike ? 1231 : 1237);
 		result = prime * result + (hasCommuterTicket ? 1231 : 1237);
+		result = prime * result + (hasLicense ? 1231 : 1237);
 		result = prime * result + (hasPersonalCar ? 1231 : 1237);
 		result = prime * result + ((household == null) ? 0 : household.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());

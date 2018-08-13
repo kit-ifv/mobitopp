@@ -101,7 +101,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.MALE,
 												0, // income
 												false, true, false, false, 
-												null // activitySchedule
+												true, null // activitySchedule
+, null, null
 										);
 
 		male_working = new PersonForDemand(	
@@ -113,7 +114,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.MALE,
 												0, // income
 												false, true, false, false, 
-												null // activitySchedule
+												true, null // activitySchedule
+, null, null
 										);
 
 		female_working = new PersonForDemand(	
@@ -125,7 +127,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.FEMALE,
 												0, // income
 												false, true, false, false, 
-												null // activitySchedule
+												true, null // activitySchedule
+, null, null
 										);
 
 		household.addPerson(male_working);
@@ -177,7 +180,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												0, // income
 												false, true, false, 
 												ticket,
-												null // activitySchedule
+												true, null // activitySchedule
+, null, null
 										);
 	}
 

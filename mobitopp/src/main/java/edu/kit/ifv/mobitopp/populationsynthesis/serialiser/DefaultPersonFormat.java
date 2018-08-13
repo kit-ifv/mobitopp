@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 
@@ -32,7 +33,9 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	private static final int hasAccessIndex = 8;
 	private static final int hasPersonalCarIndex = 9;
 	private static final int hasCommuterTicketIndex = 10;
-	private static final int normalLength = 11;
+	private static final int hasLicenseIndex = 11;
+	private static final int preferenceIndex = 12;
+	private static final int normalLength = 14;
 
 	public DefaultPersonFormat() {
 		super();
@@ -74,6 +77,9 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		boolean hasAccessToCar = person.attributes().hasAccessToCar;
 		boolean hasPersonalCar = person.attributes().hasPersonalCar;
 		boolean hasCommuterTicket = person.attributes().hasCommuterTicket;
+		boolean hasLicense = person.attributes().hasLicense;
+		ModeChoicePreferences prefsSurvey = person.modeChoicePrefsSurvey();
+		ModeChoicePreferences prefsSimulation = person.modeChoicePreferences();
 		return asList( 
 				valueOf(personOid), 
 				valueOf(id.getPersonNumber()),
@@ -85,7 +91,10 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 				valueOf(hasBike), 
 				valueOf(hasAccessToCar),
 				valueOf(hasPersonalCar),
-				valueOf(hasCommuterTicket)
+				valueOf(hasCommuterTicket),
+				valueOf(hasLicense),
+				prefsSurvey.asCommaSeparatedString(),
+				prefsSimulation.asCommaSeparatedString()
 				);
 	}
 
@@ -110,9 +119,12 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		boolean hasAccessToCar = hasAccessToCarOf(data);
 		boolean hasPersonalCar = hasPersonalCarOf(data);
 		boolean hasCommuterTicket = hasCommuterTicketOf(data);
+		boolean hasLicense = hasLicense(data);
 		PatternActivityWeek activitySchedule = context.activityScheduleFor(oid);
+    ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
+    ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
 		return new PersonForDemand(oid, id, toHousehold, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, activitySchedule);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, modeChoicePrefsSurvey, modeChoicePreferences);
 	}
 
 	private Person wrapInEmobility(List<String> data, Person person) {
@@ -173,6 +185,10 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		return Boolean.parseBoolean(data.get(hasCommuterTicketIndex));
 	}
 
+	private boolean hasLicense(List<String> data) {
+		return Boolean.parseBoolean(data.get(hasLicenseIndex));
+	}
+
 	private float eMobilityAcceptanceOf(List<String> data) {
 		return Float.parseFloat(data.get(normalLength));
 	}
@@ -195,6 +211,18 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 			add(company, toCarSharingCompanies);
 		}
 		return toCarSharingCompanies;
+	}
+
+	private ModeChoicePreferences modeChoicePrefsSurveyOf(List<String> data) {
+		String preferences = data.get(preferenceIndex);
+		return ModeChoicePreferences.fromCommaSeparatedString(preferences);
+	}
+	
+	private ModeChoicePreferences modeChoicePreferencesOf(List<String> data) {
+		assert data.size() > preferenceIndex;
+		assert data.size() > preferenceIndex+1 : data;
+		String preferences = data.get(preferenceIndex + 1);
+		return ModeChoicePreferences.fromCommaSeparatedString(preferences);
 	}
 
 	private void add(String entry, TreeMap<String, Boolean> carSharingCompanies) {

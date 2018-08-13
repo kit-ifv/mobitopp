@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.util.Map;
+import java.io.Serializable;
 import java.util.Collections;
 
-public class VisumVehicleCombination {
+@SuppressWarnings("serial")
+public class VisumVehicleCombination 
+	implements Serializable
+{
 
 	public final int id;
 	public final String code;

@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeSelectorParamete
 import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeSelectorParameterOtherTrip;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
 
 public class SimulationPublicTransport extends Simulation {
 
@@ -61,7 +62,8 @@ public class SimulationPublicTransport extends Simulation {
 
 		System.out.println("Initializing simulator...");
 
-		DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector, modeSelector,
+		DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector, 
+				new TourBasedModeChoiceModelDummy(modeSelector),
 				routeChoice, rescheduling, initialState, context());
 		applyHooksTo(simulator);
 		return simulator;

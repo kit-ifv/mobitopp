@@ -27,6 +27,7 @@ import edu.kit.ifv.mobitopp.simulation.car.ExtendedRangeElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
@@ -50,6 +51,7 @@ public abstract class Example {
 	public static final boolean hasAccessToCar = true;
 	public static final boolean hasPersonalCar = true;
 	public static final boolean hasCommuterTicket = true;
+	public static final boolean hasLicense = true;
 	public static final float eMobilityAcceptance = 1.0f;
 	public static final PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice = PublicChargingInfluencesDestinationChoice.ALWAYS;
 
@@ -151,7 +153,8 @@ public abstract class Example {
 		PersonId id = new PersonId(household.getId(), personNumber);
 		PatternActivityWeek activitySchedule = activitySchedule();
 		PersonForDemand person = new PersonForDemand(personNumber, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, activitySchedule);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, 
+				ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
 		person.setFixedDestination(activityType, zone, location);
 		return person;
 	}

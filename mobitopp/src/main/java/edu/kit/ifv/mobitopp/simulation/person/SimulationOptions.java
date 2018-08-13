@@ -7,12 +7,13 @@ import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public interface SimulationOptions {
 
 	public DestinationChoiceModel destinationChoiceModel();
-	public ModeChoiceModel modeChoiceModel();
+	public TourBasedModeChoiceModel modeChoiceModel();
 	public ReschedulingStrategy rescheduling();
 	public ZoneBasedRouteChoice routeChoice();
 	public ImpedanceIfc impedance();

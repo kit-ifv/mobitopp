@@ -36,9 +36,11 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
+import edu.kit.ifv.mobitopp.simulation.tour.TourOnlyModeChoiceModel;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
@@ -52,10 +54,10 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	private final SimulationOptions options;
 	private final ZoneRepository zoneRepository;
-	private final PersonResults results;
+	protected final PersonResults results;
 	private final PublicTransportBehaviour publicTransportBehaviour;
 	private final Random random;
-	private	final Set<Mode> modesInSimulation;
+	protected final Set<Mode> modesInSimulation;
 	private boolean rideOfferAccepted = false;
 	private transient PersonState state;
 	private Events events;
@@ -67,6 +69,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		SimulationOptions options,
 		List<Time> simulationDays,
 		Set<Mode> modesInSimulation,
+		TourFactory tourFactory,
 		PersonState initialState,
 		PublicTransportBehaviour publicTransportBehaviour,
 		long seed, 
@@ -76,7 +79,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		this.options = options;
 		this.zoneRepository = zoneRepository;
 		this.random = new Random(person.getOid() + seed);
-		person.initSchedule(options.activityDurationRandomizer(), simulationDays);
+		person.initSchedule(tourFactory, options.activityDurationRandomizer(), simulationDays);
 
 		this.state = initialState;
 		this.modesInSimulation = modesInSimulation;
@@ -219,7 +222,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public void selectDestinationAndMode(
 		DestinationChoiceModel destinationChoiceModel,
-		ModeChoiceModel modeChoiceModel,
+		TourBasedModeChoiceModel modeChoiceModel,
 		ImpedanceIfc impedance,
 		boolean passengerAsOption
 	) {
@@ -266,7 +269,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 
 	private void selectModeAndCreateTrip(
-		ModeChoiceModel modeChoiceModel, 
+		TourBasedModeChoiceModel modeChoiceModel, 
 		ImpedanceIfc impedance, 
 		boolean passengerAsOption,
 		ActivityIfc previousActivity, 
@@ -282,6 +285,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Zone origin = previousActivity.zone();
 
 		Mode mode = modeChoiceModel.selectMode( 
+									null,
+									null,
 									person(), 
 									origin,
 									destination,
@@ -876,7 +881,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		return (PublicTransportTrip) currentTrip();
 	}
 	
-	private double getNextRandom() {
+	protected double getNextRandom() {
 		return this.random.nextDouble();
 	}
 

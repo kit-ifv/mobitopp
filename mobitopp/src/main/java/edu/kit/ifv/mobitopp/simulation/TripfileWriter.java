@@ -213,42 +213,68 @@ public class TripfileWriter implements PersonResults {
 		writeCarTripToFile(car, trip, prevActivity, activity, location);
 	}
 
-	@Override
-	public void writeTourinfoToFile(
-		Person person, 
-		Tour tour, 
-		Zone tourDestination,
-		Mode tourMode
-	){
-    CsvBuilder message = new CsvBuilder();
-		message.append("T");
-		message.append(person.getOid());
-		message.append(tour.forLogging());
-		message.append(tourDestination.getOid());
-		message.append(tourDestination.getId());
-		message.append(tourMode);
-
-    results().write(this.categories.tour, message.toString());
-	}
 	
 	@Override
-	public void writeSubourinfoToFile(
-		Person person, 
-		Tour tour, 
-		Subtour subtour, 
-		Mode tourMode
-	){
-    CsvBuilder message = new CsvBuilder();
-		message.append("S");
-		message.append(person.getOid());
-		message.append(tour.tourNumber());
-		message.append(tourMode);
-		message.append(subtour.mode());
-		message.append(subtour.forLogging());
-		message.append(subtour.toString());
+  public void writeTourinfoToFile(
+      Person person,
+      Tour tour,
+      Zone tourDestination,
+      Mode tourMode
+    ){
 
-    results().write(this.categories.subtour, message.toString());
-	}
+        StringBuffer message = new StringBuffer();
+
+        // TODO: Wochentag ergänzen!
+
+        message = new StringBuffer();
+        message.append("T;");
+        message.append(person.getOid()).append(";");
+        message.append(person.gender()).append(";");
+        message.append(person.age()).append(";");
+        message.append(person.employment()).append(";");
+        message.append(HouseholdType.type(person.household())).append(";");
+        message.append(person.household().getSize()).append(";");
+        message.append(person.household().getTotalNumberOfCars()).append(";");
+        message.append(person.household().homeZone().getId()).append(";");
+        message.append(tour.forLogging()).append(";");
+        message.append(tourDestination.getOid()).append(";");
+        message.append(tourDestination.getId()).append(";");
+        message.append(tourMode).append(";");
+
+        double distanceKm = impedance.getDistance(person.homeZone().getOid(), tourDestination.getOid()) / 1000.0;
+
+        message.append(distanceKm).append(";");
+
+    results().write(this.categories.tour, message.toString());
+    }
+
+	@Override
+  public void writeSubourinfoToFile(
+      Person person,
+      Tour tour,
+      Subtour subtour,
+      Mode tourMode
+    ){
+        StringBuffer message = new StringBuffer();
+
+        message = new StringBuffer();
+        message.append("S;");
+        message.append(person.getOid()).append(";");
+        message.append(person.gender()).append(";");
+        message.append(person.age()).append(";");
+        message.append(person.employment()).append(";");
+        message.append(HouseholdType.type(person.household())).append(";");
+        message.append(person.household().getSize()).append(";");
+        message.append(person.household().getTotalNumberOfCars()).append(";");
+        message.append(person.household().homeZone().getId()).append(";");
+        message.append(tour.forLogging()).append(";");
+        message.append(tourMode).append(";");
+        message.append(subtour.mode()).append(";");
+        message.append(subtour.forLogging()).append(";");
+
+        results().write(this.categories.subtour, message.toString());
+    }
+
 
 	private void writeCarTripToFile(
 			Car car,

@@ -9,6 +9,8 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStart
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 
@@ -69,7 +71,7 @@ public interface Person {
 	TripIfc currentTrip();
 	void currentTrip(TripIfc trip);
 
-	void initSchedule(ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
+	void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
 
 	boolean isFemale();
 	boolean isMale();
@@ -80,5 +82,8 @@ public interface Person {
 			ReschedulingStrategy rescheduling);
 	
 	PersonAttributes attributes();
+	
+	ModeChoicePreferences modeChoicePrefsSurvey();
+	ModeChoicePreferences modeChoicePreferences();
 
 }

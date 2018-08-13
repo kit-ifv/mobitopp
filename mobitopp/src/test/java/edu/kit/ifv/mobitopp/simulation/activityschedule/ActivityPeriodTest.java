@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivityAsLinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.LinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
+import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
@@ -66,7 +67,7 @@ public class ActivityPeriodTest {
 	@Before
 	public void setUp() {
 
-		week = new ActivityPeriod(new ActivityDurationNoRandomizer(), new PatternActivityWeek(),new ArrayList<Time>());
+		week = new ActivityPeriod(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), new PatternActivityWeek(),new ArrayList<Time>());
 
 		firstDay = Data.someTime();
 		activity1 = makeActivity(1, firstDay, ActivityType.HOME, 1, 6*60, 1);

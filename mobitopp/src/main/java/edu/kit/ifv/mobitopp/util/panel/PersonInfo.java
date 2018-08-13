@@ -11,12 +11,21 @@ class PersonInfo {
 	public int pole_distance;
 	public int income = -1;
 	public boolean commutation_ticket;
+	public boolean licence;
+	
 	//modetypeweights
 	public boolean fahrrad;
 	public boolean apkwverf;
 	public boolean ppkwverf;
 	public boolean relvmselbst;
 	public boolean relvmoev;
+
+	public float pref_cardriver;
+	public float pref_carpassenger;
+	public float pref_walking;
+	public float pref_cycling;
+	public float pref_publictransport;
+
 
 	public String toString() {
 

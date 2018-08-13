@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivityAsLinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -25,11 +26,12 @@ public class ActivityPeriodWithExtendedFirstAndLastActivity
 
 
 	public ActivityPeriodWithExtendedFirstAndLastActivity(	
+		TourFactory tourFactory,
 		ActivityStartAndDurationRandomizer durationRandomizer,
 		PatternActivityWeek activityPattern,
 		List<Time> dates
 	) {
-		super(durationRandomizer, activityPattern, dates);
+		super(tourFactory,durationRandomizer, activityPattern, dates);
 		
 		Time firstDay = dates.get(0);
 		assert firstDay.weekDay() == DayOfWeek.MONDAY;

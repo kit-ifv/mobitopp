@@ -102,8 +102,9 @@ public class LogitBasedCarSharingCustomerModelTest {
 												Employment.NONE,
 												Gender.MALE,
 												0, // income
-												false, true, false,  false,
+												false, true, false,  false, true,
 												null // activitySchedule
+, null, null
 										);
 
 		male_working = new PersonForDemand(	
@@ -114,8 +115,9 @@ public class LogitBasedCarSharingCustomerModelTest {
 												Employment.FULLTIME,
 												Gender.MALE,
 												0, // income
-												false, true, false,  false,
+												false, true, false,  false, true,
 												null // activitySchedule
+, null, null
 										);
 
 		female_working = new PersonForDemand(	
@@ -126,8 +128,9 @@ public class LogitBasedCarSharingCustomerModelTest {
 												Employment.FULLTIME,
 												Gender.FEMALE,
 												0, // income
-												false, true, false,  false,
+												false, true, false,  false, true,
 												null // activitySchedule
+, null, null
 										);
 
 		household.addPerson(male_working);
@@ -179,7 +182,8 @@ public class LogitBasedCarSharingCustomerModelTest {
 												0, // income
 												false, true, false, 
 												ticket,
-												null // activitySchedule
+												true, null // activitySchedule
+, null, null
 										);
 	}
 
