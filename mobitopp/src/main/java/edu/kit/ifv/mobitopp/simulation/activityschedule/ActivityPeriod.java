@@ -64,9 +64,6 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		
 		assert patternWeek.getPatternActivities().size() == origPatternWeek.getPatternActivities().size();
 		
-		// TODO: NM: Dauern der ersten und letzten Aktivität verlängern
-		// bzw. mit vorhergehender und nachfolgender Aktivität verschmelzen
-
 			for (Time currentDay : dates) {
 
 				List<PatternActivity> patternActivities =
@@ -479,8 +476,6 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		System.out.println("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act
 												+ "\nisHomeActivity? " + act.activityType().isHomeActivity());
 		throw new AssertionError();
-
-		// return null;
 	}
 
 	@Override

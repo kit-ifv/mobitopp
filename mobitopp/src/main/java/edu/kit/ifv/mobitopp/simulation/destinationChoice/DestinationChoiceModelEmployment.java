@@ -124,10 +124,7 @@ public class DestinationChoiceModelEmployment
 
 	public DestinationChoiceModelEmployment(
 		ImpedanceIfc impedance
-		//, String filename
 	) {
-
-		// this.targetParameter = new TargetChoiceParameterCost(filename);
 		this.impedance = impedance;
 	}
 

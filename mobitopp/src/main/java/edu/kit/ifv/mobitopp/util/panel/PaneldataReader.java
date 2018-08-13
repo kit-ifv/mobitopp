@@ -172,15 +172,7 @@ public class PaneldataReader {
 
 		int startPattern = columnNames.get("activitypattern");
 
-//		System.out.println("info: " + info);
-//		System.out.println("line: " + line);
-//		System.out.println("startPattern: " + startPattern);
-
-
 		for (int i=startPattern; i<field.length; i+=4) {
-//				 System.out.println("i:" + i);
-//				 System.out.println(field[i] + ", " + field[i+1] + ", " + field[i+2] + ", " + field[i+3]);
-
 
 			int purpose = java.lang.Integer.parseInt(field[i+1]);
 			if (purpose == 10) { purpose=9; }
@@ -202,8 +194,6 @@ public class PaneldataReader {
 	}
 
 	private Map<String,List<PaneldataInfo>> groupByHousehold(List<PaneldataInfo> input) {
-
-		List<HouseholdOfPanelData> households = new ArrayList<HouseholdOfPanelData>();
 		List<String> hhIds = new ArrayList<String>();
 
 		Map<String,List<PaneldataInfo>> infoByHousehold = new LinkedHashMap<String,List<PaneldataInfo>>();
@@ -271,7 +261,6 @@ public class PaneldataReader {
 																	minors,
 																	info.household.additionalchildren,
 																	info.household.cars,
-																	// info.person.income*info.household.household_size
 																	income
 																);
 
@@ -359,8 +348,6 @@ public class PaneldataReader {
 				int income = info.person.income > 0 ? info.person.income 
 																						: info.household.income / info.household.household_size;
 
-//				System.out.println( info.household.year + ", " + info.person.birth_year + ": " +
-//																	(info.household.year - info.person.birth_year));
 				PersonOfPanelData p  = new PersonOfPanelData(
 																	new PersonOfPanelDataId(
 																			new HouseholdOfPanelDataId(
@@ -413,34 +400,4 @@ public class PaneldataReader {
 		return result.substring(0,result.lastIndexOf(";"));
 	}
 
-
-
-
-	public static void main (String[] args) {
-
-		if (args.length != 1) {
-			System.out.println("Usage: java PaneldataReader <file>");
-
-			System.exit(0);
-		}
-
-		File file = new File(args[0]);
-
-		PaneldataReader reader = new PaneldataReader(file);
-
-
-		// List<PaneldataInfo> data = reader.readFile(file);
-
-		// System.out.println("Read " + data.size() + " lines");
-
-		// Map<String,List<PaneldataInfo>> infoByHousehold = reader.groupByHousehold(data);
-
-		// System.out.println("Read " + infoByHousehold.size() + " households.");
-
-		List<HouseholdOfPanelData> households = reader.readHouseholds();
-		List<PersonOfPanelData> persons = reader.readPersons();
-
-		System.out.println("Found " + households.size() + " households.");
-		System.out.println("Found " + persons.size() + " persons.");
-	}
 }

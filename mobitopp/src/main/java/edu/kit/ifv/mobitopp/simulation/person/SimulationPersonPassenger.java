@@ -40,7 +40,6 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
-import edu.kit.ifv.mobitopp.simulation.tour.TourOnlyModeChoiceModel;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;

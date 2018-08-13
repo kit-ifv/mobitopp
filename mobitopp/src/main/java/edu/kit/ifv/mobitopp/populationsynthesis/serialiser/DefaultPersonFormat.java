@@ -44,8 +44,9 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	@Override
 	public List<String> header() {
 		return asList("personId", "personNumber", "householdId", "age", "employment", "gender",
-				"income", "hasBike", "hasAccessToCar", "hasPersonalCar", "hasCommuterTicket",
-				"eMobilityAcceptance", "chargingInfluencesDestinationChoice", "carSharingCustomership");
+				"income", "hasBike", "hasAccessToCar", "hasPersonalCar", "hasCommuterTicket", "hasLicense",
+				"preferencesSurvey", "preferencesSimulation", "eMobilityAcceptance",
+				"chargingInfluencesDestinationChoice", "carSharingCustomership");
 	}
 
 	@Override
