@@ -59,6 +59,7 @@ public class TourModeChoiceModelWithTimeRestrictions
 		double randomNumber
 	) {
 		assert !choiceSet.isEmpty();
+		assert tour != null;
 		
 		if (!tour.containsSubtour() || !tour.isInSubtour(nextActivity)) {
 			if (choiceSet.size() == 1) {
