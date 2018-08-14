@@ -10,12 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
-import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
 
@@ -56,16 +53,17 @@ public class DemandSimulatorTour
 					context
 			);
 	}
-
+  
+	@Override
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
-			PersonResults results) {
+			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonTour(p, 
 																					zoneRepository(),
 																					queue,
 																					simulationOptions(), 
 																					simulationDays(),
-																					this.modesInSimulation,
+																					modesInSimulation,
 																					tourFactory, this.initialState,
 																					boarder,
 																					seed,
