@@ -106,26 +106,6 @@ public class DefaultPrivateCarFormatTest {
 	private void prepareMissingPersonalUser() {
 		when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.empty());
 	}
-	
-	@Test
-	public void parseCarWithMissingMainUser() {
-		prepareExistingHousehold();
-		prepareMissingMainUser();
-		prepareExistingPersonalUser();
-		PrivateCar carMissingPersonalUser = Example.conventionalCar(household, null, personalUser, zone);
-		
-		Optional<PrivateCar> parsed = format.parse(privateCar(), context);
-		
-		assertCars(parsed.get(), carMissingPersonalUser);
-	}
-	
-	private void prepareMissingMainUser() {
-		when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.empty());
-	}
-	
-	private void prepareExistingPersonalUser() {
-		when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
-	}
 
 	@Test
 	public void prepareConventionalCar() {
