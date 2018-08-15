@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -48,8 +49,9 @@ public class Population implements PopulationContext, Serializable {
 		persons.put(person.getOid(), person);
 	}
 
-	public Household getHouseholdByOid(int aHouseholdOid) {
-		return households.get(aHouseholdOid);
+	@Override
+	public Optional<Household> getHouseholdByOid(int householdOid) {
+		return Optional.ofNullable(households.get(householdOid));
 	}
 
 	public Collection<Household> households() {
@@ -65,8 +67,9 @@ public class Population implements PopulationContext, Serializable {
 		return Collections.unmodifiableCollection(persons.keySet());
 	}
 
-	public Person getPersonByOid(int id) {
-		return persons.get(id);
+	@Override
+	public Optional<Person> getPersonByOid(int id) {
+		return Optional.ofNullable(persons.get(id));
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
@@ -100,18 +101,20 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	}
 
 	@Override
-	public Person parse(List<String> data, PopulationContext context) {
-		Person personForDemand = personForDemand(data, context);
-		Person person = wrapInEmobility(data, personForDemand);
-		Household toHousehold = person.household();
-		assign(person, toHousehold);
+	public Optional<Person> parse(List<String> data, PopulationContext context) {
+		Optional<Person> personForDemand = personForDemand(data, context);
+		Optional<Person> person = personForDemand.map(p -> wrapInEmobility(data, p));
+		person.ifPresent(p -> p.household().addPerson(p));
 		return person;
 	}
 
-	private Person personForDemand(List<String> data, PopulationContext context) {
+	private Optional<Person> personForDemand(List<String> data, PopulationContext context) {
+		return householdOf(data, context).map(household -> createPerson(data, context, household));
+	}
+
+	private Person createPerson(List<String> data, PopulationContext context, Household household) {
 		int oid = personOidOf(data);
-		Household toHousehold = householdOf(data, context);
-		PersonId id = personIdOf(data, toHousehold);
+		PersonId id = personIdOf(data, household);
 		int age = ageOf(data);
 		Employment employment = employmentOf(data);
 		Gender gender = genderOf(data);
@@ -124,7 +127,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		PatternActivityWeek activitySchedule = context.activityScheduleFor(oid);
     ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
     ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
-		return new PersonForDemand(oid, id, toHousehold, age, employment, gender, income, hasBike,
+		return new PersonForDemand(oid, id, household, age, employment, gender, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, modeChoicePrefsSurvey, modeChoicePreferences);
 	}
 
@@ -149,7 +152,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		return new PersonId(household.getId(), personNumber);
 	}
 
-	private Household householdOf(List<String> data, PopulationContext context) {
+	private Optional<Household> householdOf(List<String> data, PopulationContext context) {
 		int householdOid = Integer.parseInt(data.get(householdOidIndex));
 		return context.getHouseholdByOid(householdOid);
 	}
@@ -231,9 +234,5 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		String company = split[0].trim();
 		Boolean customer = Boolean.parseBoolean(split[1].trim());
 		carSharingCompanies.put(company, customer);
-	}
-
-	private static void assign(Person person, Household household) {
-		household.addPerson(person);
 	}
 }

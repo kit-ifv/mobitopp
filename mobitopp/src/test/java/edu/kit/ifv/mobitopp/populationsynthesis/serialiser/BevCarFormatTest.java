@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,9 +55,9 @@ public class BevCarFormatTest {
 
 	@Test
 	public void parseBevCar() {
-		BatteryElectricCar parsed = format.parse(bevCar());
+		Optional<BatteryElectricCar> parsed = format.parse(bevCar());
 
-		assertCars(parsed, original);
+		assertCars(parsed.get(), original);
 	}
 
 	private void assertCars(BatteryElectricCar actual, BatteryElectricCar original) {

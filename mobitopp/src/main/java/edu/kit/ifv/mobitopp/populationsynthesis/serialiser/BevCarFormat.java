@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.car.BatteryElectricCar;
@@ -26,7 +27,7 @@ public class BevCarFormat implements SerialiserFormat<BatteryElectricCar> {
 	}
 
 	@Override
-	public BatteryElectricCar parse(List<String> data) {
+	public Optional<BatteryElectricCar> parse(List<String> data) {
 		int id = electricCarFormat.idOf(data);
 		CarPosition position = electricCarFormat.positionOf(data);
 		Segment segment = electricCarFormat.segementOf(data);
@@ -36,8 +37,8 @@ public class BevCarFormat implements SerialiserFormat<BatteryElectricCar> {
 		int electricRange = electricCarFormat.electricRangeOf(data);
 		float batteryCapacity = electricCarFormat.batteryCapacityOf(data);
 		float minimumChargingLevel = electricCarFormat.minimumChargingLevelOf(data);
-		return new BatteryElectricCar(id, position, segment, capacity, initialMileage, batteryLevel,
-				electricRange, batteryCapacity, minimumChargingLevel);
+		return Optional.of(new BatteryElectricCar(id, position, segment, capacity, initialMileage, batteryLevel,
+				electricRange, batteryCapacity, minimumChargingLevel));
 	}
 
 }

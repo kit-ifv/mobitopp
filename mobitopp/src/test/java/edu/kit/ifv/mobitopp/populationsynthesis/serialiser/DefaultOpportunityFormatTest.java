@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,12 +56,32 @@ public class DefaultOpportunityFormatTest {
 	
 	@Test
 	public void parse() {
-		Opportunity parsed = format.parse(opportunity());
+		prepareExistingZone();
 		
-		assertValue(Opportunity::zone, parsed, original);
-		assertValue(Opportunity::activityType, parsed, original);
-		assertValue(Opportunity::location, parsed, original);
-		assertValue(Opportunity::attractivity, parsed, original);
+		Optional<Opportunity> parsed = format.parse(opportunity());
+		
+		Opportunity parsedValue = parsed.get();
+		assertValue(Opportunity::zone, parsedValue, original);
+		assertValue(Opportunity::activityType, parsedValue, original);
+		assertValue(Opportunity::location, parsedValue, original);
+		assertValue(Opportunity::attractivity, parsedValue, original);
+	}
+	
+	private void prepareExistingZone() {
+		when(zoneRepository.hasZone(zoneOid)).thenReturn(true);
+	}
+	
+	@Test
+	public void parseMissingZone() {
+		prepareMissingZone();
+		
+		Optional<Opportunity> parsed = format.parse(opportunity());
+		
+		assertThat(parsed, isEmpty());
+	}
+
+	private void prepareMissingZone() {
+		when(zoneRepository.hasZone(zoneOid)).thenReturn(false);
 	}
 
 	private List<String> opportunity() {

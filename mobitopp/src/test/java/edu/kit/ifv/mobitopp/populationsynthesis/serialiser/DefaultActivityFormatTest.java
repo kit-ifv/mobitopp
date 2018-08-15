@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,6 +9,7 @@ import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,9 +47,9 @@ public class DefaultActivityFormatTest {
 	public void parseActivity() {
 		List<String> serialised = serialise();
 		
-		PersonPatternActivity parsed = format.parse(serialised);
+		Optional<PersonPatternActivity> parsed = format.parse(serialised);
 		
-		assertThat(parsed, is(equalTo(personActivity)));
+		assertThat(parsed, hasValue(personActivity));
 	}
 
 	private List<String> patternActivity() throws IOException {

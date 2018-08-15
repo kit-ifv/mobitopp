@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
@@ -9,10 +10,12 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -82,11 +85,24 @@ public class DefaultHouseholdFormatTest {
 	}
 	@Test
 	public void parsePopulation() throws IOException {
+		when(zoneRepository.hasZone(anyInt())).thenReturn(true);
 		List<String> serialisedHousehold = format.prepare(originalHousehold);
 		
-		Household household = format.parse(serialisedHousehold);
+		Optional<Household> household = format.parse(serialisedHousehold);
 
-		assertValue(Household::attributes, household, originalHousehold);
-		verify(populationData).addHousehold(household);
+		assertValue(Household::attributes, household.get(), originalHousehold);
+		verify(populationData).addHousehold(household.get());
+	}
+	
+	@Test
+	public void skipHousholdInMissingZone() {
+		when(zoneRepository.hasZone(anyInt())).thenReturn(false);
+		List<String> serialisedHousehold = format.prepare(originalHousehold);
+		
+		Optional<Household> household = format.parse(serialisedHousehold);
+
+		assertThat(household, isEmpty());
+		verify(zoneRepository).hasZone(anyInt());
+		verifyZeroInteractions(populationData);		
 	}
 }

@@ -1,15 +1,17 @@
 package edu.kit.ifv.mobitopp.data;
 
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public interface ZoneRepository {
+import edu.kit.ifv.mobitopp.dataimport.ZonesReader;
 
+public interface ZoneRepository extends ZonesReader {
+
+	public boolean hasZone(int oid);
+	
 	public Zone getZoneByOid(int oid) throws NoSuchElementException;
 
-	public List<Zone> getZones();
-
 	public Map<Integer, Zone> zones();
+
 
 }

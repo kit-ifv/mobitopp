@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -56,7 +57,7 @@ public class ConventionalCarFormat implements SerialiserFormat<ConventionalCar> 
 	}
 
 	@Override
-	public ConventionalCar parse(List<String> data) {
+	public Optional<ConventionalCar> parse(List<String> data) {
 		int id = idOf(data);
 		CarPosition position = positionOf(data);
 		Segment segment = segementOf(data);
@@ -64,7 +65,9 @@ public class ConventionalCarFormat implements SerialiserFormat<ConventionalCar> 
 		float initialMileage = initialMileageOf(data);
 		float fuelLevel = fuelLevelOf(data);
 		int maxRange = maxRangeOf(data);
-		return new ConventionalCar(id, position, segment, capacity, initialMileage, fuelLevel, maxRange);
+		return Optional
+				.of(new ConventionalCar(id, position, segment, capacity, initialMileage, fuelLevel,
+						maxRange));
 	}
 
 	int idOf(List<String> data) {
