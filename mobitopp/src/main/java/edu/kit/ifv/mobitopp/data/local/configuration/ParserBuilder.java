@@ -31,7 +31,6 @@ public class ParserBuilder {
 		Map<Class<?>, Tag> mapping = new HashMap<>();
 		mapping.put(LocalFiles.class, new Tag("!file"));
 		mapping.put(UsePublicTransport.class, new Tag("!usePublicTransport"));
-		mapping.put(UseZoneProfiles.class, new Tag("!useZoneProfiles"));
 		mapping.put(NoPublicTransport.class, new Tag("!deactivated"));
 		mapping.put(ConnectionScanAlgorithm.class, new Tag("!connectionScan"));
 		mapping.put(ProfileScanAlgorithm.class, new Tag("!profileScan"));

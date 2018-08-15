@@ -141,7 +141,7 @@ public class DemandSimulatorPassenger
 	}
 
 	private static void executeGc(Time currentTime) {
-		if (SimpleTime.start.equals(currentTime)) {
+		if (Time.start.equals(currentTime)) {
 			String formattedTime = new DateFormat().asFullDate(currentTime);
 			System.out.println("GC (Simulation): " + formattedTime);
 			System.gc();
