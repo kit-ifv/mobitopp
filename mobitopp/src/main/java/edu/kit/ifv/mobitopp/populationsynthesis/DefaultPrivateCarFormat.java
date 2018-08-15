@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ForeignKeySerialiserFormat;
@@ -74,15 +75,25 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 	}
 
 	@Override
-	public PrivateCar parse(List<String> data, PopulationContext context) {
-		Household household = householdOf(data, context);
-		Person mainUser = mainUserOf(data, context);
-		Person personalUser = personalUserOf(data, context);
-		Car car = parseCar(data);
-		return new DefaultPrivateCar(car, household, mainUser, personalUser);
+	public Optional<PrivateCar> parse(List<String> data, PopulationContext context) {
+		Optional<Household> household = householdOf(data, context);
+		Optional<Person> mainUser = mainUserOf(data, context);
+		Optional<Person> personalUser = personalUserOf(data, context);
+		Optional<? extends Car> car = parseCar(data);
+		return household
+				.flatMap(h -> createCar(mainUser, personalUser, car, h));
 	}
 
-	private Car parseCar(List<String> data) {
+	private Optional<PrivateCar> createCar(
+			Optional<Person> mainUser, Optional<Person> personalUser, Optional<? extends Car> car,
+			Household household) {
+		return mainUser.flatMap(
+				main -> personalUser.flatMap(
+						personal -> car.map(
+								c -> new DefaultPrivateCar(c, household, main, personal))));
+	}
+
+	private Optional<? extends Car> parseCar(List<String> data) {
 		CarType carType = carTypeOf(data);
 		return formats.get(carType).parse(data.subList(carAttributeStart, data.size()));
 	}
@@ -92,17 +103,17 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 		return CarType.valueOf(carType);
 	}
 
-	private Household householdOf(List<String> data, PopulationContext context) {
+	private Optional<Household> householdOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(householdIndex));
 		return context.getHouseholdByOid(oid);
 	}
 
-	private Person mainUserOf(List<String> data, PopulationContext context) {
+	private Optional<Person> mainUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(mainUserIndex));
 		return context.getPersonByOid(oid);
 	}
 
-	private Person personalUserOf(List<String> data, PopulationContext context) {
+	private Optional<Person> personalUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(personalUserIndex));
 		return context.getPersonByOid(oid);
 	}

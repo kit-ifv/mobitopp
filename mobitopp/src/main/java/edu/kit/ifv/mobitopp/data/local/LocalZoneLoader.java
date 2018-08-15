@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis;
+package edu.kit.ifv.mobitopp.data.local;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.dataimport.ZonesReader;
 
 public class LocalZoneLoader {
 
+	private static final int allZones = Integer.MAX_VALUE;
 	private final ZonesReader zonesReader;
 
 	public LocalZoneLoader(ZonesReader zonesReader) {
@@ -26,6 +27,10 @@ public class LocalZoneLoader {
 			mapping.put(zone.getOid(), zone);
 		}
 		return mapping;
+	}
+
+	public Map<Integer, Zone> mapAllZones() {
+		return mapZones(allZones);
 	}
 
 }

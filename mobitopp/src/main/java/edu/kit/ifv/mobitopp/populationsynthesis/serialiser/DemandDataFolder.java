@@ -31,10 +31,11 @@ public class DemandDataFolder {
 		this.formats = formats;
 	}
 
-	public static DemandDataFolder at(File demandDataFolder, ZoneRepository zoneRepository)
+	public static DemandDataFolder at(
+			File demandDataFolder, ZoneRepository zoneRepository, ZoneRepository zonesToSimulate)
 			throws IOException {
 		initialiseDirectory(demandDataFolder);
-		InputFormats formats = new InputFormats(zoneRepository);
+		InputFormats formats = new InputFormats(zoneRepository, zonesToSimulate);
 		return new DemandDataFolder(demandDataFolder, formats);
 	}
 

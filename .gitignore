@@ -5,3 +5,4 @@
 **/dist/
 **/output/
 **/results/
+**/*.visum_serialized

@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -50,23 +51,38 @@ public class DefaultFixedDestinationFormat
 	}
 
 	@Override
-	public PersonFixedDestination parse(List<String> data, PopulationContext context) {
-		Person person = personOf(data, context);
-		FixedDestination destination = destinationOf(data);
-		return new PersonFixedDestination(person, destination);
+	public Optional<PersonFixedDestination> parse(List<String> data, PopulationContext context) {
+		return destinationOf(data).flatMap(d -> createFixedDestination(data, context, d));
 	}
 
-	private Person personOf(List<String> data, PopulationContext context) {
+	private Optional<PersonFixedDestination> createFixedDestination(
+			List<String> data, PopulationContext context, FixedDestination destination) {
+		Optional<Person> person = personOf(data, context);
+		return person.map(p -> new PersonFixedDestination(p, destination));
+	}
+
+	private Optional<Person> personOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(personOidIndex));
 		return context.getPersonByOid(oid);
 	}
 
-	private FixedDestination destinationOf(List<String> data) {
+	private Optional<FixedDestination> destinationOf(List<String> data) {
+		Optional<Zone> zone = zoneOF(data);
+		return zone.map(z -> createFixedDestination(data, z));
+	}
+
+	private FixedDestination createFixedDestination(List<String> data, Zone zone) {
 		ActivityType activityType = ActivityType.valueOf(data.get(activityTypeIndex));
-		int zoneOid = Integer.parseInt(data.get(zoneOidIndex));
-		Zone zone = zoneRepository.getZoneByOid(zoneOid);
 		Location location = locationParser.parse(data.get(locationIndex));
 		return new FixedDestination(activityType, zone, location);
+	}
+
+	private Optional<Zone> zoneOF(List<String> data) {
+		int zoneOid = Integer.parseInt(data.get(zoneOidIndex));
+		if (zoneRepository.hasZone(zoneOid)) {
+			return Optional.of(zoneRepository.getZoneByOid(zoneOid));
+		}
+		return Optional.empty();
 	}
 
 }

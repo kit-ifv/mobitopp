@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -43,7 +44,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	}
 
 	@Override
-	public PersonPatternActivity parse(List<String> data) {
+	public Optional<PersonPatternActivity> parse(List<String> data) {
 		int personOid = personOidOf(data);
 		int activityType = activityTypeOf(data);
 		DayOfWeek weekDayType = dayOfWeekOf(data);
@@ -53,7 +54,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 		
 		PatternActivity patternActivity = new PatternActivity(ActivityType.getTypeFromInt(activityType),
 				weekDayType, observedTripDuration, startTime, duration);
-		return new PersonPatternActivity(personOid, patternActivity);
+		return Optional.of(new PersonPatternActivity(personOid, patternActivity));
 	}
 	
 	private int personOidOf(List<String> data) {

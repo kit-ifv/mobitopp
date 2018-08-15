@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
@@ -35,7 +36,7 @@ public class ErevCarFormat implements SerialiserFormat<ExtendedRangeElectricCar>
 	}
 
 	@Override
-	public ExtendedRangeElectricCar parse(List<String> data) {
+	public Optional<ExtendedRangeElectricCar> parse(List<String> data) {
 		int id = electricCarFormat.idOf(data);
 		CarPosition positions = electricCarFormat.positionOf(data);
 		Segment segment = electricCarFormat.segementOf(data);
@@ -48,9 +49,9 @@ public class ErevCarFormat implements SerialiserFormat<ExtendedRangeElectricCar>
 		int fullPowerRange = fullPowerRangeOf(data);
 		float batteryCapacity = electricCarFormat.batteryCapacityOf(data);
 		float minimumChargingLevel = electricCarFormat.minimumChargingLevelOf(data);
-		return new ExtendedRangeElectricCar(id, positions, segment, capacity, initialMileage,
+		return Optional.of(new ExtendedRangeElectricCar(id, positions, segment, capacity, initialMileage,
 				batteryLevel, fuelLevel, electricRange, conventionalRange, fullPowerRange, batteryCapacity,
-				minimumChargingLevel);
+				minimumChargingLevel));
 	}
 
 	private int fullPowerRangeOf(List<String> data) {

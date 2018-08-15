@@ -24,7 +24,7 @@ public class CsvForeignKeyDeserialiser<T> implements ForeignKeyDeserialiser<T> {
 		String[] line = null;
 		List<T> elements = new ArrayList<>();
 		while ((line = reader.readNext()) != null) {
-			elements.add(format.parse(asList(line), context));
+			format.parse(asList(line), context).ifPresent(elements::add);
 		}
 		return elements;
 	}
