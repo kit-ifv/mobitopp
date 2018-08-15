@@ -106,6 +106,12 @@ public abstract class Example {
 		Car car = conventionalCar(zone);
 		return new DefaultPrivateCar(car, household, person, person);
 	}
+	
+	public static PrivateCar conventionalCar(
+			Household household, Person mainUser, Person personalUser, Zone zone) {
+		Car car = conventionalCar(zone);
+		return new DefaultPrivateCar(car, household, mainUser, personalUser);
+	}
 
 	public static ConventionalCar conventionalCar(Zone zone) {
 		CarPosition position = new CarPosition(zone, location);
