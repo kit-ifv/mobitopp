@@ -31,13 +31,13 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 public class DefaultPrivateCarFormatTest {
 
 	private static final int householdOid = 1;
-	private static final int personOid = 2;
-	private static final int mainUserOid = personOid;
-	private static final int personalUserOid = personOid;
+	private static final int mainUserOid = 2;
+	private static final int personalUserOid = 3;
 	private static final int zoneOid = 4;
 	
 	private Household household;
-	private Person person;
+	private Person mainUser;
+	private Person personalUser;
 	private Zone zone;
 	private DefaultPrivateCarFormat format;
 	private PrivateCar privateConventionalCar;
@@ -48,17 +48,20 @@ public class DefaultPrivateCarFormatTest {
 	@Before
 	public void initialise() {
 		household = mock(Household.class);
-		person = mock(Person.class);
+		mainUser = mock(Person.class);
+		personalUser = mock(Person.class);
 		zone = mock(Zone.class);
 		conventionalCar = Example.conventionalCar(zone);
-		privateConventionalCar = Example.conventionalCar(household, person, zone);
+		privateConventionalCar = Example.conventionalCar(household, mainUser, personalUser, zone);
 		conventionalCarFormat = mock(ConventionalCarFormat.class);
 		context = mock(PopulationContext.class);
 		
 		when(household.getOid()).thenReturn(householdOid);
-		when(person.getOid()).thenReturn(personOid);
+		when(mainUser.getOid()).thenReturn(mainUserOid);
+		when(personalUser.getOid()).thenReturn(personalUserOid);
 		when(zone.getOid()).thenReturn(zoneOid);
-		when(context.getPersonByOid(personOid)).thenReturn(Optional.of(person));
+		when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
+		when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
 		when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());
 		when(conventionalCarFormat.parse(conventionalCar())).thenReturn(Optional.of(conventionalCar));
 		
@@ -82,6 +85,46 @@ public class DefaultPrivateCarFormatTest {
 	
 	private void prepareExistingHousehold() {
 		when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.of(household));
+	}
+	
+	@Test
+	public void parseCarWithMissingPersonalUser() {
+		prepareExistingHousehold();
+		prepareExistingMainUser();
+		prepareMissingPersonalUser();
+		PrivateCar carMissingPersonalUser = Example.conventionalCar(household, mainUser, null, zone);
+		
+		Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+		
+		assertCars(parsed.get(), carMissingPersonalUser);
+	}
+	
+	private void prepareExistingMainUser() {
+		when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
+	}
+	
+	private void prepareMissingPersonalUser() {
+		when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.empty());
+	}
+	
+	@Test
+	public void parseCarWithMissingMainUser() {
+		prepareExistingHousehold();
+		prepareMissingMainUser();
+		prepareExistingPersonalUser();
+		PrivateCar carMissingPersonalUser = Example.conventionalCar(household, null, personalUser, zone);
+		
+		Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+		
+		assertCars(parsed.get(), carMissingPersonalUser);
+	}
+	
+	private void prepareMissingMainUser() {
+		when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.empty());
+	}
+	
+	private void prepareExistingPersonalUser() {
+		when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
 	}
 
 	@Test
