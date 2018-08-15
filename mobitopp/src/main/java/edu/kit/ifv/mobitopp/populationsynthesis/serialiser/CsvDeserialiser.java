@@ -24,7 +24,7 @@ public class CsvDeserialiser<T> implements Deserialiser<T> {
 		String[] line = null;
 		List<T> elements = new ArrayList<>();
 		while ((line = reader.readNext()) != null) {
-			elements.add(format.parse(asList(line)));
+			format.parse(asList(line)).ifPresent(elements::add);
 		}
 		return elements;
 	}

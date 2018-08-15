@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,13 +58,30 @@ public class DefaultPrivateCarFormatTest {
 		when(household.getOid()).thenReturn(householdOid);
 		when(person.getOid()).thenReturn(personOid);
 		when(zone.getOid()).thenReturn(zoneOid);
-		when(context.getHouseholdByOid(householdOid)).thenReturn(household);
-		when(context.getPersonByOid(personOid)).thenReturn(person);
+		when(context.getPersonByOid(personOid)).thenReturn(Optional.of(person));
 		when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());
-		when(conventionalCarFormat.parse(conventionalCar())).thenReturn(conventionalCar);
+		when(conventionalCarFormat.parse(conventionalCar())).thenReturn(Optional.of(conventionalCar));
 		
 		format = new DefaultPrivateCarFormat();
 		format.register(CarType.conventional, conventionalCarFormat);
+	}
+	
+	@Test
+	public void parseCarForMissingHousehold() {
+		prepareMissingHousehold();
+		
+		Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+		
+		assertThat(parsed, isEmpty());
+		verify(context).getHouseholdByOid(householdOid);
+	}
+
+	private void prepareMissingHousehold() {
+		when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.empty());
+	}
+	
+	private void prepareExistingHousehold() {
+		when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.of(household));
 	}
 
 	@Test
@@ -75,9 +94,11 @@ public class DefaultPrivateCarFormatTest {
 	
 	@Test
 	public void parseConventionalCar() {
-		PrivateCar parsed = format.parse(privateCar(), context);
+		prepareExistingHousehold();
 		
-		assertCars(parsed, privateConventionalCar);
+		Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+		
+		assertCars(parsed.get(), privateConventionalCar);
 		verify(conventionalCarFormat).parse(conventionalCar());
 	}
 

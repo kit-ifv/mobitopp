@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
@@ -13,17 +14,18 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 
 public class DefaultPersonFormatTest {
 
@@ -51,7 +53,6 @@ public class DefaultPersonFormatTest {
 		when(household.getOid()).thenReturn(householdOid);
 		personForDemand = Example.personOf(household, personOid, zone);
 		emobilityPerson = Example.emobilityPersonOf(household, personOid, zone);
-		when(context.getHouseholdByOid(householdOid)).thenReturn(household);
 		when(context.activityScheduleFor(personOid)).thenReturn(Example.activitySchedule());
 	}
 
@@ -71,18 +72,37 @@ public class DefaultPersonFormatTest {
 	
 	@Test
 	public void parseNormalPerson() {
-		Person parsedPerson = format.parse(personFormat(), context);
+		prepareExistingHoushold();
+		Optional<Person> parsedPerson = format.parse(personFormat(), context);
 		
-		assertPersons(parsedPerson, personForDemand);
-		verify(household).addPerson(parsedPerson);
+		assertPersons(parsedPerson.get(), personForDemand);
+		verify(household).addPerson(parsedPerson.get());
 	}
 	
 	@Test
 	public void parseEmobilityPerson() {
-		Person parsedPerson = format.parse(emobilityPerson(), context);
+		prepareExistingHoushold();
+		Optional<Person> parsedPerson = format.parse(emobilityPerson(), context);
 
-		assertPersons(parsedPerson, emobilityPerson);
-		verify(household).addPerson(parsedPerson);
+		assertPersons(parsedPerson.get(), emobilityPerson);
+		verify(household).addPerson(parsedPerson.get());
+	}
+
+	private void prepareExistingHoushold() {
+		when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.of(household));
+	}
+	
+	@Test
+	public void parseMissingHousehold() {
+		prepareMissingHousehold();
+		
+		Optional<Person> parsedPerson = format.parse(personFormat(), context);
+		
+		assertThat(parsedPerson, isEmpty());
+	}
+
+	private void prepareMissingHousehold() {
+		when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.empty());
 	}
 
 	private void assertPersons(Person person, Person originalPerson) {

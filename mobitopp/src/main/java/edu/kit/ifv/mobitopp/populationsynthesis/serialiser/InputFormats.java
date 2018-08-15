@@ -8,14 +8,16 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 class InputFormats {
 
 	private final ZoneRepository zoneRepository;
+	private final ZoneRepository zonesToSimulate;
 
-	InputFormats(ZoneRepository zoneRepository) {
+	InputFormats(ZoneRepository zoneRepository, ZoneRepository zonesToSimulate) {
 		super();
 		this.zoneRepository = zoneRepository;
+		this.zonesToSimulate = zonesToSimulate;
 	}
 
 	public DefaultHouseholdFormat householdFormat() {
-		return new DefaultHouseholdFormat(zoneRepository);
+		return new DefaultHouseholdFormat(zonesToSimulate);
 	}
 
 	public DefaultPersonFormat personFormat() {

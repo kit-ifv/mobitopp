@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,8 +49,6 @@ public class DefaultFixedDestinationFormatTest {
 		person = mock(Person.class);
 		when(person.getOid()).thenReturn(personOid);
 		when(zone.getOid()).thenReturn(zoneOid);
-		when(context.getPersonByOid(personOid)).thenReturn(person);
-		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 		fixedDestination = new FixedDestination(activityType, zone, location);
 		personDestination = new PersonFixedDestination(person , fixedDestination);
 		format = new DefaultFixedDestinationFormat(zoneRepository);
@@ -62,9 +63,34 @@ public class DefaultFixedDestinationFormatTest {
 	
 	@Test
 	public void parse() {
-		PersonFixedDestination parsed = format.parse(fixedDestination(), context);
+		prepareExistingZone();
+		prepareExsistingPerson();
 		
-		assertThat(parsed, is(equalTo(personDestination)));
+		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination(), context);
+		
+		assertThat(parsed, hasValue(personDestination));
+	}
+	
+	private void prepareExsistingPerson() {
+		when(context.getPersonByOid(personOid)).thenReturn(Optional.of(person));
+	}
+
+	private void prepareExistingZone() {
+		when(zoneRepository.hasZone(zoneOid)).thenReturn(true);
+		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
+	}
+	
+	@Test
+	public void parseMissingZone() {
+		prepareMissingZone();
+		
+		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination(), context);
+		
+		assertThat(parsed, isEmpty());
+	}
+
+	private void prepareMissingZone() {
+		when(zoneRepository.hasZone(zoneOid)).thenReturn(false);
 	}
 
 	private List<String> fixedDestination() {

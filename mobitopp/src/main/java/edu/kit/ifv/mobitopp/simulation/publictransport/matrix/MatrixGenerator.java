@@ -12,9 +12,9 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
+import edu.kit.ifv.mobitopp.data.local.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
-import edu.kit.ifv.mobitopp.populationsynthesis.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportConverter;
@@ -64,8 +64,8 @@ public class MatrixGenerator {
 	}
 
 	private void loadZones() {
-		zoneRepository = LocalZoneRepository.from(network, roadNetwork, Integer.MAX_VALUE,
-				ChargingType.limited, DefaultPower.zero, attractivityDataFile);
+		zoneRepository = LocalZoneRepository
+				.from(network, roadNetwork, ChargingType.limited, DefaultPower.zero, attractivityDataFile);
 	}
 
 	ZonesToStops assignStopsToZones() {

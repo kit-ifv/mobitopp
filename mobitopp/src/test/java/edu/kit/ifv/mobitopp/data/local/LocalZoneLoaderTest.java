@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis;
+package edu.kit.ifv.mobitopp.data.local;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,7 +22,7 @@ public class LocalZoneLoaderTest {
 	private static final int zoneOid = 1;
 	private static final int anotherOid = 2;
 	private static final int limitedSize = 1;
-	private static final int unlimited = Integer.MAX_VALUE;
+	
 	private ZonesReader reader;
 	private Zone zone;
 	private Zone anotherZone;
@@ -42,13 +42,14 @@ public class LocalZoneLoaderTest {
 	}
 	
 	@Test
-	public void mapsAZone() {
-		when(reader.getZones()).thenReturn(asList(zone));
+	public void mapsAllZones() {
+		when(reader.getZones()).thenReturn(asList(zone, differentZone));
 		
-		Map<Integer, Zone> mapping = loader.mapZones(unlimited);
+		Map<Integer, Zone> mapping = loader.mapAllZones();
 		
-		assertThat(mapping.entrySet(), hasSize(1));
+		assertThat(mapping.entrySet(), hasSize(2));
 		assertThat(mapping.get(zoneOid), is(equalTo(zone)));
+		assertThat(mapping.get(anotherOid), is(equalTo(differentZone)));
 		verify(reader).getZones();
 	}
 	
@@ -56,7 +57,7 @@ public class LocalZoneLoaderTest {
 	public void failsOnADuplicatedZoneOid() {
 		when(reader.getZones()).thenReturn(asList(zone, anotherZone));
 		
-		loader.mapZones(unlimited);
+		loader.mapAllZones();
 	}
 	
 	@Test
@@ -67,4 +68,5 @@ public class LocalZoneLoaderTest {
 		
 		assertThat(zones.entrySet(), hasSize(limitedSize));
 	}
+	
 }
