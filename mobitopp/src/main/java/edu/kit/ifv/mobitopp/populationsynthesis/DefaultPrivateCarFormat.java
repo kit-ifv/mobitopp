@@ -106,7 +106,7 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 
 	private Person mainUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(mainUserIndex));
-		return context.getPersonByOid(oid).orElse(null);
+		return context.getPersonByOid(oid).orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
 	}
 
 	private Person personalUserOf(List<String> data, PopulationContext context) {
