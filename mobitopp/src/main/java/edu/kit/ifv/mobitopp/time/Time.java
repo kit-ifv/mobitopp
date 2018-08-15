@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.time;
 
 public interface Time extends Comparable<Time> {
 
+	Time start = new SimpleTime();
 	Time future = SimpleTime.ofDays(4000);
 	
 	int getDay();
