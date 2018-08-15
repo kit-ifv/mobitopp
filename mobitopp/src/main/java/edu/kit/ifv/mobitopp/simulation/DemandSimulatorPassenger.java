@@ -141,13 +141,12 @@ public class DemandSimulatorPassenger
 	}
 
 	private static void executeGc(Time currentTime) {
-		if (0 != currentTime.getMinute()) {
-			return;
+		if (SimpleTime.start.equals(currentTime)) {
+			String formattedTime = new DateFormat().asFullDate(currentTime);
+			System.out.println("GC (Simulation): " + formattedTime);
+			System.gc();
 		}
-		String format = new DateFormat().asFullDate(currentTime);
-		System.out.println("GC (Simulation): " + format);
-				System.gc();
-			}
+	}
 
 	private static void printCurrentTime(Time currentTime) {
 		LocalDateTime realTime = LocalDateTime.now();
