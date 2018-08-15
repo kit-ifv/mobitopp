@@ -77,20 +77,16 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 	@Override
 	public Optional<PrivateCar> parse(List<String> data, PopulationContext context) {
 		Optional<Household> household = householdOf(data, context);
-		Optional<Person> mainUser = mainUserOf(data, context);
-		Optional<Person> personalUser = personalUserOf(data, context);
+		Person mainUser = mainUserOf(data, context);
+		Person personalUser = personalUserOf(data, context);
 		Optional<? extends Car> car = parseCar(data);
 		return household
 				.flatMap(h -> createCar(mainUser, personalUser, car, h));
 	}
 
 	private Optional<PrivateCar> createCar(
-			Optional<Person> mainUser, Optional<Person> personalUser, Optional<? extends Car> car,
-			Household household) {
-		return mainUser.flatMap(
-				main -> personalUser.flatMap(
-						personal -> car.map(
-								c -> new DefaultPrivateCar(c, household, main, personal))));
+			Person mainUser, Person personalUser, Optional<? extends Car> car, Household household) {
+		return car.map(c -> new DefaultPrivateCar(c, household, mainUser, personalUser));
 	}
 
 	private Optional<? extends Car> parseCar(List<String> data) {
@@ -108,14 +104,14 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 		return context.getHouseholdByOid(oid);
 	}
 
-	private Optional<Person> mainUserOf(List<String> data, PopulationContext context) {
+	private Person mainUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(mainUserIndex));
-		return context.getPersonByOid(oid);
+		return context.getPersonByOid(oid).orElse(null);
 	}
 
-	private Optional<Person> personalUserOf(List<String> data, PopulationContext context) {
+	private Person personalUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(personalUserIndex));
-		return context.getPersonByOid(oid);
+		return context.getPersonByOid(oid).orElse(null);
 	}
 
 }
