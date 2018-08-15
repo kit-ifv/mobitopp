@@ -2,6 +2,8 @@ package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,17 +32,21 @@ public class CsvDeserialiserTest {
 	public void initialise() throws IOException {
 		reader = mock(CSVReader.class);
 		format = mock(SerialiserFormat.class);
-		when(format.parse(asList(serialisedValue))).thenReturn(parsedValue);
 		when(reader.readNext()).thenReturn(serialisedValue, endOfFile);
 	}
 
 	@Test
 	public void deserialisePreparedData() throws Exception {
+		prepareRealValue();
 		try (Deserialiser<Object> deserialiser = deserialiser()) {
 			List<Object> deserialisedElements = deserialiser.deserialise();
 
 			assertThat(deserialisedElements, contains(parsedValue));
 		}
+	}
+
+	private void prepareRealValue() {
+		when(format.parse(asList(serialisedValue))).thenReturn(Optional.of(parsedValue));
 	}
 
 	private CsvDeserialiser<Object> deserialiser() {
@@ -51,5 +58,20 @@ public class CsvDeserialiserTest {
 		deserialiser().close();
 		
 		verify(reader).close();
+	}
+	
+	@Test
+	public void deserialiseMissingData() throws IOException {
+		prepareMissingValue();
+		
+		try (Deserialiser<Object> deserialiser = deserialiser()) {
+			List<Object> deserialisedElements = deserialiser.deserialise();
+			
+			assertThat(deserialisedElements, is(empty()));
+		}
+	}
+	
+	private void prepareMissingValue() {
+		when(format.parse(asList(serialisedValue))).thenReturn(Optional.empty());
 	}
 }

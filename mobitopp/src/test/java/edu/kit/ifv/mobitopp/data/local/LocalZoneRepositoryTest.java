@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis;
+package edu.kit.ifv.mobitopp.data.local;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;

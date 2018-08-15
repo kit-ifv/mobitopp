@@ -5,6 +5,7 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -46,17 +47,24 @@ public class DefaultOpportunityFormat implements SerialiserFormat<Opportunity> {
 	}
 
 	@Override
-	public Opportunity parse(List<String> data) {
-		Zone zone = zoneOf(data);
+	public Optional<Opportunity> parse(List<String> data) {
+		return zoneOf(data).map(z -> createOpportunity(data, z));
+	}
+
+	private Opportunity createOpportunity(List<String> data, Zone zone) {
 		ActivityType activityType = activityTypeOf(data);
 		Location location = locationOf(data);
 		Integer attractivity = attractivityOf(data);
-		return new Opportunity(zone, activityType, location, attractivity);
+		Opportunity opportunity = new Opportunity(zone, activityType, location, attractivity);
+		return opportunity;
 	}
 
-	private Zone zoneOf(List<String> data) {
+	private Optional<Zone> zoneOf(List<String> data) {
 		int zoneOid = Integer.parseInt(data.get(zoneOidIndex));
-		return zoneRepository.getZoneByOid(zoneOid);
+		if (zoneRepository.hasZone(zoneOid)) {
+			return Optional.of(zoneRepository.getZoneByOid(zoneOid));
+		}
+		return Optional.empty();
 	}
 
 	private ActivityType activityTypeOf(List<String> data) {

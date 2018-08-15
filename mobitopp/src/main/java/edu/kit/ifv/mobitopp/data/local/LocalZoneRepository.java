@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis;
+package edu.kit.ifv.mobitopp.data.local;
 
 import static java.util.Comparator.comparing;
 
@@ -11,7 +11,6 @@ import java.util.NoSuchElementException;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.ZonesReaderCsvBased;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
@@ -33,6 +32,11 @@ public class LocalZoneRepository implements ZoneRepository {
 		sorted.sort(comparing(Zone::getOid));
 		return Collections.unmodifiableList(sorted);
 	}
+	
+	@Override
+	public boolean hasZone(int oid) {
+		return zones.containsKey(oid);
+	}
 
 	@Override
 	public Zone getZoneByOid(int oid) throws NoSuchElementException {
@@ -53,11 +57,11 @@ public class LocalZoneRepository implements ZoneRepository {
 	}
 
 	public static ZoneRepository from(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones,
-			ChargingType charging, DefaultPower defaultPower, File attractivityDataFile) {
-		ZonesReaderCsvBased zonesReader = ZonesReaderCsvBased.from(visumNetwork, roadNetwork, charging,
-				defaultPower, attractivityDataFile);
-		Map<Integer, Zone> mapping = new LocalZoneLoader(zonesReader).mapZones(numberOfZones);
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
+			DefaultPower defaultPower, File attractivityDataFile) {
+		ZonesReaderCsvBased zonesReader = ZonesReaderCsvBased
+				.from(visumNetwork, roadNetwork, charging, defaultPower, attractivityDataFile);
+		Map<Integer, Zone> mapping = new LocalZoneLoader(zonesReader).mapAllZones();
 		return new LocalZoneRepository(mapping);
 	}
 

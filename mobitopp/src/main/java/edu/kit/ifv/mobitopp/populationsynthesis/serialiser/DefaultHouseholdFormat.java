@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -74,20 +75,23 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 	}
 
 	@Override
-	public Household parse(List<String> data) {
+	public Optional<Household> parse(List<String> data) {
+		return zoneOf(data).map(zone -> createHousehold(data, zone));
+	}
+
+	private HouseholdForDemand createHousehold(List<String> data, Zone zone) {
 		int oid = oidOf(data);
 		HouseholdId id = idOf(data);
 		int nominalSize = nominalSizeOf(data);
 		int domCode = domCodeOf(data);
-		Zone toZone = zoneOf(data);
 		Location location = locationOf(data);
 		int numberOfNotSimulatedChildren = childrenOf(data);
 		int totalNumberOfCars = carsOf(data);
 		int income = incomeOf(data);
 		boolean canChargePrivately = chargePrivatelyOf(data);
-		HouseholdForDemand household = new HouseholdForDemand(oid, id, nominalSize, domCode, toZone,
+		HouseholdForDemand household = new HouseholdForDemand(oid, id, nominalSize, domCode, zone,
 				location, numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
-		assign(household, toZone);
+		assign(household, zone);
 		return household;
 	}
 
@@ -113,9 +117,12 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		return Integer.parseInt(data.get(domCodeIndex));
 	}
 
-	private Zone zoneOf(List<String> data) {
+	private Optional<Zone> zoneOf(List<String> data) {
 		int oid = Integer.parseInt(data.get(zoneIndex));
-		return zoneRepository.getZoneByOid(oid);
+		if (zoneRepository.hasZone(oid)) {
+			return Optional.of(zoneRepository.getZoneByOid(oid));
+		}
+		return Optional.empty();
 	}
 
 	private Location locationOf(List<String> data) {

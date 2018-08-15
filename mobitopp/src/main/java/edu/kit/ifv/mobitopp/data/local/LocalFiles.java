@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
@@ -19,7 +20,6 @@ import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
-import edu.kit.ifv.mobitopp.populationsynthesis.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
@@ -93,11 +93,11 @@ public class LocalFiles implements DataSource {
 			ResultWriter results) throws IOException {
 		Matrices matrices = matrices();
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
-		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, numberOfZones,
-				results, electricChargingWriter);
+		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, results,
+				electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
-		DemandDataFolder demandData = demandDataFolder(zoneRepository);
+		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
 		return new LocalDataForPopulationSynthesis(matrices, demandZoneRepository, panelDataRepository,
 				impedance, demandData, results);
 	}
@@ -107,8 +107,11 @@ public class LocalFiles implements DataSource {
 		return LocalDemandZoneRepository.from(zoneRepository, demographyData);
 	}
 
-	private DemandDataFolder demandDataFolder(ZoneRepository zoneRepository) throws IOException {
-		return DemandDataFolder.at(demandDataFolder, zoneRepository);
+	private DemandDataFolder demandDataFolder(ZoneRepository zoneRepository, int numberOfZones)
+			throws IOException {
+		Map<Integer, Zone> mapping = new LocalZoneLoader(zoneRepository).mapZones(numberOfZones);
+		ZoneRepository zonesToSimulate = new LocalZoneRepository(mapping);
+		return DemandDataFolder.at(this.demandDataFolder, zoneRepository, zonesToSimulate);
 	}
 
 	private Matrices matrices() throws FileNotFoundException {
@@ -123,9 +126,8 @@ public class LocalFiles implements DataSource {
 	}
 
 	private ZoneRepository zoneRepository(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones,
-			ResultWriter results, ChargingListener electricChargingWriter) throws IOException {
-		ZoneRepository zoneRepository = loadZoneRepository(visumNetwork, roadNetwork, numberOfZones);
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ResultWriter results, ChargingListener electricChargingWriter) throws IOException {
+		ZoneRepository zoneRepository = loadZoneRepository(visumNetwork, roadNetwork);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		return zoneRepository;
 	}
@@ -141,9 +143,9 @@ public class LocalFiles implements DataSource {
 	}
 
 	private ZoneRepository loadZoneRepository(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones) {
-		return LocalZoneRepository.from(visumNetwork, roadNetwork, numberOfZones, charging,
-				defaultPower(), attractivityDataFile);
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
+		return LocalZoneRepository
+				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile);
 	}
 
 	private DefaultPower defaultPower() {
@@ -154,8 +156,8 @@ public class LocalFiles implements DataSource {
 		return DefaultPower.zero;
 	}
 
-	private void addOpportunities(ZoneRepository zoneRepository) throws IOException {
-		DemandDataFolder demandData = DemandDataFolder.at(demandDataFolder, zoneRepository);
+	private void addOpportunities(ZoneRepository zoneRepository, int numberOfZones) throws IOException {
+		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
 		try (DemandDataDeserialiser deserialiser = demandData.deserialiseFromCsv()) {
 			deserialiser.addOpportunitiesTo(zoneRepository);
 		} catch (Exception e) {
@@ -176,27 +178,28 @@ public class LocalFiles implements DataSource {
 			InputSpecification input, PublicTransportData data, ResultWriter results,
 			ElectricChargingWriter electricChargingWriter) throws IOException {
 		Matrices matrices = matrices();
-		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, numberOfZones,
-				results, electricChargingWriter);
-		addOpportunities(zoneRepository);
+		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, results,
+				electricChargingWriter);
+		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
 		ImpedanceIfc impedance = data.impedance(localImpedance, zoneRepository);
 		VehicleBehaviour vehicleBehaviour = data.vehicleBehaviour(results);
-		PersonLoader personLoader = personLoader(zoneRepository);
+		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones);
 		return new LocalDataForSimulation(matrices, zoneRepository, impedance, personLoader,
 				vehicleBehaviour);
 	}
 
-	private PersonLoader personLoader(ZoneRepository zoneRepository) {
+	private PersonLoader personLoader(ZoneRepository zoneRepository, int numberOfZones) {
 		try {
-			return loadFromLocalFolder(zoneRepository);
+			return loadFromLocalFolder(zoneRepository, numberOfZones);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private PersonLoader loadFromLocalFolder(ZoneRepository zoneRepository) throws Exception {
-		DemandDataFolder demandDataFolder = DemandDataFolder.at(this.demandDataFolder, zoneRepository);
+	private PersonLoader loadFromLocalFolder(ZoneRepository zoneRepository, int numberOfZones)
+			throws Exception {
+		DemandDataFolder demandDataFolder = demandDataFolder(zoneRepository, numberOfZones);
 		try (DemandDataDeserialiser deserialiser = demandDataFolder.deserialiseFromCsv()) {
 			Population population = deserialiser.loadPopulation();
 			return new LocalPersonLoader(population);

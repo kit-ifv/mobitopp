@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -53,7 +54,7 @@ public class PopulationTest {
 		
 		assertThat(population.households(), contains(household));
 		assertThat(population.householdOids(), contains(householdId));
-		assertThat(population.getHouseholdByOid(householdId), is(household));
+		assertThat(population.getHouseholdByOid(householdId), hasValue(household));
 	}
 
 	private void addHousehold() {
@@ -65,8 +66,8 @@ public class PopulationTest {
 		addHousehold();
 		
 		assertThat(population.getPersonOids(), containsInAnyOrder(aPersonOid, otherPersonOid));
-		assertThat(population.getPersonByOid(aPersonOid), is(aPerson));
-		assertThat(population.getPersonByOid(otherPersonOid), is(otherPerson));
+		assertThat(population.getPersonByOid(aPersonOid), hasValue(aPerson));
+		assertThat(population.getPersonByOid(otherPersonOid), hasValue(otherPerson));
 	}
 	
 	@Test
@@ -74,7 +75,7 @@ public class PopulationTest {
 		population.add(aPerson);
 		
 		assertThat(population.getPersonOids(), containsInAnyOrder(aPersonOid));
-		assertThat(population.getPersonByOid(aPersonOid), is(aPerson));
+		assertThat(population.getPersonByOid(aPersonOid), hasValue(aPerson));
 	}
 	
 	@Test
