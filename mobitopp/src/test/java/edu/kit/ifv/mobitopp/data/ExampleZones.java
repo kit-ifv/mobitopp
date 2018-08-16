@@ -3,13 +3,17 @@ package edu.kit.ifv.mobitopp.data;
 import static java.util.Collections.emptyList;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
+import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.LimitedChargingDataForZone;
-import edu.kit.ifv.mobitopp.visum.VisumSurface;
 
 public class ExampleZones {
+
+	private static final Double dummyPoint = new Point2D.Double(0.0d, 0.0d);
+	private static final int dummyAccessEdge = -1;
 
 	private final Zone someZone;
 	private final Zone otherZone;
@@ -30,20 +34,14 @@ public class ExampleZones {
 		String name = "zone " + id;
 		ZoneAreaType areaType = ZoneAreaType.METROPOLITAN;
 		ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
-		ZonePolygon polygon = createZonePolygon();
 		Attractivities attractivities = new Attractivities();
 		ChargingDataForZone charging = createChargingData();
-		return new Zone(id, name, areaType, classification, polygon, attractivities, charging);
+		Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
+		return new Zone(id, name, areaType, classification, centroid, attractivities, charging);
 	}
 
 	private static LimitedChargingDataForZone createChargingData() {
 		return new LimitedChargingDataForZone(emptyList(), DefaultPower.zero);
-	}
-
-	private static ZonePolygon createZonePolygon() {
-		VisumSurface surface = new VisumSurface(emptyList(), emptyList());
-		Point2D location = new Point2D.Double(0.0d, 0.0d);
-		return new ZonePolygon(surface, location);
 	}
 
 	public Zone someZone() {

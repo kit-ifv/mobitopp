@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
+import java.util.stream.Stream;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -13,6 +15,11 @@ public class NoChargingDataForZone implements ChargingDataForZone {
 	private static final double noPrivateCharging = 0.0;
 
 	private NoChargingDataForZone() {
+	}
+	
+	@Override
+	public Stream<ChargingFacility> facilities() {
+		return Stream.empty();
 	}
 
 	@Override
