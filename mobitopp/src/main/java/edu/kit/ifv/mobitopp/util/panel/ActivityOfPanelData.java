@@ -1,5 +1,9 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 
 public class ActivityOfPanelData
@@ -105,5 +109,33 @@ public class ActivityOfPanelData
 
 		return "ActivityOfPanelData[" + observedTripDuration + "," 
 									+ activityType + "," + duration + "," + startTime + "]";
+	}
+
+
+	// copied from PanelDataCsvReader
+	public static List<ActivityOfPanelData> parseActivities(String pattern_) {
+		assert pattern_ != null;
+		assert !pattern_.isEmpty();
+	
+		StringTokenizer tokenizer = new StringTokenizer(pattern_, ";");
+	
+		if ((tokenizer.countTokens() % 4) != 0) {
+			throw new AssertionError("the amount elements of the activity pattern must dividable by 4");
+		}
+	
+		List<ActivityOfPanelData> activities = new ArrayList<ActivityOfPanelData>();
+	
+		while (tokenizer.hasMoreTokens()) {
+			activities.add(
+						new ActivityOfPanelData(
+								Integer.parseInt(tokenizer.nextToken()), 
+								ActivityType.getTypeFromInt(Integer.parseInt(tokenizer.nextToken())), 
+								Integer.parseInt(tokenizer.nextToken()), 
+								Integer.parseInt(tokenizer.nextToken())
+						)
+			);
+		}
+	
+		return activities;
 	}
 }

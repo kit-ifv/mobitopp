@@ -5,15 +5,22 @@ import static java.util.Collections.emptyList;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 
 public class PatternActivityWeek implements Serializable {
 
 
-	private final List<PatternActivity> patternActivities;
+
+	private final static int MINUTES_PER_WEEK = 10080;
+	private final static int MINUTES_PER_DAY = 1440;
+
+	private static final DayOfWeek DEFAULT_START_DAY = DayOfWeek.MONDAY;
+	private static final int DEFAULT_START_TIME = 0;
 	
 	private static final long serialVersionUID = -6351800754350553869L;
 
@@ -21,6 +28,8 @@ public class PatternActivityWeek implements Serializable {
 																																	PatternActivity.WHOLE_WEEK_AT_HOME
 																																));
 
+	private final List<PatternActivity> patternActivities;
+	
 	public PatternActivityWeek() {
 		this(emptyList());
 	}
@@ -29,7 +38,7 @@ public class PatternActivityWeek implements Serializable {
 
 	public PatternActivityWeek(List<PatternActivity> activities) {
 		super();
-		patternActivities = new ArrayList<>(activities);
+		this.patternActivities = new ArrayList<>(activities);
 	}
 
 	public boolean existsPatternActivity(ActivityType type) {
@@ -126,6 +135,79 @@ public class PatternActivityWeek implements Serializable {
 	@Override
 	public String toString() {
 		return "PatternActivityWeek [patternActivities=" + patternActivities + "]";
+	}
+
+
+
+	public static DayOfWeek determineWeekDayFromMinutesSinceSundayMidnight(int startTimeOfActivity_) {
+		assert startTimeOfActivity_ >= 0;
+		assert startTimeOfActivity_ <=  2*PatternActivityWeek.MINUTES_PER_WEEK;
+		
+		return DayOfWeek.fromDay((startTimeOfActivity_ % PatternActivityWeek.MINUTES_PER_WEEK) / PatternActivityWeek.MINUTES_PER_DAY);
+	}
+
+
+
+	public static PatternActivityWeek fromActivityOfPanelData(
+			Collection<ActivityOfPanelData> activityOfPanelData
+	) {
+	
+		PatternActivityWeek patternActivityWeek = new PatternActivityWeek();
+		
+		if (activityOfPanelData.isEmpty()) {
+		
+			return WHOLE_WEEK_AT_HOME;
+		}
+	
+	
+		int previousEndTime = 0;
+	
+		for (ActivityOfPanelData activity : activityOfPanelData) {
+	
+			DayOfWeek weekDayType = null;
+			int starttime = -1;
+	
+			if (activity.getStarttime() != -1) {
+	
+				int startTimeOfActivity = activity.getStarttime();
+				weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(startTimeOfActivity);
+				starttime = startTimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+	
+			} else { // starttime = -1
+	
+				if (patternActivityWeek.getPatternActivities().isEmpty()) {
+	
+					weekDayType = PatternActivityWeek.DEFAULT_START_DAY;
+					starttime = PatternActivityWeek.DEFAULT_START_TIME;
+	
+				} else {
+	
+					int tripDuration = activity.getObservedTripDuration() > -1 ?
+															activity.getObservedTripDuration() : 15;
+	
+					int starttimeOfActivity = previousEndTime + tripDuration;
+	
+					weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(starttimeOfActivity);
+					starttime = starttimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+				}
+	
+			}
+	
+			previousEndTime = starttime + activity.getDuration();
+		
+			PatternActivity patternActivity 
+				= new PatternActivity(
+						ActivityType.getTypeFromInt(activity.getActivityTypeAsInt()),
+								weekDayType, 
+								activity.getObservedTripDuration(),
+								starttime, 
+								activity.getDuration()
+					);
+	
+			patternActivityWeek.addPatternActivity(patternActivity);
+		}
+	
+		return patternActivityWeek;
 	}
 
 }
