@@ -46,7 +46,7 @@ public class ChargingFacility
 		this.power = power;
 		this.stationId = stationId;
 	}
-
+	
 	public float chargingPowerInKW() {
 		return power.inKw();
 	}
@@ -175,6 +175,26 @@ public class ChargingFacility
 	public String toString() {
 		return "ChargingFacility [id=" + id + ", location=" + location + ", type=" + type + ", power="
 				+ power + ", stationId=" + stationId + "]";
+	}
+
+	public int id() {
+		return id;
+	}
+
+	public int stationId() {
+		return stationId;
+	}
+
+	public Location location() {
+		return location;
+	}
+
+	public Type type() {
+		return type;
+	}
+
+	public ChargingPower power() {
+		return power;
 	}
 
 }
