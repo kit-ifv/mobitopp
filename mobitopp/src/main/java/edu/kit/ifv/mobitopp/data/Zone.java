@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.data;
 
-import java.awt.geom.Point2D;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
+import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.NoChargingDataForZone;
@@ -34,14 +34,14 @@ public class Zone implements Serializable {
 	private ZoneAreaType areaType = null;
 	private ZoneClassificationType classification = null;
 
-  // polygon of this zone
-  private ZonePolygon polygon = null;
+  private Location centroidLocation;
 
   private Attractivities attractivities;
 
   private transient DataForZone zoneData = null;
   private CarSharingDataForZone carSharingData = null;
 	private ChargingDataForZone charging;
+
 
 	public static void resetIdSequence() {
 		ids = new IdSequence();
@@ -57,7 +57,7 @@ public class Zone implements Serializable {
 		String name,
 		ZoneAreaType areaType,
 		ZoneClassificationType classification,
-		ZonePolygon polygon,
+		Location centroidLocation,
 		Attractivities attractivities,
 		ChargingDataForZone charging
 	)
@@ -68,9 +68,9 @@ public class Zone implements Serializable {
 		this.name = name;
 		this.areaType = areaType;
 		this.classification = classification;
-		this.polygon = polygon;
 		this.charging = charging;
 		this.attractivities = attractivities;
+		this.centroidLocation = centroidLocation;
 	}
 
   public int getOid()
@@ -123,11 +123,8 @@ public class Zone implements Serializable {
     return this.name;
   }
 
-  public ZonePolygon getZonePolygon()
-  {
-		assert this.polygon != null;
-
-    return this.polygon;
+  public Location centroidLocation() {
+  	return this.centroidLocation;
   }
 
 	public void setCarSharing(CarSharingDataForZone carSharingData) {
@@ -138,12 +135,6 @@ public class Zone implements Serializable {
 		assert this.carSharingData != null;
 
 		return this.carSharingData;
-	}
-
-	public Point2D centroid() {
-		Point2D p = this.polygon.centroid();
-
-		return new Point2D.Double(p.getX(), p.getY());
 	}
 
 	public OpportunityDataForZone opportunities() {

@@ -94,7 +94,7 @@ public class ZonesReaderCsvBasedTest {
 		assertThat(zone.carSharing(), is(equalTo(carSharingData)));
 		assertThat(zone.charging(), is(equalTo(chargingData)));
 		assertThat(zone.attractivities(), is(equalTo(attractivities)));
-		assertThat(zone.getZonePolygon().centroidLocation(), is(equalTo(dummyLocation())));
+		assertThat(zone.centroidLocation(), is(equalTo(dummyLocation())));
 	}
 
 	private ZonesReaderCsvBased newReader() {

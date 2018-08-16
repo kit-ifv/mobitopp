@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZonePolygon;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
@@ -80,9 +79,7 @@ public class BaseChargingDataForZoneTest {
 
 	private Zone createZone() {
 		Zone zone = mock(Zone.class);
-		ZonePolygon zonePolygon = mock(ZonePolygon.class);
-		when(zonePolygon.centroidLocation()).thenReturn(zoneCentroid);
-		when(zone.getZonePolygon()).thenReturn(zonePolygon);
+		when(zone.centroidLocation()).thenReturn(zoneCentroid);
 		return zone;
 	}
 

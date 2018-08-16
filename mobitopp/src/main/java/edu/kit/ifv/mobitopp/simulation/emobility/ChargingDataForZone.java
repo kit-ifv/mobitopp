@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
+import java.util.stream.Stream;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -25,5 +27,7 @@ public interface ChargingDataForZone {
 	float stopCharging(ElectricCar car, Time currentTime);
 
 	void register(ChargingListener chargingListener);
+	
+	Stream<ChargingFacility> facilities();
 
 }

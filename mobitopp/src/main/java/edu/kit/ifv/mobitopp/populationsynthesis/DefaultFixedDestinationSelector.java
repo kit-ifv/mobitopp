@@ -335,7 +335,7 @@ implements FixedDestinationSelector
 					if(zone.opportunities().locationsAvailable(activityType)) {
 						location = zone.opportunities().selectRandomLocation(activityType, this.random.nextDouble());
 					} else {
-						location = zone.getZonePolygon().centroidLocation();
+						location = zone.centroidLocation();
 					}
 
 					person.setFixedDestination(activityType, zone, location);

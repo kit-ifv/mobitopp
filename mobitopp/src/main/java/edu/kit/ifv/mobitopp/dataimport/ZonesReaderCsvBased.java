@@ -66,9 +66,10 @@ public class ZonesReaderCsvBased implements ZonesReader {
 		ZoneAreaType areaType = currentZoneAreaType();
 		ZoneClassificationType classification = currentClassification();
 		ZonePolygon polygon = currentZonePolygon(visumZone);
+		Location centroid = polygon.centroidLocation();
 		Attractivities attractivities = attractivities();
 		ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-		Zone zone = new Zone(id, name, areaType, classification, polygon, attractivities, chargingData);
+		Zone zone = new Zone(id, name, areaType, classification, centroid, attractivities, chargingData);
 		CarSharingDataForZone carSharingData = carSharing(visumZone, polygon, zone);
 		zone.setCarSharing(carSharingData);
 		return zone;
