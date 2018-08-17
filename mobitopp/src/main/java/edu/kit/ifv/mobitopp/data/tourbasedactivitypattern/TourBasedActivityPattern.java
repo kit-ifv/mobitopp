@@ -10,5 +10,17 @@ public class TourBasedActivityPattern {
 	public TourBasedActivityPattern(List<TourBasedActivityPatternElement> elements) {
 		this.elements  = new ArrayList<TourBasedActivityPatternElement>(elements);
 	}
+	
+	@Override
+	public String toString() {
+		String result = "TourBasedActivityPattern(";
+			
+		for(TourBasedActivityPatternElement elem :elements ) {
+			result += "\n\t" + elem.toString();
+		}
+			result += "\n)\n";
+			
+		return result;
+	}
 
 }

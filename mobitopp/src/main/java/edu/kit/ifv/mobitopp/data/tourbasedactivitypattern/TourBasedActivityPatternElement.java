@@ -1,5 +1,9 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
-public interface TourBasedActivityPatternElement {
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 
+public interface TourBasedActivityPatternElement {
+	
+	DayOfWeek startDay();
+		
 }
