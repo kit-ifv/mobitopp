@@ -211,24 +211,12 @@ public class TourBasedActivityPatternCreator {
 																			: activityCount.containsKey(ActivityType.SERVICE) ? ActivityType.SERVICE 
 																		: typeOfMaxDuration(totalDuration);
 			
-		// PatternActivity mainActivity = tour.stream().filter(x -> x.getActivityType() == typeOfMainActivity).findFirst().get();
-		
 		 List<PatternActivity> mainActivity = tour.stream()
 											.filter(x -> x.getActivityType() == typeOfMainActivity).collect(Collectors.toList());
 		
 		// TODO: prüfen, ob Subtouren enthalten
 		// zwei Aktivitäten desselben Typs UND Dauer dieser Aktivitäten ist größer als Zeitraum dazwischen
 		
-/*		
-		if(containsSubtour(tour, typeOfMainActivity)) {
-			
-			Activity tmp = SplitActivity.fromPatternActivities(typeOfMainActivity,
-											tour.stream()
-											.filter(x -> x.getActivityType() == typeOfMainActivity)
-											.collect(Collectors.toList())
-							);
-		}
-		*/
 		 
 		if(containsSubtour(tour, typeOfMainActivity)) {
 			return mainActivity;
@@ -239,14 +227,20 @@ public class TourBasedActivityPatternCreator {
 
 
 	private static boolean containsSubtour(List<PatternActivity> tour, ActivityType typeOfMainActivity) {
+		
+		return !subtours(tour, typeOfMainActivity).isEmpty();
+	}
+	
+	private static List<List<PatternActivity>> subtours(List<PatternActivity> tour, ActivityType typeOfMainActivity) {
 
 			List<PatternActivity> activitiesOfMainActivityType = tour.stream().
 					filter(x -> x.getActivityType() == typeOfMainActivity).
 					collect(Collectors.toList());
 
-			if (activitiesOfMainActivityType.size() < 2) { return false; }
 			
-			// TODO: auf mehrere Subtouren erweitern?
+			List<List<PatternActivity>> subtours = new ArrayList<List<PatternActivity>>();
+			
+			if (activitiesOfMainActivityType.size() < 2) { return subtours; }
 			
 			for(int i=0; i<activitiesOfMainActivityType.size()-1; i++) {
 				
@@ -256,21 +250,21 @@ public class TourBasedActivityPatternCreator {
 				assert tour.contains(first);
 				assert tour.contains(next);
 				
-				List<PatternActivity> potentialSubtour = tour.subList(tour.indexOf(first), tour.indexOf(next));
+				List<PatternActivity> potentialSubtour = tour.subList(tour.indexOf(first), 1+tour.indexOf(next));
 				
-				if (potentialSubtour.size() == 1) { return false; }
+				if (potentialSubtour.size() <= 2) { continue; }
 				
-				assert potentialSubtour.size() > 1;
+				assert potentialSubtour.size() > 2;
 				assert potentialSubtour.get(1).getActivityType() != typeOfMainActivity;
 				
 				int timeBetween = next.getStarttime() - (first.getStarttime()+first.getDuration());
 			
 				if (timeBetween < first.getDuration() + next.getDuration()) {
-					return true;
+					subtours.add(new ArrayList<PatternActivity>(potentialSubtour));
 				}
 			}
 		
-			return false;
+			return subtours;
 	}
 
 	private static ActivityType typeOfMaxDuration(Map<ActivityType, Integer> totalDuration) {
