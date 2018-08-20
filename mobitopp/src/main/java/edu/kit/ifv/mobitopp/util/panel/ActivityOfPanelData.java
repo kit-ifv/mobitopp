@@ -112,12 +112,14 @@ public class ActivityOfPanelData
 	}
 
 
-	// copied from PanelDataCsvReader
-	public static List<ActivityOfPanelData> parseActivities(String pattern_) {
-		assert pattern_ != null;
-		assert !pattern_.isEmpty();
+	public static List<ActivityOfPanelData> parseActivities(String pattern) {
+		assert pattern != null;
+		
+		if (pattern.isEmpty()) {
+			return new ArrayList<ActivityOfPanelData>();
+		}
 	
-		StringTokenizer tokenizer = new StringTokenizer(pattern_, ";");
+		StringTokenizer tokenizer = new StringTokenizer(pattern, ";");
 	
 		if ((tokenizer.countTokens() % 4) != 0) {
 			throw new AssertionError("the amount elements of the activity pattern must dividable by 4");
