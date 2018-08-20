@@ -21,6 +21,7 @@ public class PatternActivityWeek implements Serializable {
 
 	private static final DayOfWeek DEFAULT_START_DAY = DayOfWeek.MONDAY;
 	private static final int DEFAULT_START_TIME = 0;
+	private static final int START_TIME_UNDEFINED = -1;
 	
 	private static final long serialVersionUID = -6351800754350553869L;
 

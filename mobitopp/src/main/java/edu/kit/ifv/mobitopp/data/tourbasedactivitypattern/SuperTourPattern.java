@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class SuperTourPattern implements TourBasedActivityPatternElement {
 
@@ -30,6 +31,18 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 
 	public DayOfWeek startDay() {
 		return  day;
+	}
+
+	@Override
+	public Time start() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Activity> asActivities() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
