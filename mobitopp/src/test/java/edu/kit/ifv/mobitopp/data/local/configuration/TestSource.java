@@ -1,11 +1,13 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.DataSource;
 import edu.kit.ifv.mobitopp.data.InputSpecification;
+import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
@@ -34,7 +36,7 @@ public class TestSource implements DataSource {
 
 	@Override
 	public DataRepositoryForSimulation forSimulation(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones,
+			Supplier<Network> network, int numberOfZones,
 			InputSpecification input, PublicTransportData data, ResultWriter results,
 			ElectricChargingWriter electricChargingWriter) throws IOException {
 		throw new RuntimeException("dummy implementation");

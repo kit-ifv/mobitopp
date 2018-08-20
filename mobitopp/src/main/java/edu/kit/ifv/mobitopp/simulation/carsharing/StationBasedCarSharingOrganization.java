@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 
@@ -15,7 +16,7 @@ public class StationBasedCarSharingOrganization extends BaseCarSharingOrganizati
 
 	private static final long serialVersionUID = 1L;
 
-	protected List<CarSharingCar> ownedCars = new ArrayList<CarSharingCar>();
+	protected List<StationBasedCarSharingCar> ownedCars = new ArrayList<>();
 
 	protected Map<Zone, List<CarSharingCar>> availableCars = new HashMap<Zone, List<CarSharingCar>>();
 
@@ -27,7 +28,7 @@ public class StationBasedCarSharingOrganization extends BaseCarSharingOrganizati
 		super(name);
 	}
 
-	public void ownCar(CarSharingCar car, Zone zone) {
+	public void ownCar(StationBasedCarSharingCar car, Zone zone) {
 		ownedCars.add(car);
 
 		if (!availableCars.containsKey(zone)) {
@@ -133,6 +134,14 @@ public class StationBasedCarSharingOrganization extends BaseCarSharingOrganizati
 
 		this.stations.add(station);
 	}
-
+	
+	public Stream<CarSharingStation> stations() {
+		return stations.stream();
+	}
+	
+	public Stream<StationBasedCarSharingCar> ownedCars() {
+		return ownedCars.stream();
+	}
+	
 }
 

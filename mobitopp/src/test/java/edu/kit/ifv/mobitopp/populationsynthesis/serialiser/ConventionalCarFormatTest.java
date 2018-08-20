@@ -18,8 +18,8 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
-import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
 
 public class ConventionalCarFormatTest {
 
@@ -27,7 +27,7 @@ public class ConventionalCarFormatTest {
 
 	private Zone zone;
 	private ConventionalCarFormat format;
-	private ConventionalCar original;
+	private Car original;
 	private ZoneRepository zoneRepository;
 
 	@Before
@@ -51,22 +51,22 @@ public class ConventionalCarFormatTest {
 
 	@Test
 	public void parseConventionalCar() {
-		Optional<ConventionalCar> parsed = format.parse(conventionalCar());
+		Optional<Car> parsed = format.parse(conventionalCar());
 
 		assertCars(parsed.get(), original);
 	}
 
-	private void assertCars(ConventionalCar actual, ConventionalCar original) {
-		assertValue(ConventionalCar::id, actual, original);
+	private void assertCars(Car actual, Car original) {
+		assertValue(Car::id, actual, original);
 		assertCarPosition(actual, original);
-		assertValue(ConventionalCar::carSegment, actual, original);
-		assertValue(ConventionalCar::capacity, actual, original);
-		assertValue(ConventionalCar::currentMileage, actual, original);
-		assertValue(ConventionalCar::currentFuelLevel, actual, original);
-		assertValue(ConventionalCar::maxRange, actual, original);
+		assertValue(Car::carSegment, actual, original);
+		assertValue(Car::capacity, actual, original);
+		assertValue(Car::currentMileage, actual, original);
+		assertValue(Car::currentFuelLevel, actual, original);
+		assertValue(Car::maxRange, actual, original);
 	}
 
-	private void assertCarPosition(ConventionalCar actual, ConventionalCar original) {
+	private void assertCarPosition(Car actual, Car original) {
 		CarPosition actualPosition = actual.position();
 		CarPosition originalPosition = original.position();
 		assertValue(CarPosition::zone, actualPosition, originalPosition);

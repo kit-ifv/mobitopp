@@ -8,13 +8,14 @@ import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
 
-public class ConventionalCarFormat implements SerialiserFormat<ConventionalCar> {
+public class ConventionalCarFormat implements SerialiserFormat<Car> {
 
 	private static final int idIndex = 0;
 	private static final int zoneIndex = 1;
@@ -42,7 +43,7 @@ public class ConventionalCarFormat implements SerialiserFormat<ConventionalCar> 
 	}
 
 	@Override
-	public List<String> prepare(ConventionalCar car) {
+	public List<String> prepare(Car car) {
 		String location = locationParser.serialise(car.position().location());
 		return asList(
 				valueOf(car.id()),
@@ -57,7 +58,7 @@ public class ConventionalCarFormat implements SerialiserFormat<ConventionalCar> 
 	}
 
 	@Override
-	public Optional<ConventionalCar> parse(List<String> data) {
+	public Optional<Car> parse(List<String> data) {
 		int id = idOf(data);
 		CarPosition position = positionOf(data);
 		Segment segment = segementOf(data);

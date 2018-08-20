@@ -62,16 +62,30 @@ public class Zone implements Serializable {
 		ChargingDataForZone charging
 	)
 	{
-		this.oid = ids.nextId();
-		this.id = id;
-
-		this.name = name;
-		this.areaType = areaType;
-		this.classification = classification;
-		this.charging = charging;
-		this.attractivities = attractivities;
-		this.centroidLocation = centroidLocation;
+  	this(ids.nextId(), id, name, areaType, classification, centroidLocation, attractivities, charging);
 	}
+  
+  public Zone(
+  		int oid,
+  		String id,
+  		String name,
+  		ZoneAreaType areaType,
+  		ZoneClassificationType classification,
+  		Location centroidLocation,
+  		Attractivities attractivities,
+  		ChargingDataForZone charging
+  		)
+  {
+  	this.oid = oid;
+  	this.id = id;
+  	
+  	this.name = name;
+  	this.areaType = areaType;
+  	this.classification = classification;
+  	this.charging = charging;
+  	this.attractivities = attractivities;
+  	this.centroidLocation = centroidLocation;
+  }
 
   public int getOid()
   {

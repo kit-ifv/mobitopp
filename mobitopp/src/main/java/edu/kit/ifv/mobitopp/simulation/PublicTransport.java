@@ -1,9 +1,10 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
+import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
-import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public interface PublicTransport {
 
@@ -11,6 +12,6 @@ public interface PublicTransport {
 
 	Optional<Hook> cleanCacheHook();
 
-	PublicTransportData loadData(VisumNetwork network, SimulationDays simulationDays);
+	PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays);
 
 }
