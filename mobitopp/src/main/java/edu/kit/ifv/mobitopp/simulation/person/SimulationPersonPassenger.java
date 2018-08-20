@@ -346,7 +346,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 			}
 			} else {
 				consumeRandomNumber();
-				location = zone.getZonePolygon().centroidLocation();
+				location = zone.centroidLocation();
 			}
 		}
 

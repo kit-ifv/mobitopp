@@ -59,7 +59,7 @@ public class CarSharingDataForZoneTest  {
 	private CarSharingPerson customer;
 	private CarSharingPerson noCustomer;
 
-	private DefaultCarSharingCar stationBasedCar;
+	private StationBasedCarSharingCar stationBasedCar;
 	private DefaultCarSharingCar freeFloatingCar;
 
 	@Before
@@ -165,9 +165,9 @@ public class CarSharingDataForZoneTest  {
 
 		freeFloatingCarSharing.ownCar(freeFloatingCar, someZone());
 
-		stationBasedCar = new DefaultCarSharingCar(
+		stationBasedCar = new StationBasedCarSharingCar(
 												new ConventionalCar(new IdSequence(), position, Car.Segment.MIDSIZE),
-												stationBasedCarSharing
+												stationBasedCarSharing, station
 											);
 
 		stationBasedCarSharing.ownCar(stationBasedCar, someZone());
