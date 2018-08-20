@@ -11,6 +11,7 @@ dataSource: !file
   attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
   #charging: unlimited
   defaultChargingPower: data/leopoldshafen/parameters/ChargingPower.txt
+  zoneRepositoryFolder: output/zone-repository/
 demographyData: data/leopoldshafen/leopoldshafen_Demography.csv
 #numberOfZones: 2147483647
 panelData: data/leopoldshafen/panel.csv

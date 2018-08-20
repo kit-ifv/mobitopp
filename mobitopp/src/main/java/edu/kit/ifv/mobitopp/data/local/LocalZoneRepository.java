@@ -65,4 +65,9 @@ public class LocalZoneRepository implements ZoneRepository {
 		return new LocalZoneRepository(mapping);
 	}
 
+	public static ZoneRepository from(List<Zone> zones) {
+		Map<Integer, Zone> mapping = new LocalZoneLoader(() -> zones).mapAllZones();
+		return new LocalZoneRepository(mapping);
+	}
+
 }

@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumNetwork;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -12,9 +11,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
-import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
-import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class SimpleSimulationContextTest {
 
@@ -48,12 +45,11 @@ public class SimpleSimulationContextTest {
 
 	private SimpleSimulationContext context() {
 		DynamicParameters experimental = new DynamicParameters(Collections.emptyMap());
-		VisumNetwork network = visumNetwork().build();
-		SimpleRoadNetwork roadNetwork = new SimpleRoadNetwork(network);
 		DataRepositoryForSimulation dataRepository = mock(DataRepositoryForSimulation.class);
 		SimulationDays simulationDays = SimulationDays.containing(1);
 		PersonResults personResults = mock(PersonResults.class);
-		return new SimpleSimulationContext(configuration, experimental, network, roadNetwork,
-				dataRepository, simulationDays, format, resultWriter, chargingWriter, personResults);
+		return new SimpleSimulationContext(configuration, experimental, dataRepository, simulationDays,
+				format, resultWriter, chargingWriter, personResults);
 	}
+
 }

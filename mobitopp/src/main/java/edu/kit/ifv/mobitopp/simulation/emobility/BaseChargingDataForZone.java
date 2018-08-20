@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -38,6 +39,11 @@ public abstract class BaseChargingDataForZone implements ChargingDataForZone, Se
 		this.privateChargingProbabilty = privateChargingProbabilty;
 		this.defaultPower = defaultPower;
 		usedChargingPoints = new HashMap<ElectricCar, ChargingFacility>();
+	}
+	
+	@Override
+	public Stream<ChargingFacility> facilities() {
+		return chargingFacilities.stream();
 	}
 
 	@Override
@@ -139,14 +145,14 @@ public abstract class BaseChargingDataForZone implements ChargingDataForZone, Se
 	protected abstract ChargingFacility freshChargingPoint(Location location, DefaultPower defaultPower);
 
 	ChargingFacility semiPublicChargingFacility(ActivityIfc activity) {
-		Location location = activity.zone().getZonePolygon().centroidLocation();
+		Location location = activity.zone().centroidLocation();
 		ChargingFacility facility = new ChargingFacility(semiPublicId, location, ChargingFacility.Type.SEMIPUBLIC,
 				defaultPower.semipublicFacility());
 		return registerListenerTo(facility);
 	}
 
 	ChargingFacility privateChargingFacility(ActivityIfc activity) {
-		Location location = activity.zone().getZonePolygon().centroidLocation();
+		Location location = activity.zone().centroidLocation();
 		ChargingFacility facility = new ChargingFacility(privateId, location, ChargingFacility.Type.PRIVATE,
 				defaultPower.privateFacility());
 		return registerListenerTo(facility);

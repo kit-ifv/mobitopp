@@ -47,6 +47,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class JourneyTemplateTest {
 
+	@SuppressWarnings("serial")
 	private static class DummyVisumStopPoint extends VisumPtStopPoint {
 
 		private static final Point2D somePoint = new Point2D.Float();
