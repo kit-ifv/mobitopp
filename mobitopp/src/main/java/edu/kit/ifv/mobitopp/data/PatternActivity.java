@@ -135,7 +135,8 @@ public class PatternActivity
 	public String toString() {
 		return "\nPatternActivity [activityType=" + activityType + ", duration=" + duration
 				+ ", observedTripDuration=" + observedTripDuration + ", starttime=" + starttime
-				+ ", weekDayType=" + weekDayType + "]";
+				+ ", weekDayType=" + weekDayType 
+				+ "]";
 	}
   
 }
