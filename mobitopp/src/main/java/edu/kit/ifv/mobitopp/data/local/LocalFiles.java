@@ -40,6 +40,8 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalFiles implements DataSource {
 
+	private static final String defaultZoneRepository = "output/zone-repository/";
+	
 	private File zoneRepositoryFolder;
 	private File matrixConfigurationFile;
 	private File demandDataFolder;
@@ -49,6 +51,7 @@ public class LocalFiles implements DataSource {
 
 	public LocalFiles() {
 		charging = ChargingType.unlimited;
+		zoneRepositoryFolder = new File(defaultZoneRepository);
 	}
 	
 	public String getZoneRepositoryFolder() {
