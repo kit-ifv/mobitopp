@@ -7,15 +7,11 @@ import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
-import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
-import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class SimpleSimulationContext implements SimulationContext {
 
 	private final WrittenConfiguration configuration;
-	private final VisumNetwork network;
-	private final SimpleRoadNetwork roadNetwork;
 	private final DataRepositoryForSimulation dataRepository;
 	private final SimulationParser format;
 	private final ResultWriter resultWriter;
@@ -26,14 +22,11 @@ public class SimpleSimulationContext implements SimulationContext {
 
 	public SimpleSimulationContext(
 			WrittenConfiguration configuration, DynamicParameters experimentalParameters,
-			VisumNetwork network, SimpleRoadNetwork roadNetwork,
 			DataRepositoryForSimulation dataRepository, SimulationDays simulationDays,
 			SimulationParser format, ResultWriter resultWriter,
 			ElectricChargingWriter electricChargingWriter, PersonResults personResults) {
 		this.configuration = configuration;
 		this.experimentalParameters = experimentalParameters;
-		this.network = network;
-		this.roadNetwork = roadNetwork;
 		this.dataRepository = dataRepository;
 		this.simulationDays = simulationDays;
 		this.format = format;
@@ -65,16 +58,6 @@ public class SimpleSimulationContext implements SimulationContext {
 	@Override
 	public VehicleBehaviour vehicleBehaviour() {
 		return dataRepository.vehicleBehaviour();
-	}
-
-	@Override
-	public VisumNetwork network() {
-		return network;
-	}
-
-	@Override
-	public SimpleRoadNetwork roadNetwork() {
-		return roadNetwork;
 	}
 
 	@Override

@@ -2,7 +2,9 @@ package edu.kit.ifv.mobitopp.data.local.configuration;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.function.Supplier;
 
+import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.serializer.TimetableFiles;
@@ -58,8 +60,9 @@ public class UsePublicTransport extends BasePublicTransport implements PublicTra
 	}
 
 	@Override
-	public PublicTransportData loadData(VisumNetwork network, SimulationDays simulationDays) {
-		PublicTransportTimetable timetable = loadTimetable(network, simulationDays);
+	public PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays) {
+		VisumNetwork visumNetwork = network.get().visumNetwork;
+		PublicTransportTimetable timetable = loadTimetable(visumNetwork, simulationDays);
 		RouteSearch finder = createFinder(timetable, simulationDays.startDate());
 		return new ExistingPublicTransportData(timetable, capacity, finder);
 	}

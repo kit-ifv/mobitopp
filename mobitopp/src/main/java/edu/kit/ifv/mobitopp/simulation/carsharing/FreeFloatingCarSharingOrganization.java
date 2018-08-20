@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 import java.util.HashMap;
 import java.io.Serializable;
 
@@ -132,6 +134,14 @@ public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganizati
 		ownedCars.removeAll(cars);
 
 		availableCars.put(zone, new ArrayList<CarSharingCar>());
+	}
+	
+	public Stream<FreeFloatingCar> availableCars() {
+		return availableCars.entrySet().stream().flatMap(this::toSingleCars);
+	}
+	
+	private Stream<FreeFloatingCar> toSingleCars(Entry<Zone, List<CarSharingCar>> cars) {
+		return cars.getValue().stream().map(car -> new FreeFloatingCar(cars.getKey(), car));
 	}
 
 }

@@ -5,18 +5,22 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.DataSource;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.InputSpecification;
+import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
+import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
+import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
@@ -36,6 +40,7 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalFiles implements DataSource {
 
+	private File zoneRepositoryFolder;
 	private File matrixConfigurationFile;
 	private File demandDataFolder;
 	private File attractivityDataFile;
@@ -44,6 +49,14 @@ public class LocalFiles implements DataSource {
 
 	public LocalFiles() {
 		charging = ChargingType.unlimited;
+	}
+	
+	public String getZoneRepositoryFolder() {
+		return Convert.asString(zoneRepositoryFolder);
+	}
+	
+	public void setZoneRepositoryFolder(String zoneRepositoryFile) {
+		this.zoneRepositoryFolder = Convert.asFile(zoneRepositoryFile);
 	}
 
 	public String getMatrixConfigurationFile() {
@@ -93,8 +106,8 @@ public class LocalFiles implements DataSource {
 			ResultWriter results) throws IOException {
 		Matrices matrices = matrices();
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
-		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, results,
-				electricChargingWriter);
+		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork);
+		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
@@ -125,11 +138,13 @@ public class LocalFiles implements DataSource {
 		return MatrixConfiguration.from(configFile, matrixFolder);
 	}
 
-	private ZoneRepository zoneRepository(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ResultWriter results, ChargingListener electricChargingWriter) throws IOException {
-		ZoneRepository zoneRepository = loadZoneRepository(visumNetwork, roadNetwork);
-		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
-		return zoneRepository;
+	private ZoneRepository loadZonesFromVisum(
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
+		ZoneRepository fromVisum = LocalZoneRepository
+				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile);
+		ZoneRepositorySerialiser serialised = createSerialiser();
+		serialised.serialise(fromVisum);
+		return fromVisum;
 	}
 
 	private void initialiseResultWriting(
@@ -140,12 +155,6 @@ public class LocalFiles implements DataSource {
 			zone.charging().register(electricChargingWriter);
 			zone.carSharing().register(carSharingWriter);
 		}
-	}
-
-	private ZoneRepository loadZoneRepository(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
-		return LocalZoneRepository
-				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile);
 	}
 
 	private DefaultPower defaultPower() {
@@ -174,12 +183,12 @@ public class LocalFiles implements DataSource {
 
 	@Override
 	public DataRepositoryForSimulation forSimulation(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones,
-			InputSpecification input, PublicTransportData data, ResultWriter results,
-			ElectricChargingWriter electricChargingWriter) throws IOException {
+			Supplier<Network> network, int numberOfZones, InputSpecification input,
+			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter)
+			throws IOException {
 		Matrices matrices = matrices();
-		ZoneRepository zoneRepository = zoneRepository(visumNetwork, roadNetwork, results,
-				electricChargingWriter);
+		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network);
+		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
 		ImpedanceIfc impedance = data.impedance(localImpedance, zoneRepository);
@@ -187,6 +196,24 @@ public class LocalFiles implements DataSource {
 		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones);
 		return new LocalDataForSimulation(matrices, zoneRepository, impedance, personLoader,
 				vehicleBehaviour);
+	}
+
+	private ZoneRepository loadZonesFromMobiTopp(Supplier<Network> networkSupplier) {
+		ZoneRepositorySerialiser serialisedData = createSerialiser();
+		if (serialisedData.isAvailable()) {
+			return serialisedData.load();
+		}
+		Network network = networkSupplier.get();
+		return loadZonesFromVisum(network.visumNetwork, network.roadNetwork);
+	}
+
+	private ZoneRepositorySerialiser createSerialiser() {
+		ChargingDataFactory factory = createChargingFactory();
+		return new ZoneRepositorySerialiser(zoneRepositoryFolder, factory, attractivityDataFile);
+	}
+
+	private ChargingDataFactory createChargingFactory() {
+		return charging.factory(defaultPower());
 	}
 
 	private PersonLoader personLoader(ZoneRepository zoneRepository, int numberOfZones) {
@@ -214,7 +241,17 @@ public class LocalFiles implements DataSource {
 
 	private void validateFiles() {
 		validateDemandDataFolder();
+		validateZoneRepositoryFolder();
 		Validate.files(matrixConfigurationFile).doExist();
+	}
+
+	private void validateZoneRepositoryFolder() {
+		if (zoneRepositoryFolder.exists()) {
+			return;
+		}
+		System.out.println("Demand data folder is missing. It will be created at: "
+				+ zoneRepositoryFolder.getAbsolutePath());
+		zoneRepositoryFolder.mkdirs();
 	}
 
 	private void validateDemandDataFolder() {

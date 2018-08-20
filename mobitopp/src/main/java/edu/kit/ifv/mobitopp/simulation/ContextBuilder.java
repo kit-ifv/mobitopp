@@ -2,8 +2,10 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
+import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
@@ -11,10 +13,12 @@ import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
 import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class ContextBuilder {
 
+	private final  StopWatch performanceLogger;
 	private final SimulationParser format;
 
 	private WrittenConfiguration configuration;
@@ -30,6 +34,7 @@ public class ContextBuilder {
 
 	public ContextBuilder() {
 		super();
+		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
 	}
@@ -45,60 +50,91 @@ public class ContextBuilder {
 	}
 
 	private SimulationContext loadData() throws IOException {
+		startLoading();
 		validateConfiguration();
 		experimentalParameters();
 		resultWriter();
 		simulationDays();
-		System.out.println("Reading VISUM network");
-		visumNetwork();
-		System.out.println("creating road network");
-		roadNetwork();
-		System.out.println("reading PT network");
 		publicTransport();
-		System.out.println("Creating data repository");
 		dataRepository();
-		System.out.println("Preparing output ");
 		personResults();
-		return createContext();
+		SimulationContext createContext = createContext();
+		printPerformance();
+		return createContext;
+	}
+
+	private void startLoading() {
+		performanceLogger.start();
+	}
+
+	private void log(String message) {
+		performanceLogger.measurePoint(message);
+	}
+	
+	private void printPerformance() {
+		System.out.println("Runtimes while loading context:");
+		performanceLogger.forEach((m,d) -> System.out.println(m + " " + d));
 	}
 
 	private void validateConfiguration() {
 		new Validate().now(configuration);
+		log("Validate configuration");
 	}
 
 	private void experimentalParameters() {
 		experimentalParameters = new DynamicParameters(configuration.getExperimental());
+		log("Create experimental parameters");
 	}
 
 	private void resultWriter() {
 		resultWriter = ResultWriter.create(Convert.asFile(configuration.getResultFolder()));
 		electricChargingWriter = new ElectricChargingWriter(resultWriter);
+		log("Configure result writers");
 	}
 
 	private void simulationDays() {
 		simulationDays = SimulationDays.containing(configuration.getDays());
+		log("Set simulation days");
 	}
 
-	private void visumNetwork() {
-		 network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
+	private void loadVisumNetwork() {
+		System.out.println("Reading VISUM network");
+		if (null == network) {
+			network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
+		}
 	}
 
-	private void roadNetwork() {
-		roadNetwork = new SimpleRoadNetwork(network);
+	private void loadRoadNetwork() {
+		loadVisumNetwork();
+		System.out.println("creating road network");
+		if (null == roadNetwork) {
+			roadNetwork = new SimpleRoadNetwork(network);
+		}
+	}
+	
+	private Network network() {
+		loadRoadNetwork();
+		return new Network(network, roadNetwork);
 	}
 
 	private void publicTransport() {
-		publicTransport = configuration.getPublicTransport().loadData(network, simulationDays);
+		System.out.println("reading PT network");
+		publicTransport = configuration.getPublicTransport().loadData(this::network, simulationDays);
+		log("Load public transport");
 	}
 
 	private void dataRepository() throws IOException {
+		System.out.println("Loading data repository");
 		int numberOfZones = configuration.getNumberOfZones();
-		dataRepository = configuration.getDataSource().forSimulation(network, roadNetwork,
+		dataRepository = configuration.getDataSource().forSimulation(this::network,
 				numberOfZones, simulationDays, publicTransport, resultWriter, electricChargingWriter);
+		log("Load data repository");
 	}
 
 	private void personResults() {
+		System.out.println("Configuring output");
 		personResults = createResults();
+		log("Create output");
 	}
 
 	protected PersonResults createResults() {
@@ -106,9 +142,11 @@ public class ContextBuilder {
 	}
 
 	private SimulationContext createContext() {
-		return new SimpleSimulationContext(configuration, experimentalParameters, network, roadNetwork,
-				dataRepository, simulationDays, format, resultWriter, electricChargingWriter,
-				personResults);
+		SimpleSimulationContext context = new SimpleSimulationContext(configuration,
+				experimentalParameters, dataRepository, simulationDays, format, resultWriter,
+				electricChargingWriter, personResults);
+		log("Create context");
+		return context;
 	}
 
 }

@@ -41,6 +41,7 @@ public class VisumStopPointBuilder {
 		coordinate = defaultCoordinate;
 	}
 
+	@SuppressWarnings("serial")
 	public VisumPtStopPoint build() {
 		return new VisumPtStopPoint(id, stopArea, code, name, type, transportSystemSet, directed) {
 

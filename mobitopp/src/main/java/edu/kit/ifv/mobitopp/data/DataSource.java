@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
@@ -17,11 +18,10 @@ public interface DataSource {
 			ResultWriter results) throws IOException;
 
 	DataRepositoryForSimulation forSimulation(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, int numberOfZones,
-			InputSpecification input, PublicTransportData data, ResultWriter results,
-			ElectricChargingWriter electricChargingWriter) throws IOException;
+			Supplier<Network> network, int numberOfZones, InputSpecification input,
+			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter)
+			throws IOException;
 
 	void validate();
-
 
 }

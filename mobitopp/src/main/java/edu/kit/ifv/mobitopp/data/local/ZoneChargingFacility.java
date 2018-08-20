@@ -15,9 +15,13 @@ public class ZoneChargingFacility {
 		this.zoneId = zoneId;
 		this.facility = facility;
 	}
-	
+
 	public int zoneId() {
 		return zoneId;
+	}
+
+	public ChargingFacility facility() {
+		return facility;
 	}
 
 	public int id() {

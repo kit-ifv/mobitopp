@@ -21,7 +21,16 @@ public enum DemandDataInput {
 	activity("activity"),
 	car("car"),
 	fixedDestination("fixedDestination"),
-	opportunity("opportunity");
+	opportunity("opportunity"),
+	zones("zones"),
+	chargingData("chargingdata"),
+	carSharingCars("car-sharing-cars"),
+	stationBased("station-based-organizations"),
+	stations("stations"),
+	stationBasedCars("station-based-cars"),
+	freeFloating("free-floating-organizations"),
+	freeFloatingCars("free-floating-cars")
+	;
 
 	private static final char quoteCharacter = CSVParser.DEFAULT_QUOTE_CHARACTER;
 	private static final int headerLines = 1;
@@ -34,8 +43,8 @@ public enum DemandDataInput {
 	}
 
 	public CSVWriter writerIn(File folder) throws IOException {
-		File file = new File(folder, fileName + ".csv");
-		return new CSVWriter(writerFor(file), separator);
+		File file = fileIn(folder);
+		return new CSVWriter(writerFor(file), separator, quoteCharacter);
 	}
 
 	private static Writer writerFor(File file) throws IOException {
@@ -43,12 +52,20 @@ public enum DemandDataInput {
 	}
 
 	public CSVReader readerIn(File folder) throws IOException {
-		File file = new File(folder, fileName + ".csv");
+		File file = fileIn(folder);
 		return new CSVReader(readerFor(file), separator, quoteCharacter,
 				headerLines);
 	}
 
+	private File fileIn(File folder) {
+		return new File(folder, fileName + ".csv");
+	}
+
 	private Reader readerFor(File file) throws FileNotFoundException {
 		return new BufferedReader(new FileReader(file));
+	}
+
+	public boolean exists(File folder) {
+		return fileIn(folder).exists();
 	}
 }

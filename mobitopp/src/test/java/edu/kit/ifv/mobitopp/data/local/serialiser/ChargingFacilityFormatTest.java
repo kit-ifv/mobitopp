@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.data.local;
+package edu.kit.ifv.mobitopp.data.local.serialiser;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.lang.String.valueOf;
@@ -10,8 +10,11 @@ import java.util.Optional;
 
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
+import edu.kit.ifv.mobitopp.data.local.serialiser.ChargingFacilityFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingFacility;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingFacility.Type;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingPower;
@@ -35,7 +38,11 @@ public class ChargingFacilityFormatTest {
 		List<String> prepared = serialiser.prepare(zoneChargingFacility);
 
 		assertThat(prepared, contains(valueOf(zoneId), valueOf(id), valueOf(stationId),
-				valueOf(location), valueOf(type), valueOf(power.inKw())));
+				serialised(location), valueOf(type), valueOf(power.inKw())));
+	}
+
+	private String serialised(Location location) {
+		return new LocationParser().serialise(location);
 	}
 
 	@Test

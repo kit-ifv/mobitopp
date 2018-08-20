@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.data.local;
+package edu.kit.ifv.mobitopp.data.local.serialiser;
 
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -21,6 +22,13 @@ public class ChargingFacilityFormat implements SerialiserFormat<ZoneChargingFaci
 	private static final int locationIndex = 3;
 	private static final int typeIndex = 4;
 	private static final int powerIndex = 5;
+	
+	private final LocationParser locationParser;
+	
+	public ChargingFacilityFormat() {
+		super();
+		this.locationParser = new LocationParser();
+	}
 
 	@Override
 	public List<String> header() {
@@ -32,7 +40,7 @@ public class ChargingFacilityFormat implements SerialiserFormat<ZoneChargingFaci
 		return asList(valueOf(facility.zoneId()),
 				valueOf(facility.id()),
 				valueOf(facility.stationId()),
-				valueOf(facility.location()),
+				valueOf(locationParser.serialise(facility.location())),
 				valueOf(facility.type()),
 				valueOf(facility.power().inKw()));
 	}
@@ -66,7 +74,7 @@ public class ChargingFacilityFormat implements SerialiserFormat<ZoneChargingFaci
 
 	private Location locationOf(List<String> data) {
 		String location = data.get(locationIndex);
-		return new LocationParser().parse(location);
+		return locationParser.parse(location);
 	}
 
 	private Type typeOf(List<String> data) {

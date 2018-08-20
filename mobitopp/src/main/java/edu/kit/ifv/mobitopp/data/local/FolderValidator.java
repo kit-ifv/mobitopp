@@ -12,10 +12,17 @@ public class FolderValidator {
 	}
 
 	public void isValid() {
+		isNotNull();
 		exists();
 		isFolder();
 	}
 
+
+	private void isNotNull() {
+		if (null == folder) {
+			throw new IllegalArgumentException("Folder is not specified in configuration!");
+		}
+	}
 
 	private void exists() {
 		if (!folder.exists()) {

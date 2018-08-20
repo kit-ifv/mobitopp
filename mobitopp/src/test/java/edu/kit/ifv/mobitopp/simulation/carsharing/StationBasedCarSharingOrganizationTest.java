@@ -24,11 +24,13 @@ public class StationBasedCarSharingOrganizationTest {
 	private final String name = "DUMMY";
 
 	private StationBasedCarSharingOrganization company;
+	private CarSharingStation station;
 
 	private CarPosition position;
-	private CarSharingCar car;
+	private StationBasedCarSharingCar car;
 
 	private MockedZones zones;
+
 
 	@Before
 	public void setUp() {
@@ -38,12 +40,12 @@ public class StationBasedCarSharingOrganizationTest {
 
 		position = new CarPosition(someZone(), null);
 		ConventionalCar realCar = new ConventionalCar(new IdSequence(), position, Car.Segment.MIDSIZE);
-		car = new DefaultCarSharingCar(
-				realCar, company);
+		car = new StationBasedCarSharingCar(
+				realCar, company, station);
 	}
 
 	private void addStationToCompany() {
-		new CarSharingStation(
+		station = new CarSharingStation(
 										company,
 										someZone(),
 										0,

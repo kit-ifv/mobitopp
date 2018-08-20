@@ -31,6 +31,11 @@ public class FolderValidatorTest {
 		assertFalse(newFile.exists());
 		return newFile;
 	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void isNotNull() {
+		new FolderValidator(null).isValid();
+	}
 
 	@Test
 	public void existingFiles() {
