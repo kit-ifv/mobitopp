@@ -12,6 +12,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+
 public class PersonConstraintTest {
 
 	private static final double margin = 1e-6;
@@ -29,10 +31,11 @@ public class PersonConstraintTest {
 		constraint = new PersonConstraint(requestedWeight, h -> h.personAttribute("attribute"));
 	}
 
-	private Household newHousehold(int availablepeople2) {
+	private Household newHousehold(int people) {
 		Map<String, Integer> householdAttributes = emptyMap();
-		Map<String, Integer> personAttributes = singletonMap("attribute", availablepeople2);
-		return new Household(1, initialWeight, householdAttributes, personAttributes);
+		Map<String, Integer> personAttributes = singletonMap("attribute", people);
+		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(2000, 1);
+		return new Household(id, initialWeight, householdAttributes, personAttributes);
 	}
 
 	@Test

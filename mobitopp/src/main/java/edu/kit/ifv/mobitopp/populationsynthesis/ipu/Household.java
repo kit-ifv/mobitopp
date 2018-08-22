@@ -2,15 +2,17 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+
 public class Household {
 
-	private final int id;
+	private final HouseholdOfPanelDataId id;
 	private final double weight;
 	private final Map<String, Integer> householdAttributes;
 	private final Map<String, Integer> personAttributes;
 
 	public Household(
-			int id, double weight, Map<String, Integer> householdAttributes,
+			HouseholdOfPanelDataId id, double weight, Map<String, Integer> householdAttributes,
 			Map<String, Integer> personAttributes) {
 		super();
 		this.id = id;
@@ -19,7 +21,7 @@ public class Household {
 		this.personAttributes = personAttributes;
 	}
 
-	public int id() {
+	public HouseholdOfPanelDataId id() {
 		return id;
 	}
 
@@ -44,11 +46,8 @@ public class Household {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((householdAttributes == null) ? 0 : householdAttributes.hashCode());
-		result = prime * result + id;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((personAttributes == null) ? 0 : personAttributes.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(weight);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -66,14 +65,15 @@ public class Household {
 				return false;
 		} else if (!householdAttributes.equals(other.householdAttributes))
 			return false;
-		if (id != other.id)
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
 			return false;
 		if (personAttributes == null) {
 			if (other.personAttributes != null)
 				return false;
 		} else if (!personAttributes.equals(other.personAttributes))
-			return false;
-		if (Double.doubleToLongBits(weight) != Double.doubleToLongBits(other.weight))
 			return false;
 		return true;
 	}

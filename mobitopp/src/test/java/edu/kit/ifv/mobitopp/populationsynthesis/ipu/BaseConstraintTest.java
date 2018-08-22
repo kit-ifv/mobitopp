@@ -11,45 +11,49 @@ import java.util.function.Predicate;
 
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+
 public class BaseConstraintTest {
 
+	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(2000, 1);
+	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(2000, 2);
 	private static final double requestedWeight = 6.0d;
 
 	@Test
 	public void updateWeightsOnAllHousehold() {
-		Household someHousehold = newHousehold(1, 1.0d);
-		Household anotherHousehold = newHousehold(2, 2.0d);
+		Household someHousehold = newHousehold(someId, 1.0d);
+		Household anotherHousehold = newHousehold(anotherId, 2.0d);
 		List<Household> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
 
 		List<Household> updatedHouseholds = constraint.update(households);
 
-		Household updatedSomeHousehold = newHousehold(1, 2.0d);
-		Household updatedAnotherHousehold = newHousehold(2, 4.0d);
+		Household updatedSomeHousehold = newHousehold(someId, 2.0d);
+		Household updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 
 	@Test
 	public void updateWeightOnSingleHousehold() {
-		Household someHousehold = newHousehold(1, 1.0d);
-		Household anotherHousehold = newHousehold(2, 2.0d);
+		Household someHousehold = newHousehold(someId, 1.0d);
+		Household anotherHousehold = newHousehold(anotherId, 2.0d);
 		List<Household> households = asList(someHousehold, anotherHousehold);
-		BaseConstraint constraint = newConstraint(onlySecondHousehold());
+		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
 		List<Household> updatedHouseholds = constraint.update(households);
 
-		Household updatedSomeHousehold = newHousehold(1, 1.0d);
-		Household updatedAnotherHousehold = newHousehold(2, 6.0d);
+		Household updatedSomeHousehold = newHousehold(someId, 1.0d);
+		Household updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 
-	private Predicate<Household> onlySecondHousehold() {
-		return h -> 2 == h.id();
+	private Predicate<Household> onlyAnotherHousehold() {
+		return h -> anotherId == h.id();
 	}
 
-	private Household newHousehold(int id, double weight) {
+	private Household newHousehold(HouseholdOfPanelDataId id, double weight) {
 		return new Household(id, weight, householdAttributes(), personAttributes());
 	}
 
