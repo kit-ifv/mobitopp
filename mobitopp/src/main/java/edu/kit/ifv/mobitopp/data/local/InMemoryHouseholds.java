@@ -12,7 +12,6 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
-import edu.kit.ifv.mobitopp.util.panel.PanelDataIdIfc;
 import edu.kit.ifv.mobitopp.util.panel.PanelDataset;
 
 public class InMemoryHouseholds {
@@ -61,7 +60,7 @@ public class InMemoryHouseholds {
 		return emptyList();
 	}
 
-	public HouseholdOfPanelData load(PanelDataIdIfc id) {
+	public HouseholdOfPanelData load(HouseholdOfPanelDataId id) {
 		return households.get(id);
 	}
 
