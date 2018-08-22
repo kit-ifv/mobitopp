@@ -1,33 +1,24 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 public class HouseholdConstraint extends BaseConstraint implements Constraint {
 
-	private final double requestedWeight;
 	private final ToIntFunction<Household> value;
 
 	public HouseholdConstraint(int requestedWeight, ToIntFunction<Household> value) {
-		super();
-		this.requestedWeight = requestedWeight;
+		super(requestedWeight);
 		this.value = value;
 	}
 
 	@Override
-	protected double requestedWeight() {
-		return requestedWeight;
+	protected boolean matches(Household household) {
+		return 0 < value.applyAsInt(household);
 	}
 
 	@Override
-	protected Predicate<Household> constraint() {
-		return h -> 0 != value.applyAsInt(h);
-	}
-
-	@Override
-	protected ToDoubleFunction<Household> totalWeightMapper() {
-		return Household::weight;
+	protected double totalWeight(Household household) {
+		return household.weight();
 	}
 
 }
