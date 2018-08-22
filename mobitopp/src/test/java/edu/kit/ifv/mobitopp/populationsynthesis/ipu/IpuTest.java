@@ -16,6 +16,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+
 public class IpuTest {
 
 	private List<Household> households;
@@ -37,11 +39,15 @@ public class IpuTest {
 	private void createHouseholds() {
 		int hhid = 1;
 		double baseWeight = 1.0d;
-		household1 = newHousehold(hhid++, baseWeight, 1, 1);
-		household2 = newHousehold(hhid++, baseWeight, 1, 1);
+		household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
+		household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
 		households = asList(household1, household2);
 		afterSomeConstraint = asList(household1.newWeight(2.0d), household2.newWeight(3.0d));
 		afterAnotherConstraint = asList(household1.newWeight(3.0d), household2.newWeight(4.0d));
+	}
+
+	private HouseholdOfPanelDataId newId(int id) {
+		return new HouseholdOfPanelDataId(2000, id);
 	}
 
 	private void createConstraints() {
@@ -51,10 +57,10 @@ public class IpuTest {
 		when(anotherConstraint.update(afterSomeConstraint)).thenReturn(afterAnotherConstraint);
 	}
 
-	private Household newHousehold(int i, double baseWeight, int householdType, int personType) {
+	private Household newHousehold(HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
 		Map<String, Integer> householdAttributes = singletonMap("some attribute", householdType);
 		Map<String, Integer> personAttributes = singletonMap("another attribute", personType);
-		return new Household(i, baseWeight, householdAttributes, personAttributes);
+		return new Household(id, baseWeight, householdAttributes, personAttributes);
 	}
 
 	@Test
