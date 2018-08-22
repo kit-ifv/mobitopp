@@ -1,38 +1,48 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
 
 public abstract class BaseConstraint implements Constraint {
 
-	public BaseConstraint() {
+	private final double requestedWeight;
+
+	public BaseConstraint(double requestedWeight) {
 		super();
+		this.requestedWeight = requestedWeight;
 	}
 
 	@Override
 	public List<Household> update(List<Household> households) {
-		ArrayList<Household> newHouseholds = new ArrayList<>();
 		double totalWeight = totalWeight(households);
-		double factor = requestedWeight() / totalWeight;
-		households
-				.stream()
-				.filter(constraint())
-				.map(h -> h.newWeight(h.weight() * factor))
-				.forEach(newHouseholds::add);
-		households.stream().filter(constraint().negate()).forEach(newHouseholds::add);
-		return newHouseholds;
+		double factor = requestedWeight / totalWeight;
+		return update(households, factor);
 	}
 
 	private double totalWeight(List<Household> households) {
-		return households.stream().filter(constraint()).mapToDouble(totalWeightMapper()).sum();
+		return households.stream().filter(this::matches).mapToDouble(this::totalWeight).sum();
 	}
 
-	protected abstract double requestedWeight();
+	private List<Household> update(List<Household> households, double factor) {
+		ArrayList<Household> newHouseholds = new ArrayList<>(notProcessed(households));
+		households
+				.stream()
+				.filter(this::matches)
+				.map(h -> h.newWeight(h.weight() * factor))
+				.forEach(newHouseholds::add);
+		return newHouseholds;
+	}
 
-	protected abstract Predicate<Household> constraint();
+	private List<Household> notProcessed(List<Household> households) {
+		Predicate<Household> predicate = this::matches;
+		return households.stream().filter(predicate.negate()).collect(toList());
+	}
 
-	protected abstract ToDoubleFunction<Household> totalWeightMapper();
+	protected abstract boolean matches(Household household);
+
+	protected abstract double totalWeight(Household household);
 
 }
