@@ -20,7 +20,7 @@ public class ProfileBuilder {
 
 	private final List<Connection> connections;
 
-	private ProfileBuilder(List<Connection> connections) {
+	protected ProfileBuilder(List<Connection> connections) {
 		super();
 		this.connections = connections;
 	}
@@ -55,13 +55,9 @@ public class ProfileBuilder {
 			Journey journey = connection.journey();
 			trips.put(journey, arrivalAtTarget);
 			if (isValid(arrivalAtTarget)) {
-				ArrivalTimeFunction functionWithoutTransfer = toTargetWithoutTransfer.from(start);
 				Time departure = connection.departure();
 				FunctionEntry newEntry = new FunctionEntry(departure, arrivalAtTarget, connection);
-				if (functionWithoutTransfer.update(newEntry)) {
-					withTransfer.updateTransfer(connection, arrivalAtTarget);
-					toTargetWithoutTransfer.update(start, functionWithoutTransfer);
-				}
+				update(toTargetWithoutTransfer, withTransfer, newEntry);
 			}
 		}
 		return toTargetWithoutTransfer;
@@ -84,16 +80,24 @@ public class ProfileBuilder {
 			Journey journey = connection.journey();
 			trips.put(journey, arrivalAtTarget);
 			if (isValid(arrivalAtTarget)) {
-				ArrivalTimeFunction functionWithoutTransfer = toTargetWithoutTransfer.from(start);
 				Time departure = connection.departure();
 				FunctionEntry newEntry = new FunctionEntry(departure, arrivalAtTarget, connection);
-				if (functionWithoutTransfer.update(newEntry)) {
-					withTransfer.updateTransfer(connection, arrivalAtTarget);
-					toTargetWithoutTransfer.update(start, functionWithoutTransfer);
-				}
+				update(toTargetWithoutTransfer, withTransfer, newEntry);
 			}
 		}
 		return toTargetWithoutTransfer;
+	}
+
+	protected void update(
+			Profile toTargetWithoutTransfer, TransferProfile withTransfer, FunctionEntry newEntry) {
+		Connection connection = newEntry.connection();
+		Stop start = connection.start();
+		Time arrivalAtTarget = newEntry.arrivalAtTarget();
+		ArrivalTimeFunction functionWithoutTransfer = toTargetWithoutTransfer.from(start);
+		if (functionWithoutTransfer.update(newEntry)) {
+			withTransfer.updateTransfer(connection, arrivalAtTarget);
+			toTargetWithoutTransfer.update(start, functionWithoutTransfer);
+		}
 	}
 
 	private static boolean isValid(Time arrivalAtTarget) {
