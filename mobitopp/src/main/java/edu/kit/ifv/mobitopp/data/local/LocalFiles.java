@@ -252,7 +252,7 @@ public class LocalFiles implements DataSource {
 		if (zoneRepositoryFolder.exists()) {
 			return;
 		}
-		System.out.println("Demand data folder is missing. It will be created at: "
+		System.out.println("Zone repository folder is missing. It will be created at: "
 				+ zoneRepositoryFolder.getAbsolutePath());
 		zoneRepositoryFolder.mkdirs();
 	}
