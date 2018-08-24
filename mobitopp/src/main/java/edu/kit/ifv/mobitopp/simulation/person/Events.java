@@ -53,6 +53,9 @@ public class Events {
 
 	private Event firstWait() {
 		for (Event event : events) {
+			if (board.equals(event.type())) {
+				return null;
+			}
 			if (wait.equals(event.type())) {
 				return event;
 			}
