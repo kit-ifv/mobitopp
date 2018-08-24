@@ -71,6 +71,17 @@ public class EventsTest {
 
 		assertThat(statistic.get(Element.startWaiting), is(equalTo(startWaitTime)));
 	}
+	
+	@Test
+	public void noWaitTimeAtStart() {
+		addInVehicleLeg(someDate);
+		addLeg();
+		RelativeTime startWaitTime = RelativeTime.ZERO;
+
+		Statistic statistic = events.statistic();
+
+		assertThat(statistic.get(Element.startWaiting), is(equalTo(startWaitTime)));
+	}
 
 	@Test
 	public void inBetweenWaitTime() {
@@ -108,8 +119,12 @@ public class EventsTest {
 	private void addLeg() {
 		Time startOfLeg = someDate.plusMinutes(legs * singleLegTime);
 		Time boardingTime = startOfLeg.plusMinutes(singleWaitTime);
-		Time exitTime = startOfLeg.plusMinutes(singleLegTime);
 		events.add(wait(startOfLeg));
+		addInVehicleLeg(boardingTime);
+	}
+
+	private void addInVehicleLeg(Time boardingTime) {
+		Time exitTime = boardingTime.plusMinutes(singleInVehicleTime);
 		events.add(board(boardingTime));
 		events.add(getOff(exitTime));
 		legs++;
