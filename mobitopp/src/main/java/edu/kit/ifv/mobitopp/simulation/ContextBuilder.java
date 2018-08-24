@@ -112,7 +112,7 @@ public class ContextBuilder {
 		}
 	}
 	
-	private Network network() {
+	protected Network network() {
 		loadRoadNetwork();
 		return new Network(network, roadNetwork);
 	}
