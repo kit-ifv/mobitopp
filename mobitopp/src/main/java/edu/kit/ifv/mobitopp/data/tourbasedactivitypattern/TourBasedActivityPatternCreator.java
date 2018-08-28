@@ -22,7 +22,6 @@ import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PaneldataReader;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 
 public class TourBasedActivityPatternCreator {
 
@@ -34,7 +33,7 @@ public class TourBasedActivityPatternCreator {
 		
 		PatternActivity starthome = activityWeek.getPatternActivities().get(0);
 		assert starthome.getActivityType()==ActivityType.HOME;
-		elements.add(new HomeActivity(starthome.getWeekDayType(),fromPatternActivity(starthome)));
+		elements.add(new HomeActivity(starthome.getWeekDayType(),SimpleActivity.fromPatternActivity(starthome)));
 	
 		List<List<PatternActivity>>  tours = asTours(activityWeek);
 	
@@ -61,7 +60,7 @@ public class TourBasedActivityPatternCreator {
 				
 				PatternActivity home = tour.get(tour.size()-1);
 				assert home.getActivityType()==ActivityType.HOME;
-				elements.add(new HomeActivity(home.getWeekDayType(),fromPatternActivity(home)));
+				elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
 				
 			} else {
 				SuperTourPattern tourPattern = asSuperTourPattern(tour);
@@ -131,13 +130,11 @@ public class TourBasedActivityPatternCreator {
 	
 		assert containsSubtour(tour,typeOfMainActivity) || activitiesBefore.size() + activitiesAfter.size() + 1 == tour.size();
 		
-		Time expectedEnd = SimpleTime.ofMinutes(homeActivity.getStarttime());
-		
 		Activity mainActivity = mainPatternActivity.size() > 1
 														? SplitActivity.fromPatternActivities(typeOfMainActivity, tour)
-														: fromPatternActivity(mainPatternActivity.get(0));
+														: SimpleActivity.fromPatternActivity(mainPatternActivity.get(0));
 		
-		return new TourPattern(day, mainActivity, expectedEnd, activitiesBefore, activitiesAfter, activitiesOnSubtour);
+		return new TourPattern(day, mainActivity, activitiesBefore, activitiesAfter, activitiesOnSubtour);
 	}
 	
 	private static List<List<Activity>> asListOfActivities(List<List<PatternActivity>> subtourActivities) {
@@ -147,7 +144,7 @@ public class TourBasedActivityPatternCreator {
 			List<Activity> subtour = new ArrayList<Activity>();
 			
 			for(PatternActivity act: subtourPattern) {
-				subtour.add(fromPatternActivity(act));
+				subtour.add(SimpleActivity.fromPatternActivity(act));
 			}
 			
 			result.add(subtour);
@@ -194,7 +191,7 @@ public class TourBasedActivityPatternCreator {
 				break;
 			}
 			
-			activities.add(fromPatternActivity(activity));
+			activities.add(SimpleActivity.fromPatternActivity(activity));
 		}
 		
 		Collections.reverse(activities);
@@ -212,7 +209,7 @@ public class TourBasedActivityPatternCreator {
 				break;
 			}
 			
-			activities.add(fromPatternActivity(activity));
+			activities.add(SimpleActivity.fromPatternActivity(activity));
 		}
 		
 		return activities;
@@ -289,6 +286,25 @@ public class TourBasedActivityPatternCreator {
 	
 	static List<List<PatternActivity>> subtours(List<PatternActivity> tour) {
 		
+		List<List<PatternActivity>> result = new ArrayList<List<PatternActivity>>();
+		
+		ActivityType typeOfMainActivity = mainActivityType(tour);
+		 
+		for(List<PatternActivity> subtour: subtoursWithLeadingAndTrailingMainActivity(tour)) {
+			
+			assert subtour.size() >= 3;
+		
+			assert subtour.get(0).getActivityType() == typeOfMainActivity;
+			assert subtour.get(subtour.size()-1).getActivityType() == typeOfMainActivity;
+			
+			result.add(new ArrayList<PatternActivity>(subtour.subList(1,subtour.size()-1)));
+		}
+		
+		return result;
+	}
+	
+	static List<List<PatternActivity>> subtoursWithLeadingAndTrailingMainActivity(List<PatternActivity> tour) {
+		
 		 ActivityType typeOfMainActivity = mainActivityType(tour);
 		 
 		 Set<ActivityType> subtoursPossible = new LinkedHashSet<>(Arrays.asList(ActivityType.WORK, ActivityType.EDUCATION, ActivityType.SERVICE));
@@ -332,6 +348,7 @@ public class TourBasedActivityPatternCreator {
 					subtours.add(new ArrayList<PatternActivity>(potentialSubtour));
 				}
 			}
+			// TODO: prüfen, ob die beiden Teile der Hauptaktivität in der Subtour enthalten sind
 		
 			return subtours;
 	}
@@ -371,20 +388,10 @@ public class TourBasedActivityPatternCreator {
 	
 	static List<Activity> fromPatternActivity(List<PatternActivity> activities) {
 		
-		return  activities.stream().map(x -> fromPatternActivity(x)).collect(Collectors.toList());
+		return  activities.stream().map(x -> SimpleActivity.fromPatternActivity(x)).collect(Collectors.toList());
 	}
 	
-	static SimpleActivity fromPatternActivity(PatternActivity activity) {
-	
-		return new SimpleActivity(
-									activity.getActivityType(), 
-									minutesSinceStartOfWeek(activity),
-									RelativeTime.ofMinutes(activity.getDuration()),
-									RelativeTime.ofMinutes(activity.getObservedTripDuration())
-						);
-	}
-	
-	private static Time minutesSinceStartOfWeek(PatternActivity activity) {
+	static Time minutesSinceStartOfWeek(PatternActivity activity) {
 		
 		return SimpleTime.ofMinutes(activity.getWeekDayTypeAsInt()*24*60+activity.getStarttime());
 	}

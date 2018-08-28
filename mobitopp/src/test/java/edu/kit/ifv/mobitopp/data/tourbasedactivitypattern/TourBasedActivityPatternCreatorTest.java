@@ -168,12 +168,17 @@ public class TourBasedActivityPatternCreatorTest {
 		assertEquals(0, nosubtour.size());
 		assertEquals(1, onesubtour.size());
 		assertEquals(2, twosubtours.size());
+		
+		assertEquals(2, onesubtour.get(0).size());
+		assertEquals(1, twosubtours.get(0).size());
+		assertEquals(1, twosubtours.get(1).size());
 	}
 	
 	@Test
 	public void serviceTourWithSubtour() {
 		
 		assertEquals(1, TourBasedActivityPatternCreator.subtours(servicetour_withsubtour).size());
+		assertEquals(1, TourBasedActivityPatternCreator.subtours(servicetour_withsubtour).get(0).size());
 	}
 	
 	@Test
@@ -214,6 +219,27 @@ public class TourBasedActivityPatternCreatorTest {
 		
 		assertEquals(activities.size(), TourBasedActivityPatternCreator.fromPatternActivityWeek(week).asActivities().size());
 	}
+	
+	@Test
+	public void asPatternActivities() {
+		 List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(pattern3);
+		 PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
+		 TourBasedActivityPattern tourPattern = TourBasedActivityPatternCreator.fromPatternActivityWeek(week);
+		 
+		 List<PatternActivity> patternActivities = week.getPatternActivities();
+		 List<ExtendedPatternActivity> tourActivities = tourPattern.asPatternActivities();
+
+		 assertEquals(patternActivities.size(),tourActivities.size());
+		 
+		 for(int i=0; i<patternActivities.size(); i++) {
+			 assertEquals(patternActivities.get(i).getActivityType(),tourActivities.get(i).getActivityType());
+			 assertEquals(patternActivities.get(i).getDuration(),tourActivities.get(i).getDuration());
+			 assertEquals(patternActivities.get(i).getStarttime(),tourActivities.get(i).getStarttime());
+			 assertEquals(patternActivities.get(i).getObservedTripDuration(),tourActivities.get(i).getObservedTripDuration());
+		 }
+	}
+
+
 
 
 

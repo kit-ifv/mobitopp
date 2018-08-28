@@ -3,7 +3,9 @@ package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 
@@ -46,6 +48,28 @@ public class TourBasedActivityPattern {
 		
 		return activities;
 	}
+	
+	
+	public List<ExtendedPatternActivity> asPatternActivities() {
+		
+		List<ExtendedPatternActivity> activities = new ArrayList<ExtendedPatternActivity>();
+		
+		if (elements.isEmpty()) {
+			activities.add(ExtendedPatternActivity.STAYATHOME_ACTIVITY);
+			return activities;
+		}
+		
+
+		for(int i=0; i<elements.size(); i++) {
+		
+			TourBasedActivityPatternElement elem = elements.get(i);
+			
+			activities.addAll(elem.asPatternActivities(i));
+		}
+		
+		return activities;
+	}
+
 	
 
 }

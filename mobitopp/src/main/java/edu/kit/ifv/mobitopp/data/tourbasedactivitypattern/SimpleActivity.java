@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
+import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -42,6 +43,17 @@ public class SimpleActivity implements Activity {
 	public RelativeTime expectedTripDuration() {
 		return expectedTripDuration;
 	}
+
+	static SimpleActivity fromPatternActivity(PatternActivity activity) {
+	
+		return new SimpleActivity(
+									activity.getActivityType(), 
+									TourBasedActivityPatternCreator.minutesSinceStartOfWeek(activity),
+									RelativeTime.ofMinutes(activity.getDuration()),
+									RelativeTime.ofMinutes(activity.getObservedTripDuration())
+						);
+	}
+
 	
 
 }

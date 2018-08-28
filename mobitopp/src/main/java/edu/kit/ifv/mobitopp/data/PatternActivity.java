@@ -35,7 +35,7 @@ public class PatternActivity
   	assert activityType != null;
 		assert weekDayType != null;
 		assert duration >= 1;
-		assert duration <= 10080;
+		assert duration <= 10080 || (duration==9*24*60 && activityType==ActivityType.HOME && weekDayType==DayOfWeek.SUNDAY) : duration;
 		assert observedTripDuration >= -1;
 		assert observedTripDuration <= 10080;
 		assert starttime >= -1;
