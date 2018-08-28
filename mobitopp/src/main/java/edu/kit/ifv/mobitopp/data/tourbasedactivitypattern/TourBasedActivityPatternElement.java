@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
+import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
@@ -12,5 +13,7 @@ public interface TourBasedActivityPatternElement {
 	Time start();
 
 	List<Activity> asActivities();
+
+	Collection<ExtendedPatternActivity> asPatternActivities(int i);
 		
 }

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,12 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 
 	@Override
 	public List<Activity> asActivities() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Collection<ExtendedPatternActivity> asPatternActivities(int i) {
 		// TODO Auto-generated method stub
 		return null;
 	}

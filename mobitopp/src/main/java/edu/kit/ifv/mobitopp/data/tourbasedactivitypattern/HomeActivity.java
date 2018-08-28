@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -38,6 +39,11 @@ implements Activity, TourBasedActivityPatternElement {
 	@Override
 	public DayOfWeek startDay() {
 		return startDay;
+	}
+
+	@Override
+	public Collection<ExtendedPatternActivity> asPatternActivities(int i) {
+		return Arrays.asList(ExtendedPatternActivity.fromActivity(i,false,this));
 	}
 
 }

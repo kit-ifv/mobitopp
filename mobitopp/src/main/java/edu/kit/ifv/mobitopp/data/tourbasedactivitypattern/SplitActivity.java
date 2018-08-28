@@ -23,7 +23,7 @@ public class SplitActivity implements Activity {
 		this.parts = Collections.unmodifiableList(parts);
 	}
 
-	public static SplitActivity fromPatternActivities(ActivityType typeOfMainActivity, List<PatternActivity> activities) {
+	public static SplitActivity fromPatternActivities(ActivityType typeOfMainActivity, List<? extends PatternActivity> activities) {
 		
 		List<SimpleActivity> tmp = 
 											activities.stream()
