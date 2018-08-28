@@ -64,4 +64,33 @@ public class SplitActivity implements Activity {
 		return parts;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((activityType == null) ? 0 : activityType.hashCode());
+		result = prime * result + ((parts == null) ? 0 : parts.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SplitActivity other = (SplitActivity) obj;
+		if (activityType != other.activityType)
+			return false;
+		if (parts == null) {
+			if (other.parts != null)
+				return false;
+		} else if (!parts.equals(other.parts))
+			return false;
+		return true;
+	}
+
+	
 }

@@ -37,7 +37,7 @@ public class PatternActivityWeek implements Serializable {
   
 
 
-	public PatternActivityWeek(List<PatternActivity> activities) {
+	public PatternActivityWeek(List<? extends PatternActivity> activities) {
 		super();
 		this.patternActivities = new ArrayList<>(activities);
 	}

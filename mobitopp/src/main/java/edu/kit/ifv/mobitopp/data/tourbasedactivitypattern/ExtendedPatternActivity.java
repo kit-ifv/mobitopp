@@ -13,7 +13,7 @@ public class ExtendedPatternActivity extends PatternActivity {
 	
 	public static final ExtendedPatternActivity STAYATHOME_ACTIVITY = new ExtendedPatternActivity(-1, false, ActivityType.HOME, DayOfWeek.SUNDAY, -1, 0, 9*24*60);
 
-	private ExtendedPatternActivity(
+	public ExtendedPatternActivity(
 		int tournr,
 		boolean isMainActivity,
 		ActivityType activityType, 
@@ -60,6 +60,11 @@ public class ExtendedPatternActivity extends PatternActivity {
 	
 	public boolean isMainActivity() {
 		return isMainActivity;
+	}
+
+	@Override
+	public String toString() {
+		return "ExtendedPatternActivity [tournr=" + tournr + ", isMainActivity=" + isMainActivity + ", " + super.toString() + "]\n";
 	}
 
 

@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 
 public class DefaultActivityFormatTest {
@@ -22,7 +23,7 @@ public class DefaultActivityFormatTest {
 	private static final int personOid = 1;
 	
 	private DefaultActivityFormat format;
-	private PatternActivity activity;
+	private ExtendedPatternActivity activity;
 	private PersonPatternActivity personActivity;
 	
 	@Before

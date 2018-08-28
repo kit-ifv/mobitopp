@@ -26,6 +26,7 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public class PersonDecorator
 	implements Person
@@ -254,6 +255,11 @@ public class PersonDecorator
 	@Override
 	public ModeChoicePreferences modeChoicePreferences() {
 		return person.modeChoicePreferences();
+	}
+
+	@Override
+	public TourBasedActivityPattern tourBasedActivityPattern() {
+		return person.tourBasedActivityPattern();
 	}
 
 

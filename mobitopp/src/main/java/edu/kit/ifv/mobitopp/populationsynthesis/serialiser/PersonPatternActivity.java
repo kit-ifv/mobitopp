@@ -1,14 +1,15 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 
 public class PersonPatternActivity {
 
 	private final int personOid;
-	private final PatternActivity patternActivity;
+	private final ExtendedPatternActivity patternActivity;
 
-	public PersonPatternActivity(int personOid, PatternActivity patternActivity) {
+	public PersonPatternActivity(int personOid, ExtendedPatternActivity patternActivity) {
 		super();
 		this.personOid = personOid;
 		this.patternActivity = patternActivity;
@@ -38,7 +39,7 @@ public class PersonPatternActivity {
 		return patternActivity.getWeekDayType();
 	}
 
-	public PatternActivity pattern() {
+	public ExtendedPatternActivity pattern() {
 		return patternActivity;
 	}
 

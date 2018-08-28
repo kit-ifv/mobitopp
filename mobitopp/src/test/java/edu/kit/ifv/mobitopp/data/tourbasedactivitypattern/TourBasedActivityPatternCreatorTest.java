@@ -213,9 +213,9 @@ public class TourBasedActivityPatternCreatorTest {
 		 List<PatternActivity> patternActivities = week.getPatternActivities();
 		 List<Activity> activities = TourBasedActivityPatternCreator.fromPatternActivity(patternActivities);
 		 
-		 System.out.println(activityOfPanelData);
-		 System.out.println(week);
-		 System.out.println(patternActivities);
+//		 System.out.println(activityOfPanelData);
+//		 System.out.println(week);
+//		 System.out.println(patternActivities);
 		
 		assertEquals(activities.size(), TourBasedActivityPatternCreator.fromPatternActivityWeek(week).asActivities().size());
 	}
@@ -237,6 +237,46 @@ public class TourBasedActivityPatternCreatorTest {
 			 assertEquals(patternActivities.get(i).getStarttime(),tourActivities.get(i).getStarttime());
 			 assertEquals(patternActivities.get(i).getObservedTripDuration(),tourActivities.get(i).getObservedTripDuration());
 		 }
+	}
+	
+	@Test
+	public void asTourPattern() {
+		
+		TourPattern tp_nosubtour = TourBasedActivityPatternCreator.asTourPattern(tour_nosubtour);
+		TourPattern tp_onesubtour = TourBasedActivityPatternCreator.asTourPattern(tour_onesubtour);
+		TourPattern tp_twosubtours = TourBasedActivityPatternCreator.asTourPattern(tour_twosubtours);
+		TourPattern tp_service_withsubtour = TourBasedActivityPatternCreator.asTourPattern(servicetour_withsubtour);
+		TourPattern tp_shopping_withoutsubtour = TourBasedActivityPatternCreator.asTourPattern(shoppingtour_withoutsubtour);
+		TourPattern tp_work_withservice = TourBasedActivityPatternCreator.asTourPattern(worktour_withservice);
+		 
+//		System.out.println(tp_onesubtour);
+//		System.out.println(TourPattern.fromExtendedPatternActivities(tp_onesubtour.asPatternActivities(0)));
+		
+		
+		assertEquals(tp_nosubtour,TourPattern.fromExtendedPatternActivities(tp_nosubtour.asPatternActivities(0)));
+		assertEquals(tp_onesubtour,TourPattern.fromExtendedPatternActivities(tp_onesubtour.asPatternActivities(0)));
+		assertEquals(tp_twosubtours,TourPattern.fromExtendedPatternActivities(tp_twosubtours.asPatternActivities(0)));
+		assertEquals(tp_service_withsubtour,TourPattern.fromExtendedPatternActivities(tp_service_withsubtour.asPatternActivities(0)));
+		assertEquals(tp_shopping_withoutsubtour,TourPattern.fromExtendedPatternActivities(tp_shopping_withoutsubtour.asPatternActivities(0)));
+		assertEquals(tp_work_withservice,TourPattern.fromExtendedPatternActivities(tp_work_withservice.asPatternActivities(0)));
+	}
+	
+	@Test
+	public void asTourPatternXXX() {
+		
+		TourBasedActivityPattern tours1 = TourBasedActivityPatternCreator.fromPatternActivityWeek(week1);
+		TourBasedActivityPattern tours2 = TourBasedActivityPatternCreator.fromPatternActivityWeek(week2);
+		TourBasedActivityPattern tours3 = TourBasedActivityPatternCreator.fromPatternActivityWeek(week3);
+		TourBasedActivityPattern tours4 = TourBasedActivityPatternCreator.fromPatternActivityWeek(week4);
+		TourBasedActivityPattern tours5 = TourBasedActivityPatternCreator.fromPatternActivityWeek(week5);
+		
+		assertEquals(tours1, tours1);
+		assertEquals(tours1, TourBasedActivityPattern.fromExtendedPatternActivities(tours1.asPatternActivities()));
+		assertEquals(tours2, TourBasedActivityPattern.fromExtendedPatternActivities(tours2.asPatternActivities()));
+		assertEquals(tours3, TourBasedActivityPattern.fromExtendedPatternActivities(tours3.asPatternActivities()));
+		assertEquals(tours4, TourBasedActivityPattern.fromExtendedPatternActivities(tours4.asPatternActivities()));
+		assertEquals(tours5, TourBasedActivityPattern.fromExtendedPatternActivities(tours5.asPatternActivities()));
+		
 	}
 
 

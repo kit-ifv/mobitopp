@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
@@ -52,7 +53,7 @@ public class EmobilityPersonCreator
 		PersonOfPanelData personOfPanelData,
 		Household household,
 		boolean hasCommuterTicket,
-		PatternActivityWeek activitySchedule
+		TourBasedActivityPattern activitySchedule
 	) {
 
 		Person person = super.newPerson(oid, personOfPanelData, household, hasCommuterTicket, activitySchedule);

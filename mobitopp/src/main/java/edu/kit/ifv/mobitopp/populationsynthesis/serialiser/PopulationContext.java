@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 
@@ -12,7 +13,7 @@ public interface PopulationContext {
 
 	Optional<Person> getPersonByOid(int personOid);
 
-	PatternActivityWeek activityScheduleFor(int oid);
+	TourBasedActivityPattern activityScheduleFor(int oid);
 
 
 }

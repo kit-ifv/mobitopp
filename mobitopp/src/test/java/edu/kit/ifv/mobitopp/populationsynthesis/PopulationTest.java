@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 
@@ -30,13 +32,13 @@ public class PopulationTest {
 	private Person aPerson;
 	private Person otherPerson;
 	private Population population;
-	private PatternActivity aPattern;
-	private PatternActivity otherPattern;
+	private ExtendedPatternActivity aPattern;
+	private ExtendedPatternActivity otherPattern;
 	
 	@Before
 	public void initialise() {
-		aPattern = mock(PatternActivity.class);
-		otherPattern = mock(PatternActivity.class);
+		aPattern = mock(ExtendedPatternActivity.class);
+		otherPattern = mock(ExtendedPatternActivity.class);
 		aPerson = mock(Person.class);
 		otherPerson = mock(Person.class);
 		household = mock(Household.class);
@@ -84,7 +86,7 @@ public class PopulationTest {
 		
 		population.add(aPersonOid, aPattern);
 		population.add(aPersonOid, otherPattern);
-		PatternActivityWeek activitySchedule = population.activityScheduleFor(aPersonOid);
+		TourBasedActivityPattern activitySchedule = population.activityScheduleFor(aPersonOid);
 		
 		assertThat(activitySchedule, is(equalTo(expectedSchedule)));
 	}
@@ -96,8 +98,8 @@ public class PopulationTest {
 		
 		population.add(aPersonOid, aPattern);
 		population.add(otherPersonOid, otherPattern);
-		PatternActivityWeek aSchedule = population.activityScheduleFor(aPersonOid);
-		PatternActivityWeek otherSchedule = population.activityScheduleFor(otherPersonOid);
+		TourBasedActivityPattern aSchedule = population.activityScheduleFor(aPersonOid);
+		TourBasedActivityPattern otherSchedule = population.activityScheduleFor(otherPersonOid);
 		
 		assertThat(aSchedule, is(equalTo(anExpectedSchedule)));
 		assertThat(otherSchedule, is(equalTo(otherExpectedSchedule)));

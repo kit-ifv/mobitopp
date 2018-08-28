@@ -43,6 +43,47 @@ public class SimpleActivity implements Activity {
 	public RelativeTime expectedTripDuration() {
 		return expectedTripDuration;
 	}
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((activityType == null) ? 0 : activityType.hashCode());
+		result = prime * result + ((expectedTripDuration == null) ? 0 : expectedTripDuration.hashCode());
+		result = prime * result + ((plannedDuration == null) ? 0 : plannedDuration.hashCode());
+		result = prime * result + ((plannedStart == null) ? 0 : plannedStart.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SimpleActivity other = (SimpleActivity) obj;
+		if (activityType != other.activityType)
+			return false;
+		if (expectedTripDuration == null) {
+			if (other.expectedTripDuration != null)
+				return false;
+		} else if (!expectedTripDuration.equals(other.expectedTripDuration))
+			return false;
+		if (plannedDuration == null) {
+			if (other.plannedDuration != null)
+				return false;
+		} else if (!plannedDuration.equals(other.plannedDuration))
+			return false;
+		if (plannedStart == null) {
+			if (other.plannedStart != null)
+				return false;
+		} else if (!plannedStart.equals(other.plannedStart))
+			return false;
+		return true;
+	}
 
 	static SimpleActivity fromPatternActivity(PatternActivity activity) {
 	

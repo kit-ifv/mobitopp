@@ -5,6 +5,8 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
@@ -72,7 +74,7 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 	private void writePersonsOf(Household household, PopulationContext context) {
 		for (Person person : household.getPersons()) {
 			write(person, context);
-			writePatternActivityWeekOf(person);
+			writeTourbasedActivityPattern(person);
 			writeFixedDestinationsOf(person, context);
 		}
 	}
@@ -81,15 +83,15 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 		personSerialiser.write(person, context);
 	}
 
-	private void writePatternActivityWeekOf(Person person) {
-		PatternActivityWeek patternActivityWeek = person.getPatternActivityWeek();
-		List<PatternActivity> patternActivities = patternActivityWeek.getPatternActivities();
-		for (PatternActivity patternActivity : patternActivities) {
+	private void writeTourbasedActivityPattern(Person person) {
+		TourBasedActivityPattern patternActivityWeek = person.tourBasedActivityPattern();
+		List<ExtendedPatternActivity> patternActivities = patternActivityWeek.asPatternActivities();
+		for (ExtendedPatternActivity patternActivity : patternActivities) {
 			write(person, patternActivity);
 		}
 	}
 
-	private void write(Person person, PatternActivity activity) {
+	private void write(Person person, ExtendedPatternActivity activity) {
 		PersonPatternActivity personActivity = new PersonPatternActivity(person.getOid(), activity);
 		activitySerialiser.write(personActivity);
 	}

@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public interface Person {
 
@@ -64,6 +65,7 @@ public interface Person {
 	PrivateCar personalCar();
 
 	PatternActivityWeek getPatternActivityWeek();
+	TourBasedActivityPattern tourBasedActivityPattern();
 
 	ActivityIfc currentActivity();
 	ActivityIfc nextActivity();

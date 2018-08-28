@@ -47,7 +47,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 	}
 
 	@Override
-	public Collection<ExtendedPatternActivity> asPatternActivities(int i) {
+	public List<ExtendedPatternActivity> asPatternActivities(int i) {
 		// TODO Auto-generated method stub
 		return null;
 	}
