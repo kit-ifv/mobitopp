@@ -42,8 +42,43 @@ implements Activity, TourBasedActivityPatternElement {
 	}
 
 	@Override
-	public Collection<ExtendedPatternActivity> asPatternActivities(int i) {
+	public List<ExtendedPatternActivity> asPatternActivities(int i) {
 		return Arrays.asList(ExtendedPatternActivity.fromActivity(i,false,this));
 	}
 
+	public static TourBasedActivityPatternElement fromExtendedPatternActivities(List<ExtendedPatternActivity> tour) {
+		assert tour.size()== 1;
+		ExtendedPatternActivity act = tour.get(0);
+		
+		return new HomeActivity(act.getWeekDayType(),SimpleActivity.fromPatternActivity(act));
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((startDay == null) ? 0 : startDay.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HomeActivity other = (HomeActivity) obj;
+		if (startDay != other.startDay)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "HomeActivity [startDay=" + startDay + "," + super.toString() + "]";
+	}
+
+	
 }

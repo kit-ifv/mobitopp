@@ -8,6 +8,7 @@ import java.util.List;
 import java.text.DecimalFormat;
 
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -64,7 +65,8 @@ public class PersonForDemand
 	private final List<FixedDestination> fixedDestinationElements;
 
 	/** Planned activity program **/
-  private PatternActivityWeek activityPattern;
+  //private PatternActivityWeek activityPattern;
+  private TourBasedActivityPattern tourPattern;
 
 	/** Realised activity program **/
   private transient ModifiableActivityScheduleWithState activitySchedule; 
@@ -91,7 +93,7 @@ public class PersonForDemand
 		boolean hasPersonalCar,
 		boolean hasCommuterTicket,
 		boolean hasLicense,
-		PatternActivityWeek activitySchedule,
+		TourBasedActivityPattern activitySchedule,
     ModeChoicePreferences modeChoicePrefsSurvey,
     ModeChoicePreferences modeChoicePreferences
 	)
@@ -102,7 +104,7 @@ public class PersonForDemand
 		this.household = household;
 
 		this.age = (short) age;
-    this.activityPattern = activitySchedule;
+    this.tourPattern = activitySchedule;
 
 		this.employment=employment;
 		this.gender=gender;
@@ -264,9 +266,9 @@ public class PersonForDemand
 
   public PatternActivityWeek getPatternActivityWeek()
   {
-		assert activityPattern != null;
+		assert tourPattern != null;
 
-    return this.activityPattern;
+		return new PatternActivityWeek(this.tourPattern.asPatternActivities());
   }
 
 
@@ -423,7 +425,10 @@ public class PersonForDemand
 		ActivityStartAndDurationRandomizer activityDurationRandomizer, 
 		List<Time> days
 	) {
-		this.activitySchedule = new DefaultActivitySchedule(tourFactory, this.activityPattern, activityDurationRandomizer, days);
+		this.activitySchedule = new DefaultActivitySchedule(tourFactory, 
+//																												this.activityPattern, 
+				getPatternActivityWeek(),
+																												activityDurationRandomizer, days);
 	}
 
 	public void assignPersonalCar(PrivateCar personalCar) {
@@ -578,5 +583,10 @@ public class PersonForDemand
   public ModeChoicePreferences modeChoicePreferences() {
     return this.modeChoicePreferences;
   }
+
+	@Override
+	public TourBasedActivityPattern tourBasedActivityPattern() {
+		return this.tourPattern;
+	}
 
 }

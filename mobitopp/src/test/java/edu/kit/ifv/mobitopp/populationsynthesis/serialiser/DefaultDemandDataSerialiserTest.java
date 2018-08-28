@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
@@ -140,7 +141,7 @@ public class DefaultDemandDataSerialiserTest {
 	private void verifyWrittenPatternActivityWeek() throws IOException {
 		for (Household household : population.households()) {
 			for (Person person : household.getPersons()) {
-				for (PatternActivity activity : person.getPatternActivityWeek().getPatternActivities()) {
+				for (ExtendedPatternActivity activity : person.tourBasedActivityPattern().asPatternActivities()) {
 					PersonPatternActivity personActivity = new PersonPatternActivity(person.getOid(),
 							activity);
 					verify(activitySerialiser).write(personActivity);

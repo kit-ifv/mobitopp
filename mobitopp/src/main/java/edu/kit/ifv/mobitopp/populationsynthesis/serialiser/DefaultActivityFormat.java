@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 
@@ -18,6 +19,8 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	private static final int tripDurationIndex = 3;
 	private static final int startTimeIndex = 4;
 	private static final int durationIndex = 5;
+	private static final int tournrIndex = 6;
+	private static final int mainactivityIndex = 7;
 
 	@Override
 	public List<String> header() {
@@ -52,11 +55,17 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 		int startTime = startTimeOf(data);
 		int duration = durationOf(data);
 		
-		PatternActivity patternActivity = new PatternActivity(ActivityType.getTypeFromInt(activityType),
+		int tournr = parseTournr(data);
+		boolean isMainActivity = parseMainActivity(data);
+		
+		ExtendedPatternActivity patternActivity = new ExtendedPatternActivity(
+				tournr, isMainActivity,
+				ActivityType.getTypeFromInt(activityType),
 				weekDayType, observedTripDuration, startTime, duration);
 		return Optional.of(new PersonPatternActivity(personOid, patternActivity));
 	}
 	
+
 	private int personOidOf(List<String> data) {
 		return Integer.parseInt(data.get(personIdIndex));
 	}
@@ -79,6 +88,14 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 
 	private int durationOf(List<String> data) {
 		return Integer.parseInt(data.get(durationIndex));
+	}
+
+	private int parseTournr(List<String> data) {
+		return Integer.parseInt(data.get(tournrIndex));
+	}
+	
+	private boolean parseMainActivity(List<String> data) {
+		return Boolean.parseBoolean(data.get(mainactivityIndex));
 	}
 
 }

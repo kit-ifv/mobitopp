@@ -32,6 +32,9 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 
 public abstract class Example {
 
@@ -157,7 +160,7 @@ public abstract class Example {
 	
 	public static Person personOf(Household household, int personNumber, Zone zone, ActivityType activityType) {
 		PersonId id = new PersonId(household.getId(), personNumber);
-		PatternActivityWeek activitySchedule = activitySchedule();
+		TourBasedActivityPattern activitySchedule = activitySchedule();
 		PersonForDemand person = new PersonForDemand(personNumber, id, household, age, employment, gender, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, 
 				ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
@@ -165,13 +168,13 @@ public abstract class Example {
 		return person;
 	}
 
-	public static PatternActivityWeek activitySchedule() {
+	public static TourBasedActivityPattern activitySchedule() {
 		PatternActivityWeek schedule = new PatternActivityWeek();
 		schedule.addPatternActivity(activity());
-		return schedule;
+		return TourBasedActivityPatternCreator.fromPatternActivityWeek(schedule);
 	}
 
-	public static PatternActivity activity() {
-		return new PatternActivity(ActivityType.getTypeFromInt(type), weekDay, observedTripDuration, starttime, duration);
+	public static ExtendedPatternActivity activity() {
+		return new ExtendedPatternActivity(0,false,ActivityType.getTypeFromInt(type), weekDay, observedTripDuration, starttime, duration);
 	}
 }

@@ -18,6 +18,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
@@ -44,7 +45,7 @@ public class DefaultDemandDataDeserialiserTest {
 	private Household household;
 	private PersonForSetup person;
 	private PersonPatternActivity personActivity;
-	private PatternActivity patternActivity;
+	private ExtendedPatternActivity patternActivity;
 	private PrivateCar car;
 	private PersonFixedDestination personDestination;
 	private FixedDestination fixedDestination;
@@ -62,7 +63,7 @@ public class DefaultDemandDataDeserialiserTest {
 		household = mock(Household.class);
 		person = mock(PersonForSetup.class);
 		personActivity = mock(PersonPatternActivity.class);
-		patternActivity = mock(PatternActivity.class);
+		patternActivity = mock(ExtendedPatternActivity.class);
 		car = mock(PrivateCar.class);
 		fixedDestination = mock(FixedDestination.class);
 		personDestination = new PersonFixedDestination(person, fixedDestination);

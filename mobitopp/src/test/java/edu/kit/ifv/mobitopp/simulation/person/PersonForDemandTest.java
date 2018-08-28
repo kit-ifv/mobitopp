@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -38,7 +39,7 @@ public class PersonForDemandTest {
 	private boolean hasPersonalCar;
 	private boolean hasCommuterTicket;
 	private boolean hasLicense;
-	private PatternActivityWeek activitySchedule;
+	private TourBasedActivityPattern activitySchedule;
 	private PersonForDemand person;
 	private Car car;
 	private ModeChoicePreferences prefSurvey;
@@ -58,7 +59,7 @@ public class PersonForDemandTest {
 		hasPersonalCar = true;
 		hasCommuterTicket = false;
 		hasLicense = false;
-		activitySchedule = mock(PatternActivityWeek.class);
+		activitySchedule = mock(TourBasedActivityPattern.class);
 		car = mock(Car.class);
 		person = newPerson();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;

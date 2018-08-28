@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingI
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 
@@ -124,7 +125,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		boolean hasPersonalCar = hasPersonalCarOf(data);
 		boolean hasCommuterTicket = hasCommuterTicketOf(data);
 		boolean hasLicense = hasLicense(data);
-		PatternActivityWeek activitySchedule = context.activityScheduleFor(oid);
+		TourBasedActivityPattern activitySchedule = context.activityScheduleFor(oid);
     ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
     ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
 		return new PersonForDemand(oid, id, household, age, employment, gender, income, hasBike,

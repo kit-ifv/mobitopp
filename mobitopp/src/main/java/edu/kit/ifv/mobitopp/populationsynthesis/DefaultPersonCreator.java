@@ -1,6 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,12 +65,14 @@ public class DefaultPersonCreator
 				);
 			
 			
-			PatternActivityWeek activitySchedule = this.scheduleCreator.createActivitySchedule(
+			PatternActivityWeek activityPattern = this.scheduleCreator.createActivitySchedule(
 																																													panelPerson,
 																																													panelHousehold,
 																																													household
 																																												);
 
+			TourBasedActivityPattern activitySchedule = TourBasedActivityPatternCreator.fromPatternActivityWeek(activityPattern);
+			
 			Person person = newPerson(
     										personIdCounter++,
 												panelPerson, 
@@ -87,7 +91,7 @@ public class DefaultPersonCreator
 			PersonOfPanelData personOfPanelData,
 			Household household,
 			boolean hasCommuterTicket,
-			PatternActivityWeek activitySchedule
+			TourBasedActivityPattern activitySchedule
 	) {
 
     PersonOfPanelDataId panel_id = personOfPanelData.getId(); 

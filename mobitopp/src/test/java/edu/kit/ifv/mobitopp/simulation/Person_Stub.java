@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
@@ -149,6 +150,11 @@ public class Person_Stub
 
 	@Override
 	public ModeChoicePreferences modeChoicePreferences() {
+		return null;
+	}
+
+	@Override
+	public TourBasedActivityPattern tourBasedActivityPattern() {
 		return null;
 	}
 

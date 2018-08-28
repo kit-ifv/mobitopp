@@ -101,9 +101,57 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	private int numberOfSubtours() {
 		return subtourActivities.size();
 	}
+	
+	
 
 	@Override
-	public Collection<ExtendedPatternActivity> asPatternActivities(int tournr) {
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((day == null) ? 0 : day.hashCode());
+		result = prime * result + ((inboundTripActivities == null) ? 0 : inboundTripActivities.hashCode());
+		result = prime * result + ((mainActivity == null) ? 0 : mainActivity.hashCode());
+		result = prime * result + ((outboundTripActivities == null) ? 0 : outboundTripActivities.hashCode());
+		result = prime * result + ((subtourActivities == null) ? 0 : subtourActivities.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TourPattern other = (TourPattern) obj;
+		if (day != other.day)
+			return false;
+		if (inboundTripActivities == null) {
+			if (other.inboundTripActivities != null)
+				return false;
+		} else if (!inboundTripActivities.equals(other.inboundTripActivities))
+			return false;
+		if (mainActivity == null) {
+			if (other.mainActivity != null)
+				return false;
+		} else if (!mainActivity.equals(other.mainActivity))
+			return false;
+		if (outboundTripActivities == null) {
+			if (other.outboundTripActivities != null)
+				return false;
+		} else if (!outboundTripActivities.equals(other.outboundTripActivities))
+			return false;
+		if (subtourActivities == null) {
+			if (other.subtourActivities != null)
+				return false;
+		} else if (!subtourActivities.equals(other.subtourActivities))
+			return false;
+		return true;
+	}
+
+	@Override
+	public List<ExtendedPatternActivity> asPatternActivities(int tournr) {
 		List<ExtendedPatternActivity> activities = new ArrayList<ExtendedPatternActivity>();
 		
 		for(Activity act : outboundTripActivities) {
@@ -130,7 +178,7 @@ public class TourPattern implements TourBasedActivityPatternElement {
 				}
 				
 			}
-			activities.add(ExtendedPatternActivity.fromActivity(tournr, true, parts.get(numberOfSubtours()+1)));
+			activities.add(ExtendedPatternActivity.fromActivity(tournr, true, parts.get(parts.size()-1)));
 //			activities.add(parts.get(numberOfSubtours()+1));
 			
 		}
@@ -146,7 +194,7 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	public static TourPattern fromExtendedPatternActivities(List<ExtendedPatternActivity> activities) {
 	
 		List<ExtendedPatternActivity> partsOfMainActivity = findPartsOfMainActivity(activities);
-		assert !partsOfMainActivity.isEmpty();
+		assert !partsOfMainActivity.isEmpty() : activities;
 		
 		Activity mainActivity =  partsOfMainActivity.size()==1 
 					? SimpleActivity.fromPatternActivity(partsOfMainActivity.get(0))
