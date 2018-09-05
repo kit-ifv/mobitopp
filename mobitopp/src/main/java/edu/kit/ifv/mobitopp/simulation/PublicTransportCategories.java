@@ -11,7 +11,7 @@ public class PublicTransportCategories {
 	public final Category passenger = passenger();
 	public final Category routeLeg = routeLeg();
 	public final Category stop = stop();
-	public final Category vehicleFull = vehicleFull();
+	public final Category searchNewTrip = searchNewTrip();
 	public final Category vehicleCrowded = vehicleCrowded();
 
 	private Category vehicle() {
@@ -60,7 +60,7 @@ public class PublicTransportCategories {
 		return new Category("demandsimulationStopPublicTransport", header);
 	}
 
-	private Category vehicleFull() {
+	private Category searchNewTrip() {
 		List<String> header = new ArrayList<>();
 		header.add("personId");
 		header.add("stopId");
@@ -68,7 +68,7 @@ public class PublicTransportCategories {
 		header.add("tripDay");
 		header.add("tripTime");
 		header.add("journeyId");
-		return new Category("demandsimulationVehicleFullPublicTransport", header);
+		return new Category("demandsimulationSearchNewPublicTransportTrip", header);
 	}
 
 	private Category vehicleCrowded() {

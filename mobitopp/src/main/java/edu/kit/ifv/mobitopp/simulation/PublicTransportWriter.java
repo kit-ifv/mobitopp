@@ -166,7 +166,7 @@ public class PublicTransportWriter implements PublicTransportResults {
 	}
 
 	@Override
-	public void vehicleFull(SimulationPerson person, Time time, PublicTransportTrip trip) {
+	public void searchNewTrip(SimulationPerson person, Time time, PublicTransportTrip trip) {
 		Optional<PublicTransportLeg> part = trip.currentLeg();
 		int personId = person.getOid();
 		int stopId = part.map(PublicTransportLeg::start).map(Stop::externalId).orElse(-1);
@@ -184,7 +184,7 @@ public class PublicTransportWriter implements PublicTransportResults {
 		message.append(tripTime);
 		message.append(journeyId);
 
-		results().write(categories.vehicleFull, message.toString());
+		results().write(categories.searchNewTrip, message.toString());
 	}
 
 	@Override
