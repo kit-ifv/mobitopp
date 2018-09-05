@@ -146,7 +146,7 @@ public class PublicTransportResults {
 		message.append(tripTime);
 		message.append(journeyId);
 
-		results().write(categories.vehicleFull, message.toString());
+		results().write(categories.searchNewTrip, message.toString());
 	}
 
 	public void writeVehicleCrowded(Vehicle vehicle, PublicTransportLeg leg) {
