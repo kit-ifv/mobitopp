@@ -21,7 +21,7 @@ public class SimpleTimeTest {
 	private Time date;
 	private Time time;
 
-	private final int day = 0;
+	private final int day = 1;
 	private final int hour = 6;
 	private final int minute = 30;
 	private final int second = 5;
@@ -38,7 +38,7 @@ public class SimpleTimeTest {
 
 	@Before
 	public void setUp() {
-		date = new SimpleTime();
+		date = SimpleTime.ofDays(day);
 		time = date.plusHours(hour).plusMinutes(minute).plusSeconds(second);
 		same = SimpleTime.from(time.fromStart());
 		later = time.plusSeconds(1);
@@ -89,7 +89,7 @@ public class SimpleTimeTest {
 	private void assertZeroHourOf(Time date) {
 		assertEquals("failure - hour wrong", 0, date.getHour());
 	}
-
+	
 	private void assertUnchangedSecondOf(Time date) {
 		assertEquals("failure - second wrong", second, date.getSecond());
 	}
@@ -202,6 +202,50 @@ public class SimpleTimeTest {
 	public void decrease() {
 		int seconds = 1;
 		Time changed = time.minus(RelativeTime.ofSeconds(seconds));
+		
+		assertChangedSecondOf(changed, second - seconds);
+		assertUnchangedDayOf(changed);
+		assertUnchangedHourOf(changed);
+		assertUnchangedMinuteOf(changed);
+	}
+	
+	@Test
+	public void decreaseDay() {
+		int days = 1;
+		Time changed = time.minusDays(days);
+		
+		assertChangedDayOf(changed, day - days);
+		assertUnchangedHourOf(changed);
+		assertUnchangedMinuteOf(changed);
+		assertUnchangedSecondOf(changed);
+	}
+	
+	@Test
+	public void decreaseHour() {
+		int hours = 1;
+		Time changed = time.minusHours(hours);
+		
+		assertChangedHourOf(changed, hour - hours);
+		assertUnchangedDayOf(changed);
+		assertUnchangedMinuteOf(changed);
+		assertUnchangedSecondOf(changed);
+	}
+	
+	@Test
+	public void decreaseMinute() {
+		int minutes = 1;
+		Time changed = time.minusMinutes(minutes);
+		
+		assertChangedMinuteOf(changed, minute - minutes);
+		assertUnchangedDayOf(changed);
+		assertUnchangedHourOf(changed);
+		assertUnchangedSecondOf(changed);
+	}
+	
+	@Test
+	public void decreaseSeconds() {
+		int seconds = 1;
+		Time changed = time.minusSeconds(seconds);
 		
 		assertChangedSecondOf(changed, second - seconds);
 		assertUnchangedDayOf(changed);
@@ -330,7 +374,6 @@ public class SimpleTimeTest {
 
 	@Test
 	public void testEquals() {
-
 		Time value = time.startOfDay();
 
 		assertEquals("failure - equals", date, date);
@@ -348,7 +391,6 @@ public class SimpleTimeTest {
 	
 	@Test
 	public void testHashCode() {
-
 		Time value = time.startOfDay();
 
 		assertEquals("failure - equals", date, date);
