@@ -61,6 +61,6 @@ public class HouseholdTest {
 
 	@Test
 	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(Household.class).withIgnoredFields("weight").usingGetClass().verify();
+		EqualsVerifier.forClass(Household.class).usingGetClass().verify();
 	}
 }

@@ -48,6 +48,9 @@ public class Household {
 		result = prime * result + ((householdAttributes == null) ? 0 : householdAttributes.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((personAttributes == null) ? 0 : personAttributes.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(weight);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -74,6 +77,8 @@ public class Household {
 			if (other.personAttributes != null)
 				return false;
 		} else if (!personAttributes.equals(other.personAttributes))
+			return false;
+		if (Double.doubleToLongBits(weight) != Double.doubleToLongBits(other.weight))
 			return false;
 		return true;
 	}
