@@ -56,8 +56,8 @@ public class IpuIterationTest {
 	private void createConstraints() {
 		someConstraint = mock(Constraint.class);
 		anotherConstraint = mock(Constraint.class);
-		when(someConstraint.update(households)).thenReturn(afterSomeConstraint);
-		when(anotherConstraint.update(afterSomeConstraint)).thenReturn(afterAnotherConstraint);
+		when(someConstraint.scaleWeightsOf(households)).thenReturn(afterSomeConstraint);
+		when(anotherConstraint.scaleWeightsOf(afterSomeConstraint)).thenReturn(afterAnotherConstraint);
 	}
 
 	private Household newHousehold(
@@ -74,8 +74,8 @@ public class IpuIterationTest {
 		assertThat(adjusted, hasSize(households.size()));
 		assertThat(adjusted, is(equalTo(afterAnotherConstraint)));
 
-		verify(someConstraint).update(households);
-		verify(anotherConstraint).update(afterSomeConstraint);
+		verify(someConstraint).scaleWeightsOf(households);
+		verify(anotherConstraint).scaleWeightsOf(afterSomeConstraint);
 	}
 	
 	@Test

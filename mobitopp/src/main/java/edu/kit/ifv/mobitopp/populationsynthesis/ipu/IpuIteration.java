@@ -16,7 +16,7 @@ public class IpuIteration implements Iteration {
 	public List<Household> adjustWeightsOf(List<Household> households) {
 		List<Household> newHouseholds = new ArrayList<>(households);
 		for (Constraint constraint : constraints) {
-			newHouseholds = constraint.update(newHouseholds);
+			newHouseholds = constraint.scaleWeightsOf(newHouseholds);
 		}
 		return newHouseholds;
 	}
