@@ -32,13 +32,13 @@ public class IpuTest {
 		afterThirdIteration = createHouseholds(4.0d);
 		iteration = mock(Iteration.class);
 
-		when(iteration.adjustHouseholdWeights(households)).thenReturn(afterFirstIteration);
-		when(iteration.adjustHouseholdWeights(afterFirstIteration)).thenReturn(afterSecondIteration);
-		when(iteration.adjustHouseholdWeights(afterSecondIteration)).thenReturn(afterThirdIteration);
+		when(iteration.adjustWeightsOf(households)).thenReturn(afterFirstIteration);
+		when(iteration.adjustWeightsOf(afterFirstIteration)).thenReturn(afterSecondIteration);
+		when(iteration.adjustWeightsOf(afterSecondIteration)).thenReturn(afterThirdIteration);
 		when(iteration.calculateGoodnessOfFitFor(households)).thenReturn(1.0d);
 		when(iteration.calculateGoodnessOfFitFor(afterFirstIteration)).thenReturn(0.5d);
 		when(iteration.calculateGoodnessOfFitFor(afterSecondIteration)).thenReturn(0.25d);
-		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.125d);
+		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.4d);
 	}
 
 	private List<Household> createHouseholds(double baseWeight) {
@@ -67,18 +67,18 @@ public class IpuTest {
 
 		List<Household> updatedHouseholds = ipu.adjustWeightsOf(households);
 
-		assertThat(updatedHouseholds, is(equalTo(afterThirdIteration)));
+		assertThat(updatedHouseholds, is(equalTo(afterSecondIteration)));
 	}
 
 	@Test
 	public void cancelOnConvergence() {
 		int maxIterations = 3;
-		double maxGoodness = 0.25d;
+		double maxGoodness = 0.5d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness);
 
 		List<Household> updatedHouseholds = ipu.adjustWeightsOf(households);
 
-		assertThat(updatedHouseholds, is(equalTo(afterSecondIteration)));
+		assertThat(updatedHouseholds, is(equalTo(afterFirstIteration)));
 	}
-
+	
 }

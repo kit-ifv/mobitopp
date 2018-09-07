@@ -69,7 +69,7 @@ public class IpuIterationTest {
 
 	@Test
 	public void adjustHouseholdWeightsWithSize() {
-		List<Household> adjusted = ipu.adjustHouseholdWeights(households);
+		List<Household> adjusted = ipu.adjustWeightsOf(households);
 
 		assertThat(adjusted, hasSize(households.size()));
 		assertThat(adjusted, is(equalTo(afterAnotherConstraint)));
@@ -81,7 +81,7 @@ public class IpuIterationTest {
 	@Test
 	public void returnsSameHouseholdsWithoutConstraints() {
 		IpuIteration ipuIteration = new IpuIteration(Collections.emptyList());
-		List<Household> adjusted = ipuIteration.adjustHouseholdWeights(households);
+		List<Household> adjusted = ipuIteration.adjustWeightsOf(households);
 		
 		assertThat(adjusted, is(equalTo(households)));
 	}
