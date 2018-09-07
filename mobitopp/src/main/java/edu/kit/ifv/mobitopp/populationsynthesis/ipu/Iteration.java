@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Iteration {
 
-	List<Household> adjustHouseholdWeights(List<Household> households);
+	List<Household> adjustWeightsOf(List<Household> households);
 
 	double calculateGoodnessOfFitFor(List<Household> households);
 

@@ -18,18 +18,22 @@ public class Ipu {
 
 	public List<Household> adjustWeightsOf(List<Household> households) {
 		List<Household> updatedHouseholds = new ArrayList<>(households);
-		List<Household> lastIteration = updatedHouseholds;
-		double lastGoodness = iteration.calculateGoodnessOfFitFor(households);
+		List<Household> lastIterationHouseholds = updatedHouseholds;
+		List<Household> bestHouseholds = updatedHouseholds;
+		double bestGoodness = iteration.calculateGoodnessOfFitFor(households);
 		for (int current = 0; current < maxIterations; current++) {
-			updatedHouseholds = iteration.adjustHouseholdWeights(lastIteration);
+			updatedHouseholds = iteration.adjustWeightsOf(lastIterationHouseholds);
 			double goodnessOfFit = iteration.calculateGoodnessOfFitFor(updatedHouseholds);
-			if (Math.abs(goodnessOfFit - lastGoodness) <= maxGoodness) {
+			if (Math.abs(goodnessOfFit - bestGoodness) <= maxGoodness) {
 				return updatedHouseholds;
 			}
-			lastIteration = updatedHouseholds;
-			lastGoodness = goodnessOfFit;
+			lastIterationHouseholds = updatedHouseholds;
+			if (bestGoodness > goodnessOfFit) {
+				bestGoodness = goodnessOfFit;
+				bestHouseholds = updatedHouseholds;
+			}
 		}
-		return updatedHouseholds;
+		return bestHouseholds;
 	}
 
 }

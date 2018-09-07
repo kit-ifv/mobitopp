@@ -13,7 +13,7 @@ public class IpuIteration implements Iteration {
 	}
 
 	@Override
-	public List<Household> adjustHouseholdWeights(List<Household> households) {
+	public List<Household> adjustWeightsOf(List<Household> households) {
 		List<Household> newHouseholds = new ArrayList<>(households);
 		for (Constraint constraint : constraints) {
 			newHouseholds = constraint.update(newHouseholds);
