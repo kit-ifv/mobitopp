@@ -3,7 +3,9 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class BaseConstraintTest {
 
+	private static final double margin = 1e-6;
 	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(2000, 1);
 	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(2000, 2);
 	private static final double requestedWeight = 6.0d;
@@ -47,6 +50,30 @@ public class BaseConstraintTest {
 		Household updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
+	}
+	
+	@Test
+	public void calculatesGoodnessOfFit() {
+		Household someHousehold = newHousehold(someId, 1.0d);
+		Household anotherHousehold = newHousehold(anotherId, 2.0d);
+		List<Household> households = asList(someHousehold, anotherHousehold);
+		BaseConstraint constraint = newConstraint();
+		
+		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
+		
+		assertThat(goodnessOfFit, is(closeTo(0.5d, margin)));
+	}
+	
+	@Test
+	public void calculatesAnotherGoodnessOfFit() {
+		Household someHousehold = newHousehold(someId, 2.0d);
+		Household anotherHousehold = newHousehold(anotherId, 4.0d);
+		List<Household> households = asList(someHousehold, anotherHousehold);
+		BaseConstraint constraint = newConstraint();
+		
+		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
+		
+		assertThat(goodnessOfFit, is(closeTo(0.0d, margin)));
 	}
 
 	private Predicate<Household> onlyAnotherHousehold() {

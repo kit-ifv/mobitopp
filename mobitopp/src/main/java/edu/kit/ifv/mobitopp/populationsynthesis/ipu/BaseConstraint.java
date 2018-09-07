@@ -40,6 +40,12 @@ public abstract class BaseConstraint implements Constraint {
 		Predicate<Household> predicate = this::matches;
 		return households.stream().filter(predicate.negate()).collect(toList());
 	}
+	
+	@Override
+	public double calculateGoodnessOfFitFor(List<Household> households) {
+		double totalWeight = totalWeight(households);
+		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
+	}
 
 	protected abstract boolean matches(Household household);
 
