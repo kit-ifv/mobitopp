@@ -10,18 +10,25 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 class ZoneValue {
 
-	final int zoneId;
+	private final int zoneId;
+	private final String areaType;
 	private final Map<String, String> mapping;
 
-	public ZoneValue(int zoneId, Map<String, String> mapping) {
+	public ZoneValue(int zoneId, String areaType, Map<String, String> mapping) {
 		super();
 		this.zoneId = zoneId;
+		this.areaType = areaType;
 		this.mapping = mapping;
+	}
+	
+	int zoneId() {
+		return zoneId;
 	}
 
 	String[] toLine() {
 		ArrayList<String> elements = new ArrayList<>();
 		elements.add(String.valueOf(zoneId));
+		elements.add(areaType);
 		for (String constraint : constraints()) {
 			elements.add(mapping.getOrDefault(constraint, "0"));
 		}
@@ -34,13 +41,19 @@ class ZoneValue {
 				.map(Value::zoneId)
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("No values parsed."));
+		String areaType = values
+				.stream()
+				.map(Value::areaType)
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("No values parsed."));
 		Map<String, String> mapping = values.stream().collect(toMap(Value::constraint, Value::amount));
-		return new ZoneValue(zoneId, mapping);
+		return new ZoneValue(zoneId, areaType, mapping);
 	}
 
 	static void writeHeaderTo(CSVWriter writer) {
 		ArrayList<String> elements = new ArrayList<>();
 		elements.add("ID");
+		elements.add("areaType");
 		elements.addAll(constraints());
 		String[] header = elements.toArray(new String[elements.size()]);
 		writer.writeNext(header);

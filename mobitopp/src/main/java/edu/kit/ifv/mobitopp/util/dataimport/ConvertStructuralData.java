@@ -39,7 +39,7 @@ public class ConvertStructuralData {
 		try (CSVWriter writer = writerFor(outputFile)) {
 			ZoneValue.writeHeaderTo(writer);
 			readFromCsv(householdFile, personFile)
-					.sorted(Comparator.comparing(z -> z.zoneId))
+					.sorted(Comparator.comparing(ZoneValue::zoneId))
 					.map(ZoneValue::toLine)
 					.forEach(writer::writeNext);
 		}

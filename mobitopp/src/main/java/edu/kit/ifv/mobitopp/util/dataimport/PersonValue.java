@@ -7,18 +7,19 @@ class PersonValue extends Value {
 	private final String gender;
 	private final String age;
 
-	public PersonValue(int zoneId, String gender, String age, String amount) {
-		super(zoneId, amount);
+	public PersonValue(int zoneId, String areaType, String gender, String age, String amount) {
+		super(zoneId, areaType, amount);
 		this.gender = gender;
 		this.age = age;
 	}
 
 	static PersonValue from(String[] line) {
 		int zoneId = Integer.parseInt(line[0]);
+		String areaType = line[1];
 		String gender = genderOf(line);
 		String age = ageOf(line);
 		String amount = line[4];
-		return new PersonValue(zoneId, gender, age, amount);
+		return new PersonValue(zoneId, areaType, gender, age, amount);
 	}
 
 	private static String ageOf(String[] line) {
