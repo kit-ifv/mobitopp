@@ -14,35 +14,36 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
-public class PersonConstraintTest {
+public class ExistenceConstraintTest {
 
+	private static final String attribute = "attribute";
 	private static final double margin = 1e-6;
 	private static final int requestedWeight = 2;
 	private static final int availablePeople = 2;
 	private static final double initialWeight = 1.0d;
 	private static final int noPeopleAvailable = 0;
 
-	private PersonConstraint constraint;
+	private ExistenceConstraint constraint;
 	private Household household;
 
 	@Before
 	public void initialise() {
 		household = newHousehold(availablePeople);
-		constraint = new PersonConstraint(requestedWeight, h -> h.personAttribute("attribute"));
+		constraint = new ExistenceConstraint(requestedWeight, h -> h.personAttribute(attribute));
 	}
 
 	private Household newHousehold(int people) {
 		Map<String, Integer> householdAttributes = emptyMap();
-		Map<String, Integer> personAttributes = singletonMap("attribute", people);
+		Map<String, Integer> personAttributes = singletonMap(attribute, people);
 		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(2000, 1);
 		return new Household(id, initialWeight, householdAttributes, personAttributes);
 	}
 
 	@Test
-	public void multipliesWeightWithPersons() {
+	public void doesNotConsiderValueOfAttributeForTotalWeight() {
 		double weight = constraint.totalWeight(household);
 
-		assertThat(weight, is(closeTo(availablePeople * initialWeight, margin)));
+		assertThat(weight, is(closeTo(initialWeight, margin)));
 	}
 
 	@Test

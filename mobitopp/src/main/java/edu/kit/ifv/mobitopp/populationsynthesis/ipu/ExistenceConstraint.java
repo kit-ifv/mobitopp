@@ -2,11 +2,11 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import java.util.function.ToIntFunction;
 
-public class PersonConstraint extends BaseConstraint implements Constraint {
+public class ExistenceConstraint extends BaseConstraint implements Constraint {
 
 	private final ToIntFunction<Household> value;
 
-	public PersonConstraint(int requestedWeight, ToIntFunction<Household> value) {
+	public ExistenceConstraint(int requestedWeight, ToIntFunction<Household> value) {
 		super(requestedWeight);
 		this.value = value;
 	}
@@ -18,7 +18,7 @@ public class PersonConstraint extends BaseConstraint implements Constraint {
 
 	@Override
 	protected double totalWeight(Household household) {
-		return household.weight() * value.applyAsInt(household);
+		return household.weight();
 	}
 
 }
