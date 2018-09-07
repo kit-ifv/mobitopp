@@ -16,17 +16,17 @@ public abstract class BaseConstraint implements Constraint {
 	}
 
 	@Override
-	public List<Household> update(List<Household> households) {
+	public List<Household> scaleWeightsOf(List<Household> households) {
 		double totalWeight = totalWeight(households);
-		double factor = requestedWeight / totalWeight;
-		return update(households, factor);
+		double withFactor = requestedWeight / totalWeight;
+		return scaleWeightsOf(households, withFactor);
 	}
 
 	private double totalWeight(List<Household> households) {
 		return households.stream().filter(this::matches).mapToDouble(this::totalWeight).sum();
 	}
 
-	private List<Household> update(List<Household> households, double factor) {
+	private List<Household> scaleWeightsOf(List<Household> households, double factor) {
 		ArrayList<Household> newHouseholds = new ArrayList<>(notProcessed(households));
 		households
 				.stream()

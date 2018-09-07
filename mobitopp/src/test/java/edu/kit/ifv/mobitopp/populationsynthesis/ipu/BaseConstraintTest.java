@@ -29,7 +29,7 @@ public class BaseConstraintTest {
 		List<Household> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
 
-		List<Household> updatedHouseholds = constraint.update(households);
+		List<Household> updatedHouseholds = constraint.scaleWeightsOf(households);
 
 		Household updatedSomeHousehold = newHousehold(someId, 2.0d);
 		Household updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
@@ -44,7 +44,7 @@ public class BaseConstraintTest {
 		List<Household> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
-		List<Household> updatedHouseholds = constraint.update(households);
+		List<Household> updatedHouseholds = constraint.scaleWeightsOf(households);
 
 		Household updatedSomeHousehold = newHousehold(someId, 1.0d);
 		Household updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
