@@ -57,9 +57,10 @@ public class DemandSimulatorTour
 			);
 	}
 
+  @Override
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
-			PersonResults results) {
+			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonTour(p, 
 																					zoneRepository(),
 																					queue,
