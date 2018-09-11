@@ -85,27 +85,45 @@ public class PopulationSynthesis {
 		HouseholdSelectorIfc householdSelector = new HouseholdSelector(seed());
 		HouseholdWeightCalculatorIfc householdWeightCalculator = new HouseholdWeightCalculator();
 
-		DemandDataForZoneCalculatorIfc calculator = new DemandDataForZoneCalculatorStuttgart(
-																											results(),
+		DemandDataForZoneCalculatorIfc calculator = createDemandDataCalculator(fixedDestinationSelector,
+				householdSelector, householdWeightCalculator, results(), this.carOwnershipModel,
+				this.householdLocationSelector, this.chargePrivatelySelector, this.personCreator,
+				dataRepository());
+
+		printZoneInformation();
+		createDemandForZonesWith(calculator);
+	}
+
+	private void createDemandForZonesWith(DemandDataForZoneCalculatorIfc calculator) {
+		for (DemandZone zone : demandZoneRepository().getZones()) {
+			System.out.println("PopulationSynthesis: Zone " + zone.getId());
+			calculator.calculateDemandData(zone, impedance());
+		}
+	}
+
+	private void printZoneInformation() {
+		for (DemandZone zone : demandZoneRepository().getZones()) {
+			System.out.println("PopulationSynthesis: Zone " + zone.getId() + ", oid=" + zone.getOid());
+		}
+	}
+
+	protected DemandDataForZoneCalculatorIfc createDemandDataCalculator(
+			FixedDestinationSelector fixedDestinationSelector, HouseholdSelectorIfc householdSelector,
+			HouseholdWeightCalculatorIfc householdWeightCalculator, Results results,
+			CarOwnershipModel carOwnershipModel, HouseholdLocationSelector householdLocationSelector,
+			ChargePrivatelySelector chargePrivatelySelector, PersonCreator personCreator,
+			DataRepositoryForPopulationSynthesis dataRepository) {
+		return new DemandDataForZoneCalculatorStuttgart(
+																											results,
 																											householdSelector,
 																											householdWeightCalculator,
 																											fixedDestinationSelector,
-																											this.carOwnershipModel,
-																											this.householdLocationSelector,
+																											carOwnershipModel,
+																											householdLocationSelector,
 																											chargePrivatelySelector,
-																											this.personCreator,
-																											dataRepository()
+																											personCreator,
+																											dataRepository
 																											);
-
-					List<DemandZone> zones = demandZoneRepository().getZones();
-
-					for (DemandZone zone : zones) {
-						System.out.println("PopulationSynthesis: Zone " + zone.getId() + ", oid=" + zone.getOid());
-					}
-					for (DemandZone zone : zones) {
-						System.out.println("PopulationSynthesis: Zone " + zone.getId());
-						calculator.calculateDemandData(zone, impedance());
-					}
 	}
 
 	SynthesisContext context() {
