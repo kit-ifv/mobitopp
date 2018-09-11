@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 
 public class RelativeTime implements Comparable<RelativeTime> {
 
+	private static final int daysPerWeek = 7;
 	public static final RelativeTime ZERO = RelativeTime.of(0, MINUTES);
 	public static final RelativeTime INFINITE = RelativeTime.of(100, DAYS);
 	private final Duration duration;
@@ -37,12 +38,24 @@ public class RelativeTime implements Comparable<RelativeTime> {
 		return duration.toDays();
 	}
 
+	public long toWeeks() {
+		return duration.toDays() / 7;
+	}
+
 	public RelativeTime plus(long amount, ChronoUnit unit) {
 		return new RelativeTime(duration.plus(amount, unit));
 	}
 
 	public RelativeTime plus(RelativeTime other) {
 		return new RelativeTime(duration.plus(other.duration));
+	}
+	
+	public RelativeTime plusWeeks(long days) {
+		return plusDays(days * daysPerWeek);
+	}
+	
+	public RelativeTime plusDays(long days) {
+		return new RelativeTime(duration.plusDays(days));
 	}
 
 	public RelativeTime plusHours(long hours) {
@@ -57,12 +70,12 @@ public class RelativeTime implements Comparable<RelativeTime> {
 		return new RelativeTime(duration.plusSeconds(seconds));
 	}
 
-	public RelativeTime plusDays(long days) {
-		return new RelativeTime(duration.plusDays(days));
-	}
-
 	public RelativeTime minus(RelativeTime other) {
 		return new RelativeTime(duration.minus(other.duration));
+	}
+
+	public RelativeTime minusWeeks(int decrement) {
+		return minusDays(decrement * daysPerWeek);
 	}
 
 	public RelativeTime minusDays(long days) {
@@ -132,6 +145,10 @@ public class RelativeTime implements Comparable<RelativeTime> {
 	@Override
 	public String toString() {
 		return "RelativeTime [duration=" + duration + "]";
+	}
+	
+	public static RelativeTime ofWeeks(long weeks) {
+		return new RelativeTime(Duration.ofDays(weeks * daysPerWeek));
 	}
 
 	public static RelativeTime ofDays(long days) {

@@ -46,15 +46,35 @@ public class RelativeTimeTest {
 		
 		assertThat(sum, is(RelativeTime.ofSeconds(2)));
 	}
+
+	@Test
+	public void plusWeeks() {
+		int weeks = 1;
+		RelativeTime some = RelativeTime.ofWeeks(weeks);
+		
+		RelativeTime difference = some.plusWeeks(weeks);
+		
+		assertThat(difference, is(RelativeTime.ofWeeks(2)));
+	}
 	
 	@Test
 	public void minus() {
 		RelativeTime some = RelativeTime.ofSeconds(1);
 		RelativeTime another = RelativeTime.ofSeconds(1);
 		
-		RelativeTime sum = some.minus(another);
+		RelativeTime difference = some.minus(another);
 		
-		assertThat(sum, is(RelativeTime.ofSeconds(0)));
+		assertThat(difference, is(RelativeTime.ofSeconds(0)));
+	}
+	
+	@Test
+	public void minusWeeks() {
+		int weeks = 1;
+		RelativeTime some = RelativeTime.ofWeeks(weeks);
+		
+		RelativeTime difference = some.minusWeeks(weeks);
+		
+		assertThat(difference, is(RelativeTime.ZERO));
 	}
 	
 	@Test
@@ -79,6 +99,24 @@ public class RelativeTimeTest {
 		RelativeTime time = RelativeTime.ofSeconds(1);
 		
 		assertFalse(time.isNegative());
+	}
+	
+	@Test
+	public void toFirstWeek() {
+		RelativeTime week = RelativeTime.ofDays(6);
+		
+		long weeks = week.toWeeks();
+		
+		assertThat(weeks, is(0l));
+	}
+	
+	@Test
+	public void toSecondWeek() {
+		RelativeTime week = RelativeTime.ofDays(7);
+		
+		long weeks = week.toWeeks();
+		
+		assertThat(weeks, is(1l));
 	}
 
 	@Test
