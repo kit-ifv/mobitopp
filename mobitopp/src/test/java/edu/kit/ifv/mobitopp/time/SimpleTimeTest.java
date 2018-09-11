@@ -18,10 +18,12 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class SimpleTimeTest {
 
+	private static final int daysPerWeek = 7;
 	private Time date;
 	private Time time;
 
-	private final int day = 1;
+	private final int week = 1;
+	private final int day = week * daysPerWeek + 1;
 	private final int hour = 6;
 	private final int minute = 30;
 	private final int second = 5;
@@ -104,6 +106,26 @@ public class SimpleTimeTest {
 
 	private void assertUnchangedDayOf(Time date) {
 		assertEquals("failure - day wrong", day, date.getDay());
+	}
+
+	private void assertChangedWeekOf(Time nextDate, int expected) {
+		assertEquals("failure - week wrong", expected, nextDate.getWeek());
+	}
+	
+	private void assertChangedDayOf(Time nextDate, int expected) {
+		assertEquals("failure - day wrong", expected, nextDate.getDay());
+	}
+
+	private void assertChangedMinuteOf(Time next, int minute) {
+		assertEquals("failure - minute wrong", minute, next.getMinute());
+	}
+
+	private void assertChangedHourOf(Time next, int hour) {
+		assertEquals("failure - hour wrong", hour, next.getHour());
+	}
+
+	private void assertChangedSecondOf(Time next, int second) {
+		assertEquals("failure - second wrong", second, next.getSecond());
 	}
 
 	@Test
@@ -194,10 +216,6 @@ public class SimpleTimeTest {
 		assertFalse(oneHourAfter.isMidnight());
 	}
 
-	private void assertChangedDayOf(Time nextDate, int expected) {
-		assertEquals("failure - day wrong", expected, nextDate.getDay());
-	}
-	
 	@Test
 	public void decrease() {
 		int seconds = 1;
@@ -207,6 +225,18 @@ public class SimpleTimeTest {
 		assertUnchangedDayOf(changed);
 		assertUnchangedHourOf(changed);
 		assertUnchangedMinuteOf(changed);
+	}
+	
+	@Test
+	public void decreaseWeek() {
+		int weeks = 1;
+		Time changed = time.minusWeeks(weeks);
+		
+		assertChangedWeekOf(changed, week - weeks);
+		assertChangedDayOf(changed, day - week * daysPerWeek);
+		assertUnchangedHourOf(changed);
+		assertUnchangedMinuteOf(changed);
+		assertUnchangedSecondOf(changed);
 	}
 	
 	@Test
@@ -265,6 +295,18 @@ public class SimpleTimeTest {
 	}
 
 	@Test
+	public void increaseWeek() {
+		int weeks = 1;
+		Time changed = time.plusWeeks(weeks);
+		
+		assertChangedWeekOf(changed, week + weeks);
+		assertChangedDayOf(changed, day + week * daysPerWeek);
+		assertUnchangedHourOf(changed);
+		assertUnchangedMinuteOf(changed);
+		assertUnchangedSecondOf(changed);
+	}
+	
+	@Test
 	public void increaseDay() {
 		int increment = 1;
 		Time next = time.plusDays(increment);
@@ -288,14 +330,6 @@ public class SimpleTimeTest {
 		assertUnchangedSecondOf(next);
 	}
 
-	private void assertChangedMinuteOf(Time next, int minute) {
-		assertEquals("failure - minute wrong", minute, next.getMinute());
-	}
-
-	private void assertChangedHourOf(Time next, int hour) {
-		assertEquals("failure - hour wrong", hour, next.getHour());
-	}
-
 	@Test
 	public void increaseSecond() {
 		int inc_dd = 2;
@@ -310,10 +344,6 @@ public class SimpleTimeTest {
 		assertChangedHourOf(next, hour + inc_hh);
 		assertChangedMinuteOf(next, minute + inc_mm);
 		assertChangedSecondOf(next, second + inc_ss);
-	}
-
-	private void assertChangedSecondOf(Time next, int second) {
-		assertEquals("failure - second wrong", second, next.getSecond());
 	}
 
 	@Test

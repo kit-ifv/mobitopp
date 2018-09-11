@@ -26,6 +26,10 @@ public class SimpleTime implements Time, Comparable<Time> {
 		return ofSeconds(fromStart.seconds());
 	}
 	
+	public static Time ofWeeks(long weeks) {
+		return from(RelativeTime.ofWeeks(weeks));
+	}
+	
 	public static Time ofDays(long days) {
 		return from(RelativeTime.ofDays(days));
 	}
@@ -50,6 +54,11 @@ public class SimpleTime implements Time, Comparable<Time> {
 	@Override
 	public long toMinutes() {
 		return RelativeTime.ofSeconds(seconds).toMinutes();
+	}
+	
+	@Override
+	public int getWeek() {
+		return (int) fromStart().toWeeks();
 	}
 
 	@Override
@@ -117,6 +126,12 @@ public class SimpleTime implements Time, Comparable<Time> {
 		RelativeTime changed = fromStart().minus(decrement);
 		return from(changed);
 	}
+	
+	@Override
+	public Time minusWeeks(int decrement) {
+		RelativeTime changed = fromStart().minusWeeks(decrement);
+		return from(changed);
+	}
 
 	@Override
 	public Time minusDays(int decrement) {
@@ -145,6 +160,12 @@ public class SimpleTime implements Time, Comparable<Time> {
 	@Override
 	public Time plus(RelativeTime increment) {
 		RelativeTime changed = fromStart().plus(increment);
+		return from(changed);
+	}
+	
+	@Override
+	public Time plusWeeks(int increment) {
+		RelativeTime changed = fromStart().plusWeeks(increment);
 		return from(changed);
 	}
 
