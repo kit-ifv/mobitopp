@@ -7,7 +7,7 @@ import java.time.temporal.ChronoField;
 
 public class DateFormat {
 
-	private static final LocalDateTime monday = LocalDateTime.of(1970, 1, 5, 0, 0);
+	private static final LocalDateTime monday = LocalDateTime.of(2018, 1, 1, 0, 0);
 	
 	private static final String weekdayDateSeparator = ", ";
 	private static final String dateTimeSeparator = " ";

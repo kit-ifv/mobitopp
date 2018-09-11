@@ -43,7 +43,7 @@ public class DateFormatTest {
 	public void asWeekdayTime() {
 		String time = formatter.asWeekdayTime(date());
 
-		assertThat(time, is(equalTo("Mo, 05 01:02:03")));
+		assertThat(time, is(equalTo("Mo, 01 01:02:03")));
 	}
 	
 	private Time date() {
