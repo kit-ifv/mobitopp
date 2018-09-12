@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivit
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class PopulationTest {
 
@@ -39,6 +40,8 @@ public class PopulationTest {
 		otherPattern = mock(ExtendedPatternActivity.class);
 		when(aPattern.isMainActivity()).thenReturn(true);
 		when(otherPattern.isMainActivity()).thenReturn(false);
+		when(aPattern.startTime()).thenReturn(Time.start);
+		when(otherPattern.startTime()).thenReturn(Time.start.plusMinutes(5));
 		aPerson = mock(Person.class);
 		otherPerson = mock(Person.class);
 		household = mock(Household.class);

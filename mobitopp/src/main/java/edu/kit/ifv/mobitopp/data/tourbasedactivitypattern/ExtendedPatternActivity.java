@@ -32,6 +32,22 @@ public class ExtendedPatternActivity extends PatternActivity {
 	}
 	
 	public ExtendedPatternActivity(
+			int tournr,
+			boolean isMainActivity,
+			boolean isInSupertour,
+			ActivityType activityType, 
+			int observedTripDuration,
+			Time startTime, 
+			int duration
+			) {
+		super(activityType, observedTripDuration, startTime, duration);
+		
+		this.tournr=tournr;
+		this.isMainActivity=isMainActivity;
+		this.isInSupertour=isInSupertour;
+	}
+	
+	public ExtendedPatternActivity(
 		int tournr,
 		boolean isMainActivity,
 		boolean isInSupertour,
@@ -42,9 +58,8 @@ public class ExtendedPatternActivity extends PatternActivity {
 	) {
 		this(tournr, isMainActivity, isInSupertour,
 				activityType, 
-				starttime.weekDay(), 
 				(int) observedTripDuration, 
-				(int) starttime.toMinutes(), 
+				starttime, 
 				(int) duration);
 	}
 	

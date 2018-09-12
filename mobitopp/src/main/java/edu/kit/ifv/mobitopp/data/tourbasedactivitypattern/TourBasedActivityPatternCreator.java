@@ -11,7 +11,6 @@ import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PaneldataReader;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
@@ -89,7 +88,7 @@ public class TourBasedActivityPatternCreator {
 																		.filter(x -> x.getActivityType() == ActivityType.OTHERHOME)
 																		.count();
 			
-			return minutesSinceStartOfWeek(last).differenceTo(minutesSinceStartOfWeek(first)).toMinutes() > 24*60
+			return last.startTime().differenceTo(first.startTime()).toMinutes() > 24*60
 //						&& containsSurrogateHome;
 						&& (cntOtherHome >=2 || cntVisit >= 2);
 	}
@@ -145,12 +144,6 @@ public class TourBasedActivityPatternCreator {
 		return  activities.stream().map(x -> SimpleActivity.fromPatternActivity(x)).collect(Collectors.toList());
 	}
 	
-	static Time minutesSinceStartOfWeek(PatternActivity activity) {
-		
-		// return SimpleTime.ofMinutes(activity.getWeekDayTypeAsInt()*24*60+activity.getStarttime());
-		return SimpleTime.ofMinutes(activity.getStarttime());
-	}
-
 	public static void main(String[] args) {
 		System.out.println("test");
 			
