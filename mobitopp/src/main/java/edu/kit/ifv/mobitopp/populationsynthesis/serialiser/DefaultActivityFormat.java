@@ -6,7 +6,6 @@ import static java.util.Arrays.asList;
 import java.util.List;
 import java.util.Optional;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
@@ -19,9 +18,9 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	private static final int tripDurationIndex = 2;
 	private static final int startTimeIndex = 3;
 	private static final int durationIndex = 4;
-	private static final int tournrIndex = 6;
-	private static final int mainactivityIndex = 7;
-	private static final int supertourIndex = 8;
+	private static final int tournrIndex = 5;
+	private static final int mainactivityIndex = 6;
+	private static final int supertourIndex = 7;
 
 	@Override
 	public List<String> header() {

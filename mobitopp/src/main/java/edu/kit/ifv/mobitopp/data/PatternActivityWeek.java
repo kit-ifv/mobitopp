@@ -181,13 +181,14 @@ public class PatternActivityWeek implements Serializable {
 			}
 	
 			previousEndTime = starttime + activity.getDuration();
+			int relativeStartTime = starttime % MINUTES_PER_DAY;
 		
 			PatternActivity patternActivity 
 				= new PatternActivity(
 						ActivityType.getTypeFromInt(activity.getActivityTypeAsInt()),
 								weekDayType, 
 								activity.getObservedTripDuration(),
-								starttime, 
+								relativeStartTime, 
 								activity.getDuration()
 					);
 	

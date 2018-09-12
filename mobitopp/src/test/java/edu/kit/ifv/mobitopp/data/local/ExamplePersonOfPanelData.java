@@ -33,15 +33,22 @@ public class ExamplePersonOfPanelData {
 	public static float pref_publictransport = 0.1f;
 
 	public static PersonOfPanelData person(PersonOfPanelDataId id) {
-		return new PersonOfPanelData(id, genderType, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, activityPattern, 
-				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
+		return createPersonWith(id, activityPattern);
 	}
-	
+
+	public static PersonOfPanelData createPersonWith(
+			PersonOfPanelDataId id, String activityPattern) {
+		return new PersonOfPanelData(id, genderType, birthyear, age, employmentType, poleDistance,
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
+				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
+				pref_publictransport);
+	}
+
 	public static PersonOfPanelData personWithGender(int gender) {
 		return new PersonOfPanelData(anId, gender, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, activityPattern,
-				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
+				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
+				pref_publictransport);
 	}
 	
 	public static PersonOfPanelData personWithPattern(String pattern) {

@@ -13,7 +13,7 @@ public class PatternActivity
 
 {
 
-	private static final int maximumDuration = Math.toIntExact(Duration.ofDays(28).toMinutes());
+	public static final int maximumDuration = Math.toIntExact(Duration.ofDays(28).toMinutes());
 
 	private static final long serialVersionUID = 8483330614698184240L;
 	
@@ -51,7 +51,7 @@ public class PatternActivity
 			ActivityType activityType, DayOfWeek weekDayType, int observedTripDuration, int startMinutes,
 			int duration) {
 		this(activityType, observedTripDuration,
-				SimpleTime.ofDays(weekDayType.getTypeAsInt()).plusMinutes(startMinutes), duration);
+				SimpleTime.ofDays(weekDayType.getTypeAsInt()).plusMinutes(startMinutes % 1440), duration);
 	}
 
 	public int getActivityTypeAsInt() {

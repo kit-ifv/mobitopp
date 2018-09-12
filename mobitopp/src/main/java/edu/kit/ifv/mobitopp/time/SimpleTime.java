@@ -63,7 +63,20 @@ public class SimpleTime implements Time, Comparable<Time> {
 
 	@Override
 	public int getDay() {
-		return (int) fromStart().toDays();
+		RelativeTime fromStart = fromStart();
+		if (fromStart.isNegative()) {
+			return getNegativeDay();
+		}
+		return (int) fromStart.toDays();
+	}
+
+	/**
+	 * Convert negative time to negative days.
+	 * Day -1 ranges from second -1 to second -86400 (1 day) including both borders.
+	 * @return
+	 */
+	private int getNegativeDay() {
+		return (int) fromStart().minusDays(1).plusSeconds(1).toDays();
 	}
 
 	@Override

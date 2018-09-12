@@ -90,7 +90,7 @@ public class SimpleActivity implements Activity {
 	
 		return new SimpleActivity(
 									activity.getActivityType(), 
-									TourBasedActivityPatternCreator.minutesSinceStartOfWeek(activity),
+									activity.startTime(),
 									RelativeTime.ofMinutes(activity.getDuration()),
 									RelativeTime.ofMinutes(activity.getObservedTripDuration())
 						);

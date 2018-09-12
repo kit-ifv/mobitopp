@@ -217,6 +217,24 @@ public class SimpleTimeTest {
 	}
 
 	@Test
+	public void getsNegativeDaysByMinute() {
+		Time base = SimpleTime.ofDays(0);
+		Time lastDay = base.minusSeconds(1);
+		
+		assertThat(base.getDay(), is(0));
+		assertThat(lastDay.getDay(), is(-1));
+	}
+	
+	@Test
+	public void getsNegativeDaysByDay() {
+		Time base = SimpleTime.ofDays(0);
+		Time lastDay = base.previousDay();
+		
+		assertThat(base.getDay(), is(0));
+		assertThat(lastDay.getDay(), is(-1));
+	}
+
+	@Test
 	public void decrease() {
 		int seconds = 1;
 		Time changed = time.minus(RelativeTime.ofSeconds(seconds));
