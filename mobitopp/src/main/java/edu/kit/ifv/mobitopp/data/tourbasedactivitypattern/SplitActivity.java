@@ -1,9 +1,7 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
-import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
@@ -27,8 +25,7 @@ public class SplitActivity implements Activity {
 		
 		List<SimpleActivity> tmp = 
 											activities.stream()
-											.filter(x -> x.getActivityType() == typeOfMainActivity)
-											.map(x -> new SimpleActivity(typeOfMainActivity, SimpleTime.ofMinutes(x.getStarttime()),RelativeTime.ofMinutes(x.getDuration()), RelativeTime.ofMinutes(x.getObservedTripDuration())))
+											.map(x -> new SimpleActivity(x.getActivityType(), SimpleTime.ofMinutes(x.getStarttime()),RelativeTime.ofMinutes(x.getDuration()), RelativeTime.ofMinutes(x.getObservedTripDuration())))
 											.collect(Collectors.toList());
 		 
 		assert tmp.size() >= 2;
@@ -62,6 +59,11 @@ public class SplitActivity implements Activity {
 	
 	public List<SimpleActivity> parts() {
 		return parts;
+	}
+	
+	@Override
+	public String toString() {
+		return "SplitActivity[" + activityType + "," + parts.size() + "]";
 	}
 
 	@Override

@@ -64,6 +64,7 @@ public class PopulationSynthesisConfiguration extends PopulationSynthesis {
 		context.printStartupInformationOn(System.out);
 		PopulationSynthesisConfiguration synthesizer = populationSynthesis(context);
 		createLocations(context, synthesizer);
+		System.gc();
 		synthesizer.createPopulation();
 		return synthesizer;
 	}
