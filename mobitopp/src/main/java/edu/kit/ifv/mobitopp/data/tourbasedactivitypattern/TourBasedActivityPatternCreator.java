@@ -32,7 +32,7 @@ public class TourBasedActivityPatternCreator {
 		List<TourBasedActivityPatternElement> elements = new ArrayList<TourBasedActivityPatternElement>();
 		
 		PatternActivity starthome = activityWeek.getPatternActivities().get(0);
-		assert starthome.getActivityType()==ActivityType.HOME;
+		assert starthome.getActivityType()==ActivityType.HOME : starthome;
 		elements.add(new HomeActivity(starthome.getWeekDayType(),SimpleActivity.fromPatternActivity(starthome)));
 	
 		List<List<PatternActivity>>  tours = asTours(activityWeek);

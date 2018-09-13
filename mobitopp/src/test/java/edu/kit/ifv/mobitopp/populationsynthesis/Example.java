@@ -38,11 +38,13 @@ import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatte
 
 public abstract class Example {
 
-	public static final int type = 1;
+	public static final int type = 7;
 	public static final DayOfWeek weekDay = DayOfWeek.MONDAY;
 	public static final int observedTripDuration = 2;
 	public static final int starttime = 3;
 	public static final int duration = 4;
+	public static final int tourNumber = 0;
+	public static final boolean isMainActivity = false;
 	
 	public static final int personOid = 1;
 	public static final int firstPerson = 1;

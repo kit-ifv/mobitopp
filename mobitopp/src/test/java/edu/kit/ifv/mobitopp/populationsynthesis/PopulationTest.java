@@ -15,8 +15,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -39,6 +37,8 @@ public class PopulationTest {
 	public void initialise() {
 		aPattern = mock(ExtendedPatternActivity.class);
 		otherPattern = mock(ExtendedPatternActivity.class);
+		when(aPattern.isMainActivity()).thenReturn(true);
+		when(otherPattern.isMainActivity()).thenReturn(false);
 		aPerson = mock(Person.class);
 		otherPerson = mock(Person.class);
 		household = mock(Household.class);
@@ -82,7 +82,7 @@ public class PopulationTest {
 	
 	@Test
 	public void manageActivityPatterns() {
-		PatternActivityWeek expectedSchedule = new PatternActivityWeek(asList(aPattern, otherPattern));
+		TourBasedActivityPattern expectedSchedule = TourBasedActivityPattern.fromExtendedPatternActivities(asList(aPattern, otherPattern));
 		
 		population.add(aPersonOid, aPattern);
 		population.add(aPersonOid, otherPattern);
@@ -93,11 +93,13 @@ public class PopulationTest {
 	
 	@Test
 	public void manageActivityPatternsForDifferentPersons() {
-		PatternActivityWeek anExpectedSchedule = new PatternActivityWeek(asList(aPattern));
-		PatternActivityWeek otherExpectedSchedule = new PatternActivityWeek(asList(otherPattern));
+		TourBasedActivityPattern anExpectedSchedule = TourBasedActivityPattern.fromExtendedPatternActivities(asList(aPattern, otherPattern));
+		TourBasedActivityPattern otherExpectedSchedule = TourBasedActivityPattern.fromExtendedPatternActivities(asList(otherPattern, aPattern));
 		
 		population.add(aPersonOid, aPattern);
+		population.add(aPersonOid, otherPattern);
 		population.add(otherPersonOid, otherPattern);
+		population.add(otherPersonOid, aPattern);
 		TourBasedActivityPattern aSchedule = population.activityScheduleFor(aPersonOid);
 		TourBasedActivityPattern otherSchedule = population.activityScheduleFor(otherPersonOid);
 		
