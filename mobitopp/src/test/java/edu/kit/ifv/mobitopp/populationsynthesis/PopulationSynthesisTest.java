@@ -1,8 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.emptyMap;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -10,62 +10,49 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
+import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 public class PopulationSynthesisTest {
 
-	private static final long seed = 0;
-
-	private CarOwnershipModel carOwnershipModel;
-	private HouseholdLocationSelector householdLocationSelector;
-	private PersonCreator personCreator;
-	private ImpedanceIfc impedance;
+	private DemandDataForZoneCalculatorIfc calculator;
 	private SynthesisContext context;
+	private ImpedanceIfc impedance;
+	private ExampleDemandZones zones;
 
 	@Before
 	public void initialise() {
+		calculator = mock(DemandDataForZoneCalculatorIfc.class);
 		context = mock(SynthesisContext.class);
+		impedance = mock(ImpedanceIfc.class);
+		zones = ExampleDemandZones.create();
+		
+		DemandZoneRepository zoneRepository = mock(DemandZoneRepository.class);
+		when(zoneRepository.getZones()).thenReturn(zones.asList());
+		when(context.zoneRepository()).thenReturn(zoneRepository);
 		when(context.impedance()).thenReturn(impedance);
-		when(context.seed()).thenReturn(seed);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void failWithMissingWorkCommutingMatrix() {
-		loadMatricesFor(ActivityType.EDUCATION);
+	@Test
+	public void createsPopulationForEachZone() {
+		PopulationSynthesis synthesis = newSynthesis();
 
-		synthesis().createPopulation();
+		synthesis.doCreatePopulation(emptyMap());
+
+		verify(calculator).calculateDemandData(zones.someZone(), impedance);
+		verify(calculator).calculateDemandData(zones.otherZone(), impedance);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void failWithMissingEducationCommutingMatrix() {
-		loadMatricesFor(ActivityType.WORK);
+	private PopulationSynthesis newSynthesis() {
+		return new PopulationSynthesis(context) {
 
-		synthesis().createPopulation();
+			@Override
+			protected DemandDataForZoneCalculatorIfc createCalculator(
+					Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
+				return calculator;
+			}
+		};
 	}
-
-	private void loadMatricesFor(ActivityType activityType) {
-		DataRepositoryForPopulationSynthesis dataRepository = mock(
-				DataRepositoryForPopulationSynthesis.class);
-		when(dataRepository.fixedDistributionMatrices()).thenReturn(matrices(activityType));
-		when(context.dataRepository()).thenReturn(dataRepository);
-	}
-
-	private PopulationSynthesis synthesis() {
-		return new PopulationSynthesis(carOwnershipModel, householdLocationSelector, personCreator,
-				context);
-	}
-
-	private static Map<ActivityType, FixedDistributionMatrix> matrices(ActivityType activityType) {
-		return singletonMap(activityType, matrix());
-	}
-
-	private static FixedDistributionMatrix matrix() {
-		return new FixedDistributionMatrix(emptyList());
-	}
-
 }
