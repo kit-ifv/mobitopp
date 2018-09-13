@@ -22,7 +22,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
 
-public class PopulationSynthesisSLIS extends PopulationSynthesis {
+public class PopulationSynthesisSLIS extends BasicPopulationSynthesis {
 
 	public PopulationSynthesisSLIS(
 		CarOwnershipModel carOwnershipModel,
@@ -123,7 +123,7 @@ public class PopulationSynthesisSLIS extends PopulationSynthesis {
 				chargePrivatelySelector, personCreator, context);
 	}
 
-	private static void createLocations(SynthesisContext context, PopulationSynthesis synthesizer) {
+	private static void createLocations(SynthesisContext context, BasicPopulationSynthesis synthesizer) {
 		System.out.println("creating destinations...");
 		OpportunityLocationSelector opportunityLocationSelector = new DefaultOpportunityLocationSelector(
 				context);
