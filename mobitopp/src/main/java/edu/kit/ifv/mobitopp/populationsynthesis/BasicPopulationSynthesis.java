@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.DefaultOpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -24,7 +25,6 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.DefaultCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
-import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
 public class BasicPopulationSynthesis extends PopulationSynthesis { 
 
@@ -222,22 +222,10 @@ System.out.println("zone " + zone.getId() + " is ready? " + zone.carSharing().is
 	
 
 // END DEBUG LOG
-
-	protected void createLocations(OpportunityLocationSelector opportunityLocationSelector) {
-		List<Zone> zones = demandZoneRepository().zoneRepository().getZones();
-		for (Zone zone : zones) {
-			System.out.println(
-					"zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable());
-			createLocationsForZone(opportunityLocationSelector, zone);
-		}
-	}
-
-	protected void createLocationsForZone(
-			OpportunityLocationSelector opportunityLocationSelector, Zone zone) {
-		OpportunityDataForZone opportunities = zone.opportunities();
-		opportunities.createLocations(opportunityLocationSelector);
-
-		results().write(categories.demanddataOpportunities, opportunities.forLogging());
+	
+	@Override
+	protected OpportunityLocationSelector createOpportunityLocationSelector() {
+		return new DefaultOpportunityLocationSelector(context());
 	}
 
 }

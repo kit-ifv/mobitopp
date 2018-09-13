@@ -12,12 +12,14 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 public class PopulationSynthesisTest {
 
 	private DemandDataForZoneCalculatorIfc calculator;
+	private OpportunityLocationSelector locationSelector;
 	private SynthesisContext context;
 	private ImpedanceIfc impedance;
 	private ExampleDemandZones zones;
@@ -25,6 +27,7 @@ public class PopulationSynthesisTest {
 	@Before
 	public void initialise() {
 		calculator = mock(DemandDataForZoneCalculatorIfc.class);
+		locationSelector = mock(OpportunityLocationSelector.class);
 		context = mock(SynthesisContext.class);
 		impedance = mock(ImpedanceIfc.class);
 		zones = ExampleDemandZones.create();
@@ -52,6 +55,11 @@ public class PopulationSynthesisTest {
 			protected DemandDataForZoneCalculatorIfc createCalculator(
 					Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
 				return calculator;
+			}
+			
+			@Override
+			protected OpportunityLocationSelector createOpportunityLocationSelector() {
+				return locationSelector;
 			}
 		};
 	}

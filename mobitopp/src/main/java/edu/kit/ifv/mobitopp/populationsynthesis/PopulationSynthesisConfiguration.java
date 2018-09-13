@@ -13,8 +13,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmen
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.LanduseCLCwithRoadsHouseholdLocationSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.DefaultOpportunityLocationSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
@@ -63,7 +61,6 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesis {
 	public static PopulationSynthesisConfiguration startSynthesis(SynthesisContext context) {
 		context.printStartupInformationOn(System.out);
 		PopulationSynthesisConfiguration synthesizer = populationSynthesis(context);
-		createLocations(context, synthesizer);
 		synthesizer.createPopulation();
 		return synthesizer;
 	}
@@ -120,15 +117,6 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesis {
 			SynthesisContext context) {
 		return new PopulationSynthesisConfiguration(carOwnershipModel, householdLocationSelector,
 				chargePrivatelySelector, personCreator, context);
-	}
-
-	private static void createLocations(
-			SynthesisContext context, BasicPopulationSynthesis synthesizer) {
-		System.out.println("creating destinations...");
-		OpportunityLocationSelector opportunityLocationSelector = new DefaultOpportunityLocationSelector(
-				context);
-		synthesizer.createLocations(opportunityLocationSelector);
-		System.out.println("creating DONE.");
 	}
 
 }
