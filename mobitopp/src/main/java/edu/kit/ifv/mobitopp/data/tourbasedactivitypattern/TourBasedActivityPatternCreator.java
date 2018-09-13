@@ -108,7 +108,8 @@ public class TourBasedActivityPatternCreator {
 		List<List<PatternActivity>> subtourActivities = subtours(fulltour);
 		
 		assert mainPatternActivity.size() == subtourActivities.size()+1 
-				: (mainPatternActivity.size() + ": " + subtourActivities.size());
+				: (mainPatternActivity.size() + ": " + subtourActivities.size()
+						+ "\n" + fulltour + "\n" + mainPatternActivity + "\n" + subtourActivities);
 		
 		
 		DayOfWeek day = mainPatternActivity.get(0).getWeekDayType();
@@ -124,7 +125,7 @@ public class TourBasedActivityPatternCreator {
 		assert containsSubtour(tour) || activitiesBefore.size() + activitiesAfter.size() + 1 == tour.size();
 		
 		Activity mainActivity = mainPatternActivity.size() > 1
-														? SplitActivity.fromPatternActivities(typeOfMainActivity, tour)
+														? SplitActivity.fromPatternActivities(typeOfMainActivity, mainPatternActivity)
 														: SimpleActivity.fromPatternActivity(mainPatternActivity.get(0));
 		
 		return new TourPattern(day, mainActivity, activitiesBefore, activitiesAfter, activitiesOnSubtour);
@@ -202,6 +203,7 @@ public class TourBasedActivityPatternCreator {
 		for(PatternActivity activity : tour) {
 			
 			if(activity.getActivityType() == ActivityType.HOME) {
+			// if(activity.getActivityType().isHomeActivity()) {
 				continue;
 			}
 			
@@ -209,7 +211,7 @@ public class TourBasedActivityPatternCreator {
 			int duration = activity.getDuration();
 			
 			assert type != ActivityType.HOME;
-			assert !type.isHomeActivity();
+			// assert !type.isHomeActivity();
 		
 			activityCount.putIfAbsent(type, 0);
 			totalDuration.putIfAbsent(type, 0);
@@ -230,7 +232,8 @@ public class TourBasedActivityPatternCreator {
 		
 
 	private static List<PatternActivity> mainActivity(List<PatternActivity> tour) {
-		
+	
+		assert !tour.isEmpty();
 		
 		ActivityType typeOfMainActivity = mainActivityType(tour);
 			
@@ -240,11 +243,27 @@ public class TourBasedActivityPatternCreator {
 	
 		List<List<PatternActivity>> subtours = subtoursWithLeadingAndTrailingMainActivity(tour);
 		 
-		 if(!subtours.isEmpty()) {
-			return mainActivity;
-		} else {
-		}
+		if(subtours.isEmpty()) {
+			assert mainActivity.size() >= 1 : ("\n" + mainActivity + "\n" + subtours + "\n" + tour);
 			return new ArrayList<PatternActivity>(mainActivity.subList(0,1));
+		} else if(subtours.size() == 1) {
+			List<PatternActivity> subtour = subtours.get(0);
+			return Arrays.asList(subtour.get(0),subtour.get(subtour.size()-1));
+		} else {
+			List<PatternActivity> partsOfMainActivity = new ArrayList<PatternActivity>();
+			List<PatternActivity> firstSubtour = subtours.get(0);
+			
+			partsOfMainActivity.add(firstSubtour.get(0));
+			partsOfMainActivity.add(firstSubtour.get(firstSubtour.size()-1));
+			
+			for(int i=1; i<subtours.size(); i++) {
+				
+				List<PatternActivity> subtour = subtours.get(i);
+				partsOfMainActivity.add(subtour.get(subtour.size()-1));
+			}
+			
+			return partsOfMainActivity;
+		}
 	}
 
 

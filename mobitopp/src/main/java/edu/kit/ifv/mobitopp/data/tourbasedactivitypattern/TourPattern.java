@@ -164,7 +164,9 @@ public class TourPattern implements TourBasedActivityPatternElement {
 			
 			assert mainActivity instanceof SplitActivity;
 			
-			assert numberOfSubtours()+1 == ((SplitActivity)mainActivity).parts().size();
+			assert numberOfSubtours()+1 == ((SplitActivity)mainActivity).parts().size() : 
+				(numberOfSubtours() + " : " + ((SplitActivity)mainActivity).parts().size() 
+						+ "\n" + this );
 
 			List<SimpleActivity> parts =  ((SplitActivity)mainActivity).parts();
 			
