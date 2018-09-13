@@ -77,4 +77,12 @@ public class PersonPatternActivity {
 				+ "]";
 	}
 
+	public int tourNumber() {
+		return patternActivity.tourNumber();
+	}
+
+	public boolean isMainActivity() {
+		return patternActivity.isMainActivity();
+	}
+
 }

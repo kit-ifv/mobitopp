@@ -25,7 +25,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	@Override
 	public List<String> header() {
 		return asList("personId", "activityType", "weekDayType", "observedTripDuration", "starttime",
-				"duration");
+				"duration", "tournr", "isMainActivity");
 	}
 	
 	@Override
@@ -36,13 +36,17 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 		int observedTripDuration = activity.observedTripDuration();
 		int starttime = activity.starttime();
 		DayOfWeek weekDayType = activity.weekDayType();
+		int tournr = activity.tourNumber();
+		boolean isMainActivity = activity.isMainActivity();
 		return asList( 
 				valueOf(personOid), 
 				valueOf(activityType),
 				valueOf(weekDayType), 
 				valueOf(observedTripDuration), 
 				valueOf(starttime),
-				valueOf(duration) 
+				valueOf(duration), 
+				valueOf(tournr), 
+				valueOf(isMainActivity)
 			);
 	}
 

@@ -60,7 +60,9 @@ public class DefaultActivityFormatTest {
 				valueOf(Example.weekDay), 
 				valueOf(Example.observedTripDuration), 
 				valueOf(Example.starttime),
-				valueOf(Example.duration)
+				valueOf(Example.duration),
+				valueOf(Example.tourNumber),
+				valueOf(Example.isMainActivity)
 			);
 	}
 }
