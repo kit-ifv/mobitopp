@@ -9,17 +9,22 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
+import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
 public abstract class PopulationSynthesis {
 
 	private final SynthesisContext context;
+	private final DemandCategories categories;
 
 	public PopulationSynthesis(SynthesisContext context) {
 		super();
 		this.context = context;
+		categories = new DemandCategories();
 	}
 
 	SynthesisContext context() {
@@ -51,12 +56,39 @@ public abstract class PopulationSynthesis {
 	}
 
 	public void createPopulation() {
+		createLocations();
 		Map<ActivityType, FixedDistributionMatrix> fdMatrices = fixedDistributionMatrices();
 		assertFixedDistributionMatrices(fdMatrices);
 		printBeforeCreation();
 		doCreatePopulation(fdMatrices);
 		printAfterCreation();
 		finishExecution();
+	}
+
+	private void createLocations() {
+		System.out.println("creating destinations...");
+		OpportunityLocationSelector locationSelector = createOpportunityLocationSelector();
+		createLocations(locationSelector);
+		System.out.println("creating DONE.");
+	}
+	
+	protected abstract OpportunityLocationSelector createOpportunityLocationSelector();
+
+	private void createLocations(OpportunityLocationSelector opportunityLocationSelector) {
+		List<Zone> zones = demandZoneRepository().zoneRepository().getZones();
+		for (Zone zone : zones) {
+			System.out.println(
+					"zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable());
+			createLocationsForZone(opportunityLocationSelector, zone);
+		}
+	}
+
+	private void createLocationsForZone(
+			OpportunityLocationSelector opportunityLocationSelector, Zone zone) {
+		OpportunityDataForZone opportunities = zone.opportunities();
+		opportunities.createLocations(opportunityLocationSelector);
+
+		results().write(categories.demanddataOpportunities, opportunities.forLogging());
 	}
 
 	private void printBeforeCreation() {
