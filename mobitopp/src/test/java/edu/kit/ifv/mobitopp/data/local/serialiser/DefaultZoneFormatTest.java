@@ -5,6 +5,7 @@ import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,8 @@ public class DefaultZoneFormatTest {
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		zone = new Zone(oid, id, name, areaType, classification, centroidLocation, attractivity,
 				charging);
-		Map<Integer, ChargingDataForZone> chargingData = Collections.singletonMap(oid, charging);
+		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
+		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
 		format = new DefaultZoneFormat(chargingData, attractivities);
 	}

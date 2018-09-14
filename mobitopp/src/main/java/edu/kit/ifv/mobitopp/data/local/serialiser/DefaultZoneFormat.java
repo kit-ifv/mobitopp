@@ -26,11 +26,11 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	private static final int classificationIndex = 4;
 	private static final int locationIndex = 5;
 	
-	private final Map<Integer, ChargingDataForZone> charging;
+	private final ChargingDataResolver charging;
 	private final Map<Integer, Attractivities> attractivities;
 	private final LocationParser locationParser;
 
-	public DefaultZoneFormat(Map<Integer, ChargingDataForZone> charging, Map<Integer, Attractivities> attractivities) {
+	public DefaultZoneFormat(ChargingDataResolver charging, Map<Integer, Attractivities> attractivities) {
 		super();
 		this.charging = charging;
 		this.attractivities = attractivities;
@@ -100,7 +100,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	}
 
 	private ChargingDataForZone chargingOf(List<String> data) {
-		return charging.get(oidOf(data));
+		return charging.chargingDataFor(oidOf(data));
 	}
 
 }
