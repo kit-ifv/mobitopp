@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import java.io.File;
@@ -398,6 +399,10 @@ System.out.println("reading tables...");
 	) {
 
 		VisumTable table = tables.get("ABBIEGER");
+		if (null == table) {
+			System.out.println("Turns are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer,List<VisumTurn>> data = new HashMap<>();
 
@@ -549,6 +554,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("ANBINDUNG");
+		if (null == table) {
+			System.out.println("Connectors are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer,List<VisumConnector>> data = new HashMap<>();
 
@@ -603,6 +612,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("FZGEINHEIT");
+		if (null == table) {
+			System.out.println("Vehicle units are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer, VisumVehicleUnit> data = new HashMap<>();
 
@@ -634,6 +647,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		VisumTable vehicleCombinations = tables.get("FZGKOMB");
 		VisumTable vehicleUnits2Combinations = tables.get("FZGEINHEITZUFZGKOMB");
+		if (null == vehicleCombinations || null == vehicleUnits2Combinations) {
+			System.out.println("Vehicle combinations are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer, VisumVehicleCombination> data = new HashMap<>();
 
@@ -1054,6 +1071,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("FAHRPLANFAHRTABSCHNITT");
+		if (null == table) {
+			System.out.println("Vehicle journey parts are missing!");
+			return emptyList();
+		}
 
 		Map<Integer,List<VisumPtVehicleJourneySection>> sections
 			= new HashMap<>();
