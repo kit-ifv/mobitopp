@@ -184,7 +184,7 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private ZoneRepository deserialiseZones(List<ZoneChargingFacility> chargingFacilities) {
-		Map<Integer, ChargingDataForZone> charging = chargingFrom(chargingFacilities);
+		ChargingDataResolver charging = chargingFrom(chargingFacilities);
 		Map<Integer, Attractivities> attractivities = attractivities();
 		DefaultZoneFormat format = new DefaultZoneFormat(charging, attractivities);
 		try (
@@ -212,7 +212,7 @@ public class ZoneRepositorySerialiser {
 		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
 	}
 
-	private Map<Integer, ChargingDataForZone> chargingFrom(
+	private ChargingDataResolver chargingFrom(
 			List<ZoneChargingFacility> chargingFacilities) {
 		Map<Integer, List<ChargingFacility>> perZone = chargingFacilities
 				.stream()
@@ -223,7 +223,7 @@ public class ZoneRepositorySerialiser {
 			ChargingDataForZone charginData = factory.create(entry.getValue());
 			mapping.put(entry.getKey(), charginData);
 		}
-		return mapping;
+		return new CreateMissingChargingData(mapping, factory);
 	}
 
 	private List<ZoneChargingFacility> deserialiseChargingFacilities() {
@@ -265,10 +265,7 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private void serialiseZones(ZoneRepository zoneRepository) {
-		Map<Integer, ChargingDataForZone> zoneToCharging = zoneRepository
-				.getZones()
-				.stream()
-				.collect(toMap(Zone::getOid, Zone::charging));
+		ChargingDataResolver zoneToCharging = chargingResolverFrom(zoneRepository);
 		DefaultZoneFormat format = new DefaultZoneFormat(zoneToCharging, attractivities());
 		try (CsvSerialiser<Zone> serialiser = new CsvSerialiser<>(writerFor(DemandDataInput.zones), format)) {
 			serialiser.writeHeader();
@@ -276,6 +273,14 @@ public class ZoneRepositorySerialiser {
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
 		}
+	}
+
+	private ChargingDataResolver chargingResolverFrom(ZoneRepository zoneRepository) {
+		Map<Integer, ChargingDataForZone> mapping = zoneRepository
+				.getZones()
+				.stream()
+				.collect(toMap(Zone::getOid, Zone::charging));
+		return new CreateMissingChargingData(mapping, factory);
 	}
 
 	private void serialiseCarSharingOf(Zone zone, ZoneRepository zoneRepository) {
