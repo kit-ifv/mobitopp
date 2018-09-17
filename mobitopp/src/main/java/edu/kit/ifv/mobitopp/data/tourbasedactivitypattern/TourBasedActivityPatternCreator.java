@@ -75,16 +75,25 @@ public class TourBasedActivityPatternCreator {
 			PatternActivity last = tour.get(tour.size()-1);
 			
 			assert last.getActivityType() == ActivityType.HOME;
+		
+		/*	
+			System.out.println((last.getStarttime() - first.getStarttime())  + " "
+					+ (last.getStarttime() - first.getStarttime() > 24*60)); 
+					*/
 			
-			return last.getStarttime() - first.getStarttime() > 24*60;
+			boolean containsSurrogateHome = ! tour.stream()
+																		.filter(x -> (x.getActivityType() == ActivityType.OTHERHOME || x.getActivityType() == ActivityType.PRIVATE_VISIT))
+																		.collect(Collectors.toList()).isEmpty();
+			
+			return minutesSinceStartOfWeek(last).differenceTo(minutesSinceStartOfWeek(first)).toMinutes() > 24*60
+						&& containsSurrogateHome;
 	}
 	
 	private static SuperTourPattern asSuperTourPattern(List<PatternActivity> tour) {
-		// TODO Auto-generated method stub
 		
 		System.out.println("Supertourpattern not yet implemented");
 		
-		return null;
+		return SuperTourPattern.fromPatternActivities(tour);
 	}
 
 	static TourPattern asTourPattern(List<PatternActivity> fulltour) {
@@ -99,8 +108,7 @@ public class TourBasedActivityPatternCreator {
 		// 4. Aktivitäten auf Subtouren bestimmen
 		
 		
-		PatternActivity homeActivity = homeActivity(fulltour);
-		// List<PatternActivity> mainPatternActivity = mainActivity(tour);
+		// PatternActivity homeActivity = homeActivity(fulltour);
 		
 		ActivityType typeOfMainActivity = mainActivityType(fulltour);
 		
@@ -114,9 +122,13 @@ public class TourBasedActivityPatternCreator {
 		
 		DayOfWeek day = mainPatternActivity.get(0).getWeekDayType();
 		
+		
+		 assert subtourActivities.isEmpty() || isSupertour(fulltour) || subtourActivities.get(0).get(0).getWeekDayType() == day : fulltour;
+		
 	
 		PatternActivity firstPartOfMainPatternActivity = mainPatternActivity.get(0);
 		PatternActivity  lastPartOfMainPatternActivity = mainPatternActivity.get(mainPatternActivity.size()-1);
+
 		
 		List<Activity> activitiesBefore = activitiesBeforeMainActivity(tour, firstPartOfMainPatternActivity);
 		List<Activity> activitiesAfter = activitiesAfterMainActivity(tour, lastPartOfMainPatternActivity);
@@ -127,6 +139,7 @@ public class TourBasedActivityPatternCreator {
 		Activity mainActivity = mainPatternActivity.size() > 1
 														? SplitActivity.fromPatternActivities(typeOfMainActivity, mainPatternActivity)
 														: SimpleActivity.fromPatternActivity(mainPatternActivity.get(0));
+	
 		
 		return new TourPattern(day, mainActivity, activitiesBefore, activitiesAfter, activitiesOnSubtour);
 	}

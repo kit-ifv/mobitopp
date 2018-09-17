@@ -42,6 +42,7 @@ public class TourBasedActivityPatternCreatorTest {
 	List<PatternActivity> tour_nosubtour;
 	List<PatternActivity> tour_onesubtour;
 	List<PatternActivity> tour_twosubtours;
+	List<PatternActivity> tour_longsubtour;
 	List<PatternActivity> servicetour_withsubtour;
 	List<PatternActivity> shoppingtour_withoutsubtour;
 	List<PatternActivity> worktour_withservice;
@@ -61,6 +62,7 @@ public class TourBasedActivityPatternCreatorTest {
 		 tour_nosubtour = tourWithNoSubtour();
 		 tour_onesubtour = tourWithOneSubtour();
 		 tour_twosubtours = tourWithTwoSubtours();
+		 tour_longsubtour = tourWithLongSubtour();
 		 servicetour_withsubtour = servicetourWithSubtour();
 		 shoppingtour_withoutsubtour = shoppingtourWithoutSubtour();
 		 worktour_withservice = worktourWithService();
@@ -135,6 +137,20 @@ public class TourBasedActivityPatternCreatorTest {
 		
 		return tour;
 	}
+	
+	private List<PatternActivity> tourWithLongSubtour() {
+		
+		List<PatternActivity> tour = new ArrayList<PatternActivity>();
+		
+		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(6)));
+		tour.add(createActivity(ActivityType.PRIVATE_VISIT, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.LEISURE_INDOOR, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.PRIVATE_VISIT, DayOfWeek.MONDAY, SimpleTime.ofHours(14), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(15), RelativeTime.ofHours(2)));
+		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
+		
+		return tour;
+	}
 
 
 	@Test
@@ -164,14 +180,17 @@ public class TourBasedActivityPatternCreatorTest {
 		List<List<PatternActivity>> nosubtour = TourBasedActivityPatternCreator.subtours(tour_nosubtour);
 		List<List<PatternActivity>> onesubtour = TourBasedActivityPatternCreator.subtours(tour_onesubtour);
 		List<List<PatternActivity>> twosubtours = TourBasedActivityPatternCreator.subtours(tour_twosubtours);
+		List<List<PatternActivity>> longsubtour = TourBasedActivityPatternCreator.subtours(tour_longsubtour);
 		
 		assertEquals(0, nosubtour.size());
 		assertEquals(1, onesubtour.size());
 		assertEquals(2, twosubtours.size());
+		assertEquals(1, longsubtour.size());
 		
 		assertEquals(2, onesubtour.get(0).size());
 		assertEquals(1, twosubtours.get(0).size());
 		assertEquals(1, twosubtours.get(1).size());
+		assertEquals(3, longsubtour.get(0).size());
 	}
 	
 	@Test
@@ -248,6 +267,7 @@ public class TourBasedActivityPatternCreatorTest {
 		TourPattern tp_service_withsubtour = TourBasedActivityPatternCreator.asTourPattern(servicetour_withsubtour);
 		TourPattern tp_shopping_withoutsubtour = TourBasedActivityPatternCreator.asTourPattern(shoppingtour_withoutsubtour);
 		TourPattern tp_work_withservice = TourBasedActivityPatternCreator.asTourPattern(worktour_withservice);
+		TourPattern tp_longsubtour = TourBasedActivityPatternCreator.asTourPattern(tour_longsubtour);
 		 
 //		System.out.println(tp_onesubtour);
 //		System.out.println(TourPattern.fromExtendedPatternActivities(tp_onesubtour.asPatternActivities(0)));
@@ -259,6 +279,7 @@ public class TourBasedActivityPatternCreatorTest {
 		assertEquals(tp_service_withsubtour,TourPattern.fromExtendedPatternActivities(tp_service_withsubtour.asPatternActivities(0)));
 		assertEquals(tp_shopping_withoutsubtour,TourPattern.fromExtendedPatternActivities(tp_shopping_withoutsubtour.asPatternActivities(0)));
 		assertEquals(tp_work_withservice,TourPattern.fromExtendedPatternActivities(tp_work_withservice.asPatternActivities(0)));
+		assertEquals(tp_longsubtour,TourPattern.fromExtendedPatternActivities(tp_longsubtour.asPatternActivities(0)));
 	}
 	
 	@Test
