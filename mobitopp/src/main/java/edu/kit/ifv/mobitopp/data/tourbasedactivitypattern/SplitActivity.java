@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
-import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class SplitActivity implements Activity {
@@ -25,10 +24,10 @@ public class SplitActivity implements Activity {
 		
 		List<SimpleActivity> tmp = 
 											activities.stream()
-											.map(x -> new SimpleActivity(x.getActivityType(), SimpleTime.ofMinutes(x.getStarttime()),RelativeTime.ofMinutes(x.getDuration()), RelativeTime.ofMinutes(x.getObservedTripDuration())))
+											.map(x -> SimpleActivity.fromPatternActivity(x))
 											.collect(Collectors.toList());
 		 
-		assert tmp.size() >= 2;
+		assert tmp.size() >= 2 : ("\n" + activities + "\n");
 		 
 		return new SplitActivity(typeOfMainActivity,tmp);
 	}

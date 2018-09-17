@@ -32,6 +32,8 @@ public class DefaultPersonCreator
 	private final ModeChoicePreferenceCreator modeChoicePreferenceCreator;
 
 	private static int personIdCounter = 1;
+	
+	private Map<PersonOfPanelDataId,TourBasedActivityPattern> cachedActivityPattern = new LinkedHashMap<>();
 
 	public DefaultPersonCreator(
 		ActivityScheduleCreator scheduleCreator,
@@ -70,8 +72,19 @@ public class DefaultPersonCreator
 																																													panelHousehold,
 																																													household
 																																												);
+			
+			
 
-			TourBasedActivityPattern activitySchedule = TourBasedActivityPatternCreator.fromPatternActivityWeek(activityPattern);
+			TourBasedActivityPattern activitySchedule;
+			
+			if(cachedActivityPattern.containsKey(panelPerson.getId())) {
+				
+				activitySchedule = cachedActivityPattern.get(panelPerson.getId());
+			} else {
+				
+				activitySchedule = TourBasedActivityPatternCreator.fromPatternActivityWeek(activityPattern);
+				cachedActivityPattern.put(panelPerson.getId(), activitySchedule);
+			}
 			
 			Person person = newPerson(
     										personIdCounter++,

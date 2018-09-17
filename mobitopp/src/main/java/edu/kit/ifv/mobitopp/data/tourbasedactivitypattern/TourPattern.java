@@ -28,6 +28,15 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		List<Activity> inboundTripActivities,
 		List<List<Activity>> subtourActivities
 	) {
+		
+		assert mainActivity instanceof SimpleActivity && subtourActivities.isEmpty()
+				|| mainActivity instanceof SplitActivity && !subtourActivities.isEmpty();
+		
+		assert day == mainActivity.plannedStart().weekDay() : (day + " + " + mainActivity.plannedStart().weekDay() ) ;
+		assert day.equals(mainActivity.plannedStart().weekDay());
+		
+		assert mainActivity instanceof SimpleActivity ||  day == subtourActivities.get(0).get(0).plannedStart().weekDay();
+		
 		this.day = day;
 		this.mainActivity = mainActivity;
 		this.outboundTripActivities = Collections.unmodifiableList(outboundTripActivities);
@@ -198,6 +207,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		List<ExtendedPatternActivity> partsOfMainActivity = findPartsOfMainActivity(activities);
 		assert !partsOfMainActivity.isEmpty() : activities;
 		
+		assert partsOfMainActivity.size() == 1 || !partsOfMainActivity.get(0).equals(partsOfMainActivity.get(1)) : activities;
+		
 		Activity mainActivity =  partsOfMainActivity.size()==1 
 					? SimpleActivity.fromPatternActivity(partsOfMainActivity.get(0))
 					: SplitActivity.fromPatternActivities(partsOfMainActivity.get(0).getActivityType(),partsOfMainActivity) ;
@@ -215,6 +226,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 			List<ExtendedPatternActivity> activities) {
 		assert !partsOfMainActivity.isEmpty();
 		
+		assert partsOfMainActivity.size() == 1 || !partsOfMainActivity.get(0).equals(partsOfMainActivity.get(1)) : partsOfMainActivity;
+		
 		if (partsOfMainActivity.size()==1) {
 			return new ArrayList<List<Activity>>();
 		}
@@ -227,6 +240,24 @@ public class TourPattern implements TourBasedActivityPatternElement {
 			
 			ExtendedPatternActivity first = partsOfMainActivity.get(i);
 			ExtendedPatternActivity next = partsOfMainActivity.get(i+1);
+			
+			assert !first.equals(next) : partsOfMainActivity;
+	
+			/*
+			assert activities.indexOf(first) < activities.indexOf(next) 
+				: (activities.indexOf(first) + " : " + activities.indexOf(next)
+						+ "\n same?" + (first==next)
+						+ "\n equals?" + (first.equals(next))
+						+ "\n first=" + first
+						+ "\n next=" + next
+						+ "\n first_idx=" + partsOfMainActivity.indexOf(first)
+						+ "\n next_idx=" + partsOfMainActivity.indexOf(next)
+						);
+						*/
+			
+			assert activities.indexOf(first) < activities.indexOf(next) 
+				: (activities.indexOf(first) + " : " + activities.indexOf(next)
+						+ "\n" + first + "\n" + next + "\n" + partsOfMainActivity + "\n" + activities);
 			
 			List<ExtendedPatternActivity> subtour = activities.subList(1+activities.indexOf(first), activities.indexOf(next));
 			

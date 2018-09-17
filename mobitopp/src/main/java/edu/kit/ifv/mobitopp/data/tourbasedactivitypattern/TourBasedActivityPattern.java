@@ -64,6 +64,8 @@ public class TourBasedActivityPattern {
 		
 			TourBasedActivityPatternElement elem = elements.get(i);
 			
+			assert elem != null;
+			
 			activities.addAll(elem.asPatternActivities(i));
 		}
 		

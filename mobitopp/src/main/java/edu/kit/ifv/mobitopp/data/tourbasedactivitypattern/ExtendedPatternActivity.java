@@ -67,5 +67,30 @@ public class ExtendedPatternActivity extends PatternActivity {
 		return "ExtendedPatternActivity [tournr=" + tournr + ", isMainActivity=" + isMainActivity + ", " + super.toString() + "]\n";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + (isMainActivity ? 1231 : 1237);
+		result = prime * result + tournr;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ExtendedPatternActivity other = (ExtendedPatternActivity) obj;
+		if (isMainActivity != other.isMainActivity)
+			return false;
+		if (tournr != other.tournr)
+			return false;
+		return true;
+	}
+
 
 }
