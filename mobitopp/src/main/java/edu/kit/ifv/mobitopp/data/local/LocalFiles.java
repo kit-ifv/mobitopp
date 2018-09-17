@@ -142,7 +142,7 @@ public class LocalFiles implements DataSource {
 	}
 
 	private ZoneRepository loadZonesFromVisum(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) throws IOException {
 		ZoneRepository fromVisum = LocalZoneRepository
 				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile);
 		ZoneRepositorySerialiser serialised = createSerialiser();
@@ -201,7 +201,7 @@ public class LocalFiles implements DataSource {
 				vehicleBehaviour);
 	}
 
-	private ZoneRepository loadZonesFromMobiTopp(Supplier<Network> networkSupplier) {
+	private ZoneRepository loadZonesFromMobiTopp(Supplier<Network> networkSupplier) throws IOException {
 		ZoneRepositorySerialiser serialisedData = createSerialiser();
 		if (serialisedData.isAvailable()) {
 			return serialisedData.load();
