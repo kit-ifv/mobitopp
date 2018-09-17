@@ -11,7 +11,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
+import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -32,6 +34,11 @@ public class BasicPopulationSynthesisTest {
 		context = mock(SynthesisContext.class);
 		when(context.impedance()).thenReturn(impedance);
 		when(context.seed()).thenReturn(seed);
+		DemandZoneRepository demandZoneRepository = mock(DemandZoneRepository.class);
+		ZoneRepository zoneRepository = mock(ZoneRepository.class);
+		when(demandZoneRepository.zoneRepository()).thenReturn(zoneRepository);
+		when(zoneRepository.getZones()).thenReturn(emptyList());
+		when(context.zoneRepository()).thenReturn(demandZoneRepository);
 	}
 
 	@Test(expected = IllegalStateException.class)
