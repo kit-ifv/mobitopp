@@ -69,6 +69,18 @@ public class ParameterFormularParserTest {
 
 		assertThat(model.parameter1, is(closeTo(-2.0d, margin)));
 	}
+	
+	@Test
+	public void filtersCommentedLines() {
+		String emptyLine = "// Test";
+		String content = "parameter1 = 0.5 - 2.5" + System.lineSeparator() + emptyLine
+				+ System.lineSeparator();
+		InputStream fileContent = readerWith(content);
+
+		parser.parseConfig(fileContent, model);
+
+		assertThat(model.parameter1, is(closeTo(-2.0d, margin)));		
+	}
 
 	private InputStream readerWith(String content) {
 		return new ByteArrayInputStream(content.getBytes());

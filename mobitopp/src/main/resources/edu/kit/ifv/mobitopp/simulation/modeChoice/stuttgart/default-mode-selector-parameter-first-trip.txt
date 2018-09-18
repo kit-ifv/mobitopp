@@ -1,0 +1,182 @@
+carsharing_sb_const       =  -1.5
+carsharing_sb_shorttrip   =  -1.0
+carsharing_sb_distance    =  0.15   
+
+carsharing_ff_const       = -0.5
+carsharing_ff_shorttrip   = -1.0
+carsharing_ff_distance    = -0.05   
+
+car_const   =  0.0
+foot_const  =  0.7282 -2.5355 + 0.1
+pt_const    = -2.6699 -0.8402 + 0.9 - 0.6
+pass_const  = -1.7962 +0.0979 + 0.7
+bike_const  = -0.2889 -1.2546 + 1.0 + 0.1
+
+time        = -0.0102
+cost_km     = -0.0282
+
+
+foot_caravailable_true  = -0.9468
+foot_caravailable_no    =  2.3661
+foot_caravailable_part  =  0.0
+
+pt_caravailable_true    = -1.6001
+pt_caravailable_no      =  2.4664
+pt_caravailable_part    =  0.0
+
+pass_caravailable_true  = -1.1910
+pass_caravailable_no    =  2.5440
+pass_caravailable_part  =  0.0
+
+bike_caravailable_true  = -1.5245
+bike_caravailable_no    =  2.0363
+bike_caravailable_part  =  0.0
+
+
+foot_commticket_false   =  0.0
+foot_commticket_true    =  0.8621
+
+pt_commticket_false     =  0.0
+pt_commticket_true      =  3.5163
+
+pass_commticket_false   =  0.0
+pass_commticket_true    =  0.7554
+
+bike_commticket_false   =  0.0
+bike_commticket_true    =  0.3378
+
+// First trip is (per definition) never heads to home loaction
+foot_activity_private_business  =   0.0
+foot_activity_work              =  -0.2524
+foot_activity_education         =   1.3114
+foot_activity_shopping          =  -0.0383
+foot_activity_leisure           =   0.1730
+foot_activity_walk              =   8.2890
+foot_activity_service           =  -0.7034
+foot_activity_business          =  -0.7886
+
+pt_activity_private_business    =   0.0
+pt_activity_work                =   0.5140
+pt_activity_education           =   1.5488
+pt_activity_shopping            =  -0.3953
+pt_activity_leisure             =   0.2116
+pt_activity_walk                =  -1.6447
+pt_activity_service             =  -1.9713
+pt_activity_business            =  -0.0501
+
+pass_activity_private_business  =   0.0
+pass_activity_work              =  -1.2274
+pass_activity_education         =  -0.6317
+pass_activity_shopping          =  -0.1370
+pass_activity_leisure           =   0.2757
+pass_activity_walk              =   0.1835
+pass_activity_service           =  -1.3161
+pass_activity_business          =  -1.2343
+
+bike_activity_private_business  =   0.0
+bike_activity_work              =   0.8274
+bike_activity_education         =   1.0798
+bike_activity_shopping          =   0.2980
+bike_activity_leisure           =   0.5172
+bike_activity_walk              =   5.0464
+bike_activity_service           =  -1.1627
+bike_activity_business          =   0.4171
+
+
+foot_weekday_workday            =   0.0
+foot_weekday_saturday           =   0.6280
+foot_weekday_sunday             =   3.6852
+
+pt_weekday_workday            =   0.0
+pt_weekday_saturday           =  -0.0473
+pt_weekday_sunday             =  -0.0746
+
+pass_weekday_workday          =   0.0
+pass_weekday_saturday         =   0.1617
+pass_weekday_sunday           =   2.1195
+
+bike_weekday_workday          =   0.0
+bike_weekday_saturday         =  -2.1148
+bike_weekday_sunday           =  -0.4720
+
+
+foot_hhtype_other             =   0.0
+foot_hhtype_2adults           =   0.7236
+foot_hhtype_1adult            =   0.9611
+foot_hhtype_kids              =   0.3984  
+
+pt_hhtype_other               =   0.0
+pt_hhtype_2adults             =   0.6425
+pt_hhtype_1adult              =   0.7769
+pt_hhtype_kids                =   0.2456  
+
+pass_hhtype_other             =   0.0
+pass_hhtype_2adults           =   0.3058
+pass_hhtype_1adult            =  -1.3062
+pass_hhtype_kids              =  -0.2996  
+
+bike_hhtype_other             =   0.0
+bike_hhtype_2adults           =   0.1100
+bike_hhtype_1adult            =   0.2721
+bike_hhtype_kids              =   0.7919  
+
+
+foot_employment_student_tertiary  =   0.0
+foot_employment_education         =   0.1316
+foot_employment_work_from41       =   0.7693
+foot_employment_work_to40         =   0.6087
+foot_employment_notemployed       =   1.0620
+foot_employment_retired           =   0.7579
+foot_employment_student_primary   =   3.7866
+foot_employment_student_secondary =   0.5328
+
+pt_employment_student_tertiary  =   0.0
+pt_employment_education         =  -0.3362
+pt_employment_work_from41       =   0.2859
+pt_employment_work_to40         =   0.3982
+pt_employment_notemployed       =   0.9388
+pt_employment_retired           =   0.8726
+pt_employment_student_primary   =   2.5690
+pt_employment_student_secondary =   0.3837
+
+pass_employment_student_tertiary  =   0.0
+pass_employment_education         =   0.6165
+pass_employment_work_from41       =   0.000860
+pass_employment_work_to40         =   0.2398
+pass_employment_notemployed       =   0.3636
+pass_employment_retired           =   0.5508
+pass_employment_student_primary   =   4.5114
+pass_employment_student_secondary =   1.5469
+
+bike_employment_student_tertiary  =   0.0
+bike_employment_education         =  -0.7324
+bike_employment_work_from41       =  -0.1068
+bike_employment_work_to40         =  -0.1765
+bike_employment_notemployed       =  -0.2762
+bike_employment_retired           =  -0.4995
+bike_employment_student_primary   =   0.9420
+bike_employment_student_secondary =   0.3377
+
+car_parkingpressure               =   0.0
+foot_parkingpressure              =   0.1123
+pt_parkingpressure                =   0.2198
+pass_parkingpressure              =   0.0487
+bike_parkingpressure              =   0.0462
+
+car_distance                    =   0.0   
+foot_distance                   =  -0.3729    
+pt_distance                     =   0.0189 + 0.03    
+pass_distance                   =   0.0149    
+bike_distance                   =  -0.1719 - 0.1   
+
+car_commutingdistance           =   0.0   
+foot_commutingdistance          =  -0.0114
+pt_commutingdistance            =  -0.0139
+pass_commutingdistance          =  -0.0129
+bike_commutingdistance          =  -0.00867
+
+car_shorttrip             =   0.0   
+foot_shorttrip            =   2.5355 -1.9
+pt_shorttrip              =   0.8402 -4.15 + 0.1
+pass_shorttrip            =  -0.0979 -0.85
+bike_shorttrip            =   1.2546 -1.35
