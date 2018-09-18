@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -69,7 +68,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		
 		ActivityType surrogateHomeActivityType = surrogateHomeActivityType(activities);
 		
-		System.out.println("Surrogate home: " + surrogateHomeActivityType + "\n");
+		// System.out.println("Surrogate home: " + surrogateHomeActivityType + "\n");
 		
 		Activity surrogateHomeActivity = findSurrogateHome(surrogateHomeActivityType, activities);
 		
@@ -87,13 +86,50 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		List<Activity> outboundTripActivities = tourAsActivities(surrogateHomeActivityType, tours.get(0));
 		List<Activity> inboundTripActivities = tourAsActivities(surrogateHomeActivityType, tours.get(tours.size()-1));
 		
+		// System.out.println(activities + "\n");
+		// System.out.println(tours + "\n");
+		// System.out.println(tours.subList(1, tours.size()-1) + "\n");
+
+		List<TourPattern> nonLocalTours = toursAsTourPattern(surrogateHomeActivityType,tours.subList(1, tours.size()-1));
+	
+		
 		return new SuperTourPattern(activities.get(0).getWeekDayType(),
 																	surrogateHomeActivity,
 																	outboundTripActivities,
-																	new ArrayList<TourPattern>(),
+																	nonLocalTours,
 																	inboundTripActivities);
 	}
 
+
+	private static List<TourPattern> toursAsTourPattern(ActivityType surrogateHomeActivityType,
+			List<List<PatternActivity>> tours) {
+		
+		List<TourPattern> nonLocalTours = new ArrayList<TourPattern>();
+				
+		for(List<PatternActivity> tour : tours) {
+			
+			assert !tour.isEmpty();
+			
+			TourPattern tp;
+			
+			if (tour.size() > 1) {
+		
+				tp =  TourPattern.fromPatternActivities(surrogateHomeActivityType, tour);
+			} else {
+				tp = TourPattern.degenerateTour(tour.get(0));
+			}
+			
+			nonLocalTours.add(tp);
+		}
+	
+		/*
+		List<TourPattern> nonLocalTours = tours.stream()
+								.map(x -> TourPattern.fromPatternActivities(surrogateHomeActivityType, x))
+								.collect(Collectors.toList());
+		*/
+		
+		return nonLocalTours;
+	}
 
 	private static List<Activity> tourAsActivities(ActivityType surrogateHomeActivityType, List<PatternActivity> activities) {
 		
@@ -162,6 +198,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		List<PatternActivity> currentTour = new ArrayList<PatternActivity>();
 		tours.add(currentTour);
 		
+		
 		for(PatternActivity activity : activities) {
 		
 			currentTour.add(activity);
@@ -172,6 +209,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 				tours.add(currentTour);
 			}
 		}
+		// System.out.println(tours);
 		
 		return tours;
 	}
