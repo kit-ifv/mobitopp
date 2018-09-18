@@ -21,6 +21,7 @@ public class WrittenConfigurationTest {
 		assertValue(WrittenConfiguration::getResultFolder, copied, original);
 		assertValue(WrittenConfiguration::getVisumFile, copied, original);
 		assertValue(WrittenConfiguration::getDestinationChoice, copied, original);
+		assertValue(WrittenConfiguration::getModeChoice, copied, original);
 		assertValue(WrittenConfiguration::getTimeStepLength, copied, original);
 		assertValue(WrittenConfiguration::getExperimental, copied, original);
 	}

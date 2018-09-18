@@ -21,6 +21,7 @@ public class WrittenConfiguration {
 	private String resultFolder;
 	private String visumFile;
 	private Map<String, String> destinationChoice;
+	private Map<String, String> modeChoice;
 	private int timeStepLength;
 	private Map<String, String> experimental;
 
@@ -31,6 +32,7 @@ public class WrittenConfiguration {
 		resultFolder = defaultResultFolder;
 		timeStepLength = defaultTimeStepLength;
 		destinationChoice = Collections.emptyMap();
+		modeChoice = Collections.emptyMap();
 		experimental = Collections.emptyMap();
 	}
 
@@ -44,6 +46,7 @@ public class WrittenConfiguration {
 		this.resultFolder = other.resultFolder;
 		this.visumFile = other.visumFile;
 		this.destinationChoice = other.destinationChoice;
+		this.modeChoice = other.modeChoice;
 		this.timeStepLength = other.timeStepLength;
 		this.experimental = other.experimental;
 	}
@@ -118,6 +121,14 @@ public class WrittenConfiguration {
 
 	public void setDestinationChoice(Map<String, String> destinationChoice) {
 		this.destinationChoice = destinationChoice;
+	}
+	
+	public Map<String, String> getModeChoice() {
+		return modeChoice;
+	}
+	
+	public void setModeChoice(Map<String, String> modeChoice) {
+		this.modeChoice = modeChoice;
 	}
 
 	public int getTimeStepLength() {
