@@ -10,6 +10,8 @@ public interface SimulationContext {
 
 	WrittenConfiguration configuration();
 
+	DynamicParameters modeChoiceParameters();
+	
 	DynamicParameters experimentalParameters();
 
 	long seed();

@@ -48,8 +48,9 @@ public class SimpleSimulationContextTest {
 		DataRepositoryForSimulation dataRepository = mock(DataRepositoryForSimulation.class);
 		SimulationDays simulationDays = SimulationDays.containing(1);
 		PersonResults personResults = mock(PersonResults.class);
+		DynamicParameters modeChoice = new DynamicParameters(Collections.emptyMap());
 		return new SimpleSimulationContext(configuration, experimental, dataRepository, simulationDays,
-				format, resultWriter, chargingWriter, personResults);
+				format, resultWriter, chargingWriter, personResults, modeChoice);
 	}
 
 }
