@@ -1,12 +1,19 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -201,7 +208,217 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		return activities;
 	}
 	
-	//TODO: testen !!!!!!!!
+	static boolean containsSubtour(ActivityType homeActivityType, List<PatternActivity> tour) {
+		
+		return !subtours(homeActivityType, tour).isEmpty();
+	}
+
+	static List<List<PatternActivity>> subtoursWithLeadingAndTrailingMainActivity(ActivityType homeActivityType, List<PatternActivity> tour) {
+		
+		 ActivityType typeOfMainActivity = mainActivityType(homeActivityType, tour);
+		 
+		 Set<ActivityType> subtoursPossible = new LinkedHashSet<>(Arrays.asList(ActivityType.WORK, ActivityType.EDUCATION, ActivityType.SERVICE));
+		 
+		 if (subtoursPossible.contains(typeOfMainActivity)) {
+			 return TourBasedActivityPatternCreator.potentialSubtours(tour, typeOfMainActivity);
+		 }
+		
+		 return new ArrayList<List<PatternActivity>>();
+	}
+
+	static List<List<Activity>> asListOfActivities(List<List<PatternActivity>> subtourActivities) {
+		List<List<Activity>> result = new ArrayList<List<Activity>>();
+	
+		for(List<PatternActivity> subtourPattern : subtourActivities)  {
+			List<Activity> subtour = new ArrayList<Activity>();
+			
+			for(PatternActivity act: subtourPattern) {
+				subtour.add(SimpleActivity.fromPatternActivity(act));
+			}
+			
+			result.add(subtour);
+		}
+		
+		return result;
+	}
+
+	static List<List<PatternActivity>> subtours(List<PatternActivity> tour) {
+		return subtours(ActivityType.HOME, tour);
+	}
+	
+	static List<List<PatternActivity>> subtours(ActivityType homeActivityType, List<PatternActivity> tour) {
+		
+		List<List<PatternActivity>> result = new ArrayList<List<PatternActivity>>();
+		
+		ActivityType typeOfMainActivity = mainActivityType(homeActivityType, tour);
+		 
+		for(List<PatternActivity> subtour: subtoursWithLeadingAndTrailingMainActivity(homeActivityType, tour)) {
+			
+			assert subtour.size() >= 3;
+		
+			assert subtour.get(0).getActivityType() == typeOfMainActivity;
+			assert subtour.get(subtour.size()-1).getActivityType() == typeOfMainActivity;
+			
+			result.add(new ArrayList<PatternActivity>(subtour.subList(1,subtour.size()-1)));
+		}
+		
+		return result;
+	}
+
+	static List<Activity> activitiesBeforeMainActivity(List<PatternActivity> tour,
+			PatternActivity mainActivity) {
+		
+		List<Activity> activities = new ArrayList<Activity>();
+		
+		for (PatternActivity activity : tour) {
+			if (activity == mainActivity) {
+				break;
+			}
+			
+			activities.add(SimpleActivity.fromPatternActivity(activity));
+		}
+		
+		return activities;
+	}
+
+	static List<Activity> activitiesAfterMainActivity(List<PatternActivity> tour,
+			PatternActivity mainActivity) {
+		
+		tour = new LinkedList<PatternActivity>(tour);
+		Collections.reverse(tour);
+		
+		List<Activity> activities = new ArrayList<Activity>();
+		
+		for (PatternActivity activity : tour) {
+			if (activity == mainActivity) {
+				break;
+			}
+			
+			activities.add(SimpleActivity.fromPatternActivity(activity));
+		}
+		
+		Collections.reverse(activities);
+		
+		return activities;
+	}
+
+	static ActivityType mainActivityType(ActivityType homeActivityType, List<PatternActivity> tour) {
+		
+		assert tour.get(0).getActivityType() != ActivityType.HOME;
+		
+		Map<ActivityType,Integer> activityCount = new LinkedHashMap<ActivityType,Integer>();
+		Map<ActivityType,Integer> totalDuration = new LinkedHashMap<ActivityType,Integer>();
+		
+		for(PatternActivity activity : tour) {
+			
+			if(activity.getActivityType() == homeActivityType) {
+				continue;
+			}
+			
+			ActivityType type = activity.getActivityType();
+			int duration = activity.getDuration();
+			
+			assert type != homeActivityType;
+		
+			activityCount.putIfAbsent(type, 0);
+			totalDuration.putIfAbsent(type, 0);
+			
+			activityCount.put(type, 1+activityCount.get(type));
+			totalDuration.put(type, duration+totalDuration.get(type));
+		}
+		
+		ActivityType typeOfMainActivity = activityCount.containsKey(ActivityType.WORK) ? ActivityType.WORK 
+																			: activityCount.containsKey(ActivityType.EDUCATION) ? ActivityType.EDUCATION 
+																			: activityCount.containsKey(ActivityType.SERVICE) ? ActivityType.SERVICE 
+																		: TourBasedActivityPatternCreator.typeOfMaxDuration(totalDuration);
+		
+		return typeOfMainActivity;
+	}
+
+	static List<PatternActivity> mainActivity(ActivityType homeActivityType, List<PatternActivity> tour) {
+	
+		assert !tour.isEmpty();
+		
+		ActivityType typeOfMainActivity = mainActivityType(homeActivityType, tour);
+			
+		 List<PatternActivity> mainActivity = tour.stream()
+											.filter(x -> x.getActivityType() == typeOfMainActivity).collect(Collectors.toList());
+		
+	
+		List<List<PatternActivity>> subtours = subtoursWithLeadingAndTrailingMainActivity(homeActivityType, tour);
+		 
+		if(subtours.isEmpty()) {
+			assert mainActivity.size() >= 1 : ("\n" + mainActivity + "\n" + subtours + "\n" + tour);
+			return new ArrayList<PatternActivity>(mainActivity.subList(0,1));
+		} else if(subtours.size() == 1) {
+			List<PatternActivity> subtour = subtours.get(0);
+			return Arrays.asList(subtour.get(0),subtour.get(subtour.size()-1));
+		} else {
+			List<PatternActivity> partsOfMainActivity = new ArrayList<PatternActivity>();
+			List<PatternActivity> firstSubtour = subtours.get(0);
+			
+			partsOfMainActivity.add(firstSubtour.get(0));
+			partsOfMainActivity.add(firstSubtour.get(firstSubtour.size()-1));
+			
+			for(int i=1; i<subtours.size(); i++) {
+				
+				List<PatternActivity> subtour = subtours.get(i);
+				partsOfMainActivity.add(subtour.get(subtour.size()-1));
+			}
+			
+			return partsOfMainActivity;
+		}
+	}
+
+	public static TourPattern fromPatternActivities(List<PatternActivity> fulltour) {
+			return fromPatternActivities(ActivityType.HOME, fulltour);
+	}
+	
+	public static TourPattern fromPatternActivities(ActivityType homeActivityType, List<PatternActivity> fulltour) {
+		
+		assert fulltour.get(fulltour.size()-1).getActivityType() == homeActivityType;
+		
+		List<PatternActivity> tour =  new ArrayList<PatternActivity>(fulltour.subList(0, fulltour.size()-1));
+		
+		// 1. Hauptaktivität bestimmen
+		// 2. Aktivitäten vor Hauptaktivität bestimmen
+		// 3. Aktivitäten nach Hauptaktivität bestiimen
+		// 4. Aktivitäten auf Subtouren bestimmen
+		
+		ActivityType typeOfMainActivity = mainActivityType(homeActivityType, fulltour);
+		
+		List<PatternActivity> mainPatternActivity = mainActivity(homeActivityType, fulltour);
+		List<List<PatternActivity>> subtourActivities = subtours(homeActivityType, fulltour);
+		
+		assert mainPatternActivity.size() == subtourActivities.size()+1 
+				: (mainPatternActivity.size() + ": " + subtourActivities.size()
+						+ "\n" + fulltour + "\n" + mainPatternActivity + "\n" + subtourActivities);
+		
+		
+		DayOfWeek day = mainPatternActivity.get(0).getWeekDayType();
+		
+		 assert subtourActivities.isEmpty() 
+		 		|| ( homeActivityType==ActivityType.HOME && TourBasedActivityPatternCreator.isSupertour(fulltour) )
+		 		|| subtourActivities.get(0).get(0).getWeekDayType() == day : fulltour;
+		
+		PatternActivity firstPartOfMainPatternActivity = mainPatternActivity.get(0);
+		PatternActivity  lastPartOfMainPatternActivity = mainPatternActivity.get(mainPatternActivity.size()-1);
+		
+		List<Activity> activitiesBefore = activitiesBeforeMainActivity(tour, firstPartOfMainPatternActivity);
+		List<Activity> activitiesAfter = activitiesAfterMainActivity(tour, lastPartOfMainPatternActivity);
+		List<List<Activity>> activitiesOnSubtour = asListOfActivities(subtourActivities);
+	
+		assert containsSubtour(homeActivityType, tour) || activitiesBefore.size() + activitiesAfter.size() + 1 == tour.size();
+		
+		Activity mainActivity = mainPatternActivity.size() > 1
+														? SplitActivity.fromPatternActivities(typeOfMainActivity, mainPatternActivity)
+														: SimpleActivity.fromPatternActivity(mainPatternActivity.get(0));
+	
+		
+		return new TourPattern(day, mainActivity, activitiesBefore, activitiesAfter, activitiesOnSubtour);
+	}
+
+	
 	public static TourPattern fromExtendedPatternActivities(List<ExtendedPatternActivity> activities) {
 	
 		List<ExtendedPatternActivity> partsOfMainActivity = findPartsOfMainActivity(activities);
@@ -305,6 +522,10 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	private static List<ExtendedPatternActivity> findPartsOfMainActivity(Collection<ExtendedPatternActivity> activities) {
 
 		return activities.stream().filter(x -> x.isMainActivity()).collect(Collectors.toList());
+	}
+	
+	public static TourPattern degenerateTour(PatternActivity activity) {
+	 return new TourPattern(activity.getWeekDayType(), SimpleActivity.fromPatternActivity(activity), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());	
 	}
 
 }
