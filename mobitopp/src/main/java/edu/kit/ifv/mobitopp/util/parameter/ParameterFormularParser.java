@@ -11,6 +11,8 @@ import java.nio.file.Files;
 
 public class ParameterFormularParser {
 
+	private static final String commentPrefix = "//";
+
 	public void parseConfig(File file, Object model) {
 		try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
 			parseConfig(reader, model);
@@ -32,7 +34,15 @@ public class ParameterFormularParser {
 	}
 	
 	private boolean lineWithData(String line) {
-		return !line.isEmpty();
+		return !(isEmpty(line) || isCommented(line));
+	}
+
+	private boolean isEmpty(String line) {
+		return line.isEmpty();
+	}
+
+	private boolean isCommented(String line) {
+		return line.trim().startsWith(commentPrefix);
 	}
 
 	private Coefficient parse(String line) {
