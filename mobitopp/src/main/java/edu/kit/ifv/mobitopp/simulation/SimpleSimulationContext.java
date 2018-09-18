@@ -18,13 +18,15 @@ public class SimpleSimulationContext implements SimulationContext {
 	private final SimulationDays simulationDays;
 	private final ElectricChargingWriter electricChargingWriter;
 	private final PersonResults personResults;
-	private DynamicParameters experimentalParameters;
+	private final DynamicParameters modeChoiceParameters;
+	private final DynamicParameters experimentalParameters;
 
 	public SimpleSimulationContext(
 			WrittenConfiguration configuration, DynamicParameters experimentalParameters,
 			DataRepositoryForSimulation dataRepository, SimulationDays simulationDays,
 			SimulationParser format, ResultWriter resultWriter,
-			ElectricChargingWriter electricChargingWriter, PersonResults personResults) {
+			ElectricChargingWriter electricChargingWriter, PersonResults personResults,
+			DynamicParameters modeChoiceParameters) {
 		this.configuration = configuration;
 		this.experimentalParameters = experimentalParameters;
 		this.dataRepository = dataRepository;
@@ -33,6 +35,7 @@ public class SimpleSimulationContext implements SimulationContext {
 		this.resultWriter = resultWriter;
 		this.electricChargingWriter = electricChargingWriter;
 		this.personResults = personResults;
+		this.modeChoiceParameters = modeChoiceParameters;
 	}
 
 	@Override
@@ -73,6 +76,11 @@ public class SimpleSimulationContext implements SimulationContext {
 	@Override
 	public PersonResults personResults() {
 		return personResults;
+	}
+	
+	@Override
+	public DynamicParameters modeChoiceParameters() {
+		return modeChoiceParameters;
 	}
 
 	@Override
