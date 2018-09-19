@@ -75,6 +75,8 @@ public class TourBasedActivityPattern {
 	
 
 	
+
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -121,6 +123,8 @@ public class TourBasedActivityPattern {
 			if (tour.size()==1 && tour.get(0).getActivityType() == ActivityType.HOME) {
 				
 				elements.add(HomeActivity.fromExtendedPatternActivities(tour));
+			} else if(tour.get(0).isInSupertour()) {
+				elements.add(SuperTourPattern.fromExtendedPatternActivities(tour));
 			} else {
 				elements.add(TourPattern.fromExtendedPatternActivities(tour));
 			}

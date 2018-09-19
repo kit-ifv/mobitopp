@@ -12,6 +12,7 @@ public class SimpleActivity implements Activity {
 	private RelativeTime  plannedDuration;
 	private RelativeTime  expectedTripDuration;
 	
+	
 	public SimpleActivity(ActivityType activityType, Time plannedStart, RelativeTime plannedDuration, RelativeTime expectedTripDuration) {
 		this.activityType = activityType;
 		this.plannedStart = plannedStart;

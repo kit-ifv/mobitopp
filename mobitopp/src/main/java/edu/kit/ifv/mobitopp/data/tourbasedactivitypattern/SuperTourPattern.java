@@ -47,32 +47,61 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 
 	@Override
 	public Time start() {
-		// TODO Auto-generated method stub
-		return null;
+		return !outboundTripActivities.isEmpty() ? outboundTripActivities.get(0).plannedStart()
+				: surrogateHomeActivity.plannedStart() ;
 	}
 
 	@Override
 	public List<Activity> asActivities() {
-		// TODO Auto-generated method stub
-		return new ArrayList<Activity>();
+		List<Activity> activities =  new ArrayList<Activity>();
+		
+		activities.addAll(outboundTripActivities);
+		
+		if(surrogateHomeActivity instanceof SplitActivity) {
+			
+			List<SimpleActivity> homelikeActivities = ((SplitActivity) surrogateHomeActivity).parts() ;
+			
+			assert homelikeActivities.size() == nonlocalActivityPattern.size()+1;
+			
+			for (int i=0; i<homelikeActivities.size()-1;i++) {
+				
+				activities.add(homelikeActivities.get(i));
+				activities.addAll(nonlocalActivityPattern.get(i).asActivities());
+			}
+			activities.add(homelikeActivities.get(homelikeActivities.size()-1));
+		
+		}
+		
+		activities.addAll(inboundTripActivities);
+		
+		return activities;
 	}
 
 	@Override
-	public List<ExtendedPatternActivity> asPatternActivities(int i) {
-		// TODO Auto-generated method stub
-		return new ArrayList<ExtendedPatternActivity>();
+	public List<ExtendedPatternActivity> asPatternActivities(int tournr) {
+		
+		List<ExtendedPatternActivity> activities = asActivities().stream()
+								.map(x -> ExtendedPatternActivity.fromActivity(tournr, x.activityType() == surrogateHomeActivity.activityType(), true, x))
+								.collect(Collectors.toList());
+		
+		return activities;
+	}
+	
+	@Override
+	public String toString() {
+		return "SuperTourPattern(\n"
+					+ surrogateHomeActivity + "\n"
+					+ outboundTripActivities + "\n"
+					+ nonlocalActivityPattern + "\n"
+					+ inboundTripActivities + "\n"
+				+ ")\n";
 	}
 
-	// TODO: ausprogrammieren
-	public static SuperTourPattern fromPatternActivities(List<PatternActivity> activities) {
+	public static SuperTourPattern fromPatternActivities(List<? extends PatternActivity> activities) {
 		
 		ActivityType surrogateHomeActivityType = surrogateHomeActivityType(activities);
 		
-		// System.out.println("Surrogate home: " + surrogateHomeActivityType + "\n");
-		
 		Activity surrogateHomeActivity = findSurrogateHome(surrogateHomeActivityType, activities);
-		
-		// Was passiert, wenn zweimal OTHERHOME hintereinander vorkommt?
 		
 		// 1. activities zerlegen in "touren", die durch HOME/SurrogateHome beendet werden
 		// 2. erste "Tour": outbound
@@ -85,19 +114,20 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		
 		List<Activity> outboundTripActivities = tourAsActivities(surrogateHomeActivityType, tours.get(0));
 		List<Activity> inboundTripActivities = tourAsActivities(surrogateHomeActivityType, tours.get(tours.size()-1));
-		
-		// System.out.println(activities + "\n");
-		// System.out.println(tours + "\n");
-		// System.out.println(tours.subList(1, tours.size()-1) + "\n");
 
 		List<TourPattern> nonLocalTours = toursAsTourPattern(surrogateHomeActivityType,tours.subList(1, tours.size()-1));
-	
 		
-		return new SuperTourPattern(activities.get(0).getWeekDayType(),
+		SuperTourPattern stp = new SuperTourPattern(activities.get(0).getWeekDayType(),
 																	surrogateHomeActivity,
 																	outboundTripActivities,
 																	nonLocalTours,
 																	inboundTripActivities);
+		
+		
+// System.out.println(stp);	
+// System.out.println(stp.asActivities());	
+		
+		return stp;
 	}
 
 
@@ -116,18 +146,12 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		
 				tp =  TourPattern.fromPatternActivities(surrogateHomeActivityType, tour);
 			} else {
-				tp = TourPattern.degenerateTour(tour.get(0));
+				tp = TourPattern.NOTOUR;
 			}
 			
 			nonLocalTours.add(tp);
 		}
 	
-		/*
-		List<TourPattern> nonLocalTours = tours.stream()
-								.map(x -> TourPattern.fromPatternActivities(surrogateHomeActivityType, x))
-								.collect(Collectors.toList());
-		*/
-		
 		return nonLocalTours;
 	}
 
@@ -144,9 +168,9 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 		return result;
 	}
 
-	private static ActivityType surrogateHomeActivityType(List<PatternActivity> supertour) {
+	private static ActivityType surrogateHomeActivityType(List<? extends PatternActivity> supertour) {
 		
-		assert supertour.get(supertour.size()-1).getActivityType() == ActivityType.HOME;
+		assert supertour.get(supertour.size()-1).getActivityType() == ActivityType.HOME : supertour;
 		assert supertour.get(0).getActivityType() != ActivityType.HOME;
 		
 		Map<ActivityType,Integer> activityCount = new LinkedHashMap<ActivityType,Integer>();
@@ -177,7 +201,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 	}
 	
 	private static Activity findSurrogateHome(ActivityType surrogateHomeActivityType,
-			List<PatternActivity> activities) {
+		List<? extends PatternActivity> activities) {
 		
 		List<PatternActivity> surrogate = activities.stream()
 												.filter(x -> x.getActivityType() == surrogateHomeActivityType)
@@ -189,7 +213,7 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 				: SplitActivity.fromPatternActivities(surrogateHomeActivityType, surrogate);
 	}
 	
-	private static List<List<PatternActivity>> splitIntoTours(ActivityType surrogateHomeActivityType, List<PatternActivity> activities) {
+	private static List<List<PatternActivity>> splitIntoTours(ActivityType surrogateHomeActivityType, List<? extends PatternActivity> activities) {
 		
 		assert activities.get(activities.size()-1).getActivityType() == ActivityType.HOME;
 		
@@ -209,9 +233,66 @@ public class SuperTourPattern implements TourBasedActivityPatternElement {
 				tours.add(currentTour);
 			}
 		}
-		// System.out.println(tours);
 		
 		return tours;
 	}
+
+	public static TourBasedActivityPatternElement fromExtendedPatternActivities(List<ExtendedPatternActivity> tour) {
+		
+		// Achtung: Tour enthält am Ende keine HOME-Aktivität
+		
+		List<ExtendedPatternActivity> padded_tour = new ArrayList<>(tour);
+		padded_tour.add(ExtendedPatternActivity.STAYATHOME_ACTIVITY);
+		
+		 return fromPatternActivities(padded_tour);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((day == null) ? 0 : day.hashCode());
+		result = prime * result + ((inboundTripActivities == null) ? 0 : inboundTripActivities.hashCode());
+		result = prime * result + ((nonlocalActivityPattern == null) ? 0 : nonlocalActivityPattern.hashCode());
+		result = prime * result + ((outboundTripActivities == null) ? 0 : outboundTripActivities.hashCode());
+		result = prime * result + ((surrogateHomeActivity == null) ? 0 : surrogateHomeActivity.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SuperTourPattern other = (SuperTourPattern) obj;
+		if (day != other.day)
+			return false;
+		if (inboundTripActivities == null) {
+			if (other.inboundTripActivities != null)
+				return false;
+		} else if (!inboundTripActivities.equals(other.inboundTripActivities))
+			return false;
+		if (nonlocalActivityPattern == null) {
+			if (other.nonlocalActivityPattern != null)
+				return false;
+		} else if (!nonlocalActivityPattern.equals(other.nonlocalActivityPattern))
+			return false;
+		if (outboundTripActivities == null) {
+			if (other.outboundTripActivities != null)
+				return false;
+		} else if (!outboundTripActivities.equals(other.outboundTripActivities))
+			return false;
+		if (surrogateHomeActivity == null) {
+			if (other.surrogateHomeActivity != null)
+				return false;
+		} else if (!surrogateHomeActivity.equals(other.surrogateHomeActivity))
+			return false;
+		return true;
+	}
+	
+	
 
 }

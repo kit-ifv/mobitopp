@@ -62,7 +62,7 @@ public class SplitActivity implements Activity {
 	
 	@Override
 	public String toString() {
-		return "SplitActivity[" + activityType + "," + parts.size() + "]";
+		return "SplitActivity[" + activityType + "," + parts.size() + "]" + parts;
 	}
 
 	@Override

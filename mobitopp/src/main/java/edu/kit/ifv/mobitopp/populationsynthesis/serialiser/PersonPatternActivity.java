@@ -85,4 +85,8 @@ public class PersonPatternActivity {
 		return patternActivity.isMainActivity();
 	}
 
+	public boolean isInSupertour() {
+		return patternActivity.isInSupertour();
+	}
+
 }

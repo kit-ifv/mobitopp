@@ -21,6 +21,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	private static final int durationIndex = 5;
 	private static final int tournrIndex = 6;
 	private static final int mainactivityIndex = 7;
+	private static final int supertourIndex = 8;
 
 	@Override
 	public List<String> header() {
@@ -38,6 +39,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 		DayOfWeek weekDayType = activity.weekDayType();
 		int tournr = activity.tourNumber();
 		boolean isMainActivity = activity.isMainActivity();
+		boolean isInSupertour = activity.isInSupertour();
 		return asList( 
 				valueOf(personOid), 
 				valueOf(activityType),
@@ -46,7 +48,8 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 				valueOf(starttime),
 				valueOf(duration), 
 				valueOf(tournr), 
-				valueOf(isMainActivity)
+				valueOf(isMainActivity),
+				valueOf(isInSupertour)
 			);
 	}
 
@@ -61,9 +64,10 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 		
 		int tournr = parseTournr(data);
 		boolean isMainActivity = parseMainActivity(data);
+		boolean isInSupertour = parseSupertour(data);
 		
 		ExtendedPatternActivity patternActivity = new ExtendedPatternActivity(
-				tournr, isMainActivity,
+				tournr, isMainActivity, isInSupertour,
 				ActivityType.getTypeFromInt(activityType),
 				weekDayType, observedTripDuration, startTime, duration);
 		return Optional.of(new PersonPatternActivity(personOid, patternActivity));
@@ -101,5 +105,10 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	private boolean parseMainActivity(List<String> data) {
 		return Boolean.parseBoolean(data.get(mainactivityIndex));
 	}
+	
+	private boolean parseSupertour(List<String> data) {
+		return Boolean.parseBoolean(data.get(supertourIndex));
+	}
+
 
 }
