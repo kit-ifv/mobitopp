@@ -45,6 +45,7 @@ public abstract class Example {
 	public static final int duration = 4;
 	public static final int tourNumber = 0;
 	public static final boolean isMainActivity = false;
+	public static final boolean isInSupertour = false;
 	
 	public static final int personOid = 1;
 	public static final int firstPerson = 1;
@@ -177,6 +178,6 @@ public abstract class Example {
 	}
 
 	public static ExtendedPatternActivity activity() {
-		return new ExtendedPatternActivity(0,false,ActivityType.getTypeFromInt(type), weekDay, observedTripDuration, starttime, duration);
+		return new ExtendedPatternActivity(0,false,false,ActivityType.getTypeFromInt(type), weekDay, observedTripDuration, starttime, duration);
 	}
 }

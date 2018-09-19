@@ -29,6 +29,9 @@ public class TourBasedActivityPatternCreatorTest {
 	static final String pattern4 = "-1;7;4905;-1;15;42;120;4905;20;7;4135;5045;9;12;216;9189;5;7;190;9410;1;77;88;9601;1;7;5280;9690";
 	static final String pattern5 = "-1;7;595;-1;10;11;65;595;30;7;1702;690;20;11;18;2412;40;7;3790;2470;15;11;15;6275;15;7;1425;6305;5;42;25;7735;5;7;2900;7765";
 	
+	static final String pattern_with_supertour = "-1;7;1125;-1;165;9;555;1125;194;9;3;1874;45;2;630;1920;45;9;720;2595;45;1;525;3360;225;7;810;4110;10;41;120;4930;10;7;1280;5060;20;42;30;6360;5;2;365;6395;20;7;1020;6780;20;41;110;7820;20;7;1230;7950;15;11;210;9195;15;7;180;9420;90;6;3;9690;89;7;1260;9780";
+	static final String pattern_with_supertour2 = "-1;7;630;-1;0;42;120;630;5;6;85;755;5;12;265;845;5;7;25;1115;5;12;5;1145;25;53;5;1175;20;53;100;1200;20;12;660;1320;15;3;135;1995;15;7;220;2145;5;12;150;2370;5;7;80;2525;5;12;1410;2610;30;53;20;4050;5;7;790;4075;25;3;240;4890;60;51;179;5190;31;7;90;5400;10;12;800;5500;30;3;219;6330;21;7;390;6570;15;51;165;6975;15;7;15;7155;5;12;740;7175;5;1;360;7920;5;7;1070;8285;5;1;120;9360;5;7;115;9485;5;12;385;9605;5;7;715;9995";
+	
 	
 	
 	PatternActivityWeek week;
@@ -38,6 +41,9 @@ public class TourBasedActivityPatternCreatorTest {
 	PatternActivityWeek week3;
 	PatternActivityWeek week4;
 	PatternActivityWeek week5;
+	
+	PatternActivityWeek week_supertour;
+	PatternActivityWeek week_supertour2;
 	
 	List<PatternActivity> tour_nosubtour;
 	List<PatternActivity> tour_onesubtour;
@@ -58,6 +64,9 @@ public class TourBasedActivityPatternCreatorTest {
 		 week3 = fromString(pattern3);
 		 week4 = fromString(pattern4);
 		 week5 = fromString(pattern5);
+		 
+		 week_supertour = fromString(pattern_with_supertour);
+		 week_supertour2 = fromString(pattern_with_supertour2);
 		 
 		 tour_nosubtour = tourWithNoSubtour();
 		 tour_onesubtour = tourWithOneSubtour();
@@ -299,6 +308,35 @@ public class TourBasedActivityPatternCreatorTest {
 		assertEquals(tours5, TourBasedActivityPattern.fromExtendedPatternActivities(tours5.asPatternActivities()));
 		
 	}
+	
+	@Test
+	public void withSuperTour() {
+		
+		TourBasedActivityPattern tours = TourBasedActivityPatternCreator.fromPatternActivityWeek(week_supertour);
+		
+		assertEquals(tours.asActivities().size(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asActivities().size());
+		assertEquals(tours.asActivities(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asActivities());
+		assertEquals(tours.asPatternActivities(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asPatternActivities());
+		
+		assertEquals(tours.toString(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).toString());
+		
+		assertEquals(tours, TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()));
+	}
+	
+	@Test
+	public void withSuperTour2() {
+		
+		TourBasedActivityPattern tours = TourBasedActivityPatternCreator.fromPatternActivityWeek(week_supertour2);
+		
+		assertEquals(tours.asActivities().size(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asActivities().size());
+		assertEquals(tours.asActivities(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asActivities());
+		assertEquals(tours.asPatternActivities(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).asPatternActivities());
+		
+		assertEquals(tours.toString(), TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()).toString());
+		
+		assertEquals(tours, TourBasedActivityPattern.fromExtendedPatternActivities(tours.asPatternActivities()));
+	}
+
 
 
 

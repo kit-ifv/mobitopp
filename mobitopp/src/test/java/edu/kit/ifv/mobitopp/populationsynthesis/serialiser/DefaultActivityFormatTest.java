@@ -62,6 +62,7 @@ public class DefaultActivityFormatTest {
 				valueOf(Example.starttime),
 				valueOf(Example.duration),
 				valueOf(Example.tourNumber),
+				valueOf(Example.isInSupertour),
 				valueOf(Example.isMainActivity)
 			);
 	}

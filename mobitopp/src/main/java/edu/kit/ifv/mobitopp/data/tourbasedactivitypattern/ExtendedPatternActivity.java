@@ -10,12 +10,14 @@ public class ExtendedPatternActivity extends PatternActivity {
 	
 	public final int tournr;
 	public final boolean isMainActivity;
+	public final boolean isInSupertour;
 	
-	public static final ExtendedPatternActivity STAYATHOME_ACTIVITY = new ExtendedPatternActivity(-1, false, ActivityType.HOME, DayOfWeek.SUNDAY, -1, 0, 9*24*60);
+	public static final ExtendedPatternActivity STAYATHOME_ACTIVITY = new ExtendedPatternActivity(-1, false, false, ActivityType.HOME, DayOfWeek.SUNDAY, -1, 0, 9*24*60);
 
 	public ExtendedPatternActivity(
 		int tournr,
 		boolean isMainActivity,
+		boolean isInSupertour,
 		ActivityType activityType, 
 		DayOfWeek weekDayType, 
 		int observedTripDuration,
@@ -26,17 +28,19 @@ public class ExtendedPatternActivity extends PatternActivity {
 		
 		this.tournr=tournr;
 		this.isMainActivity=isMainActivity;
+		this.isInSupertour=isInSupertour;
 	}
 	
 	public ExtendedPatternActivity(
 		int tournr,
 		boolean isMainActivity,
+		boolean isInSupertour,
 		ActivityType activityType, 
 		long observedTripDuration,
 		Time starttime, 
 		long duration
 	) {
-		this(tournr, isMainActivity,
+		this(tournr, isMainActivity, isInSupertour,
 				activityType, 
 				starttime.weekDay(), 
 				(int) observedTripDuration, 
@@ -44,14 +48,19 @@ public class ExtendedPatternActivity extends PatternActivity {
 				(int) duration);
 	}
 	
-	public static ExtendedPatternActivity fromActivity(int tournr, boolean isMainActivity, Activity activity) {
-		
-				return new ExtendedPatternActivity(tournr, isMainActivity,
+	public static ExtendedPatternActivity fromActivity(int tournr, boolean isMainActivity, boolean isInSupertour, Activity activity) {
+	
+				return new ExtendedPatternActivity(tournr, isMainActivity, isInSupertour,
 						activity.activityType(),
 						activity.expectedTripDuration().toMinutes(),
 						activity.plannedStart(),
 						activity.plannedDuration().toMinutes()
 					);
+	}
+	
+	public static ExtendedPatternActivity fromActivity(int tournr, boolean isMainActivity, Activity activity) {
+
+			return fromActivity(tournr, isMainActivity, false, activity);
 	}
 	
 	public int tourNumber() {
@@ -64,7 +73,10 @@ public class ExtendedPatternActivity extends PatternActivity {
 
 	@Override
 	public String toString() {
-		return "ExtendedPatternActivity [tournr=" + tournr + ", isMainActivity=" + isMainActivity + ", " + super.toString() + "]\n";
+		return "ExtendedPatternActivity [tournr=" + tournr 
+							+ ", isMainActivity=" + isMainActivity 
+							+ ", isInSupertour=" + isInSupertour 
+							+ ", " + super.toString() + "]\n";
 	}
 
 	@Override
@@ -90,6 +102,10 @@ public class ExtendedPatternActivity extends PatternActivity {
 		if (tournr != other.tournr)
 			return false;
 		return true;
+	}
+
+	public boolean isInSupertour() {
+		return isInSupertour;
 	}
 
 

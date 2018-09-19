@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class TourPattern implements TourBasedActivityPatternElement {
@@ -25,8 +24,16 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	public final List<Activity> outboundTripActivities;
 	public final List<Activity> inboundTripActivities;
 	public final List<List<Activity>> subtourActivities;
+
+	public static final TourPattern NOTOUR = new TourPattern();
 	
-	private static final RelativeTime TRIP_OFFSET = RelativeTime.ofMinutes(30);
+	private TourPattern() {
+	  day = null;	
+	  mainActivity = null;	
+	  outboundTripActivities = new ArrayList<>();	
+	  inboundTripActivities = new ArrayList<>();	
+	  subtourActivities = new ArrayList<>();	
+	}
 	
 	public TourPattern(
 		DayOfWeek day,
@@ -42,7 +49,12 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		assert day == mainActivity.plannedStart().weekDay() : (day + " + " + mainActivity.plannedStart().weekDay() ) ;
 		assert day.equals(mainActivity.plannedStart().weekDay());
 		
-		assert mainActivity instanceof SimpleActivity ||  day == subtourActivities.get(0).get(0).plannedStart().weekDay();
+		assert mainActivity instanceof SimpleActivity ||  !subtourActivities.isEmpty();
+		assert mainActivity instanceof SimpleActivity ||  !subtourActivities.get(0).isEmpty() :
+				( day + "\n" + mainActivity + "\n" + subtourActivities);
+		assert mainActivity instanceof SimpleActivity 
+				||  day == subtourActivities.get(0).get(0).plannedStart().weekDay()
+				||  day.next() == subtourActivities.get(0).get(0).plannedStart().weekDay();
 		
 		this.day = day;
 		this.mainActivity = mainActivity;
@@ -58,6 +70,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	
 	@Override
 	public String toString() {
+		if(this==NOTOUR) return "TourPattern.NOTOUR";
+		
 		return "TourPattern( " + day + ", " + mainActivity 
 	//			+ ", " + expectedEnd 
 				+ ", ["  
@@ -85,6 +99,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	public List<Activity> asActivities() {
 		List<Activity> activities = new ArrayList<Activity>();
 		
+		if(this==NOTOUR) { return Collections.emptyList(); }
+		
 		activities.addAll(outboundTripActivities);
 		
 		if (numberOfSubtours() == 0) {
@@ -105,7 +121,11 @@ public class TourPattern implements TourBasedActivityPatternElement {
 				}
 				
 			}
-			activities.add(parts.get(numberOfSubtours()+1));
+			
+			assert numberOfSubtours() ==  parts.size()-1 
+					: (numberOfSubtours() + " : " + parts.size());
+			// activities.add(parts.get(numberOfSubtours()+1));
+			activities.add(parts.get(numberOfSubtours()));
 			
 		}
 		
@@ -118,6 +138,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		return subtourActivities.size();
 	}
 	
+	
+
 	
 
 	@Override
@@ -188,16 +210,13 @@ public class TourPattern implements TourBasedActivityPatternElement {
 			
 			for(int i=0; i<numberOfSubtours(); i++) {
 				activities.add(ExtendedPatternActivity.fromActivity(tournr, true, parts.get(i)));
-				// activities.add(parts.get(i));
 				
 				for(Activity subtourActivity :  subtourActivities.get(i)) {
 					activities.add(ExtendedPatternActivity.fromActivity(tournr, false, subtourActivity));
-					// activities.add(subtourActivity);
 				}
 				
 			}
 			activities.add(ExtendedPatternActivity.fromActivity(tournr, true, parts.get(parts.size()-1)));
-//			activities.add(parts.get(numberOfSubtours()+1));
 			
 		}
 		
@@ -376,6 +395,7 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	
 	public static TourPattern fromPatternActivities(ActivityType homeActivityType, List<PatternActivity> fulltour) {
 		
+		assert fulltour.get(0).getActivityType() != homeActivityType;
 		assert fulltour.get(fulltour.size()-1).getActivityType() == homeActivityType;
 		
 		List<PatternActivity> tour =  new ArrayList<PatternActivity>(fulltour.subList(0, fulltour.size()-1));
@@ -399,7 +419,8 @@ public class TourPattern implements TourBasedActivityPatternElement {
 		
 		 assert subtourActivities.isEmpty() 
 		 		|| ( homeActivityType==ActivityType.HOME && TourBasedActivityPatternCreator.isSupertour(fulltour) )
-		 		|| subtourActivities.get(0).get(0).getWeekDayType() == day : fulltour;
+		 		|| subtourActivities.get(0).get(0).getWeekDayType() == day 
+		 		|| subtourActivities.get(0).get(0).getWeekDayType() == day.next() : prettyPrint(fulltour);
 		
 		PatternActivity firstPartOfMainPatternActivity = mainPatternActivity.get(0);
 		PatternActivity  lastPartOfMainPatternActivity = mainPatternActivity.get(mainPatternActivity.size()-1);
@@ -419,6 +440,16 @@ public class TourPattern implements TourBasedActivityPatternElement {
 	}
 
 	
+	private static String prettyPrint(List<PatternActivity> fulltour) {
+		String result = "\n";
+		
+		for(PatternActivity act : fulltour) {
+		 result += act.toString() + "\n";
+		}
+		
+		return result;
+	}
+
 	public static TourPattern fromExtendedPatternActivities(List<ExtendedPatternActivity> activities) {
 	
 		List<ExtendedPatternActivity> partsOfMainActivity = findPartsOfMainActivity(activities);
@@ -478,9 +509,10 @@ public class TourPattern implements TourBasedActivityPatternElement {
 			
 			List<ExtendedPatternActivity> subtour = activities.subList(1+activities.indexOf(first), activities.indexOf(next));
 			
-			results.add(
-					subtour.stream().map(x -> SimpleActivity.fromPatternActivity(x)).collect(Collectors.toList())
-				);
+			List<Activity> subtourActivities =
+					subtour.stream().map(x -> SimpleActivity.fromPatternActivity(x)).collect(Collectors.toList());
+			
+			results.add(subtourActivities);
 		}
 		
 		return results;
