@@ -18,6 +18,7 @@ import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
+import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
@@ -25,6 +26,7 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumReader;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class ContextBuilder {
 
@@ -118,7 +120,13 @@ public class ContextBuilder {
 	}
 
 	protected SimpleRoadNetwork createRoadNetwork(VisumRoadNetwork network) {
-		return new SimpleRoadNetwork(network);
+		return new SimpleRoadNetwork(network, carOf(network));
+	}
+
+	private VisumTransportSystem carOf(VisumRoadNetwork network) {
+		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
+		String carCode = visumToMobitopp.getCarTransportSystemCode();
+		return network.transportSystems.getBy(carCode);
 	}
 
 	private void dataRepository() throws IOException {

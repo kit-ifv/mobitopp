@@ -15,6 +15,8 @@ import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class ContextBuilder {
 
@@ -115,8 +117,14 @@ public class ContextBuilder {
 		loadVisumNetwork();
 		System.out.println("creating road network");
 		if (null == roadNetwork) {
-			roadNetwork = new SimpleRoadNetwork(network);
+			roadNetwork = new SimpleRoadNetwork(network, carOf(network));
 		}
+	}
+
+	private VisumTransportSystem carOf(VisumRoadNetwork network) {
+		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
+		String carCode = visumToMobitopp.getCarTransportSystemCode();
+		return network.transportSystems.getBy(carCode);
 	}
 	
 	protected Network network() {
