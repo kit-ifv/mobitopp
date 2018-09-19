@@ -14,8 +14,8 @@ import edu.kit.ifv.mobitopp.visum.VisumLink;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumPoint2;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
-
 
 public class SimpleRoadNetwork 
 	extends SimpleGraph
@@ -31,28 +31,34 @@ public class SimpleRoadNetwork
 	public final Map<Integer, SimpleNode> zoneCenterNodes;
 	public final Map<Integer, List<Edge>> connectorEdges;
 
-	public SimpleRoadNetwork(
-		VisumRoadNetwork visum
-	) {
-		super(visum.transportSystems);
-System.out.println("Parsing nodes...");
-		this.nodes = Collections.unmodifiableMap(parseNodes(visum.nodes));
-System.out.println(this.nodes.size() + " nodes");
+	public SimpleRoadNetwork(VisumRoadNetwork network) {
+		this(network, defaultCarOf(network));
+	}
 
-System.out.println("Parsing edges...");
-		this.edges = Collections.unmodifiableMap(parseEdges(visum.links.links));
-System.out.println(this.edges.size() + " edges");
-
-System.out.println("Parsing zones...");
-		this.zones = Collections.unmodifiableMap(parseZones(visum));
-System.out.println(this.zones.size() + " zones");
-
-System.out.println("Parsing zone center nodes...");
-		this.zoneCenterNodes = Collections.unmodifiableMap(parseZoneCenterNodes(visum.zones));
-System.out.println("Parsing connectors...");
-		this.connectorEdges = Collections.unmodifiableMap(parseConnectors(visum.connectors));
+	private static VisumTransportSystem defaultCarOf(VisumRoadNetwork network) {
+		return network.transportSystems.getBy("P");
 	}
 	
+	public SimpleRoadNetwork(VisumRoadNetwork network, VisumTransportSystem car) {
+		super(car);
+		System.out.println("Parsing nodes...");
+		this.nodes = Collections.unmodifiableMap(parseNodes(network.nodes));
+		System.out.println(this.nodes.size() + " nodes");
+
+		System.out.println("Parsing edges...");
+		this.edges = Collections.unmodifiableMap(parseEdges(network.links.links));
+		System.out.println(this.edges.size() + " edges");
+
+		System.out.println("Parsing zones...");
+		this.zones = Collections.unmodifiableMap(parseZones(network));
+		System.out.println(this.zones.size() + " zones");
+
+		System.out.println("Parsing zone center nodes...");
+		this.zoneCenterNodes = Collections.unmodifiableMap(parseZoneCenterNodes(network.zones));
+		System.out.println("Parsing connectors...");
+		this.connectorEdges = Collections.unmodifiableMap(parseConnectors(network.connectors));
+	}
+
 	public Map<Integer, Zone> zones() {
 		return zones;
 	}

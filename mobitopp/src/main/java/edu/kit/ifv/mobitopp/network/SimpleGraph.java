@@ -12,6 +12,7 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumOrientedLink;
 import edu.kit.ifv.mobitopp.visum.VisumPoint2;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
 
 public class SimpleGraph
@@ -26,11 +27,15 @@ public class SimpleGraph
 	protected Map<Integer, Set<Edge>> in = new LinkedHashMap<Integer, Set<Edge>>();
 	protected Map<Integer, Set<Edge>> out = new LinkedHashMap<Integer, Set<Edge>>();
 	
-	private final VisumTransportSystems transportSystems;
-
+	private VisumTransportSystem car;
+	
 	public SimpleGraph(VisumTransportSystems transportSystems) {
+		this(transportSystems.getBy("P"));
+	}
+
+	public SimpleGraph(VisumTransportSystem car) {
 		super();
-		this.transportSystems = transportSystems;
+		this.car = car;
 		this.nodes = new LinkedHashMap<Integer, Node>();
 		this.edges = new LinkedHashMap<Integer, Edge>();
 	}
@@ -94,7 +99,11 @@ public class SimpleGraph
 		if (vLink == null) {
 			return false;
 		}
-		return vLink.transportSystems.transportSystems.contains(transportSystems.getBy("P"));
+		return vLink.transportSystems.transportSystems.contains(car());
+	}
+
+	private VisumTransportSystem car() {
+		return car;
 	}
 
 	protected void registerEdge(SimpleEdge edge) {

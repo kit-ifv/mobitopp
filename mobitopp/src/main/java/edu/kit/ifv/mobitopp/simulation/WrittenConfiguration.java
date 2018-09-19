@@ -23,6 +23,7 @@ public class WrittenConfiguration {
 	private Map<String, String> destinationChoice;
 	private Map<String, String> modeChoice;
 	private int timeStepLength;
+	private VisumToMobitopp visumToMobitopp;
 	private Map<String, String> experimental;
 
 	public WrittenConfiguration() {
@@ -33,6 +34,7 @@ public class WrittenConfiguration {
 		timeStepLength = defaultTimeStepLength;
 		destinationChoice = Collections.emptyMap();
 		modeChoice = Collections.emptyMap();
+		visumToMobitopp = new VisumToMobitopp();
 		experimental = Collections.emptyMap();
 	}
 
@@ -137,6 +139,16 @@ public class WrittenConfiguration {
 
 	public void setTimeStepLength(int timeStepLength) {
 		this.timeStepLength = timeStepLength;
+	}
+
+	
+	public VisumToMobitopp getVisumToMobitopp() {
+		return visumToMobitopp;
+	}
+
+	
+	public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
+		this.visumToMobitopp = visumToMobitopp;
 	}
 
 	public Map<String, String> getExperimental() {
