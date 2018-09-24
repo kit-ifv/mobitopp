@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-import edu.kit.ifv.mobitopp.data.local.serialiser.DefaultZoneFormat;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -30,7 +30,7 @@ public class DefaultZoneFormatTest {
 	private static final int oid = 1;
 	private static final String id = "Z12345";
 	private static final String name = "zone name";
-	private static final ZoneAreaType areaType = ZoneAreaType.CITYOUTSKIRT;
+	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
 	private static final Location centroidLocation = Example.location;
 	private DefaultZoneFormat format;

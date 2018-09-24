@@ -87,6 +87,7 @@ public class CarSharingBuilderTest {
 	}
 
 	private CarSharingBuilder builder() {
+		networkBuilder.withDefaultCarSystem();
 		VisumNetwork network = networkBuilder.build();
 		SimpleRoadNetwork roadNetwork = new SimpleRoadNetwork(network);
 		return new CarSharingBuilder(network, roadNetwork) {

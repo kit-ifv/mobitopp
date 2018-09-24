@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.Network;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
@@ -20,8 +22,9 @@ import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class ContextBuilder {
 
-	private final  StopWatch performanceLogger;
+	private final StopWatch performanceLogger;
 	private final SimulationParser format;
+	private final AreaTypeRepository areaTypeRepository;
 
 	private WrittenConfiguration configuration;
 	private DynamicParameters experimentalParameters;
@@ -35,11 +38,16 @@ public class ContextBuilder {
 	private PersonResults personResults;
 	private DynamicParameters modeChoiceParameters;
 
-	public ContextBuilder() {
+	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
 		super();
+		this.areaTypeRepository = areaTypeRepository;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
+	}
+
+	public ContextBuilder() {
+		this(new BicRepository());
 	}
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
@@ -74,10 +82,10 @@ public class ContextBuilder {
 	private void log(String message) {
 		performanceLogger.measurePoint(message);
 	}
-	
+
 	private void printPerformance() {
 		System.out.println("Runtimes while loading context:");
-		performanceLogger.forEach((m,d) -> System.out.println(m + " " + d));
+		performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
 	}
 
 	private void validateConfiguration() {
@@ -89,7 +97,7 @@ public class ContextBuilder {
 		experimentalParameters = new DynamicParameters(configuration.getExperimental());
 		log("Create experimental parameters");
 	}
-	
+
 	private void modeChoiceParameters() {
 		modeChoiceParameters = new DynamicParameters(configuration.getModeChoice());
 		log("Create mode choice parameters");
@@ -109,8 +117,12 @@ public class ContextBuilder {
 	private void loadVisumNetwork() {
 		System.out.println("Reading VISUM network");
 		if (null == network) {
-			network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
+			network = loadNetwork(configuration.getVisumFile());
 		}
+	}
+
+	protected VisumNetwork loadNetwork(String fileName) {
+		return NetworkSerializer.readVisumNetwork(fileName);
 	}
 
 	private void loadRoadNetwork() {
@@ -126,7 +138,7 @@ public class ContextBuilder {
 		String carCode = visumToMobitopp.getCarTransportSystemCode();
 		return network.transportSystems.getBy(carCode);
 	}
-	
+
 	protected Network network() {
 		loadRoadNetwork();
 		return new Network(network, roadNetwork);
@@ -141,8 +153,10 @@ public class ContextBuilder {
 	private void dataRepository() throws IOException {
 		System.out.println("Loading data repository");
 		int numberOfZones = configuration.getNumberOfZones();
-		dataRepository = configuration.getDataSource().forSimulation(this::network,
-				numberOfZones, simulationDays, publicTransport, resultWriter, electricChargingWriter);
+		dataRepository = configuration
+				.getDataSource()
+				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
+						electricChargingWriter, areaTypeRepository);
 		log("Load data repository");
 	}
 

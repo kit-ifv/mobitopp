@@ -20,6 +20,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.dataimport.AttractivitiesBuilder;
@@ -44,13 +45,16 @@ public class ZoneRepositorySerialiser {
 	private final File zoneRepositoryFolder;
 	private final ChargingDataFactory factory;
 	private final File attractivitiesDataFile;
+	private final AreaTypeRepository areaTypeRepository;
 
 	public ZoneRepositorySerialiser(
-			File zoneRepositoryFolder, ChargingDataFactory factory, File attractivitiesDataFile) {
+			File zoneRepositoryFolder, ChargingDataFactory factory, File attractivitiesDataFile,
+			AreaTypeRepository areaTypeRepository) {
 		super();
 		this.zoneRepositoryFolder = zoneRepositoryFolder;
 		this.factory = factory;
 		this.attractivitiesDataFile = attractivitiesDataFile;
+		this.areaTypeRepository = areaTypeRepository;
 	}
 
 	public boolean isAvailable() {
@@ -195,7 +199,7 @@ public class ZoneRepositorySerialiser {
 
 	private Map<Integer, Attractivities> attractivities() {
 		HashMap<Integer, Attractivities> mapping = new HashMap<>();
-		StructuralData structuralData = structuralDataFrom(attractivitiesDataFile);
+		StructuralData structuralData = structuralDataFrom(attractivitiesDataFile, areaTypeRepository);
 		while (structuralData.hasNext()) {
 			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities();
 			mapping.put(structuralData.currentZone(), attractivities);
@@ -204,8 +208,8 @@ public class ZoneRepositorySerialiser {
 		return mapping;
 	}
 
-	private static StructuralData structuralDataFrom(File structuralDataFile) {
-		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+	private static StructuralData structuralDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
+		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()), areaTypeRepository);
 	}
 
 	private ChargingDataResolver chargingFrom(

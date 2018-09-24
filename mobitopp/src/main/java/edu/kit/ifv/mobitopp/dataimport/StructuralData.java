@@ -2,18 +2,22 @@ package edu.kit.ifv.mobitopp.dataimport;
 
 import java.util.List;
 
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class StructuralData {
 
 	private static final int defaultValue = 0;
+
 	private final CsvFile structuralData;
 	private int index;
+	private final AreaTypeRepository areaTypeRepository;
 
-	public StructuralData(CsvFile structuralData) {
+	public StructuralData(CsvFile structuralData, AreaTypeRepository areaTypeRepository) {
 		super();
+		this.areaTypeRepository = areaTypeRepository;
 		this.structuralData = structuralData;
 		resetIndex();
 	}
@@ -21,15 +25,15 @@ public class StructuralData {
 	public List<String> getAttributes() {
 		return structuralData.getAttributes();
 	}
-	
+
 	public int currentZone() {
 		return Integer.parseInt(getValue("ID"));
 	}
-	
+
 	public String getValue(String key) {
 		return structuralData.getValue(index, key);
 	}
-	
+
 	public boolean hasValue(String key) {
 		return !getValue(key).isEmpty();
 	}
@@ -49,16 +53,17 @@ public class StructuralData {
 		}
 		return ZoneClassificationType.areaOfInvestigation;
 	}
-	
-	public ZoneAreaType currentZoneAreaType() {
+
+	public AreaType currentZoneAreaType() {
 		String areaType = getValue("AreaType");
-		return areaType.isEmpty() ? ZoneAreaType.DEFAULT : ZoneAreaType.getTypeFromString(areaType);
+		return areaType.isEmpty() ? areaTypeRepository.getDefault()
+				: areaTypeRepository.getTypeForName(areaType);
 	}
 
 	public void next() {
 		index++;
 	}
-	
+
 	public void resetIndex() {
 		index = 0;
 	}
@@ -66,6 +71,5 @@ public class StructuralData {
 	public boolean hasNext() {
 		return index < structuralData.getLength();
 	}
-
 
 }
