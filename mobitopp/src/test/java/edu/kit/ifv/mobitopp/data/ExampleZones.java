@@ -5,6 +5,8 @@ import static java.util.Collections.emptyList;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
 
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
@@ -32,7 +34,7 @@ public class ExampleZones {
 
 	private static Zone zoneWithId(String id) {
 		String name = "zone " + id;
-		ZoneAreaType areaType = ZoneAreaType.METROPOLITAN;
+		AreaType areaType = ZoneAreaType.METROPOLITAN;
 		ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
 		Attractivities attractivities = new Attractivities();
 		ChargingDataForZone charging = createChargingData();

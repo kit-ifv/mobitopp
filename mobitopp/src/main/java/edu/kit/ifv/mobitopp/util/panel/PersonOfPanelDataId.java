@@ -2,10 +2,7 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 import java.util.Objects;
 
-public class PersonOfPanelDataId 
-  implements Comparable<PersonOfPanelDataId> 
-		, PanelDataIdIfc 
-{
+public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
 
 	private final HouseholdOfPanelDataId householdId;
   private final byte personNumber;

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataSource;
+import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 
 public class WrittenConfiguration {
 
@@ -21,6 +22,7 @@ public class WrittenConfiguration {
 	private Map<String, String> carSharing;
 	private String commuterTicket;
 	private String resultFolder;
+	private VisumToMobitopp visumToMobitopp;
 	private Map<String, String> experimental;
 
 	public WrittenConfiguration() {
@@ -29,6 +31,7 @@ public class WrittenConfiguration {
 		activityScheduleCreator = ActivityScheduleCreatorType.standard;
 		carSharing = Collections.emptyMap();
 		resultFolder = defaultResultFolder;
+		visumToMobitopp = new VisumToMobitopp();
 		experimental = Collections.emptyMap();
 	}
 
@@ -120,6 +123,14 @@ public class WrittenConfiguration {
 		this.resultFolder = resultFolder;
 	}
 
+	public VisumToMobitopp getVisumToMobitopp() {
+		return visumToMobitopp;
+	}
+
+	public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
+		this.visumToMobitopp = visumToMobitopp;
+	}
+
 	public Map<String, String> getExperimental() {
 		return experimental;
 	}
@@ -130,11 +141,12 @@ public class WrittenConfiguration {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [seed=" + seed + ", numberOfZones=" + numberOfZones
-				+ ", dataSource=" + dataSource + ", visumFile=" + visumFile + ", carOwnership="
-				+ carOwnership + ", activityScheduleCreator=" + activityScheduleCreator + ", carSharing="
-				+ carSharing + ", commuterTicket=" + commuterTicket + ", resultFolder=" + resultFolder
-				+ ", experimental=" + experimental + "]";
+		return "WrittenConfiguration [seed=" + seed + ", numberOfZones=" + numberOfZones
+				+ ", dataSource=" + dataSource + ", activityScheduleCreator=" + activityScheduleCreator
+				+ ", demographyData=" + demographyData + ", panelData=" + panelData + ", visumFile="
+				+ visumFile + ", carOwnership=" + carOwnership + ", carSharing=" + carSharing
+				+ ", commuterTicket=" + commuterTicket + ", resultFolder=" + resultFolder
+				+ ", visumToMobitopp=" + visumToMobitopp + ", experimental=" + experimental + "]";
 	}
 
 }

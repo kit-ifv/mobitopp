@@ -1,256 +1,271 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.Household;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Employment;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.LinkedHashMap;
-import java.util.Collections;
+import edu.kit.ifv.mobitopp.util.parameter.ParameterFormularParser;
 
 public class ModeSelectorParameterOtherTrip
 	implements ModeChoiceParameter
 {
 
-	public final double carsharing_sb_const 	  	=  -1.5f;
-	public final double carsharing_sb_shorttrip	=  -1.0f;
-	public final double carsharing_sb_distance		=  0.15f;
+	public final Double carsharing_sb_const 			= Double.NaN;
+	public final Double carsharing_sb_shorttrip		= Double.NaN;
+	public final Double carsharing_sb_distance		= Double.NaN;
 
-	public final double carsharing_ff_const 	  	= -0.5f;
-	public final double carsharing_ff_shorttrip	= -1.0f;
-	public final double carsharing_ff_distance		= -0.05f;
+	public final Double carsharing_ff_const 			= Double.NaN;
+	public final Double carsharing_ff_shorttrip		= Double.NaN;
+	public final Double carsharing_ff_distance		= Double.NaN;
 
-	public final double car_const 	  =  0.0f;
-	public final double foot_const 	= -0.9766f -4.0558f;
-	public final double pt_const 		= -4.0281f -0.9280f;
-	public final double pass_const 	= -3.4463f +0.7618f;
-	public final double bike_const 	= -3.0257f -1.8043f;
+	public final Double car_const 	= Double.NaN;
+	public final Double foot_const 	= Double.NaN;
+	public final Double pt_const 		= Double.NaN;
+	public final Double pass_const 	= Double.NaN;
+	public final Double bike_const 	= Double.NaN;
 
-	public final double time 				= -0.0134f;
-	public final double cost_km			= -0.0298f;
-
-
-
-	public final double car_last_car 	= 0.0f + 1.0f;
-	public final double car_last_foot 	= 0.0f + 0.8f;
-	public final double car_last_pt 		= 0.0f + 0.6f;
-	public final double car_last_pass 	= 0.0f + 0.5f;
-	public final double car_last_bike 	= 0.0f + 0.3f;
-
-	public final double foot_last_car 	= 0.0f	+ 0.8f;
-	public final double foot_last_foot = 3.3883f + 0.4f;
-	public final double foot_last_pt 	= 2.9914f;
-	public final double foot_last_pass = 2.6433f + 0.4f;
-	public final double foot_last_bike = 2.0787f;
-
-	public final double pt_last_car 	= 0.0f		- 0.1f;
-	public final double pt_last_foot = 2.8677f - 0.8f;
-	public final double pt_last_pt 	= 4.7725f + 0.2f;
-	public final double pt_last_pass = 2.8936f - 0.8f;
-	public final double pt_last_bike = 2.6457f;
-
-	public final double pass_last_car 	= 0.0f	+ 0.3f;
-	public final double pass_last_foot = 2.0989f + 0.3f;
-	public final double pass_last_pt 	= 2.7006f;
-	public final double pass_last_pass = 4.6064f + 0.3f;
-	public final double pass_last_bike = 2.1010f;
-
-	public final double bike_last_car 	= 0.0f		+ 1.8f;
-	public final double bike_last_foot = 1.9099f;
-	public final double bike_last_pt 	= 2.8007f + 0.0f;
-	public final double bike_last_pass = 2.4327f;
-	public final double bike_last_bike = 5.8491f;
-
-
-	public final double foot_caravailable_true	= -0.2249f;
-	public final double foot_caravailable_no		=  1.7847f;
-	public final double foot_caravailable_part	=  0.0f;
-
-	public final double pt_caravailable_true		= -0.6947f;
-	public final double pt_caravailable_no			=  1.8398f;
-	public final double pt_caravailable_part		=  0.0f;
-
-	public final double pass_caravailable_true	= -0.4906f;
-	public final double pass_caravailable_no		=  1.9301f;
-	public final double pass_caravailable_part	=  0.0f;
-
-	public final double bike_caravailable_true	= -0.6383f;
-	public final double bike_caravailable_no		=  1.5430f;
-	public final double bike_caravailable_part	=  0.0f;
-
-
-	public final double foot_commticket_false		=  0.0f;
-	public final double foot_commticket_true			=  0.1298f;
-
-	public final double pt_commticket_false			=  0.0f;
-	public final double pt_commticket_true				=  1.7425f;
-
-	public final double pass_commticket_false		=  0.0f;
-	public final double pass_commticket_true			=  0.1344f;
-
-	public final double bike_commticket_false		=  0.0f;
-	public final double bike_commticket_true			=  -0.0321f;
+	public final Double time 				= Double.NaN;
+	public final Double cost_km			= Double.NaN;
 
 
 
+	public final Double car_last_car 		= Double.NaN;
+	public final Double car_last_foot 	= Double.NaN;
+	public final Double car_last_pt 		= Double.NaN;
+	public final Double car_last_pass 	= Double.NaN;
+	public final Double car_last_bike 	= Double.NaN;
 
-	public final double foot_activity_private_business 	=   0.0f + 1.7;
-	public final double foot_activity_work								=   0.0352f + 0.8;
-	public final double foot_activity_education					=   1.3783f + 1.25;
-	public final double foot_activity_shopping						=  -0.0714f + 1.25;
-	public final double foot_activity_leisure						=   0.5168f + 0.2f + 2.25;
-	public final double foot_activity_home								=  -0.0107f + 3.8;
-	public final double foot_activity_walk								=   8.6241f;
-	public final double foot_activity_service						=  -0.7756f - 0.3f + 1.0;
-	public final double foot_activity_business						=  -0.1838f - 1.0f + 1.0;
+	public final Double foot_last_car 	= Double.NaN;
+	public final Double foot_last_foot 	= Double.NaN;
+	public final Double foot_last_pt 		= Double.NaN;
+	public final Double foot_last_pass 	= Double.NaN;
+	public final Double foot_last_bike 	= Double.NaN;
 
-	public final double pt_activity_private_business 		=   0.0f;
-	public final double pt_activity_work									=   0.7986f - 0.6;
-	public final double pt_activity_education						=   2.1520f - 0.8;
-	public final double pt_activity_shopping							=  -0.3780f - 0.7;
-	public final double pt_activity_leisure							=   0.3233f - 0.25;
-	public final double pt_activity_home									=   0.7535f - 0.2;
-	public final double pt_activity_walk									=  -0.7115f;
-	public final double pt_activity_service							=  -1.3699f - 0.3f - 0.75;
-	public final double pt_activity_business							=  -0.2594f - 0.2f - 0.8;
+	public final Double pt_last_car 	= Double.NaN;
+	public final Double pt_last_foot 	= Double.NaN;
+	public final Double pt_last_pt 		= Double.NaN;
+	public final Double pt_last_pass 	= Double.NaN;
+	public final Double pt_last_bike 	= Double.NaN;
 
-	public final double pass_activity_private_business 	=   0.0f + 0.5;
-	public final double pass_activity_work								=  -1.1023f - 0.25;
-	public final double pass_activity_education					=  -0.6120f - 0.6;
-	public final double pass_activity_shopping						=  -0.0713f + 0.25;
-	public final double pass_activity_leisure						=   0.5793f + 0.5f;
-	public final double pass_activity_home								=  -0.1960f - 0.9;
-	public final double pass_activity_walk								=   0.3543f;
-	public final double pass_activity_service						=  -0.9250f - 0.5f - 0.5;
-	public final double pass_activity_business						=  -0.2975f - 0.6f;
+	public final Double pass_last_car 	= Double.NaN;
+	public final Double pass_last_foot 	= Double.NaN;
+	public final Double pass_last_pt 		= Double.NaN;
+	public final Double pass_last_pass 	= Double.NaN;
+	public final Double pass_last_bike 	= Double.NaN;
 
-	public final double bike_activity_private_business 	=   0.0f;
-	public final double bike_activity_work								=   1.0286f - 0.5;
-	public final double bike_activity_education					=   1.5253f;
-	public final double bike_activity_shopping						=   0.2197f - 0.5;
-	public final double bike_activity_leisure						=   0.2315f;
-	public final double bike_activity_home								=   0.4395f + 0.2;
-	public final double bike_activity_walk								=   6.0873f;
-	public final double bike_activity_service						=  -0.9958f - 0.1f - 0.5;
-	public final double bike_activity_business						=  -0.1757f - 0.5;
+	public final Double bike_last_car 	= Double.NaN;
+	public final Double bike_last_foot 	= Double.NaN;
+	public final Double bike_last_pt 		= Double.NaN;
+	public final Double bike_last_pass 	= Double.NaN;
+	public final Double bike_last_bike 	= Double.NaN;
 
 
-	public final double foot_weekday_workday 					=   0.0f;
-	public final double foot_weekday_saturday 					=   0.0691f - 0.0f;
-	public final double foot_weekday_sunday 						=   0.4860f - 0.2f;
+	public final Double foot_caravailable_true	= Double.NaN;
+	public final Double foot_caravailable_no		= Double.NaN;
+	public final Double foot_caravailable_part	= Double.NaN;
 
-	public final double pt_weekday_workday 						=   0.0f;
-	public final double pt_weekday_saturday 						=  -0.1646f + 0.5f;
-	public final double pt_weekday_sunday 							=  -0.4646f + 0.6f;
+	public final Double pt_caravailable_true		= Double.NaN;
+	public final Double pt_caravailable_no			= Double.NaN;
+	public final Double pt_caravailable_part		= Double.NaN;
 
-	public final double pass_weekday_workday 					=   0.0f;
-	public final double pass_weekday_saturday 					=   0.4558f + 0.4f;
-	public final double pass_weekday_sunday 						=   0.4862f + 0.0f;
+	public final Double pass_caravailable_true	= Double.NaN;
+	public final Double pass_caravailable_no		= Double.NaN;
+	public final Double pass_caravailable_part	= Double.NaN;
 
-	public final double bike_weekday_workday 					=   0.0f;
-	public final double bike_weekday_saturday 					=   -0.0958f;
-	public final double bike_weekday_sunday 						=   0.1273f;
-
-
-	public final double foot_hhtype_other							=   0.0f;
-	public final double foot_hhtype_2adults						=   0.2901f;
-	public final double foot_hhtype_1adult							=   0.3682f;
-	public final double foot_hhtype_kids								=   0.1567f;
-
-	public final double pt_hhtype_other								=   0.0f;
-	public final double pt_hhtype_2adults							=   0.2066f;
-	public final double pt_hhtype_1adult								=   0.3091f;
-	public final double pt_hhtype_kids									=  -0.0417f;
-
-	public final double pass_hhtype_other							=   0.0f;
-	public final double pass_hhtype_2adults						=   0.3170f;
-	public final double pass_hhtype_1adult							=  -0.6129f;
-	public final double pass_hhtype_kids								=  -0.0924f;
-
-	public final double bike_hhtype_other							=   0.0f;
-	public final double bike_hhtype_2adults						=   0.2090f;
-	public final double bike_hhtype_1adult							=   0.2453f;
-	public final double bike_hhtype_kids								=   0.3132f;
+	public final Double bike_caravailable_true	= Double.NaN;
+	public final Double bike_caravailable_no		= Double.NaN;
+	public final Double bike_caravailable_part	= Double.NaN;
 
 
-	public final double foot_employment_student_tertiary 	=   0.0f	- 1.0f;
-	public final double foot_employment_education					=  -0.1756f	- 0.1f;
-	public final double foot_employment_work_from41				=   0.2054f + 0.5f;
-	public final double foot_employment_work_to40					=   0.3351f + 0.5f;
-	public final double foot_employment_unemployed					=   0.4154f - 0.2f; // Househusband
-	public final double foot_employment_jobless						=   0.4154f - 0.9f; // Jobless
-	public final double foot_employment_retired						=   0.4349f	- 0.9f;
-	public final double foot_employment_student_primary	 	=   5.0032f - 0.05f;
-	public final double foot_employment_student_secondary	=   0.5341f - 0.5f;
+	public final Double foot_commticket_false		= Double.NaN;
+	public final Double foot_commticket_true		= Double.NaN;
 
-	public final double pt_employment_student_tertiary 	=   0.0f	- 1.7f;
-	public final double pt_employment_education					=  -0.2767f - 0.7f;
-	public final double pt_employment_work_from41				=   0.2042f	- 0.3f;
-	public final double pt_employment_work_to40					=   0.2192f	- 0.3f;
-	public final double pt_employment_unemployed					=   0.3336f	- 0.1f;
-	public final double pt_employment_jobless						=   0.3336f	+ 0.5f;
-	public final double pt_employment_retired						=   0.3892f + 0.1f;
-	public final double pt_employment_student_primary 		=   4.3631f	- 0.2f;
-	public final double pt_employment_student_secondary 	=   0.5280f - 0.0f;
+	public final Double pt_commticket_false			= Double.NaN;
+	public final Double pt_commticket_true			= Double.NaN;
 
-	public final double pass_employment_student_tertiary 	=   0.0f - 1.5f;
-	public final double pass_employment_education					=  -0.0863f	- 1.1f;
-	public final double pass_employment_work_from41				=  -0.2412f - 0.7f;
-	public final double pass_employment_work_to40					=  -0.2125f - 0.7f;
-	public final double pass_employment_unemployed					=   0.1484f - 0.45f;
-	public final double pass_employment_jobless						=   0.1484f - 0.55f;
-	public final double pass_employment_retired						=  -0.2066f - 0.45f;
-	public final double pass_employment_student_primary 		=   5.3108f + 0.3f;
-	public final double pass_employment_student_secondary	=   0.7441f - 0.6f;
+	public final Double pass_commticket_false		= Double.NaN;
+	public final Double pass_commticket_true		= Double.NaN;
 
-	public final double bike_employment_student_tertiary 	=   0.0f - 0.5f;
-	public final double bike_employment_education					=  -0.2863f;
-	public final double bike_employment_work_from41				=   0.3280f - 0.2f;
-	public final double bike_employment_work_to40					=   0.3523f - 0.2f;
-	public final double bike_employment_unemployed					=   0.1905f - 0.4f;
-	public final double bike_employment_jobless						=   0.1905f - 0.4f;
-	public final double bike_employment_retired						=   0.1000f - 0.15f;
-	public final double bike_employment_student_primary 		=   4.3664f + 0.0f;
-	public final double bike_employment_student_secondary	=   0.7397f - 0.1f;
+	public final Double bike_commticket_false		= Double.NaN;
+	public final Double bike_commticket_true		= Double.NaN;
 
 
-	public final double car_parkingpressure							=   0.0f;
-	public final double foot_parkingpressure							=   0.1227f;
-	public final double pt_parkingpressure								=   0.2117f;
-	public final double pass_parkingpressure							=   0.0271f;
-	public final double bike_parkingpressure							=   0.0205f;
 
-	public final double car_distance											=   0.0f;
-	public final double foot_distance										=  -0.2837f;
-	public final double pt_distance											=   0.0165f 	+ 0.065f;
-	public final double pass_distance										=   0.00565f 	+ 0.02f;
-	public final double bike_distance										=  -0.1192f;
 
-	public final double car_commutingdistance						=   0.0f;
-	public final double foot_commutingdistance						=  -0.00305f;
-	public final double pt_commutingdistance							=  -0.00978f;
-	public final double pass_commutingdistance						=  -0.00574f;
-	public final double bike_commutingdistance						=  -0.00474f;
+	public final Double foot_activity_private_business 	= Double.NaN;
+	public final Double foot_activity_work							= Double.NaN;
+	public final Double foot_activity_education					= Double.NaN;
+	public final Double foot_activity_shopping					= Double.NaN;
+	public final Double foot_activity_leisure						= Double.NaN;
+	public final Double foot_activity_home							= Double.NaN;
+	public final Double foot_activity_walk							= Double.NaN;
+	public final Double foot_activity_service						= Double.NaN;
+	public final Double foot_activity_business					= Double.NaN;
 
-	public final double car_shorttrip						=    0.0f;
-	public final double foot_shorttrip						=    2.5558f - 0.5f;
-	public final double pt_shorttrip							=    1.2280f - 3.2f;
-	public final double pass_shorttrip						=   -0.1618f - 0.7f;
-	public final double bike_shorttrip						=    1.7043f + 0.4f;
+	public final Double pt_activity_private_business 		= Double.NaN;
+	public final Double pt_activity_work								= Double.NaN;
+	public final Double pt_activity_education						= Double.NaN;
+	public final Double pt_activity_shopping						= Double.NaN;
+	public final Double pt_activity_leisure							= Double.NaN;
+	public final Double pt_activity_home								= Double.NaN;
+	public final Double pt_activity_walk								= Double.NaN;
+	public final Double pt_activity_service							= Double.NaN;
+	public final Double pt_activity_business						= Double.NaN;
+
+	public final Double pass_activity_private_business 	= Double.NaN;
+	public final Double pass_activity_work							= Double.NaN;
+	public final Double pass_activity_education					= Double.NaN;
+	public final Double pass_activity_shopping					= Double.NaN;
+	public final Double pass_activity_leisure						= Double.NaN;
+	public final Double pass_activity_home							= Double.NaN;
+	public final Double pass_activity_walk							= Double.NaN;
+	public final Double pass_activity_service						= Double.NaN;
+	public final Double pass_activity_business					= Double.NaN;
+
+	public final Double bike_activity_private_business 	= Double.NaN;
+	public final Double bike_activity_work							= Double.NaN;
+	public final Double bike_activity_education					= Double.NaN;
+	public final Double bike_activity_shopping					= Double.NaN;
+	public final Double bike_activity_leisure						= Double.NaN;
+	public final Double bike_activity_home							= Double.NaN;
+	public final Double bike_activity_walk							= Double.NaN;
+	public final Double bike_activity_service						= Double.NaN;
+	public final Double bike_activity_business					= Double.NaN;
+
+
+	public final Double foot_weekday_workday 					= Double.NaN;
+	public final Double foot_weekday_saturday 				= Double.NaN;
+	public final Double foot_weekday_sunday 					= Double.NaN;
+
+	public final Double pt_weekday_workday 						= Double.NaN;
+	public final Double pt_weekday_saturday 					= Double.NaN;
+	public final Double pt_weekday_sunday 						= Double.NaN;
+
+	public final Double pass_weekday_workday 					= Double.NaN;
+	public final Double pass_weekday_saturday 				= Double.NaN;
+	public final Double pass_weekday_sunday 					= Double.NaN;
+
+	public final Double bike_weekday_workday 					= Double.NaN;
+	public final Double bike_weekday_saturday 				= Double.NaN;
+	public final Double bike_weekday_sunday 					= Double.NaN;
+
+
+	public final Double foot_hhtype_other							= Double.NaN;
+	public final Double foot_hhtype_2adults						= Double.NaN;
+	public final Double foot_hhtype_1adult						= Double.NaN;
+	public final Double foot_hhtype_kids							= Double.NaN;
+
+	public final Double pt_hhtype_other								= Double.NaN;
+	public final Double pt_hhtype_2adults							= Double.NaN;
+	public final Double pt_hhtype_1adult							= Double.NaN;
+	public final Double pt_hhtype_kids								= Double.NaN;
+
+	public final Double pass_hhtype_other							= Double.NaN;
+	public final Double pass_hhtype_2adults						= Double.NaN;
+	public final Double pass_hhtype_1adult						= Double.NaN;
+	public final Double pass_hhtype_kids							= Double.NaN;
+
+	public final Double bike_hhtype_other							= Double.NaN;
+	public final Double bike_hhtype_2adults						= Double.NaN;
+	public final Double bike_hhtype_1adult						= Double.NaN;
+	public final Double bike_hhtype_kids							= Double.NaN;
+
+
+	public final Double foot_employment_student_tertiary 	= Double.NaN;
+	public final Double foot_employment_education					= Double.NaN;
+	public final Double foot_employment_work_from41				= Double.NaN;
+	public final Double foot_employment_work_to40					= Double.NaN;
+	public final Double foot_employment_unemployed				= Double.NaN;
+	public final Double foot_employment_jobless						= Double.NaN;
+	public final Double foot_employment_retired						= Double.NaN;
+	public final Double foot_employment_student_primary	 	= Double.NaN;
+	public final Double foot_employment_student_secondary	= Double.NaN;
+
+	public final Double pt_employment_student_tertiary 		= Double.NaN;
+	public final Double pt_employment_education						= Double.NaN;
+	public final Double pt_employment_work_from41					= Double.NaN;
+	public final Double pt_employment_work_to40						= Double.NaN;
+	public final Double pt_employment_unemployed					= Double.NaN;
+	public final Double pt_employment_jobless							= Double.NaN;
+	public final Double pt_employment_retired							= Double.NaN;
+	public final Double pt_employment_student_primary 		= Double.NaN;
+	public final Double pt_employment_student_secondary 	= Double.NaN;
+
+	public final Double pass_employment_student_tertiary 	= Double.NaN;
+	public final Double pass_employment_education					= Double.NaN;
+	public final Double pass_employment_work_from41				= Double.NaN;
+	public final Double pass_employment_work_to40					= Double.NaN;
+	public final Double pass_employment_unemployed				= Double.NaN;
+	public final Double pass_employment_jobless						= Double.NaN;
+	public final Double pass_employment_retired						= Double.NaN;
+	public final Double pass_employment_student_primary 	= Double.NaN;
+	public final Double pass_employment_student_secondary	= Double.NaN;
+
+	public final Double bike_employment_student_tertiary 	= Double.NaN;
+	public final Double bike_employment_education					= Double.NaN;
+	public final Double bike_employment_work_from41				= Double.NaN;
+	public final Double bike_employment_work_to40					= Double.NaN;
+	public final Double bike_employment_unemployed				= Double.NaN;
+	public final Double bike_employment_jobless						= Double.NaN;
+	public final Double bike_employment_retired						= Double.NaN;
+	public final Double bike_employment_student_primary 	= Double.NaN;
+	public final Double bike_employment_student_secondary	= Double.NaN;
+
+
+	public final Double car_parkingpressure								= Double.NaN;
+	public final Double foot_parkingpressure							= Double.NaN;
+	public final Double pt_parkingpressure								= Double.NaN;
+	public final Double pass_parkingpressure							= Double.NaN;
+	public final Double bike_parkingpressure							= Double.NaN;
+
+	public final Double car_distance										= Double.NaN;
+	public final Double foot_distance										= Double.NaN;
+	public final Double pt_distance											= Double.NaN;
+	public final Double pass_distance										= Double.NaN;
+	public final Double bike_distance										= Double.NaN;
+
+	public final Double car_commutingdistance							= Double.NaN;
+	public final Double foot_commutingdistance						= Double.NaN;
+	public final Double pt_commutingdistance							= Double.NaN;
+	public final Double pass_commutingdistance						= Double.NaN;
+	public final Double bike_commutingdistance						= Double.NaN;
+
+	public final Double car_shorttrip							= Double.NaN;
+	public final Double foot_shorttrip						= Double.NaN;
+	public final Double pt_shorttrip							= Double.NaN;
+	public final Double pass_shorttrip						= Double.NaN;
+	public final Double bike_shorttrip						= Double.NaN;
 
 	private final Map<Mode,Map<String,Double>> parameters;
 
 	public ModeSelectorParameterOtherTrip() {
+		super();
+		new ParameterFormularParser().parseConfig(defaultParameters(), this);
+		parameters = Collections.unmodifiableMap(createParameterMaps());
+	}
+	
+	private InputStream defaultParameters() {
+		return ModeSelectorParameterOtherTrip.class
+				.getResourceAsStream("default-mode-selector-parameter-other-trip.txt");
+	}
 
+	public ModeSelectorParameterOtherTrip(File file) {
+		super();
+		new ParameterFormularParser().parseConfig(file, this);
 		parameters = Collections.unmodifiableMap(createParameterMaps());
 	}
 

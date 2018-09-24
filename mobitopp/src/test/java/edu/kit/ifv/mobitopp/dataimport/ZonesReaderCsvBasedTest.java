@@ -18,8 +18,8 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -59,7 +59,13 @@ public class ZonesReaderCsvBasedTest {
 				.build();
 		VisumZone anotherZone = visumZone().withId(anotherZoneId).withArea(areaId).build();
 		VisumZone otherZone = visumZone().withId(otherZoneId).withArea(areaId).build();
-		network = visumNetwork().with(area).with(someZone).with(anotherZone).with(otherZone).build();
+		network = visumNetwork()
+				.withDefaultCarSystem()
+				.with(area)
+				.with(someZone)
+				.with(anotherZone)
+				.with(otherZone)
+				.build();
 		roadNetwork = new SimpleRoadNetwork(network);
 		attractivityData = Example.attractivityData();
 		carSharingBuilder = mock(CarSharingBuilder.class);

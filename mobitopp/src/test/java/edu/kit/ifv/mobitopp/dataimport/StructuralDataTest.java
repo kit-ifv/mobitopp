@@ -14,8 +14,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 
 public class StructuralDataTest {
 
@@ -63,11 +64,11 @@ public class StructuralDataTest {
 
 	@Test
 	public void zoneAreaType() {
-		ZoneAreaType first = attractivityData.currentZoneAreaType();
+		AreaType first = attractivityData.currentZoneAreaType();
 		attractivityData.next();
-		ZoneAreaType second = attractivityData.currentZoneAreaType();
+		AreaType second = attractivityData.currentZoneAreaType();
 		attractivityData.next();
-		ZoneAreaType third = attractivityData.currentZoneAreaType();
+		AreaType third = attractivityData.currentZoneAreaType();
 
 		assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
 		assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));

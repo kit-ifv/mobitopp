@@ -132,7 +132,7 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	@Override
 	public TripIfc searchNewTrip(
 			SimulationPerson person, Time time, PublicTransportTrip trip) {
-		results.vehicleFull(person, time, trip);
+		results.searchNewTrip(person, time, trip);
 		return trip.derive(time, viaRouteSearch);
 	}
 

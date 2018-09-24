@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.data.InputSpecification;
 import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
@@ -21,7 +22,8 @@ public class TestSource implements DataSource {
 
 	/**
 	 * SnakeYaml needs a single argument constructor for classes without attributes.
-	 * @param dummy  
+	 * 
+	 * @param dummy
 	 */
 	public TestSource(String dummy) {
 	}
@@ -30,15 +32,15 @@ public class TestSource implements DataSource {
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, StructuralData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results) throws IOException {
+			ResultWriter results, AreaTypeRepository areaTypeRepository) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 
 	@Override
 	public DataRepositoryForSimulation forSimulation(
-			Supplier<Network> network, int numberOfZones,
-			InputSpecification input, PublicTransportData data, ResultWriter results,
-			ElectricChargingWriter electricChargingWriter) throws IOException {
+			Supplier<Network> network, int numberOfZones, InputSpecification input,
+			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
+			AreaTypeRepository areaTypeRepository) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 
