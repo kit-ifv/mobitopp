@@ -20,7 +20,9 @@ public enum Mode {
 	CARSHARING_STATION(11),
 	CARSHARING_FREE(12),
 	PEDELEC(16),
-	BIKESHARING(17)
+	BIKESHARING(17),
+	RIDE_POOLING(21),
+	AUTONOMOUS_TAXI(22)
 	;
 
 	private final int mode_numeric;
