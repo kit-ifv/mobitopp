@@ -130,6 +130,8 @@ public enum Mode {
 			case PUBLICTRANSPORT:
 			case CARSHARING_FREE:
 			case BIKESHARING:
+			case RIDE_POOLING:
+			case AUTONOMOUS_TAXI:
 				return true;
 			case BIKE:
 			case CAR:
