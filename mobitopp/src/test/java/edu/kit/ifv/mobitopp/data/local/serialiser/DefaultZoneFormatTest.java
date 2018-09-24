@@ -5,6 +5,7 @@ import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +17,9 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-import edu.kit.ifv.mobitopp.data.local.serialiser.DefaultZoneFormat;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -29,7 +30,7 @@ public class DefaultZoneFormatTest {
 	private static final int oid = 1;
 	private static final String id = "Z12345";
 	private static final String name = "zone name";
-	private static final ZoneAreaType areaType = ZoneAreaType.CITYOUTSKIRT;
+	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
 	private static final Location centroidLocation = Example.location;
 	private DefaultZoneFormat format;
@@ -41,7 +42,8 @@ public class DefaultZoneFormatTest {
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		zone = new Zone(oid, id, name, areaType, classification, centroidLocation, attractivity,
 				charging);
-		Map<Integer, ChargingDataForZone> chargingData = Collections.singletonMap(oid, charging);
+		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
+		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
 		format = new DefaultZoneFormat(chargingData, attractivities);
 	}

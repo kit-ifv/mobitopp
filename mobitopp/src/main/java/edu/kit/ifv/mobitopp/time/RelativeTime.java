@@ -69,6 +69,18 @@ public class RelativeTime implements Comparable<RelativeTime> {
 		return new RelativeTime(duration.minusDays(days));
 	}
 	
+	public RelativeTime minusHours(long hours) {
+		return new RelativeTime(duration.minusHours(hours));
+	}
+	
+	public RelativeTime minusMinutes(long minutes) {
+		return new RelativeTime(duration.minusMinutes(minutes));
+	}
+	
+	public RelativeTime minusSeconds(long seconds) {
+		return new RelativeTime(duration.minusSeconds(seconds));
+	}
+	
 	public RelativeTime multiplyBy(double multiplicant) {
 		long product = (long) (seconds() * multiplicant);
 		return RelativeTime.ofSeconds(product);

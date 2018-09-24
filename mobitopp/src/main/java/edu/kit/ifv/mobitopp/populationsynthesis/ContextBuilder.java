@@ -8,6 +8,8 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.LocalPanelDataRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
@@ -18,6 +20,7 @@ import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
+import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
@@ -25,6 +28,7 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumReader;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class ContextBuilder {
 
@@ -34,18 +38,24 @@ public class ContextBuilder {
 	private WrittenConfiguration configuration;
 	private DynamicParameters experimentalParameters;
 	private ResultWriter resultWriter;
+	private AreaTypeRepository areaTypeRepository;
 	private VisumNetwork network;
 	private SimpleRoadNetwork roadNetwork;
 	private DataRepositoryForPopulationSynthesis dataRepository;
 	private ActivityScheduleCreator activityScheduleCreator;
 	private Map<String, CarSharingCustomerModel> carSharing;
 	private File carEngineFile;
-
-	public ContextBuilder() {
+	
+	public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
 		super();
+		areaTypeRepository = areaTypeReposirtory;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forPopulationSynthesis();
+	}
+	
+	public ContextBuilder() {
+		this(new BicRepository());
 	}
 
 	public SynthesisContext buildFrom(File configurationFile) throws IOException {
@@ -102,7 +112,7 @@ public class ContextBuilder {
 		resultWriter = ResultWriter.create(inBaseFolder);
 		log("Configure result writer");
 	}
-
+	
 	private void visumNetwork() {
 		network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 		log("Load visum network");
@@ -118,19 +128,26 @@ public class ContextBuilder {
 	}
 
 	protected SimpleRoadNetwork createRoadNetwork(VisumRoadNetwork network) {
-		return new SimpleRoadNetwork(network);
+		return new SimpleRoadNetwork(network, carOf(network));
+	}
+
+	private VisumTransportSystem carOf(VisumRoadNetwork network) {
+		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
+		String carCode = visumToMobitopp.getCarTransportSystemCode();
+		return network.transportSystems.getBy(carCode);
 	}
 
 	private void dataRepository() throws IOException {
 		int numberOfZones = configuration.getNumberOfZones();
 		dataRepository = configuration.getDataSource().forPopulationSynthesis(network, roadNetwork,
-				demographyData(), panelData(), numberOfZones, startDate(), resultWriter);
+				demographyData(), panelData(), numberOfZones, startDate(), resultWriter, areaTypeRepository);
 		log("Load data repository");
 	}
 
 	private StructuralData demographyData() {
 		File demographyDataFile = Convert.asFile(configuration.getDemographyData());
-		StructuralData structuralData = new StructuralData(new CsvFile(demographyDataFile.getAbsolutePath()));
+		StructuralData structuralData = new StructuralData(
+				new CsvFile(demographyDataFile.getAbsolutePath()), areaTypeRepository);
 		log("Load demography data");
 		return structuralData;
 	}

@@ -18,6 +18,7 @@ import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
@@ -106,10 +107,11 @@ public class LocalFiles implements DataSource {
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, StructuralData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results) throws IOException {
+			ResultWriter results, AreaTypeRepository areaTypeRepository) throws IOException {
 		Matrices matrices = matrices();
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
-		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork);
+		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
+				areaTypeRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
@@ -142,10 +144,12 @@ public class LocalFiles implements DataSource {
 	}
 
 	private ZoneRepository loadZonesFromVisum(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
+			AreaTypeRepository areaTypeRepository) throws IOException {
 		ZoneRepository fromVisum = LocalZoneRepository
-				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile);
-		ZoneRepositorySerialiser serialised = createSerialiser();
+				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile,
+						areaTypeRepository);
+		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);
 		return fromVisum;
 	}
@@ -187,10 +191,11 @@ public class LocalFiles implements DataSource {
 	@Override
 	public DataRepositoryForSimulation forSimulation(
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
-			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter)
+			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
+			AreaTypeRepository areaTypeRepository)
 			throws IOException {
 		Matrices matrices = matrices();
-		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network);
+		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
@@ -201,18 +206,20 @@ public class LocalFiles implements DataSource {
 				vehicleBehaviour);
 	}
 
-	private ZoneRepository loadZonesFromMobiTopp(Supplier<Network> networkSupplier) {
-		ZoneRepositorySerialiser serialisedData = createSerialiser();
+	private ZoneRepository loadZonesFromMobiTopp(
+			Supplier<Network> networkSupplier, AreaTypeRepository areaTypeRepository) throws IOException {
+		ZoneRepositorySerialiser serialisedData = createSerialiser(areaTypeRepository);
 		if (serialisedData.isAvailable()) {
 			return serialisedData.load();
 		}
 		Network network = networkSupplier.get();
-		return loadZonesFromVisum(network.visumNetwork, network.roadNetwork);
+		return loadZonesFromVisum(network.visumNetwork, network.roadNetwork, areaTypeRepository);
 	}
 
-	private ZoneRepositorySerialiser createSerialiser() {
+	private ZoneRepositorySerialiser createSerialiser(AreaTypeRepository areaTypeRepository) {
 		ChargingDataFactory factory = createChargingFactory();
-		return new ZoneRepositorySerialiser(zoneRepositoryFolder, factory, attractivityDataFile);
+		return new ZoneRepositorySerialiser(zoneRepositoryFolder, factory, attractivityDataFile,
+				areaTypeRepository);
 	}
 
 	private ChargingDataFactory createChargingFactory() {
@@ -252,7 +259,7 @@ public class LocalFiles implements DataSource {
 		if (zoneRepositoryFolder.exists()) {
 			return;
 		}
-		System.out.println("Demand data folder is missing. It will be created at: "
+		System.out.println("Zone repository folder is missing. It will be created at: "
 				+ zoneRepositoryFolder.getAbsolutePath());
 		zoneRepositoryFolder.mkdirs();
 	}

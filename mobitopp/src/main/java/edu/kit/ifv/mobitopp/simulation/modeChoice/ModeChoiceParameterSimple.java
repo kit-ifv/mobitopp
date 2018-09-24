@@ -1,215 +1,216 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Employment;
-import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.util.parameter.ParameterFormularParser;
 
-class ModeChoiceParameterSimple 
-	implements ModeChoiceParameter
-{
+class ModeChoiceParameterSimple implements ModeChoiceParameter {
 
-	public final double walk_const                              =  -0.0f						-0.15f;
-	public final double bike_const                              =  -1.135554216f		-0.10f;
-	public final double car_const                               =  -0.156715219f		-0.35f	+0.05f;
-	public final double passenger_const                         =  -4.294146034f		-0.35f	-0.1f;
-	public final double pt_const                                =  -2.837248541f		+0.18f	+0.05f;
+	public final Double walk_const                         = Double.NaN;
+	public final Double bike_const                         = Double.NaN;
+	public final Double car_const                          = Double.NaN;
+	public final Double passenger_const                    = Double.NaN;
+	public final Double pt_const                           = Double.NaN;
 
-	public final double bike_intrazonal              =  -0.095082432f	+0.3f		+0.2f;
-	public final double car_intrazonal               =  -0.920633136f	+1.2f		-0.2f;
-	public final double passenger_intrazonal         =  -1.183225738f	+0.04f	+0.0f;
-	public final double pt_intrazonal                =  -2.030177214f	-0.0f;
+	public final Double bike_intrazonal                    = Double.NaN;
+	public final Double car_intrazonal                     = Double.NaN;
+	public final Double passenger_intrazonal               = Double.NaN;
+	public final Double pt_intrazonal                      = Double.NaN;
 
-	public final double time_km                  =  -0.028840345f;
-	public final double cost_km                  =  -0.357300688f;
+	public final Double time_km                            = Double.NaN;
+	public final Double cost_km                            = Double.NaN;
 
-	public final double bike_dist_km                  =   0.563432837f;
-	public final double car_dist_km                   =   0.782612544f;
-	public final double passenger_dist_km             =   0.794702610f;
-	public final double pt_dist_km                    =   0.794385070f;
+	public final Double bike_dist_km                       = Double.NaN;
+	public final Double car_dist_km                        = Double.NaN;
+	public final Double passenger_dist_km                  = Double.NaN;
+	public final Double pt_dist_km                         = Double.NaN;
 
-	public final double bike_commuting_ticket                   =  -0.427519173f;
-	public final double car_commuting_ticket                    =  -0.822681319f;
-	public final double passenger_commuting_ticket              =  -0.195836830f;
-	public final double pt_commuting_ticket                     =   2.369536426f;
+	public final Double bike_commuting_ticket              = Double.NaN;
+	public final Double car_commuting_ticket               = Double.NaN;
+	public final Double passenger_commuting_ticket         = Double.NaN;
+	public final Double pt_commuting_ticket                = Double.NaN;
 
-	public final double bike_no_driving_licence                 =  -0.592530236f;
-	public final double car_no_driving_licence                  =  -4.130871709f;
-	public final double passenger_no_driving_licence            =   0.003197803f;
-	public final double pt_no_driving_licence                   =  -0.055511164f;
+	public final Double bike_no_driving_licence            = Double.NaN;
+	public final Double car_no_driving_licence             = Double.NaN;
+	public final Double passenger_no_driving_licence       = Double.NaN;
+	public final Double pt_no_driving_licence              = Double.NaN;
 
-	public final double bike_female                   =  -0.567033272f;
-	public final double car_female                    =  -0.639109750f;
-	public final double passenger_female              =   0.674199210f;
-	public final double pt_female                     =   0.084118145f;
+	public final Double bike_female                        = Double.NaN;
+	public final Double car_female                         = Double.NaN;
+	public final Double passenger_female                   = Double.NaN;
+	public final Double pt_female                          = Double.NaN;
 
 
-	public final double walk_day_SA                        =  	0.0f					-0.4f;
-	public final double bike_day_SA                        =  -0.196256913f;
-	public final double car_day_SA                         =  -0.004288772f	+0.0f;
-	public final double passenger_day_SA                   =   0.529847096f	+0.4f;
-	public final double pt_day_SA                          =  -0.138846928f;
+	public final Double walk_day_SA                        = Double.NaN;
+	public final Double bike_day_SA                        = Double.NaN;
+	public final Double car_day_SA                         = Double.NaN;
+	public final Double passenger_day_SA                   = Double.NaN;
+	public final Double pt_day_SA                          = Double.NaN;
 
-	public final double walk_day_SU                        =  	0.0f					-0.7f;
-	public final double bike_day_SU                        =  -0.454292877f;
-	public final double car_day_SU                         =  -0.550669592f	+0.1f;
-	public final double passenger_day_SU                   =   0.167301163f	+0.3f;
-	public final double pt_day_SU                          =  -1.063381319f	+0.2f;
-
-
-	public final double bike_employment_EDUCATION          =   0.114985596f;
-	public final double car_employment_EDUCATION           =   0.509643064f 	+0.5f;
-	public final double passenger_employment_EDUCATION     =   0.339039803f	-0.5f;
-	public final double pt_employment_EDUCATION            =   0.047232353f;
-
-	public final double bike_employment_INFANT             =  -0.363205044f;
-	public final double car_employment_INFANT              =  -0.037373775f;
-	public final double passenger_employment_INFANT        =   0.913189939f;
-	public final double pt_employment_INFANT               =   0.690772082f;
-
-	public final double bike_employment_JOBLESS            =  -0.315296701f;
-	public final double car_employment_JOBLESS             =  -0.584236222f;
-	public final double passenger_employment_JOBLESS       =  -0.218397789f;
-	public final double pt_employment_JOBLESS              =   0.058309263f;
-
-	public final double bike_employment_NONE               =  -0.683183159f;
-	public final double car_employment_NONE                =  -0.471357952f	+0.5f;
-	public final double passenger_employment_NONE          =  -0.189507836f	-0.5f;
-	public final double pt_employment_NONE                 =  -0.034615119f;
-
-	public final double bike_employment_NOT_WORKING        =  -0.198162389f;
-	public final double car_employment_NOT_WORKING         =  -0.215497288f	+0.3f;
-	public final double passenger_employment_NOT_WORKING   =  -0.028002575f;
-	public final double pt_employment_NOT_WORKING          =  -0.157271937f	-0.1f;
-
-	public final double bike_employment_PARTTIME           =   0.324478964f	-0.03f;
-	public final double car_employment_PARTTIME            =   0.135891002f	+0.25f;
-	public final double passenger_employment_PARTTIME      =   0.183096535f	-0.2f;
-	public final double pt_employment_PARTTIME             =   0.010515388f	+0.0f;
-
-	public final double bike_employment_FULLTIME           =   0.0f	-0.05f;
-	public final double car_employment_FULLTIME            =   0.0f	+0.15f;
-	public final double passenger_employment_FULLTIME      =   0.0f	-0.15f;
-	public final double pt_employment_FULLTIME             =   0.0f	+0.05f;
-
-	public final double bike_employment_RETIRED            =  -0.640145297f	+0.15f;
-	public final double car_employment_RETIRED             =  -0.626501531f	+0.5f;
-	public final double passenger_employment_RETIRED       =  -0.419037233f	+0.1f;
-	public final double pt_employment_RETIRED              =  -0.077916076f	+0.15f;
-
-	public final double bike_employment_STUDENT            =   0.396924921f;
-	public final double car_employment_STUDENT             =  -0.075693423f	+0.7f;
-	public final double passenger_employment_STUDENT       =   0.046438566f	-0.4f;
-	public final double pt_employment_STUDENT              =  -0.200476993f	-0.4f;
+	public final Double walk_day_SU                        = Double.NaN;
+	public final Double bike_day_SU                        = Double.NaN;
+	public final Double car_day_SU                         = Double.NaN;
+	public final Double passenger_day_SU                   = Double.NaN;
+	public final Double pt_day_SU                          = Double.NaN;
 
 
-	public final double bike_purpose_BUSINESS              =  -0.315712362f	-0.75f;
-	public final double car_purpose_BUSINESS               =   0.568011794f	+0.9f;
-	public final double passenger_purpose_BUSINESS         =   0.743220379f	+1.3f;
-	public final double pt_purpose_BUSINESS                =  -0.031422537f	+0.7f;
+	public final Double bike_employment_EDUCATION          = Double.NaN;
+	public final Double car_employment_EDUCATION           = Double.NaN;
+	public final Double passenger_employment_EDUCATION     = Double.NaN;
+	public final Double pt_employment_EDUCATION            = Double.NaN;
 
-	public final double bike_purpose_EDUCATION             =  -0.720921709f	+0.25f;
-	public final double car_purpose_EDUCATION              =  -1.021528043f	-0.8f;
-	public final double passenger_purpose_EDUCATION        =  -0.138616258f	+0.65f;
-	public final double pt_purpose_EDUCATION               =  -0.111216798f	+0.65f;
+	public final Double bike_employment_INFANT             = Double.NaN;
+	public final Double car_employment_INFANT              = Double.NaN;
+	public final Double passenger_employment_INFANT        = Double.NaN;
+	public final Double pt_employment_INFANT               = Double.NaN;
 
-	public final double bike_purpose_HOME                  =  -0.823556102f;
-	public final double car_purpose_HOME                   =  -0.062112463f	-0.05f;
-	public final double passenger_purpose_HOME             =   1.530957797f;
-	public final double pt_purpose_HOME                    =  -0.155199243f;
+	public final Double bike_employment_JOBLESS            = Double.NaN;
+	public final Double car_employment_JOBLESS             = Double.NaN;
+	public final Double passenger_employment_JOBLESS       = Double.NaN;
+	public final Double pt_employment_JOBLESS              = Double.NaN;
 
-	public final double bike_purpose_LEISURE_INDOOR        =  -1.618148446f	- 1.5f;
-	public final double car_purpose_LEISURE_INDOOR         =  -0.845954981f	- 1.2f;
-	public final double passenger_purpose_LEISURE_INDOOR   =   1.163868360f	+ 0.15f;
-	public final double pt_purpose_LEISURE_INDOOR          =  -0.457385550f	- 0.1f;
+	public final Double bike_employment_NONE               = Double.NaN;
+	public final Double car_employment_NONE                = Double.NaN;
+	public final Double passenger_employment_NONE          = Double.NaN;
+	public final Double pt_employment_NONE                 = Double.NaN;
 
-	public final double bike_purpose_LEISURE_OTHER         =  -0.846082922f	-0.55f;
-	public final double car_purpose_LEISURE_OTHER          =  -0.179380713f	-0.6f;
-	public final double passenger_purpose_LEISURE_OTHER    =   1.253801946f	+0.2f;
-	public final double pt_purpose_LEISURE_OTHER           =  -0.429696731f	-0.0f;
+	public final Double bike_employment_NOT_WORKING        = Double.NaN;
+	public final Double car_employment_NOT_WORKING         = Double.NaN;
+	public final Double passenger_employment_NOT_WORKING   = Double.NaN;
+	public final Double pt_employment_NOT_WORKING          = Double.NaN;
 
-	public final double bike_purpose_LEISURE_OUTDOOR       =  -0.312092202f	+0.0f;
-	public final double car_purpose_LEISURE_OUTDOOR        =   0.609016017f	-0.3f;
-	public final double passenger_purpose_LEISURE_OUTDOOR  =   1.813688344f	+0.5f;
-	public final double pt_purpose_LEISURE_OUTDOOR         =  -0.824449765f	+0.2f;
+	public final Double bike_employment_PARTTIME           = Double.NaN;
+	public final Double car_employment_PARTTIME            = Double.NaN;
+	public final Double passenger_employment_PARTTIME      = Double.NaN;
+	public final Double pt_employment_PARTTIME             = Double.NaN;
 
-	public final double bike_purpose_LEISURE_WALK          =  -2.374425547f	+0.5f;
-	public final double car_purpose_LEISURE_WALK           =  -2.962287630f	-2.0f;
-	public final double passenger_purpose_LEISURE_WALK     =  -1.209223937f	-0.5f;
-	public final double pt_purpose_LEISURE_WALK            =  -3.606917986f;
+	public final Double bike_employment_FULLTIME           = Double.NaN;
+	public final Double car_employment_FULLTIME            = Double.NaN;
+	public final Double passenger_employment_FULLTIME      = Double.NaN;
+	public final Double pt_employment_FULLTIME             = Double.NaN;
 
-	public final double bike_purpose_OTHER                 =  -0.356103564f;
-	public final double car_purpose_OTHER                  =   0.660259921f	-1.0f;
-	public final double passenger_purpose_OTHER            =   2.317950216f	-0.5f;
-	public final double pt_purpose_OTHER                   =   0.675906529f	-2.0f;
+	public final Double bike_employment_RETIRED            = Double.NaN;
+	public final Double car_employment_RETIRED             = Double.NaN;
+	public final Double passenger_employment_RETIRED       = Double.NaN;
+	public final Double pt_employment_RETIRED              = Double.NaN;
 
-	public final double bike_purpose_PRIVATE_BUSINESS      =  -0.705941299f 	+0.3f;
-	public final double car_purpose_PRIVATE_BUSINESS       =   0.251098346f 	+0.1f;
-	public final double passenger_purpose_PRIVATE_BUSINESS =   1.347996542f	+0.6f;
-	public final double pt_purpose_PRIVATE_BUSINESS        =  -0.486515902f	+0.6f;
-
-	public final double bike_purpose_PRIVATE_VISIT         =  -0.871281194f	+0.05f;
-	public final double car_purpose_PRIVATE_VISIT          =   0.046198790f	-0.15f;
-	public final double passenger_purpose_PRIVATE_VISIT    =   1.235097268f	+0.5f;
-	public final double pt_purpose_PRIVATE_VISIT           =  -1.157203997f	+0.35f;
-
-	public final double bike_purpose_SERVICE               =  -0.948053231f	-0.37f;
-	public final double car_purpose_SERVICE                =   1.044898934f	+0.7f;
-	public final double passenger_purpose_SERVICE          =   0.984002644f	+0.35f;
-	public final double pt_purpose_SERVICE                 =  -1.379886290f	-0.0f;
-
-	public final double bike_purpose_SHOPPING_DAILY        =  -0.562891949f	+0.2f;
-	public final double car_purpose_SHOPPING_DAILY         =   0.253130727f	+0.2f;
-	public final double passenger_purpose_SHOPPING_DAILY   =   1.222357053f	+0.6f;
-	public final double pt_purpose_SHOPPING_DAILY          =  -1.100201907f	+0.8f;
-
-	public final double bike_purpose_SHOPPING_OTHER        =  -0.596589234f	-0.05f;
-	public final double car_purpose_SHOPPING_OTHER         =   0.302772456f 	+0.1f;
-	public final double passenger_purpose_SHOPPING_OTHER   =   1.596579178f	+0.5f;
-	public final double pt_purpose_SHOPPING_OTHER          =  -0.294744124f 	+0.4f;
+	public final Double bike_employment_STUDENT            = Double.NaN;
+	public final Double car_employment_STUDENT             = Double.NaN;
+	public final Double passenger_employment_STUDENT       = Double.NaN;
+	public final Double pt_employment_STUDENT              = Double.NaN;
 
 
-	public final double bike_age_0to9                       =  -1.219998625f		+0.2f; // Correction for "Student"
-	public final double car_age_0to9                       =  -19.409428774f		-0.6f;
-	public final double passenger_age_0to9                  =   1.444763141f		+0.4f	+0.0f;
-	public final double pt_age_0to9                         =  -0.369952894f		+0.3f	-1.0f -0.4f;
+	public final Double bike_purpose_BUSINESS              = Double.NaN;
+	public final Double car_purpose_BUSINESS               = Double.NaN;
+	public final Double passenger_purpose_BUSINESS         = Double.NaN;
+	public final Double pt_purpose_BUSINESS                = Double.NaN;
 
-	public final double bike_age_10to17                     =   0.905400552f; // Correction for "Student"
-	public final double car_age_10to17                      =  -0.028866673f		-0.6f - 0.5f;
-	public final double passenger_age_10to17                =   1.641004767f		+0.4f	+0.1f;
-	public final double pt_age_10to17                       =   0.650167559f		+0.3f	+0.3f;
+	public final Double bike_purpose_EDUCATION             = Double.NaN;
+	public final Double car_purpose_EDUCATION              = Double.NaN;
+	public final Double passenger_purpose_EDUCATION        = Double.NaN;
+	public final Double pt_purpose_EDUCATION               = Double.NaN;
 
-	public final double bike_age_18to25                     =   0.066218139f;
-	public final double car_age_18to25                      =   0.611543802f;
-	public final double passenger_age_18to25                =   1.100420667f;
-	public final double pt_age_18to25                       =   0.514064868f;
+	public final Double bike_purpose_HOME                  = Double.NaN;
+	public final Double car_purpose_HOME                   = Double.NaN;
+	public final Double passenger_purpose_HOME             = Double.NaN;
+	public final Double pt_purpose_HOME                    = Double.NaN;
 
-	public final double bike_age_26to35                     =  -0.487771970f;
-	public final double car_age_26to35                      =  -0.465007769f;
-	public final double passenger_age_26to35                =  -0.197607298f;
-	public final double pt_age_26to35                       =  -0.084504160f;
-	public final double bike_age_51to60                     =  -0.279277908f;
-	public final double car_age_51to60                      =   0.135240486f;
-	public final double passenger_age_51to60                =   0.360189845f;
-	public final double pt_age_51to60                       =   0.188256908f;
-	public final double bike_age_61to70                     =  -0.128295437f;
-	public final double car_age_61to70                      =   0.063149242f;
-	public final double passenger_age_61to70                =   0.683020271f;
-	public final double pt_age_61to70                       =   0.334229251f;
-	public final double bike_age_70plus                       =  -0.226297261f;
-	public final double car_age_70plus                        =   0.026608404f;
-	public final double passenger_age_70plus                  =   0.619391086f;
-	public final double pt_age_70plus                         =   0.481590162f;
+	public final Double bike_purpose_LEISURE_INDOOR        = Double.NaN;
+	public final Double car_purpose_LEISURE_INDOOR         = Double.NaN;
+	public final Double passenger_purpose_LEISURE_INDOOR   = Double.NaN;
+	public final Double pt_purpose_LEISURE_INDOOR          = Double.NaN;
+
+	public final Double bike_purpose_LEISURE_OTHER         = Double.NaN;
+	public final Double car_purpose_LEISURE_OTHER          = Double.NaN;
+	public final Double passenger_purpose_LEISURE_OTHER    = Double.NaN;
+	public final Double pt_purpose_LEISURE_OTHER           = Double.NaN;
+
+	public final Double bike_purpose_LEISURE_OUTDOOR       = Double.NaN;
+	public final Double car_purpose_LEISURE_OUTDOOR        = Double.NaN;
+	public final Double passenger_purpose_LEISURE_OUTDOOR  = Double.NaN;
+	public final Double pt_purpose_LEISURE_OUTDOOR         = Double.NaN;
+
+	public final Double bike_purpose_LEISURE_WALK          = Double.NaN;
+	public final Double car_purpose_LEISURE_WALK           = Double.NaN;
+	public final Double passenger_purpose_LEISURE_WALK     = Double.NaN;
+	public final Double pt_purpose_LEISURE_WALK            = Double.NaN;
+
+	public final Double bike_purpose_OTHER                 = Double.NaN;
+	public final Double car_purpose_OTHER                  = Double.NaN;
+	public final Double passenger_purpose_OTHER            = Double.NaN;
+	public final Double pt_purpose_OTHER                   = Double.NaN;
+
+	public final Double bike_purpose_PRIVATE_BUSINESS      = Double.NaN;
+	public final Double car_purpose_PRIVATE_BUSINESS       = Double.NaN;
+	public final Double passenger_purpose_PRIVATE_BUSINESS = Double.NaN;
+	public final Double pt_purpose_PRIVATE_BUSINESS        = Double.NaN;
+
+	public final Double bike_purpose_PRIVATE_VISIT         = Double.NaN;
+	public final Double car_purpose_PRIVATE_VISIT          = Double.NaN;
+	public final Double passenger_purpose_PRIVATE_VISIT    = Double.NaN;
+	public final Double pt_purpose_PRIVATE_VISIT           = Double.NaN;
+
+	public final Double bike_purpose_SERVICE               = Double.NaN;
+	public final Double car_purpose_SERVICE                = Double.NaN;
+	public final Double passenger_purpose_SERVICE          = Double.NaN;
+	public final Double pt_purpose_SERVICE                 = Double.NaN;
+
+	public final Double bike_purpose_SHOPPING_DAILY        = Double.NaN;
+	public final Double car_purpose_SHOPPING_DAILY         = Double.NaN;
+	public final Double passenger_purpose_SHOPPING_DAILY   = Double.NaN;
+	public final Double pt_purpose_SHOPPING_DAILY          = Double.NaN;
+
+	public final Double bike_purpose_SHOPPING_OTHER        = Double.NaN;
+	public final Double car_purpose_SHOPPING_OTHER         = Double.NaN;
+	public final Double passenger_purpose_SHOPPING_OTHER   = Double.NaN;
+	public final Double pt_purpose_SHOPPING_OTHER          = Double.NaN;
+
+
+	public final Double bike_age_0to9                      = Double.NaN;
+	public final Double car_age_0to9                       = Double.NaN;
+	public final Double passenger_age_0to9                 = Double.NaN;
+	public final Double pt_age_0to9                        = Double.NaN;
+
+	public final Double bike_age_10to17                    = Double.NaN;
+	public final Double car_age_10to17                     = Double.NaN;
+	public final Double passenger_age_10to17               = Double.NaN;
+	public final Double pt_age_10to17                      = Double.NaN;
+
+	public final Double bike_age_18to25                    = Double.NaN;
+	public final Double car_age_18to25                     = Double.NaN;
+	public final Double passenger_age_18to25               = Double.NaN;
+	public final Double pt_age_18to25                      = Double.NaN;
+
+	public final Double bike_age_26to35                    = Double.NaN;
+	public final Double car_age_26to35                     = Double.NaN;
+	public final Double passenger_age_26to35               = Double.NaN;
+	public final Double pt_age_26to35                      = Double.NaN;
+	public final Double bike_age_51to60                    = Double.NaN;
+	public final Double car_age_51to60                     = Double.NaN;
+	public final Double passenger_age_51to60               = Double.NaN;
+	public final Double pt_age_51to60                      = Double.NaN;
+	public final Double bike_age_61to70                    = Double.NaN;
+	public final Double car_age_61to70                     = Double.NaN;
+	public final Double passenger_age_61to70               = Double.NaN;
+	public final Double pt_age_61to70                      = Double.NaN;
+	public final Double bike_age_70plus                    = Double.NaN;
+	public final Double car_age_70plus                     = Double.NaN;
+	public final Double passenger_age_70plus               = Double.NaN;
+	public final Double pt_age_70plus                      = Double.NaN;
 
 
 	private final Map<String,Double> parameterWalk 			= new LinkedHashMap<String,Double>();
@@ -217,10 +218,20 @@ class ModeChoiceParameterSimple
 	private final Map<String,Double> parameterCar 				= new LinkedHashMap<String,Double>();
 	private final Map<String,Double> parameterPassenger 	= new LinkedHashMap<String,Double>();
 	private final Map<String,Double> parameterPt 				= new LinkedHashMap<String,Double>();
-
-	public ModeChoiceParameterSimple() {
-
+	
+	public ModeChoiceParameterSimple(File file) {
+		new ParameterFormularParser().parseConfig(file, this);
 		init();
+	}
+	
+	public ModeChoiceParameterSimple() {
+		new ParameterFormularParser().parseConfig(defaultParameters(), this);
+		init();
+	}
+
+	private static InputStream defaultParameters() {
+		return ModeChoiceParameterSimple.class
+				.getResourceAsStream("default-mode-choice-parameter-simple.txt");
 	}
 
 	private void init() {

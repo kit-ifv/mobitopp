@@ -8,14 +8,12 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 interface PassengerResults {
 
-	void board(
-			SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
+	void board(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
 
-	void getOff(
-			SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
+	void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
 
 	void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
 
-	void vehicleFull(SimulationPerson person, Time time, PublicTransportTrip trip);
+	void searchNewTrip(SimulationPerson person, Time time, PublicTransportTrip trip);
 
 }

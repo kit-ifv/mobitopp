@@ -78,6 +78,7 @@ public class PoiBasedTest {
 				.chargingFacilities(numberOfFacilities)
 				.build();
 		networkBuilder.with(zone);
+		networkBuilder.withDefaultCarSystem();
 		return builder().create(zone, new Example().polygonAcceptingPoints());
 	}
 

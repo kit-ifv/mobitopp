@@ -92,6 +92,11 @@ public class VisumNetworkBuilder {
 		transportSystems.put(system.code, system);
 		return this;
 	}
+	
+	public VisumNetworkBuilder withDefaultCarSystem() {
+		with(new VisumTransportSystem("P", "P", "P"));
+		return this;
+	}
 
 	public VisumNetworkBuilder with(VisumLink link) {
 		links.put(link.id, link);
@@ -136,5 +141,6 @@ public class VisumNetworkBuilder {
 		carSharingStations.put(company, stations);
 		return this;
 	}
+
 
 }

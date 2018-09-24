@@ -25,8 +25,13 @@ public class VisumMatrix implements Matrix<Float> {
 	}
 
 	public static VisumMatrix loadFrom(String filename) {
+		File file = new File(filename);
+		return loadFrom(file);
+	}
+
+	public static VisumMatrix loadFrom(File file) {
 		try {
-			FloatMatrix matrix = VisumMatrixParser.load(new File(filename)).parseMatrix();
+			FloatMatrix matrix = VisumMatrixParser.load(file).parseMatrix();
 			return new VisumMatrix(matrix);
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);

@@ -1,0 +1,187 @@
+walk_const                         =  -0.0         - 0.15
+bike_const                         =  -1.135554216 - 0.10
+car_const                          =  -0.156715219 - 0.35 + 0.05
+passenger_const                    =  -4.294146034 - 0.35 - 0.1
+pt_const                           =  -2.837248541 + 0.18 + 0.05
+
+bike_intrazonal                    =  -0.095082432 + 0.3  + 0.2
+car_intrazonal                     =  -0.920633136 + 1.2  - 0.2
+passenger_intrazonal               =  -1.183225738 + 0.04 + 0.0
+pt_intrazonal                      =  -2.030177214 - 0.0
+
+time_km                            =  -0.028840345
+cost_km                            =  -0.357300688
+
+bike_dist_km                       =   0.563432837
+car_dist_km                        =   0.782612544
+passenger_dist_km                  =   0.794702610
+pt_dist_km                         =   0.794385070
+
+bike_commuting_ticket              =  -0.427519173
+car_commuting_ticket               =  -0.822681319
+passenger_commuting_ticket         =  -0.195836830
+pt_commuting_ticket                =   2.369536426
+
+bike_no_driving_licence            =  -0.592530236
+car_no_driving_licence             =  -4.130871709
+passenger_no_driving_licence       =   0.003197803
+pt_no_driving_licence              =  -0.055511164
+
+bike_female                        =  -0.567033272
+car_female                         =  -0.639109750
+passenger_female                   =   0.674199210
+pt_female                          =   0.084118145
+
+walk_day_SA                        =   0.0         - 0.4
+bike_day_SA                        =  -0.196256913
+car_day_SA                         =  -0.004288772 + 0.0
+passenger_day_SA                   =   0.529847096 + 0.4
+pt_day_SA                          =  -0.138846928
+
+walk_day_SU                        =   0.0         - 0.7
+bike_day_SU                        =  -0.454292877
+car_day_SU                         =  -0.550669592 + 0.1
+passenger_day_SU                   =   0.167301163 + 0.3
+pt_day_SU                          =  -1.063381319 + 0.2
+
+bike_employment_EDUCATION          =   0.114985596
+car_employment_EDUCATION           =   0.509643064 + 0.5
+passenger_employment_EDUCATION     =   0.339039803 - 0.5
+pt_employment_EDUCATION            =   0.047232353
+
+bike_employment_INFANT             =  -0.363205044
+car_employment_INFANT              =  -0.037373775
+passenger_employment_INFANT        =   0.913189939
+pt_employment_INFANT               =   0.690772082
+
+bike_employment_JOBLESS            =  -0.315296701
+car_employment_JOBLESS             =  -0.584236222
+passenger_employment_JOBLESS       =  -0.218397789
+pt_employment_JOBLESS              =   0.058309263
+
+bike_employment_NONE               =  -0.683183159
+car_employment_NONE                =  -0.471357952 + 0.5
+passenger_employment_NONE          =  -0.189507836 - 0.5
+pt_employment_NONE                 =  -0.034615119
+
+bike_employment_NOT_WORKING        =  -0.198162389
+car_employment_NOT_WORKING         =  -0.215497288 + 0.3
+passenger_employment_NOT_WORKING   =  -0.028002575
+pt_employment_NOT_WORKING          =  -0.157271937 - 0.1
+
+bike_employment_PARTTIME           =   0.324478964 - 0.03
+car_employment_PARTTIME            =   0.135891002 + 0.25
+passenger_employment_PARTTIME      =   0.183096535 - 0.2
+pt_employment_PARTTIME             =   0.010515388 + 0.0
+
+bike_employment_FULLTIME           =   0.0 - 0.05
+car_employment_FULLTIME            =   0.0 + 0.15
+passenger_employment_FULLTIME      =   0.0 - 0.15
+pt_employment_FULLTIME             =   0.0 + 0.05
+
+bike_employment_RETIRED            =  -0.640145297 + 0.15
+car_employment_RETIRED             =  -0.626501531 + 0.5
+passenger_employment_RETIRED       =  -0.419037233 + 0.1
+pt_employment_RETIRED              =  -0.077916076 + 0.15
+
+bike_employment_STUDENT            =   0.396924921
+car_employment_STUDENT             =  -0.075693423 + 0.7
+passenger_employment_STUDENT       =   0.046438566 - 0.4
+pt_employment_STUDENT              =  -0.200476993 - 0.4
+
+bike_purpose_BUSINESS              =  -0.315712362 - 0.75
+car_purpose_BUSINESS               =   0.568011794 + 0.9
+passenger_purpose_BUSINESS         =   0.743220379 + 1.3
+pt_purpose_BUSINESS                =  -0.031422537 + 0.7
+
+bike_purpose_EDUCATION             =  -0.720921709 + 0.25
+car_purpose_EDUCATION              =  -1.021528043 - 0.8
+passenger_purpose_EDUCATION        =  -0.138616258 + 0.65
+pt_purpose_EDUCATION               =  -0.111216798 + 0.65
+
+bike_purpose_HOME                  =  -0.823556102
+car_purpose_HOME                   =  -0.062112463 - 0.05
+passenger_purpose_HOME             =   1.530957797
+pt_purpose_HOME                    =  -0.155199243
+
+bike_purpose_LEISURE_INDOOR        =  -1.618148446 - 1.5
+car_purpose_LEISURE_INDOOR         =  -0.845954981 - 1.2
+passenger_purpose_LEISURE_INDOOR   =   1.163868360 + 0.15
+pt_purpose_LEISURE_INDOOR          =  -0.457385550 - 0.1
+
+bike_purpose_LEISURE_OTHER         =  -0.846082922 - 0.55
+car_purpose_LEISURE_OTHER          =  -0.179380713 - 0.6
+passenger_purpose_LEISURE_OTHER    =   1.253801946 + 0.2
+pt_purpose_LEISURE_OTHER           =  -0.429696731 - 0.0
+
+bike_purpose_LEISURE_OUTDOOR       =  -0.312092202 + 0.0
+car_purpose_LEISURE_OUTDOOR        =   0.609016017 - 0.3
+passenger_purpose_LEISURE_OUTDOOR  =   1.813688344 + 0.5
+pt_purpose_LEISURE_OUTDOOR         =  -0.824449765 + 0.2
+
+bike_purpose_LEISURE_WALK          =  -2.374425547 + 0.5
+car_purpose_LEISURE_WALK           =  -2.962287630 - 2.0
+passenger_purpose_LEISURE_WALK     =  -1.209223937 - 0.5
+pt_purpose_LEISURE_WALK            =  -3.606917986
+
+bike_purpose_OTHER                 =  -0.356103564
+car_purpose_OTHER                  =   0.660259921 - 1.0
+passenger_purpose_OTHER            =   2.317950216 - 0.5
+pt_purpose_OTHER                   =   0.675906529 - 2.0
+
+bike_purpose_PRIVATE_BUSINESS      =  -0.705941299 + 0.3
+car_purpose_PRIVATE_BUSINESS       =   0.251098346 + 0.1
+passenger_purpose_PRIVATE_BUSINESS =   1.347996542 + 0.6
+pt_purpose_PRIVATE_BUSINESS        =  -0.486515902 + 0.6
+
+bike_purpose_PRIVATE_VISIT         =  -0.871281194 + 0.05
+car_purpose_PRIVATE_VISIT          =   0.046198790 - 0.15
+passenger_purpose_PRIVATE_VISIT    =   1.235097268 + 0.5
+pt_purpose_PRIVATE_VISIT           =  -1.157203997 + 0.35
+
+bike_purpose_SERVICE               =  -0.948053231 - 0.37
+car_purpose_SERVICE                =   1.044898934 + 0.7
+passenger_purpose_SERVICE          =   0.984002644 + 0.35
+pt_purpose_SERVICE                 =  -1.379886290 - 0.0
+
+bike_purpose_SHOPPING_DAILY        =  -0.562891949 + 0.2
+car_purpose_SHOPPING_DAILY         =   0.253130727 + 0.2
+passenger_purpose_SHOPPING_DAILY   =   1.222357053 + 0.6
+pt_purpose_SHOPPING_DAILY          =  -1.100201907 + 0.8
+
+bike_purpose_SHOPPING_OTHER        =  -0.596589234 - 0.05
+car_purpose_SHOPPING_OTHER         =   0.302772456 + 0.1
+passenger_purpose_SHOPPING_OTHER   =   1.596579178 + 0.5
+pt_purpose_SHOPPING_OTHER          =  -0.294744124 + 0.4
+
+bike_age_0to9                      =  -1.219998625 + 0.2 // Correction for "Student"
+car_age_0to9                       = -19.409428774 - 0.6
+passenger_age_0to9                 =   1.444763141 + 0.4 +0.0
+pt_age_0to9                        =  -0.369952894 + 0.3 -1.0 -0.4
+
+bike_age_10to17                    =   0.905400552 // Correction for "Student"
+car_age_10to17                     =  -0.028866673 - 0.6 - 0.5
+passenger_age_10to17               =   1.641004767 + 0.4 + 0.1
+pt_age_10to17                      =   0.650167559 + 0.3 + 0.3
+
+bike_age_18to25                    =   0.066218139
+car_age_18to25                     =   0.611543802
+passenger_age_18to25               =   1.100420667
+pt_age_18to25                      =   0.514064868
+
+bike_age_26to35                    =  -0.487771970
+car_age_26to35                     =  -0.465007769
+passenger_age_26to35               =  -0.197607298
+pt_age_26to35                      =  -0.084504160
+bike_age_51to60                    =  -0.279277908
+car_age_51to60                     =   0.135240486
+passenger_age_51to60               =   0.360189845
+pt_age_51to60                      =   0.188256908
+bike_age_61to70                    =  -0.128295437
+car_age_61to70                     =   0.063149242
+passenger_age_61to70               =   0.683020271
+pt_age_61to70                      =   0.334229251
+bike_age_70plus                    =  -0.226297261
+car_age_70plus                     =   0.026608404
+passenger_age_70plus               =   0.619391086
+pt_age_70plus                      =   0.481590162

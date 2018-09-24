@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 import java.io.File;
@@ -398,6 +399,10 @@ System.out.println("reading tables...");
 	) {
 
 		VisumTable table = tables.get("ABBIEGER");
+		if (null == table) {
+			System.out.println("Turns are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer,List<VisumTurn>> data = new HashMap<>();
 
@@ -456,7 +461,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-	private VisumZone zoneWithChargingStations(VisumTable table, int i, Integer id) {
+	protected VisumZone zoneWithChargingStations(VisumTable table, int i, Integer id) {
 		String charging_facilities = chargingFacilities(table, i);
 		String floatingCarArea = car2GoGebiet(table, i);
 		String floatingCarNumber = floatingCarNumber(table, i);
@@ -483,9 +488,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return tmp;
 	}
 
-
-
-	private float innerZonePublicTransportTime(VisumTable table, int i) {
+	protected float innerZonePublicTransportTime(VisumTable table, int i) {
 		if (table.containsAttribute("DIAG_OEV")) {
 			return Float.parseFloat(table.getValue(i, "DIAG_OEV"));
 		}
@@ -494,7 +497,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return 0.0f;
 	}
 
-	private Map<String, Float> carSharingDensities(VisumTable table, int i) {
+	protected Map<String, Float> carSharingDensities(VisumTable table, int i) {
 		Map<String, Float> carsharingcarDensities = new HashMap<>();
 		if (table.containsAttribute("FZ_FL_SM") && table.containsAttribute("FZ_FL_FL")
 				&& table.containsAttribute("FZ_FL_C2G")) {
@@ -505,7 +508,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return carsharingcarDensities;
 	}
 
-	private String floatingCarNumber(VisumTable table, int i) {
+	protected String floatingCarNumber(VisumTable table, int i) {
 		if (table.containsAttribute("CAR2GO_AUSGANGSZUSTAND")) {
 			String floatingCarNumber = table.getValue(i, "CAR2GO_AUSGANGSZUSTAND");
 			return floatingCarNumber.isEmpty() ? "0" : floatingCarNumber;
@@ -513,7 +516,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return "0";
 	}
 
-	private String car2GoGebiet(VisumTable table, int i) {
+	protected String car2GoGebiet(VisumTable table, int i) {
 		if (table.containsAttribute("CAR2GO_GEBIET")) {
 			String floatingCarArea = table.getValue(i, "CAR2GO_GEBIET");
 			return floatingCarArea.isEmpty() ? "0" : floatingCarArea;
@@ -521,14 +524,14 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return "0";
 	}
 
-	private String chargingFacilities(VisumTable table, int i) {
+	protected String chargingFacilities(VisumTable table, int i) {
 		if (table.containsAttribute("LADESTATIONEN")) {
 			return table.getValue(i, "LADESTATIONEN");
 		}
 		return "0";
 	}
 
-	private static double privateChargingProbability(VisumTable table, int i) {
+	protected static double privateChargingProbability(VisumTable table, int i) {
 		if (table.containsAttribute("ANTEIL_STE")) {
 			String anteilSte = table.getValue(i, "ANTEIL_STE");
 			return anteilSte.isEmpty() ? alwaysAllowed : normalizeProbability(anteilSte);
@@ -549,6 +552,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("ANBINDUNG");
+		if (null == table) {
+			System.out.println("Connectors are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer,List<VisumConnector>> data = new HashMap<>();
 
@@ -603,6 +610,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("FZGEINHEIT");
+		if (null == table) {
+			System.out.println("Vehicle units are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer, VisumVehicleUnit> data = new HashMap<>();
 
@@ -634,6 +645,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		VisumTable vehicleCombinations = tables.get("FZGKOMB");
 		VisumTable vehicleUnits2Combinations = tables.get("FZGEINHEITZUFZGKOMB");
+		if (null == vehicleCombinations || null == vehicleUnits2Combinations) {
+			System.out.println("Vehicle combinations are missing!");
+			return emptyMap();
+		}
 
 		Map<Integer, VisumVehicleCombination> data = new HashMap<>();
 
@@ -1054,6 +1069,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	) {
 
 		VisumTable table = tables.get("FAHRPLANFAHRTABSCHNITT");
+		if (null == table) {
+			System.out.println("Vehicle journey parts are missing!");
+			return emptyList();
+		}
 
 		Map<Integer,List<VisumPtVehicleJourneySection>> sections
 			= new HashMap<>();

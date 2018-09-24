@@ -7,8 +7,13 @@ import java.util.function.Supplier;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem.Type;
+import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 
 public class AgeDistributionBuilder {
+
+	private static final String malePrefix = "Age:M:";
+	private static final String femalePrefix = "Age:F:";
 
 	private final StructuralData structuralData;
 
@@ -17,7 +22,15 @@ public class AgeDistributionBuilder {
 		this.structuralData = structuralData;
 	}
 
-	public <T extends AgeDistributionIfc> T buildFor(
+	public MaleAgeDistribution buildMale() {
+		return buildFor(malePrefix, MaleAgeDistribution::new);
+	}
+
+	public FemaleAgeDistribution buildFemale() {
+		return buildFor(femalePrefix, FemaleAgeDistribution::new);
+	}
+
+	private <T extends AgeDistributionIfc> T buildFor(
 			String genderPrefix, Supplier<T> ageDistributionFactory) {
 		T ageDistribution = ageDistributionFactory.get();
 		List<String> ages = new ArrayList<>();

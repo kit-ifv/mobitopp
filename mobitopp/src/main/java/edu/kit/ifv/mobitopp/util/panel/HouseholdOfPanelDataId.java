@@ -1,11 +1,6 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
-import java.util.Objects;
-
-public class HouseholdOfPanelDataId 
-  implements  Comparable<HouseholdOfPanelDataId>
-		, PanelDataIdIfc 
-{
+public class HouseholdOfPanelDataId implements Comparable<HouseholdOfPanelDataId> {
 
   private final short year;
   private final int   householdNumber;
@@ -46,20 +41,21 @@ public class HouseholdOfPanelDataId
   }
 
 
-  public boolean equals(Object obj)
-  {
-
-    HouseholdOfPanelDataId otherObject = 
-      (HouseholdOfPanelDataId) obj;
-
-    if (this.householdNumber ==  otherObject.householdNumber &&
-        this.year == otherObject.year)
-    {
-      return true;
-    }
-
-    return false;
-  }
+  @Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HouseholdOfPanelDataId other = (HouseholdOfPanelDataId) obj;
+		if (householdNumber != other.householdNumber)
+			return false;
+		if (year != other.year)
+			return false;
+		return true;
+	}
 
 	public double get_weight() {
 		return weight;
@@ -73,7 +69,12 @@ public class HouseholdOfPanelDataId
 		return "[" + year + "," + householdNumber + "]";
 	}
 
+	@Override
 	public int hashCode() {
-		return Objects.hash(year, householdNumber);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + householdNumber;
+		result = prime * result + year;
+		return result;
 	}
 }

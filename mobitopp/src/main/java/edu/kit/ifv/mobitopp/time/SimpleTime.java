@@ -125,6 +125,24 @@ public class SimpleTime implements Time, Comparable<Time> {
 	}
 	
 	@Override
+	public Time minusHours(int decrement) {
+		RelativeTime changed = fromStart().minusHours(decrement);
+		return from(changed);
+	}
+	
+	@Override
+	public Time minusMinutes(int decrement) {
+		RelativeTime changed = fromStart().minusMinutes(decrement);
+		return from(changed);
+	}
+	
+	@Override
+	public Time minusSeconds(int decrement) {
+		RelativeTime changed = fromStart().minusSeconds(decrement);
+		return from(changed);
+	}
+	
+	@Override
 	public Time plus(RelativeTime increment) {
 		RelativeTime changed = fromStart().plus(increment);
 		return from(changed);

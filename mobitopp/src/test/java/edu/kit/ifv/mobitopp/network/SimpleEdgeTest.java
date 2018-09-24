@@ -1,22 +1,21 @@
 package edu.kit.ifv.mobitopp.network;
 
-import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.geom.Point2D;
 
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.network.SimpleEdge;
-import edu.kit.ifv.mobitopp.network.SimpleGraph;
-import edu.kit.ifv.mobitopp.network.SimpleNode;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
 
 public class SimpleEdgeTest {
 
 	final static double EPSILON = 1.0e-6;
 
-	private VisumTransportSystems transportSystems = new VisumTransportSystems(emptyMap());
+	private VisumTransportSystems transportSystems = new VisumTransportSystems(
+			singletonMap("P", new VisumTransportSystem("P", "P", "P")));
 	private SimpleGraph graph = new SimpleGraph(transportSystems);
 
 	private SimpleNode node00 = graph.makeNode(0, new Point2D.Double(0.0,0.0));
