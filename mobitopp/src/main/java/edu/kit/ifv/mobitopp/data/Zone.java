@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
@@ -31,7 +32,7 @@ public class Zone implements Serializable {
   
   // zone parameter
 	private String name = null;
-	private ZoneAreaType areaType = null;
+	private AreaType areaType;
 	private ZoneClassificationType classification = null;
 
   private Location centroidLocation;
@@ -55,7 +56,7 @@ public class Zone implements Serializable {
   public Zone(
 		String id,
 		String name,
-		ZoneAreaType areaType,
+		AreaType areaType,
 		ZoneClassificationType classification,
 		Location centroidLocation,
 		Attractivities attractivities,
@@ -69,7 +70,7 @@ public class Zone implements Serializable {
   		int oid,
   		String id,
   		String name,
-  		ZoneAreaType areaType,
+  		AreaType areaType,
   		ZoneClassificationType classification,
   		Location centroidLocation,
   		Attractivities attractivities,
@@ -102,7 +103,7 @@ public class Zone implements Serializable {
     return this.id;
   }
 
-  public ZoneAreaType getAreaType()
+  public AreaType getAreaType()
   {
 		assert this.areaType != null;
 

@@ -8,9 +8,10 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -63,7 +64,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 	private Zone zoneFrom(VisumZone visumZone) {
 		String id = String.format("Z%1d", visumZone.id);
 		String name = visumZone.name;
-		ZoneAreaType areaType = currentZoneAreaType();
+		AreaType areaType = currentZoneAreaType();
 		ZoneClassificationType classification = currentClassification();
 		ZonePolygon polygon = currentZonePolygon(visumZone);
 		Location centroid = polygon.centroidLocation();
@@ -120,20 +121,22 @@ public class ZonesReaderCsvBased implements ZonesReader {
 		return attractivities.currentClassification();
 	}
 
-	private ZoneAreaType currentZoneAreaType() {
+	private AreaType currentZoneAreaType() {
 		return attractivities.currentZoneAreaType();
 	}
 
 	public static ZonesReaderCsvBased from(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-			DefaultPower defaultPower, File attractivityDataFile) {
-		StructuralData attractivityData = structuralDataFrom(attractivityDataFile);
+			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository) {
+		StructuralData attractivityData = structuralDataFrom(attractivityDataFile, areaTypeRepository);
 		return new ZonesReaderCsvBased(visumNetwork, roadNetwork, attractivityData, charging,
 				defaultPower);
 	}
 
-	private static StructuralData structuralDataFrom(File structuralDataFile) {
-		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+	private static StructuralData structuralDataFrom(
+			File structuralDataFile, AreaTypeRepository areaTypeRepository) {
+		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()),
+				areaTypeRepository);
 	}
 
 }

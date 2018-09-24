@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URISyntaxException;
 
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
+import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
@@ -26,10 +27,14 @@ public class Example {
 		String path = new File(Example.class.getResource("Demography.csv").toURI())
 				.getAbsolutePath();
 		CsvFile csv = new CsvFile(path);
-		return new StructuralData(csv);
+		return new StructuralData(csv, areaTypeRepository());
 		} catch (URISyntaxException cause) {
 			throw new RuntimeException(cause);
 		}
+	}
+
+	private static BicRepository areaTypeRepository() {
+		return new BicRepository();
 	}
 	
 	public static StructuralData attractivityData() {
@@ -37,7 +42,7 @@ public class Example {
 			String path = new File(Example.class.getResource("Attractivities.csv").toURI())
 					.getAbsolutePath();
 			CsvFile csv = new CsvFile(path);
-			return new StructuralData(csv);
+			return new StructuralData(csv, areaTypeRepository());
 		} catch (URISyntaxException cause) {
 			throw new RuntimeException(cause);
 		}

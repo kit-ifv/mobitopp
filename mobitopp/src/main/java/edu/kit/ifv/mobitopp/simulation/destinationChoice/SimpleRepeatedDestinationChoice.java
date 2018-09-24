@@ -3,16 +3,16 @@ package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 public class SimpleRepeatedDestinationChoice
@@ -20,12 +20,9 @@ public class SimpleRepeatedDestinationChoice
 {
 
 	protected TargetChoiceRepetitionParameter2 targetParameter;
-
 	protected DestinationChoiceModelChoiceSet destinationChoiceModel;
-	
 	protected final Map<Integer,Zone> zones;
-
-
+	private final CommunityTypeMapping typeMapping;
 
 	public SimpleRepeatedDestinationChoice(
 		Map<Integer,Zone> zones,
@@ -37,6 +34,7 @@ public class SimpleRepeatedDestinationChoice
 		this.destinationChoiceModel = destinationChoiceModel;
 
 		this.zones = Collections.unmodifiableMap(zones);
+		typeMapping = new CommunityTypeMapping();
 	}
 
 
@@ -118,29 +116,9 @@ public class SimpleRepeatedDestinationChoice
 
 		Household hh = person.household();
 		Zone zone = hh.homeZone();
-		ZoneAreaType areaType = zone.getAreaType();
+		AreaType areaType = zone.getAreaType();
 
-		int community_type;
-
-		switch(areaType) {
-			case RURAL:
-				community_type = 4;
-				break;
-			case PROVINCIAL:
-				community_type = 4;
-				break;
-			case CITYOUTSKIRT:
-				community_type = 3;
-				break;
-			case METROPOLITAN:
-				community_type = 3;
-				break;
-			case CONURBATION:
-				community_type = 1;
-				break;
-			default:
-				community_type = 4;
-		}
+		int community_type = communityTypeFor(areaType);
 
 		float p = this.targetParameter.getParameter(activityType,
 				sourceIsFixedActivity, activityNumber, community_type);
@@ -148,5 +126,8 @@ public class SimpleRepeatedDestinationChoice
 		return randomNumber < p;
 	}
 
+	int communityTypeFor(AreaType areaType) {
+		return typeMapping.getCommunityTypeFor(areaType);
+	}
 
 }

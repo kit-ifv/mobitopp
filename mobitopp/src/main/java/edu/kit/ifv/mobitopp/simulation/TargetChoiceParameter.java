@@ -10,13 +10,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 
 public class TargetChoiceParameter {
 
-	private Map<ZoneAreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter = new HashMap<>();
+	private Map<AreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter = new HashMap<>();
+	private final AreaTypeRepository areaTypeRepository;
 
-	public TargetChoiceParameter(String filename) {
+	public TargetChoiceParameter(String filename, AreaTypeRepository areaTypeRepository) {
+		super();
+		this.areaTypeRepository = areaTypeRepository;
 		parseConfigFile(filename);
 	}
 
@@ -82,8 +87,7 @@ public class TargetChoiceParameter {
 
 
 	private void addTypeAndActivity(int zoneType, int activity, Map<Set<Mode>,Float> values) {
-
-		ZoneAreaType zoneKey = ZoneAreaType.getTypeFromInt(zoneType);
+		AreaType zoneKey = areaTypeRepository.getTypeForCode(zoneType);
 		ActivityType activityKey = ActivityType.getTypeFromInt(activity);
 
 		if (!this.parameter.containsKey(zoneKey)) {
@@ -94,12 +98,12 @@ public class TargetChoiceParameter {
 	}
 
 	private static void printParameter(
-		Map<ZoneAreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter
+		Map<AreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter
 	) {
 
 		System.out.println("Targetparameter");
 
-		for (ZoneAreaType zone : parameter.keySet()) {
+		for (AreaType zone : parameter.keySet()) {
 
 			System.out.println("Type: " + zone.getTypeAsInt() + " " + zone.getTypeAsString());
 
@@ -121,7 +125,7 @@ public class TargetChoiceParameter {
 	}
 
 	public float getParameter(
-		ZoneAreaType zoneType, 
+		AreaType zoneType, 
 		ActivityType attType, 
 		Set<Mode> choiceSetForModes
 	) {

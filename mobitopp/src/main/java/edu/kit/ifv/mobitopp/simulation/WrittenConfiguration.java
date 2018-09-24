@@ -50,6 +50,7 @@ public class WrittenConfiguration {
 		this.destinationChoice = other.destinationChoice;
 		this.modeChoice = other.modeChoice;
 		this.timeStepLength = other.timeStepLength;
+		this.visumToMobitopp = other.visumToMobitopp;
 		this.experimental = other.experimental;
 	}
 
@@ -141,12 +142,10 @@ public class WrittenConfiguration {
 		this.timeStepLength = timeStepLength;
 	}
 
-	
 	public VisumToMobitopp getVisumToMobitopp() {
 		return visumToMobitopp;
 	}
 
-	
 	public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
 		this.visumToMobitopp = visumToMobitopp;
 	}

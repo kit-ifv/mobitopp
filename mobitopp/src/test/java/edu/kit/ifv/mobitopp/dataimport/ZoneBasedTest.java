@@ -118,6 +118,7 @@ public class ZoneBasedTest {
 	}
 
 	private ZoneBased builder() {
+		networkBuilder.withDefaultCarSystem();
 		VisumNetwork network = networkBuilder.build();
 		SimpleRoadNetwork roadNetwork = new SimpleRoadNetwork(network);
 		ZoneLocationSelector locationSelector = new ZoneLocationSelector(roadNetwork);

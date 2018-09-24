@@ -8,6 +8,8 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.LocalPanelDataRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
@@ -36,18 +38,24 @@ public class ContextBuilder {
 	private WrittenConfiguration configuration;
 	private DynamicParameters experimentalParameters;
 	private ResultWriter resultWriter;
+	private AreaTypeRepository areaTypeRepository;
 	private VisumNetwork network;
 	private SimpleRoadNetwork roadNetwork;
 	private DataRepositoryForPopulationSynthesis dataRepository;
 	private ActivityScheduleCreator activityScheduleCreator;
 	private Map<String, CarSharingCustomerModel> carSharing;
 	private File carEngineFile;
-
-	public ContextBuilder() {
+	
+	public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
 		super();
+		areaTypeRepository = areaTypeReposirtory;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forPopulationSynthesis();
+	}
+	
+	public ContextBuilder() {
+		this(new BicRepository());
 	}
 
 	public SynthesisContext buildFrom(File configurationFile) throws IOException {
@@ -104,7 +112,7 @@ public class ContextBuilder {
 		resultWriter = ResultWriter.create(inBaseFolder);
 		log("Configure result writer");
 	}
-
+	
 	private void visumNetwork() {
 		network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
 		log("Load visum network");
@@ -132,13 +140,14 @@ public class ContextBuilder {
 	private void dataRepository() throws IOException {
 		int numberOfZones = configuration.getNumberOfZones();
 		dataRepository = configuration.getDataSource().forPopulationSynthesis(network, roadNetwork,
-				demographyData(), panelData(), numberOfZones, startDate(), resultWriter);
+				demographyData(), panelData(), numberOfZones, startDate(), resultWriter, areaTypeRepository);
 		log("Load data repository");
 	}
 
 	private StructuralData demographyData() {
 		File demographyDataFile = Convert.asFile(configuration.getDemographyData());
-		StructuralData structuralData = new StructuralData(new CsvFile(demographyDataFile.getAbsolutePath()));
+		StructuralData structuralData = new StructuralData(
+				new CsvFile(demographyDataFile.getAbsolutePath()), areaTypeRepository);
 		log("Load demography data");
 		return structuralData;
 	}

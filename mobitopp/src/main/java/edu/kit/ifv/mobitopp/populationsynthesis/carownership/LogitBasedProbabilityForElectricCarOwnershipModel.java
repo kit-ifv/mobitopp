@@ -7,9 +7,9 @@ import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
-
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneAreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 public class LogitBasedProbabilityForElectricCarOwnershipModel
@@ -93,7 +93,7 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 		float commutingdistance_km = impedance.getDistance(homeZone, poleZone)/1000.0f;
 
 		final Zone zone = household.homeZone();
-		final ZoneAreaType areaType = zone.getAreaType();
+		final AreaType areaType = zone.getAreaType();
 
 		int sex_male = person.gender() == Gender.MALE ? 1 : 0;
 
