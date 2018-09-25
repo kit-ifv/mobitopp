@@ -3,7 +3,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis.householdlocation;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.network.Edge;
@@ -39,16 +38,16 @@ public class EdgeDistributions {
 
 	private void createEdgeDistributionFor(Zone zone) {
 		Map<Integer, Edge> edges = zone.containedEdges(network);
-		List<Edge> filtered = filterEdges(edges.values());
+		Collection<Edge> filtered = filterEdges(edges.values());
 		DiscreteRandomVariable<Edge> distribution = createCumulativeDistribution(filtered);
 		edgeDistributions.put(zone.id(), distribution);
 	}
 
-	List<Edge> filterEdges(Collection<Edge> edges) {
+	Collection<Edge> filterEdges(Collection<Edge> edges) {
 		return edgeFilter.filter(edges);
 	}
 
-	private DiscreteRandomVariable<Edge> createCumulativeDistribution(List<Edge> edges) {
+	private DiscreteRandomVariable<Edge> createCumulativeDistribution(Collection<Edge> edges) {
 		Map<Edge, Double> lengths = new LinkedHashMap<Edge, Double>();
 		for (Edge e : edges) {
 			SimpleEdge edge = (SimpleEdge) e;
