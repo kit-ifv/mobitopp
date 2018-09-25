@@ -43,7 +43,7 @@ public class EdgeDistributionsTest {
 		List<Edge> filteredEdges = new ArrayList<>();
 		when(edgeFilter.filter(edges)).thenReturn(filteredEdges);
 
-		List<Edge> delegated = distributions.filterEdges(edges);
+		Collection<Edge> delegated = distributions.filterEdges(edges);
 
 		assertThat(delegated, is(sameInstance(filteredEdges)));
 		verify(edgeFilter).filter(edges);
