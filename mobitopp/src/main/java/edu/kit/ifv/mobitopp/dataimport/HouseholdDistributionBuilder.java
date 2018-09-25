@@ -8,7 +8,7 @@ import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 
 public class HouseholdDistributionBuilder {
 
-	private static final String householdPrefix = "HHTyp:";
+	private static final String householdPrefix = "hhtyp:";
 
 	private final StructuralData structuralData;
 

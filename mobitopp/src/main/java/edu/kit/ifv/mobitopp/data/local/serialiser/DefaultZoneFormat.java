@@ -10,7 +10,8 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -29,11 +30,13 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	private final ChargingDataResolver charging;
 	private final Map<Integer, Attractivities> attractivities;
 	private final LocationParser locationParser;
+	private final AreaTypeRepository areaTypeRepository;
 
-	public DefaultZoneFormat(ChargingDataResolver charging, Map<Integer, Attractivities> attractivities) {
+	public DefaultZoneFormat(ChargingDataResolver charging, Map<Integer, Attractivities> attractivities, AreaTypeRepository areaTypeRepository) {
 		super();
 		this.charging = charging;
 		this.attractivities = attractivities;
+		this.areaTypeRepository = areaTypeRepository;
 		locationParser = new LocationParser();
 	}
 
@@ -47,7 +50,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		return asList(valueOf(zone.getOid()), 
 				zone.getId(),
 				zone.getName(),
-				valueOf(zone.getAreaType()),
+				valueOf(zone.getAreaType().getTypeAsInt()),
 				valueOf(zone.getClassification()),
 				valueOf(locationParser.serialise(zone.centroidLocation())));
 	}
@@ -57,7 +60,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		int oid = oidOf(data);
 		String id = idOf(data);
 		String name = nameOf(data);
-		ZoneAreaType areaType = areaTypeOf(data);
+		AreaType areaType = areaTypeOf(data);
 		ZoneClassificationType classification = classificationOf(data);
 		Location centroidLocation = locationOf(data);
 		Attractivities attractivities = attractivitiesOf(data);
@@ -79,9 +82,9 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		return data.get(nameIndex);
 	}
 
-	private ZoneAreaType areaTypeOf(List<String> data) {
+	private AreaType areaTypeOf(List<String> data) {
 		String areaType = data.get(areaTypeIndex);
-		return ZoneAreaType.valueOf(areaType);
+		return areaTypeRepository.getTypeForCode(Integer.parseInt(areaType));
 	}
 
 	private ZoneClassificationType classificationOf(List<String> data) {

@@ -6,7 +6,7 @@ import edu.kit.ifv.mobitopp.simulation.Employment;
 
 public class EmploymentDistributionBuilder {
 
-	private static final String prefix = "Job:";
+	private static final String prefix = "job:";
 	private final StructuralData structuralData;
 
 	public EmploymentDistributionBuilder(StructuralData structuralData) {
