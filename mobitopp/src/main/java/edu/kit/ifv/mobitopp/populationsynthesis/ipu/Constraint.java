@@ -4,8 +4,8 @@ import java.util.List;
 
 public interface Constraint {
 
-	List<Household> scaleWeightsOf(List<Household> households);
+	List<WeightedHousehold> scaleWeightsOf(List<WeightedHousehold> households);
 
-	double calculateGoodnessOfFitFor(List<Household> households);
+	double calculateGoodnessOfFitFor(List<WeightedHousehold> households);
 
 }

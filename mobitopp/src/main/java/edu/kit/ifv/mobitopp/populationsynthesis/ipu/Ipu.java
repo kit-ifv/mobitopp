@@ -8,9 +8,9 @@ public class Ipu {
 	private final Iteration iteration;
 	private final int maxIterations;
 	private final double maxGoodness;
-	private List<Household> bestHouseholds;
+	private List<WeightedHousehold> bestHouseholds;
 	private double bestGoodness;
-	private List<Household> currentHouseholds;
+	private List<WeightedHousehold> currentHouseholds;
 
 	public Ipu(Iteration iteration, int maxIterations, double maxGoodness) {
 		super();
@@ -19,9 +19,9 @@ public class Ipu {
 		this.maxGoodness = maxGoodness;
 	}
 
-	public List<Household> adjustWeightsOf(List<Household> households) {
+	public List<WeightedHousehold> adjustWeightsOf(List<WeightedHousehold> households) {
 		initialise(households);
-		List<Household> lastIterationHouseholds = currentHouseholds;
+		List<WeightedHousehold> lastIterationHouseholds = currentHouseholds;
 		for (int current = 0; current < maxIterations; current++) {
 			updateHouseholds(lastIterationHouseholds);
 			double goodnessOfFit = calculateGoodness();
@@ -34,13 +34,13 @@ public class Ipu {
 		return bestHouseholds;
 	}
 
-	private void initialise(List<Household> households) {
+	private void initialise(List<WeightedHousehold> households) {
 		currentHouseholds = new ArrayList<>(households);
 		bestHouseholds = currentHouseholds;
 		bestGoodness = calculateGoodness();
 	}
 
-	private void updateHouseholds(List<Household> lastIterationHouseholds) {
+	private void updateHouseholds(List<WeightedHousehold> lastIterationHouseholds) {
 		currentHouseholds = iteration.adjustWeightsOf(lastIterationHouseholds);
 	}
 

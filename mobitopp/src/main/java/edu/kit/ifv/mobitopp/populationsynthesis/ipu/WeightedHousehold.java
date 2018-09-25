@@ -4,14 +4,14 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
-public class Household {
+public class WeightedHousehold {
 
 	private final HouseholdOfPanelDataId id;
 	private final double weight;
 	private final Map<String, Integer> householdAttributes;
 	private final Map<String, Integer> personAttributes;
 
-	public Household(
+	public WeightedHousehold(
 			HouseholdOfPanelDataId id, double weight, Map<String, Integer> householdAttributes,
 			Map<String, Integer> personAttributes) {
 		super();
@@ -37,8 +37,8 @@ public class Household {
 		return personAttributes.get(attribute);
 	}
 
-	public Household newWeight(double newWeight) {
-		return new Household(id, newWeight, householdAttributes, personAttributes);
+	public WeightedHousehold newWeight(double newWeight) {
+		return new WeightedHousehold(id, newWeight, householdAttributes, personAttributes);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class Household {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Household other = (Household) obj;
+		WeightedHousehold other = (WeightedHousehold) obj;
 		if (householdAttributes == null) {
 			if (other.householdAttributes != null)
 				return false;

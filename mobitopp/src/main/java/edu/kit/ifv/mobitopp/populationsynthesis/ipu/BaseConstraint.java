@@ -16,18 +16,18 @@ public abstract class BaseConstraint implements Constraint {
 	}
 
 	@Override
-	public List<Household> scaleWeightsOf(List<Household> households) {
+	public List<WeightedHousehold> scaleWeightsOf(List<WeightedHousehold> households) {
 		double totalWeight = totalWeight(households);
 		double withFactor = requestedWeight / totalWeight;
 		return scaleWeightsOf(households, withFactor);
 	}
 
-	private double totalWeight(List<Household> households) {
+	private double totalWeight(List<WeightedHousehold> households) {
 		return households.stream().filter(this::matches).mapToDouble(this::totalWeight).sum();
 	}
 
-	private List<Household> scaleWeightsOf(List<Household> households, double factor) {
-		ArrayList<Household> newHouseholds = new ArrayList<>(notProcessed(households));
+	private List<WeightedHousehold> scaleWeightsOf(List<WeightedHousehold> households, double factor) {
+		ArrayList<WeightedHousehold> newHouseholds = new ArrayList<>(notProcessed(households));
 		households
 				.stream()
 				.filter(this::matches)
@@ -36,19 +36,19 @@ public abstract class BaseConstraint implements Constraint {
 		return newHouseholds;
 	}
 
-	private List<Household> notProcessed(List<Household> households) {
-		Predicate<Household> predicate = this::matches;
+	private List<WeightedHousehold> notProcessed(List<WeightedHousehold> households) {
+		Predicate<WeightedHousehold> predicate = this::matches;
 		return households.stream().filter(predicate.negate()).collect(toList());
 	}
 	
 	@Override
-	public double calculateGoodnessOfFitFor(List<Household> households) {
+	public double calculateGoodnessOfFitFor(List<WeightedHousehold> households) {
 		double totalWeight = totalWeight(households);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
 	}
 
-	protected abstract boolean matches(Household household);
+	protected abstract boolean matches(WeightedHousehold household);
 
-	protected abstract double totalWeight(Household household);
+	protected abstract double totalWeight(WeightedHousehold household);
 
 }

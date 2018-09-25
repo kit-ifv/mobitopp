@@ -18,10 +18,10 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class IpuTest {
 
-	private List<Household> households;
-	private List<Household> afterFirstIteration;
-	private List<Household> afterSecondIteration;
-	private List<Household> afterThirdIteration;
+	private List<WeightedHousehold> households;
+	private List<WeightedHousehold> afterFirstIteration;
+	private List<WeightedHousehold> afterSecondIteration;
+	private List<WeightedHousehold> afterThirdIteration;
 	private Iteration iteration;
 
 	@Before
@@ -41,10 +41,10 @@ public class IpuTest {
 		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.4d);
 	}
 
-	private List<Household> createHouseholds(double baseWeight) {
+	private List<WeightedHousehold> createHouseholds(double baseWeight) {
 		int hhid = 1;
-		Household household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
-		Household household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
+		WeightedHousehold household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
+		WeightedHousehold household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
 		return asList(household1, household2);
 	}
 
@@ -52,11 +52,11 @@ public class IpuTest {
 		return new HouseholdOfPanelDataId(2000, id);
 	}
 
-	private Household newHousehold(
+	private WeightedHousehold newHousehold(
 			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
 		Map<String, Integer> householdAttributes = singletonMap("some attribute", householdType);
 		Map<String, Integer> personAttributes = singletonMap("another attribute", personType);
-		return new Household(id, baseWeight, householdAttributes, personAttributes);
+		return new WeightedHousehold(id, baseWeight, householdAttributes, personAttributes);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class IpuTest {
 		double maxGoodness = 0.0d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness);
 
-		List<Household> updatedHouseholds = ipu.adjustWeightsOf(households);
+		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterSecondIteration)));
 	}
@@ -76,7 +76,7 @@ public class IpuTest {
 		double maxGoodness = 0.5d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness);
 
-		List<Household> updatedHouseholds = ipu.adjustWeightsOf(households);
+		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterFirstIteration)));
 	}

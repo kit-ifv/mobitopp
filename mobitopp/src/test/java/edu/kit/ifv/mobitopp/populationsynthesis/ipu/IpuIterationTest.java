@@ -23,14 +23,14 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 public class IpuIterationTest {
 
 	private static final double margin = 1e-6;
-	private List<Household> households;
-	private Household household1;
-	private Household household2;
+	private List<WeightedHousehold> households;
+	private WeightedHousehold household1;
+	private WeightedHousehold household2;
 	private Iteration ipu;
 	private Constraint someConstraint;
 	private Constraint anotherConstraint;
-	private List<Household> afterSomeConstraint;
-	private List<Household> afterAnotherConstraint;
+	private List<WeightedHousehold> afterSomeConstraint;
+	private List<WeightedHousehold> afterAnotherConstraint;
 
 	@Before
 	public void initialise() {
@@ -60,16 +60,16 @@ public class IpuIterationTest {
 		when(anotherConstraint.scaleWeightsOf(afterSomeConstraint)).thenReturn(afterAnotherConstraint);
 	}
 
-	private Household newHousehold(
+	private WeightedHousehold newHousehold(
 			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
 		Map<String, Integer> householdAttributes = singletonMap("some attribute", householdType);
 		Map<String, Integer> personAttributes = singletonMap("another attribute", personType);
-		return new Household(id, baseWeight, householdAttributes, personAttributes);
+		return new WeightedHousehold(id, baseWeight, householdAttributes, personAttributes);
 	}
 
 	@Test
 	public void adjustHouseholdWeightsWithSize() {
-		List<Household> adjusted = ipu.adjustWeightsOf(households);
+		List<WeightedHousehold> adjusted = ipu.adjustWeightsOf(households);
 
 		assertThat(adjusted, hasSize(households.size()));
 		assertThat(adjusted, is(equalTo(afterAnotherConstraint)));
@@ -81,7 +81,7 @@ public class IpuIterationTest {
 	@Test
 	public void returnsSameHouseholdsWithoutConstraints() {
 		IpuIteration ipuIteration = new IpuIteration(Collections.emptyList());
-		List<Household> adjusted = ipuIteration.adjustWeightsOf(households);
+		List<WeightedHousehold> adjusted = ipuIteration.adjustWeightsOf(households);
 		
 		assertThat(adjusted, is(equalTo(households)));
 	}
