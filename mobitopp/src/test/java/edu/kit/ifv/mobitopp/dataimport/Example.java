@@ -47,6 +47,17 @@ public class Example {
 			throw new RuntimeException(cause);
 		}
 	}
+	
+	public static StructuralData attractivityDataByCode() {
+		try {
+			String path = new File(Example.class.getResource("Attractivities-Code.csv").toURI())
+					.getAbsolutePath();
+			CsvFile csv = new CsvFile(path);
+			return new StructuralData(csv, areaTypeRepository());
+		} catch (URISyntaxException cause) {
+			throw new RuntimeException(cause);
+		}
+	}
 
 	public Location location() {
 		Point2D coordinate = Data.coordinate(pointX, pointY);

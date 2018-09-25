@@ -19,6 +19,8 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -38,6 +40,7 @@ public class DefaultZoneFormatTest {
 
 	@Before
 	public void initialise() {
+		AreaTypeRepository areaTypeRepository = new BicRepository();
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		zone = new Zone(oid, id, name, areaType, classification, centroidLocation, attractivity,
@@ -45,7 +48,7 @@ public class DefaultZoneFormatTest {
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
-		format = new DefaultZoneFormat(chargingData, attractivities);
+		format = new DefaultZoneFormat(chargingData, attractivities, areaTypeRepository);
 	}
 
 	private int zoneId() {
@@ -59,7 +62,7 @@ public class DefaultZoneFormatTest {
 		assertThat(prepared, contains(valueOf(oid),
 				id, 
 				name, 
-				valueOf(areaType),
+				valueOf(areaType.getTypeAsInt()),
 				valueOf(classification),
 				serialised(centroidLocation)));
 	}

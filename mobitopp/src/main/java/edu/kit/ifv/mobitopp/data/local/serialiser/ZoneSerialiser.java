@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.CsvSerialiser;
@@ -52,9 +53,11 @@ public class ZoneSerialiser implements Closeable {
 	}
 
 	public static ZoneSerialiser in(
-			File zoneRepositoryFolder, ChargingDataFactory factory, ZoneRepository repository) {
+			File zoneRepositoryFolder, ChargingDataFactory factory, ZoneRepository repository,
+			AreaTypeRepository areaTypeRepository) {
 		try {
-			return new SerialiserBuilder(zoneRepositoryFolder, repository, factory).build();
+			return new SerialiserBuilder(zoneRepositoryFolder, repository, factory, areaTypeRepository)
+					.build();
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
 		}

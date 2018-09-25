@@ -12,6 +12,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ConventionalCarFormat;
@@ -30,12 +31,15 @@ public class SerialiserBuilder {
 	private final File zoneRepositoryFolder;
 	private final ZoneRepository repository;
 	private final ChargingDataFactory factory;
+	private final AreaTypeRepository areaTypeRepository;
 
 	public SerialiserBuilder(
-			File zoneRepositoryFolder, ZoneRepository repository, ChargingDataFactory factory) {
+			File zoneRepositoryFolder, ZoneRepository repository, ChargingDataFactory factory,
+			AreaTypeRepository areaTypeRepository) {
 		this.zoneRepositoryFolder = zoneRepositoryFolder;
 		this.repository = repository;
 		this.factory = factory;
+		this.areaTypeRepository = areaTypeRepository;
 	}
 
 	private CSVWriter writerFor(DemandDataInput input) throws IOException {
@@ -103,7 +107,8 @@ public class SerialiserBuilder {
 
 	private CsvSerialiser<Zone> zones() throws IOException {
 		ChargingDataResolver zoneToCharging = chargingResolverFrom(repository);
-		DefaultZoneFormat zoneFormat = new DefaultZoneFormat(zoneToCharging, attractivities());
+		DefaultZoneFormat zoneFormat = new DefaultZoneFormat(zoneToCharging, attractivities(),
+				areaTypeRepository);
 		return new CsvSerialiser<>(writerFor(DemandDataInput.zones), zoneFormat);
 	}
 

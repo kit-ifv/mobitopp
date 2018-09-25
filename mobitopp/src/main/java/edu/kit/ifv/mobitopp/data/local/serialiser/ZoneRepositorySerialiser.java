@@ -186,7 +186,7 @@ public class ZoneRepositorySerialiser {
 	private ZoneRepository deserialiseZones(List<ZoneChargingFacility> chargingFacilities) {
 		ChargingDataResolver charging = chargingFrom(chargingFacilities);
 		Map<Integer, Attractivities> attractivities = attractivities();
-		DefaultZoneFormat format = new DefaultZoneFormat(charging, attractivities);
+		DefaultZoneFormat format = new DefaultZoneFormat(charging, attractivities, areaTypeRepository);
 		try (
 				CsvDeserialiser<Zone> deserialiser = new CsvDeserialiser<>(readerFor(DemandDataInput.zones),
 						format)) {
@@ -237,7 +237,8 @@ public class ZoneRepositorySerialiser {
 	}
 
 	public void serialise(ZoneRepository repository) throws IOException {
-		try (ZoneSerialiser serialiser = ZoneSerialiser.in(zoneRepositoryFolder, factory, repository)) {
+		try (ZoneSerialiser serialiser = ZoneSerialiser
+				.in(zoneRepositoryFolder, factory, repository, areaTypeRepository)) {
 			zoneRepositoryFolder.mkdirs();
 			serialiser.serialise();
 		}

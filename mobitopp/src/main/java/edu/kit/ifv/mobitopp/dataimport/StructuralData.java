@@ -56,8 +56,13 @@ public class StructuralData {
 
 	public AreaType currentZoneAreaType() {
 		String areaType = getValue("AreaType");
-		return areaType.isEmpty() ? areaTypeRepository.getDefault()
-				: areaTypeRepository.getTypeForName(areaType);
+		try {
+			int code = Integer.parseInt(areaType);
+			return areaTypeRepository.getTypeForCode(code);
+		} catch (NumberFormatException cause) {
+			return areaType.isEmpty() ? areaTypeRepository.getDefault()
+					: areaTypeRepository.getTypeForName(areaType);
+		}
 	}
 
 	public void next() {

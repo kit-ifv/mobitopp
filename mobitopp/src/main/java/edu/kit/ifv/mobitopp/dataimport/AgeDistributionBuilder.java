@@ -12,8 +12,8 @@ import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 
 public class AgeDistributionBuilder {
 
-	private static final String malePrefix = "Age:M:";
-	private static final String femalePrefix = "Age:F:";
+	private static final String malePrefix = "age:m:";
+	private static final String femalePrefix = "age:f:";
 
 	private final StructuralData structuralData;
 
@@ -51,7 +51,7 @@ public class AgeDistributionBuilder {
 	}
 
 	private AgeDistributionItem distributionItemFrom(String ageAsString, Type type) {
-		String tmp = ageAsString.replaceFirst("Age:[FM]:", "");
+		String tmp = ageAsString.replaceFirst("age:[fm]:", "");
 		String[] parts = tmp.split("-");
 		int age = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.parseInt(parts[0]);
 		int number = structuralData.valueOrDefault(ageAsString);

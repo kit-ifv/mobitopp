@@ -63,7 +63,21 @@ public class StructuralDataTest {
 	}
 
 	@Test
-	public void zoneAreaType() {
+	public void zoneAreaTypeFromString() {
+		AreaType first = attractivityData.currentZoneAreaType();
+		attractivityData.next();
+		AreaType second = attractivityData.currentZoneAreaType();
+		attractivityData.next();
+		AreaType third = attractivityData.currentZoneAreaType();
+
+		assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
+		assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));
+		assertThat(third, is(equalTo(ZoneAreaType.DEFAULT)));
+	}
+	
+	@Test
+	public void zoneAreaTypeFromCode() {
+		StructuralData attractivityData = Example.attractivityDataByCode();
 		AreaType first = attractivityData.currentZoneAreaType();
 		attractivityData.next();
 		AreaType second = attractivityData.currentZoneAreaType();
@@ -117,17 +131,17 @@ public class StructuralDataTest {
 	public void getAttributes() {
 		List<String> attributes = demographyData.getAttributes();
 
-		assertThat(attributes, contains("ID", "NAME", "Center:X", "Center:Y", "Einwohner in der Zone",
-				"Age:M:0-5", "Age:M:6-9", "Age:M:10-15", "Age:M:16-18", "Age:M:19-24", "Age:M:25-29",
-				"Age:M:30-44", "Age:M:45-59", "Age:M:60-64", "Age:M:65-74", "Age:M:75-", "Age:F:0-5",
-				"Age:F:6-9", "Age:F:10-15", "Age:F:16-18", "Age:F:19-24", "Age:F:25-29", "Age:F:30-44",
-				"Age:F:45-59", "Age:F:60-64", "Age:F:65-74", "Age:F:75-", "HHTyp:1", "HHTyp:2", "HHTyp:3",
-				"HHTyp:4", "HHTyp:5", "HHTyp:6", "HHTyp:7", "HHTyp:8", "HHTyp:9", "HHTyp:10", "HHTyp:11",
-				"HHTyp:12", "Job:FullTime", "Job:PartTime", "Job:None", "Job:Education_tertiary",
-				"Job:Education_secondary", "Job:Education_primary", "Job:Education_occup", "Job:Retired",
-				"Job:Infant", "Arbeit qualifiziert", "Arbeit einfach", "Arbeit selbst�ndig",
-				"Arbeit Teilzeit", "t�gl. Bedarf", "sonst. Bedarf", "Erledigung", "Besuche, Fortb.",
-				"Restaurant, Kultur", "Sport, Gr�nanl.", "Bringen/Holen", "Grundschule", "weiterf. Schule",
-				"Universit�t", "Berufsschule", "Rundweg"));
+		assertThat(attributes, contains("id", "name", "center:x", "center:y", "einwohner in der zone",
+				"age:m:0-5", "age:m:6-9", "age:m:10-15", "age:m:16-18", "age:m:19-24", "age:m:25-29",
+				"age:m:30-44", "age:m:45-59", "age:m:60-64", "age:m:65-74", "age:m:75-", "age:f:0-5",
+				"age:f:6-9", "age:f:10-15", "age:f:16-18", "age:f:19-24", "age:f:25-29", "age:f:30-44",
+				"age:f:45-59", "age:f:60-64", "age:f:65-74", "age:f:75-", "hhtyp:1", "hhtyp:2", "hhtyp:3",
+				"hhtyp:4", "hhtyp:5", "hhtyp:6", "hhtyp:7", "hhtyp:8", "hhtyp:9", "hhtyp:10", "hhtyp:11",
+				"hhtyp:12", "job:fulltime", "job:parttime", "job:none", "job:education_tertiary",
+				"job:education_secondary", "job:education_primary", "job:education_occup", "job:retired",
+				"job:infant", "arbeit qualifiziert", "arbeit einfach", "arbeit selbst�ndig",
+				"arbeit teilzeit", "t�gl. bedarf", "sonst. bedarf", "erledigung", "besuche, fortb.",
+				"restaurant, kultur", "sport, gr�nanl.", "bringen/holen", "grundschule", "weiterf. schule",
+				"universit�t", "berufsschule", "rundweg"));
 	}
 }

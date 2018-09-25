@@ -1,6 +1,8 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,14 +32,11 @@ public class CsvFile {
 	}
 
 	private void init(String filename) {
-		try (CSVReader reader = new CSVReader(new FileReader(filename), separator)) {
+		try (CSVReader reader = new CSVReader(createReader(filename), separator)) {
 
 		String[] header = reader.readNext();
 
-		for(int i=0; i< header.length; i++) {
-			this.columnNames.add(header[i]);
-			this.columnMapping.put(header[i],i);
-		}
+		createHeader(header);
 
 		String[] nextLine;
 
@@ -63,6 +62,18 @@ public class CsvFile {
 		}
 		catch (java.io.IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	protected Reader createReader(String filename) throws FileNotFoundException {
+		return new FileReader(filename);
+	}
+
+	private void createHeader(String[] header) {
+		for(int i=0; i< header.length; i++) {
+			String name = header[i].toLowerCase();
+			this.columnNames.add(name);
+			this.columnMapping.put(name,i);
 		}
 	}
 
@@ -106,19 +117,12 @@ public class CsvFile {
 		return this.columnNames;
 	}
 
-	public String getValue(int row_num, String attrib) {
-
-		assert data.containsKey(row_num) : (">> " + row_num + " " + attrib);
-
+	public String getValue(int row_num, String attribute) {
+		assert data.containsKey(row_num) : (">> " + row_num + " " + attribute);
 		Map<Integer,String> row = data.get(row_num);
-
-		Integer col = this.columnMapping.get(attrib);
-
-		assert  row.containsKey(col) : (">> " + row + " " + attrib);
-
-		String val = row.get(col);
-
-		return val;
+		Integer column = this.columnMapping.get(attribute.toLowerCase());
+		assert  row.containsKey(column) : (">> " + row + " " + attribute);
+		return row.get(column);
 	}
 	
 	public double getDouble(int row_num, String attribute) {
