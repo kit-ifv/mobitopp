@@ -24,39 +24,39 @@ public class BaseConstraintTest {
 
 	@Test
 	public void updateWeightsOnAllHousehold() {
-		Household someHousehold = newHousehold(someId, 1.0d);
-		Household anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<Household> households = asList(someHousehold, anotherHousehold);
+		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
+		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
+		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
 
-		List<Household> updatedHouseholds = constraint.scaleWeightsOf(households);
+		List<WeightedHousehold> updatedHouseholds = constraint.scaleWeightsOf(households);
 
-		Household updatedSomeHousehold = newHousehold(someId, 2.0d);
-		Household updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
+		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 2.0d);
+		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 
 	@Test
 	public void updateWeightOnSingleHousehold() {
-		Household someHousehold = newHousehold(someId, 1.0d);
-		Household anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<Household> households = asList(someHousehold, anotherHousehold);
+		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
+		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
+		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
-		List<Household> updatedHouseholds = constraint.scaleWeightsOf(households);
+		List<WeightedHousehold> updatedHouseholds = constraint.scaleWeightsOf(households);
 
-		Household updatedSomeHousehold = newHousehold(someId, 1.0d);
-		Household updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
+		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d);
+		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 	
 	@Test
 	public void calculatesGoodnessOfFit() {
-		Household someHousehold = newHousehold(someId, 1.0d);
-		Household anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<Household> households = asList(someHousehold, anotherHousehold);
+		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
+		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
+		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
 		
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
@@ -66,9 +66,9 @@ public class BaseConstraintTest {
 	
 	@Test
 	public void calculatesAnotherGoodnessOfFit() {
-		Household someHousehold = newHousehold(someId, 2.0d);
-		Household anotherHousehold = newHousehold(anotherId, 4.0d);
-		List<Household> households = asList(someHousehold, anotherHousehold);
+		WeightedHousehold someHousehold = newHousehold(someId, 2.0d);
+		WeightedHousehold anotherHousehold = newHousehold(anotherId, 4.0d);
+		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
 		
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
@@ -76,12 +76,12 @@ public class BaseConstraintTest {
 		assertThat(goodnessOfFit, is(closeTo(0.0d, margin)));
 	}
 
-	private Predicate<Household> onlyAnotherHousehold() {
+	private Predicate<WeightedHousehold> onlyAnotherHousehold() {
 		return h -> anotherId == h.id();
 	}
 
-	private Household newHousehold(HouseholdOfPanelDataId id, double weight) {
-		return new Household(id, weight, householdAttributes(), personAttributes());
+	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {
+		return new WeightedHousehold(id, weight, householdAttributes(), personAttributes());
 	}
 
 	private Map<String, Integer> personAttributes() {
@@ -96,16 +96,16 @@ public class BaseConstraintTest {
 		return newConstraint(h -> true);
 	}
 
-	private BaseConstraint newConstraint(Predicate<Household> filter) {
+	private BaseConstraint newConstraint(Predicate<WeightedHousehold> filter) {
 		return new BaseConstraint(requestedWeight) {
 
 			@Override
-			protected double totalWeight(Household household) {
+			protected double totalWeight(WeightedHousehold household) {
 				return household.weight();
 			}
 
 			@Override
-			protected boolean matches(Household household) {
+			protected boolean matches(WeightedHousehold household) {
 				return filter.test(household);
 			}
 		};

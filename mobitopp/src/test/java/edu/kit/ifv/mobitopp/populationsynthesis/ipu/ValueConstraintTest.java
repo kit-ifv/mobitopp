@@ -24,7 +24,7 @@ public class ValueConstraintTest {
 	private static final int noPeopleAvailable = 0;
 
 	private ValueConstraint constraint;
-	private Household household;
+	private WeightedHousehold household;
 
 	@Before
 	public void initialise() {
@@ -32,11 +32,11 @@ public class ValueConstraintTest {
 		constraint = new ValueConstraint(requestedWeight, h -> h.personAttribute(attribute));
 	}
 
-	private Household newHousehold(int people) {
+	private WeightedHousehold newHousehold(int people) {
 		Map<String, Integer> householdAttributes = emptyMap();
 		Map<String, Integer> personAttributes = singletonMap(attribute, people);
 		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(2000, 1);
-		return new Household(id, initialWeight, householdAttributes, personAttributes);
+		return new WeightedHousehold(id, initialWeight, householdAttributes, personAttributes);
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class ValueConstraintTest {
 
 	@Test
 	public void filtersHouseholdsWithoutPeople() {
-		Household householdWithoutPeople = newHousehold(noPeopleAvailable);
+		WeightedHousehold householdWithoutPeople = newHousehold(noPeopleAvailable);
 		
 		boolean result = constraint.matches(householdWithoutPeople);
 

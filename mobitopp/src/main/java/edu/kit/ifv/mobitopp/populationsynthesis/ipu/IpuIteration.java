@@ -13,8 +13,8 @@ public class IpuIteration implements Iteration {
 	}
 
 	@Override
-	public List<Household> adjustWeightsOf(List<Household> households) {
-		List<Household> newHouseholds = new ArrayList<>(households);
+	public List<WeightedHousehold> adjustWeightsOf(List<WeightedHousehold> households) {
+		List<WeightedHousehold> newHouseholds = new ArrayList<>(households);
 		for (Constraint constraint : constraints) {
 			newHouseholds = constraint.scaleWeightsOf(newHouseholds);
 		}
@@ -22,7 +22,7 @@ public class IpuIteration implements Iteration {
 	}
 
 	@Override
-	public double calculateGoodnessOfFitFor(List<Household> households) {
+	public double calculateGoodnessOfFitFor(List<WeightedHousehold> households) {
 		return constraints
 				.stream()
 				.mapToDouble(c -> c.calculateGoodnessOfFitFor(households))
