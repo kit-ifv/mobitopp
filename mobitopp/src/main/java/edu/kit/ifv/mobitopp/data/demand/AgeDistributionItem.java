@@ -1,32 +1,26 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
+import java.util.Objects;
+
 public class AgeDistributionItem
 		implements DemandModelDistributionItemIfc, Comparable<AgeDistributionItem> {
 	
 	private static final long serialVersionUID = 1L;
 
-	public static enum Type {
-		UNTIL, OVER
-	}
-	
-  private final Type sign;
-  private final byte age;
+  private final int age;
+  private final int lowerBound;
+  private final int upperBound;
   private int amount;
 
-	public AgeDistributionItem(Type sign, int age, int amount) {
+	public AgeDistributionItem(int lowerBound, int upperBound, int amount) {
 		super();
-    verify(sign);
-    verifyAge(age);
+		verifyAge(lowerBound);
+    verifyAge(upperBound);
     verifyAmount(amount);
-		this.age = (byte) age;
+		age = upperBound;
+		this.lowerBound = lowerBound;
+		this.upperBound = upperBound;
 		this.amount = amount;
-		this.sign = sign;
-	}
-
-	private void verify(Type sign) {
-		if (null == sign) {
-			throw new IllegalArgumentException("Sign is missing!");
-		}
 	}
 
 	private void verifyAmount(int amount) {
@@ -41,16 +35,20 @@ public class AgeDistributionItem
 		}
 	}
 
-	public int age() {
-		return this.age;
+	public boolean matches(int age) {
+		return lowerBound <= age && upperBound >= age;
+	}
+	
+	public int lowerBound() {
+		return this.lowerBound;
+	}
+	
+	public int upperBound() {
+		return this.upperBound;
 	}
 
 	public int amount() {
 		return this.amount;
-	}
-
-	public Type sign() {
-		return this.sign;
 	}
 
 	public void increment() {
@@ -58,37 +56,29 @@ public class AgeDistributionItem
 	}
 
 	public AgeDistributionItem createEmpty() {
-		return new AgeDistributionItem(sign, age, 0);
+		return new AgeDistributionItem(lowerBound, upperBound, 0);
 	}  
 
 	public int compareTo(AgeDistributionItem other) {
 		if (equals(other)) {
 			return 0;
 		}
-
-		if ((this.sign == Type.UNTIL) && (other.sign == Type.OVER)) {
+		
+		if (lowerBound < other.lowerBound) {
 			return -1;
 		}
-
-		if ((this.sign == other.sign) && (this.age < other.age)) {
+		if (upperBound < other.upperBound) {
 			return -1;
 		}
-
-		if ((this.sign == other.sign) && (this.age == other.age) && (this.amount < other.amount)) {
-			return -1;
+		if (upperBound > other.upperBound) {
+			return 1;
 		}
-
-		return 1; 
+		return amount - other.amount;
   }
 
   @Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + age;
-		result = prime * result + amount;
-		result = prime * result + ((sign == null) ? 0 : sign.hashCode());
-		return result;
+		return Objects.hash(age, amount, lowerBound, upperBound);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -99,18 +89,14 @@ public class AgeDistributionItem
 		if (getClass() != obj.getClass())
 			return false;
 		AgeDistributionItem other = (AgeDistributionItem) obj;
-		if (age != other.age)
-			return false;
-		if (amount != other.amount)
-			return false;
-		if (sign != other.sign)
-			return false;
-		return true;
+		return age == other.age && amount == other.amount && lowerBound == other.lowerBound
+				&& upperBound == other.upperBound;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [sign=" + sign + ", age=" + age + ", amount=" + amount + "]";
+		return "AgeDistributionItem [age=" + age + ", lowerBound=" + lowerBound + ", upperBound="
+				+ upperBound + ", amount=" + amount + "]";
 	}
 	
 	

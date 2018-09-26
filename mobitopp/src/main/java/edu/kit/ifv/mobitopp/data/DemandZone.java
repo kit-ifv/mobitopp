@@ -33,22 +33,31 @@ public class DemandZone {
 
 	private FemaleAgeDistribution femaleAgeDistribution(Demography demandModel) {
 		FemaleAgeDistribution distribution = new FemaleAgeDistribution();
-		demandModel.femaleAge().getItems().stream().map(AgeDistributionItem::createEmpty).forEach(
-				distribution::addItem);
+		demandModel
+				.femaleAge()
+				.items()
+				.map(AgeDistributionItem::createEmpty)
+				.forEach(distribution::addItem);
 		return distribution;
 	}
 
 	private MaleAgeDistribution maleAgeDistribution(Demography demandModel) {
 		MaleAgeDistribution distribution = new MaleAgeDistribution();
-		demandModel.maleAge().getItems().stream().map(AgeDistributionItem::createEmpty).forEach(
-				distribution::addItem);
+		demandModel
+				.maleAge()
+				.items()
+				.map(AgeDistributionItem::createEmpty)
+				.forEach(distribution::addItem);
 		return distribution;
 	}
 
 	private HouseholdDistribution householdDistribution(Demography demandModel) {
 		HouseholdDistribution distribution = new HouseholdDistribution();
-		demandModel.household().getItems().stream().map(HouseholdDistributionItem::createEmpty).forEach(
-				distribution::addItem);
+		demandModel
+				.household()
+				.items()
+				.map(HouseholdDistributionItem::createEmpty)
+				.forEach(distribution::addItem);
 		return distribution;
 	}
 

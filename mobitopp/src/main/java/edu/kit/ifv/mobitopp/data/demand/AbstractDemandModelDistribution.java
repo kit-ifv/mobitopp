@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 public abstract class AbstractDemandModelDistribution<T extends DemandModelDistributionItemIfc & Comparable<T>>
 		implements DemandModelDistributionIfc<T> {
@@ -21,11 +22,6 @@ public abstract class AbstractDemandModelDistribution<T extends DemandModelDistr
 		return this.items;
 	}
 
-	public boolean existsItem(T item) {
-		verify(item);
-		return getItemsInternal().contains(item);
-	}
-
 	private void verify(T item) {
 		if (null == item) {
 			throw new IllegalArgumentException("Incorrect item: " + item);
@@ -41,15 +37,10 @@ public abstract class AbstractDemandModelDistribution<T extends DemandModelDistr
 			throw new IllegalStateException("Could not add item to distribution: " + item);
 		}
 	}
-
-	public void removeItem(T item) {
-		verify(item);
-
-		boolean deleteFlag = getItemsInternal().remove(item);
-
-		if (!deleteFlag) {
-			throw new IllegalStateException("Could not delete item to distribution: " + item);
-		}
+	
+	@Override
+	public Stream<T> items() {
+		return this.items.stream();
 	}
 
 	public SortedSet<T> getItems() {

@@ -31,39 +31,7 @@ public class HouseholdDistribution extends
 		throw new NoSuchElementException();
 	}
 
-  /**
-   * Checkes whether or not there exist any 4+ housholds in this distribution.
-   * 
-   * @return <code>true</code> if there exist any 4+ housholds in this distribution,
-   *         <code>false</code> otherwise.
-   */
-  
-  public boolean existsPersonsInFourPlusHouseholds()
-  {
-    boolean flag = false;
-
-    Iterator<HouseholdDistributionItem> iterator = getItemsInternal().iterator();
-    while (iterator.hasNext())
-    {
-      HouseholdDistributionItem item = iterator.next();
-           
-      switch (item.type())
-      {
-        case 1:
-        case 2:
-        case 3:
-          break;
-        default:
-        {
-        	throw new IllegalStateException("Person does not exist in 4+ households for type: " + item.type());
-        }
-      }
-    }
-
-    return flag;
-  }
-
-	public int getTotalAmount() {
+  public int getTotalAmount() {
 		int sum = 0;
 
 		Iterator<HouseholdDistributionItem> iterator = getItemsInternal().iterator();
@@ -74,32 +42,6 @@ public class HouseholdDistribution extends
 		}
 
 		return sum;
-	}
-
-	public int[] getAmountPerItem() {
-		int[] items = new int[getItemsInternal().size()];
-
-		Iterator<HouseholdDistributionItem> iterator = getItemsInternal().iterator();
-		for (int i = 0; iterator.hasNext(); i++) {
-			HouseholdDistributionItem item = iterator.next();
-
-			items[i] = item.amount();
-		}
-
-		return items;
-	}
-
-	public int getIndexOfItem(HouseholdDistributionItem searchedItem) {
-		Iterator<HouseholdDistributionItem> iterator = getItemsInternal().iterator();
-		for (int i = 0; iterator.hasNext(); i++) {
-			HouseholdDistributionItem item = iterator.next();
-
-			if (item.type() == searchedItem.type()) {
-				return i;
-			}
-		}
-
-		return -1;
 	}
 
 	public static HouseholdDistribution createDefault() {

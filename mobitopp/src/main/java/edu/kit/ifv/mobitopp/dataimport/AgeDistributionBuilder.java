@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem.Type;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 
@@ -39,23 +38,34 @@ public class AgeDistributionBuilder {
 				ages.add(attribute);
 			}
 		}
-		for (int index = 0; index < ages.size() - 1; index++) {
-			String maleAge = ages.get(index);
-			AgeDistributionItem ageItem = distributionItemFrom(maleAge, AgeDistributionItem.Type.UNTIL);
+		for (int index = 0; index < ages.size(); index++) {
+			String age = ages.get(index);
+			AgeDistributionItem ageItem = distributionItemFrom(age);
 			ageDistribution.addItem(ageItem);
 		}
-		String maleAge = ages.get(ages.size() - 1);
-		AgeDistributionItem ageItem = distributionItemFrom(maleAge, AgeDistributionItem.Type.OVER);
-		ageDistribution.addItem(ageItem);
+		verify(ageDistribution);
 		return ageDistribution;
 	}
 
-	private AgeDistributionItem distributionItemFrom(String ageAsString, Type type) {
+	private void verify(AgeDistributionIfc ageDistribution) {
+		int lastUpper = 0;
+		for (AgeDistributionItem item : ageDistribution.getItems()) {
+			if (lastUpper + 1 < item.lowerBound()) {
+				throw new IllegalArgumentException(String
+						.format("Distribution is not continuous. Missing item between %s and %s", lastUpper,
+								item.lowerBound()));
+			}
+			lastUpper = item.upperBound();
+		}
+	}
+
+	private AgeDistributionItem distributionItemFrom(String ageAsString) {
 		String tmp = ageAsString.replaceFirst("age:[fm]:", "");
 		String[] parts = tmp.split("-");
-		int age = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.parseInt(parts[0]);
+		int lowerBound = Integer.parseInt(parts[0]);
+		int upperBound = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.MAX_VALUE;
 		int number = structuralData.valueOrDefault(ageAsString);
-		return new AgeDistributionItem(type, age, number);
+		return new AgeDistributionItem(lowerBound, upperBound, number);
 	}
 
 }

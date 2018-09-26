@@ -21,7 +21,6 @@ import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem.Type;
 import edu.kit.ifv.mobitopp.data.local.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -50,9 +49,9 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
 		maleAgeDistribution = new MaleAgeDistribution();
-		maleAgeDistribution.addItem(new AgeDistributionItem(Type.OVER, 0, 1));
+		maleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
 		femaleAgeDistribution = new FemaleAgeDistribution();
-		femaleAgeDistribution.addItem(new AgeDistributionItem(Type.OVER, 0, 1));
+		femaleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
 		households = singletonMap(householdId, household);
 	}
 
