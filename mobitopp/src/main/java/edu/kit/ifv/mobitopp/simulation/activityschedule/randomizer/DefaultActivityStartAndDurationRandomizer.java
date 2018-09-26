@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer;
 import java.util.Random;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.time.SimpleTime;
 
 public class DefaultActivityStartAndDurationRandomizer 
 implements ActivityStartAndDurationRandomizer 
@@ -37,14 +38,15 @@ implements ActivityStartAndDurationRandomizer
 		
 
 		int origStartTime = activity.getStarttime();
+		int minStartTime = (int) SimpleTime.ofMinutes(activity.getStarttime()).startOfDay().toMinutes();
 		
 		int startDeviation = (int) (startDeviationRange*random);
 
-		int newStartTime = Math.min(Math.max(0, origStartTime+startDeviation), 100080-1);
+		int newStartTime = Math.min(Math.max(minStartTime, origStartTime+startDeviation), 100080-1);
 		
 		return new  PatternActivity(
 	  		activity.getActivityType(),
-	      activity.getWeekDayType(),
+	  		SimpleTime.ofMinutes(newStartTime).weekDay(),
 	      activity.getObservedTripDuration(),
 	      newStartTime,
 	      newduration

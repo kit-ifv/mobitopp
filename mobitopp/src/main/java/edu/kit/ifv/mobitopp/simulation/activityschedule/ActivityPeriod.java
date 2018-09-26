@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
@@ -306,11 +307,10 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		assert patternActivity_ != null;
 
-
-    int hour   = patternActivity_.getStarttime() / 60;
-    int minute = patternActivity_.getStarttime() % 60;  
-
-		Time startTime = date.newTime(hour, minute, 0);
+		Time startTime = SimpleTime.ofMinutes(patternActivity_.getStarttime());
+		
+		assert date.weekDay() == startTime.weekDay() : (date.weekDay() + " " + startTime.weekDay()
+				+ "\n" + date + " : " + startTime);
 
 
     ActivityType activityType = patternActivity_.getActivityType();
@@ -329,10 +329,9 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 			int activityNumber
 	) {
 		
-		int hour   = patternActivity.getStarttime() / 60;
-    int minute = patternActivity.getStarttime() % 60;  
-
-		Time startTimeWalk = currentDay.newTime(hour, minute, 0);
+		Time startTimeWalk = SimpleTime.ofMinutes(patternActivity.getStarttime());
+		
+		assert currentDay.weekDay() == startTimeWalk.weekDay() : (currentDay.weekDay() + " : " + startTimeWalk.weekDay() );
 			
 		short durationHome = (short)patternActivity.getDuration();
 		short durationWalk = (short)patternActivity.getObservedTripDuration();
