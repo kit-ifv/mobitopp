@@ -14,7 +14,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class SimpleActivityTest {
 	
 	PatternActivity home_monday = createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(0), RelativeTime.ofHours(6));
-	PatternActivity work_wednesday =	createActivity(ActivityType.WORK, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8));
+	PatternActivity work_wednesday =	createActivity(ActivityType.WORK, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(2*24+7), RelativeTime.ofHours(8));
 	
 	
 	private static PatternActivity createActivity(

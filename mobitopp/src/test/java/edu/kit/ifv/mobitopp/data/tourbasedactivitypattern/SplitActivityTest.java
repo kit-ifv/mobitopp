@@ -17,9 +17,9 @@ public class SplitActivityTest {
 	
 	final ActivityType activityType = ActivityType.WORK;
 	
-	PatternActivity work1 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(4));
-	PatternActivity work2 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(12), RelativeTime.ofHours(2));
-	PatternActivity work3 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(15), RelativeTime.ofHours(2));
+	PatternActivity work1 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(2*24+7), RelativeTime.ofHours(4));
+	PatternActivity work2 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(2*24+12), RelativeTime.ofHours(2));
+	PatternActivity work3 =	createActivity(activityType, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(2*24+15), RelativeTime.ofHours(2));
 	
 	
 	private static PatternActivity createActivity(
