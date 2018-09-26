@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 
@@ -131,6 +133,14 @@ public class TourBasedActivityPattern {
 		}
 	
 		return new TourBasedActivityPattern(elements);
+	}
+
+	public List<TourPattern> toursOfDay(DayOfWeek day) {
+		
+		List<TourPattern> result = elements.stream().filter(x -> x.startDay() == day).
+				filter(x -> x instanceof TourPattern).map(x -> (TourPattern) x).collect(Collectors.toList());
+		
+		return result;
 	}
 	
 	

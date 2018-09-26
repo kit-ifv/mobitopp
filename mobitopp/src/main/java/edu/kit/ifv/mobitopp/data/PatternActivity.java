@@ -138,5 +138,14 @@ public class PatternActivity
 				+ ", weekDayType=" + weekDayType 
 				+ "]";
 	}
+	
+	public String asCSV() { 
+		
+		return ""
+					+ getObservedTripDuration() + ";"
+					+ getActivityTypeAsInt() + ";" 
+					+ getDuration() + ";"
+					+ (getStarttime() == 0 ? -1 : getStarttime());
+	}
   
 }

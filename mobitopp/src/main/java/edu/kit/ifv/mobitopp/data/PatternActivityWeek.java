@@ -172,7 +172,8 @@ public class PatternActivityWeek implements Serializable {
 	
 				int startTimeOfActivity = activity.getStarttime();
 				weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(startTimeOfActivity);
-				starttime = startTimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+				// starttime = startTimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+				starttime = startTimeOfActivity;
 	
 			} else { // starttime = -1
 	
@@ -189,7 +190,8 @@ public class PatternActivityWeek implements Serializable {
 					int starttimeOfActivity = previousEndTime + tripDuration;
 	
 					weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(starttimeOfActivity);
-					starttime = starttimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+					//starttime = starttimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
+					starttime = starttimeOfActivity;
 				}
 	
 			}
@@ -209,6 +211,25 @@ public class PatternActivityWeek implements Serializable {
 		}
 	
 		return patternActivityWeek;
+	}
+	
+	public String asCSV() {
+		String result = "";
+		
+		boolean nextWeek = false;
+		DayOfWeek dayOfLastActivity = DayOfWeek.MONDAY;
+		
+		
+		for(PatternActivity act : getPatternActivities()) {
+			
+			if(act.getWeekDayType().getTypeAsInt() < dayOfLastActivity.getTypeAsInt() || nextWeek) {
+				nextWeek = true;
+			}
+			result += act.asCSV() + ";";
+			dayOfLastActivity = act.getWeekDayType();
+		}
+		
+		return result.substring(0,result.length()-1);
 	}
 
 }
