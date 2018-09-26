@@ -33,24 +33,31 @@ public class TourBasedActivityPatternCreator {
 		for (List<PatternActivity> tour : tours) {
 		
 			assert !tour.isEmpty();
-			assert !(tour.size()==1 && tour.get(0).getActivityType()==ActivityType.HOME);
-		
-			assert tour.get(0).getActivityType()!=ActivityType.HOME;
-			
-			if(!isSupertour(tour)) {
-				
-				TourPattern tourPattern = TourPattern.fromPatternActivities(tour);
-				
-				elements.add(tourPattern);
+	//		assert !(tour.size()==1 && tour.get(0).getActivityType()==ActivityType.HOME);
+			if(tour.size()==1 && tour.get(0).getActivityType()==ActivityType.HOME) {
+				PatternActivity home = tour.get(0);
+				assert home.getActivityType()==ActivityType.HOME;
+				elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
 				
 			} else {
-				SuperTourPattern tourPattern = asSuperTourPattern(tour);
-				elements.add(tourPattern);
-			}
+		
+				assert tour.get(0).getActivityType()!=ActivityType.HOME;
 				
-			PatternActivity home = tour.get(tour.size()-1);
-			assert home.getActivityType()==ActivityType.HOME;
-			elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
+				if(!isSupertour(tour)) {
+					
+					TourPattern tourPattern = TourPattern.fromPatternActivities(tour);
+					
+					elements.add(tourPattern);
+					
+				} else {
+					SuperTourPattern tourPattern = asSuperTourPattern(tour);
+					elements.add(tourPattern);
+				}
+					
+				PatternActivity home = tour.get(tour.size()-1);
+				assert home.getActivityType()==ActivityType.HOME;
+				elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
+			}
 		}
 		
 		return new TourBasedActivityPattern(elements);
@@ -96,42 +103,6 @@ public class TourBasedActivityPatternCreator {
 		return TourPattern.fromPatternActivities(fulltour);
 	}
 	
-	static List<List<PatternActivity>> potentialSubtours(List<PatternActivity> tour, ActivityType typeOfMainActivity) {
-
-			List<PatternActivity> activitiesOfMainActivityType = tour.stream().
-					filter(x -> x.getActivityType() == typeOfMainActivity).
-					collect(Collectors.toList());
-
-			
-			List<List<PatternActivity>> subtours = new ArrayList<List<PatternActivity>>();
-			
-			if (activitiesOfMainActivityType.size() < 2) { return subtours; }
-			
-			for(int i=0; i<activitiesOfMainActivityType.size()-1; i++) {
-				
-				PatternActivity first = activitiesOfMainActivityType.get(i);
-				PatternActivity next = activitiesOfMainActivityType.get(i+1);
-			
-				assert tour.contains(first);
-				assert tour.contains(next);
-				
-				List<PatternActivity> potentialSubtour = tour.subList(tour.indexOf(first), 1+tour.indexOf(next));
-				
-				if (potentialSubtour.size() <= 2) { continue; }
-				
-				assert potentialSubtour.size() > 2;
-				assert potentialSubtour.get(1).getActivityType() != typeOfMainActivity;
-				
-				int timeBetween = next.getStarttime() - (first.getStarttime()+first.getDuration());
-			
-				if (timeBetween < first.getDuration() + next.getDuration()) {
-					subtours.add(new ArrayList<PatternActivity>(potentialSubtour));
-				}
-			}
-		
-			return subtours;
-	}
-
 	static ActivityType typeOfMaxDuration(Map<ActivityType, Integer> totalDuration) {
 
 		return totalDuration.entrySet().stream().reduce(
@@ -145,17 +116,21 @@ public class TourBasedActivityPatternCreator {
 		
 		List<PatternActivity>  tour = new ArrayList<PatternActivity>();
 		
+		boolean firstTrip = true;
+		
 		for(PatternActivity activity : week.getPatternActivities()) {
 		
 			tour.add(activity);
 			
 			if (activity.getActivityType() == ActivityType.HOME ) {
 				
-				if (tour.size() >= 2) {
+			//	if (tour.size() >= 2) {
+			if (!firstTrip) {
 					tours.add(tour);
-				}
+			}
 				tour = new ArrayList<PatternActivity>();
 			}
+			firstTrip = false;
 		}
 		
 		if (!tour.isEmpty()) {
@@ -172,7 +147,8 @@ public class TourBasedActivityPatternCreator {
 	
 	static Time minutesSinceStartOfWeek(PatternActivity activity) {
 		
-		return SimpleTime.ofMinutes(activity.getWeekDayTypeAsInt()*24*60+activity.getStarttime());
+		// return SimpleTime.ofMinutes(activity.getWeekDayTypeAsInt()*24*60+activity.getStarttime());
+		return SimpleTime.ofMinutes(activity.getStarttime());
 	}
 
 	public static void main(String[] args) {
@@ -184,11 +160,15 @@ public class TourBasedActivityPatternCreator {
 		 
 		 // for(int i=0; i<5; i++) {
 		 for(int i=0; i<persons.size(); i++) {
+			 
+			String pattern = persons.get(i).getActivityPattern();
 		 
 		
 		 System.out.println(persons.get(i).getActivityPattern());
 		 List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(persons.get(i).getActivityPattern());
 		 PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
+		 
+		 assert pattern.equals(week.asCSV()) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + week.asCSV());
 		
 		 TourBasedActivityPatternCreator.asTours(week);
 		 
@@ -196,6 +176,21 @@ public class TourBasedActivityPatternCreator {
 		 
 		 tourPattern.asActivities();
 		 List<ExtendedPatternActivity> epas = tourPattern.asPatternActivities();
+		
+		 /*
+		 String epa_pattern = asCSV(epas);
+		 
+		 assert pattern.equals(asCSV(epas)) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + asCSV(epas));
+		 */
+		 
+		 assert activityOfPanelData.isEmpty() || activityOfPanelData.size() == week.getPatternActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
+		 
+		 assert pattern.equals(patternToString(tourPattern)) || pattern.isEmpty()  : ("\nA " + pattern 
+				 + "\nB " + patternToString(tourPattern) + "\n" + tourPattern + "\n" + pretty(week)
+				 + "\n" + tourPattern.asPatternActivities()
+				 );
+		 
+		 assert week.getPatternActivities().size() == tourPattern.asActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
  /*
 		 System.out.println(week);
 		 //System.out.println("\n------" + tourPattern.asActivities() + "\n----");
@@ -214,6 +209,9 @@ public class TourBasedActivityPatternCreator {
 		 System.out.println(activityOfPanelData.size() + " : " + tourPattern.asActivities().size() + " : " + epas.size());
  */
 		 TourBasedActivityPattern tp = TourBasedActivityPattern.fromExtendedPatternActivities(epas);
+		 
+		 assert tourPattern.equals(tp) : ("\n" + tourPattern + "\n" + tp);
+		 assert tourPattern.equals(tp) : ("\n" + tourPattern + "\n" + tp);
 		 
 		 // System.out.println(activityOfPanelData);
 		 // System.out.println(week);
@@ -246,5 +244,13 @@ public class TourBasedActivityPatternCreator {
 					+ ";" + x.plannedDuration().toMinutes()
 					+ ";" + x.plannedStart().toMinutes()
 					;
+	}
+	
+	private static String pretty(PatternActivityWeek week) {
+		String result = "";
+		for(PatternActivity activity : week.getPatternActivities()) {
+			result += activity + "\n";
+		}
+		return result;
 	}
 }

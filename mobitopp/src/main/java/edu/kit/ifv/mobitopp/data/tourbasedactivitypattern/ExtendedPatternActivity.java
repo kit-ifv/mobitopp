@@ -44,7 +44,7 @@ public class ExtendedPatternActivity extends PatternActivity {
 				activityType, 
 				starttime.weekDay(), 
 				(int) observedTripDuration, 
-				(int) starttime.differenceTo(starttime.startOfDay()).toMinutes(), 
+				(int) starttime.toMinutes(), 
 				(int) duration);
 	}
 	
