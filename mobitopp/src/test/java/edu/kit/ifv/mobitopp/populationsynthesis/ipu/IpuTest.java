@@ -1,13 +1,13 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +54,10 @@ public class IpuTest {
 
 	private WeightedHousehold newHousehold(
 			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
-		Map<String, Integer> householdAttributes = singletonMap("some attribute", householdType);
-		Map<String, Integer> personAttributes = singletonMap("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, householdAttributes, personAttributes);
+		Map<String, Integer> attributes = new HashMap<>();
+		attributes.put("some attribute", householdType);
+		attributes.put("another attribute", personType);
+		return new WeightedHousehold(id, baseWeight, attributes);
 	}
 
 	@Test

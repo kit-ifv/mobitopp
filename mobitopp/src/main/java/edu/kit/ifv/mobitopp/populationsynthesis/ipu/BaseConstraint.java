@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class BaseConstraint implements Constraint {
@@ -26,7 +27,8 @@ public abstract class BaseConstraint implements Constraint {
 		return households.stream().filter(this::matches).mapToDouble(this::totalWeight).sum();
 	}
 
-	private List<WeightedHousehold> scaleWeightsOf(List<WeightedHousehold> households, double factor) {
+	private List<WeightedHousehold> scaleWeightsOf(
+			List<WeightedHousehold> households, double factor) {
 		ArrayList<WeightedHousehold> newHouseholds = new ArrayList<>(notProcessed(households));
 		households
 				.stream()
@@ -40,15 +42,38 @@ public abstract class BaseConstraint implements Constraint {
 		Predicate<WeightedHousehold> predicate = this::matches;
 		return households.stream().filter(predicate.negate()).collect(toList());
 	}
-	
+
 	@Override
 	public double calculateGoodnessOfFitFor(List<WeightedHousehold> households) {
 		double totalWeight = totalWeight(households);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
-	}
+		}
 
 	protected abstract boolean matches(WeightedHousehold household);
 
 	protected abstract double totalWeight(WeightedHousehold household);
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(requestedWeight);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		BaseConstraint other = (BaseConstraint) obj;
+		return Double.doubleToLongBits(requestedWeight) == Double
+				.doubleToLongBits(other.requestedWeight);
+	}
+
+	@Override
+	public String toString() {
+		return "requestedWeight=" + requestedWeight;
+	}
 
 }

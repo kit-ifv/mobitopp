@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
@@ -12,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class IpuIterationTest {
 
@@ -62,9 +63,10 @@ public class IpuIterationTest {
 
 	private WeightedHousehold newHousehold(
 			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
-		Map<String, Integer> householdAttributes = singletonMap("some attribute", householdType);
-		Map<String, Integer> personAttributes = singletonMap("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, householdAttributes, personAttributes);
+		Map<String, Integer> attributes = new HashMap<>();
+		attributes.put("some attribute", householdType);
+		attributes.put("another attribute", personType);
+		return new WeightedHousehold(id, baseWeight, attributes);
 	}
 
 	@Test
@@ -77,12 +79,12 @@ public class IpuIterationTest {
 		verify(someConstraint).scaleWeightsOf(households);
 		verify(anotherConstraint).scaleWeightsOf(afterSomeConstraint);
 	}
-	
+
 	@Test
 	public void returnsSameHouseholdsWithoutConstraints() {
 		IpuIteration ipuIteration = new IpuIteration(Collections.emptyList());
 		List<WeightedHousehold> adjusted = ipuIteration.adjustWeightsOf(households);
-		
+
 		assertThat(adjusted, is(equalTo(households)));
 	}
 
@@ -95,15 +97,20 @@ public class IpuIterationTest {
 		double goodnessOfFit = ipu.calculateGoodnessOfFitFor(households);
 
 		assertThat(goodnessOfFit, is(closeTo(0.5d, margin)));
-		
+
 		verify(someConstraint).calculateGoodnessOfFitFor(households);
 		verify(anotherConstraint).calculateGoodnessOfFitFor(households);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void calculatesNoGoodnessForEmptyConstraints() {
 		IpuIteration ipuIteration = new IpuIteration(Collections.emptyList());
 		ipuIteration.calculateGoodnessOfFitFor(households);
+	}
+
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(IpuIteration.class).usingGetClass().verify();
 	}
 
 }

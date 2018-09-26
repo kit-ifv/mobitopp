@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data;
 
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
@@ -73,6 +74,10 @@ public class DemandZone {
 
 	public Demography actualDemography() {
 		return actualDemography;
+	}
+
+	public AreaType getAreaType() {
+		return zone.getAreaType();
 	}
 
 }
