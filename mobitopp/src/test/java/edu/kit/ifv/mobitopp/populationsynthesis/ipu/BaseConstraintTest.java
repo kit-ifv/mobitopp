@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class BaseConstraintTest {
 
@@ -51,29 +52,34 @@ public class BaseConstraintTest {
 		assertThat(updatedHouseholds,
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
-	
+
 	@Test
 	public void calculatesGoodnessOfFit() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
-		
+
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
-		
+
 		assertThat(goodnessOfFit, is(closeTo(0.5d, margin)));
 	}
-	
+
 	@Test
 	public void calculatesAnotherGoodnessOfFit() {
 		WeightedHousehold someHousehold = newHousehold(someId, 2.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 4.0d);
 		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
 		BaseConstraint constraint = newConstraint();
-		
+
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
-		
+
 		assertThat(goodnessOfFit, is(closeTo(0.0d, margin)));
+	}
+
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(BaseConstraint.class).usingGetClass().verify();
 	}
 
 	private Predicate<WeightedHousehold> onlyAnotherHousehold() {
@@ -81,14 +87,10 @@ public class BaseConstraintTest {
 	}
 
 	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {
-		return new WeightedHousehold(id, weight, householdAttributes(), personAttributes());
+		return new WeightedHousehold(id, weight, attributes());
 	}
 
-	private Map<String, Integer> personAttributes() {
-		return emptyMap();
-	}
-
-	private Map<String, Integer> householdAttributes() {
+	private Map<String, Integer> attributes() {
 		return emptyMap();
 	}
 

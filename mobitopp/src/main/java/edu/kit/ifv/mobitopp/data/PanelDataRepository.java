@@ -14,4 +14,6 @@ public interface PanelDataRepository {
 
 	HouseholdOfPanelData getHousehold(HouseholdOfPanelDataId id);
 
+	List<HouseholdOfPanelData> getHouseholds();
+
 }

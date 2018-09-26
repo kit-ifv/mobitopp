@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.util.List;
 
@@ -52,6 +54,11 @@ public class LocalPanelDataRepository implements PanelDataRepository {
 	@Override
 	public HouseholdOfPanelData getHousehold(HouseholdOfPanelDataId id) {
 		return households.load(id);
+	}
+
+	@Override
+	public List<HouseholdOfPanelData> getHouseholds() {
+		return households.households().collect(toList());
 	}
 
 }

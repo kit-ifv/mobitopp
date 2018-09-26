@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
@@ -62,6 +63,10 @@ public class InMemoryHouseholds {
 
 	public HouseholdOfPanelData load(HouseholdOfPanelDataId id) {
 		return households.get(id);
+	}
+
+	public Stream<HouseholdOfPanelData> households() {
+		return households.values().stream();
 	}
 
 }

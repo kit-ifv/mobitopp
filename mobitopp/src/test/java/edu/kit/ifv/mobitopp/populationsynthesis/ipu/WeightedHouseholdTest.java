@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +19,7 @@ public class WeightedHouseholdTest {
 	private int householdType1;
 	private int personType1;
 	private WeightedHousehold household;
-	private HashMap<String, Integer> householdAttributes;
-	private Map<String, Integer> personAttributes;
+	private HashMap<String, Integer> attributes;
 
 	@Before
 	public void initialise() {
@@ -29,11 +27,10 @@ public class WeightedHouseholdTest {
 		weight = 1.0d;
 		householdType1 = 1;
 		personType1 = 1;
-		householdAttributes = new HashMap<>();
-		householdAttributes.put("Household:Type:1", householdType1);
-		personAttributes = new HashMap<>();
-		personAttributes.put("Person:Type:1", personType1);
-		household = new WeightedHousehold(id, weight, householdAttributes, personAttributes);
+		attributes = new HashMap<>();
+		attributes.put("Household:Type:1", householdType1);
+		attributes.put("Person:Type:1", personType1);
+		household = new WeightedHousehold(id, weight, attributes);
 	}
 
 	@Test
@@ -41,20 +38,19 @@ public class WeightedHouseholdTest {
 		double newWeight = 2.0d;
 		WeightedHousehold newHousehold = household.newWeight(newWeight);
 
-		assertThat(newHousehold,
-				is(equalTo(new WeightedHousehold(id, newWeight, householdAttributes, personAttributes))));
+		assertThat(newHousehold, is(equalTo(new WeightedHousehold(id, newWeight, attributes))));
 	}
 
 	@Test
 	public void getHouseholdAttributes() {
-		int attribute = household.householdAttribute("Household:Type:1");
+		int attribute = household.attribute("Household:Type:1");
 
 		assertThat(attribute, is(equalTo(householdType1)));
 	}
 
 	@Test
 	public void getPersonAttributes() {
-		int attribute = household.personAttribute("Person:Type:1");
+		int attribute = household.attribute("Person:Type:1");
 
 		assertThat(attribute, is(equalTo(personType1)));
 	}

@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
@@ -13,8 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
-public class ExistenceConstraintTest {
+public class HouseholdConstraintTest {
 
 	private static final String attribute = "attribute";
 	private static final double margin = 1e-6;
@@ -23,20 +23,19 @@ public class ExistenceConstraintTest {
 	private static final double initialWeight = 1.0d;
 	private static final int noPeopleAvailable = 0;
 
-	private ExistenceConstraint constraint;
+	private HouseholdConstraint constraint;
 	private WeightedHousehold household;
 
 	@Before
 	public void initialise() {
 		household = newHousehold(availablePeople);
-		constraint = new ExistenceConstraint(requestedWeight, h -> h.personAttribute(attribute));
+		constraint = new HouseholdConstraint(requestedWeight, attribute);
 	}
 
 	private WeightedHousehold newHousehold(int people) {
-		Map<String, Integer> householdAttributes = emptyMap();
-		Map<String, Integer> personAttributes = singletonMap(attribute, people);
+		Map<String, Integer> attributes = singletonMap(attribute, people);
 		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(2000, 1);
-		return new WeightedHousehold(id, initialWeight, householdAttributes, personAttributes);
+		return new WeightedHousehold(id, initialWeight, attributes);
 	}
 
 	@Test
@@ -49,9 +48,14 @@ public class ExistenceConstraintTest {
 	@Test
 	public void filtersHouseholdsWithoutPeople() {
 		WeightedHousehold householdWithoutPeople = newHousehold(noPeopleAvailable);
-		
+
 		boolean result = constraint.matches(householdWithoutPeople);
 
 		assertFalse(result);
+	}
+
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(HouseholdConstraint.class).usingGetClass().verify();
 	}
 }

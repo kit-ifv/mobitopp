@@ -8,17 +8,14 @@ public class WeightedHousehold {
 
 	private final HouseholdOfPanelDataId id;
 	private final double weight;
-	private final Map<String, Integer> householdAttributes;
-	private final Map<String, Integer> personAttributes;
+	private final Map<String, Integer> attributes;
 
 	public WeightedHousehold(
-			HouseholdOfPanelDataId id, double weight, Map<String, Integer> householdAttributes,
-			Map<String, Integer> personAttributes) {
+			HouseholdOfPanelDataId id, double weight, Map<String, Integer> attributes) {
 		super();
 		this.id = id;
 		this.weight = weight;
-		this.householdAttributes = householdAttributes;
-		this.personAttributes = personAttributes;
+		this.attributes = attributes;
 	}
 
 	public HouseholdOfPanelDataId id() {
@@ -29,25 +26,20 @@ public class WeightedHousehold {
 		return weight;
 	}
 
-	public int householdAttribute(String attribute) {
-		return householdAttributes.get(attribute);
-	}
-
-	public int personAttribute(String attribute) {
-		return personAttributes.get(attribute);
+	public int attribute(String attribute) {
+		return attributes.get(attribute);
 	}
 
 	public WeightedHousehold newWeight(double newWeight) {
-		return new WeightedHousehold(id, newWeight, householdAttributes, personAttributes);
+		return new WeightedHousehold(id, newWeight, attributes);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((householdAttributes == null) ? 0 : householdAttributes.hashCode());
+		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((personAttributes == null) ? 0 : personAttributes.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(weight);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -63,20 +55,15 @@ public class WeightedHousehold {
 		if (getClass() != obj.getClass())
 			return false;
 		WeightedHousehold other = (WeightedHousehold) obj;
-		if (householdAttributes == null) {
-			if (other.householdAttributes != null)
+		if (attributes == null) {
+			if (other.attributes != null)
 				return false;
-		} else if (!householdAttributes.equals(other.householdAttributes))
+		} else if (!attributes.equals(other.attributes))
 			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
-			return false;
-		if (personAttributes == null) {
-			if (other.personAttributes != null)
-				return false;
-		} else if (!personAttributes.equals(other.personAttributes))
 			return false;
 		if (Double.doubleToLongBits(weight) != Double.doubleToLongBits(other.weight))
 			return false;
@@ -85,8 +72,8 @@ public class WeightedHousehold {
 
 	@Override
 	public String toString() {
-		return "Household [id=" + id + ", weight=" + weight + ", householdAttributes="
-				+ householdAttributes + ", personAttributes=" + personAttributes + "]";
+		return "WeightedHousehold [id=" + id + ", weight=" + weight + ", attributes=" + attributes
+				+ "]";
 	}
 
 }
