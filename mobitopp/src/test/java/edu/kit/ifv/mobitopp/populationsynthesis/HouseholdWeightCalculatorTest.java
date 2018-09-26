@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem.Type;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
@@ -50,9 +49,9 @@ public class HouseholdWeightCalculatorTest {
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
 		maleAgeDistribution = new MaleAgeDistribution();
-		maleAgeDistribution.addItem(new AgeDistributionItem(Type.OVER, 0, 1));
+		maleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
 		femaleAgeDistribution = new FemaleAgeDistribution();
-		femaleAgeDistribution.addItem(new AgeDistributionItem(Type.OVER, 0, 1));
+		femaleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
 		households = singletonMap(householdId, household);
 	}
 

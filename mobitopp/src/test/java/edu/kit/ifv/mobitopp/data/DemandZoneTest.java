@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem.Type;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
@@ -89,7 +88,7 @@ public class DemandZoneTest {
 	}
 
 	private AgeDistributionItem newAgeItem(int amount) {
-		return new AgeDistributionItem(Type.UNTIL, 1, amount);
+		return new AgeDistributionItem(0, 1, amount);
 	}
 
 	@Test

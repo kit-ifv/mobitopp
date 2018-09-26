@@ -257,7 +257,7 @@ class HouseholdWeightCalculatorIPFlike
 
 			double new_val =  Math.max(item.amount()/total,0.001d);
 
-			data.put(item.age(),new_val);
+			data.put(item.upperBound(),new_val);
 		}
 
 		return data;

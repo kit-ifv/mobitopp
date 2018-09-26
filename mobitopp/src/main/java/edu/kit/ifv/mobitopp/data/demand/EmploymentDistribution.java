@@ -47,32 +47,6 @@ public class EmploymentDistribution
 		return sum;
 	}
 
-	public int[] getAmountPerItem() {
-		int[] items = new int[getItemsInternal().size()];
-
-		Iterator<EmploymentDistributionItem> iterator = getItemsInternal().iterator();
-		for (int i = 0; iterator.hasNext(); i++) {
-			EmploymentDistributionItem item = iterator.next();
-
-			items[i] = item.amount();
-		}
-
-		return items;
-	}
-
-	public int getIndexOfItem(EmploymentDistributionItem searchedItem) {
-		Iterator<EmploymentDistributionItem> iterator = getItemsInternal().iterator();
-		for (int i = 0; iterator.hasNext(); i++) {
-			EmploymentDistributionItem item = iterator.next();
-
-			if (item.getTypeAsInt() == searchedItem.getTypeAsInt()) {
-				return i;
-			}
-		}
-
-		return -1;
-	}
-  
 	public static EmploymentDistribution createDefault() {
 		EmploymentDistribution distribution = new EmploymentDistribution();
 
