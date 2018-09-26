@@ -153,69 +153,42 @@ public class TourBasedActivityPatternCreator {
 
 	public static void main(String[] args) {
 		System.out.println("test");
-		
-		 PaneldataReader reader = new  PaneldataReader(new File("data/stuttgart/data_stuttgart_prefs_2018_03_16.csv"));
-		 
-		 List<PersonOfPanelData> persons = reader.readPersons();
-		 
-		 // for(int i=0; i<5; i++) {
-		 for(int i=0; i<persons.size(); i++) {
+			
+			 PaneldataReader reader = new  PaneldataReader(new File("data/stuttgart/data_stuttgart_prefs_2018_03_16.csv"));
 			 
-			String pattern = persons.get(i).getActivityPattern();
+			 List<PersonOfPanelData> persons = reader.readPersons();
+			 
+			 for(int i=0; i<persons.size(); i++) {
+				 
+				String pattern = persons.get(i).getActivityPattern();
+			 
+			 // System.out.println(persons.get(i).getActivityPattern());
+			 List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(persons.get(i).getActivityPattern());
+			 PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
+			 
+			 assert pattern.equals(week.asCSV()) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + week.asCSV());
+			
+			 TourBasedActivityPatternCreator.asTours(week);
+			 
+			 TourBasedActivityPattern tourPattern = TourBasedActivityPatternCreator.fromPatternActivityWeek(week);
+			 
+			 tourPattern.asActivities();
+			 List<ExtendedPatternActivity> epas = tourPattern.asPatternActivities();
+			
+			 
+			 assert activityOfPanelData.isEmpty() || activityOfPanelData.size() == week.getPatternActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
+			 
+			 assert pattern.equals(patternToString(tourPattern)) || pattern.isEmpty()  : ("\nA " + pattern 
+					 + "\nB " + patternToString(tourPattern) + "\n" + tourPattern + "\n" + pretty(week)
+					 + "\n" + tourPattern.asPatternActivities()
+					 );
+			 
+			 assert week.getPatternActivities().size() == tourPattern.asActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
+			 
+			 TourBasedActivityPattern tp = TourBasedActivityPattern.fromExtendedPatternActivities(epas);
+			 
+			 assert tourPattern.equals(tp) : ("\n" + tourPattern + "\n" + tp);
 		 
-		
-		 System.out.println(persons.get(i).getActivityPattern());
-		 List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(persons.get(i).getActivityPattern());
-		 PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
-		 
-		 assert pattern.equals(week.asCSV()) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + week.asCSV());
-		
-		 TourBasedActivityPatternCreator.asTours(week);
-		 
-		 TourBasedActivityPattern tourPattern = TourBasedActivityPatternCreator.fromPatternActivityWeek(week);
-		 
-		 tourPattern.asActivities();
-		 List<ExtendedPatternActivity> epas = tourPattern.asPatternActivities();
-		
-		 /*
-		 String epa_pattern = asCSV(epas);
-		 
-		 assert pattern.equals(asCSV(epas)) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + asCSV(epas));
-		 */
-		 
-		 assert activityOfPanelData.isEmpty() || activityOfPanelData.size() == week.getPatternActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
-		 
-		 assert pattern.equals(patternToString(tourPattern)) || pattern.isEmpty()  : ("\nA " + pattern 
-				 + "\nB " + patternToString(tourPattern) + "\n" + tourPattern + "\n" + pretty(week)
-				 + "\n" + tourPattern.asPatternActivities()
-				 );
-		 
-		 assert week.getPatternActivities().size() == tourPattern.asActivities().size() : (activityOfPanelData.size() + " : " + tourPattern.asActivities().size() ) ;
- /*
-		 System.out.println(week);
-		 //System.out.println("\n------" + tourPattern.asActivities() + "\n----");
-		 System.out.println("\n------\n");
-		 System.out.println(week.getPatternActivities().size());
-		 for(PatternActivity act : week.getPatternActivities()) {
-			 System.out.println(act);
-		 }
-		 System.out.println("\n------\n");
-		 System.out.println(tourPattern.asActivities().size());
-		 for(Activity act : tourPattern.asActivities()) {
-			 System.out.println(act);
-		 }
-		 System.out.println("\n------\n");
-		 System.out.println("\n------" + tourPattern + "\n----");
-		 System.out.println(activityOfPanelData.size() + " : " + tourPattern.asActivities().size() + " : " + epas.size());
- */
-		 TourBasedActivityPattern tp = TourBasedActivityPattern.fromExtendedPatternActivities(epas);
-		 
-		 assert tourPattern.equals(tp) : ("\n" + tourPattern + "\n" + tp);
-		 assert tourPattern.equals(tp) : ("\n" + tourPattern + "\n" + tp);
-		 
-		 // System.out.println(activityOfPanelData);
-		 // System.out.println(week);
-		 // System.out.println(tourPattern);
 		 }
 	}
 
