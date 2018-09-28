@@ -1,11 +1,11 @@
 ID;NAME;Outlyingarea;AirDistanceOffset;AreaType;Attractivity:Work;Attractivity:Business;Attractivity:Otherhome;Attractivity:Education;Attractivity:Shopping;Attractivity:Leisure;Attractivity:Service;Attractivity:Education_Primary;Attractivity:Education_Secondary;Attractivity:Education_Tertiary;Attractivity:Education_Occup;Attractivity:Leisure_Indoor;Attractivity:Leisure_Outdoor;Attractivity:Leisure_Other;Attractivity:Shopping_Daily;Attractivity:Shopping_Other;Attractivity:Private_Business;Attractivity:Private_Visit
-1;Zone 1;0;0;CITYOUTSKIRT;288;288;288;0;300;2;0;0;0;0;0;0;0;0;0;0;0;0
-2;Zone 2;0;0;CONURBATION;408;408;408;0;500;1;0;0;0;0;0;0;0;0;0;0;0;0
-3;Zone 3;0;0;CONURBATION;3708;3708;3708;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-4;Zone 4;0;0;CONURBATION;193;193;193;0;1000;1;0;0;0;0;0;0;0;0;0;0;0;0
-5;Zone 5;0;0;CITYOUTSKIRT;90;90;90;0;300;1;0;0;0;0;0;0;0;0;0;0;0;0
-6;Zone 6;0;0;CITYOUTSKIRT;315;315;315;0;400;1;0;0;0;0;0;0;0;0;0;0;0;0
-7;Zone 7;0;0;PROVINCIAL;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-8;Zone 8;0;0;PROVINCIAL;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-9;Zone 9;0;0;PROVINCIAL;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-10;Zone 10;0;0;CONURBATION;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+1;Zone 1;0;0;3;288;288;288;0;300;2;0;0;0;0;0;0;0;0;0;0;0;0
+2;Zone 2;0;0;5;408;408;408;0;500;1;0;0;0;0;0;0;0;0;0;0;0;0
+3;Zone 3;0;0;5;3708;3708;3708;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+4;Zone 4;0;0;5;193;193;193;0;1000;1;0;0;0;0;0;0;0;0;0;0;0;0
+5;Zone 5;0;0;3;90;90;90;0;300;1;0;0;0;0;0;0;0;0;0;0;0;0
+6;Zone 6;0;0;3;315;315;315;0;400;1;0;0;0;0;0;0;0;0;0;0;0;0
+7;Zone 7;0;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+8;Zone 8;0;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+9;Zone 9;0;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+10;Zone 10;0;0;5;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
