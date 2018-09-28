@@ -9,11 +9,20 @@ import java.util.function.Predicate;
 
 public abstract class BaseConstraint implements Constraint {
 
+	public static final double greaterZero = 1e-6;
 	private final double requestedWeight;
 
 	public BaseConstraint(double requestedWeight) {
 		super();
-		this.requestedWeight = requestedWeight;
+		this.requestedWeight = ensureGreaterZero(requestedWeight);
+	}
+
+	private double ensureGreaterZero(double requestedWeight) {
+		if (0.0d >= requestedWeight) {
+			System.out.println("RequestedWeight must be greater than zero, but was: " + requestedWeight);
+			return greaterZero;
+		}
+		return requestedWeight;
 	}
 
 	@Override
