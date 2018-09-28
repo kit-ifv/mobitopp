@@ -43,4 +43,10 @@ public class ExamplePersonOfPanelData {
 				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, activityPattern,
 				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
 	}
+	
+	public static PersonOfPanelData personWithPattern(String pattern) {
+		return new PersonOfPanelData(anId, genderType, birthyear, age, employmentType, poleDistance,
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, pattern,
+				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
+	}
 }
