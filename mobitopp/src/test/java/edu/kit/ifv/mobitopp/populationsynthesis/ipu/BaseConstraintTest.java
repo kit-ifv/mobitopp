@@ -78,6 +78,30 @@ public class BaseConstraintTest {
 	}
 
 	@Test
+	public void requestsWeightToBeGreaterThanZero() {
+		double weight = 0.0d;
+		BaseConstraint constraint = newBaseConstraint(weight);
+
+		BaseConstraint greaterZero = newBaseConstraint(BaseConstraint.greaterZero);
+		assertThat(constraint, is(greaterZero));
+	}
+
+	private BaseConstraint newBaseConstraint(double weight) {
+		return new BaseConstraint(weight) {
+
+			@Override
+			protected double totalWeight(WeightedHousehold household) {
+				return 0;
+			}
+
+			@Override
+			protected boolean matches(WeightedHousehold household) {
+				return false;
+			}
+		};
+	}
+
+	@Test
 	public void equalsAndHashCode() {
 		EqualsVerifier.forClass(BaseConstraint.class).usingGetClass().verify();
 	}
