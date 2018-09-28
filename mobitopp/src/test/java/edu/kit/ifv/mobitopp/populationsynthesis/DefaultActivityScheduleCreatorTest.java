@@ -4,7 +4,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,40 +33,19 @@ public class DefaultActivityScheduleCreatorTest {
 	private ActivityOfPanelData work;
 	private ActivityOfPanelData home;
 	private DefaultActivityScheduleCreator creator;
+	private PatternFixer fixer;
 
 	@Before
 	public void initialise() {
 		unusedPanelHousehold = ExampleHouseholdOfPanelData.household;
 		unusedHousehold = mock(Household.class);
+		fixer = mock(PatternFixer.class);
 		work = new ActivityOfPanelData(tripDuration, ActivityType.WORK, duration, startTime);
 		home = new ActivityOfPanelData(tripDuration, ActivityType.HOME, duration, startTime);
 
-		creator = new DefaultActivityScheduleCreator();
-	}
+		when(fixer.ensureIsTour(any())).then(invocation -> invocation.getArgument(0));
 
-	@Test
-	public void ensureFirstActivityIsAtHome() {
-		String pattern = missingHomeAtStart();
-		PatternActivityWeek activities = createActivitiesFrom(pattern);
-
-		assertThat(activities.first().getActivityType(), is(equalTo(ActivityType.HOME)));
-	}
-
-	private String missingHomeAtStart() {
-		return work.asCSV() + ";" + home.asCSV();
-	}
-
-	@Test
-	public void ensureLastActivityIsAtHome() {
-		String pattern = missingHomeAtEnd();
-
-		PatternActivityWeek activities = createActivitiesFrom(pattern);
-
-		assertThat(activities.last().getActivityType(), is(equalTo(ActivityType.HOME)));
-	}
-
-	private String missingHomeAtEnd() {
-		return home.asCSV() + ";" + work.asCSV();
+		creator = new DefaultActivityScheduleCreator(fixer);
 	}
 
 	@Test
@@ -76,6 +58,7 @@ public class DefaultActivityScheduleCreatorTest {
 		PatternActivityWeek completeTour = createCompleteTour();
 		assertThat(activities, is(equalTo(completeTour)));
 		assertThat(activities, sameInstance(cachedActivities));
+		verify(fixer).ensureIsTour(any());
 	}
 
 	private PatternActivityWeek createCompleteTour() {
