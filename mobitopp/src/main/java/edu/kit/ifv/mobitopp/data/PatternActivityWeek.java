@@ -1,42 +1,31 @@
 package edu.kit.ifv.mobitopp.data;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 
 public class PatternActivityWeek implements Serializable {
 
-
-
-	private final static int MINUTES_PER_WEEK = 10080;
-	private final static int MINUTES_PER_DAY = 1440;
-
-	private static final DayOfWeek DEFAULT_START_DAY = DayOfWeek.MONDAY;
-	private static final int DEFAULT_START_TIME = 0;
-	private static final int START_TIME_UNDEFINED = -1;
-	
+	private static final Time defaultStartTime = Time.start;
 	private static final long serialVersionUID = -6351800754350553869L;
 
-	public static final PatternActivityWeek WHOLE_WEEK_AT_HOME = new PatternActivityWeek(Arrays.asList(
-																																	PatternActivity.WHOLE_WEEK_AT_HOME
-																																));
+	public static final PatternActivityWeek WHOLE_WEEK_AT_HOME = new PatternActivityWeek(
+			asList(PatternActivity.WHOLE_WEEK_AT_HOME));
 
 	private final List<PatternActivity> patternActivities;
 	
 	public PatternActivityWeek() {
 		this(emptyList());
 	}
-  
-
 
 	public PatternActivityWeek(List<? extends PatternActivity> activities) {
 		super();
@@ -122,76 +111,37 @@ public class PatternActivityWeek implements Serializable {
 		return "PatternActivityWeek [patternActivities=" + patternActivities + "]";
 	}
 
-
-
-	public static DayOfWeek determineWeekDayFromMinutesSinceSundayMidnight(int startTimeOfActivity_) {
-		assert startTimeOfActivity_ >= 0;
-		assert startTimeOfActivity_ <=  2*PatternActivityWeek.MINUTES_PER_WEEK;
-		
-		return DayOfWeek.fromDay((startTimeOfActivity_ % PatternActivityWeek.MINUTES_PER_WEEK) / PatternActivityWeek.MINUTES_PER_DAY);
-	}
-
-
-
 	public static PatternActivityWeek fromActivityOfPanelData(
-			Collection<ActivityOfPanelData> activityOfPanelData
-	) {
-	
+			Collection<ActivityOfPanelData> activityOfPanelData) {
 		PatternActivityWeek patternActivityWeek = new PatternActivityWeek();
-		
 		if (activityOfPanelData.isEmpty()) {
-		
 			return WHOLE_WEEK_AT_HOME;
 		}
 	
-	
-		int previousEndTime = 0;
-	
+		Time previousEnd = defaultStartTime;
 		for (ActivityOfPanelData activity : activityOfPanelData) {
-	
-			DayOfWeek weekDayType = null;
-			int starttime = -1;
-	
+			Time startTime = defaultStartTime;
 			if (activity.getStarttime() != -1) {
-	
 				int startTimeOfActivity = activity.getStarttime();
-				weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(startTimeOfActivity);
-				// starttime = startTimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
-				starttime = startTimeOfActivity;
-	
-			} else { // starttime = -1
-	
+				startTime = SimpleTime.ofMinutes(startTimeOfActivity);
+			} else {
 				if (patternActivityWeek.getPatternActivities().isEmpty()) {
-	
-					weekDayType = PatternActivityWeek.DEFAULT_START_DAY;
-					starttime = PatternActivityWeek.DEFAULT_START_TIME;
-	
+					startTime = defaultStartTime;
 				} else {
-	
 					int tripDuration = activity.getObservedTripDuration() > -1 ?
 															activity.getObservedTripDuration() : 15;
-	
-					int starttimeOfActivity = previousEndTime + tripDuration;
-	
-					weekDayType = PatternActivityWeek.determineWeekDayFromMinutesSinceSundayMidnight(starttimeOfActivity);
-					//starttime = starttimeOfActivity % PatternActivityWeek.MINUTES_PER_DAY;
-					starttime = starttimeOfActivity;
+					startTime = previousEnd.plusMinutes(tripDuration);
 				}
-	
 			}
 	
-			previousEndTime = starttime + activity.getDuration();
-			int relativeStartTime = starttime % MINUTES_PER_DAY;
-		
+			previousEnd = startTime.plusMinutes(activity.getDuration());
 			PatternActivity patternActivity 
 				= new PatternActivity(
 						ActivityType.getTypeFromInt(activity.getActivityTypeAsInt()),
-								weekDayType, 
 								activity.getObservedTripDuration(),
-								relativeStartTime, 
+								startTime, 
 								activity.getDuration()
 					);
-	
 			patternActivityWeek.addPatternActivity(patternActivity);
 		}
 	
