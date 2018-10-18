@@ -48,8 +48,21 @@ public class StructuralDataTest {
 		demographyData.next();
 		int existingValue = demographyData.valueOrDefault("Rundweg");
 
-		assertEquals(0, defaultValue);
+		assertEquals(StructuralData.defaultValue, defaultValue);
 		assertEquals(8044, existingValue);
+	}
+	
+	public void valueForMissing() {
+		int value = demographyData.valueOrDefault("missing-key");
+		
+		assertThat(value, is(StructuralData.defaultValue));
+	}
+	
+	@Test
+	public void missingValue() {
+		boolean hasValue = demographyData.hasValue("missing-key");
+		
+		assertFalse(hasValue);
 	}
 
 	@Test

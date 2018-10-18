@@ -9,7 +9,10 @@ import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class StructuralData {
 
-	private static final int defaultValue = 0;
+	private static final String newClassificationKey = "zoneclassification";
+	private static final String oldClassificationKey = "Outlyingarea";
+
+	static final int defaultValue = 0;
 
 	private final CsvFile structuralData;
 	private int index;
@@ -35,23 +38,31 @@ public class StructuralData {
 	}
 
 	public boolean hasValue(String key) {
-		return !getValue(key).isEmpty();
+		return structuralData.hasAttribute(key) && !getValue(key).isEmpty();
 	}
 
 	public int valueOrDefault(String key) {
-		String test = getValue(key);
-		if (test.isEmpty()) {
-			return defaultValue;
+		if (hasValue(key)) {
+			return parsedValue(key);
 		}
-		return Math.toIntExact(Math.round(Double.parseDouble(test)));
+		return defaultValue;
+	}
+
+	private int parsedValue(String key) {
+		return Math.toIntExact(Math.round(Double.parseDouble(getValue(key))));
 	}
 
 	public ZoneClassificationType currentClassification() {
-		String classification = getValue("Outlyingarea");
+		String classification = classificationValue();
 		if (Integer.valueOf(classification) > 0) {
 			return ZoneClassificationType.outlyingArea;
 		}
 		return ZoneClassificationType.areaOfInvestigation;
+	}
+
+	private String classificationValue() {
+		return hasValue(newClassificationKey) ? getValue(newClassificationKey)
+				: getValue(oldClassificationKey);
 	}
 
 	public AreaType currentZoneAreaType() {

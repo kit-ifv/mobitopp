@@ -42,7 +42,7 @@ public class CsvFile {
 
 		int line_num = 0;
 
-		while ((nextLine = reader.readNext()) != null) {
+		while ((nextLine = reader.readNext()) != null && 1 < nextLine.length) {
 
 			Map<Integer,String> row = new HashMap<Integer,String>();
 			this.data.put(line_num,row);
@@ -128,5 +128,11 @@ public class CsvFile {
 	public double getDouble(int row_num, String attribute) {
 		return Double.parseDouble(getValue(row_num, attribute));
 	}
+
+	public boolean hasAttribute(String attribute) {
+		return columnNames.contains(attribute.toLowerCase());
+	}
+	
+	
 }
 	
