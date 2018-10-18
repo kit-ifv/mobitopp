@@ -22,7 +22,6 @@ import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -33,6 +32,7 @@ public class DefaultActivityScheduleCreatorTest {
 	private static final int tripDuration = 1;
 	private static final int duration = 2;
 	private static final int startTime = 3;
+	private static final Time start = Time.start.plusMinutes(startTime);
 	private HouseholdOfPanelData unusedPanelHousehold;
 	private Household unusedHousehold;
 	private ActivityOfPanelData work;
@@ -75,7 +75,7 @@ public class DefaultActivityScheduleCreatorTest {
 	}
 
 	private PatternActivity createActivityFor(ActivityType type) {
-		return new PatternActivity(type, DayOfWeek.MONDAY, tripDuration, startTime, duration);
+		return new PatternActivity(type, tripDuration, start, duration);
 	}
 
 	private String correctTour() {

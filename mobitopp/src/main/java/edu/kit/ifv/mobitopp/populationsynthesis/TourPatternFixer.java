@@ -6,7 +6,7 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class TourPatternFixer implements PatternFixer {
 
@@ -35,7 +35,7 @@ public class TourPatternFixer implements PatternFixer {
 			return patternActivityWeek;
 		}
 		List<PatternActivity> activities = new LinkedList<>();
-		activities.add(newHomeActivityBefore(first));
+		activities.add(newHomeActivityAtStart());
 		activities.addAll(patternActivityWeek.getPatternActivities());
 
 		return new PatternActivityWeek(activities);
@@ -45,19 +45,17 @@ public class TourPatternFixer implements PatternFixer {
 		return home.equals(first.getActivityType());
 	}
 
-	private PatternActivity newHomeActivityBefore(PatternActivity first) {
-		DayOfWeek weekDayType = first.getWeekDayType();
+	private PatternActivity newHomeActivityAtStart() {
 		int tripDuration = 1;
-		int startTime = 0;
+		Time startTime = Time.start;
 		int duration = 1;
-		return new PatternActivity(home, weekDayType, tripDuration, startTime, duration);
+		return new PatternActivity(home, tripDuration, startTime, duration);
 	}
 
 	private PatternActivity newHomeActivityAfter(PatternActivity last) {
-		DayOfWeek weekDayType = last.getWeekDayType();
 		int tripDuration = last.getObservedTripDuration();
-		int startTime = last.getStarttime() + last.getDuration() + tripDuration;
+		Time startTime = last.startTime().plusMinutes(last.getDuration()).plusMinutes(tripDuration);
 		int duration = 1;
-		return new PatternActivity(home, weekDayType, tripDuration, startTime, duration);
+		return new PatternActivity(home, tripDuration, startTime, duration);
 	}
 }

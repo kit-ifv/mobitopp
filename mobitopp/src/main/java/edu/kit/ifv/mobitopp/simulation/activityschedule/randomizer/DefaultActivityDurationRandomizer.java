@@ -30,9 +30,8 @@ implements ActivityStartAndDurationRandomizer
 
 		return new  PatternActivity(
 	  		activity.getActivityType(),
-	      activity.getWeekDayType(),
 	      activity.getObservedTripDuration(),
-	      activity.getStarttime(),
+	      activity.startTime(),
 	      newduration
 	     );
 	}
