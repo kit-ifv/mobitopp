@@ -13,9 +13,6 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.Activity;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivityAsLinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.LinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
@@ -83,7 +80,7 @@ public class ActivityPeriodTest {
 	}
 
 
-	@Test
+	@Test 
 	public void testIsEmpty() {
 		
 		assertTrue(week.isEmpty());
@@ -347,11 +344,5 @@ public class ActivityPeriodTest {
 		assertEquals("failure - fixStartTimeOfActivities()", 17, act3.calculatePlannedEndDate().getHour());
 		assertEquals("failure - fixStartTimeOfActivities()", 30, act3.calculatePlannedEndDate().getMinute());
 	}
-
-
-
-
-
-
-
+	
 }

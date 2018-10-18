@@ -1,98 +1,98 @@
 package edu.kit.ifv.mobitopp.data;
 
 
+import java.time.Duration;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.SimpleTime;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class PatternActivity
 	implements java.io.Serializable
 
 {
 
+	private static final int maximumDuration = Math.toIntExact(Duration.ofDays(28).toMinutes());
+
 	private static final long serialVersionUID = 8483330614698184240L;
 	
 	protected final static byte UNDEFINED_BYTE     = Byte.MIN_VALUE;
   protected final static short UNDEFINED_SHORT   = Short.MIN_VALUE;
 
-	public static final PatternActivity WHOLE_WEEK_AT_HOME = new PatternActivity(ActivityType.HOME,DayOfWeek.MONDAY,-1,0,10080);
+	public static final PatternActivity WHOLE_WEEK_AT_HOME = new PatternActivity(ActivityType.HOME,
+			DayOfWeek.MONDAY, -1, 0, maximumDuration);
 
 
   private final ActivityType  activityType ;
   private final short duration             ;
   private final short observedTripDuration ;
-  private final short starttime            ;
-  private final DayOfWeek  weekDayType     ;
+	private final Time startTime;
 
 
 
   public PatternActivity(
-  		ActivityType activityType,
-      DayOfWeek weekDayType,
-      int observedTripDuration,
-      int starttime,
-      int duration)
-  {
+			ActivityType activityType, int observedTripDuration, Time startTime, int duration) {
+		super();
   	assert activityType != null;
-		assert weekDayType != null;
-		assert duration >= 1;
-		assert duration <= 10080 || (duration==9*24*60 && activityType==ActivityType.HOME && weekDayType==DayOfWeek.SUNDAY) : duration;
 		assert observedTripDuration >= -1;
-		assert observedTripDuration <= 10080;
-		assert starttime >= -1;
-		assert starttime <= 2*10080;
-
+		assert observedTripDuration <= maximumDuration;
+		assert startTime != null;
+		assert startTime.getMinute() <= 2 * maximumDuration;
+		assert duration >= 1;
+		assert duration <= maximumDuration;
 		this.activityType = activityType;
+		this.observedTripDuration = (short) observedTripDuration;
+		this.startTime = startTime;
     this.duration = (short) duration;
-    this.observedTripDuration = (short) observedTripDuration;
-    this.starttime = (short) starttime;
-    this.weekDayType = weekDayType;
   }
   
+	public PatternActivity(
+			ActivityType activityType, DayOfWeek weekDayType, int observedTripDuration, int startMinutes,
+			int duration) {
+		this(activityType, observedTripDuration,
+				SimpleTime.ofDays(weekDayType.getTypeAsInt()).plusMinutes(startMinutes), duration);
+	}
 
-	public int getActivityTypeAsInt()
-  {
+	public int getActivityTypeAsInt() {
     return this.activityType.getTypeAsInt();
   }
 
-
-  public int getDuration()
-  {
+	public int getDuration() {
 		assert this.duration != UNDEFINED_SHORT;
 
     return this.duration;
   }
 
-
-  public int getObservedTripDuration()
-  {
+	public int getObservedTripDuration() {
 		assert this.observedTripDuration != UNDEFINED_SHORT;
 
     return this.observedTripDuration;
   }
 
+	/**
+	 * Returns the start time in minutes of the day. For the absolute start time use
+	 * {@link PatternActivity#startTime()}.
+	 */
+	public int getStarttime() {
+		assert this.startTime.getMinute() != UNDEFINED_SHORT;
+		return this.startTime().getHour() * 60 + this.startTime.getMinute();
+	}
 
-  public int getStarttime()
-  {
-		assert this.starttime != UNDEFINED_SHORT;
-
-    return this.starttime;
+	public Time startTime() {
+		return startTime;
   }
 
-  public int getWeekDayTypeAsInt()
-  {
-
-    return this.weekDayType.getTypeAsInt();
+	public int getWeekDayTypeAsInt() {
+		return getWeekDayType().getTypeAsInt();
   }
 
- 
-  public ActivityType getActivityType()
-  {
+	public ActivityType getActivityType() {
     return this.activityType;
   }
 
-  public DayOfWeek getWeekDayType()
-  {
-		return this.weekDayType;
+	public DayOfWeek getWeekDayType() {
+		return startTime.weekDay();
   }
   
 
@@ -103,8 +103,7 @@ public class PatternActivity
 		result = prime * result + ((activityType == null) ? 0 : activityType.hashCode());
 		result = prime * result + duration;
 		result = prime * result + observedTripDuration;
-		result = prime * result + starttime;
-		result = prime * result + ((weekDayType == null) ? 0 : weekDayType.hashCode());
+		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
 		return result;
 	}
 
@@ -124,9 +123,10 @@ public class PatternActivity
 			return false;
 		if (observedTripDuration != other.observedTripDuration)
 			return false;
-		if (starttime != other.starttime)
+		if (startTime == null) {
+			if (other.startTime != null)
 			return false;
-		if (weekDayType != other.weekDayType)
+		} else if (!startTime.equals(other.startTime))
 			return false;
 		return true;
 	}
@@ -134,18 +134,7 @@ public class PatternActivity
 	@Override
 	public String toString() {
 		return "PatternActivity [activityType=" + activityType + ", duration=" + duration
-				+ ", observedTripDuration=" + observedTripDuration + ", starttime=" + starttime
-				+ ", weekDayType=" + weekDayType 
-				+ "]";
-	}
-	
-	public String asCSV() { 
-		
-		return ""
-					+ getObservedTripDuration() + ";"
-					+ getActivityTypeAsInt() + ";" 
-					+ getDuration() + ";"
-					+ (getStarttime() == 0 ? -1 : getStarttime());
+				+ ", observedTripDuration=" + observedTripDuration + ", startTime=" + startTime + "]";
 	}
   
 }

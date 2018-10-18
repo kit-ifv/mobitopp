@@ -6,9 +6,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
@@ -29,19 +33,13 @@ import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public abstract class Example {
 
 	public static final int type = 7;
-	public static final DayOfWeek weekDay = DayOfWeek.MONDAY;
 	public static final int observedTripDuration = 2;
-	public static final int starttime = 3;
+	public static final Time startTime = Time.start.plusMinutes(3);
 	public static final int duration = 4;
 	public static final int tourNumber = 0;
 	public static final boolean isMainActivity = false;
@@ -178,6 +176,6 @@ public abstract class Example {
 	}
 
 	public static ExtendedPatternActivity activity() {
-		return new ExtendedPatternActivity(0,false,false,ActivityType.getTypeFromInt(type), weekDay, observedTripDuration, starttime, duration);
+		return new ExtendedPatternActivity(0,false,false,ActivityType.getTypeFromInt(type), observedTripDuration, startTime, duration);
 	}
 }
