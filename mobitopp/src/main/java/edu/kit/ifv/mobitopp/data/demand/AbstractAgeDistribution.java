@@ -11,6 +11,10 @@ public abstract class AbstractAgeDistribution
 	protected AbstractAgeDistribution() {
 		super();
 	}
+	
+	public boolean hasItem(int age) {
+		return items().anyMatch(item -> item.matches(age));
+	}
 
 	public AgeDistributionItem getItem(int age) {
 		if (0 > age) {
