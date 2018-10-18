@@ -35,9 +35,9 @@ public class PrintDistribution {
 	}
 
 	private void print(Function<DemandZone, Demography> toDemography, String type) {
-		employment.print(toDemography, type + " employment");
-		femaleAge.print(toDemography, type + " female age");
-		maleAge.print(toDemography, type + " male age");
+		employment.print(toDemography, type);
+		femaleAge.print(toDemography, type);
+		maleAge.print(toDemography, type);
 	}
 
 }

@@ -27,7 +27,7 @@ public class PrintEmployment {
 			EmploymentDistribution distribution = toDemography.apply(zone).employment();
 			increment(total, distribution);
 		}
-		logger().println("\n" + type + " distribution:");
+		logger().println("\n" + type + " employment distribution:");
 		print(total);
 	}
 
