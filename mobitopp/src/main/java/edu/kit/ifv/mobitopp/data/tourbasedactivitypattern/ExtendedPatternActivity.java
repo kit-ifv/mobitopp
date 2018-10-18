@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
 
 @SuppressWarnings("serial")
@@ -12,25 +11,8 @@ public class ExtendedPatternActivity extends PatternActivity {
 	public final boolean isMainActivity;
 	public final boolean isInSupertour;
 	
-	public static final ExtendedPatternActivity STAYATHOME_ACTIVITY = new ExtendedPatternActivity(-1, false, false, ActivityType.HOME, DayOfWeek.SUNDAY, -1, 0, 9*24*60);
+	public static final ExtendedPatternActivity STAYATHOME_ACTIVITY = new ExtendedPatternActivity(-1, false, false, ActivityType.HOME, -1, Time.start, 9*24*60);
 
-	public ExtendedPatternActivity(
-		int tournr,
-		boolean isMainActivity,
-		boolean isInSupertour,
-		ActivityType activityType, 
-		DayOfWeek weekDayType, 
-		int observedTripDuration,
-		int starttime, 
-		int duration
-	) {
-		super(activityType, weekDayType, observedTripDuration, starttime, duration);
-		
-		this.tournr=tournr;
-		this.isMainActivity=isMainActivity;
-		this.isInSupertour=isInSupertour;
-	}
-	
 	public ExtendedPatternActivity(
 			int tournr,
 			boolean isMainActivity,
@@ -47,29 +29,13 @@ public class ExtendedPatternActivity extends PatternActivity {
 		this.isInSupertour=isInSupertour;
 	}
 	
-	public ExtendedPatternActivity(
-		int tournr,
-		boolean isMainActivity,
-		boolean isInSupertour,
-		ActivityType activityType, 
-		long observedTripDuration,
-		Time starttime, 
-		long duration
-	) {
-		this(tournr, isMainActivity, isInSupertour,
-				activityType, 
-				(int) observedTripDuration, 
-				starttime, 
-				(int) duration);
-	}
-	
 	public static ExtendedPatternActivity fromActivity(int tournr, boolean isMainActivity, boolean isInSupertour, Activity activity) {
 	
 				return new ExtendedPatternActivity(tournr, isMainActivity, isInSupertour,
 						activity.activityType(),
-						activity.expectedTripDuration().toMinutes(),
+						(int) activity.expectedTripDuration().toMinutes(),
 						activity.plannedStart(),
-						activity.plannedDuration().toMinutes()
+						(int) activity.plannedDuration().toMinutes()
 					);
 	}
 	

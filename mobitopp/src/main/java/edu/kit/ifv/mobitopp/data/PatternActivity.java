@@ -21,7 +21,7 @@ public class PatternActivity
   protected final static short UNDEFINED_SHORT   = Short.MIN_VALUE;
 
 	public static final PatternActivity WHOLE_WEEK_AT_HOME = new PatternActivity(ActivityType.HOME,
-			DayOfWeek.MONDAY, -1, 0, maximumDuration);
+			-1, Time.start, maximumDuration);
 
 
   private final ActivityType  activityType ;

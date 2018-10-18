@@ -12,13 +12,13 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class TourPatternFixerTest {
 
 	private static final int tripDuration = 1;
 	private static final int duration = 2;
-	private static final int startTime = 3;
+	private static final Time startTime = Time.start.plusMinutes(3);
 
 	@Test
 	public void ensureFirstActivityIsAtHome() {
@@ -57,6 +57,6 @@ public class TourPatternFixerTest {
 	}
 
 	private PatternActivity createActivityFor(ActivityType type) {
-		return new PatternActivity(type, DayOfWeek.MONDAY, tripDuration, startTime, duration);
+		return new PatternActivity(type, tripDuration, startTime, duration);
 	}
 }

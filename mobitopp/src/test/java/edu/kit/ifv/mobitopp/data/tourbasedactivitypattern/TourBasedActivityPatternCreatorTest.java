@@ -86,10 +86,10 @@ public class TourBasedActivityPatternCreatorTest {
 	private List<PatternActivity> worktourWithService() {
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.SERVICE, DayOfWeek.MONDAY, SimpleTime.ofHours(6), RelativeTime.ofMinutes(10)));
-		tour.add(createActivity(ActivityType.WORK, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		tour.add(createActivity(ActivityType.SERVICE, DayOfWeek.MONDAY, SimpleTime.ofHours(17), RelativeTime.ofMinutes(10)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(18), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.SERVICE, SimpleTime.ofHours(6), RelativeTime.ofMinutes(10)));
+		tour.add(createActivity(ActivityType.WORK, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
+		tour.add(createActivity(ActivityType.SERVICE, SimpleTime.ofHours(17), RelativeTime.ofMinutes(10)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(18), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -97,10 +97,10 @@ public class TourBasedActivityPatternCreatorTest {
 	private List<PatternActivity> shoppingtourWithoutSubtour() {
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(60)));
-		tour.add(createActivity(ActivityType.LEISURE, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofMinutes(15)));
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(14), RelativeTime.ofMinutes(60)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(15), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(12), RelativeTime.ofMinutes(60)));
+		tour.add(createActivity(ActivityType.LEISURE, SimpleTime.ofHours(13), RelativeTime.ofMinutes(15)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(14), RelativeTime.ofMinutes(60)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(15), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -108,10 +108,10 @@ public class TourBasedActivityPatternCreatorTest {
 	private List<PatternActivity> servicetourWithSubtour() {
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.SERVICE, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(60)));
-		tour.add(createActivity(ActivityType.LEISURE, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofMinutes(15)));
-		tour.add(createActivity(ActivityType.SERVICE, DayOfWeek.MONDAY, SimpleTime.ofHours(14), RelativeTime.ofMinutes(60)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(15), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.SERVICE, SimpleTime.ofHours(12), RelativeTime.ofMinutes(60)));
+		tour.add(createActivity(ActivityType.LEISURE, SimpleTime.ofHours(13), RelativeTime.ofMinutes(15)));
+		tour.add(createActivity(ActivityType.SERVICE, SimpleTime.ofHours(14), RelativeTime.ofMinutes(60)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(15), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -119,11 +119,11 @@ public class TourBasedActivityPatternCreatorTest {
 	private List<PatternActivity> tourWithOneSubtour() {
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.WORK, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.LEISURE, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofMinutes(30)));
-		tour.add(createActivity(ActivityType.WORK, DayOfWeek.MONDAY, SimpleTime.ofHours(14), RelativeTime.ofHours(4)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.WORK, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.LEISURE, SimpleTime.ofHours(13), RelativeTime.ofMinutes(30)));
+		tour.add(createActivity(ActivityType.WORK, SimpleTime.ofHours(14), RelativeTime.ofHours(4)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -131,10 +131,10 @@ public class TourBasedActivityPatternCreatorTest {
 	private List<PatternActivity> tourWithNoSubtour() {
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.WORK, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(17), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(18), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.WORK, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(17), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(18), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -143,12 +143,12 @@ public class TourBasedActivityPatternCreatorTest {
 		
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		tour.add(createActivity(ActivityType.SHOPPING, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofHours(2)));
-		tour.add(createActivity(ActivityType.LEISURE, DayOfWeek.MONDAY, SimpleTime.ofHours(15), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(17), RelativeTime.ofHours(2)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.EDUCATION, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
+		tour.add(createActivity(ActivityType.SHOPPING, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.EDUCATION, SimpleTime.ofHours(13), RelativeTime.ofHours(2)));
+		tour.add(createActivity(ActivityType.LEISURE, SimpleTime.ofHours(15), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.EDUCATION, SimpleTime.ofHours(17), RelativeTime.ofHours(2)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -157,12 +157,12 @@ public class TourBasedActivityPatternCreatorTest {
 		
 		List<PatternActivity> tour = new ArrayList<PatternActivity>();
 		
-		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(6)));
-		tour.add(createActivity(ActivityType.PRIVATE_VISIT, DayOfWeek.MONDAY, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.LEISURE_INDOOR, DayOfWeek.MONDAY, SimpleTime.ofHours(13), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.PRIVATE_VISIT, DayOfWeek.MONDAY, SimpleTime.ofHours(14), RelativeTime.ofMinutes(45)));
-		tour.add(createActivity(ActivityType.EDUCATION, DayOfWeek.MONDAY, SimpleTime.ofHours(15), RelativeTime.ofHours(2)));
-		tour.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
+		tour.add(createActivity(ActivityType.EDUCATION, SimpleTime.ofHours(7), RelativeTime.ofHours(6)));
+		tour.add(createActivity(ActivityType.PRIVATE_VISIT, SimpleTime.ofHours(12), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.LEISURE_INDOOR, SimpleTime.ofHours(13), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.PRIVATE_VISIT, SimpleTime.ofHours(14), RelativeTime.ofMinutes(45)));
+		tour.add(createActivity(ActivityType.EDUCATION, SimpleTime.ofHours(15), RelativeTime.ofHours(2)));
+		tour.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(19), RelativeTime.ofHours(12)));
 		
 		return tour;
 	}
@@ -431,11 +431,10 @@ public class TourBasedActivityPatternCreatorTest {
 	
 	private static PatternActivity createActivity(
 			ActivityType activityType,
-      DayOfWeek day,
       Time start,
       RelativeTime duration
 			) {
-		return new PatternActivity(activityType, day, 15, (int) start.toMinutes(), (int) duration.toMinutes());
+		return new PatternActivity(activityType, 15, start, (int) duration.toMinutes());
 	}
 	
 	
@@ -443,13 +442,14 @@ public class TourBasedActivityPatternCreatorTest {
 		
 		List<PatternActivity> activities = new ArrayList<PatternActivity>();
 
-		activities.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(0), RelativeTime.ofHours(6)));
-		activities.add(createActivity(ActivityType.WORK, DayOfWeek.MONDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		activities.add(createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(17), RelativeTime.ofHours(12)));
+		activities.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(0), RelativeTime.ofHours(6)));
+		activities.add(createActivity(ActivityType.WORK, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
+		activities.add(createActivity(ActivityType.HOME, SimpleTime.ofHours(17), RelativeTime.ofHours(12)));
 		
-		activities.add(createActivity(ActivityType.WORK, DayOfWeek.TUESDAY, SimpleTime.ofHours(7), RelativeTime.ofHours(8)));
-		activities.add(createActivity(ActivityType.SHOPPING, DayOfWeek.TUESDAY, SimpleTime.ofHours(16), RelativeTime.ofHours(1)));
-		activities.add(createActivity(ActivityType.HOME, DayOfWeek.TUESDAY, SimpleTime.ofHours(18), RelativeTime.ofHours(12)));
+		Time tuesday = SimpleTime.ofDays(1);
+		activities.add(createActivity(ActivityType.WORK, tuesday.plusHours(7), RelativeTime.ofHours(8)));
+		activities.add(createActivity(ActivityType.SHOPPING, tuesday.plusHours(16), RelativeTime.ofHours(1)));
+		activities.add(createActivity(ActivityType.HOME, tuesday.plusHours(18), RelativeTime.ofHours(12)));
 		
 		return new PatternActivityWeek(activities);
 	}

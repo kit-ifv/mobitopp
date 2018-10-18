@@ -5,72 +5,28 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 
-	protected PatternActivityWeek pattern;
-	
-	List<Time> dates;
-	
-
-	protected ActivityPeriod week;
-
-
+	private ActivityPeriod week;
 
 	@Before
 	public void setUp() {
-		
-		pattern = new PatternActivityWeek();
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.MONDAY,	0,	6*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.WORK,DayOfWeek.MONDAY,	7*60,	8*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.MONDAY,	15*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.WORK,DayOfWeek.TUESDAY,	7*60,8*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.TUESDAY,	15*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.WORK,DayOfWeek.WEDNESDAY,7*60,8*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.WEDNESDAY,15*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.WORK,DayOfWeek.THURSDAY,7*60,8*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.THURSDAY,15*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.WORK,DayOfWeek.FRIDAY,7*60,8*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.FRIDAY,15*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.SHOPPING,DayOfWeek.SATURDAY,10*60,3*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.SATURDAY,13*60,15*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.LEISURE,DayOfWeek.SUNDAY,14*60,3*60));
-		pattern.addPatternActivity(makeActivity(ActivityType.HOME,DayOfWeek.SUNDAY,17*60,12*60));
-		
-		dates = new ArrayList<>();
-		dates.add(SimpleTime.of(0,0,0,0));
-		dates.add(SimpleTime.of(1,0,0,0));
-		dates.add(SimpleTime.of(2,0,0,0));
-		dates.add(SimpleTime.of(3,0,0,0));
-		dates.add(SimpleTime.of(4,0,0,0));
-		dates.add(SimpleTime.of(5,0,0,0));
-		dates.add(SimpleTime.of(6,0,0,0));
-
-		
+		PatternActivityWeek pattern = new ExamplePattern().startingAtHome();
+		List<Time> dates = new ExamplePattern().dates();
 		week = new ActivityPeriodWithExtendedFirstAndLastActivity(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), pattern, dates);
 	}
 	
-	public static PatternActivity makeActivity(ActivityType actType, DayOfWeek day, int minutesSinceStartOfDay, int duration) {
-	
-			return new PatternActivity(actType,  day, 30, day.getTypeAsInt()*24*60+minutesSinceStartOfDay, duration);
-	}
-
-
-
 	@Test
 	public void testIsEmpty() {
 		

@@ -6,24 +6,22 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimpleActivityTest {
 	
-	PatternActivity home_monday = createActivity(ActivityType.HOME, DayOfWeek.MONDAY, SimpleTime.ofHours(0), RelativeTime.ofHours(6));
-	PatternActivity work_wednesday =	createActivity(ActivityType.WORK, DayOfWeek.WEDNESDAY, SimpleTime.ofHours(2*24+7), RelativeTime.ofHours(8));
+	PatternActivity home_monday = createActivity(ActivityType.HOME, SimpleTime.ofHours(0), RelativeTime.ofHours(6));
+	PatternActivity work_wednesday =	createActivity(ActivityType.WORK, SimpleTime.ofHours(2*24+7), RelativeTime.ofHours(8));
 	
 	
 	private static PatternActivity createActivity(
 			ActivityType activityType,
-      DayOfWeek day,
       Time start,
       RelativeTime duration
 			) {
-		return new PatternActivity(activityType, day, 15, (int) start.toMinutes(), (int) duration.toMinutes());
+		return new PatternActivity(activityType, 15, start, (int) duration.toMinutes());
 	}
 
 	@Test
