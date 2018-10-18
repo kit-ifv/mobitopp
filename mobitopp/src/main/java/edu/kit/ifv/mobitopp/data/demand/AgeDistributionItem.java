@@ -23,6 +23,10 @@ public class AgeDistributionItem
 		this.amount = amount;
 	}
 
+	public AgeDistributionItem(AgeDistributionItem other) {
+		this(other.lowerBound, other.upperBound, other.amount);
+	}
+
 	private void verifyAmount(int amount) {
 		if (0 > amount) {
 			throw new IllegalArgumentException("Amount is too low: " + amount);
