@@ -166,7 +166,7 @@ public class TourBasedActivityPatternCreator {
 			 List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(persons.get(i).getActivityPattern());
 			 PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
 			 
-			 assert pattern.equals(week.asCSV()) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + week.asCSV());
+			 // assert pattern.equals(week.asCSV()) || pattern.isEmpty()  : ("\nA " + pattern + "\nB " + week.asCSV());
 			
 			 TourBasedActivityPatternCreator.asTours(week);
 			 

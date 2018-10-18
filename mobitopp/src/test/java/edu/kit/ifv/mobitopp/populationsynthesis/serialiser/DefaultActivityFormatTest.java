@@ -57,9 +57,8 @@ public class DefaultActivityFormatTest {
 		return asList( 
 				valueOf(personOid), 
 				valueOf(Example.type),
-				valueOf(Example.weekDay), 
 				valueOf(Example.observedTripDuration), 
-				valueOf(Example.starttime),
+				valueOf(Example.startTime.toMinutes()),
 				valueOf(Example.duration),
 				valueOf(Example.tourNumber),
 				valueOf(Example.isInSupertour),

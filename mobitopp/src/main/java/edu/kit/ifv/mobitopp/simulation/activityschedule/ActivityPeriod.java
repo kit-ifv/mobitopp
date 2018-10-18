@@ -66,12 +66,9 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		assert patternWeek.getPatternActivities().size() == origPatternWeek.getPatternActivities().size();
 		
 			for (Time currentDay : dates) {
+			List<PatternActivity> patternActivities = patternWeek.getPatternActivities(currentDay);
 
-				List<PatternActivity> patternActivities =
-		    		patternWeek.getPatternActivities(currentDay.weekDay());
-		    
-		    for (int i=0; i<patternActivities.size(); i++)
-		    {
+			for (int i = 0; i < patternActivities.size(); i++) {
 		      PatternActivity aPatternActivity = patternActivities.get(i);
 		      
 		      
@@ -307,7 +304,10 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		assert patternActivity_ != null;
 
-		Time startTime = SimpleTime.ofMinutes(patternActivity_.getStarttime());
+    int hour   = patternActivity_.startTime().getHour();
+    int minute = patternActivity_.startTime().getMinute();  
+
+		Time startTime = date.newTime(hour, minute, 0);
 		
 		assert date.weekDay() == startTime.weekDay() : (date.weekDay() + " " + startTime.weekDay()
 				+ "\n" + date + " : " + startTime);
@@ -329,7 +329,10 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 			int activityNumber
 	) {
 		
-		Time startTimeWalk = SimpleTime.ofMinutes(patternActivity.getStarttime());
+		int hour   = patternActivity.startTime().getHour();
+    int minute = patternActivity.startTime().getMinute();  
+
+		Time startTimeWalk = currentDay.newTime(hour, minute, 0);
 		
 		assert currentDay.weekDay() == startTimeWalk.weekDay() : (currentDay.weekDay() + " : " + startTimeWalk.weekDay() );
 			

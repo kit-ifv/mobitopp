@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 
 public class PatternActivityWeek implements Serializable {
@@ -60,17 +61,18 @@ public class PatternActivityWeek implements Serializable {
 		this.patternActivities.add(activity_);
 	}
 
-	public List<PatternActivity> getPatternActivities(DayOfWeek dayOfWeek) {
-		assert dayOfWeek != null;
+	public List<PatternActivity> getPatternActivities(Time time) {
+		Time currentDay = time.startOfDay();
+		Time nextDay = currentDay.nextDay();
 
 		List<PatternActivity> activitiesAtDaytype = new ArrayList<>();
 		for (PatternActivity patternActivity : patternActivities) {
-			if (patternActivity.getWeekDayTypeAsInt() == dayOfWeek.getTypeAsInt()) {
+			if (currentDay.equals(patternActivity.startTime().startOfDay())) {
 				activitiesAtDaytype.add(patternActivity);
 			}
 
 			// We can skip here because we already found the patternactivities of the weekday
-			if (patternActivity.getWeekDayTypeAsInt() > dayOfWeek.getTypeAsInt()) {
+			if (nextDay.equals(patternActivity.startTime().startOfDay())) {
 				break;
 			}
 		}
@@ -84,24 +86,6 @@ public class PatternActivityWeek implements Serializable {
 	
 	public PatternActivity first() {
 		return patternActivities.get(0);
-	}
-	
-	public PatternActivity firstActivityOfDayOrNext(final DayOfWeek dayOfWeek) {
-		
-		DayOfWeek day = dayOfWeek;
-		
-		assert !this.patternActivities.isEmpty();
-		
-		List<PatternActivity> activities = getPatternActivities(day);
-		
-		while (activities.isEmpty()) {
-			day = day.next();
-			activities = getPatternActivities(day);
-		}
-		
-		assert !activities.isEmpty();
-		
-		return activities.get(0);
 	}
 	
 	public PatternActivity last() {
@@ -213,23 +197,4 @@ public class PatternActivityWeek implements Serializable {
 		return patternActivityWeek;
 	}
 	
-	public String asCSV() {
-		String result = "";
-		
-		boolean nextWeek = false;
-		DayOfWeek dayOfLastActivity = DayOfWeek.MONDAY;
-		
-		
-		for(PatternActivity act : getPatternActivities()) {
-			
-			if(act.getWeekDayType().getTypeAsInt() < dayOfLastActivity.getTypeAsInt() || nextWeek) {
-				nextWeek = true;
-			}
-			result += act.asCSV() + ";";
-			dayOfLastActivity = act.getWeekDayType();
-		}
-		
-		return result.substring(0,result.length()-1);
-	}
-
 }
