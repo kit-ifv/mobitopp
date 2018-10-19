@@ -25,8 +25,8 @@ public class PatternActivity
 
 
   private final ActivityType  activityType ;
-  private final short duration             ;
-  private final short observedTripDuration ;
+  private final int duration             ;
+  private final int observedTripDuration ;
 	private final Time startTime;
 
 
@@ -42,9 +42,9 @@ public class PatternActivity
 		assert duration >= 1;
 		assert duration <= maximumDuration;
 		this.activityType = activityType;
-		this.observedTripDuration = (short) observedTripDuration;
+		this.observedTripDuration = observedTripDuration;
 		this.startTime = startTime;
-    this.duration = (short) duration;
+    this.duration = duration;
   }
   
 	public PatternActivity(
