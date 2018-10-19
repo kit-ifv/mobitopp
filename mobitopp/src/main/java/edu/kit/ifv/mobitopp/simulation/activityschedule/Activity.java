@@ -64,8 +64,8 @@ public class Activity implements ActivityIfc {
   		byte activityNrOfWeek,
   		ActivityType activityType,
   		Time startDate,
-  		short duration,
-  		short observedTripDuration
+  		int duration,
+  		int observedTripDuration
   	) {
   	this(oid, activityNrOfWeek, activityType, startDate, duration, observedTripDuration, 1.0f, 0.0f, 1.0f);
   }

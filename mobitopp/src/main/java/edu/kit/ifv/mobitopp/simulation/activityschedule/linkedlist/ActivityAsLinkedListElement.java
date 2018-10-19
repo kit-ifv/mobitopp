@@ -40,7 +40,7 @@ public class ActivityAsLinkedListElement
 		int observedTripDuration
 	)
   { 
-		super(oid, (byte) activityNrOfWeek, activityType, startDate, (short) duration, (short) observedTripDuration);
+		super(oid, (byte) activityNrOfWeek, activityType, startDate, duration, observedTripDuration);
   }
   
   public ActivityAsLinkedListElement(
