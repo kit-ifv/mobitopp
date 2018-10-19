@@ -55,7 +55,7 @@ public class ActivityAsLinkedListElement
 		float durationFlexibiliy
 	)
   { 
-		super(oid, (byte) activityNrOfWeek, activityType, startDate, (short) duration, (short) observedTripDuration,
+		super(oid, (byte) activityNrOfWeek, activityType, startDate, duration, observedTripDuration,
 				startFlexibility, endFlexibility, durationFlexibiliy);
   }
 }
