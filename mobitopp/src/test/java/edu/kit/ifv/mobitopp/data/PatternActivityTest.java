@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.Test;
@@ -41,6 +42,12 @@ public class PatternActivityTest {
 		assertThat(oldConstructor, is(equalTo(newConstructor)));
 		assertThat(oldConstructor.getWeekDayType(), is(equalTo(weekDay)));
 		assertThat(oldConstructor.getStarttime(), is(minuteOfTheDay));
+	}
+	
+	@Test
+	public void ensureWholeWeekAtHomeHasPositiveDuration() {
+		assertThat(PatternActivity.maximumDuration, is(greaterThan(0)));
+		assertThat(PatternActivity.WHOLE_WEEK_AT_HOME.getDuration(), is(greaterThan(0)));
 	}
 
 	private PatternActivity oldActivity(DayOfWeek weekDay, int startTime) {
