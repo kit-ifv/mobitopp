@@ -94,8 +94,8 @@ public class ActivitySequenceAsLinkedList
 																		(byte)nrWithinDay,
 																		activityType,
 																		startDate,
-																		(short) duration,
-																		(short) tripDuration
+																		duration,
+																		tripDuration
 																);
 			return activity;
 		}

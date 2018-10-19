@@ -1,29 +1,27 @@
 package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
-import java.util.List;
-import java.util.Map;
-import java.io.Serializable;
-
 import static java.util.Collections.emptyList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.LinkedListElement;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
-import edu.kit.ifv.mobitopp.data.PatternActivity;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class ActivityPeriod extends ActivitySequenceAsLinkedList
 	implements Serializable
@@ -314,8 +312,8 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 
     ActivityType activityType = patternActivity_.getActivityType();
-		short duration = (short)patternActivity_.getDuration();
-		short tripDuration = (short)patternActivity_.getObservedTripDuration();
+		int duration = patternActivity_.getDuration();
+		int tripDuration = patternActivity_.getObservedTripDuration();
 		
 		ActivityIfc activity = ActivitySequenceAsLinkedList.newActivity(occupationCounter++, activityNumber, 
 																																		startTime, activityType, duration, tripDuration);
@@ -336,8 +334,8 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		
 		assert currentDay.weekDay() == startTimeWalk.weekDay() : (currentDay.weekDay() + " : " + startTimeWalk.weekDay() );
 			
-		short durationHome = (short)patternActivity.getDuration();
-		short durationWalk = (short)patternActivity.getObservedTripDuration();
+		int durationHome = patternActivity.getDuration();
+		int durationWalk = patternActivity.getObservedTripDuration();
 		
 		Time startTimeHome = startTimeWalk.plusMinutes(durationWalk+1);
 		
