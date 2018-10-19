@@ -4,7 +4,9 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class IpuTest {
@@ -23,6 +26,7 @@ public class IpuTest {
 	private List<WeightedHousehold> afterSecondIteration;
 	private List<WeightedHousehold> afterThirdIteration;
 	private Iteration iteration;
+	private Logger logger;
 
 	@Before
 	public void initialise() {
@@ -31,6 +35,7 @@ public class IpuTest {
 		afterSecondIteration = createHouseholds(3.0d);
 		afterThirdIteration = createHouseholds(4.0d);
 		iteration = mock(Iteration.class);
+		logger = mock(Logger.class);
 
 		when(iteration.adjustWeightsOf(households)).thenReturn(afterFirstIteration);
 		when(iteration.adjustWeightsOf(afterFirstIteration)).thenReturn(afterSecondIteration);
@@ -64,22 +69,23 @@ public class IpuTest {
 	public void neverReachConvergence() {
 		int maxIterations = 3;
 		double maxGoodness = 0.0d;
-		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness);
+		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
 
 		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterSecondIteration)));
+		verify(logger).println(anyString());
 	}
 
 	@Test
 	public void cancelOnConvergence() {
 		int maxIterations = 3;
 		double maxGoodness = 0.5d;
-		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness);
+		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
 
 		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterFirstIteration)));
 	}
-	
+
 }
