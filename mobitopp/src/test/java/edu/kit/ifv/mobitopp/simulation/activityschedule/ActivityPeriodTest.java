@@ -52,8 +52,8 @@ public class ActivityPeriodTest {
 											(byte)activityNr,
 											activityType,
 											startDate,
-											(short)duration,
-											(short)tripDuration
+											duration,
+											tripDuration
 										);
 
 		return act;

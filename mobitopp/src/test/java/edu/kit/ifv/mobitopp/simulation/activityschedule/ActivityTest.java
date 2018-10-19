@@ -41,8 +41,8 @@ public class ActivityTest {
 												(byte)activityNr,
 												ActivityType.LEISURE,
 												startDate,
-												(short)duration,
-												(short)tripDuration,
+												duration,
+												tripDuration,
 												startFlexibility,
 												endFlexibility,
 												durationFlexibility
