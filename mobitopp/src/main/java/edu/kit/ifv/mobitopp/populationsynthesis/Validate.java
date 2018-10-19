@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Validate implements Validation {
 	}
 
 	@Override
-	public void now(WrittenConfiguration configuration) {
+	public void now(WrittenConfiguration configuration) throws IOException {
 		this.configuration = configuration;
 		validateNumberOfZones();
 		validateVisumFile();
@@ -76,7 +77,7 @@ public class Validate implements Validation {
 		new FileValidator(files).doExist();
 	}
 
-	private void validateDataSource() {
+	private void validateDataSource() throws IOException {
 		configuration.getDataSource().validate();
 	}
 }

@@ -23,6 +23,6 @@ public interface DataSource {
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository) throws IOException;
 
-	void validate();
+	void validate() throws IOException;
 
 }

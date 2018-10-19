@@ -97,7 +97,7 @@ public class ContextBuilder {
 		performanceLogger.forEach((m,d) -> System.out.println(m + " " + d));
 	}
 
-	private void validateConfiguration() {
+	private void validateConfiguration() throws IOException {
 		new Validate().now(configuration);
 		log("Validate configuration");
 	}
