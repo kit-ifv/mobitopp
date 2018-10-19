@@ -42,8 +42,8 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 	Time date1 = Data.someTime().plusHours(6);
 	Time date2 = date1.plusHours(2);
 
-	Activity activity1 = new Activity(1, (byte)1, ActivityType.WORK, date1, (short)120, (short)5);
-	Activity activity2 = new Activity(2, (byte)2, ActivityType.HOME, date2, (short)120, (short)5);
+	Activity activity1 = new Activity(1, (byte)1, ActivityType.WORK, date1, 120, 5);
+	Activity activity2 = new Activity(2, (byte)2, ActivityType.HOME, date2, 120, 5);
 	Activity homeActivity = activity2;
 
 	Household household = new Household_Stub(1, 1000);
