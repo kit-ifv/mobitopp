@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
-
+import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -8,44 +8,31 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 
+public class Activity implements ActivityIfc {
 
-public class Activity
-	implements ActivityIfc
-{
-
-	protected final static int UNDEFINED_OID       = -1;
-
-  protected final static byte UNDEFINED_BYTE     = Byte.MIN_VALUE;
-  protected final static short UNDEFINED_SHORT   = Short.MIN_VALUE;
+	private static final int maximumDuration = PatternActivity.maximumDuration;
 
   private final int _oid;
-
   private final byte activityNrOfWeek;
   private final ActivityType activityType;
   private Time startDate;
-
   private Mode mode = null;
-
   private boolean isRunning = false;
-
-  private short duration             = UNDEFINED_SHORT; // [in min]
-  private short observedTripDuration = UNDEFINED_SHORT; // [in min]
-
+  private int duration; // [in min]
+  private final int observedTripDuration; // [in min]
 	private ZoneAndLocation zoneAndLocation = null;
 	
 	private final float startFlexibility;
 	private final float endFlexibility;
 	private final float durationFlexibility;
-	
-
 
   public Activity(
 		int oid,
 		byte activityNrOfWeek,
 		ActivityType activityType,
 		Time startDate,
-		short duration,
-		short observedTripDuration,
+		int duration,
+		int observedTripDuration,
 		float startFlexibility,
 		float endFlexibility,
 		float durationFlexibility
@@ -56,17 +43,21 @@ public class Activity
 		this.activityType=activityType;
 		this.startDate=startDate;
 
-		assert duration >= 1;
-		assert duration <= 2*10080 : duration;
+		verifyDuration(duration);
 		this.duration=duration;
 
-		assert observedTripDuration <= 10080;
+		assert observedTripDuration <= maximumDuration;
 		this.observedTripDuration=observedTripDuration;
 		
 		this.startFlexibility = startFlexibility;
 		this.endFlexibility = endFlexibility;
 		this.durationFlexibility = durationFlexibility;
   }
+
+	private void verifyDuration(int duration) {
+		assert duration >= 1 : duration;
+		assert duration <= 2 * maximumDuration : duration;
+	}
   
   public Activity(
   		int oid,
@@ -98,15 +89,11 @@ public class Activity
 
   public int duration()
   {
-		assert this.duration != UNDEFINED_SHORT;
-
     return this.duration;
   }
 
   public int observedTripDuration()
   {
-		assert this.observedTripDuration != UNDEFINED_SHORT;
-
     return this.observedTripDuration;
   }
 
@@ -122,8 +109,6 @@ public class Activity
     this.isRunning = running_;
   }
 
-
-
   public void setStartDate(Time date_)
   {
 		assert date_ != null;
@@ -133,10 +118,9 @@ public class Activity
 
   public void changeDuration(int duration)
   {
-		assert duration >= 1 : duration;
-		assert duration <= 10080 : duration;
+		verifyDuration(duration);
 
-    this.duration = (short) duration;
+    this.duration = duration;
   }
 
   public ActivityType activityType()
