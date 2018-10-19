@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.io.IOException;
+
 import edu.kit.ifv.mobitopp.data.local.Convert;
 
 public class Validate implements Validation {
@@ -11,7 +13,7 @@ public class Validate implements Validation {
 	}
 
 	@Override
-	public void now(WrittenConfiguration configuration) {
+	public void now(WrittenConfiguration configuration) throws IOException {
 		this.configuration = configuration;
 		validateTimeStepLength();
 		validateNumberOfZones();
@@ -56,7 +58,7 @@ public class Validate implements Validation {
 		return !Convert.asFile(pathname).exists();
 	}
 
-	private void validateDataSource() {
+	private void validateDataSource() throws IOException {
 		configuration.getDataSource().validate();
 	}
 

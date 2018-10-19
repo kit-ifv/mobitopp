@@ -49,14 +49,14 @@ public class ValidateTest {
 	}
 
 	@Test
-	public void validateCorrectConfiguration() {
+	public void validateCorrectConfiguration() throws IOException {
 		validate();
 
 		verify(dataSource).validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateIncorrectNumberOfZones() {
+	public void validateIncorrectNumberOfZones() throws IOException {
 		int tooFew = 0;
 		configuration.setNumberOfZones(tooFew);
 
@@ -64,35 +64,35 @@ public class ValidateTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateMissingNetworkFile() {
+	public void validateMissingNetworkFile() throws IOException {
 		configuration.setVisumFile(nonExistingFile.getAbsolutePath());
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateMissingCarEngineFile() {
+	public void validateMissingCarEngineFile() throws IOException {
 		configuration.getCarOwnership().setEngine(nonExistingFile.getAbsolutePath());
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateMissingCarOwnershipFile() {
+	public void validateMissingCarOwnershipFile() throws IOException {
 		configuration.getCarOwnership().setOwnership(nonExistingFile.getAbsolutePath());
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateMissingCarSegmentFile() {
+	public void validateMissingCarSegmentFile() throws IOException {
 		configuration.getCarOwnership().setSegment(nonExistingFile.getAbsolutePath());
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateCarSharingFiles() {
+	public void validateCarSharingFiles() throws IOException {
 		configuration
 				.setCarSharing(Collections.singletonMap("non-existing", nonExistingFile.getAbsolutePath()));
 
@@ -100,27 +100,27 @@ public class ValidateTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateCommuterTicketFile() {
+	public void validateCommuterTicketFile() throws IOException {
 		configuration.setCommuterTicket(nonExistingFile.getAbsolutePath());
 
 		validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void validateDemographyDataFile() {
+	public void validateDemographyDataFile() throws IOException {
 		configuration.setDemographyData(nonExistingFile.getAbsolutePath());
 		
 		validate();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void validatePanelDataFile() {
+	public void validatePanelDataFile() throws IOException {
 		configuration.setPanelData(nonExistingFile.getAbsolutePath());
 		
 		validate();
 	}
 
-	private void validate() {
+	private void validate() throws IOException {
 		new Validate().now(configuration);
 	}
 

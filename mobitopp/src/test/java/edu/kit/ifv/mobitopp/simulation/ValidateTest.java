@@ -42,14 +42,14 @@ public class ValidateTest {
 	}
 
 	@Test
-	public void validateCorrectConfiguration() {
+	public void validateCorrectConfiguration() throws IOException {
 		validate();
 
 		verify(dataSource).validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateIncorrectNumberOfZones() {
+	public void validateIncorrectNumberOfZones() throws IOException {
 		int tooFew = 0;
 		configuration.setNumberOfZones(tooFew);
 
@@ -57,35 +57,35 @@ public class ValidateTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateTooLowFractionOfPopulation() {
+	public void validateTooLowFractionOfPopulation() throws IOException {
 		configuration.setFractionOfPopulation(-0.1f);
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateTooHighFractionOfPopulation() {
+	public void validateTooHighFractionOfPopulation() throws IOException {
 		configuration.setFractionOfPopulation(1.1f);
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void incorrectTimeStepLength() {
+	public void incorrectTimeStepLength() throws IOException {
 		configuration.setTimeStepLength(WrittenConfiguration.defaultTimeStepLength - 1);
 
 		validate();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateDestinationChoiceFiles() {
+	public void validateDestinationChoiceFiles() throws IOException {
 		configuration.setDestinationChoice(
 				Collections.singletonMap("repetition", nonExistingFile.getAbsolutePath()));
 
 		validate();
 	}
 
-	private void validate() {
+	private void validate() throws IOException {
 		new Validate().now(configuration);
 	}
 }

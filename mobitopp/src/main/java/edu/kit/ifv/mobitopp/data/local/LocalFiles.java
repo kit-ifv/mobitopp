@@ -7,6 +7,7 @@ import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import edu.kit.ifv.mobitopp.data.CreateFolder;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.DataSource;
@@ -244,33 +245,23 @@ public class LocalFiles implements DataSource {
 	}
 
 	@Override
-	public void validate() {
+	public void validate() throws IOException {
 		validateFiles();
 		validateMatrices();
 	}
 
-	private void validateFiles() {
+	private void validateFiles() throws IOException {
 		validateDemandDataFolder();
 		validateZoneRepositoryFolder();
 		Validate.files(matrixConfigurationFile).doExist();
 	}
 
-	private void validateZoneRepositoryFolder() {
-		if (zoneRepositoryFolder.exists()) {
-			return;
-		}
-		System.out.println("Zone repository folder is missing. It will be created at: "
-				+ zoneRepositoryFolder.getAbsolutePath());
-		zoneRepositoryFolder.mkdirs();
+	private void validateZoneRepositoryFolder() throws IOException {
+		CreateFolder.at(zoneRepositoryFolder).ifMissing();
 	}
 
-	private void validateDemandDataFolder() {
-		if (demandDataFolder.exists()) {
-			return;
-		}
-		System.out.println("Demand data folder is missing. It will be created at: "
-				+ demandDataFolder.getAbsolutePath());
-		demandDataFolder.mkdirs();
+	private void validateDemandDataFolder() throws IOException {
+		CreateFolder.at(demandDataFolder).ifMissing();
 	}
 
 	private void validateMatrices() {
