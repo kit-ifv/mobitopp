@@ -32,18 +32,17 @@ public class Ipu {
 			updateHouseholds(lastIterationHouseholds);
 			double goodnessOfFit = calculateGoodness();
 			if (converged(goodnessOfFit)) {
-				updateBest(goodnessOfFit);
-				log();
-				return bestHouseholds;
+				log(lastIteration, lastIteration, goodnessOfFit);
+				return currentHouseholds;
 			}
 			lastIterationHouseholds = currentHouseholds;
 			updateBest(goodnessOfFit);
 		}
-		log();
+		log(lastIteration, bestIteration, bestGoodness);
 		return bestHouseholds;
 	}
 
-	private void log() {
+	private void log(int lastIteration, int bestIteration, double bestGoodness) {
 		logger
 				.println(String
 						.format("iterations: %s best iteration: %s goodness of fit: %s", lastIteration,
