@@ -150,7 +150,7 @@ public class DemandSimulatorPassenger
 
 	private static void printCurrentTime(Time currentTime) {
 		LocalDateTime realTime = LocalDateTime.now();
-		String simulationTime = new DateFormat().asFullDate(currentTime);
+		String simulationTime = new DateFormat().asWeekdayTime(currentTime);
 		System.out.println(realTime + ": Aktuelle Simulationszeit: " + simulationTime);
 	}
 
