@@ -25,6 +25,7 @@ public class PrintMaleAge {
 		MaleAgeDistribution total = new MaleAgeDistribution();
 		for (DemandZone zone : getZones()) {
 			MaleAgeDistribution distribution = toDemography.apply(zone).maleAge();
+			print(distribution);
 			increment(total, distribution);
 		}
 		logger().println("\n" + type + " male age distribution:");

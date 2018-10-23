@@ -25,6 +25,7 @@ public class PrintEmployment {
 		EmploymentDistribution total = new EmploymentDistribution();
 		for (DemandZone zone : getZones()) {
 			EmploymentDistribution distribution = toDemography.apply(zone).employment();
+			print(distribution);
 			increment(total, distribution);
 		}
 		logger().println("\n" + type + " employment distribution:");
