@@ -41,9 +41,6 @@ public class IpuTest {
 		when(iteration.adjustWeightsOf(afterFirstIteration)).thenReturn(afterSecondIteration);
 		when(iteration.adjustWeightsOf(afterSecondIteration)).thenReturn(afterThirdIteration);
 		when(iteration.calculateGoodnessOfFitFor(households)).thenReturn(1.0d);
-		when(iteration.calculateGoodnessOfFitFor(afterFirstIteration)).thenReturn(0.5d);
-		when(iteration.calculateGoodnessOfFitFor(afterSecondIteration)).thenReturn(0.25d);
-		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.4d);
 	}
 
 	private List<WeightedHousehold> createHouseholds(double baseWeight) {
@@ -67,6 +64,7 @@ public class IpuTest {
 
 	@Test
 	public void neverReachConvergence() {
+		hugeDecreasingGoodnessAfterFirst();
 		int maxIterations = 3;
 		double maxGoodness = 0.0d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
@@ -79,6 +77,7 @@ public class IpuTest {
 
 	@Test
 	public void cancelOnConvergence() {
+		hugeDecreasingGoodnessAfterFirst();
 		int maxIterations = 3;
 		double maxGoodness = 0.5d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
@@ -86,6 +85,27 @@ public class IpuTest {
 		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterFirstIteration)));
+	}
+
+	private void hugeDecreasingGoodnessAfterFirst() {
+		when(iteration.calculateGoodnessOfFitFor(afterFirstIteration)).thenReturn(0.5d);
+		when(iteration.calculateGoodnessOfFitFor(afterSecondIteration)).thenReturn(0.25d);
+		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.4d);
+	}
+	
+	@Test
+	public void convergesOnlyOnImprovement() {
+		when(iteration.calculateGoodnessOfFitFor(afterFirstIteration)).thenReturn(0.6d);
+		when(iteration.calculateGoodnessOfFitFor(afterSecondIteration)).thenReturn(0.7d);
+		when(iteration.calculateGoodnessOfFitFor(afterThirdIteration)).thenReturn(0.4d);
+		
+		int maxIterations = 3;
+		double maxGoodness = 0.2d;
+		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
+
+		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
+
+		assertThat(updatedHouseholds, is(equalTo(afterThirdIteration)));
 	}
 
 }
