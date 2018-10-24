@@ -64,7 +64,9 @@ public class Ipu {
 	}
 
 	private boolean converged(double goodnessOfFit) {
-		return Math.abs(goodnessOfFit - bestGoodness) <= maxGoodness;
+		boolean improves = goodnessOfFit < bestGoodness;
+		boolean belowThreshold = Math.abs(goodnessOfFit - bestGoodness) <= maxGoodness;
+		return improves && belowThreshold;
 	}
 
 	private void updateBest(double goodnessOfFit) {
