@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 public class PrintDistribution {
 
 	private final DemandZoneRepository zoneRepository;
+	private final PrintHousehold household;
 	private final PrintEmployment employment;
 	private final PrintMaleAge maleAge;
 	private final PrintFemaleAge femaleAge;
@@ -17,6 +18,7 @@ public class PrintDistribution {
 	public PrintDistribution(DemandZoneRepository zoneRepository) {
 		super();
 		this.zoneRepository = zoneRepository;
+		household = new PrintHousehold(zoneRepository, System.out::println);
 		employment = new PrintEmployment(zoneRepository, System.out::println);
 		maleAge = new PrintMaleAge(zoneRepository, System.out::println);
 		femaleAge = new PrintFemaleAge(zoneRepository, System.out::println);
@@ -35,6 +37,7 @@ public class PrintDistribution {
 	}
 
 	private void print(Function<DemandZone, Demography> toDemography, String type) {
+		household.print(toDemography, type);
 		employment.print(toDemography, type);
 		femaleAge.print(toDemography, type);
 		maleAge.print(toDemography, type);
