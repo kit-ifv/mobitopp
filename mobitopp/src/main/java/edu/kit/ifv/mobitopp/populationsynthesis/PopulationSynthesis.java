@@ -61,7 +61,7 @@ public abstract class PopulationSynthesis {
 		assertFixedDistributionMatrices(fdMatrices);
 		printBeforeCreation();
 		doCreatePopulation(fdMatrices);
-		printAfterCreation();
+		doPrintAfterCreation();
 		finishExecution();
 	}
 
@@ -96,10 +96,15 @@ public abstract class PopulationSynthesis {
 		printer.printNominalDistributions();
 	}
 
-	private void printAfterCreation() {
+	private void doPrintAfterCreation() {
 		PrintDistribution printer = new PrintDistribution(context.zoneRepository());
 		printer.printNominalDistributions();
 		printer.printActualDistributions();
+		printAfterCreation();
+	}
+
+	protected void printAfterCreation() {
+		
 	}
 
 	void doCreatePopulation(Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
