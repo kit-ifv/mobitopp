@@ -8,12 +8,13 @@ subprojects {
     apply plugin: 'jacoco'
   
     group = 'edu.kit.ifv.mobitopp'
-    version = '0.1.1'
+    version = '0.1.1' + snapshot()
     
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
     
     repositories {
+        mavenLocal()
         mavenCentral()
         jcenter()
         maven { url "http://mvn.collide.info/content/repositories/releases/" }
@@ -31,4 +32,11 @@ subprojects {
     eclipse.classpath {
         downloadSources=true
     }
+}
+
+String snapshot() {
+    if (project.hasProperty('release')) {
+        return ''
+    }
+    return '-SNAPSHOT'
 }

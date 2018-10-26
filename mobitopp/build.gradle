@@ -1,11 +1,15 @@
 buildscript {
-  repositories {
+    repositories {
+        mavenLocal()
+        mavenCentral()
         jcenter()
-   }
+    }
 }
 
 plugins {
-  id "com.jfrog.bintray" version "1.7.3"
+  id "com.jfrog.bintray" version "1.8.4"
+  id "com.jfrog.artifactory" version "4.8.1"
+  id "maven-publish"
 }
 
 dependencies {
@@ -61,6 +65,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 artifacts {
     archives sourcesJar
+    archives javadocJar
 }
 
 jar.doLast {
@@ -110,9 +115,44 @@ distributions {
     }
 }
 
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId project.name
+            version project.version
+        }
+    }
+}
+
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+    publish {
+        repository {
+            repoKey = 'oss-snapshot-local'
+            username = project.hasProperty('user') ? project.property('user') : 'user'
+            password = project.hasProperty('key') ? project.property('key') : 'key'
+        }
+        defaults {
+            publications('mavenPublication')
+            publishArtifacts = true
+            publishPom = true
+        }
+    }
+    resolve {
+        repoKey = 'jcenter'
+    }
+    def buildnumber = project.hasProperty('build.number') ? project.property('build.number') : '' 
+    clientConfig.info.setBuildNumber(buildnumber)
+}
+
 bintray {
     user = project.hasProperty('user') ? project.property('user') : 'user'
     key = project.hasProperty('key')? project.property('key') : 'key'
+    publications = ['mavenPublication']
     pkg {
         repo = 'ifv-mobitopp'
         name = project.name
@@ -121,9 +161,10 @@ bintray {
         vcsUrl = 'https://github.com/ifv-mobitopp/mobitopp'
         version {
           name = project.version
+          description = project.version
+          released = new Date()
         }
     }
-    configurations = ['archives']
 }
 
 uploadArchives {
