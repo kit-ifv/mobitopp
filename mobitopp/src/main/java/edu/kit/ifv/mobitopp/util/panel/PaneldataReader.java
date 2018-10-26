@@ -116,7 +116,7 @@ public class PaneldataReader {
 
 		String[] field = line.split(";");
 
-		info.household.household_number 	= java.lang.Integer.parseInt(field[columnNames.get("id")]);
+		info.household.household_number 	= java.lang.Long.parseLong(field[columnNames.get("id")]);
 		info.household.year 							= java.lang.Integer.parseInt(field[columnNames.get("year")]);
 		info.household.area_type 					= java.lang.Integer.parseInt(field[columnNames.get("areatype")]);
 		info.household.household_size 		= java.lang.Integer.parseInt(field[columnNames.get("size")]);
