@@ -47,7 +47,7 @@ public interface Car {
 
 	/**
 	 * Should throw an {@link IllegalArgumentException} when {@link #remainingRange()} is smaller than
-	 * {@link distanceKm}. Currently only a warning is print on standard out.
+	 * {@code distanceKm}. Currently only a warning is print on standard out.
 	 * 
 	 * @param distanceKm
 	 * @throws IllegalArgumentException

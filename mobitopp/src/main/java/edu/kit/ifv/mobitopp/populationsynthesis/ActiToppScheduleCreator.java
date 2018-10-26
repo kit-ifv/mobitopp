@@ -412,7 +412,6 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator
   	 * 
   	 * Methode konvertiert die Aktivität in den mobiTopp Simulation Aktivitätentyp
   	 * 
-  	 * @param stub
   	 * @return
   	 */
   	public PatternActivity convertActiToppTomobiToppActivityType(HActivity act)
