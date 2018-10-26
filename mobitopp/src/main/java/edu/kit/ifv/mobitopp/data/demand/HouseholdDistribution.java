@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class HouseholdDistribution extends
 		AbstractDemandModelDistribution<HouseholdDistributionItem> implements HouseholdDistributionIfc {
@@ -28,7 +27,9 @@ public class HouseholdDistribution extends
 			}
 		}
 
-		throw new NoSuchElementException();
+		HouseholdDistributionItem anItem = new HouseholdDistributionItem(type, 0);
+		getItemsInternal().add(anItem);
+		return anItem;
 	}
 
   public int getTotalAmount() {
