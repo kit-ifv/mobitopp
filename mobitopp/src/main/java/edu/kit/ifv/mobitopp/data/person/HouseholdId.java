@@ -8,9 +8,9 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 	private static final long serialVersionUID = 8599877663307485839L;
 	
 	private short _year = Short.MIN_VALUE;
-	private int _householdNumber = Integer.MIN_VALUE;
+	private long _householdNumber = Integer.MIN_VALUE;
 
-	public HouseholdId(int year, int householdNumber) {
+	public HouseholdId(int year, long householdNumber) {
 		super();
 
 		verifyYear(year);
@@ -19,7 +19,7 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 		this._householdNumber = householdNumber;
 	}
 
-  private void verifyHouseholdNumber(int householdNumber) {
+  private void verifyHouseholdNumber(long householdNumber) {
   	if (0 > householdNumber) {
   		throw new IllegalArgumentException("Household number is less than 0!");
   	}
@@ -35,7 +35,7 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 		return this._year;
 	}
 
-	public int getHouseholdNumber() {
+	public long getHouseholdNumber() {
 		return this._householdNumber;
 	}
 
@@ -66,7 +66,7 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + _householdNumber;
+		result = prime * result + (int) (_householdNumber ^ (_householdNumber >>> 32));
 		result = prime * result + _year;
 		return result;
 	}

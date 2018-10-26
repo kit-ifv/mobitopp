@@ -3,16 +3,16 @@ package edu.kit.ifv.mobitopp.util.panel;
 public class HouseholdOfPanelDataId implements Comparable<HouseholdOfPanelDataId> {
 
   private final short year;
-  private final int   householdNumber;
+	private final long householdNumber;
 
   private double weight	=	0.0;
 
-	public HouseholdOfPanelDataId(int year, int householdNumber) {
+	public HouseholdOfPanelDataId(long year, long household_number) {
 		assert year > 1990 && year < 2100 : year;
-		assert householdNumber >= 0;
+		assert household_number >= 0;
 
 		this.year = (short) year;
-    this.householdNumber = householdNumber;
+    this.householdNumber = household_number;
   }
 
   public short getYear()
@@ -20,7 +20,7 @@ public class HouseholdOfPanelDataId implements Comparable<HouseholdOfPanelDataId
     return this.year;
   }
 
-  public int getHouseholdNumber()
+  public long getHouseholdNumber()
   {
     return this.householdNumber;
   }
@@ -73,7 +73,7 @@ public class HouseholdOfPanelDataId implements Comparable<HouseholdOfPanelDataId
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + householdNumber;
+		result = prime * result + (int) (householdNumber ^ (householdNumber >>> 32));
 		result = prime * result + year;
 		return result;
 	}
