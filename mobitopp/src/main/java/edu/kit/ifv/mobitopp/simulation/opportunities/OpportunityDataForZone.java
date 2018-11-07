@@ -81,6 +81,12 @@ public class OpportunityDataForZone implements Serializable {
 	}
 
 	public void forEach(Consumer<Opportunity> consumer) {
+		if (locationsAvailable()) {
+			forEachInternal(consumer);
+		}
+	}
+
+	private void forEachInternal(Consumer<Opportunity> consumer) {
 		for (Entry<ActivityType, Map<Location, Integer>> entry : opportunityLocations.entrySet()) {
 			ActivityType activityType = entry.getKey();
 			for (Entry<Location, Integer> opportunity : entry.getValue().entrySet()) {
