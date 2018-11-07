@@ -78,8 +78,10 @@ public class DemandDataFolder {
 	}
 
 	public DemandDataSerialiser serialiseAsCsv() throws IOException {
-		return new DefaultDemandDataSerialiser(households(), persons(), activities(), cars(),
+		DefaultDemandDataSerialiser serialiser = new DefaultDemandDataSerialiser(households(), persons(), activities(), cars(),
 				fixedDestinations(), opportunitys());
+		serialiser.writeHeader();
+		return serialiser;
 	}
 
 	public DemandDataDeserialiser deserialiseFromCsv() throws IOException {

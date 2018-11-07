@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
@@ -20,7 +21,7 @@ import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 
-public class LocalDemandDataRepositoryTest {
+public class BufferedDemandRepositoryTest {
 
 	private Zone zone;
 	private DemandDataSerialiser serialiser;
@@ -47,14 +48,15 @@ public class LocalDemandDataRepositoryTest {
 		demandData = createPopulation();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
-	public void storeHouseholds() {
+	public void storeHouseholds() throws IOException {
 		DemandDataRepository repository = repository();
 
 		repository.store(demandData);
-		repository.serialiseTo(serialiser);
+		repository.finishExecution();
 
-		verify(serialiser).serialise(any(Population.class));
+		verify(serialiser).serialise(any(Collection.class));
 		verify(serialiser).serialise(any(OpportunityLocations.class));
 		verify(demandData).getPopulationData();
 		verify(populationData).getHouseholds();
@@ -62,8 +64,8 @@ public class LocalDemandDataRepositoryTest {
 		verify(opportunityData).forEach(any());
 	}
 
-	private LocalDemandDataRepository repository() {
-		return new LocalDemandDataRepository();
+	private BufferedDemandRepository repository() {
+		return new BufferedDemandRepository(serialiser);
 	}
 
 	private DataForZone createPopulation() {

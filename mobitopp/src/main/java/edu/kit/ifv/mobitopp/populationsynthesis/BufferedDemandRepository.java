@@ -1,14 +1,18 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.io.IOException;
+
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataSerialiser;
 import edu.kit.ifv.mobitopp.simulation.Household;
 
-public class LocalDemandDataRepository implements DemandDataRepository {
+public class BufferedDemandRepository implements DemandDataRepository {
 
+	private final DemandDataSerialiser serialiser;
 	private final Population population;
 	private final OpportunityLocations locations;
 
-	public LocalDemandDataRepository() {
+	public BufferedDemandRepository(DemandDataSerialiser serialiser) {
+		this.serialiser = serialiser;
 		this.population = Population.empty();
 		locations = new OpportunityLocations();
 	}
@@ -22,9 +26,13 @@ public class LocalDemandDataRepository implements DemandDataRepository {
 	}
 
 	@Override
-	public void serialiseTo(DemandDataSerialiser serialiser) {
-		serialiser.serialise(population);
-		serialiser.serialise(locations);
+	public void finishExecution() throws IOException {
+		try {
+			serialiser.serialise(population.households());
+			serialiser.serialise(locations);
+		} finally {
+			serialiser.close();
+		}
 	}
 
 }

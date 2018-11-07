@@ -26,7 +26,9 @@ import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
+import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
@@ -117,8 +119,9 @@ public class LocalFiles implements DataSource {
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
+		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
 		return new LocalDataForPopulationSynthesis(matrices, demandZoneRepository, panelDataRepository,
-				impedance, demandData, results);
+				impedance, demandRepository, results);
 	}
 
 	private DemandZoneRepository demandZoneRepository(
