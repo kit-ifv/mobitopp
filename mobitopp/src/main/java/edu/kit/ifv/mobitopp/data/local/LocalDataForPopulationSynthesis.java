@@ -17,9 +17,6 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.LocalDemandDataRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
-import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataSerialiser;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -34,20 +31,18 @@ public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulat
 	private final ImpedanceIfc impedance;
 	private final DemandDataRepository demandDataRepository;
 	private final PanelDataRepository panelDataRepository;
-	private final DemandDataFolder demandData;
 	private final ResultWriter results;
 
 	public LocalDataForPopulationSynthesis(
 			Matrices matrices, DemandZoneRepository zoneRepository, PanelDataRepository panelDataRepository,
-			ImpedanceIfc impedance, DemandDataFolder demandData, ResultWriter results) {
+			ImpedanceIfc impedance, DemandDataRepository demandDataRepository, ResultWriter results) {
 		super();
 		this.matrices = matrices;
 		this.zoneRepository = zoneRepository;
 		this.panelDataRepository = panelDataRepository;
 		this.impedance = impedance;
-		this.demandData = demandData;
+		this.demandDataRepository = demandDataRepository;
 		this.results = results;
-		demandDataRepository = new LocalDemandDataRepository();
 	}
 
 	@Override
@@ -82,9 +77,7 @@ public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulat
 	
 	@Override
 	public void finishExecution() throws IOException {
-		try (DemandDataSerialiser serialiser = demandData.serialiseAsCsv()) {
-			demandDataRepository.serialiseTo(serialiser);
-		}
+		demandDataRepository.finishExecution();
 		results.close();
 	}
 

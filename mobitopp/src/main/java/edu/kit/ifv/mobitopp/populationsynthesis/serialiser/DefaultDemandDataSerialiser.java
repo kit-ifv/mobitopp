@@ -7,7 +7,6 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
-import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
@@ -38,23 +37,13 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 		this.opportunitySerialiser = opportunitySerialiser;
 	}
 
-	@Override
-	public void serialise(Population population) {
-		writeHeader();
-		writeData(population);
-	}
-
-	private void writeHeader() {
+	void writeHeader() {
 		householdSerialiser.writeHeader();
 		personSerialiser.writeHeader();
 		activitySerialiser.writeHeader();
 		carSerialiser.writeHeader();
 		fixedDestinationSerialiser.writeHeader();
-	}
-
-	private void writeData(Population population) {
-		Collection<Household> households = population.households();
-		serialise(households);
+		opportunitySerialiser.writeHeader();
 	}
 
 	@Override
@@ -112,17 +101,11 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 			fixedDestinationSerialiser.write(personDestination);
 		}
 	}
-	
-	@Override
-	public void serialise(OpportunityLocations opportunities) {
-		opportunitySerialiser.writeHeader();
-		serialiseOpportunity(opportunities);
-	}
 
-	public void serialiseOpportunity(OpportunityLocations opportunities) {
+	public void serialise(OpportunityLocations opportunities) {
 		opportunities.forEach(opportunitySerialiser::write);
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		householdSerialiser.close();

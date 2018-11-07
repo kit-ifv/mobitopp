@@ -33,7 +33,7 @@ public class DefaultDemandDataSerialiserTest {
 	private Serialiser<PersonPatternActivity> activitySerialiser;
 	private ForeignKeySerialiser<PrivateCar> carSerialiser;
 	private ForeignKeySerialiser<PersonFixedDestination> fixedDestinationSerialiser;
-	private DemandDataSerialiser serialiser;
+	private DefaultDemandDataSerialiser serialiser;
 	private Serialiser<Opportunity> opportunitySerialiser;
 
 	@BeforeClass
@@ -71,7 +71,7 @@ public class DefaultDemandDataSerialiserTest {
 	
 	@Test
 	public void serialiseHeaderOfPopulation() {
-		serialisePopulation();
+		serialiser.writeHeader();
 		
 		verifyWrittenHeader();
 	}
@@ -92,7 +92,7 @@ public class DefaultDemandDataSerialiserTest {
 	}
 
 	private void serialisePopulation() {
-		serialiser.serialise(population);
+		serialiser.serialise(population.households());
 	}
 
 	private void verifyWrittenHousehold() throws IOException {
@@ -175,6 +175,5 @@ public class DefaultDemandDataSerialiserTest {
 		serialiser.serialise(opportunities);
 		
 		verify(opportunities).forEach(any());
-		verify(opportunitySerialiser).writeHeader();
 	}
 }

@@ -1,11 +1,11 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataSerialiser;
+import java.io.IOException;
 
 public interface DemandDataRepository {
 
 	void store(DataForZone demandData);
 
-	void serialiseTo(DemandDataSerialiser serialiser);
+	void finishExecution() throws IOException;
 
 }
