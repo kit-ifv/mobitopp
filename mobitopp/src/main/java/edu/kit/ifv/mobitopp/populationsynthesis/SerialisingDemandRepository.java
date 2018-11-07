@@ -22,5 +22,6 @@ public class SerialisingDemandRepository implements DemandDataRepository {
 
 	@Override
 	public void finishExecution() throws IOException {
+		serialiser.close();
 	}
 }
