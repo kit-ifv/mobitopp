@@ -30,7 +30,7 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
   	}
 	}
 
-	public int getYear() {
+	public short getYear() {
 		return this.year;
 	}
 
