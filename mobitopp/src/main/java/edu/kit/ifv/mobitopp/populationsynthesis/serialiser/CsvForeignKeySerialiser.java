@@ -23,8 +23,8 @@ public class CsvForeignKeySerialiser<T> implements ForeignKeySerialiser<T> {
 	}
 
 	@Override
-	public void write(T element, PopulationContext context) {
-		List<String> serialised = format.prepare(element, context);
+	public void write(T element) {
+		List<String> serialised = format.prepare(element);
 		write(serialised);
 	}
 

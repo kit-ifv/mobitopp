@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.Example;
@@ -34,7 +33,7 @@ public class DefaultDemandDataSerialiserTest {
 	private Serialiser<PersonPatternActivity> activitySerialiser;
 	private ForeignKeySerialiser<PrivateCar> carSerialiser;
 	private ForeignKeySerialiser<PersonFixedDestination> fixedDestinationSerialiser;
-	private DefaultDemandDataSerialiser serialiser;
+	private DemandDataSerialiser serialiser;
 	private Serialiser<Opportunity> opportunitySerialiser;
 
 	@BeforeClass
@@ -133,7 +132,7 @@ public class DefaultDemandDataSerialiserTest {
 	private void verifyWrittenPersonOfHousehold() throws IOException {
 		for (Household household : population.households()) {
 			for (Person person : household.getPersons()) {
-				verify(personSerialiser).write(person, population);
+				verify(personSerialiser).write(person);
 			}
 		}
 	}
@@ -153,7 +152,7 @@ public class DefaultDemandDataSerialiserTest {
 	private void verifyWrittenCars() throws IOException {
 		for (Household household : population.households()) {
 			for (PrivateCar car : household.whichCars()) {
-				verify(carSerialiser).write(car, population);
+				verify(carSerialiser).write(car);
 			}
 		}
 	}
@@ -163,7 +162,7 @@ public class DefaultDemandDataSerialiserTest {
 			for (Person person : household.getPersons()) {
 				for (FixedDestination destination : person.getFixedDestinations()) {
 					PersonFixedDestination personDestination = new PersonFixedDestination(person, destination);
-					verify(fixedDestinationSerialiser).write(personDestination, population);
+					verify(fixedDestinationSerialiser).write(personDestination);
 				}
 			}
 		}

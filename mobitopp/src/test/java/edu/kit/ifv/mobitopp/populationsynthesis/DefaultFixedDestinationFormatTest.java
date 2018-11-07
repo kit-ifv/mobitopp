@@ -56,7 +56,7 @@ public class DefaultFixedDestinationFormatTest {
 
 	@Test
 	public void prepareFixedDestination() {
-		List<String> prepared = format.prepare(personDestination, context);
+		List<String> prepared = format.prepare(personDestination);
 
 		assertThat(prepared, is(equalTo(fixedDestination())));
 	}

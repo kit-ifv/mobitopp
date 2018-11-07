@@ -46,7 +46,7 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 	}
 
 	@Override
-	public List<String> prepare(PrivateCar car, PopulationContext context) {
+	public List<String> prepare(PrivateCar car) {
 		int personalUser = null != car.personalUser() ? car.personalUser().getOid() : -1;
 		ArrayList<String> attributes = new ArrayList<>();
 		attributes.add(valueOf(car.owner().getOid()));

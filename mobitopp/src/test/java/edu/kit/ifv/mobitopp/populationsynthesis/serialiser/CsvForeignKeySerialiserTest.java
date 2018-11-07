@@ -18,12 +18,10 @@ public class CsvForeignKeySerialiserTest {
 
 	private CSVWriter writer;
 	private ForeignKeySerialiserFormat<Object> format;
-	private PopulationContext context;
 	
 	@SuppressWarnings("unchecked")
 	@Before
 	public void initialise() {
-		context = mock(PopulationContext.class);
 		writer = mock(CSVWriter.class);
 		format = mock(ForeignKeySerialiserFormat.class);
 	}
@@ -39,10 +37,10 @@ public class CsvForeignKeySerialiserTest {
 
 	@Test
 	public void serialisePreparedData() {
-		when(format.prepare(value, context)).thenReturn(asList(prepared));
+		when(format.prepare(value)).thenReturn(asList(prepared));
 
 		ForeignKeySerialiser<Object> serialiser = serialiser();
-		serialiser.write(value, context);
+		serialiser.write(value);
 
 		verify(writer).writeNext(prepared);
 	}
