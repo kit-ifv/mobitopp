@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.util.panel;
 class HouseholdInfo {
 
 	public long household_number;
-	public int year;
+	public short year;
 	public int area_type;
 	public int household_size;
 	public int domcode;

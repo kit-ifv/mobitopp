@@ -34,7 +34,8 @@ public class PersonConstraintTest {
 
 	private WeightedHousehold newHousehold(int people) {
 		Map<String, Integer> attributes = singletonMap(attribute, people);
-		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(2000, 1);
+		short year = 2000;
+		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
 		return new WeightedHousehold(id, initialWeight, attributes);
 	}
 

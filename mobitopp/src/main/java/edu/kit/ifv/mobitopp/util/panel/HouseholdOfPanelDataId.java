@@ -7,11 +7,11 @@ public class HouseholdOfPanelDataId implements Comparable<HouseholdOfPanelDataId
 
   private double weight	=	0.0;
 
-	public HouseholdOfPanelDataId(long year, long household_number) {
+	public HouseholdOfPanelDataId(short year, long household_number) {
 		assert year > 1990 && year < 2100 : year;
 		assert household_number >= 0;
 
-		this.year = (short) year;
+		this.year = year;
     this.householdNumber = household_number;
   }
 

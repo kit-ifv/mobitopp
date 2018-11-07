@@ -61,7 +61,7 @@ public abstract class Example {
 
 	public static final int firstHousehold = 1;
 	public static final int secondHousehold = 2;
-	public static final int householdYear = 2011;
+	public static final short householdYear = 2011;
 	public static final int householdNumber = 1;
 	public static final int nominalSize = 1;
 	public static final int domcode = 2;

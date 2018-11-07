@@ -51,7 +51,8 @@ public class IpuTest {
 	}
 
 	private HouseholdOfPanelDataId newId(int id) {
-		return new HouseholdOfPanelDataId(2000, id);
+		short year = 2000;
+		return new HouseholdOfPanelDataId(year, id);
 	}
 
 	private WeightedHousehold newHousehold(

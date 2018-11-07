@@ -104,7 +104,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 	}
 
 	private static HouseholdId idOf(List<String> data) {
-		int year = Integer.parseInt(data.get(yearIndex));
+		short year = Short.parseShort(data.get(yearIndex));
 		int householdNumber = Integer.parseInt(data.get(numberIndex));
 		return new HouseholdId(year, householdNumber);
 	}

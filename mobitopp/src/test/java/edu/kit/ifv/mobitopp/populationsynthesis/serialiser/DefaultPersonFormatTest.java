@@ -29,7 +29,7 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
 public class DefaultPersonFormatTest {
 
-	private static final int year = 2011;
+	private static final short year = 2011;
 	private static final int zoneOid = 1;
 	private static final int personOid = 1;
 	private static final int personNumber = personOid;
