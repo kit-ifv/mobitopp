@@ -27,7 +27,8 @@ public class HouseholdForDemandTest {
 	@Before
 	public void initialise() {
 		oid = 1;
-		id = new HouseholdId(2000, 2);
+		short year = 2000;
+		id = new HouseholdId(year, 2);
 		nominalSize = 3;
 		domCode = 4;
 		homeZone = mock(Zone.class);

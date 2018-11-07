@@ -5,7 +5,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class ExampleHouseholdOfPanelData {
 
-	public static final int year = 2000;
+	public static final short year = 2000;
 	public static final int aNumber = 3;
 	public static final int otherNumber = 4;
 	public static final HouseholdOfPanelDataId anId = new HouseholdOfPanelDataId(year, aNumber);

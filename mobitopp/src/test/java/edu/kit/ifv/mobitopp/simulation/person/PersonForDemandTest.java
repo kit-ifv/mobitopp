@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
@@ -48,7 +47,8 @@ public class PersonForDemandTest {
 	@Before
 	public void initialise() {
 		oid = 1;
-		id = new PersonId(new HouseholdId(2000, 2), 3);
+		short year = 2000;
+		id = new PersonId(new HouseholdId(year, 2), 3);
 		household = mock(Household.class);
 		age = 4;
 		employment = Employment.EDUCATION;

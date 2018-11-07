@@ -23,7 +23,8 @@ public class WeightedHouseholdTest {
 
 	@Before
 	public void initialise() {
-		id = new HouseholdOfPanelDataId(2000, 1);
+		short year = 2000;
+		id = new HouseholdOfPanelDataId(year, 1);
 		weight = 1.0d;
 		householdType1 = 1;
 		personType1 = 1;

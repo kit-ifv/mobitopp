@@ -19,8 +19,9 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 public class BaseConstraintTest {
 
 	private static final double margin = 1e-6;
-	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(2000, 1);
-	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(2000, 2);
+	private static final short year = 2000;
+	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
+	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(year, 2);
 	private static final double requestedWeight = 6.0d;
 
 	@Test

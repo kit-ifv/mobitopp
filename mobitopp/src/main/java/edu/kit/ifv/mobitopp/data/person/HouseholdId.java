@@ -4,19 +4,18 @@ import java.io.Serializable;
 
 public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 
-	
 	private static final long serialVersionUID = 8599877663307485839L;
 	
-	private short _year = Short.MIN_VALUE;
-	private long _householdNumber = Integer.MIN_VALUE;
+	private final short year;
+	private final long householdNumber;
 
-	public HouseholdId(int year, long householdNumber) {
+	public HouseholdId(short year, long householdNumber) {
 		super();
 
 		verifyYear(year);
 		verifyHouseholdNumber(householdNumber);
-		this._year = (short) year;
-		this._householdNumber = householdNumber;
+		this.year = year;
+		this.householdNumber = householdNumber;
 	}
 
   private void verifyHouseholdNumber(long householdNumber) {
@@ -32,42 +31,42 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 	}
 
 	public int getYear() {
-		return this._year;
+		return this.year;
 	}
 
 	public long getHouseholdNumber() {
-		return this._householdNumber;
+		return this.householdNumber;
 	}
 
 	public int compareTo(HouseholdId other) {
 		if (equals(other)) {
 			return 0;
 		}
-		if (this._year < other._year) {
+		if (this.year < other.year) {
 			return -1;
 		}
-		if (this._year > other._year) {
+		if (this.year > other.year) {
 			return 1;
 		}
-		if (this._householdNumber < other._householdNumber) {
+		if (this.householdNumber < other.householdNumber) {
 			return -1;
 		}
-		if (this._householdNumber > other._householdNumber) {
+		if (this.householdNumber > other.householdNumber) {
 			return 1;
 		}
 		return 0;
 	}
 	
 	public String toString() {
-		return "(" + _householdNumber + "," + _year + ")";
+		return "(" + householdNumber + "," + year + ")";
 	}
 
   @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (_householdNumber ^ (_householdNumber >>> 32));
-		result = prime * result + _year;
+		result = prime * result + (int) (householdNumber ^ (householdNumber >>> 32));
+		result = prime * result + year;
 		return result;
 	}
 
@@ -80,9 +79,9 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		HouseholdId other = (HouseholdId) obj;
-		if (_householdNumber != other._householdNumber)
+		if (householdNumber != other.householdNumber)
 			return false;
-		if (_year != other._year)
+		if (year != other.year)
 			return false;
 		return true;
 	}

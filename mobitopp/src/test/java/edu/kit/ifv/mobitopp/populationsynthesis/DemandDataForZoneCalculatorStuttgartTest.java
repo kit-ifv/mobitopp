@@ -56,7 +56,8 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 
 	@Before
 	public void initialise() throws Exception {
-		panelId = new HouseholdOfPanelDataId(2000, 0);
+		short year = 2000;
+		panelId = new HouseholdOfPanelDataId(year, 0);
 		householdLocationSelector = mock(HouseholdLocationSelector.class);
 		chargePrivatelySelector = mock(ChargePrivatelySelector.class);
 		zone = mock(Zone.class);
