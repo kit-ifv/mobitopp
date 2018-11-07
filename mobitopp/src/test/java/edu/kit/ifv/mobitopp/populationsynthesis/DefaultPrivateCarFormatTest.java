@@ -109,7 +109,7 @@ public class DefaultPrivateCarFormatTest {
 
 	@Test
 	public void prepareConventionalCar() {
-		List<String> prepared = format.prepare(privateConventionalCar, context);
+		List<String> prepared = format.prepare(privateConventionalCar);
 		
 		assertThat(prepared, is(equalTo(privateCar())));
 		verify(conventionalCarFormat).prepare(any());

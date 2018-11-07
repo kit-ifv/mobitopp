@@ -58,14 +58,14 @@ public class DefaultPersonFormatTest {
 
 	@Test
 	public void serialisePersonAttributes() throws IOException {
-		List<String> prepared = format.prepare(personForDemand, context);
+		List<String> prepared = format.prepare(personForDemand);
 
 		assertThat(prepared, is(equalTo(personFormat())));
 	}
 
 	@Test
 	public void serialialiseEmobilityPerson() throws IOException {
-		List<String> prepared = format.prepare(emobilityPerson, context);
+		List<String> prepared = format.prepare(emobilityPerson);
 
 		assertThat(prepared, is(equalTo(emobilityPerson())));
 	}

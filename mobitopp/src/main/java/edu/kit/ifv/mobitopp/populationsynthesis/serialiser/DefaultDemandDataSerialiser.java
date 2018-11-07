@@ -1,10 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
@@ -54,33 +53,44 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 	}
 
 	private void writeData(Population population) {
-		for (Household household : population.households()) {
-			write(household);
-			writePersonsOf(household, population);
-			writeCarsOf(household, population);
+		Collection<Household> households = population.households();
+		serialise(households);
+	}
+
+	@Override
+	public void serialise(Collection<Household> households) {
+		for (Household household : households) {
+			serialise(household);
 		}
+	}
+
+	@Override
+	public void serialise(Household household) {
+		write(household);
+		writePersonsOf(household);
+		writeCarsOf(household);
 	}
 
 	private void write(Household household) {
 		householdSerialiser.write(household);
 	}
 
-	private void writeCarsOf(Household household, PopulationContext context) {
+	private void writeCarsOf(Household household) {
 		for (PrivateCar car : household.whichCars()) {
-			carSerialiser.write(car, context);
+			carSerialiser.write(car);
 		}
 	}
 
-	private void writePersonsOf(Household household, PopulationContext context) {
+	private void writePersonsOf(Household household) {
 		for (Person person : household.getPersons()) {
-			write(person, context);
+			write(person);
 			writeTourbasedActivityPattern(person);
-			writeFixedDestinationsOf(person, context);
+			writeFixedDestinationsOf(person);
 		}
 	}
 
-	private void write(Person person, PopulationContext context) {
-		personSerialiser.write(person, context);
+	private void write(Person person) {
+		personSerialiser.write(person);
 	}
 
 	private void writeTourbasedActivityPattern(Person person) {
@@ -96,16 +106,20 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 		activitySerialiser.write(personActivity);
 	}
 
-	private void writeFixedDestinationsOf(Person person, PopulationContext context) {
+	private void writeFixedDestinationsOf(Person person) {
 		for (FixedDestination destination : person.getFixedDestinations()) {
 			PersonFixedDestination personDestination = new PersonFixedDestination(person, destination);
-			fixedDestinationSerialiser.write(personDestination, context);
+			fixedDestinationSerialiser.write(personDestination);
 		}
 	}
 	
 	@Override
 	public void serialise(OpportunityLocations opportunities) {
 		opportunitySerialiser.writeHeader();
+		serialiseOpportunity(opportunities);
+	}
+
+	public void serialiseOpportunity(OpportunityLocations opportunities) {
 		opportunities.forEach(opportunitySerialiser::write);
 	}
 	

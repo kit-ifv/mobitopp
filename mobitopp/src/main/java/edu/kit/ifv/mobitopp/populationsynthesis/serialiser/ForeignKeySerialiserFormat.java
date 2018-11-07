@@ -7,7 +7,7 @@ public interface ForeignKeySerialiserFormat<T> {
 
 	List<String> header();
 
-	List<String> prepare(T element, PopulationContext context);
+	List<String> prepare(T element);
 
 	Optional<T> parse(List<String> data, PopulationContext context);
 

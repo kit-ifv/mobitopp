@@ -10,7 +10,8 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -19,8 +20,6 @@ import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 
@@ -52,7 +51,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	}
 
 	@Override
-	public List<String> prepare(Person person, PopulationContext context) {
+	public List<String> prepare(Person person) {
 			List<String> normalPerson = preparePersonForDemand(person);
 		if (person instanceof EmobilityPerson) {
 			return prepareEmobilityPerson((EmobilityPerson) person, normalPerson);

@@ -40,7 +40,7 @@ public class DefaultFixedDestinationFormat
 	}
 
 	@Override
-	public List<String> prepare(PersonFixedDestination element, PopulationContext context) {
+	public List<String> prepare(PersonFixedDestination element) {
 		String location = locationParser.serialise(element.fixedDestination().location());
 		return asList(
 				valueOf(element.person().getOid()),
