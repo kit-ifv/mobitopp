@@ -55,6 +55,13 @@ public class WeightedHouseholdTest {
 
 		assertThat(attribute, is(equalTo(personType1)));
 	}
+	
+	@Test
+  public void getMissingAttribute() {
+    int attribute = household.attribute("Missing:Attribute:1");
+
+    assertThat(attribute, is(equalTo(0)));    
+  }
 
 	@Test
 	public void equalsAndHashCode() {

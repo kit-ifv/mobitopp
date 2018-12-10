@@ -6,7 +6,9 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class WeightedHousehold {
 
-	private final HouseholdOfPanelDataId id;
+	private static final int missingAttributeValue = 0;
+	
+  private final HouseholdOfPanelDataId id;
 	private final double weight;
 	private final Map<String, Integer> attributes;
 
@@ -27,7 +29,7 @@ public class WeightedHousehold {
 	}
 
 	public int attribute(String attribute) {
-		return attributes.get(attribute);
+		return attributes.getOrDefault(attribute, missingAttributeValue);
 	}
 
 	public WeightedHousehold newWeight(double newWeight) {
