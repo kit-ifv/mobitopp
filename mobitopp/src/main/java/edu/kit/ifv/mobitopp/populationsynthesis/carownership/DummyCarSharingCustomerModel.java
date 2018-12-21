@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.carsharing;
+package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 
 import java.util.Random;

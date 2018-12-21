@@ -13,7 +13,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 
 public class CarSharingParserTest {
 

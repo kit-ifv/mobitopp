@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.EmobilityPersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public class EmobilityPersonCreator 

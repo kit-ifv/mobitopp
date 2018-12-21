@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.simulation.carsharing;
+package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 import static org.junit.Assert.assertEquals;
 
@@ -18,9 +18,14 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
+import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
+import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
+import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
 
 public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
