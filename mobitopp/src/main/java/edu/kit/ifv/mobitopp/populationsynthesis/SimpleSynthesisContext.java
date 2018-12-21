@@ -22,7 +22,6 @@ public class SimpleSynthesisContext implements SynthesisContext {
 	private final SimpleRoadNetwork roadNetwork;
 	private final DataRepositoryForPopulationSynthesis dataRepository;
 	private final ResultWriter resultWriter;
-	private final ActivityScheduleCreator activityScheduleCreator;
 	private final Map<String, CarSharingCustomerModel> carSharing;
 	private final PopulationSynthesisParser format;
 	private final File carEngineFile;
@@ -31,7 +30,6 @@ public class SimpleSynthesisContext implements SynthesisContext {
 			WrittenConfiguration configuration, DynamicParameters experimentalParameters,
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
 			DataRepositoryForPopulationSynthesis dataRepository,
-			ActivityScheduleCreator activityScheduleCreator,
 			Map<String, CarSharingCustomerModel> carSharing, File carEngineFile,
 			PopulationSynthesisParser format, ResultWriter resultWriter) {
 		super();
@@ -40,7 +38,6 @@ public class SimpleSynthesisContext implements SynthesisContext {
 		this.visumNetwork = visumNetwork;
 		this.roadNetwork = roadNetwork;
 		this.dataRepository = dataRepository;
-		this.activityScheduleCreator = activityScheduleCreator;
 		this.carSharing = carSharing;
 		this.carEngineFile = carEngineFile;
 		this.format = format;
@@ -85,11 +82,6 @@ public class SimpleSynthesisContext implements SynthesisContext {
 	@Override
 	public Map<String, CarSharingCustomerModel> carSharing() {
 		return carSharing;
-	}
-
-	@Override
-	public ActivityScheduleCreator activityScheduleCreator() {
-		return activityScheduleCreator;
 	}
 
 	@Override

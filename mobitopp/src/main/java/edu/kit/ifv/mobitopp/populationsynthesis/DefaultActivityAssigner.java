@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
-public class DefaultActivityAssigner {
+public class DefaultActivityAssigner implements ActivityScheduleAssigner {
 
   private final PanelDataRepository panelRepository;
   private final ActivityScheduleCreator scheduleCreator;
@@ -30,7 +30,8 @@ public class DefaultActivityAssigner {
     return new PersonOfPanelDataId(householdId, personNumber);
   }
 
-  public void assignActivityScheduleTo(HouseholdForSetup household) {
+  @Override
+  public void assignActivitySchedule(HouseholdForSetup household) {
     short year = household.getId().getYear();
     long householdNumber = household.getId().getHouseholdNumber();
     HouseholdOfPanelDataId householdId = new HouseholdOfPanelDataId(year, householdNumber);

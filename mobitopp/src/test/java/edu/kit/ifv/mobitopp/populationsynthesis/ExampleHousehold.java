@@ -16,11 +16,12 @@ public class ExampleHousehold {
   static final int defaultNominalSize = 2;
   static final int domcode = 5;
   static final Location location = new Location(new Point2D.Double(), 0, 0.0d);
+  static final int numberOfMinors = 0;
   static final int numberOfNotSimulatedChildren = 0;
   static final int defaultTotalNumberOfCars = 0;
   static final int income = 8;
   static final boolean canChargePrivately = false;
-  
+
   private final Zone zone;
   private int nominalSize;
   private int numberOfCars;
@@ -33,27 +34,29 @@ public class ExampleHousehold {
 
   public static HouseholdForSetup createHousehold(Zone zone) {
     return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
-        numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income, canChargePrivately);
+        numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income,
+        canChargePrivately);
   }
 
   public static HouseholdForSetup createHousehold(Zone zone, HouseholdOfPanelDataId panelId) {
     HouseholdId id = new HouseholdId(oid, panelId.getYear(), panelId.getHouseholdNumber());
     return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
-        numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income, canChargePrivately);
+        numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income,
+        canChargePrivately);
   }
 
   public ExampleHousehold withSize(int nominalSize) {
     this.nominalSize = nominalSize;
     return this;
   }
-  
+
   public ExampleHousehold withCars(int numberOfCars) {
     this.numberOfCars = numberOfCars;
     return this;
   }
 
   public HouseholdForSetup build() {
-    return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location,
+    return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
         numberOfNotSimulatedChildren, numberOfCars, income, canChargePrivately);
   }
 

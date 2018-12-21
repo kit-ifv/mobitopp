@@ -77,6 +77,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			0, // domcode
 																			zone(),
 																			null, // Location
+																			5, // number of minors
 																			5, // not simulated people,
 																			4, // number of cars
 																			3000, // income
@@ -89,6 +90,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			0, // domcode
 																			zone(),
 																			null, // Location
+																			1, // number of minors
 																			1, // not simulated people,
 																			0, // number of cars
 																			3000, // income
@@ -153,6 +155,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			0, // domcode
 																			null, // zone,
 																			null, // Location
+																			nominalSize-1, // number of minors
 																			nominalSize-1, // not simulated people,
 																			number_of_cars, // number of cars
 																			3000, // income

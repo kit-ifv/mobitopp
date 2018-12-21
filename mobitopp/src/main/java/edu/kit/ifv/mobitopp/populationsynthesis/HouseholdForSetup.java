@@ -17,26 +17,27 @@ public interface HouseholdForSetup {
 
   Household toHousehold();
 
-  int numberOfNotSimulatedChildren();
-
   HouseholdId getId();
-
-  int getSize();
-
-  void ownCars(Collection<PrivateCar> cars);
-
-  int getTotalNumberOfCars();
 
   Zone homeZone();
 
   Location homeLocation();
 
+  float monthlyIncomeEur();
+
   boolean canChargePrivately();
 
-  float monthlyIncomeEur();
+  void ownCars(Collection<PrivateCar> cars);
+
+  int getTotalNumberOfCars();
 
   int nominalNumberOfCars();
 
+  int getSize();
+
   int nominalSize();
 
+  int numberOfMinors();
+
+  int numberOfNotSimulatedChildren();
 }

@@ -140,4 +140,9 @@ public class EmobilityPersonForSetup implements PersonForSetup {
     return person.hasFixedActivityZone();
   }
 
+  @Override
+  public TourBasedActivityPattern getActivityPattern() {
+    return person.getActivityPattern();
+  }
+
 }

@@ -14,7 +14,7 @@ public class WrittenConfiguration {
 	private long seed;
 	private int numberOfZones;
 	private DataSource dataSource;
-	private ActivityScheduleCreatorType activityScheduleCreator;
+	private ActivityScheduleAssignerType activityScheduleAssigner;
 	private String demographyData;
 	private String panelData;
 	private String visumFile;
@@ -28,7 +28,7 @@ public class WrittenConfiguration {
 	public WrittenConfiguration() {
 		super();
 		numberOfZones = unlimited;
-		activityScheduleCreator = ActivityScheduleCreatorType.standard;
+		activityScheduleAssigner = ActivityScheduleAssignerType.standard;
 		carSharing = Collections.emptyMap();
 		resultFolder = defaultResultFolder;
 		visumToMobitopp = new VisumToMobitopp();
@@ -51,12 +51,12 @@ public class WrittenConfiguration {
 		this.dataSource = dataSource;
 	}
 
-	public ActivityScheduleCreatorType getActivityScheduleCreator() {
-		return activityScheduleCreator;
+	public ActivityScheduleAssignerType getActivityScheduleAssigner() {
+		return activityScheduleAssigner;
 	}
 
-	public void setActivityScheduleCreator(ActivityScheduleCreatorType activityScheduleCreator) {
-		this.activityScheduleCreator = activityScheduleCreator;
+	public void setActivityScheduleCreator(ActivityScheduleAssignerType activityScheduleAssigner) {
+		this.activityScheduleAssigner = activityScheduleAssigner;
 	}
 
 	public String getDemographyData() {
@@ -142,7 +142,7 @@ public class WrittenConfiguration {
 	@Override
 	public String toString() {
 		return "WrittenConfiguration [seed=" + seed + ", numberOfZones=" + numberOfZones
-				+ ", dataSource=" + dataSource + ", activityScheduleCreator=" + activityScheduleCreator
+				+ ", dataSource=" + dataSource + ", activityScheduleCreator=" + activityScheduleAssigner
 				+ ", demographyData=" + demographyData + ", panelData=" + panelData + ", visumFile="
 				+ visumFile + ", carOwnership=" + carOwnership + ", carSharing=" + carSharing
 				+ ", commuterTicket=" + commuterTicket + ", resultFolder=" + resultFolder

@@ -33,14 +33,17 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 	private final CarOwnershipModel carOwnershipModel;
 	private final ChargePrivatelySelector chargePrivatelySelector;
 	private final DemandCategories categories;
+  private final ActivityScheduleAssigner activityScheduleAssigner;
 
 	public BasicPopulationSynthesis(
 			CarOwnershipModel carOwnershipModel,
 			HouseholdLocationSelector householdLocationSelector,
-			PersonCreator personCreator, 
+			PersonCreator personCreator,
+			ActivityScheduleAssigner activityScheduleAssigner,
 			SynthesisContext context
 			) {
-		this(carOwnershipModel, householdLocationSelector, chargeAlways(), personCreator, context);
+    this(carOwnershipModel, householdLocationSelector, chargeAlways(), personCreator,
+        activityScheduleAssigner, context);
 	}
 	
 	private static ChargePrivatelySelector chargeAlways() {
@@ -52,6 +55,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		HouseholdLocationSelector householdLocationSelector,
 		ChargePrivatelySelector chargePrivatelySelector,
 		PersonCreator personCreator, 
+		ActivityScheduleAssigner activityScheduleAssigner,
 		SynthesisContext context
 	) {
 		super(context);
@@ -59,6 +63,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		this.householdLocationSelector = householdLocationSelector;
 		this.chargePrivatelySelector = chargePrivatelySelector;
 		this.carOwnershipModel = carOwnershipModel;
+		this.activityScheduleAssigner = activityScheduleAssigner;
 		categories = new DemandCategories();
 	}
 
@@ -84,7 +89,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 																												householdLocationSelector,
 																												chargePrivatelySelector,
 																												personCreator,
-																												context().activityScheduleCreator(), 
+																												activityScheduleAssigner, 
 																												dataRepository()
 																												);
 		return calculator;
