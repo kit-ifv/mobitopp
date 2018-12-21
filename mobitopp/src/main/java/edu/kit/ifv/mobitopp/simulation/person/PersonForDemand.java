@@ -62,7 +62,7 @@ public class PersonForDemand implements Person, Serializable {
 
 	/** Planned activity program **/
   //private PatternActivityWeek activityPattern;
-  private TourBasedActivityPattern tourPattern;
+  private final TourBasedActivityPattern tourPattern;
 
 	/** Realised activity program **/
   private transient ModifiableActivityScheduleWithState activitySchedule; 
