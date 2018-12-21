@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.car.AbstractElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.BatteryElectricCar;
@@ -43,7 +43,7 @@ public class BevCarFormatTest {
 		when(zone.getOid()).thenReturn(zoneOid);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
-		original = Example.bevCar(zone);
+		original = ExampleSetup.bevCar(zone);
 	}
 
 	@Test
@@ -83,18 +83,18 @@ public class BevCarFormatTest {
 
 	private List<String> bevCar() {
 		ArrayList<String> attributes = new ArrayList<>();
-		attributes.add(valueOf(Example.carId));
+		attributes.add(valueOf(ExampleSetup.carId));
 		attributes.add(valueOf(zoneOid));
-		attributes.add(valueOf(Example.serialisedLocation));
-		attributes.add(valueOf(Example.segment));
-		attributes.add(valueOf(Example.capacity));
-		attributes.add(valueOf(Example.initialMileage));
-		attributes.add(valueOf(Example.conventionalFuelLevel));
-		attributes.add(valueOf(Example.electricRange));
-		attributes.add(valueOf(Example.batteryLevel));
-		attributes.add(valueOf(Example.electricRange));
-		attributes.add(valueOf(Example.batteryCapacity));
-		attributes.add(valueOf(Example.minimumChargingLevel));
+		attributes.add(valueOf(ExampleSetup.serialisedLocation));
+		attributes.add(valueOf(ExampleSetup.segment));
+		attributes.add(valueOf(ExampleSetup.capacity));
+		attributes.add(valueOf(ExampleSetup.initialMileage));
+		attributes.add(valueOf(ExampleSetup.conventionalFuelLevel));
+		attributes.add(valueOf(ExampleSetup.electricRange));
+		attributes.add(valueOf(ExampleSetup.batteryLevel));
+		attributes.add(valueOf(ExampleSetup.electricRange));
+		attributes.add(valueOf(ExampleSetup.batteryCapacity));
+		attributes.add(valueOf(ExampleSetup.minimumChargingLevel));
 		return attributes;
 	}
 }

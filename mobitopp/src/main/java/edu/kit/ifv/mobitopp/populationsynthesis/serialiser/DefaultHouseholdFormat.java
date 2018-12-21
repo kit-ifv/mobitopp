@@ -80,7 +80,6 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 	}
 
 	private HouseholdForDemand createHousehold(List<String> data, Zone zone) {
-		int oid = oidOf(data);
 		HouseholdId id = idOf(data);
 		int nominalSize = nominalSizeOf(data);
 		int domCode = domCodeOf(data);
@@ -89,7 +88,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		int totalNumberOfCars = carsOf(data);
 		int income = incomeOf(data);
 		boolean canChargePrivately = chargePrivatelyOf(data);
-		HouseholdForDemand household = new HouseholdForDemand(oid, id, nominalSize, domCode, zone,
+		HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, zone,
 				location, numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
 		assign(household, zone);
 		return household;
@@ -104,9 +103,10 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 	}
 
 	private static HouseholdId idOf(List<String> data) {
+	  int oid = oidOf(data);
 		short year = Short.parseShort(data.get(yearIndex));
 		int householdNumber = Integer.parseInt(data.get(numberIndex));
-		return new HouseholdId(year, householdNumber);
+		return new HouseholdId(oid, year, householdNumber);
 	}
 
 	private static int nominalSizeOf(List<String> data) {

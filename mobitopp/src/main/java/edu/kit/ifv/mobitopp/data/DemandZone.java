@@ -9,84 +9,95 @@ import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
+import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
 public class DemandZone {
 
-	private final Zone zone;
-	private final Demography nominalDemography;
-	private final Demography actualDemography;
+  private final Zone zone;
+  private final Demography nominalDemography;
+  private final Demography actualDemography;
+  private final PopulationForSetup population;
 
-	public DemandZone(Zone zone, Demography nominalDemand) {
-		super();
-		this.zone = zone;
-		this.nominalDemography = nominalDemand;
-		actualDemography = emptyDemographyFrom(nominalDemand);
-	}
+  public DemandZone(Zone zone, Demography nominalDemand) {
+    super();
+    this.zone = zone;
+    this.nominalDemography = nominalDemand;
+    actualDemography = emptyDemographyFrom(nominalDemand);
+    this.population = new PopulationForSetup();
+  }
 
-	private Demography emptyDemographyFrom(Demography nominalDemand) {
-		EmploymentDistribution employment = EmploymentDistribution.createDefault();
-		HouseholdDistribution household = householdDistribution(nominalDemand);
-		FemaleAgeDistribution femaleAge = femaleAgeDistribution(nominalDemand);
-		MaleAgeDistribution maleAge = maleAgeDistribution(nominalDemand);
-		return new Demography(employment, household, femaleAge, maleAge);
-	}
+  private Demography emptyDemographyFrom(Demography nominalDemand) {
+    EmploymentDistribution employment = EmploymentDistribution.createDefault();
+    HouseholdDistribution household = householdDistribution(nominalDemand);
+    FemaleAgeDistribution femaleAge = femaleAgeDistribution(nominalDemand);
+    MaleAgeDistribution maleAge = maleAgeDistribution(nominalDemand);
+    return new Demography(employment, household, femaleAge, maleAge);
+  }
 
-	private FemaleAgeDistribution femaleAgeDistribution(Demography demandModel) {
-		FemaleAgeDistribution distribution = new FemaleAgeDistribution();
-		demandModel
-				.femaleAge()
-				.items()
-				.map(AgeDistributionItem::createEmpty)
-				.forEach(distribution::addItem);
-		return distribution;
-	}
+  private FemaleAgeDistribution femaleAgeDistribution(Demography demandModel) {
+    FemaleAgeDistribution distribution = new FemaleAgeDistribution();
+    demandModel
+        .femaleAge()
+        .items()
+        .map(AgeDistributionItem::createEmpty)
+        .forEach(distribution::addItem);
+    return distribution;
+  }
 
-	private MaleAgeDistribution maleAgeDistribution(Demography demandModel) {
-		MaleAgeDistribution distribution = new MaleAgeDistribution();
-		demandModel
-				.maleAge()
-				.items()
-				.map(AgeDistributionItem::createEmpty)
-				.forEach(distribution::addItem);
-		return distribution;
-	}
+  private MaleAgeDistribution maleAgeDistribution(Demography demandModel) {
+    MaleAgeDistribution distribution = new MaleAgeDistribution();
+    demandModel
+        .maleAge()
+        .items()
+        .map(AgeDistributionItem::createEmpty)
+        .forEach(distribution::addItem);
+    return distribution;
+  }
 
-	private HouseholdDistribution householdDistribution(Demography demandModel) {
-		HouseholdDistribution distribution = new HouseholdDistribution();
-		demandModel
-				.household()
-				.items()
-				.map(HouseholdDistributionItem::createEmpty)
-				.forEach(distribution::addItem);
-		return distribution;
-	}
+  private HouseholdDistribution householdDistribution(Demography demandModel) {
+    HouseholdDistribution distribution = new HouseholdDistribution();
+    demandModel
+        .household()
+        .items()
+        .map(HouseholdDistributionItem::createEmpty)
+        .forEach(distribution::addItem);
+    return distribution;
+  }
 
-	public int getOid() {
-		return zone.getOid();
-	}
+  public int getOid() {
+    return zone.getOid();
+  }
 
-	public String getId() {
-		return zone.getId();
-	}
+  public String getId() {
+    return zone.getId();
+  }
 
-	public Zone zone() {
-		return zone;
-	}
+  public Zone zone() {
+    return zone;
+  }
 
-	public DataForZone getDemandData() {
-		return zone.getDemandData();
-	}
+  public PopulationForSetup getPopulation() {
+    return population;
+  }
 
-	public Demography nominalDemography() {
-		return nominalDemography;
-	}
+  public OpportunityDataForZone opportunities() {
+    return zone.getDemandData().opportunities();
+  }
 
-	public Demography actualDemography() {
-		return actualDemography;
-	}
+  public DataForZone getDemandData() {
+    return zone.getDemandData();
+  }
 
-	public AreaType getAreaType() {
-		return zone.getAreaType();
-	}
+  public Demography nominalDemography() {
+    return nominalDemography;
+  }
+
+  public Demography actualDemography() {
+    return actualDemography;
+  }
+
+  public AreaType getAreaType() {
+    return zone.getAreaType();
+  }
 
 }

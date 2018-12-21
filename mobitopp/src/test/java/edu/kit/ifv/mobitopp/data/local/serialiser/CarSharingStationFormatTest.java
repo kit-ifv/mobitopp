@@ -17,7 +17,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.serialiser.CarSharingStationFormat;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
@@ -30,7 +30,7 @@ public class CarSharingStationFormatTest {
 	private static final Integer id = 1;
 	private static final String name = "station";
 	private static final String parkingSpace = "parkingSpace";
-	private static final Location location = Example.location;
+	private static final Location location = ExampleSetup.location;
 	private static final Integer numberOfCars = 2;
 	
 	private StationBasedCarSharingOrganization organization;

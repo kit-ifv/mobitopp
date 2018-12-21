@@ -1,19 +1,19 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
-import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public interface Person {
 
@@ -79,7 +79,7 @@ public interface Person {
 	boolean isMale();
 
 	String forLogging(ImpedanceIfc impedance);
-	Collection<FixedDestination> getFixedDestinations();
+	Stream<FixedDestination> getFixedDestinations();
 	void startActivity(Time currentDate, ActivityIfc activity, TripIfc precedingTrip,
 			ReschedulingStrategy rescheduling);
 	

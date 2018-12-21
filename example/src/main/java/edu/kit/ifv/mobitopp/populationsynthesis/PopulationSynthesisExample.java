@@ -52,7 +52,7 @@ public class PopulationSynthesisExample extends BasicPopulationSynthesis {
 		System.out.println("Population synthesis took " + runtime);
 	}
 
-	private static PopulationSynthesisExample startSynthesis(File configurationFile)
+	static PopulationSynthesisExample startSynthesis(File configurationFile)
 			throws Exception {
 		SynthesisContext context = new ContextBuilder().buildFrom(configurationFile);
 		return startSynthesis(context);
@@ -73,19 +73,16 @@ public class PopulationSynthesisExample extends BasicPopulationSynthesis {
 		HouseholdLocationSelector householdLocationSelector = householdLocations(context);
 		CommutationTicketModelIfc commuterTicketModel = commuterTickets(context);
 		CarOwnershipModel carOwnershipModel = carOwnership(context);
-		ActivityScheduleCreator activityScheduleCreator = context.activityScheduleCreator();
 		ChargePrivatelySelector chargePrivatelySelector = chargePrivately(context);
-		PersonCreator personCreator = personCreator(context, commuterTicketModel, activityScheduleCreator);
+		PersonCreator personCreator = personCreator(context, commuterTicketModel);
 		return populationSynthesis(householdLocationSelector, carOwnershipModel,
 				chargePrivatelySelector, personCreator, context);
 	}
 
 	private static EmobilityPersonCreator personCreator(
-			SynthesisContext context, CommutationTicketModelIfc commuterTicketModel,
-			ActivityScheduleCreator activityScheduleCreator) {
+			SynthesisContext context, CommutationTicketModelIfc commuterTicketModel) {
 		Map<String, CarSharingCustomerModel> carSharing = context.carSharing();
-		return new EmobilityPersonCreator(activityScheduleCreator,
-				commuterTicketModel, carSharing, context.seed());
+		return new EmobilityPersonCreator(commuterTicketModel, carSharing, context.seed());
 	}
 
 	private static CommutationTicketModelIfc commuterTickets(SynthesisContext context) {

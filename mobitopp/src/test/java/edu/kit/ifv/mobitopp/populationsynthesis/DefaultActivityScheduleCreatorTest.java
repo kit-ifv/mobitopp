@@ -21,7 +21,6 @@ import edu.kit.ifv.mobitopp.data.local.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -34,7 +33,7 @@ public class DefaultActivityScheduleCreatorTest {
 	private static final int startTime = 3;
 	private static final Time start = Time.start.plusMinutes(startTime);
 	private HouseholdOfPanelData unusedPanelHousehold;
-	private Household unusedHousehold;
+	private HouseholdForSetup unusedHousehold;
 	private ActivityOfPanelData work;
 	private ActivityOfPanelData home;
 	private DefaultActivityScheduleCreator creator;
@@ -43,7 +42,7 @@ public class DefaultActivityScheduleCreatorTest {
 	@Before
 	public void initialise() {
 		unusedPanelHousehold = ExampleHouseholdOfPanelData.household;
-		unusedHousehold = mock(Household.class);
+		unusedHousehold = mock(HouseholdForSetup.class);
 		fixer = mock(PatternFixer.class);
 		work = new ActivityOfPanelData(tripDuration, ActivityType.WORK, duration, startTime);
 		home = new ActivityOfPanelData(tripDuration, ActivityType.HOME, duration, startTime);
@@ -168,7 +167,7 @@ public class DefaultActivityScheduleCreatorTest {
 
 	private PatternActivityWeek createPatternFor(PersonOfPanelData panelPerson) {
 		DefaultActivityScheduleCreator creator = new DefaultActivityScheduleCreator();
-		return creator.createActivitySchedule(panelPerson, unusedPanelHousehold, mock(Household.class));
+		return creator.createActivitySchedule(panelPerson, unusedPanelHousehold, mock(HouseholdForSetup.class));
 	}
 
 	private PersonOfPanelData newPersonFor(String activityPattern) {

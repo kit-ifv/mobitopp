@@ -3,9 +3,9 @@ package edu.kit.ifv.mobitopp.simulation.carsharing;
 import java.util.Random;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 public class LogitBasedCarSharingCustomerModel 
@@ -60,14 +60,14 @@ public class LogitBasedCarSharingCustomerModel
 
 
 	public boolean estimateCustomership(
-  	Person person
+  	PersonForSetup person
   ) {
 
 		if (person.age() < 18 || !person.hasDrivingLicense()) {
 			return false;
 		}
 
-		Household household = person.household();
+		HouseholdForSetup household = person.household();
 		Zone zone = household.homeZone();
 
 		double utility = calculateUtility(person, household, zone);
@@ -80,8 +80,8 @@ public class LogitBasedCarSharingCustomerModel
 	}
 
 	public Double calculateUtility(
-  	Person person,
-    Household household,
+  	PersonForSetup person,
+    HouseholdForSetup household,
 		Zone zone
 	) {
 

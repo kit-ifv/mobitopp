@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PaneldataReader;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
 public class LocalPanelDataRepository implements PanelDataRepository {
 
@@ -44,6 +45,11 @@ public class LocalPanelDataRepository implements PanelDataRepository {
 	@Override
 	public List<PersonOfPanelData> getPersonsOfHousehold(HouseholdOfPanelDataId id) {
 		return persons.getPersonsOfHousehold(id);
+	}
+	
+	@Override
+	public PersonOfPanelData getPerson(PersonOfPanelDataId id) {
+	  return persons.getPerson(id);
 	}
 
 	@Override

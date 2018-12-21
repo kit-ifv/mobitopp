@@ -1,0 +1,23 @@
+activityScheduleCreator: standard
+carOwnership:
+  engine: config/leopoldshafen/parameters/SociodemographicCoefficients.txt
+  ownership: config/leopoldshafen/parameters/CarOwnershipModelParameter.txt
+  segment: config/leopoldshafen/parameters/LogitBasedCarSegmentModelParameter.txt
+#carSharing:
+commuterTicket: config/leopoldshafen/parameters/TransitPassParameter.txt
+dataSource: !file
+  demandDataFolder: output/demand-data-local
+  matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
+  attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
+  #charging: unlimited
+  defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
+  zoneRepositoryFolder: output/zone-repository/
+demographyData: data/leopoldshafen/leopoldshafen_Demography.csv
+#numberOfZones: 2147483647
+panelData: data/leopoldshafen/population.csv
+resultFolder: results/population-synthesis
+seed: 77859
+visumFile: data/leopoldshafen/leopoldshafen.net
+#experimental:
+#  parameter1: 1
+#  parameter2: 2

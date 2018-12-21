@@ -24,7 +24,6 @@ import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -83,7 +82,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator
 	public PatternActivityWeek createActivitySchedule(
 			PersonOfPanelData aPersonOfPanelData,
 			HouseholdOfPanelData householdOfPanelData,
-			Household household
+			HouseholdForSetup household
 	)
 	{
   	// Initialisierungen

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ForeignKeySerialiserFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
@@ -78,17 +80,18 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 	@Override
 	public Optional<PrivateCar> parse(List<String> data, PopulationContext context) {
 		Optional<Household> household = householdOf(data, context);
-		Supplier<Person> mainUser = () -> mainUserOf(data, context);
-		Supplier<Person> personalUser = () -> personalUserOf(data, context);
+		Supplier<PersonId> mainUser = () -> mainUserOf(data, context);
+		Supplier<PersonId> personalUser = () -> personalUserOf(data, context);
 		Optional<? extends Car> car = parseCar(data);
-		return household
+		return household.map(Household::getId)
 				.flatMap(h -> createCar(mainUser, personalUser, car, h));
 	}
 
-	private Optional<PrivateCar> createCar(
-			Supplier<Person> mainUser, Supplier<Person> personalUser, Optional<? extends Car> car, Household household) {
-		return car.map(c -> new DefaultPrivateCar(c, household, mainUser.get(), personalUser.get()));
-	}
+  private Optional<PrivateCar> createCar(
+      Supplier<PersonId> mainUser, Supplier<PersonId> personalUser, Optional<? extends Car> car,
+      HouseholdId household) {
+    return car.map(c -> new DefaultPrivateCar(c, household, mainUser.get(), personalUser.get()));
+  }
 
 	private Optional<? extends Car> parseCar(List<String> data) {
 		CarType carType = carTypeOf(data);
@@ -105,14 +108,14 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 		return context.getHouseholdByOid(oid);
 	}
 
-	private Person mainUserOf(List<String> data, PopulationContext context) {
+	private PersonId mainUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(mainUserIndex));
-		return context.getPersonByOid(oid).orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
+		return context.getPersonByOid(oid).map(Person::getId).orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
 	}
 
-	private Person personalUserOf(List<String> data, PopulationContext context) {
+	private PersonId personalUserOf(List<String> data, PopulationContext context) {
 		int oid = Integer.parseInt(data.get(personalUserIndex));
-		return context.getPersonByOid(oid).orElse(null);
+		return context.getPersonByOid(oid).map(Person::getId).orElse(null);
 	}
 
 }

@@ -1,0 +1,23 @@
+coeff_const 0.48
+
+coeff_lkS 0.0
+coeff_lkBB -1.15480
+coeff_lkES -1.30675
+coeff_lkGP -1.91134
+coeff_lkLB -1.04585
+coeff_lkWN -0.94395
+
+coeff_emp_full 0.0
+coeff_emp_part -0.63909
+coeff_emp_unemployed -0.56445
+coeff_emp_education 1.44164
+coeff_emp_jobless -1.89145
+coeff_emp_retired -0.91735
+coeff_emp_other -0.65950
+coeff_emp_student_pri_sec 1.45025
+coeff_emp_student_ter 1.87161
+
+coeff_apkw_not_ppkw  -0.13437
+coeff_ppkw           -1.32630
+coeff_sex_female 0.21752
+coeff_pkwhh_per_person  -1.17629

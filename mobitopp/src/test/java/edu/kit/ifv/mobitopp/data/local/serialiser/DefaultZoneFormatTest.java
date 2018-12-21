@@ -22,7 +22,7 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
@@ -34,7 +34,7 @@ public class DefaultZoneFormatTest {
 	private static final String name = "zone name";
 	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
-	private static final Location centroidLocation = Example.location;
+	private static final Location centroidLocation = ExampleSetup.location;
 	private DefaultZoneFormat format;
 	private Zone zone;
 

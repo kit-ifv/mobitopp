@@ -1,14 +1,14 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-
 import java.util.Collection;
+
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 
 public interface CarOwnershipModel {
 
-	Collection<PrivateCar> createCars(Household household, int numberOfCars);
+	Collection<PrivateCar> createCars(HouseholdForSetup household, int numberOfCars);
 
 }

@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
 
 public class MatrixToCsv {
 
+	private static final String matrixFileExtension = ".mtx";
 	private final FloatMatrix matrix;
 
 	public MatrixToCsv(FloatMatrix matrix) {
@@ -58,9 +59,9 @@ public class MatrixToCsv {
 		}
 
 		File basePath = new File(args[0]);
-		File[] listFiles = basePath.listFiles((dir, name) -> name.endsWith(".mtx"));
+		File[] listFiles = basePath.listFiles((dir, name) -> name.endsWith(matrixFileExtension));
 		if (null != listFiles && 0 < listFiles.length) {
-			for (File matrix : basePath.listFiles((dir, name) -> name.endsWith(".mtx"))) {
+			for (File matrix : listFiles) {
 				convertMatrix(matrix);
 			}
 			return;
@@ -70,7 +71,7 @@ public class MatrixToCsv {
 
 	private static void convert(File basePath) {
 		File matrixFolder = new File(basePath, "traveltime");
-		for (File matrix : matrixFolder.listFiles((dir, name) -> name.endsWith(".mtx"))) {
+		for (File matrix : matrixFolder.listFiles((dir, name) -> name.endsWith(matrixFileExtension))) {
 			convertMatrix(matrix);
 		}
 	}

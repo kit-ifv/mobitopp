@@ -14,10 +14,9 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 
@@ -58,7 +57,7 @@ implements FixedDestinationSelector
 
 	public void setFixedDestinations(
 		Zone zone, 
-		Map<Integer, Person> persons,
+		Map<Integer, PersonForSetup> persons,
 		Map<Integer, PersonOfPanelData> panelPersons
 	)
 	{
@@ -71,7 +70,7 @@ implements FixedDestinationSelector
 			// 5. Pole zuordnen
 
 		for (ActivityType activityType : this.activityTypes) {
-			SortedMap<Integer,List<Person>> personDistances 
+			SortedMap<Integer,List<PersonForSetup>> personDistances 
 				= calculatePersonDistanceDistribution(activityType, persons, panelPersons);
 
 			// 3. Verteilung der Zielzellen nach Distanz
@@ -173,33 +172,19 @@ implements FixedDestinationSelector
 		}
 	}
 
-	private SortedMap<Integer,List<Person>> calculatePersonDistanceDistribution(
+	private SortedMap<Integer,List<PersonForSetup>> calculatePersonDistanceDistribution(
 		ActivityType activityType,
-		Map<Integer, Person> demandPersons,
+		Map<Integer, PersonForSetup> demandPersons,
 		Map<Integer, PersonOfPanelData> panelPersons
 	) {
-			SortedMap<Integer,List<Person>> distances = new TreeMap<Integer,List<Person>>();
+			SortedMap<Integer,List<PersonForSetup>> distances = new TreeMap<>();
 
 			for (Integer personId : demandPersons.keySet()) {
 
 				PersonOfPanelData personOfPanelData = panelPersons.get(personId);
-				Person p = demandPersons.get(personId);
-
-				PersonForSetup person = null;
-
-				if (p instanceof PersonForSetup) { 
-					person = (PersonForSetup)p; 
-				} else {
-					assert p instanceof EmobilityPerson;
-
-					person = ((EmobilityPerson) p).personForSetup();
-				}
-
-
+				PersonForSetup person = demandPersons.get(personId);
 				assert person != null;
-
 				assert personOfPanelData != null;
-				
 
 				// Think twice before changing the following if.
 				//~10% of all persons did not report a pole distance, so no zone will be assigned. 
@@ -213,7 +198,7 @@ implements FixedDestinationSelector
 					int dist = (int) personOfPanelData.getPoleDistance();
 
 					if (distances.get(dist) == null) {
-							distances.put(dist, new ArrayList<Person>());
+							distances.put(dist, new ArrayList<>());
 					}
 
 					distances.get(dist).add(person);
@@ -241,7 +226,7 @@ implements FixedDestinationSelector
 
 
 	private void rescaleZoneDistanceDistributions(
-		SortedMap<Integer,List<Person>> personDistances, 
+		SortedMap<Integer,List<PersonForSetup>> personDistances, 
 		SortedMap<Integer,Map<Integer,Float>> zoneDistances
 	) {
 
@@ -295,7 +280,7 @@ implements FixedDestinationSelector
 
 	private void setPersonsPoleZones(
 		ActivityType activityType,
-		SortedMap<Integer,List<Person>> personDistances, 
+		SortedMap<Integer,List<PersonForSetup>> personDistances, 
 		SortedMap<Integer,Map<Integer,Float>> zoneDistances
 	) {
 
@@ -311,34 +296,17 @@ implements FixedDestinationSelector
 
 
 			for (Integer dist : personDistances.keySet()) {
-				for (Person p : personDistances.get(dist)) {
-
+				for (PersonForSetup person : personDistances.get(dist)) {
 					int zoneId = zoneOids.remove();
-
 					Zone zone = this.zoneRepository.getZoneByOid(zoneId);
-
 					assert zone != null;
-
-
-				PersonForSetup person = null;
-
-				if (p instanceof PersonForSetup) { 
-					person = (PersonForSetup)p; 
-				} else {
-					assert p instanceof EmobilityPerson;
-
-					person = ((EmobilityPerson) p).personForSetup();
-				}
-
 					Location location;
-
 					if(zone.opportunities().locationsAvailable(activityType)) {
 						location = zone.opportunities().selectRandomLocation(activityType, this.random.nextDouble());
 					} else {
 						location = zone.centroidLocation();
 					}
-
-					person.setFixedDestination(activityType, zone, location);
+					person.setFixedDestination(new FixedDestination(activityType, zone, location));
 				}
 			}
 

@@ -7,7 +7,6 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
-import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
@@ -19,14 +18,14 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 	private final ForeignKeySerialiser<Person> personSerialiser;
 	private final Serialiser<PersonPatternActivity> activitySerialiser;
 	private final ForeignKeySerialiser<PrivateCar> carSerialiser;
-	private final ForeignKeySerialiser<PersonFixedDestination> fixedDestinationSerialiser;
+	private final Serialiser<PersonFixedDestination> fixedDestinationSerialiser;
 	private final Serialiser<Opportunity> opportunitySerialiser;
 
 	DefaultDemandDataSerialiser(
 			Serialiser<Household> householdSerialiser, ForeignKeySerialiser<Person> personSerialiser,
 			Serialiser<PersonPatternActivity> activitySerialiser,
 			ForeignKeySerialiser<PrivateCar> carSerialiser,
-			ForeignKeySerialiser<PersonFixedDestination> fixedDestinationSerialiser,
+			Serialiser<PersonFixedDestination> fixedDestinationSerialiser,
 			Serialiser<Opportunity> opportunitySerialiser) {
 		super();
 		this.householdSerialiser = householdSerialiser;
@@ -95,12 +94,12 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 		activitySerialiser.write(personActivity);
 	}
 
-	private void writeFixedDestinationsOf(Person person) {
-		for (FixedDestination destination : person.getFixedDestinations()) {
-			PersonFixedDestination personDestination = new PersonFixedDestination(person, destination);
-			fixedDestinationSerialiser.write(personDestination);
-		}
-	}
+  private void writeFixedDestinationsOf(Person person) {
+    person
+        .getFixedDestinations()
+        .map(d -> new PersonFixedDestination(person.getId(), d))
+        .forEach(fixedDestinationSerialiser::write);
+  }
 
 	public void serialise(OpportunityLocations opportunities) {
 		opportunities.forEach(opportunitySerialiser::write);

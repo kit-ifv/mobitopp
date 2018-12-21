@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.dataimport.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.FixedDestinations;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -39,16 +40,18 @@ public class PersonForDemandTest {
 	private boolean hasCommuterTicket;
 	private boolean hasLicense;
 	private TourBasedActivityPattern activitySchedule;
-	private PersonForDemand person;
 	private Car car;
+	private FixedDestinations fixedDestinations;
 	private ModeChoicePreferences prefSurvey;
 	private ModeChoicePreferences prefSimulation;
+	private PersonForDemand person;
 
 	@Before
 	public void initialise() {
 		oid = 1;
 		short year = 2000;
-		id = new PersonId(new HouseholdId(year, 2), 3);
+		int householdOid = 1;
+    id = new PersonId(oid, new HouseholdId(householdOid, year, 2), 3);
 		household = mock(Household.class);
 		age = 4;
 		employment = Employment.EDUCATION;
@@ -61,14 +64,16 @@ public class PersonForDemandTest {
 		hasLicense = false;
 		activitySchedule = mock(TourBasedActivityPattern.class);
 		car = mock(Car.class);
-		person = newPerson();
+		fixedDestinations = new FixedDestinations();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
 		prefSimulation = ModeChoicePreferences.NOPREFERENCES;
+		person = newPerson();
 	}
 
 	private PersonForDemand newPerson() {
-		return new PersonForDemand(oid, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, prefSurvey, prefSimulation);
+		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, income, hasBike,
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, fixedDestinations, prefSurvey, prefSimulation);
+    return newPerson;
 	}
 
 	@Test
@@ -114,7 +119,7 @@ public class PersonForDemandTest {
 	}
 
 	private PersonAttributes personAttributes() {
-		return new PersonAttributes(oid, id, household, age, employment, gender, income, hasBike,
+		return new PersonAttributes(id, household, age, employment, gender, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense);
 	}
 }

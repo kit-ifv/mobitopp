@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
@@ -38,7 +38,7 @@ public class DefaultOpportunityFormatTest {
 	@Before
 	public void initialise() {
 		zone = mock(Zone.class);
-		location = Example.location;
+		location = ExampleSetup.location;
 		zoneRepository = mock(ZoneRepository.class);
 		when(zone.getOid()).thenReturn(zoneOid);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
@@ -88,7 +88,7 @@ public class DefaultOpportunityFormatTest {
 		return asList(
 				valueOf(zoneOid),
 				valueOf(activityType),
-				Example.serialisedLocation,
+				ExampleSetup.serialisedLocation,
 				valueOf(attractivity)
 				);
 	}

@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.populationsynthesis.FixedDestinations;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -113,7 +114,6 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	}
 
 	private Person createPerson(List<String> data, PopulationContext context, Household household) {
-		int oid = personOidOf(data);
 		PersonId id = personIdOf(data, household);
 		int age = ageOf(data);
 		Employment employment = employmentOf(data);
@@ -124,14 +124,24 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 		boolean hasPersonalCar = hasPersonalCarOf(data);
 		boolean hasCommuterTicket = hasCommuterTicketOf(data);
 		boolean hasLicense = hasLicense(data);
-		TourBasedActivityPattern activitySchedule = context.activityScheduleFor(oid);
+		TourBasedActivityPattern activitySchedule = context.activityScheduleFor(id.getOid());
     ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
     ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
-		return new PersonForDemand(oid, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, modeChoicePrefsSurvey, modeChoicePreferences);
+    FixedDestinations fixedDestinations = fixedDestinations(id, context);
+    PersonForDemand person = new PersonForDemand(id, household, age, employment, gender,
+        income, hasBike, hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense,
+        activitySchedule, fixedDestinations,
+        modeChoicePrefsSurvey, modeChoicePreferences);
+    return person;
 	}
 
-	private Person wrapInEmobility(List<String> data, Person person) {
+	private FixedDestinations fixedDestinations(PersonId id, PopulationContext context) {
+	  FixedDestinations fixedDestinations = new FixedDestinations();
+	  context.destinations(id).forEach(fixedDestinations::add);
+    return fixedDestinations;
+  }
+
+  private Person wrapInEmobility(List<String> data, Person person) {
 		if (normalLength == data.size()) {
 			return person;
 		}
@@ -148,8 +158,9 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<Person> {
 	}
 
 	private PersonId personIdOf(List<String> data, Household household) {
+	  int oid = personOidOf(data);
 		int personNumber = Integer.parseInt(data.get(personNumberIndex));
-		return new PersonId(household.getId(), personNumber);
+		return new PersonId(oid, household.getId(), personNumber);
 	}
 
 	private Optional<Household> householdOf(List<String> data, PopulationContext context) {

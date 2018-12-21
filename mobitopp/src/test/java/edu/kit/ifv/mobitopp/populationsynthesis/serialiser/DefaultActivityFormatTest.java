@@ -14,9 +14,8 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 
 public class DefaultActivityFormatTest {
 
@@ -28,7 +27,7 @@ public class DefaultActivityFormatTest {
 	
 	@Before
 	public void initialise() {
-		activity = Example.activity();
+		activity = ExampleSetup.activity();
 		personActivity = new PersonPatternActivity(personOid, activity);
 		format = new DefaultActivityFormat();
 	}
@@ -56,13 +55,13 @@ public class DefaultActivityFormatTest {
 	private List<String> patternActivity() throws IOException {
 		return asList( 
 				valueOf(personOid), 
-				valueOf(Example.type),
-				valueOf(Example.observedTripDuration), 
-				valueOf(Example.startTime.toMinutes()),
-				valueOf(Example.duration),
-				valueOf(Example.tourNumber),
-				valueOf(Example.isInSupertour),
-				valueOf(Example.isMainActivity)
+				valueOf(ExampleSetup.type),
+				valueOf(ExampleSetup.observedTripDuration), 
+				valueOf(ExampleSetup.startTime.toMinutes()),
+				valueOf(ExampleSetup.duration),
+				valueOf(ExampleSetup.tourNumber),
+				valueOf(ExampleSetup.isInSupertour),
+				valueOf(ExampleSetup.isMainActivity)
 			);
 	}
 }

@@ -1,14 +1,13 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -21,12 +20,13 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 
 public class PersonDecorator
 	implements Person
@@ -146,7 +146,7 @@ public class PersonDecorator
 	}
 	
 	@Override
-	public Collection<FixedDestination> getFixedDestinations() {
+	public Stream<FixedDestination> getFixedDestinations() {
 		return person().getFixedDestinations();
 	}
 

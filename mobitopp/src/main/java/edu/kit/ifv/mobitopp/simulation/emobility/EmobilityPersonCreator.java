@@ -1,22 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
-import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonCreator;
-import edu.kit.ifv.mobitopp.populationsynthesis.CommutationTicketModelIfc;
-import edu.kit.ifv.mobitopp.populationsynthesis.ActivityScheduleCreator;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
-
-import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
-
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Random;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
+
+import edu.kit.ifv.mobitopp.populationsynthesis.CommutationTicketModelIfc;
+import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonCreator;
+import edu.kit.ifv.mobitopp.populationsynthesis.EmobilityPersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public class EmobilityPersonCreator 
 	extends DefaultPersonCreator 
@@ -30,12 +26,11 @@ public class EmobilityPersonCreator
 	protected final PublicChargingInfluenceModel publicChargingInfluenceModel;
 
 	public EmobilityPersonCreator(
-		ActivityScheduleCreator scheduleCreator,
 		CommutationTicketModelIfc commutationTicketModel,
 		Map<String,CarSharingCustomerModel> carSharingCustomerModels,
 		long seed
 	) {
-		super(scheduleCreator, commutationTicketModel);
+		super(commutationTicketModel);
 
 		assert carSharingCustomerModels != null;
 
@@ -48,15 +43,14 @@ public class EmobilityPersonCreator
 
 
 	@Override
-	protected Person newPerson(
+	protected PersonForSetup newPerson(
 		int oid,
 		PersonOfPanelData personOfPanelData,
-		Household household,
-		boolean hasCommuterTicket,
-		TourBasedActivityPattern activitySchedule
+		HouseholdForSetup household,
+		boolean hasCommuterTicket
 	) {
 
-		Person person = super.newPerson(oid, personOfPanelData, household, hasCommuterTicket, activitySchedule);
+		PersonForSetup person = super.newPerson(oid, personOfPanelData, household, hasCommuterTicket);
 
 		float eMobilityAcceptance = this.random.nextFloat();
 
@@ -77,14 +71,12 @@ public class EmobilityPersonCreator
 		EmobilityPerson.PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice 
 			=	this.publicChargingInfluenceModel.estimatePublicChargingInfluence(person, carSharingCustomership, randomNumber);
 
-    Person ePerson = new EmobilityPerson(
+    PersonForSetup ePerson = new EmobilityPersonForSetup(
 													person,
 													eMobilityAcceptance,
 													chargingInfluencesDestinationChoice,
 													carSharingCustomership
 												);
-
-
 		return ePerson;
 	}
 

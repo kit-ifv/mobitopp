@@ -29,7 +29,6 @@ import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
@@ -43,12 +42,12 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	private CarOwnershipModel carOwnership;
 	private HouseholdLocationSelector householdLocationSelector;
 	private PersonCreator personCreator;
+	private ActivityScheduleCreator scheduleCreator;
 	private HouseholdOfPanelDataId panelId;
 	private ChargePrivatelySelector chargePrivatelySelector;
 	private HouseholdOfPanelData panelData;
 	private Zone zone;
 	private DemandZone demandZone;
-	private DataForZone demandData;
 	private DemandDataRepository demandDataRepository;
 	private ImpedanceIfc impedance;
 	private DataRepositoryForPopulationSynthesis dataRepository;
@@ -63,7 +62,6 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 		zone = mock(Zone.class);
 		demandZone = new DemandZone(zone, demography());
 		impedance = mock(ImpedanceIfc.class);
-		demandData = mock(DataForZone.class);
 		dataRepository = mock(DataRepositoryForPopulationSynthesis.class);
 		demandDataRepository = mock(DemandDataRepository.class);
 		panelDataRepository = mock(PanelDataRepository.class);
@@ -84,7 +82,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	public void canChargePrivately() throws Exception {
 		canCharge();
 
-		Household newHousehold = calculator().newHousehold(zone, panelData);
+		HouseholdForSetup newHousehold = calculator().newHousehold(zone, panelData);
 
 		assertTrue(newHousehold.canChargePrivately());
 
@@ -95,7 +93,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	public void cannotChargePrivately() throws Exception {
 		cannotCharge();
 
-		Household newHousehold = calculator().newHousehold(zone, panelData);
+		HouseholdForSetup newHousehold = calculator().newHousehold(zone, panelData);
 
 		assertFalse(newHousehold.canChargePrivately());
 
@@ -114,7 +112,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	public void storeCalculatedDemandData() {
 		calculator().calculateDemandData(demandZone, impedance);
 
-		verify(demandDataRepository).store(demandData);
+		verify(demandDataRepository).store(demandZone);
 	}
 
 	@Test
@@ -133,11 +131,10 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	private DemandDataForZoneCalculatorStuttgart calculator() {
 		return new DemandDataForZoneCalculatorStuttgart(results, householdSelector,
 				householdWeightCalculator, destinationSelector, carOwnership, householdLocationSelector,
-				chargePrivatelySelector, personCreator, dataRepository) {
+				chargePrivatelySelector, personCreator, scheduleCreator, dataRepository) {
 
 			@Override
-			DataForZone calculateDemandDataInternal(DemandZone zone_, ImpedanceIfc impedance) {
-				return demandData;
+			void calculateDemandDataInternal(DemandZone zone_) {
 			}
 
 			@Override

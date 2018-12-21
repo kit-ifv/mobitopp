@@ -1,8 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
-import edu.kit.ifv.mobitopp.simulation.Car.Segment;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 
 
 public class CombinedProbabilityForElectricCarOwnershipModel
@@ -24,7 +24,7 @@ public class CombinedProbabilityForElectricCarOwnershipModel
 	}
 
 	@Override
-	public double calculateProbabilityForElectricCar(final Person person, Car.Segment segment){
+	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment){
 
 		double p1 = model1.calculateProbabilityForElectricCar(person, segment);
 		double p2 = model2.calculateProbabilityForElectricCar(person, segment);
@@ -33,7 +33,7 @@ public class CombinedProbabilityForElectricCarOwnershipModel
 	}
 
 	@Override
-	public CarTypeSelector calculateProbabilities(Person person, Segment segment) {
+	public CarTypeSelector calculateProbabilities(PersonForSetup person, Segment segment) {
 		double probability = calculateProbabilityForElectricCar(person, segment);
 		return new SegmentProbabilities(segment, probability , bevProbabilities);
 	}

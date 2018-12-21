@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -122,8 +122,8 @@ public class Person_Stub
 	}
  	
   @Override
-  public Collection<FixedDestination> getFixedDestinations() {
-  	return null;
+  public Stream<FixedDestination> getFixedDestinations() {
+  	return Stream.empty();
   }
 
 	public void startActivity(Time currentDate, ActivityIfc activity, TripIfc precedingTrip,	ReschedulingStrategy rescheduling) {}

@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 
 public class CarTypeTest {
@@ -25,21 +25,21 @@ public class CarTypeTest {
 
 	@Test
 	public void resolveConventional() {
-		Car conventionalCar = Example.conventionalCar(zone);
+		Car conventionalCar = ExampleSetup.conventionalCar(zone);
 
 		assertThat(CarType.of(conventionalCar), is(conventional));
 	}
 
 	@Test
 	public void resolveBev() {
-		Car bevCar = Example.bevCar(zone);
+		Car bevCar = ExampleSetup.bevCar(zone);
 
 		assertThat(CarType.of(bevCar), is(bev));
 	}
 
 	@Test
 	public void resolveErev() {
-		Car erevCar = Example.erevCar(zone);
+		Car erevCar = ExampleSetup.erevCar(zone);
 
 		assertThat(CarType.of(erevCar), is(erev));
 	}

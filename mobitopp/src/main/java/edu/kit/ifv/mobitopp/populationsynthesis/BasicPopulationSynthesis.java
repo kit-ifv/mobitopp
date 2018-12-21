@@ -84,6 +84,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 																												householdLocationSelector,
 																												chargePrivatelySelector,
 																												personCreator,
+																												context().activityScheduleCreator(), 
 																												dataRepository()
 																												);
 		return calculator;
