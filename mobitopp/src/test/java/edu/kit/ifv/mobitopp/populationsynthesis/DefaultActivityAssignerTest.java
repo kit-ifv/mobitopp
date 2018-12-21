@@ -50,7 +50,7 @@ public class DefaultActivityAssignerTest {
 
     DefaultActivityAssigner assigner = new DefaultActivityAssigner(panelRepository,
         scheduleCreator);
-    assigner.assignActivityScheduleTo(household);
+    assigner.assignActivitySchedule(household);
 
     verify(alice).setPatternActivityWeek(alicesPattern);
   }

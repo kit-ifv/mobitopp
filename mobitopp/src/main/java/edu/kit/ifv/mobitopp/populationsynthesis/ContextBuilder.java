@@ -32,158 +32,153 @@ import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class ContextBuilder {
 
-	private final StopWatch performanceLogger;
-	private final PopulationSynthesisParser format;
+  private final StopWatch performanceLogger;
+  private final PopulationSynthesisParser format;
 
-	private WrittenConfiguration configuration;
-	private DynamicParameters experimentalParameters;
-	private ResultWriter resultWriter;
-	private AreaTypeRepository areaTypeRepository;
-	private VisumNetwork network;
-	private SimpleRoadNetwork roadNetwork;
-	private DataRepositoryForPopulationSynthesis dataRepository;
-	private ActivityScheduleCreator activityScheduleCreator;
-	private Map<String, CarSharingCustomerModel> carSharing;
-	private File carEngineFile;
-	
-	public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
-		super();
-		areaTypeRepository = areaTypeReposirtory;
-		performanceLogger = new StopWatch(LocalDateTime::now);
-		ParserBuilder parser = new ParserBuilder();
-		format = parser.forPopulationSynthesis();
-	}
-	
-	public ContextBuilder() {
-		this(new BicRepository());
-	}
+  private WrittenConfiguration configuration;
+  private DynamicParameters experimentalParameters;
+  private ResultWriter resultWriter;
+  private AreaTypeRepository areaTypeRepository;
+  private VisumNetwork network;
+  private SimpleRoadNetwork roadNetwork;
+  private DataRepositoryForPopulationSynthesis dataRepository;
+  private Map<String, CarSharingCustomerModel> carSharing;
+  private File carEngineFile;
 
-	public SynthesisContext buildFrom(File configurationFile) throws IOException {
-		WrittenConfiguration configuration = format.parse(configurationFile);
-		return buildFrom(configuration);
-	}
+  public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
+    super();
+    areaTypeRepository = areaTypeReposirtory;
+    performanceLogger = new StopWatch(LocalDateTime::now);
+    ParserBuilder parser = new ParserBuilder();
+    format = parser.forPopulationSynthesis();
+  }
 
-	public SynthesisContext buildFrom(WrittenConfiguration configuration) throws IOException {
-		this.configuration = configuration;
-		return loadData();
-	}
+  public ContextBuilder() {
+    this(new BicRepository());
+  }
 
-	private SynthesisContext loadData() throws IOException {
-		startLoading();
-		validateConfiguration();
-		experimentalParameters();
-		resultWriter();
-		visumNetwork();
-		roadNetwork();
-		dataRepository();
-		activityScheduleCreator();
-		carSharing();
-		carEngine();
-		SynthesisContext context = createContext();
-		printPerformance();
-		return context;
-	}
+  public SynthesisContext buildFrom(File configurationFile) throws IOException {
+    WrittenConfiguration configuration = format.parse(configurationFile);
+    return buildFrom(configuration);
+  }
 
-	private void startLoading() {
-		performanceLogger.start();
-	}
+  public SynthesisContext buildFrom(WrittenConfiguration configuration) throws IOException {
+    this.configuration = configuration;
+    return loadData();
+  }
 
-	private void log(String message) {
-		performanceLogger.measurePoint(message);
-	}
-	
-	private void printPerformance() {
-		System.out.println("Runtimes while loading context:");
-		performanceLogger.forEach((m,d) -> System.out.println(m + " " + d));
-	}
+  private SynthesisContext loadData() throws IOException {
+    startLoading();
+    validateConfiguration();
+    experimentalParameters();
+    resultWriter();
+    visumNetwork();
+    roadNetwork();
+    dataRepository();
+    carSharing();
+    carEngine();
+    SynthesisContext context = createContext();
+    printPerformance();
+    return context;
+  }
 
-	private void validateConfiguration() throws IOException {
-		new Validate().now(configuration);
-		log("Validate configuration");
-	}
+  private void startLoading() {
+    performanceLogger.start();
+  }
 
-	private void experimentalParameters() {
-		experimentalParameters = new DynamicParameters(configuration.getExperimental());
-		log("Create experimental parameters");
-	}
+  private void log(String message) {
+    performanceLogger.measurePoint(message);
+  }
 
-	private void resultWriter() {
-		File inBaseFolder = Convert.asFile(configuration.getResultFolder());
-		resultWriter = ResultWriter.create(inBaseFolder);
-		log("Configure result writer");
-	}
-	
-	private void visumNetwork() {
-		network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
-		log("Load visum network");
-	}
+  private void printPerformance() {
+    System.out.println("Runtimes while loading context:");
+    performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
+  }
 
-	protected VisumNetworkReader createNetworkReader(VisumReader reader) {
-		return new VisumNetworkReader(reader);
-	}
+  private void validateConfiguration() throws IOException {
+    new Validate().now(configuration);
+    log("Validate configuration");
+  }
 
-	private void roadNetwork() {
-		roadNetwork = createRoadNetwork(network);
-		log("Create road network");
-	}
+  private void experimentalParameters() {
+    experimentalParameters = new DynamicParameters(configuration.getExperimental());
+    log("Create experimental parameters");
+  }
 
-	protected SimpleRoadNetwork createRoadNetwork(VisumRoadNetwork network) {
-		return new SimpleRoadNetwork(network, carOf(network));
-	}
+  private void resultWriter() {
+    File inBaseFolder = Convert.asFile(configuration.getResultFolder());
+    resultWriter = ResultWriter.create(inBaseFolder);
+    log("Configure result writer");
+  }
 
-	private VisumTransportSystem carOf(VisumRoadNetwork network) {
-		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
-		String carCode = visumToMobitopp.getCarTransportSystemCode();
-		return network.transportSystems.getBy(carCode);
-	}
+  private void visumNetwork() {
+    network = NetworkSerializer.readVisumNetwork(configuration.getVisumFile());
+    log("Load visum network");
+  }
 
-	private void dataRepository() throws IOException {
-		int numberOfZones = configuration.getNumberOfZones();
-		dataRepository = configuration.getDataSource().forPopulationSynthesis(network, roadNetwork,
-				demographyData(), panelData(), numberOfZones, startDate(), resultWriter, areaTypeRepository);
-		log("Load data repository");
-	}
+  protected VisumNetworkReader createNetworkReader(VisumReader reader) {
+    return new VisumNetworkReader(reader);
+  }
 
-	private StructuralData demographyData() {
-		File demographyDataFile = Convert.asFile(configuration.getDemographyData());
-		StructuralData structuralData = new StructuralData(
-				new CsvFile(demographyDataFile.getAbsolutePath()), areaTypeRepository);
-		log("Load demography data");
-		return structuralData;
-	}
+  private void roadNetwork() {
+    roadNetwork = createRoadNetwork(network);
+    log("Create road network");
+  }
 
-	private PanelDataRepository panelData() {
-		File panelDataFile = Convert.asFile(configuration.getPanelData());
-		PanelDataRepository panelData = LocalPanelDataRepository.loadFrom(panelDataFile);
-		log("Load panel data");
-		return panelData;
-	}
+  protected SimpleRoadNetwork createRoadNetwork(VisumRoadNetwork network) {
+    return new SimpleRoadNetwork(network, carOf(network));
+  }
 
-	private StartDateSpecification startDate() {
-		return SimulationDays::simulationStart;
-	}
+  private VisumTransportSystem carOf(VisumRoadNetwork network) {
+    VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
+    String carCode = visumToMobitopp.getCarTransportSystemCode();
+    return network.transportSystems.getBy(carCode);
+  }
 
-	private void activityScheduleCreator() {
-		activityScheduleCreator = configuration.getActivityScheduleCreator().create(
-				configuration.getSeed());
-		log("Create activity schedule creator");
-	}
+  private void dataRepository() throws IOException {
+    int numberOfZones = configuration.getNumberOfZones();
+    dataRepository = configuration
+        .getDataSource()
+        .forPopulationSynthesis(network, roadNetwork, demographyData(), panelData(), numberOfZones,
+            startDate(), resultWriter, areaTypeRepository);
+    log("Load data repository");
+  }
 
-	private void carSharing() {
-		carSharing = new CarSharingParser(configuration.getCarSharing(), configuration.getSeed())
-				.parse();
-		log("Load car sharing");
-	}
+  private StructuralData demographyData() {
+    File demographyDataFile = Convert.asFile(configuration.getDemographyData());
+    StructuralData structuralData = new StructuralData(
+        new CsvFile(demographyDataFile.getAbsolutePath()), areaTypeRepository);
+    log("Load demography data");
+    return structuralData;
+  }
 
-	private void carEngine() {
-		carEngineFile = Convert.asFile(configuration.getCarOwnership().getEngine());
-		log("Load car ownership model");
-	}
+  private PanelDataRepository panelData() {
+    File panelDataFile = Convert.asFile(configuration.getPanelData());
+    PanelDataRepository panelData = LocalPanelDataRepository.loadFrom(panelDataFile);
+    log("Load panel data");
+    return panelData;
+  }
 
-	private SynthesisContext createContext() {
-		SimpleSynthesisContext context = new SimpleSynthesisContext(configuration, experimentalParameters, network, roadNetwork,
-				dataRepository, activityScheduleCreator, carSharing, carEngineFile, format, resultWriter);
-		log("Create context");
-		return context;
-	}
+  private StartDateSpecification startDate() {
+    return SimulationDays::simulationStart;
+  }
+
+  private void carSharing() {
+    carSharing = new CarSharingParser(configuration.getCarSharing(), configuration.getSeed())
+        .parse();
+    log("Load car sharing");
+  }
+
+  private void carEngine() {
+    carEngineFile = Convert.asFile(configuration.getCarOwnership().getEngine());
+    log("Load car ownership model");
+  }
+
+  private SynthesisContext createContext() {
+    SimpleSynthesisContext context = new SimpleSynthesisContext(configuration,
+        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile,
+        format, resultWriter);
+    log("Create context");
+    return context;
+  }
 }

@@ -18,6 +18,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   private final int domcode;
   private final Zone homeZone;
   private final Location homeLocation;
+  private final int numberOfMinors;
   private final int numberOfNotSimulatedChildren;
   private final int totalNumberOfCars;
   private final int income;
@@ -27,7 +28,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
   public DefaultHouseholdForSetup(
       HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
-      int numberOfNotSimulatedChildren, int totalNumberOfCars, int income,
+      int numberOfMinors, int numberOfNotSimulatedChildren, int totalNumberOfCars, int income,
       boolean canChargePrivately) {
     super();
     this.householdId = householdId;
@@ -35,21 +36,13 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
     this.domcode = domcode;
     this.homeZone = zone;
     this.homeLocation = location;
+    this.numberOfMinors = numberOfMinors;
     this.numberOfNotSimulatedChildren = numberOfNotSimulatedChildren;
     this.totalNumberOfCars = totalNumberOfCars;
     this.income = income;
     this.canChargePrivately = canChargePrivately;
     this.persons = new ArrayList<>();
     this.ownedCars = new ArrayList<>();
-  }
-
-  @Override
-  public Household toHousehold() {
-    HouseholdForDemand household = new HouseholdForDemand(householdId, nominalSize, domcode, homeZone, homeLocation,
-        numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
-    persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
-    household.ownCars(ownedCars);
-    return household;
   }
 
   @Override
@@ -63,8 +56,13 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public int numberOfNotSimulatedChildren() {
-    return numberOfNotSimulatedChildren;
+  public Household toHousehold() {
+    HouseholdForDemand household = new HouseholdForDemand(householdId, nominalSize, domcode,
+        homeZone, homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income,
+        canChargePrivately);
+    persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
+    household.ownCars(ownedCars);
+    return household;
   }
 
   @Override
@@ -73,8 +71,23 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public int getSize() {
-    return getPersons().size() + numberOfNotSimulatedChildren;
+  public Zone homeZone() {
+    return homeZone;
+  }
+
+  @Override
+  public Location homeLocation() {
+    return homeLocation;
+  }
+
+  @Override
+  public float monthlyIncomeEur() {
+    return income;
+  }
+
+  @Override
+  public boolean canChargePrivately() {
+    return canChargePrivately;
   }
 
   @Override
@@ -89,32 +102,27 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public Zone homeZone() {
-    return homeZone;
-  }
-
-  @Override
-  public Location homeLocation() {
-    return homeLocation;
-  }
-
-  @Override
-  public boolean canChargePrivately() {
-    return canChargePrivately;
-  }
-
-  @Override
-  public float monthlyIncomeEur() {
-    return income;
-  }
-
-  @Override
   public int nominalNumberOfCars() {
     return totalNumberOfCars;
   }
 
   @Override
+  public int getSize() {
+    return getPersons().size() + numberOfNotSimulatedChildren;
+  }
+
+  @Override
   public int nominalSize() {
     return nominalSize;
+  }
+
+  @Override
+  public int numberOfMinors() {
+    return numberOfMinors;
+  }
+
+  @Override
+  public int numberOfNotSimulatedChildren() {
+    return numberOfNotSimulatedChildren;
   }
 }

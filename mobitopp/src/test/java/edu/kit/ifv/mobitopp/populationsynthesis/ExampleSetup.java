@@ -66,6 +66,7 @@ public abstract class ExampleSetup {
 	public static final Location location = new Location(new Point2D.Double(1.0, 2.0), 1, 0.5);
 	public static final String serialisedLocation = new LocationParser().serialise(location);
 	public static final Location anotherLocation = new Location(new Point2D.Double(3.0, 4.0), 2, 0.5);
+	public static final int numberOfMinors = 0;
 	public static final int numberOfNotSimulatedChildren = 0;
 	public static final int totalNumberOfCars = 1;
 	public static final int noCars = 0;
@@ -144,7 +145,7 @@ public abstract class ExampleSetup {
 	
 	public static HouseholdForSetup household(Zone zone, int householdOid, int numberOfCars) {
 	  HouseholdId id = new HouseholdId(householdOid, householdYear, householdNumber);
-	  return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location,
+	  return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
 	      numberOfNotSimulatedChildren, numberOfCars, income, canChargePrivately);
 	}
 

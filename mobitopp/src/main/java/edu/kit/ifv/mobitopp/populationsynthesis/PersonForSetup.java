@@ -54,4 +54,6 @@ public interface PersonForSetup {
   Zone fixedActivityZone();
 
   boolean hasFixedActivityZone();
+
+  TourBasedActivityPattern getActivityPattern();
 }

@@ -140,6 +140,11 @@ public class DefaultPersonForSetup implements PersonForSetup {
   public void setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
     this.activityPattern = activityPattern;
   }
+  
+  @Override
+  public TourBasedActivityPattern getActivityPattern() {
+    return activityPattern;
+  }
 
   @Override
   public void setFixedDestination(FixedDestination fixedDestination) {

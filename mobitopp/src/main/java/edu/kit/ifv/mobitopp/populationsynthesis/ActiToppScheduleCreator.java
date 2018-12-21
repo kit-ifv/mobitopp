@@ -37,7 +37,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
  * @author Tim Hilgert
  *
  */
-public class ActiToppScheduleCreator implements ActivityScheduleCreator
+public class ActiToppScheduleCreator implements ActivityScheduleCreator, ActivityScheduleAssigner
 {
 	
 	private final ActiToppCategories categories;
@@ -70,7 +70,10 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator
       fileBase = new ModelFileBase();
       randomgenerator = new RNGHelper(seed);
   }
-		
+
+  @Override
+  public void assignActivitySchedule(HouseholdForSetup toHousehold) {
+  }
 
   /**
    * 

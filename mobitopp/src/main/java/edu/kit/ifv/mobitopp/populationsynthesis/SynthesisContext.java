@@ -35,8 +35,6 @@ public interface SynthesisContext {
 
 	Map<String, CarSharingCustomerModel> carSharing();
 
-	ActivityScheduleCreator activityScheduleCreator();
-
 	ResultWriter resultWriter();
 
 	void printStartupInformationOn(PrintStream out);

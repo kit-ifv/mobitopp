@@ -42,7 +42,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	private CarOwnershipModel carOwnership;
 	private HouseholdLocationSelector householdLocationSelector;
 	private PersonCreator personCreator;
-	private ActivityScheduleCreator scheduleCreator;
+	private ActivityScheduleAssigner activityProgramAssigner;
 	private HouseholdOfPanelDataId panelId;
 	private ChargePrivatelySelector chargePrivatelySelector;
 	private HouseholdOfPanelData panelData;
@@ -131,7 +131,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 	private DemandDataForZoneCalculatorStuttgart calculator() {
 		return new DemandDataForZoneCalculatorStuttgart(results, householdSelector,
 				householdWeightCalculator, destinationSelector, carOwnership, householdLocationSelector,
-				chargePrivatelySelector, personCreator, scheduleCreator, dataRepository) {
+				chargePrivatelySelector, personCreator, activityProgramAssigner, dataRepository) {
 
 			@Override
 			void calculateDemandDataInternal(DemandZone zone_) {

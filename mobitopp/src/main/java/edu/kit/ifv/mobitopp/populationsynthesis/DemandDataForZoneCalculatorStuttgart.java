@@ -11,16 +11,12 @@ import java.util.TreeMap;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.result.Results;
@@ -33,7 +29,6 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
-import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
 
 public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCalculatorIfc {
@@ -67,9 +62,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	private final DataRepositoryForPopulationSynthesis dataRepository;
 	private final Map<HouseholdForSetup, HouseholdOfPanelDataId> householdToId;
 
-  private final ActivityScheduleCreator scheduleCreator;
-  private Map<PersonOfPanelDataId,TourBasedActivityPattern> cachedActivityPattern = new LinkedHashMap<>();
   private int householdIds = 1;
+  private final ActivityScheduleAssigner activityProgramAssigner;
 
 	public DemandDataForZoneCalculatorStuttgart(
 		Results results,
@@ -80,7 +74,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		HouseholdLocationSelector householdLocationSelector,
 		ChargePrivatelySelector chargePrivatelySelector,
 		PersonCreator personCreator,
-		ActivityScheduleCreator scheduleCreator,
+		ActivityScheduleAssigner activityProgramAssigner,
 		DataRepositoryForPopulationSynthesis dataRepository
 	) {
 
@@ -96,7 +90,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		this.householdLocationSelector = householdLocationSelector;
 		this.chargePrivatelySelector = chargePrivatelySelector;
 		this.personCreator = personCreator;
-		this.scheduleCreator = scheduleCreator;
+		this.activityProgramAssigner = activityProgramAssigner;
 
 		householdToId = new HashMap<>();
 		householdCache = new LinkedHashMap<>();
@@ -245,42 +239,10 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	}
 	
 	private void assignActivityPrograms(List<HouseholdForSetup> households) {
-	  for (HouseholdForSetup household : households) {
-      assignActivityProgram(household);
+	  for (HouseholdForSetup toHousehold : households) {
+      activityProgramAssigner.assignActivitySchedule(toHousehold);
     }
 	}
-
-  private void assignActivityProgram(HouseholdForSetup household) {
-    for (PersonForSetup personInHH : household.getPersons()) {
-      doAssign(household, personInHH);
-    }
-  }
-
-  private void doAssign(HouseholdForSetup household, PersonForSetup person) {
-    HouseholdOfPanelDataId householdId = createPanelId(household.getId());
-    PersonOfPanelDataId personId = createPanelId(person.getId());
-    HouseholdOfPanelData panelHousehold = panelDataRepository().getHousehold(householdId);
-    PersonOfPanelData panelPerson = panelDataRepository().getPerson(personId);
-    PatternActivityWeek activityPattern = this.scheduleCreator
-        .createActivitySchedule(panelPerson, panelHousehold, household);
-
-    TourBasedActivityPattern activitySchedule;
-    if (cachedActivityPattern.containsKey(panelPerson.getId())) {
-      activitySchedule = cachedActivityPattern.get(panelPerson.getId());
-    } else {
-      activitySchedule = TourBasedActivityPatternCreator.fromPatternActivityWeek(activityPattern);
-      cachedActivityPattern.put(panelPerson.getId(), activitySchedule);
-    }
-    person.setPatternActivityWeek(activitySchedule);
-  }
-
-  private PersonOfPanelDataId createPanelId(PersonId id) {
-    return new PersonOfPanelDataId(createPanelId(id.getHouseholdId()), id.getPersonNumber());
-  }
-
-  private HouseholdOfPanelDataId createPanelId(HouseholdId id) {
-    return new HouseholdOfPanelDataId(id.getYear(), id.getHouseholdNumber());
-  }
 
 	private void createAndAssignCars(
 		Collection<HouseholdForSetup> households
@@ -317,6 +279,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																householdOfPanelData.domCode(),
 																zone,
 																location,
+																householdOfPanelData.numberOfMinors(),
 																householdOfPanelData.numberOfNotReportingChildren(),
 																householdOfPanelData.numberOfCars(),
 																householdOfPanelData.income(),
