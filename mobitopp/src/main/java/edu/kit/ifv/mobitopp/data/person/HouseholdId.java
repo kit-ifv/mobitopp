@@ -6,14 +6,15 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 
 	private static final long serialVersionUID = 8599877663307485839L;
 	
+	private final int oid;
 	private final short year;
 	private final long householdNumber;
 
-	public HouseholdId(short year, long householdNumber) {
+	public HouseholdId(int oid, short year, long householdNumber) {
 		super();
-
 		verifyYear(year);
 		verifyHouseholdNumber(householdNumber);
+		this.oid = oid;
 		this.year = year;
 		this.householdNumber = householdNumber;
 	}
@@ -28,6 +29,10 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
   	if (0 > year) {
   		throw new IllegalArgumentException("Incorrect year: " + year);
   	}
+	}
+	
+	public int getOid() {
+	  return oid;
 	}
 
 	public short getYear() {

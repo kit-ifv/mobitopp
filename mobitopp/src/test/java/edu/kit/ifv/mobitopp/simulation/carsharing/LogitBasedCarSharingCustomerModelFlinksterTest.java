@@ -2,28 +2,25 @@ package edu.kit.ifv.mobitopp.simulation.carsharing;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-import org.junit.Before;
-
-import java.util.Random;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import edu.kit.ifv.mobitopp.simulation.carsharing.LogitBasedCarSharingCustomerModel;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
-import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
-import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
-import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
-import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
-import edu.kit.ifv.mobitopp.simulation.Employment;
-import edu.kit.ifv.mobitopp.simulation.Gender;
+import org.junit.Before;
+import org.junit.Test;
+
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.Gender;
 
 public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
@@ -37,12 +34,12 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	private Map<String, Float> carsharingcarDensities;
 	private CarSharingDataForZone carSharing;
 
-	private HouseholdForDemand household_dummy;
-	private HouseholdForDemand household;
+	private HouseholdForSetup household_dummy;
+	private HouseholdForSetup household;
 
-	private PersonForDemand person_dummy;
-	private PersonForDemand male_working;
-	private PersonForDemand female_working;
+	private PersonForSetup person_dummy;
+	private PersonForSetup male_working;
+	private PersonForSetup female_working;
 
 	@Before
 	public void setUp() throws URISyntaxException {
@@ -68,7 +65,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	
 		zone().setCarSharing(carSharing);
 
-		household_dummy = new HouseholdForDemand(
+		household_dummy = new DefaultHouseholdForSetup(
 																			null, // id
 																			6,
 																			0, // domcode
@@ -80,7 +77,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			true
 																		);
 
-		household = new HouseholdForDemand(
+		household = new DefaultHouseholdForSetup(
 																			null, // id
 																			4,
 																			0, // domcode
@@ -92,8 +89,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			true
 																		);
 
-		person_dummy = new PersonForDemand(	
-												0, //oid
+		person_dummy = new DefaultPersonForSetup(	
 												null, // id
 												household,
 												50, // age,
@@ -101,12 +97,11 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.MALE,
 												0, // income
 												false, true, false, false, 
-												true, null // activitySchedule
-, null, null
+												true, 
+												null, null
 										);
 
-		male_working = new PersonForDemand(	
-												1, //oid
+		male_working = new DefaultPersonForSetup(	
 												null, // id
 												household,
 												35, // age,
@@ -114,12 +109,11 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.MALE,
 												0, // income
 												false, true, false, false, 
-												true, null // activitySchedule
-, null, null
+												true,
+												null, null
 										);
 
-		female_working = new PersonForDemand(	
-												2, //oid
+		female_working = new DefaultPersonForSetup(	
 												null, // id
 												household,
 												30, // age,
@@ -127,8 +121,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												Gender.FEMALE,
 												0, // income
 												false, true, false, false, 
-												true, null // activitySchedule
-, null, null
+												true,
+												null, null
 										);
 
 		household.addPerson(male_working);
@@ -146,11 +140,11 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 		return zones.someZone();
 	}
 
-	protected static HouseholdForDemand makeHousehold(
+	protected static HouseholdForSetup makeHousehold(
 		int nominalSize,
 		int number_of_cars
 	) {
-		return new HouseholdForDemand(
+		return new DefaultHouseholdForSetup(
 																			null, // id
 																			nominalSize, // nominalSize
 																			0, // domcode
@@ -163,15 +157,14 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																		);
 	}
 
-	protected static PersonForDemand makePerson(
+	protected static PersonForSetup makePerson(
 		int age,
 		Employment employment,
 		Gender sex,
 		boolean ticket
 	) {
 	
-		return   new PersonForDemand(	
-												0, //oid
+		return   new DefaultPersonForSetup(	
 												null, // id
 												null, //household,
 												age, // age,
@@ -180,8 +173,8 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												0, // income
 												false, true, false, 
 												ticket,
-												true, null // activitySchedule
-, null, null
+												true, 
+												null, null
 										);
 	}
 
@@ -216,7 +209,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -230,7 +223,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + 0.1095;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				true
@@ -244,7 +237,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + 0.9263 ;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.FULLTIME, 
 																				Gender.MALE,
 																				false
@@ -258,7 +251,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + -1.8967 + 0.9263 ;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.FULLTIME, 
 																				Gender.FEMALE,
 																				false
@@ -272,7 +265,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + -0.57665;
 
-		PersonForDemand person = makePerson(24, 
+		PersonForSetup person = makePerson(24, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -286,7 +279,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + 0.9263 + 1.1547;
 
-		PersonForDemand person = makePerson(30, 
+		PersonForSetup person = makePerson(30, 
 																				Employment.FULLTIME, 
 																				Gender.MALE,
 																				false
@@ -300,7 +293,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + -1.8967 + 0.9263 + 1.1547;
 
-		PersonForDemand person = makePerson(30, 
+		PersonForSetup person = makePerson(30, 
 																				Employment.FULLTIME, 
 																				Gender.FEMALE,
 																				false
@@ -314,13 +307,13 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
 																				);
 
-		HouseholdForDemand household = makeHousehold(5,5);
+		HouseholdForSetup household = makeHousehold(5,5);
 
  		assertEquals(expected, flinkster.calculateUtility(person,household,zone()), EPSILON);
 
@@ -344,13 +337,13 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862;
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
 																				);
 
-		HouseholdForDemand household = makeHousehold(5,5);
+		HouseholdForSetup household = makeHousehold(5,5);
 
  		assertEquals(expected, flinkster.calculateUtility(person,household,zone()), EPSILON);
 
@@ -389,7 +382,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	@Test
 	public void testFlinksterMaleHouseholdSize1() {
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -410,7 +403,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	@Test
 	public void testFlinksterMaleHouseholdSize2() {
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -431,13 +424,13 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + -1.8967 + 0.6756;
 
-		PersonForDemand person = makePerson(90, 
+		PersonForSetup person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.FEMALE,
 																				false
 																				);
 
-		HouseholdForDemand household = makeHousehold(5,5);
+		HouseholdForSetup household = makeHousehold(5,5);
 
  		assertEquals(expected, flinkster.calculateUtility(person,household,zone()), EPSILON);
 
@@ -510,7 +503,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	@Test
 	public void testFlinksterMaleHouseholdSize2Ticket() {
 
-		PersonForDemand person = makePerson(50, 
+		PersonForSetup person = makePerson(50, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				true
@@ -532,13 +525,13 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 
 		double expected = -6.0862 + -1.8967 + -0.57665;
 
-		PersonForDemand person = makePerson(20, 
+		PersonForSetup person = makePerson(20, 
 																				Employment.NONE, 
 																				Gender.FEMALE,
 																				false
 																				);
 
-		HouseholdForDemand household = makeHousehold(5,5);
+		HouseholdForSetup household = makeHousehold(5,5);
 
  		assertEquals(expected, flinkster.calculateUtility(person,household,zone()), EPSILON);
 
@@ -610,7 +603,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 	@Test
 	public void testReal1() {
 
-		PersonForDemand person = makePerson(46, 
+		PersonForSetup person = makePerson(46, 
 																				Employment.FULLTIME,
 																				Gender.MALE,
 																				false

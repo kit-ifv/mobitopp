@@ -3,12 +3,12 @@ dataSource: !file
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
   attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
   #charging: unlimited
-  defaultChargingPower: data/leopoldshafen/parameters/ChargingPower.txt
+  defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository
 days: 7
 destinationChoice:
-  repetition: data/leopoldshafen/parameters/TargetParameterRepetition2.csv
-  cost: data/leopoldshafen/parameters/TargetParameterCost.txt
+  repetition: config/leopoldshafen/parameters/TargetParameterRepetition2.csv
+  cost: config/leopoldshafen/parameters/TargetParameterCost.txt
 fractionOfPopulation: 0.01
 #numberOfZones: 1174
 resultFolder: results/simulation

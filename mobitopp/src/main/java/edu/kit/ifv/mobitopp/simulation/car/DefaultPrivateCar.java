@@ -1,34 +1,31 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
-import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import java.io.Serializable;
 
-public class DefaultPrivateCar 
-	extends CarDecorator
-	implements PrivateCar, Car
-	, Serializable
-{
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.simulation.Car;
+
+public class DefaultPrivateCar extends CarDecorator implements PrivateCar, Car, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	protected final Household owner;
-	protected final Person mainUser;
-	protected final Person personalUser;
+	protected final HouseholdId owner;
+	protected final PersonId mainUser;
+	protected final PersonId personalUser;
 
 	public DefaultPrivateCar(
 		Car car,
-		Household owner,
-		Person mainUser,
-		Person personalUser
+		HouseholdId ownerId,
+		PersonId mainUser,
+		PersonId personalUser
 	) {
 		super(car);
 
-		assert owner != null;
+		assert ownerId != null;
 		assert mainUser != null;
 
-		this.owner = owner;
+		this.owner = ownerId;
 		this.mainUser = mainUser;
 		this.personalUser = personalUser;
 	}
@@ -37,7 +34,7 @@ public class DefaultPrivateCar
 		return car;
 	}
 
-	public Household owner() {
+	public HouseholdId owner() {
 		return this.owner;
 	}
 
@@ -45,14 +42,13 @@ public class DefaultPrivateCar
 		return this.personalUser != null;
 	}
 
-	public Person personalUser() {
+	public PersonId personalUser() {
 		return this.personalUser;
 	}
 
-	public Person mainUser() {
+	public PersonId mainUser() {
 		return this.mainUser;
 	}
-
 
 	@Override
 	public String forLogging() {

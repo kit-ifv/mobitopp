@@ -11,26 +11,29 @@ import java.util.TreeMap;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
+import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatternCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.result.Results;
+import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
 
 public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCalculatorIfc {
@@ -62,7 +65,11 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	private final PersonCreator personCreator;
 
 	private final DataRepositoryForPopulationSynthesis dataRepository;
-	private final Map<Household, HouseholdOfPanelDataId> householdToId;
+	private final Map<HouseholdForSetup, HouseholdOfPanelDataId> householdToId;
+
+  private final ActivityScheduleCreator scheduleCreator;
+  private Map<PersonOfPanelDataId,TourBasedActivityPattern> cachedActivityPattern = new LinkedHashMap<>();
+  private int householdIds = 1;
 
 	public DemandDataForZoneCalculatorStuttgart(
 		Results results,
@@ -73,6 +80,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		HouseholdLocationSelector householdLocationSelector,
 		ChargePrivatelySelector chargePrivatelySelector,
 		PersonCreator personCreator,
+		ActivityScheduleCreator scheduleCreator,
 		DataRepositoryForPopulationSynthesis dataRepository
 	) {
 
@@ -88,6 +96,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		this.householdLocationSelector = householdLocationSelector;
 		this.chargePrivatelySelector = chargePrivatelySelector;
 		this.personCreator = personCreator;
+		this.scheduleCreator = scheduleCreator;
 
 		householdToId = new HashMap<>();
 		householdCache = new LinkedHashMap<>();
@@ -125,28 +134,26 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		log_calculateDemandData_log1(zone);
 
-		DataForZone dataForZone = calculateDemandDataInternal(zone, impedance);
-		saveDomainData(dataForZone);
+		calculateDemandDataInternal(zone);
+		saveDomainData(zone);
 	}
 
-	private void saveDomainData(DataForZone dataForZone) {
-		dataRepository.demandDataRepository().store(dataForZone);
+	private void saveDomainData(DemandZone zone) {
+		dataRepository.demandDataRepository().store(zone);
 	}
 
-	DataForZone calculateDemandDataInternal(DemandZone zone, ImpedanceIfc impedance) {
+	void calculateDemandDataInternal(DemandZone zone) {
 		System.out.println("Nachfragedaten Zone "+zone.getId());
 
 		if (getNominalHouseholdDistribution(zone).getTotalAmount() > 0) {
 	
 			recalculateHouseholdWeights(zone);
 	
-			List<Household> households = selectAndInstantiateHouseholds_Var1(zone);
+			List<HouseholdForSetup> households = selectAndInstantiateHouseholds_Var1(zone);
+      assignActivityPrograms(households);
 			instantiatePoleZones(zone, households);
 			createAndAssignCars(households);
-			
-			logResults(households, impedance);
 		}
-		return zone.zone().getDemandData();
 	}
 
 	private void recalculateHouseholdWeights(DemandZone zone) {
@@ -172,8 +179,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	}
 
 
-	private List<Household> selectAndInstantiateHouseholds_Var1(DemandZone zone) {
-		List<Household> households = new ArrayList<Household>();
+	private List<HouseholdForSetup> selectAndInstantiateHouseholds_Var1(DemandZone zone) {
+		List<HouseholdForSetup> households = new ArrayList<>();
 
 		for (HouseholdDistributionItem householdTypeItem : getNominalHouseholdDistribution(zone)
 				.getItemsReverse()) {
@@ -186,10 +193,10 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 			for (HouseholdOfPanelDataId householdOfPanelDataId: 
 						this.householdSelector.selectHouseholds(householdOfPanelDataIds,amount)) {
 
-				Household household = instantiateHousehold(zone, 
+				HouseholdForSetup household = instantiateHousehold(zone, 
 																										this.households.get(householdOfPanelDataId));
 	
-				zone.getDemandData().getPopulationData().addHousehold(household);
+				zone.getPopulation().addHousehold(household);
 
 				households.add(household);
 			}
@@ -198,12 +205,12 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return households;
 	}
 
-	private Household instantiateHousehold(
+	private HouseholdForSetup instantiateHousehold(
 			DemandZone zone, HouseholdOfPanelData householdOfPanelData) {
 		assert zone != null;
 		assert householdOfPanelData != null;
 
-		Household household = newHousehold(zone.zone(), householdOfPanelData);
+		HouseholdForSetup household = newHousehold(zone.zone(), householdOfPanelData);
 		
 		zone.actualDemography().incrementHousehold(householdOfPanelData.domCode());
 
@@ -216,8 +223,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		for (PersonOfPanelData aPersonOfPanelData: personsOfPanelData) {
 
-			Person person = this.personCreator.createPerson(aPersonOfPanelData, householdOfPanelData, household, zone.zone());
-
+			PersonForSetup person = this.personCreator.createPerson(aPersonOfPanelData, householdOfPanelData, household, zone.zone());
 			household.addPerson(person);
 			
 			zone.actualDemography().incrementAge(person.gender(), person.age());
@@ -237,27 +243,67 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		return household;
 	}
+	
+	private void assignActivityPrograms(List<HouseholdForSetup> households) {
+	  for (HouseholdForSetup household : households) {
+      assignActivityProgram(household);
+    }
+	}
 
+  private void assignActivityProgram(HouseholdForSetup household) {
+    for (PersonForSetup personInHH : household.getPersons()) {
+      doAssign(household, personInHH);
+    }
+  }
+
+  private void doAssign(HouseholdForSetup household, PersonForSetup person) {
+    HouseholdOfPanelDataId householdId = createPanelId(household.getId());
+    PersonOfPanelDataId personId = createPanelId(person.getId());
+    HouseholdOfPanelData panelHousehold = panelDataRepository().getHousehold(householdId);
+    PersonOfPanelData panelPerson = panelDataRepository().getPerson(personId);
+    PatternActivityWeek activityPattern = this.scheduleCreator
+        .createActivitySchedule(panelPerson, panelHousehold, household);
+
+    TourBasedActivityPattern activitySchedule;
+    if (cachedActivityPattern.containsKey(panelPerson.getId())) {
+      activitySchedule = cachedActivityPattern.get(panelPerson.getId());
+    } else {
+      activitySchedule = TourBasedActivityPatternCreator.fromPatternActivityWeek(activityPattern);
+      cachedActivityPattern.put(panelPerson.getId(), activitySchedule);
+    }
+    person.setPatternActivityWeek(activitySchedule);
+  }
+
+  private PersonOfPanelDataId createPanelId(PersonId id) {
+    return new PersonOfPanelDataId(createPanelId(id.getHouseholdId()), id.getPersonNumber());
+  }
+
+  private HouseholdOfPanelDataId createPanelId(HouseholdId id) {
+    return new HouseholdOfPanelDataId(id.getYear(), id.getHouseholdNumber());
+  }
 
 	private void createAndAssignCars(
-		Collection<Household> households
+		Collection<HouseholdForSetup> households
 	) {
 
-		for (Household household : households) {
+		for (HouseholdForSetup household : households) {
 			Collection<PrivateCar> cars = this.carOwnershipModel.createCars(household, household.getTotalNumberOfCars());
 			household.ownCars(cars);
 		}
 	}
 
 
-	Household newHousehold(
+	HouseholdForSetup newHousehold(
 		Zone zone,
 		HouseholdOfPanelData householdOfPanelData
 	) {
 
 		HouseholdOfPanelDataId panel_id = householdOfPanelData.id(); 
 
-		HouseholdId id = new HouseholdId(panel_id.getYear(), panel_id.getHouseholdNumber());
+		int oid = householdIds++;
+    short year = panel_id.getYear();
+    long householdNumber = panel_id.getHouseholdNumber();
+    HouseholdId id = new HouseholdId(oid, year, householdNumber);
 
 		Location location = this.householdLocationSelector.selectLocation(zone);
 
@@ -265,7 +311,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																				+ householdOfPanelData.numberOfNotReportingChildren();
 		boolean canChargePrivately = chargePrivatelySelector.canChargeAt(zone);
 
-		Household household = new HouseholdForDemand(
+		HouseholdForSetup household = new DefaultHouseholdForSetup(
 																id,
 																householdOfPanelData.size(),
 																householdOfPanelData.domCode(),
@@ -285,17 +331,13 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 
 
-	private void instantiatePoleZones(DemandZone zone, List<Household> households) {
-		Map<Person,PersonOfPanelData> mappedPersons 
-			= new LinkedHashMap<Person,PersonOfPanelData>();
+	private void instantiatePoleZones(DemandZone zone, List<HouseholdForSetup> households) {
+    Map<PersonForSetup, PersonOfPanelData> mappedPersons = new LinkedHashMap<>();
 
-		Map<Integer,PersonOfPanelData> panelPersons 
-			= new LinkedHashMap<Integer,PersonOfPanelData>();
+    Map<Integer, PersonOfPanelData> panelPersons = new LinkedHashMap<>();
+    Map<Integer, PersonForSetup> demandPersons = new LinkedHashMap<>();
 
-		 Map<Integer,Person> demandPersons 
-			 = new LinkedHashMap<Integer,Person>();
-
-		for (Household household : households) {
+		for (HouseholdForSetup household : households) {
 			HouseholdOfPanelDataId id = householdToId.get(household);
 	
 			List<PersonOfPanelData> persons = this.personsOfHousehold.get(id);
@@ -309,13 +351,13 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 				sortedPersons.put(persnum, p);
 			}
 	
-			for (Person person : (Collection<Person>) household.getPersons()) {
+			for (PersonForSetup person : household.getPersons()) {
 	
 				PersonOfPanelData aPersonOfPanelData = sortedPersons.get(person.getId().getPersonNumber());
 
 				mappedPersons.put(person, aPersonOfPanelData);
-				panelPersons.put(person.getOid(), aPersonOfPanelData);
-				demandPersons.put(person.getOid(), person);
+				panelPersons.put(person.getId().getOid(), aPersonOfPanelData);
+				demandPersons.put(person.getId().getOid(), person);
 	
 			}
 		}
@@ -351,37 +393,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return zone.nominalDemography().femaleAge();
 	}
 
-	private void logResults(List<Household> households, ImpedanceIfc impedance) {
-		for (Household household : households) {
-			for (Person person : (Collection<Person>) household.getPersons()) {
-				logResultsPerson(person, impedance);
-			}
-			logResultsHousehold(household);
-			logResultsCars(household.whichCars());
-		}
-	}
-
-	private void logResultsPerson(Person person, ImpedanceIfc impedance) {
-		results().write(categories.demanddataResult, person.forLogging(impedance));
-		results().write(categories.demanddataResultPerson, person.forLogging(impedance));
-	}
-
-	private void logResultsHousehold(Household household) {
-		assert household instanceof HouseholdForDemand;
-		results().write(categories.demanddataResult, ((HouseholdForDemand)household).forLogging());
-		results().write(categories.demanddataResultHousehold, ((HouseholdForDemand)household).forLogging());
-	}
-
-	private void logResultsCars(Collection<PrivateCar> cars) {
-		for (PrivateCar car : cars) {
-			String msg = "C; " +  car.forLogging();
-
-			results().write(categories.demanddataResult, msg);
-			results().write(categories.demanddataResultCar, msg);
-		}
-	}
-
-	private void log_instantiateHoushold_log1(Household household) {
+	private void log_instantiateHoushold_log1(HouseholdForSetup household) {
 		StringBuffer message = new StringBuffer();
 
 		message.append("Neuer Haushalt ").append("( ");

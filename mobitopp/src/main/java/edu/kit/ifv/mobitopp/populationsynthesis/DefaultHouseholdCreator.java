@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
-import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
+import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
@@ -23,9 +23,9 @@ public class DefaultHouseholdCreator implements HouseholdCreator {
 	}
 
 	@Override
-	public HouseholdForDemand createHousehold(HouseholdOfPanelData household, Zone zone) {
+	public HouseholdForSetup createHousehold(HouseholdOfPanelData household, Zone zone) {
 		int oid = oids++;
-		HouseholdId id = new HouseholdId(household.id().getYear(), household.id().getHouseholdNumber());
+		HouseholdId id = new HouseholdId(oid, household.id().getYear(), household.id().getHouseholdNumber());
 		int nominalSize = household.size();
 		int domcode = household.domCode();
 		Location location = householdLocationSelector.selectLocation(zone);
@@ -33,7 +33,7 @@ public class DefaultHouseholdCreator implements HouseholdCreator {
 		int totalNumberOfCars = household.numberOfCars();
 		int income = household.income();
 		boolean canChargePrivately = canChargePrivatelySelector.canChargeAt(zone);
-		return new HouseholdForDemand(oid, id, nominalSize, domcode, zone, location,
+		return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location,
 				numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
 	}
 

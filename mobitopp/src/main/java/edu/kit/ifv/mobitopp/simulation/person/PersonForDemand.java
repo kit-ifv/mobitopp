@@ -1,23 +1,28 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-
-
+import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
-
-import edu.kit.ifv.mobitopp.simulation.*;
+import edu.kit.ifv.mobitopp.populationsynthesis.FixedDestinations;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.FixedDestination;
+import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Household;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
+import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
+import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
+import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
@@ -27,21 +32,14 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 
-
-
-public class PersonForDemand
-  implements Person, PersonForSetup, Serializable
-{
+public class PersonForDemand implements Person, Serializable {
 
 	private static final long serialVersionUID = 2936969065679820132L;
 	
-	protected int oid;
-	protected Household household;
+	private final Household household;
 
-  private PersonId id = null;
+  private final PersonId id;
 
   private final short age;
 
@@ -60,9 +58,7 @@ public class PersonForDemand
 	private final ModeChoicePreferences modeChoicePrefsSurvey;
 	private final ModeChoicePreferences modeChoicePreferences;
   
-	private Map<ActivityType,Zone> fixedDestinationZones = new HashMap<ActivityType,Zone>();
-	private Map<ActivityType,Location> fixedDestinations = new HashMap<ActivityType,Location>();
-	private final List<FixedDestination> fixedDestinationElements;
+	private final FixedDestinations fixedDestinations;
 
 	/** Planned activity program **/
   //private PatternActivityWeek activityPattern;
@@ -81,7 +77,6 @@ public class PersonForDemand
 	private CarUsage currentCarUsage = CarUsage.NONE;
 
   public PersonForDemand(
-		int oid,
 		PersonId id,
 		Household household,
 		int age,
@@ -93,18 +88,18 @@ public class PersonForDemand
 		boolean hasPersonalCar,
 		boolean hasCommuterTicket,
 		boolean hasLicense,
-		TourBasedActivityPattern activitySchedule,
-    ModeChoicePreferences modeChoicePrefsSurvey,
-    ModeChoicePreferences modeChoicePreferences
+		TourBasedActivityPattern tourPattern,
+		FixedDestinations fixedDestinations,
+		ModeChoicePreferences modeChoicePrefsSurvey,
+    ModeChoicePreferences modeChoicePreferences 
 	)
   {
-		this.oid = oid;
 		this.id = id;
 
 		this.household = household;
+    this.tourPattern = tourPattern;
 
 		this.age = (short) age;
-    this.tourPattern = activitySchedule;
 
 		this.employment=employment;
 		this.gender=gender;
@@ -117,7 +112,7 @@ public class PersonForDemand
 		this.hasCommuterTicket = hasCommuterTicket;
 		this.hasLicense = hasLicense;
 		
-		fixedDestinationElements = new ArrayList<>();
+		this.fixedDestinations = fixedDestinations;
 		
 		this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
     this.modeChoicePreferences = modeChoicePreferences;
@@ -125,8 +120,7 @@ public class PersonForDemand
   }
 
 	public int getOid() {
-
-		return this.oid;
+		return id.getOid();
 	}
 
 	@Override
@@ -270,8 +264,7 @@ public class PersonForDemand
 
 		return new PatternActivityWeek(this.tourPattern.asPatternActivities());
   }
-
-
+  
   public Employment employment()
   {
 		return this.employment;
@@ -299,13 +292,11 @@ public class PersonForDemand
 	}
 
 	public Zone fixedDestinationZoneFor(ActivityType activityType) {
-
-		return this.fixedDestinationZones.get(activityType);
+		return this.fixedDestinations.getDestination(activityType).zone();
 	}
 
 	public Location fixedDestinationFor(ActivityType activityType) {
-
-		return this.fixedDestinations.get(activityType);
+		return this.fixedDestinations.getDestination(activityType).location();
 	}
 
 	public int getHomeZoneOid() {
@@ -315,42 +306,24 @@ public class PersonForDemand
 
 
 	public Zone fixedZoneFor(ActivityType activityType) {
-
-		return this.fixedDestinationZones.get(activityType);
+		return this.fixedDestinations.getDestination(activityType).zone();
 	}
 
 	public boolean hasFixedZoneFor(ActivityType activityType) {
-
-		return this.fixedDestinationZones.containsKey(activityType);
+		return this.fixedDestinations.hasDestination(activityType);
 	}
 
 	public Zone fixedActivityZone() {
-
-		Zone zone = household().homeZone();
-
-		if ( this.fixedDestinationZones.containsKey(ActivityType.WORK)) {
-			zone = this.fixedDestinationZones.get(ActivityType.WORK);
-		} else if ( this.fixedDestinationZones.containsKey(ActivityType.EDUCATION)) {
-			zone = this.fixedDestinationZones.get(ActivityType.EDUCATION);
-		}
-
-		return zone;
+    return fixedDestinations
+        .getFixedDestination()
+        .map(FixedDestination::zone)
+        .orElseGet(() -> household().homeZone());
 	}
 
 	public boolean hasFixedActivityZone() {
-
-		return this.fixedDestinationZones.containsKey(ActivityType.WORK)
-					|| this.fixedDestinationZones.containsKey(ActivityType.EDUCATION);
+	  return fixedDestinations.hasFixedDestination();
 	}
-
-
-	public void setFixedDestination(ActivityType activityType, Zone zone, Location location) {
-		this.fixedDestinationZones.put(activityType, zone);
-		this.fixedDestinations.put(activityType, location);
-		fixedDestinationElements.add(new FixedDestination(activityType, zone, location));
-	}
-
-
+	
 	public Zone nextFixedActivityZone(
 		ActivityIfc activity
 	) {
@@ -367,8 +340,8 @@ public class PersonForDemand
 			return household().homeZone();
 
 		} else {
-			assert this.fixedDestinationZones.containsKey(act.activityType());
-			return this.fixedDestinationZones.get(act.activityType());
+			assert this.fixedDestinations.hasDestination(act.activityType());
+			return this.fixedDestinations.getDestination(act.activityType()).zone();
 
 		}
 	}
@@ -537,14 +510,14 @@ public class PersonForDemand
 	
 	@Override
 	public PersonAttributes attributes() {
-		return new PersonAttributes(oid, id, household, age, employment, gender, income, hasBike,
+		return new PersonAttributes(id, household, age, employment, gender, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense);
 	}
 
 	public String forDebug() {
 
 		String debug = "\nDEBUG PersonForDemand:"
-										+ "\noid=" + oid 
+										+ "\noid=" + id.getOid() 
 										+ "\ncurrentCarUsage=" + currentCarUsage
 										+ "\ncurrentTrip=" + currentTrip
 										+ "\ncar=" + car
@@ -561,17 +534,8 @@ public class PersonForDemand
 	}
 
 	@Override
-	public void setFixedDestination(FixedDestination destination) {
-		fixedDestinationElements.add(destination);
-		ActivityType activityType = destination.activityType();
-		fixedDestinationZones.put(activityType, destination.zone());
-		fixedDestinations.put(activityType, destination.location());
-	}
-
-
-	@Override
-	public Collection<FixedDestination> getFixedDestinations() {
-		return Collections.unmodifiableCollection(fixedDestinationElements);
+	public Stream<FixedDestination> getFixedDestinations() {
+		return fixedDestinations.stream();
 	}
 	
   @Override

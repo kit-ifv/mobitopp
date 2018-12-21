@@ -7,14 +7,16 @@ public class PersonId implements Comparable<PersonId>, Serializable {
   
 	private static final long serialVersionUID = 1155657645242284988L;
 	
+	private final int oid;
 	private final HouseholdId householdId;
   private final byte personNumber;
 
-	public PersonId(HouseholdId householdId, int personNumber) {
+	public PersonId(int oid, HouseholdId householdId, int personNumber) {
 		super();
 
 		verify(householdId);
 		verify(personNumber);
+		this.oid = oid;
 		this.householdId = householdId;
 		this.personNumber = (byte) personNumber;
   }
@@ -30,6 +32,14 @@ public class PersonId implements Comparable<PersonId>, Serializable {
   		throw new IllegalArgumentException("Household id is not allowed to be null!");
   	}
 	}
+
+  public int getOid() {
+    return this.oid;
+  }
+  
+  public HouseholdId getHouseholdId() {
+    return this.householdId;
+  }
 
 	public int getPersonNumber() {
 		return this.personNumber;

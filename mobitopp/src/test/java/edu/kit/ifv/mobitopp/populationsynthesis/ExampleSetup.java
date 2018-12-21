@@ -16,10 +16,10 @@ import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatte
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
+import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.Person;
@@ -29,13 +29,11 @@ import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
 import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
 import edu.kit.ifv.mobitopp.simulation.car.ExtendedRangeElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
-import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public abstract class Example {
+public abstract class ExampleSetup {
 
 	public static final int type = 7;
 	public static final int observedTripDuration = 2;
@@ -70,6 +68,7 @@ public abstract class Example {
 	public static final Location anotherLocation = new Location(new Point2D.Double(3.0, 4.0), 2, 0.5);
 	public static final int numberOfNotSimulatedChildren = 0;
 	public static final int totalNumberOfCars = 1;
+	public static final int noCars = 0;
 	public static final int income = 1;
 	public static final boolean canChargePrivately = false;
 	
@@ -89,32 +88,35 @@ public abstract class Example {
 
 	public static Population population(Zone zone) {
 		Population population = new Population();
-		HouseholdForDemand household = household(zone, firstHousehold);
-		population.add(household);
-		Person personForDemand = personOf(household, firstPerson, zone);
-		household.addPerson(personForDemand);
-		household.ownCars(cars(household, personForDemand, zone));
-		HouseholdForDemand eMobilityHousehold = household(zone, secondHousehold);
-		population.add(eMobilityHousehold);
-		eMobilityHousehold.addPerson(emobilityPersonOf(eMobilityHousehold, secondPerson, zone));
+		HouseholdForSetup householdSetup = household(zone, firstHousehold, totalNumberOfCars);
+		PersonForSetup personForDemand = personOf(householdSetup, firstPerson, zone);
+		householdSetup.addPerson(personForDemand);
+		householdSetup.ownCars(cars(householdSetup.getId(), personForDemand, zone));
+    population.add(householdSetup.toHousehold());
+		HouseholdForSetup eMobilityHouseholdSetup = household(zone, secondHousehold);
+    population.add(eMobilityHouseholdSetup.toHousehold());
+		eMobilityHouseholdSetup.addPerson(emobilityPersonOf(eMobilityHouseholdSetup, secondPerson, zone));
 		return population;
 	}
 
-	private static Collection<PrivateCar> cars(Household household, Person person, Zone zone) {
+	private static Collection<PrivateCar> cars(HouseholdId household, PersonForSetup personForDemand, Zone zone) {
 		ArrayList<PrivateCar> cars = new ArrayList<>();
-		cars.add(conventionalCar(household, person, zone));
+		cars.add(conventionalCar(household, personForDemand, zone));
 		return cars;
 	}
 
-	public static PrivateCar conventionalCar(Household household, Person person, Zone zone) {
+	public static PrivateCar conventionalCar(HouseholdId household, PersonForSetup person, Zone zone) {
 		Car car = conventionalCar(zone);
-		return new DefaultPrivateCar(car, household, person, person);
+		PersonId personId = person.getId();
+    return new DefaultPrivateCar(car, household, personId, personId);
 	}
 	
 	public static PrivateCar conventionalCar(
-			Household household, Person mainUser, Person personalUser, Zone zone) {
+			HouseholdId household, Person mainUser, Person personalUser, Zone zone) {
 		Car car = conventionalCar(zone);
-		return new DefaultPrivateCar(car, household, mainUser, personalUser);
+		PersonId mainUserId = mainUser.getId();
+    PersonId personalUserId = personalUser == null ? null : personalUser.getId();
+    return new DefaultPrivateCar(car, household, mainUserId, personalUserId);
 	}
 
 	public static ConventionalCar conventionalCar(Zone zone) {
@@ -136,15 +138,19 @@ public abstract class Example {
 				minimumChargingLevel);
 	}
 
-	public static HouseholdForDemand household(Zone zone, int householdOid) {
-		HouseholdId id = new HouseholdId(householdYear, householdNumber);
-		return new HouseholdForDemand(householdOid, id, nominalSize, domcode, zone, location,
-				numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
+	public static HouseholdForSetup household(Zone zone, int householdOid) {
+	  return household(zone, householdOid, noCars);
+	}
+	
+	public static HouseholdForSetup household(Zone zone, int householdOid, int numberOfCars) {
+	  HouseholdId id = new HouseholdId(householdOid, householdYear, householdNumber);
+	  return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location,
+	      numberOfNotSimulatedChildren, numberOfCars, income, canChargePrivately);
 	}
 
-	public static Person emobilityPersonOf(Household household, int personNumber, Zone zone) {
+	public static PersonForSetup emobilityPersonOf(HouseholdForSetup household, int personNumber, Zone zone) {
 		Map<String, Boolean> carSharingCustomership = carSharingCustomership();
-		return new EmobilityPerson(personOf(household, personNumber, zone, ActivityType.WORK), eMobilityAcceptance,
+		return new EmobilityPersonForSetup(personOf(household, personNumber, zone, ActivityType.WORK), eMobilityAcceptance,
 				chargingInfluencesDestinationChoice, carSharingCustomership);
 	}
 
@@ -155,17 +161,17 @@ public abstract class Example {
 		return carSharingCustomership;
 	}
 
-	public static Person personOf(Household household, int personNumber, Zone zone) {
+	public static PersonForSetup personOf(HouseholdForSetup household, int personNumber, Zone zone) {
 		return personOf(household, personNumber, zone, ActivityType.HOME);
 	}
 	
-	public static Person personOf(Household household, int personNumber, Zone zone, ActivityType activityType) {
-		PersonId id = new PersonId(household.getId(), personNumber);
+	public static PersonForSetup personOf(HouseholdForSetup household, int personNumber, Zone zone, ActivityType activityType) {
+		PersonId id = new PersonId(personNumber, household.getId(), personNumber);
 		TourBasedActivityPattern activitySchedule = activitySchedule();
-		PersonForDemand person = new PersonForDemand(personNumber, id, household, age, employment, gender, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, 
-				ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
-		person.setFixedDestination(activityType, zone, location);
+		PersonForSetup person = new DefaultPersonForSetup(id, household, age, employment, gender, income, hasBike,
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
+		person.setFixedDestination(new FixedDestination(activityType, zone, location));
+		person.setPatternActivityWeek(activitySchedule);
 		return person;
 	}
 

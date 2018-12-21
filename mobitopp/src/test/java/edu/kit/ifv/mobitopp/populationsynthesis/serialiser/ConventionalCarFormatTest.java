@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 
@@ -39,7 +39,7 @@ public class ConventionalCarFormatTest {
 		when(zone.getOid()).thenReturn(zoneOid);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
-		original = Example.conventionalCar(zone);
+		original = ExampleSetup.conventionalCar(zone);
 	}
 
 	@Test
@@ -75,14 +75,14 @@ public class ConventionalCarFormatTest {
 
 	private List<String> conventionalCar() {
 		return asList( 
-				valueOf(Example.carId), 
+				valueOf(ExampleSetup.carId), 
 				valueOf(zoneOid), 
-				valueOf(Example.serialisedLocation),
-				valueOf(Example.segment), 
-				valueOf(Example.capacity), 
-				valueOf(Example.initialMileage),
-				valueOf(Example.fuelLevel), 
-				valueOf(Example.maxRange) 
+				valueOf(ExampleSetup.serialisedLocation),
+				valueOf(ExampleSetup.segment), 
+				valueOf(ExampleSetup.capacity), 
+				valueOf(ExampleSetup.initialMileage),
+				valueOf(ExampleSetup.fuelLevel), 
+				valueOf(ExampleSetup.maxRange) 
 			);
 	}
 }

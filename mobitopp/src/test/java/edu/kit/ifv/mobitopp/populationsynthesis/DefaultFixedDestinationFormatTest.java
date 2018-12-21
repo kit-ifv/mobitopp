@@ -18,36 +18,38 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonFixedDestination;
-import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
-import edu.kit.ifv.mobitopp.simulation.Person;
 
 public class DefaultFixedDestinationFormatTest {
 
-	private static final Location location = Example.location;
+	private static final Location location = ExampleSetup.location;
 	private static final ActivityType activityType = ActivityType.HOME;
 	private static final int zoneOid = 1;
 	private static final int personOid = 2;
+	private static final int personNumber = 1;
+	private static final int householdOid = 1;
+	private static final short householdYear = 2000;
+	private static final int householdNumber = 2;
 
 	private ZoneRepository zoneRepository;
-	private PopulationContext context;
 	private FixedDestination fixedDestination;
 	private Zone zone;
 	private PersonFixedDestination personDestination;
-	private Person person;
+	private PersonId person;
 	private DefaultFixedDestinationFormat format;
 
 	@Before
 	public void initialise() {
 		zoneRepository = mock(ZoneRepository.class);
-		context = mock(PopulationContext.class);
 		zone = mock(Zone.class);
-		person = mock(Person.class);
-		when(person.getOid()).thenReturn(personOid);
+		HouseholdId householdId = new HouseholdId(householdOid, householdYear, householdNumber);
+    person = new PersonId(personOid, householdId, personNumber);
 		when(zone.getOid()).thenReturn(zoneOid);
 		fixedDestination = new FixedDestination(activityType, zone, location);
 		personDestination = new PersonFixedDestination(person , fixedDestination);
@@ -64,17 +66,12 @@ public class DefaultFixedDestinationFormatTest {
 	@Test
 	public void parse() {
 		prepareExistingZone();
-		prepareExsistingPerson();
 		
-		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination(), context);
+		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination());
 		
 		assertThat(parsed, hasValue(personDestination));
 	}
 	
-	private void prepareExsistingPerson() {
-		when(context.getPersonByOid(personOid)).thenReturn(Optional.of(person));
-	}
-
 	private void prepareExistingZone() {
 		when(zoneRepository.hasZone(zoneOid)).thenReturn(true);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
@@ -84,7 +81,7 @@ public class DefaultFixedDestinationFormatTest {
 	public void parseMissingZone() {
 		prepareMissingZone();
 		
-		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination(), context);
+		Optional<PersonFixedDestination> parsed = format.parse(fixedDestination());
 		
 		assertThat(parsed, isEmpty());
 	}
@@ -97,6 +94,10 @@ public class DefaultFixedDestinationFormatTest {
 		String serialisedLocation = new LocationParser().serialise(location);
 		return asList(
 				valueOf(personOid),
+				valueOf(personNumber),
+				valueOf(householdOid),
+				valueOf(householdYear),
+				valueOf(householdNumber),
 				valueOf(activityType),
 				valueOf(zoneOid),
 				valueOf(serialisedLocation)

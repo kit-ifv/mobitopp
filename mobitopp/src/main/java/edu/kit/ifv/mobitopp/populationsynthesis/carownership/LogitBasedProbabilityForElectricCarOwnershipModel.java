@@ -1,15 +1,15 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Car.Segment;
-import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Employment;
-import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.Car.Segment;
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 public class LogitBasedProbabilityForElectricCarOwnershipModel
@@ -69,7 +69,7 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 
 
 	@Override
-	public double calculateProbabilityForElectricCar(final Person person, Car.Segment segment) {
+	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
 
 		double utility = calculateUtilityForElectricCar(person, segment);
 
@@ -79,13 +79,13 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 	}
 
 	@Override
-	public CarTypeSelector calculateProbabilities(Person person, Segment segment) {
+	public CarTypeSelector calculateProbabilities(PersonForSetup person, Segment segment) {
 		double probabilityElectricCar = calculateProbabilityForElectricCar(person, segment);
 		return bevProbabilites.createFor(segment, probabilityElectricCar);
 	}
 
-	private double calculateUtilityForElectricCar(final Person person, Car.Segment segment) {
-		final Household household = person.household();
+	private double calculateUtilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
+		final HouseholdForSetup household = person.household();
 
 		final int homeZone = household .homeZone().getOid();
 		final int poleZone = person.fixedActivityZone().getOid();

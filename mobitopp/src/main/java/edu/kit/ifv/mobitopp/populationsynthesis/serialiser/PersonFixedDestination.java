@@ -1,22 +1,20 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 
 public class PersonFixedDestination {
 
-	private final Person person;
+	private final PersonId person;
 	private final FixedDestination destination;
 
-	public PersonFixedDestination(Person person, FixedDestination destination) {
+	public PersonFixedDestination(PersonId person, FixedDestination destination) {
 		super();
 		this.person = person;
 		this.destination = destination;
 	}
 
-	public Person person() {
+	public PersonId person() {
 		return person;
 	}
 	
@@ -24,16 +22,6 @@ public class PersonFixedDestination {
 		return destination;
 	}
 
-	public PersonForSetup personForSetup() {
-		if (person instanceof PersonForSetup) {
-			return (PersonForSetup) person;
-		}
-		if (person instanceof EmobilityPerson) {
-			return ((EmobilityPerson) person).personForSetup();
-		}
-		throw new IllegalArgumentException("Does not contain the correct person." + person);
-	}
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

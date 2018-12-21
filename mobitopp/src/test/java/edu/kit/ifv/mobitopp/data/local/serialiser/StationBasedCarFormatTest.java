@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.local.serialiser.StationBasedCarFormat;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -39,7 +39,7 @@ public class StationBasedCarFormatTest {
 	public void initialise() {
 		StationBasedCarSharingOrganization owner = new StationBasedCarSharingOrganization(company);
 		Zone zone = mock(Zone.class);
-		Location location = Example.location;
+		Location location = ExampleSetup.location;
 		String name = "station";
 		String parkingSpace = "parking space";
 		int numberOfCars = 1;

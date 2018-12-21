@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
-import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;

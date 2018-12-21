@@ -1,18 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
-import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
-import edu.kit.ifv.mobitopp.simulation.person.PersonDecorator;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Person;
-
-import java.util.Map;
-import java.util.Collections;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
+import edu.kit.ifv.mobitopp.simulation.person.PersonDecorator;
+import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
 public class EmobilityPerson extends PersonDecorator
 		implements Person, CarSharingPerson, Serializable {
@@ -61,7 +61,6 @@ public class EmobilityPerson extends PersonDecorator
 	public PublicChargingInfluencesDestinationChoice chargingInfluencesDestinantionChoice() {
 		return this.chargingInfluencesDestinantionChoice;
 	}
-
 
 	public String forLogging(ImpedanceIfc impedance) {
 		assert person() instanceof PersonForDemand;

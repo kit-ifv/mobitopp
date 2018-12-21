@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 
 
@@ -18,9 +18,7 @@ public class HouseholdForDemand
 
 	private static final long serialVersionUID = 1L;
 	private static final byte UNDEFINED_BYTE = -1;
-	private static final int UNDEFINED_OID = -1;
 
-  private final int oid;
   private final HouseholdId id;
 
   private final int domCode;
@@ -36,7 +34,7 @@ public class HouseholdForDemand
 	private final int income;
 	private final boolean canChargePrivately;
   
-  private List<Person> persons =  new ArrayList<Person>();
+  private List<Person> persons =  new ArrayList<>();
 
   private List<PrivateCar> availableCars = new ArrayList<PrivateCar>();
   private List<PrivateCar> ownedCars = new ArrayList<PrivateCar>();
@@ -45,7 +43,6 @@ public class HouseholdForDemand
 
 
   public HouseholdForDemand(
-  	int oid,
 		HouseholdId id_,
 		int nominalSize,
 		int domcode,
@@ -57,7 +54,6 @@ public class HouseholdForDemand
 		boolean canChargePrivately
 	)
   {
-		this.oid = oid;
 		this.id = id_;
 
 		this.domCode = domcode;
@@ -68,21 +64,6 @@ public class HouseholdForDemand
 		this.nominalSize = (byte) nominalSize;
 		this.income = income;
 		this.canChargePrivately = canChargePrivately;
-  }
-  
-  public HouseholdForDemand(
-  		HouseholdId id_,
-  		int nominalSize,
-  		int domcode,
-  		Zone zone,
-  		Location location,
-  		int numberOfNotSimulatedChildren,
-  		int totalNumberOfCars,
-  		int income,
-  		boolean canChargePrivately
-  		) {
-		this(id_counter++, id_, nominalSize, domcode, zone, location, numberOfNotSimulatedChildren,
-				totalNumberOfCars, income, canChargePrivately);
   }
 
 	public int nominalNumberOfCars() {
@@ -114,9 +95,7 @@ public class HouseholdForDemand
 
   public int getOid()
   {
-		assert this.oid != UNDEFINED_OID;
-
-    return this.oid;
+    return this.id.getOid();
   }
 
 	public Zone homeZone()
@@ -124,15 +103,11 @@ public class HouseholdForDemand
 		return this.homeZone;
 	}
 
-  public void addPerson(
-      Person person_)
-  {
-		assert person_ != null;
-
-    this.persons.add(person_);
+  public void addPerson(Person person) {
+    assert person != null;
+    this.persons.add(person);
   }
-
-
+  
   public List<Person> getPersons()
   {
     return new ArrayList<>(this.persons);
@@ -266,7 +241,6 @@ public class HouseholdForDemand
 
 		return this.income;
 	}
-
 
 	public String forLogging() {
 

@@ -71,18 +71,15 @@ public class PopulationSynthesisSLIS extends BasicPopulationSynthesis {
 		HouseholdLocationSelector householdLocationSelector = householdLocations(context);
 		CommutationTicketModelIfc commuterTicketModel = commuterTickets(context);
 		CarOwnershipModel carOwnershipModel = carOwnership(context);
-		ActivityScheduleCreator activityScheduleCreator = context.activityScheduleCreator();
 		ChargePrivatelySelector chargePrivatelySelector = chargePrivately(context);
-		PersonCreator personCreator = personCreator(context, commuterTicketModel, activityScheduleCreator);
+		PersonCreator personCreator = personCreator(context, commuterTicketModel);
 		return populationSynthesis(householdLocationSelector, carOwnershipModel,
 				chargePrivatelySelector, personCreator, context);
 	}
 
 	private static EmobilityPersonCreator personCreator(
-			SynthesisContext context, CommutationTicketModelIfc commuterTicketModel,
-			ActivityScheduleCreator activityScheduleCreator) {
-		return new EmobilityPersonCreator(activityScheduleCreator,
-				commuterTicketModel, noCarSharing(), context.seed());
+			SynthesisContext context, CommutationTicketModelIfc commuterTicketModel) {
+		return new EmobilityPersonCreator(commuterTicketModel, noCarSharing(), context.seed());
 	}
 
 	private static Map<String, CarSharingCustomerModel> noCarSharing() {

@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ChargingFacilityFormat;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingFacility;
@@ -24,7 +24,7 @@ public class ChargingFacilityFormatTest {
 	private static final int zoneId = 1;
 	private static final int id = 2;
 	private static final int stationId = 3;
-	private static final Location location = Example.location;
+	private static final Location location = ExampleSetup.location;
 	private static final Type type = Type.PUBLIC;
 	private static final ChargingPower power = ChargingPower.fromKw(4);
 	private static final ChargingFacility facility = new ChargingFacility(id, stationId, location,

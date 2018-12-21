@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -15,6 +16,8 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -26,6 +29,9 @@ public class PopulationTest {
 	private static final int householdId = 1;
 	private static final int aPersonOid = 2;
 	private static final int otherPersonOid = 3;
+  private static final int aPersonNumber = 1;
+  private static final short year = 2000;
+  private static final long householdNumber = 1;
 	
 	private Household household;
 	private Person aPerson;
@@ -33,6 +39,8 @@ public class PopulationTest {
 	private Population population;
 	private ExtendedPatternActivity aPattern;
 	private ExtendedPatternActivity otherPattern;
+  private HouseholdId aHouseholdId;
+  private PersonId aPersonId;
 	
 	@Before
 	public void initialise() {
@@ -45,6 +53,9 @@ public class PopulationTest {
 		aPerson = mock(Person.class);
 		otherPerson = mock(Person.class);
 		household = mock(Household.class);
+		aHouseholdId = new HouseholdId(householdId, year, householdNumber);
+		aPersonId =  new PersonId(aPersonOid, aHouseholdId, aPersonNumber);
+    when(aPerson.getId()).thenReturn(aPersonId);
 		when(aPerson.getOid()).thenReturn(aPersonOid);
 		when(otherPerson.getOid()).thenReturn(otherPersonOid);
 		when(household.getOid()).thenReturn(householdId);
@@ -57,7 +68,7 @@ public class PopulationTest {
 	public void manageHouseholds() {
 		addHousehold();
 		
-		assertThat(population.households(), contains(household));
+		assertThat(population.households().collect(toList()), contains(household));
 		assertThat(population.householdOids(), contains(householdId));
 		assertThat(population.getHouseholdByOid(householdId), hasValue(household));
 	}
@@ -125,4 +136,13 @@ public class PopulationTest {
 		
 		population.activityScheduleFor(otherPersonOid);
 	}
+	
+	@Test
+  public void getPersonById() {
+    addHousehold();
+    
+    Person person = population.getPerson(aPersonId);
+    
+    assertThat(person, is(equalTo(aPerson)));
+  }
 }

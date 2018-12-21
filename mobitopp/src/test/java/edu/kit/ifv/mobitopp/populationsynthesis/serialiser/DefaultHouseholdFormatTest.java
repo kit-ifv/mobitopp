@@ -24,7 +24,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PopulationDataForZone;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
@@ -50,7 +50,7 @@ public class DefaultHouseholdFormatTest {
 		populationData = mock(PopulationDataForZone.class);
 		DataForZone demandData = mock(DataForZone.class);
 		zone = mock(Zone.class);
-		originalHousehold = Example.household(zone, Example.firstHousehold);
+		originalHousehold = ExampleSetup.household(zone, ExampleSetup.firstHousehold).toHousehold();
 		zoneRepository = mock(ZoneRepository.class);
 		
 		when(demandData.getPopulationData()).thenReturn(populationData);
@@ -71,16 +71,16 @@ public class DefaultHouseholdFormatTest {
 	private List<String> householdOf(int householdOid) throws IOException {
 		return asList(
 				valueOf(householdOid), 
-				valueOf(Example.householdYear),
-				valueOf(Example.householdNumber), 
-				valueOf(Example.nominalSize), 
-				valueOf(Example.domcode),
+				valueOf(ExampleSetup.householdYear),
+				valueOf(ExampleSetup.householdNumber), 
+				valueOf(ExampleSetup.nominalSize), 
+				valueOf(ExampleSetup.domcode),
 				valueOf(zoneOid), 
-				valueOf(Example.serialisedLocation), 
-				valueOf(Example.numberOfNotSimulatedChildren),
-				valueOf(Example.totalNumberOfCars), 
-				valueOf(Example.income),
-				valueOf(Example.canChargePrivately)
+				valueOf(ExampleSetup.serialisedLocation), 
+				valueOf(ExampleSetup.numberOfNotSimulatedChildren),
+				valueOf(ExampleSetup.noCars), 
+				valueOf(ExampleSetup.income),
+				valueOf(ExampleSetup.canChargePrivately)
 			);
 	}
 	@Test

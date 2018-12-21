@@ -18,6 +18,7 @@ import org.junit.rules.TemporaryFolder;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
 public class LocalPanelDataRepositoryTest {
 
@@ -32,10 +33,12 @@ public class LocalPanelDataRepositoryTest {
 	private InMemoryPersons persons;
 	private LocalPanelDataRepository repository;
 	private File input;
+  private PersonOfPanelDataId personId;
 
 	@Before
 	public void initialise() throws IOException {
 		id = mock(HouseholdOfPanelDataId.class);
+		personId = mock(PersonOfPanelDataId.class);
 		households = mock(InMemoryHouseholds.class);
 		persons = mock(InMemoryPersons.class);
 		createTestData();
@@ -68,6 +71,13 @@ public class LocalPanelDataRepositoryTest {
 
 		verify(persons).getPersonsOfHousehold(id);
 	}
+	
+	@Test
+  public void getPerson() {
+    repository.getPerson(personId);
+    
+    verify(persons).getPerson(personId);
+  }
 
 	@Test
 	public void loadFromFile() {

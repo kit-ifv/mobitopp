@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
@@ -12,9 +13,16 @@ public interface Household
 	void addPerson(Person person);
 	List<Person> getPersons();
 
+  default Stream<Person> persons() {
+    return getPersons().stream();
+  }
+
 	void ownCars(Collection<PrivateCar> cars);
 	void returnCar(PrivateCar car);
 	Collection<PrivateCar> whichCars();
+	default Stream<PrivateCar> cars() {
+	  return whichCars().stream();
+	}
 
 	PrivateCar nextAvailableCar(Person person, float tourDistanceKm);
 	PrivateCar takeAvailableCar(Person person, float tourDistanceKm);

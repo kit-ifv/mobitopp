@@ -86,7 +86,7 @@ public class SimpleActivity implements Activity {
 		return true;
 	}
 
-	static SimpleActivity fromPatternActivity(PatternActivity activity) {
+	public static SimpleActivity fromPatternActivity(PatternActivity activity) {
 	
 		return new SimpleActivity(
 									activity.getActivityType(), 

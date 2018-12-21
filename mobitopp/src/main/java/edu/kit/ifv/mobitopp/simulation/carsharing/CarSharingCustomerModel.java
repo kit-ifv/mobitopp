@@ -1,12 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
-import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 
 public interface CarSharingCustomerModel {
 
-
-	public boolean estimateCustomership(
-    Person person
-  );
+  public boolean estimateCustomership(PersonForSetup person);
 
 }

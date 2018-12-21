@@ -67,7 +67,7 @@ public class DemandDataFolder {
 		return serialiser(car, format);
 	}
 
-	private ForeignKeySerialiser<PersonFixedDestination> fixedDestinations() throws IOException {
+	private Serialiser<PersonFixedDestination> fixedDestinations() throws IOException {
 		DefaultFixedDestinationFormat format = fixedDestinationFormat();
 		return serialiser(fixedDestination, format);
 	}
@@ -89,7 +89,7 @@ public class DemandDataFolder {
 		Deserialiser<PersonPatternActivity> activities = deserialiseActivity();
 		ForeignKeyDeserialiser<Person> persons = deserialisePerson();
 		ForeignKeyDeserialiser<PrivateCar> cars = deserialiseCars();
-		ForeignKeyDeserialiser<PersonFixedDestination> fixedDestinations = deserialiseFixedDestinations();
+		Deserialiser<PersonFixedDestination> fixedDestinations = deserialiseFixedDestinations();
 		Deserialiser<Opportunity> opportunities = deserialiseOpportunities();
 		return new DefaultDemandDataDeserialiser(households, persons, activities, cars,
 				fixedDestinations, opportunities );
@@ -115,7 +115,7 @@ public class DemandDataFolder {
 		return deserialiser(car, format);
 	}
 
-	private ForeignKeyDeserialiser<PersonFixedDestination> deserialiseFixedDestinations()
+	private Deserialiser<PersonFixedDestination> deserialiseFixedDestinations()
 			throws IOException {
 		DefaultFixedDestinationFormat format = fixedDestinationFormat();
 		return deserialiser(fixedDestination, format);

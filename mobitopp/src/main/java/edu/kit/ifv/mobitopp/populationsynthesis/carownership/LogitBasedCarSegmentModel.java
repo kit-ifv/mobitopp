@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 
@@ -76,9 +76,9 @@ public class LogitBasedCarSegmentModel
 		new ParameterFileParser().parseConfig(configFile, this);
 	}
 
-	private Map<Car.Segment, Double> calculateUtilities(Person person) {
+	private Map<Car.Segment, Double> calculateUtilities(PersonForSetup person) {
 
-		Household hh = person.household();
+		HouseholdForSetup hh = person.household();
 
 
 		int hhincome = person.getIncome() * hh.getSize();
@@ -195,7 +195,7 @@ public class LogitBasedCarSegmentModel
 		return map;
 	}
 
-	private Map<Car.Segment, Double> calculateProbabilities(Person person) {
+	private Map<Car.Segment, Double> calculateProbabilities(PersonForSetup person) {
 
 		Map<Car.Segment, Double> U = calculateUtilities(person);
 		Map<Car.Segment, Double> p = new TreeMap<Car.Segment, Double>();
@@ -213,7 +213,7 @@ public class LogitBasedCarSegmentModel
 		return p;
 	}
 
-	public Car.Segment determineCarSegment(Person person) {
+	public Car.Segment determineCarSegment(PersonForSetup person) {
 
 		Map<Car.Segment, Double> p = calculateProbabilities(person);
 

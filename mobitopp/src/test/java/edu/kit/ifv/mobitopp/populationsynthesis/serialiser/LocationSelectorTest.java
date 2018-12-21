@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.mockito.InOrder;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.populationsynthesis.Example;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -24,8 +24,8 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 public class LocationSelectorTest {
 
 	private static final ActivityType activityType = ActivityType.HOME;
-	private static final Location location = Example.location;
-	private static final Location anotherLocation = Example.anotherLocation;
+	private static final Location location = ExampleSetup.location;
+	private static final Location anotherLocation = ExampleSetup.anotherLocation;
 	private static final int attractivity = 1;
 	private static final int anotherAttractivity = 2;
 	private static final int totalOpportunities = 2;

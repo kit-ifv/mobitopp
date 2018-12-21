@@ -1,22 +1,22 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Car;
 import static edu.kit.ifv.mobitopp.simulation.Employment.EDUCATION;
 import static edu.kit.ifv.mobitopp.simulation.Employment.FULLTIME;
-import static edu.kit.ifv.mobitopp.simulation.Employment.UNEMPLOYED;
+import static edu.kit.ifv.mobitopp.simulation.Employment.HOMEKEEPER;
 import static edu.kit.ifv.mobitopp.simulation.Employment.PARTTIME;
 import static edu.kit.ifv.mobitopp.simulation.Employment.RETIRED;
 import static edu.kit.ifv.mobitopp.simulation.Employment.STUDENT_SECONDARY;
 import static edu.kit.ifv.mobitopp.simulation.Employment.STUDENT_TERTIARY;
-import static edu.kit.ifv.mobitopp.simulation.Employment.HOMEKEEPER;
+import static edu.kit.ifv.mobitopp.simulation.Employment.UNEMPLOYED;
 import static edu.kit.ifv.mobitopp.simulation.Gender.MALE;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
 
@@ -87,7 +87,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 	}
 
 	@Override
-	public double calculateProbabilityForElectricCar(final Person person, Car.Segment segment) {
+	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
 		return probabilityFrom(bevUtility(person) + erevUtility(person));
 	}
 
@@ -97,7 +97,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 
 	@Override
 	public TypeProbabilities calculateProbabilities(
-			Person person, Car.Segment segment) {
+			PersonForSetup person, Car.Segment segment) {
 		Map<CarType, Double> utilities = new HashMap<>();
 		utilities.put(CarType.conventional, 0.0d);
 		utilities.put(CarType.bev, bevUtility(person));
@@ -107,14 +107,14 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 		return new TypeProbabilities(logitProbabilities);
 	}
 
-	private double distance(Person person) {
-		Household household = person.household();
+	private double distance(PersonForSetup person) {
+		HouseholdForSetup household = person.household();
 		int homeZone = household.homeZone().getOid();
 		int poleZone = person.fixedActivityZone().getOid();
 		return impedance.getDistance(homeZone, poleZone) / 1000.0d;
 	}
 
-	private double bevUtility(Person person) {
+	private double bevUtility(PersonForSetup person) {
 		double distance = distance(person);
 		return CONST_BEV
 				+ WORKDIS_BEV * distance
@@ -145,7 +145,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 				+ HHGRO_4_BEV * hhgro4(person);
 	}
 
-	private double erevUtility(Person person) {
+	private double erevUtility(PersonForSetup person) {
 		double distance = distance(person);
 		return CONST_EREV
 				+ WORKDIS_EREV * distance
@@ -176,99 +176,99 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 				+ HHGRO_4_EREV * hhgro4(person);
 	}
 
-	private static int sexMale(Person person) {
+	private static int sexMale(PersonForSetup person) {
 		return MALE == person.gender() ? 1 : 0;
 	}
 
-	private static int fulltime(Person person) {
+	private static int fulltime(PersonForSetup person) {
 		return FULLTIME == person.employment() ? 1 : 0;
 	}
 
-	private static int parttime(Person person) {
+	private static int parttime(PersonForSetup person) {
 		return PARTTIME == person.employment() ? 1 : 0;
 	}
 
-	private static int jobless(Person person) {
+	private static int jobless(PersonForSetup person) {
 		return UNEMPLOYED == person.employment() ? 1 : 0;
 	}
 
-	private static int studentTertiary(Person person) {
+	private static int studentTertiary(PersonForSetup person) {
 		return STUDENT_TERTIARY == person.employment() ? 1 : 0;
 	}
 
-	private static int studentSecondary(Person person) {
+	private static int studentSecondary(PersonForSetup person) {
 		return STUDENT_SECONDARY == person.employment() ? 1 : 0;
 	}
 
-	private static int education(Person person) {
+	private static int education(PersonForSetup person) {
 		return EDUCATION == person.employment() ? 1 : 0;
 	}
 
-	private static int unemployed(Person person) {
+	private static int unemployed(PersonForSetup person) {
 		return HOMEKEEPER == person.employment() ? 1 : 0;
 	}
 
-	private static int retired(Person person) {
+	private static int retired(PersonForSetup person) {
 		return RETIRED == person.employment() ? 1 : 0;
 	}
 
-	private static int age18To25(Person person) {
+	private static int age18To25(PersonForSetup person) {
 		return 18 <= person.age() && 25 > person.age() ? 1 : 0;
 	}
 
-	private static int age25To35(Person person) {
+	private static int age25To35(PersonForSetup person) {
 		return 25 <= person.age() && 35 > person.age() ? 1 : 0;
 	}
 
-	private static int age35To45(Person person) {
+	private static int age35To45(PersonForSetup person) {
 		return 35 <= person.age() && 45 > person.age() ? 1 : 0;
 	}
 
-	private static int age45To55(Person person) {
+	private static int age45To55(PersonForSetup person) {
 		return 45 <= person.age() && 55 > person.age() ? 1 : 0;
 	}
 
-	private static int age55To65(Person person) {
+	private static int age55To65(PersonForSetup person) {
 		return 55 <= person.age() && 65 > person.age() ? 1 : 0;
 	}
 
-	private static int age65To75(Person person) {
+	private static int age65To75(PersonForSetup person) {
 		return 65 <= person.age() && 75 > person.age() ? 1 : 0;
 	}
 
-	private static int age75To85(Person person) {
+	private static int age75To85(PersonForSetup person) {
 		return 75 <= person.age() && 85 > person.age() ? 1 : 0;
 	}
 
-	private static int oneCar(Person person) {
-		return 1 == person.household().getNumberOfAvailableCars() ? 1 : 0;
+	private static int oneCar(PersonForSetup person) {
+		return 1 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int twoCars(Person person) {
-		return 2 == person.household().getNumberOfAvailableCars() ? 1 : 0;
+	private static int twoCars(PersonForSetup person) {
+		return 2 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int threeCars(Person person) {
-		return 3 == person.household().getNumberOfAvailableCars() ? 1 : 0;
+	private static int threeCars(PersonForSetup person) {
+		return 3 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int moreThan4Cars(Person person) {
-		return 4 <= person.household().getNumberOfAvailableCars() ? 1 : 0;
+	private static int moreThan4Cars(PersonForSetup person) {
+		return 4 <= person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int hhgro1(Person person) {
+	private static int hhgro1(PersonForSetup person) {
 		return person.household().getSize() == 1 ? 1 : 0;
 	}
 
-	private static int hhgro2(Person person) {
+	private static int hhgro2(PersonForSetup person) {
 		return person.household().getSize() == 2 ? 1 : 0;
 	}
 
-	private static int hhgro3(Person person) {
+	private static int hhgro3(PersonForSetup person) {
 		return person.household().getSize() == 3 ? 1 : 0;
 	}
 
-	private static int hhgro4(Person person) {
+	private static int hhgro4(PersonForSetup person) {
 		return person.household().getSize() == 4 ? 1 : 0;
 	}
 

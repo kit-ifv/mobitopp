@@ -1,8 +1,10 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.car.BatteryElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
@@ -33,13 +35,11 @@ public class RandomElectricCarOwnershipModel
 	
 	@Override
 	protected PrivateCar createCar(
-		Person person, 
+		PersonForSetup person, 
 		CarPosition position,
 		Car.Segment segment,
 		boolean personal
 	) {
-
-		Person personalUser = personal ? person : null;
 
 		float rand = random.nextFloat();
 
@@ -51,7 +51,10 @@ public class RandomElectricCarOwnershipModel
 				car = new BatteryElectricCar(this.idSequence, position, segment, fullBattery, 85, 16.0f, minimumChargingLevel);
 		}
 
-		return new DefaultPrivateCar(car, person.household(), person, personalUser);
+		HouseholdId householdId = person.household().getId();
+    PersonId mainUserId = person.getId();
+    PersonId personalId = personal ? person.getId() : null;
+    return new DefaultPrivateCar(car, householdId, mainUserId, personalId);
 	}
 
 

@@ -28,7 +28,7 @@ public class HouseholdForDemandTest {
 	public void initialise() {
 		oid = 1;
 		short year = 2000;
-		id = new HouseholdId(year, 2);
+		id = new HouseholdId(oid, year, 2);
 		nominalSize = 3;
 		domCode = 4;
 		homeZone = mock(Zone.class);
@@ -41,7 +41,7 @@ public class HouseholdForDemandTest {
 
 	@Test
 	public void provideAttributes() {
-		HouseholdForDemand household = new HouseholdForDemand(oid, id, nominalSize, domCode, homeZone,
+		HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, homeZone,
 				homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
 
 		HouseholdAttributes attributes = household.attributes();

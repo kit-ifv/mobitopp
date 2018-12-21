@@ -8,7 +8,6 @@ import java.util.StringTokenizer;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
@@ -32,7 +31,7 @@ public class DefaultActivityScheduleCreator implements ActivityScheduleCreator {
 	@Override
 	public PatternActivityWeek createActivitySchedule(
 			PersonOfPanelData personOfPanelData, HouseholdOfPanelData householdOfPanelData,
-			Household household) {
+			HouseholdForSetup household) {
 		assert personOfPanelData != null;
 		PersonOfPanelDataId id = personOfPanelData.getId();
 		if (!this.patternActivityWeeks.containsKey(id)) {

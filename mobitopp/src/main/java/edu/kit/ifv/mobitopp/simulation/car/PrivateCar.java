@@ -1,19 +1,19 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
 
 public interface PrivateCar extends Car {
 
 	Car car();
 
-	public Household owner();
+	HouseholdId owner();
 
 	boolean isPersonal();
 
-	Person personalUser();
+	PersonId personalUser();
 
-	Person mainUser();
+	PersonId mainUser();
 
 }
