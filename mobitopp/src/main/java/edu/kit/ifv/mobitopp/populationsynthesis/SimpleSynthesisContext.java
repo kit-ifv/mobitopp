@@ -9,9 +9,9 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class SimpleSynthesisContext implements SynthesisContext {

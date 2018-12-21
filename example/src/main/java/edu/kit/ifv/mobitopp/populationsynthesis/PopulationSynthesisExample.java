@@ -7,6 +7,7 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSegmentModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ElectricCarOwnershipBasedOnSociodemographic;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
@@ -15,7 +16,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocat
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.LanduseCLCwithRoadsHouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
 
 public class PopulationSynthesisExample extends BasicPopulationSynthesis {
