@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
@@ -130,7 +132,6 @@ public class DefaultPersonForSetup implements PersonForSetup {
     return Gender.MALE.equals(gender);
   }
 
-
   @Override
   public PatternActivityWeek getPatternActivityWeek() {
     return new PatternActivityWeek(activityPattern.asPatternActivities());
@@ -140,7 +141,7 @@ public class DefaultPersonForSetup implements PersonForSetup {
   public void setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
     this.activityPattern = activityPattern;
   }
-  
+
   @Override
   public TourBasedActivityPattern getActivityPattern() {
     return activityPattern;
@@ -154,6 +155,11 @@ public class DefaultPersonForSetup implements PersonForSetup {
   @Override
   public boolean hasFixedZoneFor(ActivityType activityType) {
     return fixedDestinations.hasDestination(activityType);
+  }
+
+  @Override
+  public Optional<Zone> fixedZoneFor(ActivityType activityType) {
+    return fixedDestinations.getDestination(activityType).map(FixedDestination::zone);
   }
 
   @Override
@@ -171,8 +177,8 @@ public class DefaultPersonForSetup implements PersonForSetup {
 
   @Override
   public Person toPerson(Household household) {
-    return new PersonForDemand(id, household, age, employment, gender,
-        income, hasBike, hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense,
-        activityPattern, fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
+    return new PersonForDemand(id, household, age, employment, gender, income, hasBike,
+        hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, activityPattern,
+        fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
   }
 }

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
@@ -48,6 +50,8 @@ public interface PersonForSetup {
   boolean hasAccessToCar();
 
   boolean hasPersonalCar();
+
+  Optional<Zone> fixedZoneFor(ActivityType activityType);
 
   boolean hasFixedZoneFor(ActivityType activityType);
 

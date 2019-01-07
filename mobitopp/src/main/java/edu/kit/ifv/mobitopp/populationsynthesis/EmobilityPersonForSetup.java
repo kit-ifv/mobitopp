@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.Map;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -123,6 +124,11 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   @Override
   public boolean hasPersonalCar() {
     return person.hasPersonalCar();
+  }
+  
+  @Override
+  public Optional<Zone> fixedZoneFor(ActivityType activityType) {
+    return person.fixedZoneFor(activityType);
   }
 
   @Override
