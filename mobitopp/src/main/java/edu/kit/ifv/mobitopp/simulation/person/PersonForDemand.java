@@ -292,10 +292,6 @@ public class PersonForDemand implements Person, Serializable {
 		return this.household.homeZone();
 	}
 
-	public Zone fixedDestinationZoneFor(ActivityType activityType) {
-    return fixedZoneFor(activityType);
-	}
-	
 	private NoSuchElementException missingDestination(ActivityType activityType)  {
     return new NoSuchElementException("No destination available for activity type: " + activityType);
 	}
@@ -482,7 +478,7 @@ public class PersonForDemand implements Person, Serializable {
 
 			if (targetZoneOidForWork > -1) {
 
-				Zone workZone = fixedDestinationZoneFor(ActivityType.WORK);
+				Zone workZone = fixedZoneFor(ActivityType.WORK);
 				Location workLocation = fixedDestinationFor(ActivityType.WORK);
 
 				int distance = (int) impedance.getDistance(homeZone.getOid(), workZone.getOid());
@@ -499,7 +495,7 @@ public class PersonForDemand implements Person, Serializable {
 
 			if (targetZoneOidForEducation > -1) {
 
-				Zone eduZone = fixedDestinationZoneFor(ActivityType.EDUCATION);
+				Zone eduZone = fixedZoneFor(ActivityType.EDUCATION);
 				Location eduLocation = fixedDestinationFor(ActivityType.EDUCATION);
 
 				int distance = (int) impedance.getDistance(homeZone.getOid(), eduZone.getOid());
