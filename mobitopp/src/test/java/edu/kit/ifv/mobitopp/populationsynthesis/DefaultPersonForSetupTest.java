@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -7,6 +8,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,6 +62,15 @@ public class DefaultPersonForSetupTest {
     assertTrue(setupPerson.hasFixedZoneFor(ActivityType.EDUCATION));
     assertTrue(setupPerson.hasFixedActivityZone());
     assertFalse(setupPerson.hasFixedZoneFor(ActivityType.BUSINESS));
+  }
+  
+  @Test
+  public void getFixedZoneForActivityType() {
+    setupPerson.setFixedDestination(fixedDestinationFor(ActivityType.WORK));
+    
+    Optional<Zone> fixedZone = setupPerson.fixedZoneFor(ActivityType.WORK);
+    
+    assertThat(fixedZone, hasValue(zone));
   }
 
   @Test

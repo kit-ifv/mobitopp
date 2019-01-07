@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -292,11 +293,18 @@ public class PersonForDemand implements Person, Serializable {
 	}
 
 	public Zone fixedDestinationZoneFor(ActivityType activityType) {
-		return this.fixedDestinations.getDestination(activityType).zone();
+    return fixedZoneFor(activityType);
+	}
+	
+	private NoSuchElementException missingDestination(ActivityType activityType)  {
+    return new NoSuchElementException("No destination available for activity type: " + activityType);
 	}
 
 	public Location fixedDestinationFor(ActivityType activityType) {
-		return this.fixedDestinations.getDestination(activityType).location();
+    return this.fixedDestinations
+        .getDestination(activityType)
+        .map(FixedDestination::location)
+        .orElseThrow(() -> missingDestination(activityType));
 	}
 
 	public int getHomeZoneOid() {
@@ -306,7 +314,10 @@ public class PersonForDemand implements Person, Serializable {
 
 
 	public Zone fixedZoneFor(ActivityType activityType) {
-		return this.fixedDestinations.getDestination(activityType).zone();
+		return this.fixedDestinations
+        .getDestination(activityType)
+        .map(FixedDestination::zone)
+        .orElseThrow(() -> missingDestination(activityType));
 	}
 
 	public boolean hasFixedZoneFor(ActivityType activityType) {
@@ -327,24 +338,24 @@ public class PersonForDemand implements Person, Serializable {
 	public Zone nextFixedActivityZone(
 		ActivityIfc activity
 	) {
-
-		ActivityIfc act = activitySchedule().nextActivity(activity);
-
-		while (act != null && !act.activityType().isFixedActivity()) {
-
-			act = activitySchedule().nextActivity(act);
+		ActivityIfc nextActivity = activitySchedule().nextActivity(activity);
+		while (nextActivity != null && !nextActivity.activityType().isFixedActivity()) {
+			nextActivity = activitySchedule().nextActivity(nextActivity);
 		}
-
-		if (act == null || act.activityType().isHomeActivity()) {
-
+		if (nextActivity == null || nextActivity.activityType().isHomeActivity()) {
 			return household().homeZone();
-
 		} else {
-			assert this.fixedDestinations.hasDestination(act.activityType());
-			return this.fixedDestinations.getDestination(act.activityType()).zone();
-
+			return fixedZoneFor(nextActivity);
 		}
 	}
+
+  private Zone fixedZoneFor(ActivityIfc act) {
+    assert this.fixedDestinations.hasDestination(act.activityType());
+    return this.fixedDestinations
+        .getDestination(act.activityType())
+        .map(FixedDestination::zone)
+        .orElseThrow(() -> missingDestination(act.activityType()));
+  }
 
 	public ActivityIfc currentActivity() {
 		return this.activitySchedule.currentActivity();

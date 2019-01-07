@@ -3,12 +3,10 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +34,11 @@ public class FixedDestinationsTest {
     FixedDestination educationDestination = createDestination(forEducation);
     fixedDestinations.add(workDestination);
     fixedDestinations.add(educationDestination);
-    FixedDestination returnedWork = fixedDestinations.getDestination(forWork);
-    FixedDestination returnedEducation = fixedDestinations.getDestination(forEducation);
+    Optional<FixedDestination> returnedWork = fixedDestinations.getDestination(forWork);
+    Optional<FixedDestination> returnedEducation = fixedDestinations.getDestination(forEducation);
 
-    assertThat(returnedWork, is(equalTo(workDestination)));
-    assertThat(returnedEducation, is(equalTo(educationDestination)));
+    assertThat(returnedWork, hasValue(workDestination));
+    assertThat(returnedEducation, hasValue(educationDestination));
   }
 
   private FixedDestination createDestination(ActivityType forEducation) {
@@ -51,10 +49,12 @@ public class FixedDestinationsTest {
     return educationDestination;
   }
 
-  @Test(expected = NoSuchElementException.class)
+  @Test
   public void failsForMissingDestination() {
     FixedDestinations fixedDestinations = new FixedDestinations();
-    fixedDestinations.getDestination(ActivityType.WORK);
+    Optional<FixedDestination> destination = fixedDestinations.getDestination(ActivityType.WORK);
+    
+    assertThat(destination, isEmpty());
   }
 
   @Test

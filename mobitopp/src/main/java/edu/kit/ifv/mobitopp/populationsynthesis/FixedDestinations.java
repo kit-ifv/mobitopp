@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -22,12 +21,11 @@ public class FixedDestinations {
     this.fixedDestinations.put(fixedDestination.activityType(), fixedDestination);
   }
 
-  public FixedDestination getDestination(ActivityType forActivityType) {
+  public Optional<FixedDestination> getDestination(ActivityType forActivityType) {
     if (hasDestination(forActivityType)) {
-      return fixedDestinations.get(forActivityType);
+      return Optional.of(fixedDestinations.get(forActivityType));
     }
-    throw new NoSuchElementException(
-        "No destination available for activity type: " + forActivityType);
+    return Optional.empty();
   }
 
   public boolean hasDestination(ActivityType forActivityType) {
@@ -43,10 +41,10 @@ public class FixedDestinations {
   }
 
   public Optional<FixedDestination> getFixedDestination() {
-    if ( hasDestination(ActivityType.WORK)) {
-      return Optional.of(getDestination(ActivityType.WORK));
-    } else if ( hasDestination(ActivityType.EDUCATION)) {
-      return Optional.of(getDestination(ActivityType.EDUCATION));
+    if (hasDestination(ActivityType.WORK)) {
+      return getDestination(ActivityType.WORK);
+    } else if (hasDestination(ActivityType.EDUCATION)) {
+      return getDestination(ActivityType.EDUCATION);
     }
     return Optional.empty();
   }
