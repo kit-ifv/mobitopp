@@ -14,7 +14,7 @@ import java.nio.file.Path;
 
 public class ResultFile implements ResultOutput, Closeable {
 
-	static final String extension = ".log";
+	static final String extension = ".csv";
 
 	private final BufferedWriter writer;
 
