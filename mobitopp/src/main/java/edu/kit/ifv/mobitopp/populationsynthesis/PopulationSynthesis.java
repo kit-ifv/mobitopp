@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -59,9 +60,9 @@ public abstract class PopulationSynthesis {
     createLocations();
     Map<ActivityType, FixedDistributionMatrix> fdMatrices = fixedDistributionMatrices();
     assertFixedDistributionMatrices(fdMatrices);
-    printBeforeCreation();
+    executeBeforeCreation();
     doCreatePopulation(fdMatrices);
-    doPrintAfterCreation();
+    doExecuteAfterCreation();
     finishExecution();
   }
 
@@ -92,17 +93,17 @@ public abstract class PopulationSynthesis {
     results().write(categories.demanddataOpportunities, opportunities.forLogging());
   }
   
-  protected void printBeforeCreation() {
+  protected void executeBeforeCreation() {
   }
 
-  private void doPrintAfterCreation() {
-    PrintDistribution printer = new PrintDistribution(context.zoneRepository());
-    printer.printNominalDistributions();
-    printer.printActualDistributions();
-    printAfterCreation();
+  private void doExecuteAfterCreation() {
+    SerialiseDemography serialiser = new SerialiseDemography(context.zoneRepository(),
+        context.resultWriter());
+    serialiser.serialiseDemography();
+    executeAfterCreation();
   }
 
-  protected void printAfterCreation() {
+  protected void executeAfterCreation() {
   }
 
   void doCreatePopulation(Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
