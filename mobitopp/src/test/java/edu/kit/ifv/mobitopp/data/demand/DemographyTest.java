@@ -18,6 +18,7 @@ public class DemographyTest {
 	private HouseholdDistribution household;
 	private FemaleAgeDistribution femaleAge;
 	private MaleAgeDistribution maleAge;
+  private IncomeDistribution income;
 
 	@Test
 	public void equalsAndHashCode() {
@@ -26,10 +27,12 @@ public class DemographyTest {
 
 	@Before
 	public void initialise() {
+	  DefaultDistributions defaultDistributions = new DefaultDistributions();
 		employment = EmploymentDistribution.createDefault();
 		household = HouseholdDistribution.createDefault();
-		femaleAge = FemaleAgeDistribution.createDefault();
-		maleAge = MaleAgeDistribution.createDefault();
+		femaleAge = defaultDistributions.createFemaleAge();
+		maleAge = defaultDistributions.createMaleAge();
+		income = defaultDistributions.createIncome();
 	}
 
 	@Test
@@ -50,6 +53,11 @@ public class DemographyTest {
 	@Test
 	public void maleAge() {
 		assertThat(demandModel().maleAge(), is(sameInstance(maleAge)));
+	}
+	
+	@Test
+	public void income() {
+	  assertThat(demandModel().income(), is(sameInstance(income)));
 	}
 	
 	@Test
@@ -101,6 +109,6 @@ public class DemographyTest {
 	}
 
 	private Demography demandModel() {
-		return new Demography(employment, household, femaleAge, maleAge);
+		return new Demography(employment, household, femaleAge, maleAge, income);
 	}
 }

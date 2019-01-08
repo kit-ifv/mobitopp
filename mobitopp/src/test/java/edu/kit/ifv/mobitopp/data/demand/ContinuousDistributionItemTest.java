@@ -10,16 +10,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class AgeDistributionItemTest {
+public class ContinuousDistributionItemTest {
 
 	@Test
 	public void createsEmpty() {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		AgeDistributionItem item = new AgeDistributionItem(lowerBound, upperBound, amount);
+		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
 
-		AgeDistributionItem emptyItem = new AgeDistributionItem(lowerBound, upperBound, 0);
+		ContinuousDistributionItem emptyItem = new ContinuousDistributionItem(lowerBound, upperBound, 0);
 		assertThat(item.createEmpty(), is(equalTo(emptyItem)));
 	}
 
@@ -28,7 +28,7 @@ public class AgeDistributionItemTest {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		AgeDistributionItem item = new AgeDistributionItem(lowerBound, upperBound, amount);
+		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
 
 		item.increment();
 
@@ -40,7 +40,7 @@ public class AgeDistributionItemTest {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		AgeDistributionItem item = new AgeDistributionItem(lowerBound, upperBound, amount);
+		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
 
 		assertTrue(item.matches(lowerBound));
 		assertTrue(item.matches(upperBound));
@@ -53,7 +53,7 @@ public class AgeDistributionItemTest {
 		int belowLowerBound = lowerBound - 1;
 		int aboveUpperBound = upperBound + 1;
 		int amount = 2;
-		AgeDistributionItem item = new AgeDistributionItem(lowerBound, upperBound, amount);
+		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
 		
 		assertFalse(item.matches(belowLowerBound));
 		assertFalse(item.matches(aboveUpperBound));
@@ -65,7 +65,7 @@ public class AgeDistributionItemTest {
 		int upperBound = 3;
 		int betweenBound = 2;
 		int amount = 2;
-		AgeDistributionItem item = new AgeDistributionItem(lowerBound, upperBound, amount);
+		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
 		
 		assertTrue(item.matches(betweenBound));
 	}
@@ -75,8 +75,8 @@ public class AgeDistributionItemTest {
 		int lower = 1;
 		int higher = 3;
 		int amount = 2;
-		AgeDistributionItem lowerItem = new AgeDistributionItem(lower, lower, amount);
-		AgeDistributionItem higherItem = new AgeDistributionItem(higher, higher, amount);
+		ContinuousDistributionItem lowerItem = new ContinuousDistributionItem(lower, lower, amount);
+		ContinuousDistributionItem higherItem = new ContinuousDistributionItem(higher, higher, amount);
 		
 		assertThat(lowerItem.compareTo(higherItem), is(lessThan(0)));
 		assertThat(higherItem.compareTo(lowerItem), is(greaterThan(0)));
@@ -85,16 +85,16 @@ public class AgeDistributionItemTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnLowerBound() {
-		new AgeDistributionItem(-1, 0, 0);
+		new ContinuousDistributionItem(-1, 0, 0);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnUpperBound() {
-		new AgeDistributionItem(0, -1, 0);
+		new ContinuousDistributionItem(0, -1, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnAmount() {
-		new AgeDistributionItem(0, 0, -1);
+		new ContinuousDistributionItem(0, 0, -1);
 	}
 }

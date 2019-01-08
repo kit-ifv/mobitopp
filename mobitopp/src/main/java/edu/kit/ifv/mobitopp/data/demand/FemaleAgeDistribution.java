@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
-public class FemaleAgeDistribution extends AbstractAgeDistribution {
+public class FemaleAgeDistribution extends ContinuousDistribution {
 
 	private static final long serialVersionUID = 1L;
 
@@ -8,9 +8,4 @@ public class FemaleAgeDistribution extends AbstractAgeDistribution {
 		super();
 	}
 
-	public static FemaleAgeDistribution createDefault() {
-		FemaleAgeDistribution distribution = new FemaleAgeDistribution();
-		distribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 0));
-		return distribution;
-	}
 }

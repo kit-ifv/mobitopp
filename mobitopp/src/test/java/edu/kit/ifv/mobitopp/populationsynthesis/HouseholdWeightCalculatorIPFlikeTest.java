@@ -13,8 +13,8 @@ import java.util.TreeMap;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
@@ -37,8 +37,8 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 	private HouseholdWeightCalculatorIPFlike calculator;
 	private HouseholdDistribution hhDistribution;
 	private EmploymentDistribution empDistribution;
-	private AgeDistributionIfc maleAgeDistribution;
-	private AgeDistributionIfc femaleAgeDistribution;
+	private ContinuousDistributionIfc maleAgeDistribution;
+	private ContinuousDistributionIfc femaleAgeDistribution;
 	private Map<HouseholdOfPanelDataId, HouseholdOfPanelData> households;
 
 	@Before
@@ -49,9 +49,9 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
 		maleAgeDistribution = new MaleAgeDistribution();
-		maleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
+		maleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
 		femaleAgeDistribution = new FemaleAgeDistribution();
-		femaleAgeDistribution.addItem(new AgeDistributionItem(0, Integer.MAX_VALUE, 1));
+		femaleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
 		households = singletonMap(householdId, household);
 	}
 
