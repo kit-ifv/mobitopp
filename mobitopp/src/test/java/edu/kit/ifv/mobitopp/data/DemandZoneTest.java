@@ -8,13 +8,14 @@ import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.IncomeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 
 public class DemandZoneTest {
@@ -27,6 +28,7 @@ public class DemandZoneTest {
 	private HouseholdDistribution nominalHousehold;
 	private FemaleAgeDistribution nominalFemale;
 	private MaleAgeDistribution nominalMale;
+  private IncomeDistribution nominalIncome;
 
 	@Before
 	public void initialise() {
@@ -35,7 +37,8 @@ public class DemandZoneTest {
 		nominalHousehold = new HouseholdDistribution();
 		nominalFemale = new FemaleAgeDistribution();
 		nominalMale = new MaleAgeDistribution();
-		nominal = new Demography(nominalEmployment, nominalHousehold, nominalFemale, nominalMale);
+		nominalIncome = new IncomeDistribution();
+		nominal = new Demography(nominalEmployment, nominalHousehold, nominalFemale, nominalMale, nominalIncome);
 	}
 
 	@Test
@@ -76,7 +79,7 @@ public class DemandZoneTest {
 		nominalFemale.addItem(newAgeItem(nominalAmount));
 		DemandZone data = newDataFor(zone);
 
-		AgeDistributionIfc distribution = data.actualDemography().femaleAge();
+		ContinuousDistributionIfc distribution = data.actualDemography().femaleAge();
 
 		assertThat(distribution, is(equalTo(expectedFemale())));
 	}
@@ -87,8 +90,8 @@ public class DemandZoneTest {
 		return expectedFemale;
 	}
 
-	private AgeDistributionItem newAgeItem(int amount) {
-		return new AgeDistributionItem(0, 1, amount);
+	private ContinuousDistributionItem newAgeItem(int amount) {
+		return new ContinuousDistributionItem(0, 1, amount);
 	}
 
 	@Test
@@ -97,7 +100,7 @@ public class DemandZoneTest {
 		nominalMale.addItem(newAgeItem(nominalAmount));
 		DemandZone data = newDataFor(zone);
 
-		AgeDistributionIfc distribution = data.actualDemography().maleAge();
+		ContinuousDistributionIfc distribution = data.actualDemography().maleAge();
 
 		assertThat(distribution, is(equalTo(expectedMale())));
 	}

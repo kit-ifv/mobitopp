@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.result.Logger;
@@ -37,20 +37,20 @@ public class PrintMaleAge {
 	}
 
 	void increment(MaleAgeDistribution total, MaleAgeDistribution distribution) {
-		for (AgeDistributionItem item : distribution.getItems()) {
+		for (ContinuousDistributionItem item : distribution.getItems()) {
 			if (total.hasItem(item.lowerBound())) {
 				for (int i = 0; i < item.amount(); i++) {
 					total.getItem(item.lowerBound()).increment();
 				}
 			} else {
-				total.addItem(new AgeDistributionItem(item));
+				total.addItem(new ContinuousDistributionItem(item));
 			}
 		}
 	}
 
 	void print(MaleAgeDistribution total) {
 		int grand_total = 0;
-		for (AgeDistributionItem item : total.getItems()) {
+		for (ContinuousDistributionItem item : total.getItems()) {
 			logger().println(item.lowerBound() + "-" + item.upperBound() + ": " + item.amount());
 			grand_total += item.amount();
 		}

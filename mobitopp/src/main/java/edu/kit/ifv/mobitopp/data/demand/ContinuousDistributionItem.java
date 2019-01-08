@@ -2,28 +2,26 @@ package edu.kit.ifv.mobitopp.data.demand;
 
 import java.util.Objects;
 
-public class AgeDistributionItem
-		implements DemandModelDistributionItemIfc, Comparable<AgeDistributionItem> {
+public class ContinuousDistributionItem
+		implements DemandModelDistributionItemIfc, Comparable<ContinuousDistributionItem> {
 	
 	private static final long serialVersionUID = 1L;
 
-  private final int age;
   private final int lowerBound;
   private final int upperBound;
   private int amount;
 
-	public AgeDistributionItem(int lowerBound, int upperBound, int amount) {
+	public ContinuousDistributionItem(int lowerBound, int upperBound, int amount) {
 		super();
 		verifyAge(lowerBound);
     verifyAge(upperBound);
     verifyAmount(amount);
-		age = upperBound;
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 		this.amount = amount;
 	}
 
-	public AgeDistributionItem(AgeDistributionItem other) {
+	public ContinuousDistributionItem(ContinuousDistributionItem other) {
 		this(other.lowerBound, other.upperBound, other.amount);
 	}
 
@@ -59,11 +57,11 @@ public class AgeDistributionItem
 		this.amount += 1;
 	}
 
-	public AgeDistributionItem createEmpty() {
-		return new AgeDistributionItem(lowerBound, upperBound, 0);
+	public ContinuousDistributionItem createEmpty() {
+		return new ContinuousDistributionItem(lowerBound, upperBound, 0);
 	}  
 
-	public int compareTo(AgeDistributionItem other) {
+	public int compareTo(ContinuousDistributionItem other) {
 		if (equals(other)) {
 			return 0;
 		}
@@ -82,7 +80,7 @@ public class AgeDistributionItem
 
   @Override
 	public int hashCode() {
-		return Objects.hash(age, amount, lowerBound, upperBound);
+		return Objects.hash(amount, lowerBound, upperBound);
 	}
 	@Override
 	public boolean equals(Object obj) {
@@ -92,14 +90,14 @@ public class AgeDistributionItem
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AgeDistributionItem other = (AgeDistributionItem) obj;
-		return age == other.age && amount == other.amount && lowerBound == other.lowerBound
+		ContinuousDistributionItem other = (ContinuousDistributionItem) obj;
+		return amount == other.amount && lowerBound == other.lowerBound
 				&& upperBound == other.upperBound;
 	}
 
 	@Override
 	public String toString() {
-		return "AgeDistributionItem [age=" + age + ", lowerBound=" + lowerBound + ", upperBound="
+		return "AgeDistributionItem [lowerBound=" + lowerBound + ", upperBound="
 				+ upperBound + ", amount=" + amount + "]";
 	}
 	

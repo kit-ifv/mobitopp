@@ -1,12 +1,13 @@
 package edu.kit.ifv.mobitopp.data;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
-import edu.kit.ifv.mobitopp.data.demand.AgeDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.IncomeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
@@ -31,7 +32,8 @@ public class DemandZone {
     HouseholdDistribution household = householdDistribution(nominalDemand);
     FemaleAgeDistribution femaleAge = femaleAgeDistribution(nominalDemand);
     MaleAgeDistribution maleAge = maleAgeDistribution(nominalDemand);
-    return new Demography(employment, household, femaleAge, maleAge);
+    IncomeDistribution income = incomeDistribution(nominalDemand);
+    return new Demography(employment, household, femaleAge, maleAge, income);
   }
 
   private FemaleAgeDistribution femaleAgeDistribution(Demography demandModel) {
@@ -39,7 +41,7 @@ public class DemandZone {
     demandModel
         .femaleAge()
         .items()
-        .map(AgeDistributionItem::createEmpty)
+        .map(ContinuousDistributionItem::createEmpty)
         .forEach(distribution::addItem);
     return distribution;
   }
@@ -49,7 +51,7 @@ public class DemandZone {
     demandModel
         .maleAge()
         .items()
-        .map(AgeDistributionItem::createEmpty)
+        .map(ContinuousDistributionItem::createEmpty)
         .forEach(distribution::addItem);
     return distribution;
   }
@@ -60,6 +62,16 @@ public class DemandZone {
         .household()
         .items()
         .map(HouseholdDistributionItem::createEmpty)
+        .forEach(distribution::addItem);
+    return distribution;
+  }
+  
+  private IncomeDistribution incomeDistribution(Demography demandModel) {
+    IncomeDistribution distribution = new IncomeDistribution();
+    demandModel
+        .income()
+        .items()
+        .map(ContinuousDistributionItem::createEmpty)
         .forEach(distribution::addItem);
     return distribution;
   }
