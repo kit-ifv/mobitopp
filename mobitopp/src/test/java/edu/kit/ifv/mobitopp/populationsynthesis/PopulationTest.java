@@ -13,14 +13,22 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.ExampleZones;
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonFixedDestination;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
+import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -144,5 +152,18 @@ public class PopulationTest {
     Person person = population.getPerson(aPersonId);
     
     assertThat(person, is(equalTo(aPerson)));
+  }
+	
+	@Test
+  public void getFixedDestinationsForPerson() {
+    Zone zone = ExampleZones.create().someZone();
+    Location location = zone.centroidLocation();
+    FixedDestination destination = new FixedDestination(ActivityType.WORK, zone, location);
+    PersonFixedDestination fixedDestination = new PersonFixedDestination(aPersonId, destination);
+    
+    population.add(fixedDestination);
+    List<FixedDestination> destinations = population.destinations(aPersonId).collect(toList());
+    
+    assertThat(destinations, contains(destination));
   }
 }
