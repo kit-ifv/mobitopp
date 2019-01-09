@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.person;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 
@@ -59,7 +60,7 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 		if (this.householdNumber > other.householdNumber) {
 			return 1;
 		}
-		return 0;
+		return this.oid - other.oid;
 	}
 	
 	public String toString() {
@@ -67,27 +68,19 @@ public class HouseholdId implements Comparable<HouseholdId>, Serializable {
 	}
 
   @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (householdNumber ^ (householdNumber >>> 32));
-		result = prime * result + year;
-		return result;
-	}
+  public int hashCode() {
+    return Objects.hash(householdNumber, oid, year);
+  }
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HouseholdId other = (HouseholdId) obj;
-		if (householdNumber != other.householdNumber)
-			return false;
-		if (year != other.year)
-			return false;
-		return true;
-	}
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    HouseholdId other = (HouseholdId) obj;
+    return householdNumber == other.householdNumber && oid == other.oid && year == other.year;
+  }
 }

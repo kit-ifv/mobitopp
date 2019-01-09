@@ -49,6 +49,7 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
     loadFixedDestinations(population);
     loadPersons(population);
     loadCars(population);
+    population.cleanCache();
     return population;
   }
 

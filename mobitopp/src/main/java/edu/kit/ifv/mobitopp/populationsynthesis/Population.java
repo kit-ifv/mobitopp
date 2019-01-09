@@ -1,5 +1,10 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +32,7 @@ public class Population implements PopulationContext, Serializable {
   private final Map<Integer, Person> persons;
   private final Map<Integer, List<ExtendedPatternActivity>> activityPatterns;
   private final List<PersonFixedDestination> destinations;
+  private Map<PersonId, List<FixedDestination>> destinationsCache;
 
   public Population() {
     super();
@@ -109,11 +115,29 @@ public class Population implements PopulationContext, Serializable {
   }
 
   @Override
-  public Stream<FixedDestination> destinations(PersonId forPerson) {
-    return destinations
-        .stream()
-        .filter(d -> d.person().equals(forPerson))
-        .map(PersonFixedDestination::fixedDestination);
+  public Stream<FixedDestination> destinations(PersonId person) {
+    if (isCacheMissing()) {
+      createDestinationsCache();
+    }
+    return destinationsCache.getOrDefault(person, emptyList()).stream();
   }
 
+  private boolean isCacheMissing() {
+    return destinationsCache == null;
+  }
+
+  private void createDestinationsCache() {
+    destinationsCache = destinations
+        .stream()
+        .collect(groupingBy(PersonFixedDestination::person,
+            mapping(PersonFixedDestination::fixedDestination, toList())));
+  }
+
+  public void cleanCache() {
+    if (isCacheMissing()) {
+      return;
+    }
+    destinationsCache.clear();
+    destinationsCache = null;
+  }
 }
