@@ -200,7 +200,7 @@ public class ZoneRepositorySerialiser {
 
 	private Map<Integer, Attractivities> attractivities() {
 		HashMap<Integer, Attractivities> mapping = new HashMap<>();
-		AttractivitiesData structuralData = structuralDataFrom(attractivitiesDataFile, areaTypeRepository);
+		AttractivitiesData structuralData = attractivityDataFrom(attractivitiesDataFile, areaTypeRepository);
 		while (structuralData.hasNext()) {
 			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities();
 			mapping.put(structuralData.currentZone(), attractivities);
@@ -209,7 +209,7 @@ public class ZoneRepositorySerialiser {
 		return mapping;
 	}
 
-	private static AttractivitiesData structuralDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
+	private static AttractivitiesData attractivityDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
     StructuralData data = new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
     return new AttractivitiesData(data, areaTypeRepository);
 	}
