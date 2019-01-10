@@ -147,7 +147,7 @@ public class ContextBuilder {
   private StructuralData demographyData() {
     File demographyDataFile = Convert.asFile(configuration.getDemographyData());
     StructuralData structuralData = new StructuralData(
-        new CsvFile(demographyDataFile.getAbsolutePath()), areaTypeRepository);
+        new CsvFile(demographyDataFile.getAbsolutePath()));
     log("Load demography data");
     return structuralData;
   }

@@ -14,19 +14,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-import edu.kit.ifv.mobitopp.data.areatype.AreaType;
-import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
-
 public class StructuralDataTest {
 
 	private StructuralData demographyData;
-	private StructuralData attractivityData;
 
 	@Before
 	public void initialise() throws URISyntaxException {
 		demographyData = Example.demographyData();
-		attractivityData = Example.attractivityData();
 	}
 
 	@Test
@@ -63,43 +57,6 @@ public class StructuralDataTest {
 		boolean hasValue = demographyData.hasValue("missing-key");
 		
 		assertFalse(hasValue);
-	}
-
-	@Test
-	public void classification() {
-		ZoneClassificationType insideArea = attractivityData.currentClassification();
-		attractivityData.next();
-		ZoneClassificationType outsideArea = attractivityData.currentClassification();
-
-		assertThat(insideArea, is(equalTo(ZoneClassificationType.areaOfInvestigation)));
-		assertThat(outsideArea, is(equalTo(ZoneClassificationType.outlyingArea)));
-	}
-
-	@Test
-	public void zoneAreaTypeFromString() {
-		AreaType first = attractivityData.currentZoneAreaType();
-		attractivityData.next();
-		AreaType second = attractivityData.currentZoneAreaType();
-		attractivityData.next();
-		AreaType third = attractivityData.currentZoneAreaType();
-
-		assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
-		assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));
-		assertThat(third, is(equalTo(ZoneAreaType.DEFAULT)));
-	}
-	
-	@Test
-	public void zoneAreaTypeFromCode() {
-		StructuralData attractivityData = Example.attractivityDataByCode();
-		AreaType first = attractivityData.currentZoneAreaType();
-		attractivityData.next();
-		AreaType second = attractivityData.currentZoneAreaType();
-		attractivityData.next();
-		AreaType third = attractivityData.currentZoneAreaType();
-
-		assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
-		assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));
-		assertThat(third, is(equalTo(ZoneAreaType.DEFAULT)));
 	}
 
 	@Test

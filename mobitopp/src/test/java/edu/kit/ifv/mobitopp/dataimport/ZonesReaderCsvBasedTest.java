@@ -40,7 +40,7 @@ public class ZonesReaderCsvBasedTest {
 
 	private VisumNetwork network;
 	private SimpleRoadNetwork roadNetwork;
-	private StructuralData attractivityData;
+	private AttractivitiesData attractivityData;
 	private CarSharingBuilder carSharingBuilder;
 	private CarSharingDataForZone carSharingData;
 	private ChargingDataBuilder chargingDataBuilder;
@@ -67,7 +67,8 @@ public class ZonesReaderCsvBasedTest {
 				.with(otherZone)
 				.build();
 		roadNetwork = new SimpleRoadNetwork(network);
-		attractivityData = Example.attractivityData();
+    attractivityData = new AttractivitiesData(Example.attractivityData(),
+        Example.areaTypeRepository());
 		carSharingBuilder = mock(CarSharingBuilder.class);
 		carSharingData = mock(CarSharingDataForZone.class);
 		chargingDataBuilder = mock(ChargingDataBuilder.class);

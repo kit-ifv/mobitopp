@@ -24,6 +24,7 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.dataimport.AttractivitiesBuilder;
+import edu.kit.ifv.mobitopp.dataimport.AttractivitiesData;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ConventionalCarFormat;
@@ -199,7 +200,7 @@ public class ZoneRepositorySerialiser {
 
 	private Map<Integer, Attractivities> attractivities() {
 		HashMap<Integer, Attractivities> mapping = new HashMap<>();
-		StructuralData structuralData = structuralDataFrom(attractivitiesDataFile, areaTypeRepository);
+		AttractivitiesData structuralData = structuralDataFrom(attractivitiesDataFile, areaTypeRepository);
 		while (structuralData.hasNext()) {
 			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities();
 			mapping.put(structuralData.currentZone(), attractivities);
@@ -208,8 +209,9 @@ public class ZoneRepositorySerialiser {
 		return mapping;
 	}
 
-	private static StructuralData structuralDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
-		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()), areaTypeRepository);
+	private static AttractivitiesData structuralDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
+    StructuralData data = new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+    return new AttractivitiesData(data, areaTypeRepository);
 	}
 
 	private ChargingDataResolver chargingFrom(
