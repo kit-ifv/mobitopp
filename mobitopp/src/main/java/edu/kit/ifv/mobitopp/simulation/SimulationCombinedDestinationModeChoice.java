@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
-import edu.kit.ifv.mobitopp.simulation.destinationChoice.CarRangeReachableZonesFilter;
-import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceForFlexibleActivity;
+import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.CombinedUtilityFunctions;
+import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceSchaufenster;
+import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceUtility;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceWithFixedLocations;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.SimpleRepeatedDestinationChoice;
@@ -20,9 +23,9 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeSelectorParamete
 import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
 
-public class SimulationConfiguration extends Simulation {
+public class SimulationCombinedDestinationModeChoice extends Simulation {
 
-	public SimulationConfiguration(SimulationContext context) {
+	public SimulationCombinedDestinationModeChoice(SimulationContext context) {
 		super(context);
 	}
 
@@ -30,8 +33,9 @@ public class SimulationConfiguration extends Simulation {
 	protected DemandSimulator simulator() {
 		ModeAvailabilityModel modeAvailabilityModel = new ModeAvailabilityModelAddingCarsharing(
 				impedance());
-		DestinationChoiceModel targetSelector = destinationChoiceModel(modeAvailabilityModel);
-		ModeChoiceModel modeSelector = modeChoiceModel(modeAvailabilityModel);
+		DestinationChoiceModel targetSelector = destinationChoiceModel(modeAvailabilityModel,
+				zoneRepository());
+		ModeChoiceModel modeSelector = modeChoiceModel(impedance(), modeAvailabilityModel);
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
 		ReschedulingStrategy rescheduling = new ReschedulingSkipTillHome(context().simulationDays());
 		System.out.println("Initializing simulator...");
@@ -41,34 +45,33 @@ public class SimulationConfiguration extends Simulation {
 				PersonStateSimple.UNINITIALIZED, context());
 	}
 
-  private ModeChoiceModel modeChoiceModel(ModeAvailabilityModel modeAvailabilityModel) {
-	  File firstTripFile = getModeChoiceFile("firstTrip");
-    File otherTripFile = getModeChoiceFile("otherTrip");
-    ModeChoiceModel modeSelectorFirst = new ModeChoiceStuttgart(impedance(),
-        new ModeSelectorParameterFirstTrip(firstTripFile));
-    ModeChoiceModel modeSelectorOther = new ModeChoiceStuttgart(impedance(),
-        new ModeSelectorParameterOtherTrip(otherTripFile));
+	private ModeChoiceModel modeChoiceModel(
+			ImpedanceIfc impedance, ModeAvailabilityModel modeAvailabilityModel) {
+		ModeChoiceModel modeSelectorFirst = new ModeChoiceStuttgart(impedance,
+				new ModeSelectorParameterFirstTrip());
+		ModeChoiceModel modeSelectorOther = new ModeChoiceStuttgart(impedance,
+				new ModeSelectorParameterOtherTrip());
 		return new ModeSelectorFirstOther(modeAvailabilityModel, modeSelectorFirst, modeSelectorOther);
 	}
 
 	private DestinationChoiceModel destinationChoiceModel(
-			ModeAvailabilityModel modeAvailabilityModel) {
-		return new DestinationChoiceWithFixedLocations(zoneRepository().zones(),
-				new SimpleRepeatedDestinationChoice(zoneRepository().zones(),
-						new DestinationChoiceForFlexibleActivity(modeAvailabilityModel,
-								new CarRangeReachableZonesFilter(impedance()),
-								new AttractivityCalculatorCostNextPole(zoneRepository().zones(), impedance(),
-										getDestinationChoiceFileFor("cost"), 0.5f)),
-						getDestinationChoiceFileFor("repetition")));
-	}
-	
-  private String getDestinationChoiceFileFor(String name) {
-    return context().configuration().getDestinationChoice().get(name);
-  }
+			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
+		Map<String, String> destinationChoiceFiles = context().configuration().getDestinationChoice();
+		DestinationAndModeChoiceSchaufenster destinationModeModel = createDestinationAndModeChoiceModel(
+				modeAvailabilityModel, zoneRepository);
 
-  private File getModeChoiceFile(String fileName) {
-    return context().modeChoiceParameters().valueAsFile(fileName);
-  }
+		return new DestinationChoiceWithFixedLocations(zoneRepository().zones(),
+				new SimpleRepeatedDestinationChoice(zoneRepository().zones(), destinationModeModel,
+						destinationChoiceFiles.get("repetition")));
+	}
+
+	protected DestinationAndModeChoiceSchaufenster createDestinationAndModeChoiceModel(
+			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
+		Map<ActivityType, DestinationAndModeChoiceUtility> utilityFunctions = new CombinedUtilityFunctions(
+				context()).load();
+		return new DestinationAndModeChoiceSchaufenster(zoneRepository.zones(), modeAvailabilityModel,
+				utilityFunctions);
+	}
 
 	public static void main(String... args) throws IOException {
 		if (1 > args.length) {
@@ -90,6 +93,6 @@ public class SimulationConfiguration extends Simulation {
 	}
 		
 	public static void startSimulation(SimulationContext context) {
-		new SimulationConfiguration(context).simulate();
+		new SimulationCombinedDestinationModeChoice(context).simulate();
 	}
 }
