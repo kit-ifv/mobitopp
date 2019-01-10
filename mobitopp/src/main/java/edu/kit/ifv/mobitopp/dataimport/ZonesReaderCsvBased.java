@@ -25,118 +25,121 @@ import edu.kit.ifv.mobitopp.visum.VisumZone;
 
 public class ZonesReaderCsvBased implements ZonesReader {
 
-	private final VisumNetwork visumNetwork;
-	private final SimpleRoadNetwork roadNetwork;
-	private final ChargingDataBuilder chargingDataBuilder;
-	private final StructuralData attractivities;
-	private final ZoneLocationSelector locationSelector;
+  private final VisumNetwork visumNetwork;
+  private final SimpleRoadNetwork roadNetwork;
+  private final ChargingDataBuilder chargingDataBuilder;
+  private final AttractivitiesData attractivities;
+  private final ZoneLocationSelector locationSelector;
 
-	ZonesReaderCsvBased(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, StructuralData attractivities,
-			ChargingType charging, DefaultPower defaultPower) {
-		super();
-		this.visumNetwork = visumNetwork;
-		this.roadNetwork = roadNetwork;
-		this.attractivities = attractivities;
-		ChargingDataFactory factory = charging.factory(defaultPower);
-		locationSelector = new ZoneLocationSelector(roadNetwork);
-		chargingDataBuilder = new ChargingDataBuilder(visumNetwork, locationSelector, factory,
-				defaultPower);
-	}
+  ZonesReaderCsvBased(
+      VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, AttractivitiesData attractivities,
+      ChargingType charging, DefaultPower defaultPower) {
+    super();
+    this.visumNetwork = visumNetwork;
+    this.roadNetwork = roadNetwork;
+    this.attractivities = attractivities;
+    ChargingDataFactory factory = charging.factory(defaultPower);
+    locationSelector = new ZoneLocationSelector(roadNetwork);
+    chargingDataBuilder = new ChargingDataBuilder(visumNetwork, locationSelector, factory,
+        defaultPower);
+  }
 
-	@Override
-	public List<Zone> getZones() {
-		Zone.resetIdSequence();
-		attractivities.resetIndex();
-		ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
-		Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
-		List<Zone> zones = new ArrayList<>();
-		while (attractivities.hasNext()) {
-			VisumZone visumZone = visumNetwork.zones.get(attractivities.currentZone());
-			zones.add(zoneFrom(visumZone));
-			System.out.println(
-					String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
-			attractivities.next();
-		}
-		return zones;
-	}
+  @Override
+  public List<Zone> getZones() {
+    Zone.resetIdSequence();
+    attractivities.resetIndex();
+    ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
+    Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
+    List<Zone> zones = new ArrayList<>();
+    while (attractivities.hasNext()) {
+      VisumZone visumZone = visumNetwork.zones.get(attractivities.currentZone());
+      zones.add(zoneFrom(visumZone));
+      System.out
+          .println(
+              String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
+      attractivities.next();
+    }
+    return zones;
+  }
 
-	private Zone zoneFrom(VisumZone visumZone) {
-		String id = String.format("Z%1d", visumZone.id);
-		String name = visumZone.name;
-		AreaType areaType = currentZoneAreaType();
-		ZoneClassificationType classification = currentClassification();
-		ZonePolygon polygon = currentZonePolygon(visumZone);
-		Location centroid = polygon.centroidLocation();
-		Attractivities attractivities = attractivities();
-		ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-		Zone zone = new Zone(id, name, areaType, classification, centroid, attractivities, chargingData);
-		CarSharingDataForZone carSharingData = carSharing(visumZone, polygon, zone);
-		zone.setCarSharing(carSharingData);
-		return zone;
-	}
+  private Zone zoneFrom(VisumZone visumZone) {
+    String id = String.format("Z%1d", visumZone.id);
+    String name = visumZone.name;
+    AreaType areaType = currentZoneAreaType();
+    ZoneClassificationType classification = currentClassification();
+    ZonePolygon polygon = currentZonePolygon(visumZone);
+    Location centroid = polygon.centroidLocation();
+    Attractivities attractivities = attractivities();
+    ChargingDataForZone chargingData = chargingData(visumZone, polygon);
+    Zone zone = new Zone(id, name, areaType, classification, centroid, attractivities,
+        chargingData);
+    CarSharingDataForZone carSharingData = carSharing(visumZone, polygon, zone);
+    zone.setCarSharing(carSharingData);
+    return zone;
+  }
 
-	private CarSharingDataForZone carSharing(VisumZone visumZone, ZonePolygon polygon, Zone zone) {
-		return carSharingBuilder().carsharingIn(visumZone, polygon, zone);
-	}
+  private CarSharingDataForZone carSharing(VisumZone visumZone, ZonePolygon polygon, Zone zone) {
+    return carSharingBuilder().carsharingIn(visumZone, polygon, zone);
+  }
 
-	CarSharingBuilder carSharingBuilder() {
-		return new CarSharingBuilder(visumNetwork, roadNetwork);
-	}
+  CarSharingBuilder carSharingBuilder() {
+    return new CarSharingBuilder(visumNetwork, roadNetwork);
+  }
 
-	private ChargingDataForZone chargingData(VisumZone visumZone, ZonePolygon polygon) {
-		return chargingDataBuilder().chargingData(visumZone, polygon);
-	}
+  private ChargingDataForZone chargingData(VisumZone visumZone, ZonePolygon polygon) {
+    return chargingDataBuilder().chargingData(visumZone, polygon);
+  }
 
-	ChargingDataBuilder chargingDataBuilder() {
-		return chargingDataBuilder;
-	}
+  ChargingDataBuilder chargingDataBuilder() {
+    return chargingDataBuilder;
+  }
 
-	private Attractivities attractivities() {
-		return attractivitiesBuilder().attractivities();
-	}
+  private Attractivities attractivities() {
+    return attractivitiesBuilder().attractivities();
+  }
 
-	AttractivitiesBuilder attractivitiesBuilder() {
-		return new AttractivitiesBuilder(attractivities);
-	}
+  AttractivitiesBuilder attractivitiesBuilder() {
+    return new AttractivitiesBuilder(attractivities);
+  }
 
-	private ZonePolygon currentZonePolygon(VisumZone visumZone) {
-		Location centroid = makeLocation(visumZone, visumZone.coord);
-		return new ZonePolygon(surface(visumZone), centroid);
-	}
-	
-	private Location makeLocation(VisumZone zone, VisumPoint2 coordinate) {
-		return locationSelector().selectLocation(zone, coordinate);
-	}
+  private ZonePolygon currentZonePolygon(VisumZone visumZone) {
+    Location centroid = makeLocation(visumZone, visumZone.coord);
+    return new ZonePolygon(surface(visumZone), centroid);
+  }
 
-	ZoneLocationSelector locationSelector() {
-		return locationSelector;
-	}
+  private Location makeLocation(VisumZone zone, VisumPoint2 coordinate) {
+    return locationSelector().selectLocation(zone, coordinate);
+  }
 
-	private VisumSurface surface(VisumZone visumZone) {
-		return visumNetwork.areas.get(visumZone.areaId);
-	}
+  ZoneLocationSelector locationSelector() {
+    return locationSelector;
+  }
 
-	private ZoneClassificationType currentClassification() {
-		return attractivities.currentClassification();
-	}
+  private VisumSurface surface(VisumZone visumZone) {
+    return visumNetwork.areas.get(visumZone.areaId);
+  }
 
-	private AreaType currentZoneAreaType() {
-		return attractivities.currentZoneAreaType();
-	}
+  private ZoneClassificationType currentClassification() {
+    return attractivities.currentClassification();
+  }
 
-	public static ZonesReaderCsvBased from(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository) {
-		StructuralData attractivityData = structuralDataFrom(attractivityDataFile, areaTypeRepository);
-		return new ZonesReaderCsvBased(visumNetwork, roadNetwork, attractivityData, charging,
-				defaultPower);
-	}
+  private AreaType currentZoneAreaType() {
+    return attractivities.currentZoneAreaType();
+  }
 
-	private static StructuralData structuralDataFrom(
-			File structuralDataFile, AreaTypeRepository areaTypeRepository) {
-		return new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()),
-				areaTypeRepository);
-	}
+  public static ZonesReaderCsvBased from(
+      VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
+      DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository) {
+    AttractivitiesData attractivityData = structuralDataFrom(attractivityDataFile,
+        areaTypeRepository);
+    return new ZonesReaderCsvBased(visumNetwork, roadNetwork, attractivityData, charging,
+        defaultPower);
+  }
+
+  private static AttractivitiesData structuralDataFrom(
+      File structuralDataFile, AreaTypeRepository areaTypeRepository) {
+    StructuralData dataFile = new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+    return new AttractivitiesData(dataFile, areaTypeRepository);
+  }
 
 }

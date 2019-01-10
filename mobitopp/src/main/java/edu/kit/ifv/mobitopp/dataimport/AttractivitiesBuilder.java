@@ -5,13 +5,13 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 
 public class AttractivitiesBuilder {
 
-	private final StructuralData structuralData;
+	private final AttractivitiesData data;
 	private final Attractivities attractivities;
 
-	public AttractivitiesBuilder(StructuralData structuralData) {
+	public AttractivitiesBuilder(AttractivitiesData data) {
 		super();
-		this.structuralData = structuralData;
-		attractivities = new Attractivities();
+		this.data = data;
+		this.attractivities = new Attractivities();
 	}
 
 	public Attractivities attractivities() {
@@ -37,7 +37,7 @@ public class AttractivitiesBuilder {
 	}
 
 	private void addExisting(ActivityType activityType, String key) {
-		if (structuralData.hasValue(prefixed(key))) {
+		if (data.hasValue(prefixed(key))) {
 			add(activityType, key);
 		}
 	}
@@ -47,7 +47,7 @@ public class AttractivitiesBuilder {
 	}
 
 	private void add(ActivityType type, String key) {
-		int value = structuralData.valueOrDefault(prefixed(key));
+		int value = data.valueOrDefault(prefixed(key));
 		attractivities.addAttractivity(type, value);
 	}
 

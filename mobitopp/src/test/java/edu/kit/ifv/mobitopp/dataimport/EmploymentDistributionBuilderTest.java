@@ -13,8 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
-import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -59,8 +57,7 @@ public class EmploymentDistributionBuilderTest {
 	}
 
 	private StructuralData missingData() {
-		AreaTypeRepository areaTypeRepository = new BicRepository();
-		return new StructuralData(new CsvFile(emptyFile.getAbsolutePath()), areaTypeRepository);
+		return new StructuralData(new CsvFile(emptyFile.getAbsolutePath()));
 	}
 
 	private EmploymentDistribution expectedEmployment() {

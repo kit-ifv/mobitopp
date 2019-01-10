@@ -16,83 +16,82 @@ import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 
 public class Example {
-	
-	static final int pointX = 1;
-	static final int pointY = 2;
-	static final int dummyEdge = 3;
-	static final double positionOnEdge = 0.0d;
 
-	public static StructuralData demographyData() {
-		try {
-		String path = new File(Example.class.getResource("Demography.csv").toURI())
-				.getAbsolutePath();
-		CsvFile csv = new CsvFile(path);
-		return new StructuralData(csv, areaTypeRepository());
-		} catch (URISyntaxException cause) {
-			throw new RuntimeException(cause);
-		}
-	}
-	
-	public static StructuralData missingAgeGroup() {
-		try {
-		String path = new File(Example.class.getResource("MissingAgeGroup.csv").toURI())
-				.getAbsolutePath();
-		CsvFile csv = new CsvFile(path);
-		return new StructuralData(csv, areaTypeRepository());
-		} catch (URISyntaxException cause) {
-			throw new RuntimeException(cause);
-		}
-	}
+  static final int pointX = 1;
+  static final int pointY = 2;
+  static final int dummyEdge = 3;
+  static final double positionOnEdge = 0.0d;
 
-	private static BicRepository areaTypeRepository() {
-		return new BicRepository();
-	}
-	
-	public static StructuralData attractivityData() {
-		try {
-			String path = new File(Example.class.getResource("Attractivities.csv").toURI())
-					.getAbsolutePath();
-			CsvFile csv = new CsvFile(path);
-			return new StructuralData(csv, areaTypeRepository());
-		} catch (URISyntaxException cause) {
-			throw new RuntimeException(cause);
-		}
-	}
-	
-	public static StructuralData attractivityDataByCode() {
-		try {
-			String path = new File(Example.class.getResource("Attractivities-Code.csv").toURI())
-					.getAbsolutePath();
-			CsvFile csv = new CsvFile(path);
-			return new StructuralData(csv, areaTypeRepository());
-		} catch (URISyntaxException cause) {
-			throw new RuntimeException(cause);
-		}
-	}
+  public static StructuralData demographyData() {
+    try {
+      String path = new File(Example.class.getResource("Demography.csv").toURI()).getAbsolutePath();
+      CsvFile csv = new CsvFile(path);
+      return new StructuralData(csv);
+    } catch (URISyntaxException cause) {
+      throw new RuntimeException(cause);
+    }
+  }
 
-	public Location location() {
-		Point2D coordinate = Data.coordinate(pointX, pointY);
-		return location(coordinate);
-	}
+  public static StructuralData missingAgeGroup() {
+    try {
+      String path = new File(Example.class.getResource("MissingAgeGroup.csv").toURI())
+          .getAbsolutePath();
+      CsvFile csv = new CsvFile(path);
+      return new StructuralData(csv);
+    } catch (URISyntaxException cause) {
+      throw new RuntimeException(cause);
+    }
+  }
 
-	public Location location(Point2D coordinate) {
-		return new Location(coordinate, dummyEdge, positionOnEdge);
-	}
+  public static BicRepository areaTypeRepository() {
+    return new BicRepository();
+  }
 
-	public ZonePolygon polygonAcceptingPoints() {
-		VisumSurface surface = mock(VisumSurface.class);
-		ZonePolygon polygon = mock(ZonePolygon.class);
-		when(polygon.polygon()).thenReturn(surface);
-		when(surface.isPointInside(any())).thenReturn(true);
-		return polygon;
-	}
-	
-	public ZonePolygon emptyPolygon() {
-		VisumSurface surface = mock(VisumSurface.class);
-		ZonePolygon polygon = mock(ZonePolygon.class);
-		when(polygon.polygon()).thenReturn(surface);
-		when(surface.isPointInside(any())).thenReturn(false);
-		return polygon;
-	}
+  public static StructuralData attractivityData() {
+    try {
+      String path = new File(Example.class.getResource("Attractivities.csv").toURI())
+          .getAbsolutePath();
+      CsvFile csv = new CsvFile(path);
+      return new StructuralData(csv);
+    } catch (URISyntaxException cause) {
+      throw new RuntimeException(cause);
+    }
+  }
+
+  public static StructuralData attractivityDataByCode() {
+    try {
+      String path = new File(Example.class.getResource("Attractivities-Code.csv").toURI())
+          .getAbsolutePath();
+      CsvFile csv = new CsvFile(path);
+      return new StructuralData(csv);
+    } catch (URISyntaxException cause) {
+      throw new RuntimeException(cause);
+    }
+  }
+
+  public Location location() {
+    Point2D coordinate = Data.coordinate(pointX, pointY);
+    return location(coordinate);
+  }
+
+  public Location location(Point2D coordinate) {
+    return new Location(coordinate, dummyEdge, positionOnEdge);
+  }
+
+  public ZonePolygon polygonAcceptingPoints() {
+    VisumSurface surface = mock(VisumSurface.class);
+    ZonePolygon polygon = mock(ZonePolygon.class);
+    when(polygon.polygon()).thenReturn(surface);
+    when(surface.isPointInside(any())).thenReturn(true);
+    return polygon;
+  }
+
+  public ZonePolygon emptyPolygon() {
+    VisumSurface surface = mock(VisumSurface.class);
+    ZonePolygon polygon = mock(ZonePolygon.class);
+    when(polygon.polygon()).thenReturn(surface);
+    when(surface.isPointInside(any())).thenReturn(false);
+    return polygon;
+  }
 
 }
