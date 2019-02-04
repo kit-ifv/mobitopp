@@ -33,33 +33,33 @@ public class AttractivitiesData {
     return data.currentZone();
   }
 
-  public boolean hasValue(String key) {
-    return data.hasValue(key);
+  public boolean hasValue(String zoneId, String key) {
+    return data.hasValue(zoneId, key);
   }
 
-  public int valueOrDefault(String key) {
-    return data.valueOrDefault(key);
+  public int valueOrDefault(String zoneId, String key) {
+    return data.valueOrDefault(zoneId, key);
   }
   
-  public String getValue(String key) {
-    return data.getValue(key);
+  private String getValue(String zoneId, String key) {
+    return data.getValue(zoneId, key);
   }
 
-  public ZoneClassificationType currentClassification() {
-    String classification = classificationValue();
+  public ZoneClassificationType currentClassification(String zoneId) {
+    String classification = classificationValue(zoneId);
     if (Integer.valueOf(classification) > 0) {
       return ZoneClassificationType.outlyingArea;
     }
     return ZoneClassificationType.areaOfInvestigation;
   }
 
-  private String classificationValue() {
-    return hasValue(newClassificationKey) ? getValue(newClassificationKey)
-        : getValue(oldClassificationKey);
+  private String classificationValue(String zoneId) {
+    return hasValue(zoneId, newClassificationKey) ? getValue(zoneId, newClassificationKey)
+        : getValue(zoneId, oldClassificationKey);
   }
 
-  public AreaType currentZoneAreaType() {
-    String areaType = getValue("AreaType");
+  public AreaType currentZoneAreaType(String zoneId) {
+    String areaType = getValue(zoneId, "AreaType");
     try {
       int code = Integer.parseInt(areaType);
       return areaTypeRepository.getTypeForCode(code);

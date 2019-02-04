@@ -66,7 +66,7 @@ public class Validate implements Validation {
 	}
 
 	private void validateDemographyDataFile() {
-		add(configuration.getDemographyData());
+	  configuration.getDemographyData().values().forEach(this::add);
 	}
 
 	private void validatePanelDataFile() {

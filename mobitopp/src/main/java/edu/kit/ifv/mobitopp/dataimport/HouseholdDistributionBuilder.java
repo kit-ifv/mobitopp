@@ -17,10 +17,10 @@ public class HouseholdDistributionBuilder {
 		this.structuralData = structuralData;
 	}
 
-	public HouseholdDistribution build() {
+	public HouseholdDistribution build(String zoneId) {
 		HouseholdDistribution distribution = new HouseholdDistribution();
 		for (String type : householdTypes()) {
-			int amount = structuralData.valueOrDefault(type);
+			int amount = structuralData.valueOrDefault(zoneId, type);
 			int code = Integer.parseInt(type.replaceAll(householdPrefix, ""));
 			HouseholdDistributionItem hhItem = new HouseholdDistributionItem(code, amount);
 			distribution.addItem(hhItem);

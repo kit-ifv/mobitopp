@@ -20,11 +20,11 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.Example;
-import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
 
 public class LocalDemandZoneRepositoryTest {
 
-	private StructuralData demographyData;
+	private InMemoryData demographyData;
 	private ZoneRepository zoneRepository;
 	private Demography expectedDemography;
 	private List<Zone> zones;
@@ -34,8 +34,13 @@ public class LocalDemandZoneRepositoryTest {
 		zones = new ArrayList<>();
 		zoneRepository = mock(ZoneRepository.class);
 		createZones();
-		demographyData = Example.demographyData();
-		expectedDemography = new DemographyBuilder(demographyData).build();
+		demographyData = new InMemoryData();
+		demographyData.store("household_size:", Example.demographyData());
+		demographyData.store("age:m:", Example.demographyData());
+		demographyData.store("age:f:", Example.demographyData());
+		demographyData.store("employment:", Example.demographyData());
+		demographyData.store("income:", Example.demographyData());
+		expectedDemography = new DemographyBuilder(demographyData).build("1");
 	}
 
 	@Test

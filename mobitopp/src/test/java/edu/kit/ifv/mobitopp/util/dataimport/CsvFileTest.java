@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -80,7 +81,7 @@ public class CsvFileTest {
 		return new CsvFile("dummy-file-name") {
 
 			@Override
-			protected Reader createReader(String filename) throws FileNotFoundException {
+			protected Reader createReader(File file) throws FileNotFoundException {
 				return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
 			}
 		};

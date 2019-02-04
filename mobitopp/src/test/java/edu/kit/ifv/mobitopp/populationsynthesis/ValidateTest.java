@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -44,7 +45,7 @@ public class ValidateTest {
 		configuration.setCarOwnership(ownership);
 		configuration.setCommuterTicket(existingFile.getAbsolutePath());
 		configuration.setDataSource(dataSource);
-		configuration.setDemographyData(existingFile.getAbsolutePath());
+		configuration.setDemographyData(singletonMap("some", existingFile.getAbsolutePath()));
 		configuration.setPanelData(existingFile.getAbsolutePath());
 	}
 
@@ -108,7 +109,7 @@ public class ValidateTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void validateDemographyDataFile() throws IOException {
-		configuration.setDemographyData(nonExistingFile.getAbsolutePath());
+		configuration.setDemographyData(singletonMap("missing", nonExistingFile.getAbsolutePath()));
 		
 		validate();
 	}

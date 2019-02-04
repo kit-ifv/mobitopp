@@ -14,31 +14,31 @@ public class AttractivitiesBuilder {
 		this.attractivities = new Attractivities();
 	}
 
-	public Attractivities attractivities() {
-		add(ActivityType.WORK, "Work");
-		add(ActivityType.BUSINESS, "Business");
-		add(ActivityType.EDUCATION, "Education");
-		add(ActivityType.SHOPPING, "Shopping");
-		add(ActivityType.LEISURE, "Leisure");
-		add(ActivityType.SERVICE, "Service");
-		addExisting(ActivityType.EDUCATION_PRIMARY, "Education_Primary");
-		addExisting(ActivityType.EDUCATION_SECONDARY, "Education_Secondary");
-		addExisting(ActivityType.EDUCATION_TERTIARY, "Education_Tertiary");
-		addExisting(ActivityType.EDUCATION_OCCUP, "Education_Occup");
-		addExisting(ActivityType.LEISURE_INDOOR, "Leisure_Indoor");
-		addExisting(ActivityType.LEISURE_OUTDOOR, "Leisure_Outdoor");
-		addExisting(ActivityType.LEISURE_OTHER, "Leisure_Other");
-		addExisting(ActivityType.SHOPPING_DAILY, "Shopping_Daily");
-		addExisting(ActivityType.SHOPPING_OTHER, "Shopping_Other");
-		addExisting(ActivityType.PRIVATE_BUSINESS, "Private_Business");
-		addExisting(ActivityType.PRIVATE_VISIT, "Private_Visit");
-		addExisting(ActivityType.OTHERHOME, "Otherhome");
+	public Attractivities attractivities(String zoneId) {
+		add(ActivityType.WORK, zoneId, "Work");
+		add(ActivityType.BUSINESS, zoneId, "Business");
+		add(ActivityType.EDUCATION, zoneId, "Education");
+		add(ActivityType.SHOPPING, zoneId, "Shopping");
+		add(ActivityType.LEISURE, zoneId, "Leisure");
+		add(ActivityType.SERVICE, zoneId, "Service");
+		addExisting(ActivityType.EDUCATION_PRIMARY, zoneId, "Education_Primary");
+		addExisting(ActivityType.EDUCATION_SECONDARY, zoneId, "Education_Secondary");
+		addExisting(ActivityType.EDUCATION_TERTIARY, zoneId, "Education_Tertiary");
+		addExisting(ActivityType.EDUCATION_OCCUP, zoneId, "Education_Occup");
+		addExisting(ActivityType.LEISURE_INDOOR, zoneId, "Leisure_Indoor");
+		addExisting(ActivityType.LEISURE_OUTDOOR, zoneId, "Leisure_Outdoor");
+		addExisting(ActivityType.LEISURE_OTHER, zoneId, "Leisure_Other");
+		addExisting(ActivityType.SHOPPING_DAILY, zoneId, "Shopping_Daily");
+		addExisting(ActivityType.SHOPPING_OTHER, zoneId, "Shopping_Other");
+		addExisting(ActivityType.PRIVATE_BUSINESS, zoneId, "Private_Business");
+		addExisting(ActivityType.PRIVATE_VISIT, zoneId, "Private_Visit");
+		addExisting(ActivityType.OTHERHOME, zoneId, "Otherhome");
 		return attractivities;
 	}
 
-	private void addExisting(ActivityType activityType, String key) {
-		if (data.hasValue(prefixed(key))) {
-			add(activityType, key);
+	private void addExisting(ActivityType activityType, String zoneId, String key) {
+		if (data.hasValue(zoneId, prefixed(key))) {
+			add(activityType, zoneId, key);
 		}
 	}
 
@@ -46,8 +46,8 @@ public class AttractivitiesBuilder {
 		return "Attractivity:" + key;
 	}
 
-	private void add(ActivityType type, String key) {
-		int value = data.valueOrDefault(prefixed(key));
+	private void add(ActivityType type, String zoneId, String key) {
+		int value = data.valueOrDefault(zoneId, prefixed(key));
 		attractivities.addAttractivity(type, value);
 	}
 

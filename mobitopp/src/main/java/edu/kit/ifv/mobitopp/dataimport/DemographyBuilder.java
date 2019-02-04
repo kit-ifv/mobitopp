@@ -6,6 +6,7 @@ import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.IncomeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 
 public class DemographyBuilder {
 
@@ -13,42 +14,47 @@ public class DemographyBuilder {
   private static final String femalePrefix = "age:f:";
   private static final String incomePrefix = "income:";
 
-  private final StructuralData structuralData;
+  private final DemographyData demographyData;
 
-  public DemographyBuilder(StructuralData structuralData) {
+  public DemographyBuilder(DemographyData demographyData) {
     super();
-    this.structuralData = structuralData;
+    this.demographyData = demographyData;
   }
 
-  public Demography build() {
-    HouseholdDistribution household = parseHouseholdDistribution();
-    MaleAgeDistribution maleAge = parseMaleDistribution();
-    FemaleAgeDistribution femaleAge = parseFemaleDistribution();
-    EmploymentDistribution employment = parseJobDistribution();
-    IncomeDistribution income = parseIncomeDistribution();
+  public Demography build(String zoneId) {
+    HouseholdDistribution household = parseHouseholdDistribution(zoneId);
+    MaleAgeDistribution maleAge = parseMaleDistribution(zoneId);
+    FemaleAgeDistribution femaleAge = parseFemaleDistribution(zoneId);
+    EmploymentDistribution employment = parseJobDistribution(zoneId);
+    IncomeDistribution income = parseIncomeDistribution(zoneId);
     return new Demography(employment, household, femaleAge, maleAge, income);
   }
 
-  private FemaleAgeDistribution parseFemaleDistribution() {
+  private FemaleAgeDistribution parseFemaleDistribution(String zoneId) {
+    StructuralData structuralData = demographyData.get(femalePrefix);
     return new ContinuousDistributionBuilder(structuralData, femalePrefix)
-        .buildFor(FemaleAgeDistribution::new);
+        .buildFor(zoneId, FemaleAgeDistribution::new);
   }
 
-  private MaleAgeDistribution parseMaleDistribution() {
+  private MaleAgeDistribution parseMaleDistribution(String zoneId) {
+    StructuralData structuralData = demographyData.get(malePrefix);
     return new ContinuousDistributionBuilder(structuralData, malePrefix)
-        .buildFor(MaleAgeDistribution::new);
+        .buildFor(zoneId, MaleAgeDistribution::new);
   }
 
-  private HouseholdDistribution parseHouseholdDistribution() {
-    return new HouseholdDistributionBuilder(structuralData).build();
+  private HouseholdDistribution parseHouseholdDistribution(String zoneId) {
+    StructuralData structuralData = demographyData.get("household_size:");
+    return new HouseholdDistributionBuilder(structuralData).build(zoneId);
   }
 
-  private EmploymentDistribution parseJobDistribution() {
-    return new EmploymentDistributionBuilder(structuralData).build();
+  private EmploymentDistribution parseJobDistribution(String zoneId) {
+    StructuralData structuralData = demographyData.get("employment:");
+    return new EmploymentDistributionBuilder(structuralData).build(zoneId);
   }
 
-  private IncomeDistribution parseIncomeDistribution() {
+  private IncomeDistribution parseIncomeDistribution(String zoneId) {
+    StructuralData structuralData = demographyData.get(incomePrefix);
     return new ContinuousDistributionBuilder(structuralData, incomePrefix)
-        .buildFor(IncomeDistribution::new);
+        .buildFor(zoneId, IncomeDistribution::new);
   }
 }

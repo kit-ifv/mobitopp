@@ -41,7 +41,8 @@ public class EmploymentDistributionBuilderTest {
 
 	@Test
 	public void build() {
-		EmploymentDistribution distribution = builder.build();
+		String zoneId = "1";
+    EmploymentDistribution distribution = builder.build(zoneId);
 
 		assertThat(distribution, is(equalTo(expectedEmployment())));
 	}
@@ -49,9 +50,10 @@ public class EmploymentDistributionBuilderTest {
 	@Test
 	public void buildWithMissingData() {
 		StructuralData data = missingData();
+    String zoneId = "1";
 		EmploymentDistributionBuilder builder = new EmploymentDistributionBuilder(data);
 
-		EmploymentDistribution distribution = builder.build();
+		EmploymentDistribution distribution = builder.build(zoneId);
 
 		assertThat(distribution, is(equalTo(new EmploymentDistribution())));
 	}

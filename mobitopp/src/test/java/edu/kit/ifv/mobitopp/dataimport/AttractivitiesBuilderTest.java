@@ -22,7 +22,9 @@ public class AttractivitiesBuilderTest {
 
   @Test
   public void parseAttractivities() {
-    Attractivities attractivities = new AttractivitiesBuilder(attractivityData).attractivities();
+    String zoneId = Example.someZone;
+    
+    Attractivities attractivities = new AttractivitiesBuilder(attractivityData).attractivities(zoneId);
 
     assertThat(attractivities, is(equalTo(expectedAttractivities())));
   }
