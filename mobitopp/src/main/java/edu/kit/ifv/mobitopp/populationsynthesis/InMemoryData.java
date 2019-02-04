@@ -23,4 +23,9 @@ public class InMemoryData implements DemographyData {
     this.data.put(key, data);
   }
 
+  @Override
+  public boolean hasData(String zoneId) {
+    return data.values().stream().anyMatch(data -> data.hasValue(zoneId, "ID"));
+  }
+
 }

@@ -35,11 +35,11 @@ public class LocalDemandZoneRepositoryTest {
 		zoneRepository = mock(ZoneRepository.class);
 		createZones();
 		demographyData = new InMemoryData();
-		demographyData.store("household_size:", Example.demographyData());
-		demographyData.store("age:m:", Example.demographyData());
-		demographyData.store("age:f:", Example.demographyData());
-		demographyData.store("employment:", Example.demographyData());
-		demographyData.store("income:", Example.demographyData());
+		demographyData.store("household_size", Example.demographyData());
+		demographyData.store("age_m", Example.demographyData());
+		demographyData.store("age_f", Example.demographyData());
+		demographyData.store("employment", Example.demographyData());
+		demographyData.store("income", Example.demographyData());
 		expectedDemography = new DemographyBuilder(demographyData).build("1");
 	}
 
