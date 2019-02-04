@@ -14,9 +14,9 @@ public class EmploymentDistributionBuilder {
 		this.structuralData = structuralData;
 	}
 
-	public EmploymentDistribution build() {
+	public EmploymentDistribution build(String zoneId) {
 		if (hasEmploymentInformation()) {
-			return createDistribution();
+			return createDistribution(zoneId);
 		}
 		return new EmploymentDistribution();
 	}
@@ -25,22 +25,22 @@ public class EmploymentDistributionBuilder {
 		return structuralData.getAttributes().stream().anyMatch(a -> a.startsWith(prefix));
 	}
 
-	private EmploymentDistribution createDistribution() {
+	private EmploymentDistribution createDistribution(String zoneId) {
 		EmploymentDistribution jobDistribution = new EmploymentDistribution();
-		jobDistribution.addItem(itemFor(Employment.FULLTIME, "Job:FullTime"));
-		jobDistribution.addItem(itemFor(Employment.PARTTIME, "Job:PartTime"));
-		jobDistribution.addItem(itemFor(Employment.NONE, "Job:None"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_PRIMARY, "Job:Education_primary"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_SECONDARY, "Job:Education_secondary"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_TERTIARY, "Job:Education_tertiary"));
-		jobDistribution.addItem(itemFor(Employment.EDUCATION, "Job:Education_occup"));
-		jobDistribution.addItem(itemFor(Employment.RETIRED, "Job:Retired"));
-		jobDistribution.addItem(itemFor(Employment.INFANT, "Job:Infant"));
+		jobDistribution.addItem(itemFor(Employment.FULLTIME, zoneId, "Job:FullTime"));
+		jobDistribution.addItem(itemFor(Employment.PARTTIME, zoneId, "Job:PartTime"));
+		jobDistribution.addItem(itemFor(Employment.NONE, zoneId, "Job:None"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_PRIMARY, zoneId, "Job:Education_primary"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_SECONDARY, zoneId, "Job:Education_secondary"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_TERTIARY, zoneId, "Job:Education_tertiary"));
+		jobDistribution.addItem(itemFor(Employment.EDUCATION, zoneId, "Job:Education_occup"));
+		jobDistribution.addItem(itemFor(Employment.RETIRED, zoneId, "Job:Retired"));
+		jobDistribution.addItem(itemFor(Employment.INFANT, zoneId, "Job:Infant"));
 		return jobDistribution;
 	}
 
-	private EmploymentDistributionItem itemFor(Employment employment, String key) {
-		int value = structuralData.valueOrDefault(key);
+	private EmploymentDistributionItem itemFor(Employment employment, String zoneId, String key) {
+		int value = structuralData.valueOrDefault(zoneId, key);
 		return new EmploymentDistributionItem(employment, value);
 	}
 

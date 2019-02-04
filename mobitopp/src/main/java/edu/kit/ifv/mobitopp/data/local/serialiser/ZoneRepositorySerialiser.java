@@ -202,8 +202,10 @@ public class ZoneRepositorySerialiser {
 		HashMap<Integer, Attractivities> mapping = new HashMap<>();
 		AttractivitiesData structuralData = attractivityDataFrom(attractivitiesDataFile, areaTypeRepository);
 		while (structuralData.hasNext()) {
-			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities();
-			mapping.put(structuralData.currentZone(), attractivities);
+		  int currentZone = structuralData.currentZone();
+		  String zoneId = "Z" + currentZone;
+			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities(zoneId);
+      mapping.put(currentZone, attractivities);
 			structuralData.next();
 		}
 		return mapping;

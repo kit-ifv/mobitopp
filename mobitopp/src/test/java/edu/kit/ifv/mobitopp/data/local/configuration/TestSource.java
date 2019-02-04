@@ -11,8 +11,8 @@ import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
-import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
@@ -30,7 +30,7 @@ public class TestSource implements DataSource {
 
 	@Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, StructuralData demographyData,
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
 			ResultWriter results, AreaTypeRepository areaTypeRepository) throws IOException {
 		throw new RuntimeException("dummy implementation");

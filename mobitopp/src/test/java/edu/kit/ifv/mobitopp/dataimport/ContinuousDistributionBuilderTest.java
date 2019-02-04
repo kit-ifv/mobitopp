@@ -24,7 +24,8 @@ public class ContinuousDistributionBuilderTest {
 
 	@Test
 	public void buildContinuousDistribution() {
-		ContinuousDistribution distribution = builder.buildFor(ContinuousDistribution::new);
+    String zoneId = "1";
+		ContinuousDistribution distribution = builder.buildFor(zoneId, ContinuousDistribution::new);
 
 		assertThat(distribution, is(equalTo(expectedDistribution())));
 	}
@@ -32,8 +33,9 @@ public class ContinuousDistributionBuilderTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void verifiesContinuousDistributionUntilTheEnd() {
 		StructuralData missingAgeGroup = Example.missingAgeGroup();
+    String zoneId = "1";
 		ContinuousDistributionBuilder builder = new ContinuousDistributionBuilder(missingAgeGroup, prefix);
-		builder.buildFor(ContinuousDistribution::new);
+		builder.buildFor(zoneId, ContinuousDistribution::new);
 	}
 	
 	private ContinuousDistribution expectedDistribution() {

@@ -15,7 +15,6 @@ import edu.kit.ifv.mobitopp.data.local.LocalPanelDataRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
-import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
@@ -23,7 +22,6 @@ import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.util.StopWatch;
-import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumReader;
@@ -144,12 +142,11 @@ public class ContextBuilder {
     log("Load data repository");
   }
 
-  private StructuralData demographyData() {
-    File demographyDataFile = Convert.asFile(configuration.getDemographyData());
-    StructuralData structuralData = new StructuralData(
-        new CsvFile(demographyDataFile.getAbsolutePath()));
+  private DemographyData demographyData() {
+    DemographyDataBuilder builder = new DemographyDataBuilder(configuration);
+    DemographyData data = builder.build();
     log("Load demography data");
-    return structuralData;
+    return data;
   }
 
   private PanelDataRepository panelData() {

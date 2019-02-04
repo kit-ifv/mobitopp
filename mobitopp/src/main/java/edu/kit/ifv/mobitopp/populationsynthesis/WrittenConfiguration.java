@@ -15,7 +15,7 @@ public class WrittenConfiguration {
 	private int numberOfZones;
 	private DataSource dataSource;
 	private ActivityScheduleAssignerType activityScheduleAssigner;
-	private String demographyData;
+	private Map<String, String> demographyData;
 	private String panelData;
 	private String visumFile;
 	private CarOwnership carOwnership;
@@ -59,11 +59,11 @@ public class WrittenConfiguration {
 		this.activityScheduleAssigner = activityScheduleAssigner;
 	}
 
-	public String getDemographyData() {
+	public Map<String, String> getDemographyData() {
 		return demographyData;
 	}
 
-	public void setDemographyData(String demographyData) {
+	public void setDemographyData(Map<String, String> demographyData) {
 		this.demographyData = demographyData;
 	}
 

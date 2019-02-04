@@ -25,9 +25,8 @@ public class AttractivitiesDataTest {
 
   @Test
   public void classification() {
-    ZoneClassificationType insideArea = attractivityData.currentClassification();
-    attractivityData.next();
-    ZoneClassificationType outsideArea = attractivityData.currentClassification();
+    ZoneClassificationType insideArea = attractivityData.currentClassification(Example.someZone);
+    ZoneClassificationType outsideArea = attractivityData.currentClassification(Example.anotherZone);
 
     assertThat(insideArea, is(equalTo(ZoneClassificationType.areaOfInvestigation)));
     assertThat(outsideArea, is(equalTo(ZoneClassificationType.outlyingArea)));
@@ -35,11 +34,9 @@ public class AttractivitiesDataTest {
 
   @Test
   public void zoneAreaTypeFromString() {
-    AreaType first = attractivityData.currentZoneAreaType();
-    attractivityData.next();
-    AreaType second = attractivityData.currentZoneAreaType();
-    attractivityData.next();
-    AreaType third = attractivityData.currentZoneAreaType();
+    AreaType first = attractivityData.currentZoneAreaType(Example.someZone);
+    AreaType second = attractivityData.currentZoneAreaType(Example.anotherZone);
+    AreaType third = attractivityData.currentZoneAreaType(Example.otherZone);
 
     assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
     assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));
@@ -50,11 +47,9 @@ public class AttractivitiesDataTest {
   public void zoneAreaTypeFromCode() {
     AttractivitiesData attractivityData = new AttractivitiesData(Example.attractivityDataByCode(),
         Example.areaTypeRepository());
-    AreaType first = attractivityData.currentZoneAreaType();
-    attractivityData.next();
-    AreaType second = attractivityData.currentZoneAreaType();
-    attractivityData.next();
-    AreaType third = attractivityData.currentZoneAreaType();
+    AreaType first = attractivityData.currentZoneAreaType(Example.someZone);
+    AreaType second = attractivityData.currentZoneAreaType(Example.anotherZone);
+    AreaType third = attractivityData.currentZoneAreaType(Example.otherZone);
 
     assertThat(first, is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
     assertThat(second, is(equalTo(ZoneAreaType.CONURBATION)));

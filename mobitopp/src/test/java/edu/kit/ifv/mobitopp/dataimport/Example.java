@@ -17,6 +17,9 @@ import edu.kit.ifv.mobitopp.visum.VisumSurface;
 
 public class Example {
 
+  static final String someZone = "1";
+  static final String anotherZone = "2";
+  static final String otherZone = "3";
   static final int pointX = 1;
   static final int pointY = 2;
   static final int dummyEdge = 3;

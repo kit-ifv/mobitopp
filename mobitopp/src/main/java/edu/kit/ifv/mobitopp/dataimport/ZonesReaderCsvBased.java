@@ -63,13 +63,14 @@ public class ZonesReaderCsvBased implements ZonesReader {
   }
 
   private Zone zoneFrom(VisumZone visumZone) {
+    String visumId = String.valueOf(visumZone.id);
     String id = String.format("Z%1d", visumZone.id);
     String name = visumZone.name;
-    AreaType areaType = currentZoneAreaType();
-    ZoneClassificationType classification = currentClassification();
+    AreaType areaType = currentZoneAreaType(visumId);
+    ZoneClassificationType classification = currentClassification(visumId);
     ZonePolygon polygon = currentZonePolygon(visumZone);
     Location centroid = polygon.centroidLocation();
-    Attractivities attractivities = attractivities();
+    Attractivities attractivities = attractivities(visumId);
     ChargingDataForZone chargingData = chargingData(visumZone, polygon);
     Zone zone = new Zone(id, name, areaType, classification, centroid, attractivities,
         chargingData);
@@ -94,8 +95,8 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return chargingDataBuilder;
   }
 
-  private Attractivities attractivities() {
-    return attractivitiesBuilder().attractivities();
+  private Attractivities attractivities(String zoneId) {
+    return attractivitiesBuilder().attractivities(zoneId);
   }
 
   AttractivitiesBuilder attractivitiesBuilder() {
@@ -119,12 +120,12 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return visumNetwork.areas.get(visumZone.areaId);
   }
 
-  private ZoneClassificationType currentClassification() {
-    return attractivities.currentClassification();
+  private ZoneClassificationType currentClassification(String zoneId) {
+    return attractivities.currentClassification(zoneId);
   }
 
-  private AreaType currentZoneAreaType() {
-    return attractivities.currentZoneAreaType();
+  private AreaType currentZoneAreaType(String zoneId) {
+    return attractivities.currentZoneAreaType(zoneId);
   }
 
   public static ZonesReaderCsvBased from(

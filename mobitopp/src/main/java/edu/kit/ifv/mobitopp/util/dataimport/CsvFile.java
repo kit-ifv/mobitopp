@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
@@ -18,21 +19,25 @@ public class CsvFile {
 	private final Map<String,Integer> columnMapping;
 	private final Map<Integer,Map<Integer,String>> data;
 	private int length;
-
+	
 	public CsvFile(String filename) {
-		this(filename, defaultSeparator);
+		this(new File(filename));
 	}
 	
-	public CsvFile(String filename, char separator) {
+	public CsvFile(File file) {
+	  this(file, defaultSeparator);
+	}
+	
+	public CsvFile(File file, char separator) {
 		this.separator = separator;
 		columnNames = new ArrayList<>();
 		columnMapping = new HashMap<>();
 		data = new HashMap<>();
-		init(filename);
+		init(file);
 	}
 
-	private void init(String filename) {
-		try (CSVReader reader = new CSVReader(createReader(filename), separator)) {
+	private void init(File file) {
+		try (CSVReader reader = new CSVReader(createReader(file), separator)) {
 
 		String[] header = reader.readNext();
 
@@ -65,10 +70,10 @@ public class CsvFile {
 		}
 	}
 
-	protected Reader createReader(String filename) throws FileNotFoundException {
-		return new FileReader(filename);
+	protected Reader createReader(File file) throws FileNotFoundException {
+	  return new FileReader(file);
 	}
-
+	
 	private void createHeader(String[] header) {
 		for(int i=0; i< header.length; i++) {
 			String name = header[i].toLowerCase();
@@ -81,32 +86,6 @@ public class CsvFile {
 		String t = s.replace(',','.');
 
 		return t.replaceFirst("#DIV/0!","0");
-	}
-
-	public void printHeader() {
-
-		for(String column: columnNames) {
-			System.out.println(column);
-		}
-	}
-
-	public void printRow(int row_num) {
-
-		System.out.println(
-				getValue(row_num,"ID") + ";" +
-				getValue(row_num,"NAME") + ";" +
-				getValue(row_num,"AreaType") + ";" +
-				""
-		);
-	}
-
-	public void print() {
-
-		printHeader();
-
-		for(int i=0; i<this.length; i++) {
-			printRow(i);
-		}
 	}
 
 	public int getLength() {

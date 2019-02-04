@@ -24,9 +24,9 @@ import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
-import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
@@ -108,7 +108,7 @@ public class LocalFiles implements DataSource {
 
 	@Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, StructuralData demographyData,
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
 			ResultWriter results, AreaTypeRepository areaTypeRepository) throws IOException {
 		Matrices matrices = matrices();
@@ -125,7 +125,7 @@ public class LocalFiles implements DataSource {
 	}
 
 	private DemandZoneRepository demandZoneRepository(
-			ZoneRepository zoneRepository, StructuralData demographyData) {
+			ZoneRepository zoneRepository, DemographyData demographyData) {
 		return LocalDemandZoneRepository.from(zoneRepository, demographyData);
 	}
 

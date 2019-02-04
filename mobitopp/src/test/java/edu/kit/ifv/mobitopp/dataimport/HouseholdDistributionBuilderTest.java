@@ -23,7 +23,8 @@ public class HouseholdDistributionBuilderTest {
 
 	@Test
 	public void build() {
-		HouseholdDistribution distribution = builder.build();
+    String zoneId = "1";
+		HouseholdDistribution distribution = builder.build(zoneId);
 	
 		assertThat(distribution, is(equalTo(expectedHouseholds())));
 	}

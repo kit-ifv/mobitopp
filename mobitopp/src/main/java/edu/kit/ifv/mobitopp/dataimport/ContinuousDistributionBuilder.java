@@ -18,8 +18,8 @@ public class ContinuousDistributionBuilder {
     this.prefix = prefix;
 	}
 
-	public <T extends ContinuousDistributionIfc> T buildFor(
-			Supplier<T> continuousDistributionFactory) {
+  public <T extends ContinuousDistributionIfc> T buildFor(
+      String zoneId, Supplier<T> continuousDistributionFactory) {
 		T distribution = continuousDistributionFactory.get();
 		List<String> values = new ArrayList<>();
 		for (String attribute : structuralData.getAttributes()) {
@@ -29,7 +29,7 @@ public class ContinuousDistributionBuilder {
 		}
 		for (int index = 0; index < values.size(); index++) {
 			String value = values.get(index);
-			ContinuousDistributionItem valueItem = distributionItemFrom(value);
+			ContinuousDistributionItem valueItem = distributionItemFrom(zoneId, value);
 			distribution.addItem(valueItem);
 		}
 		verify(distribution);
@@ -48,12 +48,12 @@ public class ContinuousDistributionBuilder {
 		}
 	}
 
-	private ContinuousDistributionItem distributionItemFrom(String header) {
-		String tmp = header.replaceFirst(prefix, "");
+	private ContinuousDistributionItem distributionItemFrom(String zoneId, String columnName) {
+		String tmp = columnName.replaceFirst(prefix, "");
 		String[] parts = tmp.split("-");
 		int lowerBound = Integer.parseInt(parts[0]);
 		int upperBound = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.MAX_VALUE;
-		int number = structuralData.valueOrDefault(header);
+		int number = structuralData.valueOrDefault(zoneId, columnName);
 		return new ContinuousDistributionItem(lowerBound, upperBound, number);
 	}
 

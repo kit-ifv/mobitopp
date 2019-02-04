@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -79,7 +80,7 @@ public class ZonesReaderCsvBasedTest {
 
 		when(carSharingBuilder.carsharingIn(any(), any(), any())).thenReturn(carSharingData);
 		when(chargingDataBuilder.chargingData(any(), any())).thenReturn(chargingData);
-		when(attractivitiesBuilder.attractivities()).thenReturn(attractivities);
+		when(attractivitiesBuilder.attractivities(anyString())).thenReturn(attractivities);
 		when(locationSelector.selectLocation(eq(someZone), any())).thenReturn(dummyLocation());
 	}
 
