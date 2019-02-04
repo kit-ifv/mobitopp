@@ -78,10 +78,10 @@ public class StructuralDataTest {
     List<String> attributes = demographyData.getAttributes();
 
     assertThat(attributes, contains("id", "name", "center:x", "center:y", "einwohner in der zone",
-        "age:m:0-5", "age:m:6-9", "age:m:10-15", "age:m:16-18", "age:m:19-24", "age:m:25-29",
-        "age:m:30-44", "age:m:45-59", "age:m:60-64", "age:m:65-74", "age:m:75-", "age:f:0-5",
-        "age:f:6-9", "age:f:10-15", "age:f:16-18", "age:f:19-24", "age:f:25-29", "age:f:30-44",
-        "age:f:45-59", "age:f:60-64", "age:f:65-74", "age:f:75-", "hhtyp:1", "hhtyp:2", "hhtyp:3",
+        "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18", "age_m:19-24", "age_m:25-29",
+        "age_m:30-44", "age_m:45-59", "age_m:60-64", "age_m:65-74", "age_m:75-", "age_f:0-5",
+        "age_f:6-9", "age_f:10-15", "age_f:16-18", "age_f:19-24", "age_f:25-29", "age_f:30-44",
+        "age_f:45-59", "age_f:60-64", "age_f:65-74", "age_f:75-", "hhtyp:1", "hhtyp:2", "hhtyp:3",
         "hhtyp:4", "hhtyp:5", "hhtyp:6", "hhtyp:7", "hhtyp:8", "hhtyp:9", "hhtyp:10", "hhtyp:11",
         "hhtyp:12", "job:fulltime", "job:parttime", "job:none", "job:education_tertiary",
         "job:education_secondary", "job:education_primary", "job:education_occup", "job:retired",

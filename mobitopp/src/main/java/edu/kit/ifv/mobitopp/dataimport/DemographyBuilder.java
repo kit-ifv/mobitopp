@@ -10,9 +10,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 
 public class DemographyBuilder {
 
-  private static final String malePrefix = "age:m:";
-  private static final String femalePrefix = "age:f:";
-  private static final String incomePrefix = "income:";
+  private static final String malePrefix = "age_m";
+  private static final String femalePrefix = "age_f";
+  private static final String incomePrefix = "income";
 
   private final DemographyData demographyData;
 
@@ -21,7 +21,23 @@ public class DemographyBuilder {
     this.demographyData = demographyData;
   }
 
-  public Demography build(String zoneId) {
+  public Demography build(String forZoneId) {
+    if (demographyData.hasData(forZoneId)) {
+      return createDemography(forZoneId);
+    }
+    return emptyDemography();
+  }
+
+  static Demography emptyDemography() {
+    EmploymentDistribution employment = EmploymentDistribution.createDefault();
+    HouseholdDistribution household = HouseholdDistribution.createDefault();
+    FemaleAgeDistribution femaleAge = new FemaleAgeDistribution();
+    MaleAgeDistribution maleAge = new MaleAgeDistribution();
+    IncomeDistribution income = IncomeDistribution.createDefault();
+    return new Demography(employment, household, femaleAge, maleAge, income);
+  }
+
+  private Demography createDemography(String zoneId) {
     HouseholdDistribution household = parseHouseholdDistribution(zoneId);
     MaleAgeDistribution maleAge = parseMaleDistribution(zoneId);
     FemaleAgeDistribution femaleAge = parseFemaleDistribution(zoneId);
@@ -43,12 +59,12 @@ public class DemographyBuilder {
   }
 
   private HouseholdDistribution parseHouseholdDistribution(String zoneId) {
-    StructuralData structuralData = demographyData.get("household_size:");
+    StructuralData structuralData = demographyData.get("household_size");
     return new HouseholdDistributionBuilder(structuralData).build(zoneId);
   }
 
   private EmploymentDistribution parseJobDistribution(String zoneId) {
-    StructuralData structuralData = demographyData.get("employment:");
+    StructuralData structuralData = demographyData.get("employment");
     return new EmploymentDistributionBuilder(structuralData).build(zoneId);
   }
 

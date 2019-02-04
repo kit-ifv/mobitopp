@@ -1,8 +1,11 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
@@ -18,6 +21,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
@@ -135,18 +139,26 @@ public class ContextBuilder {
 
   private void dataRepository() throws IOException {
     int numberOfZones = configuration.getNumberOfZones();
+    Logger logger = zoneId -> System.out.println("Missing zone with ID: " + zoneId); 
+    DemographyData demographyData = demographyData(network, logger);
     dataRepository = configuration
         .getDataSource()
-        .forPopulationSynthesis(network, roadNetwork, demographyData(), panelData(), numberOfZones,
+        .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
             startDate(), resultWriter, areaTypeRepository);
     log("Load data repository");
   }
 
-  private DemographyData demographyData() {
+  private DemographyData demographyData(VisumNetwork network, Logger logger) {
     DemographyDataBuilder builder = new DemographyDataBuilder(configuration);
     DemographyData data = builder.build();
+    verify(data, network, logger);
     log("Load demography data");
     return data;
+  }
+
+  private void verify(DemographyData data, VisumNetwork network, Logger logger) {
+    List<Integer> zoneIds = network.zones.values().stream().map(zone -> zone.id).collect(toList());
+    new DemographyChecker(zoneIds, logger::println).check(data);
   }
 
   private PanelDataRepository panelData() {

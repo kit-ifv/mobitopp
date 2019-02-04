@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 
 public class ContinuousDistributionBuilder {
 
+  private static final String keyDataSeperator = ":";
 	private final StructuralData structuralData;
   private final String prefix;
 
@@ -49,7 +50,7 @@ public class ContinuousDistributionBuilder {
 	}
 
 	private ContinuousDistributionItem distributionItemFrom(String zoneId, String columnName) {
-		String tmp = columnName.replaceFirst(prefix, "");
+		String tmp = columnName.replaceFirst(prefix + keyDataSeperator, "");
 		String[] parts = tmp.split("-");
 		int lowerBound = Integer.parseInt(parts[0]);
 		int upperBound = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.MAX_VALUE;

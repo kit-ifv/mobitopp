@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 
 public class ContinuousDistributionBuilderTest {
 
-	private static final String prefix = "age:f:";
+	private static final String prefix = "age_f";
   private StructuralData demographyData;
 	private ContinuousDistributionBuilder builder;
 
