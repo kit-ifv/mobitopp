@@ -27,6 +27,10 @@ public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
     if (households.isEmpty()) {
       throw new IllegalArgumentException("No households available to select from.");
     }
+    return doSelect(households, amount);
+  }
+
+  private List<WeightedHousehold> doSelect(List<WeightedHousehold> households, int amount) {
     Map<WeightedHousehold, Double> weightedHouseholds = households
         .stream()
         .collect(toMap(Function.identity(), WeightedHousehold::weight));

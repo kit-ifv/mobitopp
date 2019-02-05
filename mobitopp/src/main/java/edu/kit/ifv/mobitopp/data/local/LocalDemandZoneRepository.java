@@ -1,14 +1,12 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
@@ -54,10 +52,6 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 
   public static DemandZoneRepository from(
       ZoneRepository zoneRepository, DemographyData demographyData) {
-    Map<String, Zone> idToZone = zoneRepository
-        .getZones()
-        .stream()
-        .collect(toMap(Zone::getId, Function.identity()));
     Map<Integer, DemandZone> zones = new TreeMap<>();
     for (Zone zone : zoneRepository.getZones()) {
       DemandZone demandZone = createZone(zone, demographyData);
