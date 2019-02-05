@@ -68,7 +68,7 @@ public class LocationSelector implements OpportunityLocationSelector {
 	 */
 	private static <T> BinaryOperator<T> uniqueLocations() {
 		return (location, v) -> {
-			throw new IllegalArgumentException(String.format("Several opportunities at same location", location));
+			throw new IllegalArgumentException(String.format("Several opportunities at same location: %s", location));
 		};
 	}
 
