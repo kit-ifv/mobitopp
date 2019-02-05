@@ -40,14 +40,26 @@ public class StructuralData {
   }
 
   private int indexOf(String zoneId) {
-    if (zoneToIndex.containsKey(zoneId)) {
+    if (hasIndex(zoneId)) {
       return zoneToIndex.getOrDefault(zoneId, defaultIndex);
     }
     throw new IllegalArgumentException("Can not find values for zone with id: " + zoneId);
   }
 
   public boolean hasValue(String zoneId, String key) {
-    return structuralData.hasAttribute(key) && !getValue(zoneId, key).isEmpty();
+    return hasAttribute(key) && hasIndex(zoneId) && isNotEmpty(zoneId, key);
+  }
+
+  private boolean hasAttribute(String key) {
+    return structuralData.hasAttribute(key);
+  }
+
+  private boolean hasIndex(String zoneId) {
+    return zoneToIndex.containsKey(zoneId);
+  }
+
+  private boolean isNotEmpty(String zoneId, String key) {
+    return !getValue(zoneId, key).isEmpty();
   }
 
   public int valueOrDefault(String zoneId, String key) {
