@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
-public class DemographyCheckerTest {
+public class DemographyZoneIdCheckerTest {
 
   @Test
   public void allZonesAreSane() {
@@ -25,9 +25,9 @@ public class DemographyCheckerTest {
     DemographyData data = newDemographyData();
     when(data.hasData(anyString())).thenReturn(true);
     List<String> sink = new ArrayList<>();
-    DemographyChecker checker = new DemographyChecker(zoneIds, sink::add);
+    DemographyZoneIdChecker checker = new DemographyZoneIdChecker(zoneIds, sink::add);
 
-    checker.check(data);
+    checker.verify(data);
 
     assertThat(sink, is(empty()));
 
@@ -37,8 +37,8 @@ public class DemographyCheckerTest {
   private DemographyData newDemographyData() {
     DemographyData data = mock(DemographyData.class);
     when(data.attributes())
-    .thenReturn(asList(StandardAttribute.householdSize, StandardAttribute.femaleAge,
-        StandardAttribute.maleAge));
+        .thenReturn(asList(StandardAttribute.householdSize, StandardAttribute.femaleAge,
+            StandardAttribute.maleAge));
     return data;
   }
 
@@ -48,9 +48,9 @@ public class DemographyCheckerTest {
     DemographyData data = newDemographyData();
     when(data.hasData("1")).thenReturn(true);
     List<String> sink = new ArrayList<>();
-    DemographyChecker checker = new DemographyChecker(zoneIds, sink::add);
+    DemographyZoneIdChecker checker = new DemographyZoneIdChecker(zoneIds, sink::add);
 
-    checker.check(data);
+    checker.verify(data);
 
     assertThat(sink, is(equalTo(asList("2"))));
 
