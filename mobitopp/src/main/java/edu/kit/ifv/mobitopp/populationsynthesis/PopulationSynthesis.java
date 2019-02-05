@@ -97,7 +97,7 @@ public abstract class PopulationSynthesis {
   }
 
   private void doExecuteAfterCreation() {
-    SerialiseDemography serialiser = new SerialiseDemography(context.zoneRepository(),
+    SerialiseDemography serialiser = new SerialiseDemography(context.attributes(), context.zoneRepository(),
         context.resultWriter());
     serialiser.serialiseDemography();
     executeAfterCreation();
