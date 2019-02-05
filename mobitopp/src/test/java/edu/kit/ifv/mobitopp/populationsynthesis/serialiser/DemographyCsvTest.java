@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -7,34 +8,42 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Consumer;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyCsvTest {
 
-  @Test
-  public void createsHeader() {
+  private DemographyCsv demographyCsv;
+
+  @Before
+  public void initialise() {
     ExampleDemandZones zones = ExampleDemandZones.create();
     DemandZoneRepository repository = mock(DemandZoneRepository.class);
     when(repository.getZones()).thenReturn(zones.asList());
-    DemographyCsv demographyCsv = new DemographyCsv(repository);
+    List<AttributeType> attributeTypes = asList(StandardAttribute.maleAge,
+        StandardAttribute.femaleAge);
+    demographyCsv = new DemographyCsv(attributeTypes, repository);
+  }
 
+  @Test
+  public void createsHeader() {
     String header = demographyCsv.createHeader().stream().collect(joining(";"));
 
-    assertEquals("1;HHTyp:1;HHTyp:2;Age:M:0-10;Age:M:11-2147483647;Age:F:0-5;Age:F:6-2147483647",
+    assertEquals(
+        "1;household_size:1;household_size:2;age_m:0-10;age_m:11-2147483647;age_f:0-5;age_f:6-2147483647",
         header);
   }
 
   @Test
   public void serialiseActual() throws IOException {
-    ExampleDemandZones zones = ExampleDemandZones.create();
-    DemandZoneRepository repository = mock(DemandZoneRepository.class);
-    when(repository.getZones()).thenReturn(zones.asList());
-    DemographyCsv demographyCsv = new DemographyCsv(repository);
     @SuppressWarnings("unchecked")
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseActual(results);
@@ -45,10 +54,6 @@ public class DemographyCsvTest {
 
   @Test
   public void serialiseNominal() throws IOException {
-    ExampleDemandZones zones = ExampleDemandZones.create();
-    DemandZoneRepository repository = mock(DemandZoneRepository.class);
-    when(repository.getZones()).thenReturn(zones.asList());
-    DemographyCsv demographyCsv = new DemographyCsv(repository);
     @SuppressWarnings("unchecked")
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseNominal(results);

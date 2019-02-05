@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.Category;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 
@@ -12,10 +13,10 @@ public class SerialiseDemography {
   private final DemographyCsv demographyCsv;
   private final ResultWriter resultWriter;
 
-  public SerialiseDemography(DemandZoneRepository zoneRepository, ResultWriter resultWriter) {
+  public SerialiseDemography(List<AttributeType> attributeTypes, DemandZoneRepository zoneRepository, ResultWriter resultWriter) {
     super();
     this.resultWriter = resultWriter;
-    demographyCsv = new DemographyCsv(zoneRepository);
+    demographyCsv = new DemographyCsv(attributeTypes, zoneRepository);
   }
 
   public void serialiseDemography() {
