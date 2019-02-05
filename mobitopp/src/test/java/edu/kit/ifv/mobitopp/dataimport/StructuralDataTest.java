@@ -69,9 +69,11 @@ public class StructuralDataTest {
   public void hasValue() {
     boolean hasNameValue = demographyData.hasValue(firstZone, "NAME");
     boolean hasNoPrivateVisitValue = demographyData.hasValue(firstZone, "PrivateVisit");
+    boolean missingZone = demographyData.hasValue("missing", "NAME");
 
     assertTrue(hasNameValue);
     assertFalse(hasNoPrivateVisitValue);
+    assertFalse(missingZone);
   }
 
   @Test

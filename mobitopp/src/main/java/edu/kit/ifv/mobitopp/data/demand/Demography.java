@@ -44,7 +44,7 @@ public class Demography implements Serializable {
     return getDistribution(StandardAttribute.maleAge);
   }
 
-  private ContinuousDistributionIfc getDistribution(StandardAttribute type) {
+  public ContinuousDistributionIfc getDistribution(AttributeType type) {
     return continuousDistributions.get(type);
   }
 

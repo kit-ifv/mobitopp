@@ -15,12 +15,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
+
 public class DemographyCheckerTest {
 
   @Test
   public void allZonesAreSane() {
     List<Integer> zoneIds = asList(1, 2);
-    DemographyData data = mock(DemographyData.class);
+    DemographyData data = newDemographyData();
     when(data.hasData(anyString())).thenReturn(true);
     List<String> sink = new ArrayList<>();
     DemographyChecker checker = new DemographyChecker(zoneIds, sink::add);
@@ -32,10 +34,18 @@ public class DemographyCheckerTest {
     zoneIds.stream().map(String::valueOf).forEach(id -> verify(data).hasData(id));
   }
 
+  private DemographyData newDemographyData() {
+    DemographyData data = mock(DemographyData.class);
+    when(data.attributes())
+    .thenReturn(asList(StandardAttribute.householdSize, StandardAttribute.femaleAge,
+        StandardAttribute.maleAge));
+    return data;
+  }
+
   @Test
   public void checksMissingZone() {
     List<Integer> zoneIds = asList(1, 2);
-    DemographyData data = mock(DemographyData.class);
+    DemographyData data = newDemographyData();
     when(data.hasData("1")).thenReturn(true);
     List<String> sink = new ArrayList<>();
     DemographyChecker checker = new DemographyChecker(zoneIds, sink::add);
