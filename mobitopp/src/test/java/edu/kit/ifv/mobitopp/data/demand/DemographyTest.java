@@ -5,9 +5,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -16,9 +21,10 @@ public class DemographyTest {
 
 	private EmploymentDistribution employment;
 	private HouseholdDistribution household;
-	private FemaleAgeDistribution femaleAge;
-	private MaleAgeDistribution maleAge;
-  private IncomeDistribution income;
+	private ContinuousDistributionIfc femaleAge;
+	private ContinuousDistributionIfc maleAge;
+  private Map<AttributeType, ContinuousDistributionIfc> continuousDistributions;
+  private Demography demandModel;
 
 	@Test
 	public void equalsAndHashCode() {
@@ -32,38 +38,35 @@ public class DemographyTest {
 		household = HouseholdDistribution.createDefault();
 		femaleAge = defaultDistributions.createFemaleAge();
 		maleAge = defaultDistributions.createMaleAge();
-		income = defaultDistributions.createIncome();
+		continuousDistributions = new LinkedHashMap<>();
+    continuousDistributions.put(StandardAttribute.maleAge, maleAge);
+    continuousDistributions.put(StandardAttribute.femaleAge, femaleAge);
+    demandModel = new Demography(employment, household, continuousDistributions);
 	}
 
 	@Test
 	public void employment() {
-		assertThat(demandModel().employment(), is(sameInstance(employment)));
+		assertThat(demandModel.employment(), is(sameInstance(employment)));
 	}
 
 	@Test
 	public void household() {
-		assertThat(demandModel().household(), is(sameInstance(household)));
+		assertThat(demandModel.household(), is(sameInstance(household)));
 	}
 
 	@Test
 	public void femaleAge() {
-		assertThat(demandModel().femaleAge(), is(sameInstance(femaleAge)));
+		assertThat(demandModel.femaleAge(), is(sameInstance(femaleAge)));
 	}
 
 	@Test
 	public void maleAge() {
-		assertThat(demandModel().maleAge(), is(sameInstance(maleAge)));
-	}
-	
-	@Test
-	public void income() {
-	  assertThat(demandModel().income(), is(sameInstance(income)));
+		assertThat(demandModel.maleAge(), is(sameInstance(maleAge)));
 	}
 	
 	@Test
 	public void incrementHousehold() {
 		int type = 1;
-		Demography demandModel = demandModel();
 		int beforeIncrement = demandModel.household().getItem(type).amount();
 		
 		demandModel.incrementHousehold(type);
@@ -75,7 +78,6 @@ public class DemographyTest {
 	@Test
 	public void incrementEmployment() {
 		Employment employment = Employment.FULLTIME;
-		Demography demandModel = demandModel();
 		int beforeIncrement = demandModel.employment().getItem(employment).amount();
 		
 		demandModel.incrementEmployment(employment);
@@ -87,7 +89,6 @@ public class DemographyTest {
 	@Test
 	public void incrementFemaleAge() {
 		int age = 1;
-		Demography demandModel = demandModel();
 		int beforeIncrement = demandModel.femaleAge().getItem(age).amount();
 		
 		demandModel.incrementAge(Gender.FEMALE, age);
@@ -99,7 +100,6 @@ public class DemographyTest {
 	@Test
 	public void incrementMaleAge() {
 		int age = 1;
-		Demography demandModel = demandModel();
 		int beforeIncrement = demandModel.maleAge().getItem(age).amount();
 		
 		demandModel.incrementAge(Gender.MALE, age);
@@ -107,8 +107,11 @@ public class DemographyTest {
 		
 		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
 	}
-
-	private Demography demandModel() {
-		return new Demography(employment, household, femaleAge, maleAge, income);
-	}
+	
+	@Test
+  public void createsEmpty() {
+    Demography empty = demandModel.createEmpty();
+    
+    assertThat(empty.femaleAge(), is(equalTo(femaleAge.createEmpty())));
+  }
 }

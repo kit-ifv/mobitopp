@@ -12,10 +12,12 @@ public class ContinuousDistribution
     super();
   }
 
+  @Override
   public boolean hasItem(int value) {
     return items().anyMatch(item -> item.matches(value));
   }
 
+  @Override
   public ContinuousDistributionItem getItem(int value) {
     if (0 > value) {
       throw new IllegalArgumentException("Value must be above 0, but was: " + value);
@@ -31,6 +33,13 @@ public class ContinuousDistribution
 
   public int getTotalAmount() {
     return getItemsInternal().stream().mapToInt(ContinuousDistributionItem::amount).sum();
+  }
+
+  @Override
+  public ContinuousDistributionIfc createEmpty() {
+    ContinuousDistribution empty = new ContinuousDistribution();
+    items().map(ContinuousDistributionItem::createEmpty).forEach(empty::addItem);
+    return empty;
   }
 
 }

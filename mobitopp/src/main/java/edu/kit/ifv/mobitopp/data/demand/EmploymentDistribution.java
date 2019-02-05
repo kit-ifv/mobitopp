@@ -56,4 +56,10 @@ public class EmploymentDistribution
 
 		return distribution;
 	}
+
+  public EmploymentDistribution createEmpty() {
+    EmploymentDistribution employmentDistribution = new EmploymentDistribution();
+    items().map(EmploymentDistributionItem::createEmpty).forEach(employmentDistribution::addItem);
+    return employmentDistribution;
+  }
 }

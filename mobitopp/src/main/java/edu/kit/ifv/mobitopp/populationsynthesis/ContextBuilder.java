@@ -21,6 +21,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
@@ -46,6 +47,7 @@ public class ContextBuilder {
   private DataRepositoryForPopulationSynthesis dataRepository;
   private Map<String, CarSharingCustomerModel> carSharing;
   private File carEngineFile;
+  private DemographyData demographyData;
 
   public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
     super();
@@ -76,6 +78,7 @@ public class ContextBuilder {
     resultWriter();
     visumNetwork();
     roadNetwork();
+    demography();
     dataRepository();
     carSharing();
     carEngine();
@@ -136,24 +139,28 @@ public class ContextBuilder {
     String carCode = visumToMobitopp.getCarTransportSystemCode();
     return network.transportSystems.getBy(carCode);
   }
-
-  private void dataRepository() throws IOException {
-    int numberOfZones = configuration.getNumberOfZones();
-    Logger logger = zoneId -> System.out.println("Missing zone with ID: " + zoneId); 
-    DemographyData demographyData = demographyData(network, logger);
-    dataRepository = configuration
-        .getDataSource()
-        .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
-            startDate(), resultWriter, areaTypeRepository);
-    log("Load data repository");
+  
+  private void demography() {
+    Logger logger = zoneId -> System.out.println("Missing zone with ID: " + zoneId);
+    demographyData = demographyData(network, logger);
+    log("Load demography data");
   }
-
+  
   private DemographyData demographyData(VisumNetwork network, Logger logger) {
     DemographyDataBuilder builder = new DemographyDataBuilder(configuration);
     DemographyData data = builder.build();
     verify(data, network, logger);
     log("Load demography data");
     return data;
+  }
+
+  private void dataRepository() throws IOException {
+    int numberOfZones = configuration.getNumberOfZones();
+    dataRepository = configuration
+        .getDataSource()
+        .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
+            startDate(), resultWriter, areaTypeRepository);
+    log("Load data repository");
   }
 
   private void verify(DemographyData data, VisumNetwork network, Logger logger) {
@@ -184,8 +191,9 @@ public class ContextBuilder {
   }
 
   private SynthesisContext createContext() {
+    List<AttributeType> attributes = demographyData.attributes();
     SimpleSynthesisContext context = new SimpleSynthesisContext(configuration,
-        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile,
+        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile, attributes,
         format, resultWriter);
     log("Create context");
     return context;

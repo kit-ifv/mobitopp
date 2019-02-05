@@ -21,6 +21,7 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class LocalDemandZoneRepositoryTest {
 
@@ -35,11 +36,11 @@ public class LocalDemandZoneRepositoryTest {
 		zoneRepository = mock(ZoneRepository.class);
 		createZones();
 		demographyData = new InMemoryData();
-		demographyData.store("household_size", Example.demographyData());
-		demographyData.store("age_m", Example.demographyData());
-		demographyData.store("age_f", Example.demographyData());
-		demographyData.store("employment", Example.demographyData());
-		demographyData.store("income", Example.demographyData());
+		demographyData.store(StandardAttribute.householdSize, Example.demographyData());
+		demographyData.store(StandardAttribute.maleAge, Example.demographyData());
+		demographyData.store(StandardAttribute.femaleAge, Example.demographyData());
+		demographyData.store(StandardAttribute.employment, Example.demographyData());
+		demographyData.store(StandardAttribute.income, Example.demographyData());
 		expectedDemography = new DemographyBuilder(demographyData).build("1");
 	}
 

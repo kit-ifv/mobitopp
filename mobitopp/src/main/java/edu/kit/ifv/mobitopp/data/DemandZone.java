@@ -1,14 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.IncomeDistribution;
-import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
@@ -23,57 +16,8 @@ public class DemandZone {
     super();
     this.zone = zone;
     this.nominalDemography = nominalDemand;
-    actualDemography = emptyDemographyFrom(nominalDemand);
+    actualDemography = nominalDemand.createEmpty();
     this.population = new PopulationForSetup();
-  }
-
-  private Demography emptyDemographyFrom(Demography nominalDemand) {
-    EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    HouseholdDistribution household = householdDistribution(nominalDemand);
-    FemaleAgeDistribution femaleAge = femaleAgeDistribution(nominalDemand);
-    MaleAgeDistribution maleAge = maleAgeDistribution(nominalDemand);
-    IncomeDistribution income = incomeDistribution(nominalDemand);
-    return new Demography(employment, household, femaleAge, maleAge, income);
-  }
-
-  private FemaleAgeDistribution femaleAgeDistribution(Demography demandModel) {
-    FemaleAgeDistribution distribution = new FemaleAgeDistribution();
-    demandModel
-        .femaleAge()
-        .items()
-        .map(ContinuousDistributionItem::createEmpty)
-        .forEach(distribution::addItem);
-    return distribution;
-  }
-
-  private MaleAgeDistribution maleAgeDistribution(Demography demandModel) {
-    MaleAgeDistribution distribution = new MaleAgeDistribution();
-    demandModel
-        .maleAge()
-        .items()
-        .map(ContinuousDistributionItem::createEmpty)
-        .forEach(distribution::addItem);
-    return distribution;
-  }
-
-  private HouseholdDistribution householdDistribution(Demography demandModel) {
-    HouseholdDistribution distribution = new HouseholdDistribution();
-    demandModel
-        .household()
-        .items()
-        .map(HouseholdDistributionItem::createEmpty)
-        .forEach(distribution::addItem);
-    return distribution;
-  }
-  
-  private IncomeDistribution incomeDistribution(Demography demandModel) {
-    IncomeDistribution distribution = new IncomeDistribution();
-    demandModel
-        .income()
-        .items()
-        .map(ContinuousDistributionItem::createEmpty)
-        .forEach(distribution::addItem);
-    return distribution;
   }
 
   public int getOid() {

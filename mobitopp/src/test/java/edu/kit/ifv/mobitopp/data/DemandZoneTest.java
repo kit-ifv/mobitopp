@@ -5,113 +5,118 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.IncomeDistribution;
-import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemandZoneTest {
 
-	private static final int expectedAmount = 0;
-	private static final int householdType = 1;
-	private Zone zone;
-	private Demography nominal;
-	private EmploymentDistribution nominalEmployment;
-	private HouseholdDistribution nominalHousehold;
-	private FemaleAgeDistribution nominalFemale;
-	private MaleAgeDistribution nominalMale;
-  private IncomeDistribution nominalIncome;
+  private static final int expectedAmount = 0;
+  private static final int householdType = 1;
+  private Zone zone;
+  private Demography nominal;
+  private EmploymentDistribution nominalEmployment;
+  private HouseholdDistribution nominalHousehold;
+  private ContinuousDistributionIfc nominalFemale;
+  private ContinuousDistributionIfc nominalMale;
 
-	@Before
-	public void initialise() {
-		zone = mock(Zone.class);
-		nominalEmployment = EmploymentDistribution.createDefault();
-		nominalHousehold = new HouseholdDistribution();
-		nominalFemale = new FemaleAgeDistribution();
-		nominalMale = new MaleAgeDistribution();
-		nominalIncome = new IncomeDistribution();
-		nominal = new Demography(nominalEmployment, nominalHousehold, nominalFemale, nominalMale, nominalIncome);
-	}
+  @Before
+  public void initialise() {
+    zone = mock(Zone.class);
+    nominalEmployment = EmploymentDistribution.createDefault();
+    nominalHousehold = new HouseholdDistribution();
+    nominalFemale = new ContinuousDistribution();
+    nominalMale = new ContinuousDistribution();
 
-	@Test
-	public void employmentDistribution() {
-		EmploymentDistribution expectedEmployment = EmploymentDistribution.createDefault();
-		DemandZone data = newDataFor(zone);
+    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = new LinkedHashMap<>();
+    continuousDistributions.put(StandardAttribute.maleAge, nominalMale);
+    continuousDistributions.put(StandardAttribute.femaleAge, nominalFemale);
+    nominal = new Demography(nominalEmployment, nominalHousehold, continuousDistributions);
+  }
 
-		EmploymentDistribution distribution = data.actualDemography().employment();
+  @Test
+  public void employmentDistribution() {
+    EmploymentDistribution expectedEmployment = EmploymentDistribution.createDefault();
+    DemandZone data = newDataFor(zone);
 
-		assertThat(distribution, is(equalTo(expectedEmployment)));
-	}
+    EmploymentDistribution distribution = data.actualDemography().employment();
 
-	@Test
-	public void householdDistribution() {
-		int nominalAmount = 2;
-		nominalHousehold.addItem(householdItem(nominalAmount));
-		DemandZone data = newDataFor(zone);
+    assertThat(distribution, is(equalTo(expectedEmployment)));
+  }
 
-		HouseholdDistribution distribution = data.actualDemography().household();
+  @Test
+  public void householdDistribution() {
+    int nominalAmount = 2;
+    nominalHousehold.addItem(householdItem(nominalAmount));
+    DemandZone data = newDataFor(zone);
 
-		assertThat(distribution, is(equalTo(expectedHousehold())));
-	}
+    HouseholdDistribution distribution = data.actualDemography().household();
 
-	private HouseholdDistribution expectedHousehold() {
-		HouseholdDistribution expectedHousehold = new HouseholdDistribution();
-		HouseholdDistributionItem householdItem = householdItem(expectedAmount);
-		expectedHousehold.addItem(householdItem);
-		return expectedHousehold;
-	}
+    assertThat(distribution, is(equalTo(expectedHousehold())));
+  }
 
-	private HouseholdDistributionItem householdItem(int amount) {
-		return new HouseholdDistributionItem(householdType, amount);
-	}
+  private HouseholdDistribution expectedHousehold() {
+    HouseholdDistribution expectedHousehold = new HouseholdDistribution();
+    HouseholdDistributionItem householdItem = householdItem(expectedAmount);
+    expectedHousehold.addItem(householdItem);
+    return expectedHousehold;
+  }
 
-	@Test
-	public void femaleAgeDistribution() {
-		int nominalAmount = 3;
-		nominalFemale.addItem(newAgeItem(nominalAmount));
-		DemandZone data = newDataFor(zone);
+  private HouseholdDistributionItem householdItem(int amount) {
+    return new HouseholdDistributionItem(householdType, amount);
+  }
 
-		ContinuousDistributionIfc distribution = data.actualDemography().femaleAge();
+  @Test
+  public void femaleAgeDistribution() {
+    int nominalAmount = 3;
+    nominalFemale.addItem(newAgeItem(nominalAmount));
+    DemandZone data = newDataFor(zone);
 
-		assertThat(distribution, is(equalTo(expectedFemale())));
-	}
+    ContinuousDistributionIfc distribution = data.actualDemography().femaleAge();
 
-	private FemaleAgeDistribution expectedFemale() {
-		FemaleAgeDistribution expectedFemale = new FemaleAgeDistribution();
-		expectedFemale.addItem(newAgeItem(expectedAmount));
-		return expectedFemale;
-	}
+    assertThat(distribution, is(equalTo(expectedFemale())));
+  }
 
-	private ContinuousDistributionItem newAgeItem(int amount) {
-		return new ContinuousDistributionItem(0, 1, amount);
-	}
+  private ContinuousDistributionIfc expectedFemale() {
+    ContinuousDistributionIfc expectedFemale = new ContinuousDistribution();
+    expectedFemale.addItem(newAgeItem(expectedAmount));
+    return expectedFemale;
+  }
 
-	@Test
-	public void maleAgeDistribution() {
-		int nominalAmount = 4;
-		nominalMale.addItem(newAgeItem(nominalAmount));
-		DemandZone data = newDataFor(zone);
+  private ContinuousDistributionItem newAgeItem(int amount) {
+    return new ContinuousDistributionItem(0, 1, amount);
+  }
 
-		ContinuousDistributionIfc distribution = data.actualDemography().maleAge();
+  @Test
+  public void maleAgeDistribution() {
+    int nominalAmount = 4;
+    nominalMale.addItem(newAgeItem(nominalAmount));
+    DemandZone data = newDataFor(zone);
 
-		assertThat(distribution, is(equalTo(expectedMale())));
-	}
+    ContinuousDistributionIfc distribution = data.actualDemography().maleAge();
 
-	private MaleAgeDistribution expectedMale() {
-		MaleAgeDistribution expectedMale = new MaleAgeDistribution();
-		expectedMale.addItem(newAgeItem(expectedAmount));
-		return expectedMale;
-	}
+    assertThat(distribution, is(equalTo(expectedMale())));
+  }
 
-	private DemandZone newDataFor(Zone zone) {
-		return new DemandZone(zone, nominal);
-	}
+  private ContinuousDistributionIfc expectedMale() {
+    ContinuousDistributionIfc expectedMale = new ContinuousDistribution();
+    expectedMale.addItem(newAgeItem(expectedAmount));
+    return expectedMale;
+  }
+
+  private DemandZone newDataFor(Zone zone) {
+    return new DemandZone(zone, nominal);
+  }
 }
