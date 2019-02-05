@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -20,6 +21,12 @@ public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
 
   @Override
   public List<WeightedHousehold> selectFrom(List<WeightedHousehold> households, int amount) {
+    if (0 == amount) {
+      return emptyList();
+    }
+    if (households.isEmpty()) {
+      throw new IllegalArgumentException("No households available to select from.");
+    }
     Map<WeightedHousehold, Double> weightedHouseholds = households
         .stream()
         .collect(toMap(Function.identity(), WeightedHousehold::weight));
