@@ -16,11 +16,17 @@ public class DemographyChecker {
   }
 
   public void check(DemographyData data) {
-    zoneIds.stream().map(String::valueOf).filter(missing(data)).forEach(this::log);
+    zoneIds.stream().map(String::valueOf).filter(missing(data)).sorted().forEach(this::log);
   }
 
   private Predicate<String> missing(DemographyData data) {
-    return id -> !data.hasData(id);
+    return id -> {
+      try {
+        return !data.hasData(id);
+      } catch (IllegalArgumentException exception) {
+        return true;
+      }
+    };
   }
 
   private void log(String zoneId) {

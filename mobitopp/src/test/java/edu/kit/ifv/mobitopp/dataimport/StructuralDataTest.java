@@ -31,9 +31,9 @@ public class StructuralDataTest {
     String second = demographyData.getValue(secondZone, "NAME");
     String third = demographyData.getValue(thirdZone, "NAME");
 
-    assertEquals("LB_Affalterbach (G)", first);
-    assertEquals("LB_Asperg_West", second);
-    assertEquals("LB_Asperg_Ost (G)", third);
+    assertEquals("Zone 1", first);
+    assertEquals("Zone 2", second);
+    assertEquals("Zone 3", third);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -44,13 +44,14 @@ public class StructuralDataTest {
 
   @Test
   public void valueOrDefault() {
-    int defaultValue = demographyData.valueOrDefault(firstZone, "Rundweg");
-    int existingValue = demographyData.valueOrDefault(secondZone, "Rundweg");
+    int defaultValue = demographyData.valueOrDefault(firstZone, "job:infant");
+    int existingValue = demographyData.valueOrDefault(secondZone, "job:infant");
 
     assertEquals(StructuralData.defaultValue, defaultValue);
-    assertEquals(8044, existingValue);
+    assertEquals(457, existingValue);
   }
 
+  @Test
   public void valueForMissing() {
     int value = demographyData.valueOrDefault(firstZone, "missing-key");
 
@@ -77,17 +78,16 @@ public class StructuralDataTest {
   public void getAttributes() {
     List<String> attributes = demographyData.getAttributes();
 
-    assertThat(attributes, contains("id", "name", "center:x", "center:y", "einwohner in der zone",
-        "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18", "age_m:19-24", "age_m:25-29",
-        "age_m:30-44", "age_m:45-59", "age_m:60-64", "age_m:65-74", "age_m:75-", "age_f:0-5",
-        "age_f:6-9", "age_f:10-15", "age_f:16-18", "age_f:19-24", "age_f:25-29", "age_f:30-44",
-        "age_f:45-59", "age_f:60-64", "age_f:65-74", "age_f:75-", "hhtyp:1", "hhtyp:2", "hhtyp:3",
-        "hhtyp:4", "hhtyp:5", "hhtyp:6", "hhtyp:7", "hhtyp:8", "hhtyp:9", "hhtyp:10", "hhtyp:11",
-        "hhtyp:12", "job:fulltime", "job:parttime", "job:none", "job:education_tertiary",
-        "job:education_secondary", "job:education_primary", "job:education_occup", "job:retired",
-        "job:infant", "arbeit qualifiziert", "arbeit einfach", "arbeit selbst�ndig",
-        "arbeit teilzeit", "t�gl. bedarf", "sonst. bedarf", "erledigung", "besuche, fortb.",
-        "restaurant, kultur", "sport, gr�nanl.", "bringen/holen", "grundschule", "weiterf. schule",
-        "universit�t", "berufsschule", "rundweg"));
+    assertThat(attributes,
+        contains("id", "name", "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18",
+            "age_m:19-24", "age_m:25-29", "age_m:30-44", "age_m:45-59", "age_m:60-64",
+            "age_m:65-74", "age_m:75-", "age_f:0-5", "age_f:6-9", "age_f:10-15", "age_f:16-18",
+            "age_f:19-24", "age_f:25-29", "age_f:30-44", "age_f:45-59", "age_f:60-64",
+            "age_f:65-74", "age_f:75-", "household_size:1", "household_size:2", "household_size:3",
+            "household_size:4", "household_size:5", "household_size:6", "household_size:7",
+            "household_size:8", "household_size:9", "household_size:10", "household_size:11",
+            "household_size:12", "job:fulltime", "job:parttime", "job:none",
+            "job:education_tertiary", "job:education_secondary", "job:education_primary",
+            "job:education_occup", "job:retired", "job:infant"));
   }
 }

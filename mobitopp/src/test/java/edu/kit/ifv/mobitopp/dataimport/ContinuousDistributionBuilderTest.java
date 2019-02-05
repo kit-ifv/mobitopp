@@ -9,17 +9,19 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class ContinuousDistributionBuilderTest {
 
-	private static final String prefix = "age_f";
+	private static final AttributeType type = StandardAttribute.femaleAge;
   private StructuralData demographyData;
 	private ContinuousDistributionBuilder builder;
 
 	@Before
 	public void initialise() {
 		demographyData = Example.demographyData();
-		builder = new ContinuousDistributionBuilder(demographyData, prefix);
+		builder = new ContinuousDistributionBuilder(demographyData, type);
 	}
 
 	@Test
@@ -34,7 +36,7 @@ public class ContinuousDistributionBuilderTest {
 	public void verifiesContinuousDistributionUntilTheEnd() {
 		StructuralData missingAgeGroup = Example.missingAgeGroup();
     String zoneId = "1";
-		ContinuousDistributionBuilder builder = new ContinuousDistributionBuilder(missingAgeGroup, prefix);
+		ContinuousDistributionBuilder builder = new ContinuousDistributionBuilder(missingAgeGroup, type);
 		builder.buildFor(zoneId, ContinuousDistribution::new);
 	}
 	

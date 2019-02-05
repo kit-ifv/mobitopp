@@ -5,9 +5,10 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.result.Logger;
 
 public class PrintMaleAge {
@@ -22,9 +23,9 @@ public class PrintMaleAge {
 	}
 
 	public void print(Function<DemandZone, Demography> toDemography, String type) {
-		MaleAgeDistribution total = new MaleAgeDistribution();
+	  ContinuousDistributionIfc total = new ContinuousDistribution();
 		for (DemandZone zone : getZones()) {
-			MaleAgeDistribution distribution = toDemography.apply(zone).maleAge();
+		  ContinuousDistributionIfc distribution = toDemography.apply(zone).maleAge();
 			print(distribution);
 			increment(total, distribution);
 		}
@@ -36,7 +37,7 @@ public class PrintMaleAge {
 		return zoneRepository.getZones();
 	}
 
-	void increment(MaleAgeDistribution total, MaleAgeDistribution distribution) {
+	void increment(ContinuousDistributionIfc total, ContinuousDistributionIfc distribution) {
 		for (ContinuousDistributionItem item : distribution.getItems()) {
 			if (total.hasItem(item.lowerBound())) {
 				for (int i = 0; i < item.amount(); i++) {
@@ -48,7 +49,7 @@ public class PrintMaleAge {
 		}
 	}
 
-	void print(MaleAgeDistribution total) {
+	void print(ContinuousDistributionIfc total) {
 		int grand_total = 0;
 		for (ContinuousDistributionItem item : total.getItems()) {
 			logger().println(item.lowerBound() + "-" + item.upperBound() + ": " + item.amount());

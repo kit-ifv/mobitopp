@@ -54,5 +54,11 @@ public class HouseholdDistribution extends
 		distribution.addItem(new HouseholdDistributionItem(4, 0));
 
 		return distribution;
-	}   
+	}
+
+  public HouseholdDistribution createEmpty() {
+    HouseholdDistribution distribution = new HouseholdDistribution();
+    items().map(HouseholdDistributionItem::createEmpty).forEach(distribution::addItem);
+    return distribution;
+  }   
 }

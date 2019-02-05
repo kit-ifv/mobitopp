@@ -13,14 +13,13 @@ import java.util.TreeMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.FemaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.MaleAgeDistribution;
 import edu.kit.ifv.mobitopp.data.local.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -48,9 +47,9 @@ public class HouseholdWeightCalculatorTest {
 		hhDistribution.addItem(new HouseholdDistributionItem(household.domCode(), 1));
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
-		maleAgeDistribution = new MaleAgeDistribution();
+		maleAgeDistribution = new ContinuousDistribution();
 		maleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
-		femaleAgeDistribution = new FemaleAgeDistribution();
+		femaleAgeDistribution = new ContinuousDistribution();
 		femaleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
 		households = singletonMap(householdId, household);
 	}

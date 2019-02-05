@@ -2,15 +2,17 @@ package edu.kit.ifv.mobitopp.dataimport;
 
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 
 public class EmploymentDistributionBuilder {
 
-	private static final String prefix = "job:";
+	private final AttributeType attributeType;
 	private final StructuralData structuralData;
 
-	public EmploymentDistributionBuilder(StructuralData structuralData) {
+	public EmploymentDistributionBuilder(StructuralData structuralData, AttributeType attributeType) {
 		super();
+		this.attributeType = attributeType;
 		this.structuralData = structuralData;
 	}
 
@@ -22,7 +24,7 @@ public class EmploymentDistributionBuilder {
 	}
 
 	private boolean hasEmploymentInformation() {
-		return structuralData.getAttributes().stream().anyMatch(a -> a.startsWith(prefix));
+		return structuralData.getAttributes().stream().anyMatch(a -> a.startsWith(attributeType.attributeName()));
 	}
 
 	private EmploymentDistribution createDistribution(String zoneId) {

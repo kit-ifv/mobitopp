@@ -9,7 +9,7 @@ import org.junit.Test;
 
 public class ContinuousDistributionTest {
 
-  private ContinuousDistribution distribution;
+  private ContinuousDistributionIfc distribution;
   private int firstValue;
   private int secondValue;
   private int amount;
@@ -42,5 +42,13 @@ public class ContinuousDistributionTest {
     int totalAmount = distribution.getTotalAmount();
     
     assertThat(totalAmount, is(equalTo(firstItem.amount() + secondItem.amount())));
+  }
+  
+  @Test
+  public void createsEmptyDistribution() {
+    ContinuousDistributionIfc empty = distribution.createEmpty();
+    
+    assertThat(empty.getItem(firstValue).amount(), is(equalTo(0)));
+    assertThat(empty.getItem(secondValue).amount(), is(equalTo(0)));
   }
 }

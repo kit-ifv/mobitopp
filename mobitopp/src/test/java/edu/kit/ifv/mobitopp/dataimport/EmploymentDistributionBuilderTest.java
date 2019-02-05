@@ -15,6 +15,7 @@ import org.junit.rules.TemporaryFolder;
 
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
@@ -31,7 +32,7 @@ public class EmploymentDistributionBuilderTest {
 	public void initialise() throws IOException {
 		createFileWithHeader();
 		demographyData = Example.demographyData();
-		builder = new EmploymentDistributionBuilder(demographyData);
+		builder = new EmploymentDistributionBuilder(demographyData, StandardAttribute.employment);
 	}
 
 	private void createFileWithHeader() throws IOException {
@@ -51,7 +52,7 @@ public class EmploymentDistributionBuilderTest {
 	public void buildWithMissingData() {
 		StructuralData data = missingData();
     String zoneId = "1";
-		EmploymentDistributionBuilder builder = new EmploymentDistributionBuilder(data);
+		EmploymentDistributionBuilder builder = new EmploymentDistributionBuilder(data, StandardAttribute.employment);
 
 		EmploymentDistribution distribution = builder.build(zoneId);
 
@@ -72,7 +73,7 @@ public class EmploymentDistributionBuilderTest {
 		distribution.addItem(new EmploymentDistributionItem(Employment.STUDENT_PRIMARY, 174));
 		distribution.addItem(new EmploymentDistributionItem(Employment.EDUCATION, 120));
 		distribution.addItem(new EmploymentDistributionItem(Employment.RETIRED, 1035));
-		distribution.addItem(new EmploymentDistributionItem(Employment.INFANT, 243));
+		distribution.addItem(new EmploymentDistributionItem(Employment.INFANT, 0));
 		return distribution;
 	}
 

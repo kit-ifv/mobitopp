@@ -17,4 +17,13 @@ public interface ContinuousDistributionIfc
    */
 
   ContinuousDistributionItem getItem(int value);
+
+  boolean hasItem(int value);
+
+  /**
+   * Create a distribution containing all items with a value of 0.
+   * 
+   * @return a distribution containing all item with a value of 0
+   */
+  ContinuousDistributionIfc createEmpty();
 }
