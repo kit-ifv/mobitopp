@@ -1,9 +1,11 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
@@ -58,17 +60,39 @@ public class ProbabilityBasedSelectorTest {
 
     assertThat(selectedHouseholds, contains(first));
   }
-  
+
   @Test
   public void selectSecondHousehold() {
     Supplier<Double> random = () -> 0.75d;
-    ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random );
-    
+    ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
+
     List<WeightedHousehold> households = createWeightedHouseholds();
     int amount = 1;
     List<WeightedHousehold> selectedHouseholds = selector.selectFrom(households, amount);
-    
+
     assertThat(selectedHouseholds, contains(second));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void selectWithoutHouseholds() {
+    Supplier<Double> random = () -> 0.75d;
+    ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
+    
+    List<WeightedHousehold> households = emptyList();
+    int amount = 1;
+    selector.selectFrom(households, amount);
+  }
+  
+  @Test
+  public void selectNoHouseholds() {
+    Supplier<Double> random = () -> 0.75d;
+    ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
+    
+    List<WeightedHousehold> households = createWeightedHouseholds();
+    int amount = 0;
+    List<WeightedHousehold> selected = selector.selectFrom(households, amount);
+    
+    assertThat(selected, is(empty()));
   }
 
   private List<WeightedHousehold> createWeightedHouseholds() {
