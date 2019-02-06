@@ -17,15 +17,15 @@ public class Demography implements Serializable {
 
   private final EmploymentDistribution employment;
   private final HouseholdDistribution household;
-  private final Map<AttributeType, ContinuousDistributionIfc> continuousDistributions;
+  private final Map<AttributeType, RangeDistributionIfc> rangeDistributions;
 
   public Demography(
       EmploymentDistribution employment, HouseholdDistribution household,
-      Map<AttributeType, ContinuousDistributionIfc> continuousDistributions) {
+      Map<AttributeType, RangeDistributionIfc> rangeDistributions) {
     super();
     this.employment = employment;
     this.household = household;
-    this.continuousDistributions = continuousDistributions;
+    this.rangeDistributions = rangeDistributions;
   }
 
   public EmploymentDistribution employment() {
@@ -36,19 +36,19 @@ public class Demography implements Serializable {
     return household;
   }
 
-  public ContinuousDistributionIfc femaleAge() {
+  public RangeDistributionIfc femaleAge() {
     return getDistribution(StandardAttribute.femaleAge);
   }
 
-  public ContinuousDistributionIfc maleAge() {
+  public RangeDistributionIfc maleAge() {
     return getDistribution(StandardAttribute.maleAge);
   }
 
-  public ContinuousDistributionIfc getDistribution(AttributeType type) {
-    return continuousDistributions.get(type);
+  public RangeDistributionIfc getDistribution(AttributeType type) {
+    return rangeDistributions.get(type);
   }
 
-  public ContinuousDistributionIfc income() {
+  public RangeDistributionIfc income() {
     return getDistribution(StandardAttribute.income);
   }
 
@@ -71,13 +71,13 @@ public class Demography implements Serializable {
   public Demography createEmpty() {
     EmploymentDistribution emptyEmployment = employment.createEmpty();
     HouseholdDistribution emptyHousehold = household.createEmpty();
-    Map<AttributeType, ContinuousDistributionIfc> emptyDistributions = emptyDistributions();
+    Map<AttributeType, RangeDistributionIfc> emptyDistributions = emptyDistributions();
     return new Demography(emptyEmployment, emptyHousehold, emptyDistributions);
   }
 
-  private Map<AttributeType, ContinuousDistributionIfc> emptyDistributions() {
-    LinkedHashMap<AttributeType, ContinuousDistributionIfc> emptyDistributions = new LinkedHashMap<>();
-    for (Entry<AttributeType, ContinuousDistributionIfc> entry : continuousDistributions
+  private Map<AttributeType, RangeDistributionIfc> emptyDistributions() {
+    LinkedHashMap<AttributeType, RangeDistributionIfc> emptyDistributions = new LinkedHashMap<>();
+    for (Entry<AttributeType, RangeDistributionIfc> entry : rangeDistributions
         .entrySet()) {
       emptyDistributions.put(entry.getKey(), entry.getValue().createEmpty());
     }
@@ -86,7 +86,7 @@ public class Demography implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(continuousDistributions, employment, household);
+    return Objects.hash(rangeDistributions, employment, household);
   }
 
   @Override
@@ -98,7 +98,7 @@ public class Demography implements Serializable {
     if (getClass() != obj.getClass())
       return false;
     Demography other = (Demography) obj;
-    return Objects.equals(continuousDistributions, other.continuousDistributions)
+    return Objects.equals(rangeDistributions, other.rangeDistributions)
         && Objects.equals(employment, other.employment)
         && Objects.equals(household, other.household);
   }
@@ -106,7 +106,7 @@ public class Demography implements Serializable {
   @Override
   public String toString() {
     return "Demography [employment=" + employment + ", household=" + household
-        + ", continuousDistributions=" + continuousDistributions + "]";
+        + ", continuousDistributions=" + rangeDistributions + "]";
   }
 
 }

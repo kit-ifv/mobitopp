@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.DemandModelDistributionItemIfc;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
@@ -75,7 +75,7 @@ public class DemographyCsv {
     return demography.getDistribution(type).items().map(DemandModelDistributionItemIfc::amount);
   }
 
-  private String toBounds(ContinuousDistributionItem item, AttributeType type) {
+  private String toBounds(RangeDistributionItem item, AttributeType type) {
     return type.prefix() + item.lowerBound() + "-" + item.upperBound();
   }
 

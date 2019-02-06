@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
@@ -59,7 +59,7 @@ public class DefaultHouseholdBuilderTest {
 		HouseholdForSetup household = build.householdFor(panelHousehold);
 
 		assertThat(demandZone.actualDemography().maleAge().getItems(),
-				hasItem(new ContinuousDistributionItem(11, Integer.MAX_VALUE, 2)));
+				hasItem(new RangeDistributionItem(11, Integer.MAX_VALUE, 2)));
 		verify(householdCreator).createHousehold(panelHousehold, demandZone.zone());
 		verify(personCreator, times(2))
 				.createPerson(any(), eq(panelHousehold), eq(household), eq(demandZone.zone()));

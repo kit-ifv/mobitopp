@@ -13,9 +13,9 @@ import java.util.TreeMap;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
@@ -36,8 +36,8 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 	private HouseholdWeightCalculatorIPFlike calculator;
 	private HouseholdDistribution hhDistribution;
 	private EmploymentDistribution empDistribution;
-	private ContinuousDistributionIfc maleAgeDistribution;
-	private ContinuousDistributionIfc femaleAgeDistribution;
+	private RangeDistributionIfc maleAgeDistribution;
+	private RangeDistributionIfc femaleAgeDistribution;
 	private Map<HouseholdOfPanelDataId, HouseholdOfPanelData> households;
 
 	@Before
@@ -47,10 +47,10 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 		hhDistribution.addItem(new HouseholdDistributionItem(household.domCode(), 1));
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
-		maleAgeDistribution = new ContinuousDistribution();
-		maleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
-		femaleAgeDistribution = new ContinuousDistribution();
-		femaleAgeDistribution.addItem(new ContinuousDistributionItem(0, Integer.MAX_VALUE, 1));
+		maleAgeDistribution = new RangeDistribution();
+		maleAgeDistribution.addItem(new RangeDistributionItem(0, Integer.MAX_VALUE, 1));
+		femaleAgeDistribution = new RangeDistribution();
+		femaleAgeDistribution.addItem(new RangeDistributionItem(0, Integer.MAX_VALUE, 1));
 		households = singletonMap(householdId, household);
 	}
 

@@ -2,8 +2,8 @@ package edu.kit.ifv.mobitopp.data.demand;
 
 import java.util.Objects;
 
-public class ContinuousDistributionItem
-    implements DemandModelDistributionItemIfc, Comparable<ContinuousDistributionItem> {
+public class RangeDistributionItem
+    implements DemandModelDistributionItemIfc, Comparable<RangeDistributionItem> {
 
   private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,7 @@ public class ContinuousDistributionItem
   private final int upperBound;
   private int amount;
 
-  public ContinuousDistributionItem(int lowerBound, int upperBound, int amount) {
+  public RangeDistributionItem(int lowerBound, int upperBound, int amount) {
     super();
     verifyBound(lowerBound);
     verifyBound(upperBound);
@@ -21,7 +21,7 @@ public class ContinuousDistributionItem
     this.amount = amount;
   }
 
-  public ContinuousDistributionItem(ContinuousDistributionItem other) {
+  public RangeDistributionItem(RangeDistributionItem other) {
     this(other.lowerBound, other.upperBound, other.amount);
   }
 
@@ -57,11 +57,11 @@ public class ContinuousDistributionItem
     this.amount += 1;
   }
 
-  public ContinuousDistributionItem createEmpty() {
-    return new ContinuousDistributionItem(lowerBound, upperBound, 0);
+  public RangeDistributionItem createEmpty() {
+    return new RangeDistributionItem(lowerBound, upperBound, 0);
   }
 
-  public int compareTo(ContinuousDistributionItem other) {
+  public int compareTo(RangeDistributionItem other) {
     if (equals(other)) {
       return 0;
     }
@@ -91,7 +91,7 @@ public class ContinuousDistributionItem
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ContinuousDistributionItem other = (ContinuousDistributionItem) obj;
+    RangeDistributionItem other = (RangeDistributionItem) obj;
     return amount == other.amount && lowerBound == other.lowerBound
         && upperBound == other.upperBound;
   }

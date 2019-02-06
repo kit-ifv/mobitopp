@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
@@ -155,8 +155,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		HouseholdDistribution hhDistribution = getNominalHouseholdDistribution(zone);
 
 		EmploymentDistribution empDistribution = getNominalEmploymentDistribution(zone);
-		ContinuousDistributionIfc maleAgeDistribution = getNominalMaleAgeDistribution(zone);
-		ContinuousDistributionIfc femaleAgeDistribution = getNominalFemaleAgeDistribution(zone);
+		RangeDistributionIfc maleAgeDistribution = getNominalMaleAgeDistribution(zone);
+		RangeDistributionIfc femaleAgeDistribution = getNominalFemaleAgeDistribution(zone);
 
 
 		List<HouseholdOfPanelDataId> hhIds = new ArrayList<>(this.households.keySet());
@@ -348,11 +348,11 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return zone.nominalDemography().employment();
 	}
 
-	private ContinuousDistributionIfc getNominalMaleAgeDistribution(DemandZone zone) {
+	private RangeDistributionIfc getNominalMaleAgeDistribution(DemandZone zone) {
 		return zone.nominalDemography().maleAge();
 	}
 
-	private ContinuousDistributionIfc getNominalFemaleAgeDistribution(DemandZone zone) {
+	private RangeDistributionIfc getNominalFemaleAgeDistribution(DemandZone zone) {
 		return zone.nominalDemography().femaleAge();
 	}
 
