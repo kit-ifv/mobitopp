@@ -11,9 +11,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
@@ -29,21 +29,21 @@ public class DemandZoneTest {
   private Demography nominal;
   private EmploymentDistribution nominalEmployment;
   private HouseholdDistribution nominalHousehold;
-  private ContinuousDistributionIfc nominalFemale;
-  private ContinuousDistributionIfc nominalMale;
+  private RangeDistributionIfc nominalFemale;
+  private RangeDistributionIfc nominalMale;
 
   @Before
   public void initialise() {
     zone = mock(Zone.class);
     nominalEmployment = EmploymentDistribution.createDefault();
     nominalHousehold = new HouseholdDistribution();
-    nominalFemale = new ContinuousDistribution();
-    nominalMale = new ContinuousDistribution();
+    nominalFemale = new RangeDistribution();
+    nominalMale = new RangeDistribution();
 
-    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = new LinkedHashMap<>();
-    continuousDistributions.put(StandardAttribute.maleAge, nominalMale);
-    continuousDistributions.put(StandardAttribute.femaleAge, nominalFemale);
-    nominal = new Demography(nominalEmployment, nominalHousehold, continuousDistributions);
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.maleAge, nominalMale);
+    rangeDistributions.put(StandardAttribute.femaleAge, nominalFemale);
+    nominal = new Demography(nominalEmployment, nominalHousehold, rangeDistributions);
   }
 
   @Test
@@ -84,19 +84,19 @@ public class DemandZoneTest {
     nominalFemale.addItem(newAgeItem(nominalAmount));
     DemandZone data = newDataFor(zone);
 
-    ContinuousDistributionIfc distribution = data.actualDemography().femaleAge();
+    RangeDistributionIfc distribution = data.actualDemography().femaleAge();
 
     assertThat(distribution, is(equalTo(expectedFemale())));
   }
 
-  private ContinuousDistributionIfc expectedFemale() {
-    ContinuousDistributionIfc expectedFemale = new ContinuousDistribution();
+  private RangeDistributionIfc expectedFemale() {
+    RangeDistributionIfc expectedFemale = new RangeDistribution();
     expectedFemale.addItem(newAgeItem(expectedAmount));
     return expectedFemale;
   }
 
-  private ContinuousDistributionItem newAgeItem(int amount) {
-    return new ContinuousDistributionItem(0, 1, amount);
+  private RangeDistributionItem newAgeItem(int amount) {
+    return new RangeDistributionItem(0, 1, amount);
   }
 
   @Test
@@ -105,13 +105,13 @@ public class DemandZoneTest {
     nominalMale.addItem(newAgeItem(nominalAmount));
     DemandZone data = newDataFor(zone);
 
-    ContinuousDistributionIfc distribution = data.actualDemography().maleAge();
+    RangeDistributionIfc distribution = data.actualDemography().maleAge();
 
     assertThat(distribution, is(equalTo(expectedMale())));
   }
 
-  private ContinuousDistributionIfc expectedMale() {
-    ContinuousDistributionIfc expectedMale = new ContinuousDistribution();
+  private RangeDistributionIfc expectedMale() {
+    RangeDistributionIfc expectedMale = new RangeDistribution();
     expectedMale.addItem(newAgeItem(expectedAmount));
     return expectedMale;
   }

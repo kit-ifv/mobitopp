@@ -7,9 +7,9 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
@@ -38,27 +38,27 @@ public class ExampleDemandZones {
   private static Demography someDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
     HouseholdDistribution household = someHouseholdDistribution();
-    ContinuousDistributionIfc femaleAge = someFemaleDistribution();
-    ContinuousDistributionIfc maleAge = someMaleDistribution();
-    ContinuousDistributionIfc income = someIncomeDistribution();
-    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = new LinkedHashMap<>();
-    continuousDistributions.put(StandardAttribute.maleAge, maleAge);
-    continuousDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    continuousDistributions.put(StandardAttribute.income, income);
-    return new Demography(employment, household, continuousDistributions);
+    RangeDistributionIfc femaleAge = someFemaleDistribution();
+    RangeDistributionIfc maleAge = someMaleDistribution();
+    RangeDistributionIfc income = someIncomeDistribution();
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.maleAge, maleAge);
+    rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
+    rangeDistributions.put(StandardAttribute.income, income);
+    return new Demography(employment, household, rangeDistributions);
   }
 
-  private static ContinuousDistributionIfc someMaleDistribution() {
-    ContinuousDistributionIfc distribution = new ContinuousDistribution();
-    distribution.addItem(new ContinuousDistributionItem(0, 10, 4));
-    distribution.addItem(new ContinuousDistributionItem(11, Integer.MAX_VALUE, 2));
+  private static RangeDistributionIfc someMaleDistribution() {
+    RangeDistributionIfc distribution = new RangeDistribution();
+    distribution.addItem(new RangeDistributionItem(0, 10, 4));
+    distribution.addItem(new RangeDistributionItem(11, Integer.MAX_VALUE, 2));
     return distribution;
   }
 
-  private static ContinuousDistributionIfc someFemaleDistribution() {
-    ContinuousDistributionIfc distribution = new ContinuousDistribution();
-    distribution.addItem(new ContinuousDistributionItem(0, 5, 2));
-    distribution.addItem(new ContinuousDistributionItem(6, Integer.MAX_VALUE, 1));
+  private static RangeDistributionIfc someFemaleDistribution() {
+    RangeDistributionIfc distribution = new RangeDistribution();
+    distribution.addItem(new RangeDistributionItem(0, 5, 2));
+    distribution.addItem(new RangeDistributionItem(6, Integer.MAX_VALUE, 1));
     return distribution;
   }
 
@@ -72,21 +72,21 @@ public class ExampleDemandZones {
   private static Demography otherDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
     HouseholdDistribution household = someHouseholdDistribution();
-    ContinuousDistributionIfc femaleAge = someFemaleDistribution();
-    ContinuousDistributionIfc maleAge = someMaleDistribution();
-    ContinuousDistributionIfc income = someIncomeDistribution();
-    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = new LinkedHashMap<>();
-    continuousDistributions.put(StandardAttribute.maleAge, maleAge);
-    continuousDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    continuousDistributions.put(StandardAttribute.income, income);
-    return new Demography(employment, household, continuousDistributions);
+    RangeDistributionIfc femaleAge = someFemaleDistribution();
+    RangeDistributionIfc maleAge = someMaleDistribution();
+    RangeDistributionIfc income = someIncomeDistribution();
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.maleAge, maleAge);
+    rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
+    rangeDistributions.put(StandardAttribute.income, income);
+    return new Demography(employment, household, rangeDistributions);
   }
 
-  private static ContinuousDistributionIfc someIncomeDistribution() {
-    ContinuousDistributionIfc income = new ContinuousDistribution();
-    income.addItem(new ContinuousDistributionItem(0, 1000, 1));
-    income.addItem(new ContinuousDistributionItem(1001, 2000, 2));
-    income.addItem(new ContinuousDistributionItem(2001, Integer.MAX_VALUE, 2));
+  private static RangeDistributionIfc someIncomeDistribution() {
+    RangeDistributionIfc income = new RangeDistribution();
+    income.addItem(new RangeDistributionItem(0, 1000, 1));
+    income.addItem(new RangeDistributionItem(1001, 2000, 2));
+    income.addItem(new RangeDistributionItem(2001, Integer.MAX_VALUE, 2));
     return income;
   }
 

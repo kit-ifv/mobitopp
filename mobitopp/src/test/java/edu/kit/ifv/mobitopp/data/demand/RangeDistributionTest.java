@@ -7,31 +7,31 @@ import static org.hamcrest.Matchers.is;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ContinuousDistributionTest {
+public class RangeDistributionTest {
 
-  private ContinuousDistributionIfc distribution;
+  private RangeDistributionIfc distribution;
   private int firstValue;
   private int secondValue;
   private int amount;
-  private ContinuousDistributionItem firstItem;
-  private ContinuousDistributionItem secondItem;
+  private RangeDistributionItem firstItem;
+  private RangeDistributionItem secondItem;
 
   @Before
   public void initialise() {
-    distribution = new ContinuousDistribution();
+    distribution = new RangeDistribution();
     firstValue = 1;
     secondValue = 2;
     amount = 2;
-    firstItem = new ContinuousDistributionItem(firstValue, firstValue, amount);
-    secondItem = new ContinuousDistributionItem(secondValue, secondValue, amount);
+    firstItem = new RangeDistributionItem(firstValue, firstValue, amount);
+    secondItem = new RangeDistributionItem(secondValue, secondValue, amount);
     distribution.addItem(firstItem);
     distribution.addItem(secondItem);
   }
 
   @Test
   public void getsItemForValue() {
-    ContinuousDistributionItem first = distribution.getItem(firstValue);
-    ContinuousDistributionItem second = distribution.getItem(secondValue);
+    RangeDistributionItem first = distribution.getItem(firstValue);
+    RangeDistributionItem second = distribution.getItem(secondValue);
 
     assertThat(first, is(equalTo(firstItem)));
     assertThat(second, is(equalTo(secondItem)));
@@ -46,7 +46,7 @@ public class ContinuousDistributionTest {
   
   @Test
   public void createsEmptyDistribution() {
-    ContinuousDistributionIfc empty = distribution.createEmpty();
+    RangeDistributionIfc empty = distribution.createEmpty();
     
     assertThat(empty.getItem(firstValue).amount(), is(equalTo(0)));
     assertThat(empty.getItem(secondValue).amount(), is(equalTo(0)));

@@ -14,17 +14,17 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 
 public class IterationBuilderTest {
 
   private DemandZone zone;
   private HouseholdDistribution household;
-  private ContinuousDistributionIfc femaleAge;
-  private ContinuousDistributionIfc maleAge;
+  private RangeDistributionIfc femaleAge;
+  private RangeDistributionIfc maleAge;
   private PanelDataRepository panelDataRepository;
-  private ContinuousDistributionIfc income;
+  private RangeDistributionIfc income;
 
   @Before
   public void initialise() {

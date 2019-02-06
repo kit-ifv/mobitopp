@@ -4,24 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 
-public class ContinuousDistributionBuilder {
+public class RangeDistributionBuilder {
 
   private final StructuralData structuralData;
   private final AttributeType attributeType;
 
-  public ContinuousDistributionBuilder(StructuralData structuralData, AttributeType attributeType) {
+  public RangeDistributionBuilder(StructuralData structuralData, AttributeType attributeType) {
     super();
     this.structuralData = structuralData;
     this.attributeType = attributeType;
   }
 
-  public <T extends ContinuousDistributionIfc> T buildFor(
-      String zoneId, Supplier<T> continuousDistributionFactory) {
-    T distribution = continuousDistributionFactory.get();
+  public <T extends RangeDistributionIfc> T buildFor(
+      String zoneId, Supplier<T> distributionFactory) {
+    T distribution = distributionFactory.get();
     List<String> values = new ArrayList<>();
     for (String attribute : structuralData.getAttributes()) {
       if (attribute.startsWith(attributeType.attributeName())) {
@@ -30,16 +30,16 @@ public class ContinuousDistributionBuilder {
     }
     for (int index = 0; index < values.size(); index++) {
       String value = values.get(index);
-      ContinuousDistributionItem valueItem = distributionItemFrom(zoneId, value);
+      RangeDistributionItem valueItem = distributionItemFrom(zoneId, value);
       distribution.addItem(valueItem);
     }
     verify(distribution);
     return distribution;
   }
 
-  private void verify(ContinuousDistributionIfc distribution) {
+  private void verify(RangeDistributionIfc distribution) {
     int lastUpper = 0;
-    for (ContinuousDistributionItem item : distribution.getItems()) {
+    for (RangeDistributionItem item : distribution.getItems()) {
       if (lastUpper + 1 < item.lowerBound()) {
         throw new IllegalArgumentException(String
             .format("Distribution for type %s is not continuous. Missing item between %s and %s",
@@ -49,13 +49,13 @@ public class ContinuousDistributionBuilder {
     }
   }
 
-  private ContinuousDistributionItem distributionItemFrom(String zoneId, String columnName) {
+  private RangeDistributionItem distributionItemFrom(String zoneId, String columnName) {
     String tmp = columnName.replaceFirst(attributeType.prefix(), "");
     String[] parts = tmp.split("-");
     int lowerBound = Integer.parseInt(parts[0]);
     int upperBound = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.MAX_VALUE;
     int number = structuralData.valueOrDefault(zoneId, columnName);
-    return new ContinuousDistributionItem(lowerBound, upperBound, number);
+    return new RangeDistributionItem(lowerBound, upperBound, number);
   }
 
 }

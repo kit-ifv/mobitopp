@@ -10,16 +10,16 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class ContinuousDistributionItemTest {
+public class RangeDistributionItemTest {
 
 	@Test
 	public void createsEmpty() {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
+		RangeDistributionItem item = new RangeDistributionItem(lowerBound, upperBound, amount);
 
-		ContinuousDistributionItem emptyItem = new ContinuousDistributionItem(lowerBound, upperBound, 0);
+		RangeDistributionItem emptyItem = new RangeDistributionItem(lowerBound, upperBound, 0);
 		assertThat(item.createEmpty(), is(equalTo(emptyItem)));
 	}
 
@@ -28,7 +28,7 @@ public class ContinuousDistributionItemTest {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
+		RangeDistributionItem item = new RangeDistributionItem(lowerBound, upperBound, amount);
 
 		item.increment();
 
@@ -40,7 +40,7 @@ public class ContinuousDistributionItemTest {
 		int lowerBound = 1;
 		int upperBound = 1;
 		int amount = 2;
-		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
+		RangeDistributionItem item = new RangeDistributionItem(lowerBound, upperBound, amount);
 
 		assertTrue(item.matches(lowerBound));
 		assertTrue(item.matches(upperBound));
@@ -53,7 +53,7 @@ public class ContinuousDistributionItemTest {
 		int belowLowerBound = lowerBound - 1;
 		int aboveUpperBound = upperBound + 1;
 		int amount = 2;
-		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
+		RangeDistributionItem item = new RangeDistributionItem(lowerBound, upperBound, amount);
 		
 		assertFalse(item.matches(belowLowerBound));
 		assertFalse(item.matches(aboveUpperBound));
@@ -65,7 +65,7 @@ public class ContinuousDistributionItemTest {
 		int upperBound = 3;
 		int betweenBound = 2;
 		int amount = 2;
-		ContinuousDistributionItem item = new ContinuousDistributionItem(lowerBound, upperBound, amount);
+		RangeDistributionItem item = new RangeDistributionItem(lowerBound, upperBound, amount);
 		
 		assertTrue(item.matches(betweenBound));
 	}
@@ -75,8 +75,8 @@ public class ContinuousDistributionItemTest {
 		int lower = 1;
 		int higher = 3;
 		int amount = 2;
-		ContinuousDistributionItem lowerItem = new ContinuousDistributionItem(lower, lower, amount);
-		ContinuousDistributionItem higherItem = new ContinuousDistributionItem(higher, higher, amount);
+		RangeDistributionItem lowerItem = new RangeDistributionItem(lower, lower, amount);
+		RangeDistributionItem higherItem = new RangeDistributionItem(higher, higher, amount);
 		
 		assertThat(lowerItem.compareTo(higherItem), is(lessThan(0)));
 		assertThat(higherItem.compareTo(lowerItem), is(greaterThan(0)));
@@ -85,16 +85,16 @@ public class ContinuousDistributionItemTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnLowerBound() {
-		new ContinuousDistributionItem(-1, 0, 0);
+		new RangeDistributionItem(-1, 0, 0);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnUpperBound() {
-		new ContinuousDistributionItem(0, -1, 0);
+		new RangeDistributionItem(0, -1, 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void failsOnAmount() {
-		new ContinuousDistributionItem(0, 0, -1);
+		new RangeDistributionItem(0, 0, -1);
 	}
 }

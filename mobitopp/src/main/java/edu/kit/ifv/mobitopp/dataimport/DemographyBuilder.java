@@ -10,8 +10,8 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistribution;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
@@ -41,12 +41,12 @@ public class DemographyBuilder {
   Demography createEmptyDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
     HouseholdDistribution household = HouseholdDistribution.createDefault();
-    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = continuousAttributes()
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = continuousAttributes()
         .stream()
         .collect(Collectors
-            .toMap(Function.identity(), item -> new ContinuousDistribution(), uniqueDistributions(),
+            .toMap(Function.identity(), item -> new RangeDistribution(), uniqueDistributions(),
                 TreeMap::new));
-    return new Demography(employment, household, continuousDistributions);
+    return new Demography(employment, household, rangeDistributions);
   }
 
   private List<AttributeType> continuousAttributes() {
@@ -68,12 +68,12 @@ public class DemographyBuilder {
   private Demography createDemography(String zoneId) {
     HouseholdDistribution household = parseHouseholdDistribution(zoneId);
     EmploymentDistribution employment = parseJobDistribution(zoneId);
-    Map<AttributeType, ContinuousDistributionIfc> continuousDistributions = parseDistributions(
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = parseDistributions(
         zoneId);
-    return new Demography(employment, household, continuousDistributions);
+    return new Demography(employment, household, rangeDistributions);
   }
 
-  private Map<AttributeType, ContinuousDistributionIfc> parseDistributions(String zoneId) {
+  private Map<AttributeType, RangeDistributionIfc> parseDistributions(String zoneId) {
     return continuousAttributes()
         .stream()
         .collect(toMap(Function.identity(), item -> parseDistribution(zoneId, item),
@@ -93,9 +93,9 @@ public class DemographyBuilder {
     return EmploymentDistribution.createDefault();
   }
 
-  private ContinuousDistributionIfc parseDistribution(String zoneId, AttributeType type) {
+  private RangeDistributionIfc parseDistribution(String zoneId, AttributeType type) {
     StructuralData structuralData = demographyData.get(type);
-    return new ContinuousDistributionBuilder(structuralData, type)
-        .buildFor(zoneId, ContinuousDistribution::new);
+    return new RangeDistributionBuilder(structuralData, type)
+        .buildFor(zoneId, RangeDistribution::new);
   }
 }

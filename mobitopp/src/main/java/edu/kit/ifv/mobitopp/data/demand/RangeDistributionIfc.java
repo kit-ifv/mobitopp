@@ -1,13 +1,12 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
 /**
- * Interface for a continuous distributions.
- *
- * @version $Id: AgeDistributionIfcG.java,v 1.1.1.2 2010-09-22 13:44:30 mallig Exp $
+ * Interface for a distributions with range based items. Each item has a lower and upper bound.
+ * 
  */
 
-public interface ContinuousDistributionIfc
-    extends DemandModelDistributionIfc<ContinuousDistributionItem>
+public interface RangeDistributionIfc
+    extends DemandModelDistributionIfc<RangeDistributionItem>
 {
   /**
    * Returns the item for the specified value.
@@ -16,7 +15,7 @@ public interface ContinuousDistributionIfc
    * @return the found distribution item for the value
    */
 
-  ContinuousDistributionItem getItem(int value);
+  RangeDistributionItem getItem(int value);
 
   boolean hasItem(int value);
 
@@ -25,5 +24,5 @@ public interface ContinuousDistributionIfc
    * 
    * @return a distribution containing all item with a value of 0
    */
-  ContinuousDistributionIfc createEmpty();
+  RangeDistributionIfc createEmpty();
 }

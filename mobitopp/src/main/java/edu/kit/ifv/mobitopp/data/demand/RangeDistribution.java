@@ -2,13 +2,13 @@ package edu.kit.ifv.mobitopp.data.demand;
 
 import java.util.NoSuchElementException;
 
-public class ContinuousDistribution
-    extends AbstractDemandModelDistribution<ContinuousDistributionItem>
-    implements ContinuousDistributionIfc {
+public class RangeDistribution
+    extends AbstractDemandModelDistribution<RangeDistributionItem>
+    implements RangeDistributionIfc {
 
   private static final long serialVersionUID = 1L;
 
-  public ContinuousDistribution() {
+  public RangeDistribution() {
     super();
   }
 
@@ -18,7 +18,7 @@ public class ContinuousDistribution
   }
 
   @Override
-  public ContinuousDistributionItem getItem(int value) {
+  public RangeDistributionItem getItem(int value) {
     if (0 > value) {
       throw new IllegalArgumentException("Value must be above 0, but was: " + value);
     }
@@ -32,13 +32,13 @@ public class ContinuousDistribution
   }
 
   public int getTotalAmount() {
-    return getItemsInternal().stream().mapToInt(ContinuousDistributionItem::amount).sum();
+    return getItemsInternal().stream().mapToInt(RangeDistributionItem::amount).sum();
   }
 
   @Override
-  public ContinuousDistributionIfc createEmpty() {
-    ContinuousDistribution empty = new ContinuousDistribution();
-    items().map(ContinuousDistributionItem::createEmpty).forEach(empty::addItem);
+  public RangeDistributionIfc createEmpty() {
+    RangeDistribution empty = new RangeDistribution();
+    items().map(RangeDistributionItem::createEmpty).forEach(empty::addItem);
     return empty;
   }
 

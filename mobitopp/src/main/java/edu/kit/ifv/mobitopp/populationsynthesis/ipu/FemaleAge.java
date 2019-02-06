@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Constraint;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.PersonConstraint;
@@ -47,7 +47,7 @@ public class FemaleAge implements Attribute {
 
 	@Override
 	public Constraint createConstraint(Demography demography) {
-		ContinuousDistributionItem item = demography.femaleAge().getItem(lowerBound);
+		RangeDistributionItem item = demography.femaleAge().getItem(lowerBound);
 		int requestedWeight = item.amount();
 		return new PersonConstraint(requestedWeight, name());
 	}

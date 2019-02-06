@@ -21,9 +21,9 @@ public class DemographyTest {
 
 	private EmploymentDistribution employment;
 	private HouseholdDistribution household;
-	private ContinuousDistributionIfc femaleAge;
-	private ContinuousDistributionIfc maleAge;
-  private Map<AttributeType, ContinuousDistributionIfc> continuousDistributions;
+	private RangeDistributionIfc femaleAge;
+	private RangeDistributionIfc maleAge;
+  private Map<AttributeType, RangeDistributionIfc> rangeDistributions;
   private Demography demandModel;
 
 	@Test
@@ -38,10 +38,10 @@ public class DemographyTest {
 		household = HouseholdDistribution.createDefault();
 		femaleAge = defaultDistributions.createFemaleAge();
 		maleAge = defaultDistributions.createMaleAge();
-		continuousDistributions = new LinkedHashMap<>();
-    continuousDistributions.put(StandardAttribute.maleAge, maleAge);
-    continuousDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    demandModel = new Demography(employment, household, continuousDistributions);
+		rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.maleAge, maleAge);
+    rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
+    demandModel = new Demography(employment, household, rangeDistributions);
 	}
 
 	@Test

@@ -9,8 +9,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.ContinuousDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
@@ -41,8 +41,8 @@ class HouseholdWeightCalculatorIPFlike
 	public List<HouseholdOfPanelDataId> calculateWeights(
 		HouseholdDistribution hhDistribution,
 		EmploymentDistribution empDistribution,
-		ContinuousDistributionIfc maleAgeDistribution,
-		ContinuousDistributionIfc femaleAgeDistribution,
+		RangeDistributionIfc maleAgeDistribution,
+		RangeDistributionIfc femaleAgeDistribution,
 		List<HouseholdOfPanelDataId> householdOfPanelDataIds,
 		Map<HouseholdOfPanelDataId,HouseholdOfPanelData> households,
 		Map<HouseholdOfPanelDataId,List<PersonOfPanelData>> persons
@@ -246,14 +246,14 @@ class HouseholdWeightCalculatorIPFlike
 	}
 
 
-	private SortedMap<Integer,Double> normalizedDistribution(ContinuousDistributionIfc distribution) {
+	private SortedMap<Integer,Double> normalizedDistribution(RangeDistributionIfc distribution) {
 
 		SortedMap<Integer,Double> data = new TreeMap<Integer,Double>();
 
 		double total = distribution.getTotalAmount();
 
-		for (ContinuousDistributionItem item:
-					(Collection<ContinuousDistributionItem>) distribution.getItems()) {
+		for (RangeDistributionItem item:
+					(Collection<RangeDistributionItem>) distribution.getItems()) {
 
 			double new_val =  Math.max(item.amount()/total,0.001d);
 
