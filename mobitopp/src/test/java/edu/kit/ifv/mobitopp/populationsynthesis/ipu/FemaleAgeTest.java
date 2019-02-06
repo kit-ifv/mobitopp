@@ -55,6 +55,6 @@ public class FemaleAgeTest {
   }
 
   private FemaleAge newAttribute() {
-    return new FemaleAge(StandardAttribute.femaleAge.prefix(), 0, 5);
+    return new FemaleAge(StandardAttribute.femaleAge, 0, 5);
   }
 }

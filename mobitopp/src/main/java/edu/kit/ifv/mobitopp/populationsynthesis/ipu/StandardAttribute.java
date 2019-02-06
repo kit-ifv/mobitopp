@@ -1,32 +1,34 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DynamicHouseholdAttribute;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.FemaleAge;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.HouseholdSize;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.MaleAge;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public enum StandardAttribute implements AttributeType {
 
+  householdType("HHTyp") {
+
+    @Override
+    public Stream<Attribute> createAttributes(Demography demography) {
+      return createAttributes(demography, HouseholdOfPanelData::domCode);
+    }
+  },
   householdSize("household_size") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return demography.household().items().map(item -> new HouseholdSize(prefix(), item.type()));
+      return createAttributes(demography, HouseholdOfPanelData::size);
     }
   },
   income("income") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return demography
-          .income()
-          .items()
-          .map(item -> new DynamicHouseholdAttribute(prefix(), item.lowerBound(), item.upperBound(),
-              HouseholdOfPanelData::income, Demography::income));
+      return createAttributes(demography, HouseholdOfPanelData::income);
     }
   },
   femaleAge("age_f") {
@@ -36,7 +38,7 @@ public enum StandardAttribute implements AttributeType {
       return demography
           .femaleAge()
           .items()
-          .map(item -> new FemaleAge(prefix(), item.lowerBound(), item.upperBound()));
+          .map(item -> new FemaleAge(this, item.lowerBound(), item.upperBound()));
     }
   },
   maleAge("age_m") {
@@ -46,7 +48,7 @@ public enum StandardAttribute implements AttributeType {
       return demography
           .maleAge()
           .items()
-          .map(item -> new MaleAge(prefix(), item.lowerBound(), item.upperBound()));
+          .map(item -> new MaleAge(this, item.lowerBound(), item.upperBound()));
     }
   },
   employment("job") {
@@ -55,7 +57,8 @@ public enum StandardAttribute implements AttributeType {
     public Stream<Attribute> createAttributes(Demography demography) {
       return Stream.empty();
     }
-  }, distance("distance") {
+  },
+  distance("distance") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
@@ -77,6 +80,34 @@ public enum StandardAttribute implements AttributeType {
   @Override
   public String prefix() {
     return attributeName + ":";
+  }
+  
+  @Override
+  public String createInstanceName(int lowerBound, int upperBound) {
+    return prefix() + lowerBound + "-" + upperBound;
+  }
+  
+  @Override
+  public String createInstanceName(RangeDistributionItem item) {
+    return createInstanceName(item.lowerBound(), item.upperBound());
+  }
+
+  Stream<Attribute> createAttributes(
+      Demography demography, Function<HouseholdOfPanelData, Integer> valueOfHousehold) {
+    return demography
+        .getDistribution(this)
+        .items()
+        .map(item -> createHouseholdAttribute(valueOfHousehold, item));
+  }
+
+  private DynamicHouseholdAttribute createHouseholdAttribute(
+      Function<HouseholdOfPanelData, Integer> valueOfHousehold, RangeDistributionItem item) {
+    return new DynamicHouseholdAttribute(this, item.lowerBound(), item.upperBound(),
+        valueOfHousehold, valueOfDemography());
+  }
+
+  private Function<Demography, RangeDistributionIfc> valueOfDemography() {
+    return demo -> demo.getDistribution(this);
   }
 
   @Override

@@ -12,13 +12,13 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -152,7 +152,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 	private void recalculateHouseholdWeights(DemandZone zone) {
 
-		HouseholdDistribution hhDistribution = getNominalHouseholdDistribution(zone);
+		RangeDistributionIfc hhDistribution = getNominalHouseholdDistribution(zone);
 
 		EmploymentDistribution empDistribution = getNominalEmploymentDistribution(zone);
 		RangeDistributionIfc maleAgeDistribution = getNominalMaleAgeDistribution(zone);
@@ -176,11 +176,11 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	private List<HouseholdForSetup> selectAndInstantiateHouseholds_Var1(DemandZone zone) {
 		List<HouseholdForSetup> households = new ArrayList<>();
 
-		for (HouseholdDistributionItem householdTypeItem : getNominalHouseholdDistribution(zone)
+		for (RangeDistributionItem householdTypeItem : getNominalHouseholdDistribution(zone)
 				.getItemsReverse()) {
 
 			int amount = householdTypeItem.amount();
-			int domCodeType = householdTypeItem.type();
+			int domCodeType = householdTypeItem.lowerBound();
 
 			List<HouseholdOfPanelDataId> householdOfPanelDataIds = retrieveHouseholdIds(domCodeType);
 
@@ -340,8 +340,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return householdCache.get(domCodeType_);
 	}
 
-	private HouseholdDistribution getNominalHouseholdDistribution(DemandZone zone) {
-		return zone.nominalDemography().household();
+	private RangeDistributionIfc getNominalHouseholdDistribution(DemandZone zone) {
+    return zone.nominalDemography().getDistribution(StandardAttribute.householdType);
 	}
 
 	private EmploymentDistribution getNominalEmploymentDistribution(DemandZone zone) {

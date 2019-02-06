@@ -18,7 +18,8 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
+import edu.kit.ifv.mobitopp.data.demand.DefaultDistributions;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
@@ -70,7 +71,7 @@ public class DemandCreatorTest {
 
   @Test
   public void createsEnoughHouseholds() {
-    HouseholdDistribution distribution = householdDistributionFor(firstPanelHousehold);
+    RangeDistributionIfc distribution = householdDistributionFor(firstPanelHousehold);
     List<WeightedHousehold> households = createWeightedHouseholds();
     WeightedHouseholdSelector householdSelector = mock(WeightedHouseholdSelector.class);
     List<WeightedHousehold> selectedHouseholds = asList(first);
@@ -86,7 +87,7 @@ public class DemandCreatorTest {
 
   @Test
   public void createsHouseholdsForEachType() {
-    HouseholdDistribution distribution = householdDistributionFor(firstPanelHousehold,
+    RangeDistributionIfc distribution = householdDistributionFor(firstPanelHousehold,
         secondPanelHousehold, thirdPanelHousehold);
     List<WeightedHousehold> households = createWeightedHouseholds();
     WeightedHouseholdSelector householdSelector = mock(WeightedHouseholdSelector.class);
@@ -100,10 +101,10 @@ public class DemandCreatorTest {
     assertThat(newHouseholds, hasSize(amount));
   }
 
-  private HouseholdDistribution householdDistributionFor(HouseholdOfPanelData... panelHousehold) {
-    HouseholdDistribution distribution = HouseholdDistribution.createDefault();
+  private RangeDistributionIfc householdDistributionFor(HouseholdOfPanelData... panelHousehold) {
+    RangeDistributionIfc distribution = new DefaultDistributions().createHousehold();
     for (HouseholdOfPanelData household : panelHousehold) {
-      distribution.getItem(household.size()).increment();
+      distribution.increment(household.size());
     }
     return distribution;
   }
@@ -121,7 +122,8 @@ public class DemandCreatorTest {
   }
 
   private Map<String, Integer> attributes(HouseholdOfPanelData panelHousehold) {
-    String type = StandardAttribute.householdSize.prefix() + panelHousehold.size();
+    String type = StandardAttribute.householdSize
+        .createInstanceName(panelHousehold.size(), panelHousehold.size());
     return singletonMap(type, 1);
   }
 

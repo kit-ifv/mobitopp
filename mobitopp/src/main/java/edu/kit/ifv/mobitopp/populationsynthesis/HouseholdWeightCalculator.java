@@ -9,12 +9,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -39,7 +37,7 @@ class HouseholdWeightCalculator
 
 
 	public List<HouseholdOfPanelDataId> calculateWeights(
-		HouseholdDistribution hhDistribution,
+		RangeDistributionIfc hhDistribution,
 		EmploymentDistribution empDistribution,
 		RangeDistributionIfc maleAgeDistribution,
 		RangeDistributionIfc femaleAgeDistribution,
@@ -231,23 +229,6 @@ class HouseholdWeightCalculator
 			double new_val =  Math.max(item.amount()/total,0.001d);
 
 			data.put(item.getTypeAsInt(),new_val);
-		}
-
-		return data;
-	}
-
-	private SortedMap<Integer,Double> normalizedDistribution(HouseholdDistribution distribution) {
-
-		SortedMap<Integer,Double> data = new TreeMap<Integer,Double>();
-
-		double total = distribution.getTotalAmount();
-
-		for (HouseholdDistributionItem item:
-					(Collection<HouseholdDistributionItem>) distribution.getItems()) {
-
-			double new_val =  Math.max(item.amount()/total,0.001d);
-
-			data.put(item.type(),new_val);
 		}
 
 		return data;

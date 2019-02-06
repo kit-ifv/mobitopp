@@ -54,6 +54,12 @@ public class RangeDistributionTest {
   }
   
   @Test
+  public void amount() {
+    assertThat(distribution.amount(firstValue), is(equalTo(amount)));
+    assertThat(distribution.amount(secondValue), is(equalTo(amount)));
+  }
+  
+  @Test
   public void createsEmptyDistribution() {
     RangeDistributionIfc empty = distribution.createEmpty();
     

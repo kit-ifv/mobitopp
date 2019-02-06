@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
@@ -27,7 +27,7 @@ public class DemandCreator {
   }
 
   public List<HouseholdForSetup> demandFor(
-      List<WeightedHousehold> households, HouseholdDistribution distribution) {
+      List<WeightedHousehold> households, RangeDistributionIfc distribution) {
     return distribution
         .items()
         .flatMap(item -> filter(households, item))
@@ -36,16 +36,17 @@ public class DemandCreator {
   }
 
   private Stream<WeightedHousehold> filter(
-      List<WeightedHousehold> households, HouseholdDistributionItem item) {
+      List<WeightedHousehold> households, RangeDistributionItem item) {
     List<WeightedHousehold> householdsByType = households
         .stream()
-        .filter(household -> filterType(household, item.type()))
+        .filter(household -> filterType(household, item))
         .collect(toList());
     return householdSelector.selectFrom(householdsByType, item.amount()).stream();
   }
 
-  private boolean filterType(WeightedHousehold household, int type) {
-    return household.attribute(StandardAttribute.householdSize.prefix() + type) > 0;
+  private boolean filterType(WeightedHousehold household, RangeDistributionItem item) {
+    String instanceName = StandardAttribute.householdSize.createInstanceName(item);
+    return household.attribute(instanceName) > 0;
   }
 
   private HouseholdForSetup create(WeightedHousehold household) {

@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
-
 /**
  * Interface for a age distributions.
  *
@@ -9,7 +7,7 @@ import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
  */
 
 public interface HouseholdDistributionIfc
-    extends DemandModelDistributionIfc<HouseholdDistributionItem>
+    extends DemandModelDistributionIfc<RangeDistributionItem>
 {
   /**
    * Returns the item for the specified age.
@@ -18,5 +16,5 @@ public interface HouseholdDistributionIfc
    * @return the found age distribution item
    */
 
-  HouseholdDistributionItem getItem(int age_);
+  RangeDistributionItem getItem(int age_);
 }

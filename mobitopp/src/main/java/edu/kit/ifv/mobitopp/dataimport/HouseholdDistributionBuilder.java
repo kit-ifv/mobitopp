@@ -3,8 +3,9 @@ package edu.kit.ifv.mobitopp.dataimport;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 
 public class HouseholdDistributionBuilder {
@@ -18,12 +19,12 @@ public class HouseholdDistributionBuilder {
     this.attributeType = attributeType;
 	}
 
-	public HouseholdDistribution build(String zoneId) {
-		HouseholdDistribution distribution = new HouseholdDistribution();
+	public RangeDistributionIfc build(String zoneId) {
+		RangeDistributionIfc distribution = new RangeDistribution();
 		for (String type : householdTypes()) {
 			int amount = structuralData.valueOrDefault(zoneId, type);
 			int code = Integer.parseInt(type.replaceAll(attributeType.prefix(), ""));
-			HouseholdDistributionItem hhItem = new HouseholdDistributionItem(code, amount);
+			RangeDistributionItem hhItem = new RangeDistributionItem(code, amount);
 			distribution.addItem(hhItem);
 		}
 		return distribution;

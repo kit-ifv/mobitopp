@@ -9,12 +9,10 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.DemandModelDistributionItemIfc;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
@@ -33,7 +31,7 @@ public class DemographyCsv {
     DemandZone demandZone = zoneRepository.getZones().iterator().next();
     Demography demography = demandZone.actualDemography();
     return StreamUtils
-        .concat(Stream.of(demandZone.getId()), householdsHeaderOf(demography),
+        .concat(Stream.of(demandZone.getId()),
             attributeTypes.stream().flatMap(type -> headerOf(demography, type)))
         .map(String::valueOf)
         .collect(toList());
@@ -64,9 +62,9 @@ public class DemographyCsv {
   }
 
   private String serialised(Demography demography) {
-    return Stream
-        .concat(householdsOf(demography),
-            attributeTypes.stream().flatMap(type -> valuesOf(demography, type)))
+    return attributeTypes
+        .stream()
+        .flatMap(type -> valuesOf(demography, type))
         .map(String::valueOf)
         .collect(joining(";"));
   }
@@ -81,18 +79,6 @@ public class DemographyCsv {
 
   private Stream<Object> headerOf(Demography demography, AttributeType type) {
     return demography.getDistribution(type).items().map(item -> toBounds(item, type));
-  }
-
-  private Stream<Object> householdsOf(Demography demography) {
-    return demography.household().items().map(DemandModelDistributionItemIfc::amount);
-  }
-
-  private Stream<Object> householdsHeaderOf(Demography demography) {
-    return demography.household().items().map(this::toHouseholdBounds);
-  }
-
-  private String toHouseholdBounds(HouseholdDistributionItem item) {
-    return StandardAttribute.householdSize.prefix() + item.type();
   }
 
 }

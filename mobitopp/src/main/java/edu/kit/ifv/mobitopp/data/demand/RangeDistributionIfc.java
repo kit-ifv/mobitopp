@@ -31,4 +31,11 @@ public interface RangeDistributionIfc
    * @param value given value to search the matching element
    */
   void increment(int value);
+
+  /**
+   * Returns the amount of the distribution for the given value.
+   * @param value given value to search the matching element
+   * @return the amount of the distribution for the given value
+   */
+  int amount(int value);
 }

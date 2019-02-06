@@ -13,13 +13,11 @@ import java.util.TreeMap;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.data.local.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -34,7 +32,7 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 	private static final PersonOfPanelData person = ExamplePersonOfPanelData.aPerson;
 
 	private HouseholdWeightCalculatorIPFlike calculator;
-	private HouseholdDistribution hhDistribution;
+	private RangeDistributionIfc hhDistribution;
 	private EmploymentDistribution empDistribution;
 	private RangeDistributionIfc maleAgeDistribution;
 	private RangeDistributionIfc femaleAgeDistribution;
@@ -43,8 +41,8 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 	@Before
 	public void initialise() {
 		calculator = new HouseholdWeightCalculatorIPFlike();
-		hhDistribution = new HouseholdDistribution();
-		hhDistribution.addItem(new HouseholdDistributionItem(household.domCode(), 1));
+		hhDistribution = new RangeDistribution();
+		hhDistribution.addItem(new RangeDistributionItem(household.domCode(), 1));
 		empDistribution = new EmploymentDistribution();
 		empDistribution.addItem(new EmploymentDistributionItem(person.employment(), 1));
 		maleAgeDistribution = new RangeDistribution();

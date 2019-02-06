@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Attribute;
 
 public interface AttributeType {
@@ -12,5 +13,9 @@ public interface AttributeType {
   String prefix();
 
   Stream<Attribute> createAttributes(Demography demography);
+
+  String createInstanceName(int lowerBound, int upperBound);
+
+  String createInstanceName(RangeDistributionItem item);
 
 }
