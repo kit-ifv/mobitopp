@@ -25,4 +25,10 @@ public interface RangeDistributionIfc
    * @return a distribution containing all item with a value of 0
    */
   RangeDistributionIfc createEmpty();
+
+  /**
+   * Increments the amount of the element representing the given value.
+   * @param value given value to search the matching element
+   */
+  void increment(int value);
 }

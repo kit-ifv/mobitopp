@@ -45,6 +45,15 @@ public class RangeDistributionTest {
   }
   
   @Test
+  public void incrementsValue() {
+    distribution.increment(firstValue);
+
+    int amountAfterIncrement = amount + 1;
+    assertThat(distribution.getItem(firstValue).amount(), is(equalTo(amountAfterIncrement)));
+    assertThat(distribution.getItem(secondValue), is(equalTo(secondItem)));
+  }
+  
+  @Test
   public void createsEmptyDistribution() {
     RangeDistributionIfc empty = distribution.createEmpty();
     

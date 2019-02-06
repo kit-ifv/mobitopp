@@ -42,4 +42,9 @@ public class RangeDistribution
     return empty;
   }
 
+  @Override
+  public void increment(int value) {
+    getItem(value).increment();
+  }
+
 }
