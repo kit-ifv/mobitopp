@@ -103,10 +103,13 @@ public class IpuIterationTest {
 		verify(anotherConstraint).calculateGoodnessOfFitFor(households);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void calculatesNoGoodnessForEmptyConstraints() {
 		IpuIteration ipuIteration = new IpuIteration(Collections.emptyList());
-		ipuIteration.calculateGoodnessOfFitFor(households);
+		
+		double goodnessOfFit = ipuIteration.calculateGoodnessOfFitFor(households);
+		
+		assertThat(goodnessOfFit, is(closeTo(Double.MAX_VALUE, margin)));
 	}
 
 	@Test

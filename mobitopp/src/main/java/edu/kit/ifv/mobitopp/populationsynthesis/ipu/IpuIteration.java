@@ -30,7 +30,7 @@ public class IpuIteration implements Iteration {
 				.filter(goodness -> !Double.isInfinite(goodness))
 				.filter(goodness -> !Double.isNaN(goodness))
 				.average()
-				.orElseThrow(() -> new IllegalArgumentException("Could not calculate goodness of fit"));
+				.orElse(Double.MAX_VALUE);
 	}
 
 	@Override
