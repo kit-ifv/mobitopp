@@ -62,9 +62,9 @@ public class Demography implements Serializable {
 
   public void incrementAge(Gender gender, int age) {
     if (Gender.MALE == gender) {
-      maleAge().getItem(age).increment();
+      maleAge().increment(age);
     } else {
-      femaleAge().getItem(age).increment();
+      femaleAge().increment(age);
     }
   }
 
