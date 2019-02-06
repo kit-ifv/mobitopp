@@ -12,29 +12,34 @@ public class RangeDistributionBuilder {
 
   private final StructuralData structuralData;
   private final AttributeType attributeType;
+  private RangeItemParser itemParser;
 
   public RangeDistributionBuilder(StructuralData structuralData, AttributeType attributeType) {
     super();
     this.structuralData = structuralData;
     this.attributeType = attributeType;
+    itemParser = new RangeItemParser(attributeType.prefix());
   }
 
   public <T extends RangeDistributionIfc> T buildFor(
       String zoneId, Supplier<T> distributionFactory) {
     T distribution = distributionFactory.get();
+    for (String value : types()) {
+      RangeDistributionItem valueItem = distributionItemFrom(zoneId, value);
+      distribution.addItem(valueItem);
+    }
+    verify(distribution);
+    return distribution;
+  }
+
+  private List<String> types() {
     List<String> values = new ArrayList<>();
     for (String attribute : structuralData.getAttributes()) {
       if (attribute.startsWith(attributeType.attributeName())) {
         values.add(attribute);
       }
     }
-    for (int index = 0; index < values.size(); index++) {
-      String value = values.get(index);
-      RangeDistributionItem valueItem = distributionItemFrom(zoneId, value);
-      distribution.addItem(valueItem);
-    }
-    verify(distribution);
-    return distribution;
+    return values;
   }
 
   private void verify(RangeDistributionIfc distribution) {
@@ -50,12 +55,8 @@ public class RangeDistributionBuilder {
   }
 
   private RangeDistributionItem distributionItemFrom(String zoneId, String columnName) {
-    String tmp = columnName.replaceFirst(attributeType.prefix(), "");
-    String[] parts = tmp.split("-");
-    int lowerBound = Integer.parseInt(parts[0]);
-    int upperBound = (parts.length == 2) ? Integer.parseInt(parts[1]) : Integer.MAX_VALUE;
     int number = structuralData.valueOrDefault(zoneId, columnName);
-    return new RangeDistributionItem(lowerBound, upperBound, number);
+    return itemParser.parse(number, columnName);
   }
 
 }

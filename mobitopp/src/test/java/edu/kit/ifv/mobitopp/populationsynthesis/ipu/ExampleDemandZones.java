@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 
 public class ExampleDemandZones {
 
@@ -34,15 +32,16 @@ public class ExampleDemandZones {
 
   private static Demography someDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    HouseholdDistribution household = someHouseholdDistribution();
+    RangeDistributionIfc household = someHouseholdDistribution();
     RangeDistributionIfc femaleAge = someFemaleDistribution();
     RangeDistributionIfc maleAge = someMaleDistribution();
     RangeDistributionIfc income = someIncomeDistribution();
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.householdSize, household);
     rangeDistributions.put(StandardAttribute.maleAge, maleAge);
     rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
     rangeDistributions.put(StandardAttribute.income, income);
-    return new Demography(employment, household, rangeDistributions);
+    return new Demography(employment, rangeDistributions);
   }
 
   private static RangeDistributionIfc someMaleDistribution() {
@@ -59,24 +58,25 @@ public class ExampleDemandZones {
     return distribution;
   }
 
-  private static HouseholdDistribution someHouseholdDistribution() {
-    HouseholdDistribution distribution = new HouseholdDistribution();
-    distribution.addItem(new HouseholdDistributionItem(1, 2));
-    distribution.addItem(new HouseholdDistributionItem(2, 3));
+  private static RangeDistributionIfc someHouseholdDistribution() {
+    RangeDistributionIfc distribution = new RangeDistribution();
+    distribution.addItem(new RangeDistributionItem(1, 2));
+    distribution.addItem(new RangeDistributionItem(2, 3));
     return distribution;
   }
 
   private static Demography otherDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    HouseholdDistribution household = someHouseholdDistribution();
+    RangeDistributionIfc household = someHouseholdDistribution();
     RangeDistributionIfc femaleAge = someFemaleDistribution();
     RangeDistributionIfc maleAge = someMaleDistribution();
     RangeDistributionIfc income = someIncomeDistribution();
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.householdSize, household);
     rangeDistributions.put(StandardAttribute.maleAge, maleAge);
     rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
     rangeDistributions.put(StandardAttribute.income, income);
-    return new Demography(employment, household, rangeDistributions);
+    return new Demography(employment, rangeDistributions);
   }
 
   private static RangeDistributionIfc someIncomeDistribution() {

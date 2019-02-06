@@ -25,7 +25,7 @@ public class RangeDistributionBuilderTest {
 	}
 
 	@Test
-	public void buildContinuousDistribution() {
+	public void buildRangeDistribution() {
     String zoneId = "1";
 		RangeDistribution distribution = builder.buildFor(zoneId, RangeDistribution::new);
 

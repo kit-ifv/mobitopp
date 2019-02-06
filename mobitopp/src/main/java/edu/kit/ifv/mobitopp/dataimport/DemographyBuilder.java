@@ -10,18 +10,16 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyBuilder {
 
-  private static final AttributeType householdSize = StandardAttribute.householdSize;
   private static final AttributeType employment = StandardAttribute.employment;
 
   private final DemographyData demographyData;
@@ -40,19 +38,17 @@ public class DemographyBuilder {
 
   Demography createEmptyDemography() {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    HouseholdDistribution household = HouseholdDistribution.createDefault();
-    Map<AttributeType, RangeDistributionIfc> rangeDistributions = continuousAttributes()
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = rangeAttributes()
         .stream()
         .collect(Collectors
             .toMap(Function.identity(), item -> new RangeDistribution(), uniqueDistributions(),
                 TreeMap::new));
-    return new Demography(employment, household, rangeDistributions);
+    return new Demography(employment, rangeDistributions);
   }
 
-  private List<AttributeType> continuousAttributes() {
+  private List<AttributeType> rangeAttributes() {
     List<AttributeType> attributes = new ArrayList<>(demographyData.attributes());
     attributes.remove(employment);
-    attributes.remove(householdSize);
     return attributes;
   }
 
@@ -66,23 +62,17 @@ public class DemographyBuilder {
   }
 
   private Demography createDemography(String zoneId) {
-    HouseholdDistribution household = parseHouseholdDistribution(zoneId);
     EmploymentDistribution employment = parseJobDistribution(zoneId);
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = parseDistributions(
         zoneId);
-    return new Demography(employment, household, rangeDistributions);
+    return new Demography(employment, rangeDistributions);
   }
 
   private Map<AttributeType, RangeDistributionIfc> parseDistributions(String zoneId) {
-    return continuousAttributes()
+    return rangeAttributes()
         .stream()
         .collect(toMap(Function.identity(), item -> parseDistribution(zoneId, item),
             uniqueDistributions(), TreeMap::new));
-  }
-
-  private HouseholdDistribution parseHouseholdDistribution(String zoneId) {
-    StructuralData structuralData = demographyData.get(householdSize);
-    return new HouseholdDistributionBuilder(structuralData, householdSize).build(zoneId);
   }
 
   private EmploymentDistribution parseJobDistribution(String zoneId) {

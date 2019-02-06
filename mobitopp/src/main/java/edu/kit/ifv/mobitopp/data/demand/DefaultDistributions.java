@@ -17,4 +17,15 @@ public class DefaultDistributions {
   public RangeDistributionIfc createIncome() {
     return new RangeDistribution();
   }
+
+  public RangeDistributionIfc createHousehold() {
+    RangeDistributionIfc distribution = new RangeDistribution();
+    
+    distribution.addItem(new RangeDistributionItem(1, 0));
+    distribution.addItem(new RangeDistributionItem(2, 0));
+    distribution.addItem(new RangeDistributionItem(3, 0));
+    distribution.addItem(new RangeDistributionItem(4, 0));
+    
+    return distribution;
+  }
 }

@@ -21,6 +21,10 @@ public class RangeDistributionItem
     this.amount = amount;
   }
 
+  public RangeDistributionItem(int bound, int amount) {
+    this(bound, bound, amount);
+  }
+
   public RangeDistributionItem(RangeDistributionItem other) {
     this(other.lowerBound, other.upperBound, other.amount);
   }

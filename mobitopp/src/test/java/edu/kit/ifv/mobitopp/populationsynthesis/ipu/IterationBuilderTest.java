@@ -15,12 +15,11 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
 
 public class IterationBuilderTest {
 
   private DemandZone zone;
-  private HouseholdDistribution household;
+  private RangeDistributionIfc household;
   private RangeDistributionIfc femaleAge;
   private RangeDistributionIfc maleAge;
   private PanelDataRepository panelDataRepository;
@@ -89,7 +88,7 @@ public class IterationBuilderTest {
 
   private Constraint householdConstraintFor(int type) {
     return new HouseholdConstraint(household.getItem(type).amount(),
-        StandardAttribute.householdSize.prefix() + type);
+        StandardAttribute.householdSize.prefix() + type + "-" + type);
   }
 
   private Constraint incomeConstraintFor(int lower, int upper) {

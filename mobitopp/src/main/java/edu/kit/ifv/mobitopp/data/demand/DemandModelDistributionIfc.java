@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.stream.Stream;
 
@@ -27,8 +28,9 @@ public interface DemandModelDistributionIfc<T extends DemandModelDistributionIte
 	 * 
 	 * @return the items in the demand model distribution.
 	 */
-
 	SortedSet<T> getItems();
+
+  List<T> getItemsReverse();
 	
 	Stream<T> items();
 

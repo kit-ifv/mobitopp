@@ -23,11 +23,10 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.DefaultDistributions;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -79,13 +78,14 @@ public class DemandDataForZoneCalculatorStuttgartTest {
   private Demography demography() {
     DefaultDistributions defaultDistributions = new DefaultDistributions();
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    HouseholdDistribution household = HouseholdDistribution.createDefault();
+    RangeDistributionIfc household = defaultDistributions.createHousehold();
     RangeDistributionIfc femaleAge = defaultDistributions.createFemaleAge();
     RangeDistributionIfc maleAge = defaultDistributions.createMaleAge();
-    Map<AttributeType, RangeDistributionIfc> continuousDistributions = new LinkedHashMap<>();
-    continuousDistributions.put(StandardAttribute.maleAge, maleAge);
-    continuousDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    return new Demography(employment, household, continuousDistributions);
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.householdType, household);
+    rangeDistributions.put(StandardAttribute.maleAge, maleAge);
+    rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
+    return new Demography(employment, rangeDistributions);
   }
 
   @Test

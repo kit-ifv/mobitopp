@@ -20,7 +20,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 public class DemographyTest {
 
 	private EmploymentDistribution employment;
-	private HouseholdDistribution household;
+	private RangeDistributionIfc household;
 	private RangeDistributionIfc femaleAge;
 	private RangeDistributionIfc maleAge;
   private Map<AttributeType, RangeDistributionIfc> rangeDistributions;
@@ -35,13 +35,14 @@ public class DemographyTest {
 	public void initialise() {
 	  DefaultDistributions defaultDistributions = new DefaultDistributions();
 		employment = EmploymentDistribution.createDefault();
-		household = HouseholdDistribution.createDefault();
+		household = defaultDistributions.createHousehold();
 		femaleAge = defaultDistributions.createFemaleAge();
 		maleAge = defaultDistributions.createMaleAge();
 		rangeDistributions = new LinkedHashMap<>();
+		rangeDistributions.put(StandardAttribute.householdSize, household);
     rangeDistributions.put(StandardAttribute.maleAge, maleAge);
     rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    demandModel = new Demography(employment, household, rangeDistributions);
+    demandModel = new Demography(employment, rangeDistributions);
 	}
 
 	@Test

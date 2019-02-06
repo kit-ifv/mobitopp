@@ -11,13 +11,11 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
@@ -28,7 +26,7 @@ public class DemandZoneTest {
   private Zone zone;
   private Demography nominal;
   private EmploymentDistribution nominalEmployment;
-  private HouseholdDistribution nominalHousehold;
+  private RangeDistributionIfc nominalHousehold;
   private RangeDistributionIfc nominalFemale;
   private RangeDistributionIfc nominalMale;
 
@@ -36,14 +34,15 @@ public class DemandZoneTest {
   public void initialise() {
     zone = mock(Zone.class);
     nominalEmployment = EmploymentDistribution.createDefault();
-    nominalHousehold = new HouseholdDistribution();
+    nominalHousehold = new RangeDistribution();
     nominalFemale = new RangeDistribution();
     nominalMale = new RangeDistribution();
 
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
+    rangeDistributions.put(StandardAttribute.householdSize, nominalHousehold);
     rangeDistributions.put(StandardAttribute.maleAge, nominalMale);
     rangeDistributions.put(StandardAttribute.femaleAge, nominalFemale);
-    nominal = new Demography(nominalEmployment, nominalHousehold, rangeDistributions);
+    nominal = new Demography(nominalEmployment, rangeDistributions);
   }
 
   @Test
@@ -62,20 +61,20 @@ public class DemandZoneTest {
     nominalHousehold.addItem(householdItem(nominalAmount));
     DemandZone data = newDataFor(zone);
 
-    HouseholdDistribution distribution = data.actualDemography().household();
+    RangeDistributionIfc distribution = data.actualDemography().household();
 
     assertThat(distribution, is(equalTo(expectedHousehold())));
   }
 
-  private HouseholdDistribution expectedHousehold() {
-    HouseholdDistribution expectedHousehold = new HouseholdDistribution();
-    HouseholdDistributionItem householdItem = householdItem(expectedAmount);
+  private RangeDistributionIfc expectedHousehold() {
+    RangeDistributionIfc expectedHousehold = new RangeDistribution();
+    RangeDistributionItem householdItem = householdItem(expectedAmount);
     expectedHousehold.addItem(householdItem);
     return expectedHousehold;
   }
 
-  private HouseholdDistributionItem householdItem(int amount) {
-    return new HouseholdDistributionItem(householdType, amount);
+  private RangeDistributionItem householdItem(int amount) {
+    return new RangeDistributionItem(householdType, amount);
   }
 
   @Test

@@ -7,8 +7,9 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistribution;
-import edu.kit.ifv.mobitopp.data.demand.HouseholdDistributionItem;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class HouseholdDistributionBuilderTest {
@@ -25,25 +26,25 @@ public class HouseholdDistributionBuilderTest {
   @Test
   public void build() {
     String zoneId = "1";
-    HouseholdDistribution distribution = builder.build(zoneId);
+    RangeDistributionIfc distribution = builder.build(zoneId);
 
     assertThat(distribution, is(equalTo(expectedHouseholds())));
   }
 
-  private HouseholdDistribution expectedHouseholds() {
-    HouseholdDistribution distribution = new HouseholdDistribution();
-    distribution.addItem(new HouseholdDistributionItem(1, 161));
-    distribution.addItem(new HouseholdDistributionItem(2, 508));
-    distribution.addItem(new HouseholdDistributionItem(3, 29));
-    distribution.addItem(new HouseholdDistributionItem(4, 16));
-    distribution.addItem(new HouseholdDistributionItem(5, 402));
-    distribution.addItem(new HouseholdDistributionItem(6, 287));
-    distribution.addItem(new HouseholdDistributionItem(7, 4));
-    distribution.addItem(new HouseholdDistributionItem(8, 108));
-    distribution.addItem(new HouseholdDistributionItem(9, 169));
-    distribution.addItem(new HouseholdDistributionItem(10, 6));
-    distribution.addItem(new HouseholdDistributionItem(11, 122));
-    distribution.addItem(new HouseholdDistributionItem(12, 233));
+  private RangeDistributionIfc expectedHouseholds() {
+    RangeDistributionIfc distribution = new RangeDistribution();
+    distribution.addItem(new RangeDistributionItem(1, 161));
+    distribution.addItem(new RangeDistributionItem(2, 508));
+    distribution.addItem(new RangeDistributionItem(3, 29));
+    distribution.addItem(new RangeDistributionItem(4, 16));
+    distribution.addItem(new RangeDistributionItem(5, 402));
+    distribution.addItem(new RangeDistributionItem(6, 287));
+    distribution.addItem(new RangeDistributionItem(7, 4));
+    distribution.addItem(new RangeDistributionItem(8, 108));
+    distribution.addItem(new RangeDistributionItem(9, 169));
+    distribution.addItem(new RangeDistributionItem(10, 6));
+    distribution.addItem(new RangeDistributionItem(11, 122));
+    distribution.addItem(new RangeDistributionItem(12, 233));
     return distribution;
   }
 }

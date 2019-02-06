@@ -23,7 +23,7 @@ public class MaleAgeTest {
   @Test
   public void createsConstraint() {
     Demography demography = ExampleDemandZones.create().someZone().nominalDemography();
-    MaleAge maleAge = new MaleAge(StandardAttribute.maleAge.prefix(), 0, 10);
+    MaleAge maleAge = new MaleAge(StandardAttribute.maleAge, 0, 10);
 
     Constraint constraint = maleAge.createConstraint(demography);
 
@@ -32,7 +32,7 @@ public class MaleAgeTest {
 
   @Test
   public void valueForHousehold() {
-    MaleAge maleAge = new MaleAge(StandardAttribute.maleAge.prefix(), 0, 5);
+    MaleAge maleAge = new MaleAge(StandardAttribute.maleAge, 0, 5);
 
     HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
     PanelDataRepository panelDataRepository = mock(PanelDataRepository.class);
