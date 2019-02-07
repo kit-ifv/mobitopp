@@ -4,7 +4,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
@@ -14,21 +13,21 @@ public enum StandardAttribute implements AttributeType {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return createAttributes(demography, HouseholdOfPanelData::domCode);
+      return createHouseholdAttributes(demography, HouseholdOfPanelData::domCode);
     }
   },
   householdSize("household_size") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return createAttributes(demography, HouseholdOfPanelData::size);
+      return createHouseholdAttributes(demography, HouseholdOfPanelData::size);
     }
   },
   income("income") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return createAttributes(demography, HouseholdOfPanelData::income);
+      return createHouseholdAttributes(demography, HouseholdOfPanelData::income);
     }
   },
   femaleAge("age_f") {
@@ -92,7 +91,7 @@ public enum StandardAttribute implements AttributeType {
     return createInstanceName(item.lowerBound(), item.upperBound());
   }
 
-  Stream<Attribute> createAttributes(
+  Stream<Attribute> createHouseholdAttributes(
       Demography demography, Function<HouseholdOfPanelData, Integer> valueOfHousehold) {
     return demography
         .getDistribution(this)
@@ -103,11 +102,7 @@ public enum StandardAttribute implements AttributeType {
   private DynamicHouseholdAttribute createHouseholdAttribute(
       Function<HouseholdOfPanelData, Integer> valueOfHousehold, RangeDistributionItem item) {
     return new DynamicHouseholdAttribute(this, item.lowerBound(), item.upperBound(),
-        valueOfHousehold, valueOfDemography());
-  }
-
-  private Function<Demography, RangeDistributionIfc> valueOfDemography() {
-    return demo -> demo.getDistribution(this);
+        valueOfHousehold);
   }
 
   @Override
