@@ -31,7 +31,7 @@ public class DemographyCsv {
     DemandZone demandZone = zoneRepository.getZones().iterator().next();
     Demography demography = demandZone.actualDemography();
     return StreamUtils
-        .concat(Stream.of(demandZone.getId()),
+        .concat(Stream.of("ID"),
             attributeTypes.stream().flatMap(type -> headerOf(demography, type)))
         .map(String::valueOf)
         .collect(toList());
