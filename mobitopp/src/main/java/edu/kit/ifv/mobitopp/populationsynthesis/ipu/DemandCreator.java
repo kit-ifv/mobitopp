@@ -16,14 +16,16 @@ public class DemandCreator {
   private final HouseholdBuilder householdBuilder;
   private final PanelDataRepository panelData;
   private final WeightedHouseholdSelector householdSelector;
+  private final AttributeType attributeType;
 
   public DemandCreator(
       HouseholdBuilder householdBuilder, PanelDataRepository panelDataRepository,
-      WeightedHouseholdSelector householdSelector) {
+      WeightedHouseholdSelector householdSelector, AttributeType attributeType) {
     super();
     this.householdBuilder = householdBuilder;
     this.panelData = panelDataRepository;
     this.householdSelector = householdSelector;
+    this.attributeType = attributeType;
   }
 
   public List<HouseholdForSetup> demandFor(
@@ -45,7 +47,7 @@ public class DemandCreator {
   }
 
   private boolean filterType(WeightedHousehold household, RangeDistributionItem item) {
-    String instanceName = StandardAttribute.householdSize.createInstanceName(item);
+    String instanceName = attributeType.createInstanceName(item);
     return household.attribute(instanceName) > 0;
   }
 

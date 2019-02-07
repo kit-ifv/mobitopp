@@ -1,12 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.demography.DemographyFilesChecker;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyChecker {
 
@@ -26,16 +23,7 @@ public class DemographyChecker {
   }
 
   private void checkDemographyFiles(DemographyData data) {
-    ArrayList<AttributeType> requiredAttributes = requiredAttributes();
-    new DemographyFilesChecker(requiredAttributes).verify(data);
-  }
-
-  private ArrayList<AttributeType> requiredAttributes() {
-    ArrayList<AttributeType> requiredAttributes = new ArrayList<>();
-    requiredAttributes.add(StandardAttribute.householdSize);
-    requiredAttributes.add(StandardAttribute.femaleAge);
-    requiredAttributes.add(StandardAttribute.maleAge);
-    return requiredAttributes;
+    new DemographyFilesChecker().verify(data);
   }
 
   private void checkDemographyContent(DemographyData data) {

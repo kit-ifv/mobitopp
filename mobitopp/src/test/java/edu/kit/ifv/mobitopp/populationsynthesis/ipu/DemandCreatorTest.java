@@ -78,7 +78,8 @@ public class DemandCreatorTest {
     int amount = selectedHouseholds.size();
     when(householdSelector.selectFrom(asList(first, second), amount))
         .thenReturn(selectedHouseholds);
-    DemandCreator creator = new DemandCreator(builder, panelData, householdSelector);
+    DemandCreator creator = new DemandCreator(builder, panelData, householdSelector,
+        StandardAttribute.householdSize);
 
     List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
 
@@ -94,7 +95,8 @@ public class DemandCreatorTest {
     int amount = 1;
     when(householdSelector.selectFrom(asList(first, second), amount)).thenReturn(asList(first));
     when(householdSelector.selectFrom(eq(asList(third)), anyInt())).thenReturn(asList(third));
-    DemandCreator creator = new DemandCreator(builder, panelData, householdSelector);
+    DemandCreator creator = new DemandCreator(builder, panelData, householdSelector,
+        StandardAttribute.householdSize);
 
     List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
 
