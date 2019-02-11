@@ -68,10 +68,10 @@ public class DemographyTest {
 	@Test
 	public void incrementHousehold() {
 		int type = 1;
-		int beforeIncrement = demandModel.household().getItem(type).amount();
+		int beforeIncrement = demandModel.household().amount(type);
 		
 		demandModel.incrementHousehold(type);
-		int actualAmount = demandModel.household().getItem(type).amount();
+		int actualAmount = demandModel.household().amount(type);
 		
 		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
 	}
@@ -79,21 +79,32 @@ public class DemographyTest {
 	@Test
 	public void incrementEmployment() {
 		Employment employment = Employment.FULLTIME;
-		int beforeIncrement = demandModel.employment().getItem(employment).amount();
+		int beforeIncrement = demandModel.employment().amount(employment);
 		
 		demandModel.incrementEmployment(employment);
-		int actualAmount = demandModel.employment().getItem(employment).amount();
+		int actualAmount = demandModel.employment().amount(employment);
 
 		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
 	}
 	
 	@Test
+  public void increment() {
+    int size = 1;
+    int beforeIncrement = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
+    
+    demandModel.increment(StandardAttribute.householdSize, size);
+    int actualAmount = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
+    
+    assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+  }
+	
+	@Test
 	public void incrementFemaleAge() {
 		int age = 1;
-		int beforeIncrement = demandModel.femaleAge().getItem(age).amount();
+		int beforeIncrement = demandModel.femaleAge().amount(age);
 		
 		demandModel.incrementAge(Gender.FEMALE, age);
-		int actualAmount = demandModel.femaleAge().getItem(age).amount();
+		int actualAmount = demandModel.femaleAge().amount(age);
 		
 		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
 	}
@@ -101,10 +112,10 @@ public class DemographyTest {
 	@Test
 	public void incrementMaleAge() {
 		int age = 1;
-		int beforeIncrement = demandModel.maleAge().getItem(age).amount();
+		int beforeIncrement = demandModel.maleAge().amount(age);
 		
 		demandModel.incrementAge(Gender.MALE, age);
-		int actualAmount = demandModel.maleAge().getItem(age).amount();
+		int actualAmount = demandModel.maleAge().amount(age);
 		
 		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
 	}

@@ -6,10 +6,11 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public enum StandardAttribute implements AttributeType {
 
-  householdType("HHTyp") {
+  householdType("hhtyp") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
@@ -61,7 +62,7 @@ public enum StandardAttribute implements AttributeType {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {
-      return Stream.empty();
+      return createPersonAttributes(demography, person -> (int) person.getPoleDistance());
     }
   };
 
@@ -89,6 +90,19 @@ public enum StandardAttribute implements AttributeType {
   @Override
   public String createInstanceName(RangeDistributionItem item) {
     return createInstanceName(item.lowerBound(), item.upperBound());
+  }
+
+  Stream<Attribute> createPersonAttributes(
+      Demography demography, Function<PersonOfPanelData, Integer> valueOfPerson) {
+    return demography
+        .getDistribution(this)
+        .items()
+        .map(item -> createPersonAttribute(valueOfPerson, item));
+  }
+
+  private PersonAttribute createPersonAttribute(
+      Function<PersonOfPanelData, Integer> personValue, RangeDistributionItem item) {
+    return new PersonAttribute(this, item.lowerBound(), item.upperBound(), personValue);
   }
 
   Stream<Attribute> createHouseholdAttributes(
