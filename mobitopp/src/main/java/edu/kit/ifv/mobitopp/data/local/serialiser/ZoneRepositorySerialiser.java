@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -199,11 +200,11 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private Map<Integer, Attractivities> attractivities() {
-		HashMap<Integer, Attractivities> mapping = new HashMap<>();
+		Map<Integer, Attractivities> mapping = new LinkedHashMap<>();
 		AttractivitiesData structuralData = attractivityDataFrom(attractivitiesDataFile, areaTypeRepository);
 		while (structuralData.hasNext()) {
 		  int currentZone = structuralData.currentZone();
-		  String zoneId = "Z" + currentZone;
+		  String zoneId = String.valueOf(currentZone);
 			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities(zoneId);
       mapping.put(currentZone, attractivities);
 			structuralData.next();
