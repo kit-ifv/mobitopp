@@ -23,6 +23,10 @@ public interface SynthesisContext {
 
 	long seed();
 
+  int maxIterations();
+
+  double maxGoodnessDelta();
+
 	File carEngineFile();
 
 	VisumNetwork network();
