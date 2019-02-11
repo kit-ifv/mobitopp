@@ -12,7 +12,10 @@ dataSource: !file
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
-demographyData: data/leopoldshafen/leopoldshafen_Demography.csv
+demographyData: 
+  age_f: data/leopoldshafen/leopoldshafen_Demography.csv
+  age_m: data/leopoldshafen/leopoldshafen_Demography.csv
+  hhtyp: data/leopoldshafen/leopoldshafen_Demography.csv
 #numberOfZones: 2147483647
 panelData: data/leopoldshafen/population.csv
 resultFolder: results/population-synthesis
