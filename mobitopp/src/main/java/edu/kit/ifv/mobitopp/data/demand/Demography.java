@@ -50,6 +50,10 @@ public class Demography implements Serializable {
     return getDistribution(StandardAttribute.income);
   }
 
+  public void increment(AttributeType type, int value) {
+    getDistribution(type).increment(value);
+  }
+
   public void incrementHousehold(int type) {
     household().increment(type);
   }
@@ -60,9 +64,9 @@ public class Demography implements Serializable {
 
   public void incrementAge(Gender gender, int age) {
     if (Gender.MALE == gender) {
-      maleAge().increment(age);
+      increment(StandardAttribute.maleAge, age);
     } else {
-      femaleAge().increment(age);
+      increment(StandardAttribute.femaleAge, age);
     }
   }
 

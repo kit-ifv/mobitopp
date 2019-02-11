@@ -18,6 +18,7 @@ import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
@@ -33,7 +34,8 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCalculatorIfc {
 	
-	private final Results results;
+  private static final AttributeType householdType = StandardAttribute.householdType;
+  private final Results results;
 	public final DemandCategories categories;
 
 	private Map<HouseholdOfPanelDataId,HouseholdOfPanelData> households
@@ -206,7 +208,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		HouseholdForSetup household = newHousehold(zone.zone(), householdOfPanelData);
 		
-		zone.actualDemography().incrementHousehold(householdOfPanelData.domCode());
+		incrementHousehold(zone, householdOfPanelData);
 
 
 		List<PersonOfPanelData> personsOfPanelData = this.personsOfHousehold.get(householdOfPanelData.id());
@@ -340,8 +342,12 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return householdCache.get(domCodeType_);
 	}
 
+  private void incrementHousehold(DemandZone zone, HouseholdOfPanelData householdOfPanelData) {
+    zone.actualDemography().increment(householdType, householdOfPanelData.domCode());
+  }
+
 	private RangeDistributionIfc getNominalHouseholdDistribution(DemandZone zone) {
-    return zone.nominalDemography().getDistribution(StandardAttribute.householdType);
+    return zone.nominalDemography().getDistribution(householdType);
 	}
 
 	private EmploymentDistribution getNominalEmploymentDistribution(DemandZone zone) {

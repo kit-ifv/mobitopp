@@ -38,7 +38,7 @@ public class DemographyCsvTest {
     String header = demographyCsv.createHeader().stream().collect(joining(";"));
 
     assertEquals(
-        "1;household_size:1-1;household_size:2-2;age_m:0-10;age_m:11-2147483647;age_f:0-5;age_f:6-2147483647",
+        "ID;household_size:1-1;household_size:2-2;age_m:0-10;age_m:11-2147483647;age_f:0-5;age_f:6-2147483647",
         header);
   }
 

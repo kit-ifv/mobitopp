@@ -62,4 +62,8 @@ public class EmploymentDistribution
     items().map(EmploymentDistributionItem::createEmpty).forEach(employmentDistribution::addItem);
     return employmentDistribution;
   }
+
+  public int amount(Employment employment) {
+    return getItem(employment).amount();
+  }
 }
