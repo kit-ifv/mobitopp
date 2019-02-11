@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -14,7 +14,7 @@ public class FixedDestinations {
 
   public FixedDestinations() {
     super();
-    fixedDestinations = new HashMap<>();
+    fixedDestinations = new LinkedHashMap<>();
   }
 
   public void add(FixedDestination fixedDestination) {
