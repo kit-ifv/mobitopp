@@ -8,145 +8,165 @@ import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 
 public class WrittenConfiguration {
 
-	public static final int unlimited = Integer.MAX_VALUE;
-	private static final String defaultResultFolder = "log";
+  public static final int unlimited = Integer.MAX_VALUE;
+  private static final String defaultResultFolder = "log";
 
-	private long seed;
-	private int numberOfZones;
-	private DataSource dataSource;
-	private ActivityScheduleAssignerType activityScheduleAssigner;
-	private Map<String, String> demographyData;
-	private String panelData;
-	private String visumFile;
-	private CarOwnership carOwnership;
-	private Map<String, String> carSharing;
-	private String commuterTicket;
-	private String resultFolder;
-	private VisumToMobitopp visumToMobitopp;
-	private Map<String, String> experimental;
+  private long seed;
+  private int maxIterations;
 
-	public WrittenConfiguration() {
-		super();
-		numberOfZones = unlimited;
-		activityScheduleAssigner = ActivityScheduleAssignerType.standard;
-		carSharing = Collections.emptyMap();
-		resultFolder = defaultResultFolder;
-		visumToMobitopp = new VisumToMobitopp();
-		experimental = Collections.emptyMap();
-	}
+  private double maxGoodnessDelta;
+  private int numberOfZones;
+  private DataSource dataSource;
+  private ActivityScheduleAssignerType activityScheduleAssigner;
+  private Map<String, String> demographyData;
+  private String panelData;
+  private String visumFile;
+  private CarOwnership carOwnership;
+  private Map<String, String> carSharing;
+  private String commuterTicket;
+  private String resultFolder;
+  private VisumToMobitopp visumToMobitopp;
+  private Map<String, String> experimental;
 
-	public long getSeed() {
-		return seed;
-	}
+  public WrittenConfiguration() {
+    super();
+    numberOfZones = unlimited;
+    activityScheduleAssigner = ActivityScheduleAssignerType.standard;
+    carSharing = Collections.emptyMap();
+    resultFolder = defaultResultFolder;
+    visumToMobitopp = new VisumToMobitopp();
+    experimental = Collections.emptyMap();
+  }
 
-	public void setSeed(long seed) {
-		this.seed = seed;
-	}
+  public long getSeed() {
+    return seed;
+  }
 
-	public DataSource getDataSource() {
-		return dataSource;
-	}
+  public void setSeed(long seed) {
+    this.seed = seed;
+  }
 
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+  public int getMaxIterations() {
+    return maxIterations;
+  }
 
-	public ActivityScheduleAssignerType getActivityScheduleAssigner() {
-		return activityScheduleAssigner;
-	}
+  public void setMaxIterations(int maxIterations) {
+    this.maxIterations = maxIterations;
+  }
 
-	public void setActivityScheduleCreator(ActivityScheduleAssignerType activityScheduleAssigner) {
-		this.activityScheduleAssigner = activityScheduleAssigner;
-	}
+  public double getMaxGoodnessDelta() {
+    return maxGoodnessDelta;
+  }
 
-	public Map<String, String> getDemographyData() {
-		return demographyData;
-	}
+  public void setMaxGoodnessDelta(double maxGoodnessDelta) {
+    this.maxGoodnessDelta = maxGoodnessDelta;
+  }
 
-	public void setDemographyData(Map<String, String> demographyData) {
-		this.demographyData = demographyData;
-	}
+  public DataSource getDataSource() {
+    return dataSource;
+  }
 
-	public String getPanelData() {
-		return panelData;
-	}
+  public void setDataSource(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
 
-	public void setPanelData(String panelData) {
-		this.panelData = panelData;
-	}
+  public ActivityScheduleAssignerType getActivityScheduleAssigner() {
+    return activityScheduleAssigner;
+  }
 
-	public String getVisumFile() {
-		return visumFile;
-	}
+  public void setActivityScheduleCreator(ActivityScheduleAssignerType activityScheduleAssigner) {
+    this.activityScheduleAssigner = activityScheduleAssigner;
+  }
 
-	public void setVisumFile(String visumFile) {
-		this.visumFile = visumFile;
-	}
+  public Map<String, String> getDemographyData() {
+    return demographyData;
+  }
 
-	public CarOwnership getCarOwnership() {
-		return carOwnership;
-	}
+  public void setDemographyData(Map<String, String> demographyData) {
+    this.demographyData = demographyData;
+  }
 
-	public void setCarOwnership(CarOwnership carOwnership) {
-		this.carOwnership = carOwnership;
-	}
+  public String getPanelData() {
+    return panelData;
+  }
 
-	public int getNumberOfZones() {
-		return numberOfZones;
-	}
+  public void setPanelData(String panelData) {
+    this.panelData = panelData;
+  }
 
-	public void setNumberOfZones(int numberOfZones) {
-		this.numberOfZones = numberOfZones;
-	}
+  public String getVisumFile() {
+    return visumFile;
+  }
 
-	public Map<String, String> getCarSharing() {
-		return carSharing;
-	}
+  public void setVisumFile(String visumFile) {
+    this.visumFile = visumFile;
+  }
 
-	public void setCarSharing(Map<String, String> carSharing) {
-		this.carSharing = carSharing;
-	}
+  public CarOwnership getCarOwnership() {
+    return carOwnership;
+  }
 
-	public String getCommuterTicket() {
-		return commuterTicket;
-	}
+  public void setCarOwnership(CarOwnership carOwnership) {
+    this.carOwnership = carOwnership;
+  }
 
-	public void setCommuterTicket(String commuterTicket) {
-		this.commuterTicket = commuterTicket;
-	}
+  public int getNumberOfZones() {
+    return numberOfZones;
+  }
 
-	public String getResultFolder() {
-		return resultFolder;
-	}
+  public void setNumberOfZones(int numberOfZones) {
+    this.numberOfZones = numberOfZones;
+  }
 
-	public void setResultFolder(String resultFolder) {
-		this.resultFolder = resultFolder;
-	}
+  public Map<String, String> getCarSharing() {
+    return carSharing;
+  }
 
-	public VisumToMobitopp getVisumToMobitopp() {
-		return visumToMobitopp;
-	}
+  public void setCarSharing(Map<String, String> carSharing) {
+    this.carSharing = carSharing;
+  }
 
-	public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
-		this.visumToMobitopp = visumToMobitopp;
-	}
+  public String getCommuterTicket() {
+    return commuterTicket;
+  }
 
-	public Map<String, String> getExperimental() {
-		return experimental;
-	}
+  public void setCommuterTicket(String commuterTicket) {
+    this.commuterTicket = commuterTicket;
+  }
 
-	public void setExperimental(Map<String, String> experimental) {
-		this.experimental = experimental;
-	}
+  public String getResultFolder() {
+    return resultFolder;
+  }
 
-	@Override
-	public String toString() {
-		return "WrittenConfiguration [seed=" + seed + ", numberOfZones=" + numberOfZones
-				+ ", dataSource=" + dataSource + ", activityScheduleCreator=" + activityScheduleAssigner
-				+ ", demographyData=" + demographyData + ", panelData=" + panelData + ", visumFile="
-				+ visumFile + ", carOwnership=" + carOwnership + ", carSharing=" + carSharing
-				+ ", commuterTicket=" + commuterTicket + ", resultFolder=" + resultFolder
-				+ ", visumToMobitopp=" + visumToMobitopp + ", experimental=" + experimental + "]";
-	}
+  public void setResultFolder(String resultFolder) {
+    this.resultFolder = resultFolder;
+  }
+
+  public VisumToMobitopp getVisumToMobitopp() {
+    return visumToMobitopp;
+  }
+
+  public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
+    this.visumToMobitopp = visumToMobitopp;
+  }
+
+  public Map<String, String> getExperimental() {
+    return experimental;
+  }
+
+  public void setExperimental(Map<String, String> experimental) {
+    this.experimental = experimental;
+  }
+
+  @Override
+  public String toString() {
+    return "WrittenConfiguration [seed=" + seed + ", maxIterations=" + maxIterations
+        + ", maxGoodnessDelta=" + maxGoodnessDelta + ", numberOfZones=" + numberOfZones
+        + ", dataSource=" + dataSource + ", activityScheduleAssigner=" + activityScheduleAssigner
+        + ", demographyData=" + demographyData + ", panelData=" + panelData + ", visumFile="
+        + visumFile + ", carOwnership=" + carOwnership + ", carSharing=" + carSharing
+        + ", commuterTicket=" + commuterTicket + ", resultFolder=" + resultFolder
+        + ", visumToMobitopp=" + visumToMobitopp + ", experimental=" + experimental + "]";
+  }
 
 }

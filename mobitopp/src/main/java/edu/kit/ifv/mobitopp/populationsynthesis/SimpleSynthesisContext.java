@@ -59,6 +59,16 @@ public class SimpleSynthesisContext implements SynthesisContext {
   }
 
   @Override
+  public int maxIterations() {
+    return configuration().getMaxIterations();
+  }
+
+  @Override
+  public double maxGoodnessDelta() {
+    return configuration().getMaxGoodnessDelta();
+  }
+
+  @Override
   public VisumNetwork network() {
     return visumNetwork;
   }
