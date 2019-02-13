@@ -136,7 +136,9 @@ public abstract class PopulationSynthesis {
 
   private void createDemandForZonesWith(DemandDataForZoneCalculatorIfc calculator) {
     for (DemandZone zone : demandZoneRepository().getZones()) {
-      System.out.println("PopulationSynthesis: Zone " + zone.getId());
+      System.out
+          .println(
+              String.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId()));
       calculator.calculateDemandData(zone, impedance());
     }
   }
