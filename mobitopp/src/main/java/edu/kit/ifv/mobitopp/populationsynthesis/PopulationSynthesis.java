@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -16,16 +17,19 @@ import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
+import edu.kit.ifv.mobitopp.util.StopWatch;
 
 public abstract class PopulationSynthesis {
 
   private final SynthesisContext context;
   private final DemandCategories categories;
+  private StopWatch performanceLogger;
 
   public PopulationSynthesis(SynthesisContext context) {
     super();
     this.context = context;
     categories = new DemandCategories();
+    performanceLogger = new StopWatch(LocalDateTime::now);
   }
 
   SynthesisContext context() {
@@ -57,13 +61,31 @@ public abstract class PopulationSynthesis {
   }
 
   public void createPopulation() {
+    performanceLogger.start();
     createLocations();
+    measureTime("Create locations");
     Map<ActivityType, FixedDistributionMatrix> fdMatrices = fixedDistributionMatrices();
+    measureTime("Load fixed distribution matrices");
     assertFixedDistributionMatrices(fdMatrices);
+    measureTime("Assert fixed distribution matrices");
     executeBeforeCreation();
+    measureTime("Execute before creation");
     doCreatePopulation(fdMatrices);
+    measureTime("Create population");
     doExecuteAfterCreation();
+    measureTime("Execute after creation");
     finishExecution();
+    measureTime("Finish execution");
+    printPerformance();
+  }
+
+  private void measureTime(String label) {
+    performanceLogger.measurePoint(label);
+  }
+  
+  private void printPerformance() {
+    System.out.println("Runtimes while creating population:");
+    performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
   }
 
   private void createLocations() {
