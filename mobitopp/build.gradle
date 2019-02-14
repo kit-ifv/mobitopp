@@ -47,6 +47,7 @@ sourceSets {
 }
 
 test {
+    useJUnitPlatform()
     enableAssertions = "true"
     maxHeapSize = "2G"
     testLogging.showStandardStreams = true
