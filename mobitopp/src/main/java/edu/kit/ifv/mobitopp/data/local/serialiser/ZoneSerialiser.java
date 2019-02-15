@@ -66,6 +66,8 @@ public class ZoneSerialiser implements Closeable {
 	public void serialise() {
 		List<Zone> zones = repository.getZones();
 		writeHeaders();
+    serialiseStationBasedOrganizations(zones);
+    serialiseFreeFloatingOrganizations(zones);
 		zones.stream().forEach(this::serialise);
 	}
 
@@ -100,18 +102,16 @@ public class ZoneSerialiser implements Closeable {
 
 	private void serialiseCarSharingOf(Zone zone) {
 		CarSharingDataForZone carSharing = zone.carSharing();
-		serialiseStationBasedOrganizations(carSharing);
-		serialiseFreeFloatingOrganizations(carSharing);
 		serialiseStations(carSharing);
 		serialiseCars(carSharing);
 	}
 
-	private void serialiseStationBasedOrganizations(CarSharingDataForZone carSharing) {
-		carSharing.stationBasedCarSharingCompanies().forEach(stationCompany::write);
+	private void serialiseStationBasedOrganizations(List<Zone> zones) {
+	  new StationBasedOrganizationSerialiser(stationCompany::write).serialise(zones);
 	}
 
-	private void serialiseFreeFloatingOrganizations(CarSharingDataForZone carSharing) {
-		carSharing.freeFloatingCarSharingCompanies().forEach(freeFloatingCompany::write);
+	private void serialiseFreeFloatingOrganizations(List<Zone> zones) {
+	  new FreeFloatingOrganizationSerialiser(freeFloatingCompany::write).serialise(zones);
 	}
 
 	private void serialiseStations(CarSharingDataForZone carSharing) {
