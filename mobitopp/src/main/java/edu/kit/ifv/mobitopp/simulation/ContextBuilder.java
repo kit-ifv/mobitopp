@@ -117,11 +117,11 @@ public class ContextBuilder {
 	private void loadVisumNetwork() {
 		System.out.println("Reading VISUM network");
 		if (null == network) {
-			network = loadNetwork(configuration.getVisumFile());
+			network = doLoadVisumNetwork(configuration.getVisumFile());
 		}
 	}
 
-	protected VisumNetwork loadNetwork(String fileName) {
+	protected VisumNetwork doLoadVisumNetwork(String fileName) {
 		return NetworkSerializer.readVisumNetwork(fileName);
 	}
 
@@ -129,9 +129,13 @@ public class ContextBuilder {
 		loadVisumNetwork();
 		System.out.println("creating road network");
 		if (null == roadNetwork) {
-			roadNetwork = new SimpleRoadNetwork(network, carOf(network));
+			roadNetwork = doLoadRoadNetwork(network);
 		}
 	}
+
+  private SimpleRoadNetwork doLoadRoadNetwork(VisumNetwork network) {
+    return new SimpleRoadNetwork(network, carOf(network));
+  }
 
 	private VisumTransportSystem carOf(VisumRoadNetwork network) {
 		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();

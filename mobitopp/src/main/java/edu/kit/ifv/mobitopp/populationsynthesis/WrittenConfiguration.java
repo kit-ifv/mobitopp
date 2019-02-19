@@ -38,6 +38,25 @@ public class WrittenConfiguration {
     experimental = Collections.emptyMap();
   }
 
+  public WrittenConfiguration(WrittenConfiguration other) {
+    super();
+    this.activityScheduleAssigner = other.activityScheduleAssigner;
+    this.carOwnership = other.carOwnership;
+    this.carSharing = other.carSharing;
+    this.commuterTicket = other.commuterTicket;
+    this.dataSource = other.dataSource;
+    this.demographyData = other.demographyData;
+    this.experimental = other.experimental;
+    this.maxGoodnessDelta = other.maxGoodnessDelta;
+    this.maxIterations = other.maxIterations;
+    this.numberOfZones = other.numberOfZones;
+    this.panelData = other.panelData;
+    this.resultFolder = other.resultFolder;
+    this.seed = other.seed;
+    this.visumFile = other.visumFile;
+    this.visumToMobitopp = other.visumToMobitopp;
+  }
+
   public long getSeed() {
     return seed;
   }
