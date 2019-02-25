@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.local.configuration.FileMatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
@@ -110,8 +111,8 @@ public class LocalFiles implements DataSource {
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results, AreaTypeRepository areaTypeRepository) throws IOException {
-		Matrices matrices = matrices();
+			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping modeToType) throws IOException {
+		Matrices matrices = matrices(modeToType);
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository);
@@ -136,15 +137,15 @@ public class LocalFiles implements DataSource {
 		return DemandDataFolder.at(this.demandDataFolder, zoneRepository, zonesToSimulate);
 	}
 
-	private Matrices matrices() throws FileNotFoundException {
+	private Matrices matrices(TypeMapping modeToType) throws FileNotFoundException {
 		MatrixConfiguration matrixConfiguration = matrixConfiguration();
-		return new MatrixRepository(matrixConfiguration);
+		return new MatrixRepository(matrixConfiguration, modeToType);
 	}
 
 	private MatrixConfiguration matrixConfiguration() throws FileNotFoundException {
 		File configFile = matrixConfigurationFile;
 		File matrixFolder = configFile.getParentFile();
-		return MatrixConfiguration.from(configFile, matrixFolder);
+		return FileMatrixConfiguration.from(configFile, matrixFolder);
 	}
 
 	private ZoneRepository loadZonesFromVisum(
@@ -196,9 +197,9 @@ public class LocalFiles implements DataSource {
 	public DataRepositoryForSimulation forSimulation(
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
-			AreaTypeRepository areaTypeRepository)
+			AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
 			throws IOException {
-		Matrices matrices = matrices();
+		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);

@@ -27,8 +27,8 @@ import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixId;
 import edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixType;
+import edu.kit.ifv.mobitopp.data.local.configuration.FileMatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.FixedDistributionMatrixId;
-import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedCostMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedFixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedTravelTimeMatrix;
@@ -43,7 +43,7 @@ public class MatrixRepositoryTest {
 
 	private static final Time date = Data.someTime();
 
-	private MatrixConfiguration configuration;
+	private FileMatrixConfiguration configuration;
 	private TravelTimeMatrix travelTimeMatrix;
 	private CostMatrix costMatrix;
 	private CostMatrixId carId;
@@ -59,7 +59,7 @@ public class MatrixRepositoryTest {
 
 	@Before
 	public void initialise() {
-		configuration = mock(MatrixConfiguration.class);
+		configuration = mock(FileMatrixConfiguration.class);
 		travelTimeMatrix = new TravelTimeMatrix(emptyList());
 		fixedDistributionMatrix = new FixedDistributionMatrix(emptyList());
 		costMatrix = new CostMatrix(emptyList());
@@ -70,8 +70,14 @@ public class MatrixRepositoryTest {
 		parkingStressId = new CostMatrixId(parkingstress, weekdays, TimeSpan.between(0, 0));
 		constantId = new CostMatrixId(constant, weekdays, TimeSpan.between(0, 0));
 		carTimeId = new TravelTimeMatrixId(TravelTimeMatrixType.car, weekdays, TimeSpan.between(0, 0));
-		store = new MatrixRepository(configuration);
+		store = new MatrixRepository(configuration, modeToType());
 	}
+
+  private TypeMapping modeToType() {
+    DynamicTypeMapping typeMapping = new DynamicTypeMapping();
+    typeMapping.add(Mode.CAR, TravelTimeMatrixType.car);
+    return typeMapping;
+  }
 
 	@Test
 	public void resolveTravelTimeMatrix() throws IOException {

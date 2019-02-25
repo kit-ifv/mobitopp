@@ -9,11 +9,13 @@ import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
+import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
 import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.populationsynthesis.DefaultMappings;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
@@ -37,17 +39,23 @@ public class ContextBuilder {
 	private DataRepositoryForSimulation dataRepository;
 	private PersonResults personResults;
 	private DynamicParameters modeChoiceParameters;
+  private TypeMapping modeToType;
 
-	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
+	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType) {
 		super();
 		this.areaTypeRepository = areaTypeRepository;
+    this.modeToType = modeToType;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
 	}
+	
+	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
+	  this(areaTypeRepository, DefaultMappings.noAutonomousModes());
+	}
 
 	public ContextBuilder() {
-		this(new BicRepository());
+		this(new BicRepository(), DefaultMappings.noAutonomousModes());
 	}
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
@@ -160,7 +168,7 @@ public class ContextBuilder {
 		dataRepository = configuration
 				.getDataSource()
 				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
-						electricChargingWriter, areaTypeRepository);
+						electricChargingWriter, areaTypeRepository, modeToType);
 		log("Load data repository");
 	}
 
