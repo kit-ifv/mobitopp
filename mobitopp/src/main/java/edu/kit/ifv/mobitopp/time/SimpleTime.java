@@ -6,287 +6,292 @@ import java.util.List;
 
 public class SimpleTime implements Time, Comparable<Time> {
 
-	private final long seconds;
+  private final long seconds;
+  private final DayOfWeek weekDay;
 
-	public SimpleTime() {
-		super();
-		this.seconds = 0;
-	}
-	
-	public SimpleTime(long seconds) {
-		super();
-		this.seconds = seconds;
-	}
-	
-	public static Time of(int days, int hours, int minutes, int seconds) {
-		return from(RelativeTime.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds));
-	}
-	
-	public static Time from(RelativeTime fromStart) {
-		return ofSeconds(fromStart.seconds());
-	}
-	
-	public static Time ofWeeks(long weeks) {
-		return from(RelativeTime.ofWeeks(weeks));
-	}
-	
-	public static Time ofDays(long days) {
-		return from(RelativeTime.ofDays(days));
-	}
-	
-	public static Time ofHours(long hours) {
-		return from(RelativeTime.ofHours(hours));
-	}
-	
-	public static Time ofMinutes(long minutes) {
-		return from(RelativeTime.ofMinutes(minutes));
-	}
-	
-	public static Time ofSeconds(long seconds) {
-		return new SimpleTime(seconds);
-	}
+  public SimpleTime() {
+    this(0);
+  }
+  
+  public SimpleTime(long seconds) {
+    super();
+    this.seconds = seconds;
+    weekDay = calculateWeekDay();
+  }
+  
+  public static Time of(int days, int hours, int minutes, int seconds) {
+    return from(RelativeTime.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds));
+  }
+  
+  public static Time from(RelativeTime fromStart) {
+    return ofSeconds(fromStart.seconds());
+  }
+  
+  public static Time ofWeeks(long weeks) {
+    return from(RelativeTime.ofWeeks(weeks));
+  }
+  
+  public static Time ofDays(long days) {
+    return from(RelativeTime.ofDays(days));
+  }
+  
+  public static Time ofHours(long hours) {
+    return from(RelativeTime.ofHours(hours));
+  }
+  
+  public static Time ofMinutes(long minutes) {
+    return from(RelativeTime.ofMinutes(minutes));
+  }
+  
+  public static Time ofSeconds(long seconds) {
+    return new SimpleTime(seconds);
+  }
 
-	@Override
-	public long toSeconds() {
-		return this.seconds;
-	}
-	
-	@Override
-	public long toMinutes() {
-		return RelativeTime.ofSeconds(seconds).toMinutes();
-	}
-	
-	@Override
-	public int getWeek() {
-		return (int) fromStart().toWeeks();
-	}
+  @Override
+  public long toSeconds() {
+    return this.seconds;
+  }
+  
+  @Override
+  public long toMinutes() {
+    return RelativeTime.ofSeconds(seconds).toMinutes();
+  }
+  
+  @Override
+  public int getWeek() {
+    return (int) fromStart().toWeeks();
+  }
 
-	@Override
-	public int getDay() {
-		RelativeTime fromStart = fromStart();
-		if (fromStart.isNegative()) {
-			return getNegativeDay();
-		}
-		return (int) fromStart.toDays();
-	}
+  @Override
+  public int getDay() {
+    RelativeTime fromStart = fromStart();
+    if (fromStart.isNegative()) {
+      return getNegativeDay();
+    }
+    return (int) fromStart.toDays();
+  }
 
-	/**
-	 * Convert negative time to negative days.
-	 * Day -1 ranges from second -1 to second -86400 (1 day) including both borders.
-	 * @return
-	 */
-	private int getNegativeDay() {
-		return (int) fromStart().minusDays(1).plusSeconds(1).toDays();
-	}
+  /**
+   * Convert negative time to negative days.
+   * Day -1 ranges from second -1 to second -86400 (1 day) including both borders.
+   * @return
+   */
+  private int getNegativeDay() {
+    return (int) fromStart().minusDays(1).plusSeconds(1).toDays();
+  }
 
-	@Override
-	public DayOfWeek weekDay() {
-		return DayOfWeek.fromDay(getDay());
-	}
+  @Override
+  public DayOfWeek weekDay() {
+    return weekDay;
+  }
 
-	@Override
-	public int getHour() {
-		return (int) fromStart().toHours() % 24;
-	}
+  private DayOfWeek calculateWeekDay() {
+    return DayOfWeek.fromDay(getDay());
+  }
 
-	@Override
-	public int getMinute() {
-		return (int) (fromStart().toMinutes() % 60);
-	}
+  @Override
+  public int getHour() {
+    return (int) fromStart().toHours() % 24;
+  }
 
-	@Override
-	public int getSecond() {
-		return (int) fromStart().seconds() % 60;
-	}
+  @Override
+  public int getMinute() {
+    return (int) (fromStart().toMinutes() % 60);
+  }
 
-	@Override
-	public Time previousDay() {
-		return SimpleTime.ofDays(fromStart().toDays()).minusDays(1);
-	}
+  @Override
+  public int getSecond() {
+    return (int) fromStart().seconds() % 60;
+  }
 
-	@Override
-	public Time nextDay() {
-		return SimpleTime.ofDays(fromStart().toDays()).plusDays(1);
-	}
+  @Override
+  public Time previousDay() {
+    return SimpleTime.ofDays(fromStart().toDays()).minusDays(1);
+  }
 
-	@Override
-	public boolean isMidnight() {
-		return (getSecond() == 0) && (getMinute() == 0) && (getHour() == 0);
-	}
+  @Override
+  public Time nextDay() {
+    return SimpleTime.ofDays(fromStart().toDays()).plusDays(1);
+  }
 
-	@Override
-	public boolean isAfter(Time otherDate) {
-		return toSeconds() > otherDate.toSeconds();
-	}
+  @Override
+  public boolean isMidnight() {
+    return (getSecond() == 0) && (getMinute() == 0) && (getHour() == 0);
+  }
 
-	@Override
-	public boolean isBefore(Time otherDate) {
-		return toSeconds() < otherDate.toSeconds();
-	}
+  @Override
+  public boolean isAfter(Time otherDate) {
+    return toSeconds() > otherDate.toSeconds();
+  }
 
-	@Override
-	public boolean isBeforeOrEqualTo(Time otherDate) {
-		return toSeconds() <= otherDate.toSeconds();
-	}
-	
-	@Override
-	public boolean isAfterOrEqualTo(Time otherDate) {
-		return toSeconds() >= otherDate.toSeconds();
-	}
+  @Override
+  public boolean isBefore(Time otherDate) {
+    return toSeconds() < otherDate.toSeconds();
+  }
 
-	@Override
-	public Time minus(RelativeTime decrement) {
-		RelativeTime changed = fromStart().minus(decrement);
-		return from(changed);
-	}
-	
-	@Override
-	public Time minusWeeks(int decrement) {
-		RelativeTime changed = fromStart().minusWeeks(decrement);
-		return from(changed);
-	}
+  @Override
+  public boolean isBeforeOrEqualTo(Time otherDate) {
+    return toSeconds() <= otherDate.toSeconds();
+  }
+  
+  @Override
+  public boolean isAfterOrEqualTo(Time otherDate) {
+    return toSeconds() >= otherDate.toSeconds();
+  }
 
-	@Override
-	public Time minusDays(int decrement) {
-		RelativeTime changed = fromStart().minusDays(decrement);
-		return from(changed);
-	}
-	
-	@Override
-	public Time minusHours(int decrement) {
-		RelativeTime changed = fromStart().minusHours(decrement);
-		return from(changed);
-	}
-	
-	@Override
-	public Time minusMinutes(int decrement) {
-		RelativeTime changed = fromStart().minusMinutes(decrement);
-		return from(changed);
-	}
-	
-	@Override
-	public Time minusSeconds(int decrement) {
-		RelativeTime changed = fromStart().minusSeconds(decrement);
-		return from(changed);
-	}
-	
-	@Override
-	public Time plus(RelativeTime increment) {
-		RelativeTime changed = fromStart().plus(increment);
-		return from(changed);
-	}
-	
-	@Override
-	public Time plusWeeks(int increment) {
-		RelativeTime changed = fromStart().plusWeeks(increment);
-		return from(changed);
-	}
+  @Override
+  public Time minus(RelativeTime decrement) {
+    RelativeTime changed = fromStart().minus(decrement);
+    return from(changed);
+  }
+  
+  @Override
+  public Time minusWeeks(int decrement) {
+    RelativeTime changed = fromStart().minusWeeks(decrement);
+    return from(changed);
+  }
 
-	@Override
-	public Time plusDays(int increment) {
-		RelativeTime changed = fromStart().plusDays(increment);
-		return from(changed);
-	}
+  @Override
+  public Time minusDays(int decrement) {
+    RelativeTime changed = fromStart().minusDays(decrement);
+    return from(changed);
+  }
+  
+  @Override
+  public Time minusHours(int decrement) {
+    RelativeTime changed = fromStart().minusHours(decrement);
+    return from(changed);
+  }
+  
+  @Override
+  public Time minusMinutes(int decrement) {
+    RelativeTime changed = fromStart().minusMinutes(decrement);
+    return from(changed);
+  }
+  
+  @Override
+  public Time minusSeconds(int decrement) {
+    RelativeTime changed = fromStart().minusSeconds(decrement);
+    return from(changed);
+  }
+  
+  @Override
+  public Time plus(RelativeTime increment) {
+    RelativeTime changed = fromStart().plus(increment);
+    return from(changed);
+  }
+  
+  @Override
+  public Time plusWeeks(int increment) {
+    RelativeTime changed = fromStart().plusWeeks(increment);
+    return from(changed);
+  }
 
-	@Override
-	public Time plusHours(int increment) {
-		RelativeTime changed = fromStart().plusHours(increment);
-		return from(changed);
-	}
+  @Override
+  public Time plusDays(int increment) {
+    RelativeTime changed = fromStart().plusDays(increment);
+    return from(changed);
+  }
 
-	@Override
-	public Time plusMinutes(int increment) {
-		RelativeTime changed = fromStart().plusMinutes(increment);
-		return from(changed);
-	}
+  @Override
+  public Time plusHours(int increment) {
+    RelativeTime changed = fromStart().plusHours(increment);
+    return from(changed);
+  }
 
-	@Override
-	public Time plusSeconds(int increment) {
-		RelativeTime changed = fromStart().plusSeconds(increment);
-		return from(changed);
-	}
+  @Override
+  public Time plusMinutes(int increment) {
+    RelativeTime changed = fromStart().plusMinutes(increment);
+    return from(changed);
+  }
 
-	@Override
-	public Time startOfDay() {
-		return SimpleTime.ofDays(fromStart().toDays());
-	}
+  @Override
+  public Time plusSeconds(int increment) {
+    RelativeTime changed = fromStart().plusSeconds(increment);
+    return from(changed);
+  }
 
-	@Override
-	public Time newTime(int hours, int minutes, int seconds) {
-		verify(hours, minutes, seconds);
-		long days = fromStart().toDays();
-		return SimpleTime.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
-	}
+  @Override
+  public Time startOfDay() {
+    return SimpleTime.ofDays(fromStart().toDays());
+  }
 
-	private void verify(int hours, int minutes, int seconds) {
-		if (0 > hours || 28 <= hours) {
-			throw new IllegalArgumentException("Hours too high or low: " + hours);
-		}
-		if (0 > minutes || 60 <= minutes) {
-			throw new IllegalArgumentException("Minutes too high or low: " + minutes);
-		}
-		if (0 > seconds || 60 <= seconds) {
-			throw new IllegalArgumentException("Seconds too high or low: " + seconds);
-		}
-	}
+  @Override
+  public Time newTime(int hours, int minutes, int seconds) {
+    verify(hours, minutes, seconds);
+    long days = fromStart().toDays();
+    return SimpleTime.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
+  }
 
-	public RelativeTime differenceTo(Time otherDate) {
-		return this.fromStart().minus(otherDate.fromStart());
-	}
+  private void verify(int hours, int minutes, int seconds) {
+    if (0 > hours || 28 <= hours) {
+      throw new IllegalArgumentException("Hours too high or low: " + hours);
+    }
+    if (0 > minutes || 60 <= minutes) {
+      throw new IllegalArgumentException("Minutes too high or low: " + minutes);
+    }
+    if (0 > seconds || 60 <= seconds) {
+      throw new IllegalArgumentException("Seconds too high or low: " + seconds);
+    }
+  }
 
-	@Override
-	public RelativeTime fromStart() {
-		return RelativeTime.ofSeconds(seconds);
-	}
+  public RelativeTime differenceTo(Time otherDate) {
+    return this.fromStart().minus(otherDate.fromStart());
+  }
 
-	public Time plus(int amount, ChronoUnit unit) {
-		return plus(RelativeTime.of(amount, unit));
-	}
+  @Override
+  public RelativeTime fromStart() {
+    return RelativeTime.ofSeconds(seconds);
+  }
 
-	public static List<Time> oneWeek() {
-		Time start = new SimpleTime();
-		List<Time> week = new ArrayList<>();
-		for (int day = 0; day < 7; day++) {
-			week.add(start.plusDays(day));
-		}
-		return week;
-	}
+  public Time plus(int amount, ChronoUnit unit) {
+    return plus(RelativeTime.of(amount, unit));
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (seconds ^ (seconds >>> 32));
-		return result;
-	}
+  public static List<Time> oneWeek() {
+    Time start = new SimpleTime();
+    List<Time> week = new ArrayList<>();
+    for (int day = 0; day < 7; day++) {
+      week.add(start.plusDays(day));
+    }
+    return week;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SimpleTime other = (SimpleTime) obj;
-		if (seconds != other.seconds)
-			return false;
-		return true;
-	}
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + (int) (seconds ^ (seconds >>> 32));
+    return result;
+  }
 
-	@Override
-	public String toString() {
-		return new DateFormat().asWeekdayTime(this);
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SimpleTime other = (SimpleTime) obj;
+    if (seconds != other.seconds)
+      return false;
+    return true;
+  }
 
-	@Override
-	public int compareTo(Time other) {
-		if (isBefore(other)) {
-			return -1;
-		} else if (other.isBefore(this)) {
-			return 1;
-		}
-		return 0;
-	}
+  @Override
+  public String toString() {
+    return new DateFormat().asWeekdayTime(this);
+  }
+
+  @Override
+  public int compareTo(Time other) {
+    if (isBefore(other)) {
+      return -1;
+    } else if (other.isBefore(this)) {
+      return 1;
+    }
+    return 0;
+  }
 
 }

@@ -10,9 +10,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -38,7 +39,7 @@ public class SimpleTimeTest {
 	private Time same;
 	private Time later;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		date = SimpleTime.ofDays(day);
 		time = date.plusHours(hour).plusMinutes(minute).plusSeconds(second);
@@ -139,7 +140,7 @@ public class SimpleTimeTest {
 		assertThat(sunday.weekDay(), is(equalTo(DayOfWeek.SUNDAY)));
 		assertThat(nextMonday.weekDay(), is(equalTo(DayOfWeek.MONDAY)));
 	}
-
+	
 	@Test
 	public void previousDay() {
 		Time nextDate = date.previousDay();
@@ -384,19 +385,19 @@ public class SimpleTimeTest {
 		assertEquals("failure - second wrong", 30, value.getSecond());
 	}
 
-	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Test
 	public void newTimeInvalidSeconds() {
-		time.newTime(0, 0, 60);
+		assertThrows(IllegalArgumentException.class, () -> time.newTime(0, 0, 60));
 	}
 
-	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Test
 	public void newTimeInvalidMinutes() {
-		time.newTime(0, 60, 0);
+	  assertThrows(IllegalArgumentException.class, () -> time.newTime(0, 60, 0));
 	}
 
-	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Test
 	public void newTimeInvalidHours() {
-		time.newTime(28, 0, 0);
+	  assertThrows(IllegalArgumentException.class, () -> time.newTime(28, 0, 0));
 	}
 
 	@Test
@@ -434,7 +435,7 @@ public class SimpleTimeTest {
 	
 	@Test
 	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(SimpleTime.class).usingGetClass().verify();
+		EqualsVerifier.forClass(SimpleTime.class).withIgnoredFields("weekDay").usingGetClass().verify();
 	}
 	
 	@Test
