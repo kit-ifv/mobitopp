@@ -20,11 +20,11 @@ public class MatrixRepository implements Matrices {
 	private final CostMatrixCache costCache;
 	private final FixedDistributionMatrixCache fixedDistributionCache;
 
-	public MatrixRepository(MatrixConfiguration configuration) {
+	public MatrixRepository(MatrixConfiguration configuration, TypeMapping modeToType) {
 		super();
 		costCache = new CostMatrixCache(configuration);
 		fixedDistributionCache = new FixedDistributionMatrixCache(configuration);
-		travelTimeCache = new TravelTimeMatrixCache(configuration);
+		travelTimeCache = new TravelTimeMatrixCache(configuration, modeToType);
 	}
 
 	@Override

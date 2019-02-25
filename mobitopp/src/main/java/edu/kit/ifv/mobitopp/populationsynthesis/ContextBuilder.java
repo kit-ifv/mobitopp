@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.LocalPanelDataRepository;
+import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
@@ -48,17 +49,23 @@ public class ContextBuilder {
   private Map<String, CarSharingCustomerModel> carSharing;
   private File carEngineFile;
   private DemographyData demographyData;
+  private TypeMapping modeToType;
 
-  public ContextBuilder(AreaTypeRepository areaTypeReposirtory) {
+  public ContextBuilder(AreaTypeRepository areaTypeReposirtory, TypeMapping modeToType) {
     super();
     areaTypeRepository = areaTypeReposirtory;
+    this.modeToType = modeToType;
     performanceLogger = new StopWatch(LocalDateTime::now);
     ParserBuilder parser = new ParserBuilder();
     format = parser.forPopulationSynthesis();
   }
 
+  public ContextBuilder(AreaTypeRepository areaTypeRepository) {
+    this(areaTypeRepository, DefaultMappings.noAutonomousModes());
+  }
+
   public ContextBuilder() {
-    this(new BicRepository());
+    this(new BicRepository(), DefaultMappings.noAutonomousModes());
   }
 
   public SynthesisContext buildFrom(File configurationFile) throws IOException {
@@ -143,13 +150,13 @@ public class ContextBuilder {
     String carCode = visumToMobitopp.getCarTransportSystemCode();
     return network.transportSystems.getBy(carCode);
   }
-  
+
   private void demography() {
     Logger logger = zoneId -> System.out.println("Missing zone with ID: " + zoneId);
     demographyData = demographyData(network, logger);
     log("Load demography data");
   }
-  
+
   private DemographyData demographyData(VisumNetwork network, Logger logger) {
     DemographyDataBuilder builder = new DemographyDataBuilder(configuration);
     DemographyData data = builder.build();
@@ -163,7 +170,7 @@ public class ContextBuilder {
     dataRepository = configuration
         .getDataSource()
         .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
-            startDate(), resultWriter, areaTypeRepository);
+            startDate(), resultWriter, areaTypeRepository, modeToType);
     log("Load data repository");
   }
 
@@ -197,8 +204,8 @@ public class ContextBuilder {
   private SynthesisContext createContext() {
     List<AttributeType> attributes = demographyData.attributes();
     SimpleSynthesisContext context = new SimpleSynthesisContext(configuration,
-        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile, attributes,
-        format, resultWriter);
+        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile,
+        attributes, format, resultWriter);
     log("Create context");
     return context;
   }

@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.data.local.Valid;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class MatrixConfigurationTest {
+public class FileMatrixConfigurationTest {
 
 	private static final CostMatrixType matrixType = CostMatrixType.car;
 	private static final TravelTimeMatrixType travelTimeType = TravelTimeMatrixType.car;
@@ -43,7 +43,7 @@ public class MatrixConfigurationTest {
 	}
 
 	private MatrixConfiguration configuration(StoredMatrices stored) {
-		return new MatrixConfiguration(stored, baseFolder) {
+		return new FileMatrixConfiguration(stored, baseFolder) {
 
 			@Override
 			MatrixParser parserFor(StoredMatrix storedMatrix) throws FileNotFoundException {
@@ -95,7 +95,7 @@ public class MatrixConfigurationTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void validateMissingBaseFolder() throws IOException {
-		MatrixConfiguration configuration = MatrixConfiguration.empty(missingFolder());
+		MatrixConfiguration configuration = FileMatrixConfiguration.empty(missingFolder());
 		
 		configuration.validate();
 	}
