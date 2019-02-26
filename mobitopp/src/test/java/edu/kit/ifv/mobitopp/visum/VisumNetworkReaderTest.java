@@ -6,16 +6,24 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class VisumNetworkReaderTest {
 
+  private NetfileAttributes attributeNames;
+
+  @BeforeEach
+  public void initialise() {
+    attributeNames = StandardNetfileAttributes.german();
+  }
+  
 	@Test
 	public void ignorePointsWithoutPower() throws Exception {
 		Map<Integer, VisumChargingPoint> points = chargingPointsWithoutPower();
@@ -34,10 +42,14 @@ public class VisumNetworkReaderTest {
 		VisumTable chargingPoints = new VisumTable("LP", attributes);
 		chargingPoints.addRow(chargingPoint);
 		Map<String, VisumTable> tables = new HashMap<>();
-		tables.put("POIKATEGORIE", poiCategoryChargingPoint());
+		tables.put(poiCategory(), poiCategoryChargingPoint());
 		tables.put("POIOFCAT_1", chargingPoints);
 		return tables;
 	}
+
+  private String poiCategory() {
+    return attributeNames.resolve(Table.poiCategory);
+  }
 
 	@Test
 	public void parsesChargingPoint() throws Exception {
@@ -62,13 +74,13 @@ public class VisumNetworkReaderTest {
 		VisumTable chargingPoints = new VisumTable("Ladepunkte", attributes);
 		chargingPoints.addRow(chargingPoint);
 		Map<String, VisumTable> tables = new HashMap<>();
-		tables.put("POIKATEGORIE", poiCategoryChargingPoint());
+		tables.put(poiCategory(), poiCategoryChargingPoint());
 		tables.put("POIOFCAT_1", chargingPoints);
 		return tables;
 	}
 
 	private VisumTable poiCategoryChargingPoint() {
-		VisumTable poiCategories = new VisumTable("POIKATEGORIE", asList("NR", "CODE"));
+		VisumTable poiCategories = new VisumTable(poiCategory(), asList("NR", "CODE"));
 		poiCategories.addRow(asList("1", "Ladepunkte"));
 		return poiCategories;
 	}
@@ -76,7 +88,7 @@ public class VisumNetworkReaderTest {
 	@Test
 	public void parseMissingChargingFacilities() throws Exception {
 		Map<String, VisumTable> tables = new HashMap<>();
-		tables.put("POIKATEGORIE", emptyPoiCategories());
+		tables.put(poiCategory(), emptyPoiCategories());
 
 		Map<Integer, VisumChargingFacility> chargingFacilities = chargingFacilities(tables);
 
@@ -84,7 +96,7 @@ public class VisumNetworkReaderTest {
 	}
 
 	private VisumTable emptyPoiCategories() {
-		return new VisumTable("POIKATEGORIE", asList("NR", "CODE"));
+		return new VisumTable(poiCategory(), asList("NR", "CODE"));
 	}
 
 	@Test
@@ -104,7 +116,7 @@ public class VisumNetworkReaderTest {
 		assertThat(parsedFacility.address, is("Ort, 12345, Strasse Nr"));
 	}
 
-	private static Map<Integer, VisumChargingFacility> chargingFacilities() {
+	private Map<Integer, VisumChargingFacility> chargingFacilities() {
 		Map<String, VisumTable> tables = chargingFacility();
 
 		return chargingFacilities(tables);
@@ -115,7 +127,7 @@ public class VisumNetworkReaderTest {
 		return reader().readChargingFacilities(tables);
 	}
 
-	private static Map<String, VisumTable> chargingFacility() {
+	private Map<String, VisumTable> chargingFacility() {
 		List<String> attributes = asList("XKOORD", "YKOORD", "ART", "FZ", "LATITUDE", "LONGITUDE",
 				"LS_ID", "ORT", "PLZ", "PUB", "STRASSE");
 		List<String> facility = asList("4", "5", "STANDSAEULE", "ZWEIRAD_UND_VIERRAD", "48.779",
@@ -124,13 +136,13 @@ public class VisumNetworkReaderTest {
 		facilities.addRow(facility);
 
 		Map<String, VisumTable> tables = new HashMap<>();
-		tables.put("POIKATEGORIE", poiCategories());
+		tables.put(poiCategory(), poiCategories());
 		tables.put("POIOFCAT_1", facilities);
 		return tables;
 	}
 
-	private static VisumTable poiCategories() {
-		VisumTable poiCategories = new VisumTable("POIKATEGORIE", asList("NR", "CODE"));
+	private VisumTable poiCategories() {
+		VisumTable poiCategories = new VisumTable(poiCategory(), asList("NR", "CODE"));
 		poiCategories.addRow(asList("1", "Ladestationen"));
 		return poiCategories;
 	}
@@ -189,7 +201,7 @@ public class VisumNetworkReaderTest {
 	}
 
 	private static VisumNetworkReader reader() {
-		return new VisumNetworkReader(new VisumReader());
+		return new VisumNetworkReader(new VisumReader(), StandardNetfileAttributes.german());
 	}
 
 	private Map<String, VisumTable> singleZone() {
