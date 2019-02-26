@@ -4,22 +4,21 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.simulation.publictransport.TransportSystemHelper;
 
 public class VisumLinkTypeReaderTest {
 
-	private static final String tableName = "tableName";
-
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
+	private static final String ptWalkSpeed = "VSTD-OEVSYS(F)";
+  private static final String tableName = "tableName";
 
 	private static final int id = 0;
 	private static final String name = "name";
@@ -30,15 +29,18 @@ public class VisumLinkTypeReaderTest {
 	private static final int walkSpeed = 4;
 	private VisumTable table;
 	private VisumLinkTypeReader reader;
+	private NetfileAttributes attributes;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
+	  attributes = mock(NetfileAttributes.class);
 		table = new VisumTable(tableName, attributes());
-		reader = new VisumLinkTypeReader(table);
+		reader = new VisumLinkTypeReader(table, attributes);
 	}
 
 	@Test
 	public void readLinkType() {
+	  when(attributes.resolve(StandardAttributes.individualWalkSpeed)).thenReturn(ptWalkSpeed);
 		addLinkType();
 
 		VisumLinkTypes linkTypes = readLinkTypes();
@@ -60,8 +62,7 @@ public class VisumLinkTypeReaderTest {
 		addLinkType();
 		addLinkType();
 
-		thrown.expect(IllegalArgumentException.class);
-		readLinkTypes();
+		assertThrows(IllegalArgumentException.class, () -> readLinkTypes());
 	}
 
 	private VisumLinkTypes readLinkTypes() {
@@ -84,6 +85,6 @@ public class VisumLinkTypeReaderTest {
 	private List<String> attributes() {
 		return asList(VisumLinkTypeReader.id, VisumLinkTypeReader.name,
 				VisumLinkTypeReader.transportSystem, VisumLinkTypeReader.numberOfLanes,
-				VisumLinkTypeReader.capacityCar, VisumLinkTypeReader.freeFlowSpeed, "VSTD-OEVSYS(F)");
+				VisumLinkTypeReader.capacityCar, VisumLinkTypeReader.freeFlowSpeed, ptWalkSpeed);
 	}
 }

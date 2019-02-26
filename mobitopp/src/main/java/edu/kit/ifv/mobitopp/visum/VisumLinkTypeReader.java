@@ -14,10 +14,12 @@ public class VisumLinkTypeReader {
 
 	private final VisumTable table;
 	private final Map<Integer, VisumLinkType> linkTypes;
+  private final NetfileAttributes attributes;
 
-	public VisumLinkTypeReader(VisumTable table) {
+	public VisumLinkTypeReader(VisumTable table, NetfileAttributes attributes) {
 		super();
 		this.table = table;
+    this.attributes = attributes;
 		linkTypes = new HashMap<>();
 	}
 
@@ -91,7 +93,7 @@ public class VisumLinkTypeReader {
 	}
 
 	private int walkSpeed(int row) {
-		return VisumNetworkReader.walkSpeed(table, row);
+		return VisumNetworkReader.walkSpeed(table, row, attributes);
 	}
 
 }
