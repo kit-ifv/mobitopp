@@ -18,7 +18,7 @@ public enum StandardAttributes {
   freeFlowSpeedCar,
   travelTimeCar,
   ueberKnotenNummer, // TODO
-  t0Car,
+  freeFlowTravelTimeCar,
   oberbezirkNummer, // TODO
   flaecheId // TODO
   ,

@@ -27,13 +27,13 @@ public class VisumLinkTypeReaderTest {
   private static final int walkSpeed = 4;
   private VisumTable table;
   private VisumLinkTypeReader reader;
-  private NetfileAttributes attributes;
+  private NetfileLanguage language;
 
   @BeforeEach
   public void initialise() {
-    attributes = StandardNetfileAttributes.german();
+    language = StandardNetfileLanguages.german();
     table = new VisumTable(tableName, attributes());
-    reader = new VisumLinkTypeReader(table, attributes);
+    reader = new VisumLinkTypeReader(table, language);
   }
 
   @Test
@@ -85,7 +85,7 @@ public class VisumLinkTypeReaderTest {
             StandardAttributes.capacityCar, StandardAttributes.freeFlowSpeedCar,
             StandardAttributes.publicTransportWalkSpeed)
         .stream()
-        .map(attributes::resolve)
+        .map(language::resolve)
         .collect(toList());
   }
 }

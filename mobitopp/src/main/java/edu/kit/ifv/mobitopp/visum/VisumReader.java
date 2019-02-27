@@ -20,15 +20,15 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 public class VisumReader {
 
 	private final String charSet;
-  private final NetfileAttributes attributes;
+  private final NetfileLanguage language;
 
 	public VisumReader() {
-		this("ISO-8859-1", StandardNetfileAttributes.german());
+		this("ISO-8859-1", StandardNetfileLanguages.german());
 	}
 
-	public VisumReader(String charSet, NetfileAttributes attributes) {
+	public VisumReader(String charSet, NetfileLanguage language) {
 		this.charSet = charSet;
-    this.attributes = attributes;
+    this.language = language;
 	}
 
 	public Map<String,VisumTable> read(
@@ -121,7 +121,7 @@ public class VisumReader {
 	}
 
   private String poiCategoryPrefix() {
-    return attributes.resolve(Table.poiCategoryPrefix);
+    return language.resolve(Table.poiCategoryPrefix);
   }
 
 	protected String tableName(String line) {

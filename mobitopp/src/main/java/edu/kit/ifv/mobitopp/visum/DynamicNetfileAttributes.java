@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.visum;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicNetfileAttributes implements NetfileAttributes {
+public class DynamicNetfileAttributes implements NetfileLanguage {
 
   private final Map<StandardAttributes, String> attributes;
   private final Map<Table, String> tables;

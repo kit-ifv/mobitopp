@@ -1,13 +1,13 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public abstract class StandardNetfileAttributes {
+public abstract class StandardNetfileLanguages {
 
-  public static NetfileAttributes english() {
+  public static NetfileLanguage english() {
     DynamicNetfileAttributes attributes = new DynamicNetfileAttributes();
     return attributes;
   }
 
-  public static NetfileAttributes german() {
+  public static NetfileLanguage german() {
     DynamicNetfileAttributes attributes = new DynamicNetfileAttributes();
     attributes.add(Table.transportSystems, "VSYS");
     attributes.add(Table.linkTypes, "STRECKENTYP");
@@ -56,7 +56,7 @@ public abstract class StandardNetfileAttributes {
     attributes.add(StandardAttributes.freeFlowSpeedCar, "V0IV");
     attributes.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
     attributes.add(StandardAttributes.ueberKnotenNummer, "UEBERKNOTNR");
-    attributes.add(StandardAttributes.t0Car, "T0IV");
+    attributes.add(StandardAttributes.freeFlowTravelTimeCar, "T0IV");
     attributes.add(StandardAttributes.oberbezirkNummer, "OBEZNR");
     attributes.add(StandardAttributes.flaecheId, "FLAECHEID");
     attributes.add(StandardAttributes.diagOev, "DIAG_OEV");

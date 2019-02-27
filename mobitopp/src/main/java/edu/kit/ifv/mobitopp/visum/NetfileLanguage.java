@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public interface NetfileAttributes {
+public interface NetfileLanguage {
 
   /**
    * Resolves attribute names needed for mobiTopp to names in visum net files.

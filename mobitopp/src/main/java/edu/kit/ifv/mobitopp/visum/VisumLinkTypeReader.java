@@ -7,12 +7,12 @@ public class VisumLinkTypeReader {
 
 	private final VisumTable table;
 	private final Map<Integer, VisumLinkType> linkTypes;
-  private final NetfileAttributes attributes;
+  private final NetfileLanguage language;
 
-	public VisumLinkTypeReader(VisumTable table, NetfileAttributes attributes) {
+	public VisumLinkTypeReader(VisumTable table, NetfileLanguage language) {
 		super();
 		this.table = table;
-    this.attributes = attributes;
+    this.language = language;
 		linkTypes = new HashMap<>();
 	}
 
@@ -57,7 +57,7 @@ public class VisumLinkTypeReader {
 	}
 
   private String attribute(StandardAttributes attribute) {
-    return attributes.resolve(attribute);
+    return language.resolve(attribute);
   }
 
 	private String nameIn(int row) {
@@ -90,7 +90,7 @@ public class VisumLinkTypeReader {
 	}
 
 	private int walkSpeed(int row) {
-		return VisumNetworkReader.walkSpeed(table, row, attributes);
+		return VisumNetworkReader.walkSpeed(table, row, language);
 	}
 
 }
