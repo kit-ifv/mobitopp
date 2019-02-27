@@ -86,7 +86,7 @@ public class VisumLinkTypeReader {
 	}
 
 	private int parseSpeed(String value) {
-		return VisumNetworkReader.parseSpeed(value);
+		return VisumNetworkReader.parseSpeed(value, language);
 	}
 
 	private int walkSpeed(int row) {
