@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -74,8 +73,7 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 
   private void loadCars(Population population) throws IOException {
     List<PrivateCar> cars = carDeserialiser.deserialise(population);
-    Consumer<Entry<HouseholdId, List<PrivateCar>>> assignCars = entry -> assignCars(entry,
-        population);
+    Consumer<Entry<Household, List<PrivateCar>>> assignCars = entry -> assignCars(entry);
     cars.stream().collect(groupingBy(PrivateCar::owner)).entrySet().stream().forEach(assignCars);
     cars
         .stream()
@@ -87,10 +85,8 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
     population.getPerson(car.personalUser()).assignPersonalCar(car);
   }
 
-  private void assignCars(Entry<HouseholdId, List<PrivateCar>> entry, PopulationContext population) {
-    population
-        .getHouseholdByOid(entry.getKey().getOid())
-        .ifPresent(h -> h.ownCars(entry.getValue()));
+  private void assignCars(Entry<Household, List<PrivateCar>> entry) {
+    entry.getKey().ownCars(entry.getValue());
   }
 
   private void loadFixedDestinations(Population population) throws IOException {

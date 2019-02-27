@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.Person;
@@ -100,20 +101,20 @@ public abstract class ExampleSetup {
 		return population;
 	}
 
-	private static Collection<PrivateCar> cars(HouseholdId household, PersonForSetup personForDemand, Zone zone) {
-		ArrayList<PrivateCar> cars = new ArrayList<>();
+	private static Collection<PrivateCarForSetup> cars(HouseholdId household, PersonForSetup personForDemand, Zone zone) {
+		ArrayList<PrivateCarForSetup> cars = new ArrayList<>();
 		cars.add(conventionalCar(household, personForDemand, zone));
 		return cars;
 	}
 
-	public static PrivateCar conventionalCar(HouseholdId household, PersonForSetup person, Zone zone) {
+	public static PrivateCarForSetup conventionalCar(HouseholdId household, PersonForSetup person, Zone zone) {
 		Car car = conventionalCar(zone);
 		PersonId personId = person.getId();
-    return new DefaultPrivateCar(car, household, personId, personId);
+    return new DefaultPrivateCarForSetup(car, household, personId, personId);
 	}
 	
 	public static PrivateCar conventionalCar(
-			HouseholdId household, Person mainUser, Person personalUser, Zone zone) {
+			Household household, Person mainUser, Person personalUser, Zone zone) {
 		Car car = conventionalCar(zone);
 		PersonId mainUserId = mainUser.getId();
     PersonId personalUserId = personalUser == null ? null : personalUser.getId();

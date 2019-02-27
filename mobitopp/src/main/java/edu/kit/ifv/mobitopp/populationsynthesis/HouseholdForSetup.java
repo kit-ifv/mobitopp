@@ -7,7 +7,6 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public interface HouseholdForSetup {
 
@@ -27,7 +26,7 @@ public interface HouseholdForSetup {
 
   boolean canChargePrivately();
 
-  void ownCars(Collection<PrivateCar> cars);
+  void ownCars(Collection<PrivateCarForSetup> cars);
 
   int getTotalNumberOfCars();
 

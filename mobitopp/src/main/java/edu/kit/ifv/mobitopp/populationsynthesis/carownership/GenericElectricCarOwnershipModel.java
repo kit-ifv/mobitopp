@@ -7,15 +7,15 @@ import static edu.kit.ifv.mobitopp.simulation.Car.Segment.MIDSIZE;
 
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPrivateCarForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.car.BatteryElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
 import edu.kit.ifv.mobitopp.simulation.car.ExtendedRangeElectricCar;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 public class GenericElectricCarOwnershipModel
@@ -78,7 +78,7 @@ public class GenericElectricCarOwnershipModel
 
 
 	@Override
-	protected PrivateCar createCar(
+	protected PrivateCarForSetup createCar(
 		PersonForSetup person,
 		CarPosition position,
 		Car.Segment segment,
@@ -87,7 +87,7 @@ public class GenericElectricCarOwnershipModel
 		HouseholdId householdId = person.household().getId();
     PersonId personId = person.getId();
     PersonId personalUserId = personal ? personId : null;
-    return new DefaultPrivateCar(
+    return new DefaultPrivateCarForSetup(
 						createCarInternal(person, position, segment),
 						householdId,
 						personId,
