@@ -12,7 +12,7 @@ public class ExampleHousehold {
 
   static final int oid = 1;
   static final short year = 2000;
-  static final HouseholdId id = new HouseholdId(oid, year, 3);
+  public static final HouseholdId id = new HouseholdId(oid, year, 3);
   static final int defaultNominalSize = 2;
   static final int domcode = 5;
   static final Location location = new Location(new Point2D.Double(), 0, 0.0d);

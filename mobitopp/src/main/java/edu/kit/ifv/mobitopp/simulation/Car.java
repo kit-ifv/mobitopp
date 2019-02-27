@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -62,6 +63,7 @@ public interface Car {
 	void release(Person person, Time currentTime);
 	Person driver();
 	boolean isUsed();
+  void returnCar(Zone zone);
 
 	Time startOfLastUsage();
 	Time endOfLastUsage();

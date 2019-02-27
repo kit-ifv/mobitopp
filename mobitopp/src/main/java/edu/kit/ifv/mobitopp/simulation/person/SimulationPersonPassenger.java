@@ -681,9 +681,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	    	if (activity.activityType().isHomeActivity())
 	      {
 					Car car = person().releaseCar(time);
-	    		assert car instanceof PrivateCar;
-				
-					person().household().returnCar((PrivateCar) car);
+					car.returnCar(zone);
 	      } else {
 	    		Car car = person().parkCar(zone, location, time);
 	    		assert car instanceof PrivateCar;
@@ -693,7 +691,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	    	if (activity.activityType().isHomeActivity())
 	      {
-					CarSharingCar car = (CarSharingCar) person().releaseCar(time);
+					Car car = person().releaseCar(time);
 					car.returnCar(zone);
 	      } else {
 	    		Car car = person().parkCar(zone, location, time);
@@ -703,8 +701,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 			if (trip.mode() == Mode.CARSHARING_FREE) {
 				assert this.isCarDriver();
 				if (zone.carSharing().isFreeFloatingZone((CarSharingCar)this.whichCar())) {
-					CarSharingCar car = (CarSharingCar) person().releaseCar(time);
-
+					Car car = person().releaseCar(time);
 					car.returnCar(zone);
 				}
 			}

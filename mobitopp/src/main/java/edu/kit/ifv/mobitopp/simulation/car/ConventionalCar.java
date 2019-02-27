@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
 
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -174,6 +175,10 @@ public class ConventionalCar
 		this.driver = null;
 		this.endUsage = time;
 	}
+
+  public void returnCar(Zone zone) {
+    
+  }
 
 	public Time startOfLastUsage() {
 		return this.startUsage;

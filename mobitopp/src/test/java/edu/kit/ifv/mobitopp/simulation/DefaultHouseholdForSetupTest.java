@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
+import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public class DefaultHouseholdForSetupTest {
 
@@ -42,10 +43,12 @@ public class DefaultHouseholdForSetupTest {
     Zone zone = ExampleZones.create().someZone();
     HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withCars(1).build();
     PrivateCarForSetup car = mock(PrivateCarForSetup.class);
+    PrivateCar privateCar = mock(PrivateCar.class);
+    when(car.toCar(any())).thenReturn(privateCar);
 
     setupHousehold.ownCars(asList(car));
     Household household = setupHousehold.toHousehold();
 
-    assertThat(household.whichCars(), contains(car));
+    assertThat(household.whichCars(), contains(privateCar));
   }
 }
