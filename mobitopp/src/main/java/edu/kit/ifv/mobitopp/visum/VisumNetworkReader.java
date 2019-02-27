@@ -617,7 +617,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	private Map<Integer, VisumVehicleUnit> readVehicleUnits(
 		Map<String,VisumTable> tables, VisumTransportSystems allSystems
 	) {
-
+	  if (!tables.containsKey(table(Table.vehicleUnit))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.vehicleUnit));
 		if (null == table) {
 			System.out.println("Vehicle units are missing!");
@@ -655,7 +657,12 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<String,VisumTable> tables,
 		Map<Integer, VisumVehicleUnit> vehicleUnits
 	) {
-
+	  if (!tables.containsKey(table(Table.vehicleCombinations))) {
+      return emptyMap();
+    }
+	  if (!tables.containsKey(table(Table.vehicleUnitToCombinations))) {
+      return emptyMap();
+    }
 		VisumTable vehicleCombinations = tables.get(table(Table.vehicleCombinations));
 		VisumTable vehicleUnits2Combinations = tables.get(table(Table.vehicleUnitToCombinations));
 		if (null == vehicleCombinations || null == vehicleUnits2Combinations) {
@@ -714,7 +721,10 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	private Map<Integer, VisumPtStop> readPtStations(
 		Map<String,VisumTable> tables
 	) {
-
+	  if (!tables.containsKey(table(Table.station))) {
+      return emptyMap();
+    }
+	  
 		VisumTable table = tables.get(table(Table.station));
 
 		Map<Integer, VisumPtStop> data = new HashMap<>();
@@ -743,7 +753,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<Integer, VisumNode> nodes,
 		Map<Integer, VisumPtStop> ptStops
 	) {
-
+	  if (!tables.containsKey(table(Table.stopArea))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.stopArea));
 
 		Map<Integer, VisumPtStopArea> data = new HashMap<>();
@@ -778,7 +790,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<Integer, VisumPtStopArea> ptStopAreas, 
 		VisumTransportSystems allSystems
 	) {
-
+	  if (!tables.containsKey(table(Table.stop))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.stop));
 
 		Map<Integer, VisumPtStopPoint> data = new HashMap<>();
@@ -838,6 +852,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 	private Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimesMatrix(
 			Map<String, VisumTable> tables, Map<Integer, VisumPtStopArea> ptStopAreas) {
+	  if (!tables.containsKey(table(Table.station))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.transferWalkTimes));
 		Map<StopAreaPair, VisumPtTransferWalkTimes> data = new HashMap<>();
 		for (int i = 0; i < table.numberOfRows(); i++) {
@@ -864,7 +881,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	private Map<String, VisumPtLine> readPtLines(
 		Map<String,VisumTable> tables, VisumTransportSystems systems
 	) {
-
+	  if (!tables.containsKey(table(Table.line))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.line));
 
 		Map<String, VisumPtLine> data = new HashMap<>();
@@ -886,7 +905,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<String,VisumTable> tables,
 		Map<String, VisumPtLine> ptLines
 	) {
-
+	  if (!tables.containsKey(table(Table.lineRoute))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.lineRoute));
 
 		Map<String, Map<String, VisumPtLineRoute>> data
@@ -950,7 +971,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<Integer, VisumPtStopPoint> ptStopPoints,
 		Map<Integer, VisumNode> nodes
 	) {
-
+	  if (!tables.containsKey(table(Table.lineRouteElement))) {
+      return;
+    }
 		VisumTable table = tables.get(table(Table.lineRouteElement));
 
 		Map<VisumPtLineRoute, SortedMap<Integer, VisumPtLineRouteElement>> data
@@ -1005,7 +1028,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<String,VisumTable> tables,
 		Map<String, VisumPtLineRoute> ptLineRoutes
 	) {
-
+	  if (!tables.containsKey(table(Table.timeProfileElement))) {
+      return emptyMap();
+    }
 		VisumTable table = tables.get(table(Table.timeProfileElement));
 
 		Map<String,Map<Integer,VisumPtTimeProfileElement>> elements
@@ -1116,13 +1141,12 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		Map<String,VisumPtTimeProfile> ptTimeProfiles,
 		Map<Integer, VisumVehicleCombination> vehicleCombinations
 	) {
-
-		VisumTable table = tables.get(table(Table.vehicleJourneyPart));
-		if (null == table) {
+	  if (!tables.containsKey(table(Table.vehicleJourneyPart))) {
 			System.out.println("Vehicle journey parts are missing!");
 			return emptyList();
 		}
 
+	  VisumTable table = tables.get(table(Table.vehicleJourneyPart));
 		Map<Integer,List<VisumPtVehicleJourneySection>> sections
 			= new HashMap<>();
 
@@ -1272,7 +1296,6 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	private Map<Integer,VisumPoint> readPoints(
 		Map<String,VisumTable> tables
 	) {
-
 		VisumTable table = tables.get(table(Table.point));
 
 		Map<Integer,VisumPoint> result = new HashMap<>();
