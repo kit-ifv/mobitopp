@@ -375,11 +375,11 @@ System.out.println(" reading territories...");
   }
 
   private String toNodeFromNode() {
-    return attribute(StandardAttributes.toNodeFromNode);
+    return attribute(StandardAttributes.toNodeNumber);
   }
 
   private String fromNodeToNode() {
-    return attribute(StandardAttributes.fromNodeToNode);
+    return attribute(StandardAttributes.fromNodeNumber);
   }
 
 	private Map<Integer, List<VisumTurn>> readTurns(
@@ -398,7 +398,7 @@ System.out.println(" reading territories...");
 
 		for (int i=0; i<table.numberOfRows(); i++) {
 
-			Integer nodeId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.ueberKnotenNummer)));
+			Integer nodeId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.viaNodeNumber)));
 
 			String transportSystems = table.getValue(i, transportSystemsSet());
 			VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
@@ -462,11 +462,11 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		VisumZone tmp = new VisumZone(
 													id,
 													table.getValue(i,name()),
-													Integer.valueOf(table.getValue(i,attribute(StandardAttributes.oberbezirkNummer))),
+													Integer.valueOf(table.getValue(i,attribute(StandardAttributes.mainZoneNumber))),
 													Integer.valueOf(table.getValue(i,typeNumber())),
 													Float.parseFloat(table.getValue(i,xCoord())),
 													Float.parseFloat(table.getValue(i,yCoord())),
-													Integer.valueOf(table.getValue(i,flacheId())),
+													Integer.valueOf(table.getValue(i,areaId())),
 													Integer.valueOf(charging_facilities),
 													floatingCarArea.equals("1") ? "Car2Go" : "",
 													Integer.valueOf(floatingCarArea),
@@ -478,12 +478,12 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return tmp;
 	}
 
-  private String flacheId() {
-    return attribute(StandardAttributes.flaecheId);
+  private String areaId() {
+    return attribute(StandardAttributes.areaId);
   }
 
 	protected float innerZonePublicTransportTime(VisumTable table, int i) {
-		String diagPt = attribute(StandardAttributes.diagOev);
+		String diagPt = attribute(StandardAttributes.innerZonePublicTransportTravelTime);
     if (table.containsAttribute(diagPt)) {
 			return Float.parseFloat(table.getValue(i, diagPt));
 		}
@@ -494,9 +494,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 	protected Map<String, Float> carSharingDensities(VisumTable table, int i) {
 		Map<String, Float> carsharingcarDensities = new HashMap<>();
-		String fzFlSm = attribute(StandardAttributes.fzFlSm);
-    String fzFlFl = attribute(StandardAttributes.fzFlFl);
-    String fzFlC2g = attribute(StandardAttributes.fzFlC2g);
+		String fzFlSm = attribute(StandardAttributes.carSharingDensityStadtmobil);
+    String fzFlFl = attribute(StandardAttributes.carSharingDensityFlinkster);
+    String fzFlC2g = attribute(StandardAttributes.carSharingDensityCar2Go);
     if (table.containsAttribute(fzFlSm) && table.containsAttribute(fzFlFl)
 				&& table.containsAttribute(fzFlC2g)) {
 			carsharingcarDensities.put("Stadtmobil", Float.valueOf(table.getValue(i, fzFlSm)));
@@ -1133,7 +1133,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 			int journeyNumber = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.vehicleJourneyNumber)));
 			int fromIndex = Integer.valueOf(table.getValue(i,fromTimeProfileElementIndex()));
 			int toIndex = Integer.valueOf(table.getValue(i,toTimeProfileElementIndex()));
-			int day = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.vtagnr)));
+			int day = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.vehicleDayNumber)));
 			int vehicleCombinationId = Integer.valueOf(table.getValue(i,vehicleCombinationNumber()));
 
 			VisumPtVehicleJourneySection journeySection = new VisumPtVehicleJourneySection(
@@ -1235,9 +1235,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		for (int i=0; i<table.numberOfRows(); i++) {
 
-			int id = Integer.valueOf(table.getValue(i,flacheId()));
+			int id = Integer.valueOf(table.getValue(i,areaId()));
 			int ring_id = Integer.valueOf(table.getValue(i,teilFlaecheId()));
-			int enclave = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.enklave)));
+			int enclave = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.enclave)));
 
 			if (!tmp.containsKey(id)) {
 				tmp.put(id, new ArrayList<RingInfo>());
@@ -1266,7 +1266,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	}
 
   private String teilFlaecheId() {
-    return attribute(StandardAttributes.teilFlaecheId);
+    return attribute(StandardAttributes.ringId);
   }
 
 
@@ -1467,9 +1467,9 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 																		id,
 																		Float.parseFloat(table.getValue(i,xCoord())),
 																		Float.parseFloat(table.getValue(i,yCoord())),
-																		table.getValue(i,attribute(StandardAttributes.art)),
-																		table.getValue(i,attribute(StandardAttributes.fz)),
-																		table.getValue(i,attribute(StandardAttributes.pub)),
+																		table.getValue(i,attribute(StandardAttributes.chargingType)),
+																		table.getValue(i,attribute(StandardAttributes.vehicleType)),
+																		table.getValue(i,attribute(StandardAttributes.publicType)),
 																		latitude,
 																		longitude,
 																		table.getValue(i,attribute(StandardAttributes.place)) + ", " +
@@ -1650,7 +1650,7 @@ System.out.println("reading Territory " + i);
 			int id = Integer.valueOf(table.getValue(i,number()));
 			String code = code(table, i);
 			String name = nameOf(table, i);
-			int areaId = Integer.valueOf(table.getValue(i,flacheId()));
+			int areaId = Integer.valueOf(table.getValue(i,areaId()));
 			VisumSurface area = polygons.get(areaId);
 
 			VisumTerritory t = new VisumTerritory(id, code, name, areaId, area);

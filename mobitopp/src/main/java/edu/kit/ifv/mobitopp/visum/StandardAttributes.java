@@ -9,27 +9,22 @@ public enum StandardAttributes {
   xCoord,
   yCoord,
   zCoord,
-  fromNodeToNode,
-  toNodeFromNode,
+  fromNodeNumber,
+  toNodeNumber,
   transportSystemSet,
   length,
   numberOfLanes,
   capacityCar,
   freeFlowSpeedCar,
   travelTimeCar,
-  ueberKnotenNummer, // TODO
+  viaNodeNumber,
   freeFlowTravelTimeCar,
-  oberbezirkNummer, // TODO
-  flaecheId // TODO
-  ,
-  diagOev // TODO
-  ,
-  fzFlSm // TODO
-  ,
-  fzFlFl // TODO
-  ,
-  fzFlC2g // TODO
-  ,
+  mainZoneNumber,
+  areaId,
+  innerZonePublicTransportTravelTime,
+  carSharingDensityStadtmobil,
+  carSharingDensityFlinkster,
+  carSharingDensityCar2Go,
   car2GoStartState,
   car2GoTerritory,
   chargingStations,
@@ -66,13 +61,11 @@ public enum StandardAttributes {
   departure,
   timeProfileName,
   vehicleJourneyNumber,
-  vtagnr // TODO
-  ,
+  vehicleDayNumber,
   toTimeProfileElementIndex,
   fromTimeProfileElementIndex,
-  enklave // TODO
-  ,
-  teilFlaecheId, // TODO
+  enclave,
+  ringId,
   id,
   edgeId,
   fromPointId,
@@ -81,12 +74,9 @@ public enum StandardAttributes {
   lsId,
   latitude,
   longitude,
-  art // TODO
-  ,
-  fz // TODO
-  ,
-  pub // TODO
-  ,
+  chargingType,
+  vehicleType,
+  publicType,
   place,
   plz,
   street,
