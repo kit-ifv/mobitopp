@@ -23,7 +23,11 @@ public class VisumReader {
   private final NetfileLanguage language;
 
 	public VisumReader() {
-		this("ISO-8859-1", StandardNetfileLanguages.german());
+		this(StandardNetfileLanguages.german());
+	}
+	
+	public VisumReader(NetfileLanguage language) {
+	  this("ISO-8859-1", language);
 	}
 
 	public VisumReader(String charSet, NetfileLanguage language) {

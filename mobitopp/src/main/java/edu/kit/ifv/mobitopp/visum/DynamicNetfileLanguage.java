@@ -22,7 +22,7 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
       return attributes.get(attribute);
     }
     throw new IllegalArgumentException(
-        String.format("Missing visum attribute name for mobitopp name %s", attribute));
+        String.format("Missing visum attribute name for mobitopp name: %s", attribute));
   }
 
   public void add(StandardAttributes mobiTopp, String visum) {
@@ -35,7 +35,7 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
       return tables.get(table);
     }
     throw new IllegalArgumentException(
-        String.format("Missing visum table name for mobitopp name %s", table));
+        String.format("Missing visum table name for mobitopp name: %s", table));
   }
 
   public void add(Table mobiTopp, String visum) {
@@ -48,7 +48,7 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
       return units.get(unit);
     }
     throw new IllegalArgumentException(
-        String.format("Missing visum unit for mobitopp name %s", unit));
+        String.format("Missing visum unit for mobitopp name: %s", unit));
   }
 
   public void add(Unit unit, String visum) {

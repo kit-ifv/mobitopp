@@ -94,7 +94,7 @@ System.out.println(" reading other...");
 		Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(tables, vehicleUnits);
 
 System.out.println(" reading stop hierarchy...");
-		Map<Integer, VisumPtStop> ptStops = readPtStops(tables);
+		Map<Integer, VisumPtStop> ptStops = readPtStations(tables);
 		Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(tables, nodes, ptStops);
 		Map<Integer, VisumPtStopPoint> ptStopPoints = readPtStopPoints(tables, nodes, links, ptStopAreas, transportSystems);
 		Map<StopAreaPair, VisumPtTransferWalkTimes> walkTimes = readTransferWalkTimesMatrix(tables, ptStopAreas);
@@ -198,7 +198,7 @@ System.out.println(" reading territories...");
 
 	private VisumTransportSystems readTransportSystems(Map<String, VisumTable> tables) {
 		VisumTable table = tables.get(table(Table.transportSystems));
-		VisumTransportSystemReader reader = new VisumTransportSystemReader(table);
+		VisumTransportSystemReader reader = new VisumTransportSystemReader(table, language);
 		return reader.readTransportSystems();
 	}
 
@@ -323,8 +323,8 @@ System.out.println(" reading territories...");
 		VisumLinkTypes linkTypes
 	) {
 
-		VisumNode fromNode = nodes.get(Integer.valueOf(table.getValue(row,fromNodeToNode())));
-		VisumNode toNode = nodes.get(Integer.valueOf(table.getValue(row,toNodeFromNode())));
+		VisumNode fromNode = nodes.get(Integer.valueOf(table.getValue(row,fromNode())));
+		VisumNode toNode = nodes.get(Integer.valueOf(table.getValue(row,toNode())));
 		String name =  table.getValue(row,name());
 		VisumLinkType linkType = linkTypes.getById(Integer.valueOf(table.getValue(row,typeNumber())));
 		String transportSystems = table.getValue(row,transportSystemsSet());
@@ -374,11 +374,11 @@ System.out.println(" reading territories...");
     return attribute(StandardAttributes.transportSystemSet);
   }
 
-  private String toNodeFromNode() {
+  private String toNode() {
     return attribute(StandardAttributes.toNodeNumber);
   }
 
-  private String fromNodeToNode() {
+  private String fromNode() {
     return attribute(StandardAttributes.fromNodeNumber);
   }
 
@@ -404,8 +404,8 @@ System.out.println(" reading territories...");
 			VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
 			VisumTurn turn = new VisumTurn(
 																nodes.get(nodeId),
-																nodes.get(Integer.valueOf(table.getValue(i,fromNodeToNode()))),
-																nodes.get(Integer.valueOf(table.getValue(i,toNodeFromNode()))),
+																nodes.get(Integer.valueOf(table.getValue(i,fromNode()))),
+																nodes.get(Integer.valueOf(table.getValue(i,toNode()))),
 																Integer.valueOf(table.getValue(i,typeNumber())),
 																systemSet,
 																Integer.valueOf(table.getValue(i,capacityCar())),
@@ -711,7 +711,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
     return attribute(StandardAttributes.vehicleCombinationNumber);
   }
 
-	private Map<Integer, VisumPtStop> readPtStops(
+	private Map<Integer, VisumPtStop> readPtStations(
 		Map<String,VisumTable> tables
 	) {
 
@@ -807,7 +807,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 															);
 				data.put(id, tmp);
 			} else {
-				Integer nodeId = Integer.valueOf(table.getValue(i,fromNodeToNode()));
+				Integer nodeId = Integer.valueOf(table.getValue(i,fromNode()));
 				Integer linkId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.linkNumber)));
 
 				String transportSystems = table.getValue(i, transportSystemsSet());
@@ -1235,7 +1235,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		for (int i=0; i<table.numberOfRows(); i++) {
 
 			int id = Integer.valueOf(table.getValue(i,areaId()));
-			int ring_id = Integer.valueOf(table.getValue(i,teilFlaecheId()));
+			int ring_id = Integer.valueOf(table.getValue(i,ringId()));
 			int enclave = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.enclave)));
 
 			if (!tmp.containsKey(id)) {
@@ -1264,7 +1264,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return polys;
 	}
 
-  private String teilFlaecheId() {
+  private String ringId() {
     return attribute(StandardAttributes.ringId);
   }
 
@@ -1391,7 +1391,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		for (int i=0; i<table.numberOfRows(); i++) {
 
-			int id = Integer.valueOf(table.getValue(i,teilFlaecheId()));
+			int id = Integer.valueOf(table.getValue(i,ringId()));
 			int idx = Integer.valueOf(table.getValue(i,index()));
 			int line_id = Integer.valueOf(table.getValue(i,edgeId()));
 			int direction = Integer.valueOf(table.getValue(i,direction()));

@@ -18,6 +18,8 @@ import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultMappings;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.util.StopWatch;
+import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
@@ -27,6 +29,8 @@ public class ContextBuilder {
 	private final StopWatch performanceLogger;
 	private final SimulationParser format;
 	private final AreaTypeRepository areaTypeRepository;
+	private final TypeMapping modeToType;
+	private final NetfileLanguage language;
 
 	private WrittenConfiguration configuration;
 	private DynamicParameters experimentalParameters;
@@ -39,23 +43,24 @@ public class ContextBuilder {
 	private DataRepositoryForSimulation dataRepository;
 	private PersonResults personResults;
 	private DynamicParameters modeChoiceParameters;
-  private TypeMapping modeToType;
 
-	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType) {
-		super();
+  public ContextBuilder(
+      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language) {
+    super();
 		this.areaTypeRepository = areaTypeRepository;
     this.modeToType = modeToType;
+    this.language = language;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
 	}
 	
 	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
-	  this(areaTypeRepository, DefaultMappings.noAutonomousModes());
+	  this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
 	}
 
 	public ContextBuilder() {
-		this(new BicRepository(), DefaultMappings.noAutonomousModes());
+		this(new BicRepository());
 	}
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
@@ -130,7 +135,7 @@ public class ContextBuilder {
 	}
 
 	protected VisumNetwork doLoadVisumNetwork(String fileName) {
-		return NetworkSerializer.readVisumNetwork(fileName);
+		return NetworkSerializer.readVisumNetwork(fileName, language);
 	}
 
 	private void loadRoadNetwork() {
