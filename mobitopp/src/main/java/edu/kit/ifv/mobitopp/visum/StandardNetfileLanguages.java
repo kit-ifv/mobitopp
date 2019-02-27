@@ -4,8 +4,8 @@ public abstract class StandardNetfileLanguages {
 
   public static NetfileLanguage english() {
     DynamicNetfileLanguage language = new DynamicNetfileLanguage();
-    language.add(Table.transportSystems, "VSYS");
-    language.add(Table.linkTypes, "STRECKENTYP");
+    language.add(Table.transportSystems, "TSYS");
+    language.add(Table.linkTypes, "LINKTYPE");
     language.add(Table.nodes, "NODE");
     language.add(Table.links, "LINK");
     language.add(Table.turns, "TURN");
@@ -38,34 +38,34 @@ public abstract class StandardNetfileLanguages {
     // TransportSystem
     language.add(StandardAttributes.code, "CODE");
     language.add(StandardAttributes.name, "NAME");
-    language.add(StandardAttributes.type, "TYP");
+    language.add(StandardAttributes.type, "TYPE");
     
     // LinkType
-    language.add(StandardAttributes.number, "NR");
-    language.add(StandardAttributes.transportSystemSet, "VSYSSET");
-    language.add(StandardAttributes.numberOfLanes, "ANZFAHRSTREIFEN");
-    language.add(StandardAttributes.capacityCar, "KAPIV");
-    language.add(StandardAttributes.freeFlowSpeedCar, "V0IV");
+    language.add(StandardAttributes.number, "NO");
+    language.add(StandardAttributes.transportSystemSet, "TSYSSET");
+    language.add(StandardAttributes.numberOfLanes, "NUMLANES");
+    language.add(StandardAttributes.capacityCar, "CAPPRT");
+    language.add(StandardAttributes.freeFlowSpeedCar, "V0PRT");
 
     // Node
-    language.add(StandardAttributes.typeNumber, "TYPNR");
-    language.add(StandardAttributes.xCoord, "XKOORD");
-    language.add(StandardAttributes.yCoord, "YKOORD");
-    language.add(StandardAttributes.zCoord, "ZKOORD");
+    language.add(StandardAttributes.typeNumber, "TYPENO");
+    language.add(StandardAttributes.xCoord, "XCOORD");
+    language.add(StandardAttributes.yCoord, "YCOORD");
+    language.add(StandardAttributes.zCoord, "ZCOORD");
     
     // Link
-    language.add(StandardAttributes.fromNodeNumber, "VONKNOTNR");
-    language.add(StandardAttributes.toNodeNumber, "NACHKNOTNR");
-    language.add(StandardAttributes.length, "LAENGE");
+    language.add(StandardAttributes.fromNodeNumber, "FROMNODENO");
+    language.add(StandardAttributes.toNodeNumber, "TONODENO");
+    language.add(StandardAttributes.length, "LENGTH");
     language.add(StandardAttributes.individualWalkSpeed, "VMAX-IVSYS(FUSS)");
     language.add(StandardAttributes.publicTransportWalkSpeed, "VSTD-OEVSYS(F)");
     
     // Abbieger
-    language.add(StandardAttributes.freeFlowTravelTimeCar, "T0IV");
-    language.add(StandardAttributes.viaNodeNumber, "UEBERKNOTNR");
+    language.add(StandardAttributes.freeFlowTravelTimeCar, "T0PRT");
+    language.add(StandardAttributes.viaNodeNumber, "VIANODENO");
     
     // Zone
-    language.add(StandardAttributes.mainZoneNumber, "OBEZNR");
+    language.add(StandardAttributes.mainZoneNumber, "MAINZONENO");
     language.add(StandardAttributes.areaId, "SURFACEID");
     language.add(StandardAttributes.chargingStations, "LADESTATIONEN");
     language.add(StandardAttributes.car2GoTerritory, "CAR2GO_GEBIET");
@@ -77,9 +77,9 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.innerZonePublicTransportTravelTime, "DIAG_OEV");
     
     // Connector
-    language.add(StandardAttributes.zoneNumber, "BEZNR");
-    language.add(StandardAttributes.nodeNumber, "KNOTNR");
-    language.add(StandardAttributes.direction, "RICHTUNG");
+    language.add(StandardAttributes.zoneNumber, "ZONENO");
+    language.add(StandardAttributes.nodeNumber, "NODENO");
+    language.add(StandardAttributes.direction, "DIRECTION");
     language.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
     
     // VehicleUnit
@@ -135,11 +135,11 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.id, "ID");
     
     // IntermediatePoint
-    language.add(StandardAttributes.edgeId, "KANTEID");
+    language.add(StandardAttributes.edgeId, "EDGEID");
     
     // Edge
-    language.add(StandardAttributes.fromPointId, "VONPUNKTID");
-    language.add(StandardAttributes.toPointId, "NACHPUNKTID");
+    language.add(StandardAttributes.fromPointId, "FROMPOINTID");
+    language.add(StandardAttributes.toPointId, "TOPOINTID");
     
     // Surfae
     language.add(StandardAttributes.enclave, "ENCLAVE");
@@ -171,8 +171,12 @@ public abstract class StandardNetfileLanguages {
     
     // Territory
     language.add(StandardAttributes.item, "ITEM");
-    language.add(StandardAttributes.codeLc, "CODE_LC");
-    
+    language.add(StandardAttributes.codeLc, "NAME");
+
+    // Units
+    language.add(Unit.velocity, "mph");
+    language.add(Unit.distance, "mi");
+    language.add(Unit.time, "s");
     return language;
   }
 
