@@ -15,7 +15,7 @@ public enum StandardAttributes {
   length,
   numberOfLanes,
   capacityCar,
-  v0Car,
+  freeFlowSpeedCar,
   travelTimeCar,
   ueberKnotenNummer, // TODO
   t0Car,
