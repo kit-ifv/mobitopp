@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.File;
 
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumReader;
@@ -121,7 +122,7 @@ public class NetworkSerializer {
 	}
 	
 	
-	public static VisumNetwork readVisumNetwork(String filename) {
+	public static VisumNetwork readVisumNetwork(String filename, NetfileLanguage netfileLanguage) {
 
 		String visumFile = basename(filename) + ".visum_serialized";
 
@@ -140,8 +141,8 @@ System.out.println("serialized file exists? " + new File(visumFile).isFile());
 		} else {
 	
 			System.out.println("reading network...");
-			VisumReader reader = new VisumReader();
-			VisumNetworkReader networkReader = new VisumNetworkReader(reader);
+			VisumReader reader = new VisumReader(netfileLanguage);
+			VisumNetworkReader networkReader = new VisumNetworkReader(reader, netfileLanguage);
 			visumNetwork = networkReader.readNetwork(filename);
 			System.out.println("DONE!");
 	
