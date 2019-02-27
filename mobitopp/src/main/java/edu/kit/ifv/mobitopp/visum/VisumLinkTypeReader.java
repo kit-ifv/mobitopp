@@ -5,13 +5,6 @@ import java.util.Map;
 
 public class VisumLinkTypeReader {
 
-	static final String id = "NR";
-	static final String name = "NAME";
-	static final String transportSystem = "VSYSSET";
-	static final String numberOfLanes = "ANZFAHRSTREIFEN";
-	static final String capacityCar = "KAPIV";
-	static final String freeFlowSpeed = "V0IV";
-
 	private final VisumTable table;
 	private final Map<Integer, VisumLinkType> linkTypes;
   private final NetfileAttributes attributes;
@@ -60,24 +53,28 @@ public class VisumLinkTypeReader {
 	}
 
 	private int idIn(int row) {
-		return getIntegerIn(row, id);
+		return getIntegerIn(row, attribute(StandardAttributes.number));
 	}
 
+  private String attribute(StandardAttributes attribute) {
+    return attributes.resolve(attribute);
+  }
+
 	private String nameIn(int row) {
-		return table.getValue(row, name);
+		return table.getValue(row, attribute(StandardAttributes.name));
 	}
 
 	private VisumTransportSystemSet transportSystemsIn(int row, VisumTransportSystems allSystems) {
-		String transportSystems = table.getValue(row, transportSystem);
+		String transportSystems = table.getValue(row, attribute(StandardAttributes.transportSystemSet));
 		return VisumTransportSystemSet.getByCode(transportSystems, allSystems);
 	}
 
 	private int numberOfLanesIn(int row) {
-		return getIntegerIn(row, numberOfLanes);
+		return getIntegerIn(row, attribute(StandardAttributes.numberOfLanes));
 	}
 
 	private int capacityOfCarIn(int row) {
-		return getIntegerIn(row, capacityCar);
+		return getIntegerIn(row, attribute(StandardAttributes.capacityCar));
 	}
 
 	private Integer getIntegerIn(int row, String attribute) {
@@ -85,7 +82,7 @@ public class VisumLinkTypeReader {
 	}
 
 	private int freeFlowSpeedIn(int row) {
-		return parseSpeed(table.getValue(row, freeFlowSpeed));
+		return parseSpeed(table.getValue(row, attribute(StandardAttributes.freeFlowSpeedCar)));
 	}
 
 	private int parseSpeed(String value) {

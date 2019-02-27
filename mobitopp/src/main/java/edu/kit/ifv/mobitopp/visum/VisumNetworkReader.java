@@ -355,7 +355,7 @@ System.out.println(" reading territories...");
 	}
 
   private String v0Car() {
-    return attribute(StandardAttributes.v0Car);
+    return attribute(StandardAttributes.freeFlowSpeedCar);
   }
 
   private String capacityCar() {

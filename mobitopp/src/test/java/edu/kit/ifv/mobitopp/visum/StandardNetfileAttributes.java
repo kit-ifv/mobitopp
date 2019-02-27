@@ -53,7 +53,7 @@ public abstract class StandardNetfileAttributes {
     attributes.add(StandardAttributes.length, "LAENGE");
     attributes.add(StandardAttributes.numberOfLanes, "ANZFAHRSTREIFEN");
     attributes.add(StandardAttributes.capacityCar, "KAPIV");
-    attributes.add(StandardAttributes.v0Car, "V0IV");
+    attributes.add(StandardAttributes.freeFlowSpeedCar, "V0IV");
     attributes.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
     attributes.add(StandardAttributes.ueberKnotenNummer, "UEBERKNOTNR");
     attributes.add(StandardAttributes.t0Car, "T0IV");
