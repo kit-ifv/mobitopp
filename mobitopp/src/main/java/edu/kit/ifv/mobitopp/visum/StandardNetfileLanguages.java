@@ -243,7 +243,7 @@ public abstract class StandardNetfileLanguages {
     
     // Zone
     language.add(StandardAttributes.mainZoneNumber, "OBEZNR");
-    language.add(StandardAttributes.areaId, "SURFACEID");
+    language.add(StandardAttributes.areaId, "FLAECHEID");
     language.add(StandardAttributes.chargingStations, "LADESTATIONEN");
     language.add(StandardAttributes.car2GoTerritory, "CAR2GO_GEBIET");
     language.add(StandardAttributes.car2GoStartState, "CAR2GO_AUSGANGSZUSTAND");
@@ -319,8 +319,8 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.toPointId, "NACHPUNKTID");
     
     // Surfae
-    language.add(StandardAttributes.enclave, "ENCLAVE");
-    language.add(StandardAttributes.ringId, "FACEID");
+    language.add(StandardAttributes.enclave, "ENKLAVE");
+    language.add(StandardAttributes.ringId, "TFLAECHEID");
     
     // ChargingStation
     language.add(StandardAttributes.chargingStationsCode, "Ladestationen");
