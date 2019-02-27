@@ -2,30 +2,30 @@ package edu.kit.ifv.mobitopp.simulation.car;
 
 import java.io.Serializable;
 
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.Household;
 
 public class DefaultPrivateCar extends CarDecorator implements PrivateCar, Car, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	protected final HouseholdId owner;
+	protected final Household owner;
 	protected final PersonId mainUser;
 	protected final PersonId personalUser;
 
 	public DefaultPrivateCar(
 		Car car,
-		HouseholdId ownerId,
+		Household owner,
 		PersonId mainUser,
 		PersonId personalUser
 	) {
 		super(car);
 
-		assert ownerId != null;
+		assert owner != null;
 		assert mainUser != null;
 
-		this.owner = ownerId;
+		this.owner = owner;
 		this.mainUser = mainUser;
 		this.personalUser = personalUser;
 	}
@@ -34,7 +34,7 @@ public class DefaultPrivateCar extends CarDecorator implements PrivateCar, Car, 
 		return car;
 	}
 
-	public HouseholdId owner() {
+	public Household owner() {
 		return this.owner;
 	}
 

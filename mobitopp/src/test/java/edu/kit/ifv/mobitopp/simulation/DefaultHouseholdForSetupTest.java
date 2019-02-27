@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 
 public class DefaultHouseholdForSetupTest {
 
@@ -41,7 +41,7 @@ public class DefaultHouseholdForSetupTest {
   public void addCars() {
     Zone zone = ExampleZones.create().someZone();
     HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withCars(1).build();
-    PrivateCar car = mock(PrivateCar.class);
+    PrivateCarForSetup car = mock(PrivateCarForSetup.class);
 
     setupHousehold.ownCars(asList(car));
     Household household = setupHousehold.toHousehold();

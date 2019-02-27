@@ -7,10 +7,10 @@ import java.util.Random;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 abstract class PersonalCarOwnershipModel
 	implements CarOwnershipModel 
@@ -32,11 +32,11 @@ abstract class PersonalCarOwnershipModel
 		this.random = new Random(seed);
 	}
 
-	public Collection<PrivateCar> createCars(HouseholdForSetup household, int numberOfCars) {
+	public Collection<PrivateCarForSetup> createCars(HouseholdForSetup household, int numberOfCars) {
 
 		List<PersonForSetup> personsWithLicense = getPersonsWithLicense(household);
 
-		List<PrivateCar> cars = new ArrayList<>();
+		List<PrivateCarForSetup> cars = new ArrayList<>();
 
 
 		if (numberOfCars == 0) return cars;
@@ -61,7 +61,7 @@ abstract class PersonalCarOwnershipModel
 		if (personsWithLicense.size() == numberOfCars) {
 
 			for (int i=0; i<numberOfCars; i++) {
-				PrivateCar car = createPersonalCar(personsWithLicense.get(i));
+				PrivateCarForSetup car = createPersonalCar(personsWithLicense.get(i));
 				cars.add(car);
 			}
 
@@ -86,11 +86,11 @@ abstract class PersonalCarOwnershipModel
 			List<PersonForSetup> personsSample = sampleWithReplacement(personsWithLicense, numberOfCars-withLicense);
 
 			for (int i=0; i<withLicense; i++) {
-				PrivateCar car = createPersonalCar(personsWithLicense.get(i));
+				PrivateCarForSetup car = createPersonalCar(personsWithLicense.get(i));
 				cars.add(car);
 			}
 			for (int i=withLicense; i<numberOfCars; i++) {
-				PrivateCar car = createCar(personsSample.get(i-withLicense));
+				PrivateCarForSetup car = createCar(personsSample.get(i-withLicense));
 				cars.add(car);
 			}
 
@@ -178,7 +178,7 @@ abstract class PersonalCarOwnershipModel
 			return sample;
 	}
 
-	protected PrivateCar createCar(
+	protected PrivateCarForSetup createCar(
 	    PersonForSetup person
 	) {
 
@@ -191,14 +191,14 @@ abstract class PersonalCarOwnershipModel
 		return createCar(person, position, segment, false);
 	}
 
-	protected PrivateCar createPersonalCar(PersonForSetup person) {
+	protected PrivateCarForSetup createPersonalCar(PersonForSetup person) {
 		Car.Segment segment = segmentModel.determineCarSegment(person);
 		HouseholdForSetup household = person.household();
 		CarPosition position = new CarPosition(household.homeZone(), household.homeLocation());
 		return createCar(person, position, segment, true);
 	}
 
-	abstract protected PrivateCar createCar(
+	abstract protected PrivateCarForSetup createCar(
 	    PersonForSetup person, 
 		CarPosition position,
 		Car.Segment segment, 

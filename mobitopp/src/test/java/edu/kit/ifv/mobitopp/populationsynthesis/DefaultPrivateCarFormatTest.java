@@ -73,8 +73,7 @@ public class DefaultPrivateCarFormatTest {
     when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());
     when(conventionalCarFormat.parse(conventionalCar())).thenReturn(Optional.of(conventionalCar));
     
-    privateConventionalCar = ExampleSetup
-        .conventionalCar(householdId, mainUser, personalUser, zone);
+    privateConventionalCar = ExampleSetup.conventionalCar(household, mainUser, personalUser, zone);
     format = new DefaultPrivateCarFormat();
     format.register(CarType.conventional, conventionalCarFormat);
   }
@@ -103,7 +102,7 @@ public class DefaultPrivateCarFormatTest {
     prepareExistingMainUser();
     prepareMissingPersonalUser();
     PrivateCar carMissingPersonalUser = ExampleSetup
-        .conventionalCar(householdId, mainUser, null, zone);
+        .conventionalCar(household, mainUser, null, zone);
 
     Optional<PrivateCar> parsed = format.parse(privateCar(), context);
 

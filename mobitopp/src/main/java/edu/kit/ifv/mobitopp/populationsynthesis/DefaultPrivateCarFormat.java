@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ForeignKeySerialiserFormat;
@@ -83,13 +82,12 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 		Supplier<PersonId> mainUser = () -> mainUserOf(data, context);
 		Supplier<PersonId> personalUser = () -> personalUserOf(data, context);
 		Optional<? extends Car> car = parseCar(data);
-		return household.map(Household::getId)
-				.flatMap(h -> createCar(mainUser, personalUser, car, h));
+		return household.flatMap(h -> createCar(mainUser, personalUser, car, h));
 	}
 
   private Optional<PrivateCar> createCar(
       Supplier<PersonId> mainUser, Supplier<PersonId> personalUser, Optional<? extends Car> car,
-      HouseholdId household) {
+      Household household) {
     return car.map(c -> new DefaultPrivateCar(c, household, mainUser.get(), personalUser.get()));
   }
 

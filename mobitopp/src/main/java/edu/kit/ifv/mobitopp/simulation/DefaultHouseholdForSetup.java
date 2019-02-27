@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public class DefaultHouseholdForSetup implements HouseholdForSetup {
@@ -24,7 +27,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   private final int income;
   private final boolean canChargePrivately;
   private final List<PersonForSetup> persons;
-  private final List<PrivateCar> ownedCars;
+  private final List<PrivateCarForSetup> ownedCars;
 
   public DefaultHouseholdForSetup(
       HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
@@ -61,7 +64,8 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
         homeZone, homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income,
         canChargePrivately);
     persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
-    household.ownCars(ownedCars);
+    List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
+    household.ownCars(cars);
     return household;
   }
 
@@ -91,7 +95,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public void ownCars(Collection<PrivateCar> cars) {
+  public void ownCars(Collection<PrivateCarForSetup> cars) {
     assert this.totalNumberOfCars == cars.size();
     ownedCars.addAll(cars);
   }

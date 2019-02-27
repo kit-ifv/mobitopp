@@ -2,13 +2,13 @@ package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPrivateCarForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 
 class DefaultCarOwnershipModel
@@ -29,7 +29,7 @@ class DefaultCarOwnershipModel
 
 
 	@Override
-	protected PrivateCar createCar(
+	protected PrivateCarForSetup createCar(
 	  PersonForSetup person, 
 		CarPosition position,
 		Car.Segment segment,
@@ -39,7 +39,7 @@ class DefaultCarOwnershipModel
 		HouseholdId householdId = person.household().getId();
     PersonId personId = person.getId();
     PersonId personalUserId = personal ? person.getId() : null;
-    return new DefaultPrivateCar(
+    return new DefaultPrivateCarForSetup(
 								new ConventionalCar(this.idSequence, position, segment),
 								householdId,
 								personId,

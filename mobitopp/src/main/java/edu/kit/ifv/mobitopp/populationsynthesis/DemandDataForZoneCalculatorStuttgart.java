@@ -26,7 +26,6 @@ import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
@@ -251,7 +250,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	) {
 
 		for (HouseholdForSetup household : households) {
-			Collection<PrivateCar> cars = this.carOwnershipModel.createCars(household, household.getTotalNumberOfCars());
+			Collection<PrivateCarForSetup> cars = this.carOwnershipModel.createCars(household, household.getTotalNumberOfCars());
 			household.ownCars(cars);
 		}
 	}

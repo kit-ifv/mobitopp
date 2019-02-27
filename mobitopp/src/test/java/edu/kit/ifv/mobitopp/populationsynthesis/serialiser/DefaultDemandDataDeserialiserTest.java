@@ -91,7 +91,7 @@ public class DefaultDemandDataDeserialiserTest {
 		when(person.getOid()).thenReturn(personOid);
 		when(personActivity.personOid()).thenReturn(personOid);
 		when(personActivity.pattern()).thenReturn(patternActivity);
-		when(car.owner()).thenReturn(householdId);
+		when(car.owner()).thenReturn(household);
 		when(car.isPersonal()).thenReturn(true);
 		when(car.personalUser()).thenReturn(personId);
 		when(activityDeserialiser.deserialise()).thenReturn(asList(personActivity));
