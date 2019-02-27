@@ -214,9 +214,9 @@ System.out.println(" reading territories...");
 		String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
 		String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
 		if (table.containsAttribute(publicWalkSpeed)) {
-			Integer publicTransport = parseSpeed(table.getValue(row, publicWalkSpeed));
+			Integer publicTransport = parseSpeed(table.getValue(row, publicWalkSpeed), language);
 			if (table.containsAttribute(individualWalkSpeed)) {
-				Integer individualTransport = parseSpeed(table.getValue(row, individualWalkSpeed));
+				Integer individualTransport = parseSpeed(table.getValue(row, individualWalkSpeed), language);
 				if (publicTransport.equals(individualTransport)) {
 					return publicTransport;
 				}
@@ -226,7 +226,7 @@ System.out.println(" reading territories...");
 			return publicTransport;
 		}
 		if (table.containsAttribute(individualWalkSpeed)) {
-			return parseSpeed(table.getValue(row, individualWalkSpeed));
+			return parseSpeed(table.getValue(row, individualWalkSpeed), language);
 		}
 		return 0;
 	}
@@ -332,7 +332,7 @@ System.out.println(" reading territories...");
 		Float distance = parseDistance(table.getValue(row,length()));
 		Integer numberOfLanes = Integer.valueOf(table.getValue(row,numberOfLanes()));
 		Integer capacity = Integer.valueOf(table.getValue(row,capacityCar()));
-		Integer speed = parseSpeed(table.getValue(row,v0Car()));
+		Integer speed = parseSpeed(table.getValue(row,freeFlowSpeedCar()), language);
 		int walkSpeed = walkSpeed(table, row, language);
 
 		VisumOrientedLink link =  new VisumOrientedLink(
@@ -354,7 +354,7 @@ System.out.println(" reading territories...");
 		return link;
 	}
 
-  private String v0Car() {
+  private String freeFlowSpeedCar() {
     return attribute(StandardAttributes.freeFlowSpeedCar);
   }
 
@@ -599,21 +599,20 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return attribute(StandardAttributes.travelTimeCar);
 	}
 
-	static Integer parseSpeed(String value) {
-
-		return Integer.valueOf(value.replace("km/h",""));
+	static Integer parseSpeed(String value, NetfileLanguage language) {
+		String unit = language.resolve(Unit.velocity);
+    return (int)(float)Float.valueOf(value.replace(unit,""));
 	}
 
 	private Float parseDistance(String value) {
-
-		return Float.valueOf(value.replace("km",""));
+	  String unit = language.resolve(Unit.distance);
+		return Float.valueOf(value.replace(unit,""));
 	}
 
 	private Integer parseTime(String value) {
-
-		return Integer.valueOf(value.replace("s",""));
+	  String unit = language.resolve(Unit.time);
+		return Integer.valueOf(value.replace(unit,""));
 	}
-
 
 	private Map<Integer, VisumVehicleUnit> readVehicleUnits(
 		Map<String,VisumTable> tables, VisumTransportSystems allSystems
