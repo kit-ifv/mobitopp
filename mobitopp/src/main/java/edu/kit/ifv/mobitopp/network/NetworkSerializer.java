@@ -14,11 +14,6 @@ import edu.kit.ifv.mobitopp.visum.VisumReader;
 
 public class NetworkSerializer {
 
-
-
-
-
-
 	protected static void writeSimpleNetwork(
 		SimpleRoadNetwork network,
 		String filename
@@ -116,80 +111,6 @@ public class NetworkSerializer {
 
 		return network;
 	}
-
-	public static SimpleRoadNetwork readNetwork(File file) {
-		return readNetwork(file.getAbsolutePath());
-	}
-	
-	public static SimpleRoadNetwork readNetwork(String filename) {
-
-		String outFile = basename(filename) + ".serialized";
-		
-		SimpleRoadNetwork network;
-		if (new File(outFile).isFile()) {
-
-			System.out.println("Deserializing network...");
-			System.out.println("Path to file: " + outFile);
-			network = deserializeSimpleNetwork(outFile);
-			System.out.println("DONE!");
-
-		} else {
-
-			VisumRoadNetwork visumNetwork = readVisumRoadNetwork(filename);
-
-			System.out.println("Creating simple road network...");
-
-			network = new SimpleRoadNetwork(visumNetwork);
-
-			System.out.println("serializing network...");
-			writeSimpleNetwork(network, outFile);
-			System.out.println("DONE!");
-		}
-
-		return network;
-	}
-
-	public static VisumRoadNetwork readVisumRoadNetwork(File file) {
-		return readVisumRoadNetwork(file.getAbsolutePath());
-	}
-
-	public static VisumRoadNetwork readVisumRoadNetwork(String filename) {
-
-		String visumFile = basename(filename) + ".visum_serialized";
-
-System.out.println("filename: " + filename);
-System.out.println("serialized file: " + visumFile);
-System.out.println("serialized file exists? " + new File(visumFile).isFile());
-
-		VisumRoadNetwork visumNetwork;
-	
-		if (new File(visumFile).isFile()) {
-	
-			System.out.println("Deserializing network...");
-			visumNetwork = deserializeVisumRoadNetwork(visumFile);
-			System.out.println("DONE!");
-	
-		} else {
-	
-			System.out.println("reading network...");
-			VisumReader reader = new VisumReader();
-			VisumNetworkReader networkReader = new VisumNetworkReader(reader);
-			visumNetwork = networkReader.readRoadNetwork(filename);
-			System.out.println("DONE!");
-	
-			reader = null;
-			networkReader = null;
-			System.gc();
-	
-			System.out.println("serializing network...");
-			writeVisumRoadNetwork(visumNetwork, visumFile);
-			System.out.println("DONE!");
-	
-		}
-
-		return visumNetwork;
-	}
-
 
 	public static String basename(String filename) {
 

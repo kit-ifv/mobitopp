@@ -6,7 +6,6 @@ import static java.util.Collections.emptyMap;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -189,79 +188,6 @@ System.out.println(" reading territories...");
 		return network;
 	}
 
-	public VisumRoadNetwork readRoadNetwork(String filename) {
-
-		File file = new File(filename);
-
-		return readRoadNetwork(file);
-	}
-
-	public VisumRoadNetwork readRoadNetwork(File file) {
-
-		List<String> tablesToRead = new ArrayList<>(
-																	Arrays.asList(
-																		"VSYS","STRECKENTYP","KNOTEN","STRECKE","ABBIEGER","ANBINDUNG","BEZIRK",
-																		"POIKATEGORIE", "POIOFCAT_46", "POIOFCAT_45", "POIOFCAT_47",
-																		"PUNKT", "ZWISCHENPUNKT", "KANTE", "TEILFLAECHENELEMENT", "FLAECHENELEMENT",
-																		"GEBIET"
-																	)
-																);
-
-System.out.println("reading data...");
-		Map<String,VisumTable> tables = reader.read(file, tablesToRead);
-System.out.println("done");
-
-
-System.out.println("reading tables...");
-
-		VisumTransportSystems transportSystems = readTransportSystems(tables);
-		VisumLinkTypes linkTypes = readLinkTypes(tables, transportSystems);
-		Map<Integer, VisumNode> nodes = readNodes(tables);
-		Map<Integer, VisumLink> links = readLinks(tables, nodes, transportSystems, linkTypes);
-		Map<Integer, List<VisumTurn>> turns = readTurns(tables, nodes, transportSystems);
-
-		Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities(tables);
-		Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints(tables);
-
-		Map<Integer, VisumCarSharingStation> carSharingStationsStadtmobil = readCarSharingStadtmobil(tables);
-		Map<Integer, VisumCarSharingStation> carSharingStationsFlinkster = readCarSharingFlinkster(tables);
-
-		Map<String, Map<Integer, VisumCarSharingStation>> carSharingStations =
-				new HashMap<>();
-
-		carSharingStations.put("Stadtmobil",  Collections.unmodifiableMap(carSharingStationsStadtmobil));
-		carSharingStations.put("Flinkster",  Collections.unmodifiableMap(carSharingStationsFlinkster));
-
-		Map<Integer, VisumZone> zones = readZones(tables);
-		Map<Integer, List<VisumConnector>> connectors = readConnectors(tables, nodes, zones, transportSystems);
-
-		SortedMap<Integer,VisumSurface> areas = readSurfaces(tables);
-		Map<Integer, VisumTerritory> territories = readTerritories(tables, areas);
-
-
-
-		tables = null;
-		System.gc();
-
-
-		VisumRoadNetwork network = new VisumRoadNetwork(
-																	transportSystems,
-																	linkTypes,
-																	nodes,
-																	links,
-																	turns,
-																	zones,
-																	areas,
-																	territories,
-																	connectors,
-																	chargingFacilities,
-																	chargingPoints,
-																	carSharingStations
-														);
-
-		return network;
-	}
-	
 	private String attribute(StandardAttributes tabletransportsystems) {
 	  return attributes.resolve(tabletransportsystems);
 	}
