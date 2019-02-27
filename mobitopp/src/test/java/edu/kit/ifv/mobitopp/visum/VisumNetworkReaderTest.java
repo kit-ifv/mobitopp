@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 
 public class VisumNetworkReaderTest {
 
-  private NetfileAttributes attributeNames;
+  private NetfileLanguage language;
 
   @BeforeEach
   public void initialise() {
-    attributeNames = StandardNetfileAttributes.german();
+    language = StandardNetfileLanguages.german();
   }
   
 	@Test
@@ -48,7 +48,7 @@ public class VisumNetworkReaderTest {
 	}
 
   private String poiCategory() {
-    return attributeNames.resolve(Table.poiCategory);
+    return language.resolve(Table.poiCategory);
   }
 
 	@Test
@@ -201,7 +201,7 @@ public class VisumNetworkReaderTest {
 	}
 
 	private static VisumNetworkReader reader() {
-		return new VisumNetworkReader(new VisumReader(), StandardNetfileAttributes.german());
+		return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german());
 	}
 
 	private Map<String, VisumTable> singleZone() {

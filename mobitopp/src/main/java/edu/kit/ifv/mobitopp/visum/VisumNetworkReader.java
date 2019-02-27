@@ -17,16 +17,16 @@ public class VisumNetworkReader {
 
 	static final double alwaysAllowed = 1.0;
 	private final VisumReader reader;
-  private final NetfileAttributes attributes;
+  private final NetfileLanguage language;
 
 
-	public VisumNetworkReader(VisumReader reader, NetfileAttributes attributes) {
+	public VisumNetworkReader(VisumReader reader, NetfileLanguage language) {
 		this.reader=reader;
-		this.attributes = attributes;
+		this.language = language;
 	}
 	
 	public VisumNetworkReader(VisumReader reader) {
-	  this(reader, StandardNetfileAttributes.german());
+	  this(reader, StandardNetfileLanguages.german());
 	}
 
 	public VisumNetwork readNetwork(String filename) {
@@ -189,11 +189,11 @@ System.out.println(" reading territories...");
 	}
 
 	private String attribute(StandardAttributes tabletransportsystems) {
-	  return attributes.resolve(tabletransportsystems);
+	  return language.resolve(tabletransportsystems);
 	}
 
 	private String table(Table table) {
-	  return attributes.resolve(table);
+	  return language.resolve(table);
 	}
 
 	private VisumTransportSystems readTransportSystems(Map<String, VisumTable> tables) {
@@ -206,13 +206,13 @@ System.out.println(" reading territories...");
   private VisumLinkTypes readLinkTypes(
 			Map<String, VisumTable> tables, VisumTransportSystems allSystems) {
 		VisumTable table = tables.get(table(Table.linkTypes));
-		VisumLinkTypeReader reader = new VisumLinkTypeReader(table, attributes);
+		VisumLinkTypeReader reader = new VisumLinkTypeReader(table, language);
 		return reader.readLinkTypes(allSystems);
 	}
 	
-	static int walkSpeed(VisumTable table, int row, NetfileAttributes attributes) {
-		String publicWalkSpeed = attributes.resolve(StandardAttributes.publicTransportWalkSpeed);
-		String individualWalkSpeed = attributes.resolve(StandardAttributes.individualWalkSpeed);
+	static int walkSpeed(VisumTable table, int row, NetfileLanguage language) {
+		String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
+		String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
 		if (table.containsAttribute(publicWalkSpeed)) {
 			Integer publicTransport = parseSpeed(table.getValue(row, publicWalkSpeed));
 			if (table.containsAttribute(individualWalkSpeed)) {
@@ -333,7 +333,7 @@ System.out.println(" reading territories...");
 		Integer numberOfLanes = Integer.valueOf(table.getValue(row,numberOfLanes()));
 		Integer capacity = Integer.valueOf(table.getValue(row,capacityCar()));
 		Integer speed = parseSpeed(table.getValue(row,v0Car()));
-		int walkSpeed = walkSpeed(table, row, attributes);
+		int walkSpeed = walkSpeed(table, row, language);
 
 		VisumOrientedLink link =  new VisumOrientedLink(
 																		id,
@@ -409,7 +409,7 @@ System.out.println(" reading territories...");
 																Integer.valueOf(table.getValue(i,typeNumber())),
 																systemSet,
 																Integer.valueOf(table.getValue(i,capacityCar())),
-																parseTime(table.getValue(i,attribute(StandardAttributes.t0Car)))
+																parseTime(table.getValue(i,attribute(StandardAttributes.freeFlowTravelTimeCar)))
 														);
 
 			if (!data.containsKey(nodeId)) {
