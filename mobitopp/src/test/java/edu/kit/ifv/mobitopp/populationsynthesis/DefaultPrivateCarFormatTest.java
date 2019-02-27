@@ -63,6 +63,7 @@ public class DefaultPrivateCarFormatTest {
     PersonId personalUserId = new PersonId(personalUserOid, householdId, personalUserOid);
 
     when(household.getId()).thenReturn(householdId);
+    when(household.getOid()).thenReturn(householdOid);
     when(mainUser.getOid()).thenReturn(mainUserOid);
     when(mainUser.getId()).thenReturn(mainUserId);
     when(personalUser.getOid()).thenReturn(personalUserOid);

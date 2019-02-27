@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.car;
 
 import java.io.Serializable;
 
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -48,6 +49,12 @@ public class DefaultPrivateCar extends CarDecorator implements PrivateCar, Car, 
 
 	public PersonId mainUser() {
 		return this.mainUser;
+	}
+	
+	@Override
+	public void returnCar(Zone zone) {
+	  super.returnCar(zone);
+	  owner.returnCar(this);
 	}
 
 	@Override

@@ -34,6 +34,7 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -280,6 +281,19 @@ public class SimulationPersonPassengerTest {
 		verify(results)
 				.notifyStateChanged(new StateChange(simulatedPerson, oneMinuteLater(), another, some));
 	}
+	
+	@Test
+  public void returnOwnCar() {
+    SimulationPersonPassenger person = person();
+    Car car = mock(Car.class);
+    when(mockedTrip.mode()).thenReturn(Mode.CAR);
+    when(firstActivity.zone()).thenReturn(zone);
+    when(this.person.releaseCar(someTime())).thenReturn(car);
+    
+    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
+    
+    verify(car).returnCar(zone);
+  }
 	
 	private SimulationPersonPassenger person() {
 		PersonState initialState = DummyStates.some;

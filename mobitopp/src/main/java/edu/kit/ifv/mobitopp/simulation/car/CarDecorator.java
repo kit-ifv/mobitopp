@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
 
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -51,6 +52,9 @@ public class CarDecorator implements Car, Serializable {
 		return car.isUsed(); 
 	}
 
+  public void returnCar(Zone zone) {
+    car.returnCar(zone);
+  }
 
 	public Time startOfLastUsage() { return car.startOfLastUsage(); }
 	public Time endOfLastUsage() { return car.endOfLastUsage(); }
