@@ -9,6 +9,7 @@ import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.some;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -53,294 +54,353 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
+import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimulationPersonPassengerTest {
 
-	private static final Employment someEmploymentType = Employment.FULLTIME;
-	private static final ActivityType defaultActivity = ActivityType.HOME;
-	private static final int seed = 0;
-	
-	@Rule
-	public final TemporaryFolder baseFolder = new TemporaryFolder();
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
-	
-	private PublicTransportBehaviour boarder;
-	private Person person;
-	private SimulationOptions options;
-	private ModifiableActivityScheduleWithState schedule;
-	private ActivityIfc firstActivity;
-	private DestinationChoiceModel destinationChoice;
-	private Household household;
-	private Zone zone;
-	private ZoneRepository zoneRepository;
-	private EventQueue queue;
-	private TripIfc mockedTrip;
-	private PublicTransportRoute route;
-	private PublicTransportLeg singleLeg;
-	private PublicTransportTrip trip;
-	private ImpedanceIfc impedance;
-	private PersonId personId;
-	private ReschedulingStrategy rescheduling;
-	private PersonResults results;
+  private static final Employment someEmploymentType = Employment.FULLTIME;
+  private static final ActivityType defaultActivity = ActivityType.HOME;
+  private static final int seed = 0;
 
-	@Before
-	public void initialise() throws Exception {
-		createElements();
-		initializeBehaviour();
-	}
+  @Rule
+  public final TemporaryFolder baseFolder = new TemporaryFolder();
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
-	private void createElements() throws IOException {
-		boarder = mock(PublicTransportBehaviour.class);
-		person = mock(Person.class);
-		options = mock(SimulationOptions.class);
-		schedule = mock(ModifiableActivityScheduleWithState.class);
-		firstActivity = mock(ActivityIfc.class);
-		destinationChoice = mock(DestinationChoiceModel.class);
-		household = mock(Household.class);
-		zone = mock(Zone.class);
-		zoneRepository = mock(ZoneRepository.class);
-		queue = mock(EventQueue.class);
-		mockedTrip = mock(TripIfc.class);
-		route = mock(PublicTransportRoute.class);
-		singleLeg = mock(PublicTransportLeg.class);
-		List<PublicTransportLeg> legs = asList(singleLeg);
-		trip = new PublicTransportTrip(mockedTrip, Optional.of(route), legs);
-		impedance = mock(ImpedanceIfc.class);
-		personId = mock(PersonId.class);
-		rescheduling = mock(ReschedulingStrategy.class);
-		results = mock(PersonResults.class);
-	}
+  private PublicTransportBehaviour boarder;
+  private Person person;
+  private SimulationOptions options;
+  private ModifiableActivityScheduleWithState schedule;
+  private ActivityIfc firstActivity;
+  private DestinationChoiceModel destinationChoice;
+  private Household household;
+  private Zone zone;
+  private ZoneRepository zoneRepository;
+  private EventQueue queue;
+  private TripIfc mockedTrip;
+  private PublicTransportRoute route;
+  private PublicTransportLeg singleLeg;
+  private PublicTransportTrip trip;
+  private ImpedanceIfc impedance;
+  private PersonId personId;
+  private ReschedulingStrategy rescheduling;
+  private PersonResults results;
 
-	private void initializeBehaviour() {
-		when(person.activitySchedule()).thenReturn(schedule);
-		when(schedule.firstActivity()).thenReturn(firstActivity);
-		when(schedule.prevActivity(firstActivity)).thenReturn(firstActivity);
-		when(options.destinationChoiceModel()).thenReturn(destinationChoice);
-		when(firstActivity.activityType()).thenReturn(defaultActivity);
-		when(person.household()).thenReturn(household);
-		when(destinationChoice.selectDestination(eq(person), any(), eq(firstActivity), eq(firstActivity),
-				anyDouble())).thenReturn(zone);
-		when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
-		when(firstActivity.startDate()).thenReturn(someTime());
-		when(firstActivity.location()).thenReturn(someLocation());
-		when(firstActivity.zone()).thenReturn(someZone());
-		when(person.currentActivity()).thenReturn(firstActivity);
-		when(mockedTrip.startDate()).thenReturn(someTime());
-		when(mockedTrip.calculatePlannedEndDate()).thenReturn(someTime());
-		when(person.currentTrip()).thenReturn(trip);
-		when(options.simulationStart()).thenReturn(someTime());
-		when(options.simulationEnd()).thenReturn(someTime());
-		when(schedule.nextActivity(firstActivity)).thenReturn(firstActivity);
-		when(schedule.currentTrip()).thenReturn(trip);
-		when(mockedTrip.previousActivity()).thenReturn(firstActivity);
-		when(mockedTrip.nextActivity()).thenReturn(firstActivity);
-		when(options.impedance()).thenReturn(impedance);
-		when(household.homeZone()).thenReturn(zone);
-		when(household.homeLocation()).thenReturn(someLocation());
-		when(mockedTrip.mode()).thenReturn(Mode.PUBLICTRANSPORT);
-		when(person.employment()).thenReturn(someEmploymentType);
-		when(person.getId()).thenReturn(personId);
-		when(firstActivity.calculatePlannedEndDate()).thenReturn(someTime());
-		when(options.rescheduling()).thenReturn(rescheduling);
-		when(person.gender()).thenReturn(Gender.MALE);
-		when(mockedTrip.origin()).thenReturn(someZoneAndLocation());
-		when(mockedTrip.destination()).thenReturn(someZoneAndLocation());
-	}
+  @Before
+  public void initialise() throws Exception {
+    createElements();
+    initializeBehaviour();
+  }
 
-	private static Location someLocation() {
-		return new Location(new Point2D.Double(), 0, 0.0);
-	}
-	
-	private static Zone someZone() {
-		return mock(Zone.class);
-	}
+  private void createElements() throws IOException {
+    boarder = mock(PublicTransportBehaviour.class);
+    person = mock(Person.class);
+    options = mock(SimulationOptions.class);
+    schedule = mock(ModifiableActivityScheduleWithState.class);
+    firstActivity = mock(ActivityIfc.class);
+    destinationChoice = mock(DestinationChoiceModel.class);
+    household = mock(Household.class);
+    zone = mock(Zone.class);
+    zoneRepository = mock(ZoneRepository.class);
+    queue = mock(EventQueue.class);
+    mockedTrip = mock(TripIfc.class);
+    route = mock(PublicTransportRoute.class);
+    singleLeg = mock(PublicTransportLeg.class);
+    List<PublicTransportLeg> legs = asList(singleLeg);
+    trip = new PublicTransportTrip(mockedTrip, Optional.of(route), legs);
+    impedance = mock(ImpedanceIfc.class);
+    personId = mock(PersonId.class);
+    rescheduling = mock(ReschedulingStrategy.class);
+    results = mock(PersonResults.class);
+  }
 
-	private static ZoneAndLocation someZoneAndLocation() {
-		return new ZoneAndLocation(someZone(), someLocation());
-	}
+  private void initializeBehaviour() {
+    when(person.activitySchedule()).thenReturn(schedule);
+    when(schedule.firstActivity()).thenReturn(firstActivity);
+    when(schedule.prevActivity(firstActivity)).thenReturn(firstActivity);
+    when(options.destinationChoiceModel()).thenReturn(destinationChoice);
+    when(firstActivity.activityType()).thenReturn(defaultActivity);
+    when(person.household()).thenReturn(household);
+    when(destinationChoice
+        .selectDestination(eq(person), any(), eq(firstActivity), eq(firstActivity), anyDouble()))
+            .thenReturn(zone);
+    when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
+    when(firstActivity.startDate()).thenReturn(someTime());
+    when(firstActivity.location()).thenReturn(someLocation());
+    when(firstActivity.zone()).thenReturn(someZone());
+    when(firstActivity.isLocationSet()).thenReturn(true);
+    when(person.currentActivity()).thenReturn(firstActivity);
+    when(mockedTrip.startDate()).thenReturn(someTime());
+    when(mockedTrip.calculatePlannedEndDate()).thenReturn(someTime());
+    when(person.currentTrip()).thenReturn(trip);
+    when(options.simulationStart()).thenReturn(someTime());
+    when(options.simulationEnd()).thenReturn(someTime());
+    when(schedule.nextActivity(firstActivity)).thenReturn(firstActivity);
+    when(schedule.currentTrip()).thenReturn(trip);
+    when(mockedTrip.previousActivity()).thenReturn(firstActivity);
+    when(mockedTrip.nextActivity()).thenReturn(firstActivity);
+    when(options.impedance()).thenReturn(impedance);
+    when(household.homeZone()).thenReturn(zone);
+    when(household.homeLocation()).thenReturn(someLocation());
+    when(mockedTrip.mode()).thenReturn(Mode.PUBLICTRANSPORT);
+    when(person.employment()).thenReturn(someEmploymentType);
+    when(person.getId()).thenReturn(personId);
+    when(firstActivity.calculatePlannedEndDate()).thenReturn(someTime());
+    when(options.rescheduling()).thenReturn(rescheduling);
+    when(person.gender()).thenReturn(Gender.MALE);
+    when(mockedTrip.origin()).thenReturn(someZoneAndLocation());
+    when(mockedTrip.destination()).thenReturn(someZoneAndLocation());
+  }
 
-	@Test
-	public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
-		SimulationPerson simulationPerson = person();
+  private static Location someLocation() {
+    return new Location(new Point2D.Double(0.0d, 0.0d), 0, 0.0);
+  }
 
-		simulationPerson.boardPublicTransportVehicle(someTime());
-		simulationPerson.getOffPublicTransportVehicle(someTime());
+  private static Location otherLocation() {
+    return new Location(new Point2D.Double(1.0d, 1.0d), 0, 0.0);
+  }
 
-		verify(boarder).board(simulationPerson, someTime(), singleLeg, trip);
-		verify(boarder).getOff(simulationPerson, someTime(), singleLeg, trip);
-	}
+  private static Zone someZone() {
+    return mock(Zone.class);
+  }
 
-	@Test
-	public void hasArrivedAtNextActivityWhenNoPartsAreLeft() throws Exception {
-		SimulationPerson simulationPerson = person();
+  private static ZoneAndLocation someZoneAndLocation() {
+    return new ZoneAndLocation(someZone(), someLocation());
+  }
 
-		assertThat(simulationPerson.hasArrivedAtNextActivity(), is(false));
+  @Test
+  public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
+    SimulationPerson simulationPerson = newPerson();
 
-		simulationPerson.boardPublicTransportVehicle(someTime());
-		simulationPerson.getOffPublicTransportVehicle(someTime());
+    simulationPerson.boardPublicTransportVehicle(someTime());
+    simulationPerson.getOffPublicTransportVehicle(someTime());
 
-		assertThat(simulationPerson.hasArrivedAtNextActivity(), is(true));
-	}
+    verify(boarder).board(simulationPerson, someTime(), singleLeg, trip);
+    verify(boarder).getOff(simulationPerson, someTime(), singleLeg, trip);
+  }
 
-	@Test
-	public void allowsVehicleBoardingWhenVehicleIsAvailableAtCurrentStop() throws Exception {
-		boolean available = true;
-		when(boarder.isVehicleAvailable(singleLeg)).thenReturn(available);
-		SimulationPerson simulationPerson = person();
+  @Test
+  public void hasArrivedAtNextActivityWhenNoPartsAreLeft() throws Exception {
+    SimulationPerson simulationPerson = newPerson();
 
-		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(available));
+    assertThat(simulationPerson.hasArrivedAtNextActivity(), is(false));
 
-		verify(boarder).isVehicleAvailable(singleLeg);
-	}
+    simulationPerson.boardPublicTransportVehicle(someTime());
+    simulationPerson.getOffPublicTransportVehicle(someTime());
 
-	@Test
-	public void doesNotAllowVehicleBoardingWhenVehicleIsNotAvailableAtCurrentStop() throws Exception {
-		boolean notAvailable = false;
-		when(boarder.isVehicleAvailable(singleLeg)).thenReturn(notAvailable);
-		SimulationPerson simulationPerson = person();
+    assertThat(simulationPerson.hasArrivedAtNextActivity(), is(true));
+  }
 
-		assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(notAvailable));
+  @Test
+  public void allowsVehicleBoardingWhenVehicleIsAvailableAtCurrentStop() throws Exception {
+    boolean available = true;
+    when(boarder.isVehicleAvailable(singleLeg)).thenReturn(available);
+    SimulationPerson simulationPerson = newPerson();
 
-		verify(boarder).isVehicleAvailable(singleLeg);
-	}
+    assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(available));
 
-	@Test
-	public void failToEnterFirstStopWithoutPublicTransportTrip() {
-		when(person.currentTrip()).thenReturn(mockedTrip);
-		when(mockedTrip.mode()).thenReturn(Mode.CAR);
-		SimulationPersonPassenger simulationPerson = person();
-		
-		thrown.expect(IllegalArgumentException.class);
-		simulationPerson.enterFirstStop(someTime());
-	}
+    verify(boarder).isVehicleAvailable(singleLeg);
+  }
 
-	@Test
-	public void entersWaitingAreaAtStartStop() throws Exception {
-		when(singleLeg.start()).thenReturn(someStop());
-		SimulationPerson simulationPerson = person();
+  @Test
+  public void doesNotAllowVehicleBoardingWhenVehicleIsNotAvailableAtCurrentStop() throws Exception {
+    boolean notAvailable = false;
+    when(boarder.isVehicleAvailable(singleLeg)).thenReturn(notAvailable);
+    SimulationPerson simulationPerson = newPerson();
 
-		simulationPerson.enterFirstStop(someTime());
+    assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(notAvailable));
 
-		verify(boarder).enterWaitingArea(simulationPerson, someStop());
-	}
+    verify(boarder).isVehicleAvailable(singleLeg);
+  }
 
-	@Test
-	public void leavesWaitingAreaAtEndStop() throws Exception {
-		when(singleLeg.end()).thenReturn(anotherStop());
-		SimulationPerson simulationPerson = person();
+  @Test
+  public void failToEnterFirstStopWithoutPublicTransportTrip() {
+    when(person.currentTrip()).thenReturn(mockedTrip);
+    when(mockedTrip.mode()).thenReturn(Mode.CAR);
+    SimulationPersonPassenger simulationPerson = newPerson();
 
-		simulationPerson.endTrip(impedance, rescheduling, someTime());
+    thrown.expect(IllegalArgumentException.class);
+    simulationPerson.enterFirstStop(someTime());
+  }
 
-		verify(boarder).leaveWaitingArea(simulationPerson, anotherStop());
-	}
+  @Test
+  public void entersWaitingAreaAtStartStop() throws Exception {
+    when(singleLeg.start()).thenReturn(someStop());
+    SimulationPerson simulationPerson = newPerson();
 
-	@Test
-	public void canBoardVehicleWhenVehicleIsNotFull() throws Exception {
-		boolean placeAvailable = true;
-		when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeAvailable);
-		SimulationPerson person = person();
+    simulationPerson.enterFirstStop(someTime());
 
-		assertThat(person.hasPlaceInPublicTransportVehicle(), is(true));
-		verify(boarder).hasPlaceInVehicle(singleLeg);
-		verifyZeroInteractions(singleLeg);
-	}
+    verify(boarder).enterWaitingArea(simulationPerson, someStop());
+  }
 
-	@Test
-	public void canNotBoardVehicleWhenVehicleIsFull() throws Exception {
-		boolean placeUnavailable = false;
-		when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeUnavailable);
-		SimulationPerson person = person();
+  @Test
+  public void leavesWaitingAreaAtEndStop() throws Exception {
+    when(singleLeg.end()).thenReturn(anotherStop());
+    SimulationPerson simulationPerson = newPerson();
 
-		assertThat(person.hasPlaceInPublicTransportVehicle(), is(false));
-		verify(boarder).hasPlaceInVehicle(singleLeg);
-		verifyZeroInteractions(singleLeg);
-	}
+    simulationPerson.endTrip(impedance, rescheduling, someTime());
 
-	@Test
-	public void searchesANewTripWhenAsked() throws Exception {
-		SimulationPerson person = person();
-		TripIfc newTrip = mock(TripIfc.class);
-		when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
+    verify(boarder).leaveWaitingArea(simulationPerson, anotherStop());
+  }
 
-		person.changeToNewTrip(someTime());
+  @Test
+  public void canBoardVehicleWhenVehicleIsNotFull() throws Exception {
+    boolean placeAvailable = true;
+    when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeAvailable);
+    SimulationPerson person = newPerson();
 
-		verify(boarder).searchNewTrip(person, someTime(), trip);
-		verify(this.person).currentTrip(newTrip);
-	}
+    assertThat(person.hasPlaceInPublicTransportVehicle(), is(true));
+    verify(boarder).hasPlaceInVehicle(singleLeg);
+    verifyZeroInteractions(singleLeg);
+  }
 
-	@Test
-	public void notifiesAboutStateChange() {
-		SimulationPersonPassenger simulatedPerson = person();
-		DemandSimulationEventIfc event = mock(DemandSimulationEventIfc.class);
-		when(event.getPerson()).thenReturn(simulatedPerson);
-		when(event.getSimulationDate()).thenReturn(oneMinuteLater());
-		
-		simulatedPerson.notify(queue, event, oneMinuteLater());
-		
-		verify(results).notifyStateChanged(new StateChange(simulatedPerson, someTime(), some, another));
-		verify(results)
-				.notifyStateChanged(new StateChange(simulatedPerson, oneMinuteLater(), another, some));
-	}
-	
-	@Test
+  @Test
+  public void canNotBoardVehicleWhenVehicleIsFull() throws Exception {
+    boolean placeUnavailable = false;
+    when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeUnavailable);
+    SimulationPerson person = newPerson();
+
+    assertThat(person.hasPlaceInPublicTransportVehicle(), is(false));
+    verify(boarder).hasPlaceInVehicle(singleLeg);
+    verifyZeroInteractions(singleLeg);
+  }
+
+  @Test
+  public void searchesANewTripWhenAsked() throws Exception {
+    SimulationPerson person = newPerson();
+    TripIfc newTrip = mock(TripIfc.class);
+    when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
+
+    person.changeToNewTrip(someTime());
+
+    verify(boarder).searchNewTrip(person, someTime(), trip);
+    verify(this.person).currentTrip(newTrip);
+  }
+
+  @Test
+  public void notifiesAboutStateChange() {
+    SimulationPersonPassenger simulatedPerson = newPerson();
+    DemandSimulationEventIfc event = mock(DemandSimulationEventIfc.class);
+    when(event.getPerson()).thenReturn(simulatedPerson);
+    when(event.getSimulationDate()).thenReturn(oneMinuteLater());
+
+    simulatedPerson.notify(queue, event, oneMinuteLater());
+
+    verify(results).notifyStateChanged(new StateChange(simulatedPerson, someTime(), some, another));
+    verify(results)
+        .notifyStateChanged(new StateChange(simulatedPerson, oneMinuteLater(), another, some));
+  }
+
+  @Test
   public void returnOwnCar() {
-    SimulationPersonPassenger person = person();
+    SimulationPersonPassenger person = newPerson();
     Car car = mock(Car.class);
     when(mockedTrip.mode()).thenReturn(Mode.CAR);
     when(firstActivity.zone()).thenReturn(zone);
     when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
     when(this.person.releaseCar(someTime())).thenReturn(car);
-    
+
     person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-    
+
     verify(car).returnCar(zone);
   }
-	
-	@Test
-	public void returnStationBasedCarSharingCar() {
-	  SimulationPersonPassenger person = person();
-	  Car car = mock(Car.class);
-	  when(mockedTrip.mode()).thenReturn(Mode.CARSHARING_STATION);
-	  when(firstActivity.zone()).thenReturn(zone);
-	  when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
-	  when(this.person.releaseCar(someTime())).thenReturn(car);
-	  
-	  person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-	  
-	  verify(car).returnCar(zone);
-	}
-	
-	@Test
-	public void returnMaasCar() {
-	  SimulationPersonPassenger person = person();
-	  Car car = mock(Car.class);
-	  MaasDataForZone maasData = mock(MaasDataForZone.class);
-	  when(mockedTrip.mode()).thenReturn(Mode.AUTONOMOUS_TAXI);
-	  when(firstActivity.zone()).thenReturn(zone);
-	  when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
+
+  @Test
+  public void returnStationBasedCarSharingCar() {
+    SimulationPersonPassenger person = newPerson();
+    Car car = mock(Car.class);
+    when(mockedTrip.mode()).thenReturn(Mode.CARSHARING_STATION);
+    when(firstActivity.zone()).thenReturn(zone);
+    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
+    when(this.person.releaseCar(someTime())).thenReturn(car);
+
+    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
+
+    verify(car).returnCar(zone);
+  }
+
+  @Test
+  public void returnMaasCar() {
+    SimulationPersonPassenger person = newPerson();
+    Car car = mock(Car.class);
+    MaasDataForZone maasData = mock(MaasDataForZone.class);
+    when(mockedTrip.mode()).thenReturn(Mode.AUTONOMOUS_TAXI);
+    when(firstActivity.zone()).thenReturn(zone);
+    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
     when(zone.maas()).thenReturn(maasData);
     when(maasData.isInMaasZone(car)).thenReturn(true);
     when(this.person.isCarDriver()).thenReturn(true);
     when(this.person.whichCar()).thenReturn(car);
-	  when(this.person.releaseCar(someTime())).thenReturn(car);
-	  
-	  person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-	  
-	  verify(car).returnCar(zone);
-	}
-	
-	
-	private SimulationPersonPassenger person() {
-		PersonState initialState = DummyStates.some;
-		return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null,
-				null, initialState, boarder, seed, results) {
-			private static final long serialVersionUID = 1L;
+    when(this.person.releaseCar(someTime())).thenReturn(car);
 
-			@Override
-			public boolean hasNextActivity() {
-				return true;
-			}
-		};
-	}
+    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
+
+    verify(car).returnCar(zone);
+  }
+
+  @Test
+  public void createTrip() {
+    SimulationPersonPassenger person = newPerson();
+    Mode mode = Mode.CAR;
+    int oid = 1;
+    Time startDate = someTime();
+    float plannedDuration = 1.0f;
+    ActivityIfc nextActivity = mock(ActivityIfc.class);
+    when(nextActivity.zone()).thenReturn(zone);
+    Location destinationLocation = otherLocation();
+    when(nextActivity.location()).thenReturn(destinationLocation);
+    when(nextActivity.isLocationSet()).thenReturn(true);
+    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+
+    TripIfc trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
+
+    assertEquals(oid, trip.getOid());
+    assertEquals(firstActivity, trip.previousActivity());
+    assertEquals(nextActivity, trip.nextActivity());
+    assertEquals(mode, trip.mode());
+    assertEquals(startDate, trip.startDate());
+    assertEquals(plannedDuration, trip.plannedDuration());
+  }
+
+  @Test
+  public void createPublicTransportTrip() {
+    SimulationPersonPassenger person = newPerson();
+    Mode mode = Mode.PUBLICTRANSPORT;
+    int oid = 1;
+    Time startDate = someTime();
+    int plannedDuration = 1;
+    ActivityIfc nextActivity = mock(ActivityIfc.class);
+    Location destinationLocation = otherLocation();
+    when(nextActivity.zone()).thenReturn(zone);
+    when(nextActivity.location()).thenReturn(destinationLocation);
+    when(nextActivity.isLocationSet()).thenReturn(true);
+    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn((float) plannedDuration);
+    when(impedance.getPublicTransportRoute(someLocation(), destinationLocation, mode, startDate))
+        .thenReturn(Optional.of(route));
+    when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
+
+    TripIfc trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
+
+    assertEquals(oid, trip.getOid());
+    assertEquals(firstActivity, trip.previousActivity());
+    assertEquals(nextActivity, trip.nextActivity());
+    assertEquals(mode, trip.mode());
+    assertEquals(startDate, trip.startDate());
+    assertEquals(plannedDuration, trip.plannedDuration());
+  }
+
+  private SimulationPersonPassenger newPerson() {
+    PersonState initialState = DummyStates.some;
+    return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null, null,
+        initialState, boarder, seed, results) {
+
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public boolean hasNextActivity() {
+        return true;
+      }
+    };
+  }
 }

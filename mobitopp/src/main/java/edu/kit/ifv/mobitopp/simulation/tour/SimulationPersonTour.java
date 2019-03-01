@@ -7,7 +7,6 @@ import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -15,7 +14,6 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
-import edu.kit.ifv.mobitopp.simulation.TripfileWriter;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -321,7 +319,6 @@ public class SimulationPersonTour
 		TripIfc trip = createTrip(
 																							impedance,
 																							mode, 
-																							this, 
 																							previousActivity, 
 																							nextActivity
 																						);
