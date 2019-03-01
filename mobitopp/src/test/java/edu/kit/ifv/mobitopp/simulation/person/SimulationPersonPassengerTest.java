@@ -54,7 +54,6 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class SimulationPersonPassengerTest {
@@ -86,6 +85,7 @@ public class SimulationPersonPassengerTest {
   private PersonId personId;
   private ReschedulingStrategy rescheduling;
   private PersonResults results;
+  private TripFactory tripFactory;
 
   @Before
   public void initialise() throws Exception {
@@ -113,6 +113,7 @@ public class SimulationPersonPassengerTest {
     personId = mock(PersonId.class);
     rescheduling = mock(ReschedulingStrategy.class);
     results = mock(PersonResults.class);
+    tripFactory = mock(TripFactory.class);
   }
 
   private void initializeBehaviour() {
@@ -343,7 +344,6 @@ public class SimulationPersonPassengerTest {
   public void createTrip() {
     SimulationPersonPassenger person = newPerson();
     Mode mode = Mode.CAR;
-    int oid = 1;
     Time startDate = someTime();
     float plannedDuration = 1.0f;
     ActivityIfc nextActivity = mock(ActivityIfc.class);
@@ -352,47 +352,18 @@ public class SimulationPersonPassengerTest {
     when(nextActivity.location()).thenReturn(destinationLocation);
     when(nextActivity.isLocationSet()).thenReturn(true);
     when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+    when(tripFactory.createTrip(person, impedance, mode, firstActivity, nextActivity))
+        .thenReturn(mockedTrip);
 
     TripIfc trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
 
-    assertEquals(oid, trip.getOid());
-    assertEquals(firstActivity, trip.previousActivity());
-    assertEquals(nextActivity, trip.nextActivity());
-    assertEquals(mode, trip.mode());
-    assertEquals(startDate, trip.startDate());
-    assertEquals(plannedDuration, trip.plannedDuration());
-  }
-
-  @Test
-  public void createPublicTransportTrip() {
-    SimulationPersonPassenger person = newPerson();
-    Mode mode = Mode.PUBLICTRANSPORT;
-    int oid = 1;
-    Time startDate = someTime();
-    int plannedDuration = 1;
-    ActivityIfc nextActivity = mock(ActivityIfc.class);
-    Location destinationLocation = otherLocation();
-    when(nextActivity.zone()).thenReturn(zone);
-    when(nextActivity.location()).thenReturn(destinationLocation);
-    when(nextActivity.isLocationSet()).thenReturn(true);
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn((float) plannedDuration);
-    when(impedance.getPublicTransportRoute(someLocation(), destinationLocation, mode, startDate))
-        .thenReturn(Optional.of(route));
-    when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
-
-    TripIfc trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
-
-    assertEquals(oid, trip.getOid());
-    assertEquals(firstActivity, trip.previousActivity());
-    assertEquals(nextActivity, trip.nextActivity());
-    assertEquals(mode, trip.mode());
-    assertEquals(startDate, trip.startDate());
-    assertEquals(plannedDuration, trip.plannedDuration());
+    assertEquals(mockedTrip, trip);
+    
+    verify(tripFactory).createTrip(person, impedance, mode, firstActivity, nextActivity);
   }
 
   private SimulationPersonPassenger newPerson() {
     PersonState initialState = DummyStates.some;
-    DefaultTripFactory tripFactory = new DefaultTripFactory();
     return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null, null,
         tripFactory, initialState, boarder, seed, results) {
 
