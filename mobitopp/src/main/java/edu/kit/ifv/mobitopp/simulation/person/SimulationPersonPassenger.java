@@ -40,7 +40,6 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
@@ -48,9 +47,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 		implements SimulationPerson, CarSharingPerson {
 
 	private static final long serialVersionUID = 1L;
-
-	private static int tripCount=0;
-
 	private final SimulationOptions options;
 	private final ZoneRepository zoneRepository;
 	protected final PersonResults results;
@@ -60,6 +56,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	private boolean rideOfferAccepted = false;
 	private transient PersonState state;
 	private Events events;
+  private final TripFactory tripFactory;
 
 	public SimulationPersonPassenger(
 		Person person,
@@ -85,6 +82,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		this.results = results;
 		this.publicTransportBehaviour = publicTransportBehaviour;
 		events = new Events();
+		tripFactory = new DefaultTripFactory();
 
 		initFirstActivity(queue);
 	}
@@ -301,7 +299,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 		TripIfc trip = createTrip(
 													    impedance,
 													    mode, 
-													    this, 
 													    previousActivity, 
 													    nextActivity
 													  );
@@ -443,61 +440,11 @@ public class SimulationPersonPassenger extends PersonDecorator
 		}
 	}
 
-	protected TripIfc createTrip(
-		ImpedanceIfc impedance,
-		Mode modeType,
-		SimulationPerson person, 
-		ActivityIfc previousActivity,
-		ActivityIfc nextActivity
-	) 
-	{
-		assert modeType != null;
-		assert person != null;
-		assert previousActivity != null;
-		assert nextActivity != null;
-
-		assert previousActivity.isLocationSet();
-		assert nextActivity.isLocationSet();
-
-		int sourceZoneOid = previousActivity.zone().getOid();
-		int targetZoneOid = nextActivity.zone().getOid();
-
-		Time plannedEnd = previousActivity.calculatePlannedEndDate();
-
-		int matrixDuration = (int) impedance.getTravelTime(sourceZoneOid, targetZoneOid, modeType, plannedEnd);
-		Optional<PublicTransportRoute> route = Optional.empty();
-		if (Mode.PUBLICTRANSPORT.equals(modeType)) {
-			route = findRoute(impedance, modeType, previousActivity, nextActivity, plannedEnd);
-		}
-
-		int duration = route
-				.map(PublicTransportRoute::duration)
-				.map(RelativeTime::toMinutes)
-				.map(Long::intValue)
-				.orElse(matrixDuration);
-		duration = Math.max(1,duration);
-
-		if (duration > java.lang.Short.MAX_VALUE) { 
-			System.out.println("WARNING: duration > java.lang.Short.MAX_VALUE");
-			duration = java.lang.Short.MAX_VALUE; 
-		}
-
-		assert duration > 0; 
-
-		TripIfc trip = new Trip(
-																									++tripCount,
-																									modeType,
-																									previousActivity,
-																									nextActivity,
-																									(short) duration
-																								);
-
-		if (Mode.PUBLICTRANSPORT.equals(modeType)) {
-			trip = PublicTransportTrip.of(trip, route);
-		}
-
-		return trip;
-	}
+  protected TripIfc createTrip(
+      ImpedanceIfc impedance, Mode modeType, ActivityIfc previousActivity,
+      ActivityIfc nextActivity) {
+    return tripFactory.createTrip(this, impedance, modeType, previousActivity, nextActivity);
+  }
 
 	protected Optional<PublicTransportRoute> findRoute(
 			ImpedanceIfc impedance, Mode modeType, ActivityIfc previousActivity, ActivityIfc nextActivity,
