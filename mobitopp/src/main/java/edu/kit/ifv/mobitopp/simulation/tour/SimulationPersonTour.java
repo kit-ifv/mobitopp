@@ -24,6 +24,7 @@ import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
+import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
@@ -50,12 +51,13 @@ public class SimulationPersonTour
 		List<Time> simulationDays,
 		Set<Mode> modesInSimulation,
 		TourFactory tourFactory,
+		TripFactory tripFactory,
 		PersonState initialState,
 		PublicTransportBehaviour publicTransportBehaviour,
 		long seed, 
 		PersonResults results
 	) {
-		super(person, zoneRepository, queue, options, simulationDays, modesInSimulation, tourFactory, initialState, publicTransportBehaviour, seed, results);
+		super(person, zoneRepository, queue, options, simulationDays, modesInSimulation, tourFactory, tripFactory, initialState, publicTransportBehaviour, seed, results);
 	}
 
 

@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.events.SimpleEventQueue;
+import edu.kit.ifv.mobitopp.simulation.person.DefaultTripFactory;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
@@ -246,6 +247,7 @@ public class DemandSimulatorPassenger
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
+	  DefaultTripFactory tripFactory = new DefaultTripFactory();
 		return new SimulationPersonPassenger(p, 
 																					zoneRepository(),
 																					queue,
@@ -253,6 +255,7 @@ public class DemandSimulatorPassenger
 																					simulationDays(),
 																					modesInSimulation,
 																					tourFactory,
+																					tripFactory, 
 																					initialState,
 																					boarder,
 																					seed,
