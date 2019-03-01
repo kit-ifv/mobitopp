@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.kit.ifv.mobitopp.data.Attractivities;
+import edu.kit.ifv.mobitopp.data.MaasDataForZone;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
@@ -85,6 +86,7 @@ public class ZoneRepositorySerialiser {
 					stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
 					freeFloatingArea, freeFloatingCars, carsharingCarDensities);
 			zone.setCarSharing(carSharingDataForZone);
+			zone.setMaas(MaasDataForZone.everywhereAvailable());
 		}
 	}
 

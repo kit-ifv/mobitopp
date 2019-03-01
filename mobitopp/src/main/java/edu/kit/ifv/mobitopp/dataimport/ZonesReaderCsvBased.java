@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
+import edu.kit.ifv.mobitopp.data.MaasDataForZone;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
@@ -76,6 +77,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
         chargingData);
     CarSharingDataForZone carSharingData = carSharing(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
+    zone.setMaas(MaasDataForZone.everywhereAvailable());
     return zone;
   }
 
