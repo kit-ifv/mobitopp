@@ -42,7 +42,7 @@ public class Zone implements Serializable {
   private transient DataForZone zoneData = null;
   private CarSharingDataForZone carSharingData = null;
 	private ChargingDataForZone charging;
-
+	private MaasDataForZone maasData;
 
 	public static void resetIdSequence() {
 		ids = new IdSequence();
@@ -151,6 +151,15 @@ public class Zone implements Serializable {
 
 		return this.carSharingData;
 	}
+	
+	public void setMaas(MaasDataForZone maasData) {
+	  this.maasData = maasData;
+	}
+
+  public MaasDataForZone maas() {
+    assert this.maasData != null;
+    return maasData;
+  }
 
 	public OpportunityDataForZone opportunities() {
 		return getDemandData().opportunities();

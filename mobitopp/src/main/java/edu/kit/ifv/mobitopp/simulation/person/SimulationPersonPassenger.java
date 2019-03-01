@@ -705,6 +705,13 @@ public class SimulationPersonPassenger extends PersonDecorator
 					car.returnCar(zone);
 				}
 			}
+			if (trip.mode() == Mode.AUTONOMOUS_TAXI) {
+        assert this.isCarDriver();
+        if (zone.maas().isInMaasZone(whichCar())) {
+          Car car = person().releaseCar(time);
+          car.returnCar(zone);
+        }
+      }
 	}
 
 	protected void asPassegerLeaveCar(

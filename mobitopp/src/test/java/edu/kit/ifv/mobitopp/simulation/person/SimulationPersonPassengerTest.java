@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
+import edu.kit.ifv.mobitopp.data.MaasDataForZone;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
@@ -288,12 +289,47 @@ public class SimulationPersonPassengerTest {
     Car car = mock(Car.class);
     when(mockedTrip.mode()).thenReturn(Mode.CAR);
     when(firstActivity.zone()).thenReturn(zone);
+    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
     when(this.person.releaseCar(someTime())).thenReturn(car);
     
     person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
     
     verify(car).returnCar(zone);
   }
+	
+	@Test
+	public void returnStationBasedCarSharingCar() {
+	  SimulationPersonPassenger person = person();
+	  Car car = mock(Car.class);
+	  when(mockedTrip.mode()).thenReturn(Mode.CARSHARING_STATION);
+	  when(firstActivity.zone()).thenReturn(zone);
+	  when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
+	  when(this.person.releaseCar(someTime())).thenReturn(car);
+	  
+	  person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
+	  
+	  verify(car).returnCar(zone);
+	}
+	
+	@Test
+	public void returnMaasCar() {
+	  SimulationPersonPassenger person = person();
+	  Car car = mock(Car.class);
+	  MaasDataForZone maasData = mock(MaasDataForZone.class);
+	  when(mockedTrip.mode()).thenReturn(Mode.AUTONOMOUS_TAXI);
+	  when(firstActivity.zone()).thenReturn(zone);
+	  when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
+    when(zone.maas()).thenReturn(maasData);
+    when(maasData.isInMaasZone(car)).thenReturn(true);
+    when(this.person.isCarDriver()).thenReturn(true);
+    when(this.person.whichCar()).thenReturn(car);
+	  when(this.person.releaseCar(someTime())).thenReturn(car);
+	  
+	  person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
+	  
+	  verify(car).returnCar(zone);
+	}
+	
 	
 	private SimulationPersonPassenger person() {
 		PersonState initialState = DummyStates.some;
