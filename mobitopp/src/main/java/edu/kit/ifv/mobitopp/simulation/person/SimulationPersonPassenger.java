@@ -115,7 +115,9 @@ public class SimulationPersonPassenger extends PersonDecorator
 		assert firstActivity.activityType().isHomeActivity();
 
 		
-		firstActivity.setLocation(new ZoneAndLocation(person().household().homeZone(),person.household().homeLocation()));
+    firstActivity
+        .setLocation(new ZoneAndLocation(person().household().homeZone(),
+            person().household().homeLocation()));
 
 		firstActivity.setRunning(true);
 		notifyStartActivity(person(), firstActivity);
@@ -206,7 +208,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		assert trip != null;
 
 		if (trip.mode() == Mode.CAR) {
-	  	assert person.isCarDriver();
+	  	assert person().isCarDriver();
 
 			offerRide(options.rideSharingOffers(), this, trip);
 		}
@@ -400,7 +402,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 				assert person().hasParkedCar();
 				assert !isCarDriver();
 			
-					person.takeCarFromParking();
+					person().takeCarFromParking();
 			}
 		}
 		if (trip.mode() == Mode.CARSHARING_STATION)

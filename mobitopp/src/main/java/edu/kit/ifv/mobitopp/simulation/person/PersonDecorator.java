@@ -35,7 +35,7 @@ public class PersonDecorator
 
 	private static final long serialVersionUID = 1L;
 
-	protected final Person person;
+	private final Person person;
 
 	public PersonDecorator(Person person) {
 		this.person=person;
