@@ -26,13 +26,14 @@ public class DemandSimulatorTour
 		final TourBasedModeChoiceModel modeChoiceModel,
 		final ZoneBasedRouteChoice routeChoice,
     final ActivityStartAndDurationRandomizer activityDurationRandomizer,
+    final TripFactory tripFactory,
     final ReschedulingStrategy rescheduling,
     final Set<Mode> modesInSimulation,
     final PersonState initialState, 
     final SimulationContext context
   ) {
-		super(destinationChoiceModel,modeChoiceModel,routeChoice,activityDurationRandomizer,rescheduling,
-				modesInSimulation,initialState,context);
+    super(destinationChoiceModel, modeChoiceModel, routeChoice, activityDurationRandomizer,
+        tripFactory, rescheduling, modesInSimulation, initialState, context);
   }
 	
   public DemandSimulatorTour(
@@ -40,6 +41,7 @@ public class DemandSimulatorTour
 			final TourBasedModeChoiceModel modeChoice,
 			final ZoneBasedRouteChoice routeChoice,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
+      final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
 			final PersonState initialState,
 			final SimulationContext context
@@ -49,6 +51,7 @@ public class DemandSimulatorTour
 					modeChoice,
 					routeChoice,
 					activityDurationRandomizer,
+					tripFactory, 
 					rescheduling,
 					Mode.CHOICE_SET_FULL,
 					initialState, 

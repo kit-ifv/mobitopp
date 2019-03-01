@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.CarRangeReachableZonesFilter;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceForFlexibleActivity;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
@@ -18,8 +19,10 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeChoiceStuttgart;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeSelectorParameterFirstTrip;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart.ModeSelectorParameterOtherTrip;
+import edu.kit.ifv.mobitopp.simulation.person.DefaultTripFactory;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
+import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
 
 public class SimulationPublicTransport extends Simulation {
@@ -59,12 +62,14 @@ public class SimulationPublicTransport extends Simulation {
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
 
 		ReschedulingStrategy rescheduling = new ReschedulingSkipTillHome(context().simulationDays());
-
+    DefaultActivityDurationRandomizer activityDurationRandomizer = new DefaultActivityDurationRandomizer(
+        context().seed());
+    TripFactory tripFactory = new DefaultTripFactory();
 		System.out.println("Initializing simulator...");
 
-		DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector, 
-				new TourBasedModeChoiceModelDummy(modeSelector),
-				routeChoice, rescheduling, initialState, context());
+    DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector,
+        new TourBasedModeChoiceModelDummy(modeSelector), routeChoice, activityDurationRandomizer,
+        tripFactory, rescheduling, initialState, context());
 		applyHooksTo(simulator);
 		return simulator;
 	}
