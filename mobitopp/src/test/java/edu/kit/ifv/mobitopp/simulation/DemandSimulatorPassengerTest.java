@@ -20,6 +20,8 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.result.ResultsForTests;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.person.DefaultTripFactory;
+import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class DemandSimulatorPassengerTest {
@@ -53,8 +55,9 @@ public class DemandSimulatorPassengerTest {
 		when(context.vehicleBehaviour()).thenReturn(VehicleBehaviour.noBehaviour);
 		PersonResults results = new TripfileWriter(ResultsForTests.at(baseFolder), impedance);
 		when(context.personResults()).thenReturn(results);
-		simulator = new DemandSimulatorPassenger(null, null, null,
-				new DefaultActivityDurationRandomizer(1234), null, null, context);
+    TripFactory tripFactory = new DefaultTripFactory();
+    simulator = new DemandSimulatorPassenger(null, null, null,
+        new DefaultActivityDurationRandomizer(1234), tripFactory, null, null, context);
 		simulator.addBeforeTimeSliceHook(firstBeforeSlice);
 		simulator.addBeforeTimeSliceHook(secondBeforeSlice);
 		simulator.addAfterTimeSliceHook(firstAfterSlice);

@@ -9,17 +9,16 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.events.SimpleEventQueue;
-import edu.kit.ifv.mobitopp.simulation.person.DefaultTripFactory;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
+import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourWithWalkAsSubtourFactory;
@@ -37,6 +36,7 @@ public class DemandSimulatorPassenger
   private final DestinationChoiceModel destinationChoiceModel;
 	private final TourBasedModeChoiceModel modeChoice;
 	private final ActivityStartAndDurationRandomizer activityDurationRandomizer;
+	private final TripFactory tripFactory;
 	private final ReschedulingStrategy rescheduling;
 	private final ZoneBasedRouteChoice routeChoice;
 
@@ -57,10 +57,11 @@ public class DemandSimulatorPassenger
 			final TourBasedModeChoiceModel modeChoiceModel,
 			final ZoneBasedRouteChoice routeChoice,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
+			final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
 			final Set<Mode> modesInSimulation,
 			final PersonState initialState, 
-			final SimulationContext context
+			final SimulationContext context 
 	)
   {
 		this.context = context;
@@ -68,6 +69,7 @@ public class DemandSimulatorPassenger
 		this.modeChoice = modeChoiceModel;
 		this.routeChoice = routeChoice;
 		this.activityDurationRandomizer = activityDurationRandomizer;
+		this.tripFactory = tripFactory;
 
 		this.queue = new SimpleEventQueue();
 		this.vehicleBehaviour = context.vehicleBehaviour();
@@ -88,6 +90,7 @@ public class DemandSimulatorPassenger
 			final TourBasedModeChoiceModel modeSelector_,
 			final ZoneBasedRouteChoice routeChoice,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
+			final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
 			final PersonState initialState,
 			final SimulationContext context
@@ -97,19 +100,12 @@ public class DemandSimulatorPassenger
 					modeSelector_,
 					routeChoice,
 					activityDurationRandomizer,
+					tripFactory,
 					rescheduling,
 					Mode.CHOICE_SET_FULL,
 					initialState, 
 					context
 			);
-	}
-
-	public DemandSimulatorPassenger(
-			DestinationChoiceModel targetSelector, TourBasedModeChoiceModel modeSelector,
-			ZoneBasedRouteChoice routeChoice, ReschedulingStrategy rescheduling, PersonState initialState,
-			SimulationContext context) {
-		this(targetSelector, modeSelector, routeChoice, new DefaultActivityDurationRandomizer(context.seed()),
-				rescheduling, Mode.CHOICE_SET_FULL, initialState, context);
 	}
 
 	public DestinationChoiceModel destinationChoiceModel() { return this.destinationChoiceModel; }
@@ -247,7 +243,6 @@ public class DemandSimulatorPassenger
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
-	  DefaultTripFactory tripFactory = new DefaultTripFactory();
 		return new SimulationPersonPassenger(p, 
 																					zoneRepository(),
 																					queue,
