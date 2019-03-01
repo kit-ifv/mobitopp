@@ -53,10 +53,10 @@ public class SimulationPersonPassenger extends PersonDecorator
 	private final PublicTransportBehaviour publicTransportBehaviour;
 	private final Random random;
 	protected final Set<Mode> modesInSimulation;
+	private final TripFactory tripFactory;
 	private boolean rideOfferAccepted = false;
 	private transient PersonState state;
 	private Events events;
-  private final TripFactory tripFactory;
 
 	public SimulationPersonPassenger(
 		Person person,
@@ -66,6 +66,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		List<Time> simulationDays,
 		Set<Mode> modesInSimulation,
 		TourFactory tourFactory,
+		TripFactory tripFactory,
 		PersonState initialState,
 		PublicTransportBehaviour publicTransportBehaviour,
 		long seed, 
@@ -76,13 +77,13 @@ public class SimulationPersonPassenger extends PersonDecorator
 		this.zoneRepository = zoneRepository;
 		this.random = new Random(person.getOid() + seed);
 		person.initSchedule(tourFactory, options.activityDurationRandomizer(), simulationDays);
+		this.tripFactory = tripFactory;
 
 		this.state = initialState;
 		this.modesInSimulation = modesInSimulation;
 		this.results = results;
 		this.publicTransportBehaviour = publicTransportBehaviour;
 		events = new Events();
-		tripFactory = new DefaultTripFactory();
 
 		initFirstActivity(queue);
 	}

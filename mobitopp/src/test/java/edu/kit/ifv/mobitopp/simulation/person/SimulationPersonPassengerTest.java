@@ -392,8 +392,9 @@ public class SimulationPersonPassengerTest {
 
   private SimulationPersonPassenger newPerson() {
     PersonState initialState = DummyStates.some;
+    DefaultTripFactory tripFactory = new DefaultTripFactory();
     return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null, null,
-        initialState, boarder, seed, results) {
+        tripFactory, initialState, boarder, seed, results) {
 
       private static final long serialVersionUID = 1L;
 
