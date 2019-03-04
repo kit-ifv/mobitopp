@@ -40,10 +40,12 @@ public class PublicTransportTripTest {
 	private Optional<PublicTransportRoute> optionalRoute;
 	private List<PublicTransportLeg> parts;
 	private PublicTransportLeg singlePart;
+  private SimulationPerson person;
 
 	@Before
 	public void initialise() throws Exception {
 		mockedTrip = mock(TripIfc.class);
+		person = mock(SimulationPerson.class);
 		routeSearch = mock(RouteSearch.class);
 		singleJourneyRoute = mock(PublicTransportRoute.class);
 		optionalRoute = Optional.of(singleJourneyRoute);
@@ -53,7 +55,7 @@ public class PublicTransportTripTest {
 
 	@Test
 	public void travelsOverNoPartWhenTourContainsNoConnection() throws Exception {
-		PublicTransportTrip trip = PublicTransportTrip.of(mockedTrip, optionalRoute);
+		PublicTransportTrip trip = PublicTransportTrip.of(mockedTrip, person, optionalRoute);
 
 		Optional<PublicTransportLeg> nextJourneyPart = trip.currentLeg();
 		assertThat(nextJourneyPart, isEmpty());
@@ -97,16 +99,15 @@ public class PublicTransportTripTest {
 	}
 
 	private PublicTransportTrip newTrip() {
-		return new PublicTransportTrip(mockedTrip, optionalRoute, parts);
+		return new PublicTransportTrip(mockedTrip, person, optionalRoute, parts);
 	}
-	
 
 	@Test
 	public void usesRouteToCalculateEndDate() throws Exception {
 		TripIfc originalTrip = mock(TripIfc.class);
 		PublicTransportRoute route = mock(PublicTransportRoute.class);
 		when(route.arrival()).thenReturn(someTime());
-		PublicTransportTrip trip = PublicTransportTrip.of(originalTrip, Optional.of(route));
+		PublicTransportTrip trip = PublicTransportTrip.of(originalTrip, person, Optional.of(route));
 
 		trip.calculatePlannedEndDate();
 

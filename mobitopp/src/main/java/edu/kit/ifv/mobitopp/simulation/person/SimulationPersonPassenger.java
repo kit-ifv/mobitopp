@@ -382,41 +382,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	) {
 
 		assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
-
-		float distance = impedance.getDistance(trip.origin().zone().getOid(),
-				trip.destination().zone().getOid());
-
-		float distanceKm = distance/1000.0f;
-   
-		if (trip.mode() == Mode.CAR) {
-
-    	if (currentActivity().activityType().isHomeActivity())
-    	{
-				Household household = this.household();
-
-				Car car = household.takeAvailableCar(this, distanceKm);
-
-				this.useCar(car, time);
-			} else {
-				
-				assert person().hasParkedCar();
-				assert !isCarDriver();
-			
-					person().takeCarFromParking();
-			}
-		}
-		if (trip.mode() == Mode.CARSHARING_STATION)
-		{
-			Zone zone = currentActivity().zone();
-
-    	if (currentActivity().activityType().isHomeActivity()) {
-				assert zone.carSharing().isStationBasedCarSharingCarAvailable(this);
-
-				Car car = zone.carSharing().bookStationBasedCar(this);
-
-				this.useCar(car, time);
-			}
-		}
+    trip.startTrip(impedance, time);
 
 		if (trip.mode() == Mode.CARSHARING_FREE)  
 		{

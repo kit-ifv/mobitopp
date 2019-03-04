@@ -59,8 +59,15 @@ public class DefaultTripFactory implements TripFactory {
 
     TripIfc trip = new Trip(++tripCount, mode, previousActivity, nextActivity, (short) duration);
 
+    if (Mode.CAR.equals(mode)) {
+      return new PrivateCarTrip(trip, person);
+    }
+    if(Mode.CARSHARING_STATION.equals(mode)) {
+      return new CarSharingTrip(trip, person);
+    }
+    
     if (Mode.PUBLICTRANSPORT.equals(mode)) {
-      trip = PublicTransportTrip.of(trip, route);
+      return PublicTransportTrip.of(trip, person, route);
     }
 
     return trip;

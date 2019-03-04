@@ -4,12 +4,12 @@ dataSource: !file
   attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
-  zoneRepositoryFolder: output/zone-repository
+  zoneRepositoryFolder: output/zone-repository/
 days: 7
 destinationChoice:
-  repetition: config/leopoldshafen/parameters/TargetParameterRepetition2.csv
+  repetition: config/leopoldshafen/parameters/TargetParameterRepetition.csv
   cost: config/leopoldshafen/parameters/TargetParameterCost.txt
-fractionOfPopulation: 0.01
+fractionOfPopulation: 0.10
 #numberOfZones: 1174
 resultFolder: results/simulation
 seed: 1234

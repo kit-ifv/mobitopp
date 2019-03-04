@@ -65,5 +65,9 @@ public class Trip_Stub
 		return new BeamedTrip(this, currentDate);
 	}
 
+  @Override
+  public void startTrip(ImpedanceIfc impedance, Time currentTime) {
+  }
+
 }
 

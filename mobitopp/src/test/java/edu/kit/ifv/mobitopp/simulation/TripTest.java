@@ -5,10 +5,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
@@ -20,15 +23,17 @@ public class TripTest {
 
 	private Trip trip;
 	private Time startOfTrip;
+  private ActivityIfc previousActivity;
+  private ActivityIfc nextActivity;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		startOfTrip = Data.someTime().plusMinutes(1);
 		int id = 0;
 		Mode mode = Mode.CAR;
 		short duration = 0;
-		ActivityIfc previousActivity = mock(ActivityIfc.class);
-		ActivityIfc nextActivity = mock(ActivityIfc.class);
+		previousActivity = mock(ActivityIfc.class);
+		nextActivity = mock(ActivityIfc.class);
 		Zone zone = mock(Zone.class);
 		when(previousActivity.zone()).thenReturn(zone);
 		when(previousActivity.calculatePlannedEndDate()).thenReturn(startOfTrip);
@@ -47,5 +52,17 @@ public class TripTest {
 
 		assertThat(endTrip.endDate(), is(equalTo(startOfTrip)));
 	}
+	
+	@Test
+  void doesNothingToStartATrip() throws Exception {
+    ImpedanceIfc impedance = mock(ImpedanceIfc.class);
+    trip.startTrip(impedance, startOfTrip);
+    
+    verifyZeroInteractions(impedance);
+    verify(previousActivity).calculatePlannedEndDate();
+    verify(previousActivity).zoneAndLocation();
+    verify(nextActivity).zoneAndLocation();
+    verifyNoMoreInteractions(previousActivity, nextActivity);
+  }
 
 }

@@ -485,7 +485,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsRideEndingEventWithCurrentTimeWhenNoPartIsLeft() throws Exception {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, noRoute);
+		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, noRoute);
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -495,7 +495,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsEventWhenTransfering() {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, singleLegRoute());
+		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, singleLegRoute());
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -537,7 +537,7 @@ public class PersonStatePublicTransportTest {
 	}
 
 	private TripIfc newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {
-		return new PublicTransportTrip(trip, route, parts);
+		return new PublicTransportTrip(trip, person, route, parts);
 	}
 
 	private static List<PublicTransportLeg> singlePart(Time arrival) {

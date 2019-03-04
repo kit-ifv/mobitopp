@@ -54,7 +54,6 @@ public class Trip
   	this(tripId, prev, next, mode, prev.calculatePlannedEndDate(), duration);
   }
 
-
   public ActivityIfc previousActivity() {
 		return this.previousActivity;
 	}
@@ -96,6 +95,10 @@ public class Trip
   @Override
   public Optional<Time> timeOfNextChange() {
   	return Optional.empty();
+  }
+  
+  @Override
+  public void startTrip(ImpedanceIfc impedance, Time currentTime) {
   }
 
   @Override
