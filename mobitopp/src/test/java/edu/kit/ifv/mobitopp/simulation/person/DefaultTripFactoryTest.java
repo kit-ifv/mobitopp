@@ -26,12 +26,14 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class DefaultTripFactoryTest {
 
+  private static final int oid = 1;
+  private static final Time startDate = someTime();
+  private static final int plannedDuration = 1;
   private SimulationPerson person;
   private ImpedanceIfc impedance;
   private ActivityIfc previousActivity;
   private ActivityIfc nextActivity;
   private Zone zone;
-  private Time startDate;
   private Location originLocation;
   private Location destinationLocation;
 
@@ -42,7 +44,6 @@ public class DefaultTripFactoryTest {
     previousActivity = mock(ActivityIfc.class);
     nextActivity = mock(ActivityIfc.class);
     zone = mock(Zone.class);
-    startDate = someTime();
     originLocation = someLocation();
     destinationLocation = otherLocation();
     
@@ -58,50 +59,44 @@ public class DefaultTripFactoryTest {
   @Test
   public void createCarTrip() {
     Mode mode = Mode.CAR;
-    int oid = 1;
-    Time startDate = someTime();
-    float plannedDuration = 1.0f;
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+    use(mode);
 
     TripFactory factory = new DefaultTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PrivateCarTrip.class)));
-    assertEquals(oid, trip.getOid());
-    assertEquals(previousActivity, trip.previousActivity());
-    assertEquals(nextActivity, trip.nextActivity());
-    assertEquals(mode, trip.mode());
-    assertEquals(startDate, trip.startDate());
-    assertEquals(plannedDuration, trip.plannedDuration());
+    verifyStandardAttributes(mode, trip);
   }
 
   @Test
   public void createCarSharingStationTrip() {
     Mode mode = Mode.CARSHARING_STATION;
-    int oid = 1;
-    Time startDate = someTime();
-    float plannedDuration = 1.0f;
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+    use(mode);
 
     TripFactory factory = new DefaultTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
-    assertThat(trip, is(instanceOf(CarSharingTrip.class)));
-    assertEquals(oid, trip.getOid());
-    assertEquals(previousActivity, trip.previousActivity());
-    assertEquals(nextActivity, trip.nextActivity());
-    assertEquals(mode, trip.mode());
-    assertEquals(startDate, trip.startDate());
-    assertEquals(plannedDuration, trip.plannedDuration());
+    assertThat(trip, is(instanceOf(CarSharingStationTrip.class)));
+    verifyStandardAttributes(mode, trip);
+  }
+  
+  @Test
+  public void createCarSharingFreeFloatingTrip() {
+    Mode mode = Mode.CARSHARING_FREE;
+    use(mode);
+
+    TripFactory factory = new DefaultTripFactory();
+    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+
+    assertThat(trip, is(instanceOf(CarSharingFreeFloatingTrip.class)));
+    verifyStandardAttributes(mode, trip);
   }
 
   @Test
   public void createPublicTransportTrip() {
     PublicTransportRoute route = mock(PublicTransportRoute.class);
     Mode mode = Mode.PUBLICTRANSPORT;
-    int oid = 1;
-    int plannedDuration = 1;
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn((float) plannedDuration);
+    use(mode);
     when(impedance.getPublicTransportRoute(originLocation, destinationLocation, mode, startDate))
         .thenReturn(Optional.of(route));
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
@@ -110,12 +105,20 @@ public class DefaultTripFactoryTest {
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
+    verifyStandardAttributes(mode, trip);
+  }
+
+  private void verifyStandardAttributes(Mode mode, TripIfc trip) {
     assertEquals(oid, trip.getOid());
     assertEquals(previousActivity, trip.previousActivity());
     assertEquals(nextActivity, trip.nextActivity());
     assertEquals(mode, trip.mode());
     assertEquals(startDate, trip.startDate());
     assertEquals(plannedDuration, trip.plannedDuration());
+  }
+
+  private void use(Mode mode) {
+    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn((float) plannedDuration);
   }
 
   private static Location someLocation() {

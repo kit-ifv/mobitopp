@@ -8,14 +8,14 @@ import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
-public class CarSharingTrip extends TripDecorator implements TripIfc {
+public class CarSharingStationTrip extends TripDecorator implements TripIfc {
 
-  public CarSharingTrip(TripIfc trip, SimulationPerson person) {
+  public CarSharingStationTrip(TripIfc trip, SimulationPerson person) {
     super(trip, person);
   }
   
   @Override
-  public void startTrip(ImpedanceIfc impedance, Time currentTime) {
+  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
     if (person().currentActivity().activityType().isHomeActivity()) {
       allocateCar(currentTime);
     }

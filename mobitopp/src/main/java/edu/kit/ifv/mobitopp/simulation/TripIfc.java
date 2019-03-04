@@ -25,8 +25,9 @@ public interface TripIfc extends OccupationIfc {
 
 	Optional<Time> timeOfNextChange();
 
-	void startTrip(ImpedanceIfc impedance, Time currentTime);
+	void allocateVehicle(ImpedanceIfc impedance, Time currentTime);
 	
   FinishedTrip finish(Time currentDate);
+
 
 }

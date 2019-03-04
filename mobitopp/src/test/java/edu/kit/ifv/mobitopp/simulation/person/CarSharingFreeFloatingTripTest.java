@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class CarSharingTripTest {
+public class CarSharingFreeFloatingTripTest {
 
   private TripSetup setup;
   private ImpedanceIfc impedance;
@@ -38,16 +38,17 @@ public class CarSharingTripTest {
   }
 
   @Test
-  void startTrip() throws Exception {
+  void allocateVehicle() throws Exception {
     CarSharingCar carSharingCar = mock(CarSharingCar.class);
     setup.configureActivity(ActivityType.HOME);
-    when(carSharingData.isStationBasedCarSharingCarAvailable(person)).thenReturn(true);
-    when(carSharingData.bookStationBasedCar(person)).thenReturn(carSharingCar);
-    CarSharingTrip carSharingTrip = new CarSharingTrip(trip, person);
-    
-    carSharingTrip.startTrip(impedance, currentTime);
-    
+    when(person.isCarDriver()).thenReturn(false);
+    when(carSharingData.isFreeFloatingCarSharingCarAvailable(person)).thenReturn(true);
+    when(carSharingData.bookFreeFloatingCar(person)).thenReturn(carSharingCar);
+    CarSharingFreeFloatingTrip carSharingTrip = new CarSharingFreeFloatingTrip(trip, person);
+
+    carSharingTrip.allocateVehicle(impedance, currentTime);
+
     verify(person).useCar(carSharingCar, currentTime);
-    verify(carSharingData).bookStationBasedCar(person);
+    verify(carSharingData).bookFreeFloatingCar(person);
   }
 }
