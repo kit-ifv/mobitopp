@@ -1,6 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +56,7 @@ public class DefaultTripFactoryTest {
   }
 
   @Test
-  public void createTrip() {
+  public void createCarTrip() {
     Mode mode = Mode.CAR;
     int oid = 1;
     Time startDate = someTime();
@@ -63,6 +66,27 @@ public class DefaultTripFactoryTest {
     TripFactory factory = new DefaultTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
+    assertThat(trip, is(instanceOf(PrivateCarTrip.class)));
+    assertEquals(oid, trip.getOid());
+    assertEquals(previousActivity, trip.previousActivity());
+    assertEquals(nextActivity, trip.nextActivity());
+    assertEquals(mode, trip.mode());
+    assertEquals(startDate, trip.startDate());
+    assertEquals(plannedDuration, trip.plannedDuration());
+  }
+
+  @Test
+  public void createCarSharingStationTrip() {
+    Mode mode = Mode.CARSHARING_STATION;
+    int oid = 1;
+    Time startDate = someTime();
+    float plannedDuration = 1.0f;
+    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+
+    TripFactory factory = new DefaultTripFactory();
+    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+
+    assertThat(trip, is(instanceOf(CarSharingTrip.class)));
     assertEquals(oid, trip.getOid());
     assertEquals(previousActivity, trip.previousActivity());
     assertEquals(nextActivity, trip.nextActivity());
@@ -85,6 +109,7 @@ public class DefaultTripFactoryTest {
     TripFactory factory = new DefaultTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
+    assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
     assertEquals(oid, trip.getOid());
     assertEquals(previousActivity, trip.previousActivity());
     assertEquals(nextActivity, trip.nextActivity());

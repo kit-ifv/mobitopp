@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -80,7 +79,6 @@ public class SimulationPersonPassengerTest {
   private TripIfc mockedTrip;
   private PublicTransportRoute route;
   private PublicTransportLeg singleLeg;
-  private PublicTransportTrip trip;
   private ImpedanceIfc impedance;
   private PersonId personId;
   private ReschedulingStrategy rescheduling;
@@ -107,13 +105,18 @@ public class SimulationPersonPassengerTest {
     mockedTrip = mock(TripIfc.class);
     route = mock(PublicTransportRoute.class);
     singleLeg = mock(PublicTransportLeg.class);
-    List<PublicTransportLeg> legs = asList(singleLeg);
-    trip = new PublicTransportTrip(mockedTrip, Optional.of(route), legs);
     impedance = mock(ImpedanceIfc.class);
     personId = mock(PersonId.class);
     rescheduling = mock(ReschedulingStrategy.class);
     results = mock(PersonResults.class);
     tripFactory = mock(TripFactory.class);
+  }
+
+  private PublicTransportTrip createTrip(SimulationPerson person) {
+    PublicTransportTrip trip = new PublicTransportTrip(mockedTrip, person, Optional.of(route), asList(singleLeg));
+    when(person.currentTrip()).thenReturn(trip);
+    when(schedule.currentTrip()).thenReturn(trip);
+    return trip;
   }
 
   private void initializeBehaviour() {
@@ -134,11 +137,9 @@ public class SimulationPersonPassengerTest {
     when(person.currentActivity()).thenReturn(firstActivity);
     when(mockedTrip.startDate()).thenReturn(someTime());
     when(mockedTrip.calculatePlannedEndDate()).thenReturn(someTime());
-    when(person.currentTrip()).thenReturn(trip);
     when(options.simulationStart()).thenReturn(someTime());
     when(options.simulationEnd()).thenReturn(someTime());
     when(schedule.nextActivity(firstActivity)).thenReturn(firstActivity);
-    when(schedule.currentTrip()).thenReturn(trip);
     when(mockedTrip.previousActivity()).thenReturn(firstActivity);
     when(mockedTrip.nextActivity()).thenReturn(firstActivity);
     when(options.impedance()).thenReturn(impedance);
@@ -169,10 +170,18 @@ public class SimulationPersonPassengerTest {
   private static ZoneAndLocation someZoneAndLocation() {
     return new ZoneAndLocation(someZone(), someLocation());
   }
+  
+  private void configurePublicTransportTrip(SimulationPerson person) {
+    PublicTransportTrip trip = createTrip(person);
+    when(tripFactory
+        .createTrip(person, impedance, Mode.PUBLICTRANSPORT, firstActivity, firstActivity))
+            .thenReturn(trip);
+  }
 
   @Test
   public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
     SimulationPerson simulationPerson = newPerson();
+    TripIfc trip = createTrip(simulationPerson);
 
     simulationPerson.boardPublicTransportVehicle(someTime());
     simulationPerson.getOffPublicTransportVehicle(someTime());
@@ -184,6 +193,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void hasArrivedAtNextActivityWhenNoPartsAreLeft() throws Exception {
     SimulationPerson simulationPerson = newPerson();
+    configurePublicTransportTrip(simulationPerson);
 
     assertThat(simulationPerson.hasArrivedAtNextActivity(), is(false));
 
@@ -198,6 +208,7 @@ public class SimulationPersonPassengerTest {
     boolean available = true;
     when(boarder.isVehicleAvailable(singleLeg)).thenReturn(available);
     SimulationPerson simulationPerson = newPerson();
+    configurePublicTransportTrip(simulationPerson);
 
     assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(available));
 
@@ -209,6 +220,7 @@ public class SimulationPersonPassengerTest {
     boolean notAvailable = false;
     when(boarder.isVehicleAvailable(singleLeg)).thenReturn(notAvailable);
     SimulationPerson simulationPerson = newPerson();
+    configurePublicTransportTrip(simulationPerson);
 
     assertThat(simulationPerson.isPublicTransportVehicleAvailable(someTime()), is(notAvailable));
 
@@ -229,6 +241,7 @@ public class SimulationPersonPassengerTest {
   public void entersWaitingAreaAtStartStop() throws Exception {
     when(singleLeg.start()).thenReturn(someStop());
     SimulationPerson simulationPerson = newPerson();
+    configurePublicTransportTrip(simulationPerson);
 
     simulationPerson.enterFirstStop(someTime());
 
@@ -239,6 +252,7 @@ public class SimulationPersonPassengerTest {
   public void leavesWaitingAreaAtEndStop() throws Exception {
     when(singleLeg.end()).thenReturn(anotherStop());
     SimulationPerson simulationPerson = newPerson();
+    configurePublicTransportTrip(simulationPerson);
 
     simulationPerson.endTrip(impedance, rescheduling, someTime());
 
@@ -250,6 +264,7 @@ public class SimulationPersonPassengerTest {
     boolean placeAvailable = true;
     when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeAvailable);
     SimulationPerson person = newPerson();
+    configurePublicTransportTrip(person);
 
     assertThat(person.hasPlaceInPublicTransportVehicle(), is(true));
     verify(boarder).hasPlaceInVehicle(singleLeg);
@@ -261,6 +276,7 @@ public class SimulationPersonPassengerTest {
     boolean placeUnavailable = false;
     when(boarder.hasPlaceInVehicle(singleLeg)).thenReturn(placeUnavailable);
     SimulationPerson person = newPerson();
+    configurePublicTransportTrip(person);
 
     assertThat(person.hasPlaceInPublicTransportVehicle(), is(false));
     verify(boarder).hasPlaceInVehicle(singleLeg);
@@ -270,6 +286,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void searchesANewTripWhenAsked() throws Exception {
     SimulationPerson person = newPerson();
+    PublicTransportTrip trip = createTrip(person);
     TripIfc newTrip = mock(TripIfc.class);
     when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
 

@@ -7,87 +7,53 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.TripDecorator;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
-import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PublicTransportTrip implements TripIfc {
+public class PublicTransportTrip extends TripDecorator implements TripIfc {
 
-	private final TripIfc trip;
 	private final Optional<PublicTransportRoute> route;
 	private final List<PublicTransportLeg> leg;
-	private int currentTrip = 0;
+	private int currentLeg = 0;
 
 	PublicTransportTrip(
-			TripIfc trip, Optional<PublicTransportRoute> route, List<PublicTransportLeg> leg) {
-		super();
-		this.trip = trip;
+			TripIfc trip, SimulationPerson person, Optional<PublicTransportRoute> route, List<PublicTransportLeg> leg) {
+		super(trip, person);
 		this.route = route;
 		this.leg = leg;
 	}
 
-	public static PublicTransportTrip of(TripIfc trip, Optional<PublicTransportRoute> route) {
+	public static PublicTransportTrip of(TripIfc trip, SimulationPerson person, Optional<PublicTransportRoute> route) {
 		List<PublicTransportLeg> legs = route
 				.map(RouteSplitter::splitInParts)
 				.orElse(Collections.emptyList());
-		return new PublicTransportTrip(trip, route, legs);
-	}
-
-	@Override
-	public int getOid() {
-		return trip.getOid();
+		return new PublicTransportTrip(trip, person, route, legs);
 	}
 
 	@Override
 	public Time calculatePlannedEndDate() {
-		return route.map(PublicTransportRoute::arrival).orElse(trip.calculatePlannedEndDate());
-	}
-
-	@Override
-	public Mode mode() {
-		return trip.mode();
-	}
-
-	@Override
-	public Time startDate() {
-		return trip.startDate();
-	}
-
-	@Override
-	public int plannedDuration() {
-		return trip.plannedDuration();
-	}
-
-	@Override
-	public ActivityIfc previousActivity() {
-		return trip.previousActivity();
-	}
-
-	@Override
-	public ActivityIfc nextActivity() {
-		return trip.nextActivity();
+		return route.map(PublicTransportRoute::arrival).orElse(super.calculatePlannedEndDate());
 	}
 
 	public Optional<PublicTransportLeg> currentLeg() {
 		if (leg.isEmpty() || tripDone()) {
 			return Optional.empty();
 		}
-		return Optional.of(leg.get(currentTrip));
+		return Optional.of(leg.get(currentLeg));
 	}
 
 	private boolean tripDone() {
-		return leg.size() <= currentTrip;
+		return leg.size() <= currentLeg;
 	}
 
 	public void nextLeg() {
-		currentTrip++;
+		currentLeg++;
 	}
 
 	public boolean hasNextLeg() {
-		return leg.size() > currentTrip;
+		return leg.size() > currentLeg;
 	}
 
 	public Optional<PublicTransportLeg> lastLeg() {
@@ -111,7 +77,7 @@ public class PublicTransportTrip implements TripIfc {
 	private TripIfc deriveToEnd(Time currentTime, RouteSearch routeSearch) {
 		Optional<PublicTransportRoute> tour = currentLeg()
 				.flatMap(part -> searchNewTour(routeSearch, part, currentTime));
-		return PublicTransportTrip.of(this, tour);
+		return PublicTransportTrip.of(this, person(), tour);
 	}
 
 	private Optional<PublicTransportRoute> searchNewTour(
@@ -129,21 +95,6 @@ public class PublicTransportTrip implements TripIfc {
 		return partDeparture;
 	}
 
-	@Override
-	public String toString() {
-		return "PublicTransportTrip [trip=" + trip + ", tour=" + route + "]";
-	}
-
-	@Override
-	public ZoneAndLocation origin() {
-		return trip.origin();
-	}
-
-	@Override
-	public ZoneAndLocation destination() {
-		return trip.destination();
-	}
-	
 	@Override
 	public Optional<Time> timeOfNextChange() {
 		return currentLeg().map(PublicTransportLeg::departure);
@@ -174,4 +125,8 @@ public class PublicTransportTrip implements TripIfc {
 		return RelativeTime.ofMinutes(minutes);
 	}
 
+  @Override
+  public String toString() {
+    return "PublicTransportTrip [trip=" + super.toString() + ", tour=" + route + "]";
+  }
 }

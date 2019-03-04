@@ -84,7 +84,7 @@ public class SimulationExample extends Simulation {
 		System.out.println("Simulation took " + runtime);
 	}
 
-	private static void startSimulation(File configurationFile) throws IOException {
+	public static void startSimulation(File configurationFile) throws IOException {
 		SimulationContext context = new ContextBuilder().buildFrom(configurationFile);
 		startSimulation(context);
 	}
