@@ -1578,7 +1578,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		for (int i=0; i<table.numberOfRows(); i++) {
 
-			Integer id = Double.valueOf(table.getValue(i,attribute(StandardAttributes.objectId))).intValue();
+			Integer id = readStadtMobilId(table, i);
 
 			VisumCarSharingStation tmp = new VisumCarSharingStation(
 																		id,
@@ -1595,6 +1595,14 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		return data;
 	}
+
+  private int readStadtMobilId(VisumTable table, int i) {
+    String attribute = attribute(StandardAttributes.objectId);
+    if (table.containsAttribute(attribute)) {
+      return Double.valueOf(table.getValue(i,attribute)).intValue();
+    }
+    return Double.valueOf(table.getValue(i,id())).intValue();
+  }
 
   private String streetIso8859() {
     return attribute(StandardAttributes.streetIso8859);
