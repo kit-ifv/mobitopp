@@ -66,7 +66,7 @@ public class Trip_Stub
 	}
 
   @Override
-  public void startTrip(ImpedanceIfc impedance, Time currentTime) {
+  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
   }
 
 }

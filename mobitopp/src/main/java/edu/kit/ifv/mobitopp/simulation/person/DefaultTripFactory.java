@@ -62,8 +62,13 @@ public class DefaultTripFactory implements TripFactory {
     if (Mode.CAR.equals(mode)) {
       return new PrivateCarTrip(trip, person);
     }
+    
     if(Mode.CARSHARING_STATION.equals(mode)) {
-      return new CarSharingTrip(trip, person);
+      return new CarSharingStationTrip(trip, person);
+    }
+    
+    if(Mode.CARSHARING_FREE.equals(mode)) {
+      return new CarSharingFreeFloatingTrip(trip, person);
     }
     
     if (Mode.PUBLICTRANSPORT.equals(mode)) {

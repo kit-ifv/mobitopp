@@ -380,33 +380,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 		TripIfc trip,
 		Time time
 	) {
-
 		assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
-    trip.startTrip(impedance, time);
-
-		if (trip.mode() == Mode.CARSHARING_FREE)  
-		{
-			Zone zone = currentActivity().zone();
-
-
-			if (this.isCarDriver()) {
-	
-				Car car =  this.whichCar();
-	
-				assert car != null;
-				assert car instanceof CarSharingCar;
-		
-				assert !zone.carSharing().isFreeFloatingZone((CarSharingCar)car);
-	
-			} else {
-				assert zone.carSharing().isFreeFloatingCarSharingCarAvailable(this) : (this);
-	
-				Car car = zone.carSharing().bookFreeFloatingCar(this);
-				this.useCar(car, time);
-	
-			}
-
-		}
+    trip.allocateVehicle(impedance, time);
 	}
 
   protected TripIfc createTrip(
@@ -510,7 +485,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 			ActivityIfc activity = trip.nextActivity();
 
 			assert activity != null : person().activitySchedule().toString();
-
+			
 			FinishedTrip finishedTrip = finish(currentDate, trip);
 
 			notifyEndTrip(finishedTrip, activity);

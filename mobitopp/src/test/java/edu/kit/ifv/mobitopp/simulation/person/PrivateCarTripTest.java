@@ -32,11 +32,11 @@ public class PrivateCarTripTest {
   }
 
   @Test
-  void startsTrip() throws Exception {
+  void allocateVehicle() throws Exception {
     setup.configureActivity(ActivityType.HOME);
     PrivateCarTrip carTrip = new PrivateCarTrip(trip, person);
 
-    carTrip.startTrip(impedance, currentTime);
+    carTrip.allocateVehicle(impedance, currentTime);
 
     verify(person).useCar(car, currentTime);
   }
@@ -48,7 +48,7 @@ public class PrivateCarTripTest {
     setup.configureActivity(ActivityType.WORK);
     PrivateCarTrip carTrip = new PrivateCarTrip(trip, person);
 
-    carTrip.startTrip(impedance, currentTime);
+    carTrip.allocateVehicle(impedance, currentTime);
 
     verify(person).takeCarFromParking();
   }

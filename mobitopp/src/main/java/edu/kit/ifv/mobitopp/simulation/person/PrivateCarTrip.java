@@ -15,7 +15,7 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
   }
 
   @Override
-  public void startTrip(ImpedanceIfc impedance, Time currentTime) {
+  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
     Objects.requireNonNull(impedance);
     Objects.requireNonNull(currentTime);
     if (person().currentActivity().activityType().isHomeActivity()) {
