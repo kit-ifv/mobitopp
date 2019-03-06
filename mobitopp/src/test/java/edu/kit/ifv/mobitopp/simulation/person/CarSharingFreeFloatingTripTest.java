@@ -30,6 +30,7 @@ public class CarSharingFreeFloatingTripTest {
   private Time currentTime;
   private TripIfc trip;
   private Zone zone;
+  private PersonResults results;
   private CarSharingCar car;
   private CarSharingDataForZone carSharingData;
 
@@ -41,6 +42,7 @@ public class CarSharingFreeFloatingTripTest {
     trip = setup.trip;
     zone = setup.zone;
     currentTime = setup.currentTime;
+    results = setup.results;
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
@@ -63,11 +65,8 @@ public class CarSharingFreeFloatingTripTest {
 
   @Test
   void returnCarInFreeFloatingArea() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(trip.mode()).thenReturn(Mode.CARSHARING_FREE);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);
@@ -85,11 +84,8 @@ public class CarSharingFreeFloatingTripTest {
   
   @Test
   void doNotReturnCarOutOfFreeFloatingArea() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(trip.mode()).thenReturn(Mode.CARSHARING_FREE);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);

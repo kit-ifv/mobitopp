@@ -2,8 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +42,7 @@ public class PrivateCarTripTest {
     zone = setup.zone;
     location = setup.location;
     currentTime = setup.currentTime;
-    results = mock(PersonResults.class);
+    results = setup.results;
     when(trip.mode()).thenReturn(Mode.CAR);
   }
 
@@ -71,11 +70,9 @@ public class PrivateCarTripTest {
   
   @Test
   void parkCarAtWork() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
     setup.configureActivity(ActivityType.HOME);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.WORK);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
@@ -91,11 +88,9 @@ public class PrivateCarTripTest {
   
   @Test
   void returnCarAtHome() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
     setup.configureActivity(ActivityType.WORK);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);
     when(person.releaseCar(currentTime)).thenReturn(car);

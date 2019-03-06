@@ -29,6 +29,7 @@ public class CarSharingStationTripTest {
   private TripIfc trip;
   private Zone zone;
   private Location location;
+  private PersonResults results;
   private CarSharingCar car;
   private CarSharingDataForZone carSharingData;
 
@@ -41,6 +42,7 @@ public class CarSharingStationTripTest {
     zone = setup.zone;
     location = setup.location;
     currentTime = setup.currentTime;
+    results = setup.results;
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
@@ -63,12 +65,9 @@ public class CarSharingStationTripTest {
 
   @Test
   void parkCarAtWork() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     setup.configureActivity(ActivityType.HOME);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.WORK);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
 
     TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);
@@ -81,12 +80,9 @@ public class CarSharingStationTripTest {
 
   @Test
   void returnCarAtHome() throws Exception {
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     setup.configureActivity(ActivityType.WORK);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
     when(trip.nextActivity()).thenReturn(nextActivity);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
     when(person.releaseCar(currentTime)).thenReturn(car);
 
     TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);
