@@ -51,23 +51,22 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
   @Override
   public FinishedTrip finish(Time currentDate, PersonResults results) {
     Person person = person();
-    Integer carId = null;
     if (person.isCarDriver()) {
-      ActivityIfc activity = trip().nextActivity();
-      carId = stopCar(currentDate);
+      ActivityIfc activity = nextActivity();
+      int carId = stopCar(currentDate);
       notifyFinishCarTrip(person, trip(), activity, results);
+      returnCar(currentDate);
+      FinishedTrip finishedTrip = super.finish(currentDate, results);
+      return new FinishedCarTrip(finishedTrip, carId);
     }
-    returnCar(currentDate);
-    FinishedTrip finishedTrip = super.finish(currentDate, results);
-    return new FinishedCarTrip(finishedTrip, carId);
+    throw new IllegalStateException(String.format("Cannot finish car trip without car: %s" , trip()));
   }
 
   private Integer stopCar(Time currentDate) {
     assert mode() == Mode.CAR : (trip() + "\n" 
-                                  + "prev: " + previousActivity() + "\n"
-                                  + "next : " + nextActivity()  + "\n --- \n"
-                  + person().activitySchedule() + "\n"
-                  ) ;
+                                 + "prev: " + previousActivity() + "\n"
+                                 + "next : " + nextActivity()  + "\n --- \n"
+                                 + person().activitySchedule() + "\n");
     Location location = nextActivity().location();
     Zone zone = nextActivity().zone();
     Car car = person().whichCar();
