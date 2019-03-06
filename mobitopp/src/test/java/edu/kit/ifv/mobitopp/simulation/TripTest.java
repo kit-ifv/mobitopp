@@ -21,43 +21,45 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class TripTest {
 
-	private Trip trip;
-	private Time startOfTrip;
+  private Trip trip;
+  private Time startOfTrip;
   private ActivityIfc previousActivity;
   private ActivityIfc nextActivity;
+  private PersonResults results;
 
-	@BeforeEach
-	public void initialise() {
-		startOfTrip = Data.someTime().plusMinutes(1);
-		int id = 0;
-		Mode mode = Mode.CAR;
-		short duration = 0;
-		previousActivity = mock(ActivityIfc.class);
-		nextActivity = mock(ActivityIfc.class);
-		Zone zone = mock(Zone.class);
-		when(previousActivity.zone()).thenReturn(zone);
-		when(previousActivity.calculatePlannedEndDate()).thenReturn(startOfTrip);
-		when(nextActivity.zone()).thenReturn(zone);
-		trip = new Trip(id, mode, previousActivity, nextActivity, duration);
-	}
+  @BeforeEach
+  public void initialise() {
+    startOfTrip = Data.someTime().plusMinutes(1);
+    int id = 0;
+    Mode mode = Mode.CAR;
+    short duration = 0;
+    results = mock(PersonResults.class);
+    previousActivity = mock(ActivityIfc.class);
+    nextActivity = mock(ActivityIfc.class);
+    Zone zone = mock(Zone.class);
+    when(previousActivity.zone()).thenReturn(zone);
+    when(previousActivity.calculatePlannedEndDate()).thenReturn(startOfTrip);
+    when(nextActivity.zone()).thenReturn(zone);
+    trip = new Trip(id, mode, previousActivity, nextActivity, duration);
+  }
 
-	@Test
-	public void nextEvent() {
-		assertThat(trip.timeOfNextChange(), isEmpty());
-	}
+  @Test
+  public void nextEvent() {
+    assertThat(trip.timeOfNextChange(), isEmpty());
+  }
 
-	@Test
+  @Test
 	public void setsEndDateOfTrip() {
-		FinishedTrip endTrip = trip.finish(startOfTrip);
+		FinishedTrip endTrip = trip.finish(startOfTrip, results);
 
 		assertThat(endTrip.endDate(), is(equalTo(startOfTrip)));
 	}
-	
-	@Test
+
+  @Test
   void doesNothingToStartATrip() throws Exception {
     ImpedanceIfc impedance = mock(ImpedanceIfc.class);
     trip.allocateVehicle(impedance, startOfTrip);
-    
+
     verifyZeroInteractions(impedance);
     verify(previousActivity).calculatePlannedEndDate();
     verify(previousActivity).zoneAndLocation();

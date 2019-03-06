@@ -57,11 +57,13 @@ public class PersonStatePublicTransportTest {
 	private TripIfc trip;
 	private Optional<PublicTransportRoute> existingRoute;
 	private Optional<PublicTransportRoute> noRoute;
+  private PublicTransportBehaviour publicTransportBehaviour;
 
 	@Before
 	public void initialise() throws Exception {
 		person = mock(SimulationPerson.class);
 		options = mock(SimulationOptions.class);
+		publicTransportBehaviour = mock(PublicTransportBehaviour.class);
 		trip = mock(TripIfc.class);
 		PublicTransportRoute route = mock(PublicTransportRoute.class);
 		existingRoute = Optional.of(route);
@@ -485,7 +487,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsRideEndingEventWithCurrentTimeWhenNoPartIsLeft() throws Exception {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, noRoute);
+		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, noRoute);
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -495,7 +497,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsEventWhenTransfering() {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, singleLegRoute());
+		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, singleLegRoute());
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -537,7 +539,7 @@ public class PersonStatePublicTransportTest {
 	}
 
 	private TripIfc newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {
-		return new PublicTransportTrip(trip, person, route, parts);
+		return new PublicTransportTrip(trip, person, publicTransportBehaviour, route, parts);
 	}
 
 	private static List<PublicTransportLeg> singlePart(Time arrival) {

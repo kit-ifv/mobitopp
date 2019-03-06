@@ -24,6 +24,7 @@ public class TripSetup {
   final PrivateCar car;
   final TripIfc trip;
   final Zone zone;
+  final Location location;
 
   private TripSetup() {
     super();
@@ -33,6 +34,7 @@ public class TripSetup {
     car = mock(PrivateCar.class);
     trip = mock(TripIfc.class);
     zone = ExampleZones.create().someZone();
+    location = zone.centroidLocation();
   }
 
   private void initialise() {
@@ -55,9 +57,16 @@ public class TripSetup {
   }
 
   public void configureActivity(ActivityType type) {
+    ActivityIfc activity = createActivity(type);
+    when(person.currentActivity()).thenReturn(activity);
+    when(trip.previousActivity()).thenReturn(activity);
+  }
+
+  public ActivityIfc createActivity(ActivityType type) {
     ActivityIfc activity = mock(ActivityIfc.class);
     when(activity.activityType()).thenReturn(type);
     when(activity.zone()).thenReturn(zone);
-    when(person.currentActivity()).thenReturn(activity);
+    when(activity.location()).thenReturn(zone.centroidLocation());
+    return activity;
   }
 }

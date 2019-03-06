@@ -29,13 +29,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
-import edu.kit.ifv.mobitopp.data.MaasDataForZone;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -112,8 +110,9 @@ public class SimulationPersonPassengerTest {
     tripFactory = mock(TripFactory.class);
   }
 
-  private PublicTransportTrip createTrip(SimulationPerson person) {
-    PublicTransportTrip trip = new PublicTransportTrip(mockedTrip, person, Optional.of(route), asList(singleLeg));
+  private PublicTransportTrip createPublicTransportTrip(SimulationPerson person) {
+    PublicTransportTrip trip = new PublicTransportTrip(mockedTrip, person, boarder,
+        Optional.of(route), asList(singleLeg));
     when(person.currentTrip()).thenReturn(trip);
     when(schedule.currentTrip()).thenReturn(trip);
     return trip;
@@ -172,7 +171,7 @@ public class SimulationPersonPassengerTest {
   }
   
   private void configurePublicTransportTrip(SimulationPerson person) {
-    PublicTransportTrip trip = createTrip(person);
+    PublicTransportTrip trip = createPublicTransportTrip(person);
     when(tripFactory
         .createTrip(person, impedance, Mode.PUBLICTRANSPORT, firstActivity, firstActivity))
             .thenReturn(trip);
@@ -181,7 +180,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
     SimulationPerson simulationPerson = newPerson();
-    TripIfc trip = createTrip(simulationPerson);
+    TripIfc trip = createPublicTransportTrip(simulationPerson);
 
     simulationPerson.boardPublicTransportVehicle(someTime());
     simulationPerson.getOffPublicTransportVehicle(someTime());
@@ -286,7 +285,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void searchesANewTripWhenAsked() throws Exception {
     SimulationPerson person = newPerson();
-    PublicTransportTrip trip = createTrip(person);
+    PublicTransportTrip trip = createPublicTransportTrip(person);
     TripIfc newTrip = mock(TripIfc.class);
     when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
 
@@ -311,53 +310,6 @@ public class SimulationPersonPassengerTest {
   }
 
   @Test
-  public void returnOwnCar() {
-    SimulationPersonPassenger person = newPerson();
-    Car car = mock(Car.class);
-    when(mockedTrip.mode()).thenReturn(Mode.CAR);
-    when(firstActivity.zone()).thenReturn(zone);
-    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
-    when(this.person.releaseCar(someTime())).thenReturn(car);
-
-    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-
-    verify(car).returnCar(zone);
-  }
-
-  @Test
-  public void returnStationBasedCarSharingCar() {
-    SimulationPersonPassenger person = newPerson();
-    Car car = mock(Car.class);
-    when(mockedTrip.mode()).thenReturn(Mode.CARSHARING_STATION);
-    when(firstActivity.zone()).thenReturn(zone);
-    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
-    when(this.person.releaseCar(someTime())).thenReturn(car);
-
-    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-
-    verify(car).returnCar(zone);
-  }
-
-  @Test
-  public void returnMaasCar() {
-    SimulationPersonPassenger person = newPerson();
-    Car car = mock(Car.class);
-    MaasDataForZone maasData = mock(MaasDataForZone.class);
-    when(mockedTrip.mode()).thenReturn(Mode.AUTONOMOUS_TAXI);
-    when(firstActivity.zone()).thenReturn(zone);
-    when(firstActivity.activityType()).thenReturn(ActivityType.HOME);
-    when(zone.maas()).thenReturn(maasData);
-    when(maasData.isInMaasZone(car)).thenReturn(true);
-    when(this.person.isCarDriver()).thenReturn(true);
-    when(this.person.whichCar()).thenReturn(car);
-    when(this.person.releaseCar(someTime())).thenReturn(car);
-
-    person.asDriverReturnOrParkCar(mockedTrip, firstActivity, someTime());
-
-    verify(car).returnCar(zone);
-  }
-
-  @Test
   public void createTrip() {
     SimulationPersonPassenger person = newPerson();
     Mode mode = Mode.CAR;
@@ -378,7 +330,22 @@ public class SimulationPersonPassengerTest {
     
     verify(tripFactory).createTrip(person, impedance, mode, firstActivity, nextActivity);
   }
-
+  
+  @Test
+  public void endTrip() {
+    Time currentDate = Time.start;
+    FinishedTrip finishedTrip = mock(FinishedTrip.class);
+    SimulationPersonPassenger person = newPerson();
+    when(person.currentTrip()).thenReturn(mockedTrip);
+    when(mockedTrip.mode()).thenReturn(Mode.CAR);
+    when(mockedTrip.finish(currentDate, results)).thenReturn(finishedTrip);
+    
+    person.endTrip(impedance, rescheduling, currentDate);
+    
+    verify(mockedTrip).finish(currentDate, results);
+    verify(results).notifyEndTrip(this.person, finishedTrip, firstActivity);
+  }
+  
   private SimulationPersonPassenger newPerson() {
     PersonState initialState = DummyStates.some;
     return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null, null,

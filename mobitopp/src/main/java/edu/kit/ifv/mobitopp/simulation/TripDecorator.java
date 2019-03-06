@@ -19,6 +19,10 @@ public class TripDecorator implements TripIfc {
     this.person = person;
   }
   
+  protected TripIfc trip() {
+    return trip;
+  }
+  
   protected SimulationPerson person() {
     return person;
   }
@@ -79,8 +83,8 @@ public class TripDecorator implements TripIfc {
   }
 
   @Override
-  public FinishedTrip finish(Time currentDate) {
-    return trip.finish(currentDate);
+  public FinishedTrip finish(Time currentDate, PersonResults results) {
+    return trip.finish(currentDate, results);
   }
 
   @Override

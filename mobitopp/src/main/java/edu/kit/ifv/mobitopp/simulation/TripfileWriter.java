@@ -75,23 +75,8 @@ public class TripfileWriter implements PersonResults {
 			int duration_trip = finishedTrip.plannedDuration();
 
 			int modeType = finishedTrip.mode().getTypeAsInt();
-
-			String vehicleId = "";
-
-			if (finishedTrip.mode() == Mode.CAR
-					|| finishedTrip.mode() == Mode.CARSHARING_STATION
-					|| finishedTrip.mode() == Mode.CARSHARING_FREE
-			) {
-				vehicleId = "" + person.whichCar().id();
-			}
-			if (finishedTrip.mode() == Mode.PASSENGER) {
-				if (person.isCarPassenger()) {
-					vehicleId = "" + person.whichCar().id();
-				} else {
-					vehicleId = "-1";
-				}
-			}
-
+			String vehicleId = finishedTrip.vehicleId().orElse("");
+			
 			int employmentType 		= person.employment().getTypeAsInt();
 			int sex								= person.gender().getTypeAsInt();
 			int activityType 			= activity.activityType().getTypeAsInt();

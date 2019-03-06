@@ -27,7 +27,7 @@ public interface TripIfc extends OccupationIfc {
 
 	void allocateVehicle(ImpedanceIfc impedance, Time currentTime);
 	
-  FinishedTrip finish(Time currentDate);
+  FinishedTrip finish(Time currentDate, PersonResults results);
 
 
 }

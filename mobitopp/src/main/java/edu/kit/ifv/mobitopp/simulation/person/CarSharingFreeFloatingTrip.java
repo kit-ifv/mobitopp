@@ -3,6 +3,8 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripDecorator;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
@@ -36,5 +38,18 @@ public class CarSharingFreeFloatingTrip extends TripDecorator implements TripIfc
 
     Car car = zone.carSharing().bookFreeFloatingCar(person());
     person().useCar(car, currentTime);
+  }
+  
+  @Override
+  public FinishedTrip finish(Time currentDate, PersonResults results) {
+    FinishedTrip finishedTrip = super.finish(currentDate, results);
+    assert mode() == Mode.CARSHARING_FREE;
+    assert person().isCarDriver();
+    Zone zone = nextActivity().zone();
+    if (zone.carSharing().isFreeFloatingZone((CarSharingCar) person().whichCar())) {
+      Car car = person().releaseCar(currentDate);
+      car.returnCar(zone);
+    }
+    return finishedTrip;
   }
 }

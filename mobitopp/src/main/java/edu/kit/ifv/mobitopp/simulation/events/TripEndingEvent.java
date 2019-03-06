@@ -5,7 +5,6 @@ import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
-import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 
@@ -31,7 +30,7 @@ public class TripEndingEvent extends DemandSimulationEvent {
 		assert activity != null : person.activitySchedule().toString();
 		assert prevActivity != null;
 
-		FinishedTrip finishedTrip = new BeamedTrip(trip, trip.calculatePlannedEndDate());
+		FinishedTrip finishedTrip = trip.finish(trip.calculatePlannedEndDate(), results);
 		results.notifyEndTrip(person, finishedTrip, activity);
 		if (person.isCarDriver()) {
 			results.notifyFinishCarTrip(person, person.whichCar(), trip, activity);
