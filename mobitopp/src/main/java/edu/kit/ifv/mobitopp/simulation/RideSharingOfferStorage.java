@@ -8,13 +8,13 @@ import java.util.Map;
 public class RideSharingOfferStorage {
 
 
-	protected Map<Integer,Map<Integer,Map<TripIfc,RideSharingOffer>>> offers 
-			= new HashMap<Integer,Map<Integer,Map<TripIfc,RideSharingOffer>>>();
+	protected Map<Integer,Map<Integer,Map<Trip,RideSharingOffer>>> offers 
+			= new HashMap<Integer,Map<Integer,Map<Trip,RideSharingOffer>>>();
 
 	protected int size=0;
 
 
-	public void put(TripIfc trip, RideSharingOffer offer) {
+	public void put(Trip trip, RideSharingOffer offer) {
 
 		Integer source = trip.origin().zone().getOid();
 		Integer target = trip.destination().zone().getOid();
@@ -26,7 +26,7 @@ public class RideSharingOfferStorage {
 		size++;
 	}
 
-	private void assertOffersContainsSourceAndTarget(TripIfc trip) {
+	private void assertOffersContainsSourceAndTarget(Trip trip) {
 
 		Integer source = trip.origin().zone().getOid();
 		Integer target = trip.destination().zone().getOid();
@@ -39,7 +39,7 @@ public class RideSharingOfferStorage {
 		}
 	}
 
-	public void remove(TripIfc trip) {
+	public void remove(Trip trip) {
 
 		Integer source = trip.origin().zone().getOid();
 		Integer target = trip.destination().zone().getOid();
@@ -52,7 +52,7 @@ public class RideSharingOfferStorage {
 		size--;
 	}
 
-	public RideSharingOffer get(TripIfc trip) {
+	public RideSharingOffer get(Trip trip) {
 
 		Integer source = trip.origin().zone().getOid();
 		Integer target = trip.destination().zone().getOid();
@@ -69,7 +69,7 @@ public class RideSharingOfferStorage {
 		return this.size;
 	}
 
-	public Collection<TripIfc> keySet(TripIfc trip) {
+	public Collection<Trip> keySet(Trip trip) {
 
 		Integer source = trip.origin().zone().getOid();
 		Integer target = trip.destination().zone().getOid();

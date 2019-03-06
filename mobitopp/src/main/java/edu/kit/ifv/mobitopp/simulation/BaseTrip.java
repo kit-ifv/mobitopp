@@ -9,7 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
-public class BaseTrip implements TripData, TripIfc {
+public class BaseTrip implements TripData, Trip {
   
   private final TripData data;
   private final SimulationPerson person;

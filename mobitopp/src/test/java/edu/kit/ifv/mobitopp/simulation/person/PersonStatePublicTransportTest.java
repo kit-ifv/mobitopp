@@ -43,7 +43,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.Activity;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
@@ -54,7 +54,7 @@ public class PersonStatePublicTransportTest {
 
 	private SimulationPerson person;
 	private SimulationOptions options;
-	private TripIfc trip;
+	private Trip trip;
 	private Optional<PublicTransportRoute> existingRoute;
 	private Optional<PublicTransportRoute> noRoute;
   private PublicTransportBehaviour publicTransportBehaviour;
@@ -64,7 +64,7 @@ public class PersonStatePublicTransportTest {
 		person = mock(SimulationPerson.class);
 		options = mock(SimulationOptions.class);
 		publicTransportBehaviour = mock(PublicTransportBehaviour.class);
-		trip = mock(TripIfc.class);
+		trip = mock(Trip.class);
 		PublicTransportRoute route = mock(PublicTransportRoute.class);
 		existingRoute = Optional.of(route);
 		noRoute = Optional.empty();
@@ -477,7 +477,7 @@ public class PersonStatePublicTransportTest {
 	@Test
 	public void passengerWillBeNotifiedToLeaveTheVehicle() throws Exception {
 		Time arrival = oneMinuteLater();
-		TripIfc publicTransportTrip = newTrip(existingRoute, singlePart(arrival));
+		Trip publicTransportTrip = newTrip(existingRoute, singlePart(arrival));
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -487,7 +487,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsRideEndingEventWithCurrentTimeWhenNoPartIsLeft() throws Exception {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, noRoute);
+		Trip publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, noRoute);
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -497,7 +497,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void createsEventWhenTransfering() {
-		TripIfc publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, singleLegRoute());
+		Trip publicTransportTrip = PublicTransportTrip.of(trip, person, publicTransportBehaviour, singleLegRoute());
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
 
 		Optional<DemandSimulationEventIfc> nextEvent = RIDE_VEHICLE.nextEvent(person, someDate());
@@ -528,7 +528,7 @@ public class PersonStatePublicTransportTest {
 		Time departure = oneMinuteLater();
 		Connection connection = connection().departsAndArrivesAt(departure).build();
 		List<PublicTransportLeg> part = legsFor(connection);
-		TripIfc publicTransportTrip = newTrip(existingRoute, part);
+		Trip publicTransportTrip = newTrip(existingRoute, part);
 		Time nextTrigger = departure;
 		when(trip.timeOfNextChange()).thenReturn(Optional.of(nextTrigger));
 		when(person.currentTrip()).thenReturn(publicTransportTrip);
@@ -538,7 +538,7 @@ public class PersonStatePublicTransportTest {
 		assertThat(nextEvent, hasValue(event));
 	}
 
-	private TripIfc newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {
+	private Trip newTrip(Optional<PublicTransportRoute> route, List<PublicTransportLeg> parts) {
 		return new PublicTransportTrip(trip, person, publicTransportBehaviour, route, parts);
 	}
 

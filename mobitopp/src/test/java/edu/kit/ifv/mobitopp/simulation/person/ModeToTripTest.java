@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 
 public class ModeToTripTest {
 
@@ -27,7 +27,7 @@ public class ModeToTripTest {
   @SuppressWarnings("unchecked")
   @Test
   void useDefault() throws Exception {
-    BiFunction<TripData, SimulationPerson, TripIfc> defaultTrip = mock(BiFunction.class);
+    BiFunction<TripData, SimulationPerson, Trip> defaultTrip = mock(BiFunction.class);
     ModeToTrip modeToTrip = new ModeToTrip(defaultTrip);
     
     modeToTrip.create(Mode.CAR, tripData, person);
@@ -38,9 +38,9 @@ public class ModeToTripTest {
   @SuppressWarnings("unchecked")
   @Test
   void createsTripForMatchingMode() throws Exception {
-    BiFunction<TripData, SimulationPerson, TripIfc> defaultTrip = mock(BiFunction.class);
-    BiFunction<TripData, SimulationPerson, TripIfc> carTrip = mock(BiFunction.class);
-    BiFunction<TripData, SimulationPerson, TripIfc> passengerTrip = mock(BiFunction.class);
+    BiFunction<TripData, SimulationPerson, Trip> defaultTrip = mock(BiFunction.class);
+    BiFunction<TripData, SimulationPerson, Trip> carTrip = mock(BiFunction.class);
+    BiFunction<TripData, SimulationPerson, Trip> passengerTrip = mock(BiFunction.class);
     ModeToTrip modeToTrip = new ModeToTrip(defaultTrip);
     modeToTrip.add(Mode.CAR, carTrip);
     modeToTrip.add(Mode.PASSENGER, passengerTrip);

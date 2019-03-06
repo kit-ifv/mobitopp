@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -23,14 +23,15 @@ public class DefaultTripFactory implements TripFactory {
   }
 
   @Override
-  public TripIfc createTrip(
+  public Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
     BaseData tripData = createTripData(impedance, mode, previousActivity, nextActivity);
     return modeToTrip.create(mode, tripData, person);
   }
 
-  private BaseData createTripData(
+  @Override
+  public BaseData createTripData(
       ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity, ActivityIfc nextActivity) {
     assert mode != null;
     assert previousActivity != null;

@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.events;
 
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
@@ -19,7 +19,7 @@ public class TripEndingEvent extends DemandSimulationEvent {
 		super.writeRemaining(results);
     Person person = getPerson();
 
-    TripIfc trip = person.currentTrip();
+    Trip trip = person.currentTrip();
 
 		assert trip != null;
 		assert trip == getOccupation();

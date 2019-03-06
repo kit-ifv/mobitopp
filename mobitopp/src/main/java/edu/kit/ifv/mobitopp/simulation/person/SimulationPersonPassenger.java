@@ -27,7 +27,7 @@ import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.BaseData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -129,7 +129,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 	public void startActivity(
-		TripIfc previousTrip,
+		Trip previousTrip,
   	ReschedulingStrategy rescheduling,
   	Time currentDate
 	) {
@@ -142,7 +142,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	protected void driveCar(
 		Car car, 
-		TripIfc trip,
+		Trip trip,
 		ImpedanceIfc impedance
 	) {
 
@@ -202,7 +202,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Time currentDate,
 		SimulationOptions options
 	) {
-			TripIfc trip = currentTrip();
+			Trip trip = currentTrip();
 
 		assert trip != null;
 
@@ -214,7 +214,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 	protected static void offerRide(
-			RideSharingOffers rideOffers, SimulationPerson person, TripIfc trip) {
+			RideSharingOffers rideOffers, SimulationPerson person, Trip trip) {
 		rideOffers.add(trip, person);
 	}
 
@@ -298,7 +298,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		assert mode != null;
 		
 
-		TripIfc trip = createTrip(
+		Trip trip = createTrip(
 													    impedance,
 													    mode, 
 													    previousActivity, 
@@ -376,14 +376,14 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public void allocateCar(
 		ImpedanceIfc impedance,
-		TripIfc trip,
+		Trip trip,
 		Time time
 	) {
 		assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
     trip.prepareTrip(impedance, time);
 	}
 
-  protected TripIfc createTrip(
+  protected Trip createTrip(
       ImpedanceIfc impedance, Mode modeType, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
     return tripFactory.createTrip(this, impedance, modeType, previousActivity, nextActivity);
@@ -398,7 +398,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public boolean findAndAcceptBestMatchingRideOffer(
 		RideSharingOffers rideOffers,
-		TripIfc trip,
+		Trip trip,
 		int max_difference_minutes
 	) {
 
@@ -412,7 +412,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	protected RideSharingOffer findBestMatchingRideOffer(
 		RideSharingOffers rideOffers,
-		TripIfc trip,
+		Trip trip,
 		int max_minutes_late
 	) {
 
@@ -436,7 +436,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		currentActivity().changeDuration(adjustedDuration);
 
-		TripIfc modifiedTrip = changeStartTimeOfTrip(currentTrip(), currentActivity().calculatePlannedEndDate());
+		Trip modifiedTrip = changeStartTimeOfTrip(currentTrip(), currentActivity().calculatePlannedEndDate());
 
 		person().currentTrip(modifiedTrip);
 
@@ -448,7 +448,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public void revokeRideOffer(
 		RideSharingOffers rideOffers,
-		TripIfc trip,
+		Trip trip,
 		Time currentTime
 	) {
 		
@@ -457,7 +457,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		}
 	}
 
-	protected TripIfc changeStartTimeOfTrip(TripIfc trip, Time newStartTime) {
+	protected Trip changeStartTimeOfTrip(Trip trip, Time newStartTime) {
 
 		TripData modifiedTrip = new BaseData(
 																	trip.getOid(),
@@ -477,7 +477,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		ReschedulingStrategy rescheduling,
 		Time currentDate
 	) {
-			TripIfc trip = person().currentTrip();
+			Trip trip = person().currentTrip();
 
 			assert trip != null;
 
@@ -492,7 +492,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 			startActivityInternal(rescheduling, activity, currentDate, trip);
 	}
 
-	private FinishedTrip finish(Time currentDate, TripIfc trip) {
+	private FinishedTrip finish(Time currentDate, Trip trip) {
 		if (trip instanceof PublicTransportTrip) {
 			return ((PublicTransportTrip) trip).finish(currentDate, events);
 		}
@@ -508,7 +508,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		ReschedulingStrategy rescheduling,
 		ActivityIfc activity,
 		Time currentDate,
-		TripIfc precedingTrip
+		Trip precedingTrip
 	) {
 		person().startActivity(currentDate, activity, precedingTrip, rescheduling);
 		rideOfferAccepted = false;
@@ -518,7 +518,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public void selectRoute(
 		ZoneBasedRouteChoice routeChoice,
-		TripIfc trip,
+		Trip trip,
 		Time date
 	) {
 
@@ -545,7 +545,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public void startTrip(
 		ImpedanceIfc impedance,
-		TripIfc trip,
+		Trip trip,
 		Time date
 	) {
 		assert trip != null;
@@ -571,11 +571,11 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 
-	private static boolean notPublicTransport(TripIfc trip) {
+	private static boolean notPublicTransport(Trip trip) {
 		return !isPublicTransportTrip(trip);
 	}
 
-	private static boolean isPublicTransportTrip(TripIfc trip) {
+	private static boolean isPublicTransportTrip(Trip trip) {
 		return Mode.PUBLICTRANSPORT.equals(trip.mode());
 	}
 
@@ -610,7 +610,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		if (notPublicTransport(currentTrip())) {
 			return;
 		}
-		TripIfc newTrip = publicTransportBehaviour.searchNewTrip(this, time, publicTransportTrip());
+		Trip newTrip = publicTransportBehaviour.searchNewTrip(this, time, publicTransportTrip());
 		currentTrip(newTrip);
 	}
 

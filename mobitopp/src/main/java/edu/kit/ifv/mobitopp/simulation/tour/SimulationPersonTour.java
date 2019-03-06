@@ -13,7 +13,7 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -318,7 +318,7 @@ public class SimulationPersonTour
 		
 		assert mode != null;
 		
-		TripIfc trip = createTrip(
+		Trip trip = createTrip(
 																							impedance,
 																							mode, 
 																							previousActivity, 

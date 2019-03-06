@@ -44,13 +44,13 @@ public class RideSharingOffersTest {
 
 	private RideSharingOffers offers;
 
-	private TripIfc trip00;
-	private TripIfc trip05;
-	private TripIfc trip10;
-	private TripIfc trip15;
-	private TripIfc trip20;
-	private TripIfc trip25;
-	private TripIfc trip30;
+	private Trip trip00;
+	private Trip trip05;
+	private Trip trip10;
+	private Trip trip15;
+	private Trip trip20;
+	private Trip trip25;
+	private Trip trip30;
 
 	@Before
 	public void setUp() {
@@ -141,7 +141,7 @@ public class RideSharingOffersTest {
 	@Test
 	public void matchingTripsLate() {
 
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes( 0));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes( 0));
 
 		int minutes_early = 0;
 		int minutes_late = 20;
@@ -159,7 +159,7 @@ public class RideSharingOffersTest {
 	@Test
 	public void matchingTripsEarly() {
 
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes(30));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes(30));
 
 		int minutes_early = 10;
 		int minutes_late = 0;
@@ -179,7 +179,7 @@ public class RideSharingOffersTest {
 	@Test
 	public void matchingTrips() {
 
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes(10));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes(10));
 
 		int minutes_early = 5;
 		int minutes_late = 20;
@@ -196,7 +196,7 @@ public class RideSharingOffersTest {
 	
 	@Test
 	public void matchingDifferentOrigin() {
-		TripIfc request = new Trip_Stub("request", otherOrigin, destination, time);
+		Trip request = new Trip_Stub("request", otherOrigin, destination, time);
 
 		int minutes_early = 0;
 		int minutes_late = 5;
@@ -210,7 +210,7 @@ public class RideSharingOffersTest {
 	
 	@Test
 	public void matchingDifferentDestination() {
-		TripIfc request = new Trip_Stub("request", origin, otherDestination, time);
+		Trip request = new Trip_Stub("request", origin, otherDestination, time);
 		
 		int minutes_early = 0;
 		int minutes_late = 5;
@@ -224,7 +224,7 @@ public class RideSharingOffersTest {
 
 	@Test
 	public void comparator() {
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes(0));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes(0));
 
 		int minutes_early = 0;
 		int minutes_late = 30;
@@ -246,7 +246,7 @@ public class RideSharingOffersTest {
 
 	@Test
 	public void comparator2() {
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes(30));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes(30));
 
 		int minutes_early = 40;
 		int minutes_late = 30;
@@ -268,7 +268,7 @@ public class RideSharingOffersTest {
 
 	@Test
 	public void comparatorHH() {
-		TripIfc request = new Trip_Stub("request", origin, destination, time.plusMinutes( 0));
+		Trip request = new Trip_Stub("request", origin, destination, time.plusMinutes( 0));
 
 		int minutes_early = 0;
 		int minutes_late = 30;

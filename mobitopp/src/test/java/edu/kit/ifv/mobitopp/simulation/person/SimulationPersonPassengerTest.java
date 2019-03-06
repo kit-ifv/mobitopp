@@ -48,7 +48,7 @@ import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
@@ -78,7 +78,7 @@ public class SimulationPersonPassengerTest {
   private ZoneRepository zoneRepository;
   private EventQueue queue;
   private TripData tripData;
-  private TripIfc mockedTrip;
+  private Trip mockedTrip;
   private PublicTransportRoute route;
   private PublicTransportLeg singleLeg;
   private ImpedanceIfc impedance;
@@ -105,7 +105,7 @@ public class SimulationPersonPassengerTest {
     zoneRepository = mock(ZoneRepository.class);
     queue = mock(EventQueue.class);
     tripData = mock(TripData.class);
-    mockedTrip = mock(TripIfc.class);
+    mockedTrip = mock(Trip.class);
     route = mock(PublicTransportRoute.class);
     singleLeg = mock(PublicTransportLeg.class);
     impedance = mock(ImpedanceIfc.class);
@@ -189,7 +189,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
     SimulationPerson simulationPerson = newPerson();
-    TripIfc trip = createPublicTransportTrip(simulationPerson);
+    Trip trip = createPublicTransportTrip(simulationPerson);
 
     simulationPerson.boardPublicTransportVehicle(someTime());
     simulationPerson.getOffPublicTransportVehicle(someTime());
@@ -295,7 +295,7 @@ public class SimulationPersonPassengerTest {
   public void searchesANewTripWhenAsked() throws Exception {
     SimulationPerson person = newPerson();
     PublicTransportTrip trip = createPublicTransportTrip(person);
-    TripIfc newTrip = mock(TripIfc.class);
+    Trip newTrip = mock(Trip.class);
     when(boarder.searchNewTrip(person, someTime(), trip)).thenReturn(newTrip);
 
     person.changeToNewTrip(someTime());
@@ -333,7 +333,7 @@ public class SimulationPersonPassengerTest {
     when(tripFactory.createTrip(person, impedance, mode, firstActivity, nextActivity))
         .thenReturn(mockedTrip);
 
-    TripIfc trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
+    Trip trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
 
     assertEquals(mockedTrip, trip);
     
@@ -358,7 +358,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void changeStartOfPassengerTrip() {
     Time newTime = Data.oneMinuteLater();
-    TripIfc changedTrip = newPerson().changeStartTimeOfTrip(mockedTrip, newTime);
+    Trip changedTrip = newPerson().changeStartTimeOfTrip(mockedTrip, newTime);
     
     assertThat(changedTrip.startDate(), is(equalTo(newTime)));
   }

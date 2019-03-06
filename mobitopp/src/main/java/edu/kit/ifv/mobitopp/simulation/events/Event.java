@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.events;
 
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
@@ -32,12 +32,12 @@ public abstract class Event {
 	}
 
 	public static DemandSimulationEventIfc exitVehicle(
-			SimulationPerson person, TripIfc trip, Time date) {
+			SimulationPerson person, Trip trip, Time date) {
 		return new DemandSimulationEvent(0, person, trip, date);
 	}
 	
 	public static DemandSimulationEventIfc enterStartStop(
-			SimulationPerson person, TripIfc trip, Time date) {
+			SimulationPerson person, Trip trip, Time date) {
 		return new DemandSimulationEvent(10, person, trip, date);
 	}
 

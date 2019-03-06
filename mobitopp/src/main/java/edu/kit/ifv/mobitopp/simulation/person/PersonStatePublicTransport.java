@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.Event;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -65,7 +65,7 @@ public enum PersonStatePublicTransport implements PersonState {
 		@Override
 		public Optional<DemandSimulationEventIfc> nextEvent(
 				SimulationPerson person, Time currentDate) {
-			TripIfc currentTrip = person.currentTrip();
+			Trip currentTrip = person.currentTrip();
 			return Optional.of(Event.tripEnding(person, currentTrip));
 		}
 	},
@@ -199,7 +199,7 @@ public enum PersonStatePublicTransport implements PersonState {
 
 		@Override
 		public void doActionAtStart(SimulationPerson person, Time currentTime) {
-			TripIfc currentTrip = person.currentTrip();
+			Trip currentTrip = person.currentTrip();
 			person.allocateCar(person.options().impedance(), currentTrip, currentTrip.startDate());
 		}
 
@@ -225,7 +225,7 @@ public enum PersonStatePublicTransport implements PersonState {
 		
 		@Override
 		public Optional<DemandSimulationEventIfc> nextEvent(SimulationPerson person, Time currentDate) {
-			TripIfc currentTrip = person.currentTrip();
+			Trip currentTrip = person.currentTrip();
 			Function<Time, DemandSimulationEventIfc> toEvent = departure -> Event.enterStartStop(person,
 					currentTrip, departure);
 			return currentTrip.timeOfNextChange().map(toEvent);

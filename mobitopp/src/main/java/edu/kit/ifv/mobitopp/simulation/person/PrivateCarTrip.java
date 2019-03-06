@@ -11,13 +11,13 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.BaseTrip;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PrivateCarTrip extends BaseTrip implements TripIfc {
+public class PrivateCarTrip extends BaseTrip implements Trip {
 
   public PrivateCarTrip(TripData trip, SimulationPerson person) {
     super(trip, person);

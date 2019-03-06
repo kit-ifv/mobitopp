@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -69,7 +69,7 @@ public class CarSharingStationTripTest {
     setup.configureNextActivity(ActivityType.WORK);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
 
-    TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);
+    Trip privateCarTrip = new CarSharingStationTrip(trip, person);
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 
@@ -83,7 +83,7 @@ public class CarSharingStationTripTest {
     setup.configureNextActivity(ActivityType.HOME);
     when(person.releaseCar(currentTime)).thenReturn(car);
 
-    TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);
+    Trip privateCarTrip = new CarSharingStationTrip(trip, person);
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 

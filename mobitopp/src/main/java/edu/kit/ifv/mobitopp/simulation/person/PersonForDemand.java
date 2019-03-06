@@ -23,7 +23,7 @@ import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
@@ -68,7 +68,7 @@ public class PersonForDemand implements Person, Serializable {
 	/** Realised activity program **/
   private transient ModifiableActivityScheduleWithState activitySchedule; 
 
-	private transient TripIfc currentTrip; 
+	private transient Trip currentTrip; 
 
 	private PrivateCar personalCar = null;
 
@@ -361,7 +361,7 @@ public class PersonForDemand implements Person, Serializable {
 	public void startActivity(
 			Time currentDate, 
 			ActivityIfc activity, 
-			TripIfc precedingTrip,
+			Trip precedingTrip,
 			ReschedulingStrategy rescheduling
 		) {
 			
@@ -392,11 +392,11 @@ public class PersonForDemand implements Person, Serializable {
 		return homeActivity;
 	}
 
-	public TripIfc currentTrip() {
+	public Trip currentTrip() {
 		return this.currentTrip;
 	}
 
-	public void currentTrip(TripIfc trip) {
+	public void currentTrip(Trip trip) {
 		this.currentTrip=trip;
 	}
 

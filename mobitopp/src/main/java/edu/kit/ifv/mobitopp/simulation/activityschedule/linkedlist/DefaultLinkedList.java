@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist;
 
 import java.io.Serializable;
 
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 
 public class DefaultLinkedList 
 	implements Serializable 
@@ -87,11 +87,11 @@ public class DefaultLinkedList
 	
 		LinkedListElement elem = activity.next();
 	
-		if (elem instanceof TripIfc) {
+		if (elem instanceof Trip) {
 			elem = elem.next();
 		}
 	
-		assert !(elem instanceof TripIfc);
+		assert !(elem instanceof Trip);
 	
 		return elem;
 	}

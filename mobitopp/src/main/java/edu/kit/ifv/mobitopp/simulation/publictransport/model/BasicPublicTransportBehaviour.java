@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
@@ -107,7 +107,7 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	protected abstract boolean hasPlaceInVehicle(Vehicles vehicles, PublicTransportLeg leg);
 
 	@Override
-	public void board(SimulationPerson person, Time time, PublicTransportLeg leg, TripIfc trip) {
+	public void board(SimulationPerson person, Time time, PublicTransportLeg leg, Trip trip) {
 		Vehicle vehicle = vehicleServing(leg);
 		logCrowded(vehicle, leg);
 		vehicle.board(person, leg.end());
@@ -123,21 +123,21 @@ public abstract class BasicPublicTransportBehaviour implements VehicleBehaviour 
 	}
 
 	@Override
-	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 		vehicleServing(part).getOff(person);
 		results.getOff(person, time, part, trip);
 		enterWaitingArea(person, part.end());
 	}
 
 	@Override
-	public TripIfc searchNewTrip(
+	public Trip searchNewTrip(
 			SimulationPerson person, Time time, PublicTransportTrip trip) {
 		results.searchNewTrip(person, time, trip);
 		return trip.derive(time, viaRouteSearch);
 	}
 
 	@Override
-	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 		results.wait(person, time, part, trip);
 	}
 

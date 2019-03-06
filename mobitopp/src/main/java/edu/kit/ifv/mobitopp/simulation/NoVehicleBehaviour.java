@@ -33,21 +33,21 @@ public class NoVehicleBehaviour implements VehicleBehaviour {
 	}
 
 	@Override
-	public void board(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void board(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 	}
 
 	@Override
-	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 	}
 
 	@Override
-	public TripIfc searchNewTrip(
+	public Trip searchNewTrip(
 			SimulationPerson person, Time time, PublicTransportTrip trip) {
 		return trip;
 	}
 
 	@Override
-	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 	}
 
 	@Override

@@ -19,7 +19,7 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
@@ -186,11 +186,11 @@ public class PersonDecorator
 		return person().nextHomeActivity();
 	}
 
-	public TripIfc currentTrip() {
+	public Trip currentTrip() {
 		return person().currentTrip();
 	}
 
-	public void currentTrip(TripIfc trip) {
+	public void currentTrip(Trip trip) {
   	person().currentTrip(trip);
 	}
 
@@ -227,7 +227,7 @@ public class PersonDecorator
 	}
 
 	@Override
-	public void startActivity(Time currentDate, ActivityIfc activity, TripIfc precedingTrip,
+	public void startActivity(Time currentDate, ActivityIfc activity, Trip precedingTrip,
 			ReschedulingStrategy rescheduling) {
 		person().startActivity(currentDate, activity, precedingTrip, rescheduling);
 	}

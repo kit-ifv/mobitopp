@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public interface PublicTransportBehaviour {
@@ -12,13 +12,13 @@ public interface PublicTransportBehaviour {
 
 	boolean hasPlaceInVehicle(PublicTransportLeg leg);
 	
-	void board(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
+	void board(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip);
 
-	void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
+	void getOff(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip);
 
-	TripIfc searchNewTrip(SimulationPerson person, Time someDate, PublicTransportTrip trip);
+	Trip searchNewTrip(SimulationPerson person, Time someDate, PublicTransportTrip trip);
 
-	void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip);
+	void wait(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip);
 
 	void enterWaitingArea(SimulationPerson person, Stop stop);
 

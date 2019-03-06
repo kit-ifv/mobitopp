@@ -9,11 +9,11 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.BaseTrip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PublicTransportTrip extends BaseTrip implements TripIfc {
+public class PublicTransportTrip extends BaseTrip implements Trip {
 
 	private final Optional<PublicTransportRoute> route;
 	private final List<PublicTransportLeg> legs;
@@ -74,14 +74,14 @@ public class PublicTransportTrip extends BaseTrip implements TripIfc {
 		return legs.size() - 1;
 	}
 
-	public TripIfc derive(Time currentTime, RouteSearch routeSearch) {
+	public Trip derive(Time currentTime, RouteSearch routeSearch) {
 		if (lastLeg().isPresent()) {
 			return deriveToEnd(currentTime, routeSearch);
 		}
 		return this;
 	}
 
-	private TripIfc deriveToEnd(Time currentTime, RouteSearch routeSearch) {
+	private Trip deriveToEnd(Time currentTime, RouteSearch routeSearch) {
 		Optional<PublicTransportRoute> tour = currentLeg()
 				.flatMap(part -> searchNewTour(routeSearch, part, currentTime));
 		return PublicTransportTrip.of(this, person(), publicTransportBehaviour, tour);

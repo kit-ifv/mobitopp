@@ -7,7 +7,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
-public class Trip_Stub implements TripData, TripIfc
+public class Trip_Stub implements TripData, Trip
 {
 
 	private final String name; 

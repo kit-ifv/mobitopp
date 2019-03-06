@@ -70,8 +70,8 @@ public interface Person {
 	ActivityIfc currentActivity();
 	ActivityIfc nextActivity();
 	ActivityIfc nextHomeActivity();
-	TripIfc currentTrip();
-	void currentTrip(TripIfc trip);
+	Trip currentTrip();
+	void currentTrip(Trip trip);
 
 	void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
 
@@ -80,7 +80,7 @@ public interface Person {
 
 	String forLogging(ImpedanceIfc impedance);
 	Stream<FixedDestination> getFixedDestinations();
-	void startActivity(Time currentDate, ActivityIfc activity, TripIfc precedingTrip,
+	void startActivity(Time currentDate, ActivityIfc activity, Trip precedingTrip,
 			ReschedulingStrategy rescheduling);
 	
 	PersonAttributes attributes();
