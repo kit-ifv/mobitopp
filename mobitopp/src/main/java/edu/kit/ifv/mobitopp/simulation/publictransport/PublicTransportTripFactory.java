@@ -7,7 +7,7 @@ import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportTrip;
@@ -29,7 +29,7 @@ public class PublicTransportTripFactory implements TripFactory {
   }
 
   @Override
-  public TripIfc createTrip(
+  public Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
     if (Mode.PUBLICTRANSPORT.equals(mode)) {
@@ -38,7 +38,7 @@ public class PublicTransportTripFactory implements TripFactory {
     return base.createTrip(person, impedance, mode, previousActivity, nextActivity);
   }
 
-  private TripIfc doCreateTrip(
+  private Trip doCreateTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
     int sourceZoneOid = previousActivity.zone().getOid();
@@ -57,7 +57,7 @@ public class PublicTransportTripFactory implements TripFactory {
         .map(Long::intValue)
         .orElse(matrixDuration);
     duration = Math.max(1, duration);
-    TripData trip = new BaseData(base.nextTripId(), mode, previousActivity, nextActivity,
+    TripData trip = new BaseData(nextTripId(), mode, previousActivity, nextActivity,
         (short) duration);
     return PublicTransportTrip.of(trip, person, publicTransportBehaviour, route);
   }
@@ -72,7 +72,12 @@ public class PublicTransportTripFactory implements TripFactory {
 
   @Override
   public int nextTripId() {
-    return 0;
+    return base.nextTripId();
+  }
+
+  @Override
+  public TripData createTripData(ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity, ActivityIfc nextActivity) {
+    return base.createTripData(impedance, mode, previousActivity, nextActivity);
   }
 
 }

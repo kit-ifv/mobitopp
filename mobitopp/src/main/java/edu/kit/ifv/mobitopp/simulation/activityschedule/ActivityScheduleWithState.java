@@ -1,12 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 
 public interface ActivityScheduleWithState extends ActivitySchedule {
 
-	void setCurrentTrip(TripIfc trip);
+	void setCurrentTrip(Trip trip);
 
-	TripIfc currentTrip();
+	Trip currentTrip();
 
 	void startActivity(ActivityIfc activity);
 

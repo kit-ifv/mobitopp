@@ -19,7 +19,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportTrip;
@@ -75,7 +75,7 @@ public class PublicTransportTripFactoryTest {
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
 
     TripFactory factory = new PublicTransportTripFactory(base, publicTransportBehaviour);
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
     assertEquals(oid, trip.getOid());

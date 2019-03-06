@@ -73,27 +73,27 @@ public class PublicTransportWriter implements PublicTransportResults {
 	}
 
 	@Override
-	public void board(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void board(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 		Stop stop = part.start();
 		writePassenger(board, person, time, stop, part, trip);
 	}
 
 	@Override
-	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void getOff(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 		Stop stop = part.end();
 		writePassenger(getOff, person, time, stop, part, trip);
 		writeRouteLeg(person, part);
 	}
 
 	@Override
-	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, TripIfc trip) {
+	public void wait(SimulationPerson person, Time time, PublicTransportLeg part, Trip trip) {
 		Stop stop = part.start();
 		writePassenger(wait, person, time, stop, part, trip);
 	}
 
 	public void writePassenger(
 			PassengerEvent event, Person person, Time time, Stop stop, PublicTransportLeg part,
-			TripIfc trip) {
+			Trip trip) {
 		int tripId = trip.getOid();
 		int personOid = person.getOid();
 		int journeyId = part.journeyId();

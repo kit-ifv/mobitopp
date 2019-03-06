@@ -101,8 +101,8 @@ public class Person_Stub
 	public ActivityIfc currentActivity() { return null; }
 	public ActivityIfc nextActivity() { return null; }
 	public ActivityIfc nextHomeActivity() { return nextHomeActivity; }
-	public TripIfc currentTrip() { return null; }
-	public void currentTrip(TripIfc trip) { }
+	public Trip currentTrip() { return null; }
+	public void currentTrip(Trip trip) { }
 
 	public PersonState getState() { return null; }
 
@@ -126,7 +126,7 @@ public class Person_Stub
   	return Stream.empty();
   }
 
-	public void startActivity(Time currentDate, ActivityIfc activity, TripIfc precedingTrip,	ReschedulingStrategy rescheduling) {}
+	public void startActivity(Time currentDate, ActivityIfc activity, Trip precedingTrip,	ReschedulingStrategy rescheduling) {}
 
 	@Override
 	public Car parkCar(Zone zone, Location location, Time time) {

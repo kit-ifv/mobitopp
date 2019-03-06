@@ -4,7 +4,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
@@ -20,8 +20,8 @@ public interface SimulationPerson
 
 		
 	public ActivityIfc currentActivity();
-	public TripIfc currentTrip();
-	public void currentTrip(TripIfc trip);
+	public Trip currentTrip();
+	public void currentTrip(Trip trip);
 
 	public boolean hasNextActivity();
 	public ActivityIfc nextActivity();
@@ -37,7 +37,7 @@ public interface SimulationPerson
 
 	public void startTrip(
 		ImpedanceIfc impedance,
-		TripIfc trip,
+		Trip trip,
 		Time date
 	);
 
@@ -48,7 +48,7 @@ public interface SimulationPerson
 	);
 
 	public void startActivity(
-		TripIfc previousTrip,
+		Trip previousTrip,
   	ReschedulingStrategy rescheduling,
   	Time currentDate
 	);
@@ -69,26 +69,26 @@ public interface SimulationPerson
 
 	public void revokeRideOffer(
 		RideSharingOffers rideOffers,
-		TripIfc trip,
+		Trip trip,
 		Time currentTime
 	);
 
 	public boolean findAndAcceptBestMatchingRideOffer(
 		RideSharingOffers rideOffers,
-		TripIfc trip,
+		Trip trip,
 		int max_difference_minutes
 	);
 
 
 	public void selectRoute(
 		ZoneBasedRouteChoice routeChoice,
-		TripIfc trip,
+		Trip trip,
 		Time date
 	);
 
 	public  void allocateCar(
 		ImpedanceIfc impedance,
-		TripIfc trip,
+		Trip trip,
 		Time time
 	);
 

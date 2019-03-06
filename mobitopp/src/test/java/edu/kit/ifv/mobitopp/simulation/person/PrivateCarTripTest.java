@@ -18,7 +18,7 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -52,7 +52,7 @@ public class PrivateCarTripTest {
   @Test
   void allocateVehicle() throws Exception {
     setup.configureCurrentActivity(ActivityType.HOME);
-    TripIfc carTrip = new PrivateCarTrip(trip, person);
+    Trip carTrip = new PrivateCarTrip(trip, person);
 
     carTrip.prepareTrip(impedance, currentTime);
 
@@ -64,7 +64,7 @@ public class PrivateCarTripTest {
     when(person.hasParkedCar()).thenReturn(true);
     when(person.isCarDriver()).thenReturn(false);
     setup.configureCurrentActivity(ActivityType.WORK);
-    TripIfc carTrip = new PrivateCarTrip(trip, person);
+    Trip carTrip = new PrivateCarTrip(trip, person);
 
     carTrip.prepareTrip(impedance, currentTime);
 
@@ -79,7 +79,7 @@ public class PrivateCarTripTest {
     when(person.whichCar()).thenReturn(car);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
 
-    TripIfc privateCarTrip = new PrivateCarTrip(trip, person);
+    Trip privateCarTrip = new PrivateCarTrip(trip, person);
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 
@@ -96,7 +96,7 @@ public class PrivateCarTripTest {
     when(person.whichCar()).thenReturn(car);
     when(person.releaseCar(currentTime)).thenReturn(car);
 
-    TripIfc privateCarTrip = new PrivateCarTrip(trip, person);
+    Trip privateCarTrip = new PrivateCarTrip(trip, person);
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 

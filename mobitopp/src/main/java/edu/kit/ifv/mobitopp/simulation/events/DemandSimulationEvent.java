@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.events;
 import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.time.DateFormat;
@@ -148,7 +148,7 @@ public class DemandSimulationEvent
 	public String toString() {
 		String date = new DateFormat().asFullDate(getSimulationDate());
 		return "[" + priority + ": " + getPersonOid() + "," + getOccupationOid() + ", "
-				+ (getOccupation() instanceof TripIfc ? "T" : "A") + ", " + date;
+				+ (getOccupation() instanceof Trip ? "T" : "A") + ", " + date;
 	}
 
 }

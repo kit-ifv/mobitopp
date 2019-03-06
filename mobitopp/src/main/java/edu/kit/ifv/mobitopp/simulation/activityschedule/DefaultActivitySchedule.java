@@ -9,7 +9,7 @@ import java.io.Serializable;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
@@ -40,16 +40,16 @@ public class DefaultActivitySchedule
 	}
 
 
-	public void setCurrentTrip(TripIfc trip) {
+	public void setCurrentTrip(Trip trip) {
 
 		this.currentOccupation = trip;		
 	}
 
-	public TripIfc currentTrip() {
+	public Trip currentTrip() {
 
-		assert this.currentOccupation instanceof TripIfc : this.currentOccupation;
+		assert this.currentOccupation instanceof Trip : this.currentOccupation;
 
-		return (TripIfc) this.currentOccupation;
+		return (Trip) this.currentOccupation;
 	}
 
 	public void startActivity(ActivityIfc activity) {

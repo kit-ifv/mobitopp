@@ -19,7 +19,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -62,7 +62,7 @@ public class DefaultTripFactoryTest {
     use(mode);
 
     TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PassengerTrip.class)));
     verifyStandardAttributes(mode, trip);
@@ -78,7 +78,7 @@ public class DefaultTripFactoryTest {
     use(mode);
 
     TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PrivateCarTrip.class)));
     verifyStandardAttributes(mode, trip);
@@ -90,7 +90,7 @@ public class DefaultTripFactoryTest {
     use(mode);
 
     TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(CarSharingStationTrip.class)));
     verifyStandardAttributes(mode, trip);
@@ -102,7 +102,7 @@ public class DefaultTripFactoryTest {
     use(mode);
 
     TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(CarSharingFreeFloatingTrip.class)));
     verifyStandardAttributes(mode, trip);
@@ -118,13 +118,13 @@ public class DefaultTripFactoryTest {
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
 
     TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(NoActionTrip.class)));
     verifyStandardAttributes(mode, trip);
   }
 
-  private void verifyStandardAttributes(Mode mode, TripIfc trip) {
+  private void verifyStandardAttributes(Mode mode, Trip trip) {
     assertEquals(oid, trip.getOid());
     assertEquals(previousActivity, trip.previousActivity());
     assertEquals(nextActivity, trip.nextActivity());

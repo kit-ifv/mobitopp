@@ -17,7 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -70,7 +70,7 @@ public class CarSharingFreeFloatingTripTest {
     configureCarUsage();
     configureFreeFloatingZone(true);
 
-    TripIfc privateCarTrip = newTrip();
+    Trip privateCarTrip = newTrip();
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 
@@ -86,7 +86,7 @@ public class CarSharingFreeFloatingTripTest {
     configureCarUsage();
     configureFreeFloatingZone(false);
 
-    TripIfc privateCarTrip = newTrip();
+    Trip privateCarTrip = newTrip();
 
     FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
 

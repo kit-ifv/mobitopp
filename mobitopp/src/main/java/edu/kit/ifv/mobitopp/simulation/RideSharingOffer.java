@@ -8,13 +8,13 @@ public class RideSharingOffer {
 
 	public final Person person;
 	public final Car car;
-	public final TripIfc trip;
+	public final Trip trip;
 
 
 	public RideSharingOffer(
 		Person person,
 		Car car,
-		TripIfc trip
+		Trip trip
 	) {
 		this.person = person;
 		this.car = car;

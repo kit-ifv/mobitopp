@@ -8,14 +8,14 @@ public class RideSharingOffers {
 	protected RideSharingOfferStorage offers = new RideSharingOfferStorage();
 
 
-	public void add(TripIfc trip, Person person) {
+	public void add(Trip trip, Person person) {
 
 		assert person.isCarDriver();
 
 		offers.put(trip, new RideSharingOffer(person, person.whichCar(), trip));
 	}
 
-	public void remove(TripIfc trip, Person person) {
+	public void remove(Trip trip, Person person) {
 
 		assert offers.get(trip) != null;
 		assert offers.get(trip).person == person;
@@ -24,14 +24,14 @@ public class RideSharingOffers {
 	}
 
 	public List<RideSharingOffer> matchingTrips(
-		TripIfc request, 
+		Trip request, 
 		int max_minutes_early,
 		int max_minutes_late
 	) {
 
 		List<RideSharingOffer> matching = new ArrayList<RideSharingOffer>();
 
-		for (TripIfc trip : offers.keySet(request)) {
+		for (Trip trip : offers.keySet(request)) {
 
 			int tripToOffer = Math.toIntExact(trip.startDate().differenceTo(request.startDate()).toMinutes());
 			if (trip.origin().zone().getOid() == request.origin().zone().getOid()
