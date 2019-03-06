@@ -10,10 +10,16 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class DefaultTripFactory implements TripFactory {
 
   private int tripCount;
+  private final ModeToTrip modeToTrip;
 
-  public DefaultTripFactory() {
+  public DefaultTripFactory(ModeToTrip modeToTrip) {
     super();
     tripCount = 0;
+    this.modeToTrip = modeToTrip;
+  }
+
+  public DefaultTripFactory() {
+    this(ModeToTrip.createDefault());
   }
 
   @Override
@@ -21,24 +27,7 @@ public class DefaultTripFactory implements TripFactory {
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
     BaseData tripData = createTripData(impedance, mode, previousActivity, nextActivity);
-
-    if (Mode.CAR.equals(mode)) {
-      return new PrivateCarTrip(tripData, person);
-    }
-
-    if (Mode.CARSHARING_STATION.equals(mode)) {
-      return new CarSharingStationTrip(tripData, person);
-    }
-
-    if (Mode.CARSHARING_FREE.equals(mode)) {
-      return new CarSharingFreeFloatingTrip(tripData, person);
-    }
-
-    if (Mode.PASSENGER.equals(mode)) {
-      return new PassengerTrip(tripData, person);
-    }
-
-    return new NoActionTrip(tripData, person);
+    return modeToTrip.create(mode, tripData, person);
   }
 
   private BaseData createTripData(
