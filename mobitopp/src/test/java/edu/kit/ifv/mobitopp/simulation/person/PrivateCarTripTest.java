@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,7 @@ public class PrivateCarTripTest {
   private Zone zone;
   private TripIfc trip;
   private Location location;
+  private PersonResults results;
 
   @BeforeEach
   public void initialise() {
@@ -41,6 +43,7 @@ public class PrivateCarTripTest {
     zone = setup.zone;
     location = setup.location;
     currentTime = setup.currentTime;
+    results = mock(PersonResults.class);
     when(trip.mode()).thenReturn(Mode.CAR);
   }
 
@@ -65,11 +68,10 @@ public class PrivateCarTripTest {
 
     verify(person).takeCarFromParking();
   }
-
+  
   @Test
   void parkCarAtWork() throws Exception {
     FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     setup.configureActivity(ActivityType.HOME);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.WORK);
     when(trip.nextActivity()).thenReturn(nextActivity);
@@ -90,7 +92,6 @@ public class PrivateCarTripTest {
   @Test
   void returnCarAtHome() throws Exception {
     FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    PersonResults results = mock(PersonResults.class);
     setup.configureActivity(ActivityType.WORK);
     ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
     when(trip.nextActivity()).thenReturn(nextActivity);
@@ -107,6 +108,14 @@ public class PrivateCarTripTest {
     verify(person).releaseCar(currentTime);
     verify(car).returnCar(zone);
     verify(results).notifyFinishCarTrip(person, car, trip, nextActivity);
+  }
+  
+  @Test
+  void failsWhenFinishingACarTripWithoutBeingADriver() throws Exception {
+    when(person.isCarDriver()).thenReturn(false);
+    PrivateCarTrip privateCarTrip = new PrivateCarTrip(trip, person);
+    
+    assertThrows(IllegalStateException.class, () -> privateCarTrip.finish(currentTime, results));
   }
   
 }
