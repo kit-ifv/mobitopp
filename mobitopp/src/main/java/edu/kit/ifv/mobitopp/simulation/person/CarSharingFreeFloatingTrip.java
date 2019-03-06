@@ -17,7 +17,7 @@ public class CarSharingFreeFloatingTrip extends TripDecorator implements TripIfc
   }
 
   @Override
-  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
+  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
     Zone zone = person().currentActivity().zone();
     if (person().isCarDriver()) {
       usePreviouslyBookedCar(zone);

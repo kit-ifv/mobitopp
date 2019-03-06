@@ -15,7 +15,6 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -52,12 +51,12 @@ public class CarSharingStationTripTest {
   @Test
   void allocateVehicle() throws Exception {
     CarSharingCar carSharingCar = mock(CarSharingCar.class);
-    setup.configureActivity(ActivityType.HOME);
+    setup.configureCurrentActivity(ActivityType.HOME);
     when(carSharingData.isStationBasedCarSharingCarAvailable(person)).thenReturn(true);
     when(carSharingData.bookStationBasedCar(person)).thenReturn(carSharingCar);
     CarSharingStationTrip carSharingTrip = new CarSharingStationTrip(trip, person);
 
-    carSharingTrip.allocateVehicle(impedance, currentTime);
+    carSharingTrip.prepareTrip(impedance, currentTime);
 
     verify(person).useCar(carSharingCar, currentTime);
     verify(carSharingData).bookStationBasedCar(person);
@@ -65,9 +64,8 @@ public class CarSharingStationTripTest {
 
   @Test
   void parkCarAtWork() throws Exception {
-    setup.configureActivity(ActivityType.HOME);
-    ActivityIfc nextActivity = setup.createActivity(ActivityType.WORK);
-    when(trip.nextActivity()).thenReturn(nextActivity);
+    setup.configureCurrentActivity(ActivityType.HOME);
+    setup.configureNextActivity(ActivityType.WORK);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
 
     TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);
@@ -80,9 +78,8 @@ public class CarSharingStationTripTest {
 
   @Test
   void returnCarAtHome() throws Exception {
-    setup.configureActivity(ActivityType.WORK);
-    ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
-    when(trip.nextActivity()).thenReturn(nextActivity);
+    setup.configureCurrentActivity(ActivityType.WORK);
+    setup.configureNextActivity(ActivityType.HOME);
     when(person.releaseCar(currentTime)).thenReturn(car);
 
     TripIfc privateCarTrip = new CarSharingStationTrip(trip, person);

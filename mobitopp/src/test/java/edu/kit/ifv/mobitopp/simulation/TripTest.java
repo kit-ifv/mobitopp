@@ -58,7 +58,7 @@ public class TripTest {
   @Test
   void doesNothingToStartATrip() throws Exception {
     ImpedanceIfc impedance = mock(ImpedanceIfc.class);
-    trip.allocateVehicle(impedance, startOfTrip);
+    trip.prepareTrip(impedance, startOfTrip);
 
     verifyZeroInteractions(impedance);
     verify(previousActivity).calculatePlannedEndDate();

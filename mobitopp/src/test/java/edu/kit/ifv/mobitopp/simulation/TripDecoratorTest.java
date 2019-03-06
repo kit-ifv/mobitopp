@@ -47,9 +47,9 @@ public class TripDecoratorTest {
   void startTrip() throws Exception {
     ImpedanceIfc impedance = mock(ImpedanceIfc.class);
     Time currentTime = mock(Time.class);
-    decorator.allocateVehicle(impedance, currentTime);
+    decorator.prepareTrip(impedance, currentTime);
     
-    verify(trip).allocateVehicle(impedance, currentTime);
+    verify(trip).prepareTrip(impedance, currentTime);
   }
   
   @Test

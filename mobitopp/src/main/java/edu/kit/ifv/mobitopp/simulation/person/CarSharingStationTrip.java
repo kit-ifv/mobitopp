@@ -17,7 +17,7 @@ public class CarSharingStationTrip extends TripDecorator implements TripIfc {
   }
   
   @Override
-  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
+  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
     if (person().currentActivity().activityType().isHomeActivity()) {
       allocateCar(currentTime);
     }

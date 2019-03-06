@@ -62,7 +62,7 @@ public class TripSetup {
     return setup;
   }
 
-  public void configureActivity(ActivityType type) {
+  public void configureCurrentActivity(ActivityType type) {
     ActivityIfc activity = createActivity(type);
     when(person.currentActivity()).thenReturn(activity);
     when(trip.previousActivity()).thenReturn(activity);
@@ -74,5 +74,11 @@ public class TripSetup {
     when(activity.zone()).thenReturn(zone);
     when(activity.location()).thenReturn(zone.centroidLocation());
     return activity;
+  }
+
+  public ActivityIfc configureNextActivity(ActivityType type) {
+    ActivityIfc nextActivity = createActivity(type);
+    when(trip.nextActivity()).thenReturn(nextActivity);
+    return nextActivity;
   }
 }

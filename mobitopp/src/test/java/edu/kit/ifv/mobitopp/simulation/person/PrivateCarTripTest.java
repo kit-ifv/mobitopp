@@ -48,10 +48,10 @@ public class PrivateCarTripTest {
 
   @Test
   void allocateVehicle() throws Exception {
-    setup.configureActivity(ActivityType.HOME);
+    setup.configureCurrentActivity(ActivityType.HOME);
     TripIfc carTrip = new PrivateCarTrip(trip, person);
 
-    carTrip.allocateVehicle(impedance, currentTime);
+    carTrip.prepareTrip(impedance, currentTime);
 
     verify(person).useCar(car, currentTime);
   }
@@ -60,19 +60,18 @@ public class PrivateCarTripTest {
   void usesParkedCar() throws Exception {
     when(person.hasParkedCar()).thenReturn(true);
     when(person.isCarDriver()).thenReturn(false);
-    setup.configureActivity(ActivityType.WORK);
+    setup.configureCurrentActivity(ActivityType.WORK);
     TripIfc carTrip = new PrivateCarTrip(trip, person);
 
-    carTrip.allocateVehicle(impedance, currentTime);
+    carTrip.prepareTrip(impedance, currentTime);
 
     verify(person).takeCarFromParking();
   }
   
   @Test
   void parkCarAtWork() throws Exception {
-    setup.configureActivity(ActivityType.HOME);
-    ActivityIfc nextActivity = setup.createActivity(ActivityType.WORK);
-    when(trip.nextActivity()).thenReturn(nextActivity);
+    setup.configureCurrentActivity(ActivityType.HOME);
+    ActivityIfc nextActivity = setup.configureNextActivity(ActivityType.WORK);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
@@ -88,9 +87,8 @@ public class PrivateCarTripTest {
   
   @Test
   void returnCarAtHome() throws Exception {
-    setup.configureActivity(ActivityType.WORK);
-    ActivityIfc nextActivity = setup.createActivity(ActivityType.HOME);
-    when(trip.nextActivity()).thenReturn(nextActivity);
+    setup.configureCurrentActivity(ActivityType.WORK);
+    ActivityIfc nextActivity = setup.configureNextActivity(ActivityType.HOME);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);
     when(person.releaseCar(currentTime)).thenReturn(car);

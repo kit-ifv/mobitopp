@@ -78,8 +78,8 @@ public class TripDecorator implements TripIfc {
   }
 
   @Override
-  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
-    trip.allocateVehicle(impedance, currentTime);
+  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
+    trip.prepareTrip(impedance, currentTime);
   }
 
   @Override
