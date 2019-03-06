@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
@@ -23,7 +23,7 @@ public class TripSetup {
   final SimulationPerson person;
   final Time currentTime;
   final PrivateCar car;
-  final TripIfc trip;
+  final TripData tripData;
   final Zone zone;
   final Location location;
   final FinishedTrip finishedSuper;
@@ -35,7 +35,7 @@ public class TripSetup {
     impedance = mock(ImpedanceIfc.class);
     person = mock(SimulationPerson.class);
     car = mock(PrivateCar.class);
-    trip = mock(TripIfc.class);
+    tripData = mock(TripData.class);
     finishedSuper = mock(FinishedTrip.class);
     results = mock(PersonResults.class);
     zone = ExampleZones.create().someZone();
@@ -51,9 +51,8 @@ public class TripSetup {
     when(household.takeAvailableCar(person, distanceKm)).thenReturn(car);
     when(person.household()).thenReturn(household);
     when(impedance.getDistance(anyInt(), anyInt())).thenReturn(distance);
-    when(trip.origin()).thenReturn(zoneAndLocation);
-    when(trip.destination()).thenReturn(zoneAndLocation);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
+    when(tripData.origin()).thenReturn(zoneAndLocation);
+    when(tripData.destination()).thenReturn(zoneAndLocation);
   }
 
   public static TripSetup create() {
@@ -65,7 +64,7 @@ public class TripSetup {
   public void configureCurrentActivity(ActivityType type) {
     ActivityIfc activity = createActivity(type);
     when(person.currentActivity()).thenReturn(activity);
-    when(trip.previousActivity()).thenReturn(activity);
+    when(tripData.previousActivity()).thenReturn(activity);
   }
 
   public ActivityIfc createActivity(ActivityType type) {
@@ -78,7 +77,7 @@ public class TripSetup {
 
   public ActivityIfc configureNextActivity(ActivityType type) {
     ActivityIfc nextActivity = createActivity(type);
-    when(trip.nextActivity()).thenReturn(nextActivity);
+    when(tripData.nextActivity()).thenReturn(nextActivity);
     return nextActivity;
   }
 }

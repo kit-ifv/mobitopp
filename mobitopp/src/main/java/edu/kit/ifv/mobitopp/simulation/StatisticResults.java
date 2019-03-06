@@ -31,7 +31,7 @@ public class StatisticResults implements PersonResults {
 	}
 
 	@Override
-	public void notifyFinishCarTrip(Person person, Car car, TripIfc trip, ActivityIfc activity) {
+	public void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity) {
 		other.notifyFinishCarTrip(person, car, trip, activity);
 	}
 
@@ -41,7 +41,7 @@ public class StatisticResults implements PersonResults {
 	}
 
 	@Override
-	public void notifySelectCarRoute(Person person, Car car, TripIfc trip, Path route) {
+	public void notifySelectCarRoute(Person person, Car car, TripData trip, Path route) {
 		other.notifySelectCarRoute(person, car, trip, route);
 	}
 

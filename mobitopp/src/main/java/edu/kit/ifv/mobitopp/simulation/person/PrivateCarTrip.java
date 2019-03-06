@@ -9,16 +9,17 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripDecorator;
+import edu.kit.ifv.mobitopp.simulation.TripData;
+import edu.kit.ifv.mobitopp.simulation.BaseTrip;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PrivateCarTrip extends TripDecorator implements TripIfc {
+public class PrivateCarTrip extends BaseTrip implements TripIfc {
 
-  public PrivateCarTrip(TripIfc trip, SimulationPerson person) {
+  public PrivateCarTrip(TripData trip, SimulationPerson person) {
     super(trip, person);
   }
 
@@ -58,10 +59,10 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
   }
 
   private FinishedTrip doFinish(Time currentDate, PersonResults results) {
-    int carId = stopCar(currentDate);
-    notifyFinishCarTrip(results);
-    returnCar(currentDate);
     FinishedTrip finishedTrip = super.finish(currentDate, results);
+    int carId = stopCar(currentDate);
+    notifyFinishCarTrip(results, finishedTrip);
+    returnCar(currentDate);
     return new FinishedCarTrip(finishedTrip, carId);
   }
 
@@ -77,10 +78,10 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
     return car.id();
   }
 
-  private void notifyFinishCarTrip(PersonResults results) {
+  private void notifyFinishCarTrip(PersonResults results, FinishedTrip finishedTrip) {
     ActivityIfc prevActivity = trip().previousActivity();
     assert prevActivity != null;
-    results.notifyFinishCarTrip(person(), person().whichCar(), trip(), nextActivity());
+    results.notifyFinishCarTrip(person(), person().whichCar(), finishedTrip, nextActivity());
   }
 
   private void returnCar(Time currentDate) {

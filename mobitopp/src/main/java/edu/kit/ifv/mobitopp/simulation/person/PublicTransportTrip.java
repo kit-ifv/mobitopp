@@ -7,12 +7,13 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.TripDecorator;
+import edu.kit.ifv.mobitopp.simulation.BaseTrip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PublicTransportTrip extends TripDecorator implements TripIfc {
+public class PublicTransportTrip extends BaseTrip implements TripIfc {
 
 	private final Optional<PublicTransportRoute> route;
 	private final List<PublicTransportLeg> legs;
@@ -20,7 +21,7 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
   private PublicTransportBehaviour publicTransportBehaviour;
 
   PublicTransportTrip(
-      TripIfc trip, SimulationPerson person,
+      TripData trip, SimulationPerson person,
       PublicTransportBehaviour publicTransportBehaviour,
       Optional<PublicTransportRoute> route, List<PublicTransportLeg> legs) {
 	  super(trip, person);
@@ -30,7 +31,7 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
   }
 
   public static PublicTransportTrip of(
-      TripIfc trip, SimulationPerson person, PublicTransportBehaviour publicTransportBehaviour,
+      TripData trip, SimulationPerson person, PublicTransportBehaviour publicTransportBehaviour,
       Optional<PublicTransportRoute> route) {
 		List<PublicTransportLeg> legs = route
 				.map(RouteSplitter::splitInParts)

@@ -7,9 +7,10 @@ import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
 import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.another;
 import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.some;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -33,6 +34,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
+import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -45,6 +47,7 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -74,6 +77,7 @@ public class SimulationPersonPassengerTest {
   private Zone zone;
   private ZoneRepository zoneRepository;
   private EventQueue queue;
+  private TripData tripData;
   private TripIfc mockedTrip;
   private PublicTransportRoute route;
   private PublicTransportLeg singleLeg;
@@ -100,6 +104,7 @@ public class SimulationPersonPassengerTest {
     zone = mock(Zone.class);
     zoneRepository = mock(ZoneRepository.class);
     queue = mock(EventQueue.class);
+    tripData = mock(TripData.class);
     mockedTrip = mock(TripIfc.class);
     route = mock(PublicTransportRoute.class);
     singleLeg = mock(PublicTransportLeg.class);
@@ -111,7 +116,7 @@ public class SimulationPersonPassengerTest {
   }
 
   private PublicTransportTrip createPublicTransportTrip(SimulationPerson person) {
-    PublicTransportTrip trip = new PublicTransportTrip(mockedTrip, person, boarder,
+    PublicTransportTrip trip = new PublicTransportTrip(tripData, person, boarder,
         Optional.of(route), asList(singleLeg));
     when(person.currentTrip()).thenReturn(trip);
     when(schedule.currentTrip()).thenReturn(trip);
@@ -136,15 +141,19 @@ public class SimulationPersonPassengerTest {
     when(person.currentActivity()).thenReturn(firstActivity);
     when(mockedTrip.startDate()).thenReturn(someTime());
     when(mockedTrip.calculatePlannedEndDate()).thenReturn(someTime());
+    when(tripData.startDate()).thenReturn(someTime());
+    when(tripData.calculatePlannedEndDate()).thenReturn(someTime());
     when(options.simulationStart()).thenReturn(someTime());
     when(options.simulationEnd()).thenReturn(someTime());
     when(schedule.nextActivity(firstActivity)).thenReturn(firstActivity);
     when(mockedTrip.previousActivity()).thenReturn(firstActivity);
     when(mockedTrip.nextActivity()).thenReturn(firstActivity);
+    when(tripData.previousActivity()).thenReturn(firstActivity);
+    when(tripData.nextActivity()).thenReturn(firstActivity);
     when(options.impedance()).thenReturn(impedance);
     when(household.homeZone()).thenReturn(zone);
     when(household.homeLocation()).thenReturn(someLocation());
-    when(mockedTrip.mode()).thenReturn(Mode.PUBLICTRANSPORT);
+    when(tripData.mode()).thenReturn(Mode.PUBLICTRANSPORT);
     when(person.employment()).thenReturn(someEmploymentType);
     when(person.getId()).thenReturn(personId);
     when(firstActivity.calculatePlannedEndDate()).thenReturn(someTime());
@@ -344,6 +353,14 @@ public class SimulationPersonPassengerTest {
     
     verify(mockedTrip).finish(currentDate, results);
     verify(results).notifyEndTrip(this.person, finishedTrip, firstActivity);
+  }
+  
+  @Test
+  public void changeStartOfPassengerTrip() {
+    Time newTime = Data.oneMinuteLater();
+    TripIfc changedTrip = newPerson().changeStartTimeOfTrip(mockedTrip, newTime);
+    
+    assertThat(changedTrip.startDate(), is(equalTo(newTime)));
   }
   
   private SimulationPersonPassenger newPerson() {

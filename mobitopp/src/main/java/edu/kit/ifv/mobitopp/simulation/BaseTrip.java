@@ -3,24 +3,25 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
-public class TripDecorator implements TripIfc {
+public class BaseTrip implements TripData, TripIfc {
   
-  private final TripIfc trip;
+  private final TripData data;
   private final SimulationPerson person;
 
-  public TripDecorator(TripIfc trip, SimulationPerson person) {
+  public BaseTrip(TripData data, SimulationPerson person) {
     super();
-    this.trip = trip;
+    this.data = data;
     this.person = person;
   }
   
-  protected TripIfc trip() {
-    return trip;
+  protected TripData trip() {
+    return data;
   }
   
   protected SimulationPerson person() {
@@ -29,67 +30,66 @@ public class TripDecorator implements TripIfc {
   
   @Override
   public int getOid() {
-    return trip.getOid();
+    return data.getOid();
   }
 
   @Override
   public Time calculatePlannedEndDate() {
-    return trip.calculatePlannedEndDate();
+    return data.calculatePlannedEndDate();
   }
 
   @Override
   public ZoneAndLocation origin() {
-    return trip.origin();
+    return data.origin();
   }
 
   @Override
   public ZoneAndLocation destination() {
-    return trip.destination();
+    return data.destination();
   }
 
   @Override
   public Mode mode() {
-    return trip.mode();
+    return data.mode();
   }
 
   @Override
   public Time startDate() {
-    return trip.startDate();
+    return data.startDate();
   }
 
   @Override
   public int plannedDuration() {
-    return trip.plannedDuration();
+    return data.plannedDuration();
   }
 
   @Override
   public ActivityIfc previousActivity() {
-    return trip.previousActivity();
+    return data.previousActivity();
   }
 
   @Override
   public ActivityIfc nextActivity() {
-    return trip.nextActivity();
+    return data.nextActivity();
   }
 
   @Override
   public Optional<Time> timeOfNextChange() {
-    return trip.timeOfNextChange();
+    return Optional.empty();
   }
 
   @Override
   public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
-    trip.prepareTrip(impedance, currentTime);
   }
 
   @Override
   public FinishedTrip finish(Time currentDate, PersonResults results) {
-    return trip.finish(currentDate, results);
+    return new BeamedTrip(data, currentDate);
   }
 
   @Override
   public String toString() {
-    return "TripDecorator [trip=" + trip + "]";
+    return "TripDecorator [trip=" + data + "]";
   }
 
 }

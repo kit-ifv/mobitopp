@@ -19,7 +19,7 @@ public class StatisticResultsTest {
 	private PersonResults other;
 	private StatisticResults statistic;
 	private Person person;
-	private TripIfc trip;
+	private TripData trip;
 	private BeamedTrip finishedTrip;
 	private ActivityIfc activity;
 	private Car car;
@@ -29,7 +29,7 @@ public class StatisticResultsTest {
 	public void initialise() {
 		other = mock(PersonResults.class);
 		person = mock(Person.class);
-		trip = mock(TripIfc.class);
+		trip = mock(TripData.class);
 		finishedTrip = new BeamedTrip(trip, someTime());
 		car = mock(Car.class);
 		activity = mock(ActivityIfc.class);
@@ -55,9 +55,9 @@ public class StatisticResultsTest {
 
 	@Test
 	public void delegatesFinishCarTripNotification() {
-		statistic.notifyFinishCarTrip(person, car, trip, activity);
+		statistic.notifyFinishCarTrip(person, car, finishedTrip, activity);
 
-		verify(other).notifyFinishCarTrip(person, car, trip, activity);
+		verify(other).notifyFinishCarTrip(person, car, finishedTrip, activity);
 		verifyNoMoreInteractions(other);
 	}
 

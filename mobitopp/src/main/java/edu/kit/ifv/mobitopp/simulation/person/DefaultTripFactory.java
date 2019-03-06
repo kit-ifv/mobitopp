@@ -5,7 +5,7 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -64,7 +64,7 @@ public class DefaultTripFactory implements TripFactory {
 
     assert duration > 0;
 
-    TripIfc trip = new Trip(++tripCount, mode, previousActivity, nextActivity, (short) duration);
+    BaseData trip = new BaseData(++tripCount, mode, previousActivity, nextActivity, (short) duration);
 
     if (Mode.CAR.equals(mode)) {
       return new PrivateCarTrip(trip, person);
@@ -85,7 +85,7 @@ public class DefaultTripFactory implements TripFactory {
       return new PassengerTrip(trip, person);
     }
 
-    return trip;
+    return new NoActionTrip(trip, person);
   }
 
   protected Optional<PublicTransportRoute> findRoute(

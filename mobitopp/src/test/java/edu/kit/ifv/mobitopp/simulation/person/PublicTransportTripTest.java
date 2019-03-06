@@ -26,7 +26,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.RouteSearch;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
@@ -34,7 +34,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class PublicTransportTripTest {
 
-	private TripIfc mockedTrip;
+	private TripData tripData;
 	private RouteSearch routeSearch;
 	private PublicTransportBehaviour publicTransportBehaviour;
 	private PublicTransportRoute singleJourneyRoute;
@@ -45,7 +45,7 @@ public class PublicTransportTripTest {
 
 	@Before
 	public void initialise() throws Exception {
-		mockedTrip = mock(TripIfc.class);
+		tripData = mock(TripData.class);
 		person = mock(SimulationPerson.class);
 		routeSearch = mock(RouteSearch.class);
 		publicTransportBehaviour = mock(PublicTransportBehaviour.class);
@@ -57,7 +57,7 @@ public class PublicTransportTripTest {
 
 	@Test
 	public void travelsOverNoPartWhenTourContainsNoConnection() throws Exception {
-		PublicTransportTrip trip = PublicTransportTrip.of(mockedTrip, person, publicTransportBehaviour, optionalRoute);
+		PublicTransportTrip trip = PublicTransportTrip.of(tripData, person, publicTransportBehaviour, optionalRoute);
 
 		Optional<PublicTransportLeg> nextJourneyPart = trip.currentLeg();
 		assertThat(nextJourneyPart, isEmpty());
@@ -101,12 +101,12 @@ public class PublicTransportTripTest {
 	}
 
 	private PublicTransportTrip newTrip() {
-		return new PublicTransportTrip(mockedTrip, person, publicTransportBehaviour, optionalRoute, parts);
+		return new PublicTransportTrip(tripData, person, publicTransportBehaviour, optionalRoute, parts);
 	}
 
 	@Test
 	public void usesRouteToCalculateEndDate() throws Exception {
-		TripIfc originalTrip = mock(TripIfc.class);
+		TripData originalTrip = mock(TripData.class);
 		PublicTransportRoute route = mock(PublicTransportRoute.class);
 		when(route.arrival()).thenReturn(someTime());
 		PublicTransportTrip trip = PublicTransportTrip.of(originalTrip, person, publicTransportBehaviour, Optional.of(route));
@@ -119,7 +119,7 @@ public class PublicTransportTripTest {
 	@Test
 	public void calculatesStatistic() {
 		Journey someJourney = mock(Journey.class);
-		when(mockedTrip.startDate()).thenReturn(someTime());
+		when(tripData.startDate()).thenReturn(someTime());
 		PublicTransportTrip trip = newTrip();
 		Events events = new Events();
 		events.add(new Event(PassengerEvent.board, someTime(), someJourney));
@@ -139,7 +139,7 @@ public class PublicTransportTripTest {
 	
 	@Test
   public void leavesLastStop() {
-    when(mockedTrip.startDate()).thenReturn(someTime());
+    when(tripData.startDate()).thenReturn(someTime());
     Events events = new Events();
     PublicTransportTrip trip = newTrip();
     when(singlePart.end()).thenReturn(anotherStop());

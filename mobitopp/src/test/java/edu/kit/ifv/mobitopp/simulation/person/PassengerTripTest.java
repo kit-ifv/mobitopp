@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -19,7 +19,7 @@ public class PassengerTripTest {
   private SimulationPerson person;
   private Time currentTime;
   private PrivateCar car;
-  private TripIfc trip;
+  private TripData trip;
   private PersonResults results;
 
   @BeforeEach
@@ -27,7 +27,7 @@ public class PassengerTripTest {
     setup = TripSetup.create();
     person = setup.person;
     car = setup.car;
-    trip = setup.trip;
+    trip = setup.tripData;
     currentTime = setup.currentTime;
     results = setup.results;
   }

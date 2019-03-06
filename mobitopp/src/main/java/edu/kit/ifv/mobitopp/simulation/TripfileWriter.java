@@ -191,7 +191,7 @@ public class TripfileWriter implements PersonResults {
 	}
 
 	@Override
-	public void notifyFinishCarTrip(Person person, Car car, TripIfc trip, ActivityIfc activity) {
+	public void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity) {
 		ActivityIfc prevActivity = trip.previousActivity();
 		assert prevActivity != null;
 		Location location = activity.location();
@@ -263,7 +263,7 @@ public class TripfileWriter implements PersonResults {
 
 	private void writeCarTripToFile(
 			Car car,
-      TripIfc trip,
+      FinishedTrip trip,
       ActivityIfc previousActivity,
       ActivityIfc activity,
 			Location location
@@ -292,7 +292,7 @@ public class TripfileWriter implements PersonResults {
 		String tripBeginDay = format.asDay(begin);
 		String tripBeginTime = format.asTime(begin);
 
-		Time end = trip.calculatePlannedEndDate();
+		Time end = trip.plannedEndDate();
 
 		String tripEndDay = format.asDay(end);
 		String tripEndTime = format.asTime(end);
@@ -317,7 +317,7 @@ public class TripfileWriter implements PersonResults {
 	}
 
 	@Override
-	public void notifySelectCarRoute(Person person, Car car, TripIfc trip, Path route) {
+	public void notifySelectCarRoute(Person person, Car car, TripData trip, Path route) {
 
       String sourceZone = trip.origin().zone().getId();
 			String targetZone = trip.destination().zone().getId();
