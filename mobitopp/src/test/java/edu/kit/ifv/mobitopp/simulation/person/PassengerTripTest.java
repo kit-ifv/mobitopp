@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,9 +29,7 @@ public class PassengerTripTest {
     car = setup.car;
     trip = setup.trip;
     currentTime = setup.currentTime;
-    results = mock(PersonResults.class);
-    FinishedTrip finishedSuper = mock(FinishedTrip.class);
-    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
+    results = setup.results;
   }
 
   @Test

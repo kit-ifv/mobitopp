@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -25,6 +26,8 @@ public class TripSetup {
   final TripIfc trip;
   final Zone zone;
   final Location location;
+  final FinishedTrip finishedSuper;
+  final PersonResults results;
 
   private TripSetup() {
     super();
@@ -33,6 +36,8 @@ public class TripSetup {
     person = mock(SimulationPerson.class);
     car = mock(PrivateCar.class);
     trip = mock(TripIfc.class);
+    finishedSuper = mock(FinishedTrip.class);
+    results = mock(PersonResults.class);
     zone = ExampleZones.create().someZone();
     location = zone.centroidLocation();
   }
@@ -48,6 +53,7 @@ public class TripSetup {
     when(impedance.getDistance(anyInt(), anyInt())).thenReturn(distance);
     when(trip.origin()).thenReturn(zoneAndLocation);
     when(trip.destination()).thenReturn(zoneAndLocation);
+    when(trip.finish(currentTime, results)).thenReturn(finishedSuper);
   }
 
   public static TripSetup create() {
