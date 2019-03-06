@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
@@ -25,7 +26,7 @@ public class CarSharingStationTripTest {
   private ImpedanceIfc impedance;
   private SimulationPerson person;
   private Time currentTime;
-  private TripIfc trip;
+  private TripData trip;
   private Zone zone;
   private Location location;
   private PersonResults results;
@@ -37,7 +38,7 @@ public class CarSharingStationTripTest {
     setup = TripSetup.create();
     impedance = setup.impedance;
     person = setup.person;
-    trip = setup.trip;
+    trip = setup.tripData;
     zone = setup.zone;
     location = setup.location;
     currentTime = setup.currentTime;

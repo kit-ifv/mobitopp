@@ -11,11 +11,11 @@ public interface PersonResults {
 
 	void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity);
 
-	void notifyFinishCarTrip(Person person, Car car, TripIfc trip, ActivityIfc activity);
+	void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity);
 
 	void notifyStartActivity(Person person, ActivityIfc activity);
 
-	void notifySelectCarRoute(Person person, Car car, TripIfc trip, Path route);
+	void notifySelectCarRoute(Person person, Car car, TripData trip, Path route);
 
 	void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode);
 

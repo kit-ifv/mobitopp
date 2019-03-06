@@ -25,7 +25,8 @@ import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffer;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
-import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
+import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
@@ -456,9 +457,9 @@ public class SimulationPersonPassenger extends PersonDecorator
 		}
 	}
 
-	protected static TripIfc changeStartTimeOfTrip(TripIfc trip, Time newStartTime) {
+	protected TripIfc changeStartTimeOfTrip(TripIfc trip, Time newStartTime) {
 
-		TripIfc modifiedTrip = new Trip(
+		TripData modifiedTrip = new BaseData(
 																	trip.getOid(),
 																	trip.previousActivity(),
 																	trip.nextActivity(),
@@ -467,7 +468,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 																	(short) trip.plannedDuration()
 																);
 
-		return modifiedTrip;
+		return new PassengerTrip(modifiedTrip, this);
 	}
 
 

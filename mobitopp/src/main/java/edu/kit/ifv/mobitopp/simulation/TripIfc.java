@@ -7,7 +7,7 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public interface TripIfc extends OccupationIfc {
+public interface TripIfc extends TripData, OccupationIfc {
 
 	ZoneAndLocation origin();
 

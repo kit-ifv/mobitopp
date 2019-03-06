@@ -5,14 +5,15 @@ import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
-import edu.kit.ifv.mobitopp.simulation.TripDecorator;
+import edu.kit.ifv.mobitopp.simulation.TripData;
+import edu.kit.ifv.mobitopp.simulation.BaseTrip;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class CarSharingStationTrip extends TripDecorator implements TripIfc {
+public class CarSharingStationTrip extends BaseTrip implements TripIfc {
 
-  public CarSharingStationTrip(TripIfc trip, SimulationPerson person) {
+  public CarSharingStationTrip(TripData trip, SimulationPerson person) {
     super(trip, person);
   }
   

@@ -1,16 +1,10 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.util.Optional;
-
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
-import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class Trip
-	implements TripIfc
+public class BaseData implements TripData
 {
-
 
   private final ZoneAndLocation origin;
   private final ZoneAndLocation destination;
@@ -26,7 +20,7 @@ public class Trip
 	private final ActivityIfc nextActivity;
 
 
-  public Trip(
+  public BaseData(
 		int oid,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
@@ -45,7 +39,7 @@ public class Trip
     this.plannedDuration = plannedDuration;
   }
   
-  public Trip(
+  public BaseData(
   	int tripId, 
   	Mode mode, 
   	ActivityIfc prev, 
@@ -54,19 +48,23 @@ public class Trip
   	this(tripId, prev, next, mode, prev.calculatePlannedEndDate(), duration);
   }
 
+  @Override
   public ActivityIfc previousActivity() {
 		return this.previousActivity;
 	}
 
+  @Override
   public ActivityIfc nextActivity() {
 		return this.nextActivity;
 	}
 
+  @Override
   public Mode mode()
   {
     return this.modeType; 
   }
 
+  @Override
   public Time startDate()
   {
 		assert this.startDate != null;
@@ -74,17 +72,20 @@ public class Trip
     return this.startDate; 
   }
 
+  @Override
   public int plannedDuration()
   {
     return this.plannedDuration; 
   }
 
+  @Override
   public int getOid()
   {
     return this.oid;
   }
 
 
+  @Override
   public Time calculatePlannedEndDate()
   {
 		Time date = startDate().plusMinutes(plannedDuration());
@@ -92,20 +93,6 @@ public class Trip
     return date;
   }
   
-  @Override
-  public Optional<Time> timeOfNextChange() {
-  	return Optional.empty();
-  }
-  
-  @Override
-  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
-  }
-
-  @Override
-	public FinishedTrip finish(Time currentDate, PersonResults results) {
-  	return new BeamedTrip(this, currentDate);
-  }
-
 	public String toString() {
 
 					String s =
@@ -122,12 +109,12 @@ public class Trip
 	}
 
 	@Override
-	public ZoneAndLocation origin() {
+  public ZoneAndLocation origin() {
 		return origin;
 	}
 
 	@Override
-	public ZoneAndLocation destination() {
+  public ZoneAndLocation destination() {
 		return destination;
 	}
 

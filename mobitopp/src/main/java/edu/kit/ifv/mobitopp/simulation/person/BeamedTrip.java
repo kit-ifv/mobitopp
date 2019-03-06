@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
@@ -11,13 +11,13 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class BeamedTrip implements FinishedTrip {
 
-	private final TripIfc trip;
+	private final TripData data;
 	private final Time endDate;
 	private final Statistic statistic;
 
-	public BeamedTrip(TripIfc trip, Time endDate) {
+	public BeamedTrip(TripData data, Time endDate) {
 		super();
-		this.trip = trip;
+		this.data = data;
 		this.endDate = endDate;
 		statistic = new Statistic();
 		RelativeTime plannedDuration = RelativeTime.ofMinutes(plannedDuration());
@@ -27,27 +27,27 @@ public class BeamedTrip implements FinishedTrip {
 
 	@Override
 	public int getOid() {
-		return trip.getOid();
+		return data.getOid();
 	}
 
 	@Override
 	public ZoneAndLocation origin() {
-		return trip.origin();
+		return data.origin();
 	}
 
 	@Override
 	public ZoneAndLocation destination() {
-		return trip.destination();
+		return data.destination();
 	}
 
 	@Override
 	public Mode mode() {
-		return trip.mode();
+		return data.mode();
 	}
 
 	@Override
 	public Time startDate() {
-		return trip.startDate();
+		return data.startDate();
 	}
 
 	@Override
@@ -57,22 +57,22 @@ public class BeamedTrip implements FinishedTrip {
 
 	@Override
 	public Time plannedEndDate() {
-		return trip.calculatePlannedEndDate();
+		return data.calculatePlannedEndDate();
 	}
 
 	@Override
 	public int plannedDuration() {
-		return trip.plannedDuration();
+		return data.plannedDuration();
 	}
 
 	@Override
 	public ActivityIfc previousActivity() {
-		return trip.previousActivity();
+		return data.previousActivity();
 	}
 
 	@Override
 	public ActivityIfc nextActivity() {
-		return trip.nextActivity();
+		return data.nextActivity();
 	}
 
 	@Override
