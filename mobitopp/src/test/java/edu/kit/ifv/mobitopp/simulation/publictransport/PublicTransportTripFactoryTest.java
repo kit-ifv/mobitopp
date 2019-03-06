@@ -1,10 +1,10 @@
-package edu.kit.ifv.mobitopp.simulation.person;
+package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,10 +21,14 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
+import edu.kit.ifv.mobitopp.simulation.person.PublicTransportTrip;
+import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
+import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class DefaultTripFactoryTest {
+public class PublicTransportTripFactoryTest {
 
   private static final int oid = 1;
   private static final Time startDate = someTime();
@@ -36,6 +40,8 @@ public class DefaultTripFactoryTest {
   private Zone zone;
   private Location originLocation;
   private Location destinationLocation;
+  private TripFactory base;
+  private PublicTransportBehaviour publicTransportBehaviour;
 
   @BeforeEach
   public void initialise() {
@@ -44,9 +50,11 @@ public class DefaultTripFactoryTest {
     previousActivity = mock(ActivityIfc.class);
     nextActivity = mock(ActivityIfc.class);
     zone = mock(Zone.class);
+    base = mock(TripFactory.class);
+    publicTransportBehaviour = mock(PublicTransportBehaviour.class);
     originLocation = someLocation();
     destinationLocation = otherLocation();
-    
+
     when(previousActivity.zone()).thenReturn(zone);
     when(nextActivity.zone()).thenReturn(zone);
     when(previousActivity.calculatePlannedEndDate()).thenReturn(startDate);
@@ -54,58 +62,7 @@ public class DefaultTripFactoryTest {
     when(nextActivity.location()).thenReturn(destinationLocation);
     when(previousActivity.isLocationSet()).thenReturn(true);
     when(nextActivity.isLocationSet()).thenReturn(true);
-  }
-  
-  @Test
-  void createPassengerTrip() throws Exception {
-    Mode mode = Mode.PASSENGER;
-    use(mode);
-
-    TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
-
-    assertThat(trip, is(instanceOf(PassengerTrip.class)));
-    verifyStandardAttributes(mode, trip);
-  }
-
-  private TripFactory newTripFactory() {
-    return new DefaultTripFactory();
-  }
-
-  @Test
-  public void createCarTrip() {
-    Mode mode = Mode.CAR;
-    use(mode);
-
-    TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
-
-    assertThat(trip, is(instanceOf(PrivateCarTrip.class)));
-    verifyStandardAttributes(mode, trip);
-  }
-
-  @Test
-  public void createCarSharingStationTrip() {
-    Mode mode = Mode.CARSHARING_STATION;
-    use(mode);
-
-    TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
-
-    assertThat(trip, is(instanceOf(CarSharingStationTrip.class)));
-    verifyStandardAttributes(mode, trip);
-  }
-  
-  @Test
-  public void createCarSharingFreeFloatingTrip() {
-    Mode mode = Mode.CARSHARING_FREE;
-    use(mode);
-
-    TripFactory factory = newTripFactory();
-    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
-
-    assertThat(trip, is(instanceOf(CarSharingFreeFloatingTrip.class)));
-    verifyStandardAttributes(mode, trip);
+    when(base.nextTripId()).thenReturn(oid);
   }
 
   @Test
@@ -117,14 +74,10 @@ public class DefaultTripFactoryTest {
         .thenReturn(Optional.of(route));
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
 
-    TripFactory factory = newTripFactory();
+    TripFactory factory = new PublicTransportTripFactory(base, publicTransportBehaviour);
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
-    assertThat(trip, is(instanceOf(NoActionTrip.class)));
-    verifyStandardAttributes(mode, trip);
-  }
-
-  private void verifyStandardAttributes(Mode mode, TripIfc trip) {
+    assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
     assertEquals(oid, trip.getOid());
     assertEquals(previousActivity, trip.previousActivity());
     assertEquals(nextActivity, trip.nextActivity());

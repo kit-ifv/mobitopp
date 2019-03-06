@@ -11,4 +11,6 @@ public interface TripFactory {
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity);
 
+  int nextTripId();
+
 }
