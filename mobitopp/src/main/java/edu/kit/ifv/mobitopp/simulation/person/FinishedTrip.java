@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -28,5 +30,7 @@ public interface FinishedTrip {
 	ActivityIfc nextActivity();
 
 	Statistic statistic();
+
+  Optional<String> vehicleId();
 
 }

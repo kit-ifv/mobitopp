@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -74,5 +76,10 @@ public class FinishedPublicTransport implements FinishedTrip {
 	public Statistic statistic() {
 		return statistic;
 	}
+
+  @Override
+  public Optional<String> vehicleId() {
+    return Optional.empty();
+  }
 	
 }

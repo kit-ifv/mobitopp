@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripIfc;
+import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -14,10 +15,16 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class DefaultTripFactory implements TripFactory {
 
   private int tripCount;
+  private final PublicTransportBehaviour publicTransportBehaviour;
 
-  public DefaultTripFactory() {
+  public DefaultTripFactory(PublicTransportBehaviour publicTransportBehaviour) {
     super();
     tripCount = 0;
+    this.publicTransportBehaviour = publicTransportBehaviour;
+  }
+  
+  public DefaultTripFactory() {
+    this(VehicleBehaviour.noBehaviour);
   }
 
   @Override
@@ -72,7 +79,10 @@ public class DefaultTripFactory implements TripFactory {
     }
     
     if (Mode.PUBLICTRANSPORT.equals(mode)) {
-      return PublicTransportTrip.of(trip, person, route);
+      return PublicTransportTrip.of(trip, person, publicTransportBehaviour, route);
+    }
+    if (Mode.PASSENGER.equals(mode)) {
+      return new PassengerTrip(trip, person);
     }
 
     return trip;

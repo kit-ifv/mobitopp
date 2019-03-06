@@ -18,10 +18,12 @@ public class TripDecoratorTest {
 
   private TripIfc trip;
   private TripIfc decorator;
+  private PersonResults results;
 
   @BeforeEach
   public void initialise() {
     trip = mock(TripIfc.class);
+    results = mock(PersonResults.class);
     SimulationPerson person = mock(SimulationPerson.class);
     decorator = new TripDecorator(trip, person);
   }
@@ -53,8 +55,8 @@ public class TripDecoratorTest {
   @Test
   void finish() throws Exception {
     Time currentTime = mock(Time.class);
-    decorator.finish(currentTime);
+    decorator.finish(currentTime, results);
     
-    verify(trip).finish(currentTime);
+    verify(trip).finish(currentTime, results);
   }
 }

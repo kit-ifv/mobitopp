@@ -15,21 +15,27 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class PublicTransportTrip extends TripDecorator implements TripIfc {
 
 	private final Optional<PublicTransportRoute> route;
-	private final List<PublicTransportLeg> leg;
+	private final List<PublicTransportLeg> legs;
 	private int currentLeg = 0;
+  private PublicTransportBehaviour publicTransportBehaviour;
 
-	PublicTransportTrip(
-			TripIfc trip, SimulationPerson person, Optional<PublicTransportRoute> route, List<PublicTransportLeg> leg) {
-		super(trip, person);
-		this.route = route;
-		this.leg = leg;
-	}
+  PublicTransportTrip(
+      TripIfc trip, SimulationPerson person,
+      PublicTransportBehaviour publicTransportBehaviour,
+      Optional<PublicTransportRoute> route, List<PublicTransportLeg> legs) {
+	  super(trip, person);
+	  this.route = route;
+	  this.legs = legs;
+    this.publicTransportBehaviour = publicTransportBehaviour;
+  }
 
-	public static PublicTransportTrip of(TripIfc trip, SimulationPerson person, Optional<PublicTransportRoute> route) {
+  public static PublicTransportTrip of(
+      TripIfc trip, SimulationPerson person, PublicTransportBehaviour publicTransportBehaviour,
+      Optional<PublicTransportRoute> route) {
 		List<PublicTransportLeg> legs = route
 				.map(RouteSplitter::splitInParts)
 				.orElse(Collections.emptyList());
-		return new PublicTransportTrip(trip, person, route, legs);
+		return new PublicTransportTrip(trip, person, publicTransportBehaviour, route, legs);
 	}
 
 	@Override
@@ -38,14 +44,14 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
 	}
 
 	public Optional<PublicTransportLeg> currentLeg() {
-		if (leg.isEmpty() || tripDone()) {
+		if (legs.isEmpty() || tripDone()) {
 			return Optional.empty();
 		}
-		return Optional.of(leg.get(currentLeg));
+		return Optional.of(legs.get(currentLeg));
 	}
 
 	private boolean tripDone() {
-		return leg.size() <= currentLeg;
+		return legs.size() <= currentLeg;
 	}
 
 	public void nextLeg() {
@@ -53,18 +59,18 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
 	}
 
 	public boolean hasNextLeg() {
-		return leg.size() > currentLeg;
+		return legs.size() > currentLeg;
 	}
 
 	public Optional<PublicTransportLeg> lastLeg() {
-		if (leg.isEmpty()) {
+		if (legs.isEmpty()) {
 			return Optional.empty();
 		}
-		return Optional.of(leg.get(lastElement()));
+		return Optional.of(legs.get(lastElement()));
 	}
 
 	private int lastElement() {
-		return leg.size() - 1;
+		return legs.size() - 1;
 	}
 
 	public TripIfc derive(Time currentTime, RouteSearch routeSearch) {
@@ -77,7 +83,7 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
 	private TripIfc deriveToEnd(Time currentTime, RouteSearch routeSearch) {
 		Optional<PublicTransportRoute> tour = currentLeg()
 				.flatMap(part -> searchNewTour(routeSearch, part, currentTime));
-		return PublicTransportTrip.of(this, person(), tour);
+		return PublicTransportTrip.of(this, person(), publicTransportBehaviour, tour);
 	}
 
 	private Optional<PublicTransportRoute> searchNewTour(
@@ -106,12 +112,22 @@ public class PublicTransportTrip extends TripDecorator implements TripIfc {
 	}
 
 	public FinishedTrip finish(Time currentDate, Events events) {
-		Statistic statistic = events.statistic();
+	  leaveLastLeg();
+		Statistic statistic = createStatistic(currentDate, events);
+		return new FinishedPublicTransport(this, currentDate, statistic);
+	}
+
+  private void leaveLastLeg() {
+    lastLeg().ifPresent(part -> publicTransportBehaviour.leaveWaitingArea(person(), part.end()));
+  }
+
+  private Statistic createStatistic(Time currentDate, Events events) {
+    Statistic statistic = events.statistic();
 		statistic.add(Element.plannedDuration, asTime(plannedDuration()));
 		statistic.add(Element.realDuration, duration(currentDate));
 		statistic.add(Element.additionalDuration, additionalDuration(currentDate));
-		return new FinishedPublicTransport(this, currentDate, statistic);
-	}
+    return statistic;
+  }
 
 	private RelativeTime additionalDuration(Time currentDate) {
 		return duration(currentDate).minus(asTime(plannedDuration()));

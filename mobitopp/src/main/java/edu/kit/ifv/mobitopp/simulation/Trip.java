@@ -102,7 +102,7 @@ public class Trip
   }
 
   @Override
-	public FinishedTrip finish(Time currentDate) {
+	public FinishedTrip finish(Time currentDate, PersonResults results) {
   	return new BeamedTrip(this, currentDate);
   }
 

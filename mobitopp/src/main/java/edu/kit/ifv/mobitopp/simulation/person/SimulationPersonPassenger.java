@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -29,9 +30,6 @@ import edu.kit.ifv.mobitopp.simulation.TripIfc;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
@@ -490,14 +488,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 			notifyEndTrip(finishedTrip, activity);
 
-			finishCarTrip(currentDate, trip, activity);
-			
-			asDriverReturnOrParkCar(trip, activity, currentDate);    
-
-			asPassegerLeaveCar(trip);
-
-			leaveLastStop(trip);
-
 			startActivityInternal(rescheduling, activity, currentDate, trip);
 	}
 
@@ -505,43 +495,13 @@ public class SimulationPersonPassenger extends PersonDecorator
 		if (trip instanceof PublicTransportTrip) {
 			return ((PublicTransportTrip) trip).finish(currentDate, events);
 		}
-		return trip.finish(currentDate);
+		return trip.finish(currentDate, results);
 	}
 	
 	private void notifyEndTrip(FinishedTrip trip, ActivityIfc activity) {
+	  Objects.requireNonNull(trip, "Missing finished trip.");
 		results.notifyEndTrip(person(), trip, activity);
 	}
-	
-	private void finishCarTrip(Time currentDate, TripIfc trip, ActivityIfc activity) {
-		Person person = person();
-		if (person.isCarDriver()) {
-			ActivityIfc prevActivity = trip.previousActivity();
-			assert trip.mode() == Mode.CAR : (trip + "\n" 
-																		+ "prev: " + prevActivity + "\n"
-																		+ "next : " + activity + "\n --- \n"
-										+ person().activitySchedule() + "\n"
-										) ;
-			Location location = activity.location();
-			Zone zone = activity.zone();
-			person.whichCar().stop(currentDate, new CarPosition(zone, location));
-			notifyFinishCarTrip(person, trip, activity);
-		}
-	}
-
-
-	private void notifyFinishCarTrip(Person person, TripIfc trip, ActivityIfc activity) {
-		ActivityIfc prevActivity = trip.previousActivity();
-		assert prevActivity != null;
-		results.notifyFinishCarTrip(person, person.whichCar(), trip, activity);
-	}
-
-	private void leaveLastStop(TripIfc trip) {
-		if (notPublicTransport(trip)) {
-			return;
-		}
-		publicTransportTrip().lastLeg().ifPresent(part -> publicTransportBehaviour.leaveWaitingArea(this, part.end()));
-	}
-
 
 	private void startActivityInternal(
 		ReschedulingStrategy rescheduling,
@@ -554,70 +514,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		results.notifyStartActivity(person(), activity);
 	}
-
-
-
-
-	public void asDriverReturnOrParkCar(
-		TripIfc trip,
-		ActivityIfc activity,
-		Time time
-	) {
-
-		Zone zone = activity.zone();
-		Location location = activity.location();
-
-	    if (trip.mode() == Mode.CAR)
-	    {
-	    	if (activity.activityType().isHomeActivity())
-	      {
-					Car car = person().releaseCar(time);
-					car.returnCar(zone);
-	      } else {
-	    		Car car = person().parkCar(zone, location, time);
-	    		assert car instanceof PrivateCar;
-	      }
-      }
-			if (trip.mode() == Mode.CARSHARING_STATION) {
-
-	    	if (activity.activityType().isHomeActivity())
-	      {
-					Car car = person().releaseCar(time);
-					car.returnCar(zone);
-	      } else {
-	    		Car car = person().parkCar(zone, location, time);
-	    		assert car instanceof CarSharingCar;
-	      }
-			}
-			if (trip.mode() == Mode.CARSHARING_FREE) {
-				assert this.isCarDriver();
-				if (zone.carSharing().isFreeFloatingZone((CarSharingCar)this.whichCar())) {
-					Car car = person().releaseCar(time);
-					car.returnCar(zone);
-				}
-			}
-			if (trip.mode() == Mode.AUTONOMOUS_TAXI) {
-        assert this.isCarDriver();
-        if (zone.maas().isInMaasZone(whichCar())) {
-          Car car = person().releaseCar(time);
-          car.returnCar(zone);
-        }
-      }
-	}
-
-	protected void asPassegerLeaveCar(
-		TripIfc trip
-	)
-	{
-
-		if (trip.mode() == Mode.PASSENGER) {
-			if (person().isCarPassenger()) {
-				person().leaveCar();
-			} else {
-			}
-		}
-	}
-
 
 	public void selectRoute(
 		ZoneBasedRouteChoice routeChoice,

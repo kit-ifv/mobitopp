@@ -36,6 +36,7 @@ public class PublicTransportTripTest {
 
 	private TripIfc mockedTrip;
 	private RouteSearch routeSearch;
+	private PublicTransportBehaviour publicTransportBehaviour;
 	private PublicTransportRoute singleJourneyRoute;
 	private Optional<PublicTransportRoute> optionalRoute;
 	private List<PublicTransportLeg> parts;
@@ -47,6 +48,7 @@ public class PublicTransportTripTest {
 		mockedTrip = mock(TripIfc.class);
 		person = mock(SimulationPerson.class);
 		routeSearch = mock(RouteSearch.class);
+		publicTransportBehaviour = mock(PublicTransportBehaviour.class);
 		singleJourneyRoute = mock(PublicTransportRoute.class);
 		optionalRoute = Optional.of(singleJourneyRoute);
 		singlePart = mock(PublicTransportLeg.class);
@@ -55,7 +57,7 @@ public class PublicTransportTripTest {
 
 	@Test
 	public void travelsOverNoPartWhenTourContainsNoConnection() throws Exception {
-		PublicTransportTrip trip = PublicTransportTrip.of(mockedTrip, person, optionalRoute);
+		PublicTransportTrip trip = PublicTransportTrip.of(mockedTrip, person, publicTransportBehaviour, optionalRoute);
 
 		Optional<PublicTransportLeg> nextJourneyPart = trip.currentLeg();
 		assertThat(nextJourneyPart, isEmpty());
@@ -99,7 +101,7 @@ public class PublicTransportTripTest {
 	}
 
 	private PublicTransportTrip newTrip() {
-		return new PublicTransportTrip(mockedTrip, person, optionalRoute, parts);
+		return new PublicTransportTrip(mockedTrip, person, publicTransportBehaviour, optionalRoute, parts);
 	}
 
 	@Test
@@ -107,7 +109,7 @@ public class PublicTransportTripTest {
 		TripIfc originalTrip = mock(TripIfc.class);
 		PublicTransportRoute route = mock(PublicTransportRoute.class);
 		when(route.arrival()).thenReturn(someTime());
-		PublicTransportTrip trip = PublicTransportTrip.of(originalTrip, person, Optional.of(route));
+		PublicTransportTrip trip = PublicTransportTrip.of(originalTrip, person, publicTransportBehaviour, Optional.of(route));
 
 		trip.calculatePlannedEndDate();
 
@@ -134,6 +136,18 @@ public class PublicTransportTripTest {
 		statistic.add(Element.additionalDuration, additionalDuration);
 		assertThat(finished.statistic(), is(equalTo(statistic)));
 	}
+	
+	@Test
+  public void leavesLastStop() {
+    when(mockedTrip.startDate()).thenReturn(someTime());
+    Events events = new Events();
+    PublicTransportTrip trip = newTrip();
+    when(singlePart.end()).thenReturn(anotherStop());
+
+    trip.finish(someTime(), events);
+    
+    verify(publicTransportBehaviour).leaveWaitingArea(person, singlePart.end());
+  }
 	
 	@Test
 	public void nextChangeAtLegDeparture() {

@@ -4,7 +4,7 @@ import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,13 +55,29 @@ public class DefaultTripFactoryTest {
     when(previousActivity.isLocationSet()).thenReturn(true);
     when(nextActivity.isLocationSet()).thenReturn(true);
   }
+  
+  @Test
+  void createPassengerTrip() throws Exception {
+    Mode mode = Mode.PASSENGER;
+    use(mode);
+
+    TripFactory factory = newTripFactory();
+    TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+
+    assertThat(trip, is(instanceOf(PassengerTrip.class)));
+    verifyStandardAttributes(mode, trip);
+  }
+
+  private DefaultTripFactory newTripFactory() {
+    return new DefaultTripFactory();
+  }
 
   @Test
   public void createCarTrip() {
     Mode mode = Mode.CAR;
     use(mode);
 
-    TripFactory factory = new DefaultTripFactory();
+    TripFactory factory = newTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PrivateCarTrip.class)));
@@ -73,7 +89,7 @@ public class DefaultTripFactoryTest {
     Mode mode = Mode.CARSHARING_STATION;
     use(mode);
 
-    TripFactory factory = new DefaultTripFactory();
+    TripFactory factory = newTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(CarSharingStationTrip.class)));
@@ -85,7 +101,7 @@ public class DefaultTripFactoryTest {
     Mode mode = Mode.CARSHARING_FREE;
     use(mode);
 
-    TripFactory factory = new DefaultTripFactory();
+    TripFactory factory = newTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(CarSharingFreeFloatingTrip.class)));
@@ -101,7 +117,7 @@ public class DefaultTripFactoryTest {
         .thenReturn(Optional.of(route));
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
 
-    TripFactory factory = new DefaultTripFactory();
+    TripFactory factory = newTripFactory();
     TripIfc trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
 
     assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
