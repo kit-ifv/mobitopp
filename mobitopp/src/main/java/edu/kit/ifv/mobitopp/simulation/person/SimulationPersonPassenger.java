@@ -379,7 +379,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Time time
 	) {
 		assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
-    trip.allocateVehicle(impedance, time);
+    trip.prepareTrip(impedance, time);
 	}
 
   protected TripIfc createTrip(

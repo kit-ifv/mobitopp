@@ -98,7 +98,7 @@ public class Trip
   }
   
   @Override
-  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
+  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
   }
 
   @Override

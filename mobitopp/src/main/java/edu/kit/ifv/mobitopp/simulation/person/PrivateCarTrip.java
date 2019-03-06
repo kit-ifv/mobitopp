@@ -23,7 +23,7 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
   }
 
   @Override
-  public void allocateVehicle(ImpedanceIfc impedance, Time currentTime) {
+  public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
     Objects.requireNonNull(impedance);
     Objects.requireNonNull(currentTime);
     if (person().currentActivity().activityType().isHomeActivity()) {
@@ -52,14 +52,17 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
   public FinishedTrip finish(Time currentDate, PersonResults results) {
     Person person = person();
     if (person.isCarDriver()) {
-      ActivityIfc activity = nextActivity();
-      int carId = stopCar(currentDate);
-      notifyFinishCarTrip(person, trip(), activity, results);
-      returnCar(currentDate);
-      FinishedTrip finishedTrip = super.finish(currentDate, results);
-      return new FinishedCarTrip(finishedTrip, carId);
+      return doFinish(currentDate, results);
     }
     throw new IllegalStateException(String.format("Cannot finish car trip without car: %s" , trip()));
+  }
+
+  private FinishedTrip doFinish(Time currentDate, PersonResults results) {
+    int carId = stopCar(currentDate);
+    notifyFinishCarTrip(results);
+    returnCar(currentDate);
+    FinishedTrip finishedTrip = super.finish(currentDate, results);
+    return new FinishedCarTrip(finishedTrip, carId);
   }
 
   private Integer stopCar(Time currentDate) {
@@ -74,10 +77,10 @@ public class PrivateCarTrip extends TripDecorator implements TripIfc {
     return car.id();
   }
 
-  private void notifyFinishCarTrip(Person person, TripIfc trip, ActivityIfc activity, PersonResults results) {
-    ActivityIfc prevActivity = trip.previousActivity();
+  private void notifyFinishCarTrip(PersonResults results) {
+    ActivityIfc prevActivity = trip().previousActivity();
     assert prevActivity != null;
-    results.notifyFinishCarTrip(person, person.whichCar(), trip, activity);
+    results.notifyFinishCarTrip(person(), person().whichCar(), trip(), nextActivity());
   }
 
   private void returnCar(Time currentDate) {

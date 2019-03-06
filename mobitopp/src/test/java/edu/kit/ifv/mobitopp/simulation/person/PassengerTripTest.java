@@ -34,11 +34,10 @@ public class PassengerTripTest {
 
   @Test
   void addsCarIdWhenUserIsPassenger() throws Exception {
-    when(person.isCarPassenger()).thenReturn(true);
+    configureBeingPassenger(true);
     int carId = 1;
-    when(car.id()).thenReturn(carId);
-    when(person.whichCar()).thenReturn(car);
-    PassengerTrip passengerTrip = new PassengerTrip(trip, person);
+    configureUsedCar(carId);
+    PassengerTrip passengerTrip = newTrip();
 
     FinishedTrip finishedTrip = passengerTrip.finish(currentTime, results);
 
@@ -46,13 +45,26 @@ public class PassengerTripTest {
     verify(person).leaveCar();
   }
 
+  private void configureBeingPassenger(boolean value) {
+    when(person.isCarPassenger()).thenReturn(value);
+  }
+
+  private void configureUsedCar(int carId) {
+    when(car.id()).thenReturn(carId);
+    when(person.whichCar()).thenReturn(car);
+  }
+
   @Test
   void addsCarIdWhenUserIsNoPassenger() throws Exception {
-    when(person.isCarPassenger()).thenReturn(false);
-    PassengerTrip passengerTrip = new PassengerTrip(trip, person);
+    configureBeingPassenger(false);
+    PassengerTrip passengerTrip = newTrip();
 
     FinishedTrip finishedTrip = passengerTrip.finish(currentTime, results);
 
     assertThat(finishedTrip.vehicleId(), hasValue("-1"));
+  }
+
+  private PassengerTrip newTrip() {
+    return new PassengerTrip(trip, person);
   }
 }
