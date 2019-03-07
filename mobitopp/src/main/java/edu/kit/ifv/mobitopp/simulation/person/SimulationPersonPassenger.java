@@ -286,7 +286,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Mode mode = modeChoiceModel.selectMode( 
 									null,
 									null,
-									person(), 
+									this, 
 									origin,
 									destination,
 									previousActivity, 
