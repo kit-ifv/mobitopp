@@ -219,16 +219,16 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		while (curr != tail) {
 
-			if (!((ActivityIfc)prev).startDate().isBefore(((ActivityIfc)curr).startDate())
-					|| ((ActivityIfc)prev).calculatePlannedEndDate().isAfter(((ActivityIfc)curr).startDate())) {
+			ActivityIfc previousActivity = (ActivityIfc)prev;
+      ActivityIfc currentActivity = (ActivityIfc)curr;
+      if (!previousActivity.startDate().isBefore(currentActivity.startDate())
+					|| previousActivity.calculatePlannedEndDate().isAfter(currentActivity.startDate())) {
 
-				Time fixedDate = ((ActivityIfc)prev).startDate().plusMinutes(
-																															((ActivityIfc)prev).duration()
-																														+ ((ActivityIfc)curr).observedTripDuration()
-																													);
+        int observedTripDuration = Math.max(0, currentActivity.observedTripDuration());
+        int increment = previousActivity.duration() + observedTripDuration;
+        Time fixedDate = previousActivity.startDate().plusMinutes(increment);
 
-
-				((ActivityIfc)curr).setStartDate(fixedDate);
+				currentActivity.setStartDate(fixedDate);
 			}
 
 			prev = curr;
