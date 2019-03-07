@@ -3,12 +3,13 @@ package edu.kit.ifv.mobitopp.simulation.activityschedule;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
@@ -61,7 +62,7 @@ public class ActivityPeriodTest {
 
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 
 		week = new ActivityPeriod(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), new PatternActivityWeek(),new ArrayList<Time>());
@@ -344,5 +345,28 @@ public class ActivityPeriodTest {
 		assertEquals("failure - fixStartTimeOfActivities()", 17, act3.calculatePlannedEndDate().getHour());
 		assertEquals("failure - fixStartTimeOfActivities()", 30, act3.calculatePlannedEndDate().getMinute());
 	}
+	
+	@Test
+  public void fixStartTimeOfActivitiesWhenTripDurationIsUnknown() {
+	  int unknownTripDuration = -1;
+	  int knownTripDuration = 1;
+    int duration = 2;
+    int firstStartMinute = 0;
+    int secondStartMinute = duration + unknownTripDuration;
+    
+    week.addToBack(makeActivity(1, duration, knownTripDuration, firstStartMinute));
+    week.addToBack(makeActivity(2, duration, unknownTripDuration, secondStartMinute));
+    
+    assumeFalse(week.checkNonOverlappingInvariant());
+    week.fixStartTimeOfActivities();
+    assertTrue(week.checkNonOverlappingInvariant());
+  }
+
+  private ActivityAsLinkedListElement makeActivity(
+      int oid, int duration, int tripDuration, int startMinute) {
+    Time startDate = Time.start.plusMinutes(startMinute);
+    return new ActivityAsLinkedListElement(oid, oid, ActivityType.HOME, startDate, duration,
+        tripDuration);
+  }
 	
 }
