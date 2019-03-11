@@ -130,11 +130,11 @@ public class ContextBuilder {
 	private void loadVisumNetwork() {
 		System.out.println("Reading VISUM network");
 		if (null == network) {
-			network = doLoadVisumNetwork(configuration.getVisumFile());
+			network = doLoadVisumNetwork(configuration.getVisumFile(), language);
 		}
 	}
 
-	protected VisumNetwork doLoadVisumNetwork(String fileName) {
+	protected VisumNetwork doLoadVisumNetwork(String fileName, NetfileLanguage language) {
 		return NetworkSerializer.readVisumNetwork(fileName, language);
 	}
 

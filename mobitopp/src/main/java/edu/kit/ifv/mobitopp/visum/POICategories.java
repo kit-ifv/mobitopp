@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 
-class POICategories {
+public class POICategories {
 
 	private final VisumTable categories;
 
