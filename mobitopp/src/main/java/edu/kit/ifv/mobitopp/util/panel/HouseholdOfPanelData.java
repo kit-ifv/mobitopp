@@ -9,7 +9,7 @@ public class HouseholdOfPanelData
 
 
   private final HouseholdOfPanelDataId id;
-  private final byte areaType;
+  private final int areaType;
   private final byte numberOfCars;
   private final byte numberOfReportingPersons;
   private final byte numberOfNotReportingChildren;
@@ -34,7 +34,7 @@ public class HouseholdOfPanelData
 
 		this.id = id;
 
-		this.areaType = (byte) areaType;
+		this.areaType = areaType;
 		this.size = (byte) size;
 		this.householdType = (byte) domCode;
 		this.numberOfReportingPersons = (byte) numberOfReportingPersons;
