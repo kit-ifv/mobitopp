@@ -68,7 +68,7 @@ public enum PersonStateTimeModeChoice implements PersonState {
 			person.endActivity();
 			person.selectDestinationAndMode(person.options().destinationChoiceModel(),
 					person.options().modeChoiceModel(), person.options().impedance(), true);
-			person.allocateCar(person.options().impedance(), person.currentTrip(),
+			person.prepareTrip(person.options().impedance(), person.currentTrip(),
 					person.currentTrip().startDate());
 		}
 	},			

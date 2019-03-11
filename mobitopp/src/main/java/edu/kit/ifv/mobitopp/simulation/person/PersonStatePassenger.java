@@ -35,7 +35,7 @@ public enum PersonStatePassenger
 			person.selectDestinationAndMode(person.options().destinationChoiceModel(),
 					person.options().modeChoiceModel(), person.options().impedance(), true);
 
-			person.allocateCar(person.options().impedance(), person.currentTrip(),
+			person.prepareTrip(person.options().impedance(), person.currentTrip(),
 					person.currentTrip().startDate());
 
 			person.offerRide(currentTime, person.options());
@@ -167,7 +167,7 @@ public enum PersonStatePassenger
 			person.selectDestinationAndMode(person.options().destinationChoiceModel(),
 					person.options().modeChoiceModel(), person.options().impedance(), false);
 
-			person.allocateCar(person.options().impedance(), person.currentTrip(),
+			person.prepareTrip(person.options().impedance(), person.currentTrip(),
 					person.currentTrip().startDate());
 
 			person.offerRide(currentTime, person.options());
