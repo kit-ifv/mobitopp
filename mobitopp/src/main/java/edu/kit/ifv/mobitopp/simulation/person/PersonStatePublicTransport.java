@@ -200,7 +200,7 @@ public enum PersonStatePublicTransport implements PersonState {
 		@Override
 		public void doActionAtStart(SimulationPerson person, Time currentTime) {
 			Trip currentTrip = person.currentTrip();
-			person.allocateCar(person.options().impedance(), currentTrip, currentTrip.startDate());
+			person.prepareTrip(person.options().impedance(), currentTrip, currentTrip.startDate());
 		}
 
 	},

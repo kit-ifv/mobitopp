@@ -86,11 +86,7 @@ public interface SimulationPerson
 		Time date
 	);
 
-	public  void allocateCar(
-		ImpedanceIfc impedance,
-		Trip trip,
-		Time time
-	);
+  void prepareTrip(ImpedanceIfc impedance, Trip trip, Time time);
 
 	public void notify(
 		EventQueue queue,

@@ -379,7 +379,7 @@ public class PersonStatePublicTransportTest {
 
 		USE_OTHER_MODE.doActionAtStart(person, someDate());
 
-		verify(person).allocateCar(any(), any(), any());
+		verify(person).prepareTrip(any(), any(), any());
 	}
 
 	@Test

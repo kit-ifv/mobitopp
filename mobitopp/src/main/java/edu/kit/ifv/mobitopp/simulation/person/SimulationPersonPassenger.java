@@ -373,15 +373,11 @@ public class SimulationPersonPassenger extends PersonDecorator
 		return location;
 	}
 
-
-	public void allocateCar(
-		ImpedanceIfc impedance,
-		Trip trip,
-		Time time
-	) {
-		assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
+	@Override
+  public void prepareTrip(ImpedanceIfc impedance, Trip trip, Time time) {
+    assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
     trip.prepareTrip(impedance, time);
-	}
+  }
 
   protected Trip createTrip(
       ImpedanceIfc impedance, Mode modeType, ActivityIfc previousActivity,
