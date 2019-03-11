@@ -20,7 +20,9 @@ public class UseLocalDataTest {
             demandFile("household.csv"), demandFile("opportunity.csv"), demandFile("person.csv"),
             resultFile("demandsimulationResult.csv"),
             resultFile("demandsimulationResultActivity.csv"),
-            resultFile("demandsimulationResultCar.csv"));
+            resultFile("demandsimulationResultCar.csv"),
+            resultFile("demandsimulationResultCharging.csv"),
+            resultFile("demandsimulationResultChargingAgg.csv"));
   }
 
   private static ResultFile demandFile(String fileName) {
