@@ -1,0 +1,5 @@
+CH;carType;carSegment;carId;currentMileage;fuelLevel;chargingStartDay;chargingStartTime;standingDurationMinutes;chargingDurationMinutes;roundedOldBatteryLevel;roundedNewBatteryLevel;electricityChargedInKWh;zone;coordinates;chargingPointId;chargingPointType;chargingPowerKW;cumulatedElectricitySuppliedInKWh;stationId;
+CH;E;SMALL;10890;0.0;1.0;Di;07:41:00;533;1;0.499;1.0;4.5001245;Z1;(8.399749439869804,49.09760221541582);-3;PUBLIC;150.0;4.5001245;-3;
+CH;B;SMALL;5850;0.0;0.0;Mi;12:20:00;217;3;0.499;1.0;9.000412;Z4;(8.395785432645496,49.09143476539887);-3;PUBLIC;150.0;9.000412;-3;
+CH;E;SMALL;8760;0.0;1.0;Do;14:31:00;1354;73;0.499;1.0;4.5025473;Z8;(8.433884415130045,49.08710292869348);-2;PRIVATE;3.7;4.5025473;-2;
+CH;B;MIDSIZE;3040;0.0;0.0;So;18:48:00;50;3;0.499;1.0;9.0006075;Z9;(8.401464045413782,49.08708428253028);-3;PUBLIC;150.0;9.0006075;-3;
