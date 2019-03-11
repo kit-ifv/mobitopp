@@ -22,7 +22,8 @@ public enum Mode {
 	PEDELEC(16),
 	BIKESHARING(17),
 	RIDE_POOLING(21),
-	AUTONOMOUS_TAXI(22)
+	AUTONOMOUS_TAXI(22),
+	PREMIUM_AUTONOMOUS_TAXI(23)
 	;
 
 	private final int mode_numeric;
@@ -132,6 +133,7 @@ public enum Mode {
 			case BIKESHARING:
 			case RIDE_POOLING:
 			case AUTONOMOUS_TAXI:
+			case PREMIUM_AUTONOMOUS_TAXI:
 				return true;
 			case BIKE:
 			case CAR:
