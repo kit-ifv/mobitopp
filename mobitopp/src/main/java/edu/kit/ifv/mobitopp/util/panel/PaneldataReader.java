@@ -19,7 +19,8 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 public class PaneldataReader {
 
 
-	public final Map<String,List<PaneldataInfo>> data;
+	private static final int graduationUndefined = -1;
+  public final Map<String,List<PaneldataInfo>> data;
 
 	
 	public PaneldataReader(File file) {
@@ -126,6 +127,7 @@ public class PaneldataReader {
 		info.person.weight							= java.lang.Float.parseFloat(field[columnNames.get("weight")]);
 		info.person.person_number				= java.lang.Integer.parseInt(field[columnNames.get("personnumber")]);
 		info.person.sex 								= java.lang.Integer.parseInt(field[columnNames.get("sex")]);
+		info.person.graduation					= graduation(columnNames, field);
 		info.person.birth_year 					= java.lang.Integer.parseInt(field[columnNames.get("birthyear")]);
 		info.person.employment_type 		= java.lang.Integer.parseInt(field[columnNames.get("employmenttype")]);
 		info.person.pole_distance 			= java.lang.Integer.parseInt(field[columnNames.get("poledistance")]);
@@ -192,6 +194,13 @@ public class PaneldataReader {
 
 		return info;
 	}
+
+  private int graduation(Map<String, Integer> columnNames, String[] field) {
+    if (columnNames.containsKey("graduation")) {
+      return Integer.parseInt(field[columnNames.get("graduation")]);
+    }
+    return graduationUndefined;
+  }
 
 	private Map<String,List<PaneldataInfo>> groupByHousehold(List<PaneldataInfo> input) {
 		List<String> hhIds = new ArrayList<String>();
@@ -357,6 +366,7 @@ public class PaneldataReader {
 																		cnt++ 
 																	),
 																	info.person.sex,
+																	info.person.graduation,
 																	info.person.birth_year,
 																	info.household.year - info.person.birth_year,
 																	info.person.employment_type,
