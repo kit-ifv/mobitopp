@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 
 public class PersonOfPanelData
 	implements Comparable<PersonOfPanelData>
@@ -15,6 +16,7 @@ public class PersonOfPanelData
 
   private final byte employmentType;
   private final byte genderType;
+  private final byte graduation;
 
   private final short  birthyear;
   private final short  age;
@@ -40,6 +42,7 @@ public class PersonOfPanelData
 	public PersonOfPanelData(
 		PersonOfPanelDataId personId,
 		int genderType,
+		int graduation,
 		int  birthyear,
 		int  age,
 		int employmentType,
@@ -67,6 +70,7 @@ public class PersonOfPanelData
 
 		this.id = personId;
     this.genderType = (byte) genderType;
+    this.graduation = (byte) graduation;
     this.birthyear = (short) birthyear;
     this.age = (short) age;
     this.employmentType = (byte) employmentType;
@@ -173,6 +177,13 @@ public class PersonOfPanelData
     return Gender.getTypeFromInt(getGenderTypeAsInt());
   }
 
+  public Graduation graduation() {
+    return Graduation.getTypeFromNumeric(getGraduationTypeAsInt());
+  }
+
+  public int getGraduationTypeAsInt() {
+    return this.graduation;
+  }
 
   public Employment employment()
   {
@@ -196,5 +207,6 @@ public class PersonOfPanelData
 		PersonOfPanelDataId id = getId();
 		return id.compareTo(o.getId());
 	}
+
 }
 

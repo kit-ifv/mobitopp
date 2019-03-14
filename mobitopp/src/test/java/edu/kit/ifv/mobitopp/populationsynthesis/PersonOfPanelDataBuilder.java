@@ -14,6 +14,8 @@ public class PersonOfPanelDataBuilder {
   public static final int genderMale = 1;
   public static final int genderFemale = 2;
   public static final int defaultGender = genderMale;
+  private static final int graduationUndefined = -1;
+  private static final int graduation = graduationUndefined;
   public static final int defaultBirthyear = 4;
   public static final int defaultAge = 5;
   public static final int defaultEmployment = 6;
@@ -76,7 +78,7 @@ public class PersonOfPanelDataBuilder {
   }
 
   public PersonOfPanelData build() {
-    return new PersonOfPanelData(id, gender, defaultBirthyear, age, defaultEmployment,
+    return new PersonOfPanelData(id, gender, graduation, defaultBirthyear, age, defaultEmployment,
         poleDistance, defaultCommuterTicket, defaultBicycle, defaultPersonalCar,
         defaultCarAvailable, defaultHasLicense, defaultWeight, income,
         defaultActivityPattern, defaultPreferenceCardriver, defaultPreferenceCarpassenger,

@@ -6,6 +6,7 @@ class PersonInfo {
 	public float weight;
 	public int person_number;
 	public int sex;
+	public int graduation;
 	public int birth_year;
 	public int employment_type;
 	public int pole_distance;
@@ -35,6 +36,7 @@ class PersonInfo {
 					+ weight + ", "
 					+ person_number + ", "
 					+ sex + ", "
+					+ graduation + ", "
 					+ birth_year + ", "
 					+ employment_type + ", "
 					+ pole_distance + ", "

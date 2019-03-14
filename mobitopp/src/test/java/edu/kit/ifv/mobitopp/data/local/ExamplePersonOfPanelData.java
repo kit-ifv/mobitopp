@@ -12,6 +12,7 @@ public class ExamplePersonOfPanelData {
 	public static final PersonOfPanelDataId otherId = new PersonOfPanelDataId(
 			ExampleHouseholdOfPanelData.otherId, otherNumber);
 	public static final int genderType = 1;
+	private static final int graduation = -1;
 	public static final int birthyear = 4;
 	public static final int age = 5;
 	public static final int employmentType = 6;
@@ -38,21 +39,21 @@ public class ExamplePersonOfPanelData {
 
 	public static PersonOfPanelData createPersonWith(
 			PersonOfPanelDataId id, String activityPattern) {
-		return new PersonOfPanelData(id, genderType, birthyear, age, employmentType, poleDistance,
+		return new PersonOfPanelData(id, genderType, graduation, birthyear, age, employmentType, poleDistance,
 				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
 				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
 				pref_publictransport);
 	}
 
 	public static PersonOfPanelData personWithGender(int gender) {
-		return new PersonOfPanelData(anId, gender, birthyear, age, employmentType, poleDistance,
+		return new PersonOfPanelData(anId, gender, graduation, birthyear, age, employmentType, poleDistance,
 				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
 				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
 				pref_publictransport);
 	}
 	
 	public static PersonOfPanelData personWithPattern(String pattern) {
-		return new PersonOfPanelData(anId, genderType, birthyear, age, employmentType, poleDistance,
+		return new PersonOfPanelData(anId, genderType, graduation, birthyear, age, employmentType, poleDistance,
 				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, pattern,
 				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
 	}
