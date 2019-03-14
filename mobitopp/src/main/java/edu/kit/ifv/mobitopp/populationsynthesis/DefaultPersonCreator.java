@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferenceCreator;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
@@ -73,12 +74,14 @@ public class DefaultPersonCreator
 		
 		ModeChoicePreferences modePreferences = new ModeChoicePreferences(preferences);
 
-		PersonForSetup person = new DefaultPersonForSetup(
+    Graduation graduation = personOfPanelData.graduation();
+    PersonForSetup person = new DefaultPersonForSetup(
 													pid, 
 													household,
 													age,
 													Employment.getTypeFromInt(employment.getTypeAsInt()),
 													Gender.getTypeFromInt(gender.getTypeAsInt()),
+													graduation,
 													income,
 													personOfPanelData.hasBicycle(),
 													personOfPanelData.hasAccessToCar(),

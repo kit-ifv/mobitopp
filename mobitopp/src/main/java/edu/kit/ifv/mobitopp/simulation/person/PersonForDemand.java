@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -44,9 +45,9 @@ public class PersonForDemand implements Person, Serializable {
 
   private final short age;
 
-
 	private final Employment employment;
 	private final Gender gender;
+	private final Graduation graduation;
 
 	private final int income;
 
@@ -77,12 +78,14 @@ public class PersonForDemand implements Person, Serializable {
 	private Car car;
 	private CarUsage currentCarUsage = CarUsage.NONE;
 
+
   public PersonForDemand(
 		PersonId id,
 		Household household,
 		int age,
 		Employment employment,
-		Gender gender,
+		Gender gender, 
+		Graduation graduation,
 		int income,
 		boolean hasBike,
 		boolean hasAccessToCar,
@@ -104,6 +107,7 @@ public class PersonForDemand implements Person, Serializable {
 
 		this.employment=employment;
 		this.gender=gender;
+		this.graduation = graduation;
 
 		this.income=income;
 
@@ -281,10 +285,14 @@ public class PersonForDemand implements Person, Serializable {
     return this.activitySchedule;
   }
 
-
 	public int getIncome() 
 	{
 		return this.income;
+	}
+	
+	@Override
+	public Graduation graduation() {
+	  return graduation;
 	}
 
 	public Zone homeZone() {

@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Person;
@@ -38,6 +39,7 @@ public class Example {
   public static final int age = 3;
   public static final Employment employment = Employment.FULLTIME;
   public static final Gender gender = Gender.MALE;
+  private static final Graduation graduation = Graduation.universityDegree;
   public static final boolean hasBike = true;
   public static final boolean hasAccessToCar = true;
   public static final boolean hasPersonalCar = true;
@@ -57,7 +59,7 @@ public class Example {
     TourBasedActivityPattern activitySchedule = activitySchedule();
     FixedDestinations fixedDestinations = new FixedDestinations();
     fixedDestinations.add(new FixedDestination(activityType, zone, location));
-    return new PersonForDemand(id, household, age, employment, gender, income,
+    return new PersonForDemand(id, household, age, employment, gender, graduation, income,
         hasBike, hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule,
         fixedDestinations, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
   }

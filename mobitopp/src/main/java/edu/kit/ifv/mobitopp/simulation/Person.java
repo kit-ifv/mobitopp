@@ -45,6 +45,7 @@ public interface Person {
 	Gender gender();
 	Employment employment();
 	int age();
+	Graduation graduation();
 
 	int getIncome();
 

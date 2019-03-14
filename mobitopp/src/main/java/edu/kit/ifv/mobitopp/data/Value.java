@@ -15,6 +15,14 @@ public class Value {
   public short asShort() {
     return Short.parseShort(value);
   }
+  
+  public boolean asBoolean() {
+    return Boolean.parseBoolean(value);
+  }
+  
+  public float asFloat() {
+    return Float.valueOf(value);
+  }
 
   public String asString() {
     return value;

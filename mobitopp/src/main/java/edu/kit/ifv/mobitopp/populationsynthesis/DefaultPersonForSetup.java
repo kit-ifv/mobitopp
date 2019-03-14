@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
@@ -22,6 +23,7 @@ public class DefaultPersonForSetup implements PersonForSetup {
   private final short age;
   private final Employment employment;
   private final Gender gender;
+  private final Graduation graduation;
   private final int income;
   private final boolean hasBike;
   private final boolean hasAccessToCar;
@@ -35,9 +37,9 @@ public class DefaultPersonForSetup implements PersonForSetup {
 
   public DefaultPersonForSetup(
       PersonId id, HouseholdForSetup household, int age, Employment employment, Gender gender,
-      int income, boolean hasBike, boolean hasAccessToCar, boolean hasPersonalCar,
-      boolean hasCommuterTicket, boolean hasLicense, ModeChoicePreferences modeChoicePrefsSurvey,
-      ModeChoicePreferences modeChoicePreferences) {
+      Graduation graduation, int income, boolean hasBike, boolean hasAccessToCar,
+      boolean hasPersonalCar, boolean hasCommuterTicket, boolean hasLicense,
+      ModeChoicePreferences modeChoicePrefsSurvey, ModeChoicePreferences modeChoicePreferences) {
     this.id = id;
 
     this.household = household;
@@ -46,6 +48,7 @@ public class DefaultPersonForSetup implements PersonForSetup {
 
     this.employment = employment;
     this.gender = gender;
+    this.graduation = graduation;
 
     this.income = income;
 
@@ -177,7 +180,7 @@ public class DefaultPersonForSetup implements PersonForSetup {
 
   @Override
   public Person toPerson(Household household) {
-    return new PersonForDemand(id, household, age, employment, gender, income, hasBike,
+    return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
         hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, activityPattern,
         fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
   }

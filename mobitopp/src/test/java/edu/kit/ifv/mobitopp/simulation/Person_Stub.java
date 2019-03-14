@@ -83,6 +83,7 @@ public class Person_Stub
 	public Gender gender() { return null; }
 	public Employment employment() { return null; }
 	public int age() { return -1; }
+	public Graduation graduation() { return Graduation.undefined; }
 
 	public Zone homeZone() { return null; }
  	public boolean hasFixedZoneFor(ActivityType activityType) { return false; }
