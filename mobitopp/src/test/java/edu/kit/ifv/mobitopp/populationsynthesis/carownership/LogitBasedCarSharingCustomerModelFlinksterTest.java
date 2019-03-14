@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharin
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
@@ -102,6 +103,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												50, // age,
 												Employment.NONE,
 												Gender.MALE,
+												Graduation.undefined,
 												0, // income
 												false, true, false, false, 
 												true, 
@@ -114,6 +116,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												35, // age,
 												Employment.FULLTIME,
 												Gender.MALE,
+                        Graduation.undefined,
 												0, // income
 												false, true, false, false, 
 												true,
@@ -126,6 +129,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												30, // age,
 												Employment.FULLTIME,
 												Gender.FEMALE,
+                        Graduation.undefined,
 												0, // income
 												false, true, false, false, 
 												true,
@@ -178,6 +182,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 												age, // age,
 												employment,
 												sex,
+                        Graduation.undefined,
 												0, // income
 												false, true, false, 
 												ticket,

@@ -125,6 +125,7 @@ public class DefaultPersonFormatTest {
     assertValue(Person::age, person, originalPerson);
     assertValue(Person::employment, person, originalPerson);
     assertValue(Person::gender, person, originalPerson);
+    assertValue(Person::graduation, person, originalPerson);
     assertValue(Person::hasBike, person, originalPerson);
     assertValue(Person::hasAccessToCar, person, originalPerson);
     assertValue(Person::hasPersonalCar, person, originalPerson);
@@ -149,10 +150,11 @@ public class DefaultPersonFormatTest {
   private List<String> personFormat() {
     return asList(valueOf(personOid), valueOf(personNumber), valueOf(householdOid),
         valueOf(ExampleSetup.age), valueOf(ExampleSetup.employment), valueOf(ExampleSetup.gender),
-        valueOf(ExampleSetup.income), valueOf(ExampleSetup.hasBike),
-        valueOf(ExampleSetup.hasAccessToCar), valueOf(ExampleSetup.hasPersonalCar),
-        valueOf(ExampleSetup.hasCommuterTicket), valueOf(ExampleSetup.hasLicense),
-        valueOf(ModeChoicePreferences.NOPREFERENCES), valueOf(ModeChoicePreferences.NOPREFERENCES));
+        valueOf(ExampleSetup.graduation.getNumeric()), valueOf(ExampleSetup.income),
+        valueOf(ExampleSetup.hasBike), valueOf(ExampleSetup.hasAccessToCar),
+        valueOf(ExampleSetup.hasPersonalCar), valueOf(ExampleSetup.hasCommuterTicket),
+        valueOf(ExampleSetup.hasLicense), valueOf(ModeChoicePreferences.NOPREFERENCES),
+        valueOf(ModeChoicePreferences.NOPREFERENCES));
   }
 
   private List<String> emobilityPerson() {

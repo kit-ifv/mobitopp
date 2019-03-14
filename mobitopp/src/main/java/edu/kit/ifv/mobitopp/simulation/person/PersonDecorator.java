@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -115,6 +116,10 @@ public class PersonDecorator
 
 	public int age() {
 		return person().age();
+	}
+	
+	public Graduation graduation() { 
+	  return person().graduation();
 	}
 
 	public Zone homeZone() {

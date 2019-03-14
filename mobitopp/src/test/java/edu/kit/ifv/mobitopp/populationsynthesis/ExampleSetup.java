@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -50,6 +51,7 @@ public abstract class ExampleSetup {
 	public static final int age = 3;
 	public static final Employment employment = Employment.FULLTIME;
 	public static final Gender gender = Gender.MALE;
+  public static final Graduation graduation = Graduation.universityDegree;
 	public static final boolean hasBike = true;
 	public static final boolean hasAccessToCar = true;
 	public static final boolean hasPersonalCar = true;
@@ -170,7 +172,7 @@ public abstract class ExampleSetup {
 	public static PersonForSetup personOf(HouseholdForSetup household, int personNumber, Zone zone, ActivityType activityType) {
 		PersonId id = new PersonId(personNumber, household.getId(), personNumber);
 		TourBasedActivityPattern activitySchedule = activitySchedule();
-		PersonForSetup person = new DefaultPersonForSetup(id, household, age, employment, gender, income, hasBike,
+		PersonForSetup person = new DefaultPersonForSetup(id, household, age, employment, gender, graduation, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
 		person.setFixedDestination(new FixedDestination(activityType, zone, location));
 		person.setPatternActivityWeek(activitySchedule);

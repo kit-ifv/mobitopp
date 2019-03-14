@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
@@ -33,6 +34,7 @@ public class PersonForDemandTest {
 	private int age;
 	private Employment employment;
 	private Gender gender;
+	private Graduation graduation;
 	private int income;
 	private boolean hasBike;
 	private boolean hasAccessToCar;
@@ -56,6 +58,7 @@ public class PersonForDemandTest {
 		age = 4;
 		employment = Employment.EDUCATION;
 		gender = Gender.FEMALE;
+		graduation = Graduation.undefined;
 		income = 5;
 		hasBike = true;
 		hasAccessToCar = false;
@@ -71,7 +74,7 @@ public class PersonForDemandTest {
 	}
 
 	private PersonForDemand newPerson() {
-		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, income, hasBike,
+		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, fixedDestinations, prefSurvey, prefSimulation);
     return newPerson;
 	}
