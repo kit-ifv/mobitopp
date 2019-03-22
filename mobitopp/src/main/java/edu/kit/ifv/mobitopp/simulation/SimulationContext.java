@@ -4,7 +4,7 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
-import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.result.Results;
 
 public interface SimulationContext {
 
@@ -30,7 +30,7 @@ public interface SimulationContext {
 
 	PersonLoader personLoader();
 
-	ResultWriter results();
+	Results results();
 
 	PersonResults personResults();
 

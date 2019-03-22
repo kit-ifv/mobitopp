@@ -19,11 +19,13 @@ public class SimpleSimulationContextTest {
 	private ResultWriter resultWriter;
 	private WrittenConfiguration configuration;
 	private SimulationParser format;
+  private PersonResults personResults;
 
 	@Before
 	public void initialise() {
 		chargingWriter = mock(ElectricChargingWriter.class);
 		resultWriter = mock(ResultWriter.class);
+		personResults = mock(PersonResults.class);
 		configuration = new WrittenConfiguration();
 		format = new SimulationParser(Collections.emptyMap());
 	}
@@ -41,13 +43,13 @@ public class SimpleSimulationContextTest {
 
 		verify(chargingWriter).print();
 		verify(resultWriter).close();
+		verify(personResults).close();
 	}
 
 	private SimpleSimulationContext context() {
 		DynamicParameters experimental = new DynamicParameters(Collections.emptyMap());
 		DataRepositoryForSimulation dataRepository = mock(DataRepositoryForSimulation.class);
 		SimulationDays simulationDays = SimulationDays.containing(1);
-		PersonResults personResults = mock(PersonResults.class);
 		DynamicParameters modeChoice = new DynamicParameters(Collections.emptyMap());
 		return new SimpleSimulationContext(configuration, experimental, dataRepository, simulationDays,
 				format, resultWriter, chargingWriter, personResults, modeChoice);
