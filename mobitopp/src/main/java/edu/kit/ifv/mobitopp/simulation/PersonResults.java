@@ -1,13 +1,16 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.io.Closeable;
+import java.io.UncheckedIOException;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
-import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
-public interface PersonResults {
+public interface PersonResults extends Closeable {
 
 	void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity);
 
@@ -22,5 +25,7 @@ public interface PersonResults {
 	void writeTourinfoToFile(Person person, Tour tour, Zone tourDestination, Mode tourMode);
 
 	void notifyStateChanged(StateChange stateChange);
+	
+	void close() throws UncheckedIOException;
 
 }

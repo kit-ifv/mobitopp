@@ -108,6 +108,7 @@ public class SimpleSimulationContext implements SimulationContext {
 	public void afterSimulation() {
 		electricChargingWriter.print();
 		resultWriter.close();
+		personResults.close();
 	}
 
 	@Override

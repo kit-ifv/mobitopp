@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.io.UncheckedIOException;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
@@ -359,4 +361,9 @@ public class TripfileWriter implements PersonResults {
 		message.append(change.next());
 		results().write(this.categories.stateChange, message.toString());
 	}
+
+  @Override
+  public void close() throws UncheckedIOException {
+    results().close();
+  }
 }
