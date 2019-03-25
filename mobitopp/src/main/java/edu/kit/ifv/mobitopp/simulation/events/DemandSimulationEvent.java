@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.events;
 
 import java.util.Objects;
 
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
@@ -142,7 +142,7 @@ public class DemandSimulationEvent
   }
 
   @Override
-  public void writeRemaining(PersonResults results) {
+  public void writeRemaining(PersonListener listener) {
   }
 
 	public String toString() {

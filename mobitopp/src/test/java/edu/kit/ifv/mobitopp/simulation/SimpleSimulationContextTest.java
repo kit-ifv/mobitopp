@@ -43,7 +43,7 @@ public class SimpleSimulationContextTest {
 
 		verify(chargingWriter).print();
 		verify(resultWriter).close();
-		verify(personResults).close();
+		verify(personResults).notifyFinishSimulation();
 	}
 
 	private SimpleSimulationContext context() {

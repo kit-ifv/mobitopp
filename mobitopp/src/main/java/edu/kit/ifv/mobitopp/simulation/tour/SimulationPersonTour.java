@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
@@ -55,9 +55,9 @@ public class SimulationPersonTour
 		PersonState initialState,
 		PublicTransportBehaviour publicTransportBehaviour,
 		long seed, 
-		PersonResults results
+		PersonListener listener
 	) {
-		super(person, zoneRepository, queue, options, simulationDays, modesInSimulation, tourFactory, tripFactory, initialState, publicTransportBehaviour, seed, results);
+		super(person, zoneRepository, queue, options, simulationDays, modesInSimulation, tourFactory, tripFactory, initialState, publicTransportBehaviour, seed, listener);
 	}
 
 
@@ -121,7 +121,7 @@ public class SimulationPersonTour
 		ZoneAndLocation tourDestination = selectAndSetDestinationForMainActivity(tour, previousActivity, mainActivity, destinationChoiceModel, impedance);
 		Mode tourMode = selectAndSetTourMode(tour, previousActivity, mainActivity, tourDestination, modeChoiceModel, passengerAsOption, impedance);
 		
-		results.writeTourinfoToFile(person(), tour, tourDestination.zone, tourMode);
+		listener.writeTourinfoToFile(person(), tour, tourDestination.zone, tourMode);
 	}
 	
 	private ZoneAndLocation selectAndSetDestinationForMainActivity(

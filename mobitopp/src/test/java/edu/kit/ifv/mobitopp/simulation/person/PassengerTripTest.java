@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -20,7 +20,7 @@ public class PassengerTripTest {
   private Time currentTime;
   private PrivateCar car;
   private TripData trip;
-  private PersonResults results;
+  private PersonListener listener;
 
   @BeforeEach
   public void initialise() {
@@ -29,7 +29,7 @@ public class PassengerTripTest {
     car = setup.car;
     trip = setup.tripData;
     currentTime = setup.currentTime;
-    results = setup.results;
+    listener = setup.results;
   }
 
   @Test
@@ -39,7 +39,7 @@ public class PassengerTripTest {
     configureUsedCar(carId);
     PassengerTrip passengerTrip = newTrip();
 
-    FinishedTrip finishedTrip = passengerTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = passengerTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), hasValue(String.valueOf(carId)));
     verify(person).leaveCar();
@@ -59,7 +59,7 @@ public class PassengerTripTest {
     configureBeingPassenger(false);
     PassengerTrip passengerTrip = newTrip();
 
-    FinishedTrip finishedTrip = passengerTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = passengerTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), hasValue("-1"));
   }

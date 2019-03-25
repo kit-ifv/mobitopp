@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.events;
 
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
@@ -15,8 +15,8 @@ public class TripEndingEvent extends DemandSimulationEvent {
 	}
 	
 	@Override
-	public void writeRemaining(PersonResults results) {
-		super.writeRemaining(results);
+	public void writeRemaining(PersonListener listener) {
+		super.writeRemaining(listener);
     Person person = getPerson();
 
     Trip trip = person.currentTrip();
@@ -30,10 +30,10 @@ public class TripEndingEvent extends DemandSimulationEvent {
 		assert activity != null : person.activitySchedule().toString();
 		assert prevActivity != null;
 
-		FinishedTrip finishedTrip = trip.finish(trip.calculatePlannedEndDate(), results);
-		results.notifyEndTrip(person, finishedTrip, activity);
+		FinishedTrip finishedTrip = trip.finish(trip.calculatePlannedEndDate(), listener);
+		listener.notifyEndTrip(person, finishedTrip, activity);
 		if (person.isCarDriver()) {
-			results.notifyFinishCarTrip(person, person.whichCar(), finishedTrip, activity);
+			listener.notifyFinishCarTrip(person, person.whichCar(), finishedTrip, activity);
 		}
 	}
 }

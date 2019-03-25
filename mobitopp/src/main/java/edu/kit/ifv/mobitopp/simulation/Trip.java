@@ -27,10 +27,10 @@ public interface Trip extends TripData, OccupationIfc {
    * 
    * @param currentDate
    *          current simulation time
-   * @param results
-   *          writer to access the output files and write information
+   * @param listener
+   *          listener to notify output writers and others about changes
    * @return a finished trip containing all information about the executed trip
    */
-  FinishedTrip finish(Time currentDate, PersonResults results);
+  FinishedTrip finish(Time currentDate, PersonListener listener);
 
 }

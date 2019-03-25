@@ -13,7 +13,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
@@ -29,7 +29,7 @@ public class CarSharingStationTripTest {
   private TripData trip;
   private Zone zone;
   private Location location;
-  private PersonResults results;
+  private PersonListener listener;
   private CarSharingCar car;
   private CarSharingDataForZone carSharingData;
 
@@ -42,7 +42,7 @@ public class CarSharingStationTripTest {
     zone = setup.zone;
     location = setup.location;
     currentTime = setup.currentTime;
-    results = setup.results;
+    listener = setup.results;
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
@@ -71,7 +71,7 @@ public class CarSharingStationTripTest {
 
     Trip privateCarTrip = new CarSharingStationTrip(trip, person);
 
-    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), isEmpty());
     verify(person).parkCar(zone, location, currentTime);
@@ -85,7 +85,7 @@ public class CarSharingStationTripTest {
 
     Trip privateCarTrip = new CarSharingStationTrip(trip, person);
 
-    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), isEmpty());
     verify(person).releaseCar(currentTime);

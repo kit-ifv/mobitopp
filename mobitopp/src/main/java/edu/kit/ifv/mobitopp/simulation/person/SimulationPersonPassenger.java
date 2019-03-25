@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffer;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
@@ -48,7 +48,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	private static final long serialVersionUID = 1L;
 	private final SimulationOptions options;
 	private final ZoneRepository zoneRepository;
-	protected final PersonResults results;
+	protected final PersonListener listener;
 	private final PublicTransportBehaviour publicTransportBehaviour;
 	private final Random random;
 	protected final Set<Mode> modesInSimulation;
@@ -69,7 +69,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		PersonState initialState,
 		PublicTransportBehaviour publicTransportBehaviour,
 		long seed, 
-		PersonResults results
+		PersonListener listener
 	) {
 		super(person);
 		this.options = options;
@@ -80,7 +80,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		this.state = initialState;
 		this.modesInSimulation = modesInSimulation;
-		this.results = results;
+		this.listener = listener;
 		this.publicTransportBehaviour = publicTransportBehaviour;
 		events = new Events();
 
@@ -125,7 +125,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 	private void notifyStartActivity(Person person, ActivityIfc firstActivity) {
-		results.notifyStartActivity(person, firstActivity);
+		listener.notifyStartActivity(person, firstActivity);
 	}
 
 	public void startActivity(
@@ -181,7 +181,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		currentState().doActionAtEnd(this, currentTime);
 		setState(currentState().nextState(this, currentTime));
 		currentState().doActionAtStart(this, currentTime);
-		results.notifyStateChanged(new StateChange(this, currentTime, previous, currentState()));
+		listener.notifyStateChanged(new StateChange(this, currentTime, previous, currentState()));
 	}
 
 	public boolean hasNextActivity() {
@@ -492,12 +492,12 @@ public class SimulationPersonPassenger extends PersonDecorator
 		if (trip instanceof PublicTransportTrip) {
 			return ((PublicTransportTrip) trip).finish(currentDate, events);
 		}
-		return trip.finish(currentDate, results);
+		return trip.finish(currentDate, listener);
 	}
 	
 	private void notifyEndTrip(FinishedTrip trip, ActivityIfc activity) {
 	  Objects.requireNonNull(trip, "Missing finished trip.");
-		results.notifyEndTrip(person(), trip, activity);
+		listener.notifyEndTrip(person(), trip, activity);
 	}
 
 	private void startActivityInternal(
@@ -509,7 +509,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		person().startActivity(currentDate, activity, precedingTrip, rescheduling);
 		rideOfferAccepted = false;
 
-		results.notifyStartActivity(person(), activity);
+		listener.notifyStartActivity(person(), activity);
 	}
 
 	public void selectRoute(
@@ -530,7 +530,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 																					getZoneId(trip.destination().zone().getOid())
 																				);
 
-			results.notifySelectCarRoute(person(), person().whichCar(), trip, route);
+			listener.notifySelectCarRoute(person(), person().whichCar(), trip, route);
 		}
 	}
 

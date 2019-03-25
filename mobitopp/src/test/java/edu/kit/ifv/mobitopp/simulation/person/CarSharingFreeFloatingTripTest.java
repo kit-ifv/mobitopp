@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
@@ -30,7 +30,7 @@ public class CarSharingFreeFloatingTripTest {
   private Time currentTime;
   private TripData data;
   private Zone zone;
-  private PersonResults results;
+  private PersonListener listener;
   private CarSharingCar car;
   private CarSharingDataForZone carSharingData;
 
@@ -42,7 +42,7 @@ public class CarSharingFreeFloatingTripTest {
     data = setup.tripData;
     zone = setup.zone;
     currentTime = setup.currentTime;
-    results = setup.results;
+    listener = setup.results;
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
@@ -72,7 +72,7 @@ public class CarSharingFreeFloatingTripTest {
 
     Trip privateCarTrip = newTrip();
 
-    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), isEmpty());
     verify(person).releaseCar(currentTime);
@@ -88,7 +88,7 @@ public class CarSharingFreeFloatingTripTest {
 
     Trip privateCarTrip = newTrip();
 
-    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, results);
+    FinishedTrip finishedTrip = privateCarTrip.finish(currentTime, listener);
 
     assertThat(finishedTrip.vehicleId(), isEmpty());
     verify(person).whichCar();

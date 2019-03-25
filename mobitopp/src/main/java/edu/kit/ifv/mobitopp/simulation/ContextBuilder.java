@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.Network;
-import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
@@ -180,12 +179,14 @@ public class ContextBuilder {
 
 	private void personResults() {
 		System.out.println("Configuring output");
-		personResults = createResults(dataRepository.zoneRepository());
+		personResults = createResults();
 		log("Create output");
 	}
 
-	protected PersonResults createResults(ZoneRepository zoneRepository) {
-		return new TripfileWriter(resultWriter, dataRepository.impedance());
+	protected PersonResults createResults() {
+	  PersonResults results = new MultipleResults();
+	  results.addListener(new TripfileWriter(resultWriter, dataRepository.impedance()));
+    return results;
 	}
 
 	private SimulationContext createContext() {
