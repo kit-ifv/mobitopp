@@ -21,12 +21,11 @@ public class AggregateDemandTest {
 
   @Test
   void aggregateTrips() throws Exception {
-    PersonResults other = mock(PersonResults.class);
     @SuppressWarnings("unchecked")
     Consumer<IntegerMatrix> writer = mock(Consumer.class);
     List<Integer> oids = asList(1);
-    AggregateDemand aggregateDemand = new AggregateDemand(other, writer, oids);
-    
+    AggregateDemand aggregateDemand = new AggregateDemand(writer, oids);
+
     Person person = mock(Person.class);
     FinishedTrip trip = mock(FinishedTrip.class);
     Zone zone = mock(Zone.class);
@@ -36,14 +35,13 @@ public class AggregateDemandTest {
     when(trip.origin()).thenReturn(zoneLocation);
     when(trip.destination()).thenReturn(zoneLocation);
     ActivityIfc activity = mock(ActivityIfc.class);
-    
+
     aggregateDemand.notifyEndTrip(person, trip, activity);
-    
-    aggregateDemand.close();
-    
+
+    aggregateDemand.notifyFinishSimulation();
+
     IntegerMatrix matrix = new IntegerMatrix(oids);
     matrix.set(1, 1, 1);
-    verify(other).notifyEndTrip(person, trip, activity);
     verify(writer).accept(any(IntegerMatrix.class));
   }
 }

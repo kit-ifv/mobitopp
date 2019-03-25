@@ -121,6 +121,10 @@ public class DemandSimulatorPassenger
 		return context.impedance();
 	}
 	
+	protected TripFactory tripFactory() {
+	  return tripFactory;
+	}
+	
 	public int maxDifferenceMinutes() { return this.max_difference_minutes; }
 	public RideSharingOffers rideSharingOffers() { return this.rideOffers; }
 
@@ -152,7 +156,7 @@ public class DemandSimulatorPassenger
 	}
 
 	public void startSimulation() {
-		initFractionOfHouseholds(queue, this.vehicleBehaviour, context.seed(), results(), modesInSimulation, initialState);
+		initFractionOfHouseholds(queue, this.vehicleBehaviour, context.seed(), listener(), modesInSimulation, initialState);
 
 		simulate();
 	}
@@ -183,7 +187,7 @@ public class DemandSimulatorPassenger
 		}
 	}
 
-	private PersonResults results() {
+	private PersonListener listener() {
 		return context.personResults();
 	}
 
@@ -197,7 +201,7 @@ public class DemandSimulatorPassenger
 		EventQueue queue,
 		PublicTransportBehaviour boarder,
 		long seed,
-		PersonResults results, 
+		PersonListener listener, 
 		Set<Mode> modesInSimulation, 
 		PersonState initialState
 	) {
@@ -218,7 +222,7 @@ public class DemandSimulatorPassenger
       	Household household = personLoader().getHouseholdByOid(aHouseholdOid);      
 
 				for(Person p: household.getPersons()) {
-					createSimulatedPerson(queue, boarder, seed, p, results, modesInSimulation, initialState);
+					createSimulatedPerson(queue, boarder, seed, p, listener, modesInSimulation, initialState);
 				} 
 
 				remainder -= Math.floor(remainder);
@@ -242,7 +246,7 @@ public class DemandSimulatorPassenger
 
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
-			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
+			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonPassenger(p, 
 																					zoneRepository(),
 																					queue,
@@ -254,7 +258,7 @@ public class DemandSimulatorPassenger
 																					initialState,
 																					boarder,
 																					seed,
-																					results
+																					listener
 																				);
 	}
 
@@ -286,7 +290,7 @@ public class DemandSimulatorPassenger
 	private void writeRemainingTripsToFile(EventQueue queue, Time currentDate) {
 		while (queue.hasEventsUntil(currentDate)) {
 			DemandSimulationEventIfc simulationEvent = queue.nextEvent();
-			simulationEvent.writeRemaining(results());
+			simulationEvent.writeRemaining(listener());
 		}
 	}
 

@@ -1,8 +1,8 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.BaseTrip;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -13,8 +13,8 @@ public class PassengerTrip extends BaseTrip implements Trip {
   }
 
   @Override
-  public FinishedTrip finish(Time currentDate, PersonResults results) {
-    FinishedTrip finishedTrip = super.finish(currentDate, results);
+  public FinishedTrip finish(Time currentDate, PersonListener listener) {
+    FinishedTrip finishedTrip = super.finish(currentDate, listener);
     if (person().isCarPassenger()) {
       String carId = String.valueOf(person().whichCar().id());
       person().leaveCar();

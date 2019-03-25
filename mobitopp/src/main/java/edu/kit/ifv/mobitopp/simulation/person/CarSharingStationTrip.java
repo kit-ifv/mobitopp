@@ -4,7 +4,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.BaseTrip;
 import edu.kit.ifv.mobitopp.simulation.Trip;
@@ -34,8 +34,8 @@ public class CarSharingStationTrip extends BaseTrip implements Trip {
   }
   
   @Override
-  public FinishedTrip finish(Time currentDate, PersonResults results) {
-    FinishedTrip finishedTrip = super.finish(currentDate, results);
+  public FinishedTrip finish(Time currentDate, PersonListener listener) {
+    FinishedTrip finishedTrip = super.finish(currentDate, listener);
     Zone zone = nextActivity().zone();
     if (nextActivity().activityType().isHomeActivity()) {
       Car car = person().releaseCar(currentDate);

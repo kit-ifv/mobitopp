@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.io.UncheckedIOException;
-
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
@@ -15,7 +13,7 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class TripfileWriter implements PersonResults {
+public class TripfileWriter implements PersonListener {
 
 	private final ResultWriter results;
 	private final DateFormat format;
@@ -363,7 +361,7 @@ public class TripfileWriter implements PersonResults {
 	}
 
   @Override
-  public void close() throws UncheckedIOException {
-    results().close();
+  public void notifyFinishSimulation() {
   }
+
 }

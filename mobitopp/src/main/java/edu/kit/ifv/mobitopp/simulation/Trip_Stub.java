@@ -60,7 +60,7 @@ public class Trip_Stub implements TripData, Trip
 	}
 
 	@Override
-	public FinishedTrip finish(Time currentDate, PersonResults results) {
+	public FinishedTrip finish(Time currentDate, PersonListener listener) {
 		return new BeamedTrip(this, currentDate);
 	}
 

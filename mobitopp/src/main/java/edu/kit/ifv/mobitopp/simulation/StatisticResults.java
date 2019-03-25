@@ -4,29 +4,31 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
+import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
-public class StatisticResults extends PersonResultsDecorator implements PersonResults {
+public class StatisticResults implements PersonListener {
 
 	private final Collection<FinishedTrip> trips;
 	private final Collection<StateChange> stateChanges;
 
-	public StatisticResults(PersonResults other) {
-		super(other);
+	public StatisticResults() {
+		super();
 		trips = new LinkedList<>();
 		stateChanges = new LinkedList<>();
 	}
 
 	@Override
 	public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
-		super.notifyEndTrip(person, trip, activity);
 		trips.add(trip);
 	}
 
 	@Override
 	public void notifyStateChanged(StateChange change) {
-		super.notifyStateChanged(change);
 		stateChanges.add(change);
 	}
 
@@ -37,5 +39,29 @@ public class StatisticResults extends PersonResultsDecorator implements PersonRe
 	public Collection<StateChange> stateChanges() {
 		return Collections.unmodifiableCollection(stateChanges);
 	}
+
+  @Override
+  public void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity) {
+  }
+
+  @Override
+  public void notifyStartActivity(Person person, ActivityIfc activity) {
+  }
+
+  @Override
+  public void notifySelectCarRoute(Person person, Car car, TripData trip, Path route) {
+  }
+
+  @Override
+  public void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
+  }
+
+  @Override
+  public void writeTourinfoToFile(Person person, Tour tour, Zone tourDestination, Mode tourMode) {
+  }
+
+  @Override
+  public void notifyFinishSimulation() {
+  }
 
 }

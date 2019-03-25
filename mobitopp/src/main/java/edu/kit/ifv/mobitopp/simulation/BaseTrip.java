@@ -83,7 +83,7 @@ public class BaseTrip implements TripData, Trip {
   }
 
   @Override
-  public FinishedTrip finish(Time currentDate, PersonResults results) {
+  public FinishedTrip finish(Time currentDate, PersonListener listener) {
     return new BeamedTrip(data, currentDate);
   }
 

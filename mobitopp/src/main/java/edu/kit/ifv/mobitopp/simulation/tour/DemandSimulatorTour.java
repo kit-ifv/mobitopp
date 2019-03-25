@@ -5,7 +5,7 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.simulation.DemandSimulatorPassenger;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
@@ -63,7 +63,7 @@ public class DemandSimulatorTour
 	@Override
 	protected SimulationPersonPassenger createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
-			PersonResults results, Set<Mode> modesInSimulation, PersonState initialState) {
+			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
 		TripFactory tripFactory = new DefaultTripFactory();
     return new SimulationPersonTour(p, 
 																					zoneRepository(),
@@ -76,7 +76,7 @@ public class DemandSimulatorTour
 																					this.initialState,
 																					boarder,
 																					seed,
-																					results
+																					listener
 																				);
 	}
 

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class DemandSimulatorPassengerTest {
 		when(context.configuration()).thenReturn(new WrittenConfiguration());
 		when(context.zoneRepository()).thenReturn(zoneRepository);
 		when(context.vehicleBehaviour()).thenReturn(VehicleBehaviour.noBehaviour);
-		PersonResults results = new TripfileWriter(ResultsForTests.at(baseFolder), impedance);
+		PersonResults results = createResults(impedance);
 		when(context.personResults()).thenReturn(results);
     TripFactory tripFactory = mock(TripFactory.class);
     simulator = new DemandSimulatorPassenger(null, null, null,
@@ -62,6 +63,12 @@ public class DemandSimulatorPassengerTest {
 		simulator.addAfterTimeSliceHook(firstAfterSlice);
 		simulator.addAfterTimeSliceHook(secondAfterSlice);
 	}
+
+  private PersonResults createResults(ImpedanceIfc impedance) throws IOException {
+    MultipleResults results = new MultipleResults();
+    results.addListener(new TripfileWriter(ResultsForTests.at(baseFolder), impedance));
+    return results;
+  }
 
 	private SimulationDays simulationDays() {
 		List<Time> days = asList(firstDay(), lastDay());

@@ -22,12 +22,12 @@ public class BaseTripTest {
 
   private TripData trip;
   private BaseTrip base;
-  private PersonResults results;
+  private PersonListener listener;
 
   @BeforeEach
   public void initialise() {
     trip = mock(TripData.class);
-    results = mock(PersonResults.class);
+    listener = mock(PersonResults.class);
     SimulationPerson person = mock(SimulationPerson.class);
     base = new BaseTrip(trip, person);
   }
@@ -50,7 +50,7 @@ public class BaseTripTest {
   @Test
   void finish() throws Exception {
     Time currentTime = mock(Time.class);
-    FinishedTrip finishedTrip = base.finish(currentTime, results);
+    FinishedTrip finishedTrip = base.finish(currentTime, listener);
     
     assertThat(finishedTrip.endDate(), is(equalTo(currentTime)));
   }
