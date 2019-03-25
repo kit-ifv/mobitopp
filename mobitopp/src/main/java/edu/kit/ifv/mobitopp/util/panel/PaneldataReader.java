@@ -126,8 +126,8 @@ public class PaneldataReader {
 		info.person.pole								= java.lang.Integer.parseInt(field[columnNames.get("pole")]);
 		info.person.weight							= java.lang.Float.parseFloat(field[columnNames.get("weight")]);
 		info.person.person_number				= java.lang.Integer.parseInt(field[columnNames.get("personnumber")]);
-		info.person.sex 								= java.lang.Integer.parseInt(field[columnNames.get("sex")]);
-		info.person.graduation					= graduation(columnNames, field);
+		info.person.sex 								= readGender(columnNames, field);
+		info.person.graduation					= readGraduation(columnNames, field);
 		info.person.birth_year 					= java.lang.Integer.parseInt(field[columnNames.get("birthyear")]);
 		info.person.employment_type 		= java.lang.Integer.parseInt(field[columnNames.get("employmenttype")]);
 		info.person.pole_distance 			= java.lang.Integer.parseInt(field[columnNames.get("poledistance")]);
@@ -135,8 +135,6 @@ public class PaneldataReader {
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
 		info.person.apkwverf 						= field[columnNames.get("caravailable")].trim().equals("1");
 		info.person.ppkwverf 						= field[columnNames.get("personalcar")].trim().equals("1");
-		info.person.relvmselbst 				= field[columnNames.get("mw4")].trim().equals("1");
-		info.person.relvmoev 						= field[columnNames.get("mw5")].trim().equals("1");
 		
 		info.person.licence 						= columnNames.containsKey("licence")
 																		? field[columnNames.get("licence")].trim().equals("1") 
@@ -157,10 +155,6 @@ public class PaneldataReader {
 		info.person.income = columnNames.containsKey("incomeperson")
 															? java.lang.Integer.parseInt(field[columnNames.get("incomeperson")]) : 0;
 															
-
-		info.day 			= java.lang.Integer.parseInt(field[columnNames.get("day")]);
-		info.month 			= java.lang.Integer.parseInt(field[columnNames.get("month")]);
-		
 		info.person.pref_cardriver = columnNames.containsKey("pref_cardriver")
 															? java.lang.Float.parseFloat(field[columnNames.get("pref_cardriver")]) : 0.0f;
 		info.person.pref_carpassenger = columnNames.containsKey("pref_cardriver")
@@ -175,7 +169,9 @@ public class PaneldataReader {
 		int startPattern = columnNames.get("activitypattern");
 
 		for (int i=startPattern; i<field.length; i+=4) {
-
+		  if ("\"".equals(field[i])) {
+		    break;
+		  }
 			int purpose = java.lang.Integer.parseInt(field[i+1]);
 			if (purpose == 10) { purpose=9; }
 			
@@ -183,7 +179,7 @@ public class PaneldataReader {
 
 			info.activity_pattern.add(
 				new ActivityOfPanelData(
-					java.lang.Integer.parseInt(field[i]),
+					java.lang.Integer.parseInt(field[i].replaceAll("\"", "")),
 					ActivityType.getTypeFromInt(purpose),
 					java.lang.Integer.parseInt(field[i+2]),
 					java.lang.Integer.parseInt(field[i+3])
@@ -195,7 +191,14 @@ public class PaneldataReader {
 		return info;
 	}
 
-  private int graduation(Map<String, Integer> columnNames, String[] field) {
+  private int readGender(Map<String, Integer> columnNames, String[] field) {
+    if (columnNames.containsKey("gender")) {
+      return Integer.parseInt(field[columnNames.get("gender")]);
+    }
+    return Integer.parseInt(field[columnNames.get("sex")]);
+  }
+
+  private int readGraduation(Map<String, Integer> columnNames, String[] field) {
     if (columnNames.containsKey("graduation")) {
       return Integer.parseInt(field[columnNames.get("graduation")]);
     }

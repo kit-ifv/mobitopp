@@ -18,8 +18,6 @@ class PersonInfo {
 	public boolean fahrrad;
 	public boolean apkwverf;
 	public boolean ppkwverf;
-	public boolean relvmselbst;
-	public boolean relvmoev;
 
 	public float pref_cardriver;
 	public float pref_carpassenger;
@@ -44,8 +42,6 @@ class PersonInfo {
 					+ fahrrad + ", "
 					+ apkwverf + ", "
 					+ ppkwverf + ", "
-					+ relvmselbst + ", "
-					+ relvmoev + ", "
 				;
 	}
 }
