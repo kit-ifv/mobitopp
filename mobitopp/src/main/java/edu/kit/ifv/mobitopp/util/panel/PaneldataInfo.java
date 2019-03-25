@@ -9,11 +9,7 @@ class PaneldataInfo {
 	public PersonInfo	person	= new PersonInfo();
 
 	public List<Integer> sequence_of_day_types = new ArrayList<>();
-	public int day;
-	public int month;
 	public List<ActivityOfPanelData> activity_pattern = new ArrayList<>();
-
-
 
 	public String toString() {
 
