@@ -28,7 +28,7 @@ public abstract class DefaultMappings {
   public static TypeMapping autonomousModes() {
     DynamicTypeMapping types = createNormalModes();
     types.add(Mode.AUTONOMOUS_TAXI, TravelTimeMatrixType.car);
-    types.add(Mode.RIDE_POOLING, TravelTimeMatrixType.car);
+    types.add(Mode.RIDE_POOLING, TravelTimeMatrixType.ride_pooling);
     return types;
   }
 
