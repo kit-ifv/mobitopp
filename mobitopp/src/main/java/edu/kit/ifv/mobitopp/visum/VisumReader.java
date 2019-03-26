@@ -167,7 +167,7 @@ public class VisumReader {
 
 		String line = reader.readLine();
 
-		while (!line.isEmpty()) {
+		while (null != line && !line.isEmpty()) {
 
 			List<String> values =	parseLine(line, attributes.size());
 
