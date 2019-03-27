@@ -207,11 +207,16 @@ public class LocalFiles implements DataSource {
 		ImpedanceIfc impedance = data.impedance(localImpedance, zoneRepository);
 		VehicleBehaviour vehicleBehaviour = data.vehicleBehaviour(results);
 		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones);
+		triggerGarbageCollector();
 		return new LocalDataForSimulation(matrices, zoneRepository, impedance, personLoader,
 				vehicleBehaviour);
 	}
 
-	private ZoneRepository loadZonesFromMobiTopp(
+	private void triggerGarbageCollector() {
+	  System.gc();
+  }
+
+  private ZoneRepository loadZonesFromMobiTopp(
 			Supplier<Network> networkSupplier, AreaTypeRepository areaTypeRepository) throws IOException {
 		ZoneRepositorySerialiser serialisedData = createSerialiser(areaTypeRepository);
 		if (serialisedData.isAvailable()) {
