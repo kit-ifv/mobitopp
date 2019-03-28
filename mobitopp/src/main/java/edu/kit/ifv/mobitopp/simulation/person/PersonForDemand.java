@@ -165,21 +165,36 @@ public class PersonForDemand implements Person, Serializable {
 
 	@Override
 	public void useCarAsPassenger(Car car) {
+		
+		if(car.getClass().getSimpleName().equals("RideSharingMaasCar")) {
+			
+			assert car != null;
+			// assert car.isUsed(); // car does not need a driver
+			// assert !isUsingCar() : ("car = " + this.car);
+			
+			this.car = car;
+			this.currentCarUsage = CarUsage.PASSENGER;
+			car.useAsPassenger(this);
+			
+		} else {
+			
+			assert car != null;
+			assert car.isUsed(); // car needs a driver
+			assert !isUsingCar() : ("car = " + this.car);
+			
+			this.car = car;
+			this.currentCarUsage = CarUsage.PASSENGER;
+			car.useAsPassenger(this);
+			
+		}
 
-		assert car != null;
-		assert car.isUsed(); // car needs a driver
-		assert !isUsingCar() : ("car = " + this.car);
-
-		this.car = car;
-		this.currentCarUsage = CarUsage.PASSENGER;
-		car.useAsPassenger(this);
 	}
 
 	@Override
 	public void leaveCar() {
 
 		Car car = this.car;
-
+		
 		this.car = null;
 		this.currentCarUsage = CarUsage.NONE;
 		car.leave(this);
