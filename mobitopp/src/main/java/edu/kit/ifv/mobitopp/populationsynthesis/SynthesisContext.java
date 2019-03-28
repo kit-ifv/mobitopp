@@ -8,6 +8,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
+import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -46,5 +47,7 @@ public interface SynthesisContext {
 	void printStartupInformationOn(PrintStream out);
 
   List<AttributeType> attributes();
+
+  PopulationSynthesisParser format();
 
 }

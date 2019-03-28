@@ -44,6 +44,12 @@ public class HouseholdOfPanelData
 		this.income = income;
 	}
 
+  public HouseholdOfPanelData(HouseholdOfPanelData household) {
+    this(household.id, household.areaType, household.size, household.householdType,
+        household.numberOfReportingPersons, household.numberOfMinors,
+        household.numberOfNotReportingChildren, household.numberOfCars, household.income);
+  }
+
   public HouseholdOfPanelDataId id()
   {
 		assert this.id != null;
