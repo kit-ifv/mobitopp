@@ -117,6 +117,11 @@ public class SimpleSynthesisContext implements SynthesisContext {
   public DynamicParameters experimentalParameters() {
     return experimentalParameters;
   }
+  
+  @Override
+  public PopulationSynthesisParser format() {
+    return format;
+  }
 
   @Override
   public void printStartupInformationOn(PrintStream out) {
