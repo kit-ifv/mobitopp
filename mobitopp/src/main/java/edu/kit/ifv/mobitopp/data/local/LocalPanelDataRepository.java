@@ -17,7 +17,7 @@ public class LocalPanelDataRepository implements PanelDataRepository {
 	private final InMemoryHouseholds households;
 	private final InMemoryPersons persons;
 
-	LocalPanelDataRepository(InMemoryHouseholds households, InMemoryPersons persons) {
+	public LocalPanelDataRepository(InMemoryHouseholds households, InMemoryPersons persons) {
 		super();
 		this.households = households;
 		this.persons = persons;
