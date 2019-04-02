@@ -9,8 +9,8 @@ subprojects {
     group = 'edu.kit.ifv.mobitopp'
     version = project.hasProperty('next-version') ? project.property('next-version') : '0.0-SNAPSHOT'
     
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.11
+    targetCompatibility = 1.11
     
     repositories {
         mavenLocal()

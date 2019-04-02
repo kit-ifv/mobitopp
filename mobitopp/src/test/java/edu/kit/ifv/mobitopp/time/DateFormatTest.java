@@ -29,21 +29,21 @@ public class DateFormatTest {
 	public void asDay() {
 		String day = formatter.asDay(date());
 
-		assertThat(day, is(equalTo("Mo")));
+		assertThat(day, is(equalTo("Mo.")));
 	}
 
 	@Test
 	public void asFullDate() {
 		String time = formatter.asFullDate(date());
 
-		assertThat(time, is(equalTo("Mo 01:02:03")));
+		assertThat(time, is(equalTo("Mo. 01:02:03")));
 	}
 
 	@Test
 	public void asWeekdayTime() {
 		String time = formatter.asWeekdayTime(date());
 
-		assertThat(time, is(equalTo("Mo, 01 01:02:03")));
+		assertThat(time, is(equalTo("Mo., 01 01:02:03")));
 	}
 	
 	private Time date() {
