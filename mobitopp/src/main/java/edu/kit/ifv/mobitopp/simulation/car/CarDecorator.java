@@ -51,7 +51,7 @@ public class CarDecorator implements Car, Serializable {
 		assert car != null;
 		return car.isUsed(); 
 	}
-
+	
   public void returnCar(Zone zone) {
     car.returnCar(zone);
   }
@@ -81,5 +81,20 @@ public class CarDecorator implements Car, Serializable {
 	public String statusForLogging() { return car.statusForLogging(); }
 
 	public boolean isElectric() { return car.isElectric(); }
+
+  @Override
+  public boolean hasCapacity() {
+    return car.hasCapacity();
+  }
+
+  @Override
+  public boolean hasDriver() {
+    return car.hasDriver();
+  }
+
+  @Override
+  public boolean canCarryPassengers() {
+    return car.canCarryPassengers();
+  }
 
 }

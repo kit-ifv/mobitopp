@@ -68,6 +68,7 @@ public interface Car {
 	Time startOfLastUsage();
 	Time endOfLastUsage();
 	
+	boolean canCarryPassengers();
 	void useAsPassenger(Person person);
 	void leave(Person person);
 
@@ -89,4 +90,9 @@ public interface Car {
 	public String statusForLogging(); 
 
 	public boolean isElectric();
+
+  boolean hasCapacity();
+
+  boolean hasDriver();
+
 }

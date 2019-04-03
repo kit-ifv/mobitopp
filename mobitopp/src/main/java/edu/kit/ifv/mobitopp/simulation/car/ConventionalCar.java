@@ -153,8 +153,13 @@ public class ConventionalCar
 	}
 
 	public boolean isUsed() {
-		return this.driver != null;
+		return hasDriver();
 	}
+
+  @Override
+  public boolean hasDriver() {
+    return this.driver != null;
+  }
 
 	public void use(Person person, Time time) {
 		assert !isUsed();
@@ -188,9 +193,18 @@ public class ConventionalCar
 		return this.endUsage;
 	}
 
+	@Override
+	public boolean canCarryPassengers() {
+	  return hasDriver() && hasCapacity();
+	}
+
+  @Override
+  public boolean hasCapacity() {
+    return remainingCapacity() > 0;
+  }
 
 	public void useAsPassenger(Person person) {
-		assert remainingCapacity() > 0;
+		assert canCarryPassengers();
 
 		this.passengers.add(person);
 	}
