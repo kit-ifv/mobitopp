@@ -34,7 +34,24 @@ public class ConventionalCarTest {
         () -> assertThat(car.driver(), is(equalTo(person))),
         () -> assertThat(car.startOfLastUsage(), is(equalTo(time))),
         () -> assertTrue(car.canCarryPassengers(), "canCarryPassengers"));
+  }
+  
+  @Test
+  void releasesCar() throws Exception {
+    int capacity = 2;
+    Car car = newCar(capacity);
 
+    Person person = mock(Person.class);
+    Time start = Time.start;
+    Time end = start.plusMinutes(1);
+    car.use(person, start);
+    car.release(person, end);
+
+    assertAll(() -> assertFalse(car.isUsed(), "isUsed"),
+        () -> assertFalse(car.hasDriver(), "hasDriver"),
+        () -> assertThat(car.startOfLastUsage(), is(equalTo(start))),
+        () -> assertThat(car.endOfLastUsage(), is(equalTo(end))),
+        () -> assertFalse(car.canCarryPassengers(), "canCarryPassengers"));    
   }
 
   @Test
