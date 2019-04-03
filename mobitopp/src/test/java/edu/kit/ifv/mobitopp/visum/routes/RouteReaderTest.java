@@ -68,6 +68,24 @@ public class RouteReaderTest {
     assertHasSomeRoute(transformed);
     assertHasOtherRoute(transformed);
   }
+  
+  @Test
+  void buildsRouteWithMissingIntermediate() throws Exception {
+    routes.addSomeRoute();
+    routes.addRouteWithoutIntermediate();
+    routes.addOtherRoute();
+    
+    Map<OdPair, ZoneRoute> transformed = reader.transform(rows());
+    
+    assertHasSomeRoute(transformed);
+    assertHasIntermediateRoute(transformed);
+    assertHasOtherRoute(transformed);
+  }
+
+  private void assertHasIntermediateRoute(Map<OdPair, ZoneRoute> transformed) {
+    assertThat(transformed,
+        hasEntry(routes.missingIntermediateOdPair(), routes.missingIntermediateRoute()));
+  }
 
   private Stream<Row> rows() {
     return routes.createRows();
