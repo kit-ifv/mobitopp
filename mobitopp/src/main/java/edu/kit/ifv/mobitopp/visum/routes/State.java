@@ -9,12 +9,10 @@ enum State {
     }
 
     @Override
-    public State getCurrentState(Row row) {
-      if (isStartOfNewRoute(row)) {
-        return start;
-      }
-      return intermediateZone;
+    public State newRouteState() {
+      return start;
     }
+
   },
   intermediateZone {
 
@@ -25,18 +23,16 @@ enum State {
     }
 
     @Override
-    public State getCurrentState(Row row) {
-      if (isStartOfNewRoute(row)) {
-        return nextRoute;
-      }
-      return intermediateZone;
+    public State newRouteState() {
+      return nextRoute;
     }
+
   },
   nextRoute {
 
     @Override
-    public State getCurrentState(Row row) {
-      return intermediateZone;
+    public State newRouteState() {
+      return nextRoute;
     }
 
     @Override
@@ -47,11 +43,19 @@ enum State {
 
   };
 
-  public abstract State getCurrentState(Row row);
+  public State getCurrentState(Row row) {
+    if (isStartOfNewRoute(row)) {
+      return newRouteState();
+    }
+    return intermediateZone;
+  }
+
+  private boolean isStartOfNewRoute(Row row) {
+    return "0".equals(row.get("INDEX"));
+  }
+
+  public abstract State newRouteState();
 
   public abstract void parse(Row row, RouteReader routeReader);
 
-  private static boolean isStartOfNewRoute(Row row) {
-    return "0".equals(row.get("INDEX"));
-  }
 }

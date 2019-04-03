@@ -42,6 +42,10 @@ public class TestRoutes {
     createRow(asList("Z4", "Z7", "1", "2", "Z5", "Z6"));
     createRow(asList("Z4", "Z7", "1", "3", "Z6", "Z7"));
   }
+  
+  void addRouteWithoutIntermediate() {
+    createRow(asList("Z2", "Z4", "1", "0", "", ""));
+  }
 
   private void createRow(List<String> values) {
     Map<String, String> row = new HashMap<String, String>();
@@ -78,6 +82,14 @@ public class TestRoutes {
 
   ZoneRoute otherRoute() {
     return new ZoneRoute("Z5", "Z6");
+  }
+
+  OdPair missingIntermediateOdPair() {
+    return new OdPair("Z2", "Z4");
+  }
+
+  ZoneRoute missingIntermediateRoute() {
+    return new ZoneRoute();
   }
 
 }
