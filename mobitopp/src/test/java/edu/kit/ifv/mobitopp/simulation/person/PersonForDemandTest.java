@@ -4,10 +4,11 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
@@ -48,7 +49,7 @@ public class PersonForDemandTest {
 	private ModeChoicePreferences prefSimulation;
 	private PersonForDemand person;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		oid = 1;
 		short year = 2000;
@@ -85,7 +86,8 @@ public class PersonForDemandTest {
 		
 		Car usedCar = person.whichCar();
 		
-		assertThat(usedCar, is(equalTo(car)));
+    assertThat(usedCar, is(equalTo(car))); 
+    verify(car).use(person, someDate());
 	}
 	
 	@Test
@@ -102,7 +104,7 @@ public class PersonForDemandTest {
 	
 	@Test
 	public void usesCarAsPassenger() {
-		when(car.isUsed()).thenReturn(true);
+		when(car.canCarryPassengers()).thenReturn(true);
 		person.useCarAsPassenger(car);
 		
 		Car usedCar = person.whichCar();
