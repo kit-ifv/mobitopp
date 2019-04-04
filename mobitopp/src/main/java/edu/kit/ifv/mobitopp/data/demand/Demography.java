@@ -51,7 +51,15 @@ public class Demography implements Serializable {
   }
 
   public void increment(AttributeType type, int value) {
-    getDistribution(type).increment(value);
+    if (!rangeDistributions.containsKey(type)) {
+      RangeDistribution distribution = new RangeDistribution();
+      rangeDistributions.put(type, distribution);
+    }
+    RangeDistributionIfc distribution = getDistribution(type);
+    if (!distribution.hasItem(value)) {
+      distribution.addItem(new RangeDistributionItem(value, 0));
+    }
+    distribution.increment(value);
   }
 
   public void incrementHousehold(int type) {

@@ -8,8 +8,8 @@ import static org.junit.Assert.assertThat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
@@ -31,7 +31,7 @@ public class DemographyTest {
 		EqualsVerifier.forClass(Demography.class).usingGetClass().verify();
 	}
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 	  DefaultDistributions defaultDistributions = new DefaultDistributions();
 		employment = EmploymentDistribution.createDefault();
@@ -96,6 +96,16 @@ public class DemographyTest {
     int actualAmount = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
     
     assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+  }
+	
+	@Test
+  void incrementUnknown() throws Exception {
+	  int income = 1;
+    
+    demandModel.increment(StandardAttribute.income, income);
+    int actualAmount = demandModel.getDistribution(StandardAttribute.income).amount(income);
+    
+    assertThat(actualAmount, is(equalTo(1)));
   }
 	
 	@Test
