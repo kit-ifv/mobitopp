@@ -23,23 +23,48 @@ public class StreamReader {
   }
 
   private Stream<Row> doRead(File routesFile, String tableName) throws IOException {
-    int startOfTable = 0;
+    int currentLine = 0;
+    int startOfContent = Integer.MIN_VALUE;
+    int endOfContent = currentLine;
     List<String> attributes = new LinkedList<>();
-    try (BufferedReader reader = Files.newBufferedReader(routesFile.toPath(), charset());) {
+    try (BufferedReader reader = createReader(routesFile)) {
       while (reader.ready()) {
         String line = reader.readLine();
-        startOfTable++;
-        if (line.isEmpty() || line.charAt(0) != '$' || !line.contains(":")) {
+        if (isContentFinished(startOfContent, line)) {
+          endOfContent = currentLine;
+          break;
+        }
+        currentLine++;
+        if (hasNoContent(line)) {
           continue;
         }
 
-        if (tableName.equals(tableName(line))) {
+        if (isStartOfTable(tableName, line)) {
           attributes.addAll(tableAttributes(line));
-          break;
+          startOfContent = currentLine;
         }
       }
+      if (startOfContent == endOfContent) {
+        endOfContent = currentLine;
+      }
     }
-    return parseContent(routesFile, startOfTable, attributes);
+    return parseContent(routesFile, startOfContent, endOfContent, attributes);
+  }
+
+  private boolean isStartOfTable(String tableName, String line) {
+    return line.startsWith("$") && tableName.equals(tableName(line));
+  }
+
+  private boolean hasNoContent(String line) {
+    return line.isEmpty() || line.charAt(0) != '$' || !line.contains(":");
+  }
+
+  private boolean isContentFinished(int startOfContent, String line) {
+    return Integer.MIN_VALUE != startOfContent && (line.startsWith("$") || line.isEmpty());
+  }
+
+  BufferedReader createReader(File routesFile) throws IOException {
+    return Files.newBufferedReader(routesFile.toPath(), charset());
   }
 
   private Charset charset() {
@@ -57,13 +82,18 @@ public class StreamReader {
     return Arrays.asList(attributes);
   }
 
-  private Stream<Row> parseContent(File routesFile, int startOfTable, List<String> attributes)
+  private Stream<Row> parseContent(File routesFile, int startOfContent, int endOfContent, List<String> attributes)
       throws IOException {
-    return Files
-        .lines(routesFile.toPath(), charset())
-        .skip(startOfTable)
+    return linesOf(routesFile)
+        .skip(startOfContent)
+        .limit(endOfContent - startOfContent)
         .map(line -> parseLine(line, attributes.size()))
         .map(line -> Row.createRow(line, attributes));
+  }
+
+  Stream<String> linesOf(File routesFile) throws IOException {
+    return Files
+        .lines(routesFile.toPath(), charset());
   }
 
   private List<String> parseLine(String line, int numFields) {
