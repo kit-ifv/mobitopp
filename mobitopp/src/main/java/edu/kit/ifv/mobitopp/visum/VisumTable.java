@@ -1,21 +1,24 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumTable {
 
 	public final String name;
 	public final List<String> attributes;
-
-	protected List<Map<String,String>> rows = new ArrayList<Map<String,String>>();
+	private final List<Map<String,String>> rows;
 
 	public VisumTable(String name, List<String> attributes) {
 		this.name=name;
 		this.attributes=Collections.unmodifiableList(attributes);
+		rows = new ArrayList<>();
 	}
 
 	public void addRow(List<String> values) 
@@ -56,5 +59,9 @@ public class VisumTable {
 
 	public boolean containsAttribute(String attrib) {
 		return attributes.contains(attrib);
+	}
+	
+	public Stream<Row> rows() {
+	  return rows.stream().map(Row::new);
 	}
 }
