@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Row {
 
@@ -15,7 +16,16 @@ public class Row {
   }
 
   public String get(String key) {
-    return values.get(key);
+    if (values.containsKey(key)) {
+      return values.get(key);
+    }
+    throw new IllegalArgumentException(String
+        .format("No attribute for key %s available. Available attributes are: %s", key,
+            values.keySet()));
+  }
+  
+  public int valueAsInteger(String key) {
+    return Integer.parseInt(get(key));
   }
 
   public static Row createRow(List<String> values, List<String> attributes)
@@ -46,6 +56,28 @@ public class Row {
       row.put(attributes.get(i), values.get(i));
     }
     return new Row(row);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(values);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    Row other = (Row) obj;
+    return Objects.equals(values, other.values);
+  }
+
+  @Override
+  public String toString() {
+    return "Row [values=" + values + "]";
   }
 
 }

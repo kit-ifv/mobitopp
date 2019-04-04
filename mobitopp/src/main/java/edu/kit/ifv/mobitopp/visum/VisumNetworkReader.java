@@ -1460,7 +1460,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		if (!tables.containsKey(poiCategory())) {
 			return Collections.emptyMap();
 		}
-		POICategories categories = new POICategories(tables.get(poiCategory()));
+		POICategories categories = POICategories.from(tables.get(poiCategory()));
 		if (categories.containsCode(chargingStations())) {
 			return readChargingStations(tables, categories);
 		}
@@ -1510,7 +1510,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		if (!tables.containsKey(poiCategory())) {
 			return Collections.emptyMap();
 		}
-		POICategories categories = new POICategories(tables.get(poiCategory()));
+		POICategories categories = POICategories.from(tables.get(poiCategory()));
 		if (categories.containsCode(chargingPoints())) {
 			return readChargingPoints(tables, categories);
 		}
@@ -1568,7 +1568,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		Map<Integer, VisumCarSharingStation> data = new HashMap<>();
 
-		POICategories categories = new POICategories(tables.get(poiCategory()));
+		POICategories categories = POICategories.from(tables.get(poiCategory()));
 
 		if (!categories.containsCode(categoryName)) { return data; }
 
@@ -1630,7 +1630,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 		Map<Integer, VisumCarSharingStation> data = new HashMap<>();
 
-		POICategories categories = new POICategories(tables.get(poiCategory()));
+		POICategories categories = POICategories.from(tables.get(poiCategory()));
 
 		if (!categories.containsCode(categoryName)) { return data; }
 
