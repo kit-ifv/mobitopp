@@ -35,8 +35,6 @@ public class DefaultHouseholdBuilder implements HouseholdBuilder {
 		currentHousehold = householdCreator.createHousehold(panelHousehold, zone());
 		createSimulatedPeople(panelHousehold);
 		demandZone.actualDemography().incrementHousehold(currentHousehold.getSize());
-		int income = (int) currentHousehold.monthlyIncomeEur();
-    demandZone.actualDemography().increment(StandardAttribute.income, income);
 		return currentHousehold;
 	}
 
