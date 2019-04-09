@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 import edu.kit.ifv.mobitopp.visum.routes.OdPair;
 import edu.kit.ifv.mobitopp.visum.routes.ZoneRoute;
@@ -24,10 +25,10 @@ public class TestRoutes {
   }
 
   void addSomeRoute(String wegindex, String viaZone) {
-    createRow(asList("Z1", "Z2", wegindex, "0", "", ""));
-    createRow(asList("Z1", "Z2", wegindex, "1", "Z1", viaZone));
-    createRow(asList("Z1", "Z2", wegindex, "2", viaZone, viaZone));
-    createRow(asList("Z1", "Z2", wegindex, "3", viaZone, "Z2"));
+    createRow(asList("Z1", "Z2", wegindex, "0", "", "", "3m 6s", ""));
+    createRow(asList("", "", wegindex, "1", "Z1", viaZone, "", "1m 2s"));
+    createRow(asList("", "", wegindex, "2", viaZone, viaZone, "", "1m 2s"));
+    createRow(asList("", "", wegindex, "3", viaZone, "Z2", "", "1m 2s"));
   }
 
   void addSomeRoute() {
@@ -37,14 +38,14 @@ public class TestRoutes {
   }
 
   void addOtherRoute() {
-    createRow(asList("Z4", "Z7", "1", "0", "", ""));
-    createRow(asList("Z4", "Z7", "1", "1", "Z4", "Z5"));
-    createRow(asList("Z4", "Z7", "1", "2", "Z5", "Z6"));
-    createRow(asList("Z4", "Z7", "1", "3", "Z6", "Z7"));
+    createRow(asList("Z4", "Z7", "1", "0", "", "", "3m 6s", ""));
+    createRow(asList("", "", "1", "1", "Z4", "Z5", "", "1m 2s"));
+    createRow(asList("", "", "1", "2", "Z5", "Z6", "", "1m 2s"));
+    createRow(asList("", "", "1", "3", "Z6", "Z7", "", "1m 2s"));
   }
   
   void addRouteWithoutIntermediate() {
-    createRow(asList("Z2", "Z4", "1", "0", "", ""));
+    createRow(asList("Z2", "Z4", "1", "0", "", "", "1m 2s", ""));
   }
 
   private void createRow(List<String> values) {
@@ -65,7 +66,7 @@ public class TestRoutes {
 
   private List<String> attributes() {
     return asList("QBEZNR", "ZBEZNR", "WEGIND", "INDEX", "STRECKE\\VONKNOTEN\\BEZIRKNR",
-        "STRECKE\\NACHKNOTEN\\BEZIRKNR");
+        "STRECKE\\NACHKNOTEN\\BEZIRKNR", "IV-WEG\\T0", "STRECKE\\T0-IVSYS(P)");
   }
 
   OdPair someOdPair() {
@@ -73,7 +74,11 @@ public class TestRoutes {
   }
 
   ZoneRoute someRoute() {
-    return new ZoneRoute("Z3");
+    return new ZoneRoute(newZoneTime("Z3"));
+  }
+
+  private ZoneTime newZoneTime(String zone) {
+    return new ZoneTime(zone, RelativeTime.ofMinutes(1).plusSeconds(2));
   }
 
   OdPair otherOdPair() {
@@ -81,7 +86,7 @@ public class TestRoutes {
   }
 
   ZoneRoute otherRoute() {
-    return new ZoneRoute("Z5", "Z6");
+    return new ZoneRoute(newZoneTime("Z5"), newZoneTime("Z6"));
   }
 
   OdPair missingIntermediateOdPair() {
