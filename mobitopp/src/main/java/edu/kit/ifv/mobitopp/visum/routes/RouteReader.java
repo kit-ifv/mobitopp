@@ -44,16 +44,10 @@ public class RouteReader {
   void startNewRoute(Row row) {
     String origin = row.get("QBEZNR");
     String destination = row.get("ZBEZNR");
-    if("21123".equals(origin) && "21122".equals(destination)) {
-      System.out.println("TROET");
-    }
     current = new RouteBuilder(origin, destination);
   }
 
   void addZone(String zone) {
-    if (zone.isEmpty()) {
-      System.out.println("TROET");
-    }
     current.addZone(zone);
   }
 
