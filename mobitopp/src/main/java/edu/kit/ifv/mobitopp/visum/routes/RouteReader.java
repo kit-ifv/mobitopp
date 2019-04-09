@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.time.RelativeTime;
+
 /**
  * This class parses elements of a visum route assignment. The route assignment data is given as
  * {@code VisumTable}. The class will generate a set of routes from zone to zone identified by their
@@ -42,12 +44,18 @@ public class RouteReader {
   }
 
   void startNewRoute(Row row) {
-    String origin = row.get("QBEZNR");
-    String destination = row.get("ZBEZNR");
+    ZoneTime origin = new ZoneTime(row.get("QBEZNR"), RelativeTime.ZERO);
+    ZoneTime destination = parseDestinationOf(row);
     current = new RouteBuilder(origin, destination);
   }
 
-  void addZone(String zone) {
+  private ZoneTime parseDestinationOf(Row row) {
+    String destinationZone = row.get("ZBEZNR");
+    RelativeTime destinationTime = VisumUtils.parseTime(row.get("IV-WEG\\T0"));
+    return new ZoneTime(destinationZone, destinationTime);
+  }
+
+  void addZone(ZoneTime zone) {
     current.addZone(zone);
   }
 

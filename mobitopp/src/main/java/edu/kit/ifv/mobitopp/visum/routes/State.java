@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.visum.routes;
 
+import edu.kit.ifv.mobitopp.time.RelativeTime;
+
 enum State {
   start {
 
@@ -19,7 +21,13 @@ enum State {
     @Override
     public void parse(Row row, RouteReader routeReader) {
       String zone = row.get("STRECKE\\NACHKNOTEN\\BEZIRKNR");
-      routeReader.addZone(zone);
+      RelativeTime time = parse(row.get("STRECKE\\T0-IVSYS(P)"));
+      ZoneTime zoneTime = new ZoneTime(zone, time);
+      routeReader.addZone(zoneTime);
+    }
+
+    private RelativeTime parse(String time) {
+      return VisumUtils.parseTime(time);
     }
 
     @Override
@@ -51,7 +59,7 @@ enum State {
   }
 
   private boolean isStartOfNewRoute(Row row) {
-    return "0".equals(row.get("INDEX"));
+    return !row.get("QBEZNR").isEmpty() && !row.get("ZBEZNR").isEmpty();
   }
 
   public abstract State newRouteState();

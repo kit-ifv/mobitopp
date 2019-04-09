@@ -44,7 +44,7 @@ public class StreamReader {
           startOfContent = currentLine;
         }
       }
-      if (startOfContent == endOfContent) {
+      if (startOfContent == endOfContent || 0 == endOfContent) {
         endOfContent = currentLine;
       }
     }
