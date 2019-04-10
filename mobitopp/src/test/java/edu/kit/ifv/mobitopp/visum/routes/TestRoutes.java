@@ -77,8 +77,8 @@ public class TestRoutes {
     return new ZoneRoute(newZoneTime("Z3"));
   }
 
-  private ZoneTime newZoneTime(String zone) {
-    return new ZoneTime(zone, RelativeTime.ofMinutes(1).plusSeconds(2));
+  private ZoneIdTime newZoneTime(String zone) {
+    return new ZoneIdTime(zone, RelativeTime.ofMinutes(1).plusSeconds(2));
   }
 
   OdPair otherOdPair() {

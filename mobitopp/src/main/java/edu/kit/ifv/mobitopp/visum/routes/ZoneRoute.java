@@ -2,26 +2,26 @@ package edu.kit.ifv.mobitopp.visum.routes;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 public class ZoneRoute {
 
-  private final List<ZoneTime> zones;
+  private final List<ZoneIdTime> zones;
 
-  public ZoneRoute(List<ZoneTime> zones) {
+  public ZoneRoute(List<ZoneIdTime> zones) {
     super();
     this.zones = zones;
   }
   
-  public ZoneRoute(ZoneTime... zones) {
+  public ZoneRoute(ZoneIdTime... zones) {
     this(asList(zones));
   }
 
-  public List<String> zones() {
-    return zones.stream().map(ZoneTime::zone).collect(toList());
+  public List<ZoneIdTime> zones() {
+    return Collections.unmodifiableList(zones);
   }
 
   @Override
@@ -43,7 +43,7 @@ public class ZoneRoute {
 
   @Override
   public String toString() {
-    return zones.stream().map(ZoneTime::toString).collect(joining(","));
+    return zones.stream().map(ZoneIdTime::toString).collect(joining(","));
   }
 
 }

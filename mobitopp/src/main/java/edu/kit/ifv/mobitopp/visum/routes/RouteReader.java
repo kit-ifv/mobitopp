@@ -44,18 +44,18 @@ public class RouteReader {
   }
 
   void startNewRoute(Row row) {
-    ZoneTime origin = new ZoneTime(row.get("QBEZNR"), RelativeTime.ZERO);
-    ZoneTime destination = parseDestinationOf(row);
+    ZoneIdTime origin = new ZoneIdTime(row.get("QBEZNR"), RelativeTime.ZERO);
+    ZoneIdTime destination = parseDestinationOf(row);
     current = new RouteBuilder(origin, destination);
   }
 
-  private ZoneTime parseDestinationOf(Row row) {
+  private ZoneIdTime parseDestinationOf(Row row) {
     String destinationZone = row.get("ZBEZNR");
     RelativeTime destinationTime = VisumUtils.parseTime(row.get("IV-WEG\\T0"));
-    return new ZoneTime(destinationZone, destinationTime);
+    return new ZoneIdTime(destinationZone, destinationTime);
   }
 
-  void addZone(ZoneTime zone) {
+  void addZone(ZoneIdTime zone) {
     current.addZone(zone);
   }
 

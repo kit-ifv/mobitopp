@@ -8,12 +8,12 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
 
 public class RouteBuilder {
 
-  private final ZoneTime origin;
-  private final ZoneTime destination;
-  private final LinkedList<ZoneTime> zones;
+  private final ZoneIdTime origin;
+  private final ZoneIdTime destination;
+  private final LinkedList<ZoneIdTime> zones;
   private RelativeTime travelTime;
 
-  public RouteBuilder(ZoneTime origin, ZoneTime destination) {
+  public RouteBuilder(ZoneIdTime origin, ZoneIdTime destination) {
     super();
     this.origin = origin;
     this.destination = destination;
@@ -21,17 +21,17 @@ public class RouteBuilder {
     travelTime = RelativeTime.ZERO;
   }
 
-  public void addZone(ZoneTime zone) {
+  public void addZone(ZoneIdTime zone) {
     if (lastElementMatchesZoneOf(zone)) {
       travelTime = travelTime.plus(zone.time());
       return;
     }
-    ZoneTime combinedTime = zone.addTime(travelTime);
+    ZoneIdTime combinedTime = zone.addTime(travelTime);
     zones.add(combinedTime);
     travelTime = RelativeTime.ZERO;
   }
 
-  private boolean lastElementMatchesZoneOf(ZoneTime zoneTime) {
+  private boolean lastElementMatchesZoneOf(ZoneIdTime zoneTime) {
     return !zones.isEmpty() && zones.getLast().zone().equals(zoneTime.zone());
   }
 
@@ -57,11 +57,11 @@ public class RouteBuilder {
     }
   }
 
-  private boolean firstElementMatchesZoneOf(ZoneTime origin2) {
+  private boolean firstElementMatchesZoneOf(ZoneIdTime origin2) {
     return !zones.isEmpty() && zones.getFirst().zone().equals(origin2.zone());
   }
 
-  private List<ZoneTime> zones() {
+  private List<ZoneIdTime> zones() {
     return Collections.unmodifiableList(zones);
   }
 
