@@ -250,7 +250,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	) {
 
 		for (HouseholdForSetup household : households) {
-			Collection<PrivateCarForSetup> cars = this.carOwnershipModel.createCars(household, household.getTotalNumberOfCars());
+			Collection<PrivateCarForSetup> cars = this.carOwnershipModel.createCars(household);
 			household.ownCars(cars);
 		}
 	}

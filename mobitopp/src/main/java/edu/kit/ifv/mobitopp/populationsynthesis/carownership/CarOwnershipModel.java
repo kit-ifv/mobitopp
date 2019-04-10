@@ -7,6 +7,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 
 public interface CarOwnershipModel {
 
-  Collection<PrivateCarForSetup> createCars(HouseholdForSetup household, int numberOfCars);
+  Collection<PrivateCarForSetup> createCars(HouseholdForSetup household);
 
 }
