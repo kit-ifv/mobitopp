@@ -85,7 +85,7 @@ public class LogitBasedCarSharingCustomerModel
 		Zone zone
 	) {
 
-		int number_of_cars 	= household.nominalNumberOfCars();
+		int number_of_cars 	= household.getTotalNumberOfCars();
 		int hh_size 				= household.nominalSize();
 
 		Employment employment = person.employment();
