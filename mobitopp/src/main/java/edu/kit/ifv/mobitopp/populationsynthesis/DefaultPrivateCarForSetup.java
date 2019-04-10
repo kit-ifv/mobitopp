@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Objects;
+
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -16,6 +18,8 @@ public class DefaultPrivateCarForSetup implements PrivateCarForSetup {
 
   public DefaultPrivateCarForSetup(
       Car car, HouseholdId owner, PersonId mainUser, PersonId personalUser) {
+    Objects.requireNonNull(owner);
+    Objects.requireNonNull(mainUser);
     this.car = car;
     this.owner = owner;
     this.mainUser = mainUser;

@@ -32,8 +32,8 @@ abstract class PersonalCarOwnershipModel
 		this.random = new Random(seed);
 	}
 
-	public Collection<PrivateCarForSetup> createCars(HouseholdForSetup household, int numberOfCars) {
-
+	public Collection<PrivateCarForSetup> createCars(HouseholdForSetup household) {
+	  int numberOfCars = household.getTotalNumberOfCars();
 		List<PersonForSetup> personsWithLicense = getPersonsWithLicense(household);
 
 		List<PrivateCarForSetup> cars = new ArrayList<>();

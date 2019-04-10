@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.util.parameter;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -8,12 +11,31 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.util.List;
+import java.util.Map;
 
 public class ParameterFormularParser {
 
-	private static final String commentPrefix = "//";
+	static final List<String> prefixes = asList("//", "#", "!");
 
-	public void parseConfig(File file, Object model) {
+  public LogitParameters parseToParameter(File input) {
+    try (BufferedReader reader = Files.newBufferedReader(input.toPath())) {
+      return parseToParameter(reader);
+    } catch (IOException cause) {
+      throw new UncheckedIOException(cause);
+    }
+  }
+  
+	private LogitParameters parseToParameter(BufferedReader reader) {
+    Map<String, Double> parameters = reader
+        .lines()
+        .filter(this::lineWithData)
+        .map(this::parse)
+        .collect(toMap(c -> c.name, Coefficient::asDouble));
+    return new LogitParameters(parameters);
+  }
+
+  public void parseConfig(File file, Object model) {
 		try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
 			parseConfig(reader, model);
 		} catch (IOException cause) {
@@ -42,7 +64,7 @@ public class ParameterFormularParser {
 	}
 
 	private boolean isCommented(String line) {
-		return line.trim().startsWith(commentPrefix);
+		return prefixes.stream().anyMatch(prefix -> line.trim().startsWith(prefix));
 	}
 
 	private Coefficient parse(String line) {
