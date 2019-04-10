@@ -9,22 +9,22 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-public class ZoneTimeTest {
+public class ZoneIdTimeTest {
 
   @Test
   void withChangedTime() throws Exception {
     String zone = "Z1";
     RelativeTime time = RelativeTime.ofMinutes(1);
     RelativeTime extension = RelativeTime.ofMinutes(2);
-    ZoneTime zoneTime = new ZoneTime(zone, time);
+    ZoneIdTime zoneTime = new ZoneIdTime(zone, time);
     
-    ZoneTime extendedZoneTime = zoneTime.addTime(extension);
+    ZoneIdTime extendedZoneTime = zoneTime.addTime(extension);
     RelativeTime extendedTime = time.plus(extension);
-    assertThat(extendedZoneTime, is(equalTo(new ZoneTime(zone, extendedTime))));
+    assertThat(extendedZoneTime, is(equalTo(new ZoneIdTime(zone, extendedTime))));
   }
   
   @Test
   public void equalsAndHashCode() {
-    EqualsVerifier.forClass(ZoneTime.class).usingGetClass().verify();
+    EqualsVerifier.forClass(ZoneIdTime.class).usingGetClass().verify();
   }
 }

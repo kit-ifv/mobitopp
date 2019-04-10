@@ -4,12 +4,12 @@ import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 
-public class ZoneTime {
+public class ZoneIdTime {
 
   private final String zone;
   private final RelativeTime time;
 
-  public ZoneTime(String zone, RelativeTime time) {
+  public ZoneIdTime(String zone, RelativeTime time) {
     super();
     this.zone = zone;
     this.time = time;
@@ -23,8 +23,8 @@ public class ZoneTime {
     return time;
   }
 
-  public ZoneTime addTime(RelativeTime extension) {
-    return new ZoneTime(zone, time.plus(extension));
+  public ZoneIdTime addTime(RelativeTime extension) {
+    return new ZoneIdTime(zone, time.plus(extension));
   }
 
   @Override
@@ -40,7 +40,7 @@ public class ZoneTime {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ZoneTime other = (ZoneTime) obj;
+    ZoneIdTime other = (ZoneIdTime) obj;
     return Objects.equals(time, other.time) && Objects.equals(zone, other.zone);
   }
 

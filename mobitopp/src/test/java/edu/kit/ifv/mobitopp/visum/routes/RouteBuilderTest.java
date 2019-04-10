@@ -15,10 +15,10 @@ public class RouteBuilderTest {
   private static final String intermediateId = "3";
   private static final String destinationId = "2";
   private static final String originId = "1";
-  private ZoneTime origin;
-  private ZoneTime intermediateZone;
-  private ZoneTime otherIntermediateZone;
-  private ZoneTime destination;
+  private ZoneIdTime origin;
+  private ZoneIdTime intermediateZone;
+  private ZoneIdTime otherIntermediateZone;
+  private ZoneIdTime destination;
   private RelativeTime start;
   private RelativeTime toIntermediate;
   private RelativeTime toOtherIntermediate;
@@ -30,10 +30,10 @@ public class RouteBuilderTest {
     toIntermediate = RelativeTime.ofMinutes(1);
     toOtherIntermediate = RelativeTime.ofMinutes(2);
     toDestination = RelativeTime.ofMinutes(1);
-    origin = new ZoneTime(originId, start);
-    destination = new ZoneTime(destinationId, toDestination);
-    intermediateZone = new ZoneTime(intermediateId, toIntermediate);
-    otherIntermediateZone = new ZoneTime(otherIntermediateId, toOtherIntermediate);
+    origin = new ZoneIdTime(originId, start);
+    destination = new ZoneIdTime(destinationId, toDestination);
+    intermediateZone = new ZoneIdTime(intermediateId, toIntermediate);
+    otherIntermediateZone = new ZoneIdTime(otherIntermediateId, toOtherIntermediate);
   }
 
   @Test
@@ -53,19 +53,19 @@ public class RouteBuilderTest {
     builder.addZone(destination);
     ZoneRoute route = builder.buildZoneRoute();
 
-    ZoneTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
+    ZoneIdTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
     assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival))));
   }
 
-  private ZoneTime arriveAt(ZoneTime zone, RelativeTime time) {
-    return new ZoneTime(zone.zone(), time);
+  private ZoneIdTime arriveAt(ZoneIdTime zone, RelativeTime time) {
+    return new ZoneIdTime(zone.zone(), time);
   }
 
   @Test
   void buildsRouteWithSameZoneOnlyOnceInARow() throws Exception {
-    ZoneTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
+    ZoneIdTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
     RelativeTime secondArrivalAtIntermediate = start.plus(toIntermediate);
-    ZoneTime arrivalAtDestination = arriveAt(destination,
+    ZoneIdTime arrivalAtDestination = arriveAt(destination,
         secondArrivalAtIntermediate.plus(toDestination));
     RouteBuilder builder = new RouteBuilder(origin, arrivalAtDestination);
     builder.addZone(origin);
@@ -84,7 +84,7 @@ public class RouteBuilderTest {
         .plus(toOtherIntermediate)
         .plus(toIntermediate)
         .plus(toDestination);
-    ZoneTime atDestination = arriveAt(destination, arrival);
+    ZoneIdTime atDestination = arriveAt(destination, arrival);
     RouteBuilder builder = new RouteBuilder(origin, atDestination);
     builder.addZone(origin);
     builder.addZone(intermediateZone);
@@ -104,8 +104,8 @@ public class RouteBuilderTest {
         .plus(toOtherIntermediate)
         .plus(toIntermediate)
         .plus(toDestination);
-    ZoneTime startAtIntermediate = arriveAt(intermediateZone, start);
-    ZoneTime atDestination = arriveAt(destination, arrival);
+    ZoneIdTime startAtIntermediate = arriveAt(intermediateZone, start);
+    ZoneIdTime atDestination = arriveAt(destination, arrival);
     RouteBuilder builder = new RouteBuilder(startAtIntermediate, atDestination);
     builder.addZone(intermediateZone);
     builder.addZone(intermediateZone);
