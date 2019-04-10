@@ -22,15 +22,13 @@ public interface HouseholdForSetup {
 
   Location homeLocation();
 
-  float monthlyIncomeEur();
+  int monthlyIncomeEur();
 
   boolean canChargePrivately();
 
   void ownCars(Collection<PrivateCarForSetup> cars);
 
   int getTotalNumberOfCars();
-
-  int nominalNumberOfCars();
 
   int getSize();
 
@@ -39,4 +37,5 @@ public interface HouseholdForSetup {
   int numberOfMinors();
 
   int numberOfNotSimulatedChildren();
+
 }

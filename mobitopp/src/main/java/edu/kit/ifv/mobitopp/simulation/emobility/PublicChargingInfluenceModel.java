@@ -80,7 +80,7 @@ public class PublicChargingInfluenceModel {
 
 		int fem 				= person.isFemale() ? 1 : 0;
 
-		double pkw_hhm 	=  household.nominalNumberOfCars() / household.nominalSize();
+		double pkw_hhm 	=  household.getTotalNumberOfCars() / household.nominalSize();
 
 		int mitgl_ff 		= carSharingCustomership.containsKey("Car2Go") && carSharingCustomership.get("Car2Go") ? 1 : 0;
 		int mitgl_sb 		= ( carSharingCustomership.containsKey("Stadtmobil") && carSharingCustomership.get("Stadtmobil")

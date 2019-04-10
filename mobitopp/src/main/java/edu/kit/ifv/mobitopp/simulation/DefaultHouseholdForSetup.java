@@ -23,7 +23,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   private final Location homeLocation;
   private final int numberOfMinors;
   private final int numberOfNotSimulatedChildren;
-  private final int totalNumberOfCars;
+  private final int nominalNumberOfCars;
   private final int income;
   private final boolean canChargePrivately;
   private final List<PersonForSetup> persons;
@@ -31,7 +31,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
   public DefaultHouseholdForSetup(
       HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
-      int numberOfMinors, int numberOfNotSimulatedChildren, int totalNumberOfCars, int income,
+      int numberOfMinors, int numberOfNotSimulatedChildren, int nominalNumberOfCars, int income,
       boolean canChargePrivately) {
     super();
     this.householdId = householdId;
@@ -41,7 +41,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
     this.homeLocation = location;
     this.numberOfMinors = numberOfMinors;
     this.numberOfNotSimulatedChildren = numberOfNotSimulatedChildren;
-    this.totalNumberOfCars = totalNumberOfCars;
+    this.nominalNumberOfCars = nominalNumberOfCars;
     this.income = income;
     this.canChargePrivately = canChargePrivately;
     this.persons = new ArrayList<>();
@@ -60,9 +60,9 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
   @Override
   public Household toHousehold() {
-    HouseholdForDemand household = new HouseholdForDemand(householdId, nominalSize, domcode,
-        homeZone, homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income,
-        canChargePrivately);
+    HouseholdForDemand household = new HouseholdForDemand(getId(), nominalSize(), domcode,
+        homeZone(), homeLocation(), numberOfNotSimulatedChildren(), ownedCars.size(), monthlyIncomeEur(),
+        canChargePrivately());
     persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
     List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
     household.ownCars(cars);
@@ -85,7 +85,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public float monthlyIncomeEur() {
+  public int monthlyIncomeEur() {
     return income;
   }
 
@@ -96,18 +96,22 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
   @Override
   public void ownCars(Collection<PrivateCarForSetup> cars) {
-    assert this.totalNumberOfCars == cars.size();
+    checkNumberOfCars(cars);
     ownedCars.addAll(cars);
   }
 
+  private void checkNumberOfCars(Collection<PrivateCarForSetup> cars) {
+    if (this.nominalNumberOfCars != cars.size()) {
+      System.out
+          .println(String
+              .format("Nominal number of cars (%s) deviates from generated number of cars (%s).",
+                  nominalNumberOfCars, cars.size()));
+    }
+  }
+  
   @Override
   public int getTotalNumberOfCars() {
-    return totalNumberOfCars;
-  }
-
-  @Override
-  public int nominalNumberOfCars() {
-    return totalNumberOfCars;
+    return nominalNumberOfCars;
   }
 
   @Override
