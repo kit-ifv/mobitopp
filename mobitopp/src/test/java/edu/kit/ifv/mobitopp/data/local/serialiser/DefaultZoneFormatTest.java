@@ -22,6 +22,8 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
+import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -33,6 +35,7 @@ public class DefaultZoneFormatTest {
 	private static final String id = "Z12345";
 	private static final String name = "zone name";
 	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
+	private static final RegionType regionType = new DefaultRegionType(1);
 	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
 	private static final Location centroidLocation = ExampleSetup.location;
 	private DefaultZoneFormat format;
@@ -43,7 +46,7 @@ public class DefaultZoneFormatTest {
 		AreaTypeRepository areaTypeRepository = new BicRepository();
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
-		zone = new Zone(oid, id, name, areaType, classification, centroidLocation, attractivity,
+		zone = new Zone(oid, id, name, areaType, regionType, classification, centroidLocation, attractivity,
 				charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
@@ -63,6 +66,7 @@ public class DefaultZoneFormatTest {
 				id, 
 				name, 
 				valueOf(areaType.getTypeAsInt()),
+				valueOf(regionType.code()),
 				valueOf(classification),
 				serialised(centroidLocation)));
 	}
@@ -80,6 +84,7 @@ public class DefaultZoneFormatTest {
 		assertValue(Zone::getId, parsedZone, zone);
 		assertValue(Zone::getName, parsedZone, zone);
 		assertValue(Zone::getAreaType, parsedZone, zone);
+		assertValue(Zone::getRegionType, parsedZone, zone);
 		assertValue(Zone::getClassification, parsedZone, zone);
 		assertValue(Zone::centroidLocation, parsedZone, zone);
 		assertValue(Zone::attractivities, parsedZone, zone);

@@ -6,6 +6,7 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,8 +15,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -50,7 +51,7 @@ public class ZonesReaderCsvBasedTest {
 	private Attractivities attractivities;
 	private ZoneLocationSelector locationSelector;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		VisumSurface area = visumSurface().withId(areaId).build();
 		VisumZone someZone = visumZone()
@@ -95,14 +96,16 @@ public class ZonesReaderCsvBasedTest {
 		List<Zone> zones = reader.getZones();
 
 		Zone zone = zones.get(0);
-		assertThat(zone.getId(), is(equalTo("Z" + someZoneId)));
-		assertThat(zone.getName(), is(equalTo(someZoneName)));
-		assertThat(zone.getAreaType(), is(equalTo(ZoneAreaType.CITYOUTSKIRT)));
-		assertThat(zone.getClassification(), is(equalTo(ZoneClassificationType.areaOfInvestigation)));
-		assertThat(zone.carSharing(), is(equalTo(carSharingData)));
-		assertThat(zone.charging(), is(equalTo(chargingData)));
-		assertThat(zone.attractivities(), is(equalTo(attractivities)));
-		assertThat(zone.centroidLocation(), is(equalTo(dummyLocation())));
+    assertAll(() -> assertThat(zone.getId(), is(equalTo("Z" + someZoneId))),
+        () -> assertThat(zone.getName(), is(equalTo(someZoneName))),
+        () -> assertThat(zone.getAreaType(), is(equalTo(ZoneAreaType.CITYOUTSKIRT))),
+        () -> assertThat(zone.getRegionType(), is(equalTo(new DefaultRegionType(1)))),
+        () -> assertThat(zone.getClassification(),
+            is(equalTo(ZoneClassificationType.areaOfInvestigation))),
+        () -> assertThat(zone.carSharing(), is(equalTo(carSharingData))),
+        () -> assertThat(zone.charging(), is(equalTo(chargingData))),
+        () -> assertThat(zone.attractivities(), is(equalTo(attractivities))),
+        () -> assertThat(zone.centroidLocation(), is(equalTo(dummyLocation()))));
 	}
 
 	private ZonesReaderCsvBased newReader() {

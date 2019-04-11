@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
+import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
@@ -33,6 +34,7 @@ public class Zone implements Serializable {
   // zone parameter
 	private String name = null;
 	private AreaType areaType;
+	private RegionType regionType;
 	private ZoneClassificationType classification = null;
 
   private Location centroidLocation;
@@ -43,6 +45,7 @@ public class Zone implements Serializable {
   private CarSharingDataForZone carSharingData = null;
 	private ChargingDataForZone charging;
 	private MaasDataForZone maasData;
+
 
 	public static void resetIdSequence() {
 		ids = new IdSequence();
@@ -57,13 +60,14 @@ public class Zone implements Serializable {
 		String id,
 		String name,
 		AreaType areaType,
+		RegionType regionType,
 		ZoneClassificationType classification,
 		Location centroidLocation,
 		Attractivities attractivities,
 		ChargingDataForZone charging
 	)
 	{
-  	this(ids.nextId(), id, name, areaType, classification, centroidLocation, attractivities, charging);
+  	this(ids.nextId(), id, name, areaType, regionType, classification, centroidLocation, attractivities, charging);
 	}
   
   public Zone(
@@ -71,6 +75,7 @@ public class Zone implements Serializable {
   		String id,
   		String name,
   		AreaType areaType,
+      RegionType regionType,
   		ZoneClassificationType classification,
   		Location centroidLocation,
   		Attractivities attractivities,
@@ -82,6 +87,7 @@ public class Zone implements Serializable {
   	
   	this.name = name;
   	this.areaType = areaType;
+  	this.regionType = regionType;
   	this.classification = classification;
   	this.charging = charging;
   	this.attractivities = attractivities;
@@ -108,6 +114,11 @@ public class Zone implements Serializable {
 		assert this.areaType != null;
 
     return this.areaType;
+  }
+  
+  public RegionType getRegionType() {
+    assert null != this.regionType;
+    return regionType;
   }
 
   public ZoneClassificationType getClassification()
