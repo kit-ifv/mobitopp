@@ -95,6 +95,10 @@ public class PatternActivity
 		return startTime.weekDay();
   }
   
+	public PatternActivity decreaseStartDay(int dayOffset) {
+	  Time changedStartTime = startTime.minusDays(dayOffset);
+    return new PatternActivity(activityType, observedTripDuration, changedStartTime, duration);
+	}
 
 	@Override
 	public int hashCode() {

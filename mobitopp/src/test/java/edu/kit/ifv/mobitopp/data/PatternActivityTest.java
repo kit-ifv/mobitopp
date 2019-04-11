@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
@@ -50,6 +50,18 @@ public class PatternActivityTest {
 		assertThat(PatternActivity.WHOLE_WEEK_AT_HOME.getDuration(), is(greaterThan(0)));
 	}
 
+	@Test
+  void decreaseStartDay() throws Exception {
+	  int dayOffset = 1;
+    Time firstDay = Time.start;
+    Time secondDay = firstDay.plusDays(dayOffset);
+    PatternActivity onSecondDay = newActivity(secondDay);
+    
+    PatternActivity decreaseStartDay = onSecondDay.decreaseStartDay(dayOffset);
+    
+    assertThat(decreaseStartDay.startTime(), is(equalTo(firstDay)));
+  }
+	
 	private PatternActivity oldActivity(DayOfWeek weekDay, int startTime) {
 		return new PatternActivity(type, weekDay, observedDuration, startTime, duration);
 	}
