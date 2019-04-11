@@ -8,6 +8,8 @@ import java.awt.geom.Point2D.Double;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
+import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
+import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.LimitedChargingDataForZone;
@@ -35,11 +37,12 @@ public class ExampleZones {
 	private static Zone zoneWithId(String id) {
 		String name = "zone " + id;
 		AreaType areaType = ZoneAreaType.METROPOLITAN;
+		RegionType regionType = new DefaultRegionType(1);
 		ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
 		Attractivities attractivities = new Attractivities();
 		ChargingDataForZone charging = createChargingData();
 		Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
-		return new Zone(id, name, areaType, classification, centroid, attractivities, charging);
+    return new Zone(id, name, areaType, regionType, classification, centroid, attractivities, charging);
 	}
 
 	private static LimitedChargingDataForZone createChargingData() {

@@ -58,6 +58,10 @@ public class AttractivitiesData {
         : getValue(zoneId, oldClassificationKey);
   }
 
+  public RegionType currentRegionType(String zoneId) {
+    return new DefaultRegionType(valueOrDefault(zoneId, "regiontype"));
+  }
+
   public AreaType currentZoneAreaType(String zoneId) {
     String areaType = getValue(zoneId, "AreaType");
     try {
@@ -68,5 +72,6 @@ public class AttractivitiesData {
           : areaTypeRepository.getTypeForName(areaType);
     }
   }
+
 
 }

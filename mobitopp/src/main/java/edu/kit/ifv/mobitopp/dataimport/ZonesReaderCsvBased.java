@@ -68,18 +68,20 @@ public class ZonesReaderCsvBased implements ZonesReader {
     String id = String.format("Z%1d", visumZone.id);
     String name = visumZone.name;
     AreaType areaType = currentZoneAreaType(visumId);
+    RegionType regionType = regionType(visumId);
     ZoneClassificationType classification = currentClassification(visumId);
     ZonePolygon polygon = currentZonePolygon(visumZone);
     Location centroid = polygon.centroidLocation();
     Attractivities attractivities = attractivities(visumId);
     ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-    Zone zone = new Zone(id, name, areaType, classification, centroid, attractivities,
+    Zone zone = new Zone(id, name, areaType, regionType, classification, centroid, attractivities,
         chargingData);
     CarSharingDataForZone carSharingData = carSharing(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
     zone.setMaas(MaasDataForZone.everywhereAvailable());
     return zone;
   }
+
 
   private CarSharingDataForZone carSharing(VisumZone visumZone, ZonePolygon polygon, Zone zone) {
     return carSharingBuilder().carsharingIn(visumZone, polygon, zone);
@@ -126,6 +128,10 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return attractivities.currentClassification(zoneId);
   }
 
+  private RegionType regionType(String zoneId) {
+    return attractivities.currentRegionType(zoneId);
+  }
+  
   private AreaType currentZoneAreaType(String zoneId) {
     return attractivities.currentZoneAreaType(zoneId);
   }
