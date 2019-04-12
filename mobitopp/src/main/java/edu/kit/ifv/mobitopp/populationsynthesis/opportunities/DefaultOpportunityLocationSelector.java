@@ -96,7 +96,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 
 		List<Integer> locationSizes = sizeOfLocations(activityType, total_opportunities);
 
-		if (zone.isOuter() || zone.isExternal()) {
+		if (isExternal(zone)) {
 
 			Location location = selectZoneCenter(zone);
 
@@ -113,6 +113,9 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		return locations;
 	}
 
+  protected boolean isExternal(Zone zone) {
+    return zone.isOuter() || zone.isExternal();
+  }
 
 	private  Map<String,Float> landTypeWeights(ActivityType activityType) {
 

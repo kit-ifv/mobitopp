@@ -6,16 +6,16 @@ import static java.util.stream.Collectors.toMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
 public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
 
-  private final Supplier<Double> random;
+  private final DoubleSupplier random;
 
-  public ProbabilityBasedSelector(Supplier<Double> random) {
+  public ProbabilityBasedSelector(DoubleSupplier random) {
     this.random = random;
   }
 
@@ -38,7 +38,7 @@ public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
         weightedHouseholds);
     List<WeightedHousehold> selectedHouseholds = new ArrayList<>();
     while(selectedHouseholds.size() < amount) {
-      Double randomValue = random.get();
+      double randomValue = random.getAsDouble();
       WeightedHousehold selectedHousehold = distribution.realization(randomValue);
       selectedHouseholds.add(selectedHousehold);
     }

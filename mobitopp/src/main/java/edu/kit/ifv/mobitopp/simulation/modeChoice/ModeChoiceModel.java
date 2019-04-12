@@ -11,7 +11,7 @@ public interface ModeChoiceModel {
 
 	public Mode selectMode(
 		Person person,
-		Zone source,
+		Zone origin,
 		Zone destination,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
