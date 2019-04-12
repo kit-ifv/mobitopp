@@ -4,21 +4,26 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import edu.kit.ifv.mobitopp.time.RelativeTime;
+
 public class RouteReaderTest {
 
   private RouteReader reader;
   private TestRoutes routes;
+  private Map<NodeNode, RelativeTime> connectors;
 
   @BeforeEach
   public void initialise() {
+    connectors = new HashMap<>();
     routes = new TestRoutes();
-    reader = new RouteReader();
+    reader = new RouteReader(connectors);
   }
 
   @Test
@@ -68,18 +73,28 @@ public class RouteReaderTest {
     assertHasSomeRoute(transformed);
     assertHasOtherRoute(transformed);
   }
-  
+
   @Test
   void buildsRouteWithMissingIntermediate() throws Exception {
     routes.addSomeRoute();
     routes.addRouteWithoutIntermediate();
     routes.addOtherRoute();
-    
+
     Map<OdPair, ZoneRoute> transformed = reader.transform(rows());
-    
+
     assertHasSomeRoute(transformed);
     assertHasIntermediateRoute(transformed);
     assertHasOtherRoute(transformed);
+  }
+
+  @Test
+  void usesConnectorTime() throws Exception {
+    connectors.put(routes.connectorNodeToNode(), routes.connectorTime());
+    routes.addSomeRoute();
+
+    Map<OdPair, ZoneRoute> transformed = reader.transform(rows());
+
+    assertThat(transformed, hasEntry(routes.someOdPair(), routes.someRouteWithConnector()));
   }
 
   private void assertHasIntermediateRoute(Map<OdPair, ZoneRoute> transformed) {

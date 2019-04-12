@@ -15,12 +15,14 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
  */
 public class RouteReader {
 
+  private final Map<NodeNode, RelativeTime> connectors;
   private final Map<OdPair, ZoneRoute> routes;
   private State state;
   private RouteBuilder current;
 
-  public RouteReader() {
+  public RouteReader(Map<NodeNode, RelativeTime> connectors) {
     super();
+    this.connectors = connectors;
     state = State.start;
     routes = new TreeMap<>();
   }
@@ -67,5 +69,9 @@ public class RouteReader {
     ZoneRoute zoneRoute = current.buildZoneRoute();
     routes.put(odPair, zoneRoute);
     System.out.println(String.format("OdPair: %s - %s", odPair.origin(), odPair.destination()));
+  }
+
+  public RelativeTime getConnectorTime(NodeNode fromTo) {
+    return connectors.getOrDefault(fromTo, RelativeTime.ZERO);
   }
 }
