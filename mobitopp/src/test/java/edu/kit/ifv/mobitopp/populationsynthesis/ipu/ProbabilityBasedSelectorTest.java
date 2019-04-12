@@ -13,14 +13,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHouseholdOfPanelData;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ProbabilityBasedSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 
 public class ProbabilityBasedSelectorTest {
 
@@ -37,9 +35,8 @@ public class ProbabilityBasedSelectorTest {
 
   @Test
   public void selectAll() {
-    @SuppressWarnings("unchecked")
-    Supplier<Double> random = mock(Supplier.class);
-    when(random.get()).thenReturn(0.25d, 0.75d);
+    DoubleSupplier random = mock(DoubleSupplier.class);
+    when(random.getAsDouble()).thenReturn(0.25d, 0.75d);
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
 
     List<WeightedHousehold> households = createWeightedHouseholds();
@@ -51,7 +48,7 @@ public class ProbabilityBasedSelectorTest {
 
   @Test
   public void selectFirstHousehold() {
-    Supplier<Double> random = () -> 0.25d;
+    DoubleSupplier random = () -> 0.25d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
 
     List<WeightedHousehold> households = createWeightedHouseholds();
@@ -63,7 +60,7 @@ public class ProbabilityBasedSelectorTest {
 
   @Test
   public void selectSecondHousehold() {
-    Supplier<Double> random = () -> 0.75d;
+    DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
 
     List<WeightedHousehold> households = createWeightedHouseholds();
@@ -75,7 +72,7 @@ public class ProbabilityBasedSelectorTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void selectWithoutHouseholds() {
-    Supplier<Double> random = () -> 0.75d;
+    DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
     
     List<WeightedHousehold> households = emptyList();
@@ -85,7 +82,7 @@ public class ProbabilityBasedSelectorTest {
   
   @Test
   public void selectNoHouseholds() {
-    Supplier<Double> random = () -> 0.75d;
+    DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
     
     List<WeightedHousehold> households = createWeightedHouseholds();
