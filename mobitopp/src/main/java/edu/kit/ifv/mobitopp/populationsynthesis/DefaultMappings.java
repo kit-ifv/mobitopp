@@ -22,6 +22,8 @@ public abstract class DefaultMappings {
     types.add(Mode.PEDESTRIAN, TravelTimeMatrixType.pedestrian);
     types.add(Mode.PUBLICTRANSPORT, TravelTimeMatrixType.publictransport);
     types.add(Mode.TRUCK, TravelTimeMatrixType.truck);
+    types.add(Mode.TAXI, TravelTimeMatrixType.car);
+    types.add(Mode.PARK_AND_RIDE, TravelTimeMatrixType.car);
     return types;
   }
   

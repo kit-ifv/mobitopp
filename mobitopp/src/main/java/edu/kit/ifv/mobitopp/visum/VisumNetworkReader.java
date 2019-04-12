@@ -464,6 +464,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 													table.getValue(i,name()),
 													Integer.valueOf(table.getValue(i,attribute(StandardAttributes.mainZoneNumber))),
 													Integer.valueOf(table.getValue(i,typeNumber())),
+													Integer.valueOf(table.getValue(i, attribute(StandardAttributes.parkingPlaces))),
 													Float.parseFloat(table.getValue(i,xCoord())),
 													Float.parseFloat(table.getValue(i,yCoord())),
 													Integer.valueOf(table.getValue(i,areaId())),

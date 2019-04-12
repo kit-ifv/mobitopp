@@ -28,7 +28,8 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	private static final int areaTypeIndex = 3;
 	private static final int regionTypeIndex = 4;
 	private static final int classificationIndex = 5;
-	private static final int locationIndex = 6;
+	private static final int parkingPlaces = 6;
+	private static final int locationIndex = 7;
 	
 	private final ChargingDataResolver charging;
 	private final Map<Integer, Attractivities> attractivities;
@@ -45,7 +46,8 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
 	@Override
 	public List<String> header() {
-		return asList("oid", "id", "name", "areaType", "regionType", "classification", "centroidLocation");
+    return asList("oid", "id", "name", "areaType", "regionType", "classification", "parkingPlaces",
+        "centroidLocation");
 	}
 
 	@Override
@@ -56,6 +58,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 				valueOf(zone.getAreaType().getTypeAsInt()),
 				valueOf(zone.getRegionType().code()),
 				valueOf(zone.getClassification()),
+				valueOf(zone.getNumberOfParkingPlaces()),
 				valueOf(locationParser.serialise(zone.centroidLocation())));
 	}
 
@@ -67,10 +70,12 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		AreaType areaType = areaTypeOf(data);
 		RegionType regionType = regionTypeOf(data);
 		ZoneClassificationType classification = classificationOf(data);
+		int parkingPlaces = parkingPlacesOf(data);
 		Location centroidLocation = locationOf(data);
 		Attractivities attractivities = attractivitiesOf(data);
 		ChargingDataForZone charging = chargingOf(data);
-    Zone zone = new Zone(oid, id, name, areaType, regionType, classification, centroidLocation, attractivities, charging);
+    Zone zone = new Zone(oid, id, name, areaType, regionType, classification, parkingPlaces,
+        centroidLocation, attractivities, charging);
 		return Optional.of(zone);
 	}
 
@@ -101,6 +106,10 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	private ZoneClassificationType classificationOf(List<String> data) {
 		String classification = data.get(classificationIndex);
 		return ZoneClassificationType.valueOf(classification);
+	}
+	
+	private int parkingPlacesOf(List<String> data) {
+	  return Integer.valueOf(data.get(parkingPlaces));
 	}
 
 	private Location locationOf(List<String> data) {
