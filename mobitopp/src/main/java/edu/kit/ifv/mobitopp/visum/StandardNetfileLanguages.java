@@ -65,6 +65,7 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.viaNodeNumber, "VIANODENO");
     
     // Zone
+    language.add(StandardAttributes.parkingPlaces, "PARKRAUM");
     language.add(StandardAttributes.mainZoneNumber, "MAINZONENO");
     language.add(StandardAttributes.areaId, "SURFACEID");
     language.add(StandardAttributes.chargingStations, "LADESTATIONEN");
@@ -242,6 +243,7 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.viaNodeNumber, "UEBERKNOTNR");
     
     // Zone
+    language.add(StandardAttributes.parkingPlaces, "PARKRAUM");
     language.add(StandardAttributes.mainZoneNumber, "OBEZNR");
     language.add(StandardAttributes.areaId, "FLAECHEID");
     language.add(StandardAttributes.chargingStations, "LADESTATIONEN");
