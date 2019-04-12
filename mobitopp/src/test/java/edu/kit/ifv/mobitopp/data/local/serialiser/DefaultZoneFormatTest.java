@@ -37,6 +37,7 @@ public class DefaultZoneFormatTest {
 	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final RegionType regionType = new DefaultRegionType(1);
 	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
+	private static final int parkingPlaces = 2;
 	private static final Location centroidLocation = ExampleSetup.location;
 	private DefaultZoneFormat format;
 	private Zone zone;
@@ -46,7 +47,7 @@ public class DefaultZoneFormatTest {
 		AreaTypeRepository areaTypeRepository = new BicRepository();
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
-		zone = new Zone(oid, id, name, areaType, regionType, classification, centroidLocation, attractivity,
+		zone = new Zone(oid, id, name, areaType, regionType, classification, parkingPlaces, centroidLocation, attractivity,
 				charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
@@ -68,6 +69,7 @@ public class DefaultZoneFormatTest {
 				valueOf(areaType.getTypeAsInt()),
 				valueOf(regionType.code()),
 				valueOf(classification),
+				valueOf(parkingPlaces),
 				serialised(centroidLocation)));
 	}
 
@@ -86,6 +88,7 @@ public class DefaultZoneFormatTest {
 		assertValue(Zone::getAreaType, parsedZone, zone);
 		assertValue(Zone::getRegionType, parsedZone, zone);
 		assertValue(Zone::getClassification, parsedZone, zone);
+		assertValue(Zone::getNumberOfParkingPlaces, parsedZone, zone);
 		assertValue(Zone::centroidLocation, parsedZone, zone);
 		assertValue(Zone::attractivities, parsedZone, zone);
 	}

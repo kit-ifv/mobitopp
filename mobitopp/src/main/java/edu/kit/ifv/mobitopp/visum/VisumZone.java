@@ -14,6 +14,7 @@ public class VisumZone
 	public final String name;
 	public final int mainZoneId;
 	public final int type;
+	public final int parkingPlaces;
 	public final VisumPoint2 coord;
 	public final int areaId;
 
@@ -27,11 +28,13 @@ public class VisumZone
 	public final double privateChargingProbability;
 	public final float innerZonePublicTransport;
 
+
 	public VisumZone(
 		int id,
 		String name,
 		int mainZoneId,
 		int type,
+		int parkingPlaces,
 		float coord_x,
 		float coord_y,
 		int areaId,
@@ -50,6 +53,7 @@ public class VisumZone
 		this.name = name;
 		this.mainZoneId = mainZoneId;
 		this.type = type;
+		this.parkingPlaces = parkingPlaces;
 		this.coord = new VisumPoint2(coord_x,coord_y);
 		this.areaId = areaId;
 		this.chargingFacilities = chargingFacilities;

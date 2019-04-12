@@ -18,6 +18,7 @@ public class ExampleZones {
 
 	private static final Double dummyPoint = new Point2D.Double(0.0d, 0.0d);
 	private static final int dummyAccessEdge = -1;
+  private static final int parkingPlaces = 2;
 
 	private final Zone someZone;
 	private final Zone otherZone;
@@ -42,7 +43,7 @@ public class ExampleZones {
 		Attractivities attractivities = new Attractivities();
 		ChargingDataForZone charging = createChargingData();
 		Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
-    return new Zone(id, name, areaType, regionType, classification, centroid, attractivities, charging);
+    return new Zone(id, name, areaType, regionType, classification, parkingPlaces, centroid, attractivities, charging);
 	}
 
 	private static LimitedChargingDataForZone createChargingData() {

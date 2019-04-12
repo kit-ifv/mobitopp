@@ -11,6 +11,7 @@ public class VisumZoneBuilder {
 	private static final String defaultName = "zone";
 	private static final int defaultMainZoneId = 0;
 	private static final int defaultType = 1;
+	private static final int defaultParkingPlaces = 2;
 	private static final float defaultCoordX = 2.0f;
 	private static final float defaultCoordY = 3.0f;
 	private static final int defaultAreaId = 4;
@@ -26,6 +27,7 @@ public class VisumZoneBuilder {
 	private String name;
 	private int mainZoneId;
 	private int type;
+	private int parkingPlaces;
 	private float coord_x;
 	private float coord_y;
 	private int areaId;
@@ -43,6 +45,7 @@ public class VisumZoneBuilder {
 		name = defaultName;
 		mainZoneId = defaultMainZoneId;
 		type = defaultType;
+		parkingPlaces = defaultParkingPlaces;
 		coord_x = defaultCoordX;
 		coord_y = defaultCoordY;
 		areaId = defaultAreaId;
@@ -56,7 +59,7 @@ public class VisumZoneBuilder {
 	}
 
 	public VisumZone build() {
-		return new VisumZone(id, name, mainZoneId, type, coord_x, coord_y, areaId, chargingFacilities,
+		return new VisumZone(id, name, mainZoneId, type, parkingPlaces, coord_x, coord_y, areaId, chargingFacilities,
 				freeFloatingCarSharingCompany, freeFloatingCarSharingArea, freeFloatingCarSharingCars,
 				privateChargingProbability, carsharingDensities, innerZonePublicTransport);
 	}
