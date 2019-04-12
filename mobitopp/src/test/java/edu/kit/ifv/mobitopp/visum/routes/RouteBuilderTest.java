@@ -54,7 +54,7 @@ public class RouteBuilderTest {
     ZoneRoute route = builder.buildZoneRoute();
 
     ZoneIdTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
-    assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival))));
+    assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival, destination))));
   }
 
   private ZoneIdTime arriveAt(ZoneIdTime zone, RelativeTime time) {
@@ -74,7 +74,7 @@ public class RouteBuilderTest {
     builder.addZone(destination);
     ZoneRoute route = builder.buildZoneRoute();
 
-    assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival))));
+    assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival, arrivalAtDestination))));
   }
 
   @Test
@@ -93,18 +93,16 @@ public class RouteBuilderTest {
     builder.addZone(destination);
     ZoneRoute route = builder.buildZoneRoute();
 
-    assertThat(route,
-        is(equalTo(new ZoneRoute(intermediateZone, otherIntermediateZone, intermediateZone))));
+    assertThat(route, is(equalTo(
+        new ZoneRoute(intermediateZone, otherIntermediateZone, intermediateZone, destination))));
   }
 
   @Test
   void buildsRouteWithSameZoneMultipleTimesAtStart() throws Exception {
-    RelativeTime arrival = start
-        .plus(toIntermediate)
-        .plus(toOtherIntermediate)
-        .plus(toIntermediate)
-        .plus(toDestination);
+    RelativeTime enterDestinationTime = start.plus(toIntermediate).plus(toIntermediate);
+    RelativeTime arrival = enterDestinationTime.plus(toDestination);
     ZoneIdTime startAtIntermediate = arriveAt(intermediateZone, start);
+    ZoneIdTime enterDestinationZone = arriveAt(destination, enterDestinationTime);
     ZoneIdTime atDestination = arriveAt(destination, arrival);
     RouteBuilder builder = new RouteBuilder(startAtIntermediate, atDestination);
     builder.addZone(intermediateZone);
@@ -112,6 +110,6 @@ public class RouteBuilderTest {
     builder.addZone(destination);
     ZoneRoute route = builder.buildZoneRoute();
 
-    assertThat(route, is(equalTo(new ZoneRoute())));
+    assertThat(route, is(equalTo(new ZoneRoute(enterDestinationZone))));
   }
 }

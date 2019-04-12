@@ -41,14 +41,7 @@ public class RouteBuilder {
 
   public ZoneRoute buildZoneRoute() {
     removeOrigin();
-    removeDestination();
     return new ZoneRoute(zones());
-  }
-
-  private void removeDestination() {
-    if (lastElementMatchesZoneOf(destination)) {
-      zones.removeLast();
-    }
   }
 
   private void removeOrigin() {
