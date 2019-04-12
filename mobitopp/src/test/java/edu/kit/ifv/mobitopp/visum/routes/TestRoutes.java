@@ -10,11 +10,10 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
-import edu.kit.ifv.mobitopp.visum.routes.OdPair;
-import edu.kit.ifv.mobitopp.visum.routes.ZoneRoute;
 
 public class TestRoutes {
 
+  private static final RelativeTime defaultTravelTime = RelativeTime.ofMinutes(1).plusSeconds(2);
   private final VisumTable table;
   private final List<Row> rows;
 
@@ -43,7 +42,7 @@ public class TestRoutes {
     createRow(asList("", "", "1", "1", "2", "2", "Z5", "Z6", "", "1m 2s"));
     createRow(asList("", "", "1", "1", "2", "3", "Z6", "Z7", "", "1m 2s"));
   }
-  
+
   void addRouteWithoutIntermediate() {
     createRow(asList("Z2", "Z4", "1", "1", "2", "0", "", "", "1m 2s", ""));
   }
@@ -59,7 +58,7 @@ public class TestRoutes {
   public VisumTable createTable() {
     return table;
   }
-  
+
   public Stream<Row> createRows() {
     return rows.stream();
   }
@@ -75,11 +74,12 @@ public class TestRoutes {
   }
 
   ZoneRoute someRoute() {
-    return new ZoneRoute(newZoneTime("Z3"));
+    ZoneIdTime atDestination = new ZoneIdTime("Z2", defaultTravelTime.multiplyBy(2));
+    return new ZoneRoute(newZoneTime("Z3"), atDestination);
   }
 
   private ZoneIdTime newZoneTime(String zone) {
-    return new ZoneIdTime(zone, RelativeTime.ofMinutes(1).plusSeconds(2));
+    return new ZoneIdTime(zone, defaultTravelTime);
   }
 
   OdPair otherOdPair() {
@@ -87,7 +87,7 @@ public class TestRoutes {
   }
 
   ZoneRoute otherRoute() {
-    return new ZoneRoute(newZoneTime("Z5"), newZoneTime("Z6"));
+    return new ZoneRoute(newZoneTime("Z5"), newZoneTime("Z6"), newZoneTime("Z7"));
   }
 
   OdPair missingIntermediateOdPair() {
@@ -107,8 +107,10 @@ public class TestRoutes {
   }
 
   public ZoneRoute someRouteWithConnector() {
-    ZoneIdTime zoneTime = new ZoneIdTime("Z3", RelativeTime.ofMinutes(1).plusSeconds(2).plus(connectorTime()));
-    return new ZoneRoute(zoneTime);
+    ZoneIdTime zoneTime = new ZoneIdTime("Z3", defaultTravelTime.plus(connectorTime()));
+    RelativeTime arrivalAtDestination = zoneTime.time().plus(defaultTravelTime).plus(connectorTime());
+    ZoneIdTime atDestintion = new ZoneIdTime("Z2", arrivalAtDestination);
+    return new ZoneRoute(zoneTime, atDestintion);
   }
 
 }
