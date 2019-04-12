@@ -36,6 +36,7 @@ public class Zone implements Serializable {
 	private AreaType areaType;
 	private RegionType regionType;
 	private ZoneClassificationType classification = null;
+	private int parkingPlaces;
 
   private Location centroidLocation;
 
@@ -45,6 +46,7 @@ public class Zone implements Serializable {
   private CarSharingDataForZone carSharingData = null;
 	private ChargingDataForZone charging;
 	private MaasDataForZone maasData;
+
 
 
 	public static void resetIdSequence() {
@@ -62,12 +64,13 @@ public class Zone implements Serializable {
 		AreaType areaType,
 		RegionType regionType,
 		ZoneClassificationType classification,
+		int parkingPlaces,
 		Location centroidLocation,
 		Attractivities attractivities,
 		ChargingDataForZone charging
 	)
 	{
-  	this(ids.nextId(), id, name, areaType, regionType, classification, centroidLocation, attractivities, charging);
+  	this(ids.nextId(), id, name, areaType, regionType, classification, parkingPlaces, centroidLocation, attractivities, charging);
 	}
   
   public Zone(
@@ -76,7 +79,8 @@ public class Zone implements Serializable {
   		String name,
   		AreaType areaType,
       RegionType regionType,
-  		ZoneClassificationType classification,
+  		ZoneClassificationType classification, 
+  		int parkingPlaces,
   		Location centroidLocation,
   		Attractivities attractivities,
   		ChargingDataForZone charging
@@ -89,6 +93,7 @@ public class Zone implements Serializable {
   	this.areaType = areaType;
   	this.regionType = regionType;
   	this.classification = classification;
+  	this.parkingPlaces = parkingPlaces;
   	this.charging = charging;
   	this.attractivities = attractivities;
   	this.centroidLocation = centroidLocation;
@@ -126,6 +131,10 @@ public class Zone implements Serializable {
 		assert this.classification != null;
 
     return this.classification;
+  }
+
+  public int getNumberOfParkingPlaces() {
+    return parkingPlaces;
   }
 
 	public DataForZone getDemandData() 

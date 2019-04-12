@@ -86,6 +86,7 @@ public enum StandardAttributes {
   objectId,
   streetIso8859, // TODO
   type,
+  parkingPlaces,
   town,
   numberOfVehicles,
   carsharingFlinkster,
