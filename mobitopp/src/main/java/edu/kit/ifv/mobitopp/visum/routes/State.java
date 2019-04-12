@@ -22,7 +22,12 @@ enum State {
     public void parse(Row row, RouteReader routeReader) {
       String zone = row.get("STRECKE\\NACHKNOTEN\\BEZIRKNR");
       RelativeTime time = parse(row.get("STRECKE\\T0-IVSYS(P)"));
-      ZoneIdTime zoneTime = new ZoneIdTime(zone, time);
+      int from = row.valueAsInteger("VONKNOTNR");
+      int to = row.valueAsInteger("NACHKNOTNR");
+      NodeNode fromTo = new NodeNode(from, to);
+      RelativeTime connectorTime = routeReader.getConnectorTime(fromTo);
+      RelativeTime completeTime = time.plus(connectorTime);
+      ZoneIdTime zoneTime = new ZoneIdTime(zone, completeTime);
       routeReader.addZone(zoneTime);
     }
 
