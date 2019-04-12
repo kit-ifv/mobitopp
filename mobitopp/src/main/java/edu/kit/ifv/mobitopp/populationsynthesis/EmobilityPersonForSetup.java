@@ -110,6 +110,11 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   public boolean hasCommuterTicket() {
     return person.hasCommuterTicket();
   }
+  
+  @Override
+  public void setCommuterTicket(boolean hasCommuterTicket) {
+    person.setCommuterTicket(hasCommuterTicket);
+  }
 
   @Override
   public boolean hasBike() {

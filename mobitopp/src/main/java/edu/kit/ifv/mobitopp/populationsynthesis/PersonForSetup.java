@@ -44,6 +44,8 @@ public interface PersonForSetup {
   boolean hasDrivingLicense();
 
   boolean hasCommuterTicket();
+  
+  void setCommuterTicket(boolean hasCommuterTicket);
 
   boolean hasBike();
 
@@ -60,4 +62,5 @@ public interface PersonForSetup {
   boolean hasFixedActivityZone();
 
   TourBasedActivityPattern getActivityPattern();
+
 }

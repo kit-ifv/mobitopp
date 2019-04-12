@@ -28,7 +28,7 @@ public class DefaultPersonForSetup implements PersonForSetup {
   private final boolean hasBike;
   private final boolean hasAccessToCar;
   private final boolean hasPersonalCar;
-  private final boolean hasCommuterTicket;
+  private boolean hasCommuterTicket;
   private final boolean hasDrivingLicense;
   private final FixedDestinations fixedDestinations;
   private final ModeChoicePreferences modeChoicePrefsSurvey;
@@ -88,6 +88,11 @@ public class DefaultPersonForSetup implements PersonForSetup {
   @Override
   public boolean hasCommuterTicket() {
     return hasCommuterTicket;
+  }
+  
+  @Override
+  public void setCommuterTicket(boolean hasCommuterTicket) {
+    this.hasCommuterTicket = hasCommuterTicket;
   }
 
   @Override
