@@ -69,7 +69,9 @@ public class MatrixValidator {
 
   private Collection<TravelTimeMatrixType> travelTimeTypes() {
     return EnumSet
-        .complementOf(EnumSet.of(TravelTimeMatrixType.truck, TravelTimeMatrixType.ride_pooling));
+        .complementOf(EnumSet
+            .of(TravelTimeMatrixType.truck, TravelTimeMatrixType.ride_pooling,
+                TravelTimeMatrixType.taxi, TravelTimeMatrixType.park_and_ride));
   }
 
   private void verifyFixedDistributionMatrices() {
