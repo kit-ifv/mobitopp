@@ -41,19 +41,35 @@ implements FixedDestinationSelector
 
 	protected final	ImpedanceIfc impedance;
 
-	public DefaultFixedDestinationSelector(
+	public DefaultFixedDestinationSelector(ActivityType[] activityTypes,
 		ZoneRepository zoneRepository,
 		Map<ActivityType,FixedDistributionMatrix> fixedDistributionMatrices_,
 		ImpedanceIfc impedance,
 		long randomSeed	
 	)
 	{
+	  this.activityTypes = activityTypes;
 		this.zoneRepository = zoneRepository;
 		this._fixedDistributionMatrices = fixedDistributionMatrices_;
 
 		this.impedance = impedance;
 		this.random = new Random(randomSeed);
 	}
+	
+	public DefaultFixedDestinationSelector(
+	    ZoneRepository zoneRepository,
+	    Map<ActivityType,FixedDistributionMatrix> fixedDistributionMatrices_,
+	    ImpedanceIfc impedance,
+	    long randomSeed	
+	    )
+	{
+	  this.zoneRepository = zoneRepository;
+	  this._fixedDistributionMatrices = fixedDistributionMatrices_;
+	  
+	  this.impedance = impedance;
+	  this.random = new Random(randomSeed);
+	}
+	
 
 	public void setFixedDestinations(
 		Zone zone, 
