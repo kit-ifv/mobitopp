@@ -31,6 +31,8 @@ public interface HouseholdForSetup {
   int getTotalNumberOfCars();
 
   int getSize();
+  
+  int getNumberOfPersonsInAgeRange(int fromIncluding, int toIncluding);
 
   int nominalSize();
 

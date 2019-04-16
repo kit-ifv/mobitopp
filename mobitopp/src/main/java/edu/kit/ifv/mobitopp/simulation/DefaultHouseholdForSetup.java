@@ -120,6 +120,17 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
+  public int getNumberOfPersonsInAgeRange(int fromIncluding, int toIncluding) {
+    return Math
+        .toIntExact(persons
+            .stream()
+            .mapToInt(PersonForSetup::age)
+            .filter(age -> fromIncluding <= age)
+            .filter(age -> toIncluding >= age)
+            .count());
+  }
+
+  @Override
   public int nominalSize() {
     return nominalSize;
   }
