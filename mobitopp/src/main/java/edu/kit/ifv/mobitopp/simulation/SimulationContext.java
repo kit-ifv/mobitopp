@@ -10,6 +10,8 @@ public interface SimulationContext {
 
 	WrittenConfiguration configuration();
 
+	DynamicParameters destinationChoiceParameters();
+	
 	DynamicParameters modeChoiceParameters();
 	
 	DynamicParameters experimentalParameters();
