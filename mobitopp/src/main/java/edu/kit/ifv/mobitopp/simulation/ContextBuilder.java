@@ -42,6 +42,7 @@ public class ContextBuilder {
 	private PublicTransportData publicTransport;
 	private DataRepositoryForSimulation dataRepository;
 	private PersonResults personResults;
+	private DynamicParameters destinationChoiceParameters;
 	private DynamicParameters modeChoiceParameters;
 
   public ContextBuilder(
@@ -77,6 +78,7 @@ public class ContextBuilder {
 		startLoading();
 		validateConfiguration();
 		experimentalParameters();
+		destinationChoiceParameters();
 		modeChoiceParameters();
 		resultWriter();
 		simulationDays();
@@ -109,6 +111,11 @@ public class ContextBuilder {
 	private void experimentalParameters() {
 		experimentalParameters = new DynamicParameters(configuration.getExperimental());
 		log("Create experimental parameters");
+	}
+	
+	private void destinationChoiceParameters() {
+	  destinationChoiceParameters = new DynamicParameters(configuration.getDestinationChoice());
+	  log("Create destination choice parameters");
 	}
 
 	private void modeChoiceParameters() {
@@ -192,7 +199,7 @@ public class ContextBuilder {
 	private SimulationContext createContext() {
 		SimpleSimulationContext context = new SimpleSimulationContext(configuration,
 				experimentalParameters, dataRepository, simulationDays, format, resultWriter,
-				electricChargingWriter, personResults, modeChoiceParameters);
+				electricChargingWriter, personResults, destinationChoiceParameters, modeChoiceParameters);
 		log("Create context");
 		return context;
 	}
