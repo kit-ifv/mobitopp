@@ -26,7 +26,7 @@ public class DynamicParameters {
 
 	private void verifyExisting(String parameter) {
 		if (!parameters.containsKey(parameter)) {
-			throw new IllegalArgumentException("Dynamic parameter missing: " + parameter);
+			throw new IllegalArgumentException("Dynamic parameter missing: " + parameter + " containing: " + parameter.toString());
 		}
 	}
 
