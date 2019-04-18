@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -41,13 +42,12 @@ public class PublicTransportTripFactory implements TripFactory {
   private Trip doCreateTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
-    int sourceZoneOid = previousActivity.zone().getOid();
-    int targetZoneOid = nextActivity.zone().getOid();
+    ZoneId originId = previousActivity.zone().getInternalId();
+    ZoneId destinationId = nextActivity.zone().getInternalId();
 
     Time plannedEnd = previousActivity.calculatePlannedEndDate();
 
-    int matrixDuration = (int) impedance
-        .getTravelTime(sourceZoneOid, targetZoneOid, mode, plannedEnd);
+    int matrixDuration = (int) impedance.getTravelTime(originId, destinationId, mode, plannedEnd);
     Optional<PublicTransportRoute> route = Optional.empty();
     route = findRoute(impedance, mode, previousActivity, nextActivity, plannedEnd);
 

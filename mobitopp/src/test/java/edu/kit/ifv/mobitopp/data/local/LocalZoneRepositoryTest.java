@@ -15,11 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class LocalZoneRepositoryTest {
 
   private static final int zoneOid = 1;
   private static final String zoneId = "Z1";
+  private static final ZoneId id = new ZoneId(zoneId, zoneOid);
   private static final int missingOid = 2;
   private Zone zone;
   private LocalZoneRepository repository;
@@ -29,7 +31,8 @@ public class LocalZoneRepositoryTest {
     zone = mock(Zone.class);
     when(zone.getId()).thenReturn(zoneId);
     when(zone.getOid()).thenReturn(zoneOid);
-    Map<Integer, Zone> zones = Collections.singletonMap(zoneOid, zone);
+    when(zone.getInternalId()).thenReturn(id);
+    Map<ZoneId, Zone> zones = Collections.singletonMap(id, zone);
     repository = new LocalZoneRepository(zones);
   }
 

@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -41,9 +42,9 @@ public class PrivateCarTrip extends BaseTrip implements Trip {
   }
 
   private void useCarOfHousehold(ImpedanceIfc impedance, Time currentTime) {
-    int origin = origin().zone().getOid();
-    int destination = destination().zone().getOid();
-    float distance = impedance.getDistance(origin, destination);
+    ZoneId originId = origin().zone().getInternalId();
+    ZoneId destinationId = destination().zone().getInternalId();
+    float distance = impedance.getDistance(originId, destinationId);
     float distanceKm = distance / 1000.0f;
     PrivateCar car = person().household().takeAvailableCar(person(), distanceKm);
     person().useCar(car, currentTime);

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.IntegerMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
@@ -23,13 +24,14 @@ public class AggregateDemandTest {
   void aggregateTrips() throws Exception {
     @SuppressWarnings("unchecked")
     Consumer<IntegerMatrix> writer = mock(Consumer.class);
-    List<Integer> oids = asList(1);
+    int matrixColumn = 1;
+    List<ZoneId> oids = asList(new ZoneId("11", matrixColumn));
     AggregateDemand aggregateDemand = new AggregateDemand(writer, oids);
 
     Person person = mock(Person.class);
     FinishedTrip trip = mock(FinishedTrip.class);
     Zone zone = mock(Zone.class);
-    when(zone.getOid()).thenReturn(1);
+    when(zone.getOid()).thenReturn(matrixColumn);
     Location location = new Location(new Point2D.Double(), 0, 0);
     ZoneAndLocation zoneLocation = new ZoneAndLocation(zone, location);
     when(trip.origin()).thenReturn(zoneLocation);
@@ -40,8 +42,8 @@ public class AggregateDemandTest {
 
     aggregateDemand.notifyFinishSimulation();
 
-    IntegerMatrix matrix = new IntegerMatrix(oids);
-    matrix.set(1, 1, 1);
+    IntegerMatrix matrix = new IntegerMatrix(asList(matrixColumn));
+    matrix.set(matrixColumn, matrixColumn, 1);
     verify(writer).accept(any(IntegerMatrix.class));
   }
 }

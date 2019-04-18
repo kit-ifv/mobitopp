@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -36,12 +37,12 @@ public class WithinTourModeChoiceAttributes
 			
 			assert tour.contains(nextActivity);
 				
-				int sourceOid = source.getOid();
-				int destOid = destination.getOid();
+				ZoneId sourceId = source.getInternalId();
+				ZoneId destinationId = destination.getInternalId();
 			
 					Time date = prevActivity.calculatePlannedEndDate();
 			
-					double distance 		= Math.max(0.1, impedance.getDistance(sourceOid, destOid)/1000.0);
+					double distance 		= Math.max(0.1, impedance.getDistance(sourceId, destinationId)/1000.0);
 			
 					assert !Double.isNaN(distance);
 					assert distance > 0.0f;
@@ -218,10 +219,10 @@ public class WithinTourModeChoiceAttributes
 			
 						Map<String,Double> attrib = new LinkedHashMap<String,Double>(attributes);
 			
-						double time 	= impedance.getTravelTime(sourceOid, destOid, mode, date);
+						double time 	= impedance.getTravelTime(sourceId, destinationId, mode, date);
 			
 						double cost 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
-															: impedance.getTravelCost(sourceOid, destOid, mode, date);
+															: impedance.getTravelCost(sourceId, destinationId, mode, date);
 						
 			
 			

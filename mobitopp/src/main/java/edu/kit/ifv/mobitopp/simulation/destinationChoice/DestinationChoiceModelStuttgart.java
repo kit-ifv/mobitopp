@@ -1,20 +1,21 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
-import edu.kit.ifv.mobitopp.simulation.TargetChoiceParameterCost;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.time.Time;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.TreeMap;
+
+import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import edu.kit.ifv.mobitopp.simulation.TargetChoiceParameterCost;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 
 
 public class DestinationChoiceModelStuttgart
@@ -45,38 +46,38 @@ public class DestinationChoiceModelStuttgart
 		Set<Mode> choiceSetForModes 
 	) {
 
-		int sourceZoneOid = source.getOid();
-		int targetZoneOid = target.getOid();
+		ZoneId origin = source.getInternalId();
+		ZoneId destination = target.getInternalId();
 
 		Time date = person.activitySchedule().prevActivity(nextActivity).calculatePlannedEndDate();
 
-		if (!isReachable(sourceZoneOid,targetZoneOid)) {  return Double.NEGATIVE_INFINITY; }
+		if (!isReachable(origin,destination)) {  return Double.NEGATIVE_INFINITY; }
 
 		DayOfWeek weekday = nextActivity.startDate().weekDay();
 
-		double	opportunity = getOpportunity(activityType, targetZoneOid);
+		double	opportunity = getOpportunity(activityType, destination);
 
 		if (opportunity == Double.NEGATIVE_INFINITY) { return Double.NEGATIVE_INFINITY; }
 
 		double	opportunityAdjustment = getOpportunityAdjustment(activityType, target);
 
-		int nextPoleOid = person.nextFixedActivityZone(nextActivity).getOid();
+		ZoneId nextPoleOid = person.nextFixedActivityZone(nextActivity).getInternalId();
 
-		Mode mode = fastestMode(person, nextActivity, date, sourceZoneOid, targetZoneOid, nextPoleOid, choiceSetForModes);
+		Mode mode = fastestMode(person, nextActivity, date, origin, destination, nextPoleOid, choiceSetForModes);
 		boolean commuterTicket = person.hasCommuterTicket();
 
 
-		float time_next = this.impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, date);
+		float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
 		float cost_next = (mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
-											: this.impedance.getTravelCost(sourceZoneOid, targetZoneOid, mode, date)
+											: this.impedance.getTravelCost(origin, destination, mode, date)
 											)
-											+ calculateParkingCost(mode, targetZoneOid, date, nextActivity.duration());
+											+ calculateParkingCost(mode, destination, date, nextActivity.duration());
 
-		float time_pole = this.impedance.getTravelTime(targetZoneOid, nextPoleOid, mode, date);
+		float time_pole = this.impedance.getTravelTime(destination, nextPoleOid, mode, date);
 		float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
-											: this.impedance.getTravelCost(targetZoneOid, nextPoleOid, mode, date);
+											: this.impedance.getTravelCost(destination, nextPoleOid, mode, date);
 
-		float constant = this.impedance.getConstant(sourceZoneOid, targetZoneOid, date);
+		float constant = this.impedance.getConstant(origin, destination, date);
 
 		float income = person.getIncome();
 
@@ -98,9 +99,9 @@ public class DestinationChoiceModelStuttgart
 		Person person,
 		ActivityIfc nextActivity,
 		Time date,
-		int sourceZoneOid, 
-		int targetZoneOid,
-		int nextPoleOid,
+		ZoneId origin, 
+		ZoneId destination,
+		ZoneId nextPoleOid,
 		Set<Mode> choiceSetForModes
 	) {
 
@@ -116,17 +117,17 @@ public class DestinationChoiceModelStuttgart
 			float time_coeff = this.getParameterTime(activityType, weekday);
 			float cost_coeff = this.getParameterCost(activityType, weekday);
 
-			float time_next = this.impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, date);
+			float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
 			float cost_next = (mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f
-												: this.impedance.getTravelCost(sourceZoneOid, targetZoneOid, mode, date)
+												: this.impedance.getTravelCost(origin, destination, mode, date)
 												)
-											+ calculateParkingCost(mode, targetZoneOid, date, nextActivity.duration());
+											+ calculateParkingCost(mode, destination, date, nextActivity.duration());
 
-			float time_pole = this.impedance.getTravelTime(targetZoneOid, nextPoleOid, mode, date);
+			float time_pole = this.impedance.getTravelTime(destination, nextPoleOid, mode, date);
 			float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f
-											 : this.impedance.getTravelCost(targetZoneOid, nextPoleOid, mode, date);
+											 : this.impedance.getTravelCost(destination, nextPoleOid, mode, date);
 
-			float constant = this.impedance.getConstant(sourceZoneOid, targetZoneOid, date);
+			float constant = this.impedance.getConstant(origin, destination, date);
 
 			float income = person.getIncome();
 
@@ -150,7 +151,7 @@ public class DestinationChoiceModelStuttgart
 
 	float calculateParkingCost(
 		Mode mode, 
-		int targetZoneOid, 
+		ZoneId destination, 
 		Time date,
 		int durationInMinutes
 	) {
@@ -164,7 +165,7 @@ public class DestinationChoiceModelStuttgart
 
 		if (mode == Mode.CAR) {
 
-			float costPerHour = this.impedance.getParkingCost(targetZoneOid, date);
+			float costPerHour = this.impedance.getParkingCost(destination, date);
 
 			return durationInMinutes/60 * costPerHour;
 		}
@@ -174,10 +175,10 @@ public class DestinationChoiceModelStuttgart
 
 	protected double getOpportunity(
 		ActivityType activityType,
-		int zoneOid
+		ZoneId destination
 	) {
 
-		float opportunity = this.impedance.getOpportunities(activityType, zoneOid);
+		float opportunity = this.impedance.getOpportunities(activityType, destination);
 
 		return Math.log(opportunity);
 	}
@@ -235,11 +236,11 @@ public class DestinationChoiceModelStuttgart
 
 
 	protected boolean isReachable(
-		int sourceZoneOid, 
-		int targetZoneOid
+		ZoneId origin, 
+		ZoneId destination
 	) {
 
-		float distance = this.impedance.getDistance(sourceZoneOid,targetZoneOid);
+		float distance = this.impedance.getDistance(origin,destination);
 
 		return distance < 999999.0f;
 	}

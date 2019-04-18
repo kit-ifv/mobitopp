@@ -1,16 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice;
 
-import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModelChoiceSet;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
-import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.util.logit.LogitModel;
-import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -19,6 +8,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModelChoiceSet;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
+import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
+import edu.kit.ifv.mobitopp.util.logit.LogitModel;
+
 public class DestinationAndModeChoiceSchaufenster 
 	implements DestinationChoiceModelChoiceSet
 						, ModeChoiceModel
@@ -26,31 +26,19 @@ public class DestinationAndModeChoiceSchaufenster
 
 	private final Map<ActivityType,DestinationAndModeChoiceUtility> utilityFunctions;
 
-	private final Map<Integer,Zone> zones;
-
 	private final ModeAvailabilityModel modeAvailabilityModel;
 
 	private final LogitModel<Mode> modeChoiceModel = new DefaultLogitModel<Mode>();
 	private final LogitModel<Zone> destinationChoiceModel = new DefaultLogitModel<Zone>();
 
 	public DestinationAndModeChoiceSchaufenster(
-		Map<Integer,Zone> zones,
 		ModeAvailabilityModel modeAvailabilityModel, 
 		Map<ActivityType,DestinationAndModeChoiceUtility> utilityFunctions
 	) {
 		this.utilityFunctions = Collections.unmodifiableMap(utilityFunctions);
 
-		this.zones = zones;
-
 		this.modeAvailabilityModel = modeAvailabilityModel;
 	}
-
-
-	public Map<Integer,Zone> zones() {
-		return this.zones;
-	}
-
-
 
   public Zone selectDestination(
       Person person, 

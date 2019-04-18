@@ -4,6 +4,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -133,34 +134,34 @@ public class DestinationChoiceModelEmployment
 	public double calculateUtility(
 		Person person,
 		ActivityIfc nextActivity,
-		Zone sourceZone, 
-		Zone destinationZone,
+		Zone origin, 
+		Zone destination,
 		ActivityType activityType,
 		Set<Mode> availableModes 
 	) {
 		
 		assert person != null;
 
-		int source = sourceZone.getOid();
-		int destination = destinationZone.getOid();
+		ZoneId originId = origin.getInternalId();
+		ZoneId destinationId = destination.getInternalId();
 
 		Time date = person.activitySchedule().prevActivity(nextActivity).calculatePlannedEndDate();
 
 		boolean commuterTicket = person.hasCommuterTicket();
-		int nextPole = person.nextFixedActivityZone(nextActivity).getOid();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
+		
+		Mode mode = fastestMode(person, nextActivity, date, originId, destinationId, nextFixedDestinationId, availableModes);
 
-		Mode mode = fastestMode(person, nextActivity, date, source, destination, nextPole, availableModes);
 
+		float opportunity = this.impedance.getOpportunities(activityType, destinationId);
 
-		float opportunity = this.impedance.getOpportunities(activityType, destination);
-
-		float time_next = this.impedance.getTravelTime(source, destination, mode, date);
+		float time_next = this.impedance.getTravelTime(originId, destinationId, mode, date);
 		float cost_next = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
-													: this.impedance.getTravelCost(source, destination, mode, date);
+													: this.impedance.getTravelCost(originId, destinationId, mode, date);
 
-		float time_pole = this.impedance.getTravelTime(destination, nextPole, mode, date);
+		float time_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, mode, date);
 		float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
-													: this.impedance.getTravelCost(destination, nextPole, mode, date);
+													: this.impedance.getTravelCost(destinationId, nextFixedDestinationId, mode, date);
 
 		double OPPORTUNITY_OFFSET = 1.0;
 
@@ -195,9 +196,9 @@ public class DestinationChoiceModelEmployment
 		Person person,
 		ActivityIfc nextActivity,
 		Time date,
-		int sourceZoneOid, 
-		int targetZoneOid,
-		int nextPoleOid,
+		ZoneId origin, 
+		ZoneId destination,
+		ZoneId nextFixedDestination,
 		Set<Mode> availableModes
 	) {
 
@@ -205,8 +206,8 @@ public class DestinationChoiceModelEmployment
 
 		for (Mode mode : availableModes) {
 
-			float time_next = this.impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, date);
-			float time_pole = this.impedance.getTravelTime(targetZoneOid, nextPoleOid, mode, date);
+			float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
+			float time_pole = this.impedance.getTravelTime(destination, nextFixedDestination, mode, date);
 
 			travelTime.put(time_next + time_pole,mode);
 		}

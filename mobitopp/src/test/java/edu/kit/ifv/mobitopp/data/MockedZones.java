@@ -23,22 +23,22 @@ public class MockedZones {
 
 	public static MockedZones create() {
 		Zone someZone = mock(Zone.class);
-		when(someZone.getOid()).thenReturn(1);
+		when(someZone.getInternalId()).thenReturn(new ZoneId("1", 1));
 		when(someZone.charging()).thenReturn(NoChargingDataForZone.noCharging);
 		Zone otherZone = mock(Zone.class);
-		when(otherZone.getOid()).thenReturn(2);
+		when(otherZone.getInternalId()).thenReturn(new ZoneId("2", 2));
 		when(otherZone.charging()).thenReturn(NoChargingDataForZone.noCharging);
 
 		return new MockedZones(someZone, otherZone);
 	}
 
 	public void verify() {
-		verifyOnlyCallsToGetOid(someZone);
-		verifyOnlyCallsToGetOid(otherZone);
+		verifyOnlyCallsToGetId(someZone);
+		verifyOnlyCallsToGetId(otherZone);
 	}
 
-	private void verifyOnlyCallsToGetOid(Zone zone) {
-		verifyPossibleCallOn(zone).getOid();
+	private void verifyOnlyCallsToGetId(Zone zone) {
+		verifyPossibleCallOn(zone).getInternalId();
 		verifyPossibleCallOn(zone).charging();
 		verifyNoMoreInteractions(zone);
 	}

@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 
@@ -40,11 +41,6 @@ public class Impedance_Stub
 	}
 
 	@Override
-	public float getTravelTime(int source, int target, Mode mode, Time date) {
-		return this.time;
-	}
-	
-	@Override
 	public Optional<PublicTransportRoute> getPublicTransportRoute(Location source, Location target, Mode mode, Time date) {
 		return Optional.empty();
 	}
@@ -54,34 +50,39 @@ public class Impedance_Stub
 		return Optional.empty();
 	}
 
-	@Override
-	public float getTravelCost(int source, int target, Mode mode, Time date) {
-		return this.cost;
-	}
+  @Override
+  public float getDistance(ZoneId origin, ZoneId destination) {
+    return distance;
+  }
+  
+  @Override
+  public float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date) {
+    return time;
+  }
+  
+  @Override
+  public float getTravelCost(ZoneId origin, ZoneId destination, Mode mode, Time date) {
+    return cost;
+  }
 
-	@Override
-	public float getConstant(int source, int target, Time date) {
-		return this.constant;
-	}
+  @Override
+  public float getParkingCost(ZoneId destination, Time date) {
+    return parkingcost;
+  }
 
-	@Override
-	public float getDistance(int source, int target){
-		return this.distance;
-	}
+  @Override
+  public float getParkingStress(ZoneId destination, Time date) {
+    return parkingstress;
+  }
 
-	@Override
-	public float getParkingCost(int target, Time date){
-		return this.parkingcost;
-	}
+  @Override
+  public float getConstant(ZoneId origin, ZoneId destination, Time date) {
+    return constant;
+  }
 
-	@Override
-	public float getParkingStress(int target, Time date){
-		return this.parkingstress;
-	}
-
-	@Override
-	public float getOpportunities(ActivityType activityType, int zoneOid) {	
-		return this.opportunities;
-	}
+  @Override
+  public float getOpportunities(ActivityType activityType, ZoneId zone) {
+    return opportunities;
+  }
 
 }

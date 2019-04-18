@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -93,7 +94,7 @@ implements FixedDestinationSelector
 			// 4. Distanzverteilung der Zielzellen skalieren (entsprechend Personenzahl)
 			// 5. Pole zuordnen
 
-			SortedMap<Integer,Map<Integer,Float>> zoneDistances 
+			SortedMap<Integer,Map<ZoneId,Float>> zoneDistances 
 				= calculateZoneDistanceDistribution(zone, activityType);
 
 			reweightZoneDistanceDistribution(zoneDistances, activityType);
@@ -108,40 +109,38 @@ implements FixedDestinationSelector
 		}
 	}
 
-	private SortedMap<Integer,Map<Integer,Float>>	calculateZoneDistanceDistribution(
-		Zone zone,
-		ActivityType activityType
-	) {
+  private SortedMap<Integer, Map<ZoneId, Float>> calculateZoneDistanceDistribution(
+      Zone zone, ActivityType activityType) {
 
-			FixedDistributionMatrix distMatrix = this._fixedDistributionMatrices.get(activityType);
+    FixedDistributionMatrix distMatrix = this._fixedDistributionMatrices.get(activityType);
 
-			SortedMap<Integer,Map<Integer,Float>> distances = new TreeMap<Integer,Map<Integer,Float>>();
+    SortedMap<Integer, Map<ZoneId, Float>> distances = new TreeMap<>();
 
-			Integer homezoneOid = zone.getOid();
+    ZoneId homeId = zone.getInternalId();
 
-			for (Integer targetzoneOid : distMatrix.oids()) {
-				Float dist_float = this.impedance.getDistance(homezoneOid,targetzoneOid);
-				Integer dist = dist_float.intValue();
-				Float count = distMatrix.get(homezoneOid,targetzoneOid);
-				if (count > 0.0f || targetzoneOid == zone.getOid()) {
-					if (distances.get(dist) == null) {
-								distances.put(dist, new HashMap<Integer,Float>());
-					}
+    for (ZoneId destinationId : zoneRepository.getZoneIds()) {
+      Float dist_float = this.impedance.getDistance(homeId, destinationId);
+      Integer dist = dist_float.intValue();
+      Float count = distMatrix.get(homeId.getMatrixColumn(), destinationId.getMatrixColumn());
+      if (count > 0.0f || destinationId.equals(zone.getInternalId())) {
+        if (distances.get(dist) == null) {
+          distances.put(dist, new HashMap<>());
+        }
 
-					if (count == 0.0f) { // work-around in case that no target zone exists
-						count = 0.000001f;
-					}
-					
-					distances.get(dist).put(targetzoneOid, count);
-				}
+        if (count == 0.0f) { // work-around in case that no target zone exists
+          count = 0.000001f;
+        }
 
-			}
+        distances.get(dist).put(destinationId, count);
+      }
 
-		return distances;
-	}
+    }
+
+    return distances;
+  }
 
 	private void reweightZoneDistanceDistribution(
-		SortedMap<Integer,Map<Integer,Float>> distances,
+		SortedMap<Integer,Map<ZoneId,Float>> distances,
 		ActivityType activityType
 	) {
 
@@ -176,10 +175,10 @@ implements FixedDestinationSelector
 
 		for (Integer distance : distances.keySet()) {
 
-			Map<Integer,Float> zones = distances.get(distance);
+			Map<ZoneId,Float> zones = distances.get(distance);
 
 			float damping = 1.0f - beta*(float)Math.exp(-alpha*distance);
-			for (Integer zone : zones.keySet()) {
+			for (ZoneId zone : zones.keySet()) {
 
 				float value = zones.get(zone);
 
@@ -243,7 +242,7 @@ implements FixedDestinationSelector
 
 	private void rescaleZoneDistanceDistributions(
 		SortedMap<Integer,List<PersonForSetup>> personDistances, 
-		SortedMap<Integer,Map<Integer,Float>> zoneDistances
+		SortedMap<Integer,Map<ZoneId,Float>> zoneDistances
 	) {
 
 		int pers_cnt = 0;
@@ -254,7 +253,7 @@ implements FixedDestinationSelector
 		}
 
 		for (Integer dist : zoneDistances.keySet()) {
-			for (Integer target : zoneDistances.get(dist).keySet()) {
+			for (ZoneId target : zoneDistances.get(dist).keySet()) {
 				zone_cnt +=  zoneDistances.get(dist).get(target);
 			}
 		}
@@ -265,7 +264,7 @@ implements FixedDestinationSelector
 		double culum_remainder = 0.0;
 
 		for (Integer dist : zoneDistances.keySet()) {
-			for (Integer target : zoneDistances.get(dist).keySet()) {
+			for (ZoneId target : zoneDistances.get(dist).keySet()) {
 				float val =  zoneDistances.get(dist).get(target);
 				double scaled =  val*scaling;
 				double rounded = Math.floor(scaled);
@@ -287,8 +286,8 @@ implements FixedDestinationSelector
 		int diff = pers_cnt - (int) curr_cnt;
 
 		Integer first = zoneDistances.firstKey();
-		Map<Integer, Float> firstMap = zoneDistances.get(first);
-		Integer zone = firstMap.keySet().iterator().next();
+		Map<ZoneId, Float> firstMap = zoneDistances.get(first);
+		ZoneId zone = firstMap.keySet().iterator().next();
 		firstMap.put(zone, firstMap.get(zone)+diff);
 
 
@@ -297,13 +296,13 @@ implements FixedDestinationSelector
 	private void setPersonsPoleZones(
 		ActivityType activityType,
 		SortedMap<Integer,List<PersonForSetup>> personDistances, 
-		SortedMap<Integer,Map<Integer,Float>> zoneDistances
+		SortedMap<Integer,Map<ZoneId,Float>> zoneDistances
 	) {
 
-			LinkedList<Integer> zoneOids = new LinkedList<Integer>();
+			LinkedList<ZoneId> zoneOids = new LinkedList<>();
 
 			for (Integer dist : zoneDistances.keySet()) {
-				for (Integer zone : zoneDistances.get(dist).keySet()) {
+				for (ZoneId zone : zoneDistances.get(dist).keySet()) {
 					for (int i=0; i <zoneDistances.get(dist).get(zone); i++) {
 						zoneOids.add(zone);
 					}
@@ -313,8 +312,8 @@ implements FixedDestinationSelector
 
 			for (Integer dist : personDistances.keySet()) {
 				for (PersonForSetup person : personDistances.get(dist)) {
-					int zoneId = zoneOids.remove();
-					Zone zone = this.zoneRepository.getZoneByOid(zoneId);
+					ZoneId zoneId = zoneOids.remove();
+					Zone zone = this.zoneRepository.getZoneById(zoneId);
 					assert zone != null;
 					Location location;
 					if(zone.opportunities().locationsAvailable(activityType)) {

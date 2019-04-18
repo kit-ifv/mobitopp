@@ -61,18 +61,18 @@ public class SimulationCombinedDestinationModeChoice extends Simulation {
 			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
 		Map<String, String> destinationChoiceFiles = context().configuration().getDestinationChoice();
 		DestinationAndModeChoiceSchaufenster destinationModeModel = createDestinationAndModeChoiceModel(
-				modeAvailabilityModel, zoneRepository);
+				modeAvailabilityModel);
 
 		return new DestinationChoiceWithFixedLocations(zoneRepository().zones(),
 				new SimpleRepeatedDestinationChoice(zoneRepository().zones(), destinationModeModel,
 						destinationChoiceFiles.get("repetition")));
 	}
 
-	protected DestinationAndModeChoiceSchaufenster createDestinationAndModeChoiceModel(
-			ModeAvailabilityModel modeAvailabilityModel, ZoneRepository zoneRepository) {
+  protected DestinationAndModeChoiceSchaufenster createDestinationAndModeChoiceModel(
+      ModeAvailabilityModel modeAvailabilityModel) {
 		Map<ActivityType, DestinationAndModeChoiceUtility> utilityFunctions = new CombinedUtilityFunctions(
 				context()).load();
-		return new DestinationAndModeChoiceSchaufenster(zoneRepository.zones(), modeAvailabilityModel,
+		return new DestinationAndModeChoiceSchaufenster(modeAvailabilityModel,
 				utilityFunctions);
 	}
 

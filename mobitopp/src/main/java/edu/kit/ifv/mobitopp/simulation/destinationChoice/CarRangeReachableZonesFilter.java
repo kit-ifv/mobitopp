@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -61,7 +62,9 @@ public class CarRangeReachableZonesFilter
 			for (Zone destination : zones) {
 				for (Mode mode : availableModes) {
 
-					double time = this.impedance.getTravelTime(currentZone.getOid(), destination.getOid(), mode, date);
+					ZoneId originId = currentZone.getInternalId();
+          ZoneId destinationId = destination.getInternalId();
+          double time = this.impedance.getTravelTime(originId, destinationId, mode, date);
 
 					if (time < maxTravelTimeInMinutes) {
 						reachableZones.add(destination);
@@ -92,9 +95,13 @@ public class CarRangeReachableZonesFilter
 
 			for (Zone zone : zones) {
 				
-				float distance = this.impedance.getDistance(currentZone.getOid(), zone.getOid())
-												+ this.impedance.getDistance(zone.getOid(), nextFixedZone.getOid())
-												+ this.impedance.getDistance(nextFixedZone.getOid(), homeZone.getOid());
+				ZoneId originId = currentZone.getInternalId();
+        ZoneId destinationId = zone.getInternalId();
+        ZoneId nextFixedDestinationId = nextFixedZone.getInternalId();
+        ZoneId homeId = homeZone.getInternalId();
+        float distance = this.impedance.getDistance(originId, destinationId)
+												+ this.impedance.getDistance(destinationId, nextFixedDestinationId)
+												+ this.impedance.getDistance(nextFixedDestinationId, homeId);
 				float distanceKm = distance/1000.0f;
 
 				if (range < distanceKm*DIVERSION_FACTOR

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.routing.Path;
@@ -148,8 +149,9 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		assert person().isCarDriver();
 
-		float distance_meter = impedance.getDistance(trip.origin().zone().getOid(),
-				trip.destination().zone().getOid());
+		ZoneId originId = trip.origin().zone().getInternalId();
+    ZoneId destinationId = trip.destination().zone().getInternalId();
+    float distance_meter = impedance.getDistance(originId, destinationId);
 
 		float distance = distance_meter / 1000.0f;
 

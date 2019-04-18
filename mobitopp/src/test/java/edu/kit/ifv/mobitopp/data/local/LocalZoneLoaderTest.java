@@ -15,12 +15,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.dataimport.ZonesReader;
 
 public class LocalZoneLoaderTest {
 
-	private static final int zoneOid = 1;
-	private static final int anotherOid = 2;
+	private static final ZoneId zoneId = new ZoneId("11", 1);
+	private static final ZoneId anotherId = new ZoneId("22", 2);
 	private static final int limitedSize = 1;
 	
 	private ZonesReader reader;
@@ -33,11 +34,11 @@ public class LocalZoneLoaderTest {
 	public void initialise() {
 		reader = mock(ZonesReader.class);
 		zone = mock(Zone.class);
-		when(zone.getOid()).thenReturn(zoneOid);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		anotherZone = mock(Zone.class);
-		when(anotherZone.getOid()).thenReturn(zoneOid);
+		when(anotherZone.getInternalId()).thenReturn(zoneId);
 		differentZone = mock(Zone.class);
-		when(differentZone.getOid()).thenReturn(anotherOid);
+		when(differentZone.getInternalId()).thenReturn(anotherId);
 		loader = new LocalZoneLoader(reader);
 	}
 	
@@ -45,11 +46,11 @@ public class LocalZoneLoaderTest {
 	public void mapsAllZones() {
 		when(reader.getZones()).thenReturn(asList(zone, differentZone));
 		
-		Map<Integer, Zone> mapping = loader.mapAllZones();
+		Map<ZoneId, Zone> mapping = loader.mapAllZones();
 		
 		assertThat(mapping.entrySet(), hasSize(2));
-		assertThat(mapping.get(zoneOid), is(equalTo(zone)));
-		assertThat(mapping.get(anotherOid), is(equalTo(differentZone)));
+		assertThat(mapping.get(zoneId), is(equalTo(zone)));
+		assertThat(mapping.get(anotherId), is(equalTo(differentZone)));
 		verify(reader).getZones();
 	}
 	
@@ -64,7 +65,7 @@ public class LocalZoneLoaderTest {
 	public void restrictsNumberOfLoadedZones() {
 		when(reader.getZones()).thenReturn(asList(zone, differentZone));
 		
-		Map<Integer, Zone> zones = loader.mapZones(limitedSize);
+		Map<ZoneId, Zone> zones = loader.mapZones(limitedSize);
 		
 		assertThat(zones.entrySet(), hasSize(limitedSize));
 	}

@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -75,7 +76,7 @@ public class BasicModeAvailabilityModel
 
 	public Set<Mode> filterAvailableModes(
 		Person person,
-		Zone source,
+		Zone origin,
 		Zone destination,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
@@ -86,19 +87,19 @@ public class BasicModeAvailabilityModel
 		final float RANGE_BUFFER_KM = 20.0f;
 
 		Set<Mode> choiceSet = new LinkedHashSet<>(
-				availableModes(person, source, previousActivity, proposedChoiceSet));
+				availableModes(person, origin, previousActivity, proposedChoiceSet));
 
 		if (choiceSet.contains(Mode.CAR)) {
 
 			if (isAtHome(previousActivity)) {
 
-				int sourceZoneOid = source.getOid();
-				int targetZoneOid = destination.getOid();
-				int nextPole = person.nextFixedActivityZone(person.currentActivity()).getOid();
-				int homeZone = person.homeZone().getOid();
+				ZoneId originId = origin.getInternalId();
+				ZoneId destinationId = destination.getInternalId();
+				ZoneId nextPole = person.nextFixedActivityZone(person.currentActivity()).getInternalId();
+				ZoneId homeZone = person.homeZone().getInternalId();
 
-				float distance = this.impedance.getDistance(sourceZoneOid, targetZoneOid)
-												+ this.impedance.getDistance(targetZoneOid, nextPole)
+				float distance = this.impedance.getDistance(originId, destinationId)
+												+ this.impedance.getDistance(destinationId, nextPole)
 												+ this.impedance.getDistance(nextPole, homeZone);
 				float distanceKm = distance/1000.0f;
 				
@@ -119,8 +120,8 @@ public class BasicModeAvailabilityModel
 
 	public Set<Mode> modesWithReasonableTravelTime(
 		Person person,
-		Zone source,
-		Zone target,
+		Zone origin,
+		Zone destination,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
 		Collection<Mode> possibleModes,
@@ -140,7 +141,9 @@ public class BasicModeAvailabilityModel
 
 		for (Mode mode : possibleModes) {
 
-			double time 	= this.impedance.getTravelTime(source.getOid(), target.getOid(), mode, date);
+			ZoneId originId = origin.getInternalId();
+      ZoneId destinationId = destination.getInternalId();
+      double time = this.impedance.getTravelTime(originId, destinationId, mode, date);
 
 			if (time <= fastestTravelTime) {
 

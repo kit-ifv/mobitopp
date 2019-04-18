@@ -488,7 +488,7 @@ public class PersonForDemand implements Person, Serializable {
 				Zone workZone = fixedZoneFor(ActivityType.WORK);
 				Location workLocation = fixedDestinationFor(ActivityType.WORK);
 
-				int distance = (int) impedance.getDistance(homeZone.getOid(), workZone.getOid());
+				int distance = (int) impedance.getDistance(homeZone.getInternalId(), workZone.getInternalId());
 
 				buffer.append(outFormat.format(distance) + "; ");
 				buffer.append(workZone.getId() + "; ");
@@ -505,7 +505,7 @@ public class PersonForDemand implements Person, Serializable {
 				Zone eduZone = fixedZoneFor(ActivityType.EDUCATION);
 				Location eduLocation = fixedDestinationFor(ActivityType.EDUCATION);
 
-				int distance = (int) impedance.getDistance(homeZone.getOid(), eduZone.getOid());
+				int distance = (int) impedance.getDistance(homeZone.getInternalId(), eduZone.getInternalId());
 
 				buffer.append(outFormat.format(distance) + "; ");
 

@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -21,13 +22,13 @@ public class AttractivityCalculatorCost
 
 	private Map<Integer,Float> scalingFactor = new LinkedHashMap<Integer,Float>(); 
 
-	private final	Map<Integer,Zone> zones;
+  private final Map<ZoneId, Zone> zones;
 
 	private final ImpedanceIfc impedance;
 
 
 	public AttractivityCalculatorCost(
-		Map<Integer,Zone> zones,
+		Map<ZoneId,Zone> zones,
 		ImpedanceIfc impedance,
 		String filename
 	) {
@@ -141,8 +142,8 @@ public class AttractivityCalculatorCost
 			Float attractivity = calculateAttractivity( 
 																						person,
 																						nextActivity,
-																						currentZone.getOid(), 
-																						possibleDestination.getOid(), 
+																						currentZone.getInternalId(), 
+																						possibleDestination.getInternalId(), 
 																						activityType, 
 																						choiceSetForModes
 																					);
@@ -156,21 +157,21 @@ public class AttractivityCalculatorCost
 	protected float calculateAttractivity(
 		Person person,
 		ActivityIfc nextActivity,
-		int sourceZoneOid, 
-		int targetZoneOid,
+		ZoneId origin, 
+		ZoneId destination,
 		ActivityType activityType,
 		Set<Mode> choiceSetForModes 
 	) {
 		float opportunity = 0.0f;
 
-		if (isReachable(sourceZoneOid,targetZoneOid)) {
-			opportunity = getOpportunity(activityType, targetZoneOid);
+		if (isReachable(origin,destination)) {
+			opportunity = getOpportunity(activityType, destination);
 		} 
 
 		float impedance = calculateImpedance(	person, 
 																					nextActivity, 
-																					sourceZoneOid, 
-																					targetZoneOid, 
+																					origin, 
+																					destination, 
 																					choiceSetForModes
 																				);
 
@@ -179,10 +180,10 @@ public class AttractivityCalculatorCost
 
 	protected float getOpportunity(
 		ActivityType activityType,
-		int zoneOid
+		ZoneId destination
 	) {
 
-		Zone zone = this.zones.get(zoneOid);
+		Zone zone = this.zones.get(destination);
 
 		Attractivities attractivity = zone.attractivities();
 
@@ -194,7 +195,7 @@ public class AttractivityCalculatorCost
 
 		float scaling_factor = 1.0f;
 
-		if(IsZoneExternal(zoneOid)) {
+		if(IsZoneExternal(destination)) {
 
 			scaling_factor = this.scalingFactor.get(activityType.getTypeAsInt());
 		}
@@ -207,26 +208,23 @@ public class AttractivityCalculatorCost
 		return (float) Math.pow(opportunity,opportunity_coeff);
 	}
 
-	protected boolean IsVRS(int zoneOid) {
-
-		Zone zone = this.zones.get(zoneOid);
-		String zoneId = zone.getId();
+	protected boolean IsVRS(ZoneId id) {
+		String zoneId = id.getExternalId();
 
 		boolean isStuttgart = zoneId.length() == 6 && !zoneId.substring(0,2).equals("Z2");
 
 		return isStuttgart;
 	}
 
-	protected boolean IsZoneOutlying(int zoneOid) {
-
-		Zone zone = this.zones.get(zoneOid);
+	protected boolean IsZoneOutlying(ZoneId zoneId) {
+		Zone zone = this.zones.get(zoneId);
 
 		return ZoneClassificationType.outlyingArea.equals(zone.getClassification());
 	}
 
-	protected boolean IsZoneExternal(int zoneOid) {
+	protected boolean IsZoneExternal(ZoneId destination) {
 
-		Zone zone = this.zones.get(zoneOid);
+		Zone zone = this.zones.get(destination);
 		String zoneId = zone.getId();
 
 		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
@@ -241,8 +239,8 @@ public class AttractivityCalculatorCost
 	protected float calculateImpedance(
 		Person person,
 		ActivityIfc nextActivity,
-		int sourceZoneOid, 
-		int targetZoneOid,
+		ZoneId origin, 
+		ZoneId destination,
 		Set<Mode> choiceSetForModes
 	) {
 
@@ -261,11 +259,11 @@ public class AttractivityCalculatorCost
 			float time_coeff = getParameterTime(activityType, weekday);
 			float cost_coeff = getParameterCost(activityType, weekday);
 
-			float time = getTravelTime(mode,sourceZoneOid,targetZoneOid, startDate);
-			float cost = getTravelCost(mode,sourceZoneOid,targetZoneOid, startDate,
+			float time = getTravelTime(mode,origin,destination, startDate);
+			float cost = getTravelCost(mode,origin,destination, startDate,
 											person.hasCommuterTicket()
 									)
-									+ getParkingCost(mode, targetZoneOid, startDate, nextActivity.duration()
+									+ getParkingCost(mode, destination, startDate, nextActivity.duration()
 									);
 			
 			float income = person.getIncome();
@@ -282,15 +280,15 @@ public class AttractivityCalculatorCost
 		return impedances.first();
 	}
 
-	protected float getTravelTime(Mode mode, int sourceZoneOid, int targetZoneOid, Time date) {
-		float travelTime = this.impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, date);
+	protected float getTravelTime(Mode mode, ZoneId origin, ZoneId destination, Time date) {
+		float travelTime = this.impedance.getTravelTime(origin, destination, mode, date);
 		return mode == Mode.PUBLICTRANSPORT ?  Math.min(1440.0f,travelTime) : travelTime;
 	}
 
 	protected float getTravelCost(
 		Mode mode,
-		int sourceZoneOid, 
-		int targetZoneOid,
+		ZoneId origin, 
+		ZoneId destination,
 		Time date,
 		boolean commmuterTicket
 	) {
@@ -305,20 +303,20 @@ public class AttractivityCalculatorCost
 
 		if (mode == Mode.CAR) {
 
-			return this.impedance.getTravelCost(sourceZoneOid, targetZoneOid, mode, date);
+			return this.impedance.getTravelCost(origin, destination, mode, date);
 		}
 
 		if (mode == Mode.PUBLICTRANSPORT) {
 
-			return this.impedance.getTravelCost(sourceZoneOid, targetZoneOid, mode, date);
+			return this.impedance.getTravelCost(origin, destination, mode, date);
 		}
 
-		return this.impedance.getTravelCost(sourceZoneOid, targetZoneOid, mode, date);
+		return this.impedance.getTravelCost(origin, destination, mode, date);
 	}
 
 	protected float getParkingCost(
 		Mode mode,
-		int targetZoneOid,
+		ZoneId destination,
 		Time date,
 		int duration
 	) {
@@ -337,7 +335,7 @@ public class AttractivityCalculatorCost
 				|| mode == Mode.CARSHARING_FREE
 		) {
 
-			float parkingCostPerMinute = this.impedance.getParkingCost(targetZoneOid, date);
+			float parkingCostPerMinute = this.impedance.getParkingCost(destination, date);
 
 			return duration/60 * parkingCostPerMinute;
 		}
@@ -345,21 +343,12 @@ public class AttractivityCalculatorCost
 		throw new IllegalArgumentException();
 	}
 
-	protected float getDistance(
-		int sourceZoneOid, 
-		int targetZoneOid
-
-	) {
-		return this.impedance.getDistance(sourceZoneOid, targetZoneOid);
+  protected float getDistance(ZoneId origin, ZoneId destination) {
+		return this.impedance.getDistance(origin, destination);
 	}
 
-	boolean isReachable(
-		int sourceZoneOid, 
-		int targetZoneOid
-	) {
-
-		float distance = getDistance(sourceZoneOid,targetZoneOid);
-
+  boolean isReachable(ZoneId origin, ZoneId destination) {
+		float distance = getDistance(origin,destination);
 		return distance < 999999.0f;
 	}
 

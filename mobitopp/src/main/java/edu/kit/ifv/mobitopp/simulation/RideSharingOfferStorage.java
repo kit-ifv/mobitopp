@@ -5,19 +5,20 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
+
 public class RideSharingOfferStorage {
 
 
-	protected Map<Integer,Map<Integer,Map<Trip,RideSharingOffer>>> offers 
-			= new HashMap<Integer,Map<Integer,Map<Trip,RideSharingOffer>>>();
+  protected Map<ZoneId, Map<ZoneId, Map<Trip, RideSharingOffer>>> offers = new HashMap<>();
 
 	protected int size=0;
 
 
 	public void put(Trip trip, RideSharingOffer offer) {
 
-		Integer source = trip.origin().zone().getOid();
-		Integer target = trip.destination().zone().getOid();
+		ZoneId source = trip.origin().zone().getInternalId();
+		ZoneId target = trip.destination().zone().getInternalId();
 
 		assertOffersContainsSourceAndTarget(trip);
 
@@ -28,8 +29,8 @@ public class RideSharingOfferStorage {
 
 	private void assertOffersContainsSourceAndTarget(Trip trip) {
 
-		Integer source = trip.origin().zone().getOid();
-		Integer target = trip.destination().zone().getOid();
+		ZoneId source = trip.origin().zone().getInternalId();
+		ZoneId target = trip.destination().zone().getInternalId();
 
 		if (!offers.containsKey(source)) {
 			offers.put(source, new HashMap<>());
@@ -41,8 +42,8 @@ public class RideSharingOfferStorage {
 
 	public void remove(Trip trip) {
 
-		Integer source = trip.origin().zone().getOid();
-		Integer target = trip.destination().zone().getOid();
+		ZoneId source = trip.origin().zone().getInternalId();
+		ZoneId target = trip.destination().zone().getInternalId();
 
 		assert offers.containsKey(source);
 		assert offers.get(source).containsKey(target);
@@ -54,8 +55,8 @@ public class RideSharingOfferStorage {
 
 	public RideSharingOffer get(Trip trip) {
 
-		Integer source = trip.origin().zone().getOid();
-		Integer target = trip.destination().zone().getOid();
+		ZoneId source = trip.origin().zone().getInternalId();
+		ZoneId target = trip.destination().zone().getInternalId();
 
 		assert offers.containsKey(source);
 		assert offers.get(source).containsKey(target);
@@ -71,8 +72,8 @@ public class RideSharingOfferStorage {
 
 	public Collection<Trip> keySet(Trip trip) {
 
-		Integer source = trip.origin().zone().getOid();
-		Integer target = trip.destination().zone().getOid();
+		ZoneId source = trip.origin().zone().getInternalId();
+		ZoneId target = trip.destination().zone().getInternalId();
 
 		if (!offers.containsKey(source) || !offers.get(source).containsKey(target)) {
 			return new ArrayList<>();

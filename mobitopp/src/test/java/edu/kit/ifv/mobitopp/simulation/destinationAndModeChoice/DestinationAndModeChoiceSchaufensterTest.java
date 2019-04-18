@@ -26,7 +26,6 @@ public class DestinationAndModeChoiceSchaufensterTest {
 
 	private static final Mode chosenMode = Mode.PUBLICTRANSPORT;
 	private ActivityType activityType;
-	private Map<Integer, Zone> zones;
 	private ModeAvailabilityModel modeAvailabilityModel;
 	private DestinationAndModeChoiceUtility utilityFunction;
 	private DestinationAndModeChoiceSchaufenster model;
@@ -41,7 +40,6 @@ public class DestinationAndModeChoiceSchaufensterTest {
 	@Before
 	public void initialise() {
 		activityType = ActivityType.WORK;
-		zones = Collections.emptyMap();
 		modeAvailabilityModel = mock(ModeAvailabilityModel.class);
 		utilityFunction = mock(DestinationAndModeChoiceUtility.class);
 		Map<ActivityType, DestinationAndModeChoiceUtility> utilityFunctions = Collections
@@ -53,8 +51,7 @@ public class DestinationAndModeChoiceSchaufensterTest {
 		nextActivity = mock(ActivityIfc.class);
 		fullChoiceSet = Mode.CHOICE_SET_FULL;
 		randomNumber = 1.0d;
-		model = new DestinationAndModeChoiceSchaufenster(zones, modeAvailabilityModel,
-				utilityFunctions);
+    model = new DestinationAndModeChoiceSchaufenster(modeAvailabilityModel, utilityFunctions);
 
 		when(nextActivity.activityType()).thenReturn(activityType);
 	}

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.impedance;
 
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -21,44 +22,9 @@ public class ImpedanceDecorator
 	}
 
 	@Override
-	public float getTravelTime(int source, int target, Mode mode, Time date) {
-		return this.impedance.getTravelTime(source, target, mode, date);
-	}
-
-	@Override
-	public float getTravelCost(int source, int target, Mode mode, Time date) {
-		return this.impedance.getTravelCost(source, target, mode, date);
-	}
-
-	@Override
-	public float getDistance(int source, int target) {
-		return this.impedance.getDistance(source, target);
-	}
-
-	@Override
-	public float getParkingCost(int target, Time date) {
-		return this.impedance.getParkingCost(target, date);
-	}
-
-	@Override
-	public float getParkingStress(int target, Time date) {
-		return this.impedance.getParkingStress(target, date);
-	}
-
-	@Override
-	public float getConstant(int source, int target, Time date) {
-		return this.impedance.getConstant(source, target, date);
-	}
-
-	@Override
-	public float getOpportunities(ActivityType activityType, int zoneOid) {
-		return this.impedance.getOpportunities(activityType, zoneOid);
-	}
-
-	@Override
 	public Optional<PublicTransportRoute> getPublicTransportRoute(Location origin, Location destination, Mode mode,
 			Time date) {
-		return this.impedance.getPublicTransportRoute(origin, destination, mode, date);
+		return impedance.getPublicTransportRoute(origin, destination, mode, date);
 	}
 
 	@Override
@@ -66,5 +32,40 @@ public class ImpedanceDecorator
 			Stop start, Stop end, Mode mode, Time date) {
 		return impedance.getPublicTransportRoute(start, end, mode, date);
 	}
+
+  @Override
+  public float getDistance(ZoneId origin, ZoneId destination) {
+    return impedance.getDistance(origin, destination);
+  }
+  
+  @Override
+  public float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date) {
+    return impedance.getTravelTime(origin, destination, mode, date);
+  }
+  
+  @Override
+  public float getTravelCost(ZoneId origin, ZoneId destination, Mode mode, Time date) {
+    return impedance.getTravelCost(origin, destination, mode, date);
+  }
+
+  @Override
+  public float getParkingCost(ZoneId destination, Time date) {
+    return impedance.getParkingCost(destination, date);
+  }
+
+  @Override
+  public float getParkingStress(ZoneId destination, Time date) {
+    return impedance.getParkingStress(destination, date);
+  }
+
+  @Override
+  public float getConstant(ZoneId origin, ZoneId destination, Time date) {
+    return impedance.getConstant(origin, destination, date);
+  }
+
+  @Override
+  public float getOpportunities(ActivityType activityType, ZoneId zone) {
+    return impedance.getOpportunities(activityType, zone);
+  }
 
 }

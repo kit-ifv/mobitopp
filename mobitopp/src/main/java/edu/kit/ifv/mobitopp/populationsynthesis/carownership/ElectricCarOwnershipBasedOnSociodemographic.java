@@ -13,6 +13,7 @@ import static edu.kit.ifv.mobitopp.simulation.Gender.MALE;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -109,8 +110,8 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 
 	private double distance(PersonForSetup person) {
 		HouseholdForSetup household = person.household();
-		int homeZone = household.homeZone().getOid();
-		int poleZone = person.fixedActivityZone().getOid();
+		ZoneId homeZone = household.homeZone().getInternalId();
+		ZoneId poleZone = person.fixedActivityZone().getInternalId();
 		return impedance.getDistance(homeZone, poleZone) / 1000.0d;
 	}
 

@@ -34,8 +34,8 @@ public class RideSharingOffers {
 		for (Trip trip : offers.keySet(request)) {
 
 			int tripToOffer = Math.toIntExact(trip.startDate().differenceTo(request.startDate()).toMinutes());
-			if (trip.origin().zone().getOid() == request.origin().zone().getOid()
-					&& trip.destination().zone().getOid() == request.destination().zone().getOid()
+			if (trip.origin().zone().getInternalId().equals(request.origin().zone().getInternalId())
+					&& trip.destination().zone().getInternalId().equals(request.destination().zone().getInternalId())
 					&& tripToOffer <= max_minutes_late
 					&& tripToOffer >= (-max_minutes_early)
 				)

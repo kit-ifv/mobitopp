@@ -11,6 +11,7 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.Matrix;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class MatrixPrinter {
 
@@ -105,26 +106,18 @@ public class MatrixPrinter {
 		return matrixIds;
 	}
 
-	public static MatrixPrinter fromZones(Map<Integer,Zone> zones) {
+	public static MatrixPrinter fromZones(Map<ZoneId, Zone> zones) {
 		return new MatrixPrinter(makeNames(zones));
 	}
 	
-	private static Map<Integer,String> makeNames(Map<Integer,Zone> zones) {
-
-		Map<Integer,String> names = new HashMap<Integer,String>();
-
-		for (Integer id : zones.keySet()) {
-
-			Zone zone = zones.get(id);
-
-   		String zoneId = zone.getId().replace("Z","");
-
-			names.put(id, zoneId);
+	private static Map<Integer,String> makeNames(Map<ZoneId, Zone> zones) {
+		Map<Integer,String> names = new HashMap<>();
+		for (ZoneId id : zones.keySet()) {
+			String zoneId = id.getExternalId().replace("Z","");
+			names.put(id.getMatrixColumn(), zoneId);
 		}
-
 		return names;
 	}
-
 
 	private static String dataToString(Matrix<? extends Number> matrix) {
 
