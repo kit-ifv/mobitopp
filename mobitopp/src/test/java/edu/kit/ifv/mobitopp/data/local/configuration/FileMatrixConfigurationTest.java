@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.local.MatrixParser;
 import edu.kit.ifv.mobitopp.data.local.Valid;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 
 public class FileMatrixConfigurationTest {
 
@@ -43,7 +44,8 @@ public class FileMatrixConfigurationTest {
 	}
 
 	private MatrixConfiguration configuration(StoredMatrices stored) {
-		return new FileMatrixConfiguration(stored, baseFolder) {
+		IdToOidMapper idToOidMapper = Integer::valueOf;
+    return new FileMatrixConfiguration(stored, baseFolder, idToOidMapper) {
 
 			@Override
 			MatrixParser parserFor(StoredMatrix storedMatrix) throws FileNotFoundException {

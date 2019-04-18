@@ -12,6 +12,7 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.FloatMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
 
 public class MatrixToCsv {
@@ -78,7 +79,8 @@ public class MatrixToCsv {
 
 	private static void convertMatrix(File input) {
 		try {
-			TravelTimeMatrix travelTimeMatrix = VisumMatrixParser.load(input).parseTravelTimeMatrix();
+			IdToOidMapper idToOidMapper = Integer::valueOf;
+      TravelTimeMatrix travelTimeMatrix = VisumMatrixParser.load(input, idToOidMapper).parseTravelTimeMatrix();
 			String csv = new MatrixToCsv(travelTimeMatrix).toCsv();
 
 			try (Writer writer = Files.newBufferedWriter(outputFor(input), Charset.defaultCharset())) {

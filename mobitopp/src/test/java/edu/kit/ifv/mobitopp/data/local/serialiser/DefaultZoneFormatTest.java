@@ -18,6 +18,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
@@ -47,8 +48,9 @@ public class DefaultZoneFormatTest {
 		AreaTypeRepository areaTypeRepository = new BicRepository();
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
-		zone = new Zone(oid, id, name, areaType, regionType, classification, parkingPlaces, centroidLocation, attractivity,
-				charging);
+		ZoneId zoneId = new ZoneId(id, oid);
+    zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
+        centroidLocation, attractivity, charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);

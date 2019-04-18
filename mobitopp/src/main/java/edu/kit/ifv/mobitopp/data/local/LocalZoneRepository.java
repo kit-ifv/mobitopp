@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,14 +22,20 @@ public class LocalZoneRepository implements ZoneRepository {
 
 	private final Map<Integer, Zone> zones;
 	private final List<Zone> zonesAsList;
+	private final Map<String, Integer> idToOid;
 
 	LocalZoneRepository(Map<Integer, Zone> zones) {
 		super();
 		this.zones = zones;
 		zonesAsList = asList(zones);
+		this.idToOid = createIdToOidFrom(zonesAsList);
 	}
 
-	private static List<Zone> asList(Map<Integer, Zone> zones) {
+	private Map<String, Integer> createIdToOidFrom(List<Zone> zones) {
+    return zones.stream().collect(toMap(z -> removeZonePrefix(z.getId()), Zone::getOid));
+  }
+
+  private static List<Zone> asList(Map<Integer, Zone> zones) {
 		List<Zone> sorted = new ArrayList<>(zones.values());
 		sorted.sort(comparing(Zone::getOid));
 		return Collections.unmodifiableList(sorted);
@@ -71,5 +78,13 @@ public class LocalZoneRepository implements ZoneRepository {
 		Map<Integer, Zone> mapping = new LocalZoneLoader(() -> zones).mapAllZones();
 		return new LocalZoneRepository(mapping);
 	}
+
+  public Integer map(String id) {
+    return idToOid.get(removeZonePrefix(id));
+  }
+
+  private String removeZonePrefix(String id) {
+    return id.replaceFirst("Z", "");
+  }
 
 }
