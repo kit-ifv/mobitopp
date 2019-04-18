@@ -6,9 +6,9 @@ public class CostMatrix extends FloatMatrix implements MatrixIfc {
 
 	private static final long serialVersionUID = 1L;
 
-	public CostMatrix(List<Integer> oids)
+	public CostMatrix(List<ZoneId> ids)
   {
-    super(oids);
+    super(ids);
   }
 
   public MatrixType type()

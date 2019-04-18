@@ -11,10 +11,10 @@ import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
-import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -26,9 +26,8 @@ import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffer;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
-import edu.kit.ifv.mobitopp.simulation.TripData;
-import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -48,7 +47,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	private static final long serialVersionUID = 1L;
 	private final SimulationOptions options;
-	private final ZoneRepository zoneRepository;
 	protected final PersonListener listener;
 	private final PublicTransportBehaviour publicTransportBehaviour;
 	private final Random random;
@@ -60,7 +58,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public SimulationPersonPassenger(
 		Person person,
-		ZoneRepository zoneRepository,
 		EventQueue queue,
 		SimulationOptions options,
 		List<Time> simulationDays,
@@ -74,7 +71,6 @@ public class SimulationPersonPassenger extends PersonDecorator
 	) {
 		super(person);
 		this.options = options;
-		this.zoneRepository = zoneRepository;
 		this.random = new Random(person.getOid() + seed);
 		person.initSchedule(tourFactory, options.activityDurationRandomizer(), simulationDays);
 		this.tripFactory = tripFactory;

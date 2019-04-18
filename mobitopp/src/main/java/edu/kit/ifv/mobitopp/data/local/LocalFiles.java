@@ -42,7 +42,6 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.LocalPersonLoader;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
-import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalFiles implements DataSource {
@@ -127,11 +126,11 @@ public class LocalFiles implements DataSource {
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
 			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping modeToType) throws IOException {
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
+		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
-		Matrices matrices = matrices(modeToType, zoneRepository);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
@@ -151,15 +150,15 @@ public class LocalFiles implements DataSource {
 		return DemandDataFolder.at(this.demandDataFolder, zoneRepository, zonesToSimulate);
 	}
 
-	private Matrices matrices(TypeMapping modeToType, IdToOidMapper idToOidMapper) throws FileNotFoundException {
-		MatrixConfiguration matrixConfiguration = loadMatrixConfiguration(idToOidMapper);
+	private Matrices matrices(TypeMapping modeToType) throws FileNotFoundException {
+		MatrixConfiguration matrixConfiguration = loadMatrixConfiguration();
 		return new MatrixRepository(matrixConfiguration, modeToType);
 	}
 
-	private MatrixConfiguration loadMatrixConfiguration(IdToOidMapper idToOidMapper) throws FileNotFoundException {
+	private MatrixConfiguration loadMatrixConfiguration() throws FileNotFoundException {
 		File configFile = matrixConfigurationFile;
 		File matrixFolder = configFile.getParentFile();
-		return FileMatrixConfiguration.from(configFile, matrixFolder, idToOidMapper);
+		return FileMatrixConfiguration.from(configFile, matrixFolder);
 	}
 
 	private ZoneRepository loadZonesFromVisum(
@@ -214,7 +213,7 @@ public class LocalFiles implements DataSource {
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
 			throws IOException {
 		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository);
-		Matrices matrices = matrices(modeToType, zoneRepository);
+		Matrices matrices = matrices(modeToType);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
@@ -289,8 +288,7 @@ public class LocalFiles implements DataSource {
 
 	private void validateMatrices() {
 		try {
-      IdToOidMapper idToOidMapper = id -> {throw new IllegalStateException("Should not call id to oid mapper for zone: " + id);};
-      loadMatrixConfiguration(idToOidMapper).validate();
+      loadMatrixConfiguration().validate();
 		} catch (FileNotFoundException cause) {
 			throw new UncheckedIOException("Missing file check for matrix configuration.", cause);
 		}

@@ -68,7 +68,7 @@ public class MatrixPrinter {
 
 		String factor = "1.00";
 		String names = names(matrix); 
-		String number = Integer.toString(matrix.oids().size()); 
+		String number = Integer.toString(matrix.ids().size()); 
 
 
 		StringBuffer buf = new StringBuffer();
@@ -92,14 +92,14 @@ public class MatrixPrinter {
 
 	private String names(Matrix<? extends Number> matrix) {
 
-		List<Integer> matrixOids = new ArrayList<Integer>(matrix.oids());
+		List<ZoneId> matrixOids = new ArrayList<>(matrix.ids());
 
 		String matrixIds = "";
 
 		int cnt = 0;
 
-		for (Integer oid : matrixOids) {
-   		matrixIds += String.format("%1$10s",(!this.names.isEmpty() ? this.names.get(oid) : oid)) + " ";
+		for (ZoneId id : matrixOids) {
+   		matrixIds += String.format("%1$10s",(!this.names.isEmpty() ? this.names.get(id.getMatrixColumn()) : id)) + " ";
    		matrixIds += (++cnt % 10 == 0 ? "\r\n" : ""); 
  		}
 
@@ -121,11 +121,11 @@ public class MatrixPrinter {
 
 	private static String dataToString(Matrix<? extends Number> matrix) {
 
-		Collection<Integer> oids = matrix.oids();
+		Collection<ZoneId> ids = matrix.ids();
 
 		StringBuffer buf = new StringBuffer(2800000);
 
-		for(Integer row : oids) {
+		for(ZoneId row : ids) {
 
 			StringBuffer buf_line = new StringBuffer(28000);
 
@@ -133,7 +133,7 @@ public class MatrixPrinter {
 
 			int cnt = 0;
 
-			for(Integer col : oids) {
+			for(ZoneId col : ids) {
 
 				Number val = matrix.get(row,col);
 				buf_line.append( String.format(Locale.US, "%1$6.3f",val.doubleValue()) ).append(" ");

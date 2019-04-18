@@ -102,7 +102,7 @@ public abstract class PopulationSynthesis {
     for (Zone zone : zones) {
       System.out
           .println(
-              "zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable());
+              "zone " + zone.getInternalId() + " is ready? " + zone.opportunities().locationsAvailable());
       createLocationsForZone(opportunityLocationSelector, zone);
     }
   }

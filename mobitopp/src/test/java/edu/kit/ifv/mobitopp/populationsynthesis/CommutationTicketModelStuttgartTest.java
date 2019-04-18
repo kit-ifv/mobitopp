@@ -8,55 +8,56 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.CommutationTicketModelStuttgart.Landkreis;
 
 public class CommutationTicketModelStuttgartTest {
 
 	@Test
 	public void verifyLandkreisLB() {
-		String forExampleId = "Z11111";
+		int forExampleId = 11111;
 		verify(Landkreis.LB, forExampleId);
 	}
 
 	@Test
 	public void verifyLandkreisS() {
-		String forExampleId = "Z21111";
+		int forExampleId = 21111;
 		verify(Landkreis.S, forExampleId);
 	}
 
 	@Test
 	public void verifyLandkreisWN() {
-		String forExampleId = "Z31111";
+		int forExampleId = 31111;
 		verify(Landkreis.WN, forExampleId);
 	}
 
 	@Test
 	public void verifyLandkreisBB() {
-		String forExampleId = "Z41111";
+		int forExampleId = 41111;
 		verify(Landkreis.BB, forExampleId);
 	}
 
 	@Test
 	public void verifyLandkreisES() {
-		String forExampleId = "Z51111";
+		int forExampleId = 51111;
 		verify(Landkreis.ES, forExampleId);
 	}
 
 	@Test
 	public void verifyLandkreisGP() {
-		String forExampleId = "Z61111";
+		int forExampleId = 61111;
 		verify(Landkreis.GP, forExampleId);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void verifyZoneWithoutLandkreis() {
-		String outerZoneId = "Z111111";
+		int outerZoneId = 111111;
 		Zone zone = zoneFor(outerZoneId);
 		
 		CommutationTicketModelStuttgart.getLandkreis(zone);
 	}
 
-	private void verify(Landkreis expected, String id) {
+	private void verify(Landkreis expected, int id) {
 		Zone zone = zoneFor(id);
 
 		Landkreis landkreis = CommutationTicketModelStuttgart.getLandkreis(zone);
@@ -64,9 +65,9 @@ public class CommutationTicketModelStuttgartTest {
 		assertThat(landkreis, is(expected));
 	}
 
-	private Zone zoneFor(String id) {
+	private Zone zoneFor(int id) {
 		Zone zone = mock(Zone.class);
-		when(zone.getId()).thenReturn(id);
+		when(zone.getInternalId()).thenReturn(new ZoneId("Z" + id, id));
 		return zone;
 	}
 

@@ -476,7 +476,7 @@ public class PersonForDemand implements Person, Serializable {
 			buffer.append(gender().getTypeAsInt()).append("; ");
 			buffer.append(age()).append("; ");
 			buffer.append(employmentType + "; ");
-			buffer.append(homeZone.getId() + "; ");
+			buffer.append(homeZone.getInternalId().getExternalId() + "; ");
 
 			if (targetZoneOidForWork > -1) {
 
@@ -486,7 +486,7 @@ public class PersonForDemand implements Person, Serializable {
 				int distance = (int) impedance.getDistance(homeZone.getInternalId(), workZone.getInternalId());
 
 				buffer.append(outFormat.format(distance) + "; ");
-				buffer.append(workZone.getId() + "; ");
+				buffer.append(workZone.getInternalId().getExternalId() + "; ");
 				buffer.append(workLocation + "; ");
 			} else {
 				buffer.append("-1; ");
@@ -504,7 +504,7 @@ public class PersonForDemand implements Person, Serializable {
 
 				buffer.append(outFormat.format(distance) + "; ");
 
-				buffer.append(eduZone.getId() + "; ");
+				buffer.append(eduZone.getInternalId().getExternalId() + "; ");
 				buffer.append(eduLocation + "; ");
 			} else {
 				buffer.append("-1; ");

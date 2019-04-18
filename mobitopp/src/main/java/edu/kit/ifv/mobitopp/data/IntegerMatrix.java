@@ -12,15 +12,15 @@ public class IntegerMatrix
 	private static final long serialVersionUID = 1L;
 
 	private int[][] matrix;
-  private final List<Integer> oids;
+  private final List<ZoneId> ids;
 	private final int size;
 	private final int defaultValue;
 
 
-	protected IntegerMatrix(List<Integer> oids, int defaultValue) {
+	protected IntegerMatrix(List<ZoneId> ids, int defaultValue) {
 
-		this.oids = Collections.unmodifiableList(new ArrayList<>(oids));
-		this.size = oids.size();
+		this.ids = Collections.unmodifiableList(new ArrayList<>(ids));
+		this.size = ids.size();
 
 		this.defaultValue = defaultValue;
 
@@ -29,7 +29,7 @@ public class IntegerMatrix
 		initMatrix();
 	}
 
-	public IntegerMatrix(List<Integer> oids) {
+	public IntegerMatrix(List<ZoneId> oids) {
 		this(oids, 0);
 	}
 
@@ -43,8 +43,8 @@ public class IntegerMatrix
 		}
 	}
 
-	public List<Integer> oids() {
-		return this.oids;
+	public List<ZoneId> ids() {
+		return this.ids;
 	}
 
   public Integer get(int row,int column)
@@ -55,7 +55,7 @@ public class IntegerMatrix
     return this.matrix[row-1][column-1];
   }
   
-  public float get(ZoneId origin, ZoneId destination) {
+  public Integer get(ZoneId origin, ZoneId destination) {
     return get(origin.getMatrixColumn(), destination.getMatrixColumn());
   }
 

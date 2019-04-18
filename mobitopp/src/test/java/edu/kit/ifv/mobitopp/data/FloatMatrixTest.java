@@ -1,13 +1,13 @@
 package edu.kit.ifv.mobitopp.data;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,29 +19,34 @@ public class FloatMatrixTest {
 
 	private FloatMatrix matrix;
 
-	private List<Integer> ids = Collections.unmodifiableList(Arrays.asList(1, 2, 3, 4));
+  private List<ZoneId> ids;
 
 	@Before
 	public void setUp() {
+    ids = Stream.of(1, 2, 3, 4).map(this::newZoneId).collect(toList());
 		this.matrix = new FloatMatrix(ids, DEFAULT_VALUE);
 	}
+
+  private ZoneId newZoneId(int id) {
+    return new ZoneId("" + id, id);
+  }
 
 	@Test
 	public void testConstructor() {
 		assertNotNull(matrix);
-		assertEquals(ids.size(), matrix.oids().size());
+		assertEquals(ids.size(), matrix.ids().size());
 	}
 
 	@Test
 	public void testOids() {
-		assertTrue(matrix.oids().contains(1));
-		assertTrue(matrix.oids().contains(2));
-		assertTrue(matrix.oids().contains(3));
-		assertTrue(matrix.oids().contains(4));
-		assertFalse(matrix.oids().contains(5));
+		assertTrue(matrix.ids().contains(newZoneId(1)));
+		assertTrue(matrix.ids().contains(newZoneId(2)));
+		assertTrue(matrix.ids().contains(newZoneId(3)));
+		assertTrue(matrix.ids().contains(newZoneId(4)));
+		assertFalse(matrix.ids().contains(newZoneId(5)));
 
-		assertTrue(matrix.oids().containsAll(ids));
-		assertTrue(ids.containsAll(matrix.oids()));
+		assertTrue(matrix.ids().containsAll(ids));
+		assertTrue(ids.containsAll(matrix.ids()));
 	}
 
 	@Test

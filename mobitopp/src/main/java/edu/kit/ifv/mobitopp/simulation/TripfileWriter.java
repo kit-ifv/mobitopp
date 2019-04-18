@@ -55,8 +55,8 @@ public class TripfileWriter implements PersonListener {
 			Location location_to
 	) {
 
-    String origin = finishedTrip.origin().zone().getId();
-    String destination = activity.zone().getId();
+    String origin = finishedTrip.origin().zone().getInternalId().getExternalId();
+    String destination = activity.zone().getInternalId().getExternalId();
     ZoneId originId = finishedTrip.origin().zone().getInternalId();
     ZoneId destinationId = finishedTrip.destination().zone().getInternalId();
     float distance = impedance.getDistance(originId, destinationId);
@@ -65,7 +65,7 @@ public class TripfileWriter implements PersonListener {
 
 			Household hh = person.household();
 
-		String homeZone = hh.homeZone().getId();
+		String homeZone = hh.homeZone().getInternalId().getExternalId();
 
 
 			int duration_trip = finishedTrip.plannedDuration();
@@ -165,7 +165,7 @@ public class TripfileWriter implements PersonListener {
 	public void notifyStartActivity(Person person, ActivityIfc activity) {
 		Location location = activity.location();
 		Zone zone = activity.zone();
-		String zoneId = zone.getId();
+		String zoneId = zone.getInternalId().getExternalId();
 
 		Time activityStart = activity.startDate();
 
@@ -216,7 +216,7 @@ public class TripfileWriter implements PersonListener {
         message.append(HouseholdType.type(person.household())).append(";");
         message.append(person.household().getSize()).append(";");
         message.append(person.household().getTotalNumberOfCars()).append(";");
-        message.append(person.household().homeZone().getId()).append(";");
+        message.append(person.household().homeZone().getInternalId().getExternalId()).append(";");
         message.append(tour.forLogging()).append(";");
         message.append(tourDestination.getInternalId().getMatrixColumn()).append(";");
         message.append(tourDestination.getInternalId().getExternalId()).append(";");
@@ -249,7 +249,7 @@ public class TripfileWriter implements PersonListener {
         message.append(HouseholdType.type(person.household())).append(";");
         message.append(person.household().getSize()).append(";");
         message.append(person.household().getTotalNumberOfCars()).append(";");
-        message.append(person.household().homeZone().getId()).append(";");
+        message.append(person.household().homeZone().getInternalId().getExternalId()).append(";");
         message.append(tour.forLogging()).append(";");
         message.append(tourMode).append(";");
         message.append(subtour.mode()).append(";");
@@ -272,8 +272,8 @@ public class TripfileWriter implements PersonListener {
 					|| trip.mode() == Mode.CARSHARING_FREE : ("invalid mode: " + trip.mode());
 
 
-		String origin = previousActivity.zone().getId();
-		String destination = activity.zone().getId();
+		String origin = previousActivity.zone().getInternalId().getExternalId();
+		String destination = activity.zone().getInternalId().getExternalId();
     ZoneId originId = trip.origin().zone().getInternalId();
     ZoneId destinationId = trip.destination().zone().getInternalId();
     float distance = impedance.getDistance(originId, destinationId);
@@ -316,8 +316,8 @@ public class TripfileWriter implements PersonListener {
 	@Override
 	public void notifySelectCarRoute(Person person, Car car, TripData trip, Path route) {
 
-      String sourceZone = trip.origin().zone().getId();
-			String targetZone = trip.destination().zone().getId();
+      String sourceZone = trip.origin().zone().getInternalId().getExternalId();
+			String targetZone = trip.destination().zone().getInternalId().getExternalId();
 
 			int personoid				= person.getOid();
 			int carid 					= car.id();

@@ -8,6 +8,8 @@ public interface Matrix<T> {
 
 	public T get(int row, int col);
 
-	public List<Integer> oids();
+	public List<ZoneId> ids();
+
+  public T get(ZoneId row, ZoneId col);
 
 }

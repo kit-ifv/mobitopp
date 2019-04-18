@@ -163,7 +163,7 @@ public class Activity implements ActivityIfc {
 						+	activityType() + ";"	
 						+ duration() + ";"	
 						+ observedTripDuration() + ";"	
-						+ (isLocationSet() ? zoneAndLocation.zone.getId() : "-") + ";"	
+						+ (isLocationSet() ? zoneAndLocation.zone.getInternalId().getExternalId() : "-") + ";"	
 						+ (isModeSet() ? mode() : "-") + ";"	
 						+ startDate().getDay() + ";"	
 						+ String.format("%1$02d:%2$02d", startDate().getHour(), startDate().getMinute()) + ";"

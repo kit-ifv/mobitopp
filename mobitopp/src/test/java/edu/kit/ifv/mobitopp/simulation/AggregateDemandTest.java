@@ -43,7 +43,7 @@ public class AggregateDemandTest {
 
     aggregateDemand.notifyFinishSimulation();
 
-    IntegerMatrix matrix = new IntegerMatrix(asList(matrixColumn));
+    IntegerMatrix matrix = new IntegerMatrix(asList(zoneId));
     matrix.set(matrixColumn, matrixColumn, 1);
     verify(writer).accept(any(IntegerMatrix.class));
   }

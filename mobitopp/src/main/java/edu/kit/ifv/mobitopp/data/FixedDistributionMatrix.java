@@ -6,9 +6,9 @@ public class FixedDistributionMatrix extends FloatMatrix implements MatrixIfc, M
 
 	private static final long serialVersionUID = 1L;
 
-	public FixedDistributionMatrix(List<Integer> oids)
+	public FixedDistributionMatrix(List<ZoneId> ids)
   {
-    super(oids);
+    super(ids);
   }
 
   public MatrixType type()

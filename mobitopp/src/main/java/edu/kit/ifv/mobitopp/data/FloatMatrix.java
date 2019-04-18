@@ -12,13 +12,13 @@ public class FloatMatrix
 	private static final long serialVersionUID = 1L;
 
 	private float[][] matrix;
-  private final List<Integer> oids;
+  private final List<ZoneId> ids;
 	private final int size;
 	private final float defaultValue;
 
-	public FloatMatrix(List<Integer> oids, float defaultValue) {
+	public FloatMatrix(List<ZoneId> oids, float defaultValue) {
 
-		this.oids = Collections.unmodifiableList(new ArrayList<>(oids));
+		this.ids = Collections.unmodifiableList(new ArrayList<>(oids));
 		this.size = oids.size();
 
 		this.defaultValue = defaultValue;
@@ -28,7 +28,7 @@ public class FloatMatrix
 		initMatrix();
 	}
 
-	public FloatMatrix(List<Integer> oids) {
+	public FloatMatrix(List<ZoneId> oids) {
 		this(oids, Float.NaN);
 	}
 
@@ -42,8 +42,8 @@ public class FloatMatrix
 		}
 	}
 
-	public List<Integer> oids() {
-		return this.oids;
+	public List<ZoneId> ids() {
+		return this.ids;
 	}
 
   public Float get(int row,int column)
@@ -54,7 +54,7 @@ public class FloatMatrix
     return this.matrix[row-1][column-1];
   }
 
-	public float get(ZoneId origin, ZoneId destination) {
+	public Float get(ZoneId origin, ZoneId destination) {
 		return get(origin.getMatrixColumn(), destination.getMatrixColumn());
 	}
 
@@ -64,6 +64,10 @@ public class FloatMatrix
 		assert column > 0 && column <= size : ("column=" + column + ", size=" + size);
 
     this.matrix[row-1][column-1] = value;
+  }
+  
+  public void set(ZoneId origin, ZoneId destination, Float value) {
+    set(origin.getMatrixColumn(), destination.getMatrixColumn(), value);
   }
  
 }

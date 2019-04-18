@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.data.local;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -29,7 +28,6 @@ public class LocalZoneRepositoryTest {
   @BeforeEach
   public void initialise() {
     zone = mock(Zone.class);
-    when(zone.getId()).thenReturn(zoneId);
     when(zone.getInternalId()).thenReturn(id);
     Map<ZoneId, Zone> zones = Collections.singletonMap(id, zone);
     repository = new LocalZoneRepository(zones);
@@ -40,13 +38,6 @@ public class LocalZoneRepositoryTest {
     Zone zoneByOid = repository.getZoneByOid(zoneOid);
 
     assertThat(zoneByOid, is(sameInstance(zone)));
-  }
-
-  @Test
-  void resolvesIdToOid() throws Exception {
-    int oid = repository.map(zone.getId());
-
-    assertThat(oid, is(equalTo(zoneOid)));
   }
 
   @Test
