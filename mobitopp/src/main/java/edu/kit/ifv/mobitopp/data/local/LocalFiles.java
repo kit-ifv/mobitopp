@@ -41,11 +41,13 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.LocalPersonLoader;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalFiles implements DataSource {
 
 	private static final String defaultZoneRepository = "output/zone-repository/";
+	private static final boolean defaultMapIds = true;
 	
 	private File zoneRepositoryFolder;
 	private File matrixConfigurationFile;
@@ -53,10 +55,13 @@ public class LocalFiles implements DataSource {
 	private File attractivityDataFile;
 	private ChargingType charging;
 	private String defaultChargingPower;
+	private boolean mapIds;
+
 
 	public LocalFiles() {
 		charging = ChargingType.unlimited;
 		zoneRepositoryFolder = new File(defaultZoneRepository);
+		mapIds = defaultMapIds;
 	}
 	
 	public String getZoneRepositoryFolder() {
@@ -105,19 +110,27 @@ public class LocalFiles implements DataSource {
 
 	public void setDefaultChargingPower(String defaultChargingPower) {
 		this.defaultChargingPower = defaultChargingPower;
-	}
+  }
 
-	@Override
+  public boolean isMapIds() {
+    return mapIds;
+  }
+
+  public void setMapIds(boolean mapIds) {
+    this.mapIds = mapIds;
+  }
+
+  @Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
 			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping modeToType) throws IOException {
-		Matrices matrices = matrices(modeToType);
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
+		Matrices matrices = matrices(modeToType, zoneRepository);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
@@ -137,15 +150,15 @@ public class LocalFiles implements DataSource {
 		return DemandDataFolder.at(this.demandDataFolder, zoneRepository, zonesToSimulate);
 	}
 
-	private Matrices matrices(TypeMapping modeToType) throws FileNotFoundException {
-		MatrixConfiguration matrixConfiguration = matrixConfiguration();
+	private Matrices matrices(TypeMapping modeToType, IdToOidMapper idToOidMapper) throws FileNotFoundException {
+		MatrixConfiguration matrixConfiguration = loadMatrixConfiguration(idToOidMapper);
 		return new MatrixRepository(matrixConfiguration, modeToType);
 	}
 
-	private MatrixConfiguration matrixConfiguration() throws FileNotFoundException {
+	private MatrixConfiguration loadMatrixConfiguration(IdToOidMapper idToOidMapper) throws FileNotFoundException {
 		File configFile = matrixConfigurationFile;
 		File matrixFolder = configFile.getParentFile();
-		return FileMatrixConfiguration.from(configFile, matrixFolder);
+		return FileMatrixConfiguration.from(configFile, matrixFolder, idToOidMapper);
 	}
 
 	private ZoneRepository loadZonesFromVisum(
@@ -199,8 +212,8 @@ public class LocalFiles implements DataSource {
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
 			throws IOException {
-		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository);
+		Matrices matrices = matrices(modeToType, zoneRepository);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
@@ -275,7 +288,8 @@ public class LocalFiles implements DataSource {
 
 	private void validateMatrices() {
 		try {
-			matrixConfiguration().validate();
+      IdToOidMapper idToOidMapper = id -> {throw new IllegalStateException("Should not call id to oid mapper for zone: " + id);};
+      loadMatrixConfiguration(idToOidMapper).validate();
 		} catch (FileNotFoundException cause) {
 			throw new UncheckedIOException("Missing file check for matrix configuration.", cause);
 		}

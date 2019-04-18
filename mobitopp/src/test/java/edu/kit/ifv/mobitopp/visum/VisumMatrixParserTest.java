@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -10,20 +11,37 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.CostMatrix;
-import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
 
 public class VisumMatrixParserTest {
 
-	@Test
+  @Test
 	public void parseSmallMatrix() throws IOException {
-		CostMatrix matrix = VisumMatrixParser.parse(smallData());
+    IdToOidMapper idToOidMapper = createIdToOidMapper(1, 2);
+		CostMatrix matrix = VisumMatrixParser.parse(smallData(), idToOidMapper);
 		
 		compare(matrix, expectedSmall());
 	}
+
+  private IdToOidMapper createIdToOidMapper(int startZone, int endZone) {
+    return oidStream(startZone, endZone).collect(toMap(this::oidToId, Function.identity()))::get;
+  }
+
+  private String oidToId(Integer i) {
+    return String.valueOf(i + 10);
+  }
+
+  private Stream<Integer> oidStream(int startInclusive, int endInclusive) {
+    return IntStream
+        .rangeClosed(startInclusive, endInclusive)
+        .mapToObj(Integer::new);
+  }
 
 	private CostMatrix expectedSmall() {
 		CostMatrix costMatrix = new CostMatrix(asList(1, 2));
@@ -36,16 +54,22 @@ public class VisumMatrixParserTest {
 	
 	@Test
 	public void serialiseSmallMatrix() {
+	  OidToIdMapper oidToIdMapper = createOidToIdMapper(1,2);
 		CostMatrix matrix = expectedSmall();
 		
-		String serialized = VisumMatrixParser.serialize(matrix);
+    String serialized = VisumMatrixParser.serialize(matrix, oidToIdMapper);
 		
 		assertEquals(smallData, serialized);
 	}
 	
-	@Test
+	private OidToIdMapper createOidToIdMapper(int startZone, int endZone) {
+    return oidStream(startZone, endZone).collect(toMap(Function.identity(), this::oidToId))::get;
+  }
+
+  @Test
 	public void parseBigMatrix() throws IOException {
-		CostMatrix matrix = VisumMatrixParser.parse(bigData());
+    IdToOidMapper idToOidMapper = createIdToOidMapper(1, 13);
+		CostMatrix matrix = VisumMatrixParser.parse(bigData(), idToOidMapper);
 		
 		compare(matrix, expectedBig());
 	}
@@ -69,13 +93,15 @@ public class VisumMatrixParserTest {
 	
 	@Test
 	public void serialiseBigMatrix() {
+	  OidToIdMapper oidToIdMapper = createOidToIdMapper(1, 13);
+	  
 		CostMatrix matrix = expectedBig();
 		
-		String serialized = VisumMatrixParser.serialize(matrix);
+    String serialized = VisumMatrixParser.serialize(matrix, oidToIdMapper);
 		
 		assertEquals(bigData, serialized);
-	}
-
+	}  
+	
 	private void compare(CostMatrix actual, CostMatrix expected) {
 		assertThat(actual.type(), is(equalTo(expected.type())));
 		assertThat(actual.oids(), is(equalTo(expected.oids())));
@@ -112,7 +138,7 @@ public class VisumMatrixParserTest {
 			"* Anzahl Netzobjekte" + System.lineSeparator() + 
 			"2" + System.lineSeparator() + 
 			"* Netzobjekt-Nummern" + System.lineSeparator() + 
-			" 1 2"  + System.lineSeparator() + 
+			" 11 12"  + System.lineSeparator() + 
 			"*" + System.lineSeparator() + 
 			"* Obj 1 Summe = 3.0" + System.lineSeparator() + 
 			" 1.0 2.0" + System.lineSeparator() + 
@@ -120,8 +146,8 @@ public class VisumMatrixParserTest {
 			" 3.0 4.0" + System.lineSeparator() + 
 			"* Netzobjektnamen" + System.lineSeparator() + 
 			"$NAMES" + System.lineSeparator() + 
-			"1 \"1\"" + System.lineSeparator() + 
-			"2 \"2\"" + System.lineSeparator() + 
+			"11 \"1\"" + System.lineSeparator() + 
+			"12 \"2\"" + System.lineSeparator() + 
 			" ";
 	
 	private static final String bigData = 
@@ -136,8 +162,8 @@ public class VisumMatrixParserTest {
 			"* Anzahl Netzobjekte" + System.lineSeparator() + 
 			"13" + System.lineSeparator() + 
 			"* Netzobjekt-Nummern" + System.lineSeparator() + 
-			" 1 2 3 4 5 6 7 8 9 10" + System.lineSeparator() + 
-			" 11 12 13" + System.lineSeparator() + 
+			" 11 12 13 14 15 16 17 18 19 20" + System.lineSeparator() + 
+			" 21 22 23" + System.lineSeparator() + 
 			"*" + System.lineSeparator() + 
 			"* Obj 1 Summe = 91.0" + System.lineSeparator() + 
 			" 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0" + System.lineSeparator() + 
@@ -180,18 +206,18 @@ public class VisumMatrixParserTest {
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
 			"* Netzobjektnamen" + System.lineSeparator() + 
 			"$NAMES" + System.lineSeparator() + 
-			"1 \"1\"" + System.lineSeparator() + 
-			"2 \"2\"" + System.lineSeparator() + 
-			"3 \"3\"" + System.lineSeparator() + 
-			"4 \"4\"" + System.lineSeparator() + 
-			"5 \"5\"" + System.lineSeparator() + 
-			"6 \"6\"" + System.lineSeparator() + 
-			"7 \"7\"" + System.lineSeparator() + 
-			"8 \"8\"" + System.lineSeparator() + 
-			"9 \"9\"" + System.lineSeparator() + 
-			"10 \"10\"" + System.lineSeparator() + 
-			"11 \"11\"" + System.lineSeparator() + 
-			"12 \"12\"" + System.lineSeparator() + 
-			"13 \"13\"" + System.lineSeparator() + 
+			"11 \"1\"" + System.lineSeparator() + 
+			"12 \"2\"" + System.lineSeparator() + 
+			"13 \"3\"" + System.lineSeparator() + 
+			"14 \"4\"" + System.lineSeparator() + 
+			"15 \"5\"" + System.lineSeparator() + 
+			"16 \"6\"" + System.lineSeparator() + 
+			"17 \"7\"" + System.lineSeparator() + 
+			"18 \"8\"" + System.lineSeparator() + 
+			"19 \"9\"" + System.lineSeparator() + 
+			"20 \"10\"" + System.lineSeparator() + 
+			"21 \"11\"" + System.lineSeparator() + 
+			"22 \"12\"" + System.lineSeparator() + 
+			"23 \"13\"" + System.lineSeparator() + 
 			" ";
 }

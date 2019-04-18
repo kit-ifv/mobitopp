@@ -10,6 +10,7 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
@@ -66,6 +67,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	public Optional<Zone> parse(List<String> data) {
 		int oid = oidOf(data);
 		String id = idOf(data);
+		ZoneId zoneId = new ZoneId(id, oid);
 		String name = nameOf(data);
 		AreaType areaType = areaTypeOf(data);
 		RegionType regionType = regionTypeOf(data);
@@ -74,7 +76,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		Location centroidLocation = locationOf(data);
 		Attractivities attractivities = attractivitiesOf(data);
 		ChargingDataForZone charging = chargingOf(data);
-    Zone zone = new Zone(oid, id, name, areaType, regionType, classification, parkingPlaces,
+    Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
         centroidLocation, attractivities, charging);
 		return Optional.of(zone);
 	}

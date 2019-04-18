@@ -11,7 +11,6 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
@@ -20,26 +19,19 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
 public class Zone implements Serializable {
 
-	protected static IdSequence ids = new IdSequence();
-
 	protected final static int UNDEFINED_OID       = -1;
 	protected final static byte INITIAL_VERSION = 1;
 
 	public static final long serialVersionUID = 3459190403580397878L;
   public final static String IDPREFIX = "Z";
 
-  private int oid = UNDEFINED_OID;
-  private String id = null;
-  
-  // zone parameter
+  private final ZoneId internalId;
 	private String name = null;
 	private AreaType areaType;
 	private RegionType regionType;
 	private ZoneClassificationType classification = null;
 	private int parkingPlaces;
-
   private Location centroidLocation;
-
   private Attractivities attractivities;
 
   private transient DataForZone zoneData = null;
@@ -47,71 +39,32 @@ public class Zone implements Serializable {
 	private ChargingDataForZone charging;
 	private MaasDataForZone maasData;
 
-
-
-	public static void resetIdSequence() {
-		ids = new IdSequence();
-	}
-
-  private Zone(int oid_)
-  {
-    this.oid = oid_;
+  private Zone(ZoneId internalId) {
+    super();
+    this.internalId = internalId;
   }
 
   public Zone(
-		String id,
-		String name,
-		AreaType areaType,
-		RegionType regionType,
-		ZoneClassificationType classification,
-		int parkingPlaces,
-		Location centroidLocation,
-		Attractivities attractivities,
-		ChargingDataForZone charging
-	)
-	{
-  	this(ids.nextId(), id, name, areaType, regionType, classification, parkingPlaces, centroidLocation, attractivities, charging);
-	}
-  
-  public Zone(
-  		int oid,
-  		String id,
-  		String name,
-  		AreaType areaType,
-      RegionType regionType,
-  		ZoneClassificationType classification, 
-  		int parkingPlaces,
-  		Location centroidLocation,
-  		Attractivities attractivities,
-  		ChargingDataForZone charging
-  		)
-  {
-  	this.oid = oid;
-  	this.id = id;
-  	
-  	this.name = name;
-  	this.areaType = areaType;
-  	this.regionType = regionType;
-  	this.classification = classification;
-  	this.parkingPlaces = parkingPlaces;
-  	this.charging = charging;
-  	this.attractivities = attractivities;
-  	this.centroidLocation = centroidLocation;
+      ZoneId id, String name, AreaType areaType, RegionType regionType,
+      ZoneClassificationType classification, int parkingPlaces, Location centroidLocation,
+      Attractivities attractivities, ChargingDataForZone charging) {
+    this(id);
+    this.name = name;
+    this.areaType = areaType;
+    this.regionType = regionType;
+    this.classification = classification;
+    this.parkingPlaces = parkingPlaces;
+    this.charging = charging;
+    this.attractivities = attractivities;
+    this.centroidLocation = centroidLocation;
   }
 
-  public int getOid()
-  {
-		assert this.oid != UNDEFINED_OID;
-
-    return this.oid;
+  public int getOid() {
+    return internalId.getMatrixColumn();
   }
 
-  public String getId()
-  {
-		assert this.id != null;
-		assert !this.id.isEmpty();
-
-    return this.id;
+  public String getId() {
+    return this.internalId.getExternalId();
   }
 
   public AreaType getAreaType()
@@ -211,33 +164,29 @@ public class Zone implements Serializable {
 
 	// (de)serialization
 
-	private static Set<Integer> serializedZones = new HashSet<Integer>();
-	private static Map<Integer,Zone> deSerializedZones = new HashMap<Integer,Zone>();
+	private static Set<ZoneId> serializedZones = new HashSet<>();
+	private static Map<ZoneId,Zone> deSerializedZones = new HashMap<>();
 
-	private Object writeReplace() 
-		throws ObjectStreamException
-	{
-		if (!serializedZones.contains(this.oid)) {
-			serializedZones.add(this.oid);
-			return this;
-		} else {
-			return new Zone(this.oid);
-		}
-	}
+  private Object writeReplace() throws ObjectStreamException {
+    if (!serializedZones.contains(this.internalId)) {
+      serializedZones.add(this.internalId);
+      return this;
+    } else {
+      return new Zone(this.internalId);
+    }
+  }
 
-	private Object readResolve() 
-		throws ObjectStreamException
-	{
-		if (!deSerializedZones.containsKey(oid)) {
-			deSerializedZones.put(oid,this);
-		}
+  private Object readResolve() throws ObjectStreamException {
+    if (!deSerializedZones.containsKey(internalId)) {
+      deSerializedZones.put(internalId, this);
+    }
 
-		return deSerializedZones.get(oid);
-	}
+    return deSerializedZones.get(internalId);
+  }
 
 	@Override
-	public String toString() {
-		return getClass().getName() + " [oid=" + oid + ", id=" + id + ", name=" + name + "]";
-	}
+  public String toString() {
+    return "Zone [internalId=" + internalId + ", name=" + name + "]";
+  }
 
 }

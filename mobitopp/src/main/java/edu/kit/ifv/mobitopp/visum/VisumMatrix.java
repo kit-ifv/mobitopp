@@ -24,14 +24,14 @@ public class VisumMatrix implements Matrix<Float> {
 		this.internal = matrix;
 	}
 
-	public static VisumMatrix loadFrom(String filename) {
+	public static VisumMatrix loadFrom(String filename, IdToOidMapper idToOidMapper) {
 		File file = new File(filename);
-		return loadFrom(file);
+		return loadFrom(file, idToOidMapper);
 	}
 
-	public static VisumMatrix loadFrom(File file) {
+	public static VisumMatrix loadFrom(File file, IdToOidMapper idToOidMapper) {
 		try {
-			FloatMatrix matrix = VisumMatrixParser.load(file).parseMatrix();
+			FloatMatrix matrix = VisumMatrixParser.load(file, idToOidMapper).parseMatrix();
 			return new VisumMatrix(matrix);
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
