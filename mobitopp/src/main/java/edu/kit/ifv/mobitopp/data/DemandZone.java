@@ -20,12 +20,8 @@ public class DemandZone {
     this.population = new PopulationForSetup();
   }
 
-  public int getOid() {
-    return zone.getOid();
-  }
-
-  public String getId() {
-    return zone.getId();
+  public ZoneId getId() {
+    return zone.getInternalId();
   }
 
   public Zone zone() {

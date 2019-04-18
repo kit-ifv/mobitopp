@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
@@ -18,26 +19,26 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {
 
-  private final Map<Integer, DemandZone> zones;
+  private final Map<ZoneId, DemandZone> zones;
   private final List<DemandZone> zonesAsList;
   private final ZoneRepository zoneRepository;
 
-  public LocalDemandZoneRepository(Map<Integer, DemandZone> zones, ZoneRepository zoneRepository) {
+  public LocalDemandZoneRepository(Map<ZoneId, DemandZone> zones, ZoneRepository zoneRepository) {
     super();
     this.zones = zones;
     this.zoneRepository = zoneRepository;
     zonesAsList = asList(zones);
   }
 
-  private static List<DemandZone> asList(Map<Integer, DemandZone> zones) {
+  private static List<DemandZone> asList(Map<ZoneId, DemandZone> zones) {
     List<DemandZone> sorted = new ArrayList<>(zones.values());
-    sorted.sort(comparing(DemandZone::getOid));
+    sorted.sort(comparing(DemandZone::getId));
     return Collections.unmodifiableList(sorted);
   }
 
   @Override
-  public DemandZone zoneByOid(int oid) {
-    return zones.get(oid);
+  public DemandZone zoneById(ZoneId id) {
+    return zones.get(id);
   }
 
   @Override
@@ -52,10 +53,10 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 
   public static DemandZoneRepository from(
       ZoneRepository zoneRepository, DemographyData demographyData) {
-    Map<Integer, DemandZone> zones = new TreeMap<>();
+    Map<ZoneId, DemandZone> zones = new TreeMap<>();
     for (Zone zone : zoneRepository.getZones()) {
       DemandZone demandZone = createZone(zone, demographyData);
-      zones.put(demandZone.getOid(), demandZone);
+      zones.put(demandZone.getId(), demandZone);
     }
     return new LocalDemandZoneRepository(zones, zoneRepository);
   }

@@ -16,6 +16,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
@@ -49,7 +50,7 @@ public class LocalDemandZoneRepositoryTest {
 		DemandZoneRepository demandZoneRepository = newDemandRepository();
 
 		for (Zone zone : zoneRepository.getZones()) {
-			DemandZone demandZone = demandZoneRepository.zoneByOid(zone.getOid());
+			DemandZone demandZone = demandZoneRepository.zoneById(zone.getInternalId());
 
 			assertThat(demandZone.zone(), is(sameInstance(zone)));
 		}
@@ -59,7 +60,7 @@ public class LocalDemandZoneRepositoryTest {
 	public void useDemandFromStructuralData() {
 		DemandZoneRepository demandRepository = newDemandRepository();
 
-		DemandZone zone = demandRepository.zoneByOid(0);
+		DemandZone zone = demandRepository.zoneById(new ZoneId("0" ,0));
 
 		assertThat(zone.nominalDemography(), is(equalTo(expectedDemography)));
 	}
@@ -74,8 +75,10 @@ public class LocalDemandZoneRepositoryTest {
 		Zone zone = mock(Zone.class);
 		when(zone.getOid()).thenReturn(oid);
 		when(zone.getId()).thenReturn(id);
+		ZoneId zoneId = new ZoneId(id, oid);
+    when(zone.getInternalId()).thenReturn(zoneId);
 		zones.add(zone);
-		when(zoneRepository.getZoneByOid(oid)).thenReturn(zone);
+		when(zoneRepository.getZoneById(zoneId)).thenReturn(zone);
 		when(zoneRepository.getZones()).thenReturn(zones);
 		return zone;
 	}

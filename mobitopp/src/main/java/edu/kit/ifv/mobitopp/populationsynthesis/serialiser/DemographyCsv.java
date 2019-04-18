@@ -48,20 +48,22 @@ public class DemographyCsv {
     CsvBuilder line = new CsvBuilder();
     for (DemandZone demandZone : zoneRepository.getZones()) {
       Demography demography = demandZone.actualDemography();
-      line.append(demandZone.getId());
+      line.append(demandZone.getId().getExternalId());
+      line.append(demandZone.getId().getMatrixColumn());
       write(demography, line);
     }
     results.accept(line.toString());
   }
 
   public void serialiseNominal(Consumer<String> toWriter) {
-    CsvBuilder serialised = new CsvBuilder();
+    CsvBuilder line = new CsvBuilder();
     for (DemandZone demandZone : zoneRepository.getZones()) {
       Demography demography = demandZone.nominalDemography();
-      serialised.append(demandZone.getId());
-      write(demography, serialised);
+      line.append(demandZone.getId().getExternalId());
+      line.append(demandZone.getId().getMatrixColumn());
+      write(demography, line);
     }
-    toWriter.accept(serialised.toString());
+    toWriter.accept(line.toString());
   }
 
   private void write(Demography demography, CsvBuilder line) {

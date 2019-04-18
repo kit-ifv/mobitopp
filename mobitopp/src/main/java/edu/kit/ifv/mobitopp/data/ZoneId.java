@@ -51,7 +51,7 @@ public class ZoneId implements Comparable<ZoneId>, Serializable {
 
   @Override
   public String toString() {
-    return "ZoneId [externalId=" + externalId + ", matrixColumn=" + matrixColumn + "]";
+    return "externalId=" + externalId + ", matrixColumn=" + matrixColumn;
   }
 
 }

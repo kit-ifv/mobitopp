@@ -377,8 +377,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		message.append("\n");
 		message.append("Zone ").append("(");
-		message.append("OID : ").append(zone.getOid()).append(", ");
-		message.append("ID : ").append(zone.getId());
+		message.append("OID : ").append(zone.getId().getMatrixColumn()).append(", ");
+		message.append("ID : ").append(zone.getId().getExternalId());
 		message.append(")");
 
 		results().write(categories.demanddataCalculation, message.toString());
