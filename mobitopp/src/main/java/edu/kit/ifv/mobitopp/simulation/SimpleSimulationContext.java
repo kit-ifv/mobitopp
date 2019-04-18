@@ -22,12 +22,12 @@ public class SimpleSimulationContext implements SimulationContext {
 	private final DynamicParameters modeChoiceParameters;
 	private final DynamicParameters experimentalParameters;
 
-	public SimpleSimulationContext(
-			WrittenConfiguration configuration, DynamicParameters experimentalParameters,
-			DataRepositoryForSimulation dataRepository, SimulationDays simulationDays,
-			SimulationParser format, ResultWriter resultWriter,
-			ElectricChargingWriter electricChargingWriter, PersonResults personResults,
-			DynamicParameters modeChoiceParameters, DynamicParameters destinationChoiceParameters) {
+  public SimpleSimulationContext(
+      WrittenConfiguration configuration, DynamicParameters experimentalParameters,
+      DataRepositoryForSimulation dataRepository, SimulationDays simulationDays,
+      SimulationParser format, ResultWriter resultWriter,
+      ElectricChargingWriter electricChargingWriter, PersonResults personResults,
+      DynamicParameters destinationChoiceParameters, DynamicParameters modeChoiceParameters) {
 		this.configuration = configuration;
 		this.experimentalParameters = experimentalParameters;
 		this.dataRepository = dataRepository;
