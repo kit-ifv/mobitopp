@@ -20,7 +20,7 @@ public class CarSharingWriter implements CarSharingListener {
 	public void bookCar(
 			Zone zone, int availableBefore, CarSharingCar car, int availableCars, String nextAvailableCar,
 			String availableCarsAsString) {
-		String message = "booked car in zone " + zone.getId() + " is " + car.id();
+		String message = "booked car in zone " + zone.getInternalId() + " is " + car.id();
 		message += "\n car is: " + car;
 		message += "\n number of available cars before: " + availableBefore;
 		message += "\n number of available cars: " + availableCars;
@@ -33,7 +33,7 @@ public class CarSharingWriter implements CarSharingListener {
 	public void returnCar(
 			CarSharingCar car, Zone zone, int availableBefore, int availableCars,
 			CarSharingCar nextAvailableCar, String availableCarsAsString) {
-		String message = "returned car in zone " + zone.getId() + " is " + car.id();
+		String message = "returned car in zone " + zone.getInternalId() + " is " + car.id();
 		message += "\n car is: " + car;
 		message += "\n number of available cars before: " + availableBefore;
 		message += "\n number of available cars: " + availableCars;

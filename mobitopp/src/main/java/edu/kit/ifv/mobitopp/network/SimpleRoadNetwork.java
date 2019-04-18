@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.visum.VisumConnector;
 import edu.kit.ifv.mobitopp.visum.VisumLink;
@@ -197,9 +198,9 @@ System.out.println("parsing zone " + id);
 		return result;
 	}
 
-	public Zone zone(edu.kit.ifv.mobitopp.data.Zone dataZone) {
+	public Zone zone(ZoneId id) {
 
-		Integer zoneId = Integer.valueOf(dataZone.getId().substring(1));
+		Integer zoneId = Integer.valueOf(id.getExternalId().substring(1));
 
 		return zones.get(zoneId);
 	}

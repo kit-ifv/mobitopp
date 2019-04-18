@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,14 +25,12 @@ public class LocalZoneRepository implements ZoneRepository {
 	private final Map<ZoneId, Zone> zones;
 	private final Map<Integer, Zone> oidToZones;
 	private final List<Zone> zonesAsList;
-	private final Map<String, Integer> idToOid;
 
 	LocalZoneRepository(Map<ZoneId, Zone> zones) {
 		super();
 		this.zones = zones;
 		zonesAsList = asList(zones);
 		oidToZones = createOidToZones(zones);
-		this.idToOid = createIdToOidFrom(zones.keySet());
 	}
 
 	private Map<Integer, Zone> createOidToZones(Map<ZoneId, Zone> zones) {
@@ -41,10 +38,6 @@ public class LocalZoneRepository implements ZoneRepository {
         .entrySet()
         .stream()
         .collect(toMap(e -> e.getKey().getMatrixColumn(), e -> e.getValue()));
-  }
-
-  private Map<String, Integer> createIdToOidFrom(Collection<ZoneId> zones) {
-    return zones.stream().collect(toMap(z -> removeZonePrefix(z.getExternalId()), ZoneId::getMatrixColumn));
   }
 
   private static List<Zone> asList(Map<ZoneId, Zone> zones) {
@@ -103,13 +96,5 @@ public class LocalZoneRepository implements ZoneRepository {
 		Map<ZoneId, Zone> mapping = new LocalZoneLoader(() -> zones).mapAllZones();
 		return new LocalZoneRepository(mapping);
 	}
-
-  public Integer map(String id) {
-    return idToOid.get(removeZonePrefix(id));
-  }
-
-  private String removeZonePrefix(String id) {
-    return id.replaceFirst("Z", "");
-  }
   
 }

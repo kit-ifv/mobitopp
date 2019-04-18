@@ -248,7 +248,6 @@ public class DemandSimulatorPassenger
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
 		return new SimulationPersonPassenger(p, 
-																					zoneRepository(),
 																					queue,
 																					simulationOptions(), 
 																					simulationDays(),

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -80,16 +81,20 @@ public class InMemoryMatricesTest {
 
 	private TravelTimeMatrix newMatrixFor(float hour) {
 		TravelTimeMatrix matrix = new TravelTimeMatrix(oids());
-		for (Integer origin : oids()) {
-			for (Integer destination : oids()) {
+		for (ZoneId origin : oids()) {
+			for (ZoneId destination : oids()) {
 				matrix.set(origin, destination, hour);
 			}
 		}
 		return matrix;
 	}
 
-	private List<Integer> oids() {
-		return asList(someZone, anotherZone);
+	private List<ZoneId> oids() {
+		return asList(newZoneId(someZone), newZoneId(anotherZone));
+	}
+	
+	private ZoneId newZoneId(int id) {
+	  return new ZoneId("" + id, id);
 	}
 
 	private Time firstHour() {

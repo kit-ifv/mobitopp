@@ -75,19 +75,19 @@ public class ImpedanceLocalDataTest {
 	}
 
 	private TravelTimeMatrix travelTimeMatrix() {
-		TravelTimeMatrix travelTimeMatrix = new TravelTimeMatrix(asList(originOid, destinationOid));
+		TravelTimeMatrix travelTimeMatrix = new TravelTimeMatrix(asList(origin, destination));
 		travelTimeMatrix.set(originOid, destinationOid, storedTravelTime);
 		return travelTimeMatrix;
 	}
 
 	private CostMatrix costMatrix(float cost) {
-		CostMatrix costMatrix = new CostMatrix(asList(originOid, destinationOid));
+		CostMatrix costMatrix = new CostMatrix(asList(origin, destination));
 		costMatrix.set(originOid, destinationOid, cost);
 		return costMatrix;
 	}
 	
 	private CostMatrix parkingMatrix(float cost) {
-		CostMatrix costMatrix = new CostMatrix(asList(originOid, destinationOid));
+		CostMatrix costMatrix = new CostMatrix(asList(origin, destination));
 		costMatrix.set(destinationOid, destinationOid, cost);
 		return costMatrix;
 	}

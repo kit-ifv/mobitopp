@@ -14,35 +14,31 @@ import edu.kit.ifv.mobitopp.data.local.MatrixParser;
 import edu.kit.ifv.mobitopp.data.local.Validate;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
 
 public class FileMatrixConfiguration implements MatrixConfiguration {
 
   private final StoredMatrices matrices;
   private final File baseFolder;
-  private final IdToOidMapper idToOidMapper;
 
-  FileMatrixConfiguration(StoredMatrices matrices, File baseFolder, IdToOidMapper idToOidMapper) {
+  FileMatrixConfiguration(StoredMatrices matrices, File baseFolder) {
     super();
     this.matrices = matrices;
     this.baseFolder = baseFolder;
-    this.idToOidMapper = idToOidMapper;
   }
 
   public static MatrixConfiguration empty(File baseFolder) {
-    IdToOidMapper idToOidMapper = Integer::valueOf;
-    return new FileMatrixConfiguration(new StoredMatrices(), baseFolder, idToOidMapper);
+    return new FileMatrixConfiguration(new StoredMatrices(), baseFolder);
   }
 
-  public static MatrixConfiguration from(File input, File baseFolder, IdToOidMapper idToOidMapper) throws FileNotFoundException {
-    return from(new FileInputStream(input), baseFolder, idToOidMapper);
+  public static MatrixConfiguration from(File input, File baseFolder) throws FileNotFoundException {
+    return from(new FileInputStream(input), baseFolder);
   }
 
-  public static MatrixConfiguration from(InputStream input, File baseFolder, IdToOidMapper idToOidMapper) {
+  public static MatrixConfiguration from(InputStream input, File baseFolder) {
     MatrixConfigurationSerialiser serialiser = new MatrixConfigurationSerialiser();
     StoredMatrices matrices = serialiser.loadFrom(input);
-    return new FileMatrixConfiguration(matrices, baseFolder, idToOidMapper);
+    return new FileMatrixConfiguration(matrices, baseFolder);
   }
 
   private TypeMatrices costMatrixFor(CostMatrixType matrixType) {
@@ -98,7 +94,7 @@ public class FileMatrixConfiguration implements MatrixConfiguration {
   }
 
   MatrixParser parserFor(StoredMatrix storedMatrix) throws IOException {
-    return VisumMatrixParser.load(storedMatrix.file(baseFolder), idToOidMapper);
+    return VisumMatrixParser.load(storedMatrix.file(baseFolder));
   }
 
   @Override

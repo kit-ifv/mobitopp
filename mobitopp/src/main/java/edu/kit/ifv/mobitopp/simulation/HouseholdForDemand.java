@@ -250,7 +250,7 @@ public class HouseholdForDemand
 		buffer.append(getOid() + "; ");
 		buffer.append(getId().getHouseholdNumber() + "; ");
 		buffer.append(getId().getYear() + "; ");
-		buffer.append(homeZone().getId() + ";");
+		buffer.append(homeZone().getInternalId().getExternalId() + ";");
 		buffer.append(homeLocation().toString() + ";");
 		buffer.append(getSize()).append("; ");
 		buffer.append(this.domCode).append("; ");

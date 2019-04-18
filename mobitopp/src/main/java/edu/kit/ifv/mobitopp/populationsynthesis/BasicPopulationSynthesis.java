@@ -210,13 +210,13 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		for (Zone zone : zones) {
 
 
-System.out.println("zone " + zone.getId() + " is ready? " + zone.carSharing().isReady());
+System.out.println("zone " + zone.getInternalId() + " is ready? " + zone.carSharing().isReady());
 
-			Integer zoneid = Integer.parseInt(zone.getId().substring(1));
+			Integer zoneid = Integer.parseInt(zone.getInternalId().getExternalId().substring(1));
 
 			edu.kit.ifv.mobitopp.network.Zone networkZone = network.zones().get(zoneid);
 
-			assert networkZone != null : (zoneid + " / " + zone.getId());
+			assert networkZone != null : (zoneid + " / " + zone.getInternalId());
 
 			createCarSharingData(zone, networkZone, random, carIds);
 		}

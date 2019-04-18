@@ -57,7 +57,7 @@ public class SimulationPersonTour
 		long seed, 
 		PersonListener listener
 	) {
-		super(person, zoneRepository, queue, options, simulationDays, modesInSimulation, tourFactory, tripFactory, initialState, publicTransportBehaviour, seed, listener);
+		super(person, queue, options, simulationDays, modesInSimulation, tourFactory, tripFactory, initialState, publicTransportBehaviour, seed, listener);
 	}
 
 

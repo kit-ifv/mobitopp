@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.kit.ifv.mobitopp.data.IntegerMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class DemandToVisumMatrices {
 
@@ -47,19 +48,19 @@ public class DemandToVisumMatrices {
 		List<String> zoneIds = zones();
 		HashMap<String, Integer> zoneToOid = new HashMap<>();
 		HashMap<Integer, String> zones = new HashMap<>();
-		List<Integer> oids = new ArrayList<>();
+		List<ZoneId> ids = new ArrayList<>();
 		for (int index = 0; index < zoneIds.size(); index++) {
 			int oid = index + 1;
 			String zone = zoneIds.get(index);
 			zoneToOid.put(zone, oid);
 			zones.put(oid, zone);
-			oids.add(oid);
+			ids.add(new ZoneId(zone, oid));
 		}
 		MatrixPrinter printer = new MatrixPrinter(zones);
 
 		HashMap<Integer, IntegerMatrix> matrices = new HashMap<>();
 		for (int hour = 0; hour < 24; hour++) {
-			matrices.put(hour, new IntegerMatrix(oids));
+			matrices.put(hour, new IntegerMatrix(ids));
 		}
 		outputFolder.mkdirs();
 

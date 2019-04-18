@@ -90,7 +90,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		assert dataZone != null;
 		assert this.network != null;
 
-		Zone zone = this.network.zone(dataZone);
+		Zone zone = this.network.zone(dataZone.getInternalId());
 
 		Map<Location,Integer> locations = new LinkedHashMap<Location,Integer>();
 

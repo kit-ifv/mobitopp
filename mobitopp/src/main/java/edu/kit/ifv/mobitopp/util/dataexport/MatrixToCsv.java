@@ -11,8 +11,8 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.FloatMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
-import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
 
 public class MatrixToCsv {
@@ -41,16 +41,16 @@ public class MatrixToCsv {
 		return csv.toString();
 	}
 
-	private int zoneIdFor(int index) {
-		return oids().get(index - 1);
+	private String zoneIdFor(int index) {
+		return ids().get(index - 1).getExternalId();
 	}
 
 	private int size() {
-		return oids().size();
+		return ids().size();
 	}
 
-	private List<Integer> oids() {
-		return matrix.oids();
+	private List<ZoneId> ids() {
+		return matrix.ids();
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -79,8 +79,7 @@ public class MatrixToCsv {
 
 	private static void convertMatrix(File input) {
 		try {
-			IdToOidMapper idToOidMapper = Integer::valueOf;
-      TravelTimeMatrix travelTimeMatrix = VisumMatrixParser.load(input, idToOidMapper).parseTravelTimeMatrix();
+			TravelTimeMatrix travelTimeMatrix = VisumMatrixParser.load(input).parseTravelTimeMatrix();
 			String csv = new MatrixToCsv(travelTimeMatrix).toCsv();
 
 			try (Writer writer = Files.newBufferedWriter(outputFor(input), Charset.defaultCharset())) {

@@ -9,6 +9,6 @@ public interface MatrixIfc
 
   MatrixType type();
 
-  List<Integer> oids();
+  List<ZoneId> ids();
 
 }

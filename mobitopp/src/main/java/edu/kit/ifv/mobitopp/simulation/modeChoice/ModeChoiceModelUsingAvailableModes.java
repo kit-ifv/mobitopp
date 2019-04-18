@@ -81,7 +81,7 @@ public class ModeChoiceModelUsingAvailableModes
 
 		if (selectedMode == Mode.CARSHARING_FREE) {
 			String message = "person: " + person.getOid();
-			message += "\n Zone: " + source.getId();
+			message += "\n Zone: " + source.getInternalId().getExternalId();
 			message += "\n selected mode: " + selectedMode;
 			message += "\n available modes: " + availableModes;
 			message += "\n car available: " 

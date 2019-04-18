@@ -15,7 +15,7 @@ public class VisumMatrix implements Matrix<Float> {
 	
 	private final FloatMatrix internal;
 
-	private VisumMatrix(List<Integer> zones) {
+	private VisumMatrix(List<ZoneId> zones) {
 		internal = new FloatMatrix(zones, defaultValue);
 	}
 
@@ -24,14 +24,14 @@ public class VisumMatrix implements Matrix<Float> {
 		this.internal = matrix;
 	}
 
-	public static VisumMatrix loadFrom(String filename, IdToOidMapper idToOidMapper) {
+	public static VisumMatrix loadFrom(String filename) {
 		File file = new File(filename);
-		return loadFrom(file, idToOidMapper);
+		return loadFrom(file);
 	}
 
-	public static VisumMatrix loadFrom(File file, IdToOidMapper idToOidMapper) {
+	public static VisumMatrix loadFrom(File file) {
 		try {
-			FloatMatrix matrix = VisumMatrixParser.load(file, idToOidMapper).parseMatrix();
+			FloatMatrix matrix = VisumMatrixParser.load(file).parseMatrix();
 			return new VisumMatrix(matrix);
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
@@ -42,7 +42,7 @@ public class VisumMatrix implements Matrix<Float> {
 		return internal.get(row, col);
 	}
 
-	public float get(ZoneId origin, ZoneId destination) {
+	public Float get(ZoneId origin, ZoneId destination) {
 		return internal.get(origin, destination);
 	}
 
@@ -51,16 +51,17 @@ public class VisumMatrix implements Matrix<Float> {
 		throw new java.lang.UnsupportedOperationException();
 	}
 
- 	public  List<Integer> oids() {
-		return internal.oids();
+  @Override
+ 	public  List<ZoneId> ids() {
+		return internal.ids();
 	}
 
 	public VisumMatrix scaledMatrix(float factor) {
 		
-		VisumMatrix matrix = new VisumMatrix(internal.oids());
+		VisumMatrix matrix = new VisumMatrix(internal.ids());
 
-		for (Integer source : internal.oids()) {
-			for (Integer destination : internal.oids()) {
+		for (ZoneId source : internal.ids()) {
+			for (ZoneId destination : internal.ids()) {
 
 				Float value = internal.get(source, destination);
 
@@ -73,8 +74,8 @@ public class VisumMatrix implements Matrix<Float> {
 
 	public void scale(float factor) {
 		
-		for (Integer source : internal.oids()) {
-			for (Integer destination : internal.oids()) {
+		for (ZoneId source : internal.ids()) {
+			for (ZoneId destination : internal.ids()) {
 
 				Float value = internal.get(source, destination);
 
@@ -85,8 +86,8 @@ public class VisumMatrix implements Matrix<Float> {
 
 	public void add(VisumMatrix matrix) {
 		
-		for (Integer source : internal.oids()) {
-			for (Integer destination : internal.oids()) {
+		for (ZoneId source : internal.ids()) {
+			for (ZoneId destination : internal.ids()) {
 
 				Float value = internal.get(source, destination);
 				Float increment = matrix.get(source, destination);
@@ -107,8 +108,8 @@ public class VisumMatrix implements Matrix<Float> {
 
 		float sum = 0.0f;
 
-		for (Integer source : internal.oids()) {
-			for (Integer destination : internal.oids()) {
+		for (ZoneId source : internal.ids()) {
+			for (ZoneId destination : internal.ids()) {
 				sum+=internal.get(source,destination);
 			}
 		}

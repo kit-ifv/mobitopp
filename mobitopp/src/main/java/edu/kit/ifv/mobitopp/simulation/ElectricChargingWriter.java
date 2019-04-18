@@ -103,7 +103,7 @@ public class ElectricChargingWriter implements ChargingListener {
 		String chargingStartDay = results().dateFormat().asDay(chargingStart);
 		String chargingStartTime = results().dateFormat().asTime(chargingStart);
 
-		String zone = car.position().zone.getId();
+		String zone = car.position().zone.getInternalId().getExternalId();
 		String coordinates = car.position().coordinates();
 
 		CsvBuilder message = new CsvBuilder(); 

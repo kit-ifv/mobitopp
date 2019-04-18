@@ -366,7 +366,7 @@ public class SimulationPersonPassengerTest {
   
   private SimulationPersonPassenger newPerson() {
     PersonState initialState = DummyStates.some;
-    return new SimulationPersonPassenger(person, zoneRepository, queue, options, null, null, null,
+    return new SimulationPersonPassenger(person, queue, options, null, null, null,
         tripFactory, initialState, boarder, seed, results) {
 
       private static final long serialVersionUID = 1L;

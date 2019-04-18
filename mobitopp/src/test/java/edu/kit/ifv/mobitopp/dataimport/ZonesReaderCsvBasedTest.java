@@ -96,7 +96,7 @@ public class ZonesReaderCsvBasedTest {
 		List<Zone> zones = reader.getZones();
 
 		Zone zone = zones.get(0);
-    assertAll(() -> assertThat(zone.getId(), is(equalTo("Z" + someZoneId))),
+    assertAll(() -> assertThat(zone.getInternalId().getExternalId(), is(equalTo("Z" + someZoneId))),
         () -> assertThat(zone.getName(), is(equalTo(someZoneName))),
         () -> assertThat(zone.getAreaType(), is(equalTo(ZoneAreaType.CITYOUTSKIRT))),
         () -> assertThat(zone.getRegionType(), is(equalTo(new DefaultRegionType(1)))),

@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
@@ -11,103 +11,84 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.CostMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class VisumMatrixParserTest {
 
   @Test
 	public void parseSmallMatrix() throws IOException {
-    IdToOidMapper idToOidMapper = createIdToOidMapper(1, 2);
-		CostMatrix matrix = VisumMatrixParser.parse(smallData(), idToOidMapper);
+		CostMatrix matrix = VisumMatrixParser.parse(smallData());
 		
 		compare(matrix, expectedSmall());
 	}
 
-  private IdToOidMapper createIdToOidMapper(int startZone, int endZone) {
-    return oidStream(startZone, endZone).collect(toMap(this::oidToId, Function.identity()))::get;
-  }
-
-  private String oidToId(Integer i) {
-    return String.valueOf(i + 10);
-  }
-
-  private Stream<Integer> oidStream(int startInclusive, int endInclusive) {
-    return IntStream
-        .rangeClosed(startInclusive, endInclusive)
-        .mapToObj(Integer::new);
-  }
-
-	private CostMatrix expectedSmall() {
-		CostMatrix costMatrix = new CostMatrix(asList(1, 2));
+  private CostMatrix expectedSmall() {
+		CostMatrix costMatrix = new CostMatrix(asList(newZoneId(1), newZoneId(2)));
 		costMatrix.set(1, 1, 1.0f);
 		costMatrix.set(1, 2, 2.0f);
 		costMatrix.set(2, 1, 3.0f);
 		costMatrix.set(2, 2, 4.0f);
 		return costMatrix;
 	}
+
+  private ZoneId newZoneId(int matrixColumn) {
+    int externalId = matrixColumn + 10;
+    return new ZoneId("" + externalId , matrixColumn);
+  }
 	
 	@Test
 	public void serialiseSmallMatrix() {
-	  OidToIdMapper oidToIdMapper = createOidToIdMapper(1,2);
-		CostMatrix matrix = expectedSmall();
+	  CostMatrix matrix = expectedSmall();
 		
-    String serialized = VisumMatrixParser.serialize(matrix, oidToIdMapper);
+    String serialized = VisumMatrixParser.serialize(matrix);
 		
 		assertEquals(smallData, serialized);
 	}
 	
-	private OidToIdMapper createOidToIdMapper(int startZone, int endZone) {
-    return oidStream(startZone, endZone).collect(toMap(Function.identity(), this::oidToId))::get;
-  }
-
-  @Test
+	@Test
 	public void parseBigMatrix() throws IOException {
-    IdToOidMapper idToOidMapper = createIdToOidMapper(1, 13);
-		CostMatrix matrix = VisumMatrixParser.parse(bigData(), idToOidMapper);
+    CostMatrix matrix = VisumMatrixParser.parse(bigData());
 		
 		compare(matrix, expectedBig());
 	}
 
 	private CostMatrix expectedBig() {
-		List<Integer> zoneIds = asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
+		List<ZoneId> zoneIds = IntStream.rangeClosed(1, 13).mapToObj(this::newZoneId).collect(toList());
 		CostMatrix costMatrix = new CostMatrix(zoneIds );
-		for (Integer source : zoneIds) {
-			for (Integer target : zoneIds) {
+		for (ZoneId source : zoneIds) {
+			for (ZoneId target : zoneIds) {
 				costMatrix.set(source, target, 0.0f);
 			}
 		}
-		for (Integer id : zoneIds) {
-			costMatrix.set(1, id, id.floatValue());
+		for (ZoneId id : zoneIds) {
+			costMatrix.set(newZoneId(1), id, (float) id.getMatrixColumn());
 		}
 		for (int i = 1; i < 10; i++) {
-			costMatrix.set(1 + i, 1, i * 11.0f);
+			costMatrix.set(newZoneId(1 + i), newZoneId(1), i * 11.0f);
 		}
 		return costMatrix;
 	}
 	
 	@Test
 	public void serialiseBigMatrix() {
-	  OidToIdMapper oidToIdMapper = createOidToIdMapper(1, 13);
-	  
-		CostMatrix matrix = expectedBig();
+	  CostMatrix matrix = expectedBig();
 		
-    String serialized = VisumMatrixParser.serialize(matrix, oidToIdMapper);
+    String serialized = VisumMatrixParser.serialize(matrix);
 		
 		assertEquals(bigData, serialized);
 	}  
 	
 	private void compare(CostMatrix actual, CostMatrix expected) {
 		assertThat(actual.type(), is(equalTo(expected.type())));
-		assertThat(actual.oids(), is(equalTo(expected.oids())));
-		assertThat(actual.oids(), is(equalTo(expected.oids())));
-		for (Integer sourceOid : actual.oids()) {
-			for (Integer targetOid : actual.oids()) {
+		assertThat(actual.ids(), is(equalTo(expected.ids())));
+		assertThat(actual.ids(), is(equalTo(expected.ids())));
+		for (ZoneId sourceOid : actual.ids()) {
+			for (ZoneId targetOid : actual.ids()) {
 				assertThat(actual.get(sourceOid, targetOid),
 						is(equalTo(expected.get(sourceOid, targetOid))));
 			}

@@ -6,14 +6,14 @@ public class TravelTimeMatrix extends FloatMatrix implements MatrixIfc, Matrix<F
 
 	private static final long serialVersionUID = 1L;
 
-	public TravelTimeMatrix(List<Integer> oids)
+	public TravelTimeMatrix(List<ZoneId> ids)
   {
-    super(oids);
+    super(ids);
   }
 
-  public TravelTimeMatrix(List<Integer> oids, float defaultValue)
+  public TravelTimeMatrix(List<ZoneId> ids, float defaultValue)
   {
-    super(oids, defaultValue);
+    super(ids, defaultValue);
   }
 
   public MatrixType type()

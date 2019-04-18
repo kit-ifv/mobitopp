@@ -225,7 +225,7 @@ public class AttractivityCalculatorCost
 	protected boolean IsZoneExternal(ZoneId destination) {
 
 		Zone zone = this.zones.get(destination);
-		String zoneId = zone.getId();
+		String zoneId = zone.getInternalId().getExternalId();
 
 		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
 		boolean isExternal = isOutlying && (zoneId.substring(0,2).equals("Z7")

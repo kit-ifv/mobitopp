@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,23 +15,22 @@ import edu.kit.ifv.mobitopp.data.CostMatrix;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.FloatMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.local.MatrixParser;
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 public class VisumMatrixParser implements MatrixParser {
 
-  private final IdToOidMapper idToOidMapper;
 	private final BufferedReader reader;
-	private final List<String> zonesIds;
+	private final List<ZoneId> zoneIds;
 	private final List<Float> data;
 	private String currentLine;
 	private int readZones;
 
-	private VisumMatrixParser(InputStream input, IdToOidMapper idToOidMapper) {
+	private VisumMatrixParser(InputStream input) {
 		super();
-    this.idToOidMapper = idToOidMapper;
 		reader = new BufferedReader(new InputStreamReader(input));
-		zonesIds = new ArrayList<>();
+		zoneIds = new ArrayList<>();
 		data = new ArrayList<>();
 		currentLine = "";
 		readZones = 0;
@@ -42,29 +40,28 @@ public class VisumMatrixParser implements MatrixParser {
 		return StreamContent.of(inputFile);
 	}
 
-	public static CostMatrix parse(InputStream inputStream, IdToOidMapper idToOidMapper) throws IOException {
-		return new VisumMatrixParser(inputStream, idToOidMapper).parseCostMatrix();
+	public static CostMatrix parse(InputStream inputStream) throws IOException {
+		return new VisumMatrixParser(inputStream).parseCostMatrix();
 	}
 
-	public static VisumMatrixParser load(File file, IdToOidMapper idToOidMapper) throws IOException {
-		return new VisumMatrixParser(asStream(file), idToOidMapper);
+	public static VisumMatrixParser load(File file) throws IOException {
+		return new VisumMatrixParser(asStream(file));
 	}
 
-	public static String serialize(FloatMatrix matrix, OidToIdMapper mapper) {
-		return header() + zones(matrix, mapper) + values(matrix) + zoneNames(matrix, mapper);
+	public static String serialize(FloatMatrix matrix) {
+		return header() + zones(matrix) + values(matrix) + zoneNames(matrix);
 	}
 
-	private static String zoneNames(FloatMatrix matrix, OidToIdMapper mapper) {
+	private static String zoneNames(FloatMatrix matrix) {
 		StringBuilder names = new StringBuilder();
 		names.append("* Netzobjektnamen");
 		names.append(System.lineSeparator()); 
 		names.append("$NAMES"); 
 		names.append(System.lineSeparator());
-		for (int oid : matrix.oids()) {
-			String zoneId = mapper.map(oid);
-      names.append(zoneId);
+		for (ZoneId id : matrix.ids()) {
+      names.append(id.getExternalId());
 			names.append(" \"");
-			names.append(oid);
+      names.append(id.getMatrixColumn());
 			names.append("\""); 
 			names.append(System.lineSeparator()); 
 		}
@@ -74,9 +71,9 @@ public class VisumMatrixParser implements MatrixParser {
 
 	private static String values(FloatMatrix matrix) {
 		StringBuilder values = new StringBuilder();
-		for (int zone : matrix.oids()) {
+		for (ZoneId zone : matrix.ids()) {
 			values.append("* Obj ");
-			values.append(zone);
+			values.append(zone.getMatrixColumn());
 			values.append(" Summe = ");
 			values.append(rowSumOf(zone, matrix));
 			values.append(System.lineSeparator());
@@ -86,10 +83,10 @@ public class VisumMatrixParser implements MatrixParser {
 		return values.toString();
 	}
 
-	private static String columnValuesOf(int zone, FloatMatrix matrix) {
+	private static String columnValuesOf(ZoneId zone, FloatMatrix matrix) {
 		StringBuilder values = new StringBuilder();
 		int serializedZones = 0;
-		for (int column : matrix.oids()) {
+		for (ZoneId column : matrix.ids()) {
 			if (0 == serializedZones % 10 && 0 != serializedZones) {
 				values.append(System.lineSeparator());
 			}
@@ -100,32 +97,31 @@ public class VisumMatrixParser implements MatrixParser {
 		return values.toString();
 	}
 
-	private static String rowSumOf(int zone, FloatMatrix matrix) {
+	private static String rowSumOf(ZoneId zone, FloatMatrix matrix) {
 		double sum = 0.0;
-		for (int column : matrix.oids()) {
+		for (ZoneId column : matrix.ids()) {
 			sum += matrix.get(zone, column);
 		}
 		return String.valueOf(sum);
 	}
 
-	private static String zones(FloatMatrix matrix, OidToIdMapper mapper) {
-		List<Integer> oids = matrix.oids();
-		StringBuilder serializedOids = new StringBuilder();
+	private static String zones(FloatMatrix matrix) {
+		List<ZoneId> oids = matrix.ids();
+		StringBuilder serializedIds = new StringBuilder();
 		int serializedZones = 0;
-		for (int oid : oids) {
+		for (ZoneId id : oids) {
 			if (0 == serializedZones % 10 && 0 != serializedZones) {
-				serializedOids.append(System.lineSeparator());
+				serializedIds.append(System.lineSeparator());
 			}
-			serializedOids.append(" ");
-			String zoneId = mapper.map(oid);
-      serializedOids.append(zoneId);
+			serializedIds.append(" ");
+			serializedIds.append(id.getExternalId());
 			serializedZones++;
 		}
-		serializedOids.append(System.lineSeparator());
+		serializedIds.append(System.lineSeparator());
 		return "* Anzahl Netzobjekte" + System.lineSeparator() + 
 				oids.size() + System.lineSeparator() + 
 				"* Netzobjekt-Nummern" + System.lineSeparator() + 
-				serializedOids.toString() + 
+				serializedIds.toString() + 
 				"*" + System.lineSeparator();
 	}
 
@@ -160,7 +156,7 @@ public class VisumMatrixParser implements MatrixParser {
 		return parse(TravelTimeMatrix::new);
 	}
 
-	private <T extends FloatMatrix> T parse(Function<List<Integer>, T> creator)
+	private <T extends FloatMatrix> T parse(Function<List<ZoneId>, T> creator)
 			throws IOException {
 		skipHeader();
 		readZones();
@@ -186,10 +182,10 @@ public class VisumMatrixParser implements MatrixParser {
 		}
 	}
 
-	private <T extends FloatMatrix> T build(Function<List<Integer>, T> creator) {
+	private <T extends FloatMatrix> T build(Function<List<ZoneId>, T> creator) {
 		T matrix = createMatrix(creator);
 		for (int index = 0; index < data.size(); index++) {
-			int size = zonesIds.size();
+			int size = zoneIds.size();
 			int row = index / size + 1;
 			int column = index % size + 1;
 			float value = data.get(index);
@@ -198,9 +194,8 @@ public class VisumMatrixParser implements MatrixParser {
 		return matrix;
 	}
 
-  private <T extends FloatMatrix> T createMatrix(Function<List<Integer>, T> creator) {
-    List<Integer> oids = zonesIds.stream().map(idToOidMapper::map).collect(toList());
-    return creator.apply(oids);
+  private <T extends FloatMatrix> T createMatrix(Function<List<ZoneId>, T> creator) {
+    return creator.apply(zoneIds);
   }
 
 	private boolean isReady() throws IOException {
@@ -244,12 +239,16 @@ public class VisumMatrixParser implements MatrixParser {
 
 	private void parseCurrentZones() {
 		for (String token : parseLine()) {
-			zonesIds.add(token);
+			zoneIds.add(newZoneId(token));
 			readZones++;
 		}
 	}
 
-	private List<String> parseLine() {
+	private ZoneId newZoneId(String token) {
+    return new ZoneId(token, readZones + 1);
+  }
+
+  private List<String> parseLine() {
 		String[] tokens = currentLine.trim().split("\\s+");
 		return asList(tokens);
 	}

@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import static java.util.stream.Collectors.toList;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -22,13 +21,9 @@ public class AggregateDemand implements PersonListener {
   public AggregateDemand(Consumer<IntegerMatrix> writer, List<ZoneId> ids) {
     super();
     this.writer = writer;
-    matrix = new IntegerMatrix(createMatrixColumns(ids));
+    matrix = new IntegerMatrix(Collections.unmodifiableList(ids));
   }
 
-  private List<Integer> createMatrixColumns(List<ZoneId> ids) {
-    return ids.stream().map(ZoneId::getMatrixColumn).collect(toList());
-  }
-  
   @Override
   public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
     ZoneId origin = trip.origin().zone().getInternalId();

@@ -9,16 +9,19 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.FloatMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class MatrixToCsvTest {
 
-	private static final int someOid = 2;
-	private static final int anotherOid = 5;
-	private static final List<Integer> oids = asList(someOid, anotherOid);
+  private static final int someOid = 2;
+  private static final int anotherOid = 5;
+  private static final ZoneId someId = new ZoneId("2", someOid);
+	private static final ZoneId anotherId = new ZoneId("5", anotherOid);
+	private static final List<ZoneId> ids = asList(someId, anotherId);
 
 	@Test
 	public void toCsv() {
-		FloatMatrix matrix = new TravelTimeMatrix(oids);
+		FloatMatrix matrix = new TravelTimeMatrix(ids);
 		matrix.set(someIndex(), someIndex(), 1.0f);
 		matrix.set(someIndex(), anotherIndex(), 2.0f);
 		matrix.set(anotherIndex(), someIndex(), 3.0f);
@@ -33,10 +36,10 @@ public class MatrixToCsvTest {
 	}
 
 	private int someIndex() {
-		return oids.indexOf(someOid) + 1;
+		return ids.indexOf(someId) + 1;
 	}
 
 	private int anotherIndex() {
-		return oids.indexOf(anotherOid) + 1;
+		return ids.indexOf(anotherId) + 1;
 	}
 }

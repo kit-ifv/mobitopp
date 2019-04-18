@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import edu.kit.ifv.mobitopp.dataimport.ZonesReader;
-import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 
-public interface ZoneRepository extends ZonesReader, IdToOidMapper {
+public interface ZoneRepository extends ZonesReader {
 
   // TODO switch to ZoneId?
 	public boolean hasZone(int id);
