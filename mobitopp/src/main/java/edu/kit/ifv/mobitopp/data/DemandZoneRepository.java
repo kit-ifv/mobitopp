@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface DemandZoneRepository {
 
-	DemandZone zoneByOid(int oid);
+	DemandZone zoneById(ZoneId id);
 
 	List<DemandZone> getZones();
 

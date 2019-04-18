@@ -145,7 +145,7 @@ public abstract class PopulationSynthesis {
 
   private void printZoneInformation() {
     for (DemandZone zone : demandZoneRepository().getZones()) {
-      System.out.println("PopulationSynthesis: Zone " + zone.getId() + ", oid=" + zone.getOid());
+      System.out.println("PopulationSynthesis: Zone " + zone.getId());
     }
   }
 
