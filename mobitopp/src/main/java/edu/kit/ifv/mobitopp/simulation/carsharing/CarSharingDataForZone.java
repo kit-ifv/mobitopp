@@ -348,7 +348,7 @@ System.out.println("sb companies: " + deserializedStationBasedCarSharing.size())
 
 	public String forLogging() {
 
-		String s = "Zone " + zone.getInternalId().getExternalId() + "\n";
+		String s = "Zone " + zone.getId().getExternalId() + "\n";
 
 		s += "station based companies:\n";
 		for (String company : this.stationBasedCarSharingCompanies) {
@@ -402,7 +402,7 @@ System.out.println("sb companies: " + deserializedStationBasedCarSharing.size())
 	}
 
 	public String toString() {
-		String data = "zone=" + zone.getInternalId()
+		String data = "zone=" + zone.getId()
 								+ "\n" + freeFloatingCarSharingCompanies
 								+ "\n" + freeFloatingCarSharing
 								+ "\n" + freeFloatingArea

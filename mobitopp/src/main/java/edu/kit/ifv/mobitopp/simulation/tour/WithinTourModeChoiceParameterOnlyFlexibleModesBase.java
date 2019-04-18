@@ -42,8 +42,8 @@ public abstract class WithinTourModeChoiceParameterOnlyFlexibleModesBase
 		
 			assert tour.contains(nextActivity);
 				
-				ZoneId sourceOid = source.getInternalId();
-				ZoneId destOid = destination.getInternalId();
+				ZoneId sourceOid = source.getId();
+				ZoneId destOid = destination.getId();
 			
 					Time date = prevActivity.calculatePlannedEndDate();
 			

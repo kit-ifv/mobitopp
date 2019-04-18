@@ -56,7 +56,7 @@ public class DefaultPersonFormatTest {
     format = new DefaultPersonFormat();
     household = mock(Household.class);
     zone = mock(Zone.class);
-    when(zone.getInternalId()).thenReturn(zoneId);
+    when(zone.getId()).thenReturn(zoneId);
     when(household.getId()).thenReturn(new HouseholdId(householdOid, year, householdOid));
     when(household.getOid()).thenReturn(householdOid);
     personForDemand = Example.personOf(household, personOid, zone);

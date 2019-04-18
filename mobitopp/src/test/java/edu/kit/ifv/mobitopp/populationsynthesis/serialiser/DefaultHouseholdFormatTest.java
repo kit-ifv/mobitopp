@@ -56,7 +56,7 @@ public class DefaultHouseholdFormatTest {
 		zoneRepository = mock(ZoneRepository.class);
 		
 		when(demandData.getPopulationData()).thenReturn(populationData);
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		when(zone.getDemandData()).thenReturn(demandData);
 		when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
 		

@@ -45,7 +45,7 @@ public class DefaultDemandDataSerialiserTest {
     ReflectionHelper.resetHouseholdIdSequence();
     Zone zone = mock(Zone.class);
     population = ExampleSetup.population(zone);
-    when(zone.getInternalId()).thenReturn(zoneId);
+    when(zone.getId()).thenReturn(zoneId);
   }
 
   @SuppressWarnings("unchecked")

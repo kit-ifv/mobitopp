@@ -560,10 +560,10 @@ public class ModeSelectorParameterOtherTrip
 		Time date = nextActivity.startDate();
 		Household hh = person.household();
 
-		ZoneId homeId = hh.homeZone().getInternalId();
-		ZoneId nextFixedDestinationId = person.fixedActivityZone().getInternalId();
-		ZoneId originId = origin.getInternalId();
-		ZoneId destinationId = destination.getInternalId();
+		ZoneId homeId = hh.homeZone().getId();
+		ZoneId nextFixedDestinationId = person.fixedActivityZone().getId();
+		ZoneId originId = origin.getId();
+		ZoneId destinationId = destination.getId();
 
 		double caravailable_part = !person.hasPersonalCar() && person.hasAccessToCar() ? 1 : 0;
 		double caravailable_true = person.hasPersonalCar() ? 1 : 0;  // personal car

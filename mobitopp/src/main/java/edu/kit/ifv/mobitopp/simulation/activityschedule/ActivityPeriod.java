@@ -454,7 +454,7 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
       if ( act.activityType() == activity.activityType() && act.isLocationSet() ) {
 
-        zones.add(act.zone().getInternalId());
+        zones.add(act.zone().getId());
       }
 
 		}

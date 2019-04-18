@@ -39,7 +39,7 @@ public class DefaultOpportunityFormat implements SerialiserFormat<Opportunity> {
 	public List<String> prepare(Opportunity opportunity) {
 		String location = locationParser.serialise(opportunity.location());
 		ArrayList<String> attributes = new ArrayList<>();
-		attributes.add(valueOf(opportunity.zone().getInternalId().getMatrixColumn()));
+		attributes.add(valueOf(opportunity.zone().getId().getMatrixColumn()));
 		attributes.add(valueOf(opportunity.activityType()));
 		attributes.add(location);
 		attributes.add(valueOf(opportunity.attractivity()));

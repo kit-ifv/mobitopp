@@ -104,8 +104,8 @@ public class DestinationChoiceModelTime
 		Set<Mode> availableModes 
 	) {
 
-		ZoneId originId = origin.getInternalId();
-		ZoneId destinationId = destination.getInternalId();
+		ZoneId originId = origin.getId();
+		ZoneId destinationId = destination.getId();
 
 		double OPPORTUNITY_OFFSET = 1.0;
 
@@ -120,7 +120,7 @@ public class DestinationChoiceModelTime
 		Employment employment = person.employment();
 
 
-		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getId();
 
 		Mode mode = fastestMode(date, originId, destinationId, nextFixedDestinationId, availableModes);
 

@@ -70,7 +70,7 @@ public class DefaultPrivateCarFormatTest {
     when(mainUser.getId()).thenReturn(mainUserId);
     when(personalUser.getOid()).thenReturn(personalUserOid);
     when(personalUser.getId()).thenReturn(personalUserId);
-    when(zone.getInternalId()).thenReturn(zoneId);
+    when(zone.getId()).thenReturn(zoneId);
     when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
     when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
     when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());

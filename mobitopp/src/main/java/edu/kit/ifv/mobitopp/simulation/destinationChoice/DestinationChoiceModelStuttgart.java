@@ -46,8 +46,8 @@ public class DestinationChoiceModelStuttgart
 		Set<Mode> choiceSetForModes 
 	) {
 
-		ZoneId origin = source.getInternalId();
-		ZoneId destination = target.getInternalId();
+		ZoneId origin = source.getId();
+		ZoneId destination = target.getId();
 
 		Time date = person.activitySchedule().prevActivity(nextActivity).calculatePlannedEndDate();
 
@@ -61,7 +61,7 @@ public class DestinationChoiceModelStuttgart
 
 		double	opportunityAdjustment = getOpportunityAdjustment(activityType, target);
 
-		ZoneId nextPoleOid = person.nextFixedActivityZone(nextActivity).getInternalId();
+		ZoneId nextPoleOid = person.nextFixedActivityZone(nextActivity).getId();
 
 		Mode mode = fastestMode(person, nextActivity, date, origin, destination, nextPoleOid, choiceSetForModes);
 		boolean commuterTicket = person.hasCommuterTicket();
@@ -196,7 +196,7 @@ public class DestinationChoiceModelStuttgart
 	}
 
 	private boolean isInternal(Zone zone) {
-		String zoneId = zone.getInternalId().getExternalId();
+		String zoneId = zone.getId().getExternalId();
 		
 		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
 		boolean isExternal = isOutlying && (zoneId.substring(0,2).equals("Z7")

@@ -142,8 +142,8 @@ public class AttractivityCalculatorCost
 			Float attractivity = calculateAttractivity( 
 																						person,
 																						nextActivity,
-																						currentZone.getInternalId(), 
-																						possibleDestination.getInternalId(), 
+																						currentZone.getId(), 
+																						possibleDestination.getId(), 
 																						activityType, 
 																						choiceSetForModes
 																					);
@@ -225,7 +225,7 @@ public class AttractivityCalculatorCost
 	protected boolean IsZoneExternal(ZoneId destination) {
 
 		Zone zone = this.zones.get(destination);
-		String zoneId = zone.getInternalId().getExternalId();
+		String zoneId = zone.getId().getExternalId();
 
 		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
 		boolean isExternal = isOutlying && (zoneId.substring(0,2).equals("Z7")

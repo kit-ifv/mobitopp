@@ -59,7 +59,7 @@ public class Zone implements Serializable {
     this.centroidLocation = centroidLocation;
   }
 
-  public ZoneId getInternalId() {
+  public ZoneId getId() {
     return internalId;
   }
 

@@ -44,7 +44,7 @@ public class CarSharingStationFormatTest {
 	public void initialise() {
 		organization = new StationBasedCarSharingOrganization(company);
 		zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		station = new CarSharingStation(organization, zone, id, name, parkingSpace, location, numberOfCars);
 		List<StationBasedCarSharingOrganization> companies = asList(organization);
 		ZoneRepository zoneRepository = mock(ZoneRepository.class);

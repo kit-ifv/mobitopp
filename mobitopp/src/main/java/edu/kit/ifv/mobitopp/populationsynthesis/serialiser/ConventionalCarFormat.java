@@ -47,7 +47,7 @@ public class ConventionalCarFormat implements SerialiserFormat<Car> {
 		String location = locationParser.serialise(car.position().location());
 		return asList(
 				valueOf(car.id()),
-				valueOf(car.position().zone.getInternalId().getMatrixColumn()),
+				valueOf(car.position().zone.getId().getMatrixColumn()),
 				location,
 				valueOf(car.carSegment()),
 				valueOf(car.capacity()),

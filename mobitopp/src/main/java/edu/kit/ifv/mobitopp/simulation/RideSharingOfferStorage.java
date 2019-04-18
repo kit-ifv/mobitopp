@@ -17,8 +17,8 @@ public class RideSharingOfferStorage {
 
 	public void put(Trip trip, RideSharingOffer offer) {
 
-		ZoneId source = trip.origin().zone().getInternalId();
-		ZoneId target = trip.destination().zone().getInternalId();
+		ZoneId source = trip.origin().zone().getId();
+		ZoneId target = trip.destination().zone().getId();
 
 		assertOffersContainsSourceAndTarget(trip);
 
@@ -29,8 +29,8 @@ public class RideSharingOfferStorage {
 
 	private void assertOffersContainsSourceAndTarget(Trip trip) {
 
-		ZoneId source = trip.origin().zone().getInternalId();
-		ZoneId target = trip.destination().zone().getInternalId();
+		ZoneId source = trip.origin().zone().getId();
+		ZoneId target = trip.destination().zone().getId();
 
 		if (!offers.containsKey(source)) {
 			offers.put(source, new HashMap<>());
@@ -42,8 +42,8 @@ public class RideSharingOfferStorage {
 
 	public void remove(Trip trip) {
 
-		ZoneId source = trip.origin().zone().getInternalId();
-		ZoneId target = trip.destination().zone().getInternalId();
+		ZoneId source = trip.origin().zone().getId();
+		ZoneId target = trip.destination().zone().getId();
 
 		assert offers.containsKey(source);
 		assert offers.get(source).containsKey(target);
@@ -55,8 +55,8 @@ public class RideSharingOfferStorage {
 
 	public RideSharingOffer get(Trip trip) {
 
-		ZoneId source = trip.origin().zone().getInternalId();
-		ZoneId target = trip.destination().zone().getInternalId();
+		ZoneId source = trip.origin().zone().getId();
+		ZoneId target = trip.destination().zone().getId();
 
 		assert offers.containsKey(source);
 		assert offers.get(source).containsKey(target);
@@ -72,8 +72,8 @@ public class RideSharingOfferStorage {
 
 	public Collection<Trip> keySet(Trip trip) {
 
-		ZoneId source = trip.origin().zone().getInternalId();
-		ZoneId target = trip.destination().zone().getInternalId();
+		ZoneId source = trip.origin().zone().getId();
+		ZoneId target = trip.destination().zone().getId();
 
 		if (!offers.containsKey(source) || !offers.get(source).containsKey(target)) {
 			return new ArrayList<>();

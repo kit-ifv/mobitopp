@@ -52,7 +52,7 @@ public class DefaultFixedDestinationFormatTest {
 		zone = mock(Zone.class);
 		HouseholdId householdId = new HouseholdId(householdOid, householdYear, householdNumber);
     person = new PersonId(personOid, householdId, personNumber);
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		fixedDestination = new FixedDestination(activityType, zone, location);
 		personDestination = new PersonFixedDestination(person , fixedDestination);
 		format = new DefaultFixedDestinationFormat(zoneRepository);

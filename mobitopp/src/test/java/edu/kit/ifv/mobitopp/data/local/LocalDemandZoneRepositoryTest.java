@@ -50,7 +50,7 @@ public class LocalDemandZoneRepositoryTest {
 		DemandZoneRepository demandZoneRepository = newDemandRepository();
 
 		for (Zone zone : zoneRepository.getZones()) {
-			DemandZone demandZone = demandZoneRepository.zoneById(zone.getInternalId());
+			DemandZone demandZone = demandZoneRepository.zoneById(zone.getId());
 
 			assertThat(demandZone.zone(), is(sameInstance(zone)));
 		}
@@ -73,9 +73,9 @@ public class LocalDemandZoneRepositoryTest {
 
 	private Zone createZoneWithOid(int oid, String id) {
 		Zone zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(new ZoneId(id, oid));
+		when(zone.getId()).thenReturn(new ZoneId(id, oid));
 		ZoneId zoneId = new ZoneId(id, oid);
-    when(zone.getInternalId()).thenReturn(zoneId);
+    when(zone.getId()).thenReturn(zoneId);
 		zones.add(zone);
 		when(zoneRepository.getZoneById(zoneId)).thenReturn(zone);
 		when(zoneRepository.getZones()).thenReturn(zones);

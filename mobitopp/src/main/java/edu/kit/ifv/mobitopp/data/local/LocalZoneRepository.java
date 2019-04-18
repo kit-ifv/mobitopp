@@ -42,7 +42,7 @@ public class LocalZoneRepository implements ZoneRepository {
 
   private static List<Zone> asList(Map<ZoneId, Zone> zones) {
 		List<Zone> sorted = new ArrayList<>(zones.values());
-		sorted.sort(comparing(Zone::getInternalId));
+		sorted.sort(comparing(Zone::getId));
 		return Collections.unmodifiableList(sorted);
 	}
 	

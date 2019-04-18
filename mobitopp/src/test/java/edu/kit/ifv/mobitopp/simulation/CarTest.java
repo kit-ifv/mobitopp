@@ -29,7 +29,7 @@ public class CarTest {
 	@Before
 	public void setUp() {
 		zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(new ZoneId("1", 1));
+		when(zone.getId()).thenReturn(new ZoneId("1", 1));
 		position = new CarPosition(zone, new Example().location());
 		car = new ConventionalCar(new IdSequence(), position, null, 4, initialMileage, initialFuelLevel, maxRange);
 	}

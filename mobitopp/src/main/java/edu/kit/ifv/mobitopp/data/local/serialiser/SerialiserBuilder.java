@@ -116,7 +116,7 @@ public class SerialiserBuilder {
 		Map<Integer, ChargingDataForZone> mapping = zoneRepository
 				.getZones()
 				.stream()
-				.collect(toMap(z -> z.getInternalId().getMatrixColumn(), Zone::charging));
+				.collect(toMap(z -> z.getId().getMatrixColumn(), Zone::charging));
 		return new CreateMissingChargingData(mapping, factory);
 	}
 

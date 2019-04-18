@@ -23,10 +23,10 @@ public class MockedZones {
 
 	public static MockedZones create() {
 		Zone someZone = mock(Zone.class);
-		when(someZone.getInternalId()).thenReturn(new ZoneId("1", 1));
+		when(someZone.getId()).thenReturn(new ZoneId("1", 1));
 		when(someZone.charging()).thenReturn(NoChargingDataForZone.noCharging);
 		Zone otherZone = mock(Zone.class);
-		when(otherZone.getInternalId()).thenReturn(new ZoneId("2", 2));
+		when(otherZone.getId()).thenReturn(new ZoneId("2", 2));
 		when(otherZone.charging()).thenReturn(NoChargingDataForZone.noCharging);
 
 		return new MockedZones(someZone, otherZone);
@@ -38,7 +38,7 @@ public class MockedZones {
 	}
 
 	private void verifyOnlyCallsToGetId(Zone zone) {
-		verifyPossibleCallOn(zone).getInternalId();
+		verifyPossibleCallOn(zone).getId();
 		verifyPossibleCallOn(zone).charging();
 		verifyNoMoreInteractions(zone);
 	}

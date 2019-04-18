@@ -110,8 +110,8 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 
 	private double distance(PersonForSetup person) {
 		HouseholdForSetup household = person.household();
-		ZoneId homeZone = household.homeZone().getInternalId();
-		ZoneId poleZone = person.fixedActivityZone().getInternalId();
+		ZoneId homeZone = household.homeZone().getId();
+		ZoneId poleZone = person.fixedActivityZone().getId();
 		return impedance.getDistance(homeZone, poleZone) / 1000.0d;
 	}
 

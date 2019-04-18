@@ -42,7 +42,7 @@ public class BevCarFormatTest {
 		AbstractElectricCarFormat electricCarFormat = new AbstractElectricCarFormat(conventionalCarFormat);
 		format = new BevCarFormat(electricCarFormat);
 
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
 		original = ExampleSetup.bevCar(zone);

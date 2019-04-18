@@ -18,7 +18,7 @@ public abstract class RandomHouseholdLocationSelector implements HouseholdLocati
 	}
 
 	public Location selectLocation(edu.kit.ifv.mobitopp.data.Zone dataZone) {
-		Zone zone = this.network.zone(dataZone.getInternalId());
+		Zone zone = this.network.zone(dataZone.getId());
 		return selectLocation(zone);
 	}
 

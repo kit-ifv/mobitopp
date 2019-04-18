@@ -23,7 +23,7 @@ public class Household_Stub
 		this.oid = oid;
 		this.income = income;
 		zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(new ZoneId("0", 0));
+		when(zone.getId()).thenReturn(new ZoneId("0", 0));
 		when(zone.getName()).thenReturn("Z0");
 	}
 

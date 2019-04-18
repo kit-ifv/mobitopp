@@ -21,7 +21,7 @@ public class DemandZone {
   }
 
   public ZoneId getId() {
-    return zone.getInternalId();
+    return zone.getId();
   }
 
   public Zone zone() {

@@ -42,8 +42,8 @@ public class PrivateCarTrip extends BaseTrip implements Trip {
   }
 
   private void useCarOfHousehold(ImpedanceIfc impedance, Time currentTime) {
-    ZoneId originId = origin().zone().getInternalId();
-    ZoneId destinationId = destination().zone().getInternalId();
+    ZoneId originId = origin().zone().getId();
+    ZoneId destinationId = destination().zone().getId();
     float distance = impedance.getDistance(originId, destinationId);
     float distanceKm = distance / 1000.0f;
     PrivateCar car = person().household().takeAvailableCar(person(), distanceKm);

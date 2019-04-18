@@ -146,7 +146,7 @@ class CommutationTicketModelStuttgart
 	}
 
 	static Landkreis getLandkreis(Zone zone) {
-		String id = zone.getInternalId().getExternalId();
+		String id = zone.getId().getExternalId();
 
 		verifyZoneId(id);
 

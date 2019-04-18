@@ -116,13 +116,13 @@ implements FixedDestinationSelector
 
     SortedMap<Integer, Map<ZoneId, Float>> distances = new TreeMap<>();
 
-    ZoneId homeId = zone.getInternalId();
+    ZoneId homeId = zone.getId();
 
     for (ZoneId destinationId : zoneRepository.getZoneIds()) {
       Float dist_float = this.impedance.getDistance(homeId, destinationId);
       Integer dist = dist_float.intValue();
       Float count = distMatrix.get(homeId.getMatrixColumn(), destinationId.getMatrixColumn());
-      if (count > 0.0f || destinationId.equals(zone.getInternalId())) {
+      if (count > 0.0f || destinationId.equals(zone.getId())) {
         if (distances.get(dist) == null) {
           distances.put(dist, new HashMap<>());
         }

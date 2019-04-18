@@ -48,7 +48,7 @@ public class FreeFloatingCarFormatTest {
 		car = mock(Car.class);
 		zone = mock(Zone.class);
 		when(car.id()).thenReturn(carId);
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 		carsharingCar = new DefaultCarSharingCar(car, owner);
 		freeFloatingCar = new FreeFloatingCar(zone, carsharingCar);

@@ -87,7 +87,7 @@ public class PublicTransportTripFactoryTest {
   }
 
   private void use(Mode mode) {
-    when(impedance.getTravelTime(zone.getInternalId(), zone.getInternalId(), mode, startDate))
+    when(impedance.getTravelTime(zone.getId(), zone.getId(), mode, startDate))
         .thenReturn((float) plannedDuration);
   }
 
