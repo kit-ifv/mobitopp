@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ExampleZones;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
