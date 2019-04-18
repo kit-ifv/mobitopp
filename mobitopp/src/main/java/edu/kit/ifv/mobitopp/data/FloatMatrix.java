@@ -54,8 +54,8 @@ public class FloatMatrix
     return this.matrix[row-1][column-1];
   }
 
-	public float get(Zone origin, Zone destination) {
-		return get(origin.getOid(), destination.getOid());
+	public float get(ZoneId origin, ZoneId destination) {
+		return get(origin.getMatrixColumn(), destination.getMatrixColumn());
 	}
 
   public void set(int row, int column, Float value)

@@ -218,8 +218,8 @@ public class TripfileWriter implements PersonListener {
         message.append(person.household().getTotalNumberOfCars()).append(";");
         message.append(person.household().homeZone().getId()).append(";");
         message.append(tour.forLogging()).append(";");
-        message.append(tourDestination.getOid()).append(";");
-        message.append(tourDestination.getId()).append(";");
+        message.append(tourDestination.getInternalId().getMatrixColumn()).append(";");
+        message.append(tourDestination.getInternalId().getExternalId()).append(";");
         message.append(tourMode).append(";");
 
         ZoneId homeId = person.homeZone().getInternalId();

@@ -50,7 +50,7 @@ public class CarSharingStationFormat implements SerialiserFormat<CarSharingStati
 	@Override
 	public List<String> prepare(CarSharingStation station) {
 		String company = station.carSharingCompany.name();
-		String zoneId = valueOf(station.zone.getOid());
+		String zoneId = valueOf(station.zone.getInternalId().getMatrixColumn());
 		String id = valueOf(station.id);
 		String name = station.name;
 		String parkingSpace = station.parkingSpace;

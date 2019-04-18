@@ -7,7 +7,7 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.FloatMatrix;
 import edu.kit.ifv.mobitopp.data.Matrix;
-import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class VisumMatrix implements Matrix<Float> {
 
@@ -42,7 +42,7 @@ public class VisumMatrix implements Matrix<Float> {
 		return internal.get(row, col);
 	}
 
-	public float get(Zone origin, Zone destination) {
+	public float get(ZoneId origin, ZoneId destination) {
 		return internal.get(origin, destination);
 	}
 

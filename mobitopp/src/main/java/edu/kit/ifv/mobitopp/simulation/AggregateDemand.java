@@ -31,8 +31,8 @@ public class AggregateDemand implements PersonListener {
   
   @Override
   public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
-    int origin = trip.origin().zone().getOid();
-    int destination = trip.destination().zone().getOid();
+    ZoneId origin = trip.origin().zone().getInternalId();
+    ZoneId destination = trip.destination().zone().getInternalId();
     matrix.increment(origin, destination);
   }
   

@@ -65,7 +65,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 				valueOf(id.getHouseholdNumber()), 
 				valueOf(nominalSize), 
 				valueOf(domCode),
-				valueOf(homeZone.getOid()), 
+				valueOf(homeZone.getInternalId().getMatrixColumn()), 
 				homeLocation, 
 				valueOf(numberOfNotSimulatedChildren),
 				valueOf(totalNumberOfCars), 

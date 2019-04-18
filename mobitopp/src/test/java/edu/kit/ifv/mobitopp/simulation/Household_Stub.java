@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
@@ -22,7 +23,7 @@ public class Household_Stub
 		this.oid = oid;
 		this.income = income;
 		zone = mock(Zone.class);
-		when(zone.getOid()).thenReturn(0);
+		when(zone.getInternalId()).thenReturn(new ZoneId("0", 0));
 		when(zone.getName()).thenReturn("Z0");
 	}
 

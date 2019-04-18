@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
@@ -28,6 +29,7 @@ import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 public class DefaultDemandDataSerialiserTest {
 
   private static final int zoneOid = 1;
+  private static final ZoneId zoneId = new ZoneId("1", zoneOid);
   private static Population population;
 
   private Serialiser<Household> householdSerialiser;
@@ -43,7 +45,7 @@ public class DefaultDemandDataSerialiserTest {
     ReflectionHelper.resetHouseholdIdSequence();
     Zone zone = mock(Zone.class);
     population = ExampleSetup.population(zone);
-    when(zone.getOid()).thenReturn(zoneOid);
+    when(zone.getInternalId()).thenReturn(zoneId);
   }
 
   @SuppressWarnings("unchecked")

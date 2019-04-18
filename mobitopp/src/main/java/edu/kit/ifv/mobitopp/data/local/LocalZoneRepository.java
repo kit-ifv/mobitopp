@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class LocalZoneRepository implements ZoneRepository {
 		this.zones = zones;
 		zonesAsList = asList(zones);
 		oidToZones = createOidToZones(zones);
-		this.idToOid = createIdToOidFrom(zonesAsList);
+		this.idToOid = createIdToOidFrom(zones.keySet());
 	}
 
 	private Map<Integer, Zone> createOidToZones(Map<ZoneId, Zone> zones) {
@@ -42,13 +43,13 @@ public class LocalZoneRepository implements ZoneRepository {
         .collect(toMap(e -> e.getKey().getMatrixColumn(), e -> e.getValue()));
   }
 
-  private Map<String, Integer> createIdToOidFrom(List<Zone> zones) {
-    return zones.stream().collect(toMap(z -> removeZonePrefix(z.getId()), Zone::getOid));
+  private Map<String, Integer> createIdToOidFrom(Collection<ZoneId> zones) {
+    return zones.stream().collect(toMap(z -> removeZonePrefix(z.getExternalId()), ZoneId::getMatrixColumn));
   }
 
   private static List<Zone> asList(Map<ZoneId, Zone> zones) {
 		List<Zone> sorted = new ArrayList<>(zones.values());
-		sorted.sort(comparing(Zone::getOid));
+		sorted.sort(comparing(Zone::getInternalId));
 		return Collections.unmodifiableList(sorted);
 	}
 	

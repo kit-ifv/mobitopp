@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
@@ -31,6 +32,7 @@ public class DefaultFixedDestinationFormatTest {
 	private static final Location location = ExampleSetup.location;
 	private static final ActivityType activityType = ActivityType.HOME;
 	private static final int zoneOid = 1;
+	private static final ZoneId zoneId = new ZoneId("1", zoneOid);
 	private static final int personOid = 2;
 	private static final int personNumber = 1;
 	private static final int householdOid = 1;
@@ -50,7 +52,7 @@ public class DefaultFixedDestinationFormatTest {
 		zone = mock(Zone.class);
 		HouseholdId householdId = new HouseholdId(householdOid, householdYear, householdNumber);
     person = new PersonId(personOid, householdId, personNumber);
-		when(zone.getOid()).thenReturn(zoneOid);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		fixedDestination = new FixedDestination(activityType, zone, location);
 		personDestination = new PersonFixedDestination(person , fixedDestination);
 		format = new DefaultFixedDestinationFormat(zoneRepository);

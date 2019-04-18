@@ -67,6 +67,6 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
   }
 
   private static String idOf(Zone zone) {
-    return zone.getId().substring(1);
+    return zone.getInternalId().getExternalId().substring(1);
   }
 }

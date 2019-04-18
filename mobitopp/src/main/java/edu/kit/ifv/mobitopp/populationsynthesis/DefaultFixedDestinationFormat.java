@@ -31,7 +31,7 @@ public class DefaultFixedDestinationFormat implements SerialiserFormat<PersonFix
     columns.add("householdYear", e -> e.person().getHouseholdId().getYear());
     columns.add("householdNumber", e -> e.person().getHouseholdId().getHouseholdNumber());
     columns.add("activityType", e -> e.fixedDestination().activityType());
-    columns.add("zoneId", e -> e.fixedDestination().zone().getOid());
+    columns.add("zoneId", e -> e.fixedDestination().zone().getInternalId().getMatrixColumn());
     columns.add("location", e -> locationParser.serialise(e.fixedDestination().location()));
   }
 

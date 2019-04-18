@@ -22,6 +22,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
@@ -32,6 +33,7 @@ import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 public class DefaultHouseholdFormatTest {
 
 	private static final int zoneOid = 1;
+	private static final ZoneId zoneId = new ZoneId("1", zoneOid);
 	private static final int householdOid = 1;
 	private Household originalHousehold;
 	
@@ -54,7 +56,7 @@ public class DefaultHouseholdFormatTest {
 		zoneRepository = mock(ZoneRepository.class);
 		
 		when(demandData.getPopulationData()).thenReturn(populationData);
-		when(zone.getOid()).thenReturn(zoneOid);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		when(zone.getDemandData()).thenReturn(demandData);
 		when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
 		

@@ -59,10 +59,6 @@ public class Zone implements Serializable {
     this.centroidLocation = centroidLocation;
   }
 
-  public int getOid() {
-    return internalId.getMatrixColumn();
-  }
-
   public String getId() {
     return this.internalId.getExternalId();
   }

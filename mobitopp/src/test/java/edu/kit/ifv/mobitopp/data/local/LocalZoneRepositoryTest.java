@@ -30,7 +30,6 @@ public class LocalZoneRepositoryTest {
   public void initialise() {
     zone = mock(Zone.class);
     when(zone.getId()).thenReturn(zoneId);
-    when(zone.getOid()).thenReturn(zoneOid);
     when(zone.getInternalId()).thenReturn(id);
     Map<ZoneId, Zone> zones = Collections.singletonMap(id, zone);
     repository = new LocalZoneRepository(zones);

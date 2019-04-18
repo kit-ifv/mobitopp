@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.serialiser.FreeFloatingCarFormat;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -31,6 +32,7 @@ public class FreeFloatingCarFormatTest {
 	private static final String company = "company";
 	private static final int carId = 1;
 	private static final int zoneOid = 2;
+  private static final ZoneId zoneId = new ZoneId("2", zoneOid);
 
 	private FreeFloatingCarSharingOrganization owner;
 	private Car car;
@@ -46,7 +48,7 @@ public class FreeFloatingCarFormatTest {
 		car = mock(Car.class);
 		zone = mock(Zone.class);
 		when(car.id()).thenReturn(carId);
-		when(zone.getOid()).thenReturn(zoneOid);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 		carsharingCar = new DefaultCarSharingCar(car, owner);
 		freeFloatingCar = new FreeFloatingCar(zone, carsharingCar);
