@@ -32,7 +32,7 @@ public class AggregateDemandTest {
     Person person = mock(Person.class);
     FinishedTrip trip = mock(FinishedTrip.class);
     Zone zone = mock(Zone.class);
-    when(zone.getInternalId()).thenReturn(zoneId);
+    when(zone.getId()).thenReturn(zoneId);
     Location location = new Location(new Point2D.Double(), 0, 0);
     ZoneAndLocation zoneLocation = new ZoneAndLocation(zone, location);
     when(trip.origin()).thenReturn(zoneLocation);

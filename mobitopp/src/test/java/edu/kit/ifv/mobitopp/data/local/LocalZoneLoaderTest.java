@@ -34,11 +34,11 @@ public class LocalZoneLoaderTest {
 	public void initialise() {
 		reader = mock(ZonesReader.class);
 		zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		anotherZone = mock(Zone.class);
-		when(anotherZone.getInternalId()).thenReturn(zoneId);
+		when(anotherZone.getId()).thenReturn(zoneId);
 		differentZone = mock(Zone.class);
-		when(differentZone.getInternalId()).thenReturn(anotherId);
+		when(differentZone.getId()).thenReturn(anotherId);
 		loader = new LocalZoneLoader(reader);
 	}
 	

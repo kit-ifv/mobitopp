@@ -41,7 +41,7 @@ public class ErevCarFormatTest {
 		AbstractElectricCarFormat electricCarFormat = new AbstractElectricCarFormat(conventionalCarFormat);
 		format = new ErevCarFormat(electricCarFormat);
 
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
 		original = ExampleSetup.erevCar(zone);

@@ -43,7 +43,7 @@ public class Opportunity {
 		result = prime * result + ((activityType == null) ? 0 : activityType.hashCode());
 		result = prime * result + ((attractivity == null) ? 0 : attractivity.hashCode());
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + ((zone == null) ? 0 : zone.getInternalId().hashCode());
+		result = prime * result + ((zone == null) ? 0 : zone.getId().hashCode());
 		return result;
 	}
 
@@ -71,7 +71,7 @@ public class Opportunity {
 		if (zone == null) {
 			if (other.zone != null)
 				return false;
-		} else if (zone.getInternalId() != other.zone.getInternalId())
+		} else if (zone.getId() != other.zone.getId())
 			return false;
 		return true;
 	}

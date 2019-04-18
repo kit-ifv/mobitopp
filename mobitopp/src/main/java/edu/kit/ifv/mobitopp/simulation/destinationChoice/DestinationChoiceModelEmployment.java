@@ -142,13 +142,13 @@ public class DestinationChoiceModelEmployment
 		
 		assert person != null;
 
-		ZoneId originId = origin.getInternalId();
-		ZoneId destinationId = destination.getInternalId();
+		ZoneId originId = origin.getId();
+		ZoneId destinationId = destination.getId();
 
 		Time date = person.activitySchedule().prevActivity(nextActivity).calculatePlannedEndDate();
 
 		boolean commuterTicket = person.hasCommuterTicket();
-		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getId();
 		
 		Mode mode = fastestMode(person, nextActivity, date, originId, destinationId, nextFixedDestinationId, availableModes);
 

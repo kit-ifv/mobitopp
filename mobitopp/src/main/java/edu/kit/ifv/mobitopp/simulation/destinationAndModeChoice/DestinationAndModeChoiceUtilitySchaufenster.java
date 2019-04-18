@@ -348,12 +348,12 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 
 				double logsum = calculateLogSum(nestUtilities);
 
-				ZoneId originId = origin.getInternalId();
-				ZoneId destinationId = possibleDestination.getInternalId();
+				ZoneId originId = origin.getId();
+				ZoneId destinationId = possibleDestination.getId();
 
 				ActivityType activityType = nextActivity.activityType();
 
-				ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
+				ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getId();
 
 				Time date = nextActivity.startDate();
 				Time nextDate = nextActivity.calculatePlannedEndDate();
@@ -459,17 +459,17 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		boolean ignoreMIVconstant
 	) {
 
-		ZoneId originId = origin.getInternalId();
-		ZoneId destinationId = destination.getInternalId();
+		ZoneId originId = origin.getId();
+		ZoneId destinationId = destination.getId();
 
 		Time currentTime = previousActivity.startDate();
 		Time date = nextActivity.startDate();
 		Time nextDate = nextActivity.calculatePlannedEndDate();
 		Household household = person.household();
 
-		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getId();
 
-		ZoneId home = person.household().homeZone().getInternalId();
+		ZoneId home = person.household().homeZone().getId();
 
 		ActivityIfc nextHomeActivity = person.nextHomeActivity();
 		Time startOfNextHomeActivity = nextHomeActivity.startDate() ;

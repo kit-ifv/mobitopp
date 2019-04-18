@@ -62,8 +62,8 @@ public class CarRangeReachableZonesFilter
 			for (Zone destination : zones) {
 				for (Mode mode : availableModes) {
 
-					ZoneId originId = currentZone.getInternalId();
-          ZoneId destinationId = destination.getInternalId();
+					ZoneId originId = currentZone.getId();
+          ZoneId destinationId = destination.getId();
           double time = this.impedance.getTravelTime(originId, destinationId, mode, date);
 
 					if (time < maxTravelTimeInMinutes) {
@@ -95,10 +95,10 @@ public class CarRangeReachableZonesFilter
 
 			for (Zone zone : zones) {
 				
-				ZoneId originId = currentZone.getInternalId();
-        ZoneId destinationId = zone.getInternalId();
-        ZoneId nextFixedDestinationId = nextFixedZone.getInternalId();
-        ZoneId homeId = homeZone.getInternalId();
+				ZoneId originId = currentZone.getId();
+        ZoneId destinationId = zone.getId();
+        ZoneId nextFixedDestinationId = nextFixedZone.getId();
+        ZoneId homeId = homeZone.getId();
         float distance = this.impedance.getDistance(originId, destinationId)
 												+ this.impedance.getDistance(destinationId, nextFixedDestinationId)
 												+ this.impedance.getDistance(nextFixedDestinationId, homeId);

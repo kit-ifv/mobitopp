@@ -93,10 +93,10 @@ public class BasicModeAvailabilityModel
 
 			if (isAtHome(previousActivity)) {
 
-				ZoneId originId = origin.getInternalId();
-				ZoneId destinationId = destination.getInternalId();
-				ZoneId nextPole = person.nextFixedActivityZone(person.currentActivity()).getInternalId();
-				ZoneId homeZone = person.homeZone().getInternalId();
+				ZoneId originId = origin.getId();
+				ZoneId destinationId = destination.getId();
+				ZoneId nextPole = person.nextFixedActivityZone(person.currentActivity()).getId();
+				ZoneId homeZone = person.homeZone().getId();
 
 				float distance = this.impedance.getDistance(originId, destinationId)
 												+ this.impedance.getDistance(destinationId, nextPole)
@@ -141,8 +141,8 @@ public class BasicModeAvailabilityModel
 
 		for (Mode mode : possibleModes) {
 
-			ZoneId originId = origin.getInternalId();
-      ZoneId destinationId = destination.getInternalId();
+			ZoneId originId = origin.getId();
+      ZoneId destinationId = destination.getId();
       double time = this.impedance.getTravelTime(originId, destinationId, mode, date);
 
 			if (time <= fastestTravelTime) {

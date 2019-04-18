@@ -22,11 +22,11 @@ public class LocalZoneLoader {
       if (maximumNumberOfZones <= mapping.size()) {
         break;
       }
-      if (mapping.containsKey(zone.getInternalId())) {
+      if (mapping.containsKey(zone.getId())) {
         throw new IllegalArgumentException(
-            "Mapping already contains zone with id: " + zone.getInternalId());
+            "Mapping already contains zone with id: " + zone.getId());
       }
-      mapping.put(zone.getInternalId(), zone);
+      mapping.put(zone.getId(), zone);
     }
     return mapping;
   }

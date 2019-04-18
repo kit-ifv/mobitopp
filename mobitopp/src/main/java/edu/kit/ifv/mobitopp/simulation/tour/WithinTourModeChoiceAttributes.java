@@ -37,8 +37,8 @@ public class WithinTourModeChoiceAttributes
 			
 			assert tour.contains(nextActivity);
 				
-				ZoneId sourceId = source.getInternalId();
-				ZoneId destinationId = destination.getInternalId();
+				ZoneId sourceId = source.getId();
+				ZoneId destinationId = destination.getId();
 			
 					Time date = prevActivity.calculatePlannedEndDate();
 			

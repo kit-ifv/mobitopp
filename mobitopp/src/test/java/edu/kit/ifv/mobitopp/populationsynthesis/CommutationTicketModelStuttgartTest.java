@@ -67,7 +67,7 @@ public class CommutationTicketModelStuttgartTest {
 
 	private Zone zoneFor(int id) {
 		Zone zone = mock(Zone.class);
-		when(zone.getInternalId()).thenReturn(new ZoneId("Z" + id, id));
+		when(zone.getId()).thenReturn(new ZoneId("Z" + id, id));
 		return zone;
 	}
 

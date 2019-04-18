@@ -145,8 +145,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		assert person().isCarDriver();
 
-		ZoneId originId = trip.origin().zone().getInternalId();
-    ZoneId destinationId = trip.destination().zone().getInternalId();
+		ZoneId originId = trip.origin().zone().getId();
+    ZoneId destinationId = trip.destination().zone().getId();
     float distance_meter = impedance.getDistance(originId, destinationId);
 
 		float distance = distance_meter / 1000.0f;
@@ -373,7 +373,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	@Override
   public void prepareTrip(ImpedanceIfc impedance, Trip trip, Time time) {
-    assert currentActivity().zone().getInternalId().equals(trip.origin().zone().getInternalId());
+    assert currentActivity().zone().getId().equals(trip.origin().zone().getId());
     trip.prepareTrip(impedance, time);
   }
 
@@ -524,8 +524,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 															+ "driver: " + person().isCarDriver());
 
 			Path route = routeChoice.selectRoute(date, 
-																					getZoneId(trip.origin().zone().getInternalId()), 
-																					getZoneId(trip.destination().zone().getInternalId())
+																					getZoneId(trip.origin().zone().getId()), 
+																					getZoneId(trip.destination().zone().getId())
 																				);
 
 			listener.notifySelectCarRoute(person(), person().whichCar(), trip, route);

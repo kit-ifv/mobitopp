@@ -42,12 +42,12 @@ public class ModeChoiceAttributes {
 	
 			ActivityIfc mainActivity = tour.mainActivity();
 	
-			ZoneId origin = person.homeZone().getInternalId();
+			ZoneId origin = person.homeZone().getId();
 			
 			assert tour.mainActivity().isLocationSet() || tour instanceof Subtour;
 			assert tour.mainActivity().isLocationSet() || tour.firstActivity().isLocationSet();
 			
-			ZoneId destination = tour.mainActivity().zone().getInternalId();
+			ZoneId destination = tour.mainActivity().zone().getId();
 	
 			Time date = tour.mainActivity().startDate();
 			Household hh = person.household();

@@ -88,8 +88,8 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 	private double calculateUtilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
 		final HouseholdForSetup household = person.household();
 
-		final ZoneId home = household .homeZone().getInternalId();
-		final ZoneId nextFixedDestination = person.fixedActivityZone().getInternalId();
+		final ZoneId home = household .homeZone().getId();
+		final ZoneId nextFixedDestination = person.fixedActivityZone().getId();
 
 		float commutingdistance_km = impedance.getDistance(home, nextFixedDestination)/1000.0f;
 

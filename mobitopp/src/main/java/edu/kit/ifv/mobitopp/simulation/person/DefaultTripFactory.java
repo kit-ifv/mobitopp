@@ -41,8 +41,8 @@ public class DefaultTripFactory implements TripFactory {
     assert previousActivity.isLocationSet();
     assert nextActivity.isLocationSet();
 
-    ZoneId originId = previousActivity.zone().getInternalId();
-    ZoneId destinationId = nextActivity.zone().getInternalId();
+    ZoneId originId = previousActivity.zone().getId();
+    ZoneId destinationId = nextActivity.zone().getId();
 
     Time plannedEnd = previousActivity.calculatePlannedEndDate();
 

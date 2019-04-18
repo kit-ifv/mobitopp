@@ -40,7 +40,7 @@ public class AttractivityCalculatorCostNextPole
 
 		ActivityType activityType = nextActivity.activityType();
 		DayOfWeek weekday = nextActivity.startDate().weekDay();
-		ZoneId nextFixedDestination = person.nextFixedActivityZone(nextActivity).getInternalId();
+		ZoneId nextFixedDestination = person.nextFixedActivityZone(nextActivity).getId();
 
 		Time startDate = previousActivity.calculatePlannedEndDate();
 

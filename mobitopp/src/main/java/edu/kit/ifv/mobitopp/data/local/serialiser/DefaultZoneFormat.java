@@ -53,8 +53,8 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
 	@Override
 	public List<String> prepare(Zone zone) {
-		return asList(valueOf(zone.getInternalId().getMatrixColumn()), 
-				zone.getInternalId().getExternalId(),
+		return asList(valueOf(zone.getId().getMatrixColumn()), 
+				zone.getId().getExternalId(),
 				zone.getName(),
 				valueOf(zone.getAreaType().getTypeAsInt()),
 				valueOf(zone.getRegionType().code()),

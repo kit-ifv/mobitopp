@@ -42,8 +42,8 @@ public class PublicTransportTripFactory implements TripFactory {
   private Trip doCreateTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
-    ZoneId originId = previousActivity.zone().getInternalId();
-    ZoneId destinationId = nextActivity.zone().getInternalId();
+    ZoneId originId = previousActivity.zone().getId();
+    ZoneId destinationId = nextActivity.zone().getId();
 
     Time plannedEnd = previousActivity.calculatePlannedEndDate();
 

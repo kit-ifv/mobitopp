@@ -84,7 +84,7 @@ public class DefaultZoneFormatTest {
 		Optional<Zone> parsed = format.parse(format.prepare(zone));
 		
 		Zone parsedZone = parsed.get();
-		assertValue(Zone::getInternalId, parsedZone, zone);
+		assertValue(Zone::getId, parsedZone, zone);
 		assertValue(Zone::getName, parsedZone, zone);
 		assertValue(Zone::getAreaType, parsedZone, zone);
 		assertValue(Zone::getRegionType, parsedZone, zone);

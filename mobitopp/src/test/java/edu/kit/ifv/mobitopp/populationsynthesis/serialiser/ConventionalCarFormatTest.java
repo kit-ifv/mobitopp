@@ -38,7 +38,7 @@ public class ConventionalCarFormatTest {
 		zoneRepository = mock(ZoneRepository.class);
 		format = new ConventionalCarFormat(zoneRepository);
 
-		when(zone.getInternalId()).thenReturn(zoneId);
+		when(zone.getId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
 		original = ExampleSetup.conventionalCar(zone);

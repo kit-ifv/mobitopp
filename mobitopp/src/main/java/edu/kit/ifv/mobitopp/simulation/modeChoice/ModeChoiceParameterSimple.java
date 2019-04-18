@@ -437,8 +437,8 @@ class ModeChoiceParameterSimple implements ModeChoiceParameter {
 		ImpedanceIfc impedance
 	) {
 
-		ZoneId originId = origin.getInternalId();
-		ZoneId destinationId = destination.getInternalId();
+		ZoneId originId = origin.getId();
+		ZoneId destinationId = destination.getId();
 
 		Time date = nextActivity.startDate();
 

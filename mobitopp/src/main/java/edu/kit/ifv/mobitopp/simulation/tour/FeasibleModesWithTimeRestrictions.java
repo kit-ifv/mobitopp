@@ -89,8 +89,8 @@ public class FeasibleModesWithTimeRestrictions implements FeasibleModesModel {
 		
 		for(Mode mode : choiceSet) {
 			
-			ZoneId originId = origin.getInternalId();
-      ZoneId destinationId = destination.getInternalId();
+			ZoneId originId = origin.getId();
+      ZoneId destinationId = destination.getId();
       double time = this.impedance
           .getTravelTime(originId, destinationId, mode, endOfPreviousActivity);
 			

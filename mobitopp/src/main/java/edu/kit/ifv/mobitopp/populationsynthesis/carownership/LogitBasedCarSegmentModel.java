@@ -86,8 +86,8 @@ public class LogitBasedCarSegmentModel
 
 		boolean is_commuting = person.hasFixedActivityZone();
 
-		ZoneId homeId = person.homeZone().getInternalId();
-    ZoneId nextFixedDestinationId = person.fixedActivityZone().getInternalId();
+		ZoneId homeId = person.homeZone().getId();
+    ZoneId nextFixedDestinationId = person.fixedActivityZone().getId();
     double commuting_dist = this.impedance.getDistance(homeId, nextFixedDestinationId) / 1000.0;
 
 		boolean isFemale = person.isFemale();

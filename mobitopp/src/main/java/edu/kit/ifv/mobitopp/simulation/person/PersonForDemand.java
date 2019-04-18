@@ -454,10 +454,10 @@ public class PersonForDemand implements Person, Serializable {
 		int targetZoneOidForEducation = -1;
 
 		if (hasFixedZoneFor(ActivityType.WORK)) {
-			targetZoneOidForWork = fixedZoneFor(ActivityType.WORK).getInternalId().getMatrixColumn();
+			targetZoneOidForWork = fixedZoneFor(ActivityType.WORK).getId().getMatrixColumn();
 		}
 		if (hasFixedZoneFor(ActivityType.EDUCATION)) {
-			targetZoneOidForEducation = fixedZoneFor(ActivityType.EDUCATION).getInternalId().getMatrixColumn();
+			targetZoneOidForEducation = fixedZoneFor(ActivityType.EDUCATION).getId().getMatrixColumn();
 		}
 
 		int commutationTicket = hasCommuterTicket() ? 1 : 0;
@@ -476,17 +476,17 @@ public class PersonForDemand implements Person, Serializable {
 			buffer.append(gender().getTypeAsInt()).append("; ");
 			buffer.append(age()).append("; ");
 			buffer.append(employmentType + "; ");
-			buffer.append(homeZone.getInternalId().getExternalId() + "; ");
+			buffer.append(homeZone.getId().getExternalId() + "; ");
 
 			if (targetZoneOidForWork > -1) {
 
 				Zone workZone = fixedZoneFor(ActivityType.WORK);
 				Location workLocation = fixedDestinationFor(ActivityType.WORK);
 
-				int distance = (int) impedance.getDistance(homeZone.getInternalId(), workZone.getInternalId());
+				int distance = (int) impedance.getDistance(homeZone.getId(), workZone.getId());
 
 				buffer.append(outFormat.format(distance) + "; ");
-				buffer.append(workZone.getInternalId().getExternalId() + "; ");
+				buffer.append(workZone.getId().getExternalId() + "; ");
 				buffer.append(workLocation + "; ");
 			} else {
 				buffer.append("-1; ");
@@ -500,11 +500,11 @@ public class PersonForDemand implements Person, Serializable {
 				Zone eduZone = fixedZoneFor(ActivityType.EDUCATION);
 				Location eduLocation = fixedDestinationFor(ActivityType.EDUCATION);
 
-				int distance = (int) impedance.getDistance(homeZone.getInternalId(), eduZone.getInternalId());
+				int distance = (int) impedance.getDistance(homeZone.getId(), eduZone.getId());
 
 				buffer.append(outFormat.format(distance) + "; ");
 
-				buffer.append(eduZone.getInternalId().getExternalId() + "; ");
+				buffer.append(eduZone.getId().getExternalId() + "; ");
 				buffer.append(eduLocation + "; ");
 			} else {
 				buffer.append("-1; ");
