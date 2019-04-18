@@ -2,36 +2,31 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.Optional;
 
-import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import edu.kit.ifv.mobitopp.time.Time;
 
-public interface ImpedanceIfc
-{
+public interface ImpedanceIfc {
 
+  Optional<PublicTransportRoute> getPublicTransportRoute(
+      Location origin, Location destination, Mode mode, Time date);
 
-	public float getTravelTime(int origin, int destination, Mode mode, Time date);
+  float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date);
 
-	public Optional<PublicTransportRoute> getPublicTransportRoute(Location origin, Location destination, Mode mode, Time date);
+  float getTravelCost(ZoneId origin, ZoneId destination, Mode mode, Time date);
 
-	public float getTravelCost(int origin, int destination, Mode mode, Time date);
+  float getDistance(ZoneId origin, ZoneId destination);
 
-	public float getDistance(int origin, int destination);
+  float getParkingCost(ZoneId destination, Time date);
 
-	public float getParkingCost(int destination, Time date);
+  float getParkingStress(ZoneId destination, Time date);
 
-	public float getParkingStress(int destination, Time date);
+  float getConstant(ZoneId origin, ZoneId destination, Time date);
 
-	public float getConstant(int origin, int destination, Time date);
+  float getOpportunities(ActivityType activityType, ZoneId zone);
 
-	public float getOpportunities(ActivityType activityType, int zoneOid);
-	
-
-	default public float getTravelTime(Zone origin, Zone destination, Mode mode, Time date) {		
-		return getTravelTime(origin.getOid(), destination.getOid(), mode, date);
-	}
-
-	Optional<PublicTransportRoute> getPublicTransportRoute(Stop start, Stop end, Mode mode, Time date);
+  Optional<PublicTransportRoute> getPublicTransportRoute(
+      Stop start, Stop end, Mode mode, Time date);
 
 }

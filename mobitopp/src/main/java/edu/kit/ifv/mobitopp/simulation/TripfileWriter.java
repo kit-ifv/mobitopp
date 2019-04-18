@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.routing.Path;
@@ -54,16 +55,11 @@ public class TripfileWriter implements PersonListener {
 			Location location_to
 	) {
 
-    String sourceZone = null;
-    String targetZone = null;
-
-      targetZone = activity.zone().getId();
-
-			sourceZone = finishedTrip.origin().zone().getId();
-
-
-		float distance = impedance.getDistance(finishedTrip.origin().zone().getOid(),
-				finishedTrip.destination().zone().getOid());
+    String origin = finishedTrip.origin().zone().getId();
+    String destination = activity.zone().getId();
+    ZoneId originId = finishedTrip.origin().zone().getInternalId();
+    ZoneId destinationId = finishedTrip.destination().zone().getInternalId();
+    float distance = impedance.getDistance(originId, destinationId);
 
 			double distance_km = distance/1000.0;
 
@@ -136,8 +132,8 @@ public class TripfileWriter implements PersonListener {
 			message.append(tripEndTime);
 			message.append(distance_km);
 			message.append(duration_trip);
-			message.append(sourceZone);
-			message.append(targetZone);
+			message.append(origin);
+			message.append(destination);
 			message.append(employmentType);
 			message.append(homeZone);
 			message.append(activityDuration);
@@ -226,7 +222,9 @@ public class TripfileWriter implements PersonListener {
         message.append(tourDestination.getId()).append(";");
         message.append(tourMode).append(";");
 
-        double distanceKm = impedance.getDistance(person.homeZone().getOid(), tourDestination.getOid()) / 1000.0;
+        ZoneId homeId = person.homeZone().getInternalId();
+        ZoneId destinationId = tourDestination.getInternalId();
+        double distanceKm = impedance.getDistance(homeId, destinationId) / 1000.0;
 
         message.append(distanceKm).append(";");
 
@@ -274,12 +272,11 @@ public class TripfileWriter implements PersonListener {
 					|| trip.mode() == Mode.CARSHARING_FREE : ("invalid mode: " + trip.mode());
 
 
-		String targetZone = activity.zone().getId();
-
-		String sourceZone = previousActivity.zone().getId();
-
-		float distance = impedance.getDistance(trip.origin().zone().getOid(),
-				trip.destination().zone().getOid());
+		String origin = previousActivity.zone().getId();
+		String destination = activity.zone().getId();
+    ZoneId originId = trip.origin().zone().getInternalId();
+    ZoneId destinationId = trip.destination().zone().getInternalId();
+    float distance = impedance.getDistance(originId, destinationId);
 
 		double distancekm = distance / 1000.0;
 
@@ -307,8 +304,8 @@ public class TripfileWriter implements PersonListener {
 		message.append(tripEndTime);
 		message.append(distancekm);
 		message.append(durationtrip);
-		message.append(sourceZone);
-		message.append(targetZone);
+		message.append(origin);
+		message.append(destination);
 		message.append(location.coordinates());
 		message.append(location.roadAccessEdgeId());
 		message.append(location.roadPosition());

@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ public class TripSetup {
     float distanceKm = distance / 1000.0f;
     when(household.takeAvailableCar(person, distanceKm)).thenReturn(car);
     when(person.household()).thenReturn(household);
-    when(impedance.getDistance(anyInt(), anyInt())).thenReturn(distance);
+    when(impedance.getDistance(any(), any())).thenReturn(distance);
     when(tripData.origin()).thenReturn(zoneAndLocation);
     when(tripData.destination()).thenReturn(zoneAndLocation);
   }

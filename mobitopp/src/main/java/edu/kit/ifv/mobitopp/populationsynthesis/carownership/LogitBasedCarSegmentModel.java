@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -85,8 +86,9 @@ public class LogitBasedCarSegmentModel
 
 		boolean is_commuting = person.hasFixedActivityZone();
 
-		double commuting_dist = this.impedance.getDistance(	person.homeZone().getOid(), 
-																														person.fixedActivityZone().getOid()) / 1000.0;
+		ZoneId homeId = person.homeZone().getInternalId();
+    ZoneId nextFixedDestinationId = person.fixedActivityZone().getInternalId();
+    double commuting_dist = this.impedance.getDistance(homeId, nextFixedDestinationId) / 1000.0;
 
 		boolean isFemale = person.isFemale();
 		int number_of_cars =  hh.getTotalNumberOfCars();

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -41,8 +42,8 @@ public abstract class WithinTourModeChoiceParameterOnlyFlexibleModesBase
 		
 			assert tour.contains(nextActivity);
 				
-				int sourceOid = source.getOid();
-				int destOid = destination.getOid();
+				ZoneId sourceOid = source.getInternalId();
+				ZoneId destOid = destination.getInternalId();
 			
 					Time date = prevActivity.calculatePlannedEndDate();
 			

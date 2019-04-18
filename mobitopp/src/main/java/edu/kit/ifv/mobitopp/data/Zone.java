@@ -66,6 +66,10 @@ public class Zone implements Serializable {
   public String getId() {
     return this.internalId.getExternalId();
   }
+  
+  public ZoneId getInternalId() {
+    return internalId;
+  }
 
   public AreaType getAreaType()
   {

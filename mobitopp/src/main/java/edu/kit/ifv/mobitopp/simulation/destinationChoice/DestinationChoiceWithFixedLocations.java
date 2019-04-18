@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
@@ -24,7 +25,7 @@ public class DestinationChoiceWithFixedLocations
   
  
   public DestinationChoiceWithFixedLocations(
-  	Map<Integer,Zone> zones,
+  	Map<ZoneId, Zone> zones,
 		DestinationChoiceModelChoiceSet destinationChoiceModel
 	)
   {

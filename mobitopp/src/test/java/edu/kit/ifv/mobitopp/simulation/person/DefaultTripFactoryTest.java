@@ -134,7 +134,8 @@ public class DefaultTripFactoryTest {
   }
 
   private void use(Mode mode) {
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn((float) plannedDuration);
+    when(impedance.getTravelTime(zone.getInternalId(), zone.getInternalId(), mode, startDate))
+        .thenReturn((float) plannedDuration);
   }
 
   private static Location someLocation() {

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.impedance;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -14,7 +15,8 @@ public class ImprovedPublicTransport extends ImpedanceDecorator {
 	}
 	
 	
-	public float getTravelTime(int source, int target, Mode mode, Time date) {
+	@Override
+	public float getTravelTime(ZoneId source, ZoneId target, Mode mode, Time date) {
 		
 		if(mode == Mode.PUBLICTRANSPORT) {
 			return travelTimeFactor * super.getTravelTime(source, target, mode, date);

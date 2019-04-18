@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
@@ -87,17 +88,17 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 	private double calculateUtilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
 		final HouseholdForSetup household = person.household();
 
-		final int homeZone = household .homeZone().getOid();
-		final int poleZone = person.fixedActivityZone().getOid();
+		final ZoneId home = household .homeZone().getInternalId();
+		final ZoneId nextFixedDestination = person.fixedActivityZone().getInternalId();
 
-		float commutingdistance_km = impedance.getDistance(homeZone, poleZone)/1000.0f;
+		float commutingdistance_km = impedance.getDistance(home, nextFixedDestination)/1000.0f;
 
 		final Zone zone = household.homeZone();
 		final AreaType areaType = zone.getAreaType();
 
 		int sex_male = person.gender() == Gender.MALE ? 1 : 0;
 
-		int dist_comm_NOCOMMUTE = homeZone == poleZone ? 1 : 0;
+		int dist_comm_NOCOMMUTE = home == nextFixedDestination ? 1 : 0;
 		int dist_comm_0_10 		= commutingdistance_km < 10 ? 1 : 0;
 		int dist_comm_10_20 	= commutingdistance_km > 10 && commutingdistance_km < 20 ? 1 : 0;
 		int dist_comm_20_30 	= commutingdistance_km > 20 && commutingdistance_km < 30 ? 1 : 0;

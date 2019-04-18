@@ -6,6 +6,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -97,14 +98,14 @@ public class DestinationChoiceModelTime
 	public double calculateUtility(
 		Person person,
 		ActivityIfc nextActivity,
-		Zone sourceZone,
-		Zone destinationZone,
+		Zone origin,
+		Zone destination,
 		ActivityType activityType,
 		Set<Mode> availableModes 
 	) {
 
-		int source = sourceZone.getOid();
-		int destination = destinationZone.getOid();
+		ZoneId originId = origin.getInternalId();
+		ZoneId destinationId = destination.getInternalId();
 
 		double OPPORTUNITY_OFFSET = 1.0;
 
@@ -119,16 +120,16 @@ public class DestinationChoiceModelTime
 		Employment employment = person.employment();
 
 
-		int nextPole = person.nextFixedActivityZone(nextActivity).getOid();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
 
-		Mode mode = fastestMode(date, source, destination, nextPole, availableModes);
+		Mode mode = fastestMode(date, originId, destinationId, nextFixedDestinationId, availableModes);
 
 
-		float opportunity = this.impedance.getOpportunities(activityType, destination);
+		float opportunity = this.impedance.getOpportunities(activityType, destinationId);
 		double log_opportunity = Math.log(OPPORTUNITY_OFFSET + opportunity);
 
-		float time_next = this.impedance.getTravelTime(source, destination, mode, date);
-		float time_pole = this.impedance.getTravelTime(destination, nextPole, mode, date);
+		float time_next = this.impedance.getTravelTime(originId, destinationId, mode, date);
+		float time_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, mode, date);
 
 
 
@@ -163,9 +164,9 @@ public class DestinationChoiceModelTime
 
 	protected Mode fastestMode(
 		Time date,
-		int sourceZoneOid, 
-		int targetZoneOid,
-		int nextPoleOid,
+		ZoneId origin, 
+		ZoneId destination,
+		ZoneId nextFixedDestination,
 		Set<Mode> availableModes
 	) {
 
@@ -173,8 +174,8 @@ public class DestinationChoiceModelTime
 
 		for (Mode mode : availableModes) {
 
-			float time_next = this.impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, date);
-			float time_pole = this.impedance.getTravelTime(targetZoneOid, nextPoleOid, mode, date);
+			float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
+			float time_pole = this.impedance.getTravelTime(destination, nextFixedDestination, mode, date);
 
 			travelTime.put(time_next + time_pole,mode);
 		}

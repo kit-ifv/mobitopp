@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -40,12 +41,12 @@ public class DefaultTripFactory implements TripFactory {
     assert previousActivity.isLocationSet();
     assert nextActivity.isLocationSet();
 
-    int sourceZoneOid = previousActivity.zone().getOid();
-    int targetZoneOid = nextActivity.zone().getOid();
+    ZoneId originId = previousActivity.zone().getInternalId();
+    ZoneId destinationId = nextActivity.zone().getInternalId();
 
     Time plannedEnd = previousActivity.calculatePlannedEndDate();
 
-    int duration = (int) impedance.getTravelTime(sourceZoneOid, targetZoneOid, mode, plannedEnd);
+    int duration = (int) impedance.getTravelTime(originId, destinationId, mode, plannedEnd);
 
     if (duration > java.lang.Short.MAX_VALUE) {
       System.out.println("WARNING: duration > java.lang.Short.MAX_VALUE");

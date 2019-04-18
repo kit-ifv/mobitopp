@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceSchaufenster;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceUtility;
@@ -36,8 +35,7 @@ public class SimulationSLIS extends Simulation {
 	protected DemandSimulator simulator() {
 		ModeAvailabilityModel modeAvailabilityModel = new ModeAvailabilityModelAddingCarsharing(
 				impedance());
-		DestinationChoiceModel targetSelector = destinationChoiceModel(impedance(), modeAvailabilityModel,
-				zoneRepository());
+    DestinationChoiceModel targetSelector = destinationChoiceModel(impedance(), modeAvailabilityModel);
 		ModeChoiceModel modeSelector = modeChoiceModel(impedance(), modeAvailabilityModel);
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
 		ReschedulingStrategy rescheduling = new ReschedulingSkipTillHome(context().simulationDays());
@@ -59,8 +57,7 @@ public class SimulationSLIS extends Simulation {
 	}
 
 	private DestinationChoiceModel destinationChoiceModel(
-			ImpedanceIfc impedance, ModeAvailabilityModel modeAvailabilityModel,
-			ZoneRepository zoneRepository) {
+			ImpedanceIfc impedance, ModeAvailabilityModel modeAvailabilityModel) {
 		Map<String, String> destinationChoiceFiles = context().configuration().getDestinationChoice();
 		DestinationAndModeChoiceUtility utility1 = new DestinationAndModeChoiceUtilitySchaufenster(
 				impedance, destinationChoiceFiles.get("work"));
@@ -126,8 +123,8 @@ public class SimulationSLIS extends Simulation {
 		utilityFunctions.put(ActivityType.LEISURE_OTHER, utility53);
 		utilityFunctions.put(ActivityType.LEISURE_WALK, utility77);
 
-		DestinationAndModeChoiceSchaufenster destinationModeModel = new DestinationAndModeChoiceSchaufenster(
-				zoneRepository.zones(), modeAvailabilityModel, utilityFunctions);
+    DestinationAndModeChoiceSchaufenster destinationModeModel = new DestinationAndModeChoiceSchaufenster(
+        modeAvailabilityModel, utilityFunctions);
 
 		return new DestinationChoiceWithFixedLocations(zoneRepository().zones(),
 				new SimpleRepeatedDestinationChoice(zoneRepository().zones(), destinationModeModel,

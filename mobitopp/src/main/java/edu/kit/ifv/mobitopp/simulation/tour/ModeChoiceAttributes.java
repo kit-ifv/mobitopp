@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -41,17 +42,17 @@ public class ModeChoiceAttributes {
 	
 			ActivityIfc mainActivity = tour.mainActivity();
 	
-			int source = person.homeZone().getOid();
+			ZoneId origin = person.homeZone().getInternalId();
 			
 			assert tour.mainActivity().isLocationSet() || tour instanceof Subtour;
 			assert tour.mainActivity().isLocationSet() || tour.firstActivity().isLocationSet();
 			
-			int target = tour.mainActivity().zone().getOid();
+			ZoneId destination = tour.mainActivity().zone().getInternalId();
 	
 			Time date = tour.mainActivity().startDate();
 			Household hh = person.household();
 	
-			double distance 		= Math.max(0.1, impedance.getDistance(source, target)/1000.0);
+			double distance 		= Math.max(0.1, impedance.getDistance(origin, destination)/1000.0);
 	
 			assert !Double.isNaN(distance);
 			assert distance > 0.0f;
@@ -66,7 +67,7 @@ public class ModeChoiceAttributes {
 	*/
 	
 			// double intrazonal = source == target || distance <= 1.7f ? 1 : 0;
-			double intrazonal = source == target || distance <= 1.0f ? 1 : 0;
+			double intrazonal = origin == destination || distance <= 1.0f ? 1 : 0;
 			// double intrazonal = source == target ? 1 : 0;
 	
 			double commuting_ticket = person.hasCommuterTicket() ? 1 : 0;
@@ -288,10 +289,10 @@ public class ModeChoiceAttributes {
 	
 				Map<String,Double> attrib = new LinkedHashMap<String,Double>(attributes);
 	
-				double time 	= impedance.getTravelTime(source, target, mode, date);
+				double time 	= impedance.getTravelTime(origin, destination, mode, date);
 	
 				double cost 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
-													: impedance.getTravelCost(source, target, mode, date);
+													: impedance.getTravelCost(origin, destination, mode, date);
 	
 	
 				attrib.put("DISTANCE_KM", distance);

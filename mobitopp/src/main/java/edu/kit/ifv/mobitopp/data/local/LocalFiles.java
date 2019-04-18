@@ -18,6 +18,7 @@ import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.FileMatrixConfiguration;
@@ -145,7 +146,7 @@ public class LocalFiles implements DataSource {
 
 	private DemandDataFolder demandDataFolder(ZoneRepository zoneRepository, int numberOfZones)
 			throws IOException {
-		Map<Integer, Zone> mapping = new LocalZoneLoader(zoneRepository).mapZones(numberOfZones);
+		Map<ZoneId, Zone> mapping = new LocalZoneLoader(zoneRepository).mapZones(numberOfZones);
 		ZoneRepository zonesToSimulate = new LocalZoneRepository(mapping);
 		return DemandDataFolder.at(this.demandDataFolder, zoneRepository, zonesToSimulate);
 	}

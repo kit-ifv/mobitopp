@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.MockedZones;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -98,14 +99,15 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 
 	@Test
 	public void testImpedance() {
+	  ZoneId zoneId = new ZoneId("11", 1);
 
 		assertNotNull(impedance);
 
-		assertEquals(1.0, impedance.getTravelTime(-1,-1,null,null), EPSILON);
-		assertEquals(2.0, impedance.getTravelCost(-1,-1,null,null), EPSILON);
-		assertEquals(3.0, impedance.getDistance(-1,-1), EPSILON);
-		assertEquals(4.0, impedance.getParkingCost(-1,null), EPSILON);
-		assertEquals(5.0, impedance.getParkingStress(-1,null), EPSILON);
+    assertEquals(1.0, impedance.getTravelTime(zoneId,zoneId,null,null), EPSILON);
+		assertEquals(2.0, impedance.getTravelCost(zoneId,zoneId,null,null), EPSILON);
+		assertEquals(3.0, impedance.getDistance(zoneId,zoneId), EPSILON);
+		assertEquals(4.0, impedance.getParkingCost(zoneId,null), EPSILON);
+		assertEquals(5.0, impedance.getParkingStress(zoneId,null), EPSILON);
 	}
 
 	@Test
@@ -131,7 +133,8 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 		assertTrue(person.hasCommuterTicket());
 		assertFalse(person_noTicket.hasCommuterTicket());
 
-		assertEquals(2.0, impedance.getTravelCost(0,0, Mode.PUBLICTRANSPORT, (Time)null), EPSILON);
+		ZoneId zoneId = new ZoneId("0", 0);
+    assertEquals(2.0, impedance.getTravelCost(zoneId,zoneId, Mode.PUBLICTRANSPORT, (Time)null), EPSILON);
 
 		modes.add(Mode.PUBLICTRANSPORT);
 

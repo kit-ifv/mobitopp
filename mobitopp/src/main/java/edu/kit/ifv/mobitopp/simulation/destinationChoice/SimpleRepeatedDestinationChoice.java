@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -21,11 +22,11 @@ public class SimpleRepeatedDestinationChoice
 
 	protected TargetChoiceRepetitionParameter2 targetParameter;
 	protected DestinationChoiceModelChoiceSet destinationChoiceModel;
-	protected final Map<Integer,Zone> zones;
+	protected final Map<ZoneId, Zone> zones;
 	private final CommunityTypeMapping typeMapping;
 
 	public SimpleRepeatedDestinationChoice(
-		Map<Integer,Zone> zones,
+		Map<ZoneId, Zone> zones,
 		DestinationChoiceModelChoiceSet destinationChoiceModel,
 		String parameterFile 
 	) {
@@ -40,10 +41,10 @@ public class SimpleRepeatedDestinationChoice
 
 
 
-	private Set<Zone> zonesFromIds(Collection<Integer> ids) {
+	private Set<Zone> zonesFromIds(Collection<ZoneId> ids) {
 		Set<Zone> result = new LinkedHashSet<Zone>();
 
-		for(Integer id : ids) {
+		for(ZoneId id : ids) {
 			result.add(this.zones.get(id));
 		}
 
@@ -69,7 +70,7 @@ public class SimpleRepeatedDestinationChoice
 
 		Zone zone;
 
-		Set<Integer> visitedZonesOids = person.activitySchedule().alreadyVisitedZonesByActivityType(nextActivity);
+		Set<ZoneId> visitedZonesOids = person.activitySchedule().alreadyVisitedZonesByActivityType(nextActivity);
 		Set<Zone> visitedZones = zonesFromIds(visitedZonesOids);
 
 		if (selectNewDestination) {

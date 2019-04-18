@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -429,24 +430,24 @@ class ModeChoiceParameterSimple implements ModeChoiceParameter {
 	public Map<Mode,Map<String,Double>> gatherAttributes(
 		Person person,
 		Set<Mode> modes,
-		Zone sourceZone,
-		Zone targetZone,
+		Zone origin,
+		Zone destination,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
 		ImpedanceIfc impedance
 	) {
 
-		int source = sourceZone.getOid();
-		int target = targetZone.getOid();
+		ZoneId originId = origin.getInternalId();
+		ZoneId destinationId = destination.getInternalId();
 
 		Time date = nextActivity.startDate();
 
-		double distance 		= Math.max(0.1, impedance.getDistance(source, target)/1000.0);
+		double distance 		= Math.max(0.1, impedance.getDistance(originId, destinationId)/1000.0);
 
 		assert !Double.isNaN(distance);
 		assert distance > 0.0f;
 
-		double intrazonal = source == target || distance <= 1.0f ? 1 : 0;
+		double intrazonal = originId == destinationId || distance <= 1.0f ? 1 : 0;
 
 		double commuting_ticket = person.hasCommuterTicket() ? 1 : 0;
 
@@ -551,10 +552,10 @@ class ModeChoiceParameterSimple implements ModeChoiceParameter {
 
 			Map<String,Double> attrib = new LinkedHashMap<String,Double>(attributes);
 
-			double time_km 	= impedance.getTravelTime(source, target, mode, date)/distance;
+			double time_km 	= impedance.getTravelTime(originId, destinationId, mode, date)/distance;
 
 			double cost_km 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
-												: impedance.getTravelCost(source, target, mode, date)/distance;
+												: impedance.getTravelCost(originId, destinationId, mode, date)/distance;
 
 
 		 	attrib.put("TIME_KM", 		time_km);

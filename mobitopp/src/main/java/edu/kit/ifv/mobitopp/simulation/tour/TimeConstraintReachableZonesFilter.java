@@ -74,8 +74,8 @@ public class TimeConstraintReachableZonesFilter
 					assert currentZone != null;
 					assert destination != null;
 
-					double time = this.impedance.getTravelTime(currentZone, destination, mode, date)
-									+ this.impedance.getTravelTime(destination, nextFixedZone, mode, date) ;
+					double time = this.impedance.getTravelTime(currentZone.getInternalId(), destination.getInternalId(), mode, date)
+									+ this.impedance.getTravelTime(destination.getInternalId(), nextFixedZone.getInternalId(), mode, date) ;
 
 					if (time < Math.max(maxTravelTimeInMinutes, 0)*timeScalingFactor + timeOffset) {
 						

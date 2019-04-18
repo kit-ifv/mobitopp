@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.data;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class ZoneId implements Serializable {
+public class ZoneId implements Comparable<ZoneId>, Serializable {
 
   private static final long serialVersionUID = 1L;
   private final static int UNDEFINED_OID = -1;
@@ -22,14 +22,19 @@ public class ZoneId implements Serializable {
   public int getMatrixColumn() {
     return matrixColumn;
   }
-  
+
   public String getExternalId() {
     return externalId;
   }
 
   @Override
+  public int compareTo(ZoneId other) {
+    return matrixColumn - other.matrixColumn;
+  }
+
+  @Override
   public int hashCode() {
-    return Objects.hash(externalId, matrixColumn);
+    return Objects.hash(matrixColumn);
   }
 
   @Override
@@ -41,7 +46,7 @@ public class ZoneId implements Serializable {
     if (getClass() != obj.getClass())
       return false;
     ZoneId other = (ZoneId) obj;
-    return Objects.equals(externalId, other.externalId) && matrixColumn == other.matrixColumn;
+    return matrixColumn == other.matrixColumn;
   }
 
   @Override

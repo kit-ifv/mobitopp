@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -88,7 +89,10 @@ public class FeasibleModesWithTimeRestrictions implements FeasibleModesModel {
 		
 		for(Mode mode : choiceSet) {
 			
-			double time 	= this.impedance.getTravelTime(origin.getOid(), destination.getOid(), mode, endOfPreviousActivity);
+			ZoneId originId = origin.getInternalId();
+      ZoneId destinationId = destination.getInternalId();
+      double time = this.impedance
+          .getTravelTime(originId, destinationId, mode, endOfPreviousActivity);
 			
 			if (time <= fastestTravelTime) {
 	

@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
@@ -445,15 +446,15 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		return 1+cnt;
 	}
 
-	public Set<Integer> alreadyVisitedZonesByActivityType(ActivityIfc activity) {
+	public Set<ZoneId> alreadyVisitedZonesByActivityType(ActivityIfc activity) {
 
-		TreeSet<Integer> zones = new TreeSet<Integer>();
+		TreeSet<ZoneId> zones = new TreeSet<>();
 
 		for (ActivityIfc act = firstActivity(); act != activity; act = nextActivity(act)) {
 
       if ( act.activityType() == activity.activityType() && act.isLocationSet() ) {
 
-        zones.add(act.zone().getOid());
+        zones.add(act.zone().getInternalId());
       }
 
 		}

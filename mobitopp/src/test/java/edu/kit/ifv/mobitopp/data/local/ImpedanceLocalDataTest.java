@@ -17,6 +17,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.CostMatrix;
 import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
@@ -27,8 +28,10 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class ImpedanceLocalDataTest {
 
-	private static final int source = 1;
-	private static final int target = 2;
+  private static final int originOid = 1;
+  private static final int destinationOid = 2;
+  private static final ZoneId origin = new ZoneId("1", originOid);
+	private static final ZoneId destination = new ZoneId("2", destinationOid);
 	private static final Time date = Data.someTime();
 	private static final Location sourceLocation = null;
 	private static final Location targetLocation = null;
@@ -51,7 +54,7 @@ public class ImpedanceLocalDataTest {
 		matrices = mock(Matrices.class);
 		zoneRepository = mock(ZoneRepository.class);
 		zone = mock(Zone.class);
-		when(zoneRepository.getZoneByOid(source)).thenReturn(zone);
+		when(zoneRepository.getZoneById(origin)).thenReturn(zone);
 		initialiseMatrices();
 		impedance = new ImpedanceLocalData(matrices, zoneRepository, date);
 	}
@@ -72,26 +75,26 @@ public class ImpedanceLocalDataTest {
 	}
 
 	private TravelTimeMatrix travelTimeMatrix() {
-		TravelTimeMatrix travelTimeMatrix = new TravelTimeMatrix(asList(source, target));
-		travelTimeMatrix.set(source, target, storedTravelTime);
+		TravelTimeMatrix travelTimeMatrix = new TravelTimeMatrix(asList(originOid, destinationOid));
+		travelTimeMatrix.set(originOid, destinationOid, storedTravelTime);
 		return travelTimeMatrix;
 	}
 
 	private CostMatrix costMatrix(float cost) {
-		CostMatrix costMatrix = new CostMatrix(asList(source, target));
-		costMatrix.set(source, target, cost);
+		CostMatrix costMatrix = new CostMatrix(asList(originOid, destinationOid));
+		costMatrix.set(originOid, destinationOid, cost);
 		return costMatrix;
 	}
 	
 	private CostMatrix parkingMatrix(float cost) {
-		CostMatrix costMatrix = new CostMatrix(asList(source, target));
-		costMatrix.set(target, target, cost);
+		CostMatrix costMatrix = new CostMatrix(asList(originOid, destinationOid));
+		costMatrix.set(destinationOid, destinationOid, cost);
 		return costMatrix;
 	}
 	
 	@Test
 	public void getTravelTime() {
-		float travelTime = impedance.getTravelTime(source, target, mode, date);
+		float travelTime = impedance.getTravelTime(origin, destination, mode, date);
 		
 		assertThat(travelTime, is(equalTo(storedTravelTime)));
 
@@ -108,9 +111,9 @@ public class ImpedanceLocalDataTest {
 	
 	@Test
 	public void noCostForBikePassengerAndPedestrian() {
-		float bikeCost = impedance.getTravelCost(source, target, Mode.BIKE, date);
-		float passangerCost = impedance.getTravelCost(source, target, Mode.PASSENGER, date);
-		float pedestrianCost = impedance.getTravelCost(source, target, Mode.PEDESTRIAN, date);
+		float bikeCost = impedance.getTravelCost(origin, destination, Mode.BIKE, date);
+		float passangerCost = impedance.getTravelCost(origin, destination, Mode.PASSENGER, date);
+		float pedestrianCost = impedance.getTravelCost(origin, destination, Mode.PEDESTRIAN, date);
 		
 		assertThat(bikeCost, is(equalTo(0.0f)));
 		assertThat(passangerCost, is(equalTo(0.0f)));
@@ -119,7 +122,7 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getTravelCost() {
-		float travelCost = impedance.getTravelCost(source, target, mode, date);
+		float travelCost = impedance.getTravelCost(origin, destination, mode, date);
 		
 		assertThat(travelCost, is(cost));
 
@@ -128,7 +131,7 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getDistance() {
-		float travelDistance = impedance.getDistance(source, target);
+		float travelDistance = impedance.getDistance(origin, destination);
 		
 		assertThat(travelDistance, is(equalTo(distance)));
 
@@ -137,7 +140,7 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getParkingCost() {
-		float parkingCost = impedance.getParkingCost(target, date);
+		float parkingCost = impedance.getParkingCost(destination, date);
 		
 		assertThat(parkingCost, is(equalTo(storedParkingCost)));
 
@@ -146,7 +149,7 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getParkingStress() {
-		float parkingStress = impedance.getParkingStress(target, date);
+		float parkingStress = impedance.getParkingStress(destination, date);
 		
 		assertThat(parkingStress, is(equalTo(storedParkingStress)));
 
@@ -155,7 +158,7 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getConstant() {
-		float constant = impedance.getConstant(source, target, date);
+		float constant = impedance.getConstant(origin, destination, date);
 
 		assertThat(constant, is(equalTo(storedConstant)));
 		
@@ -164,9 +167,9 @@ public class ImpedanceLocalDataTest {
 
 	@Test
 	public void getOpportunities() {
-		impedance.getOpportunities(activityType, source);
+		impedance.getOpportunities(activityType, origin);
 
-		verify(zoneRepository).getZoneByOid(source);
+		verify(zoneRepository).getZoneById(origin);
 		verify(zone).getAttractivity(activityType);
 	}
 }

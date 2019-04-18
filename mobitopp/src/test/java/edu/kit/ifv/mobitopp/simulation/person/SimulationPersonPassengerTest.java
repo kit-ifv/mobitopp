@@ -329,7 +329,8 @@ public class SimulationPersonPassengerTest {
     Location destinationLocation = otherLocation();
     when(nextActivity.location()).thenReturn(destinationLocation);
     when(nextActivity.isLocationSet()).thenReturn(true);
-    when(impedance.getTravelTime(zone, zone, mode, startDate)).thenReturn(plannedDuration);
+    when(impedance.getTravelTime(zone.getInternalId(), zone.getInternalId(), mode, startDate))
+        .thenReturn(plannedDuration);
     when(tripFactory.createTrip(person, impedance, mode, firstActivity, nextActivity))
         .thenReturn(mockedTrip);
 

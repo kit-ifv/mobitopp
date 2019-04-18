@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -321,7 +322,7 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		Person person,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
-		Zone sourceZone,
+		Zone origin,
 		Map<Zone,Set<Mode>> availableModes
 	) {
 	 	Map<Zone,Double> utilities = new LinkedHashMap<Zone,Double>();
@@ -340,33 +341,33 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 																											person,
 																											previousActivity,
 																											nextActivity,
-																											sourceZone,
+																											origin,
 																											possibleDestination,
 																											ignore_miv_constant
 																										);
 
 				double logsum = calculateLogSum(nestUtilities);
 
-				int source = sourceZone.getOid();
-				int destination = possibleDestination.getOid();
+				ZoneId originId = origin.getInternalId();
+				ZoneId destinationId = possibleDestination.getInternalId();
 
 				ActivityType activityType = nextActivity.activityType();
 
-				int nextPole = person.nextFixedActivityZone(nextActivity).getOid();
+				ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
 
 				Time date = nextActivity.startDate();
 				Time nextDate = nextActivity.calculatePlannedEndDate();
 
-				float opportunities = this.impedance.getOpportunities(activityType, destination);
-				float log_opportunities = (float) Math.log(this.impedance.getOpportunities(activityType, destination));
+				float opportunities = this.impedance.getOpportunities(activityType, destinationId);
+				float log_opportunities = (float) Math.log(this.impedance.getOpportunities(activityType, destinationId));
 
 				assert !Float.isNaN(log_opportunities);
 
-				float time_h_car 	= this.impedance.getTravelTime(source, destination, Mode.CAR, date)/60.0f;
-				float time_h_car_pole	= this.impedance.getTravelTime(destination, nextPole, Mode.CAR, nextDate)/60.0f;
+				float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, Mode.CAR, date)/60.0f;
+				float time_h_car_pole	= this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.CAR, nextDate)/60.0f;
 
-				float distance 				= (float) Math.max(0.0, this.impedance.getDistance(source, destination)/1000.0);
-				float distance_pole 	= (float) Math.max(0.0, this.impedance.getDistance(destination, nextPole)/1000.0);
+				float distance 				= (float) Math.max(0.0, this.impedance.getDistance(originId, destinationId)/1000.0);
+				float distance_pole 	= (float) Math.max(0.0, this.impedance.getDistance(destinationId, nextFixedDestinationId)/1000.0);
 
 
 
@@ -452,23 +453,23 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		Person person,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
-		Zone sourceZone, 
-		Zone destinationZone,
+		Zone origin, 
+		Zone destination,
 		Set<Mode> choiceSetForModes, 
 		boolean ignoreMIVconstant
 	) {
 
-		int source = sourceZone.getOid();
-		int destination = destinationZone.getOid();
+		ZoneId originId = origin.getInternalId();
+		ZoneId destinationId = destination.getInternalId();
 
 		Time currentTime = previousActivity.startDate();
 		Time date = nextActivity.startDate();
 		Time nextDate = nextActivity.calculatePlannedEndDate();
 		Household household = person.household();
 
-		int nextPole = person.nextFixedActivityZone(nextActivity).getOid();
+		ZoneId nextFixedDestinationId = person.nextFixedActivityZone(nextActivity).getInternalId();
 
-		int home = person.household().homeZone().getOid();
+		ZoneId home = person.household().homeZone().getInternalId();
 
 		ActivityIfc nextHomeActivity = person.nextHomeActivity();
 		Time startOfNextHomeActivity = nextHomeActivity.startDate() ;
@@ -488,12 +489,12 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 
 		int commticket_true			= person.hasCommuterTicket() ? 1 : 0; // c_zk
 
-		float parkingstress_source 	= this.impedance.getParkingStress(source, date);
-		float parkingstress 				= this.impedance.getParkingStress(destination, date);
+		float parkingstress_source 	= this.impedance.getParkingStress(originId, date);
+		float parkingstress 				= this.impedance.getParkingStress(destinationId, date);
 
-		float distance 						= (float) Math.max(0.0, this.impedance.getDistance(source, destination)/1000.0);
-		float distance_pole 			= (float) Math.max(0.0, this.impedance.getDistance(destination, nextPole)/1000.0);
-		float distance_pole_home	= (float) Math.max(0.0, this.impedance.getDistance(nextPole, home)/1000.0);
+		float distance 						= (float) Math.max(0.0, this.impedance.getDistance(originId, destinationId)/1000.0);
+		float distance_pole 			= (float) Math.max(0.0, this.impedance.getDistance(destinationId, nextFixedDestinationId)/1000.0);
+		float distance_pole_home	= (float) Math.max(0.0, this.impedance.getDistance(nextFixedDestinationId, home)/1000.0);
 		// Distance related parameters in km
 
 		float tourDistanceKm = distance + distance_pole + distance_pole_home;
@@ -512,38 +513,38 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		float time_h_till_home = startOfNextHomeActivity.differenceTo(currentTime).toHours();
 
 
-		float time_h_car 	= this.impedance.getTravelTime(source, destination, Mode.CAR, date)/60.0f;
+		float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, Mode.CAR, date)/60.0f;
 
-		float time_h_walk = this.impedance.getTravelTime(source, destination, Mode.PEDESTRIAN, date)/60.0f;
+		float time_h_walk = this.impedance.getTravelTime(originId, destinationId, Mode.PEDESTRIAN, date)/60.0f;
 
-		float time_h_pt 	= this.impedance.getTravelTime(source, destination, Mode.PUBLICTRANSPORT, date)/60.0f;
+		float time_h_pt 	= this.impedance.getTravelTime(originId, destinationId, Mode.PUBLICTRANSPORT, date)/60.0f;
 
-		float time_h_pass = this.impedance.getTravelTime(source, destination, Mode.PASSENGER, date)/60.0f;
+		float time_h_pass = this.impedance.getTravelTime(originId, destinationId, Mode.PASSENGER, date)/60.0f;
 
-		float time_h_bike = this.impedance.getTravelTime(source, destination, Mode.BIKE, date)/60.0f;
-		float time_h_bike_pole = this.impedance.getTravelTime(destination, nextPole, Mode.BIKE, nextDate)/60.0f;
+		float time_h_bike = this.impedance.getTravelTime(originId, destinationId, Mode.BIKE, date)/60.0f;
+		float time_h_bike_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.BIKE, nextDate)/60.0f;
 
 		float time_h_pedelec = time_h_bike / 1.2f;
 
 		float time_h_bikesharing = time_h_bike +(5.0f-parkingstress_source/5.0f) + (5.0f-parkingstress/5.0f);
 
-		float time_h_cs_station = this.impedance.getTravelTime(source, destination, Mode.CARSHARING_STATION, date)/60.0f;
-		float time_h_cs_station_pole = this.impedance.getTravelTime(destination, nextPole, Mode.CARSHARING_STATION, nextDate)/60.0f;
+		float time_h_cs_station = this.impedance.getTravelTime(originId, destinationId, Mode.CARSHARING_STATION, date)/60.0f;
+		float time_h_cs_station_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.CARSHARING_STATION, nextDate)/60.0f;
 
-		float time_h_cs_free = this.impedance.getTravelTime(source, destination, Mode.CARSHARING_FREE, date)/60.0f;
+		float time_h_cs_free = this.impedance.getTravelTime(originId, destinationId, Mode.CARSHARING_FREE, date)/60.0f;
 
 		// Time related parameters in h
 
-		float cost_car 	= this.impedance.getTravelCost(source, destination, Mode.CAR, date);
-		float cost_car_pole  = this.impedance.getTravelCost(destination, nextPole, Mode.CAR, nextDate);
+		float cost_car 	= this.impedance.getTravelCost(originId, destinationId, Mode.CAR, date);
+		float cost_car_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CAR, nextDate);
 
 		float cost_walk = 0.0f;
 		float cost_walk_pole = 0.0f;
 
 		float cost_pt 	= commticket_true==1 ? 0.0f
-																: this.impedance.getTravelCost(source, destination, Mode.PUBLICTRANSPORT, date);
+																: this.impedance.getTravelCost(originId, destinationId, Mode.PUBLICTRANSPORT, date);
 		float cost_pt_pole   = commticket_true==1 ? 0.0f
-																: this.impedance.getTravelCost(destination, nextPole, Mode.PUBLICTRANSPORT, nextDate);
+																: this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.PUBLICTRANSPORT, nextDate);
 
 		float cost_pass = use_car_cost_as_passenger_cost ? 
 												USE_CAR_COST_AS_PASSENGER_COST_SCALING_FACTOR.floatValue()*cost_car : 0.0f;
@@ -560,13 +561,13 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		float cost_bikesharing_pole = 0.08f*60f*time_h_bike_pole;
 
 
-		float cost_cs_station 	= this.impedance.getTravelCost(source, destination, Mode.CARSHARING_STATION, date);
-		float cost_cs_station_pole  = this.impedance.getTravelCost(destination, nextPole, Mode.CARSHARING_STATION, nextDate);
+		float cost_cs_station 	= this.impedance.getTravelCost(originId, destinationId, Mode.CARSHARING_STATION, date);
+		float cost_cs_station_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CARSHARING_STATION, nextDate);
 		float cost_cs_station_standing = Math.max(0.0f, time_h_till_home - time_h_cs_station - time_h_cs_station_pole)
 																			* ImpedanceCarSharing.CARSHARING_COST_STATION_BASED_EUR_PER_HOUR;
 
-		float cost_cs_free 	= this.impedance.getTravelCost(source, destination, Mode.CARSHARING_FREE, date);
-		float cost_cs_free_pole  = this.impedance.getTravelCost(destination, nextPole, Mode.CARSHARING_FREE, nextDate);
+		float cost_cs_free 	= this.impedance.getTravelCost(originId, destinationId, Mode.CARSHARING_FREE, date);
+		float cost_cs_free_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CARSHARING_FREE, nextDate);
 
 
 
@@ -588,10 +589,10 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 			|| ePerson.chargingInfluencesDestinantionChoice() == EmobilityPerson.PublicChargingInfluencesDestinationChoice.ONLY_WHEN_BATTERY_LOW)
 				? 1 : 0;
 
-		int freeChargingPoints = destinationZone.charging().numberOfAvailableChargingPoints();
+		int freeChargingPoints = destination.charging().numberOfAvailableChargingPoints();
 
 		int kurzweg = distance <= 1.0f ? 1 : 0;
-		int intrazonal = source==destination ? 1 : 0;
+		int intrazonal = originId==destinationId ? 1 : 0;
 
 		float income1000Eur = household.monthlyIncomeEur() / 1000.0f;
 

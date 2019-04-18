@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -18,7 +19,7 @@ public class AttractivityCalculatorCostNextPole
 
 
 	public AttractivityCalculatorCostNextPole(
-		Map<Integer,Zone> zones,
+		Map<ZoneId, Zone> zones,
 		ImpedanceIfc impedance,
 		String filename, 
 		float poleSensitivity
@@ -31,15 +32,15 @@ public class AttractivityCalculatorCostNextPole
 	protected float calculateImpedance(
 		Person person,
 		ActivityIfc nextActivity,
-		int sourceZoneOid, 
-		int targetZoneOid,
+		ZoneId origin, 
+		ZoneId destination,
 		Set<Mode> choiceSetForModes
 	) {
 		ActivityIfc previousActivity  = person.activitySchedule().prevActivity(nextActivity);
 
 		ActivityType activityType = nextActivity.activityType();
 		DayOfWeek weekday = nextActivity.startDate().weekDay();
-		int nextPoleOid = person.nextFixedActivityZone(nextActivity).getOid();
+		ZoneId nextFixedDestination = person.nextFixedActivityZone(nextActivity).getInternalId();
 
 		Time startDate = previousActivity.calculatePlannedEndDate();
 
@@ -52,12 +53,12 @@ public class AttractivityCalculatorCostNextPole
 			float time_coeff = getParameterTime(activityType, weekday);
 			float cost_coeff = getParameterCost(activityType, weekday);
 
-			float time_next = getTravelTime(mode,sourceZoneOid, targetZoneOid, startDate);
-			float cost_next = getTravelCost(mode,sourceZoneOid, targetZoneOid, startDate, commutationTicket)
-												+ getParkingCost(mode, targetZoneOid, startDate, nextActivity.duration());
+			float time_next = getTravelTime(mode,origin, destination, startDate);
+			float cost_next = getTravelCost(mode,origin, destination, startDate, commutationTicket)
+												+ getParkingCost(mode, destination, startDate, nextActivity.duration());
 
-			float time_pole = getTravelTime(mode, targetZoneOid, nextPoleOid, startDate);
-			float cost_pole = getTravelCost(mode, targetZoneOid, nextPoleOid, startDate, commutationTicket);
+			float time_pole = getTravelTime(mode, destination, nextFixedDestination, startDate);
+			float cost_pole = getTravelCost(mode, destination, nextFixedDestination, startDate, commutationTicket);
 
 			float income = person.getIncome();
 

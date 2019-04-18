@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -463,8 +464,8 @@ public class ModeSelectorParameterFirstTrip
 	public Map<Mode,Map<String,Double>> gatherAttributes(
 		Person person,
 		Set<Mode> modes,
-		Zone sourceZone,
-		Zone targetZone,
+		Zone origin,
+		Zone destination,
 		ActivityIfc previousActivity,
 		ActivityIfc nextActivity,
 		ImpedanceIfc impedance
@@ -473,12 +474,10 @@ public class ModeSelectorParameterFirstTrip
 		Time date = nextActivity.startDate();
 		Household hh = person.household();
 
-		int homeZone = hh.homeZone().getOid();
-
-		int poleZone = person.fixedActivityZone().getOid();
-
-		int source = sourceZone.getOid();
-		int target = targetZone.getOid();
+		ZoneId homeZone = hh.homeZone().getInternalId();
+		ZoneId poleZone = person.fixedActivityZone().getInternalId();
+		ZoneId originId = origin.getInternalId();
+		ZoneId destinationId = destination.getInternalId();
 
 		double caravailable_part = !person.hasPersonalCar() && person.hasAccessToCar() ? 1 : 0;
 		double caravailable_true = person.hasPersonalCar() ? 1 : 0;  // personal car
@@ -524,9 +523,9 @@ public class ModeSelectorParameterFirstTrip
 
 
 
-		double parkingpressure 	= impedance.getParkingStress(target, date);
+		double parkingpressure 	= impedance.getParkingStress(destinationId, date);
 		double distance 					= (float) Math.max(0.1,
-																						impedance.getDistance(source, target)/1000.0);
+																						impedance.getDistance(originId, destinationId)/1000.0);
 		double commutingdistance = impedance.getDistance(homeZone, poleZone)/1000.0f;
 
 		double shorttrip = distance <= 1.3 ? 1.0f : 0.0f;
@@ -582,10 +581,10 @@ public class ModeSelectorParameterFirstTrip
 
 			Map<String,Double> attrib = new LinkedHashMap<String,Double>(attributes);
 
-			double time 	= impedance.getTravelTime(source, target, mode, date);
+			double time 	= impedance.getTravelTime(originId, destinationId, mode, date);
 
 			double cost_km 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
-												: impedance.getTravelCost(source, target, mode, date)/distance;
+												: impedance.getTravelCost(originId, destinationId, mode, date)/distance;
 
 		 	attrib.put("TIME", 		time);
 			attrib.put("COST_KM", cost_km);
