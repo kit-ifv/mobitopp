@@ -16,13 +16,4 @@ public class ZoneTest {
     
     assertThat(someZone.getId(), is(equalTo(id)));
   }
-  
-  @Test
-  void getOid() throws Exception {
-    int oid = 1;
-    String id = "Z12";
-    Zone someZone = ExampleZones.zoneWithId(id, oid);
-    
-    assertThat(someZone.getOid(), is(equalTo(oid)));
-  }
 }

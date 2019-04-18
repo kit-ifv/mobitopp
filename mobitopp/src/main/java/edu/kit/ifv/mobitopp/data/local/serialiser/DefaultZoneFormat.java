@@ -23,7 +23,7 @@ import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 
 public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
-	private static final int oidIndex = 0;
+	private static final int matrixColumnIndex = 0;
 	private static final int idIndex = 1;
 	private static final int nameIndex = 2;
 	private static final int areaTypeIndex = 3;
@@ -47,14 +47,14 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
 	@Override
 	public List<String> header() {
-    return asList("oid", "id", "name", "areaType", "regionType", "classification", "parkingPlaces",
+    return asList("matrixColumn", "id", "name", "areaType", "regionType", "classification", "parkingPlaces",
         "centroidLocation");
 	}
 
 	@Override
 	public List<String> prepare(Zone zone) {
-		return asList(valueOf(zone.getOid()), 
-				zone.getId(),
+		return asList(valueOf(zone.getInternalId().getMatrixColumn()), 
+				zone.getInternalId().getExternalId(),
 				zone.getName(),
 				valueOf(zone.getAreaType().getTypeAsInt()),
 				valueOf(zone.getRegionType().code()),
@@ -82,7 +82,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	}
 
   private int oidOf(List<String> data) {
-		String oid = data.get(oidIndex);
+		String oid = data.get(matrixColumnIndex);
 		return Integer.parseInt(oid);
 	}
 

@@ -48,7 +48,7 @@ public class DemographyCsvTest {
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseActual(results);
 
-    String content = "1;0;0;0;0;0;0\r\n" + "2;0;0;0;0;0;0\r\n";
+    String content = "1;1;0;0;0;0;0;0\r\n" + "2;2;0;0;0;0;0;0\r\n";
     verify(results).accept(content);
   }
 
@@ -58,7 +58,7 @@ public class DemographyCsvTest {
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseNominal(results);
 
-    String content = "1;2;3;4;2;2;1\r\n" + "2;2;3;4;2;2;1\r\n";
+    String content = "1;1;2;3;4;2;2;1\r\n" + "2;2;2;3;4;2;2;1\r\n";
     verify(results).accept(content);
   }
 }

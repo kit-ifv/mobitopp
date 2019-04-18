@@ -54,6 +54,10 @@ public class IntegerMatrix
 
     return this.matrix[row-1][column-1];
   }
+  
+  public float get(ZoneId origin, ZoneId destination) {
+    return get(origin.getMatrixColumn(), destination.getMatrixColumn());
+  }
 
   public void set(int row, int column, Integer value)
   {
@@ -67,5 +71,9 @@ public class IntegerMatrix
 
 		set(row, column, get(row, column)+1);
 	}
+
+  public void increment(ZoneId origin, ZoneId destination) {
+    increment(origin.getMatrixColumn(), destination.getMatrixColumn());
+  }
  
 }

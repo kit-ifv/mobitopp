@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
@@ -25,6 +26,7 @@ import edu.kit.ifv.mobitopp.simulation.car.ExtendedRangeElectricCar;
 
 public class ErevCarFormatTest {
 	private static final int zoneOid = 1;
+	private static final ZoneId zoneId = new ZoneId("1", zoneOid);
 
 	private Zone zone;
 	private ErevCarFormat format;
@@ -39,7 +41,7 @@ public class ErevCarFormatTest {
 		AbstractElectricCarFormat electricCarFormat = new AbstractElectricCarFormat(conventionalCarFormat);
 		format = new ErevCarFormat(electricCarFormat);
 
-		when(zone.getOid()).thenReturn(zoneOid);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 
 		original = ExampleSetup.erevCar(zone);

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
@@ -36,6 +37,7 @@ public class DefaultPrivateCarFormatTest {
   private static final int mainUserOid = 2;
   private static final int personalUserOid = 3;
   private static final int zoneOid = 4;
+  private static final ZoneId zoneId = new ZoneId("4", zoneOid);
   private static final short year = 2000;
 
   private HouseholdId householdId;
@@ -68,7 +70,7 @@ public class DefaultPrivateCarFormatTest {
     when(mainUser.getId()).thenReturn(mainUserId);
     when(personalUser.getOid()).thenReturn(personalUserOid);
     when(personalUser.getId()).thenReturn(personalUserId);
-    when(zone.getOid()).thenReturn(zoneOid);
+    when(zone.getInternalId()).thenReturn(zoneId);
     when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
     when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
     when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());

@@ -377,7 +377,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	@Override
   public void prepareTrip(ImpedanceIfc impedance, Trip trip, Time time) {
-    assert currentActivity().zone().getOid() == trip.origin().zone().getOid();
+    assert currentActivity().zone().getInternalId().equals(trip.origin().zone().getInternalId());
     trip.prepareTrip(impedance, time);
   }
 
@@ -528,17 +528,17 @@ public class SimulationPersonPassenger extends PersonDecorator
 															+ "driver: " + person().isCarDriver());
 
 			Path route = routeChoice.selectRoute(date, 
-																					getZoneId(trip.origin().zone().getOid()), 
-																					getZoneId(trip.destination().zone().getOid())
+																					getZoneId(trip.origin().zone().getInternalId()), 
+																					getZoneId(trip.destination().zone().getInternalId())
 																				);
 
 			listener.notifySelectCarRoute(person(), person().whichCar(), trip, route);
 		}
 	}
 
-	public Integer getZoneId(int zoneOid) {
+	public Integer getZoneId(ZoneId zoneId) {
 
-		return Integer.valueOf(this.zoneRepository.getZoneByOid(zoneOid).getId().substring(1));
+		return Integer.valueOf(zoneId.getExternalId().substring(1));
 	}
 
 	public void startTrip(

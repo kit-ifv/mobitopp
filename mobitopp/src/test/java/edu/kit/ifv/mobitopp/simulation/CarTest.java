@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
@@ -28,8 +29,7 @@ public class CarTest {
 	@Before
 	public void setUp() {
 		zone = mock(Zone.class);
-		when(zone.getOid()).thenReturn(1);
-		when(zone.getId()).thenReturn("dummy");
+		when(zone.getInternalId()).thenReturn(new ZoneId("1", 1));
 		position = new CarPosition(zone, new Example().location());
 		car = new ConventionalCar(new IdSequence(), position, null, 4, initialMileage, initialFuelLevel, maxRange);
 	}

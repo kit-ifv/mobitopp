@@ -97,8 +97,8 @@ public class BaseData implements TripData
 
 					String s =
 						"TRIP: "
-						+ origin.zone.getOid() + "; "	
-						+ destination.zone.getOid() + "; "	
+						+ origin.zone.getInternalId() + "; "	
+						+ destination.zone.getInternalId() + "; "	
 						+ mode() + "; "	
 						+ startDate().getDay() + "; "	
 						+ String.format("%1$02d", startDate().getHour()) + ":"	

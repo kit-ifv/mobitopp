@@ -402,7 +402,7 @@ System.out.println("sb companies: " + deserializedStationBasedCarSharing.size())
 	}
 
 	public String toString() {
-		String data = "zone=" + zone.getOid()
+		String data = "zone=" + zone.getInternalId()
 								+ "\n" + freeFloatingCarSharingCompanies
 								+ "\n" + freeFloatingCarSharing
 								+ "\n" + freeFloatingArea

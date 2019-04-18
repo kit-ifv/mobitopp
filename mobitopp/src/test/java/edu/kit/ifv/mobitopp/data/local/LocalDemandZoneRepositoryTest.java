@@ -73,8 +73,7 @@ public class LocalDemandZoneRepositoryTest {
 
 	private Zone createZoneWithOid(int oid, String id) {
 		Zone zone = mock(Zone.class);
-		when(zone.getOid()).thenReturn(oid);
-		when(zone.getId()).thenReturn(id);
+		when(zone.getInternalId()).thenReturn(new ZoneId(id, oid));
 		ZoneId zoneId = new ZoneId(id, oid);
     when(zone.getInternalId()).thenReturn(zoneId);
 		zones.add(zone);

@@ -60,7 +60,7 @@ public class FixedDestination implements Serializable {
 		if (zone == null) {
 			if (other.zone != null)
 				return false;
-		} else if (zone.getOid() != other.zone.getOid())
+		} else if (zone.getInternalId() != other.zone.getInternalId())
 			return false;
 		return true;
 	}

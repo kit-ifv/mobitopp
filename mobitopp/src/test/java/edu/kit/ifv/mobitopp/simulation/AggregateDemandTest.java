@@ -25,13 +25,14 @@ public class AggregateDemandTest {
     @SuppressWarnings("unchecked")
     Consumer<IntegerMatrix> writer = mock(Consumer.class);
     int matrixColumn = 1;
-    List<ZoneId> oids = asList(new ZoneId("11", matrixColumn));
+    ZoneId zoneId = new ZoneId("11", matrixColumn);
+    List<ZoneId> oids = asList(zoneId);
     AggregateDemand aggregateDemand = new AggregateDemand(writer, oids);
 
     Person person = mock(Person.class);
     FinishedTrip trip = mock(FinishedTrip.class);
     Zone zone = mock(Zone.class);
-    when(zone.getOid()).thenReturn(matrixColumn);
+    when(zone.getInternalId()).thenReturn(zoneId);
     Location location = new Location(new Point2D.Double(), 0, 0);
     ZoneAndLocation zoneLocation = new ZoneAndLocation(zone, location);
     when(trip.origin()).thenReturn(zoneLocation);

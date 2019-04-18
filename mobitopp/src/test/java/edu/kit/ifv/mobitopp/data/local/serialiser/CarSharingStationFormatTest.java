@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.serialiser.CarSharingStationFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
@@ -25,8 +26,9 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganiza
 
 public class CarSharingStationFormatTest {
 
-	private static final String company = "My Company";
-	private static final int zoneId = 1;
+  private static final String company = "My Company";
+  private static final int zoneOid = 1;
+	private static final ZoneId zoneId = new ZoneId("1", zoneOid);
 	private static final Integer id = 1;
 	private static final String name = "station";
 	private static final String parkingSpace = "parkingSpace";
@@ -42,11 +44,11 @@ public class CarSharingStationFormatTest {
 	public void initialise() {
 		organization = new StationBasedCarSharingOrganization(company);
 		zone = mock(Zone.class);
-		when(zone.getOid()).thenReturn(zoneId);
+		when(zone.getInternalId()).thenReturn(zoneId);
 		station = new CarSharingStation(organization, zone, id, name, parkingSpace, location, numberOfCars);
 		List<StationBasedCarSharingOrganization> companies = asList(organization);
 		ZoneRepository zoneRepository = mock(ZoneRepository.class);
-		when(zoneRepository.getZoneByOid(zoneId)).thenReturn(zone);
+		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
 		
 		format = new CarSharingStationFormat(companies, zoneRepository);
 	}
@@ -56,7 +58,7 @@ public class CarSharingStationFormatTest {
 		List<String> prepared = format.prepare(station);
 		
 		assertThat(prepared, contains(valueOf(company),
-				valueOf(zoneId),
+				valueOf(zoneOid),
 				valueOf(id),
 				valueOf(name),
 				valueOf(parkingSpace),

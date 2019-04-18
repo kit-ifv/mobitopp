@@ -46,7 +46,7 @@ public class FreeFloatingCarFormat implements SerialiserFormat<FreeFloatingCar> 
 
 	@Override
 	public List<String> prepare(FreeFloatingCar car) {
-		return asList(valueOf(car.startZone.getOid()), 
+		return asList(valueOf(car.startZone.getInternalId().getMatrixColumn()), 
 				car.car.owner().name(), 
 				valueOf(car.car.id()));
 	}

@@ -105,15 +105,15 @@ public class OpportunityDataForZone implements Serializable {
 			Integer total_size = opportunities.get(aType);
 			Map<Location,Integer> locations = this.opportunityLocations.get(aType);
 			buffer.append("\nZZ-TOTAL; ");
-			buffer.append(zone.getId() + "; ");
-			buffer.append(zone.getOid() + "; ");
+			buffer.append(zone.getInternalId().getExternalId() + "; ");
+			buffer.append(zone.getInternalId().getMatrixColumn() + "; ");
 			buffer.append(aType.getTypeAsInt() + "; ");
 			buffer.append(total_size + "; ");
 			buffer.append(locations.size() + "; ");
 			for (Location location : locations.keySet()) {
 				Integer size = locations.get(location);
 				buffer.append("\nZZ; ");
-				buffer.append(zone.getOid() + "; ");
+				buffer.append(zone.getInternalId().getMatrixColumn() + "; ");
 				buffer.append(aType.getTypeAsInt() + "; ");
 				buffer.append(size + "; ");
 				buffer.append(location.forLogging() + "; ");

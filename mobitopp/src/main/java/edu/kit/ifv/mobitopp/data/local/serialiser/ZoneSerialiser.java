@@ -92,7 +92,7 @@ public class ZoneSerialiser implements Closeable {
 		zone
 				.charging()
 				.facilities()
-				.map(facility -> new ZoneChargingFacility(zone.getOid(), facility))
+				.map(facility -> new ZoneChargingFacility(zone.getInternalId().getMatrixColumn(), facility))
 				.forEach(chargingData::write);
 	}
 

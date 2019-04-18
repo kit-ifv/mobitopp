@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -36,6 +37,7 @@ public class DefaultPersonFormatTest {
 
   private static final short year = 2011;
   private static final int zoneOid = 1;
+  private static final ZoneId zoneId = new ZoneId("1", zoneOid);
   private static final int personOid = 1;
   private static final int personNumber = personOid;
   private static final int householdOid = 0;
@@ -54,7 +56,7 @@ public class DefaultPersonFormatTest {
     format = new DefaultPersonFormat();
     household = mock(Household.class);
     zone = mock(Zone.class);
-    when(zone.getOid()).thenReturn(zoneOid);
+    when(zone.getInternalId()).thenReturn(zoneId);
     when(household.getId()).thenReturn(new HouseholdId(householdOid, year, householdOid));
     when(household.getOid()).thenReturn(householdOid);
     personForDemand = Example.personOf(household, personOid, zone);

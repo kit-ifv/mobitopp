@@ -310,11 +310,6 @@ public class PersonForDemand implements Person, Serializable {
         .orElseThrow(() -> missingDestination(activityType));
 	}
 
-	public int getHomeZoneOid() {
-
-		return this.household.homeZone().getOid();
-	}
-
 
 	public Zone fixedZoneFor(ActivityType activityType) {
 		return this.fixedDestinations
@@ -459,10 +454,10 @@ public class PersonForDemand implements Person, Serializable {
 		int targetZoneOidForEducation = -1;
 
 		if (hasFixedZoneFor(ActivityType.WORK)) {
-			targetZoneOidForWork = fixedZoneFor(ActivityType.WORK).getOid();
+			targetZoneOidForWork = fixedZoneFor(ActivityType.WORK).getInternalId().getMatrixColumn();
 		}
 		if (hasFixedZoneFor(ActivityType.EDUCATION)) {
-			targetZoneOidForEducation = fixedZoneFor(ActivityType.EDUCATION).getOid();
+			targetZoneOidForEducation = fixedZoneFor(ActivityType.EDUCATION).getInternalId().getMatrixColumn();
 		}
 
 		int commutationTicket = hasCommuterTicket() ? 1 : 0;
