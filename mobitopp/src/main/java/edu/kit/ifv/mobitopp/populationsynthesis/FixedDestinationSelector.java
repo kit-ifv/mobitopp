@@ -5,7 +5,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
-interface FixedDestinationSelector {
+public interface FixedDestinationSelector {
 
 	public void setFixedDestinations(
   	Zone zone,
