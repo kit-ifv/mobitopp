@@ -51,7 +51,7 @@ public abstract class ExampleSetup {
 	public static final int age = 3;
 	public static final Employment employment = Employment.FULLTIME;
 	public static final Gender gender = Gender.MALE;
-  public static final Graduation graduation = Graduation.universityDegree;
+  public static final Graduation graduation = Graduation.highSchoolGraduate;
 	public static final boolean hasBike = true;
 	public static final boolean hasAccessToCar = true;
 	public static final boolean hasPersonalCar = true;

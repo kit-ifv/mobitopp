@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
+import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 
@@ -39,12 +40,14 @@ public interface PersonForSetup {
 
   Employment employment();
 
+  Graduation graduation();
+
   Gender gender();
 
   boolean hasDrivingLicense();
 
   boolean hasCommuterTicket();
-  
+
   void setCommuterTicket(boolean hasCommuterTicket);
 
   boolean hasBike();

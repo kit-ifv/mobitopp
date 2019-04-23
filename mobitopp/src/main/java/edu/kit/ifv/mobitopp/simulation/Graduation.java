@@ -1,9 +1,17 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.Arrays;
 
 public enum Graduation {
-  undefined(-1), universityDegree(1), other(2);
-  
+  undefined(-1),
+  other(0),
+  notHighSchool(1),
+  highSchoolGraduate(2),
+  someCollegeCreditNoDegree(3),
+  associateTechnicalSchoolDegree(4),
+  bachelorDegree(5),
+  graduateDegree(6);
+
   private final int numeric;
 
   private Graduation(int numeric) {
@@ -11,13 +19,7 @@ public enum Graduation {
   }
 
   public static Graduation getTypeFromNumeric(int numeric) {
-    if (numeric == 1) {
-      return universityDegree;
-    }
-    if (numeric == 2) {
-      return Graduation.other;
-    }
-    return undefined;
+    return Arrays.stream(values()).filter(g -> g.numeric == numeric).findFirst().orElse(undefined);
   }
 
   public int getNumeric() {
