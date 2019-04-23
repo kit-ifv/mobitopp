@@ -114,6 +114,11 @@ public class DefaultPersonForSetup implements PersonForSetup {
   public Employment employment() {
     return employment;
   }
+  
+  @Override
+  public Graduation graduation() {
+    return graduation;
+  }
 
   @Override
   public int age() {
