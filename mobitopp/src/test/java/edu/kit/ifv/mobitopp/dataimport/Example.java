@@ -34,6 +34,16 @@ public class Example {
       throw new RuntimeException(cause);
     }
   }
+  
+  public static StructuralData notStartingAtZeroAge() {
+    try {
+      String path = new File(Example.class.getResource("NotStartingAtZeroAge.csv").toURI()).getAbsolutePath();
+      CsvFile csv = new CsvFile(path);
+      return new StructuralData(csv);
+    } catch (URISyntaxException cause) {
+      throw new RuntimeException(cause);
+    }
+  }
 
   public static StructuralData missingAgeGroup() {
     try {

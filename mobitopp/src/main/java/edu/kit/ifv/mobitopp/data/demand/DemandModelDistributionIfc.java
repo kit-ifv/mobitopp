@@ -42,4 +42,10 @@ public interface DemandModelDistributionIfc<T extends DemandModelDistributionIte
 
 	public int getTotalAmount();
 
+  /**
+   * Returns <code>true</code> if this distribution does not contain any elements.
+   * 
+   * @return <code>true</code> if this distribution is empty.
+   */
+  boolean isEmpty();
 }

@@ -43,7 +43,10 @@ public class RangeDistributionBuilder {
   }
 
   private void verify(RangeDistributionIfc distribution) {
-    int lastUpper = 0;
+    if (distribution.isEmpty()) {
+      return;
+    }
+    int lastUpper = getStartOfDistribution(distribution);
     for (RangeDistributionItem item : distribution.getItems()) {
       if (lastUpper + 1 < item.lowerBound()) {
         throw new IllegalArgumentException(String
@@ -52,6 +55,10 @@ public class RangeDistributionBuilder {
       }
       lastUpper = item.upperBound();
     }
+  }
+
+  private int getStartOfDistribution(RangeDistributionIfc distribution) {
+    return distribution.getItems().first().upperBound() - 1;
   }
 
   private RangeDistributionItem distributionItemFrom(String zoneId, String columnName) {
