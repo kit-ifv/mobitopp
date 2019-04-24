@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
@@ -25,15 +26,24 @@ public class LocalZoneRepository implements ZoneRepository {
 	private final Map<ZoneId, Zone> zones;
 	private final Map<Integer, Zone> oidToZones;
 	private final List<Zone> zonesAsList;
+  private final Map<String, Zone> byExternalId;
 
 	LocalZoneRepository(Map<ZoneId, Zone> zones) {
 		super();
 		this.zones = zones;
 		zonesAsList = asList(zones);
 		oidToZones = createOidToZones(zones);
+		byExternalId = createExternalMapping(zones);
 	}
 
-	private Map<Integer, Zone> createOidToZones(Map<ZoneId, Zone> zones) {
+	private Map<String, Zone> createExternalMapping(Map<ZoneId, Zone> zones) {
+    return zones
+        .values()
+        .stream()
+        .collect(toMap(z -> z.getId().getExternalId(), Function.identity()));
+  }
+
+  private Map<Integer, Zone> createOidToZones(Map<ZoneId, Zone> zones) {
     return zones
         .entrySet()
         .stream()
@@ -65,6 +75,11 @@ public class LocalZoneRepository implements ZoneRepository {
 	    return zones.get(id);
 	  }
 	  throw new IllegalArgumentException("No zone available for id: " + id);
+	}
+	
+	@Override
+	public Zone getByExternalId(String externalId) {
+	  return byExternalId.get(externalId);
 	}
 	
 	@Override

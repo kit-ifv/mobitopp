@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.data.local;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +38,13 @@ public class LocalZoneRepositoryTest {
     Zone zoneByOid = repository.getZoneByOid(zoneOid);
 
     assertThat(zoneByOid, is(sameInstance(zone)));
+  }
+  
+  @Test
+  void getByExternalId() throws Exception {
+    Zone zone = repository.getByExternalId(zoneId);
+    
+    assertThat(zone, is(this.zone));
   }
 
   @Test
