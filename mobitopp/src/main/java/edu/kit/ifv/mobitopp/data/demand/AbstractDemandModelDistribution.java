@@ -46,6 +46,11 @@ public abstract class AbstractDemandModelDistribution<T extends DemandModelDistr
 	public SortedSet<T> getItems() {
 		return getItemsInternal();
 	}
+  
+  @Override
+  public boolean isEmpty() {
+    return items.isEmpty();
+  }
 
 	public List<T> getItemsReverse() {
 		List<T> elems = new ArrayList<>(getItemsInternal());
