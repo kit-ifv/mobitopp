@@ -76,11 +76,15 @@ public class CsvFile {
 	
 	private void createHeader(String[] header) {
 		for(int i=0; i< header.length; i++) {
-			String name = header[i].toLowerCase();
+			String name = nameOf(header[i]);
 			this.columnNames.add(name);
 			this.columnMapping.put(name,i);
 		}
 	}
+
+  private String nameOf(String string) {
+    return string.toLowerCase().replaceAll("\"", "");
+  }
 
 	private String fixDecimalPoint(String s) {
 		String t = s.replace(',','.');
@@ -99,7 +103,7 @@ public class CsvFile {
 	public String getValue(int row_num, String attribute) {
 		assert data.containsKey(row_num) : (">> " + row_num + " " + attribute);
 		Map<Integer,String> row = data.get(row_num);
-		Integer column = this.columnMapping.get(attribute.toLowerCase());
+		Integer column = this.columnMapping.get(nameOf(attribute));
 		assert  row.containsKey(column) : (">> " + row + " " + attribute);
 		return row.get(column);
 	}
@@ -109,7 +113,7 @@ public class CsvFile {
 	}
 
 	public boolean hasAttribute(String attribute) {
-		return columnNames.contains(attribute.toLowerCase());
+		return columnNames.contains(nameOf(attribute));
 	}
 	
 	

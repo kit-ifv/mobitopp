@@ -14,76 +14,97 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CsvFileTest {
 
-	private static final String someHeader = "hEaDer1";
-	private static final String otherHeader = "HeaDeR2";
-	private static final String someContent = "some content";
-	private static final String otherContent = "other content";
+  private static final String someHeader = "hEaDer1";
+  private static final String otherHeader = "HeaDeR2";
+  private static final String someContent = "some content";
+  private static final String otherContent = "other content";
+  private static final String escapedName = "\"other content\"";
 
-	private StringBuilder content;
+  private StringBuilder content;
 
-	@Before
-	public void initialise() {
-		String headerLine = someHeader + ";" + otherHeader;
-		String contentLine = someContent + ";" + otherContent;
-		content = new StringBuilder();
-		content.append(headerLine);
-		content.append(System.lineSeparator());
-		content.append(contentLine);
-		content.append(System.lineSeparator());
-	}
+  @BeforeEach
+  public void initialise() {
+    String headerLine = someHeader + ";" + otherHeader;
+    String contentLine = someContent + ";" + otherContent;
+    content = new StringBuilder();
+    content.append(headerLine);
+    content.append(System.lineSeparator());
+    content.append(contentLine);
+    content.append(System.lineSeparator());
+  }
 
-	@Test
-	public void ignoreCaseInHeader() {
-		CsvFile csvFile = createFile();
+  @Test
+  public void ignoreCaseInHeader() {
+    CsvFile csvFile = createFile();
 
-		List<String> attributes = csvFile.getAttributes();
+    List<String> attributes = csvFile.getAttributes();
 
-		assertThat(attributes, contains(someHeader.toLowerCase(), otherHeader.toLowerCase()));
-	}
+    assertThat(attributes, contains(someHeader.toLowerCase(), otherHeader.toLowerCase()));
+  }
 
-	@Test
-	public void accessesValuesIgnoringCase() {
-		CsvFile csvFile = createFile();
+  @Test
+  public void accessesValuesIgnoringCase() {
+    CsvFile csvFile = createFile();
 
-		String value = csvFile.getValue(0, someHeader);
+    String value = csvFile.getValue(0, someHeader);
 
-		assertThat(value, is(equalTo(someContent)));
-	}
+    assertThat(value, is(equalTo(someContent)));
+  }
 
-	@Test
-	public void missingAttribute() {
-		CsvFile csvFile = createFile();
+  @Test
+  public void missingAttribute() {
+    CsvFile csvFile = createFile();
 
-		assertFalse(csvFile.hasAttribute("missing-attribute"));
-	}
+    assertFalse(csvFile.hasAttribute("missing-attribute"));
+  }
 
-	@Test
-	public void hasAttribute() {
-		CsvFile csvFile = createFile();
+  @Test
+  public void hasAttribute() {
+    CsvFile csvFile = createFile();
 
-		assertTrue(csvFile.hasAttribute(someHeader));
-	}
-	
-	@Test
-	public void ignoresEmptyLines() {
-		content.append(System.lineSeparator());
-		CsvFile csvFile = createFile();
-		
-		assertThat(csvFile.getLength(), is(1));
-	}
+    assertTrue(csvFile.hasAttribute(someHeader));
+  }
 
-	private CsvFile createFile() {
-		return new CsvFile("dummy-file-name") {
+  @Test
+  public void ignoresEmptyLines() {
+    content.append(System.lineSeparator());
+    CsvFile csvFile = createFile();
 
-			@Override
-			protected Reader createReader(File file) throws FileNotFoundException {
-				return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
-			}
-		};
-	}
+    assertThat(csvFile.getLength(), is(1));
+  }
+
+  @Test
+  void ignoreEscapeChars() throws Exception {
+    StringBuilder content = new StringBuilder();
+    String headerLine = escapedName;
+    content.append(headerLine);
+    content.append(System.lineSeparator());
+    
+    createFileFor(content);
+  }
+
+  private CsvFile createFileFor(StringBuilder content) {
+    return new CsvFile("dummy-file-name") {
+
+      @Override
+      protected Reader createReader(File file) throws FileNotFoundException {
+        return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
+      }
+    };
+  }
+
+  private CsvFile createFile() {
+    return new CsvFile("dummy-file-name") {
+
+      @Override
+      protected Reader createReader(File file) throws FileNotFoundException {
+        return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
+      }
+    };
+  }
 }
