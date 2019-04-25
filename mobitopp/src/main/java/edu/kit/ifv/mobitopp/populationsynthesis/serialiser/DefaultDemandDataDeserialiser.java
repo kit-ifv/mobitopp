@@ -53,18 +53,21 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
   }
 
   private void loadPatterns(Population population) throws IOException {
+    System.out.println("Load patterns");
     for (PersonPatternActivity patternActivity : activities.deserialise()) {
       population.add(patternActivity.personOid(), patternActivity.pattern());
     }
   }
 
   private void loadHouseholds(Population population) throws IOException {
+    System.out.println("Load households");
     for (Household household : households.deserialise()) {
       population.add(household);
     }
   }
 
   private void loadPersons(Population population) throws IOException {
+    System.out.println("Load persons");
     List<Person> persons = personDeserialiser.deserialise(population);
     for (Person person : persons) {
       population.add(person);
@@ -72,6 +75,7 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
   }
 
   private void loadCars(Population population) throws IOException {
+    System.out.println("Load cars");
     List<PrivateCar> cars = carDeserialiser.deserialise(population);
     Consumer<Entry<Household, List<PrivateCar>>> assignCars = entry -> assignCars(entry);
     cars.stream().collect(groupingBy(PrivateCar::owner)).entrySet().stream().forEach(assignCars);

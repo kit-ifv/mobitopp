@@ -27,15 +27,15 @@ public abstract class DefaultMappings {
     return types;
   }
   
-  public static TypeMapping taxiAndParkAndRide() {
+  public static DynamicTypeMapping createTaxiAndParkAndRide() {
     DynamicTypeMapping types = createNormalModes();
     types.add(Mode.TAXI, TravelTimeMatrixType.car);
     types.add(Mode.PARK_AND_RIDE, TravelTimeMatrixType.car);
     return types;
   }
   
-  public static TypeMapping autonomousModes() {
-    DynamicTypeMapping types = createNormalModes();
+  public static DynamicTypeMapping autonomousModes() {
+    DynamicTypeMapping types = createTaxiAndParkAndRide();
     types.add(Mode.PREMIUM_RIDE_HAILING, TravelTimeMatrixType.car);
     types.add(Mode.RIDE_HAILING, TravelTimeMatrixType.car);
     types.add(Mode.RIDE_POOLING, TravelTimeMatrixType.ride_pooling);
