@@ -175,8 +175,8 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.codeLc, "NAME");
 
     // Units
-    language.add(Unit.velocity, "mph");
-    language.add(Unit.distance, "mi");
+    language.add(Unit.velocity, "km/h");
+    language.add(Unit.distance, "km");
     language.add(Unit.time, "s");
     return language;
   }
