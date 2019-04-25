@@ -620,7 +620,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 
 	private Integer parseTime(String value) {
 	  String unit = language.resolve(Unit.time);
-		return Integer.valueOf(value.replace(unit,""));
+		return Double.valueOf(value.replace(unit,"")).intValue();
 	}
 
 	private Map<Integer, VisumVehicleUnit> readVehicleUnits(
