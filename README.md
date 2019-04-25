@@ -55,6 +55,9 @@ Code | Description
 12 | CARSHARING_FREE
 16 | PEDELEC
 17 | BIKESHARING
+21 | RIDE_POOLING
+22 | RIDE_HAILING
+23 | PREMIUM_RIDE_HAILING
 
 ### EmploymentType
 Code | Description
