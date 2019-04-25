@@ -55,7 +55,7 @@ public class TravelTimeMatrixCacheTest {
     TravelTimeMatrixCache cache = newCache();
 
     assertThrows(IllegalArgumentException.class,
-        () -> cache.matrixFor(Mode.AUTONOMOUS_TAXI, SimpleTime.start));
+        () -> cache.matrixFor(Mode.RIDE_HAILING, SimpleTime.start));
   }
 
   private void configureMatrix(TravelTimeMatrixType matrixType, TravelTimeMatrix matrix)
