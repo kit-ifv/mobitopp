@@ -482,7 +482,11 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
   private Integer parkingPlaces(VisumTable table, int i) {
     String attribute = attribute(StandardAttributes.parkingPlaces);
     if (table.containsAttribute(attribute)) {
-      return Integer.valueOf(table.getValue(i, attribute));
+      String value = table.getValue(i, attribute);
+      if (value.isEmpty()) {
+        return 0;
+      }
+      return Double.valueOf(value).intValue();
     }
     return 0;
   }
