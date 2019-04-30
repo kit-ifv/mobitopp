@@ -111,12 +111,18 @@ public class MatrixValidator {
 
   private List<String> missingCostMatrices() {
     List<String> missingMatrices = new LinkedList<>();
-    for (CostMatrixType type : CostMatrixType.values()) {
+    for (CostMatrixType type : requiredCostMatrices()) {
       TypeMatrices typeMatrices = matrices.costMatrixFor(type);
       Consumer<String> matrixCollector = text -> missingMatrices.add(type + " - " + text);
       collectPerDay(typeMatrices, matrixCollector);
     }
     return missingMatrices;
+  }
+
+  private Collection<CostMatrixType> requiredCostMatrices() {
+    return EnumSet
+        .of(CostMatrixType.car, CostMatrixType.publictransport, CostMatrixType.parking,
+            CostMatrixType.distance, CostMatrixType.parkingstress, CostMatrixType.constant);
   }
 
   private void collectPerDay(TypeMatrices typeMatrices, Consumer<String> matrixCollector) {

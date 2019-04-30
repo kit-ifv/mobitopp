@@ -26,6 +26,12 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 		HashMap<Mode, CostMatrixType> types = new HashMap<>();
 		types.put(Mode.CAR, CostMatrixType.car);
 		types.put(Mode.PUBLICTRANSPORT, CostMatrixType.publictransport);
+		types.put(Mode.TAXI, CostMatrixType.taxi);
+    types.put(Mode.PARK_AND_RIDE, CostMatrixType.park_and_ride);
+    types.put(Mode.RIDE_HAILING, CostMatrixType.ride_hailing);
+    types.put(Mode.PREMIUM_RIDE_HAILING, CostMatrixType.premium_ride_hailing);
+    types.put(Mode.RIDE_POOLING, CostMatrixType.ride_pooling);
+    types.put(Mode.TRUCK, CostMatrixType.truck);
 		return types;
 	}
 
