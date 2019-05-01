@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
+import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -7,20 +10,26 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
+import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityDurationNoRandomizer;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
+import edu.kit.ifv.mobitopp.simulation.tour.TourWithWalkAsSubtourFactory;
+import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 
 	private ActivityPeriod week;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		PatternActivityWeek pattern = new ExamplePattern().startingAtHome();
 		List<Time> dates = new ExamplePattern().dates();
@@ -107,8 +116,25 @@ public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 		assertEquals(home1, home2);
 		assertNotEquals(home1, home3);
 	}
-	
 
+  @Test
+  void fixLastActivity() throws Exception {
+    ExtendedPatternActivity firstHome = new ExtendedPatternActivity(0, false, false,
+        ActivityType.HOME, 30, SimpleTime.of(0, 7, 30, 0), 950);
+    ExtendedPatternActivity work = new ExtendedPatternActivity(1, true, false, ActivityType.WORK,
+        41, SimpleTime.of(1, 0, 1, 0), 1439);
+    ExtendedPatternActivity secondHome = new ExtendedPatternActivity(2, false, false,
+        ActivityType.HOME, 41, SimpleTime.of(2, 0, 41, 0), 1);
+    List<PatternActivity> activities = asList(firstHome, work, secondHome);
+    PatternActivityWeek patternActivityWeek = new PatternActivityWeek(activities);
 
+    List<Time> dates = asList(Time.start);
+    TourFactory factory = new TourWithWalkAsSubtourFactory();
+    ActivityStartAndDurationRandomizer randomizer = w -> w;
+    ActivityPeriodWithExtendedFirstAndLastActivity period = new ActivityPeriodWithExtendedFirstAndLastActivity(
+        factory, randomizer, patternActivityWeek, dates);
+
+    assertThat(period.lastActivity().duration(), is(994));
+  }
 
 }
