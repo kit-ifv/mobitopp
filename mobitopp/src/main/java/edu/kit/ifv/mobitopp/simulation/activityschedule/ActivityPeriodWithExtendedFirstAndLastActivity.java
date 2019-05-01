@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStart
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
@@ -129,8 +130,12 @@ public class ActivityPeriodWithExtendedFirstAndLastActivity
 					0.7f,0.7f,0.0f);
 			addAsLastActivity(lastHomeActivity);
 		} else {
-			if (lastActivity.calculatePlannedEndDate().isBefore(startOfFirstDayOfNextWeek) ) {
-				duration = Math.toIntExact(startOfFirstDayOfNextWeek.plusMinutes(3).differenceTo(lastActivity.calculatePlannedEndDate()).toMinutes());
+      if (lastActivity.calculatePlannedEndDate().isBefore(startOfFirstDayOfNextWeek)) {
+        Time calculatePlannedEndDate = lastActivity.calculatePlannedEndDate();
+        RelativeTime difference = startOfFirstDayOfNextWeek
+            .plusMinutes(3)
+            .differenceTo(calculatePlannedEndDate);
+        duration = lastActivity.duration() + Math.toIntExact(difference.toMinutes());
 				
 				assert duration > 0;
 			}
