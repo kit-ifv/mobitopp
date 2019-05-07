@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.time.RelativeTime;
-
 /**
  * This class reads the result from a visum route assignment and transforms it into a mapping of
  * {@link OdPair}s and {@link ZoneRoute}s.
@@ -40,12 +38,11 @@ public class RouteTransformer {
    * 
    * @param routesFile
    *          file to load the visum route assignment result from
-   * @param connectors 
    * @return mapping of {@link OdPair}s and {@link ZoneRoute}s
    */
-  public Map<OdPair, ZoneRoute> transform(File routesFile, Map<NodeNode, RelativeTime> connectors) {
-    StreamReader reader = new StreamReader();
+  public Map<OdPair, ZoneRoute> transform(File routesFile) {
+    StreamReader reader = new StreamReader("\t");
     Stream<Row> rows = reader.read(routesFile, tableName);
-    return new RouteReader(connectors).transform(rows);
+    return new RouteReader().transform(rows);
   }
 }

@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.visum.VisumTable;
 public class TestRoutes {
 
   private static final RelativeTime defaultTravelTime = RelativeTime.ofMinutes(1).plusSeconds(2);
+  private static final String connectorTime = "1m";
   private final VisumTable table;
   private final List<Row> rows;
 
@@ -24,10 +25,15 @@ public class TestRoutes {
   }
 
   void addSomeRoute(String wegindex, String viaZone) {
-    createRow(asList("Z1", "Z2", wegindex, "1", "2", "0", "", "", "3m 6s", ""));
-    createRow(asList("", "", wegindex, "1", "2", "1", "Z1", viaZone, "", "1m 2s"));
-    createRow(asList("", "", wegindex, "1", "2", "2", viaZone, viaZone, "", "1m 2s"));
-    createRow(asList("", "", wegindex, "1", "2", "3", viaZone, "Z2", "", "1m 2s"));
+    String connectorTime = "0s";
+    addSomeRoute(wegindex, viaZone, connectorTime);
+  }
+
+  private void addSomeRoute(String wegindex, String viaZone, String connectorTime) {
+    createRow(asList("Z1", "Z2", wegindex, "1", "2", "0", "", "", "3m 6s", "", "", ""));
+    createRow(asList("", "", wegindex, "1", "2", "1", "Z1", viaZone, "", "1m 2s", connectorTime, connectorTime));
+    createRow(asList("", "", wegindex, "1", "2", "2", viaZone, viaZone, "", "1m 2s", connectorTime, connectorTime));
+    createRow(asList("", "", wegindex, "1", "2", "3", viaZone, "Z2", "", "1m 2s", connectorTime, connectorTime));
   }
 
   void addSomeRoute() {
@@ -37,14 +43,18 @@ public class TestRoutes {
   }
 
   void addOtherRoute() {
-    createRow(asList("Z4", "Z7", "1", "1", "2", "0", "", "", "3m 6s", ""));
-    createRow(asList("", "", "1", "1", "2", "1", "Z4", "Z5", "", "1m 2s"));
-    createRow(asList("", "", "1", "1", "2", "2", "Z5", "Z6", "", "1m 2s"));
-    createRow(asList("", "", "1", "1", "2", "3", "Z6", "Z7", "", "1m 2s"));
+    createRow(asList("Z4", "Z7", "1", "1", "2", "0", "", "", "3m 6s", "", "", ""));
+    createRow(asList("", "", "1", "1", "2", "1", "Z4", "Z5", "", "1m 2s", "0s", "0s"));
+    createRow(asList("", "", "1", "1", "2", "2", "Z5", "Z6", "", "1m 2s", "0s", "0s"));
+    createRow(asList("", "", "1", "1", "2", "3", "Z6", "Z7", "", "1m 2s", "0s", "0s"));
   }
 
   void addRouteWithoutIntermediate() {
-    createRow(asList("Z2", "Z4", "1", "1", "2", "0", "", "", "1m 2s", ""));
+    createRow(asList("Z2", "Z4", "1", "1", "2", "0", "", "", "1m 2s", "", "0s", "0s"));
+  }
+  
+  void addSomeRouteWithConnector() {
+    addSomeRoute("1", "Z3", connectorTime);
   }
 
   private void createRow(List<String> values) {
@@ -66,7 +76,7 @@ public class TestRoutes {
   private List<String> attributes() {
     return asList("QBEZNR", "ZBEZNR", "WEGIND", "VONKNOTNR", "NACHKNOTNR", "INDEX",
         "STRECKE\\VONKNOTEN\\BEZIRKNR", "STRECKE\\NACHKNOTEN\\BEZIRKNR", "IV-WEG\\T0",
-        "STRECKE\\T0-IVSYS(P)");
+        "STRECKE\\T0-IVSYS(P)", "ABBIEGER\\T0-IVSYS(P)", "ABBIEGER\\TAKT-IVSYS(P)");
   }
 
   OdPair someOdPair() {
@@ -103,7 +113,7 @@ public class TestRoutes {
   }
 
   public RelativeTime connectorTime() {
-    return RelativeTime.ofMinutes(1);
+    return VisumUtils.parseTime(connectorTime);
   }
 
   public ZoneRoute someRouteWithConnector() {

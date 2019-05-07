@@ -4,26 +4,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.kit.ifv.mobitopp.time.RelativeTime;
-
 public class RouteReaderTest {
 
   private RouteReader reader;
   private TestRoutes routes;
-  private Map<NodeNode, RelativeTime> connectors;
 
   @BeforeEach
   public void initialise() {
-    connectors = new HashMap<>();
     routes = new TestRoutes();
-    reader = new RouteReader(connectors);
+    reader = new RouteReader();
   }
 
   @Test
@@ -89,8 +84,7 @@ public class RouteReaderTest {
 
   @Test
   void usesConnectorTime() throws Exception {
-    connectors.put(routes.connectorNodeToNode(), routes.connectorTime());
-    routes.addSomeRoute();
+    routes.addSomeRouteWithConnector();
 
     Map<OdPair, ZoneRoute> transformed = reader.transform(rows());
 

@@ -15,14 +15,12 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
  */
 public class RouteReader {
 
-  private final Map<NodeNode, RelativeTime> connectors;
   private final Map<OdPair, ZoneRoute> routes;
   private State state;
   private RouteBuilder current;
 
-  public RouteReader(Map<NodeNode, RelativeTime> connectors) {
+  public RouteReader() {
     super();
-    this.connectors = connectors;
     state = State.start;
     routes = new TreeMap<>();
   }
@@ -31,7 +29,8 @@ public class RouteReader {
    * Transforms a visum route assignment result into {@link ZoneRoute}s. It maps the
    * {@link ZoneRoute}s to the corresponding origin and destination pair ({@code OdPair}).
    * 
-   * @param rows containing visum route assignment result
+   * @param rows
+   *          containing visum route assignment result
    * @return mapping of {@link OdPair}s to {@link ZoneRoute}s
    */
   public Map<OdPair, ZoneRoute> transform(Stream<Row> rows) {
@@ -53,7 +52,7 @@ public class RouteReader {
 
   private ZoneIdTime parseDestinationOf(Row row) {
     String destinationZone = row.get("ZBEZNR");
-    RelativeTime destinationTime = VisumUtils.parseTime(row.get("IV-WEG\\T0"));
+    RelativeTime destinationTime = RelativeTime.ZERO;// VisumUtils.parseTime(row.get("IV-WEG\\T0"));
     return new ZoneIdTime(destinationZone, destinationTime);
   }
 
@@ -71,7 +70,4 @@ public class RouteReader {
     System.out.println(String.format("OdPair: %s - %s", odPair.origin(), odPair.destination()));
   }
 
-  public RelativeTime getConnectorTime(NodeNode fromTo) {
-    return connectors.getOrDefault(fromTo, RelativeTime.ZERO);
-  }
 }
