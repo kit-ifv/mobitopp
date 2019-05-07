@@ -14,6 +14,18 @@ import java.util.stream.Stream;
 
 public class StreamReader {
 
+  private static final String defaultAttributeSeparator = ";";
+  private final String attributeSeparator;
+
+  public StreamReader(String attributeSeparator) {
+    super();
+    this.attributeSeparator = attributeSeparator;
+  }
+
+  public StreamReader() {
+    this(defaultAttributeSeparator);
+  }
+
   public Stream<Row> read(File routesFile, String tableName) {
     try {
       return doRead(routesFile, tableName);
@@ -78,7 +90,7 @@ public class StreamReader {
 
   private List<String> tableAttributes(String line) {
     String[] fields = line.split(":");
-    String[] attributes = fields[1].split(";");
+    String[] attributes = fields[1].split(attributeSeparator);
     return Arrays.asList(attributes);
   }
 
@@ -97,7 +109,7 @@ public class StreamReader {
   }
 
   private List<String> parseLine(String line, int numFields) {
-    String[] fields = line.split(";");
+    String[] fields = line.split(attributeSeparator);
     List<String> values = new ArrayList<>(numFields);
     values.addAll(Arrays.asList(fields));
     for (int i = values.size(); i < numFields; i++) {

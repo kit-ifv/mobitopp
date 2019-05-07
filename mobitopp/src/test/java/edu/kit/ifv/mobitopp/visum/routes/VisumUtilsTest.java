@@ -44,4 +44,11 @@ public class VisumUtilsTest {
     
     assertThat(parsed, is(equalTo(RelativeTime.ofHours(1).plusMinutes(2).plusSeconds(3))));
   }
+  
+  @Test
+  void parsesEmptyString() throws Exception {
+    RelativeTime parsed = VisumUtils.parseTime("");
+    
+    assertThat(parsed, is(equalTo(RelativeTime.ZERO)));
+  }
 }
