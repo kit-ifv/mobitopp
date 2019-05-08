@@ -74,6 +74,7 @@ public abstract class ExampleSetup {
 	public static final int totalNumberOfCars = 1;
 	public static final int noCars = 0;
 	public static final int income = 1;
+  public static final int incomeClass = 1;
 	public static final boolean canChargePrivately = false;
 	
 	public static final int carId = 1;
@@ -149,7 +150,7 @@ public abstract class ExampleSetup {
 	public static HouseholdForSetup household(Zone zone, int householdOid, int numberOfCars) {
 	  HouseholdId id = new HouseholdId(householdOid, householdYear, householdNumber);
 	  return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
-	      numberOfNotSimulatedChildren, numberOfCars, income, canChargePrivately);
+	      numberOfNotSimulatedChildren, numberOfCars, income, incomeClass, canChargePrivately);
 	}
 
 	public static PersonForSetup emobilityPersonOf(HouseholdForSetup household, int personNumber, Zone zone) {

@@ -15,6 +15,7 @@ public class HouseholdOfPanelData
   private final byte numberOfNotReportingChildren;
   private final byte householdType;
   private final int income;
+  private final int incomeClass;
   private final byte size;
   private final byte numberOfMinors;
 
@@ -27,7 +28,8 @@ public class HouseholdOfPanelData
 		int numberOfMinors,
 		int numberOfNotReportingChildren,
 		int numberOfCars,
-		int income
+		int income, 
+		int income_class
 	)
   {
 		assert id != null;
@@ -42,12 +44,14 @@ public class HouseholdOfPanelData
 		this.numberOfNotReportingChildren = (byte) numberOfNotReportingChildren;
 		this.numberOfCars = (byte) numberOfCars;
 		this.income = income;
+		this.incomeClass = income_class;
 	}
 
   public HouseholdOfPanelData(HouseholdOfPanelData household) {
     this(household.id, household.areaType, household.size, household.householdType,
         household.numberOfReportingPersons, household.numberOfMinors,
-        household.numberOfNotReportingChildren, household.numberOfCars, household.income);
+        household.numberOfNotReportingChildren, household.numberOfCars, household.income,
+        household.incomeClass);
   }
 
   public HouseholdOfPanelDataId id()
@@ -118,6 +122,9 @@ public class HouseholdOfPanelData
     return this.income;
   }
 
+  public int incomeClass() {
+    return this.incomeClass;
+  }
 
   public boolean isCompletelySpecified()
   {

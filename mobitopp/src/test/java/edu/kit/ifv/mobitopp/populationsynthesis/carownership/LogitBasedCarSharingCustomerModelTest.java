@@ -82,6 +82,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			5, // not simulated people,
 																			4, // number of cars
 																			3000, // income
+                                      1, // income class
 																			true
 																		);
 
@@ -95,6 +96,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			1, // not simulated people,
 																			0, // number of cars
 																			3000, // income
+                                      1, // income class
 																			true
 																		);
 
@@ -163,6 +165,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			nominalSize-1, // not simulated people,
 																			number_of_cars, // number of cars
 																			3000, // income
+                                      1, // income class
 																			true
 																		);
 	}

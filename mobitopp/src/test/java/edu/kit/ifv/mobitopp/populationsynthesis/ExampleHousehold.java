@@ -20,6 +20,7 @@ public class ExampleHousehold {
   static final int numberOfNotSimulatedChildren = 0;
   static final int defaultTotalNumberOfCars = 0;
   static final int income = 8;
+  static final int incomeClass = 1;
   static final boolean canChargePrivately = false;
 
   private final Zone zone;
@@ -35,14 +36,14 @@ public class ExampleHousehold {
   public static HouseholdForSetup createHousehold(Zone zone) {
     return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
         numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income,
-        canChargePrivately);
+        incomeClass, canChargePrivately);
   }
 
   public static HouseholdForSetup createHousehold(Zone zone, HouseholdOfPanelDataId panelId) {
     HouseholdId id = new HouseholdId(oid, panelId.getYear(), panelId.getHouseholdNumber());
     return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
         numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income,
-        canChargePrivately);
+        incomeClass, canChargePrivately);
   }
 
   public ExampleHousehold withSize(int nominalSize) {
@@ -57,7 +58,7 @@ public class ExampleHousehold {
 
   public HouseholdForSetup build() {
     return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
-        numberOfNotSimulatedChildren, numberOfCars, income, canChargePrivately);
+        numberOfNotSimulatedChildren, numberOfCars, income, incomeClass, canChargePrivately);
   }
 
 }

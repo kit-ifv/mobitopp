@@ -11,6 +11,7 @@ class HouseholdInfo {
 	public int additionalchildrenmaxage;
 	public int cars;
 	public int income = -1;
+  public int income_class = -1;
 
 
 	public String id() {

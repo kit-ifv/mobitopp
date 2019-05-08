@@ -81,7 +81,8 @@ public class DefaultHouseholdFormatTest {
 				valueOf(ExampleSetup.serialisedLocation), 
 				valueOf(ExampleSetup.numberOfNotSimulatedChildren),
 				valueOf(ExampleSetup.noCars), 
-				valueOf(ExampleSetup.income),
+        valueOf(ExampleSetup.income), 
+        valueOf(ExampleSetup.incomeClass),
 				valueOf(ExampleSetup.canChargePrivately)
 			);
 	}

@@ -33,9 +33,10 @@ public class DefaultHouseholdCreator implements HouseholdCreator {
 		int numberOfNotSimulatedChildren = household.numberOfNotReportingChildren();
 		int totalNumberOfCars = household.numberOfCars();
 		int income = household.income();
+		int incomeClass = household.incomeClass();
 		boolean canChargePrivately = canChargePrivatelySelector.canChargeAt(zone);
     return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
-				numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
+				numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
 	}
 
 }

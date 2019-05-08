@@ -63,6 +63,8 @@ public class Household_Stub
 	public int domCode() { return -1; }
 
 	public int income() { return -1; }
+	
+	public int incomeClass() { return -1; }
 
 	@Override
 	public HouseholdAttributes attributes() {

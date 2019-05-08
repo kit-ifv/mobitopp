@@ -19,11 +19,12 @@ public class ExampleHouseholdOfPanelData {
 	public static final int notReportingChildren = 10;
 	public static final int cars = 11;
 	public static final int income = 12;
+  public static final int incomeClass = 1;
 	public static final HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household(aDomCode, anId);
 
 	public static HouseholdOfPanelData household(int domCode, HouseholdOfPanelDataId id) {
 		return new HouseholdOfPanelData(id, areaType, size, domCode, reportingPersons, minors,
-				notReportingChildren, cars, income);
+				notReportingChildren, cars, income, incomeClass);
 	}
 
 }

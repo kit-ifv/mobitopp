@@ -23,6 +23,8 @@ public interface HouseholdForSetup {
   Location homeLocation();
 
   int monthlyIncomeEur();
+  
+  int incomeClass();
 
   boolean canChargePrivately();
 
