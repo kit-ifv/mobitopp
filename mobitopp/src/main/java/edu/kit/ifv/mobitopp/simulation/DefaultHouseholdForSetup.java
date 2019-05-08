@@ -25,6 +25,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   private final int numberOfNotSimulatedChildren;
   private final int nominalNumberOfCars;
   private final int income;
+  private final int incomeClass;
   private final boolean canChargePrivately;
   private final List<PersonForSetup> persons;
   private final List<PrivateCarForSetup> ownedCars;
@@ -32,7 +33,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   public DefaultHouseholdForSetup(
       HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
       int numberOfMinors, int numberOfNotSimulatedChildren, int nominalNumberOfCars, int income,
-      boolean canChargePrivately) {
+      int incomeClass, boolean canChargePrivately) {
     super();
     this.householdId = householdId;
     this.nominalSize = nominalSize;
@@ -43,6 +44,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
     this.numberOfNotSimulatedChildren = numberOfNotSimulatedChildren;
     this.nominalNumberOfCars = nominalNumberOfCars;
     this.income = income;
+    this.incomeClass = incomeClass;
     this.canChargePrivately = canChargePrivately;
     this.persons = new ArrayList<>();
     this.ownedCars = new ArrayList<>();
@@ -61,8 +63,8 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   @Override
   public Household toHousehold() {
     HouseholdForDemand household = new HouseholdForDemand(getId(), nominalSize(), domcode,
-        homeZone(), homeLocation(), numberOfNotSimulatedChildren(), ownedCars.size(), monthlyIncomeEur(),
-        canChargePrivately());
+        homeZone(), homeLocation(), numberOfNotSimulatedChildren(), ownedCars.size(),
+        monthlyIncomeEur(), incomeClass(), canChargePrivately());
     persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
     List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
     household.ownCars(cars);
@@ -87,6 +89,11 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   @Override
   public int monthlyIncomeEur() {
     return income;
+  }
+  
+  @Override
+  public int incomeClass() {
+    return incomeClass;
   }
 
   @Override

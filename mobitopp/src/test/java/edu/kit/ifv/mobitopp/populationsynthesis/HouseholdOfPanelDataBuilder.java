@@ -21,6 +21,7 @@ public class HouseholdOfPanelDataBuilder {
   public static final int defaultNotReportingChildren = 10;
   public static final int defaultCars = 11;
   public static final int defaultIncome = 12;
+  public static final int defaultIncomeClass = 1;
 
   private HouseholdOfPanelDataId id;
   private int domCode;
@@ -53,7 +54,7 @@ public class HouseholdOfPanelDataBuilder {
 
   public HouseholdOfPanelData build() {
     return new HouseholdOfPanelData(id, defaultAreaType, size, domCode, defaultReportingPersons,
-        defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome);
+        defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome, defaultIncomeClass);
   }
 
 }

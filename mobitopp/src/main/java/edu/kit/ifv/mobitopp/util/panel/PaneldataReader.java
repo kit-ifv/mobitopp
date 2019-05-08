@@ -133,12 +133,12 @@ public class PaneldataReader {
 		info.person.pole_distance 			= java.lang.Integer.parseInt(field[columnNames.get("poledistance")]);
 		info.person.commutation_ticket 	= field[columnNames.get("commuterticket")].trim().equals("1");
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
-		info.person.apkwverf 						= field[columnNames.get("caravailable")].trim().equals("1");
-		info.person.ppkwverf 						= field[columnNames.get("personalcar")].trim().equals("1");
+		info.person.apkwverf 						= hasCarAvailable(columnNames, field);
+		info.person.ppkwverf 						= hasPersonalCar(columnNames, field);
 		
 		info.person.licence 						= columnNames.containsKey("licence")
 																		? field[columnNames.get("licence")].trim().equals("1") 
-																		: field[columnNames.get("caravailable")].trim().equals("1") || field[columnNames.get("personalcar")].trim().equals("1");
+																    : hasCarAvailable(columnNames, field) || hasPersonalCar(columnNames, field);
 		
 		info.household.additionalchildren	= columnNames.containsKey("notcontainedchildren")
 															? java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildren")])
@@ -152,6 +152,8 @@ public class PaneldataReader {
 
 		info.household.income	=  columnNames.containsKey("hhincome")
 															? java.lang.Integer.parseInt(field[columnNames.get("hhincome")]) : 0;
+		info.household.income_class = columnNames.containsKey("hhincome_class")
+															    ? java.lang.Integer.parseInt(field[columnNames.get("hhincome_class")]) : 0;
 		info.person.income = columnNames.containsKey("incomeperson")
 															? java.lang.Integer.parseInt(field[columnNames.get("incomeperson")]) : 0;
 															
@@ -190,6 +192,18 @@ public class PaneldataReader {
 
 		return info;
 	}
+
+  private boolean hasCarAvailable(Map<String, Integer> columnNames, String[] field) {
+    return columnNames.containsKey("caravailable")
+        ? field[columnNames.get("caravailable")].trim().equals("1")
+        : false;
+  }
+
+  private boolean hasPersonalCar(Map<String, Integer> columnNames, String[] field) {
+    return columnNames.containsKey("personalcar")
+        ? field[columnNames.get("personalcar")].trim().equals("1")
+        : false;
+  }
 
   private int readGender(Map<String, Integer> columnNames, String[] field) {
     if (columnNames.containsKey("gender")) {
@@ -273,7 +287,8 @@ public class PaneldataReader {
 																	minors,
 																	info.household.additionalchildren,
 																	info.household.cars,
-																	income
+																	income,
+																	info.household.income_class
 																);
 
 			assert (info.household.household_size == infos.get(id).size() + info.household.additionalchildren);

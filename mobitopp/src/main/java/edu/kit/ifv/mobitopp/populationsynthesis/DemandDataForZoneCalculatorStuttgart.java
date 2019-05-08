@@ -284,6 +284,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																householdOfPanelData.numberOfNotReportingChildren(),
 																householdOfPanelData.numberOfCars(),
 																householdOfPanelData.income(),
+																householdOfPanelData.incomeClass(),
 																canChargePrivately
 													);
 		householdToId.put(household, panel_id);

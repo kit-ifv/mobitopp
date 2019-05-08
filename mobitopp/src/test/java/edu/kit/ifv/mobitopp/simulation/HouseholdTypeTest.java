@@ -47,13 +47,13 @@ public class HouseholdTypeTest {
 	@Before
 	public void setUp() {
 		
-		single = new HouseholdForDemand(null, 1, 0, null, null, 0, 0, 0, false);
-		couple = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, false);
-		multiadult = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, false);
-		multigeneration = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, false);
-		withKids0to7 = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, false);
-		withKids8to12 = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, false);
-		withKids13plus = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, false);
+		single = new HouseholdForDemand(null, 1, 0, null, null, 0, 0, 0, 0, false);
+		couple = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, 0, false);
+		multiadult = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, 0, false);
+		multigeneration = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, 0, false);
+		withKids0to7 = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, 0, false);
+		withKids8to12 = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, 0, false);
+		withKids13plus = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, 0, false);
 		
 		personSingle = newPerson(single, 20);
 		single.addPerson(personSingle);

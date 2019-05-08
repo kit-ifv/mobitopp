@@ -22,6 +22,7 @@ public class HouseholdForDemandTest {
 	private int numberOfNotSimulatedChildren;
 	private int totalNumberOfCars;
 	private int income;
+	private int incomeClass;
 	private boolean canChargePrivately;
 
 	@Before
@@ -36,21 +37,22 @@ public class HouseholdForDemandTest {
 		numberOfNotSimulatedChildren = 5;
 		totalNumberOfCars = 6;
 		income = 7;
+		incomeClass = 1;
 		canChargePrivately = true;
 	}
 
 	@Test
 	public void provideAttributes() {
 		HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, homeZone,
-				homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
+				homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
 
 		HouseholdAttributes attributes = household.attributes();
 		
 		assertThat(attributes, is(equalTo(householdAttributes())));
 	}
 
-	private HouseholdAttributes householdAttributes() {
-		return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
-				numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
-	}
+  private HouseholdAttributes householdAttributes() {
+    return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
+        numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
+  }
 }

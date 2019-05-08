@@ -40,6 +40,7 @@ public interface Household
 	int numberOfNotSimulatedChildren();
 
 	int monthlyIncomeEur();
+	int incomeClass();
 	Location homeLocation();
 
 	int nominalNumberOfCars();

@@ -32,6 +32,7 @@ public class HouseholdForDemand
   private final byte nominalSize;
 
 	private final int income;
+	private final int incomeClass;
 	private final boolean canChargePrivately;
   
   private List<Person> persons =  new ArrayList<>();
@@ -51,6 +52,7 @@ public class HouseholdForDemand
 		int numberOfNotSimulatedChildren,
 		int totalNumberOfCars,
 		int income,
+		int incomeClass, 
 		boolean canChargePrivately
 	)
   {
@@ -63,6 +65,7 @@ public class HouseholdForDemand
 		this.numberOfCars = (byte) totalNumberOfCars;
 		this.nominalSize = (byte) nominalSize;
 		this.income = income;
+		this.incomeClass = incomeClass;
 		this.canChargePrivately = canChargePrivately;
   }
 
@@ -241,6 +244,10 @@ public class HouseholdForDemand
 
 		return this.income;
 	}
+	
+	public int incomeClass() {
+	  return this.incomeClass;
+	}
 
 	public String forLogging() {
 
@@ -258,12 +265,12 @@ public class HouseholdForDemand
 
 		return buffer.toString();
 	}
-	
-	@Override
-	public HouseholdAttributes attributes() {
-		return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), homeZone(),
-				homeLocation(), numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
-				canChargePrivately());
+
+  @Override
+  public HouseholdAttributes attributes() {
+    return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), homeZone(),
+        homeLocation(), numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
+        incomeClass(), canChargePrivately());
 	}
 
 }

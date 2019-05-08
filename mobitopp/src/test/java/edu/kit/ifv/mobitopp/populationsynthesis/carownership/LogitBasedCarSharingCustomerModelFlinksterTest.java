@@ -81,6 +81,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			5, // not simulated people,
 																			4, // number of cars,
 																			3000, // income
+                                      1, // income class
 																			true
 																		);
 
@@ -94,6 +95,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			2, // not simulated people,
 																			0, // number of cars
 																			3000, // income
+                                      1, // income class
 																			true
 																		);
 
@@ -165,6 +167,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			nominalSize-1, // not simulated people,
 																			number_of_cars, // number of cars
 																			3000, // income
+																			1, // income class
 																			true
 																		);
 	}

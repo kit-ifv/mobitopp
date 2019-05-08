@@ -27,8 +27,9 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 	private static final int locationIndex = 6;
 	private static final int childrenIndex = 7;
 	private static final int carsIndex = 8;
-	private static final int incomeIndex = 9;
-	private static final int chargePrivatelyIndex = 10;
+  private static final int incomeIndex = 9;
+  private static final int incomeClassIndex = 10;
+	private static final int chargePrivatelyIndex = 11;
 	
 	private final ZoneRepository zoneRepository;
 	private final LocationParser locationParser;
@@ -39,11 +40,11 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		locationParser = new LocationParser();
 	}
 
-	@Override
-	public List<String> header() {
-		return asList("householdId", "year", "householdNumber", "nominalSize", "domCode", "homeZone",
-				"homeLocation", "numberOfNotSimulatedChildren", "totalNumberOfCars", "income",
-				"canChargePrivately");
+  @Override
+  public List<String> header() {
+    return asList("householdId", "year", "householdNumber", "nominalSize", "domCode", "homeZone",
+        "homeLocation", "numberOfNotSimulatedChildren", "totalNumberOfCars", "income",
+        "incomeClass", "canChargePrivately");
 	}
 
 	@Override
@@ -58,6 +59,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		int numberOfNotSimulatedChildren = attributes.numberOfNotSimulatedChildren;
 		int totalNumberOfCars = attributes.totalNumberOfCars;
 		int income = attributes.monthlyIncomeEur;
+		int incomeClass = attributes.incomeClass;
 		boolean canChargePrivately = attributes.canChargePrivately;
 		return asList( 
 				valueOf(householdOid), 
@@ -69,7 +71,8 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 				homeLocation, 
 				valueOf(numberOfNotSimulatedChildren),
 				valueOf(totalNumberOfCars), 
-				valueOf(income),
+        valueOf(income), 
+        valueOf(incomeClass),
 				valueOf(canChargePrivately)
 			);
 	}
@@ -87,9 +90,10 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		int numberOfNotSimulatedChildren = childrenOf(data);
 		int totalNumberOfCars = carsOf(data);
 		int income = incomeOf(data);
+		int incomeClass = incomeClassOf(data);
 		boolean canChargePrivately = chargePrivatelyOf(data);
-		HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, zone,
-				location, numberOfNotSimulatedChildren, totalNumberOfCars, income, canChargePrivately);
+    HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, zone,
+				location, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
 		assign(household, zone);
 		return household;
 	}
@@ -137,9 +141,13 @@ public class DefaultHouseholdFormat implements SerialiserFormat<Household> {
 		return Integer.parseInt(data.get(carsIndex));
 	}
 
-	private int incomeOf(List<String> data) {
-		return Integer.parseInt(data.get(incomeIndex));
-	}
+  private int incomeOf(List<String> data) {
+    return Integer.parseInt(data.get(incomeIndex));
+  }
+  
+  private int incomeClassOf(List<String> data) {
+    return Integer.parseInt(data.get(incomeClassIndex));
+  }
 
 	private boolean chargePrivatelyOf(List<String> data) {
 		return Boolean.parseBoolean(data.get(chargePrivatelyIndex));
