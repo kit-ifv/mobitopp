@@ -244,7 +244,7 @@ public class PersonForDemand implements Person, Serializable {
 	}
 
 	public boolean hasDrivingLicense() {
-		return hasAccessToCar() || hasPersonalCar();
+		return hasLicense;
 	}
 
 
