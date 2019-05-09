@@ -15,11 +15,18 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class MatrixPrinter {
 
-	private final Map<Integer,String> names;
+	private static final int defaultValuesPerLine = 10;
+  private final Map<Integer,String> names;
+  private final int valuesPerLine;
 
-	MatrixPrinter(Map<Integer,String> names) {
+	public MatrixPrinter(Map<Integer,String> names, int valuesPerLine) {
 		super();
 		this.names = names;
+    this.valuesPerLine = valuesPerLine;
+	}
+	
+	public MatrixPrinter(Map<Integer, String> names) {
+	  this(names, defaultValuesPerLine);
 	}
 
 	public void writeMatrixToFile(
@@ -99,7 +106,10 @@ public class MatrixPrinter {
 		int cnt = 0;
 
 		for (ZoneId id : matrixOids) {
-   		matrixIds += String.format("%1$10s",(!this.names.isEmpty() ? this.names.get(id.getMatrixColumn()) : id)) + " ";
+      matrixIds += String
+          .format("%1$10s",
+              (!this.names.isEmpty() ? this.names.get(id.getMatrixColumn()) : id.getExternalId()))
+          + " ";
    		matrixIds += (++cnt % 10 == 0 ? "\r\n" : ""); 
  		}
 
@@ -119,7 +129,7 @@ public class MatrixPrinter {
 		return names;
 	}
 
-	private static String dataToString(Matrix<? extends Number> matrix) {
+	private String dataToString(Matrix<? extends Number> matrix) {
 
 		Collection<ZoneId> ids = matrix.ids();
 
@@ -140,9 +150,9 @@ public class MatrixPrinter {
 
 				total += val.floatValue();
 
-   			if(++cnt % 10 == 0) { buf_line.append("\r\n"); }
+        if(++cnt % valuesPerLine == 0) { buf_line.append("\r\n"); }
 			}
-			buf.append("* Obj " + row + " Summe = " + String.format(Locale.US, "%1$6.3f",total) + "\r\n");
+			buf.append("* Obj " + row.getExternalId() + " Summe = " + String.format(Locale.US, "%1$6.3f",total) + "\r\n");
 			buf.append(buf_line.toString());
 			buf.append("\r\n");
 		}
