@@ -22,22 +22,15 @@ public abstract class DefaultMappings {
     types.add(Mode.PEDESTRIAN, TravelTimeMatrixType.pedestrian);
     types.add(Mode.PUBLICTRANSPORT, TravelTimeMatrixType.publictransport);
     types.add(Mode.TRUCK, TravelTimeMatrixType.truck);
-    types.add(Mode.TAXI, TravelTimeMatrixType.car);
-    types.add(Mode.PARK_AND_RIDE, TravelTimeMatrixType.car);
-    return types;
-  }
-  
-  public static DynamicTypeMapping createTaxiAndParkAndRide() {
-    DynamicTypeMapping types = createNormalModes();
-    types.add(Mode.TAXI, TravelTimeMatrixType.car);
-    types.add(Mode.PARK_AND_RIDE, TravelTimeMatrixType.car);
+    types.add(Mode.TAXI, TravelTimeMatrixType.taxi);
+    types.add(Mode.PARK_AND_RIDE, TravelTimeMatrixType.park_and_ride);
     return types;
   }
   
   public static DynamicTypeMapping autonomousModes() {
-    DynamicTypeMapping types = createTaxiAndParkAndRide();
-    types.add(Mode.PREMIUM_RIDE_HAILING, TravelTimeMatrixType.car);
-    types.add(Mode.RIDE_HAILING, TravelTimeMatrixType.car);
+    DynamicTypeMapping types = createNormalModes();
+    types.add(Mode.PREMIUM_RIDE_HAILING, TravelTimeMatrixType.premium_ride_hailing);
+    types.add(Mode.RIDE_HAILING, TravelTimeMatrixType.ride_hailing);
     types.add(Mode.RIDE_POOLING, TravelTimeMatrixType.ride_pooling);
     return types;
   }
