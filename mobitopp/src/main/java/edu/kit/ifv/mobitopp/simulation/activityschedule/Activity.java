@@ -21,6 +21,7 @@ public class Activity implements ActivityIfc {
   private int duration; // [in min]
   private final int observedTripDuration; // [in min]
 	private ZoneAndLocation zoneAndLocation = null;
+	private Time currentEndDate;
 	
 	private final float startFlexibility;
 	private final float endFlexibility;
@@ -52,12 +53,8 @@ public class Activity implements ActivityIfc {
 		this.startFlexibility = startFlexibility;
 		this.endFlexibility = endFlexibility;
 		this.durationFlexibility = durationFlexibility;
+		calculateCurrentEndDate();
   }
-
-	private void verifyDuration(int duration) {
-		assert duration >= 1 : duration;
-		assert duration <= 2 * maximumDuration : duration;
-	}
   
   public Activity(
   		int oid,
@@ -68,6 +65,15 @@ public class Activity implements ActivityIfc {
   		int observedTripDuration
   	) {
   	this(oid, activityNrOfWeek, activityType, startDate, duration, observedTripDuration, 1.0f, 0.0f, 1.0f);
+  }
+  
+  private void verifyDuration(int duration) {
+    assert duration >= 1 : duration;
+    assert duration <= 2 * maximumDuration : duration;
+  }
+  
+  private void calculateCurrentEndDate() {
+    currentEndDate = startDate().plusMinutes(duration());
   }
 
   public int getOid()
@@ -114,6 +120,7 @@ public class Activity implements ActivityIfc {
 		assert date_ != null;
 
     this.startDate = date_;
+    calculateCurrentEndDate();
   }
 
   public void changeDuration(int duration)
@@ -121,6 +128,7 @@ public class Activity implements ActivityIfc {
 		verifyDuration(duration);
 
     this.duration = duration;
+    calculateCurrentEndDate();
   }
 
   public ActivityType activityType()
@@ -130,9 +138,7 @@ public class Activity implements ActivityIfc {
 
   public Time calculatePlannedEndDate()
   {
-    Time date = startDate().plusMinutes(duration());
-    
-    return date;
+    return currentEndDate;
   }
 
   public boolean isLocationSet()
