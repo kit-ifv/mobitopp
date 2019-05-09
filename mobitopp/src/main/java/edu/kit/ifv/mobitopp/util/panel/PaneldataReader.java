@@ -7,6 +7,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +21,13 @@ public class PaneldataReader {
 
 
 	private static final int graduationUndefined = -1;
+	private final Map<String, String> missingColumns;
   public final Map<String,List<PaneldataInfo>> data;
 
 	
 	public PaneldataReader(File file) {
 		super();
-
+		missingColumns = new LinkedHashMap<>();
 		List<PaneldataInfo> input = readFile(file);
 		this.data = groupByHousehold(input);
 	}
@@ -78,11 +80,19 @@ public class PaneldataReader {
 		} catch (IOException cause) {
 			throw new UncheckedIOException("Could read file '" + file.getName() + "'", cause);
 		}
-
+		printMissingColumns();
 		return data;
 	}
 
-	private Reader readerFor(File file) throws IOException {
+	private void printMissingColumns() {
+    missingColumns
+        .entrySet()
+        .stream()
+        .map(e -> e.getKey() + " column not available in population data, using " + e.getValue())
+        .forEach(System.out::println);
+  }
+
+  Reader readerFor(File file) throws IOException {
 		return new InputStreamReader(StreamContent.of(file));
 	}
 
@@ -117,56 +127,40 @@ public class PaneldataReader {
 
 		String[] field = line.split(";");
 
-		info.household.household_number 	= java.lang.Long.parseLong(field[columnNames.get("id")]);
-		info.household.year 							= java.lang.Short.parseShort(field[columnNames.get("year")]);
-		info.household.area_type 					= java.lang.Integer.parseInt(field[columnNames.get("areatype")]);
-		info.household.household_size 		= java.lang.Integer.parseInt(field[columnNames.get("size")]);
-		info.household.domcode 						= java.lang.Integer.parseInt(field[columnNames.get("hhtype")]);
-		info.household.cars							= java.lang.Integer.parseInt(field[columnNames.get("cars")]);
-		info.person.pole								= java.lang.Integer.parseInt(field[columnNames.get("pole")]);
-		info.person.weight							= java.lang.Float.parseFloat(field[columnNames.get("weight")]);
-		info.person.person_number				= java.lang.Integer.parseInt(field[columnNames.get("personnumber")]);
+		info.household.household_number 	= Long.parseLong(field[columnNames.get("id")]);
+		info.household.year 							= Short.parseShort(field[columnNames.get("year")]);
+		info.household.area_type 					= Integer.parseInt(field[columnNames.get("areatype")]);
+		info.household.household_size 		= Integer.parseInt(field[columnNames.get("size")]);
+		info.household.domcode 						= Integer.parseInt(field[columnNames.get("hhtype")]);
+		info.household.cars							= Integer.parseInt(field[columnNames.get("cars")]);
+		info.person.pole								= Integer.parseInt(field[columnNames.get("pole")]);
+		info.person.weight							= Float.parseFloat(field[columnNames.get("weight")]);
+		info.person.person_number				= Integer.parseInt(field[columnNames.get("personnumber")]);
 		info.person.sex 								= readGender(columnNames, field);
-		info.person.graduation					= readGraduation(columnNames, field);
-		info.person.birth_year 					= java.lang.Integer.parseInt(field[columnNames.get("birthyear")]);
-		info.person.employment_type 		= java.lang.Integer.parseInt(field[columnNames.get("employmenttype")]);
-		info.person.pole_distance 			= java.lang.Integer.parseInt(field[columnNames.get("poledistance")]);
+		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
+		info.person.birth_year 					= Integer.parseInt(field[columnNames.get("birthyear")]);
+		info.person.employment_type 		= Integer.parseInt(field[columnNames.get("employmenttype")]);
+		info.person.pole_distance 			= Integer.parseInt(field[columnNames.get("poledistance")]);
 		info.person.commutation_ticket 	= field[columnNames.get("commuterticket")].trim().equals("1");
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
 		info.person.apkwverf 						= hasCarAvailable(columnNames, field);
 		info.person.ppkwverf 						= hasPersonalCar(columnNames, field);
 		
-		info.person.licence 						= columnNames.containsKey("licence")
-																		? field[columnNames.get("licence")].trim().equals("1") 
-																    : hasCarAvailable(columnNames, field) || hasPersonalCar(columnNames, field);
+		info.person.licence 						= hasLicence(columnNames, field);
 		
-		info.household.additionalchildren	= columnNames.containsKey("notcontainedchildren")
-															? java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildren")])
-															: (
-																	columnNames.containsKey("children")
-															? java.lang.Integer.parseInt(field[columnNames.get("children")]) : -1
-																	);
+		info.household.additionalchildren	= additionalChildren(columnNames, field);
 		
-		info.household.additionalchildrenmaxage	= columnNames.containsKey("notcontainedchildrenmaxage") 
-															? java.lang.Integer.parseInt(field[columnNames.get("notcontainedchildrenmaxage")]) : -1;
+		info.household.additionalchildrenmaxage	= getIntegerOrDefault(columnNames, field, "notcontainedchildrenmaxage", -1); 
 
-		info.household.income	=  columnNames.containsKey("hhincome")
-															? java.lang.Integer.parseInt(field[columnNames.get("hhincome")]) : 0;
-		info.household.income_class = columnNames.containsKey("hhincome_class")
-															    ? java.lang.Integer.parseInt(field[columnNames.get("hhincome_class")]) : 0;
-		info.person.income = columnNames.containsKey("incomeperson")
-															? java.lang.Integer.parseInt(field[columnNames.get("incomeperson")]) : 0;
+		info.household.income = getIntegerOrDefault(columnNames, field, "hhincome", 0);
+		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
+		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
 															
-		info.person.pref_cardriver = columnNames.containsKey("pref_cardriver")
-															? java.lang.Float.parseFloat(field[columnNames.get("pref_cardriver")]) : 0.0f;
-		info.person.pref_carpassenger = columnNames.containsKey("pref_cardriver")
-															? java.lang.Float.parseFloat(field[columnNames.get("pref_carpassenger")]) : 0.0f;
-		info.person.pref_walking = columnNames.containsKey("pref_walking")
-															? java.lang.Float.parseFloat(field[columnNames.get("pref_walking")]) : 0.0f;
-		info.person.pref_cycling = columnNames.containsKey("pref_cycling")
-															? java.lang.Float.parseFloat(field[columnNames.get("pref_cycling")]) : 0.0f;
-		info.person.pref_publictransport = columnNames.containsKey("pref_publictransport")
-															? java.lang.Float.parseFloat(field[columnNames.get("pref_publictransport")]) : 0.0f;
+		info.person.pref_cardriver = getFloatOrDefault(columnNames, field, "pref_cardriver", 0.0f);
+		info.person.pref_carpassenger = getFloatOrDefault(columnNames, field, "pref_cardriver", 0.0f);
+		info.person.pref_walking = getFloatOrDefault(columnNames, field, "pref_walking", 0.0f);
+		info.person.pref_cycling = getFloatOrDefault(columnNames, field, "pref_cycling", 0.0f);
+		info.person.pref_publictransport = getFloatOrDefault(columnNames, field, "pref_publictransport", 0.0f);
 
 		int startPattern = columnNames.get("activitypattern");
 
@@ -192,34 +186,71 @@ public class PaneldataReader {
 
 		return info;
 	}
+	
+	private float getFloatOrDefault(
+	    Map<String, Integer> columnNames, String[] field, String key, float defaultValue) {
+	  if (columnNames.containsKey(key)) {
+	    return Float.parseFloat(field[columnNames.get(key)]);
+	  }
+	  missingColumns.put(key, String.valueOf(defaultValue));
+	  return defaultValue;
+	}
+
+  private int getIntegerOrDefault(
+      Map<String, Integer> columnNames, String[] field, String key, int defaultValue) {
+    if (columnNames.containsKey(key)) {
+      return Integer.parseInt(field[columnNames.get(key)]);
+    }
+    missingColumns.put(key, String.valueOf(defaultValue));
+    return defaultValue;
+  }
+
+  private int additionalChildren(Map<String, Integer> columnNames, String[] field) {
+    if (columnNames.containsKey("notcontainedchildren")) {
+      return Integer.parseInt(field[columnNames.get("notcontainedchildren")]);
+    }
+    missingColumns.put("notcontainedchildren", "children");
+    if (columnNames.containsKey("children")) {
+      return Integer.parseInt(field[columnNames.get("children")]);
+    }
+    missingColumns.put("children", String.valueOf(-1));
+    return -1;
+  }
+
+  private boolean hasLicence(Map<String, Integer> columnNames, String[] field) {
+    if (columnNames.containsKey("licence")) {
+      return field[columnNames.get("licence")].trim().equals("1");
+    }
+    missingColumns.put("licence", "caravailable and personalcar");
+    return hasCarAvailable(columnNames, field) || hasPersonalCar(columnNames, field);
+  }
 
   private boolean hasCarAvailable(Map<String, Integer> columnNames, String[] field) {
-    return columnNames.containsKey("caravailable")
-        ? field[columnNames.get("caravailable")].trim().equals("1")
-        : false;
+    return getBooleanOrDefault(columnNames, field, "caravailable");
   }
 
   private boolean hasPersonalCar(Map<String, Integer> columnNames, String[] field) {
-    return columnNames.containsKey("personalcar")
-        ? field[columnNames.get("personalcar")].trim().equals("1")
-        : false;
+    return getBooleanOrDefault(columnNames, field, "personalcar");
+  }
+
+  private boolean getBooleanOrDefault(
+      Map<String, Integer> columnNames, String[] field, String key) {
+    if (columnNames.containsKey(key)) {
+      return field[columnNames.get("personalcar")].trim().equals("1");
+    }
+    missingColumns.put(key, String.valueOf(false));
+    return false;
   }
 
   private int readGender(Map<String, Integer> columnNames, String[] field) {
     if (columnNames.containsKey("gender")) {
       return Integer.parseInt(field[columnNames.get("gender")]);
     }
+    missingColumns.put("gender", "sex");
     return Integer.parseInt(field[columnNames.get("sex")]);
   }
 
-  private int readGraduation(Map<String, Integer> columnNames, String[] field) {
-    if (columnNames.containsKey("graduation")) {
-      return Integer.parseInt(field[columnNames.get("graduation")]);
-    }
-    return graduationUndefined;
-  }
-
-	private Map<String,List<PaneldataInfo>> groupByHousehold(List<PaneldataInfo> input) {
+  private Map<String,List<PaneldataInfo>> groupByHousehold(List<PaneldataInfo> input) {
 		List<String> hhIds = new ArrayList<String>();
 
 		Map<String,List<PaneldataInfo>> infoByHousehold = new LinkedHashMap<String,List<PaneldataInfo>>();
@@ -427,5 +458,9 @@ public class PaneldataReader {
 
 		return result.substring(0,result.lastIndexOf(";"));
 	}
+
+  public Map<String, String> missingColumns() {
+    return Collections.unmodifiableMap(missingColumns);
+  }
 
 }
