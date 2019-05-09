@@ -435,7 +435,7 @@ public class SimpleTimeTest {
 	
 	@Test
 	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(SimpleTime.class).withIgnoredFields("weekDay").usingGetClass().verify();
+		EqualsVerifier.forClass(SimpleTime.class).withOnlyTheseFields("seconds").usingGetClass().verify();
 	}
 	
 	@Test

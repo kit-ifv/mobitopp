@@ -8,6 +8,7 @@ public class SimpleTime implements Time, Comparable<Time> {
 
   private final long seconds;
   private final DayOfWeek weekDay;
+  private final RelativeTime fromStart;
 
   public SimpleTime() {
     this(0);
@@ -16,6 +17,7 @@ public class SimpleTime implements Time, Comparable<Time> {
   public SimpleTime(long seconds) {
     super();
     this.seconds = seconds;
+    fromStart = RelativeTime.ofSeconds(seconds);
     weekDay = calculateWeekDay();
   }
   
@@ -241,7 +243,7 @@ public class SimpleTime implements Time, Comparable<Time> {
 
   @Override
   public RelativeTime fromStart() {
-    return RelativeTime.ofSeconds(seconds);
+    return fromStart;
   }
 
   public Time plus(int amount, ChronoUnit unit) {
