@@ -1,13 +1,17 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import java.util.Comparator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class TimeSpan {
+public class TimeSpan implements Comparable<TimeSpan> {
 
-	private int from;
+  private static final Comparator<TimeSpan> comparator = Comparator
+      .comparing(TimeSpan::getFrom)
+      .thenComparing(TimeSpan::getTo);
+  private int from;
 	private int to;
 
 	public TimeSpan(int from, int to) {
@@ -73,6 +77,11 @@ public class TimeSpan {
 
 	private int startOfNextSpan() {
 		return to + 1;
+	}
+	
+	@Override
+	public int compareTo(TimeSpan other) {
+	  return comparator.compare(this, other);
 	}
 
 	@Override
