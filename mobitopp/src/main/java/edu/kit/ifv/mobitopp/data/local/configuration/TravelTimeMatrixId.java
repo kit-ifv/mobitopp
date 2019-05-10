@@ -7,9 +7,9 @@ import edu.kit.ifv.mobitopp.data.DayType;
 
 public class TravelTimeMatrixId {
 
-	private TravelTimeMatrixType matrixType;
-	private DayType dayType;
-	private TimeSpan timeSpan;
+	private final TravelTimeMatrixType matrixType;
+	private final DayType dayType;
+	private final TimeSpan timeSpan;
 
 	public TravelTimeMatrixId(TravelTimeMatrixType matrixType, DayType dayType, TimeSpan timeSpan) {
 		super();
