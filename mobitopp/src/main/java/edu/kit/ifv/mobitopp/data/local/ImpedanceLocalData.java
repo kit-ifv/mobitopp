@@ -39,7 +39,7 @@ public class ImpedanceLocalData implements ImpedanceIfc {
 
   @Override
   public float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date) {
-    return matrices.travelTimeFor(mode, date).get(origin.getMatrixColumn(), destination.getMatrixColumn());
+    return matrices.travelTimeFor(mode, date).get(origin, destination);
   }
 
   @Override
@@ -47,14 +47,12 @@ public class ImpedanceLocalData implements ImpedanceIfc {
     if(mode == Mode.BIKE || mode == Mode.PASSENGER || mode == Mode.PEDESTRIAN) {
     	return 0.0f;
     }
-    return matrices.travelCostFor(mode, date).get(origin.getMatrixColumn(), destination.getMatrixColumn());
+    return matrices.travelCostFor(mode, date).get(origin, destination);
   }
 
   @Override
   public float getDistance(ZoneId origin, ZoneId destination) {
-    return matrices
-        .distanceMatrix(start)
-        .get(origin.getMatrixColumn(), destination.getMatrixColumn());
+    return matrices.distanceMatrix(start).get(origin, destination);
   }
 
   @Override
@@ -65,15 +63,12 @@ public class ImpedanceLocalData implements ImpedanceIfc {
 
   @Override
   public float getParkingStress(ZoneId destination, Time date) {
-    int destinationId = destination.getMatrixColumn();
-    return matrices.parkingStressMatrix(date).get(destinationId, destinationId);
+    return matrices.parkingStressMatrix(date).get(destination, destination);
   }
 
   @Override
   public float getConstant(ZoneId origin, ZoneId destination, Time date) {
-    return matrices
-        .constantMatrix(date)
-        .get(origin.getMatrixColumn(), destination.getMatrixColumn());
+    return matrices.constantMatrix(date).get(origin, destination);
   }
 
   @Override
