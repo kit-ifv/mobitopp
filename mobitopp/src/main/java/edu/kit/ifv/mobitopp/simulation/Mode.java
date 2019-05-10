@@ -136,6 +136,8 @@ public enum Mode {
 			case RIDE_POOLING:
 			case RIDE_HAILING:
 			case PREMIUM_RIDE_HAILING:
+			case TAXI:
+			case TRUCK:
 				return true;
 			case BIKE:
 			case CAR:
