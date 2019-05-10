@@ -140,7 +140,7 @@ public class PaneldataReader {
 		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
 		info.person.birth_year 					= Integer.parseInt(field[columnNames.get("birthyear")]);
 		info.person.employment_type 		= Integer.parseInt(field[columnNames.get("employmenttype")]);
-		info.person.pole_distance 			= Integer.parseInt(field[columnNames.get("poledistance")]);
+		info.person.pole_distance 			= getPoleDistance(columnNames, field);
 		info.person.commutation_ticket 	= field[columnNames.get("commuterticket")].trim().equals("1");
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
 		info.person.apkwverf 						= hasCarAvailable(columnNames, field);
@@ -186,6 +186,10 @@ public class PaneldataReader {
 
 		return info;
 	}
+
+  private int getPoleDistance(Map<String, Integer> columnNames, String[] field) {
+    return Double.valueOf(field[columnNames.get("poledistance")]).intValue();
+  }
 	
 	private float getFloatOrDefault(
 	    Map<String, Integer> columnNames, String[] field, String key, float defaultValue) {
