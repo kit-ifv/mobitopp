@@ -25,7 +25,11 @@ public class LogitParameters {
    * @return value for given parameter
    */
   public double get(String parameter) {
-    return parameters.getOrDefault(parameter, defaultValue);
+    if (parameters.containsKey(parameter)) {
+      return parameters.get(parameter);
+    }
+    System.out.println(String.format("Logit parameter missing: %s using %s instead", parameter, defaultValue));
+    return defaultValue;
   }
 
   public Map<String, Double> toMap() {
