@@ -48,7 +48,7 @@ public class PersonId implements Comparable<PersonId>, Serializable {
 	
 
 	public String toString() {
-		return "(" + householdId + "," + personNumber + ")";
+		return oid + "(" + householdId + "," + personNumber + ")";
 	}
 
 

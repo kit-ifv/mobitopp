@@ -20,8 +20,8 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class InMemoryMatricesTest {
 
-	private static final int someZone = 1;
-	private static final int anotherZone = 2;
+	private static final int someZone = 0;
+	private static final int anotherZone = 1;
 	private static final int firstHour = 0;
 	private static final int secondHour = 1;
 

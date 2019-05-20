@@ -534,7 +534,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 	public Integer getZoneId(ZoneId zoneId) {
 
-		return Integer.valueOf(zoneId.getExternalId().substring(1));
+		return Integer.valueOf(zoneId.getExternalId());
 	}
 
 	public void startTrip(

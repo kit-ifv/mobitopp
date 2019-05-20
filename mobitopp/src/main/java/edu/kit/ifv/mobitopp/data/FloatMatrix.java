@@ -48,10 +48,10 @@ public class FloatMatrix
 
   public Float get(int row,int column)
   {
-		assert row > 0 && row <= size;
-		assert column > 0 && column <= size;
+		assert row >= 0 && row < size;
+		assert column >= 0 && column < size;
 
-    return this.matrix[row-1][column-1];
+    return this.matrix[row][column];
   }
 
 	public Float get(ZoneId origin, ZoneId destination) {
@@ -60,10 +60,10 @@ public class FloatMatrix
 
   public void set(int row, int column, Float value)
   {
-		assert row > 0 && row <= size : ("row=" + row + ", size=" + size);
-		assert column > 0 && column <= size : ("column=" + column + ", size=" + size);
+		assert row >= 0 && row < size : ("row=" + row + ", size=" + size);
+		assert column >= 0 && column < size : ("column=" + column + ", size=" + size);
 
-    this.matrix[row-1][column-1] = value;
+    this.matrix[row][column] = value;
   }
   
   public void set(ZoneId origin, ZoneId destination, Float value) {

@@ -120,7 +120,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	}
 
 	private Attractivities attractivitiesOf(List<String> data) {
-		int id = Integer.parseInt(idOf(data).substring(1));
+		int id = Integer.parseInt(idOf(data));
 		return attractivities.get(id);
 	}
 

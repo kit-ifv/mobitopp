@@ -28,8 +28,8 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 public class ImpedanceLocalDataTest {
 
-  private static final int originOid = 1;
-  private static final int destinationOid = 2;
+  private static final int originOid = 0;
+  private static final int destinationOid = 1;
   private static final ZoneId origin = new ZoneId("1", originOid);
 	private static final ZoneId destination = new ZoneId("2", destinationOid);
 	private static final Time date = Data.someTime();

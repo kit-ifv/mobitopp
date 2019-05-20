@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.DataSource;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.InputSpecification;
 import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
@@ -34,6 +37,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.CarSharingWriter;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
@@ -42,6 +46,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.LocalPersonLoader;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalFiles implements DataSource {
@@ -128,7 +133,7 @@ public class LocalFiles implements DataSource {
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
-				areaTypeRepository);
+				areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
@@ -163,10 +168,13 @@ public class LocalFiles implements DataSource {
 
 	private ZoneRepository loadZonesFromVisum(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
-			AreaTypeRepository areaTypeRepository) throws IOException {
+			AreaTypeRepository areaTypeRepository, Matrices matrices) throws IOException {
+	  FixedDistributionMatrix matrix = matrices.fixedDistributionMatrixFor(ActivityType.WORK);
+	  Map<String, Integer> map = matrix.ids().stream().collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
+	  IdToOidMapper mapper = map::get;
 		ZoneRepository fromVisum = LocalZoneRepository
 				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile,
-						areaTypeRepository);
+						areaTypeRepository, mapper);
 		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);
 		return fromVisum;
@@ -212,8 +220,8 @@ public class LocalFiles implements DataSource {
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
 			throws IOException {
-		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository);
-		Matrices matrices = matrices(modeToType);
+	  Matrices matrices = matrices(modeToType);
+		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones);
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
@@ -230,13 +238,13 @@ public class LocalFiles implements DataSource {
   }
 
   private ZoneRepository loadZonesFromMobiTopp(
-			Supplier<Network> networkSupplier, AreaTypeRepository areaTypeRepository) throws IOException {
+			Supplier<Network> networkSupplier, AreaTypeRepository areaTypeRepository, Matrices matrices) throws IOException {
 		ZoneRepositorySerialiser serialisedData = createSerialiser(areaTypeRepository);
 		if (serialisedData.isAvailable()) {
 			return serialisedData.load();
 		}
 		Network network = networkSupplier.get();
-		return loadZonesFromVisum(network.visumNetwork, network.roadNetwork, areaTypeRepository);
+		return loadZonesFromVisum(network.visumNetwork, network.roadNetwork, areaTypeRepository, matrices);
 	}
 
 	private ZoneRepositorySerialiser createSerialiser(AreaTypeRepository areaTypeRepository) {

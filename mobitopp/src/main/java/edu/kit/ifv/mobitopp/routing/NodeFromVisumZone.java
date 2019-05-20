@@ -18,7 +18,7 @@ public class NodeFromVisumZone
 	}
 	
 	private NodeFromVisumZone(VisumZone zone, boolean isSink) {
-		super("Z" + zone.id);
+		super(String.valueOf(zone.id));
 		this.visumZone = zone;
 		this.isSink = isSink;
 	}

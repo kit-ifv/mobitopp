@@ -13,14 +13,13 @@ public class NodeFromVisumNode
 
 
 	public NodeFromVisumNode(VisumNode node) {
-
-		super("N" + node.id());
+		super(String.valueOf(node.id()));
 		this.node = node;
 		target = false;
 	}
 
 	public NodeFromVisumNode(VisumNode node, boolean target) {
-		super("N" + node.id());
+		super(String.valueOf(node.id()));
 		this.node = node;
 		this.target = target;
 	}

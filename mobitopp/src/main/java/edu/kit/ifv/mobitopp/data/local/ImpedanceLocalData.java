@@ -57,8 +57,7 @@ public class ImpedanceLocalData implements ImpedanceIfc {
 
   @Override
   public float getParkingCost(ZoneId destination, Time date) {
-    int destinationId = destination.getMatrixColumn();
-    return matrices.parkingCostMatrix(date).get(destinationId, destinationId);
+    return matrices.parkingCostMatrix(date).get(destination, destination);
   }
 
   @Override

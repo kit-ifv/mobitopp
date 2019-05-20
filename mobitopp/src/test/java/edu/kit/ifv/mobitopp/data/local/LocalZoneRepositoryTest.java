@@ -19,7 +19,7 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 public class LocalZoneRepositoryTest {
 
   private static final int zoneOid = 1;
-  private static final String zoneId = "Z1";
+  private static final String zoneId = "1";
   private static final ZoneId id = new ZoneId(zoneId, zoneOid);
   private static final int missingOid = 2;
   private Zone zone;

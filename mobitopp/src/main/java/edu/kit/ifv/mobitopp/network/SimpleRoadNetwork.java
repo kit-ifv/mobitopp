@@ -200,7 +200,7 @@ System.out.println("parsing zone " + id);
 
 	public Zone zone(ZoneId id) {
 
-		Integer zoneId = Integer.valueOf(id.getExternalId().substring(1));
+		Integer zoneId = Integer.valueOf(id.getExternalId());
 
 		return zones.get(zoneId);
 	}

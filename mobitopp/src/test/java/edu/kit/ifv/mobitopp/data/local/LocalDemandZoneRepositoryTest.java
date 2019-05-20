@@ -66,9 +66,9 @@ public class LocalDemandZoneRepositoryTest {
 	}
 
 	private void createZones() {
-		createZoneWithOid(0, "Z1");
-		createZoneWithOid(1, "Z2");
-		createZoneWithOid(2, "Z3");
+		createZoneWithOid(0, "1");
+		createZoneWithOid(1, "2");
+		createZoneWithOid(2, "3");
 	}
 
 	private Zone createZoneWithOid(int oid, String id) {

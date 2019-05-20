@@ -51,7 +51,7 @@ public class UseLocalDataTest {
     SimulationExample.startSimulation(new File("config/leopoldshafen/simulation.yaml"));
   }
 
-  @ParameterizedTest
+  @ParameterizedTest(name="{0}")
   @MethodSource("logFileNames")
   public void logFilesContainExpectedContent(ResultFile logFile) throws Exception {
     assertThat(logFile.actualFile(), logFile.createMatcher(this.getClass()));

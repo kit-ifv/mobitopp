@@ -86,6 +86,6 @@ public class VisumMatrixTest {
   }
 
   private List<ZoneId> oids() {
-    return asList(new ZoneId("1", 1), new ZoneId("2", 2));
+    return asList(new ZoneId("1", 0), new ZoneId("2", 1));
   }
 }

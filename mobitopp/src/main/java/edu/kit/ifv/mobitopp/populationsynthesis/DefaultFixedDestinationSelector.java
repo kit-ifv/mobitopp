@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -121,10 +121,10 @@ implements FixedDestinationSelector
     for (ZoneId destinationId : zoneRepository.getZoneIds()) {
       Float dist_float = this.impedance.getDistance(homeId, destinationId);
       Integer dist = dist_float.intValue();
-      Float count = distMatrix.get(homeId.getMatrixColumn(), destinationId.getMatrixColumn());
+      Float count = distMatrix.get(homeId, destinationId);
       if (count > 0.0f || destinationId.equals(zone.getId())) {
         if (distances.get(dist) == null) {
-          distances.put(dist, new HashMap<>());
+          distances.put(dist, new LinkedHashMap<>());
         }
 
         if (count == 0.0f) { // work-around in case that no target zone exists

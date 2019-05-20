@@ -16,7 +16,6 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
-import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
@@ -34,14 +33,16 @@ public class ZonesReaderCsvBased implements ZonesReader {
   private final ChargingDataBuilder chargingDataBuilder;
   private final AttractivitiesData attractivities;
   private final ZoneLocationSelector locationSelector;
+  private final IdToOidMapper idToOid;
 
   ZonesReaderCsvBased(
       VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, AttractivitiesData attractivities,
-      ChargingType charging, DefaultPower defaultPower) {
+      ChargingType charging, DefaultPower defaultPower, IdToOidMapper mapper) {
     super();
     this.visumNetwork = visumNetwork;
     this.roadNetwork = roadNetwork;
     this.attractivities = attractivities;
+    this.idToOid = mapper;
     ChargingDataFactory factory = charging.factory(defaultPower);
     locationSelector = new ZoneLocationSelector(roadNetwork);
     chargingDataBuilder = new ChargingDataBuilder(visumNetwork, locationSelector, factory,
@@ -50,15 +51,13 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
   @Override
   public List<Zone> getZones() {
-    IdSequence ids = new IdSequence();
-    IdToOidMapper idToOidMapper = z -> ids.nextId();
     attractivities.resetIndex();
     ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
     Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
     List<Zone> zones = new ArrayList<>();
     while (attractivities.hasNext()) {
       VisumZone visumZone = visumNetwork.zones.get(attractivities.currentZone());
-      zones.add(zoneFrom(visumZone, idToOidMapper));
+      zones.add(zoneFrom(visumZone));
       System.out
           .println(
               String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
@@ -67,11 +66,10 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return zones;
   }
 
-  private Zone zoneFrom(VisumZone visumZone, IdToOidMapper idToOidMapper) {
+  private Zone zoneFrom(VisumZone visumZone) {
     String visumId = String.valueOf(visumZone.id);
-    int oid = idToOidMapper.map(visumId);
-    String id = String.format("Z%1d", visumZone.id);
-    ZoneId zoneId = new ZoneId(id, oid);
+    int oid = idToOid.map(visumId);
+    ZoneId zoneId = new ZoneId(visumId, oid);
     String name = visumZone.name;
     AreaType areaType = currentZoneAreaType(visumId);
     RegionType regionType = regionType(visumId);
@@ -145,11 +143,11 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
   public static ZonesReaderCsvBased from(
       VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-      DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository) {
+      DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
     AttractivitiesData attractivityData = structuralDataFrom(attractivityDataFile,
         areaTypeRepository);
     return new ZonesReaderCsvBased(visumNetwork, roadNetwork, attractivityData, charging,
-        defaultPower);
+        defaultPower, mapper);
   }
 
   private static AttractivitiesData structuralDataFrom(

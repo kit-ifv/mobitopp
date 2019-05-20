@@ -82,16 +82,16 @@ public class Zone implements Serializable {
 
 	public boolean isExternal() {
 
-		String id = "Z" + id().toString();
+		String id = id().toString();
 
-		return id.length() > 6 && Integer.valueOf(id.substring(1,2)) < 7;
+		return id.length() > 5 && Integer.valueOf(id.substring(0,1)) < 7;
 	}
 
 	public boolean isOuter() {
 	
-		String id = "Z" + id().toString();
+		String id = id().toString();
 
-		return id.length() > 6 && Integer.valueOf(id.substring(1,2)) >= 7;
+		return id.length() > 5 && Integer.valueOf(id.substring(0,1)) >= 7;
 	}
 
 	public Point2D center() {

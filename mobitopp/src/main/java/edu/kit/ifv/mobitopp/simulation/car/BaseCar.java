@@ -162,7 +162,7 @@ public abstract class BaseCar implements Car, Serializable {
       pass += "," + passenger.getOid();
     }
 
-    return pass.length() == 0 ? "" : pass.substring(1);
+    return pass.length() == 0 ? "" : pass;
   }
 
   public void start(Time currentTime){

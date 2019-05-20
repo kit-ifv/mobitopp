@@ -12,11 +12,11 @@ public class StateTest {
 
   @Test
   void parsesZoneTime() throws Exception {
-    String zone = "Z1";
+    String zone = "1";
     RelativeTime time = RelativeTime.ofMinutes(1).plusSeconds(2);
     String serialised = serialised(time);
     Row row = Row
-        .createRow(asList("Z1", serialised, "1", "2", "0s"),
+        .createRow(asList("1", serialised, "1", "2", "0s"),
             asList("STRECKE\\NACHKNOTEN\\BEZIRKNR", "STRECKE\\T0-IVSYS(P)", "VONKNOTNR", "NACHKNOTNR", "ABBIEGER\\T0-IVSYS(P)"));
     RouteReader routeReader = mock(RouteReader.class);
     State.intermediateZone.parse(row, routeReader);

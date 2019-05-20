@@ -33,7 +33,7 @@ import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 public class DefaultZoneFormatTest {
 
 	private static final int oid = 1;
-	private static final String id = "Z12345";
+	private static final String id = "12345";
 	private static final String name = "zone name";
 	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final RegionType regionType = new DefaultRegionType(1);
@@ -58,7 +58,7 @@ public class DefaultZoneFormatTest {
 	}
 
 	private int zoneId() {
-		return Integer.parseInt(id.substring(1));
+		return Integer.parseInt(id);
 	}
 
 	@Test

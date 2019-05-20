@@ -23,7 +23,7 @@ public class Zone implements Serializable {
 	protected final static byte INITIAL_VERSION = 1;
 
 	public static final long serialVersionUID = 3459190403580397878L;
-  public final static String IDPREFIX = "Z";
+  public final static String IDPREFIX = "";
 
   private final ZoneId internalId;
 	private String name = null;
