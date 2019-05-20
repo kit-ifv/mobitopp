@@ -150,18 +150,18 @@ class CommutationTicketModelStuttgart
 
 		verifyZoneId(id);
 
-		if (id.substring(0,2).equals("Z1")) { return Landkreis.LB; }
-		if (id.substring(0,2).equals("Z2")) { return Landkreis.S; }
-		if (id.substring(0,2).equals("Z3")) { return Landkreis.WN; }
-		if (id.substring(0,2).equals("Z4")) { return Landkreis.BB; }
-		if (id.substring(0,2).equals("Z5")) { return Landkreis.ES; }
-		if (id.substring(0,2).equals("Z6")) { return Landkreis.GP; }
+		if (id.substring(0,1).equals("1")) { return Landkreis.LB; }
+		if (id.substring(0,1).equals("2")) { return Landkreis.S; }
+		if (id.substring(0,1).equals("3")) { return Landkreis.WN; }
+		if (id.substring(0,1).equals("4")) { return Landkreis.BB; }
+		if (id.substring(0,1).equals("5")) { return Landkreis.ES; }
+		if (id.substring(0,1).equals("6")) { return Landkreis.GP; }
 
 		return fallback;
 	}
 
 	private static void verifyZoneId(String id) {
-		if (id.length() > 6) {
+		if (id.length() > 5) {
 			throw new IllegalArgumentException("zoneID out of range in 'CommutationTicketModel:getLandkreis'");
 		}
 	}

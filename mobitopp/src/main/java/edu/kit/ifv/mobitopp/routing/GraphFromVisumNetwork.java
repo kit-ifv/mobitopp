@@ -96,8 +96,8 @@ public class GraphFromVisumNetwork implements Graph {
 	protected static Map<Integer, Node> nodesFromLinks(Map<String, Link> links) {
 		HashMap<Integer,Node> data = new HashMap<Integer,Node>();
 		for (Link link : links.values()) {
-			data.put(Integer.valueOf(link.from().id().substring(1)),link.from());
-			data.put(Integer.valueOf(link.to().id().substring(1)),link.to());
+			data.put(Integer.valueOf(link.from().id()),link.from());
+			data.put(Integer.valueOf(link.to().id()),link.to());
 		}
 
 		return data;

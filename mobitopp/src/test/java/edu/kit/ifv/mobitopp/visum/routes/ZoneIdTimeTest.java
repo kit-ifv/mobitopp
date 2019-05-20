@@ -13,7 +13,7 @@ public class ZoneIdTimeTest {
 
   @Test
   void withChangedTime() throws Exception {
-    String zone = "Z1";
+    String zone = "1";
     RelativeTime time = RelativeTime.ofMinutes(1);
     RelativeTime extension = RelativeTime.ofMinutes(2);
     ZoneIdTime zoneTime = new ZoneIdTime(zone, time);

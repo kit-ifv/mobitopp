@@ -123,7 +123,7 @@ public class MatrixPrinter {
 	private static Map<Integer,String> makeNames(Map<ZoneId, Zone> zones) {
 		Map<Integer,String> names = new HashMap<>();
 		for (ZoneId id : zones.keySet()) {
-			String zoneId = id.getExternalId().replace("Z","");
+			String zoneId = id.getExternalId();
 			names.put(id.getMatrixColumn(), zoneId);
 		}
 		return names;

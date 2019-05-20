@@ -5,12 +5,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class FloatMatrixTest {
 
@@ -21,11 +22,15 @@ public class FloatMatrixTest {
 
   private List<ZoneId> ids;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-    ids = Stream.of(1, 2, 3, 4).map(this::newZoneId).collect(toList());
+    ids = columns().map(this::newZoneId).collect(toList());
 		this.matrix = new FloatMatrix(ids, DEFAULT_VALUE);
 	}
+
+  private Stream<Integer> columns() {
+    return Stream.of(0, 1, 2, 3);
+  }
 
   private ZoneId newZoneId(int id) {
     return new ZoneId("" + id, id);
@@ -38,12 +43,10 @@ public class FloatMatrixTest {
 	}
 
 	@Test
-	public void testOids() {
-		assertTrue(matrix.ids().contains(newZoneId(1)));
-		assertTrue(matrix.ids().contains(newZoneId(2)));
-		assertTrue(matrix.ids().contains(newZoneId(3)));
-		assertTrue(matrix.ids().contains(newZoneId(4)));
-		assertFalse(matrix.ids().contains(newZoneId(5)));
+  public void testOids() {
+    assertAll(
+        columns().map(this::newZoneId).map(id -> () -> assertTrue(matrix.ids().contains(id))));
+    assertFalse(matrix.ids().contains(newZoneId(5)));
 
 		assertTrue(matrix.ids().containsAll(ids));
 		assertTrue(ids.containsAll(matrix.ids()));
@@ -51,26 +54,26 @@ public class FloatMatrixTest {
 
 	@Test
 	public void testSet() {
-		matrix.set(1, 1, 10.0f);
-		matrix.set(1, 2, 11.0f);
-		matrix.set(1, 3, 12.0f);
-		matrix.set(1, 4, 13.0f);
+		matrix.set(0, 0, 10.0f);
+		matrix.set(0, 1, 11.0f);
+		matrix.set(0, 2, 12.0f);
+		matrix.set(0, 3, 13.0f);
 
-		matrix.set(2, 1, 21.0f);
-		matrix.set(3, 1, 31.0f);
-		matrix.set(4, 1, 41.0f);
+		matrix.set(1, 0, 21.0f);
+		matrix.set(2, 0, 31.0f);
+		matrix.set(3, 0, 41.0f);
 
-		assertEquals(10.0f, matrix.get(1, 1), withMargin);
-		assertEquals(11.0f, matrix.get(1, 2), withMargin);
-		assertEquals(12.0f, matrix.get(1, 3), withMargin);
-		assertEquals(13.0f, matrix.get(1, 4), withMargin);
+		assertEquals(10.0f, matrix.get(0, 0), withMargin);
+		assertEquals(11.0f, matrix.get(0, 1), withMargin);
+		assertEquals(12.0f, matrix.get(0, 2), withMargin);
+		assertEquals(13.0f, matrix.get(0, 3), withMargin);
 
-		assertNotNull(matrix.get(4, 4));
-		assertEquals(DEFAULT_VALUE, matrix.get(4, 4), withMargin);
+		assertNotNull(matrix.get(3, 3));
+		assertEquals(DEFAULT_VALUE, matrix.get(3, 3), withMargin);
 
-		assertEquals(21.0f, matrix.get(2, 1), withMargin);
-		assertEquals(31.0f, matrix.get(3, 1), withMargin);
-		assertEquals(41.0f, matrix.get(4, 1), withMargin);
+		assertEquals(21.0f, matrix.get(1, 0), withMargin);
+		assertEquals(31.0f, matrix.get(2, 0), withMargin);
+		assertEquals(41.0f, matrix.get(3, 0), withMargin);
 	}
 
 }

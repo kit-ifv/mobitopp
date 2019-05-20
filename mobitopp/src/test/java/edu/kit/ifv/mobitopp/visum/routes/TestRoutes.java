@@ -30,31 +30,31 @@ public class TestRoutes {
   }
 
   private void addSomeRoute(String wegindex, String viaZone, String connectorTime) {
-    createRow(asList("Z1", "Z2", wegindex, "1", "2", "0", "", "", "3m 6s", "", "", ""));
-    createRow(asList("", "", wegindex, "1", "2", "1", "Z1", viaZone, "", "1m 2s", connectorTime, connectorTime));
+    createRow(asList("1", "2", wegindex, "1", "2", "0", "", "", "3m 6s", "", "", ""));
+    createRow(asList("", "", wegindex, "1", "2", "1", "1", viaZone, "", "1m 2s", connectorTime, connectorTime));
     createRow(asList("", "", wegindex, "1", "2", "2", viaZone, viaZone, "", "1m 2s", connectorTime, connectorTime));
-    createRow(asList("", "", wegindex, "1", "2", "3", viaZone, "Z2", "", "1m 2s", connectorTime, connectorTime));
+    createRow(asList("", "", wegindex, "1", "2", "3", viaZone, "2", "", "1m 2s", connectorTime, connectorTime));
   }
 
   void addSomeRoute() {
     String wegindex = "1";
-    String viaZone = "Z3";
+    String viaZone = "3";
     addSomeRoute(wegindex, viaZone);
   }
 
   void addOtherRoute() {
-    createRow(asList("Z4", "Z7", "1", "1", "2", "0", "", "", "3m 6s", "", "", ""));
-    createRow(asList("", "", "1", "1", "2", "1", "Z4", "Z5", "", "1m 2s", "0s", "0s"));
-    createRow(asList("", "", "1", "1", "2", "2", "Z5", "Z6", "", "1m 2s", "0s", "0s"));
-    createRow(asList("", "", "1", "1", "2", "3", "Z6", "Z7", "", "1m 2s", "0s", "0s"));
+    createRow(asList("4", "7", "1", "1", "2", "0", "", "", "3m 6s", "", "", ""));
+    createRow(asList("", "", "1", "1", "2", "1", "4", "5", "", "1m 2s", "0s", "0s"));
+    createRow(asList("", "", "1", "1", "2", "2", "5", "6", "", "1m 2s", "0s", "0s"));
+    createRow(asList("", "", "1", "1", "2", "3", "6", "7", "", "1m 2s", "0s", "0s"));
   }
 
   void addRouteWithoutIntermediate() {
-    createRow(asList("Z2", "Z4", "1", "1", "2", "0", "", "", "1m 2s", "", "0s", "0s"));
+    createRow(asList("2", "4", "1", "1", "2", "0", "", "", "1m 2s", "", "0s", "0s"));
   }
   
   void addSomeRouteWithConnector() {
-    addSomeRoute("1", "Z3", connectorTime);
+    addSomeRoute("1", "3", connectorTime);
   }
 
   private void createRow(List<String> values) {
@@ -80,12 +80,12 @@ public class TestRoutes {
   }
 
   OdPair someOdPair() {
-    return new OdPair("Z1", "Z2");
+    return new OdPair("1", "2");
   }
 
   ZoneRoute someRoute() {
-    ZoneIdTime atDestination = new ZoneIdTime("Z2", defaultTravelTime.multiplyBy(2));
-    return new ZoneRoute(newZoneTime("Z3"), atDestination);
+    ZoneIdTime atDestination = new ZoneIdTime("2", defaultTravelTime.multiplyBy(2));
+    return new ZoneRoute(newZoneTime("3"), atDestination);
   }
 
   private ZoneIdTime newZoneTime(String zone) {
@@ -93,15 +93,15 @@ public class TestRoutes {
   }
 
   OdPair otherOdPair() {
-    return new OdPair("Z4", "Z7");
+    return new OdPair("4", "7");
   }
 
   ZoneRoute otherRoute() {
-    return new ZoneRoute(newZoneTime("Z5"), newZoneTime("Z6"), newZoneTime("Z7"));
+    return new ZoneRoute(newZoneTime("5"), newZoneTime("6"), newZoneTime("7"));
   }
 
   OdPair missingIntermediateOdPair() {
-    return new OdPair("Z2", "Z4");
+    return new OdPair("2", "4");
   }
 
   ZoneRoute missingIntermediateRoute() {
@@ -117,9 +117,9 @@ public class TestRoutes {
   }
 
   public ZoneRoute someRouteWithConnector() {
-    ZoneIdTime zoneTime = new ZoneIdTime("Z3", defaultTravelTime.plus(connectorTime()));
+    ZoneIdTime zoneTime = new ZoneIdTime("3", defaultTravelTime.plus(connectorTime()));
     RelativeTime arrivalAtDestination = zoneTime.time().plus(defaultTravelTime).plus(connectorTime());
-    ZoneIdTime atDestintion = new ZoneIdTime("Z2", arrivalAtDestination);
+    ZoneIdTime atDestintion = new ZoneIdTime("2", arrivalAtDestination);
     return new ZoneRoute(zoneTime, atDestintion);
   }
 

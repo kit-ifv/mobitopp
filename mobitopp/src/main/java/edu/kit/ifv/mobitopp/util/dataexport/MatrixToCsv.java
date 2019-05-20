@@ -30,23 +30,15 @@ public class MatrixToCsv {
 		csv.append("Von");
 		csv.append("Nach");
 		csv.newLine("Zeit");
-		for (int origin = 1; origin <= size(); origin++) {
-			for (int destination = 1; destination <= size(); destination++) {
+		for (ZoneId origin : ids()) {
+			for (ZoneId destination : ids()) {
 				float traveltime = matrix.get(origin, destination);
-				csv.append(zoneIdFor(origin));
-				csv.append(zoneIdFor(destination));
+				csv.append(origin.getExternalId());
+				csv.append(destination.getExternalId());
 				csv.newLine(traveltime);
 			}
 		}
 		return csv.toString();
-	}
-
-	private String zoneIdFor(int index) {
-		return ids().get(index - 1).getExternalId();
-	}
-
-	private int size() {
-		return ids().size();
 	}
 
 	private List<ZoneId> ids() {

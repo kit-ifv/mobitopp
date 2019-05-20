@@ -194,4 +194,9 @@ public class DefaultPersonForSetup implements PersonForSetup {
         hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, activityPattern,
         fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
   }
+  
+  @Override
+  public String toString() {
+    return id.toString();
+  }
 }

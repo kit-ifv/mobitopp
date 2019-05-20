@@ -38,10 +38,6 @@ public class VisumMatrix implements Matrix<Float> {
     }
   }
 
-  public Float get(int row, int col) {
-    return internal.get(row, col);
-  }
-
   public Float get(ZoneId origin, ZoneId destination) {
     return internal.get(origin, destination);
   }

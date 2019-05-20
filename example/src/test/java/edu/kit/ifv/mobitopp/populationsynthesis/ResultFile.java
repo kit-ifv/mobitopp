@@ -32,7 +32,7 @@ public class ResultFile {
 
   @Override
   public String toString() {
-    return getClass().getName() + " [fileName=" + fileName + "]";
+    return fileName;
   }
 
 }

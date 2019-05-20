@@ -28,11 +28,11 @@ public class VisumMatrixParserTest {
 	}
 
   private CostMatrix expectedSmall() {
-		CostMatrix costMatrix = new CostMatrix(asList(newZoneId(1), newZoneId(2)));
-		costMatrix.set(1, 1, 1.0f);
-		costMatrix.set(1, 2, 2.0f);
-		costMatrix.set(2, 1, 3.0f);
-		costMatrix.set(2, 2, 4.0f);
+		CostMatrix costMatrix = new CostMatrix(asList(newZoneId(0), newZoneId(1)));
+		costMatrix.set(0, 0, 1.0f);
+		costMatrix.set(0, 1, 2.0f);
+		costMatrix.set(1, 0, 3.0f);
+		costMatrix.set(1, 1, 4.0f);
 		return costMatrix;
 	}
 
@@ -58,18 +58,18 @@ public class VisumMatrixParserTest {
 	}
 
 	private CostMatrix expectedBig() {
-		List<ZoneId> zoneIds = IntStream.rangeClosed(1, 13).mapToObj(this::newZoneId).collect(toList());
-		CostMatrix costMatrix = new CostMatrix(zoneIds );
+    List<ZoneId> zoneIds = IntStream.rangeClosed(0, 12).mapToObj(this::newZoneId).collect(toList());
+    CostMatrix costMatrix = new CostMatrix(zoneIds);
 		for (ZoneId source : zoneIds) {
 			for (ZoneId target : zoneIds) {
 				costMatrix.set(source, target, 0.0f);
 			}
 		}
 		for (ZoneId id : zoneIds) {
-			costMatrix.set(newZoneId(1), id, (float) id.getMatrixColumn());
+			costMatrix.set(newZoneId(0), id, (float) id.getMatrixColumn() + 1);
 		}
 		for (int i = 1; i < 10; i++) {
-			costMatrix.set(newZoneId(1 + i), newZoneId(1), i * 11.0f);
+			costMatrix.set(newZoneId(i), newZoneId(0), i * 11.0f);
 		}
 		return costMatrix;
 	}
@@ -119,16 +119,16 @@ public class VisumMatrixParserTest {
 			"* Anzahl Netzobjekte" + System.lineSeparator() + 
 			"2" + System.lineSeparator() + 
 			"* Netzobjekt-Nummern" + System.lineSeparator() + 
-			" 11 12"  + System.lineSeparator() + 
+			" 10 11"  + System.lineSeparator() + 
 			"*" + System.lineSeparator() + 
-			"* Obj 1 Summe = 3.0" + System.lineSeparator() + 
+			"* Obj 0 Summe = 3.0" + System.lineSeparator() + 
 			" 1.0 2.0" + System.lineSeparator() + 
-			"* Obj 2 Summe = 7.0" + System.lineSeparator() + 
+			"* Obj 1 Summe = 7.0" + System.lineSeparator() + 
 			" 3.0 4.0" + System.lineSeparator() + 
 			"* Netzobjektnamen" + System.lineSeparator() + 
 			"$NAMES" + System.lineSeparator() + 
+			"10 \"0\"" + System.lineSeparator() + 
 			"11 \"1\"" + System.lineSeparator() + 
-			"12 \"2\"" + System.lineSeparator() + 
 			" ";
 	
 	private static final String bigData = 
@@ -143,38 +143,41 @@ public class VisumMatrixParserTest {
 			"* Anzahl Netzobjekte" + System.lineSeparator() + 
 			"13" + System.lineSeparator() + 
 			"* Netzobjekt-Nummern" + System.lineSeparator() + 
-			" 11 12 13 14 15 16 17 18 19 20" + System.lineSeparator() + 
-			" 21 22 23" + System.lineSeparator() + 
+			" 10 11 12 13 14 15 16 17 18 19" + System.lineSeparator() + 
+			" 20 21 22" + System.lineSeparator() + 
 			"*" + System.lineSeparator() + 
-			"* Obj 1 Summe = 91.0" + System.lineSeparator() + 
+			"* Obj 0 Summe = 91.0" + System.lineSeparator() + 
 			" 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0" + System.lineSeparator() + 
 			" 11.0 12.0 13.0" + System.lineSeparator() + 
-			"* Obj 2 Summe = 11.0" + System.lineSeparator() + 
+			"* Obj 1 Summe = 11.0" + System.lineSeparator() + 
 			" 11.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 3 Summe = 22.0" + System.lineSeparator() + 
+			"* Obj 2 Summe = 22.0" + System.lineSeparator() + 
 			" 22.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 4 Summe = 33.0" + System.lineSeparator() + 
+			"* Obj 3 Summe = 33.0" + System.lineSeparator() + 
 			" 33.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 5 Summe = 44.0" + System.lineSeparator() + 
+			"* Obj 4 Summe = 44.0" + System.lineSeparator() + 
 			" 44.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 6 Summe = 55.0" + System.lineSeparator() + 
+			"* Obj 5 Summe = 55.0" + System.lineSeparator() + 
 			" 55.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 7 Summe = 66.0" + System.lineSeparator() + 
+			"* Obj 6 Summe = 66.0" + System.lineSeparator() + 
 			" 66.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 8 Summe = 77.0" + System.lineSeparator() + 
+			"* Obj 7 Summe = 77.0" + System.lineSeparator() + 
 			" 77.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 9 Summe = 88.0" + System.lineSeparator() + 
+			"* Obj 8 Summe = 88.0" + System.lineSeparator() + 
 			" 88.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 10 Summe = 99.0" + System.lineSeparator() + 
+			"* Obj 9 Summe = 99.0" + System.lineSeparator() + 
 			" 99.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
+			" 0.0 0.0 0.0" + System.lineSeparator() + 
+			"* Obj 10 Summe = 0.0" + System.lineSeparator() + 
+			" 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
 			"* Obj 11 Summe = 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
@@ -182,11 +185,9 @@ public class VisumMatrixParserTest {
 			"* Obj 12 Summe = 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
 			" 0.0 0.0 0.0" + System.lineSeparator() + 
-			"* Obj 13 Summe = 0.0" + System.lineSeparator() + 
-			" 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0" + System.lineSeparator() + 
-			" 0.0 0.0 0.0" + System.lineSeparator() + 
 			"* Netzobjektnamen" + System.lineSeparator() + 
 			"$NAMES" + System.lineSeparator() + 
+			"10 \"0\"" + System.lineSeparator() + 
 			"11 \"1\"" + System.lineSeparator() + 
 			"12 \"2\"" + System.lineSeparator() + 
 			"13 \"3\"" + System.lineSeparator() + 
@@ -199,6 +200,5 @@ public class VisumMatrixParserTest {
 			"20 \"10\"" + System.lineSeparator() + 
 			"21 \"11\"" + System.lineSeparator() + 
 			"22 \"12\"" + System.lineSeparator() + 
-			"23 \"13\"" + System.lineSeparator() + 
 			" ";
 }

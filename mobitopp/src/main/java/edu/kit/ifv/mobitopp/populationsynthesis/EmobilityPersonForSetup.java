@@ -161,5 +161,10 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   public TourBasedActivityPattern getActivityPattern() {
     return person.getActivityPattern();
   }
+  
+  @Override
+  public String toString() {
+    return person.toString();
+  }
 
 }

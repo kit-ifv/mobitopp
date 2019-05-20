@@ -36,8 +36,8 @@ public class RouteReaderTest {
 
   @Test
   void buildSameOdPairOnlyOnce() throws Exception {
-    routes.addSomeRoute("1", "Z3");
-    routes.addSomeRoute("2", "Z4");
+    routes.addSomeRoute("1", "3");
+    routes.addSomeRoute("2", "4");
 
     Map<OdPair, ZoneRoute> transformed = reader.transform(rows());
 

@@ -25,15 +25,13 @@ public class VisumMatrixParser implements MatrixParser {
 	private final List<ZoneId> zoneIds;
 	private final List<Float> data;
 	private String currentLine;
-	private int readZones;
-
+	
 	private VisumMatrixParser(InputStream input) {
 		super();
 		reader = new BufferedReader(new InputStreamReader(input));
 		zoneIds = new ArrayList<>();
 		data = new ArrayList<>();
 		currentLine = "";
-		readZones = 0;
 	}
 	
 	private static InputStream asStream(File inputFile) throws IOException {
@@ -175,7 +173,7 @@ public class VisumMatrixParser implements MatrixParser {
 			readLine();
 			int numberOfZones = Integer.valueOf(currentLine);
 			readLine();
-			while (readZones < numberOfZones) {
+			while (zoneIds.size() < numberOfZones) {
 				readLine();
 				parseCurrentZones();
 			}
@@ -186,8 +184,8 @@ public class VisumMatrixParser implements MatrixParser {
 		T matrix = createMatrix(creator);
 		for (int index = 0; index < data.size(); index++) {
 			int size = zoneIds.size();
-			int row = index / size + 1;
-			int column = index % size + 1;
+			int row = index / size;
+			int column = index % size;
 			float value = data.get(index);
 			matrix.set(row, column, value);
 		}
@@ -240,12 +238,11 @@ public class VisumMatrixParser implements MatrixParser {
 	private void parseCurrentZones() {
 		for (String token : parseLine()) {
 			zoneIds.add(newZoneId(token));
-			readZones++;
 		}
 	}
 
 	private ZoneId newZoneId(String token) {
-    return new ZoneId(token, readZones + 1);
+    return new ZoneId(token, zoneIds.size());
   }
 
   private List<String> parseLine() {

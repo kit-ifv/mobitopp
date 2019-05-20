@@ -24,7 +24,7 @@ public class Household_Stub
 		this.income = income;
 		zone = mock(Zone.class);
 		when(zone.getId()).thenReturn(new ZoneId("0", 0));
-		when(zone.getName()).thenReturn("Z0");
+		when(zone.getName()).thenReturn("0");
 	}
 
 	public Household_Stub(final int oid) {

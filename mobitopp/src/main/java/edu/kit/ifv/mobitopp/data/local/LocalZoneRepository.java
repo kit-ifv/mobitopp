@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.ZonesReaderCsvBased;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class LocalZoneRepository implements ZoneRepository {
@@ -99,10 +100,10 @@ public class LocalZoneRepository implements ZoneRepository {
 
 	public static ZoneRepository from(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository) {
+			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
 		ZonesReaderCsvBased zonesReader = ZonesReaderCsvBased
 				.from(visumNetwork, roadNetwork, charging, defaultPower, attractivityDataFile,
-						areaTypeRepository);
+						areaTypeRepository, mapper);
 		Map<ZoneId, Zone> mapping = new LocalZoneLoader(zonesReader).mapAllZones();
 		return new LocalZoneRepository(mapping);
 	}

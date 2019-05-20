@@ -212,7 +212,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 
 System.out.println("zone " + zone.getId() + " is ready? " + zone.carSharing().isReady());
 
-			Integer zoneid = Integer.parseInt(zone.getId().getExternalId().substring(1));
+			Integer zoneid = Integer.parseInt(zone.getId().getExternalId());
 
 			edu.kit.ifv.mobitopp.network.Zone networkZone = network.zones().get(zoneid);
 
