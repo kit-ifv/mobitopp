@@ -135,7 +135,7 @@ public class LocalFiles implements DataSource {
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
-		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData);
+		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData, numberOfZones);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
@@ -144,8 +144,8 @@ public class LocalFiles implements DataSource {
 	}
 
 	private DemandZoneRepository demandZoneRepository(
-			ZoneRepository zoneRepository, DemographyData demographyData) {
-		return LocalDemandZoneRepository.from(zoneRepository, demographyData);
+			ZoneRepository zoneRepository, DemographyData demographyData, int numberOfZones) {
+		return LocalDemandZoneRepository.from(zoneRepository, demographyData, numberOfZones);
 	}
 
 	private DemandDataFolder demandDataFolder(ZoneRepository zoneRepository, int numberOfZones)

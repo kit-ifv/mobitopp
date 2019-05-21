@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
@@ -10,8 +11,8 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
@@ -31,7 +32,7 @@ public class LocalDemandZoneRepositoryTest {
 	private Demography expectedDemography;
 	private List<Zone> zones;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		zones = new ArrayList<>();
 		zoneRepository = mock(ZoneRepository.class);
@@ -64,6 +65,14 @@ public class LocalDemandZoneRepositoryTest {
 
 		assertThat(zone.nominalDemography(), is(equalTo(expectedDemography)));
 	}
+	
+	@Test
+  void limitsNumberOfZones() throws Exception {
+    int numberOfZones = 2;
+    DemandZoneRepository demandRepository = newDemandRepository(numberOfZones);
+    
+    assertThat(demandRepository.getZones(), hasSize(numberOfZones));
+  }
 
 	private void createZones() {
 		createZoneWithOid(0, "1");
@@ -81,8 +90,12 @@ public class LocalDemandZoneRepositoryTest {
 		when(zoneRepository.getZones()).thenReturn(zones);
 		return zone;
 	}
-
+	
 	private DemandZoneRepository newDemandRepository() {
-		return LocalDemandZoneRepository.from(zoneRepository, demographyData);
+	  return newDemandRepository(Integer.MAX_VALUE);
+	}
+
+	private DemandZoneRepository newDemandRepository(int numberOfZones) {
+		return LocalDemandZoneRepository.from(zoneRepository, demographyData, numberOfZones);
 	}
 }
