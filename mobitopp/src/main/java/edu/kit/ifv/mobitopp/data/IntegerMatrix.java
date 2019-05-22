@@ -1,9 +1,9 @@
 package edu.kit.ifv.mobitopp.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class IntegerMatrix 
 	implements Serializable, Matrix<Integer>
@@ -43,32 +43,34 @@ public class IntegerMatrix
 		}
 	}
 
+	@Override
 	public List<ZoneId> ids() {
 		return this.ids;
 	}
 
-  public Integer get(int row,int column)
+  public int get(int row,int column)
   {
-		assert row > 0 && row <= size;
-		assert column > 0 && column <= size;
+		assert 0 <= row && size > row;
+		assert 0 <= column && size > column;
 
-    return this.matrix[row-1][column-1];
+    return this.matrix[row][column];
   }
   
+  @Override
   public Integer get(ZoneId origin, ZoneId destination) {
     return get(origin.getMatrixColumn(), destination.getMatrixColumn());
   }
 
+  @Override
   public void set(int row, int column, Integer value)
   {
-		assert row > 0 && row <= size : ("row=" + row + ", size=" + size);
-		assert column > 0 && column <= size : ("column=" + column + ", size=" + size);
+		assert 0 <= row && row <= size : ("row=" + row + ", size=" + size);
+		assert 0 <= column && column <= size : ("column=" + column + ", size=" + size);
 
-    this.matrix[row-1][column-1] = value;
+    this.matrix[row][column] = value;
   }
 
 	public void increment(int row,int column){
-
 		set(row, column, get(row, column)+1);
 	}
 
