@@ -24,7 +24,7 @@ public class AggregateDemandTest {
   void aggregateTrips() throws Exception {
     @SuppressWarnings("unchecked")
     Consumer<IntegerMatrix> writer = mock(Consumer.class);
-    int matrixColumn = 1;
+    int matrixColumn = 0;
     ZoneId zoneId = new ZoneId("11", matrixColumn);
     List<ZoneId> oids = asList(zoneId);
     AggregateDemand aggregateDemand = new AggregateDemand(writer, oids);
