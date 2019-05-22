@@ -1,11 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
+import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.populationsynthesis.FixedDestinations;
@@ -24,7 +32,10 @@ import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
+import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
+import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class PersonForDemandTest {
@@ -42,7 +53,7 @@ public class PersonForDemandTest {
 	private boolean hasPersonalCar;
 	private boolean hasCommuterTicket;
 	private boolean hasLicense;
-	private TourBasedActivityPattern activitySchedule;
+	private TourBasedActivityPattern activityPattern;
 	private Car car;
 	private FixedDestinations fixedDestinations;
 	private ModeChoicePreferences prefSurvey;
@@ -66,7 +77,7 @@ public class PersonForDemandTest {
 		hasPersonalCar = true;
 		hasCommuterTicket = false;
 		hasLicense = false;
-		activitySchedule = mock(TourBasedActivityPattern.class);
+		activityPattern = mock(TourBasedActivityPattern.class);
 		car = mock(Car.class);
 		fixedDestinations = new FixedDestinations();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
@@ -76,7 +87,7 @@ public class PersonForDemandTest {
 
 	private PersonForDemand newPerson() {
 		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule, fixedDestinations, prefSurvey, prefSimulation);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activityPattern, fixedDestinations, prefSurvey, prefSimulation);
     return newPerson;
 	}
 
@@ -127,4 +138,24 @@ public class PersonForDemandTest {
 		return new PersonAttributes(id, household, age, employment, gender, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense);
 	}
+	
+	@Test
+  void removeTourPatternAfterInitialisation() throws Exception {
+	  when(activityPattern.asPatternActivities()).thenReturn(singletonList(somePattern()));
+    Optional<TourBasedActivityPattern> before = person.tourBasedActivityPattern();
+    
+    TourFactory factory = new DefaultTourFactory();
+    ActivityStartAndDurationRandomizer randomizer = a -> a;
+    List<Time> days = singletonList(Time.start);
+    person.initSchedule(factory, randomizer, days);
+    
+    Optional<TourBasedActivityPattern> after = person.tourBasedActivityPattern();
+    
+    assertAll(() -> assertThat(before, hasValue(activityPattern)),
+        () -> assertThat(after, isEmpty()));
+  }
+
+  private ExtendedPatternActivity somePattern() {
+    return ExtendedPatternActivity.STAYATHOME_ACTIVITY;
+  }
 }

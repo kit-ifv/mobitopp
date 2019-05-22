@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.ExampleZones;
@@ -155,8 +156,8 @@ public class Person_Stub
 	}
 
 	@Override
-	public TourBasedActivityPattern tourBasedActivityPattern() {
-		return null;
+	public Optional<TourBasedActivityPattern> tourBasedActivityPattern() {
+		return Optional.empty();
 	}
 
 

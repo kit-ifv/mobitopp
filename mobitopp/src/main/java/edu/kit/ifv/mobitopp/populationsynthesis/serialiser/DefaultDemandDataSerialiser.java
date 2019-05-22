@@ -82,12 +82,15 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 	}
 
 	private void writeTourbasedActivityPattern(Person person) {
-		TourBasedActivityPattern patternActivityWeek = person.tourBasedActivityPattern();
-		List<ExtendedPatternActivity> patternActivities = patternActivityWeek.asPatternActivities();
+    person.tourBasedActivityPattern().ifPresent(pattern -> writeActivities(person, pattern));
+	}
+
+  private void writeActivities(Person person, TourBasedActivityPattern patternActivityWeek) {
+    List<ExtendedPatternActivity> patternActivities = patternActivityWeek.asPatternActivities();
 		for (ExtendedPatternActivity patternActivity : patternActivities) {
 			write(person, patternActivity);
 		}
-	}
+  }
 
 	private void write(Person person, ExtendedPatternActivity activity) {
 		PersonPatternActivity personActivity = new PersonPatternActivity(person.getOid(), activity);

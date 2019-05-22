@@ -132,7 +132,7 @@ public class DefaultPersonFormatTest {
     assertValue(Person::hasAccessToCar, person, originalPerson);
     assertValue(Person::hasPersonalCar, person, originalPerson);
     assertValue(Person::hasCommuterTicket, person, originalPerson);
-    assertValue(Person::getPatternActivityWeek, person, originalPerson);
+    assertValue(Person::tourBasedActivityPattern, person, originalPerson);
     assertEmobilityPersons(person, originalPerson);
   }
 
