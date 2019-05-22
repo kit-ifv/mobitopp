@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
@@ -19,6 +18,7 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {
 
@@ -62,14 +62,9 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
         .stream()
         .limit(numberOfZones)
         .map(toDemandZone)
-        .collect(toMap(DemandZone::getId, Function.identity(), throwingMerger(), TreeMap::new));
+        .collect(toMap(DemandZone::getId, Function.identity(), StreamUtils.throwingMerger(),
+            TreeMap::new));
     return new LocalDemandZoneRepository(zones, zoneRepository);
-  }
-
-  private static BinaryOperator<DemandZone> throwingMerger() {
-    return (u, v) -> {
-      throw new IllegalStateException(String.format("Duplicate key: %s and %s", u, v));
-    };
   }
 
   private static DemandZone createZone(Zone zone, DemographyData demographyData) {
