@@ -36,13 +36,13 @@ public class IntegerMatrixTest {
   }
 
   @Test
-  public void testConstructor() {
+  public void constructor() {
     assertNotNull(matrix);
     assertEquals(ids.size(), matrix.ids().size());
   }
 
   @Test
-  public void testOids() {
+  public void oids() {
     assertAll(
         columns().map(this::newZoneId).map(id -> () -> assertTrue(matrix.ids().contains(id))));
     assertFalse(matrix.ids().contains(newZoneId(5)));
@@ -52,7 +52,7 @@ public class IntegerMatrixTest {
   }
 
   @Test
-  public void testSet() {
+  public void set() {
     matrix.set(0, 0, 10);
     matrix.set(0, 1, 11);
     matrix.set(0, 2, 12);
@@ -73,5 +73,30 @@ public class IntegerMatrixTest {
     assertEquals(21, matrix.get(1, 0));
     assertEquals(31, matrix.get(2, 0));
     assertEquals(41, matrix.get(3, 0));
+  }
+  
+  @Test
+  void increment() throws Exception {
+    int row = 0;
+    int column = 0;
+    int before = matrix.get(row, column);
+    
+    matrix.increment(row, column);
+    int current = matrix.get(row, column);
+    
+    assertEquals(before + 1, current);
+  }
+  
+  @Test
+  void addValue() throws Exception {
+    ZoneId row = newZoneId(0);
+    ZoneId column = newZoneId(0);
+    int increment = 1;
+    int before = matrix.get(row, column);
+    
+    matrix.add(row, column, increment);
+    int current = matrix.get(row, column);
+    
+    assertEquals(before + increment, current);
   }
 }
