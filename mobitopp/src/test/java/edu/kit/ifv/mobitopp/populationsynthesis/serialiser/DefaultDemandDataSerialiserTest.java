@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -16,6 +17,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
@@ -25,6 +27,7 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class DefaultDemandDataSerialiserTest {
 
@@ -146,7 +149,11 @@ public class DefaultDemandDataSerialiserTest {
   private static Stream<PersonPatternActivity> toPersonPattern(Person person) {
     Function<ExtendedPatternActivity, PersonPatternActivity> toPattern = activity -> new PersonPatternActivity(
         person.getOid(), activity);
-    return person.tourBasedActivityPattern().asPatternActivities().stream().map(toPattern);
+    return StreamUtils
+        .streamOf(person.tourBasedActivityPattern())
+        .map(TourBasedActivityPattern::asPatternActivities)
+        .flatMap(List::stream)
+        .map(toPattern);
   }
 
   private void verifyWrittenCars() throws IOException {

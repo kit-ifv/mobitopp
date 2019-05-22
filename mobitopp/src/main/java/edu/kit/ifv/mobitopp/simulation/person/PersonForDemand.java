@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -64,7 +65,7 @@ public class PersonForDemand implements Person, Serializable {
 
 	/** Planned activity program **/
   //private PatternActivityWeek activityPattern;
-  private final TourBasedActivityPattern tourPattern;
+  private TourBasedActivityPattern tourPattern;
 
 	/** Realised activity program **/
   private transient ModifiableActivityScheduleWithState activitySchedule; 
@@ -260,14 +261,6 @@ public class PersonForDemand implements Person, Serializable {
 
     return this.id;
   }
-
-
-  public PatternActivityWeek getPatternActivityWeek()
-  {
-		assert tourPattern != null;
-
-		return new PatternActivityWeek(this.tourPattern.asPatternActivities());
-  }
   
   public Employment employment()
   {
@@ -411,7 +404,18 @@ public class PersonForDemand implements Person, Serializable {
 //																												this.activityPattern, 
 				getPatternActivityWeek(),
 																												activityDurationRandomizer, days);
+		clearTourPattern();
 	}
+
+  private void clearTourPattern() {
+    tourPattern = null;
+  }
+
+  private PatternActivityWeek getPatternActivityWeek() {
+    assert tourPattern != null;
+
+    return new PatternActivityWeek(this.tourPattern.asPatternActivities());
+  }
 
 	public void assignPersonalCar(PrivateCar personalCar) {
 		assert this.personalCar == null;
@@ -558,8 +562,8 @@ public class PersonForDemand implements Person, Serializable {
   }
 
 	@Override
-	public TourBasedActivityPattern tourBasedActivityPattern() {
-		return this.tourPattern;
+	public Optional<TourBasedActivityPattern> tourBasedActivityPattern() {
+		return Optional.ofNullable(this.tourPattern);
 	}
 
 }

@@ -1,9 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
@@ -65,8 +65,7 @@ public interface Person {
 	boolean hasPersonalCarAssigned();
 	PrivateCar personalCar();
 
-	PatternActivityWeek getPatternActivityWeek();
-	TourBasedActivityPattern tourBasedActivityPattern();
+	Optional<TourBasedActivityPattern> tourBasedActivityPattern();
 
 	ActivityIfc currentActivity();
 	ActivityIfc nextActivity();

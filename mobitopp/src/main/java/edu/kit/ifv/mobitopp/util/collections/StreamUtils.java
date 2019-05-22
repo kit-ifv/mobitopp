@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.util.collections;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -35,5 +36,12 @@ public final class StreamUtils {
   public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedMap(
       Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
     return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), LinkedHashMap::new);
+  }
+
+  public static <T> Stream<T> streamOf(Optional<T> optional) {
+    if (optional.isPresent()) {
+      return Stream.of(optional.get());
+    }
+    return Stream.empty();
   }
 }

@@ -2,9 +2,9 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
@@ -175,10 +175,6 @@ public class PersonDecorator
 		return person().hasPersonalCarAssigned();
 	}
 
-	public PatternActivityWeek getPatternActivityWeek() {
-		return person().getPatternActivityWeek();
-	}
-	
 	public ActivityIfc currentActivity() {
 		return person().currentActivity();
 	}
@@ -263,7 +259,7 @@ public class PersonDecorator
 	}
 
 	@Override
-	public TourBasedActivityPattern tourBasedActivityPattern() {
+	public Optional<TourBasedActivityPattern> tourBasedActivityPattern() {
 		return person.tourBasedActivityPattern();
 	}
 
