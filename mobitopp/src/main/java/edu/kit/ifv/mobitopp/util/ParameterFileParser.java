@@ -1,15 +1,13 @@
 package edu.kit.ifv.mobitopp.util;
 
-import java.lang.reflect.Field;
-
-import java.util.Collection;
-import java.util.ArrayList;
-
-import java.io.File;
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 
@@ -31,15 +29,18 @@ public class ParameterFileParser {
 
 	public void parseConfig(String filename, Object model) {
 		System.out.println("parsing config");
-
 		File f = new File(filename);
-		assert f.exists() : ("file '" + filename + "' does not exist!");
+		parseConfig(f, model);
+	}
+
+  public void parseConfig(File file, Object model) {
+    assert file.exists() : ("file '" + file.getName() + "' does not exist!");
 
 		String line = null;
 
 		Collection<Coefficient> coeffs = new ArrayList<Coefficient>();
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
+		try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
 
 			while ((line = reader.readLine()) != null) {
 
@@ -50,14 +51,13 @@ public class ParameterFileParser {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			System.out.print(" Datei wurde nicht gefunden : " + filename);
+			System.out.print(" Datei wurde nicht gefunden : " + file.getName());
 		} catch (IOException e) {
 			System.out.print(" Datei konnte nicht geöffnet werden :" + e);
 		}
 
 		findCoefficientsUsingReflection(coeffs, model);
-
-	}
+  }
 
 	private Coefficient parseLine(String line) {
 
