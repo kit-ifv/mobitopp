@@ -14,12 +14,12 @@ test {
 }
 
 task runPopulationSynthesis(type: JavaExec) {
-    args = ['data/leopoldshafen/population-synthesis.yaml']
+    args = ['config/leopoldshafen/population-synthesis.yaml']
     main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisExample"
 }
 
 task runSimulation(type: JavaExec, dependsOn: compileJava) {
-    args = ['data/leopoldshafen/simulation.yaml']
+    args = ['config/leopoldshafen/simulation.yaml']
     main = "edu.kit.ifv.mobitopp.simulation.SimulationExample"
 }
 
