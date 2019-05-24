@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.visum;
 
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class VisumTurn 
 	implements Serializable
@@ -37,7 +38,25 @@ public class VisumTurn
 		this.timePenaltyInSec=timePenaltyInSec;
 	}
 
-	public String toString() {
+	@Override
+  public int hashCode() {
+    return Objects.hash(capacity, timePenaltyInSec, transportSystems, type);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumTurn other = (VisumTurn) obj;
+    return capacity == other.capacity && timePenaltyInSec == other.timePenaltyInSec
+        && Objects.equals(transportSystems, other.transportSystems) && type == other.type;
+  }
+
+  public String toString() {
 		return "VisumTurn(" + node.id() + ",from=" + from.id() + ",to=" + to.id() + ")";
 	}
 }

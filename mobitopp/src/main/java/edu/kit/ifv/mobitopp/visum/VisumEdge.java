@@ -1,53 +1,59 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
+import static java.util.Collections.emptyList;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
+public class VisumEdge implements Serializable {
 
-public class VisumEdge 
-	implements Serializable
-{
+  private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
+  public final int id;
+  public final VisumPoint from;
+  public final VisumPoint to;
+  public final List<VisumPoint> intermediate;
 
-	public final Integer id;
+  public VisumEdge(int id, VisumPoint from, VisumPoint to, List<VisumPoint> intermediate) {
+    this.id = id;
+    this.from = from;
+    this.to = to;
+    this.intermediate = Collections.unmodifiableList(intermediate);
+  }
 
-	public final VisumPoint from;
-	public final VisumPoint to;
+  public VisumEdge(int id, VisumPoint from, VisumPoint to) {
+    this(id, from, to, emptyList());
+  }
 
-	public final List<VisumPoint> intermediate;
+  protected String intermediateToString() {
+    String s = "";
+    for (VisumPoint p : intermediate) {
+      s += p + ",";
+    }
+    return s;
+  }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(from, id, intermediate, to);
+  }
 
-	public VisumEdge(Integer id, VisumPoint from, VisumPoint to,  List<VisumPoint> intermediate) {
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumEdge other = (VisumEdge) obj;
+    return Objects.equals(from, other.from) && id == other.id
+        && Objects.equals(intermediate, other.intermediate) && Objects.equals(to, other.to);
+  }
 
-		this.id = id;
-		this.from = from;
-		this.to = to;
-
-		this.intermediate =  Collections.unmodifiableList(intermediate);
-	}
-
-	public VisumEdge(VisumPoint from, VisumPoint to) {
-		this(null, from, to, new ArrayList<VisumPoint>(0));
-	}
-
-	public String toString() {
-
-		return "(" + from + "->" + to + ":\n\t" + intermediateToString() + ")";
-
-	}
-
-	protected String intermediateToString() {
-
-		String s = "";
-
-		for (VisumPoint p : intermediate) {
-			s += p + ",";
-		}
-
-		return s;
-	}
+  public String toString() {
+    return id + ": (" + from + "->" + to + ":\n\t" + intermediateToString() + ")";
+  }
 }

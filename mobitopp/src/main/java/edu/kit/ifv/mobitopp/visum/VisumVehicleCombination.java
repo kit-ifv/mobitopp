@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.util.Map;
+import java.util.Objects;
 import java.io.Serializable;
 import java.util.Collections;
 
@@ -68,31 +69,28 @@ public class VisumVehicleCombination
 		return total;
 	}
 
-	public String toString() {
-		return "VisumVehicleCombination("
-					+ id + ", "
-					+ code + ", "
-					+ name + ", "
-					+ getCapacity() + ", "
-					+ getNumberOfSeats() 
-					+ ")";
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(code, id, name, vehicles);
+  }
 
-	public String asMATSimXML() {
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumVehicleCombination other = (VisumVehicleCombination) obj;
+    return Objects.equals(code, other.code) && id == other.id && Objects.equals(name, other.name)
+        && Objects.equals(vehicles, other.vehicles);
+  }
 
-
-		String xml = ""
-			+ "<vehicleType id=\"" + this.id + "\">\n" 
-			+ 	"\t<description>" + this.name + "</description>\n"
-			+ 	"\t<capacity>\n"
-			+ 		"\t\t<seats persons=\"" + getNumberOfSeats() + "\" />\n"
-			+ 		"\t\t<standingRoom persons=\"" + (getCapacity()-getNumberOfSeats()) + "\" />\n"
-			+ 		"\t\t<length meters=\"" + getLength() + "\" />\n"
-			+ 	"\t</capacity>\n"
-			+ "</vehicleType>";
-
-
-		return xml;
-	}
+  @Override
+  public String toString() {
+    return "VisumVehicleCombination [id=" + id + ", code=" + code + ", name=" + name + ", vehicles="
+        + vehicles + "]";
+  }
 
 }

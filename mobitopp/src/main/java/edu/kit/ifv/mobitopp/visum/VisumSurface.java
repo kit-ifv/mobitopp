@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("serial")
 public class VisumSurface 
@@ -79,22 +80,6 @@ public class VisumSurface
 		return this.areas;
 	}
 
-	public String toString() {
-
-		String s = "VisumSurface(faces=" + faces.size() + "; ";
-
-		for (int i=0; i< faces.size(); i++) {
-
-			VisumFace f = faces.get(i);
-			Integer enc = enclave.get(i);
-
-			s  += f + ", enc=" + enc + "; ";
-		}
-		s  += ")";
-
-		return s;
-	}
-
 	public Area area() {
 
 		if (totalArea == null) {
@@ -164,5 +149,35 @@ System.out.println("calculating combinedArea for " + areas.size() + " faces");
 
 		return enc == 1;
 	}
+
+	@Override
+  public int hashCode() {
+    return Objects.hash(enclave, faces, id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumSurface other = (VisumSurface) obj;
+    return Objects.equals(enclave, other.enclave) && Objects.equals(faces, other.faces)
+        && Objects.equals(id, other.id);
+  }
+
+  @Override
+  public String toString() {
+    String s = "VisumSurface(faces=" + faces.size() + "; ";
+    for (int i=0; i< faces.size(); i++) {
+      VisumFace f = faces.get(i);
+      int enc = enclave.get(i);
+      s  += f + ", enc=" + enc + "; ";
+    }
+    s  += ")";
+    return s;
+  }
 
 }

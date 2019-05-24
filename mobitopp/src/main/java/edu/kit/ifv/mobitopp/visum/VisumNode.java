@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.network.Node;
 
@@ -26,7 +27,7 @@ public class VisumNode
 		this.type = type;
 		this.coord = new VisumPoint3(coord_x, coord_y, coord_z);
 
-		this.turns = Collections.unmodifiableList(new ArrayList<VisumTurn>(0));
+		this.turns = Collections.unmodifiableList(new ArrayList<>(0));
 	}
 	
 	@Override
@@ -47,7 +48,25 @@ public class VisumNode
 		return this.turns;
 	}
 
-	public String toString() {
+	@Override
+  public int hashCode() {
+    return Objects.hash(coord, id, name, turns, type);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumNode other = (VisumNode) obj;
+    return Objects.equals(coord, other.coord) && id == other.id && Objects.equals(name, other.name)
+        && Objects.equals(turns, other.turns) && type == other.type;
+  }
+
+  public String toString() {
 		return "VisumNode(" + id + "," + name + "," + type + "," + coord + ")";
 	}
 

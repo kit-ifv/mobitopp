@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class VisumFace 
 	implements Serializable
@@ -31,68 +32,80 @@ public class VisumFace
 
 	}
 
+  public Area asArea() {
+    if (null == this.area) {
+      area = new Area(asPath());
+    }
+    return area;
+  }
 
-	public String toString() {
+  private Path2D asPath() {
 
-		String s = "VisumFace(edges=" + edges.size() + "; \n";
+    Path2D shp = new Path2D.Double();
 
-		for (int i=0; i< edges.size(); i++) {
+    for (int i=0; i< edges.size(); i++) {
 
-			VisumEdge e = edges.get(i);
-			Integer dir = direction.get(i);
+      VisumEdge e = edges.get(i);
+      Integer dir = direction.get(i);
 
-			s  += e + ", dir=" + dir + "; \n";
-		}
-		s  += ")";
+      VisumPoint from;
+      VisumPoint to;
 
-		return s;
-	}
+      List<VisumPoint> intermediate = new ArrayList<>(e.intermediate);
 
-	private Path2D asPath() {
+      if (dir == 0) {
 
-		Path2D shp = new Path2D.Double();
+        from = e.from;
+        to = e.to;
 
-		for (int i=0; i< edges.size(); i++) {
+      } else {
+        from = e.to;
+        to = e.from;
 
-			VisumEdge e = edges.get(i);
-			Integer dir = direction.get(i);
+        Collections.reverse(intermediate);        
+      }
 
-			VisumPoint from;
-			VisumPoint to;
+      if (i==0) {
+        shp.moveTo(from.getX(),from.getY());
+      }
 
-			List<VisumPoint> intermediate = new ArrayList<>(e.intermediate);
+      for (VisumPoint p : intermediate) {
+        shp.lineTo(p.getX(),p.getY());
+      }
 
-			if (dir == 0) {
+      shp.lineTo(to.getX(),to.getY());
 
-				from = e.from;
-				to = e.to;
+    }
 
-			} else {
-				from = e.to;
-				to = e.from;
+    return shp;
+  }
 
-				Collections.reverse(intermediate);				
-			}
+  @Override
+  public int hashCode() {
+    return Objects.hash(direction, edges, id);
+  }
 
-			if (i==0) {
-				shp.moveTo(from.getX(),from.getY());
-			}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumFace other = (VisumFace) obj;
+    return Objects.equals(direction, other.direction) && Objects.equals(edges, other.edges)
+        && Objects.equals(id, other.id);
+  }
 
-			for (VisumPoint p : intermediate) {
-				shp.lineTo(p.getX(),p.getY());
-			}
-
-			shp.lineTo(to.getX(),to.getY());
-
-		}
-
-		return shp;
-	}
-
-	public Area asArea() {
-		if (null == this.area) {
-			area = new Area(asPath());
-		}
-		return area;
-	}
+  public String toString() {
+    String s = "VisumFace(edges=" + edges.size() + "; \n";
+    for (int i = 0; i < edges.size(); i++) {
+      VisumEdge e = edges.get(i);
+      int dir = direction.get(i);
+      s += e + ", dir=" + dir + "; \n";
+    }
+    s += ")";
+    return s;
+  }
 }

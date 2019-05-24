@@ -14,7 +14,7 @@ public class VisumNodeBuilder {
 	private static final int defaultZ = 0;
 
 	private int id;
-	private final String name;
+	private String name;
 	private final int type;
 	private int x;
 	private int y;
@@ -45,10 +45,15 @@ public class VisumNodeBuilder {
 		return this;
 	}
 
-	public VisumNodeBuilder at(float x, float y) {
+	public VisumNodeBuilder at(double x, double y) {
 		this.x = (int) x;
 		this.y = (int) y;
 		return this;
 	}
+
+  public VisumNodeBuilder withName(String name) {
+    this.name = name;
+    return this;
+  }
 
 }
