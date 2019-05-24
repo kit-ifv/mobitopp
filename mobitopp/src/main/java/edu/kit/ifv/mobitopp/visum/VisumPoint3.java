@@ -1,18 +1,39 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public class VisumPoint3 
-	extends VisumPoint2 {
+import java.util.Objects;
 
-	private static final long serialVersionUID = 1L;
+public class VisumPoint3 extends VisumPoint2 {
 
-	public final float z;
+  private static final long serialVersionUID = 1L;
 
-	public VisumPoint3(float x, float y, float z) {
-		super(x, y);
-		this.z=z;
-	}
+  public final float z;
 
-	public String toString() {
-		return "(" + x + "," + y + "," + z + ")";
-	}
+  public VisumPoint3(float x, float y, float z) {
+    super(x, y);
+    this.z = z;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Objects.hash(z);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumPoint3 other = (VisumPoint3) obj;
+    return Float.floatToIntBits(z) == Float.floatToIntBits(other.z);
+  }
+
+  public String toString() {
+    return "(" + x + "," + y + "," + z + ")";
+  }
 }

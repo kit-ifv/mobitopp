@@ -17,6 +17,10 @@ public class VisumBuilder {
 	public static VisumNodeBuilder visumNode() {
 		return new VisumNodeBuilder();
 	}
+	
+	public static VisumTurnBuilder visumTurn() {
+	  return new VisumTurnBuilder();
+	}
 
 	public static VisumLinkBuilder visumLink() {
 		return new VisumLinkBuilder();
@@ -36,6 +40,10 @@ public class VisumBuilder {
 	
 	public static VisumSurfaceBuilder visumSurface() {
 		return new VisumSurfaceBuilder();
+	}
+	
+	public static VisumFaceBuilder visumFace(int id) {
+	  return new VisumFaceBuilder(id);
 	}
 	
 	public static VisumZoneBuilder visumZone() {

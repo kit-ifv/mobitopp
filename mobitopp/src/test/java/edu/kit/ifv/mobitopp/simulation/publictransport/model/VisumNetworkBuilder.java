@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -61,10 +62,10 @@ public class VisumNetworkBuilder {
 		linkTypes = new VisumLinkTypes(Collections.emptyMap());
 		nodes = new HashMap<>();
 		links = new HashMap<>();
-		turns = Collections.emptyMap();
+		turns = new HashMap<>();
 		zones = new HashMap<>();
 		connectors = new HashMap<>();
-		vehicleCombinations = Collections.emptyMap();
+		vehicleCombinations = new HashMap<>();
 		ptStops = Collections.emptyMap();
 		ptStopAreas = Collections.emptyMap();
 		ptStopPoints = Collections.emptyMap();
@@ -107,6 +108,14 @@ public class VisumNetworkBuilder {
 		nodes.put(node.id(), node);
 		return this;
 	}
+	
+  public VisumNetworkBuilder add(VisumTurn turn) {
+    if (!turns.containsKey(turn.node.id())) {
+      turns.put(turn.node.id(), new LinkedList<>());
+    }
+    turns.get(turn.node.id()).add(turn);
+    return this;
+  }
 
 	public VisumNetworkBuilder with(VisumSurface area) {
 		areas.put(area.id, area);
@@ -142,5 +151,9 @@ public class VisumNetworkBuilder {
 		return this;
 	}
 
+  public VisumNetworkBuilder with(VisumVehicleCombination vehicleCombination) {
+    vehicleCombinations.put(vehicleCombination.id, vehicleCombination);
+    return this;
+  }
 
 }

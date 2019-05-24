@@ -4,10 +4,14 @@ import static edu.kit.ifv.mobitopp.visum.VisumNetworkReader.alwaysAllowed;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,13 +22,29 @@ import org.junit.jupiter.api.Test;
 public class VisumNetworkReaderTest {
 
   private NetfileLanguage language;
+  private VisumNetwork network;
 
   @BeforeEach
   public void initialise() {
     language = StandardNetfileLanguages.german();
+    network = Example.createVisumNetwork();
   }
   
-	@Test
+  @Test
+  void loadsNetwork() throws Exception {
+    VisumNetwork loadedNetwork = new VisumNetworkReader(new VisumReader()).readNetwork(networkFile());
+    
+    assertAll(
+        () -> assertThat(loadedNetwork.transportSystems, is(equalTo(network.transportSystems))),
+        () -> assertThat(loadedNetwork.vehicleCombinations, is(equalTo(network.vehicleCombinations))),
+        () -> assertThat(loadedNetwork.areas, is(equalTo(network.areas))));
+  }
+  
+	private File networkFile() throws URISyntaxException {
+    return new File(VisumNetworkReaderTest.class.getResource("simpleNetwork.net").toURI());
+  }
+
+  @Test
 	public void ignorePointsWithoutPower() throws Exception {
 		Map<Integer, VisumChargingPoint> points = chargingPointsWithoutPower();
 
