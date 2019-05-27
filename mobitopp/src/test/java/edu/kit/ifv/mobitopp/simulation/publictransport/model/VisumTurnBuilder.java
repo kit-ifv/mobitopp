@@ -14,6 +14,12 @@ public class VisumTurnBuilder {
   private int capacity;
   private int timePenaltyInSec;
   
+  public VisumTurnBuilder() {
+    type = 4;
+    capacity = 99999;
+    timePenaltyInSec = 0;
+  }
+  
   public VisumTurn build() {
     return new VisumTurn(node, from, to, type, transportSystems, capacity, timePenaltyInSec);
   }
@@ -30,6 +36,11 @@ public class VisumTurnBuilder {
   
   public VisumTurnBuilder to(VisumNode to) {
     this.to = to;
+    return this;
+  }
+  
+  public VisumTurnBuilder with(VisumTransportSystemSet transportSystems) {
+    this.transportSystems = transportSystems;
     return this;
   }
   

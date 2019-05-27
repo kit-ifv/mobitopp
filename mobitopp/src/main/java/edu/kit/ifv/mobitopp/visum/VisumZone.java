@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.visum;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 public class VisumZone 
 	implements Serializable
@@ -66,16 +67,49 @@ public class VisumZone
 		this.carsharingcarDensities = Collections.unmodifiableMap(carsharingcarDensities);
 	}
 
-	public String toString() {
+	@Override
+  public int hashCode() {
+    return Objects
+        .hash(areaId, carsharingcarDensities, chargingFacilities, coord, freeFloatingCarSharingArea,
+            freeFloatingCarSharingCars, freeFloatingCarSharingCompany, id, innerZonePublicTransport,
+            mainZoneId, name, parkingPlaces, privateChargingProbability, type);
+  }
 
-		return "VisumZone(" + id + "," 
-												+ name + "," 
-												+ mainZoneId + "," 
-												+ type + "," 
-												+ coord + "," 
-												+ areaId + ")";
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumZone other = (VisumZone) obj;
+    return areaId == other.areaId
+        && Objects.equals(carsharingcarDensities, other.carsharingcarDensities)
+        && chargingFacilities == other.chargingFacilities && Objects.equals(coord, other.coord)
+        && freeFloatingCarSharingArea == other.freeFloatingCarSharingArea
+        && freeFloatingCarSharingCars == other.freeFloatingCarSharingCars
+        && Objects.equals(freeFloatingCarSharingCompany, other.freeFloatingCarSharingCompany)
+        && id == other.id
+        && Float.floatToIntBits(innerZonePublicTransport) == Float
+            .floatToIntBits(other.innerZonePublicTransport)
+        && mainZoneId == other.mainZoneId && Objects.equals(name, other.name)
+        && parkingPlaces == other.parkingPlaces
+        && Double.doubleToLongBits(privateChargingProbability) == Double
+            .doubleToLongBits(other.privateChargingProbability)
+        && type == other.type;
+  }
 
-
+  @Override
+  public String toString() {
+    return "VisumZone [id=" + id + ", name=" + name + ", mainZoneId=" + mainZoneId + ", type="
+        + type + ", parkingPlaces=" + parkingPlaces + ", coord=" + coord + ", areaId=" + areaId
+        + ", chargingFacilities=" + chargingFacilities + ", freeFloatingCarSharingCompany="
+        + freeFloatingCarSharingCompany + ", freeFloatingCarSharingArea="
+        + freeFloatingCarSharingArea + ", freeFloatingCarSharingCars=" + freeFloatingCarSharingCars
+        + ", carsharingcarDensities=" + carsharingcarDensities + ", privateChargingProbability="
+        + privateChargingProbability + ", innerZonePublicTransport=" + innerZonePublicTransport
+        + "]";
+  }
 
 }

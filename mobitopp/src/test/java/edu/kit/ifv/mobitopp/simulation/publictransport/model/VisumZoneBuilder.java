@@ -105,4 +105,55 @@ public class VisumZoneBuilder {
 		return this;
 	}
 
+  public VisumZoneBuilder withMainZone(int mainZoneId) {
+    this.mainZoneId = mainZoneId;
+    return this;
+  }
+
+  public VisumZoneBuilder withType(int type) {
+    this.type = type;
+    return this;
+  }
+
+  public VisumZoneBuilder withParkingPlaces(int parkingPlaces) {
+    this.parkingPlaces = parkingPlaces;
+    return this;
+  }
+
+  public VisumZoneBuilder withChargingFacilities(int chargingFacilities) {
+    this.chargingFacilities = chargingFacilities;
+    return this;
+  }
+
+  public VisumZoneBuilder withFloatingCarCompany(String name) {
+    this.freeFloatingCarSharingCompany = name;
+    return this;
+  }
+  
+  public VisumZoneBuilder withFloatingCarArea(int floatingCarArea) {
+    this.freeFloatingCarSharingArea = floatingCarArea;
+    return this;
+  }
+
+  public VisumZoneBuilder withFloatingCarNumber(int numberOfCars) {
+    this.freeFloatingCarSharingCars = numberOfCars;
+    return this;
+  }
+
+  public VisumZoneBuilder withPrivateChargingProbability(float probability) {
+    this.privateChargingProbability = probability;
+    return this;
+  }
+
+  public VisumZoneBuilder withCarSharingCarDensities(Map<String, Float> densities) {
+    this.carsharingDensities = densities;
+    return this;
+  }
+
+  public VisumZoneBuilder withInnerZonePublicTransport(float innerZonePublicTransport) {
+    this.innerZonePublicTransport = innerZonePublicTransport;
+    return this;
+  }
+
+
 }

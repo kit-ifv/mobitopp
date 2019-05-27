@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.visum;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.HashMap;
 import java.io.Serializable;
 
@@ -11,7 +12,7 @@ public class VisumLinks
 
 	private static final long serialVersionUID = 1L;
 
-	public Map<Integer, VisumLink> links;
+	public final Map<Integer, VisumLink> links;
 
 
 	private static Map<VisumNode,Map<VisumNode,VisumOrientedLink>> mappedLinks;
@@ -53,5 +54,26 @@ public class VisumLinks
 		return mappedLinks.get(from).get(to);	
 	}
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(links);
+  }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumLinks other = (VisumLinks) obj;
+    return Objects.equals(links, other.links);
+  }
+
+  @Override
+  public String toString() {
+    return "VisumLinks [links=" + links + "]";
+  }
+	
 }

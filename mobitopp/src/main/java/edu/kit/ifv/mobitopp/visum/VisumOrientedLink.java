@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class VisumOrientedLink
 	implements Serializable
@@ -38,7 +39,28 @@ public class VisumOrientedLink
 		this.attributes = attributes;
 	}
 
-	public String toString() {
+	@Override
+  public int hashCode() {
+    return Objects.hash(attributes, from, id, length, linkType, name, to, transportSystems);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumOrientedLink other = (VisumOrientedLink) obj;
+    return Objects.equals(attributes, other.attributes) && Objects.equals(from, other.from)
+        && Objects.equals(id, other.id)
+        && Float.floatToIntBits(length) == Float.floatToIntBits(other.length)
+        && Objects.equals(linkType, other.linkType) && Objects.equals(name, other.name)
+        && Objects.equals(to, other.to) && Objects.equals(transportSystems, other.transportSystems);
+  }
+
+  public String toString() {
 		
 		return "VisumOrientedLink(" 
 							+ id + "," 

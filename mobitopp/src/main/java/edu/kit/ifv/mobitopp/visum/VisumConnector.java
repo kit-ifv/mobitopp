@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class VisumConnector 
 	implements Serializable
@@ -51,17 +52,35 @@ public class VisumConnector
 		return direction.equals("Q") ? Direction.ORIGIN : Direction.DESTINATION;
 	}
 
-	public String toString() {
+	@Override
+  public int hashCode() {
+    return Objects
+        .hash(direction, id, length, node, transportSystems, travelTimeInSeconds, type, zone);
+  }
 
-  	return "VisumConnector(\n" 
-    	                  + "\t" + zone + ",\n"
-      	                + "\t" + node + ",\n"
-        	              + "\t" 	+ direction + ","
-																+ type + "," 
-																+ transportSystems + ","
-																+ length + ","
-																+ travelTimeInSeconds + "\n)";
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumConnector other = (VisumConnector) obj;
+    return direction == other.direction && Objects.equals(id, other.id)
+        && Float.floatToIntBits(length) == Float.floatToIntBits(other.length)
+        && Objects.equals(node, other.node)
+        && Objects.equals(transportSystems, other.transportSystems)
+        && travelTimeInSeconds == other.travelTimeInSeconds && type == other.type
+        && Objects.equals(zone, other.zone);
+  }
+
+  @Override
+  public String toString() {
+    return "VisumConnector [zone=" + zone.id + ", node=" + node.id() + ", direction=" + direction
+        + ", type=" + type + ", transportSystems=" + transportSystems + ", length=" + length
+        + ", id=" + id + ", travelTimeInSeconds=" + travelTimeInSeconds + "]";
+  }
 
 
 

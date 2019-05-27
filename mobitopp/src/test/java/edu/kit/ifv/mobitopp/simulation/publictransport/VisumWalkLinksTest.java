@@ -219,7 +219,7 @@ public class VisumWalkLinksTest {
 				.to(secondNode())
 				.with(type)
 				.withLength(4)
-				.withSpeed(4)
+				.withWalkSpeed(4)
 				.build();
 		return new VisumLinks(Collections.singletonMap(1, link));
 	}
@@ -227,7 +227,7 @@ public class VisumWalkLinksTest {
 	private VisumLinkType transferWalkType() {
 		VisumTransportSystem system = new VisumTransportSystem("F", "Fusswege", "F");
 		VisumTransportSystemSet systemSet = asSet(system);
-		return new VisumLinkType(7, "ÖV Umsteigefußwege", systemSet, 0, 0, 0, 0);
+		return new VisumLinkType(7, "ï¿½V Umsteigefuï¿½wege", systemSet, 0, 0, 0, 0);
 	}
 
 	private static VisumNode firstNode() {

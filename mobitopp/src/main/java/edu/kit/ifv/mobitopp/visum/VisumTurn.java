@@ -56,7 +56,10 @@ public class VisumTurn
         && Objects.equals(transportSystems, other.transportSystems) && type == other.type;
   }
 
+  @Override
   public String toString() {
-		return "VisumTurn(" + node.id() + ",from=" + from.id() + ",to=" + to.id() + ")";
-	}
+    return "VisumTurn [node=" + node.id() + ", from=" + from.id() + ", to=" + to.id() + ", type="
+        + type + ", transportSystems=" + transportSystems + ", capacity=" + capacity
+        + ", timePenaltyInSec=" + timePenaltyInSec + "]";
+  }
 }
