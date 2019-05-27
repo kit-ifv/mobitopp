@@ -22,8 +22,12 @@ public class VisumBuilder {
 	  return new VisumTurnBuilder();
 	}
 
+	public static VisumLinkTypeBuilder visumLinkType() {
+		return new VisumLinkTypeBuilder();
+	}
+	
 	public static VisumLinkBuilder visumLink() {
-		return new VisumLinkBuilder();
+	  return new VisumLinkBuilder();
 	}
 
 	public static VisumOrientedLinkBuilder visumOrientedLink() {

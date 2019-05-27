@@ -36,7 +36,6 @@ public class VisumConnectorBuilder {
 		node = defaultNode;
 		direction = sourceDirection;
 		type = defaultType;
-		transportSystems = defaultTransportSystemSet();
 		length = defaultLength;
 		travelTimeInSeconds = defaultTravelTimeInSeconds;
 	}
@@ -50,8 +49,15 @@ public class VisumConnectorBuilder {
 	}
 
 	public VisumConnector build() {
+	  ensureExistingTransportSystemSet();
 		return new VisumConnector(zone, node, direction, type, transportSystems, length, travelTimeInSeconds);
 	}
+
+  private void ensureExistingTransportSystemSet() {
+    if (null == transportSystems) {
+	    transportSystems = defaultTransportSystemSet();
+	  }
+  }
 
 	public VisumConnectorBuilder with(VisumZone zone) {
 		this.zone = zone;
@@ -72,5 +78,25 @@ public class VisumConnectorBuilder {
 		direction = destinationDirection;
 		return this;
 	}
+
+  public VisumConnectorBuilder with(VisumTransportSystemSet transportSystemSet) {
+    this.transportSystems = transportSystemSet;
+    return this;
+  }
+
+  public VisumConnectorBuilder withLength(float length) {
+    this.length = length;
+    return this;
+  }
+  
+  public VisumConnectorBuilder withType(int type) {
+    this.type = type;
+    return this;
+  }
+  
+  public VisumConnectorBuilder withTravelTime(int travelTimeInSeconds) {
+    this.travelTimeInSeconds = travelTimeInSeconds;
+    return this;
+  }
 
 }

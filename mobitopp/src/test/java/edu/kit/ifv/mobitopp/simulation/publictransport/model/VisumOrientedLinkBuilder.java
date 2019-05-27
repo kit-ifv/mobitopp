@@ -22,6 +22,7 @@ public class VisumOrientedLinkBuilder {
 	private static final float defaultLength = 0;
 	private static final int defaultCapacityCar = 0;
 	private static final int defaultFreeFlowSpeedCar = 0;
+	private static final int defaultNumberOfLanes = 0;
 	private static final int defaultWalkSpeed = 0;
 
 	static {
@@ -31,13 +32,14 @@ public class VisumOrientedLinkBuilder {
 	private String id;
 	private VisumNode from;
 	private VisumNode to;
-	private final String name;
+	private String name;
 	private VisumLinkType linkType;
 	private VisumTransportSystemSet transportSystemSet;
 	private float length;
 	private int capacityCar;
 	private int freeFlowSpeedCar;
 	private int walkSpeed;
+  private int numberOfLanes;
 
 	public VisumOrientedLinkBuilder() {
 		super();
@@ -50,11 +52,12 @@ public class VisumOrientedLinkBuilder {
 		length = defaultLength;
 		capacityCar = defaultCapacityCar;
 		freeFlowSpeedCar = defaultFreeFlowSpeedCar;
+		numberOfLanes = defaultNumberOfLanes;
 		walkSpeed = defaultWalkSpeed;
 	}
 
 	public VisumOrientedLink build() {
-		VisumLinkAttributes attributes = new VisumLinkAttributes(0, capacityCar, freeFlowSpeedCar, walkSpeed);
+		VisumLinkAttributes attributes = new VisumLinkAttributes(numberOfLanes, capacityCar, freeFlowSpeedCar, walkSpeed);
 		return new VisumOrientedLink(id, from, to, name, linkType, transportSystemSet, length, attributes);
 	}
 
@@ -99,8 +102,22 @@ public class VisumOrientedLinkBuilder {
 	}
 
 	public VisumOrientedLinkBuilder with(VisumTransportSystem transportSystem) {
-		this.transportSystemSet = asSet(transportSystem);
-		return this;
+		return with(asSet(transportSystem));
 	}
+	
+	public VisumOrientedLinkBuilder with(VisumTransportSystemSet transportSystemSet) {
+	  this.transportSystemSet = transportSystemSet;
+	  return this;
+	}
+
+  public VisumOrientedLinkBuilder withName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public VisumOrientedLinkBuilder withNumberOfLanes(int numberOfLanes) {
+    this.numberOfLanes = numberOfLanes;
+    return this;
+  }
 
 }

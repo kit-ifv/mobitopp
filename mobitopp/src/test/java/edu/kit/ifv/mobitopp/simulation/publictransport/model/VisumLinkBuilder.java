@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.simulation.publictransport.TransportSystemHelper.asSet;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumOrientedLink;
 
 import edu.kit.ifv.mobitopp.visum.VisumLink;
@@ -7,6 +8,7 @@ import edu.kit.ifv.mobitopp.visum.VisumLinkType;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumOrientedLink;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
+import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 
 public class VisumLinkBuilder {
 
@@ -23,16 +25,20 @@ public class VisumLinkBuilder {
 	private VisumNode start;
 	private VisumNode end;
 	private VisumLinkType type;
-	private int speed;
+	private String name;
+	private int freeFlowSpeed;
+	private int walkSpeed;
 	private float length;
-	private VisumTransportSystem transportSystem;
+	private VisumTransportSystemSet transportSystemSet;
+  private int capacity;
+  private int numberOfLanes;
 
 	public VisumLinkBuilder() {
 		super();
 		id = defaultId;
 		linkA = defaultLinkA;
 		linkB = defaultLinkB;
-		transportSystem = defaultTransportSystem();
+		transportSystemSet = asSet(defaultTransportSystem());
 	}
 
 	private static VisumTransportSystem defaultTransportSystem() {
@@ -51,19 +57,27 @@ public class VisumLinkBuilder {
 				.from(start)
 				.to(end)
 				.withId(downLinkId())
+				.withName(name)
 				.with(type)
 				.withLength(length)
-				.withWalkSpeed(speed)
-				.with(transportSystem)
+				.withFreeFlowSpeedCar(freeFlowSpeed)
+				.withCarCapacity(capacity)
+				.withNumberOfLanes(numberOfLanes)
+				.withWalkSpeed(walkSpeed)
+				.with(transportSystemSet)
 				.build();
 		VisumOrientedLink up = visumOrientedLink()
 				.from(end)
 				.to(start)
 				.withId(upLinkId())
+				.withName(name)
 				.with(type)
 				.withLength(length)
-				.withWalkSpeed(speed)
-				.with(transportSystem)
+				.withFreeFlowSpeedCar(freeFlowSpeed)
+				.withCarCapacity(capacity)
+				.withNumberOfLanes(numberOfLanes)
+				.withWalkSpeed(walkSpeed)
+				.with(transportSystemSet)
 				.build();
 		return new VisumLink(id, down, up);
 	}
@@ -96,8 +110,13 @@ public class VisumLinkBuilder {
 		return this;
 	}
 
-	public VisumLinkBuilder withSpeed(int speed) {
-		this.speed = speed;
+	public VisumLinkBuilder withFreeFlowSpeed(int freeFlowSpeed) {
+	  this.freeFlowSpeed = freeFlowSpeed;
+	  return this;
+	}
+	
+	public VisumLinkBuilder withWalkSpeed(int speed) {
+		this.walkSpeed = speed;
 		return this;
 	}
 
@@ -107,8 +126,12 @@ public class VisumLinkBuilder {
 	}
 
 	public VisumLinkBuilder with(VisumTransportSystem transportSystem) {
-		this.transportSystem = transportSystem;
-		return this;
+		return with(asSet(transportSystem));
+	}
+	
+	public VisumLinkBuilder with(VisumTransportSystemSet transportSystemSet) {
+	  this.transportSystemSet = transportSystemSet;
+	  return this;
 	}
 
 	public VisumLinkBuilder withForward(VisumOrientedLink link) {
@@ -120,5 +143,20 @@ public class VisumLinkBuilder {
 		this.linkB = link;
 		return this;
 	}
+
+  public VisumLinkBuilder withName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public VisumLinkBuilder withCapacity(int capacity) {
+    this.capacity = capacity;
+    return this;
+  }
+
+  public VisumLinkBuilder withNumberOfLanes(int numberOfLanes) {
+    this.numberOfLanes = numberOfLanes;
+    return this;
+  }
 
 }

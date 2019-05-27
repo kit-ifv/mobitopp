@@ -457,7 +457,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		String floatingCarNumber = floatingCarNumber(table, i);
 		Map<String, Float> carsharingcarDensities = carSharingDensities(table, i);
 
-		double privateChargingProbaibility = privateChargingProbability(table, i);
+		double privateChargingProbability = privateChargingProbability(table, i);
 		float innerZonePublicTransport = innerZonePublicTransportTime(table, i);
 		VisumZone tmp = new VisumZone(
 													id,
@@ -472,7 +472,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 													floatingCarArea.equals("1") ? "Car2Go" : "",
 													Integer.valueOf(floatingCarArea),
 													Integer.valueOf(floatingCarNumber),
-													privateChargingProbaibility,
+													privateChargingProbability,
 													carsharingcarDensities,
 													innerZonePublicTransport 
 										);

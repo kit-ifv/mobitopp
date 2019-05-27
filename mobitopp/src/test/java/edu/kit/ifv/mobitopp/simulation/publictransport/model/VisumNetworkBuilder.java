@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.visum.VisumChargingFacility;
 import edu.kit.ifv.mobitopp.visum.VisumChargingPoint;
 import edu.kit.ifv.mobitopp.visum.VisumConnector;
 import edu.kit.ifv.mobitopp.visum.VisumLink;
+import edu.kit.ifv.mobitopp.visum.VisumLinkType;
 import edu.kit.ifv.mobitopp.visum.VisumLinkTypes;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
@@ -35,7 +36,7 @@ import edu.kit.ifv.mobitopp.visum.VisumZone;
 public class VisumNetworkBuilder {
 
 	private final Map<String, VisumTransportSystem> transportSystems;
-	private final VisumLinkTypes linkTypes;
+	private final Map<Integer, VisumLinkType> linkTypes;
 	private final Map<Integer, VisumNode> nodes;
 	private final Map<Integer, VisumLink> links;
 	private final Map<Integer, List<VisumTurn>> turns;
@@ -59,7 +60,7 @@ public class VisumNetworkBuilder {
 	public VisumNetworkBuilder() {
 		super();
 		transportSystems = new HashMap<>();
-		linkTypes = new VisumLinkTypes(Collections.emptyMap());
+		linkTypes = new HashMap<>();
 		nodes = new HashMap<>();
 		links = new HashMap<>();
 		turns = new HashMap<>();
@@ -83,6 +84,7 @@ public class VisumNetworkBuilder {
 
 	public VisumNetwork build() {
 		VisumTransportSystems systems = new VisumTransportSystems(transportSystems);
+		VisumLinkTypes linkTypes = new VisumLinkTypes(this.linkTypes);
 		return new VisumNetwork(systems, linkTypes, nodes, links, turns, zones, connectors, vehicleCombinations,
 				ptStops, ptStopAreas, ptStopPoints, walkTimes, ptLines, ptLineRoutes, ptTimeProfiles,
 				ptVehicleJourneys, areas, chargingFacilities, chargingPoints, carSharingStations,
@@ -127,6 +129,11 @@ public class VisumNetworkBuilder {
 		return this;
 	}
 
+	public VisumNetworkBuilder with(VisumLinkType linkType) {
+	  linkTypes.put(linkType.id, linkType);
+	  return this;
+	}
+
 	public VisumNetworkBuilder addConnector(VisumZone zone, VisumConnector connector) {
 		if (!connectors.containsKey(zone.id)) {
 			connectors.put(zone.id, new ArrayList<>());
@@ -155,5 +162,6 @@ public class VisumNetworkBuilder {
     vehicleCombinations.put(vehicleCombination.id, vehicleCombination);
     return this;
   }
+
 
 }

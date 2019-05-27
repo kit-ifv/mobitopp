@@ -37,7 +37,13 @@ public class VisumNetworkReaderTest {
     assertAll(
         () -> assertThat(loadedNetwork.transportSystems, is(equalTo(network.transportSystems))),
         () -> assertThat(loadedNetwork.vehicleCombinations, is(equalTo(network.vehicleCombinations))),
-        () -> assertThat(loadedNetwork.areas, is(equalTo(network.areas))));
+        () -> assertThat(loadedNetwork.areas, is(equalTo(network.areas))),
+        () -> assertThat(loadedNetwork.nodes, is(equalTo(network.nodes))),
+        () -> assertThat(loadedNetwork.zones, is(equalTo(network.zones))),
+        () -> assertThat(loadedNetwork.linkTypes, is(equalTo(network.linkTypes))),
+        () -> assertThat(loadedNetwork.links, is(equalTo(network.links))),
+        () -> assertThat(loadedNetwork.turns, is(equalTo(network.turns))),
+        () -> assertThat(loadedNetwork.connectors, is(equalTo(network.connectors))));
   }
   
 	private File networkFile() throws URISyntaxException {

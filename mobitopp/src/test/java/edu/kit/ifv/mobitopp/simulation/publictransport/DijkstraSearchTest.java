@@ -171,7 +171,7 @@ public class DijkstraSearchTest {
 				.from(someNode)
 				.to(anotherNode)
 				.withLength(oneKilomenter)
-				.withSpeed(walkSpeed)
+				.withWalkSpeed(walkSpeed)
 				.build();
 		VisumNetwork oneLinkNetwork = networkContaining(oneLink, someNode, anotherNode);
 
@@ -228,7 +228,7 @@ public class DijkstraSearchTest {
 	}
 
 	private VisumLinkBuilder visumLink() {
-		return VisumBuilder.visumLink().withSpeed(walkSpeed).with(walking);
+		return VisumBuilder.visumLink().withWalkSpeed(walkSpeed).with(walking);
 	}
 
 	private static VisumNetwork networkContaining(

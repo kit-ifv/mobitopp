@@ -67,7 +67,7 @@ public class VisumNode
   }
 
   public String toString() {
-		return "VisumNode(" + id + "," + name + "," + type + "," + coord + ")";
+		return "VisumNode(" + id + "," + name + "," + type + "," + coord + "," + turns + ")";
 	}
 
 }
