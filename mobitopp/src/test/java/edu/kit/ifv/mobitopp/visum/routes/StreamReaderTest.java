@@ -4,6 +4,8 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -63,6 +65,16 @@ public class StreamReaderTest {
     assertThat(someRows, contains(Row.createRow(someValues, someAttributes)));
     assertThat(otherRows, contains(Row.createRow(otherValues, otherAttributes)));
   }
+  
+  @Test
+  void readsMissingTable() throws Exception {
+    addSomeTable();
+    StreamReader reader = newReader(content.toString());
+    
+    List<Row> rows = reader.read(dummyFile(), otherTable).collect(toList());
+    
+    assertThat(rows, is(empty()));
+  }
 
   private void addOtherTable() {
     addTable(otherTable, otherValues, otherAttributes);
@@ -79,7 +91,7 @@ public class StreamReaderTest {
     content.newLine(values.get(1));
     content.newLine("");
   }
-
+  
   private StreamReader newReader(String content) {
     return new StreamReader() {
 
