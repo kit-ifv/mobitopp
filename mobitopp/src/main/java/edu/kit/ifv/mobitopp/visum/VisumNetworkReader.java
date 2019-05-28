@@ -12,17 +12,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
-public class VisumNetworkReader {
+import edu.kit.ifv.mobitopp.visum.routes.Row;
+import edu.kit.ifv.mobitopp.visum.routes.StreamReader;
+
+public class VisumNetworkReader extends VisumBaseReader {
 
 	static final double alwaysAllowed = 1.0;
 	private final VisumReader reader;
-  private final NetfileLanguage language;
+  private File file;
 
 
 	public VisumNetworkReader(VisumReader reader, NetfileLanguage language) {
-		this.reader=reader;
-		this.language = language;
+		super(language);
+	  this.reader=reader;
 	}
 	
 	public VisumNetworkReader(VisumReader reader) {
@@ -37,9 +41,8 @@ public class VisumNetworkReader {
 	}
 
 	public VisumNetwork readNetwork(File file) {
-
-
-	long startTime = System.currentTimeMillis();
+	this.file = file;
+  long startTime = System.currentTimeMillis();
 	long lastCurrentTime = startTime;
 
 System.out.println("reading data...");
@@ -64,11 +67,11 @@ System.out.println("reading tables...");
 
 	lastCurrentTime = System.currentTimeMillis();
 
-		VisumTransportSystems transportSystems = readTransportSystems(tables);
-		VisumLinkTypes linkTypes = readLinkTypes(tables, transportSystems);
+		VisumTransportSystems transportSystems = readTransportSystems();
+		VisumLinkTypes linkTypes = readLinkTypes(transportSystems);
 
 System.out.println(" reading nodes...");
-		Map<Integer, VisumNode> nodes = readNodes(tables);
+		Map<Integer, VisumNode> nodes = readNodes();
 
 System.out.println(" reading links...");
 		Map<Integer, VisumLink> links = readLinks(tables, nodes, transportSystems, linkTypes);
@@ -188,35 +191,30 @@ System.out.println(" reading territories...");
 		return network;
 	}
 
-	private String attribute(StandardAttributes tabletransportsystems) {
-	  return language.resolve(tabletransportsystems);
+	private VisumTransportSystems readTransportSystems() {
+	  String tableName = table(Table.transportSystems);
+    Stream<Row> content = loadContentOf(tableName);
+		VisumTransportSystemReader reader = new VisumTransportSystemReader(language);
+		return reader.readTransportSystems(content);
 	}
 
-	private String table(Table table) {
-	  return language.resolve(table);
-	}
+  public Stream<Row> loadContentOf(String tableName) {
+    return new StreamReader().read(file, tableName);
+  }
 
-	private VisumTransportSystems readTransportSystems(Map<String, VisumTable> tables) {
-		VisumTable table = tables.get(table(Table.transportSystems));
-		VisumTransportSystemReader reader = new VisumTransportSystemReader(table, language);
-		return reader.readTransportSystems();
-	}
+  private VisumLinkTypes readLinkTypes(VisumTransportSystems allSystems) {
+    VisumLinkTypeReader reader = new VisumLinkTypeReader(language);
+    Stream<Row> rows = loadContentOf(table(Table.linkTypes));
+    return reader.readLinkTypes(allSystems, rows);
+  }
 
-
-  private VisumLinkTypes readLinkTypes(
-			Map<String, VisumTable> tables, VisumTransportSystems allSystems) {
-		VisumTable table = tables.get(table(Table.linkTypes));
-		VisumLinkTypeReader reader = new VisumLinkTypeReader(table, language);
-		return reader.readLinkTypes(allSystems);
-	}
-	
-	static int walkSpeed(VisumTable table, int row, NetfileLanguage language) {
+	static int walkSpeed(Row row, NetfileLanguage language) {
 		String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
 		String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
-		if (table.containsAttribute(publicWalkSpeed)) {
-			Integer publicTransport = parseSpeed(table.getValue(row, publicWalkSpeed), language);
-			if (table.containsAttribute(individualWalkSpeed)) {
-				Integer individualTransport = parseSpeed(table.getValue(row, individualWalkSpeed), language);
+		if (row.containsAttribute(publicWalkSpeed)) {
+			Integer publicTransport = parseSpeed(row.get(publicWalkSpeed), language);
+			if (row.containsAttribute(individualWalkSpeed)) {
+				Integer individualTransport = parseSpeed(row.get(individualWalkSpeed), language);
 				if (publicTransport.equals(individualTransport)) {
 					return publicTransport;
 				}
@@ -225,65 +223,19 @@ System.out.println(" reading territories...");
 			}
 			return publicTransport;
 		}
-		if (table.containsAttribute(individualWalkSpeed)) {
-			return parseSpeed(table.getValue(row, individualWalkSpeed), language);
+		if (row.containsAttribute(individualWalkSpeed)) {
+			return parseSpeed(row.get(individualWalkSpeed), language);
 		}
 		return 0;
 	}
 
-	private Map<Integer, VisumNode> readNodes(
-		Map<String,VisumTable> tables
-	) {
-
-		VisumTable table = tables.get(table(Table.nodes));
-
-		Map<Integer, VisumNode> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			Integer id = Integer.valueOf(table.getValue(i,number()));
-
-			VisumNode tmp = new VisumNode(
-																		id,
-																		table.getValue(i,name()),
-																		Integer.valueOf(table.getValue(i,typeNumber())),
-																		Float.parseFloat(table.getValue(i,xCoord())),
-																		Float.parseFloat(table.getValue(i,yCoord())),
-																		Float.parseFloat(table.getValue(i,zCoord()))
-													);
-
-			data.put(id, tmp);
-		}
-
-		return data;
-	}
-
-  private String zCoord() {
-    return attribute(StandardAttributes.zCoord);
+  private Map<Integer, VisumNode> readNodes() {
+    VisumNodeReader reader = new VisumNodeReader(language);
+    Stream<Row> rows = loadContentOf(table(Table.nodes));
+    return reader.readNodes(rows);
   }
 
-  private String yCoord() {
-    return attribute(StandardAttributes.yCoord)  ;
-  }
-
-  private String xCoord() {
-    return attribute(StandardAttributes.xCoord);
-  }
-
-  private String typeNumber() {
-    return attribute(StandardAttributes.typeNumber);
-  }
-
-  private String name() {
-    return attribute(StandardAttributes.name);
-  }
-
-  private String number() {
-    return attribute(StandardAttributes.number);
-  }
-
-
-	private Map<Integer, VisumLink> readLinks(
+  private Map<Integer, VisumLink> readLinks(
 		Map<String,VisumTable> tables,
 		Map<Integer, VisumNode> nodes, 
 		VisumTransportSystems transportSystems, 
@@ -299,8 +251,10 @@ System.out.println(" reading territories...");
 
 			Integer id =	Integer.valueOf(table.getValue(i,number()));
 
-			VisumOrientedLink link1 = readOrientedLink("" + id + ":1", table, nodes, i, transportSystems, linkTypes);
-			VisumOrientedLink link2 = readOrientedLink("" + id + ":2", table, nodes, i+1, transportSystems, linkTypes);
+			Row first = table.getRow(i);
+			Row second = table.getRow(i+1);
+      VisumOrientedLink link1 = readOrientedLink("" + id + ":1", nodes, first, transportSystems, linkTypes);
+      VisumOrientedLink link2 = readOrientedLink("" + id + ":2", nodes, second, transportSystems, linkTypes);
 
 			VisumLink tmp = new VisumLink(
 															id,
@@ -316,24 +270,23 @@ System.out.println(" reading territories...");
 
 	private VisumOrientedLink readOrientedLink(
 		String id,
-		VisumTable table,
 		Map<Integer, VisumNode> nodes,
-		int row, 
+		Row row, 
 		VisumTransportSystems allSystems, 
 		VisumLinkTypes linkTypes
 	) {
 
-		VisumNode fromNode = nodes.get(Integer.valueOf(table.getValue(row,fromNode())));
-		VisumNode toNode = nodes.get(Integer.valueOf(table.getValue(row,toNode())));
-		String name =  table.getValue(row,name());
-		VisumLinkType linkType = linkTypes.getById(Integer.valueOf(table.getValue(row,typeNumber())));
-		String transportSystems = table.getValue(row,transportSystemsSet());
+		VisumNode fromNode = nodes.get(row.valueAsInteger(fromNode()));
+		VisumNode toNode = nodes.get(row.valueAsInteger(toNode()));
+		String name = row.get(name());
+		VisumLinkType linkType = linkTypes.getById(row.valueAsInteger(typeNumber()));
+		String transportSystems = row.get(transportSystemsSet());
 		VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-		Float distance = parseDistance(table.getValue(row,length()));
-		Integer numberOfLanes = Integer.valueOf(table.getValue(row,numberOfLanes()));
-		Integer capacity = Integer.valueOf(table.getValue(row,capacityCar()));
-		Integer speed = parseSpeed(table.getValue(row,freeFlowSpeedCar()), language);
-		int walkSpeed = walkSpeed(table, row, language);
+		Float distance = parseDistance(row.get(length()));
+		Integer numberOfLanes = row.valueAsInteger(numberOfLanes());
+		Integer capacity = row.valueAsInteger(capacityCar());
+		Integer speed = parseSpeed(row.get(freeFlowSpeedCar()), language);
+		int walkSpeed = walkSpeed(row, language);
 
 		VisumOrientedLink link =  new VisumOrientedLink(
 																		id,
@@ -354,35 +307,7 @@ System.out.println(" reading territories...");
 		return link;
 	}
 
-  private String freeFlowSpeedCar() {
-    return attribute(StandardAttributes.freeFlowSpeedCar);
-  }
-
-  private String capacityCar() {
-    return attribute(StandardAttributes.capacityCar);
-  }
-
-  private String numberOfLanes() {
-    return attribute(StandardAttributes.numberOfLanes);
-  }
-
-  private String length() {
-    return attribute(StandardAttributes.length);
-  }
-
-  private String transportSystemsSet() {
-    return attribute(StandardAttributes.transportSystemSet);
-  }
-
-  private String toNode() {
-    return attribute(StandardAttributes.toNodeNumber);
-  }
-
-  private String fromNode() {
-    return attribute(StandardAttributes.fromNodeNumber);
-  }
-
-	private Map<Integer, List<VisumTurn>> readTurns(
+  private Map<Integer, List<VisumTurn>> readTurns(
 		Map<String,VisumTable> tables,
 		Map<Integer, VisumNode> nodes, 
 		VisumTransportSystems allSystems
@@ -394,29 +319,8 @@ System.out.println(" reading territories...");
 			return emptyMap();
 		}
 
-		Map<Integer,List<VisumTurn>> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			Integer nodeId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.viaNodeNumber)));
-
-			String transportSystems = table.getValue(i, transportSystemsSet());
-			VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-			VisumTurn turn = new VisumTurn(
-																nodes.get(nodeId),
-																nodes.get(Integer.valueOf(table.getValue(i,fromNode()))),
-																nodes.get(Integer.valueOf(table.getValue(i,toNode()))),
-																Integer.valueOf(table.getValue(i,typeNumber())),
-																systemSet,
-																Integer.valueOf(table.getValue(i,capacityCar())),
-																parseTime(table.getValue(i,attribute(StandardAttributes.freeFlowTravelTimeCar)))
-														);
-
-			if (!data.containsKey(nodeId)) {
-				data.put(nodeId, new ArrayList<VisumTurn>());
-			}
-			data.get(nodeId).add(turn);
-		}
+    Map<Integer, List<VisumTurn>> data = new VisumTurnsReader(language, nodes, allSystems)
+        .readTurns(table);
 
 		for (Integer nodeId : nodes.keySet()) {
 
@@ -491,11 +395,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
     return 0;
   }
 
-  private String areaId() {
-    return attribute(StandardAttributes.areaId);
-  }
-
-	protected float innerZonePublicTransportTime(VisumTable table, int i) {
+  protected float innerZonePublicTransportTime(VisumTable table, int i) {
 		String diagPt = attribute(StandardAttributes.innerZonePublicTransportTravelTime);
     if (table.containsAttribute(diagPt)) {
 			return Float.parseFloat(table.getValue(i, diagPt));
@@ -600,34 +500,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String direction() {
-    return attribute(StandardAttributes.direction);
-  }
-
-  private String nodeNumber() {
-    return attribute(StandardAttributes.nodeNumber);
-  }
-
-	protected String travelTimeCarAttribute() {
-		return attribute(StandardAttributes.travelTimeCar);
-	}
-
-	static Integer parseSpeed(String value, NetfileLanguage language) {
-		String unit = language.resolve(Unit.velocity);
-    return (int)(float)Float.valueOf(value.replace(unit,""));
-	}
-
-	private Float parseDistance(String value) {
-	  String unit = language.resolve(Unit.distance);
-		return Float.valueOf(value.replace(unit,""));
-	}
-
-	private Integer parseTime(String value) {
-	  String unit = language.resolve(Unit.time);
-		return Double.valueOf(value.replace(unit,"")).intValue();
-	}
-
-	private Map<Integer, VisumVehicleUnit> readVehicleUnits(
+  private Map<Integer, VisumVehicleUnit> readVehicleUnits(
 		Map<String,VisumTable> tables, VisumTransportSystems allSystems
 	) {
 	  if (!tables.containsKey(table(Table.vehicleUnit))) {
@@ -662,11 +535,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String code() {
-    return attribute(StandardAttributes.code);
-  }
-
-	private Map<Integer, VisumVehicleCombination> readVehicleCombinations(
+  private Map<Integer, VisumVehicleCombination> readVehicleCombinations(
 		Map<String,VisumTable> tables,
 		Map<Integer, VisumVehicleUnit> vehicleUnits
 	) {
@@ -727,11 +596,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String vehicleCombinationNumber() {
-    return attribute(StandardAttributes.vehicleCombinationNumber);
-  }
-
-	private Map<Integer, VisumPtStop> readPtStations(
+  private Map<Integer, VisumPtStop> readPtStations(
 		Map<String,VisumTable> tables
 	) {
 	  if (!tables.containsKey(table(Table.station))) {
@@ -859,11 +724,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String directed() {
-    return attribute(StandardAttributes.directed);
-  }
-
-	private Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimesMatrix(
+  private Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimesMatrix(
 			Map<String, VisumTable> tables, Map<Integer, VisumPtStopArea> ptStopAreas) {
 	  if (!tables.containsKey(table(Table.station))) {
       return emptyMap();
@@ -887,11 +748,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String transportSystemCode() {
-    return attribute(StandardAttributes.transportSystemCode);
-  }
-
-	private Map<String, VisumPtLine> readPtLines(
+  private Map<String, VisumPtLine> readPtLines(
 		Map<String,VisumTable> tables, VisumTransportSystems systems
 	) {
 	  if (!tables.containsKey(table(Table.line))) {
@@ -961,15 +818,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return result;
 	}
 
-  private String directionCode() {
-    return attribute(StandardAttributes.directionCode);
-  }
-
-  private String lineName() {
-    return attribute(StandardAttributes.lineName);
-  }
-
-	protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
+  protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
 		return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
 		                    																						: VisumPtLineRouteDirection.R;
 	}
@@ -1029,15 +878,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		}
 	}
 
-  private String index() {
-    return attribute(StandardAttributes.index);
-  }
-
-  private String lineRouteName() {
-    return attribute(StandardAttributes.lineRouteName);
-  }
-
-	private Map<String,VisumPtTimeProfile> readPtTimeProfile(
+  private Map<String,VisumPtTimeProfile> readPtTimeProfile(
 		Map<String,VisumTable> tables,
 		Map<String, VisumPtLineRoute> ptLineRoutes
 	) {
@@ -1127,16 +968,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String departure() {
-    return attribute(StandardAttributes.departure);
-  }
-
-  private String timeProfileName() {
-    return attribute(StandardAttributes.timeProfileName);
-  }
-
-
-	private int parseTimeAsSeconds(String timeAsString) {
+  private int parseTimeAsSeconds(String timeAsString) {
 
 		String[] tmp = timeAsString.split(":");
 		int hour   = Integer.valueOf(tmp[0]);
@@ -1231,15 +1063,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 	return data;
 }
 
-  private String toTimeProfileElementIndex() {
-    return attribute(StandardAttributes.toTimeProfileElementIndex);
-  }
-
-  private String fromTimeProfileElementIndex() {
-    return attribute(StandardAttributes.fromTimeProfileElementIndex);
-  }
-
-	private class RingInfo {
+  private class RingInfo {
 
 		public final int ring_id;
 		public final int enclave;
@@ -1301,12 +1125,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return polys;
 	}
 
-  private String ringId() {
-    return attribute(StandardAttributes.ringId);
-  }
-
-
-	private Map<Integer,VisumPoint> readPoints(
+  private Map<Integer,VisumPoint> readPoints(
 		Map<String,VisumTable> tables
 	) {
 		VisumTable table = tables.get(table(Table.point));
@@ -1327,12 +1146,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return result;
 	}
 
-  private String id() {
-    return attribute(StandardAttributes.id);
-  }
-
-
-	private Map<Integer,SortedMap<Integer,VisumPoint>> readIntermediatePoints(
+  private Map<Integer,SortedMap<Integer,VisumPoint>> readIntermediatePoints(
 		Map<String,VisumTable> tables
 	) {
 
@@ -1362,12 +1176,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return result;
 	}
 
-  private String edgeId() {
-    return attribute(StandardAttributes.edgeId);
-  }
-
-
-	private Map<Integer,VisumEdge> readEdges(
+  private Map<Integer,VisumEdge> readEdges(
 		Map<Integer,VisumPoint> points,
 		Map<Integer,SortedMap<Integer,VisumPoint>> intermediatePoints,
 		Map<String,VisumTable> tables
@@ -1480,11 +1289,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return Collections.emptyMap();
 	}
 
-  private String chargingStations() {
-    return attribute(StandardAttributes.chargingStationsCode);
-  }
-
-	private Map<Integer, VisumChargingFacility> readChargingStations(
+  private Map<Integer, VisumChargingFacility> readChargingStations(
 			Map<String, VisumTable> tables, POICategories categories) {
 		int nr = categories.numberByCode(chargingStations());
 		VisumTable table = tables.get(poiCategoryPrefix() + nr);
@@ -1530,11 +1335,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return emptyMap();
 	}
 
-  private String chargingPoints() {
-    return attribute(StandardAttributes.chargingPoints);
-  }
-
-	private Map<Integer, VisumChargingPoint> readChargingPoints(
+  private Map<Integer, VisumChargingPoint> readChargingPoints(
 			Map<String, VisumTable> tables, POICategories categories) {
 		int nr = categories.numberByCode(chargingPoints());
 		VisumTable table = tables.get(poiCategoryPrefix() + nr);
@@ -1550,19 +1351,11 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String poiCategoryPrefix() {
-    return table(Table.poiCategoryPrefix);
-  }
-
-	private boolean elementHasNoPower(VisumTable table, int i) {
+  private boolean elementHasNoPower(VisumTable table, int i) {
 		return table.getValue(i, power()).isEmpty();
 	}
 
-  private String power() {
-    return attribute(StandardAttributes.power);
-  }
-
-	private VisumChargingPoint createChargingPointWith(int id, VisumTable table, int i) {
+  private VisumChargingPoint createChargingPointWith(int id, VisumTable table, int i) {
 		float xCoord = Float.parseFloat(table.getValue(i, xCoord()));
 		float yCoord = Float.parseFloat(table.getValue(i, yCoord()));
 		String station = table.getValue(i, id());
@@ -1617,23 +1410,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
     return Double.valueOf(table.getValue(i,id())).intValue();
   }
 
-  private String streetIso8859() {
-    return attribute(StandardAttributes.streetIso8859);
-  }
-
-  private String type() {
-    return attribute(StandardAttributes.type);
-  }
-
-  private String town() {
-    return attribute(StandardAttributes.town);
-  }
-
-  private String numberOfVehicles() {
-    return attribute(StandardAttributes.numberOfVehicles);
-  }
-
-	private  Map<Integer, VisumCarSharingStation> readCarSharingFlinkster(
+  private  Map<Integer, VisumCarSharingStation> readCarSharingFlinkster(
 		Map<String,VisumTable> tables
 	) {
 		if (!tables.containsKey(poiCategory())) {
@@ -1671,11 +1448,7 @@ System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
 		return data;
 	}
 
-  private String poiCategory() {
-    return table(Table.poiCategory);
-  }
-
-	private Map<Integer,VisumTerritory> readTerritories(
+  private Map<Integer,VisumTerritory> readTerritories(
 		Map<String,VisumTable> tables,
 		SortedMap<Integer,VisumSurface> polygons
 	) {

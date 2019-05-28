@@ -14,18 +14,19 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class RowTest {
 
+  private static final String missingAttribute = "missing-attribute";
   private static final String attribute = "attribute";
 
   @Test
-  void getInteger() throws Exception {
-    int expectedValue = 1;
-    List<String> values = asList(String.valueOf(expectedValue));
+  void getValueAsNumber() throws Exception {
+    List<String> values = asList(String.valueOf(1));
     List<String> attributes = asList(attribute);
     Row row = Row.createRow(values, attributes);
     
-    int value = row.valueAsInteger(attribute);
-    
-    assertThat(value, is(equalTo(expectedValue)));
+    assertAll( 
+        () -> assertTrue(row.containsAttribute(attribute)),
+        () -> assertThat(row.valueAsInteger(attribute), is(equalTo(1))),
+        () -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))));
   }
   
   @Test
@@ -34,8 +35,9 @@ public class RowTest {
     List<String> values = asList(String.valueOf(expectedValue));
     List<String> attributes = asList(attribute);
     Row row = Row.createRow(values, attributes);
-    
-    assertThrows(IllegalArgumentException.class, () -> row.get("missing-attribute"));
+
+    assertAll(() -> assertFalse(row.containsAttribute(missingAttribute)),
+        () -> assertThrows(IllegalArgumentException.class, () -> row.get(missingAttribute)));
   }
   
   @Test

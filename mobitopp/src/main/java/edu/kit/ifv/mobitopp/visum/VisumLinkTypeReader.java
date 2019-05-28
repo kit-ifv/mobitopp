@@ -1,96 +1,78 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.HashMap;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.Map;
+import java.util.stream.Stream;
+
+import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumLinkTypeReader {
 
-	private final VisumTable table;
-	private final Map<Integer, VisumLinkType> linkTypes;
   private final NetfileLanguage language;
 
-	public VisumLinkTypeReader(VisumTable table, NetfileLanguage language) {
-		super();
-		this.table = table;
+  public VisumLinkTypeReader(NetfileLanguage language) {
+    super();
     this.language = language;
-		linkTypes = new HashMap<>();
-	}
+  }
 
-	public VisumLinkTypes readLinkTypes(VisumTransportSystems allSystems) {
-		for (int row = 0; row < table.numberOfRows(); row++) {
-			createIn(row, allSystems);
-		}
-		return new VisumLinkTypes(linkTypes);
-	}
+  public VisumLinkTypes readLinkTypes(VisumTransportSystems allSystems, Stream<Row> content) {
+    Map<Integer, VisumLinkType> linkTypes = content
+        .collect(toMap(r -> idIn(r), r -> createLinkType(r, allSystems)));
+    return new VisumLinkTypes(linkTypes);
+  }
 
-	private void createIn(int row, VisumTransportSystems allSystems) {
-		verifyLinkTypeIn(row);
-		VisumLinkType linkType = createLinkType(row, allSystems);
-		store(row, linkType);
-	}
+  private VisumLinkType createLinkType(Row row, VisumTransportSystems allSystems) {
+    int id = idIn(row);
+    String name = nameIn(row);
+    VisumTransportSystemSet systemSet = transportSystemsIn(row, allSystems);
+    Integer numberOfLanes = numberOfLanesIn(row);
+    Integer capacityCar = capacityOfCarIn(row);
+    int freeFlowSpeedCar = freeFlowSpeedIn(row);
+    int walkSpeed = walkSpeed(row);
+    return new VisumLinkType(id, name, systemSet, numberOfLanes, capacityCar, freeFlowSpeedCar,
+        walkSpeed);
+  }
 
-	private void verifyLinkTypeIn(int row) {
-		if (linkTypes.containsKey(idIn(row))) {
-			throw new IllegalArgumentException(
-					"VisumLinkType: link type with id=" + idIn(row) + " already exists");
-		}
-	}
-
-	private void store(int row, VisumLinkType linkType) {
-		linkTypes.put(idIn(row), linkType);
-	}
-
-	private VisumLinkType createLinkType(int row, VisumTransportSystems allSystems) {
-		int id = idIn(row);
-		String name = nameIn(row);
-		VisumTransportSystemSet systemSet = transportSystemsIn(row, allSystems);
-		Integer numberOfLanes = numberOfLanesIn(row);
-		Integer capacityCar = capacityOfCarIn(row);
-		int freeFlowSpeedCar = freeFlowSpeedIn(row);
-		int walkSpeed = walkSpeed(row);
-		return new VisumLinkType(id, name, systemSet, numberOfLanes, capacityCar, freeFlowSpeedCar,
-				walkSpeed);
-	}
-
-	private int idIn(int row) {
-		return getIntegerIn(row, attribute(StandardAttributes.number));
-	}
+  private int idIn(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.number));
+  }
 
   private String attribute(StandardAttributes attribute) {
     return language.resolve(attribute);
   }
 
-	private String nameIn(int row) {
-		return table.getValue(row, attribute(StandardAttributes.name));
-	}
+  private String nameIn(Row row) {
+    return row.get(attribute(StandardAttributes.name));
+  }
 
-	private VisumTransportSystemSet transportSystemsIn(int row, VisumTransportSystems allSystems) {
-		String transportSystems = table.getValue(row, attribute(StandardAttributes.transportSystemSet));
-		return VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-	}
+  private VisumTransportSystemSet transportSystemsIn(Row row, VisumTransportSystems allSystems) {
+    String transportSystems = row.get(attribute(StandardAttributes.transportSystemSet));
+    return VisumTransportSystemSet.getByCode(transportSystems, allSystems);
+  }
 
-	private int numberOfLanesIn(int row) {
-		return getIntegerIn(row, attribute(StandardAttributes.numberOfLanes));
-	}
+  private int numberOfLanesIn(Row row) {
+    return getIntegerIn(row, attribute(StandardAttributes.numberOfLanes));
+  }
 
-	private int capacityOfCarIn(int row) {
-		return getIntegerIn(row, attribute(StandardAttributes.capacityCar));
-	}
+  private int capacityOfCarIn(Row row) {
+    return getIntegerIn(row, attribute(StandardAttributes.capacityCar));
+  }
 
-	private Integer getIntegerIn(int row, String attribute) {
-		return Integer.parseInt(table.getValue(row, attribute));
-	}
+  private Integer getIntegerIn(Row row, String attribute) {
+    return row.valueAsInteger(attribute);
+  }
 
-	private int freeFlowSpeedIn(int row) {
-		return parseSpeed(table.getValue(row, attribute(StandardAttributes.freeFlowSpeedCar)));
-	}
+  private int freeFlowSpeedIn(Row row) {
+    return parseSpeed(row.get(attribute(StandardAttributes.freeFlowSpeedCar)));
+  }
 
-	private int parseSpeed(String value) {
-		return VisumNetworkReader.parseSpeed(value, language);
-	}
+  private int parseSpeed(String value) {
+    return VisumNetworkReader.parseSpeed(value, language);
+  }
 
-	private int walkSpeed(int row) {
-		return VisumNetworkReader.walkSpeed(table, row, language);
-	}
+  private int walkSpeed(Row row) {
+    return VisumNetworkReader.walkSpeed(row, language);
+  }
 
 }

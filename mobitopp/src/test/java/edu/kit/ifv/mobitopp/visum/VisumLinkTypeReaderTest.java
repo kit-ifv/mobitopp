@@ -33,7 +33,7 @@ public class VisumLinkTypeReaderTest {
   public void initialise() {
     language = StandardNetfileLanguages.german();
     table = new VisumTable(tableName, attributes());
-    reader = new VisumLinkTypeReader(table, language);
+    reader = new VisumLinkTypeReader(language);
   }
 
   @Test
@@ -59,11 +59,11 @@ public class VisumLinkTypeReaderTest {
     addLinkType();
     addLinkType();
 
-    assertThrows(IllegalArgumentException.class, () -> readLinkTypes());
+    assertThrows(IllegalStateException.class, () -> readLinkTypes());
   }
 
   private VisumLinkTypes readLinkTypes() {
-    return reader.readLinkTypes(transportSystems());
+    return reader.readLinkTypes(transportSystems(), table.rows());
   }
 
   private List<String> linkTypeValues() {

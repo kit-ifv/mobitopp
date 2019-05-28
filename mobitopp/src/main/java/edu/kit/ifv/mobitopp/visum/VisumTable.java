@@ -46,8 +46,8 @@ public class VisumTable {
 		return rows.size();
 	}
 
-	public Map<String,String> getRow(int row) {
-		return rows.get(row);
+	public Row getRow(int row) {
+		return new Row(rows.get(row));
 	}
 
 	public String getValue(int row, String attribute) {
