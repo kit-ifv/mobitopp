@@ -15,9 +15,12 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReaderTest {
 
@@ -52,13 +55,10 @@ public class VisumNetworkReaderTest {
 
   @Test
 	public void ignorePointsWithoutPower() throws Exception {
-		Map<Integer, VisumChargingPoint> points = chargingPointsWithoutPower();
+    Map<Integer, VisumChargingPoint> points = reader(chargingPointWithoutPower())
+        .readChargingPoints();
 
-		assertThat(points, is(emptyMap()));
-	}
-
-	private Map<Integer, VisumChargingPoint> chargingPointsWithoutPower() {
-		return reader().readChargingPoints(chargingPointWithoutPower());
+    assertThat(points, is(emptyMap()));
 	}
 
 	private Map<String, VisumTable> chargingPointWithoutPower() {
@@ -79,7 +79,7 @@ public class VisumNetworkReaderTest {
 
 	@Test
 	public void parsesChargingPoint() throws Exception {
-		Map<Integer, VisumChargingPoint> points = chargingPoints();
+		Map<Integer, VisumChargingPoint> points = reader(singleChargingPoint()).readChargingPoints();
 
 		VisumChargingPoint parsedPoint = points.get(1);
 
@@ -88,10 +88,6 @@ public class VisumNetworkReaderTest {
 		assertThat(parsedPoint.coord.y, is(3.0f));
 		assertThat(parsedPoint.stationId, is(4));
 		assertThat(parsedPoint.power, is(5.0f));
-	}
-
-	private Map<Integer, VisumChargingPoint> chargingPoints() {
-		return reader().readChargingPoints(singleChargingPoint());
 	}
 
 	private Map<String, VisumTable> singleChargingPoint() {
@@ -111,15 +107,13 @@ public class VisumNetworkReaderTest {
 		return poiCategories;
 	}
 
-	@Test
-	public void parseMissingChargingFacilities() throws Exception {
-		Map<String, VisumTable> tables = new HashMap<>();
-		tables.put(poiCategory(), emptyPoiCategories());
+  @Test
+  public void parseMissingChargingFacilities() throws Exception {
+    Map<Integer, VisumChargingFacility> chargingFacilities = chargingFacilities(
+        singletonMap(poiCategory(), emptyPoiCategories()));
 
-		Map<Integer, VisumChargingFacility> chargingFacilities = chargingFacilities(tables);
-
-		assertThat(chargingFacilities, is(emptyMap()));
-	}
+    assertThat(chargingFacilities, is(emptyMap()));
+  }
 
 	private VisumTable emptyPoiCategories() {
 		return new VisumTable(poiCategory(), asList("NR", "CODE"));
@@ -143,14 +137,11 @@ public class VisumNetworkReaderTest {
 	}
 
 	private Map<Integer, VisumChargingFacility> chargingFacilities() {
-		Map<String, VisumTable> tables = chargingFacility();
-
-		return chargingFacilities(tables);
+		return chargingFacilities(chargingFacility());
 	}
 
-	private static Map<Integer, VisumChargingFacility> chargingFacilities(
-			Map<String, VisumTable> tables) {
-		return reader().readChargingFacilities(tables);
+	private static Map<Integer, VisumChargingFacility> chargingFacilities(Map<String, VisumTable> map) {
+		return reader(map).readChargingFacilities();
 	}
 
 	private Map<String, VisumTable> chargingFacility() {
@@ -222,15 +213,29 @@ public class VisumNetworkReaderTest {
 		return zones(singleZone());
 	}
 
-	private Map<Integer, VisumZone> zones(Map<String, VisumTable> zones) {
-		return reader().readZones(zones);
+	private Map<Integer, VisumZone> zones(Stream<Row> content) {
+		return reader(content).readZones();
+	}
+	
+	private static VisumNetworkReader reader(Map<String, VisumTable> tables) {
+	  return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german()) {
+	    @Override
+	    Stream<Row> loadContentOf(String tableName) {
+	      return tables.get(tableName).rows();
+	    }
+	  };
 	}
 
-	private static VisumNetworkReader reader() {
-		return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german());
+	private static VisumNetworkReader reader(Stream<Row> content) {
+		return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german()) {
+		  @Override
+		  Stream<Row> loadContentOf(String tableName) {
+		    return content;
+		  }
+		};
 	}
 
-	private Map<String, VisumTable> singleZone() {
+	private Stream<Row> singleZone() {
 		List<String> attributes = asList("NR", "NAME", "OBEZNR", "TYPNR", "XKOORD", "YKOORD",
 				"FLAECHEID", "LADESTATIONEN", "CAR2GO_GEBIET", "CAR2GO_AUSGANGSZUSTAND", "FZ_FL_SM",
 				"FZ_FL_FL", "FZ_FL_C2G", "ANTEIL_STE");
@@ -238,10 +243,10 @@ public class VisumNetworkReaderTest {
 		List<String> singleZone = asList("1", "single", "2", "3", "45", "67", "8", "9", "0", "11", "12",
 				"13", "14", "15.0");
 		table.addRow(singleZone);
-		return singletonMap("BEZIRK", table);
+		return table.rows();
 	}
 
-	private Map<String, VisumTable> withEmptyChargingProbability() {
+	private Stream<Row> withEmptyChargingProbability() {
 		List<String> attributes = asList("NR", "NAME", "OBEZNR", "TYPNR", "XKOORD", "YKOORD",
 				"FLAECHEID", "LADESTATIONEN", "CAR2GO_GEBIET", "CAR2GO_AUSGANGSZUSTAND", "FZ_FL_SM",
 				"FZ_FL_FL", "FZ_FL_C2G", "ANTEIL_STE");
@@ -249,10 +254,10 @@ public class VisumNetworkReaderTest {
 		List<String> singleZone = asList("1", "single", "2", "3", "45", "67", "8", "9", "0", "11", "12",
 				"13", "14", "");
 		table.addRow(singleZone);
-		return singletonMap("BEZIRK", table);
+		return table.rows();
 	}
 
-	private Map<String, VisumTable> withoutChargingProbability() {
+	private Stream<Row> withoutChargingProbability() {
 		List<String> attributes = asList("NR", "NAME", "OBEZNR", "TYPNR", "XKOORD", "YKOORD",
 				"FLAECHEID", "LADESTATIONEN", "CAR2GO_GEBIET", "CAR2GO_AUSGANGSZUSTAND", "FZ_FL_SM",
 				"FZ_FL_FL", "FZ_FL_C2G");
@@ -260,6 +265,6 @@ public class VisumNetworkReaderTest {
 		List<String> singleZone = asList("1", "single", "2", "3", "45", "67", "8", "9", "0", "11", "12",
 				"13", "14");
 		table.addRow(singleZone);
-		return singletonMap("BEZIRK", table);
+		return table.rows();
 	}
 }

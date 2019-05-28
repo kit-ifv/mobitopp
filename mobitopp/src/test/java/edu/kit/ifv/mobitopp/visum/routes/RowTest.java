@@ -26,7 +26,8 @@ public class RowTest {
     assertAll( 
         () -> assertTrue(row.containsAttribute(attribute)),
         () -> assertThat(row.valueAsInteger(attribute), is(equalTo(1))),
-        () -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))));
+        () -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))),
+        () -> assertThat(row.valueAsDouble(attribute), is(equalTo(1.0d))));
   }
   
   @Test

@@ -83,7 +83,7 @@ System.out.println(" reading zones...");
 		Map<Integer, VisumZone> zones = readZones();
 
 System.out.println(" reading connectors...");
-		Map<Integer, List<VisumConnector>> connectors = readConnectors(tables, nodes, zones, transportSystems);
+		Map<Integer, List<VisumConnector>> connectors = readConnectors(nodes, zones, transportSystems);
 
 	currentTime = System.currentTimeMillis();
 
@@ -129,8 +129,8 @@ System.out.println(" reading polygons...");
 	lastCurrentTime = currentTime;
 
 System.out.println(" reading custom data...");
-		Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities(tables);
-		Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints(tables);
+		Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities();
+		Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints();
 
 		Map<Integer, VisumCarSharingStation> carSharingStationsStadtmobil = readCarSharingStadtmobil(tables);
 		Map<Integer, VisumCarSharingStation> carSharingStationsFlinkster = readCarSharingFlinkster(tables);
@@ -198,7 +198,7 @@ System.out.println(" reading territories...");
 		return reader.readTransportSystems(content);
 	}
 
-  public Stream<Row> loadContentOf(String tableName) {
+  Stream<Row> loadContentOf(String tableName) {
     return new StreamReader().read(file, tableName);
   }
 
@@ -334,46 +334,12 @@ System.out.println(" reading territories...");
     return new VisumZoneReader(language).readZones(content);
   }
 
-	private Map<Integer, List<VisumConnector>> readConnectors(
-		Map<String,VisumTable> tables,
-		Map<Integer, VisumNode> nodes,
-		Map<Integer, VisumZone> zones, 
-		VisumTransportSystems allSystems
-	) {
-
-		VisumTable table = tables.get(table(Table.connectors));
-		if (null == table) {
-			System.out.println("Connectors are missing!");
-			return emptyMap();
-		}
-
-		Map<Integer,List<VisumConnector>> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			VisumZone zone = zones.get(Integer.valueOf(table.getValue(i,attribute(StandardAttributes.zoneNumber))));
-			VisumNode node = nodes.get(Integer.valueOf(table.getValue(i,nodeNumber())));
-
-			String transportSystems = table.getValue(i, transportSystemsSet());
-			VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-			VisumConnector tmp = new VisumConnector(
-															zone,
-															node,
-															table.getValue(i,direction()),
-															Integer.valueOf(table.getValue(i,typeNumber())),
-															systemSet,
-															parseDistance(table.getValue(i,length())),
-															parseTime(table.getValue(i, travelTimeCarAttribute()))
-											);
-
-			if (!data.containsKey(zone.id)) {
-				data.put(zone.id, new ArrayList<VisumConnector>());
-			}
-			data.get(zone.id).add(tmp);
-		}
-
-		return data;
-	}
+  private Map<Integer, List<VisumConnector>> readConnectors(
+      Map<Integer, VisumNode> nodes, Map<Integer, VisumZone> zones,
+      VisumTransportSystems allSystems) {
+    Stream<Row> content = loadContentOf(table(Table.connectors));
+    return new VisumConnectorReader(language, nodes, zones, allSystems).readConnectors(content);
+  }
 
   private Map<Integer, VisumVehicleUnit> readVehicleUnits(
 		Map<String,VisumTable> tables, VisumTransportSystems allSystems
@@ -1151,93 +1117,35 @@ System.out.println(" reading territories...");
 	}
 
 
-	Map<Integer, VisumChargingFacility> readChargingFacilities(
-		Map<String,VisumTable> tables
-	) {
-		if (!tables.containsKey(poiCategory())) {
-			return Collections.emptyMap();
-		}
-		POICategories categories = POICategories.from(tables.get(poiCategory()));
+  Map<Integer, VisumChargingFacility> readChargingFacilities() {
+		Stream<Row> content = loadContentOf(poiCategory());
+    POICategories categories = POICategories.from(content);
 		if (categories.containsCode(chargingStations())) {
-			return readChargingStations(tables, categories);
+			return readChargingStations(categories);
 		}
 		return Collections.emptyMap();
 	}
 
-  private Map<Integer, VisumChargingFacility> readChargingStations(
-			Map<String, VisumTable> tables, POICategories categories) {
-		int nr = categories.numberByCode(chargingStations());
-		VisumTable table = tables.get(poiCategoryPrefix() + nr);
-		Map<Integer, VisumChargingFacility> data = new HashMap<>();
-		for (int i=0; i<table.numberOfRows(); i++) {
+  private Map<Integer, VisumChargingFacility> readChargingStations(POICategories categories) {
+    int nr = categories.numberByCode(chargingStations());
+    Stream<Row> rows = loadContentOf(poiCategoryPrefix() + nr);
+    return new VisumChargingFacilityReader(language).readStations(rows);
+  }
 
-			String lsId = table.getValue(i,attribute(StandardAttributes.lsId));
-			Integer id = Integer.valueOf(lsId);
+  Map<Integer, VisumChargingPoint> readChargingPoints() {
+    Stream<Row> content = loadContentOf(poiCategory());
+    POICategories categories = POICategories.from(content);
+    if (categories.containsCode(chargingPoints())) {
+      return readChargingPoints(categories);
+    }
+    return emptyMap();
+  }
 
-			String visumLatitude = table.getValue(i,attribute(StandardAttributes.latitude));
-			String visumLongitude = table.getValue(i,attribute(StandardAttributes.longitude));
-			Double latitude = Double.valueOf(visumLatitude);
-			Double longitude = Double.valueOf(visumLongitude);
-			VisumChargingFacility tmp = new VisumChargingFacility(
-																		id,
-																		Float.parseFloat(table.getValue(i,xCoord())),
-																		Float.parseFloat(table.getValue(i,yCoord())),
-																		table.getValue(i,attribute(StandardAttributes.chargingType)),
-																		table.getValue(i,attribute(StandardAttributes.vehicleType)),
-																		table.getValue(i,attribute(StandardAttributes.publicType)),
-																		latitude,
-																		longitude,
-																		table.getValue(i,attribute(StandardAttributes.place)) + ", " +
-																		table.getValue(i,attribute(StandardAttributes.plz)) + ", " +
-																		table.getValue(i,attribute(StandardAttributes.street))
-													);
-
-			data.put(id, tmp);
-		}
-		return data;
-	}
-
-	Map<Integer, VisumChargingPoint> readChargingPoints(
-			Map<String,VisumTable> tables
-		) {
-		if (!tables.containsKey(poiCategory())) {
-			return Collections.emptyMap();
-		}
-		POICategories categories = POICategories.from(tables.get(poiCategory()));
-		if (categories.containsCode(chargingPoints())) {
-			return readChargingPoints(tables, categories);
-		}
-		return emptyMap();
-	}
-
-  private Map<Integer, VisumChargingPoint> readChargingPoints(
-			Map<String, VisumTable> tables, POICategories categories) {
-		int nr = categories.numberByCode(chargingPoints());
-		VisumTable table = tables.get(poiCategoryPrefix() + nr);
-		Map<Integer, VisumChargingPoint> data = new HashMap<>();
-		for (int i = 0; i < table.numberOfRows(); i++) {
-			int id = Integer.parseInt(table.getValue(i, number()));
-			if (elementHasNoPower(table, i)) {
-				continue;
-			}
-			VisumChargingPoint chargingPoint = createChargingPointWith(id, table, i);
-			data.put(id, chargingPoint);
-		}
-		return data;
-	}
-
-  private boolean elementHasNoPower(VisumTable table, int i) {
-		return table.getValue(i, power()).isEmpty();
-	}
-
-  private VisumChargingPoint createChargingPointWith(int id, VisumTable table, int i) {
-		float xCoord = Float.parseFloat(table.getValue(i, xCoord()));
-		float yCoord = Float.parseFloat(table.getValue(i, yCoord()));
-		String station = table.getValue(i, id());
-		int stationId = (int) Double.parseDouble(station.isEmpty() ? "0" : station);
-		float power = Float.parseFloat(table.getValue(i, power()));
-		return new VisumChargingPoint(id, xCoord, yCoord, stationId, power);
-	}
+  private Map<Integer, VisumChargingPoint> readChargingPoints(POICategories categories) {
+    int nr = categories.numberByCode(chargingPoints());
+    Stream<Row> content = loadContentOf(poiCategoryPrefix() + nr);
+    return new VisumChargingPointReader(language).readPoints(content);
+  }
 
 	private  Map<Integer, VisumCarSharingStation> readCarSharingStadtmobil(
 		Map<String,VisumTable> tables
