@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
@@ -20,9 +21,8 @@ public class VisumTurnsReader extends VisumBaseReader {
     this.allSystems = allSystems;
   }
 
-  public Map<Integer, List<VisumTurn>> readTurns(VisumTable table) {
-    return table
-        .rows()
+  public Map<Integer, List<VisumTurn>> readTurns(Stream<Row> content) {
+    return content
         .map(this::createTurn)
         .collect(groupingBy(t -> t.node))
         .entrySet()
