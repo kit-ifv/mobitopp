@@ -16,8 +16,8 @@ public class StateTest {
     RelativeTime time = RelativeTime.ofMinutes(1).plusSeconds(2);
     String serialised = serialised(time);
     Row row = Row
-        .createRow(asList("1", serialised, "1", "2", "0s"),
-            asList("STRECKE\\NACHKNOTEN\\BEZIRKNR", "STRECKE\\T0-IVSYS(P)", "VONKNOTNR", "NACHKNOTNR", "ABBIEGER\\T0-IVSYS(P)"));
+        .createRow(asList("1", serialised, "0s"),
+            asList("LINK\\TONODE\\BEZIRKNR", "LINK\\T0_PRTSYS(SOV)", "TURN\\T0_PRTSYS(SOV)"));
     RouteReader routeReader = mock(RouteReader.class);
     State.intermediateZone.parse(row, routeReader);
 

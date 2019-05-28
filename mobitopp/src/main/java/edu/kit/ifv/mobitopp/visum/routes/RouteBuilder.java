@@ -26,6 +26,10 @@ public class RouteBuilder {
       travelTime = travelTime.plus(zone.time());
       return;
     }
+    doAddZone(zone);
+  }
+
+  public void doAddZone(ZoneIdTime zone) {
     ZoneIdTime combinedTime = zone.addTime(travelTime);
     zones.add(combinedTime);
     travelTime = RelativeTime.ZERO;

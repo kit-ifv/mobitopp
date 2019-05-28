@@ -74,10 +74,10 @@ public class TestRoutes {
   }
 
   private List<String> attributes() {
-    return asList("QBEZNR", "ZBEZNR", "WEGIND", "VONKNOTNR", "NACHKNOTNR", "INDEX",
-        "STRECKE\\VONKNOTEN\\BEZIRKNR", "STRECKE\\NACHKNOTEN\\BEZIRKNR", "IV-WEG\\T0",
-        "STRECKE\\T0-IVSYS(P)", "ABBIEGER\\T0-IVSYS(P)", "ABBIEGER\\TAKT-IVSYS(P)");
-  }
+    return asList("ORIGZONENO", "DESTZONENO", "PATHINDEX", "VONKNOTNR", "NACHKNOTNR", "INDEX",
+        "LINK\\FROMNODE\\BEZIRKNR", "LINK\\TONODE\\BEZIRKNR", "PRTPATH\\T0",
+        "LINK\\T0_PRTSYS(SOV)", "TURN\\T0_PRTSYS(SOV)", "TURN\\TCUR_PRTSYS(SOV)");
+  }  
 
   OdPair someOdPair() {
     return new OdPair("1", "2");
