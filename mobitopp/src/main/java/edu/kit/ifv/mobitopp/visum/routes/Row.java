@@ -35,6 +35,10 @@ public class Row {
   public float valueAsFloat(String key) {
     return Float.parseFloat(get(key));
   }
+  
+  public double valueAsDouble(String key) {
+    return Double.parseDouble(get(key));
+  }
 
   public static Row createRow(List<String> values, List<String> attributes)
       throws IllegalArgumentException {
@@ -87,6 +91,7 @@ public class Row {
   public String toString() {
     return "Row [values=" + values + "]";
   }
+
 
 
 }
