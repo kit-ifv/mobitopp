@@ -14,9 +14,13 @@ public class Row {
     super();
     this.values = values;
   }
+  
+  public boolean containsAttribute(String key) {
+    return values.containsKey(key);
+  }
 
   public String get(String key) {
-    if (values.containsKey(key)) {
+    if (containsAttribute(key)) {
       return values.get(key);
     }
     throw new IllegalArgumentException(String
@@ -26,6 +30,10 @@ public class Row {
   
   public int valueAsInteger(String key) {
     return Integer.parseInt(get(key));
+  }
+  
+  public float valueAsFloat(String key) {
+    return Float.parseFloat(get(key));
   }
 
   public static Row createRow(List<String> values, List<String> attributes)
@@ -79,5 +87,6 @@ public class Row {
   public String toString() {
     return "Row [values=" + values + "]";
   }
+
 
 }

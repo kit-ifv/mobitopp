@@ -9,9 +9,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumTransportSystemReaderTest {
 
@@ -28,7 +31,7 @@ public class VisumTransportSystemReaderTest {
   public void initialise() {
     language = StandardNetfileLanguages.german();
     table = new VisumTable(tableName, attributes());
-    reader = new VisumTransportSystemReader(table, language);
+    reader = new VisumTransportSystemReader(language);
   }
 
   @Test
@@ -57,11 +60,15 @@ public class VisumTransportSystemReaderTest {
     addTransportSystem();
     addTransportSystem();
 
-    assertThrows(IllegalArgumentException.class, () -> readTransportSystems());
+    assertThrows(IllegalStateException.class, () -> readTransportSystems());
   }
 
   private VisumTransportSystems readTransportSystems() {
-    return reader.readTransportSystems();
+    return reader.readTransportSystems(content());
+  }
+
+  private Stream<Row> content() {
+    return table.rows();
   }
 
   private List<String> attributes() {
