@@ -47,16 +47,14 @@ public class DemandToVisumMatrices {
 	private void convertTo(File outputFolder) throws IOException {
 		List<String> zoneIds = zones();
 		HashMap<String, Integer> zoneToOid = new HashMap<>();
-		HashMap<Integer, String> zones = new HashMap<>();
 		List<ZoneId> ids = new ArrayList<>();
 		for (int index = 0; index < zoneIds.size(); index++) {
 			int oid = index + 1;
 			String zone = zoneIds.get(index);
 			zoneToOid.put(zone, oid);
-			zones.put(oid, zone);
 			ids.add(new ZoneId(zone, oid));
 		}
-		MatrixPrinter printer = new MatrixPrinter(zones);
+		MatrixPrinter printer = new MatrixPrinter();
 
 		HashMap<Integer, IntegerMatrix> matrices = new HashMap<>();
 		for (int hour = 0; hour < 24; hour++) {
