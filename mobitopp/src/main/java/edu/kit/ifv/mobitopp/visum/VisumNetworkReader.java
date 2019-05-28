@@ -77,10 +77,10 @@ System.out.println(" reading links...");
 		Map<Integer, VisumLink> links = readLinks(tables, nodes, transportSystems, linkTypes);
 
 System.out.println(" reading turns...");
-		Map<Integer, List<VisumTurn>> turns = readTurns(tables, nodes, transportSystems);
+		Map<Integer, List<VisumTurn>> turns = readTurns(nodes, transportSystems);
 
 System.out.println(" reading zones...");
-		Map<Integer, VisumZone> zones = readZones(tables);
+		Map<Integer, VisumZone> zones = readZones();
 
 System.out.println(" reading connectors...");
 		Map<Integer, List<VisumConnector>> connectors = readConnectors(tables, nodes, zones, transportSystems);
@@ -308,156 +308,31 @@ System.out.println(" reading territories...");
 	}
 
   private Map<Integer, List<VisumTurn>> readTurns(
-		Map<String,VisumTable> tables,
-		Map<Integer, VisumNode> nodes, 
-		VisumTransportSystems allSystems
-	) {
-
-		VisumTable table = tables.get(table(Table.turns));
-		if (null == table) {
-			System.out.println("Turns are missing!");
-			return emptyMap();
-		}
-
+      Map<Integer, VisumNode> nodes, VisumTransportSystems allSystems) {
+		Stream<Row> content = loadContentOf(table(Table.turns));
     Map<Integer, List<VisumTurn>> data = new VisumTurnsReader(language, nodes, allSystems)
-        .readTurns(table);
-
-		for (Integer nodeId : nodes.keySet()) {
-
-			VisumNode node = nodes.get(nodeId);
-
-			if (data.containsKey(nodeId)) {
-				List<VisumTurn> turns = data.get(nodeId);
-				node.setTurns(turns);
-			} else {
-System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
-			}
-
-		}
-
+        .readTurns(content);
+    assignTurnsToNodes(nodes, data);
 		return data;
 	}
 
-	Map<Integer, VisumZone> readZones(
-		Map<String,VisumTable> tables
-	) {
-
-		VisumTable table = tables.get(table(Table.zones));
-
-		Map<Integer,VisumZone> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-			Integer id =	Integer.valueOf(table.getValue(i,number()));
-			VisumZone tmp = zoneWithChargingStations(table, i, id);
-			data.put(id, tmp);
-		}
-
-		return data;
-	}
-
-	protected VisumZone zoneWithChargingStations(VisumTable table, int i, Integer id) {
-		String charging_facilities = chargingFacilities(table, i);
-		String floatingCarArea = car2GoGebiet(table, i);
-		String floatingCarNumber = floatingCarNumber(table, i);
-		Map<String, Float> carsharingcarDensities = carSharingDensities(table, i);
-
-		double privateChargingProbability = privateChargingProbability(table, i);
-		float innerZonePublicTransport = innerZonePublicTransportTime(table, i);
-		VisumZone tmp = new VisumZone(
-													id,
-													table.getValue(i,name()),
-													Integer.valueOf(table.getValue(i,attribute(StandardAttributes.mainZoneNumber))),
-													Integer.valueOf(table.getValue(i,typeNumber())),
-													parkingPlaces(table, i),
-													Float.parseFloat(table.getValue(i,xCoord())),
-													Float.parseFloat(table.getValue(i,yCoord())),
-													Integer.valueOf(table.getValue(i,areaId())),
-													Integer.valueOf(charging_facilities),
-													floatingCarArea.equals("1") ? "Car2Go" : "",
-													Integer.valueOf(floatingCarArea),
-													Integer.valueOf(floatingCarNumber),
-													privateChargingProbability,
-													carsharingcarDensities,
-													innerZonePublicTransport 
-										);
-		return tmp;
-	}
-
-  private Integer parkingPlaces(VisumTable table, int i) {
-    String attribute = attribute(StandardAttributes.parkingPlaces);
-    if (table.containsAttribute(attribute)) {
-      String value = table.getValue(i, attribute);
-      if (value.isEmpty()) {
-        return 0;
+  public void assignTurnsToNodes(
+      Map<Integer, VisumNode> nodes, Map<Integer, List<VisumTurn>> data) {
+    for (Integer nodeId : nodes.keySet()) {
+      VisumNode node = nodes.get(nodeId);
+      if (data.containsKey(nodeId)) {
+        List<VisumTurn> turns = data.get(nodeId);
+        node.setTurns(turns);
+      } else {
+        System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
       }
-      return Double.valueOf(value).intValue();
-    }
-    return 0;
+		}
   }
 
-  protected float innerZonePublicTransportTime(VisumTable table, int i) {
-		String diagPt = attribute(StandardAttributes.innerZonePublicTransportTravelTime);
-    if (table.containsAttribute(diagPt)) {
-			return Float.parseFloat(table.getValue(i, diagPt));
-		}
-		System.out.println(
-				"No travel time for public transport inside a single zone is given. Using 0 as travel time.");
-		return 0.0f;
-	}
-
-	protected Map<String, Float> carSharingDensities(VisumTable table, int i) {
-		Map<String, Float> carsharingcarDensities = new HashMap<>();
-		String fzFlSm = attribute(StandardAttributes.carSharingDensityStadtmobil);
-    String fzFlFl = attribute(StandardAttributes.carSharingDensityFlinkster);
-    String fzFlC2g = attribute(StandardAttributes.carSharingDensityCar2Go);
-    if (table.containsAttribute(fzFlSm) && table.containsAttribute(fzFlFl)
-				&& table.containsAttribute(fzFlC2g)) {
-			carsharingcarDensities.put("Stadtmobil", Float.valueOf(table.getValue(i, fzFlSm)));
-			carsharingcarDensities.put("Flinkster", Float.valueOf(table.getValue(i, fzFlFl)));
-			carsharingcarDensities.put("Car2Go", Float.valueOf(table.getValue(i, fzFlC2g)));
-		}
-		return carsharingcarDensities;
-	}
-
-	protected String floatingCarNumber(VisumTable table, int i) {
-		String car2GoStartState = attribute(StandardAttributes.car2GoStartState);
-    if (table.containsAttribute(car2GoStartState)) {
-			String floatingCarNumber = table.getValue(i, car2GoStartState);
-			return floatingCarNumber.isEmpty() ? "0" : floatingCarNumber;
-		}
-		return "0";
-	}
-
-	protected String car2GoGebiet(VisumTable table, int i) {
-		String car2GoTerritory = attribute(StandardAttributes.car2GoTerritory);
-    if (table.containsAttribute(car2GoTerritory)) {
-			String floatingCarArea = table.getValue(i, car2GoTerritory);
-			return floatingCarArea.isEmpty() ? "0" : floatingCarArea;
-		}
-		return "0";
-	}
-
-	protected String chargingFacilities(VisumTable table, int i) {
-		String chargingStations = attribute(StandardAttributes.chargingStations);
-    if (table.containsAttribute(chargingStations)) {
-			return table.getValue(i, chargingStations);
-		}
-		return "0";
-	}
-
-	protected double privateChargingProbability(VisumTable table, int i) {
-		String privateChargingProbability = attribute(StandardAttributes.privateChargingProbability);
-    if (table.containsAttribute(privateChargingProbability)) {
-			String anteilSte = table.getValue(i, privateChargingProbability);
-			return anteilSte.isEmpty() ? alwaysAllowed : normalizeProbability(anteilSte);
-		}
-		return alwaysAllowed;
-	}
-
-	private static double normalizeProbability(String anteilSte) {
-		double value = Double.parseDouble(anteilSte);
-		return value / 100.0d;
-	}
+  Map<Integer, VisumZone> readZones() {
+    Stream<Row> content = loadContentOf(table(Table.zones));
+    return new VisumZoneReader(language).readZones(content);
+  }
 
 	private Map<Integer, List<VisumConnector>> readConnectors(
 		Map<String,VisumTable> tables,
