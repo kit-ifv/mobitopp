@@ -120,7 +120,7 @@ System.out.println(" reading other...");
 
 System.out.println(" reading polygons...");
 
-		SortedMap<Integer,VisumSurface> areas = readSurfaces(tables);
+		SortedMap<Integer,VisumSurface> areas = readSurfaces();
 
 	currentTime = System.currentTimeMillis();
 
@@ -904,218 +904,38 @@ System.out.println(" reading territories...");
 	return data;
 }
 
-  private class RingInfo {
 
-		public final int ring_id;
-		public final int enclave;
-
-		public RingInfo(int ring_id, int enclave) {
-
-			this.ring_id=ring_id;
-			this.enclave=enclave;
-		}
-
-	}
-
-
-	private SortedMap<Integer,VisumSurface> readSurfaces(
-		Map<String,VisumTable> tables
-	) {
-
-		Map<Integer,VisumPoint> points = readPoints(tables);
-		Map<Integer,SortedMap<Integer,VisumPoint>> intermediatePoints = readIntermediatePoints(tables);
-		Map<Integer,VisumEdge> lines = readEdges(points, intermediatePoints, tables);
-		Map<Integer,VisumFace> rings = readFaces(lines, tables);
-
-
-		SortedMap<Integer,VisumSurface> polys = new TreeMap<>();
-
-		VisumTable table = tables.get(table(Table.surface));
-
-		Map<Integer,List<RingInfo>> tmp = new TreeMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			int id = Integer.valueOf(table.getValue(i,areaId()));
-			int ring_id = Integer.valueOf(table.getValue(i,ringId()));
-			int enclave = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.enclave)));
-
-			if (!tmp.containsKey(id)) {
-				tmp.put(id, new ArrayList<RingInfo>());
-			}
-
-			tmp.get(id).add(new RingInfo(ring_id, enclave));
-		}
-		for (Integer id: tmp.keySet()) {
-
-			List<VisumFace> faces = new ArrayList<>();
-			List<Integer> enclave = new ArrayList<>();
-
-			for (RingInfo ri : tmp.get(id)) {
-
-				VisumFace f = rings.get(ri.ring_id);
-
-				faces.add(f);
-				enclave.add(ri.enclave);
-			}
-
-			VisumSurface surface = new VisumSurface(id, faces, enclave);
-			polys.put(id, surface);
-		}
-
-		return polys;
-	}
-
-  private Map<Integer,VisumPoint> readPoints(
-		Map<String,VisumTable> tables
-	) {
-		VisumTable table = tables.get(table(Table.point));
-
-		Map<Integer,VisumPoint> result = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			int id = Integer.valueOf(table.getValue(i,id()));
-			float x = Float.parseFloat(table.getValue(i,xCoord()));
-			float y = Float.parseFloat(table.getValue(i,yCoord()));
-
-			VisumPoint p = new VisumPoint(x,y);
-
-			result.put(id,p);
-		}
-
-		return result;
-	}
-
-  private Map<Integer,SortedMap<Integer,VisumPoint>> readIntermediatePoints(
-		Map<String,VisumTable> tables
-	) {
-
-		VisumTable table = tables.get(table(Table.intermediatePoint));
-		if (table == null) {
-			return new HashMap<>();
-		}
-
-		Map<Integer,SortedMap<Integer,VisumPoint>> result = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			int edgeId = Integer.valueOf(table.getValue(i,edgeId()));
-			int index = Integer.valueOf(table.getValue(i,index()));
-			float x = Float.parseFloat(table.getValue(i,xCoord()));
-			float y = Float.parseFloat(table.getValue(i,yCoord()));
-
-			VisumPoint p = new VisumPoint(x,y);
-
-			if (!result.containsKey(edgeId)) {
-				result.put(edgeId, new TreeMap<Integer,VisumPoint>());
-			}
-
-			result.get(edgeId).put(index,p);
-		}
-
-		return result;
-	}
-
-  private Map<Integer,VisumEdge> readEdges(
-		Map<Integer,VisumPoint> points,
-		Map<Integer,SortedMap<Integer,VisumPoint>> intermediatePoints,
-		Map<String,VisumTable> tables
-	) {
-
-		VisumTable table = tables.get(table(Table.edges));
-
-		Map<Integer,VisumEdge> result = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			int id = Integer.valueOf(table.getValue(i,id()));
-			int from_id = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.fromPointId)));
-			int to_id = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.toPointId)));
-
-			VisumPoint from = points.get(from_id);
-			VisumPoint to = points.get(to_id);
-
-			List<VisumPoint> intermediate = intermediatePoints.containsKey(id)
-																				? new ArrayList<>(intermediatePoints.get(id).values())
-																				: new ArrayList<>();
-
-			assert from != null;
-			assert to != null;
-
-			VisumEdge p = new VisumEdge(id, from, to, intermediate);
-
-			result.put(id,p);
-		}
-
-		return result;
-	}
-
-	private class RingElement {
-
-		private final int line_id;
-		private final int direction;
-
-		public RingElement(int line_id, int direction) {
-			this.line_id=line_id;
-			this.direction=direction;
-		}
-	}
-
-
-	private Map<Integer,VisumFace> readFaces(
-		Map<Integer,VisumEdge> lines,
-		Map<String,VisumTable> tables
-	) {
-
-		VisumTable table = tables.get(table(Table.faces));
-
-		Map<Integer,VisumFace> result = new HashMap<>();
-
-		TreeMap<Integer,Map<Integer,RingElement>> tmp = new TreeMap<>();
-
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			int id = Integer.valueOf(table.getValue(i,ringId()));
-			int idx = Integer.valueOf(table.getValue(i,index()));
-			int line_id = Integer.valueOf(table.getValue(i,edgeId()));
-			int direction = Integer.valueOf(table.getValue(i,direction()));
-
-			if (!tmp.containsKey(id)) {
-				tmp.put(id, new TreeMap<Integer,RingElement>());
-			}
-
-			tmp.get(id).put(idx, new RingElement(line_id, direction));
-		}
-
-
-		for (Integer id : tmp.keySet()) {
-
-			List<VisumEdge> edges = new ArrayList<>();
-
-			List<Integer> direction = new ArrayList<>();
-
-
-			for(Integer idx: tmp.get(id).keySet()) {
-
-				RingElement re = tmp.get(id).get(idx);
-
-				VisumEdge line = lines.get(re.line_id);
-
-				edges.add(line);
-				direction.add(re.direction);
-			}
-
-
-			VisumFace face = new VisumFace(id, edges, direction);
-
-			result.put(id, face);
-		}
-
-		return result;
-	}
-
+  private SortedMap<Integer, VisumSurface> readSurfaces() {
+    Map<Integer, VisumPoint> points = readPoints();
+    Map<Integer, SortedMap<Integer, VisumPoint>> intermediatePoints = readIntermediatePoints();
+    Map<Integer, VisumEdge> lines = readEdges(points, intermediatePoints);
+    Map<Integer, VisumFace> rings = readFaces(lines);
+
+    Stream<Row> table = loadContentOf(table(Table.surface));
+    return new VisumSurfaceReader(language, rings).readSurfaces(table);
+  }
+
+  private Map<Integer, VisumPoint> readPoints() {
+    Stream<Row> rows = loadContentOf(table(Table.point));
+    return new VisumPointReader(language).readPoints(rows);
+  }
+
+  private Map<Integer, SortedMap<Integer, VisumPoint>> readIntermediatePoints() {
+    Stream<Row> content = loadContentOf(table(Table.intermediatePoint));
+    return new VisumIntermediatePointReader(language).readPoints(content);
+  }
+
+  private Map<Integer, VisumEdge> readEdges(
+      Map<Integer, VisumPoint> points,
+      Map<Integer, SortedMap<Integer, VisumPoint>> intermediatePoints) {
+    Stream<Row> content = loadContentOf(table(Table.edges));
+    return new VisumEdgeReader(language, points, intermediatePoints).readEdges(content);
+  }
+
+  private Map<Integer, VisumFace> readFaces(Map<Integer, VisumEdge> lines) {
+    Stream<Row> content = loadContentOf(table(Table.faces));
+    return new VisumFaceReader(language, lines).readFaces(content);
+  }
 
   Map<Integer, VisumChargingFacility> readChargingFacilities() {
 		Stream<Row> content = loadContentOf(poiCategory());

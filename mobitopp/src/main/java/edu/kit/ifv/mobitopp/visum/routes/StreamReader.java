@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 public class StreamReader {
 
+  private static final long defaultStart = Long.MIN_VALUE;
   private static final String defaultAttributeSeparator = ";";
   private final String attributeSeparator;
 
@@ -36,7 +37,7 @@ public class StreamReader {
 
   private Stream<Row> doRead(File routesFile, String tableName) throws IOException {
     int currentLine = 0;
-    long startOfContent = Long.MIN_VALUE;
+    long startOfContent = defaultStart;
     int endOfContent = currentLine;
     List<String> attributes = new LinkedList<>();
     try (BufferedReader reader = createReader(routesFile)) {
@@ -60,6 +61,9 @@ public class StreamReader {
         endOfContent = currentLine;
       }
     }
+    if (defaultStart == startOfContent) {
+      return Stream.empty();
+    }
     return parseContent(routesFile, startOfContent, endOfContent, attributes);
   }
 
@@ -72,7 +76,7 @@ public class StreamReader {
   }
 
   private boolean isContentFinished(long startOfContent, String line) {
-    return Long.MIN_VALUE != startOfContent && (line.startsWith("$") || line.isEmpty());
+    return defaultStart != startOfContent && (line.startsWith("$") || line.isEmpty());
   }
 
   BufferedReader createReader(File routesFile) throws IOException {
