@@ -7,13 +7,11 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
-public class VisumLinkTypeReader {
+public class VisumLinkTypeReader extends VisumBaseReader {
 
-  private final NetfileLanguage language;
 
   public VisumLinkTypeReader(NetfileLanguage language) {
-    super();
-    this.language = language;
+    super(language);
   }
 
   public VisumLinkTypes readLinkTypes(VisumTransportSystems allSystems, Stream<Row> content) {
@@ -36,10 +34,6 @@ public class VisumLinkTypeReader {
 
   private int idIn(Row row) {
     return row.valueAsInteger(attribute(StandardAttributes.number));
-  }
-
-  private String attribute(StandardAttributes attribute) {
-    return language.resolve(attribute);
   }
 
   private String nameIn(Row row) {
