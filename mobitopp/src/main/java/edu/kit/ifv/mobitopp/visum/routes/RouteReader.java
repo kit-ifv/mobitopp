@@ -45,13 +45,13 @@ public class RouteReader {
   }
 
   void startNewRoute(Row row) {
-    ZoneIdTime origin = new ZoneIdTime(row.get("QBEZNR"), RelativeTime.ZERO);
+    ZoneIdTime origin = new ZoneIdTime(row.get("ORIGZONENO"), RelativeTime.ZERO);
     ZoneIdTime destination = parseDestinationOf(row);
     current = new RouteBuilder(origin, destination);
   }
 
   private ZoneIdTime parseDestinationOf(Row row) {
-    String destinationZone = row.get("ZBEZNR");
+    String destinationZone = row.get("DESTZONENO");
     RelativeTime destinationTime = RelativeTime.ZERO;// VisumUtils.parseTime(row.get("IV-WEG\\T0"));
     return new ZoneIdTime(destinationZone, destinationTime);
   }

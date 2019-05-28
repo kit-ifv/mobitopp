@@ -20,9 +20,9 @@ enum State {
 
     @Override
     public void parse(Row row, RouteReader routeReader) {
-      String zone = row.get("STRECKE\\NACHKNOTEN\\BEZIRKNR");
-      RelativeTime time = parse(row.get("STRECKE\\T0-IVSYS(P)"));
-      RelativeTime connectorTime = parse(row.get("ABBIEGER\\T0-IVSYS(P)"));
+      String zone = row.get("LINK\\TONODE\\BEZIRKNR");
+      RelativeTime time = parse(row.get("LINK\\T0_PRTSYS(SOV)"));
+      RelativeTime connectorTime = parse(row.get("TURN\\T0_PRTSYS(SOV)"));
       RelativeTime completeTime = time.plus(connectorTime);
       ZoneIdTime zoneTime = new ZoneIdTime(zone, completeTime);
       routeReader.addZone(zoneTime);
@@ -61,7 +61,7 @@ enum State {
   }
 
   private boolean isStartOfNewRoute(Row row) {
-    return !row.get("QBEZNR").isEmpty() && !row.get("ZBEZNR").isEmpty();
+    return !row.get("ORIGZONENO").isEmpty() && !row.get("DESTZONENO").isEmpty();
   }
 
   public abstract State newRouteState();

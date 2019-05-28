@@ -41,7 +41,7 @@ public class RouteTransformer {
    * @return mapping of {@link OdPair}s and {@link ZoneRoute}s
    */
   public Map<OdPair, ZoneRoute> transform(File routesFile) {
-    StreamReader reader = new StreamReader("\t");
+    StreamReader reader = new StreamReader();
     Stream<Row> rows = reader.read(routesFile, tableName);
     return new RouteReader().transform(rows);
   }
