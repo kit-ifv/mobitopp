@@ -36,7 +36,7 @@ public class StreamReader {
 
   private Stream<Row> doRead(File routesFile, String tableName) throws IOException {
     int currentLine = 0;
-    int startOfContent = Integer.MIN_VALUE;
+    long startOfContent = Long.MIN_VALUE;
     int endOfContent = currentLine;
     List<String> attributes = new LinkedList<>();
     try (BufferedReader reader = createReader(routesFile)) {
@@ -71,8 +71,8 @@ public class StreamReader {
     return line.isEmpty() || line.charAt(0) != '$' || !line.contains(":");
   }
 
-  private boolean isContentFinished(int startOfContent, String line) {
-    return Integer.MIN_VALUE != startOfContent && (line.startsWith("$") || line.isEmpty());
+  private boolean isContentFinished(long startOfContent, String line) {
+    return Long.MIN_VALUE != startOfContent && (line.startsWith("$") || line.isEmpty());
   }
 
   BufferedReader createReader(File routesFile) throws IOException {
@@ -94,7 +94,7 @@ public class StreamReader {
     return Arrays.asList(attributes);
   }
 
-  private Stream<Row> parseContent(File routesFile, int startOfContent, int endOfContent, List<String> attributes)
+  private Stream<Row> parseContent(File routesFile, long startOfContent, int endOfContent, List<String> attributes)
       throws IOException {
     return linesOf(routesFile)
         .skip(startOfContent)
