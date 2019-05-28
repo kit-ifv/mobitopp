@@ -4,29 +4,24 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.Matrix;
-import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 
 public class MatrixPrinter {
 
 	private static final int defaultValuesPerLine = 10;
-  private final Map<Integer,String> names;
   private final int valuesPerLine;
 
-	public MatrixPrinter(Map<Integer,String> names, int valuesPerLine) {
+	public MatrixPrinter(int valuesPerLine) {
 		super();
-		this.names = names;
     this.valuesPerLine = valuesPerLine;
 	}
 	
-	public MatrixPrinter(Map<Integer, String> names) {
-	  this(names, defaultValuesPerLine);
+	public MatrixPrinter() {
+	  this(defaultValuesPerLine);
 	}
 
 	public void writeMatrixToFile(
@@ -106,27 +101,11 @@ public class MatrixPrinter {
 		int cnt = 0;
 
 		for (ZoneId id : matrixOids) {
-      matrixIds += String
-          .format("%1$10s",
-              (!this.names.isEmpty() ? this.names.get(id.getMatrixColumn()) : id.getExternalId()))
-          + " ";
+      matrixIds += id.getExternalId() + " ";
    		matrixIds += (++cnt % 10 == 0 ? "\r\n" : ""); 
  		}
 
 		return matrixIds;
-	}
-
-	public static MatrixPrinter fromZones(Map<ZoneId, Zone> zones) {
-		return new MatrixPrinter(makeNames(zones));
-	}
-	
-	private static Map<Integer,String> makeNames(Map<ZoneId, Zone> zones) {
-		Map<Integer,String> names = new HashMap<>();
-		for (ZoneId id : zones.keySet()) {
-			String zoneId = id.getExternalId();
-			names.put(id.getMatrixColumn(), zoneId);
-		}
-		return names;
 	}
 
 	private String dataToString(Matrix<? extends Number> matrix) {
