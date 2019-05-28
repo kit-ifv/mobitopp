@@ -6,13 +6,10 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
-public class VisumTransportSystemReader {
-
-  private final NetfileLanguage language;
+public class VisumTransportSystemReader extends VisumBaseReader {
 
   public VisumTransportSystemReader(NetfileLanguage language) {
-    super();
-    this.language = language;
+    super(language);
   }
 
   public VisumTransportSystems readTransportSystems(Stream<Row> content) {
@@ -25,15 +22,15 @@ public class VisumTransportSystemReader {
   }
 
   private String codeIn(Row row) {
-    return row.get(language.resolve(StandardAttributes.code));
+    return row.get(attribute(StandardAttributes.code));
   }
 
   private String nameIn(Row row) {
-    return row.get(language.resolve(StandardAttributes.name));
+    return row.get(attribute(StandardAttributes.name));
   }
 
   private String typeIn(Row row) {
-    return row.get(language.resolve(StandardAttributes.type));
+    return row.get(attribute(StandardAttributes.type));
   }
 
 }

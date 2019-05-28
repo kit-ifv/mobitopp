@@ -7,12 +7,10 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
-public class VisumNodeReader {
-
-  private final NetfileLanguage language;
+public class VisumNodeReader extends VisumBaseReader {
 
   public VisumNodeReader(NetfileLanguage language) {
-    this.language = language;
+    super(language);
   }
 
   public Map<Integer, VisumNode> readNodes(Stream<Row> rows) {
@@ -37,27 +35,4 @@ public class VisumNodeReader {
     return attribute(StandardAttributes.zCoord);
   }
 
-  private String yCoord() {
-    return attribute(StandardAttributes.yCoord);
-  }
-
-  private String xCoord() {
-    return attribute(StandardAttributes.xCoord);
-  }
-
-  private String typeNumber() {
-    return attribute(StandardAttributes.typeNumber);
-  }
-
-  private String name() {
-    return attribute(StandardAttributes.name);
-  }
-
-  private String number() {
-    return attribute(StandardAttributes.number);
-  }
-
-  private String attribute(StandardAttributes tabletransportsystems) {
-    return language.resolve(tabletransportsystems);
-  }
 }
