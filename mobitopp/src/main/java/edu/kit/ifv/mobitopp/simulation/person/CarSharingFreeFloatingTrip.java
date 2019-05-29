@@ -26,7 +26,7 @@ public class CarSharingFreeFloatingTrip extends BaseTrip implements Trip {
     Objects.requireNonNull(impedance, "impedance");
     Objects.requireNonNull(currentTime, "currentTime");
     Zone zone = person().currentActivity().zone();
-    if (person().isCarDriver()) {
+    if (person().hasParkedCar()) {
       usePreviouslyBookedCar(zone);
     } else {
       bookCar(currentTime, zone);
@@ -38,6 +38,7 @@ public class CarSharingFreeFloatingTrip extends BaseTrip implements Trip {
     assert car != null;
     assert car instanceof CarSharingCar;
     assert !zone.carSharing().isFreeFloatingZone((CarSharingCar) car);
+    person().takeCarFromParking();
   }
 
   private void bookCar(Time currentTime, Zone zone) {

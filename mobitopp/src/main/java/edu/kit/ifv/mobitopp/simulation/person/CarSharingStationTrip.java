@@ -35,6 +35,7 @@ public class CarSharingStationTrip extends BaseTrip implements Trip {
   private void useParkedCar() {
     assert person().hasParkedCar() : String.format("Person %s has no parked car.", person().getId());
     assert !person().isCarDriver() : String.format("Person %s is already driving.", person().getId());
+    assert person().whichCar() instanceof CarSharingCar;
     person().takeCarFromParking();
   }
 

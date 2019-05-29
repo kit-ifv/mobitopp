@@ -84,6 +84,19 @@ public class CarSharingFreeFloatingTripTest {
   }
 
   @Test
+  void usesParkedCar() throws Exception {
+    when(person.hasParkedCar()).thenReturn(true);
+    when(person.isCarDriver()).thenReturn(false);
+    when(person.whichCar()).thenReturn(car);
+    setup.configureCurrentActivity(ActivityType.WORK);
+    Trip carTrip = newTrip();
+
+    carTrip.prepareTrip(impedance, currentTime);
+
+    verify(person).takeCarFromParking();
+  }
+
+  @Test
   void returnCarInFreeFloatingArea() throws Exception {
     setup.configureNextActivity(ActivityType.HOME);
     configureMode();
@@ -117,7 +130,7 @@ public class CarSharingFreeFloatingTripTest {
     verify(person).parkCar(zone, location, currentTime);
     verify(car).stop(eq(currentTime), any());
   }
-
+  
   public void configureParkedCar() {
     when(person.parkCar(zone, location, currentTime)).thenReturn(car);
   }
