@@ -57,7 +57,6 @@ public class TripfileCategories {
 		header.add("isStartOfTour");
 		header.add("tourPurpose");
 		header.add("isMainActivity");
-		header.add("carsharing owner");
 		header.add("realEndDay");
 		header.add("realEndTime");
 		return new Category("demandsimulationResult", header);
