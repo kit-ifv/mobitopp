@@ -240,7 +240,7 @@ public class PaneldataReader {
   private boolean getBooleanOrDefault(
       Map<String, Integer> columnNames, String[] field, String key) {
     if (columnNames.containsKey(key)) {
-      return field[columnNames.get("personalcar")].trim().equals("1");
+      return field[columnNames.get(key)].trim().equals("1");
     }
     missingColumns.put(key, String.valueOf(false));
     return false;
