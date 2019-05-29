@@ -77,7 +77,7 @@ public class CarSharingFreeFloatingTrip extends BaseTrip implements Trip {
   }
 
   private Car stopCar(Time currentDate) {
-    assert mode() == Mode.CARSHARING_STATION : (trip() + "\n" 
+    assert mode() == Mode.CARSHARING_FREE : (trip() + "\n" 
         + "prev: " + previousActivity() + "\n"
         + "next : " + nextActivity()  + "\n --- \n"
         + person().activitySchedule() + "\n");
