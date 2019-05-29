@@ -103,6 +103,7 @@ public class PrivateCarTripTest {
     assertThat(finishedTrip.vehicleId(), hasValue(String.valueOf(car.id())));
     verify(person).releaseCar(currentTime);
     verify(car).returnCar(zone);
+    verify(car).stop(eq(currentTime), any());
     verify(results).notifyFinishCarTrip(eq(person), eq(car), any(), eq(nextActivity));
   }
 
