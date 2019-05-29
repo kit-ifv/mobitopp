@@ -1,4 +1,4 @@
-W;personnumber;householdOid;personOid;tripBeginDay;activityNumber;tripBeginTime;activityType;modeType;vehicleId;tripEndDay;tripEndTime;distanceInKm;durationTrip;sourceZone;targetZone;employmentType;homeZone;activityDuration;locationFrom;locationTo;sex;tourNumber;isStartOfTour;tourPurpose;isMainActivity;carsharing owner;realEndDay;realEndTime;
+W;personnumber;householdOid;personOid;tripBeginDay;activityNumber;tripBeginTime;activityType;modeType;vehicleId;tripEndDay;tripEndTime;distanceInKm;durationTrip;sourceZone;targetZone;employmentType;homeZone;activityDuration;locationFrom;locationTo;sex;tourNumber;isStartOfTour;tourPurpose;isMainActivity;realEndDay;realEndTime;
 W;1;6790;6790;Mo;2;06:05:00;1;1;6790;Mo;06:20:00;0.0035989999771118162;15;7;3;1;7;504;(8.407,49.102: -256, 0.155);(8.424,49.099: -257, 1.000);2;1;1;1;1;Mo;06:20:00;
 W;1;11750;11750;Mo;2;06:05:00;1;1;11750;Mo;06:21:00;0.0037669999599456785;16;9;3;1;9;453;(8.395,49.089: 190, 0.216);(8.423,49.099: -257, 1.000);2;1;1;1;1;Mo;06:21:00;
 W;1;2980;2980;Mo;2;06:15:00;1;1;2980;Mo;06:26:00;0.002871999979019165;11;2;8;1;2;541;(8.406,49.096: -6, 0.268);(8.435,49.088: -101, 0.707);2;1;1;1;1;Mo;06:26:00;
