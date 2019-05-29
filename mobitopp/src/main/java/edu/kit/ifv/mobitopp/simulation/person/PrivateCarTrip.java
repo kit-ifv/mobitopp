@@ -18,7 +18,7 @@ public class PrivateCarTrip extends CarBasedTrip implements Trip {
   }
 
   @Override
-  protected boolean hasParkedCar() {
+  protected boolean hasPreviouslyUsedCar() {
     return !person().currentActivity().activityType().isHomeActivity();
   }
   

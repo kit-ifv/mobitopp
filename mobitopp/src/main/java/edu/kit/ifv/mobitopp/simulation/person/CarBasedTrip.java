@@ -41,7 +41,7 @@ public abstract class CarBasedTrip extends BaseTrip {
   public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
     Objects.requireNonNull(impedance, "impedance");
     Objects.requireNonNull(currentTime, "currentTime");
-    if (hasParkedCar()) {
+    if (hasPreviouslyUsedCar()) {
       useParkedCar();
     } else {
       useAllocatedCar(impedance, currentTime);
@@ -53,7 +53,7 @@ public abstract class CarBasedTrip extends BaseTrip {
    * 
    * @return true if the person should use the parked car
    */
-  protected abstract boolean hasParkedCar();
+  protected abstract boolean hasPreviouslyUsedCar();
 
   private void useParkedCar() {
     assert person().hasParkedCar() : String
