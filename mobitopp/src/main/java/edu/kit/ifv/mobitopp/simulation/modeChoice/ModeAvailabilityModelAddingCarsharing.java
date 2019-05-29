@@ -58,7 +58,7 @@ public class ModeAvailabilityModelAddingCarsharing
 				}
 	
 				if(previousActivity.isModeSet()
-						&& previousActivity.mode()==Mode.CARSHARING_FREE &&  person.isCarDriver()) {
+						&& previousActivity.mode()==Mode.CARSHARING_FREE && person.hasParkedCar()) {
 	
 					assert !currentZone.carSharing().isFreeFloatingZone((CarSharingCar)person.whichCar());
 
@@ -74,7 +74,7 @@ public class ModeAvailabilityModelAddingCarsharing
 
 				} else if(previousMode==Mode.CARSHARING_FREE) {
 
-					if(person.isCarDriver()) {
+					if(person.hasParkedCar()) {
 		
 						assert !currentZone.carSharing().isFreeFloatingZone((CarSharingCar)person.whichCar());
 		
