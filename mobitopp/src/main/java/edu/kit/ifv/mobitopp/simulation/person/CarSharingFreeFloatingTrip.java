@@ -18,7 +18,7 @@ public class CarSharingFreeFloatingTrip extends CarBasedTrip implements Trip {
   }
 
   @Override
-  public boolean hasParkedCar() {
+  public boolean hasPreviouslyUsedCar() {
     return person().hasParkedCar();
   }
 
