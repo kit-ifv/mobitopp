@@ -399,7 +399,7 @@ System.out.println(" reading territories...");
 
 		for (int i=0; i<vehicleUnits2Combinations.numberOfRows(); i++) {
 
-			Integer combinationId = Integer.valueOf(vehicleUnits2Combinations.getValue(i,vehicleCombinationNumber()));
+			Integer combinationId = vehicleCombination(vehicleUnits2Combinations, i);
 			Integer unitId = Integer.valueOf(vehicleUnits2Combinations.getValue(i,attribute(StandardAttributes.vehicleUnitNumber)));
 			Integer quantity = Integer.valueOf(vehicleUnits2Combinations.getValue(i,attribute(StandardAttributes.numberOfVehicleUnits)));
 
@@ -843,7 +843,7 @@ System.out.println(" reading territories...");
 			int fromIndex = Integer.valueOf(table.getValue(i,fromTimeProfileElementIndex()));
 			int toIndex = Integer.valueOf(table.getValue(i,toTimeProfileElementIndex()));
 			int day = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.vehicleDayNumber)));
-			int vehicleCombinationId = Integer.valueOf(table.getValue(i,vehicleCombinationNumber()));
+			int vehicleCombinationId = vehicleCombination(table, i);
 
 			VisumPtVehicleJourneySection journeySection = new VisumPtVehicleJourneySection(
 																												number,
@@ -903,6 +903,14 @@ System.out.println(" reading territories...");
 
 	return data;
 }
+
+  public Integer vehicleCombination(VisumTable table, int i) {
+    String combination = table.getValue(i,vehicleCombinationNumber());
+    if (combination.isEmpty()) {
+      return 0;
+    }
+    return Integer.valueOf(combination);
+  }
 
 
   private SortedMap<Integer, VisumSurface> readSurfaces() {

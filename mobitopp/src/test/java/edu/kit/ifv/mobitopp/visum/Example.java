@@ -34,10 +34,10 @@ public class Example {
     Map<VisumVehicleUnit, Integer> vehicles = singletonMap(
         new VisumVehicleUnit(1, "BUS", "Bus", systems, 0, 0), 1);
     
-    VisumPoint point2 = new VisumPoint(933807.0d, 6269827.0d);
-    VisumPoint point7 = new VisumPoint(933909.0d, 6269852.0d);
-    VisumPoint point8 = new VisumPoint(933921.0d, 6269797.0d);
-    VisumPoint point9 = new VisumPoint(934070.0d, 6269801.0d);
+    VisumPoint point10 = new VisumPoint(933807.5d, 6269827.0d);
+    VisumPoint point11 = new VisumPoint(933921.0625d, 6269798.0d);
+    VisumPoint point12 = new VisumPoint(934070.0625d, 6269801.0d);
+    VisumPoint point13 = new VisumPoint(933910.0d, 6269852.5d);
     VisumNode node1 = visumNode().withId(1).withName("").at(933836.0d, 6269823.0d).build();
     VisumNode node2 = visumNode().withId(2).withName("").at(934027.0d, 6269817.0d).build();
     VisumTurn turn1 = visumTurn().with(node1).from(node2).to(node2).with(turnSystems).build();
@@ -84,17 +84,26 @@ public class Example {
         .with(visumSurface()
             .withId(1)
             .withFace(visumFace(1)
-                .with(new VisumEdge(1, point7, point2), 0)
-                .with(new VisumEdge(2, point2, point8), 0)
-                .with(new VisumEdge(3, point8, point7), 0)
+                .with(new VisumEdge(1, point13, point10), 0)
+                .with(new VisumEdge(2, point10, point11), 0)
+                .with(new VisumEdge(3, point11, point13), 0)
                 .build(), 0)
             .build())
         .with(visumSurface()
             .withId(3)
             .withFace(visumFace(3)
-                .with(new VisumEdge(7, point7, point8), 0)
-                .with(new VisumEdge(8, point8, point9), 0)
-                .with(new VisumEdge(9, point9, point7), 0)
+                .with(new VisumEdge(7, point13, point11), 0)
+                .with(new VisumEdge(8, point11, point12), 0)
+                .with(new VisumEdge(9, point12, point13), 0)
+                .build(), 0)
+            .build())
+        .with(visumSurface()
+            .withId(4)
+            .withFace(visumFace(4)
+                .with(new VisumEdge(10, point10, point11), 0)
+                .with(new VisumEdge(11, point11, point12), 0)
+                .with(new VisumEdge(12, point12, point13), 0)
+                .with(new VisumEdge(13, point13, point10), 0)
                 .build(), 0)
             .build())
         .with(node1)
