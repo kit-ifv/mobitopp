@@ -65,6 +65,7 @@ public class CarSharingStationTripTest {
         () -> assertThrows(NullPointerException.class,
             () -> carSharingTrip.prepareTrip(impedance, null)));
   }
+  
   @Test
   void allocateVehicle() throws Exception {
     CarSharingCar carSharingCar = mock(CarSharingCar.class);
@@ -83,6 +84,7 @@ public class CarSharingStationTripTest {
   void usesParkedCar() throws Exception {
     when(person.hasParkedCar()).thenReturn(true);
     when(person.isCarDriver()).thenReturn(false);
+    when(person.whichCar()).thenReturn(car);
     setup.configureCurrentActivity(ActivityType.WORK);
     Trip carTrip = new CarSharingStationTrip(trip, person);
 

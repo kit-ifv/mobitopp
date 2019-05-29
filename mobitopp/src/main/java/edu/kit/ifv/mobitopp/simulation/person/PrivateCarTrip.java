@@ -38,6 +38,7 @@ public class PrivateCarTrip extends BaseTrip implements Trip {
   private void useParkedCar() {
     assert person().hasParkedCar();
     assert !person().isCarDriver();
+    assert person().whichCar() instanceof PrivateCar;
     person().takeCarFromParking();
   }
 

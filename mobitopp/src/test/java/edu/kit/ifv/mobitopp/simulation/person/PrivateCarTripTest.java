@@ -63,6 +63,7 @@ public class PrivateCarTripTest {
   void usesParkedCar() throws Exception {
     when(person.hasParkedCar()).thenReturn(true);
     when(person.isCarDriver()).thenReturn(false);
+    when(person.whichCar()).thenReturn(car);
     setup.configureCurrentActivity(ActivityType.WORK);
     Trip carTrip = new PrivateCarTrip(trip, person);
 
