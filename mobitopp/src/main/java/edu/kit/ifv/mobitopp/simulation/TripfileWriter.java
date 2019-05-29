@@ -6,7 +6,6 @@ import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
@@ -147,18 +146,12 @@ public class TripfileWriter implements PersonListener {
 			message.append(realEndDay);
 			message.append(realEndTime);
 
-			if ( finishedTrip.mode() == Mode.CARSHARING_STATION
-					|| finishedTrip.mode() == Mode.CARSHARING_FREE
-			) {
-				message.append( ((CarSharingCar)person.whichCar()).owner().name() );
-			}
-
-		results().write(this.categories.result, message.toString());
-		CsvBuilder statistics = new CsvBuilder();
-		statistics.append(personOid);
-		finishedTrip.statistic().forAllElements(statistics::append);
-		results().write(categories.ptTimes, statistics.toString());
-    }
+    results().write(this.categories.result, message.toString());
+    CsvBuilder statistics = new CsvBuilder();
+    statistics.append(personOid);
+    finishedTrip.statistic().forAllElements(statistics::append);
+    results().write(categories.ptTimes, statistics.toString());
+  }
 
 
 	@Override
