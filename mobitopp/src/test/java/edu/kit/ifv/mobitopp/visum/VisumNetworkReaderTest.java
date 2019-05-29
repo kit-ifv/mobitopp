@@ -19,7 +19,9 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReaderTest {
@@ -32,22 +34,38 @@ public class VisumNetworkReaderTest {
     language = StandardNetfileLanguages.german();
     network = Example.createVisumNetwork();
   }
-  
+
   @Test
   void loadsNetwork() throws Exception {
-    VisumNetwork loadedNetwork = new VisumNetworkReader(new VisumReader()).readNetwork(networkFile());
-    
-    assertAll(
-        () -> assertThat(loadedNetwork.transportSystems, is(equalTo(network.transportSystems))),
-        () -> assertThat(loadedNetwork.vehicleCombinations, is(equalTo(network.vehicleCombinations))),
-        () -> assertThat(loadedNetwork.areas, is(equalTo(network.areas))),
-        () -> assertThat(loadedNetwork.nodes, is(equalTo(network.nodes))),
-        () -> assertThat(loadedNetwork.zones, is(equalTo(network.zones))),
-        () -> assertThat(loadedNetwork.linkTypes, is(equalTo(network.linkTypes))),
-        () -> assertThat(loadedNetwork.links, is(equalTo(network.links))),
-        () -> assertThat(loadedNetwork.turns, is(equalTo(network.turns))),
-        () -> assertThat(loadedNetwork.connectors, is(equalTo(network.connectors))),
-        () -> assertThat(loadedNetwork.territories, is(equalTo(network.territories))));
+    VisumNetwork loadedNetwork = new VisumNetworkReader(new VisumReader())
+        .readNetwork(networkFile());
+
+    Stream<Executable> complete = Stream
+        .of(() -> assertThat(loadedNetwork.transportSystems, is(equalTo(network.transportSystems))),
+            () -> assertThat(loadedNetwork.vehicleCombinations, is(equalTo(network.vehicleCombinations))),
+            () -> assertThat(loadedNetwork.linkTypes, is(equalTo(network.linkTypes))),
+            () -> assertThat(loadedNetwork.links, is(equalTo(network.links))));
+    Stream<Executable> assertions = StreamUtils
+        .concat(assertElementVice(loadedNetwork.areas, network.areas),
+            assertElementVice(loadedNetwork.nodes, network.nodes),
+            assertElementVice(loadedNetwork.zones, network.zones),
+            assertElementVice(loadedNetwork.turns, network.turns),
+            assertElementVice(loadedNetwork.connectors, network.connectors),
+            complete);
+    assertAll(assertions);
+  }
+
+  public <K, V> Stream<Executable> assertElementVice(Map<K, V> actual, Map<K, V> expected) {
+    return StreamUtils
+        .concat(createAssertElementVice(actual, expected),
+            createAssertElementVice(expected, actual));
+  }
+
+  public <K, V> Stream<Executable> createAssertElementVice(Map<K, V> some, Map<K, V> other) {
+    return other
+        .entrySet()
+        .stream()
+        .map(e -> () -> assertThat(some.get(e.getKey()), is(equalTo(e.getValue()))));
   }
   
 	private File networkFile() throws URISyntaxException {

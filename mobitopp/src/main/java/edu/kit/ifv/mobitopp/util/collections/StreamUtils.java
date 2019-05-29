@@ -16,7 +16,7 @@ public final class StreamUtils {
   }
 
   @SafeVarargs
-  public static <T> Stream<? extends T> concat(Stream<? extends T>... streams) {
+  public static <T> Stream<T> concat(Stream<T>... streams) {
     return Stream.of(streams).reduce(Stream::concat).orElse(Stream.empty());
 
   }
