@@ -1,12 +1,12 @@
 package edu.kit.ifv.mobitopp.time;
 
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SimpleTime implements Time, Comparable<Time> {
 
-  private final long seconds;
+  private final int seconds;
   private final DayOfWeek weekDay;
   private final RelativeTime fromStart;
 
@@ -14,7 +14,7 @@ public class SimpleTime implements Time, Comparable<Time> {
     this(0);
   }
   
-  public SimpleTime(long seconds) {
+  public SimpleTime(int seconds) {
     super();
     this.seconds = seconds;
     fromStart = RelativeTime.ofSeconds(seconds);
@@ -29,23 +29,23 @@ public class SimpleTime implements Time, Comparable<Time> {
     return ofSeconds(fromStart.seconds());
   }
   
-  public static Time ofWeeks(long weeks) {
+  public static Time ofWeeks(int weeks) {
     return from(RelativeTime.ofWeeks(weeks));
   }
   
-  public static Time ofDays(long days) {
+  public static Time ofDays(int days) {
     return from(RelativeTime.ofDays(days));
   }
   
-  public static Time ofHours(long hours) {
+  public static Time ofHours(int hours) {
     return from(RelativeTime.ofHours(hours));
   }
   
-  public static Time ofMinutes(long minutes) {
+  public static Time ofMinutes(int minutes) {
     return from(RelativeTime.ofMinutes(minutes));
   }
   
-  public static Time ofSeconds(long seconds) {
+  public static Time ofSeconds(int seconds) {
     return new SimpleTime(seconds);
   }
 
@@ -61,7 +61,7 @@ public class SimpleTime implements Time, Comparable<Time> {
   
   @Override
   public int getWeek() {
-    return (int) fromStart().toWeeks();
+    return fromStart().toWeeks();
   }
 
   @Override
@@ -70,7 +70,7 @@ public class SimpleTime implements Time, Comparable<Time> {
     if (fromStart.isNegative()) {
       return getNegativeDay();
     }
-    return (int) fromStart.toDays();
+    return fromStart.toDays();
   }
 
   /**
@@ -79,7 +79,7 @@ public class SimpleTime implements Time, Comparable<Time> {
    * @return
    */
   private int getNegativeDay() {
-    return (int) fromStart().minusDays(1).plusSeconds(1).toDays();
+    return fromStart().minusDays(1).plusSeconds(1).toDays();
   }
 
   @Override
@@ -93,17 +93,17 @@ public class SimpleTime implements Time, Comparable<Time> {
 
   @Override
   public int getHour() {
-    return (int) fromStart().toHours() % 24;
+    return fromStart().toHours() % 24;
   }
 
   @Override
   public int getMinute() {
-    return (int) (fromStart().toMinutes() % 60);
+    return fromStart().toMinutes() % 60;
   }
 
   @Override
   public int getSecond() {
-    return (int) fromStart().seconds() % 60;
+    return fromStart().seconds() % 60;
   }
 
   @Override
@@ -221,7 +221,7 @@ public class SimpleTime implements Time, Comparable<Time> {
   @Override
   public Time newTime(int hours, int minutes, int seconds) {
     verify(hours, minutes, seconds);
-    long days = fromStart().toDays();
+    int days = fromStart().toDays();
     return SimpleTime.ofDays(days).plusHours(hours).plusMinutes(minutes).plusSeconds(seconds);
   }
 
@@ -246,10 +246,6 @@ public class SimpleTime implements Time, Comparable<Time> {
     return fromStart;
   }
 
-  public Time plus(int amount, ChronoUnit unit) {
-    return plus(RelativeTime.of(amount, unit));
-  }
-
   public static List<Time> oneWeek() {
     Time start = new SimpleTime();
     List<Time> week = new ArrayList<>();
@@ -261,10 +257,7 @@ public class SimpleTime implements Time, Comparable<Time> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + (int) (seconds ^ (seconds >>> 32));
-    return result;
+    return Objects.hash(seconds);
   }
 
   @Override
@@ -276,9 +269,7 @@ public class SimpleTime implements Time, Comparable<Time> {
     if (getClass() != obj.getClass())
       return false;
     SimpleTime other = (SimpleTime) obj;
-    if (seconds != other.seconds)
-      return false;
-    return true;
+    return seconds == other.seconds;
   }
 
   @Override

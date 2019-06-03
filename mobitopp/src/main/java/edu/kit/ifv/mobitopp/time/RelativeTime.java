@@ -1,174 +1,167 @@
 package edu.kit.ifv.mobitopp.time;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.MINUTES;
-
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
-public class RelativeTime implements Comparable<RelativeTime> {
+public final class RelativeTime implements Comparable<RelativeTime> {
 
-	private static final int daysPerWeek = 7;
-	public static final RelativeTime ZERO = RelativeTime.of(0, MINUTES);
-	public static final RelativeTime INFINITE = RelativeTime.of(100, DAYS);
-	private final Duration duration;
+  static final int secondsPerMinute = 60;
+  static final int minutesPerHour = 60;
+  static final int hoursPerDay = 24;
+  static final int daysPerWeek = 7;
 
-	private RelativeTime(Duration duration) {
-		super();
-		this.duration = duration;
-	}
+  static final int secondsPerWeek = daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute;
+  static final int secondsPerDay = hoursPerDay * minutesPerHour * secondsPerMinute;
+  static final int secondsPerHour = minutesPerHour * secondsPerMinute;
 
-	public static RelativeTime of(long amount, ChronoUnit unit) {
-		return new RelativeTime(Duration.of(amount, unit));
-	}
+  public static final RelativeTime ZERO = RelativeTime.ofSeconds(0);
+  public static final RelativeTime INFINITE = RelativeTime.ofDays(100);
+  private final int seconds;
 
-	public long seconds() {
-		return duration.getSeconds();
-	}
+  private RelativeTime(int seconds) {
+    super();
+    this.seconds = seconds;
+  }
 
-	public long toMinutes() {
-		return duration.toMinutes();
-	}
+  private RelativeTime(Duration duration) {
+    this(Math.toIntExact(duration.getSeconds()));
+  }
 
-	public long toHours() {
-		return duration.toHours();
-	}
+  public int seconds() {
+    return seconds;
+  }
 
-	public long toDays() {
-		return duration.toDays();
-	}
+  public int toMinutes() {
+    return seconds / secondsPerMinute;
+  }
 
-	public long toWeeks() {
-		return duration.toDays() / 7;
-	}
+  public int toHours() {
+    return toMinutes() / minutesPerHour;
+  }
 
-	public RelativeTime plus(long amount, ChronoUnit unit) {
-		return new RelativeTime(duration.plus(amount, unit));
-	}
+  public int toDays() {
+    return toHours() / hoursPerDay;
+  }
 
-	public RelativeTime plus(RelativeTime other) {
-		return new RelativeTime(duration.plus(other.duration));
-	}
-	
-	public RelativeTime plusWeeks(long days) {
-		return plusDays(days * daysPerWeek);
-	}
-	
-	public RelativeTime plusDays(long days) {
-		return new RelativeTime(duration.plusDays(days));
-	}
+  public int toWeeks() {
+    return toDays() / daysPerWeek;
+  }
 
-	public RelativeTime plusHours(long hours) {
-		return new RelativeTime(duration.plusHours(hours));
-	}
+  public RelativeTime plus(RelativeTime other) {
+    return new RelativeTime(Math.addExact(this.seconds, other.seconds));
+  }
 
-	public RelativeTime plusMinutes(long minutes) {
-		return new RelativeTime(duration.plusMinutes(minutes));
-	}
+  public RelativeTime plusWeeks(int weeks) {
+    return plusSeconds(weeks * secondsPerWeek);
+  }
 
-	public RelativeTime plusSeconds(long seconds) {
-		return new RelativeTime(duration.plusSeconds(seconds));
-	}
+  public RelativeTime plusDays(int days) {
+    return plusSeconds(days * secondsPerDay);
+  }
 
-	public RelativeTime minus(RelativeTime other) {
-		return new RelativeTime(duration.minus(other.duration));
-	}
+  public RelativeTime plusHours(int hours) {
+    return plusSeconds(hours * secondsPerHour);
+  }
 
-	public RelativeTime minusWeeks(int decrement) {
-		return minusDays(decrement * daysPerWeek);
-	}
+  public RelativeTime plusMinutes(int minutes) {
+    return plusSeconds(minutes * secondsPerMinute);
+  }
 
-	public RelativeTime minusDays(long days) {
-		return new RelativeTime(duration.minusDays(days));
-	}
-	
-	public RelativeTime minusHours(long hours) {
-		return new RelativeTime(duration.minusHours(hours));
-	}
-	
-	public RelativeTime minusMinutes(long minutes) {
-		return new RelativeTime(duration.minusMinutes(minutes));
-	}
-	
-	public RelativeTime minusSeconds(long seconds) {
-		return new RelativeTime(duration.minusSeconds(seconds));
-	}
-	
-	public RelativeTime multiplyBy(double multiplicant) {
-		long product = (long) (seconds() * multiplicant);
-		return RelativeTime.ofSeconds(product);
-	}
+  public RelativeTime plusSeconds(int seconds) {
+    return new RelativeTime(Math.addExact(this.seconds, seconds));
+  }
 
-	public Duration toDuration() {
-		return duration;
-	}
-	
-	public boolean isNegative() {
-		return duration.isNegative();
-	}
+  public RelativeTime minus(RelativeTime other) {
+    return new RelativeTime(Math.subtractExact(this.seconds, other.seconds));
+  }
 
-	@Override
-	public int compareTo(RelativeTime other) {
-		return duration.compareTo(other.duration);
-	}
+  public RelativeTime minusWeeks(int weeks) {
+    return minusSeconds(weeks * secondsPerWeek);
+  }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
-		return result;
-	}
+  public RelativeTime minusDays(int days) {
+    return minusSeconds(days * secondsPerDay);
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		RelativeTime other = (RelativeTime) obj;
-		if (duration == null) {
-			if (other.duration != null) {
-				return false;
-			}
-		} else if (!duration.equals(other.duration)) {
-			return false;
-		}
-		return true;
-	}
+  public RelativeTime minusHours(int hours) {
+    return minusSeconds(hours * secondsPerHour);
+  }
 
-	@Override
-	public String toString() {
-		return "RelativeTime [duration=" + duration + "]";
-	}
-	
-	public static RelativeTime ofWeeks(long weeks) {
-		return new RelativeTime(Duration.ofDays(weeks * daysPerWeek));
-	}
+  public RelativeTime minusMinutes(int minutes) {
+    return minusSeconds(minutes * secondsPerMinute);
+  }
 
-	public static RelativeTime ofDays(long days) {
-		return new RelativeTime(Duration.ofDays(days));
-	}
+  public RelativeTime minusSeconds(int seconds) {
+    return new RelativeTime(Math.subtractExact(this.seconds, seconds));
+  }
 
-	public static RelativeTime ofHours(long hour) {
-		return new RelativeTime(Duration.ofHours(hour));
-	}
+  public RelativeTime multiplyBy(double multiplicant) {
+    int product = Math.toIntExact(Math.round(seconds * multiplicant));
+    return RelativeTime.ofSeconds(product);
+  }
 
-	public static RelativeTime ofMinutes(long minutes) {
-		return new RelativeTime(Duration.ofMinutes(minutes));
-	}
+  public Duration toDuration() {
+    return Duration.ofSeconds(seconds);
+  }
 
-	public static RelativeTime ofSeconds(long seconds) {
-		return new RelativeTime(Duration.ofSeconds(seconds));
-	}
+  public boolean isNegative() {
+    return 0 > seconds;
+  }
 
-	public static RelativeTime of(Duration duration) {
-		return new RelativeTime(duration);
-	}
+  @Override
+  public int compareTo(RelativeTime other) {
+    return Long.compare(this.seconds, other.seconds);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(seconds);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    RelativeTime other = (RelativeTime) obj;
+    return seconds == other.seconds;
+  }
+
+  @Override
+  public String toString() {
+    return "RelativeTime [seconds=" + seconds + "]";
+  }
+
+  public static RelativeTime ofWeeks(int weeks) {
+    return new RelativeTime(weeks * secondsPerWeek);
+  }
+
+  public static RelativeTime ofDays(int days) {
+    return new RelativeTime(days * secondsPerDay);
+  }
+
+  public static RelativeTime ofHours(int hour) {
+    return new RelativeTime(hour * secondsPerHour);
+  }
+
+  public static RelativeTime ofMinutes(int minutes) {
+    return new RelativeTime(minutes * secondsPerMinute);
+  }
+
+  public static RelativeTime ofSeconds(int seconds) {
+    return new RelativeTime(seconds);
+  }
+
+  public static RelativeTime of(Duration duration) {
+    return new RelativeTime(duration);
+  }
+
+  public static RelativeTime of(int amount, ChronoUnit unit) {
+    return new RelativeTime(Duration.of(amount, unit));
+  }
 
 }

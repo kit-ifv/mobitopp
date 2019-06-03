@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -91,7 +92,7 @@ public class Population implements PopulationContext, Serializable {
 
   private TourBasedActivityPattern activityScheduleOf(int oid) {
     if (activityPatterns.containsKey(oid)) {
-      List<ExtendedPatternActivity> activities = activityPatterns.get(oid);
+      List<ExtendedPatternActivity> activities = activityPatterns.remove(oid);
       // return new PatternActivityWeek(activities);
       return TourBasedActivityPattern.fromExtendedPatternActivities(activities);
     }
@@ -100,8 +101,10 @@ public class Population implements PopulationContext, Serializable {
   }
 
   public void add(int personOid, ExtendedPatternActivity pattern) {
-    List<ExtendedPatternActivity> patternWeek = activityPatterns
-        .getOrDefault(personOid, new ArrayList<>());
+    if (!activityPatterns.containsKey(personOid)) {
+      activityPatterns.put(personOid, new LinkedList<>());
+    }
+    List<ExtendedPatternActivity> patternWeek = activityPatterns.get(personOid);
     patternWeek.add(pattern);
     activityPatterns.put(personOid, patternWeek);
   }

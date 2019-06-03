@@ -1,9 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport;
 
-import static java.time.temporal.ChronoUnit.HOURS;
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +56,10 @@ class DijkstraResult implements ShortestPathsToStations {
 		float hours = hoursOf(path);
 		float minutes = minutesOf(path);
 		float seconds = secondsOf(minutes);
-		return RelativeTime.of((long) hours, HOURS).plus((long) minutes, MINUTES).plus((long) seconds,
-				SECONDS);
+    return RelativeTime
+        .ofHours((int) hours)
+        .plusMinutes((int) minutes)
+        .plusSeconds((int) seconds);
 	}
 
 	private static float hoursOf(Path path) {

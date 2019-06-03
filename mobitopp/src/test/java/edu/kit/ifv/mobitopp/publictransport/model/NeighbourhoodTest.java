@@ -61,7 +61,7 @@ public class NeighbourhoodTest {
 
 	@Test
 	public void ensureSymmetricWalkTimesShorterBeforeLonger() {
-		RelativeTime anotherTime = someTime.plus(1, MINUTES);
+		RelativeTime anotherTime = someTime.plusMinutes(1);
 		ownNeighbourhood.add(neighbour, someTime);
 		neighbour.addNeighbour(self, anotherTime);
 
@@ -74,7 +74,7 @@ public class NeighbourhoodTest {
 
 	@Test
 	public void ensureSymmetricWalkTimesLongerBeforeShorter() {
-		RelativeTime anotherTime = someTime.plus(1, MINUTES);
+		RelativeTime anotherTime = someTime.plusMinutes(1);
 		ownNeighbourhood.add(neighbour, anotherTime);
 		neighbour.addNeighbour(self, someTime);
 

@@ -83,7 +83,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	}
 
 	private Time startTimeOf(List<String> data) {
-		long secondsFromStart = Long.parseLong(data.get(startTimeIndex));
+		int secondsFromStart = Integer.parseInt(data.get(startTimeIndex));
 		return SimpleTime.ofMinutes(secondsFromStart);
 	}
 
