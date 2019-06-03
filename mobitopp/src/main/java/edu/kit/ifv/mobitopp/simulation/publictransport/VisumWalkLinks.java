@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -183,7 +182,7 @@ class VisumWalkLinks implements NeighbourhoodCoupler {
 		int walkSpeed = walkSpeedOf(link);
 		float length = link.length;
 		float durationInHours = length / walkSpeed;
-		RelativeTime duration = RelativeTime.of((long) (durationInHours * hoursToSeconds), SECONDS);
+		RelativeTime duration = RelativeTime.ofSeconds((int) (durationInHours * hoursToSeconds));
 		linkDurations.put(nodeTupel(from, to), duration);
 	}
 

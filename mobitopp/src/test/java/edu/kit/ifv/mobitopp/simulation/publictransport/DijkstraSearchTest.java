@@ -5,9 +5,6 @@ import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresent;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumNetwork;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumNode;
-import static java.time.temporal.ChronoUnit.HOURS;
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertThat;
 
@@ -80,7 +77,7 @@ public class DijkstraSearchTest {
 
 		assertThat(walkTime, isPresent());
 		int hours = hoursTraveling(fourKilometers);
-		assertThat(walkTime, hasValue(RelativeTime.of(hours, HOURS)));
+		assertThat(walkTime, hasValue(RelativeTime.ofHours(hours)));
 	}
 
 	@Test
@@ -102,7 +99,7 @@ public class DijkstraSearchTest {
 
 		assertThat(walkTime, isPresent());
 		int duration = minutesTraveling(oneKilomenter);
-		assertThat(walkTime, hasValue(RelativeTime.of(duration, MINUTES)));
+		assertThat(walkTime, hasValue(RelativeTime.ofMinutes(duration)));
 	}
 
 	@Test
@@ -125,7 +122,7 @@ public class DijkstraSearchTest {
 		assertThat(walkTime, isPresent());
 		int minutes = minutesTraveling(halfKilometer);
 		int seconds = secondsTraveling(halfKilometer);
-		assertThat(walkTime, hasValue(RelativeTime.of(minutes, MINUTES).plus(seconds, SECONDS)));
+		assertThat(walkTime, hasValue(RelativeTime.ofMinutes(minutes).plusSeconds(seconds)));
 	}
 
 	@Test
@@ -156,11 +153,11 @@ public class DijkstraSearchTest {
 		Optional<RelativeTime> walkTimeToAnother = result.durationTo(anotherNode);
 		int hoursToOther = hoursTraveling(fourKilometers);
 		assertThat(walkTimeToOther, isPresent());
-		assertThat(walkTimeToOther, hasValue(RelativeTime.of(hoursToOther, HOURS)));
+		assertThat(walkTimeToOther, hasValue(RelativeTime.ofHours(hoursToOther)));
 		float eightKilometers = 8f;
 		int hoursToAnother = hoursTraveling(eightKilometers);
 		assertThat(walkTimeToAnother, isPresent());
-		assertThat(walkTimeToAnother, hasValue(RelativeTime.of(hoursToAnother, HOURS)));
+		assertThat(walkTimeToAnother, hasValue(RelativeTime.ofHours(hoursToAnother)));
 	}
 
 	@Test
@@ -198,7 +195,7 @@ public class DijkstraSearchTest {
 				.build();
 		VisumNetwork oneLinkNetwork = networkContaining(oneLink, someNode, anotherNode);
 
-		RelativeTime maximumDuration = RelativeTime.of(15, MINUTES);
+		RelativeTime maximumDuration = RelativeTime.ofMinutes(15);
 		ShortestPathSearch dijkstra = searchIn(oneLinkNetwork, maximumDuration);
 		ShortestPathsToStations result = dijkstra.search(someNode, asList(anotherNode));
 
@@ -227,7 +224,7 @@ public class DijkstraSearchTest {
 		Optional<RelativeTime> walkTime = result.durationTo(someNode);
 
 		assertThat(walkTime, isPresent());
-		assertThat(walkTime, hasValue(RelativeTime.of(1, HOURS)));
+		assertThat(walkTime, hasValue(RelativeTime.ofHours(1)));
 	}
 
 	private VisumLinkBuilder visumLink() {

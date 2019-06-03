@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
 import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -74,8 +73,8 @@ public class Read implements ProfileReader {
 
 	FunctionEntry newEntry(String serializedEntry, Timetable timetable) {
 		StringTokenizer parts = new StringTokenizer(serializedEntry, entrySeparator);
-		Time departure = SimpleTime.ofSeconds(parseLong(parts.nextToken()));
-		Time arrivalAtTarget = SimpleTime.ofSeconds(parseLong(parts.nextToken()));
+		Time departure = SimpleTime.ofSeconds(parseInt(parts.nextToken()));
+		Time arrivalAtTarget = SimpleTime.ofSeconds(parseInt(parts.nextToken()));
 		Connection connection = timetable.connectionFor(connectionIdOf(parts.nextToken()));
 		return newEntry(departure, arrivalAtTarget, connection);
 	}

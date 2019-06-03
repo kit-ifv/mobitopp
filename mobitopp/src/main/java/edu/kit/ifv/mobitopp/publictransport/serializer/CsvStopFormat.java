@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-
 import java.awt.geom.Point2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,8 +69,8 @@ public class CsvStopFormat extends CsvFormat implements StopFormat {
 	}
 
 	private static RelativeTime changeTimeOf(Matcher matcher) {
-		Long seconds = Long.parseLong(matcher.group(changeTimeGroup));
-		return RelativeTime.of(seconds, SECONDS);
+		int seconds = Integer.parseInt(matcher.group(changeTimeGroup));
+		return RelativeTime.ofSeconds(seconds);
 	}
 
 	private Point2D coordinateOf(Matcher matcher) {

@@ -64,7 +64,7 @@ class CsvJourneyFormat extends CsvFormat implements JourneyFormat {
 	}
 
 	private static Time dayOf(String[] fields) {
-		return SimpleTime.ofSeconds(Long.parseLong(fields[dayIndex]));
+		return SimpleTime.ofSeconds(Integer.parseInt(fields[dayIndex]));
 	}
 
 	private static int idOf(String[] fields) {

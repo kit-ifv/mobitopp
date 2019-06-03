@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
-
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 
@@ -47,8 +45,8 @@ class CsvTransferFormat extends CsvFormat implements TransferFormat {
 	}
 
 	private RelativeTime walkTimeOf(String[] fields) {
-		long walkTime = Long.parseLong(fields[walkTimeIndex]);
-		return RelativeTime.of(walkTime, SECONDS);
+		int walkTime = Integer.parseInt(fields[walkTimeIndex]);
+		return RelativeTime.ofSeconds(walkTime);
 	}
 
 }

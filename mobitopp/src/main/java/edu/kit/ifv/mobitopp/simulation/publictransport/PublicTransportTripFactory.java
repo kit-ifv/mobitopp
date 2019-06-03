@@ -54,7 +54,6 @@ public class PublicTransportTripFactory implements TripFactory {
     int duration = route
         .map(PublicTransportRoute::duration)
         .map(RelativeTime::toMinutes)
-        .map(Long::intValue)
         .orElse(matrixDuration);
     duration = Math.max(1, duration);
     TripData trip = new BaseData(nextTripId(), mode, previousActivity, nextActivity,

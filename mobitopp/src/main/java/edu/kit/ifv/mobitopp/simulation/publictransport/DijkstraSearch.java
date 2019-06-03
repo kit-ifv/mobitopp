@@ -181,7 +181,7 @@ class DijkstraSearch implements ShortestPathSearch {
 	}
 
 	private float maximumDurationInMinutes() {
-		return maximumDuration.map(RelativeTime::toMinutes).orElse(Long.MAX_VALUE);
+		return maximumDuration.map(RelativeTime::toMinutes).orElse(Integer.MAX_VALUE);
 	}
 
 }

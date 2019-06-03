@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 import static java.util.Arrays.asList;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -22,7 +22,7 @@ public class CsvDeserialiser<T> implements Deserialiser<T> {
 	@Override
 	public List<T> deserialise() throws IOException {
 		String[] line = null;
-		List<T> elements = new ArrayList<>();
+		List<T> elements = new LinkedList<>();
 		while ((line = reader.readNext()) != null) {
 			format.parse(asList(line)).ifPresent(elements::add);
 		}

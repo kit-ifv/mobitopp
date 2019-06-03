@@ -3,7 +3,6 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent.board;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent.getOff;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.PassengerEvent.wait;
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -36,8 +35,8 @@ public class Events {
 		Event firstWait = firstWait();
 		Event firstBoard = firstBoard();
 		if (null != firstWait && null != firstBoard) {
-			long duration = firstBoard.time().differenceTo(firstWait.time()).toMinutes();
-			return RelativeTime.of(duration, MINUTES);
+			int duration = firstBoard.time().differenceTo(firstWait.time()).toMinutes();
+			return RelativeTime.ofMinutes(duration);
 		}
 		return RelativeTime.ZERO;
 	}
@@ -80,7 +79,7 @@ public class Events {
 				lastStart = event;
 			}
 		}
-		return RelativeTime.of(duration, MINUTES);
+		return RelativeTime.ofMinutes(duration);
 	}
 
 	public Statistic statistic() {
@@ -104,7 +103,7 @@ public class Events {
 				lastStart = event;
 			}
 		}
-		return RelativeTime.of(duration, MINUTES);
+		return RelativeTime.ofMinutes(duration);
 	}
 
 }
