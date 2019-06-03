@@ -63,7 +63,7 @@ public class PublicTransportFromVisumTest {
 
 	private static final Time someDate = Data.someTime();
 	private static final Time anotherDate = someDate.plusDays(1);
-	private static final List<Time> overSeveralDays = asList(someDate, anotherDate);;
+	private static final List<Time> overSeveralDays = asList(someDate, anotherDate);
 	private ModifiableJourneys journeys;
 	private Connections connections;
 	private Station station1;

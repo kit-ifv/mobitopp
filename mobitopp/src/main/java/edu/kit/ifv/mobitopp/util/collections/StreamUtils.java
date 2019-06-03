@@ -3,6 +3,8 @@ package edu.kit.ifv.mobitopp.util.collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -43,5 +45,15 @@ public final class StreamUtils {
       return Stream.of(optional.get());
     }
     return Stream.empty();
+  }
+
+  /**
+   * This method creates a collector which collects elements in a {@link SortedMap}
+   *
+   * @see Collectors#toMap(Function, Function)
+   */
+  public static <T, K, U> Collector<T, ?, SortedMap<K, U>> toSortedMap(
+      Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
+    return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), TreeMap::new);
   }
 }

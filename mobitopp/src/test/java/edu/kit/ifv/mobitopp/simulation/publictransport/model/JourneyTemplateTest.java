@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.junit.Before;
@@ -239,10 +240,11 @@ public class JourneyTemplateTest {
 
 	private VisumPtLineRoute lineRoute() {
 		VisumPtLineRoute lineRoute = visumLineRoute().build();
-		lineRoute.elements = new TreeMap<>();
-		lineRoute.elements.put(1, lineRouteElement(1, stopPoint(1, "1")));
-		lineRoute.elements.put(2, lineRouteElement(2, stopPoint(2, "2")));
-		lineRoute.elements.put(3, lineRouteElement(3, stopPoint(1, "1")));
+		SortedMap<Integer, VisumPtLineRouteElement> elements = new TreeMap<>();
+		elements.put(1, lineRouteElement(1, stopPoint(1, "1")));
+		elements.put(2, lineRouteElement(2, stopPoint(2, "2")));
+		elements.put(3, lineRouteElement(3, stopPoint(1, "1")));
+		lineRoute.setElements(elements);
 		return lineRoute;
 	}
 

@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.visum;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.groupingBy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
@@ -94,17 +94,17 @@ System.out.println(" reading connectors...");
 System.out.println(" public transport network...");
 System.out.println(" reading other...");
 		Map<Integer, VisumVehicleUnit> vehicleUnits = readVehicleUnits(transportSystems);
-		Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(tables, vehicleUnits);
+		Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(vehicleUnits);
 
 System.out.println(" reading stop hierarchy...");
-		Map<Integer, VisumPtStop> ptStops = readPtStations(tables);
-		Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(tables, nodes, ptStops);
-		Map<Integer, VisumPtStopPoint> ptStopPoints = readPtStopPoints(tables, nodes, links, ptStopAreas, transportSystems);
-		Map<StopAreaPair, VisumPtTransferWalkTimes> walkTimes = readTransferWalkTimesMatrix(tables, ptStopAreas);
+		Map<Integer, VisumPtStop> ptStops = readPtStations();
+		Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(nodes, ptStops);
+		Map<Integer, VisumPtStopPoint> ptStopPoints = readPtStopPoints(nodes, links, ptStopAreas, transportSystems);
+		Map<StopAreaPair, VisumPtTransferWalkTimes> walkTimes = readTransferWalkTimesMatrix(ptStopAreas);
 
 System.out.println(" reading other...");
-		Map<String, VisumPtLine> ptLines = readPtLines(tables, transportSystems);
-		Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(tables, ptLines);
+		Map<String, VisumPtLine> ptLines = readPtLines(transportSystems);
+		Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(ptLines);
 		readPtLineRouteElements(tables, ptLineRoutes, ptStopPoints, nodes);
 
 System.out.println(" reading other...");
@@ -351,275 +351,66 @@ System.out.println(" reading territories...");
   }
 
   private Map<Integer, VisumVehicleCombination> readVehicleCombinations(
-		Map<String,VisumTable> tables,
-		Map<Integer, VisumVehicleUnit> vehicleUnits
-	) {
-	  if (!tables.containsKey(table(Table.vehicleCombinations))) {
-      return emptyMap();
+      Map<Integer, VisumVehicleUnit> vehicleUnits) {
+    Stream<Row> content = loadContentOf(table(Table.vehicleUnitToCombinations));
+    Map<Integer, List<VisumVehicleCombinationUnit>> units2combinations = new VisumVehicleUnitsToCombinationsReader(
+        language, vehicleUnits).readMapping(content);
+
+    Stream<Row> combinationContent = loadContentOf(table(Table.vehicleCombinations));
+    Map<Integer, VisumVehicleCombination> combinations = new VisumVehicleCombinationReader(language,
+        units2combinations).readCombinations(combinationContent);
+    if (combinations.isEmpty()) {
+      System.out.println("Vehicle combinations are missing!");
     }
-	  if (!tables.containsKey(table(Table.vehicleUnitToCombinations))) {
-      return emptyMap();
-    }
-		VisumTable vehicleCombinations = tables.get(table(Table.vehicleCombinations));
-		VisumTable vehicleUnits2Combinations = tables.get(table(Table.vehicleUnitToCombinations));
-		if (null == vehicleCombinations || null == vehicleUnits2Combinations) {
-			System.out.println("Vehicle combinations are missing!");
-			return emptyMap();
-		}
+    return combinations;
+  }
 
-		Map<Integer, VisumVehicleCombination> data = new HashMap<>();
+  private Map<Integer, VisumPtStop> readPtStations() {
+    Stream<Row> content = loadContentOf(table(Table.station));
+    return new VisumPtStationReader(language).readPtStops(content);
+  }
 
-    Map<Integer, Map<Integer, Integer>> units2combinations = new VisumVehicleUnitsToCombinationsReader(
-        language).readMapping(vehicleUnits2Combinations);
+  private Map<Integer, VisumPtStopArea> readPtStopAreas(
+      Map<Integer, VisumNode> nodes, Map<Integer, VisumPtStop> ptStops) {
+    Stream<Row> content = loadContentOf(table(Table.stopArea));
+    return new VisumPtStopAreaReader(language, nodes, ptStops).readPtStopAreas(content);
+  }
 
-		for (int i=0; i<vehicleCombinations.numberOfRows(); i++) {
-
-			Integer id = Integer.valueOf(vehicleCombinations.getValue(i,number()));
-
-			Map<VisumVehicleUnit,Integer> units = new HashMap<>();
-
-			for(Integer unitId : units2combinations.get(id).keySet()) {
-
-				VisumVehicleUnit unit = vehicleUnits.get(unitId);
-				Integer quantity = units2combinations.get(id).get(unitId);
-
-				units.put(unit, quantity);
-			}
-
-			VisumVehicleCombination combination = new VisumVehicleCombination(
-																								id,
-																								vehicleCombinations.getValue(i, code()),
-																								vehicleCombinations.getValue(i, name()),
-																								units
-																						);
-
-			data.put(id, combination);
-		}
-
-		return data;
-	}
-
-  private Map<Integer, VisumPtStop> readPtStations(
-		Map<String,VisumTable> tables
-	) {
-	  if (!tables.containsKey(table(Table.station))) {
-      return emptyMap();
-    }
-	  
-		VisumTable table = tables.get(table(Table.station));
-
-		Map<Integer, VisumPtStop> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			Integer id = Integer.valueOf(table.getValue(i,number()));
-
-			VisumPtStop tmp = new VisumPtStop(
-																		id,
-																		table.getValue(i,code()),
-																		table.getValue(i,name()),
-																		Integer.valueOf(table.getValue(i,typeNumber())),
-																		Float.parseFloat(table.getValue(i,xCoord())),
-																		Float.parseFloat(table.getValue(i,yCoord()))
-															);
-
-			data.put(id, tmp);
-		}
-
-		return data;
-	}
-
-	private Map<Integer, VisumPtStopArea> readPtStopAreas(
-		Map<String,VisumTable> tables,
-		Map<Integer, VisumNode> nodes,
-		Map<Integer, VisumPtStop> ptStops
-	) {
-	  if (!tables.containsKey(table(Table.stopArea))) {
-      return emptyMap();
-    }
-		VisumTable table = tables.get(table(Table.stopArea));
-
-		Map<Integer, VisumPtStopArea> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			Integer id = Integer.valueOf(table.getValue(i,number()));
-			Integer stopId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.stationNumber)));
-			Integer nodeId = Integer.valueOf(table.getValue(i,nodeNumber()));
-
-			VisumPtStopArea tmp = new VisumPtStopArea(
-																		id,
-																		ptStops.get(stopId),
-																		table.getValue(i,code()),
-																		table.getValue(i,name()),
-																		nodes.get(nodeId),
-																		Integer.valueOf(table.getValue(i,typeNumber())),
-																		Float.parseFloat(table.getValue(i,xCoord())),
-																		Float.parseFloat(table.getValue(i,yCoord()))
-															);
-
-			data.put(id, tmp);
-		}
-
-		return data;
-	}
-
-	private Map<Integer, VisumPtStopPoint> readPtStopPoints(
-		Map<String,VisumTable> tables,
-		Map<Integer, VisumNode> nodes,
-		Map<Integer, VisumLink> links,
-		Map<Integer, VisumPtStopArea> ptStopAreas, 
-		VisumTransportSystems allSystems
-	) {
-	  if (!tables.containsKey(table(Table.stop))) {
-      return emptyMap();
-    }
-		VisumTable table = tables.get(table(Table.stop));
-
-		Map<Integer, VisumPtStopPoint> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			Integer id = Integer.valueOf(table.getValue(i,number()));
-			Integer areaId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.stopAreaNumber)));
-
-
-			if (!table.getValue(i,nodeNumber()).isEmpty()) {
-
-				Integer nodeId = Integer.valueOf(table.getValue(i,nodeNumber()));
-
-				String transportSystems = table.getValue(i, transportSystemsSet());
-				VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-				VisumPtStopPoint tmp = new VisumPtStopPoint.Node(
-																		id,
-																		ptStopAreas.get(areaId),
-																		table.getValue(i,code()),
-																		table.getValue(i,name()),
-																		Integer.valueOf(table.getValue(i,typeNumber())),
-																		systemSet,
-																		Integer.valueOf(table.getValue(i,directed())) == 1,
-																		nodes.get(nodeId)
-															);
-				data.put(id, tmp);
-			} else {
-				Integer nodeId = Integer.valueOf(table.getValue(i,fromNode()));
-				Integer linkId = Integer.valueOf(table.getValue(i,attribute(StandardAttributes.linkNumber)));
-
-				String transportSystems = table.getValue(i, transportSystemsSet());
-				VisumTransportSystemSet systemSet = VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-				VisumPtStopPoint tmp = new VisumPtStopPoint.Link(
-																		id,
-																		ptStopAreas.get(areaId),
-																		table.getValue(i,code()),
-																		table.getValue(i,name()),
-																		Integer.valueOf(table.getValue(i,typeNumber())),
-																		systemSet,
-																		table.getValue(i,directed()) == "1",
-																		nodes.get(nodeId),
-																		links.get(linkId),
-																		Float.valueOf(table.getValue(i,attribute(StandardAttributes.relativePosition)))
-															);
-				data.put(id, tmp);
-			}
-
-		}
-
-		return data;
-	}
+  private Map<Integer, VisumPtStopPoint> readPtStopPoints(
+      Map<Integer, VisumNode> nodes, Map<Integer, VisumLink> links,
+      Map<Integer, VisumPtStopArea> ptStopAreas, VisumTransportSystems allSystems) {
+    Stream<Row> content = loadContentOf(table(Table.stop));
+    return new VisumPtStopPointReader(language, nodes, links, ptStopAreas, allSystems)
+        .readPtStopPoints(content);
+  }
 
   private Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimesMatrix(
-			Map<String, VisumTable> tables, Map<Integer, VisumPtStopArea> ptStopAreas) {
-	  if (!tables.containsKey(table(Table.station))) {
-      return emptyMap();
-    }
-		VisumTable table = tables.get(table(Table.transferWalkTimes));
-		Map<StopAreaPair, VisumPtTransferWalkTimes> data = new HashMap<>();
-		for (int i = 0; i < table.numberOfRows(); i++) {
-			Integer fromAreaId = Integer.valueOf(table.getValue(i, attribute(StandardAttributes.fromStopArea)));
-			Integer toAreaId = Integer.valueOf(table.getValue(i, attribute(StandardAttributes.toStopArea)));
-			String vsysCode = table.getValue(i, transportSystemCode());
-			Integer time = parseTime(table.getValue(i, attribute(StandardAttributes.time)));
+      Map<Integer, VisumPtStopArea> ptStopAreas) {
+    Stream<Row> content = loadContentOf(table(Table.transferWalkTimes));
+    return new VisumPtTransferWalkTimesReader(language, ptStopAreas).readTransferWalkTimes(content);
+  }
 
-			VisumPtStopArea fromArea = ptStopAreas.get(fromAreaId);
-			VisumPtStopArea toArea = ptStopAreas.get(toAreaId);
-			VisumPtTransferWalkTimes walkTime = new VisumPtTransferWalkTimes(fromArea, toArea,
-					vsysCode, time);
-			StopAreaPair key = new StopAreaPair(new StopArea(fromAreaId), new StopArea(toAreaId));
-			data.put(key, walkTime);
-		}
+  private Map<String, VisumPtLine> readPtLines(VisumTransportSystems systems) {
+    Stream<Row> content = loadContentOf(table(Table.line));
+    return new VisumPtLineReader(language, systems).readPtLines(content);
+  }
 
-		return data;
-	}
+  private Map<String, VisumPtLineRoute> readPtLineRoutes(Map<String, VisumPtLine> ptLines) {
+    Stream<Row> content = loadContentOf(table(Table.lineRoute));
+    Map<String, VisumPtLineRoute> result = new VisumPtLineRouteReader(language, ptLines,
+        this::direction).readPtLineRoutes(content);
+    assignRoutesToLines(ptLines, result);
+    return result;
+  }
 
-  private Map<String, VisumPtLine> readPtLines(
-		Map<String,VisumTable> tables, VisumTransportSystems systems
-	) {
-	  if (!tables.containsKey(table(Table.line))) {
-      return emptyMap();
-    }
-		VisumTable table = tables.get(table(Table.line));
-
-		Map<String, VisumPtLine> data = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			String name = table.getValue(i,name());
-
-			String systemCode = table.getValue(i,transportSystemCode());
-			VisumTransportSystem transportSystem = systems.getBy(systemCode);
-			VisumPtLine tmp = new VisumPtLine(name, transportSystem);
-			data.put(name, tmp);
-		}
-
-		return data;
-	}
-
-	private Map<String, VisumPtLineRoute> readPtLineRoutes(
-		Map<String,VisumTable> tables,
-		Map<String, VisumPtLine> ptLines
-	) {
-	  if (!tables.containsKey(table(Table.lineRoute))) {
-      return emptyMap();
-    }
-		VisumTable table = tables.get(table(Table.lineRoute));
-
-		Map<String, Map<String, VisumPtLineRoute>> data
-		 	= new HashMap<>();
-
-		Map<String, VisumPtLineRoute> result = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			String lineName = table.getValue(i,lineName());
-			String lineRouteName = table.getValue(i,name());
-			String lineRouteDirection = table.getValue(i,directionCode());
-
-			String id = lineName + ";" + lineRouteName + ";" + lineRouteDirection;
-
-			VisumPtLineRouteDirection direction = direction(lineRouteDirection);
-
-			if (!data.containsKey(lineName)) {
-				data.put(lineName, new HashMap<String, VisumPtLineRoute>());
-			}
-
-			VisumPtLineRoute tmp = new VisumPtLineRoute(
-																		ptLines.get(lineName),
-																		lineRouteName,
-																		direction
-															);
-
-			data.get(lineName).put(id,tmp);
-			result.put(id, tmp);
-		}
-
-		for (String lineName : data.keySet()) {
-			Map<String,VisumPtLineRoute> routes = data.get(lineName);
-
-			ptLines.get(lineName).setLineRoutes(new ArrayList<>(routes.values()));
-		}
-
-		return result;
-	}
+  void assignRoutesToLines(Map<String, VisumPtLine> ptLines, Map<String, VisumPtLineRoute> result) {
+    result
+        .values()
+        .stream()
+        .collect(groupingBy(r -> r.line.name))
+        .entrySet()
+        .forEach(e -> ptLines.get(e.getKey()).setLineRoutes(e.getValue()));
+  }
 
   protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
 		return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
@@ -642,43 +433,9 @@ System.out.println(" reading territories...");
 		VisumTable table = tables.get(table(Table.lineRouteElement));
 
 		Map<VisumPtLineRoute, SortedMap<Integer, VisumPtLineRouteElement>> data
-			= new HashMap<>();
+			= new VisumPtLineRouteElementReader(language, ptLineRoutes, ptStopPoints, nodes).readElements(table);
 
-		for (int i=0; i<table.numberOfRows(); i++) {
-
-			String lineName = table.getValue(i,lineName());
-			String lineRouteName = table.getValue(i,lineRouteName());
-			String lineRouteDirection = table.getValue(i,directionCode());
-
-			String knotNr = table.getValue(i,nodeNumber());
-			String hpunktNr = table.getValue(i,attribute(StandardAttributes.stopNumber));
-			Integer index =	Integer.valueOf(table.getValue(i,index()));
-
-			String id = lineName + ";" + lineRouteName + ";" + lineRouteDirection;
-
-			VisumPtLineRoute route = ptLineRoutes.get(id);
-
-			VisumPtLineRouteElement element = new VisumPtLineRouteElement(
-																					route,
-																					index,
-																					table.getValue(i,attribute(StandardAttributes.isRoutePoint)).equals("1"),
-																					knotNr.isEmpty() ? null : nodes.get(Integer.valueOf(knotNr)),
-																					hpunktNr.isEmpty() ? null : ptStopPoints.get(Integer.valueOf(hpunktNr)),
-																					parseDistance(table.getValue(i,attribute(StandardAttributes.toLength)))
-																				);
-
-			if (!data.containsKey(route)) {
-				data.put(route, new TreeMap<Integer, VisumPtLineRouteElement>());
-			}
-
-			data.get(route).put(index,element);
-		}
-
-		for (VisumPtLineRoute route : ptLineRoutes.values()) {
-
-			SortedMap<Integer, VisumPtLineRouteElement> elements = data.get(route);
-			route.elements = elements;
-		}
+		data.entrySet().forEach(e -> e.getKey().setElements(e.getValue()));
 	}
 
   private Map<String,VisumPtTimeProfile> readPtTimeProfile(
@@ -712,7 +469,7 @@ System.out.println(" reading territories...");
 			int arrival = parseTimeAsSeconds(table.getValue(i,attribute(StandardAttributes.arrival)));
 			int departure = parseTimeAsSeconds(table.getValue(i,departure()));
 
-			VisumPtLineRouteElement lineRouteElement = route.elements.get(lrelemindex);
+			VisumPtLineRouteElement lineRouteElement = route.getElements().get(lrelemindex);
 
 
 			VisumPtTimeProfileElement profileElement = new VisumPtTimeProfileElement(

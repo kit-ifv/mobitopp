@@ -104,7 +104,7 @@ public class SimplePtNetwork
 			List<SimpleNode> routeNodes = new ArrayList<SimpleNode>();
 			List<SimpleNode> routeStops = new ArrayList<SimpleNode>();
 
-			for (VisumPtLineRouteElement element : vRoute.elements.values()) {
+			for (VisumPtLineRouteElement element : vRoute.getElements().values()) {
 				if (element.stopPoint != null) {
 					SimpleNode node = makeNode(element.stopPoint.stopArea.node);
 					routeNodes.add(node);
