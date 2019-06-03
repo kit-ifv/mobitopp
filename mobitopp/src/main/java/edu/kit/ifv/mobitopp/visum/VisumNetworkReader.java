@@ -105,7 +105,7 @@ System.out.println(" reading stop hierarchy...");
 System.out.println(" reading other...");
 		Map<String, VisumPtLine> ptLines = readPtLines(transportSystems);
 		Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(ptLines);
-		readPtLineRouteElements(tables, ptLineRoutes, ptStopPoints, nodes);
+		readPtLineRouteElements(ptLineRoutes, ptStopPoints, nodes);
 
 System.out.println(" reading other...");
 		Map<String,VisumPtTimeProfile> ptTimeProfiles = readPtTimeProfile(tables, ptLineRoutes);
@@ -421,22 +421,16 @@ System.out.println(" reading territories...");
 		return "H".equals(lineRouteDirection) || ">".equals(lineRouteDirection);
 	}
 
-	private void readPtLineRouteElements(
-		Map<String,VisumTable> tables,
-		Map<String, VisumPtLineRoute> ptLineRoutes,
-		Map<Integer, VisumPtStopPoint> ptStopPoints,
-		Map<Integer, VisumNode> nodes
-	) {
-	  if (!tables.containsKey(table(Table.lineRouteElement))) {
-      return;
-    }
-		VisumTable table = tables.get(table(Table.lineRouteElement));
+  private void readPtLineRouteElements(
+      Map<String, VisumPtLineRoute> ptLineRoutes, Map<Integer, VisumPtStopPoint> ptStopPoints,
+      Map<Integer, VisumNode> nodes) {
+    Stream<Row> content = loadContentOf(table(Table.lineRouteElement));
 
-		Map<VisumPtLineRoute, SortedMap<Integer, VisumPtLineRouteElement>> data
-			= new VisumPtLineRouteElementReader(language, ptLineRoutes, ptStopPoints, nodes).readElements(table);
+    Map<VisumPtLineRoute, SortedMap<Integer, VisumPtLineRouteElement>> data = new VisumPtLineRouteElementReader(
+        language, ptLineRoutes, ptStopPoints, nodes).readElements(content);
 
-		data.entrySet().forEach(e -> e.getKey().setElements(e.getValue()));
-	}
+    data.entrySet().forEach(e -> e.getKey().setElements(e.getValue()));
+  }
 
   private Map<String,VisumPtTimeProfile> readPtTimeProfile(
 		Map<String,VisumTable> tables,
