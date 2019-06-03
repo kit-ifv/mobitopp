@@ -148,7 +148,7 @@ System.out.println(" reading custom data...");
 	lastCurrentTime = currentTime;
 
 System.out.println(" reading territories...");
-		Map<Integer, VisumTerritory> territories = readTerritories(tables, areas);
+		Map<Integer, VisumTerritory> territories = readTerritories(areas);
 
 	currentTime = System.currentTimeMillis();
 
@@ -1059,48 +1059,9 @@ System.out.println(" reading territories...");
 		return data;
 	}
 
-  private Map<Integer,VisumTerritory> readTerritories(
-		Map<String,VisumTable> tables,
-		SortedMap<Integer,VisumSurface> polygons
-	) {
-
-		VisumTable table = tables.get(table(Table.territories));
-		if (table == null) {
-			return new HashMap<>();
-		}
-
-		Map<Integer,VisumTerritory> result = new HashMap<>();
-
-		for (int i=0; i<table.numberOfRows(); i++) {
-System.out.println("reading Territory " + i);
-
-			int id = Integer.valueOf(table.getValue(i,number()));
-			String code = code(table, i);
-			String name = nameOf(table, i);
-			int areaId = Integer.valueOf(table.getValue(i,areaId()));
-			VisumSurface area = polygons.get(areaId);
-
-			VisumTerritory t = new VisumTerritory(id, code, name, areaId, area);
-
-			result.put(id,t);
-		}
-
-		return result;
-	}
-
-	private String nameOf(VisumTable table, int i) {
-		if (table.containsAttribute(name())) {
-			return table.getValue(i, name());
-		}
-		return table.getValue(i, attribute(StandardAttributes.item));
-	}
-
-	private String code(VisumTable table, int i) {
-		String codeLc = attribute(StandardAttributes.codeLc);
-    if (table.containsAttribute(codeLc)) {
-			return table.getValue(i, codeLc);
-		}
-		return "";
-	}
+  private Map<Integer, VisumTerritory> readTerritories(SortedMap<Integer, VisumSurface> polygons) {
+    Stream<Row> rows = loadContentOf(table(Table.territories));
+    return new VisumTerritoryReader(language, polygons).readTerritories(rows);
+  }
 
 }
