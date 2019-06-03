@@ -79,7 +79,7 @@ public class VisumNetworkBuilder {
 		chargingFacilities = new HashMap<>();
 		chargingPoints = new HashMap<>();
 		carSharingStations = new HashMap<>();
-		territories = Collections.emptyMap();
+		territories = new HashMap<>();
 	}
 
 	public VisumNetwork build() {
@@ -163,5 +163,9 @@ public class VisumNetworkBuilder {
     return this;
   }
 
+  public VisumNetworkBuilder with(VisumTerritory territory) {
+    territories.put(territory.id, territory);
+    return this;
+  }
 
 }

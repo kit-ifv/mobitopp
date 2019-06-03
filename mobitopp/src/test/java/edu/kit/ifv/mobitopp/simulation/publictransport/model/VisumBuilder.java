@@ -53,6 +53,10 @@ public class VisumBuilder {
 	public static VisumZoneBuilder visumZone() {
 		return new VisumZoneBuilder();
 	}
+	
+	public static VisumTerritoryBuilder visumTerritory() {
+	  return new VisumTerritoryBuilder();
+	}
 
 	public static VisumPtJourneyBuilder visumJourney() {
 		return new VisumPtJourneyBuilder();

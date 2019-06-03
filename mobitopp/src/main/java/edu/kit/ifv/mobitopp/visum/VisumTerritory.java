@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.visum;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.awt.geom.Area;
 
 import java.io.Serializable;
@@ -39,11 +40,6 @@ public class VisumTerritory
 		return surface.areas();
 	}
 
-	public String toString() {
-
-		return "VisumTerritory(" + id + "," + code + "," + name + "," + surfaceId + "," + surface + ")";
-	}
-
 	public Area intersect(Area area) {
 
 		Area result = new Area();
@@ -61,5 +57,29 @@ public class VisumTerritory
 
 		return result;
 	}
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(code, id, name, surface, surfaceId);
+  }
+
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    VisumTerritory other = (VisumTerritory) obj;
+    return Objects.equals(code, other.code) && id == other.id && Objects.equals(name, other.name)
+        && Objects.equals(surface, other.surface) && surfaceId == other.surfaceId;
+  }
+
+
+  public String toString() {
+    return "VisumTerritory(" + id + "," + code + "," + name + "," + surfaceId + "," + surface + ")";
+  }
 
 }

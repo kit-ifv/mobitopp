@@ -7,8 +7,10 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumNetwork;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumNode;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumSurface;
+import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumTerritory;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumTurn;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumZone;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.joining;
@@ -33,7 +35,7 @@ public class Example {
     VisumTransportSystemSet allSystems = getTransportSystemsFor(bus, walk, car);
     Map<VisumVehicleUnit, Integer> vehicles = singletonMap(
         new VisumVehicleUnit(1, "BUS", "Bus", systems, 0, 0), 1);
-    
+
     VisumPoint point10 = new VisumPoint(933807.5d, 6269827.0d);
     VisumPoint point11 = new VisumPoint(933921.0625d, 6269798.0d);
     VisumPoint point12 = new VisumPoint(934070.0625d, 6269801.0d);
@@ -76,6 +78,15 @@ public class Example {
         .withFreeFlowSpeed(50)
         .with(linkType)
         .build();
+    VisumSurface surface4 = visumSurface()
+        .withId(4)
+        .withFace(visumFace(4)
+            .with(new VisumEdge(10, point10, point11), 0)
+            .with(new VisumEdge(11, point11, point12), 0)
+            .with(new VisumEdge(12, point12, point13), 0)
+            .with(new VisumEdge(13, point13, point10), 0)
+            .build(), 0)
+        .build();
     return visumNetwork()
         .with(bus)
         .with(walk)
@@ -97,15 +108,7 @@ public class Example {
                 .with(new VisumEdge(9, point12, point13), 0)
                 .build(), 0)
             .build())
-        .with(visumSurface()
-            .withId(4)
-            .withFace(visumFace(4)
-                .with(new VisumEdge(10, point10, point11), 0)
-                .with(new VisumEdge(11, point11, point12), 0)
-                .with(new VisumEdge(12, point12, point13), 0)
-                .with(new VisumEdge(13, point13, point10), 0)
-                .build(), 0)
-            .build())
+        .with(surface4)
         .with(node1)
         .with(node2)
         .add(turn1)
@@ -150,7 +153,18 @@ public class Example {
                 .destination()
                 .with(connectorSystems)
                 .build())
+        .with(visumTerritory().withId(1).withCode("").withName("").with(surface4).build())
+        .addCarSharing("Stadtmobil", stadtmobilStations())
+        .addCarSharing("Flinkster", flinksterStations())
         .build();
+  }
+
+  private static Map<Integer, VisumCarSharingStation> flinksterStations() {
+    return emptyMap();
+  }
+
+  private static Map<Integer, VisumCarSharingStation> stadtmobilStations() {
+    return emptyMap();
   }
 
   public static VisumZoneBuilder createZoneBuilder() {
@@ -168,11 +182,15 @@ public class Example {
   }
 
   public static Map<String, Float> carSharingDensities() {
-    return Stream.of("Car2Go", "Stadtmobil", "Flinkster").collect(toMap(Function.identity(), e -> 0.0f));
+    return Stream
+        .of("Car2Go", "Stadtmobil", "Flinkster")
+        .collect(toMap(Function.identity(), e -> 0.0f));
   }
 
   public static VisumTransportSystemSet getTransportSystemsFor(VisumTransportSystem... systems) {
-    Map<String, VisumTransportSystem> set = Arrays.stream(systems).collect(toMap(s -> s.code, Function.identity()));
+    Map<String, VisumTransportSystem> set = Arrays
+        .stream(systems)
+        .collect(toMap(s -> s.code, Function.identity()));
     String code = Arrays.stream(systems).map(s -> s.code).collect(joining(","));
     return VisumTransportSystemSet.getByCode(code, new VisumTransportSystems(set));
   }

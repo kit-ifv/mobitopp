@@ -46,26 +46,29 @@ public class VisumNetworkReaderTest {
             () -> assertThat(loadedNetwork.linkTypes, is(equalTo(network.linkTypes))),
             () -> assertThat(loadedNetwork.links, is(equalTo(network.links))));
     Stream<Executable> assertions = StreamUtils
-        .concat(assertElementVice(loadedNetwork.areas, network.areas),
-            assertElementVice(loadedNetwork.nodes, network.nodes),
-            assertElementVice(loadedNetwork.zones, network.zones),
-            assertElementVice(loadedNetwork.turns, network.turns),
-            assertElementVice(loadedNetwork.connectors, network.connectors),
+        .concat(assertElementVice("areas", loadedNetwork.areas, network.areas),
+            assertElementVice("nodes", loadedNetwork.nodes, network.nodes),
+            assertElementVice("zones", loadedNetwork.zones, network.zones),
+            assertElementVice("turns", loadedNetwork.turns, network.turns),
+            assertElementVice("connectors", loadedNetwork.connectors, network.connectors),
+            assertElementVice("territories", loadedNetwork.territories, network.territories),
+            assertElementVice("carSharingStations", loadedNetwork.carSharingStations, network.carSharingStations),
             complete);
     assertAll(assertions);
   }
 
-  public <K, V> Stream<Executable> assertElementVice(Map<K, V> actual, Map<K, V> expected) {
+  public <K, V> Stream<Executable> assertElementVice(
+      String message, Map<K, V> actual, Map<K, V> expected) {
     return StreamUtils
-        .concat(createAssertElementVice(actual, expected),
-            createAssertElementVice(expected, actual));
+        .concat(createAssertElementVice(message, actual, expected),
+            createAssertElementVice(message, expected, actual));
   }
 
-  public <K, V> Stream<Executable> createAssertElementVice(Map<K, V> some, Map<K, V> other) {
+  public <K, V> Stream<Executable> createAssertElementVice(String message, Map<K, V> some, Map<K, V> other) {
     return other
         .entrySet()
         .stream()
-        .map(e -> () -> assertThat(some.get(e.getKey()), is(equalTo(e.getValue()))));
+        .map(e -> () -> assertThat(message, some.get(e.getKey()), is(equalTo(e.getValue()))));
   }
   
 	private File networkFile() throws URISyntaxException {
