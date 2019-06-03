@@ -6,14 +6,13 @@ import java.util.Objects;
 
 public final class RelativeTime implements Comparable<RelativeTime> {
 
-  static final int secondsPerMinute = 60;
-  static final int minutesPerHour = 60;
-  static final int hoursPerDay = 24;
-  static final int daysPerWeek = 7;
-
-  static final int secondsPerWeek = daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute;
-  static final int secondsPerDay = hoursPerDay * minutesPerHour * secondsPerMinute;
-  static final int secondsPerHour = minutesPerHour * secondsPerMinute;
+  public static final int secondsPerMinute = 60;
+  public static final int minutesPerHour = 60;
+  public static final int hoursPerDay = 24;
+  public static final int daysPerWeek = 7;
+  public static final int secondsPerWeek = daysPerWeek * hoursPerDay * minutesPerHour * secondsPerMinute;
+  public static final int secondsPerDay = hoursPerDay * minutesPerHour * secondsPerMinute;
+  public static final int secondsPerHour = minutesPerHour * secondsPerMinute;
 
   public static final RelativeTime ZERO = RelativeTime.ofSeconds(0);
   public static final RelativeTime INFINITE = RelativeTime.ofDays(100);

@@ -9,17 +9,14 @@ import edu.kit.ifv.mobitopp.time.RelativeTime;
 
 public final class VisumUtils {
 
-  private static final long MINUTES_PER_HOUR = 60;
-  private static final long SECONDS_PER_MINUTE = 60;
-  private static final long SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
   private static final Pattern PATTERN = Pattern
       .compile("(?:([0-9]+)H)?(?:([0-9]+)M(?:in)?)?(?:([0-9]+)(?:[.,]([0-9]{0,20}))?S)?",
           Pattern.CASE_INSENSITIVE);
-  
+
   private VisumUtils() {
     super();
   }
-  
+
   public static RelativeTime parseTime(String time) {
     Objects.requireNonNull(time, "time");
     if (time.isEmpty()) {
@@ -32,9 +29,9 @@ public final class VisumUtils {
       String minuteMatch = matcher.group(2);
       String secondMatch = matcher.group(3);
       if (hourMatch != null || minuteMatch != null || secondMatch != null) {
-        long hoursAsSecs = parseNumber(text, hourMatch, SECONDS_PER_HOUR, "hours");
-        long minsAsSecs = parseNumber(text, minuteMatch, SECONDS_PER_MINUTE, "minutes");
-        long seconds = parseNumber(text, secondMatch, 1, "seconds");
+        int hoursAsSecs = parseNumber(text, hourMatch, RelativeTime.secondsPerHour, "hours");
+        int minsAsSecs = parseNumber(text, minuteMatch, RelativeTime.secondsPerMinute, "minutes");
+        int seconds = parseNumber(text, secondMatch, 1, "seconds");
         try {
           return create(hoursAsSecs, minsAsSecs, seconds);
         } catch (ArithmeticException ex) {
@@ -46,20 +43,23 @@ public final class VisumUtils {
     throw new DateTimeParseException("Text cannot be parsed to a Duration", text, 0);
   }
 
-  private static long parseNumber(String text, String parsed, long multiplier, String errorText) {
- // regex limits to [0-9]+
-    if (parsed == null) {
-        return 0;
+  /**
+   * Parses numbers in the time string. Empty matcher groups are allowed to be <code>null</code>.
+   */
+  private static int parseNumber(String text, String parsed, int multiplier, String errorText) {
+    if (null == parsed) {
+      return 0;
     }
     try {
-        long val = Long.parseLong(parsed);
-        return Math.multiplyExact(val, multiplier);
+      int val = Integer.parseInt(parsed);
+      return Math.multiplyExact(val, multiplier);
     } catch (NumberFormatException | ArithmeticException ex) {
-        throw (DateTimeParseException) new DateTimeParseException("Text cannot be parsed to a Duration: " + errorText, text, 0).initCause(ex);
+      throw (DateTimeParseException) new DateTimeParseException(
+          "Text cannot be parsed to a Duration: " + errorText, text, 0).initCause(ex);
     }
   }
 
-  private static RelativeTime create(long hoursAsSecs, long minsAsSecs, long seconds) {
+  private static RelativeTime create(int hoursAsSecs, int minsAsSecs, int seconds) {
     int duration = Math.toIntExact(Math.addExact(hoursAsSecs, Math.addExact(minsAsSecs, seconds)));
     return RelativeTime.ofSeconds(duration);
   }
