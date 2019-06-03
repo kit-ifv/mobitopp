@@ -11,21 +11,24 @@ public class VisumPtLineRouteBuilder {
 
 	private static final VisumPtLine defaultLine = visumLine().build();
 	private static final String defaultName = "default line route";
+	private static final String defaultId = defaultLine.name + ";" + defaultName;
 	private static final VisumPtLineRouteDirection defaultDirection = VisumPtLineRouteDirection.H;
 
+	private String id;
 	private VisumPtLine line;
 	private String name;
 	private final VisumPtLineRouteDirection direction;
 
 	public VisumPtLineRouteBuilder() {
 		super();
+		id = defaultId;
 		line = defaultLine;
 		name = defaultName;
 		direction = defaultDirection;
 	}
 
 	public VisumPtLineRoute build() {
-		return new VisumPtLineRoute(line, name, direction);
+		return new VisumPtLineRoute(id, line, name, direction);
 	}
 
 	public VisumPtLineRouteBuilder uses(VisumTransportSystem transportSystem) {

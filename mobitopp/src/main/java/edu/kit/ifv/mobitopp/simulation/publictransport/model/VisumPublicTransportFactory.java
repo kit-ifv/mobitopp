@@ -68,7 +68,7 @@ public class VisumPublicTransportFactory implements PublicTransportFactory {
 		VisumPtTimeProfileElement endElement = visumJourney.timeProfile.elements.get(current);
 		List<Point2D> points = new ArrayList<>();
 		for (int index = startElement.lrElemIndex; index <= endElement.lrElemIndex; index++) {
-			points.add(asPoints(visumJourney.route.elements.get(index)));
+			points.add(asPoints(visumJourney.route.getElements().get(index)));
 		}
 		return RoutePoints.from(start, end, points);
 	}

@@ -1,31 +1,41 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.HashMap;
+import static java.util.stream.Collectors.groupingBy;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumVehicleUnitsToCombinationsReader extends VisumBaseReader {
 
-  public VisumVehicleUnitsToCombinationsReader(NetfileLanguage language) {
+  private final Map<Integer, VisumVehicleUnit> vehicleUnits;
+
+  public VisumVehicleUnitsToCombinationsReader(
+      NetfileLanguage language, Map<Integer, VisumVehicleUnit> vehicleUnits) {
     super(language);
+    this.vehicleUnits = vehicleUnits;
   }
 
-  public Map<Integer, Map<Integer, Integer>> readMapping(VisumTable table) {
-    Map<Integer, Map<Integer, Integer>> units2combinations = new HashMap<>();
-    for (int i=0; i<table.numberOfRows(); i++) {
-      Row row = table.getRow(i);
-      Integer combinationId = vehicleCombination(row);
-      Integer unitId = row.valueAsInteger(attribute(StandardAttributes.vehicleUnitNumber));
-      Integer quantity = row.valueAsInteger(attribute(StandardAttributes.numberOfVehicleUnits));
+  public Map<Integer, List<VisumVehicleCombinationUnit>> readMapping(Stream<Row> content) {
+    return content.map(this::create).collect(groupingBy(m -> m.combinationId));
+  }
 
-      if (!units2combinations.containsKey(combinationId)) {
-        units2combinations.put(combinationId, new HashMap<Integer,Integer>());
-      }
+  private VisumVehicleCombinationUnit create(Row row) {
+    int combinationId = vehicleCombination(row);
+    VisumVehicleUnit unit = vehicleUnit(row);
+    int quantity = numberOfVehicleUnits(row);
+    return new VisumVehicleCombinationUnit(combinationId, unit, quantity);
+  }
 
-      units2combinations.get(combinationId).put(unitId,quantity);
-    }
-    return units2combinations;
+  int numberOfVehicleUnits(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.numberOfVehicleUnits));
+  }
+
+  VisumVehicleUnit vehicleUnit(Row row) {
+    int unitId = row.valueAsInteger(attribute(StandardAttributes.vehicleUnitNumber));
+    return vehicleUnits.get(unitId);
   }
 
   private Integer vehicleCombination(Row row) {
