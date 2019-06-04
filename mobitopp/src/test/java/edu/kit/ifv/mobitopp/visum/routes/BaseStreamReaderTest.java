@@ -14,13 +14,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 
-public class StreamReaderTest {
+public class BaseStreamReaderTest {
 
   private CsvBuilder content;
   private String someTable;
@@ -40,24 +43,57 @@ public class StreamReaderTest {
     otherValues = asList("3", "4");
     content = new CsvBuilder(";");
   }
+  
+  static Stream<Function<String, BaseVisumReader>> reader() {
+    return Stream.of(BaseStreamReaderTest::newStreamReader, BaseStreamReaderTest::newCachedReader);
+  }
 
-  @Test
-  void readsSingleTable() throws Exception {
+  private static BaseVisumReader newStreamReader(String content) {
+    return new StreamReader() {
+
+      @Override
+      protected BufferedReader createReader(File routesFile, Charset charset) throws IOException {
+        return newBufferedReader(content);
+      }
+
+    };
+  }
+  
+  private static BaseVisumReader newCachedReader(String content) {
+    return new StreamReader() {
+      
+      @Override
+      protected BufferedReader createReader(File routesFile, Charset charset) throws IOException {
+        return newBufferedReader(content);
+      }
+      
+    };
+  }
+
+  private static BufferedReader newBufferedReader(String content) {
+    return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content.getBytes())));
+  }
+
+  @ParameterizedTest
+  @MethodSource("reader")
+  void readsSingleTable(Function<String, BaseVisumReader> readerFactory) throws Exception {
     addSomeTable();
 
-    BaseVisumReader reader = newReader(content.toString());
+    BaseVisumReader reader = readerFactory.apply(content.toString());
 
     List<Row> rows = reader.read(dummyFile(), someTable).collect(toList());
 
     assertThat(rows, contains(Row.createRow(someValues, someAttributes)));
   }
 
-  @Test
-  void readsMultipleTables() throws Exception {
+
+  @ParameterizedTest
+  @MethodSource("reader")
+  void readsMultipleTables(Function<String, BaseVisumReader> readerFactory) throws Exception {
     addSomeTable();
     addOtherTable();
 
-    BaseVisumReader reader = newReader(content.toString());
+    BaseVisumReader reader = readerFactory.apply(content.toString());
 
     List<Row> someRows = reader.read(dummyFile(), someTable).collect(toList());
     List<Row> otherRows = reader.read(dummyFile(), otherTable).collect(toList());
@@ -66,10 +102,12 @@ public class StreamReaderTest {
     assertThat(otherRows, contains(Row.createRow(otherValues, otherAttributes)));
   }
 
-  @Test
-  void readsMissingTable() throws Exception {
+
+  @ParameterizedTest
+  @MethodSource("reader")
+  void readsMissingTable(Function<String, BaseVisumReader> readerFactory) throws Exception {
     addSomeTable();
-    BaseVisumReader reader = newReader(content.toString());
+    BaseVisumReader reader = readerFactory.apply(content.toString());
 
     List<Row> rows = reader.read(dummyFile(), otherTable).collect(toList());
 
@@ -90,21 +128,6 @@ public class StreamReaderTest {
     content.append(values.get(0));
     content.newLine(values.get(1));
     content.newLine("");
-  }
-
-  private BaseVisumReader newReader(String content) {
-    return new StreamReader() {
-
-      @Override
-      protected BufferedReader createReader(File routesFile, Charset charset) throws IOException {
-        return newBufferedReader(content);
-      }
-
-    };
-  }
-
-  private BufferedReader newBufferedReader(String content) {
-    return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content.getBytes())));
   }
 
   private static File dummyFile() {
