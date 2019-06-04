@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import edu.kit.ifv.mobitopp.visum.TableDescription;
 import edu.kit.ifv.mobitopp.visum.TableDescriptionReader;
 
-public class StreamReader extends BaseVisumReader {
+public class StreamReader extends VisumFileReader {
 
   public StreamReader(String attributeSeparator, Charset charset) {
     super(attributeSeparator, charset);
