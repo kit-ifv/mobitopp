@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import static java.util.Collections.emptyList;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -9,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
@@ -18,9 +14,14 @@ import edu.kit.ifv.mobitopp.visum.routes.BaseVisumReader;
 
 public final class CachedVisumReader extends BaseVisumReader {
 
+  private final Map<String, TableDescription> descriptions;
   private File file;
   private byte[] storedInput;
-  private final Map<String, ContentDescription> descriptions;
+
+  public CachedVisumReader(String attributeSeparator, Charset charset) {
+    super(attributeSeparator, charset);
+    this.descriptions = new HashMap<>();
+  }
 
   public CachedVisumReader() {
     super();
@@ -38,59 +39,21 @@ public final class CachedVisumReader extends BaseVisumReader {
   }
 
   @Override
-  protected ContentDescription getContentDescription(File file, String tableName) throws IOException {
-    if (!descriptions.isEmpty()) {
-      ContentDescription emptyDescription = new ContentDescription(0, 0, emptyList(), attributeSeparator);
-      return descriptions.getOrDefault(tableName, emptyDescription);
-    }
-    cacheDescriptionsFrom(file);
-    return descriptions.get(tableName);
+  protected TableDescription getTableDescription(File file, Charset charset, String tableName)
+      throws IOException {
+    buildUpDescriptionCache(file, charset);
+    return descriptions.getOrDefault(tableName, TableDescriptionReader.emptyDescription);
   }
 
-  private void cacheDescriptionsFrom(File file) throws IOException {
-    int currentLine = 0;
-    long startOfContent = defaultStart;
-    long endOfContent = currentLine;
-    String currentTable = "";
-    List<String> attributes = new LinkedList<>();
-    try (BufferedReader reader = createReader(file, charset())) {
-      while (reader.ready()) {
-        String line = reader.readLine();
-        if (isContentFinished(startOfContent, line)) {
-          endOfContent = currentLine;
-          ContentDescription contentDescription = new ContentDescription(startOfContent, endOfContent, attributes, attributeSeparator);
-          descriptions.put(currentTable, contentDescription);
-          startOfContent = defaultStart;
-          endOfContent = 0;
-          currentLine++;
-          continue;
-        }
-        currentLine++;
-        if (hasNoContent(line)) {
-          continue;
-        }
-  
-        if (isStartOfTable(line)) {
-          attributes = new LinkedList<>();
-          attributes.addAll(tableAttributes(line));
-          startOfContent = currentLine;
-          currentTable = tableName(line);
-        }
-      }
-      if (startOfContent == endOfContent || 0 == endOfContent) {
-        endOfContent = currentLine;
-      }
+  private void buildUpDescriptionCache(File file, Charset charset) throws IOException {
+    if (null == descriptions || descriptions.isEmpty()) {
+      cacheDescriptionsFrom(file, charset);
     }
-    if (defaultStart == startOfContent) {
-      ContentDescription contentDescription = new ContentDescription(0, 0, attributes, attributeSeparator);
-      descriptions.put(currentTable, contentDescription);
-      return;
-    }
-    ContentDescription contentDescription = new ContentDescription(startOfContent, endOfContent, attributes, attributeSeparator);
-    descriptions.put(currentTable, contentDescription);
   }
-  
-  private boolean isStartOfTable(String line) {
-    return line.startsWith("$");
+
+  private void cacheDescriptionsFrom(File file, Charset charset) throws IOException {
+    descriptions
+        .putAll(new TableDescriptionReader(attributeSeparator)
+            .readTables(createReader(file, charset)));
   }
 }
