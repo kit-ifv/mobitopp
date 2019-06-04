@@ -12,13 +12,14 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.visum.routes.BaseVisumReader;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
-import edu.kit.ifv.mobitopp.visum.routes.StreamReader;
 
 public class VisumNetworkReader extends VisumBaseReader {
 
 	static final double alwaysAllowed = 1.0;
 	private File file;
+  private BaseVisumReader visumReader;
 
 
 	public VisumNetworkReader(NetfileLanguage language) {
@@ -38,6 +39,7 @@ public class VisumNetworkReader extends VisumBaseReader {
 
 	public VisumNetwork readNetwork(File file) {
 	this.file = file;
+	visumReader = new CachedVisumReader();
   long startTime = System.currentTimeMillis();
 	long lastCurrentTime = startTime;
 
@@ -184,7 +186,7 @@ System.out.println(" reading territories...");
 	}
 
   Stream<Row> loadContentOf(String tableName) {
-    return new StreamReader().read(file, tableName);
+    return visumReader.read(file, tableName);
   }
 
   private VisumLinkTypes readLinkTypes(VisumTransportSystems allSystems) {
