@@ -1,10 +1,10 @@
 package edu.kit.ifv.mobitopp.visum;
 
-
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,177 +12,147 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReader extends VisumBaseReader {
 
-	static final double alwaysAllowed = 1.0;
-	private File file;
+  static final double alwaysAllowed = 1.0;
+  private final StopWatch stopWatch;
+  private File file;
   private VisumFileReader visumReader;
 
+  public VisumNetworkReader(NetfileLanguage language) {
+    super(language);
+    stopWatch = new StopWatch(LocalDateTime::now);
+  }
 
-	public VisumNetworkReader(NetfileLanguage language) {
-		super(language);
-	}
-	
-	public VisumNetworkReader() {
-	  this(StandardNetfileLanguages.german());
-	}
+  public VisumNetworkReader() {
+    this(StandardNetfileLanguages.german());
+  }
 
-	public VisumNetwork readNetwork(String filename) {
+  public VisumNetwork readNetwork(String filename) {
 
-		File file = new File(filename);
+    File file = new File(filename);
 
-		return readNetwork(file);
-	}
+    return readNetwork(file);
+  }
 
-	public VisumNetwork readNetwork(File file) {
-	this.file = file;
-	visumReader = new CachedVisumReader();
-  long startTime = System.currentTimeMillis();
-	long lastCurrentTime = startTime;
+  public VisumNetwork readNetwork(File file) {
+    stopWatch.start();
+    this.file = file;
+    visumReader = new CachedVisumReader();
 
-System.out.println("reading data...");
-		System.out.println("done");
+    System.out.println("reading tables...");
+    VisumTransportSystems transportSystems = readTransportSystems();
+    finishStep("transport systems");
+    VisumLinkTypes linkTypes = readLinkTypes(transportSystems);
+    finishStep("link types");
 
-	long currentTime = System.currentTimeMillis();
+    System.out.println(" reading nodes...");
+    Map<Integer, VisumNode> nodes = readNodes();
+    finishStep("nodes");
 
-	System.out.println("Reading raw data took " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
+    System.out.println(" reading links...");
+    Map<Integer, VisumLink> links = readLinks(nodes, transportSystems, linkTypes);
+    finishStep("links");
 
-		System.out.println("\n\n\n");
+    System.out.println(" reading turns...");
+    Map<Integer, List<VisumTurn>> turns = readTurns(nodes, transportSystems);
+    finishStep("turns");
 
-System.out.println("reading tables...");
+    System.out.println(" reading zones...");
+    Map<Integer, VisumZone> zones = readZones();
+    finishStep("zones");
 
-	lastCurrentTime = System.currentTimeMillis();
+    System.out.println(" reading connectors...");
+    Map<Integer, List<VisumConnector>> connectors = readConnectors(nodes, zones, transportSystems);
+    finishStep("connectors");
 
-		VisumTransportSystems transportSystems = readTransportSystems();
-		VisumLinkTypes linkTypes = readLinkTypes(transportSystems);
+    System.out.println(" public transport network...");
+    System.out.println(" reading other...");
+    Map<Integer, VisumVehicleUnit> vehicleUnits = readVehicleUnits(transportSystems);
+    finishStep("vehicle units");
+    Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(
+        vehicleUnits);
+    finishStep("vehicle combinations");
 
-System.out.println(" reading nodes...");
-		Map<Integer, VisumNode> nodes = readNodes();
+    System.out.println(" reading stop hierarchy...");
+    Map<Integer, VisumPtStop> ptStops = readPtStations();
+    finishStep("stops");
+    Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(nodes, ptStops);
+    finishStep("stop areas");
+    Map<Integer, VisumPtStopPoint> ptStopPoints = readPtStopPoints(nodes, links, ptStopAreas,
+        transportSystems);
+    finishStep("stop points");
+    Map<StopAreaPair, VisumPtTransferWalkTimes> walkTimes = readTransferWalkTimesMatrix(
+        ptStopAreas);
+    finishStep("walk times");
 
-System.out.println(" reading links...");
-		Map<Integer, VisumLink> links = readLinks(nodes, transportSystems, linkTypes);
+    System.out.println(" reading other...");
+    Map<String, VisumPtLine> ptLines = readPtLines(transportSystems);
+    finishStep("lines");
+    Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(ptLines);
+    finishStep("line routes");
+    readPtLineRouteElements(ptLineRoutes, ptStopPoints, nodes);
 
-System.out.println(" reading turns...");
-		Map<Integer, List<VisumTurn>> turns = readTurns(nodes, transportSystems);
-
-System.out.println(" reading zones...");
-		Map<Integer, VisumZone> zones = readZones();
-
-System.out.println(" reading connectors...");
-		Map<Integer, List<VisumConnector>> connectors = readConnectors(nodes, zones, transportSystems);
-
-	currentTime = System.currentTimeMillis();
-
-	System.out.println("Parsing network data took " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
-
-	lastCurrentTime = currentTime;
-
-System.out.println(" public transport network...");
-System.out.println(" reading other...");
-		Map<Integer, VisumVehicleUnit> vehicleUnits = readVehicleUnits(transportSystems);
-		Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(vehicleUnits);
-
-System.out.println(" reading stop hierarchy...");
-		Map<Integer, VisumPtStop> ptStops = readPtStations();
-		Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(nodes, ptStops);
-		Map<Integer, VisumPtStopPoint> ptStopPoints = readPtStopPoints(nodes, links, ptStopAreas, transportSystems);
-		Map<StopAreaPair, VisumPtTransferWalkTimes> walkTimes = readTransferWalkTimesMatrix(ptStopAreas);
-
-System.out.println(" reading other...");
-		Map<String, VisumPtLine> ptLines = readPtLines(transportSystems);
-		Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(ptLines);
-		readPtLineRouteElements(ptLineRoutes, ptStopPoints, nodes);
-
-System.out.println(" reading other...");
-		Map<String,VisumPtTimeProfile> ptTimeProfiles = readPtTimeProfile(ptLineRoutes);
+    System.out.println(" reading other...");
+    Map<String, VisumPtTimeProfile> ptTimeProfiles = readPtTimeProfile(ptLineRoutes);
+    finishStep("time profiles");
     List<VisumPtVehicleJourney> ptVehicleJourneys = readPtVehicleJourneys(ptLineRoutes,
         ptTimeProfiles, vehicleCombinations);
+    finishStep("vehicle journeys");
 
-	currentTime = System.currentTimeMillis();
+    System.out.println(" reading polygons...");
+    SortedMap<Integer, VisumSurface> areas = readSurfaces();
+    finishStep("surfaces");
 
-	System.out.println("Parsing public transport network data took " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
+    System.out.println(" reading custom data...");
+    Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities();
+    finishStep("charging facilities");
+    Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints();
+    finishStep("charging points");
 
-	lastCurrentTime = currentTime;
-
-System.out.println(" reading polygons...");
-
-		SortedMap<Integer,VisumSurface> areas = readSurfaces();
-
-	currentTime = System.currentTimeMillis();
-
-	System.out.println("Parsing polygons took " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
-
-	lastCurrentTime = currentTime;
-
-System.out.println(" reading custom data...");
-		Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities();
-		Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints();
-
-		Map<Integer, VisumCarSharingStation> carSharingStationsStadtmobil = readCarSharingStadtmobil();
-		Map<Integer, VisumCarSharingStation> carSharingStationsFlinkster = readCarSharingFlinkster();
+    Map<Integer, VisumCarSharingStation> carSharingStationsStadtmobil = readCarSharingStadtmobil();
+    finishStep("car sharing stations stadtmobil");
+    Map<Integer, VisumCarSharingStation> carSharingStationsFlinkster = readCarSharingFlinkster();
+    finishStep("car sharing stations flinkster");
 
     Map<String, Map<Integer, VisumCarSharingStation>> carSharingStations = new HashMap<>();
+    carSharingStations.put("Stadtmobil", Collections.unmodifiableMap(carSharingStationsStadtmobil));
+    carSharingStations.put("Flinkster", Collections.unmodifiableMap(carSharingStationsFlinkster));
+    finishStep("car sharing stations");
 
-		carSharingStations.put("Stadtmobil",  Collections.unmodifiableMap(carSharingStationsStadtmobil));
-		carSharingStations.put("Flinkster",  Collections.unmodifiableMap(carSharingStationsFlinkster));
+    System.out.println(" reading territories...");
+    Map<Integer, VisumTerritory> territories = readTerritories(areas);
+    finishStep("territories");
 
-	currentTime = System.currentTimeMillis();
+    VisumNetwork network = new VisumNetwork(transportSystems, linkTypes, nodes, links, turns, zones,
+        connectors, vehicleCombinations, ptStops, ptStopAreas, ptStopPoints, walkTimes, ptLines,
+        ptLineRoutes, ptTimeProfiles, ptVehicleJourneys, areas, chargingFacilities, chargingPoints,
+        carSharingStations, territories);
 
-	System.out.println("Parsing custom data " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
+    System.gc();
+    finishStep("garbage collection");
+    printRuntimeInformation();
+    return network;
+  }
 
-	lastCurrentTime = currentTime;
+  private void printRuntimeInformation() {
+    stopWatch.forEach((m, d) -> System.out.println(m + " " + d));
+  }
 
-System.out.println(" reading territories...");
-		Map<Integer, VisumTerritory> territories = readTerritories(areas);
+  private void finishStep(String message) {
+    System.out.println(String.format("%s loaded", message));
+    stopWatch.measurePoint(message);
+  }
 
-	currentTime = System.currentTimeMillis();
-
-	System.out.println("Parsing territory data " + ((currentTime-lastCurrentTime) / 1000) + " seconds");
-
-	lastCurrentTime = currentTime;
-
-		System.gc();
-
-
-		VisumNetwork network = new VisumNetwork(
-																	transportSystems,
-																	linkTypes, 
-																	nodes,
-																	links,
-																	turns,
-																	zones,
-																	connectors,
-																	vehicleCombinations,
-																	ptStops,
-																	ptStopAreas,
-																	ptStopPoints,
-																	walkTimes,
-																	ptLines,
-																	ptLineRoutes,
-																	ptTimeProfiles,
-																	ptVehicleJourneys,
-																	areas,
-																	chargingFacilities,
-																	chargingPoints,
-																	carSharingStations,
-																	territories
-														);
-
-		currentTime = System.currentTimeMillis();
-
-		System.out.println("Reading  data took " + ((currentTime-startTime) / 1000) + " seconds");
-
-		return network;
-	}
-
-	private VisumTransportSystems readTransportSystems() {
-	  String tableName = table(Table.transportSystems);
+  private VisumTransportSystems readTransportSystems() {
+    String tableName = table(Table.transportSystems);
     Stream<Row> content = loadContentOf(tableName);
-		VisumTransportSystemReader reader = new VisumTransportSystemReader(language);
-		return reader.readTransportSystems(content);
-	}
+    VisumTransportSystemReader reader = new VisumTransportSystemReader(language);
+    return reader.readTransportSystems(content);
+  }
 
   Stream<Row> loadContentOf(String tableName) {
     return visumReader.read(file, tableName);
@@ -194,26 +164,28 @@ System.out.println(" reading territories...");
     return reader.readLinkTypes(allSystems, rows);
   }
 
-	static int walkSpeed(Row row, NetfileLanguage language) {
-		String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
-		String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
-		if (row.containsAttribute(publicWalkSpeed)) {
-			Integer publicTransport = parseSpeed(row.get(publicWalkSpeed), language);
-			if (row.containsAttribute(individualWalkSpeed)) {
-				Integer individualTransport = parseSpeed(row.get(individualWalkSpeed), language);
-				if (publicTransport.equals(individualTransport)) {
-					return publicTransport;
-				}
-				System.err.println("Different speed values für walk speed in public transport walk type and individual traffic walk type");
-				return 0;
-			}
-			return publicTransport;
-		}
-		if (row.containsAttribute(individualWalkSpeed)) {
-			return parseSpeed(row.get(individualWalkSpeed), language);
-		}
-		return 0;
-	}
+  static int walkSpeed(Row row, NetfileLanguage language) {
+    String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
+    String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
+    if (row.containsAttribute(publicWalkSpeed)) {
+      Integer publicTransport = parseSpeed(row.get(publicWalkSpeed), language);
+      if (row.containsAttribute(individualWalkSpeed)) {
+        Integer individualTransport = parseSpeed(row.get(individualWalkSpeed), language);
+        if (publicTransport.equals(individualTransport)) {
+          return publicTransport;
+        }
+        System.err
+            .println(
+                "Different speed values für walk speed in public transport walk type and individual traffic walk type");
+        return 0;
+      }
+      return publicTransport;
+    }
+    if (row.containsAttribute(individualWalkSpeed)) {
+      return parseSpeed(row.get(individualWalkSpeed), language);
+    }
+    return 0;
+  }
 
   private Map<Integer, VisumNode> readNodes() {
     VisumNodeReader reader = new VisumNodeReader(language);
@@ -230,12 +202,12 @@ System.out.println(" reading territories...");
 
   private Map<Integer, List<VisumTurn>> readTurns(
       Map<Integer, VisumNode> nodes, VisumTransportSystems allSystems) {
-		Stream<Row> content = loadContentOf(table(Table.turns));
+    Stream<Row> content = loadContentOf(table(Table.turns));
     Map<Integer, List<VisumTurn>> data = new VisumTurnsReader(language, nodes, allSystems)
         .readTurns(content);
     assignTurnsToNodes(nodes, data);
-		return data;
-	}
+    return data;
+  }
 
   public void assignTurnsToNodes(
       Map<Integer, VisumNode> nodes, Map<Integer, List<VisumTurn>> data) {
@@ -247,7 +219,7 @@ System.out.println(" reading territories...");
       } else {
         System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
       }
-		}
+    }
   }
 
   Map<Integer, VisumZone> readZones() {
@@ -325,7 +297,8 @@ System.out.println(" reading territories...");
     return result;
   }
 
-  void assignRoutesToLines(Map<String, VisumPtLine> ptLines, Map<String, VisumPtLineRoute> result) {
+  private void assignRoutesToLines(
+      Map<String, VisumPtLine> ptLines, Map<String, VisumPtLineRoute> result) {
     result
         .values()
         .stream()
@@ -335,13 +308,13 @@ System.out.println(" reading territories...");
   }
 
   protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
-		return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
-		                    																						: VisumPtLineRouteDirection.R;
-	}
+    return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
+        : VisumPtLineRouteDirection.R;
+  }
 
-	private boolean isInDirection(String lineRouteDirection) {
-		return "H".equals(lineRouteDirection) || ">".equals(lineRouteDirection);
-	}
+  private boolean isInDirection(String lineRouteDirection) {
+    return "H".equals(lineRouteDirection) || ">".equals(lineRouteDirection);
+  }
 
   private void readPtLineRouteElements(
       Map<String, VisumPtLineRoute> ptLineRoutes, Map<Integer, VisumPtStopPoint> ptStopPoints,
@@ -380,7 +353,7 @@ System.out.println(" reading territories...");
     return new VisumPtVehicleJourneyReader(language, ptLineRoutes, ptTimeProfiles, sections)
         .readJourneys(journeyContent);
   }
-  
+
   private SortedMap<Integer, VisumSurface> readSurfaces() {
     Map<Integer, VisumPoint> points = readPoints();
     Map<Integer, SortedMap<Integer, VisumPoint>> intermediatePoints = readIntermediatePoints();
@@ -414,13 +387,13 @@ System.out.println(" reading territories...");
   }
 
   Map<Integer, VisumChargingFacility> readChargingFacilities() {
-		Stream<Row> content = loadContentOf(poiCategory());
+    Stream<Row> content = loadContentOf(poiCategory());
     POICategories categories = POICategories.from(content);
-		if (categories.containsCode(chargingStations())) {
-			return readChargingStations(categories);
-		}
-		return Collections.emptyMap();
-	}
+    if (categories.containsCode(chargingStations())) {
+      return readChargingStations(categories);
+    }
+    return Collections.emptyMap();
+  }
 
   private Map<Integer, VisumChargingFacility> readChargingStations(POICategories categories) {
     int nr = categories.numberByCode(chargingStations());
