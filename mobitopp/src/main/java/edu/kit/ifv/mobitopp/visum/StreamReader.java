@@ -1,13 +1,10 @@
-package edu.kit.ifv.mobitopp.visum.routes;
+package edu.kit.ifv.mobitopp.visum;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-
-import edu.kit.ifv.mobitopp.visum.TableDescription;
-import edu.kit.ifv.mobitopp.visum.TableDescriptionReader;
 
 public class StreamReader extends VisumFileReader {
 

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.visum.routes.VisumFileReader;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReader extends VisumBaseReader {

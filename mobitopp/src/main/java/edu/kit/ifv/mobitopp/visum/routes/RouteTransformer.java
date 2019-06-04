@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.visum.StreamReader;
+
 /**
  * This class reads the result from a visum route assignment and transforms it into a mapping of
  * {@link OdPair}s and {@link ZoneRoute}s.
