@@ -56,7 +56,6 @@ import edu.kit.ifv.mobitopp.visum.VisumPtStop;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopArea;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopPoint;
 import edu.kit.ifv.mobitopp.visum.VisumPtTransferWalkTimes;
-import edu.kit.ifv.mobitopp.visum.VisumReader;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
 public class PublicTransportFromVisumTest {
@@ -160,8 +159,7 @@ public class PublicTransportFromVisumTest {
 	private static VisumNetwork load(String filename) throws URISyntaxException {
 		File file = new File(
 				PublicTransportFromVisumTest.class.getResource(filename).toURI());
-		VisumReader reader = new VisumReader();
-		VisumNetworkReader networkReader = new VisumNetworkReader(reader);
+		VisumNetworkReader networkReader = new VisumNetworkReader();
 		return networkReader.readNetwork(file);
 	}
 

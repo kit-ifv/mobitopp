@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import edu.kit.ifv.mobitopp.time.RelativeTime;
+
 public class VisumBaseReader {
 
   protected final NetfileLanguage language;
@@ -190,6 +192,14 @@ public class VisumBaseReader {
   protected Integer parseTime(String value) {
     String unit = unit(Unit.time);
   	return Double.valueOf(value.replace(unit,"")).intValue();
+  }
+
+  protected int parseTimeAsSeconds(String timeAsString) {
+    String[] tmp = timeAsString.split(":");
+    int hour   = Integer.valueOf(tmp[0]);
+    int minute = Integer.valueOf(tmp[1]);
+    int second = Integer.valueOf(tmp[2]);
+    return ((hour * RelativeTime.minutesPerHour) + minute) * RelativeTime.secondsPerMinute + second;
   }
 
   protected String travelTimeCarAttribute() {

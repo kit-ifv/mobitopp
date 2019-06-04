@@ -5,26 +5,27 @@ import java.io.Serializable;
 import java.util.Collections;
 
 @SuppressWarnings("serial")
-public class VisumPtTimeProfile 
-	implements Serializable
-{
+public final class VisumPtTimeProfile implements Serializable {
 
+  public final String profileId;
+  public final String name;
+  public final Map<Integer, VisumPtTimeProfileElement> elements;
+  public final VisumPtLineRoute route;
 
-	public String name;
-	public VisumPtLineRoute route;
+  public VisumPtTimeProfile(
+      String profileId, String name, VisumPtLineRoute route,
+      Map<Integer, VisumPtTimeProfileElement> elements) {
+    super();
+    this.profileId = profileId;
+    this.name = name;
+    this.route = route;
+    this.elements = Collections.unmodifiableMap(elements);
+  }
 
-	public Map<Integer,VisumPtTimeProfileElement> elements;
-
-
-	public VisumPtTimeProfile(
-		String name,
-		VisumPtLineRoute route,
-		Map<Integer,VisumPtTimeProfileElement> elements
-	) {
-
-			this.name = name;
-			this.route = route;
-			this.elements = Collections.unmodifiableMap(elements);
-	}
+  @Override
+  public String toString() {
+    return "VisumPtTimeProfile [profileId=" + profileId + ", name=" + name + ", elements="
+        + elements + ", route=" + route + "]";
+  }
 
 }

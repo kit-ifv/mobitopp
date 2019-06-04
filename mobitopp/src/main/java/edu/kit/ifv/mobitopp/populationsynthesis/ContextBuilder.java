@@ -31,8 +31,6 @@ import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
-import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
-import edu.kit.ifv.mobitopp.visum.VisumReader;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 
@@ -134,10 +132,6 @@ public class ContextBuilder {
 
   protected VisumNetwork loadNetwork() {
     return NetworkSerializer.readVisumNetwork(configuration.getVisumFile(), netfileLanguage);
-  }
-
-  protected VisumNetworkReader createNetworkReader(VisumReader reader) {
-    return new VisumNetworkReader(reader);
   }
 
   private void roadNetwork() {

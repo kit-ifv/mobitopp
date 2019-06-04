@@ -37,7 +37,7 @@ public class VisumNetworkReaderTest {
 
   @Test
   void loadsNetwork() throws Exception {
-    VisumNetwork loadedNetwork = new VisumNetworkReader(new VisumReader())
+    VisumNetwork loadedNetwork = new VisumNetworkReader()
         .readNetwork(networkFile());
 
     Stream<Executable> complete = Stream
@@ -240,7 +240,7 @@ public class VisumNetworkReaderTest {
 	}
 	
 	private static VisumNetworkReader reader(Map<String, VisumTable> tables) {
-	  return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german()) {
+	  return new VisumNetworkReader(StandardNetfileLanguages.german()) {
 	    @Override
 	    Stream<Row> loadContentOf(String tableName) {
 	      return tables.get(tableName).rows();
@@ -249,7 +249,7 @@ public class VisumNetworkReaderTest {
 	}
 
 	private static VisumNetworkReader reader(Stream<Row> content) {
-		return new VisumNetworkReader(new VisumReader(), StandardNetfileLanguages.german()) {
+		return new VisumNetworkReader(StandardNetfileLanguages.german()) {
 		  @Override
 		  Stream<Row> loadContentOf(String tableName) {
 		    return content;

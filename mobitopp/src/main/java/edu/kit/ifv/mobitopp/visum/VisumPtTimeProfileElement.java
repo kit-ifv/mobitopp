@@ -13,6 +13,7 @@ public class VisumPtTimeProfileElement
 
 	public final VisumPtLineRoute route;
 
+	public final String profileId;
 	public final String profileName;
 	public final int index;
 	public final int lrElemIndex;
@@ -26,8 +27,10 @@ public class VisumPtTimeProfileElement
 	public final int departure;
 
 
+
 	public VisumPtTimeProfileElement(
 		VisumPtLineRoute route,
+		String profileId,
 		String profileName,
 		int index,
 		int lrElemIndex,
@@ -38,6 +41,7 @@ public class VisumPtTimeProfileElement
 		int departure
 	) {
 		this.route = route;
+		this.profileId = profileId;
 		this.profileName = profileName;
 		this.index = index;
 		this.lrElemIndex = lrElemIndex;
