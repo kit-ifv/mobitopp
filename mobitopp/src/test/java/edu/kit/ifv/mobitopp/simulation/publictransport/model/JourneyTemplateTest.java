@@ -100,11 +100,11 @@ public class JourneyTemplateTest {
 	}
 
 	private static VisumPtTimeProfile timeProfile() {
-		return new VisumPtTimeProfile("name", null, profileElements());
+		return new VisumPtTimeProfile("profileId", "name", null, profileElements());
 	}
 
 	private static Map<Integer, VisumPtTimeProfileElement> profileElements() {
-		int arrival = (int) oneMinute.seconds();
+		int arrival = oneMinute.seconds();
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
 		elements.put(2, profileElement("2", 2, arrival, arrival, stopPoint(2, "2")));
@@ -113,7 +113,7 @@ public class JourneyTemplateTest {
 
 	private static VisumPtTimeProfileElement profileElement(
 			String name, int index, int arrival, int departure, VisumPtStopPoint stopPoint) {
-		return new VisumPtTimeProfileElement(null, name, index, index,
+		return new VisumPtTimeProfileElement(null, "profileId", name, index, index,
 				lineRouteElement(index, stopPoint), false, false, arrival, departure);
 	}
 
@@ -139,14 +139,14 @@ public class JourneyTemplateTest {
 	}
 
 	private static VisumPtTimeProfile timeProfileWithRoutePoints() {
-		return new VisumPtTimeProfile("name", null, profileElementsWithRoutePoint());
+		return new VisumPtTimeProfile("profileId", "name", null, profileElementsWithRoutePoint());
 	}
 
 	private static Map<Integer, VisumPtTimeProfileElement> profileElementsWithRoutePoint() {
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
 		elements.put(2, profileElement("2", 2, 0, 0, null));
-		int arrival = (int) oneMinute.seconds();
+		int arrival = oneMinute.seconds();
 		elements.put(3, profileElement("3", 3, arrival, arrival, stopPoint(3, "3")));
 		return elements;
 	}
@@ -195,15 +195,15 @@ public class JourneyTemplateTest {
 	}
 
 	private VisumPtTimeProfile timeProfileWithStopPointIsTwiceOnRoute() {
-		int arrivalAtFirstStop = (int) oneMinute.seconds();
-		int arrivalAtSecondStop = (int) twoMinutes.seconds();
+		int arrivalAtFirstStop = oneMinute.seconds();
+		int arrivalAtSecondStop = twoMinutes.seconds();
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
 		elements.put(2,
 				profileElement("2", 2, arrivalAtFirstStop, arrivalAtFirstStop, stopPoint(2, "2")));
 		elements.put(3,
 				profileElement("1", 3, arrivalAtSecondStop, arrivalAtSecondStop, stopPoint(1, "1")));
-		return new VisumPtTimeProfile("name", null, elements);
+		return new VisumPtTimeProfile("profileId", "name", null, elements);
 	}
 
 	@Test
@@ -284,15 +284,15 @@ public class JourneyTemplateTest {
 	}
 
 	private VisumPtTimeProfile timeProfileWithThreeStops() {
-		int arrivalAtFirstStop = (int) oneMinute.seconds();
-		int arrivalAtSecondStop = (int) twoMinutes.seconds();
+		int arrivalAtFirstStop = oneMinute.seconds();
+		int arrivalAtSecondStop = twoMinutes.seconds();
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
 		elements.put(2,
 				profileElement("2", 2, arrivalAtFirstStop, arrivalAtFirstStop, stopPoint(2, "2")));
 		elements.put(3,
 				profileElement("3", 3, arrivalAtSecondStop, arrivalAtSecondStop, stopPoint(3, "3")));
-		return new VisumPtTimeProfile("name", null, elements);
+		return new VisumPtTimeProfile("profileId", "name", null, elements);
 	}
 
 	@Test
