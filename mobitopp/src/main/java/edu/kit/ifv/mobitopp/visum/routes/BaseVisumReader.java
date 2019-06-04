@@ -1,0 +1,123 @@
+package edu.kit.ifv.mobitopp.visum.routes;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Stream;
+
+public abstract class BaseVisumReader {
+
+  private static final long defaultStart = Long.MIN_VALUE;
+
+  private static final String defaultAttributeSeparator = ";";
+  private final String attributeSeparator;
+
+  public BaseVisumReader(String attributeSeparator) {
+    super();
+    this.attributeSeparator = attributeSeparator;
+  }
+
+  public BaseVisumReader() {
+    this(defaultAttributeSeparator);
+  }
+
+  public Stream<Row> read(File routesFile, String tableName) {
+    try {
+      return doRead(routesFile, tableName);
+    } catch (IOException cause) {
+      throw new UncheckedIOException(cause);
+    }
+  }
+
+  private Stream<Row> doRead(File routesFile, String tableName) throws IOException {
+    int currentLine = 0;
+    long startOfContent = defaultStart;
+    int endOfContent = currentLine;
+    List<String> attributes = new LinkedList<>();
+    try (BufferedReader reader = createReader(routesFile, charset())) {
+      while (reader.ready()) {
+        String line = reader.readLine();
+        if (isContentFinished(startOfContent, line)) {
+          endOfContent = currentLine;
+          break;
+        }
+        currentLine++;
+        if (hasNoContent(line)) {
+          continue;
+        }
+  
+        if (isStartOfTable(tableName, line)) {
+          attributes.addAll(tableAttributes(line));
+          startOfContent = currentLine;
+        }
+      }
+      if (startOfContent == endOfContent || 0 == endOfContent) {
+        endOfContent = currentLine;
+      }
+    }
+    if (defaultStart == startOfContent) {
+      return Stream.empty();
+    }
+    return parseContent(routesFile, startOfContent, endOfContent, attributes);
+  }
+
+  protected abstract BufferedReader createReader(File routesFile, Charset charset) throws IOException;
+  
+
+  private boolean isStartOfTable(String tableName, String line) {
+    return line.startsWith("$") && tableName.equals(tableName(line));
+  }
+
+  private boolean hasNoContent(String line) {
+    return line.isEmpty() || line.charAt(0) != '$' || !line.contains(":");
+  }
+
+  private boolean isContentFinished(long startOfContent, String line) {
+    return defaultStart != startOfContent && (line.startsWith("$") || line.isEmpty());
+  }
+
+  protected Charset charset() {
+    return Charset.forName("ISO-8859-1");
+  }
+
+  private String tableName(String line) {
+    String[] fields = line.split(":");
+    return fields[0].substring(1);
+  }
+
+  private List<String> tableAttributes(String line) {
+    String[] fields = line.split(":");
+    String[] attributes = fields[1].split(attributeSeparator);
+    return Arrays.asList(attributes);
+  }
+
+  private Stream<Row> parseContent(File routesFile, long startOfContent, int endOfContent, List<String> attributes)
+      throws IOException {
+        return linesOf(routesFile)
+            .skip(startOfContent)
+            .limit(endOfContent - startOfContent)
+            .map(line -> parseLine(line, attributes.size()))
+            .map(line -> Row.createRow(line, attributes));
+      }
+
+  private Stream<String> linesOf(File routesFile) throws IOException {
+    return createReader(routesFile, charset()).lines();
+  }
+
+  private List<String> parseLine(String line, int numFields) {
+    String[] fields = line.split(attributeSeparator);
+    List<String> values = new ArrayList<>(numFields);
+    values.addAll(Arrays.asList(fields));
+    for (int i = values.size(); i < numFields; i++) {
+      values.add("");
+    }
+    return values;
+  }
+
+}

@@ -28,9 +28,25 @@ public class StreamContent {
 	 * Therefore the content is uncompressed into memory.
 	 */
 	private static InputStream uncompressBZip2From(FileInputStream fin) throws IOException {
-		BufferedInputStream in = new BufferedInputStream(fin);
-		BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		return new ByteArrayInputStream(uncompressBytes(fin));
+	}
+
+  static byte[] uncompressBytes(FileInputStream fin) throws IOException {
+    InputStream in = new BufferedInputStream(fin);
+		InputStream bzIn = new BZip2CompressorInputStream(in);
+		return readBytes(bzIn);
+  }
+	
+	public static byte[] readBytes(File file) throws IOException {
+	  FileInputStream fileInput = new FileInputStream(file);
+    if (file.getName().endsWith(bzipExtension)) {
+      return uncompressBytes(fileInput);
+    }
+    return readBytes(fileInput);
+	}
+
+  public static byte[] readBytes(InputStream bzIn) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
 		final byte[] buffer = new byte[1024];
 		int n = 0;
 		while (-1 != (n = bzIn.read(buffer))) {
@@ -38,6 +54,6 @@ public class StreamContent {
 		}
 		out.close();
 		bzIn.close();
-		return new ByteArrayInputStream(out.toByteArray());
-	}
+		return out.toByteArray();
+  }
 }

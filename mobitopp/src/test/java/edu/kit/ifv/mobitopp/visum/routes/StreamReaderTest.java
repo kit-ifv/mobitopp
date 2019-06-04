@@ -12,8 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class StreamReaderTest {
   private String otherTable;
   private List<String> otherAttributes;
   private List<String> otherValues;
-  
+
   @BeforeEach
   public void initialise() {
     someTable = "some-table";
@@ -44,66 +44,62 @@ public class StreamReaderTest {
   @Test
   void readsSingleTable() throws Exception {
     addSomeTable();
-    
-    StreamReader reader = newReader(content.toString());
+
+    BaseVisumReader reader = newReader(content.toString());
 
     List<Row> rows = reader.read(dummyFile(), someTable).collect(toList());
 
     assertThat(rows, contains(Row.createRow(someValues, someAttributes)));
   }
-  
+
   @Test
   void readsMultipleTables() throws Exception {
     addSomeTable();
     addOtherTable();
-    
-    StreamReader reader = newReader(content.toString());
-    
+
+    BaseVisumReader reader = newReader(content.toString());
+
     List<Row> someRows = reader.read(dummyFile(), someTable).collect(toList());
     List<Row> otherRows = reader.read(dummyFile(), otherTable).collect(toList());
-    
+
     assertThat(someRows, contains(Row.createRow(someValues, someAttributes)));
     assertThat(otherRows, contains(Row.createRow(otherValues, otherAttributes)));
   }
-  
+
   @Test
   void readsMissingTable() throws Exception {
     addSomeTable();
-    StreamReader reader = newReader(content.toString());
-    
+    BaseVisumReader reader = newReader(content.toString());
+
     List<Row> rows = reader.read(dummyFile(), otherTable).collect(toList());
-    
+
     assertThat(rows, is(empty()));
   }
 
   private void addOtherTable() {
     addTable(otherTable, otherValues, otherAttributes);
   }
-  
+
   private void addSomeTable() {
     addTable(someTable, someValues, someAttributes);
   }
 
   private void addTable(String tableName, List<String> values, List<String> attributes) {
-    content.append("$" + tableName + ":" +attributes.get(0));
+    content.append("$" + tableName + ":" + attributes.get(0));
     content.newLine(attributes.get(1));
     content.append(values.get(0));
     content.newLine(values.get(1));
     content.newLine("");
   }
-  
-  private StreamReader newReader(String content) {
+
+  private BaseVisumReader newReader(String content) {
     return new StreamReader() {
 
       @Override
-      BufferedReader createReader(File routesFile) throws IOException {
+      protected BufferedReader createReader(File routesFile, Charset charset) throws IOException {
         return newBufferedReader(content);
       }
 
-      @Override
-      Stream<String> linesOf(File routesFile) throws IOException {
-        return newBufferedReader(content).lines();
-      }
     };
   }
 
