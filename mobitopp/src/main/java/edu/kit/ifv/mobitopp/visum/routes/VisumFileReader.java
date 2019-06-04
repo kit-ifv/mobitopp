@@ -10,19 +10,19 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.visum.TableDescription;
 import edu.kit.ifv.mobitopp.visum.TableDescriptionReader;
 
-public abstract class BaseVisumReader {
+public abstract class VisumFileReader {
 
   private static final Charset defaultCharset = Charset.forName("ISO-8859-1");
   protected final String attributeSeparator;
   private final Charset charset;
 
-  public BaseVisumReader(String attributeSeparator, Charset charset) {
+  public VisumFileReader(String attributeSeparator, Charset charset) {
     super();
     this.attributeSeparator = attributeSeparator;
     this.charset = charset;
   }
 
-  public BaseVisumReader() {
+  public VisumFileReader() {
     this(TableDescriptionReader.defaultAttributeSeparator, defaultCharset);
   }
 

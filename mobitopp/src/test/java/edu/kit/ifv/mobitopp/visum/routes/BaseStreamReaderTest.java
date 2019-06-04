@@ -43,10 +43,10 @@ public class BaseStreamReaderTest {
 
   @ParameterizedTest
   @MethodSource("reader")
-  void readsSingleTable(Function<String, BaseVisumReader> readerFactory) throws Exception {
+  void readsSingleTable(Function<String, VisumFileReader> readerFactory) throws Exception {
     testTables.addSomeTable();
 
-    BaseVisumReader reader = readerFactory.apply(testTables.toString());
+    VisumFileReader reader = readerFactory.apply(testTables.toString());
 
     List<Row> rows = reader.read(dummyFile(), someTable).collect(toList());
 
@@ -55,11 +55,11 @@ public class BaseStreamReaderTest {
 
   @ParameterizedTest
   @MethodSource("reader")
-  void readsMultipleTables(Function<String, BaseVisumReader> readerFactory) throws Exception {
+  void readsMultipleTables(Function<String, VisumFileReader> readerFactory) throws Exception {
     testTables.addSomeTable();
     testTables.addOtherTable();
 
-    BaseVisumReader reader = readerFactory.apply(testTables.toString());
+    VisumFileReader reader = readerFactory.apply(testTables.toString());
 
     List<Row> someRows = reader.read(dummyFile(), someTable).collect(toList());
     List<Row> otherRows = reader.read(dummyFile(), otherTable).collect(toList());
@@ -70,9 +70,9 @@ public class BaseStreamReaderTest {
 
   @ParameterizedTest
   @MethodSource("reader")
-  void readsMissingTable(Function<String, BaseVisumReader> readerFactory) throws Exception {
+  void readsMissingTable(Function<String, VisumFileReader> readerFactory) throws Exception {
     testTables.addSomeTable();
-    BaseVisumReader reader = readerFactory.apply(testTables.toString());
+    VisumFileReader reader = readerFactory.apply(testTables.toString());
 
     List<Row> rows = reader.read(dummyFile(), otherTable).collect(toList());
 
@@ -83,11 +83,11 @@ public class BaseStreamReaderTest {
     return new File("");
   }
 
-  static Stream<Function<String, BaseVisumReader>> reader() {
+  static Stream<Function<String, VisumFileReader>> reader() {
     return Stream.of(BaseStreamReaderTest::newStreamReader, BaseStreamReaderTest::newCachedReader);
   }
 
-  private static BaseVisumReader newStreamReader(String content) {
+  private static VisumFileReader newStreamReader(String content) {
     return new StreamReader() {
 
       @Override
@@ -98,7 +98,7 @@ public class BaseStreamReaderTest {
     };
   }
 
-  private static BaseVisumReader newCachedReader(String content) {
+  private static VisumFileReader newCachedReader(String content) {
     return new StreamReader() {
 
       @Override
