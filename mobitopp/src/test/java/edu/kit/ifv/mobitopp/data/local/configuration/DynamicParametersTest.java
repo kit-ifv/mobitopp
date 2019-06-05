@@ -4,17 +4,19 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DynamicParametersTest {
 
-	private static final String valueKey = "value";
+	private static final String missingItem = "not existing";
+  private static final String valueKey = "value";
 	private static final double withinMargin = 1e-6;
 
 	@Test
@@ -68,12 +70,21 @@ public class DynamicParametersTest {
 		assertThat(value, is(equalTo(expected)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void nonExistingParameter() throws IOException {
 		DynamicParameters parameters = new DynamicParameters(Collections.emptyMap());
 
-		parameters.value("not existing");
+		assertThrows(IllegalArgumentException.class, () -> parameters.value(missingItem));
 	}
+	
+	@Test
+  void testName() throws Exception {
+	  String expectedValue = "attribute";
+    DynamicParameters parameters = configurationFor(expectedValue);
+    
+    assertAll(() -> assertTrue(parameters.hasValue(valueKey)),
+        () -> assertFalse(parameters.hasValue(missingItem)));
+  }
 
 	private DynamicParameters configurationFor(Object expectedValue) {
 		Map<String, String> parameters = Collections.singletonMap(valueKey,

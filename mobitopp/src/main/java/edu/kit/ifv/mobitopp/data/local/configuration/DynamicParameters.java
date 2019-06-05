@@ -14,7 +14,7 @@ public class DynamicParameters {
 		super();
 		this.parameters = parameters;
 	}
-
+	
 	public int valueAsInteger(String parameter) {
 		return Integer.parseInt(value(parameter));
 	}
@@ -25,10 +25,14 @@ public class DynamicParameters {
 	}
 
 	private void verifyExisting(String parameter) {
-		if (!parameters.containsKey(parameter)) {
+		if (!hasValue(parameter)) {
 			throw new IllegalArgumentException("Dynamic parameter missing: " + parameter + " containing: " + parameters.toString());
 		}
 	}
+
+  public boolean hasValue(String parameter) {
+    return parameters.containsKey(parameter);
+  }
 
 	public double valueAsDouble(String parameter) {
 		return Double.parseDouble(value(parameter));
