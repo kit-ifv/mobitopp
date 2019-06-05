@@ -35,7 +35,7 @@ public class VisumPtLineRouteElementReader extends VisumBaseReader {
 
   private VisumPtLineRouteElement createElement(Row row) {
     VisumPtLineRoute route = lineRouteOf(row);
-    int index = row.valueAsInteger(index());
+    int index = indexOf(row);
     boolean isRoutePoint = row.get(attribute(StandardAttributes.isRoutePoint)).equals("1");
     VisumNode node = nodeOf(row);
     VisumPtStopPoint stopPoint = stopPointOf(row);
@@ -54,12 +54,7 @@ public class VisumPtLineRouteElementReader extends VisumBaseReader {
   }
 
   private VisumPtLineRoute lineRouteOf(Row row) {
-    String lineName = row.get(lineName());
-    String lineRouteName = row.get(lineRouteName());
-    String lineRouteDirection = row.get(directionCode());
-
-    String id = lineName + ";" + lineRouteName + ";" + lineRouteDirection;
-    return ptLineRoutes.get(id);
+    return ptLineRoutes.get(lineRouteIdOf(row));
   }
 
 }

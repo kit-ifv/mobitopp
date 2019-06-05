@@ -27,26 +27,19 @@ public class VisumPtTimeProfileElementReader extends VisumBaseReader {
   }
 
   private VisumPtTimeProfileElement createElement(Row row) {
-    String profileName = row.get(timeProfileName());
-    String lineId = lineIdOf(row);
-    String profileId = lineId + ";" + profileName;
+    String profileName = profileNameOf(row);
+    String lineId = lineRouteIdOf(row);
+    String profileId = profileIdOf(row);
     VisumPtLineRoute route = ptLineRoutes.get(lineId);
-    int index = row.valueAsInteger(index());
+    int index = indexOf(row);
     int lrelemindex = row.valueAsInteger(attribute(StandardAttributes.lineRouteElementIndex));
     boolean leave = row.get(attribute(StandardAttributes.getOff)).equals("1");
     boolean enter = row.get(attribute(StandardAttributes.board)).equals("1");
     int arrival = parseTimeAsSeconds(row.get(attribute(StandardAttributes.arrival)));
-    int departure = parseTimeAsSeconds(row.get(departure()));
+    int departure = departureOf(row);
     VisumPtLineRouteElement lineRouteElement = route.getElements().get(lrelemindex);
     return new VisumPtTimeProfileElement(route, profileId, profileName, index, lrelemindex,
         lineRouteElement, leave, enter, arrival, departure);
-  }
-
-  private String lineIdOf(Row row) {
-    String lineName = row.get(lineName());
-    String lineRouteName = row.get(lineRouteName());
-    String lineRouteDirection = row.get(directionCode());
-    return lineName + ";" + lineRouteName + ";" + lineRouteDirection;
   }
 
 }

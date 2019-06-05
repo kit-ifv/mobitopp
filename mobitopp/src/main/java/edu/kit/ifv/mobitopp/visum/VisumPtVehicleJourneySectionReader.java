@@ -23,22 +23,14 @@ public class VisumPtVehicleJourneySectionReader extends VisumBaseReader {
   }
 
   VisumPtVehicleJourneySection createSection(Row row) {
-    int number = row.valueAsInteger(number());
+    int number = numberOf(row);
     int journeyId = row.valueAsInteger(attribute(StandardAttributes.vehicleJourneyNumber));
-    int fromIndex = row.valueAsInteger(fromTimeProfileElementIndex());
-    int toIndex = row.valueAsInteger(toTimeProfileElementIndex());
+    int fromIndex = fromTimeProfileElementIndexOf(row);
+    int toIndex = toTimeProfileElementIndexOf(row);
     int day = row.valueAsInteger(attribute(StandardAttributes.vehicleDayNumber));
-    int vehicleCombinationId = vehicleCombination(row);
+    int vehicleCombinationId = vehicleCombinationOf(row);
     VisumVehicleCombination vehicleCombination = vehicleCombinations.get(vehicleCombinationId);
     return new VisumPtVehicleJourneySection(number, journeyId, fromIndex, toIndex, day,
         vehicleCombination);
-  }
-
-  private Integer vehicleCombination(Row row) {
-    String combination = row.get(vehicleCombinationNumber());
-    if (combination.isEmpty()) {
-      return 0;
-    }
-    return Integer.valueOf(combination);
   }
 }

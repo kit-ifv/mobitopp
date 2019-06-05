@@ -14,25 +14,21 @@ public class VisumNodeReader extends VisumBaseReader {
   }
 
   public Map<Integer, VisumNode> readNodes(Stream<Row> rows) {
-    return rows.collect(toMap(this::idOf, this::nodeOf));
-  }
-
-  public int idOf(Row row) {
-    return row.valueAsInteger(number());
+    return rows.collect(toMap(this::numberOf, this::nodeOf));
   }
 
   private VisumNode nodeOf(Row row) {
-    Integer id = idOf(row);
-    String name = row.get(name());
-    int type = row.valueAsInteger(typeNumber());
-    float xCoord = row.valueAsFloat(xCoord());
-    float yCoord = row.valueAsFloat(yCoord());
-    float zCoord = row.valueAsFloat(zCoord());
+    Integer id = numberOf(row);
+    String name = nameOf(row);
+    int type = typeNumberOf(row);
+    float xCoord = xCoordOf(row);
+    float yCoord = yCoordOf(row);
+    float zCoord = zCoordOf(row);
     return new VisumNode(id, name, type, xCoord, yCoord, zCoord);
   }
 
-  private String zCoord() {
-    return attribute(StandardAttributes.zCoord);
+  private float zCoordOf(Row row) {
+    return row.valueAsFloat(attribute(StandardAttributes.zCoord));
   }
 
 }

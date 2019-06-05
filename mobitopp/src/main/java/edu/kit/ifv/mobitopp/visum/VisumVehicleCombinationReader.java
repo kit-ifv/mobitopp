@@ -25,9 +25,9 @@ public class VisumVehicleCombinationReader extends VisumBaseReader {
   }
 
   VisumVehicleCombination createCombination(Row row) {
-    int id = row.valueAsInteger(number());
-    String code = row.get(code());
-    String name = row.get(name());
+    int id = numberOf(row);
+    String code = codeOf(row);
+    String name = nameOf(row);
     Map<VisumVehicleUnit, Integer> units = units(id);
     return new VisumVehicleCombination(id, code, name, units);
   }

@@ -24,28 +24,28 @@ public class VisumZoneReader extends VisumBaseReader {
   }
 
   private VisumZone zoneWithChargingStations(Row row) {
-    int id = row.valueAsInteger(number());
-    String name = row.get(name());
+    int id = numberOf(row);
+    String name = nameOf(row);
     int mainZoneId = row.valueAsInteger(attribute(StandardAttributes.mainZoneNumber));
-    int type = row.valueAsInteger(typeNumber());
-    int parkingPlaces = parkingPlaces(row);
-    float coord_x = row.valueAsFloat(xCoord());
-    float coord_y = row.valueAsFloat(yCoord());
-    int areaId = row.valueAsInteger(areaId());
-    int chargingFacilities = chargingFacilities(row);
-    int freeFloatingCarSharingArea = car2GoGebiet(row);
+    int type = typeNumberOf(row);
+    int parkingPlaces = parkingPlacesOf(row);
+    float coord_x = xCoordOf(row);
+    float coord_y = yCoordOf(row);
+    int areaId = areaIdOf(row);
+    int chargingFacilities = chargingFacilitiesOf(row);
+    int freeFloatingCarSharingArea = car2GoGebietOf(row);
     String freeFloatingCarSharingCompany = 1 == freeFloatingCarSharingArea ? "Car2Go" : "";
-    int freeFloatingCarSharingCars = floatingCarNumber(row);
-    double privateChargingProbability = privateChargingProbability(row);
-    Map<String, Float> carsharingcarDensities = carSharingDensities(row);
-    float innerZonePublicTransport = innerZonePublicTransportTime(row);
+    int freeFloatingCarSharingCars = floatingCarNumberOf(row);
+    double privateChargingProbability = privateChargingProbabilityOf(row);
+    Map<String, Float> carsharingcarDensities = carSharingDensitiesOf(row);
+    float innerZonePublicTransport = innerZonePublicTransportTimeOf(row);
     return new VisumZone(id, name, mainZoneId, type, parkingPlaces, coord_x, coord_y, areaId,
         chargingFacilities, freeFloatingCarSharingCompany, freeFloatingCarSharingArea,
         freeFloatingCarSharingCars, privateChargingProbability, carsharingcarDensities,
         innerZonePublicTransport);
   }
 
-  private int parkingPlaces(Row row) {
+  private int parkingPlacesOf(Row row) {
     String attribute = attribute(StandardAttributes.parkingPlaces);
     if (row.containsAttribute(attribute)) {
       String value = row.get(attribute);
@@ -57,7 +57,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return 0;
   }
 
-  private float innerZonePublicTransportTime(Row row) {
+  private float innerZonePublicTransportTimeOf(Row row) {
     String diagPt = attribute(StandardAttributes.innerZonePublicTransportTravelTime);
     if (row.containsAttribute(diagPt)) {
       return row.valueAsFloat(diagPt);
@@ -67,7 +67,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return 0.0f;
   }
 
-  private Map<String, Float> carSharingDensities(Row row) {
+  private Map<String, Float> carSharingDensitiesOf(Row row) {
     Map<String, Float> carsharingcarDensities = new HashMap<>();
     String fzFlSm = attribute(StandardAttributes.carSharingDensityStadtmobil);
     String fzFlFl = attribute(StandardAttributes.carSharingDensityFlinkster);
@@ -81,7 +81,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return carsharingcarDensities;
   }
 
-  private int floatingCarNumber(Row row) {
+  private int floatingCarNumberOf(Row row) {
     String car2GoStartState = attribute(StandardAttributes.car2GoStartState);
     if (row.containsAttribute(car2GoStartState)) {
       String floatingCarNumber = row.get(car2GoStartState);
@@ -90,7 +90,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return 0;
   }
 
-  private int car2GoGebiet(Row row) {
+  private int car2GoGebietOf(Row row) {
     String car2GoTerritory = attribute(StandardAttributes.car2GoTerritory);
     if (row.containsAttribute(car2GoTerritory)) {
       String floatingCarArea = row.get(car2GoTerritory);
@@ -99,7 +99,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return 0;
   }
 
-  private int chargingFacilities(Row row) {
+  private int chargingFacilitiesOf(Row row) {
     String chargingStations = attribute(StandardAttributes.chargingStations);
     if (row.containsAttribute(chargingStations)) {
       return row.valueAsInteger(chargingStations);
@@ -107,7 +107,7 @@ public class VisumZoneReader extends VisumBaseReader {
     return 0;
   }
 
-  private double privateChargingProbability(Row row) {
+  private double privateChargingProbabilityOf(Row row) {
     String privateChargingProbability = attribute(StandardAttributes.privateChargingProbability);
     if (row.containsAttribute(privateChargingProbability)) {
       String anteilSte = row.get(privateChargingProbability);

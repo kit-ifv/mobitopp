@@ -24,8 +24,8 @@ public class VisumIntermediatePointReader extends VisumBaseReader {
   }
 
   public void read(Row row) {
-    int edgeId = edgeId(row);
-    int index =  index(row);
+    int edgeId = edgeIdOf(row);
+    int index =  indexOf(row);
     VisumPoint point = createPoint(row);
     if (!result.containsKey(edgeId)) {
       result.put(edgeId, new TreeMap<>());
@@ -33,17 +33,9 @@ public class VisumIntermediatePointReader extends VisumBaseReader {
     result.get(edgeId).put(index,point);
   }
 
-  public int edgeId(Row row) {
-    return row.valueAsInteger(edgeId());
-  }
-
-  public int index(Row row) {
-    return row.valueAsInteger(index());
-  }
-
   public VisumPoint createPoint(Row row) {
-    float x = row.valueAsFloat(xCoord());
-    float y = row.valueAsFloat(yCoord());
+    float x = xCoordOf(row);
+    float y = yCoordOf(row);
     return new VisumPoint(x,y);
   }
 

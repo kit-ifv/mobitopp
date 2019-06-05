@@ -23,22 +23,13 @@ public class VisumTerritoryReader extends VisumBaseReader {
     return content.map(this::createTerritory).collect(toMap(t -> t.id, Function.identity()));
   }
 
-  VisumTerritory createTerritory(Row row) {
-    int id = row.valueAsInteger(number());
+  private VisumTerritory createTerritory(Row row) {
+    int id = numberOf(row);
     String code = code(row);
     String name = nameOf(row);
-    int areaId = row.valueAsInteger(areaId());
+    int areaId = areaIdOf(row);
     VisumSurface area = polygons.get(areaId);
-
-    VisumTerritory t = new VisumTerritory(id, code, name, areaId, area);
-    return t;
-  }
-
-  private String nameOf(Row row) {
-    if (row.containsAttribute(name())) {
-      return row.get(name());
-    }
-    return row.get(attribute(StandardAttributes.item));
+    return new VisumTerritory(id, code, name, areaId, area);
   }
 
   private String code(Row row) {

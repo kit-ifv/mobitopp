@@ -12,7 +12,7 @@ public class VisumConnectorReader extends VisumBaseReader {
 
   private final Map<Integer, VisumNode> nodes;
   private final Map<Integer, VisumZone> zones;
-  private final VisumTransportSystems allSystems;
+  final VisumTransportSystems allSystems;
 
   public VisumConnectorReader(
       NetfileLanguage language, Map<Integer, VisumNode> nodes, Map<Integer, VisumZone> zones,
@@ -29,17 +29,27 @@ public class VisumConnectorReader extends VisumBaseReader {
 
   public VisumConnector createConnector(Row row) {
     VisumZone zone = zones.get(row.valueAsInteger(attribute(StandardAttributes.zoneNumber)));
-    VisumNode node = nodes.get(row.valueAsInteger(nodeNumber()));
+    VisumNode node = nodes.get(nodeNumberOf(row));
 
-    String transportSystems = row.get(transportSystemsSet());
-    VisumTransportSystemSet systemSet = VisumTransportSystemSet
-        .getByCode(transportSystems, allSystems);
-    String direction = row.get(direction());
-    int type = row.valueAsInteger(typeNumber());
-    float distance = parseDistance(row.get(length()));
-    int travelTimeInSeconds = parseTime(row.get(travelTimeCarAttribute()));
+    VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
+    String direction = directionOf(row);
+    int type = typeNumberOf(row);
+    float distance = lengthOf(row);
+    int travelTimeInSeconds = travelTimeCarOf(row);
     return new VisumConnector(zone, node, direction, type, systemSet, distance,
         travelTimeInSeconds);
+  }
+
+  private Integer travelTimeCarOf(Row row) {
+    return parseTime(row.get(travelTimeCarAttribute()));
+  }
+
+  private String travelTimeCarAttribute() {
+    return attribute(StandardAttributes.travelTimeCar);
+  }
+
+  private String directionOf(Row row) {
+    return row.get(direction());
   }
 
 }

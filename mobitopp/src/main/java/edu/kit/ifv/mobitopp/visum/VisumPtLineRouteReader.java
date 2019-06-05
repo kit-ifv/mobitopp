@@ -26,13 +26,21 @@ public class VisumPtLineRouteReader extends VisumBaseReader {
   }
 
   private VisumPtLineRoute createLineRoute(Row row) {
-    String lineName = row.get(lineName());
-    String lineRouteName = row.get(name());
-    String lineRouteDirection = row.get(directionCode());
+    String lineName = lineNameOf(row);
+    String lineRouteName = nameOf(row);
+    String lineRouteDirection = directionCodeOf(row);
     String id = lineName + ";" + lineRouteName + ";" + lineRouteDirection;
     VisumPtLineRouteDirection direction = converter.apply(lineRouteDirection);
     VisumPtLine line = ptLines.get(lineName);
     return new VisumPtLineRoute(id, line, lineRouteName, direction);
+  }
+
+  private String directionCodeOf(Row row) {
+    return row.get(directionCode());
+  }
+
+  private String lineNameOf(Row row) {
+    return row.get(lineName());
   }
 
 }

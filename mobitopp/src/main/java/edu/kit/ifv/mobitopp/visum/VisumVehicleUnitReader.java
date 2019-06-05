@@ -22,12 +22,10 @@ public class VisumVehicleUnitReader extends VisumBaseReader {
   }
 
   VisumVehicleUnit createUnit(Row row) {
-    int id = row.valueAsInteger(number());
-    String transportSystems = row.get(transportSystemsSet());
-    VisumTransportSystemSet systemSet = VisumTransportSystemSet
-        .getByCode(transportSystems, allSystems);
-    String code = row.get(code());
-    String name = row.get(name());
+    int id = numberOf(row);
+    VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
+    String code = codeOf(row);
+    String name = nameOf(row);
     Integer capacity = row.valueAsInteger(attribute(StandardAttributes.vehicleCapacity));
     int seats = row.valueAsInteger(attribute(StandardAttributes.seats));
     return new VisumVehicleUnit(id, code, name, systemSet, capacity, seats);
