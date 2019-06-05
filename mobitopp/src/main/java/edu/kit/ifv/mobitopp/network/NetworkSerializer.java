@@ -9,8 +9,8 @@ import java.io.ObjectOutputStream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
-import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
 
 public class NetworkSerializer {
 

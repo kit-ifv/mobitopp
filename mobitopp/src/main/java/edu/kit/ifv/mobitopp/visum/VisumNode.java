@@ -40,7 +40,7 @@ public class VisumNode
 		return coord.asPoint2D();
 	}
 
-	protected void setTurns(List<VisumTurn> turns) {
+	public void setTurns(List<VisumTurn> turns) {
 		this.turns = Collections.unmodifiableList(turns);
 	}
 
