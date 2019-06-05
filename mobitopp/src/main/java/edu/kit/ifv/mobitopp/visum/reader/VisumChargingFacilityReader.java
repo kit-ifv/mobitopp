@@ -21,7 +21,7 @@ public class VisumChargingFacilityReader extends VisumBaseReader {
     return content.map(this::createChargingFacility).collect(toMap(c -> c.id, Function.identity()));
   }
 
-  public VisumChargingFacility createChargingFacility(Row row) {
+  private VisumChargingFacility createChargingFacility(Row row) {
     int id = row.valueAsInteger(attribute(StandardAttributes.lsId));
     double latitude = row.valueAsDouble(attribute(StandardAttributes.latitude));
     double longitude = row.valueAsDouble(attribute(StandardAttributes.longitude));

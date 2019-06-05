@@ -26,7 +26,7 @@ public class VisumPtVehicleJourneySectionReader extends VisumBaseReader {
     return content.map(this::createSection).collect(groupingBy(s -> s.journeyId));
   }
 
-  VisumPtVehicleJourneySection createSection(Row row) {
+  private VisumPtVehicleJourneySection createSection(Row row) {
     int number = numberOf(row);
     int journeyId = row.valueAsInteger(attribute(StandardAttributes.vehicleJourneyNumber));
     int fromIndex = fromTimeProfileElementIndexOf(row);

@@ -49,12 +49,12 @@ public class VisumPtLineRouteElementReader extends VisumBaseReader {
     return new VisumPtLineRouteElement(route, index, isRoutePoint, node, stopPoint, distance);
   }
 
-  VisumNode nodeOf(Row row) {
+  private VisumNode nodeOf(Row row) {
     String knotNr = row.get(nodeNumber());
     return knotNr.isEmpty() ? null : nodes.get(Integer.valueOf(knotNr));
   }
 
-  VisumPtStopPoint stopPointOf(Row row) {
+  private VisumPtStopPoint stopPointOf(Row row) {
     String hpunktNr = row.get(attribute(StandardAttributes.stopNumber));
     return hpunktNr.isEmpty() ? null : ptStopPoints.get(Integer.valueOf(hpunktNr));
   }

@@ -33,7 +33,7 @@ public class VisumEdgeReader extends VisumBaseReader {
     return content.map(this::createEdge).collect(toMap(e -> e.id, Function.identity()));
   }
 
-  public VisumEdge createEdge(Row row) {
+  private VisumEdge createEdge(Row row) {
     int edgeId = idOf(row);
     int fromId = row.valueAsInteger(attribute(StandardAttributes.fromPointId));
     int toId = row.valueAsInteger(attribute(StandardAttributes.toPointId));

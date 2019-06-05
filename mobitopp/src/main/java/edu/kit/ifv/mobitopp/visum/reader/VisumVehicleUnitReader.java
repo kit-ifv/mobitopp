@@ -26,7 +26,7 @@ public class VisumVehicleUnitReader extends VisumBaseReader {
     return content.map(this::createUnit).collect(toMap(u -> u.id, Function.identity()));
   }
 
-  VisumVehicleUnit createUnit(Row row) {
+  private VisumVehicleUnit createUnit(Row row) {
     int id = numberOf(row);
     VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
     String code = codeOf(row);

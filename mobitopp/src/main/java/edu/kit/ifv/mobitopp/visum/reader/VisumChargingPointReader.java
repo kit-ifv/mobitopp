@@ -42,7 +42,7 @@ public class VisumChargingPointReader extends VisumBaseReader {
     return row.get(id());
   }
 
-  protected String power() {
+  private String power() {
     return attribute(StandardAttributes.power);
   }
 

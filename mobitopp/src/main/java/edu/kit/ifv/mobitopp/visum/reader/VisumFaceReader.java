@@ -34,7 +34,7 @@ public class VisumFaceReader extends VisumBaseReader {
         .collect(toMap(f -> f.id, Function.identity()));
   }
 
-  public VisumFace createFace(Integer id, Map<Integer, RingElement> elements) {
+  private VisumFace createFace(Integer id, Map<Integer, RingElement> elements) {
     List<VisumEdge> edges = elements
         .values()
         .stream()
@@ -45,7 +45,7 @@ public class VisumFaceReader extends VisumBaseReader {
     return new VisumFace(id, edges, direction);
   }
 
-  public RingElement createRingElement(Row row) {
+  private RingElement createRingElement(Row row) {
     int id = ringIdOf(row);
     int index = indexOf(row);
     int lineId = edgeIdOf(row);

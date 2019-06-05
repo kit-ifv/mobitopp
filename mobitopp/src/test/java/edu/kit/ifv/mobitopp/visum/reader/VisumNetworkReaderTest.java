@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.visum.reader;
 
-import static edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader.alwaysAllowed;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -201,7 +200,7 @@ public class VisumNetworkReaderTest {
 
 		VisumZone zone = zones.get(1);
 
-		assertThat(zone.privateChargingProbability, is(alwaysAllowed));
+		assertThat(zone.privateChargingProbability, is(VisumZoneReader.alwaysAllowed));
 	}
 
 	@Test
@@ -210,7 +209,7 @@ public class VisumNetworkReaderTest {
 
 		VisumZone zone = zones.get(1);
 
-		assertThat(zone.privateChargingProbability, is(alwaysAllowed));
+		assertThat(zone.privateChargingProbability, is(VisumZoneReader.alwaysAllowed));
 	}
 
 	@Test

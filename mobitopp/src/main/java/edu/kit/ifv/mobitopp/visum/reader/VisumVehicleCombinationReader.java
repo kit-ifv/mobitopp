@@ -28,7 +28,7 @@ public class VisumVehicleCombinationReader extends VisumBaseReader {
     return content.map(this::createCombination).collect(toMap(c -> c.id, Function.identity()));
   }
 
-  VisumVehicleCombination createCombination(Row row) {
+  private VisumVehicleCombination createCombination(Row row) {
     int id = numberOf(row);
     String code = codeOf(row);
     String name = nameOf(row);
