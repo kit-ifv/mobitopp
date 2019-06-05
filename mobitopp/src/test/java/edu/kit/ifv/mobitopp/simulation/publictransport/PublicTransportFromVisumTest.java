@@ -51,12 +51,12 @@ import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 import edu.kit.ifv.mobitopp.visum.StopAreaPair;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
-import edu.kit.ifv.mobitopp.visum.VisumNetworkReader;
 import edu.kit.ifv.mobitopp.visum.VisumPtStop;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopArea;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopPoint;
 import edu.kit.ifv.mobitopp.visum.VisumPtTransferWalkTimes;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
+import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
 
 public class PublicTransportFromVisumTest {
 

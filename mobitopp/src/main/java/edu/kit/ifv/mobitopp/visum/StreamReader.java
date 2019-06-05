@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
+import edu.kit.ifv.mobitopp.visum.reader.VisumFileReader;
+
 public class StreamReader extends VisumFileReader {
 
   public StreamReader(String attributeSeparator, Charset charset) {

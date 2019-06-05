@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
-import edu.kit.ifv.mobitopp.visum.VisumBaseReader;
 import edu.kit.ifv.mobitopp.visum.VisumChargingFacility;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 

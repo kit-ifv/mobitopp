@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
+import edu.kit.ifv.mobitopp.visum.reader.VisumFileReader;
 
 public final class CachedVisumReader extends VisumFileReader {
 

@@ -51,7 +51,7 @@ public abstract class VisumPtStopPoint
 						+ directed + ")";
 	}
 
-	static class Node extends VisumPtStopPoint {
+	public static class Node extends VisumPtStopPoint {
 	
 		public final VisumNode node;
 	
@@ -78,7 +78,7 @@ public abstract class VisumPtStopPoint
 	
 	}
 
-	static class Link extends VisumPtStopPoint {
+	public static class Link extends VisumPtStopPoint {
 	
 		public final VisumNode nodeBefore;
 		public final VisumLink link;
