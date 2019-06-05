@@ -26,21 +26,12 @@ public class VisumPtTimeProfileReader extends VisumBaseReader {
   }
 
   private VisumPtTimeProfile createProfile(Row row) {
-    String lineId = lineIdOf(row);
-    String profileName = row.get(name());
+    String lineId = lineRouteIdOf(row);
+    String profileName = nameOf(row);
     String profileId = lineId + ";" + profileName;
     VisumPtLineRoute route = ptLineRoutes.get(lineId);
     Map<Integer, VisumPtTimeProfileElement> routeElements = elements.get(profileId);
-    VisumPtTimeProfile profile = new VisumPtTimeProfile(profileId, profileName, route,
-        routeElements);
-    return profile;
-  }
-
-  private String lineIdOf(Row row) {
-    String lineName = row.get(lineName());
-    String lineRouteName = row.get(lineRouteName());
-    String lineRouteDirection = row.get(directionCode());
-    return lineName + ";" + lineRouteName + ";" + lineRouteDirection;
+    return new VisumPtTimeProfile(profileId, profileName, route, routeElements);
   }
 
 }

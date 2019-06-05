@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumBaseReader {
 
@@ -23,76 +24,12 @@ public class VisumBaseReader {
     return language.resolve(unit);
   }
 
-  protected String yCoord() {
-    return attribute(StandardAttributes.yCoord)  ;
-  }
-
-  protected String xCoord() {
-    return attribute(StandardAttributes.xCoord);
-  }
-
-  protected String typeNumber() {
-    return attribute(StandardAttributes.typeNumber);
-  }
-
-  protected String name() {
-    return attribute(StandardAttributes.name);
-  }
-
-  protected String number() {
-    return attribute(StandardAttributes.number);
-  }
-
-  protected String freeFlowSpeedCar() {
-    return attribute(StandardAttributes.freeFlowSpeedCar);
-  }
-
-  protected String capacityCar() {
-    return attribute(StandardAttributes.capacityCar);
-  }
-
-  protected String numberOfLanes() {
-    return attribute(StandardAttributes.numberOfLanes);
-  }
-
-  protected String length() {
-    return attribute(StandardAttributes.length);
-  }
-
-  protected String transportSystemsSet() {
-    return attribute(StandardAttributes.transportSystemSet);
-  }
-
-  protected String toNode() {
-    return attribute(StandardAttributes.toNodeNumber);
-  }
-
-  protected String fromNode() {
-    return attribute(StandardAttributes.fromNodeNumber);
-  }
-
-  protected String areaId() {
-    return attribute(StandardAttributes.areaId);
-  }
-
   protected String direction() {
     return attribute(StandardAttributes.direction);
   }
 
   protected String nodeNumber() {
     return attribute(StandardAttributes.nodeNumber);
-  }
-
-  protected String code() {
-    return attribute(StandardAttributes.code);
-  }
-
-  protected String vehicleCombinationNumber() {
-    return attribute(StandardAttributes.vehicleCombinationNumber);
-  }
-
-  protected String directed() {
-    return attribute(StandardAttributes.directed);
   }
 
   protected String transportSystemCode() {
@@ -107,79 +44,11 @@ public class VisumBaseReader {
     return attribute(StandardAttributes.lineName);
   }
 
-  protected String index() {
-    return attribute(StandardAttributes.index);
-  }
-
-  protected String lineRouteName() {
-    return attribute(StandardAttributes.lineRouteName);
-  }
-
-  protected String departure() {
-    return attribute(StandardAttributes.departure);
-  }
-
-  protected String timeProfileName() {
-    return attribute(StandardAttributes.timeProfileName);
-  }
-
-  protected String toTimeProfileElementIndex() {
-    return attribute(StandardAttributes.toTimeProfileElementIndex);
-  }
-
-  protected String fromTimeProfileElementIndex() {
-    return attribute(StandardAttributes.fromTimeProfileElementIndex);
-  }
-
-  protected String ringId() {
-    return attribute(StandardAttributes.ringId);
-  }
-
   protected String id() {
     return attribute(StandardAttributes.id);
   }
 
-  protected String edgeId() {
-    return attribute(StandardAttributes.edgeId);
-  }
-
-  protected String chargingStations() {
-    return attribute(StandardAttributes.chargingStationsCode);
-  }
-
-  protected String chargingPoints() {
-    return attribute(StandardAttributes.chargingPoints);
-  }
-
-  protected String poiCategoryPrefix() {
-    return table(Table.poiCategoryPrefix);
-  }
-
-  protected String power() {
-    return attribute(StandardAttributes.power);
-  }
-
-  protected String streetIso8859() {
-    return attribute(StandardAttributes.streetIso8859);
-  }
-
-  protected String type() {
-    return attribute(StandardAttributes.type);
-  }
-
-  protected String town() {
-    return attribute(StandardAttributes.town);
-  }
-
-  protected String numberOfVehicles() {
-    return attribute(StandardAttributes.numberOfVehicles);
-  }
-
-  protected String poiCategory() {
-    return table(Table.poiCategory);
-  }
-
-  protected static Integer parseSpeed(String value, NetfileLanguage language) {
+  private Integer parseSpeed(String value, NetfileLanguage language) {
     String unit = language.resolve(Unit.velocity);
     return Float.valueOf(value.replace(unit,"")).intValue();
   }
@@ -202,8 +71,143 @@ public class VisumBaseReader {
     return ((hour * RelativeTime.minutesPerHour) + minute) * RelativeTime.secondsPerMinute + second;
   }
 
-  protected String travelTimeCarAttribute() {
-  	return attribute(StandardAttributes.travelTimeCar);
+  protected int typeNumberOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.typeNumber));
+  }
+
+  protected int areaIdOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.areaId));
+  }
+
+  protected float yCoordOf(Row row) {
+    return row.valueAsFloat(attribute(StandardAttributes.yCoord));
+  }
+
+  protected float xCoordOf(Row row) {
+    return row.valueAsFloat(attribute(StandardAttributes.xCoord));
+  }
+
+  protected String nameOf(Row row) {
+    return row.get(attribute(StandardAttributes.name));
+  }
+
+  protected int numberOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.number));
+  }
+
+  protected int numberOfLanesOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.numberOfLanes));
+  }
+
+  protected int capacityCarOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.capacityCar));
+  }
+
+  protected int freeFlowSpeedOf(Row row) {
+    return parseSpeed(row.get(attribute(StandardAttributes.freeFlowSpeedCar)), language);
+  }
+
+  protected float lengthOf(Row row) {
+    return parseDistance(row.get(attribute(StandardAttributes.length)));
+  }
+
+  protected int fromNodeOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.fromNodeNumber));
+  }
+
+  protected int toNodeOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.toNodeNumber));
+  }
+
+  protected VisumTransportSystemSet transportSystemsOf(Row row, VisumTransportSystems allSystems) {
+    String transportSystems = row.get(attribute(StandardAttributes.transportSystemSet));
+    return VisumTransportSystemSet.getByCode(transportSystems, allSystems);
+  }
+
+  protected int walkSpeedOf(Row row) {
+    String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
+    String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
+    if (row.containsAttribute(publicWalkSpeed)) {
+      Integer publicTransport = parseSpeed(row.get(publicWalkSpeed), language);
+      if (row.containsAttribute(individualWalkSpeed)) {
+        Integer individualTransport = parseSpeed(row.get(individualWalkSpeed), language);
+        if (publicTransport.equals(individualTransport)) {
+          return publicTransport;
+        }
+        System.err
+            .println(
+                "Different speed values für walk speed in public transport walk type and individual traffic walk type");
+        return 0;
+      }
+      return publicTransport;
+    }
+    if (row.containsAttribute(individualWalkSpeed)) {
+      return parseSpeed(row.get(individualWalkSpeed), language);
+    }
+    return 0;
+  }
+
+  protected int nodeNumberOf(Row row) {
+    return row.valueAsInteger(nodeNumber());
+  }
+
+  protected String codeOf(Row row) {
+    return row.get(attribute(StandardAttributes.code));
+  }
+
+  protected int indexOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.index));
+  }
+
+  protected int edgeIdOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.edgeId));
+  }
+
+  protected int ringIdOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.ringId));
+  }
+
+  protected Integer vehicleCombinationOf(Row row) {
+    String combination = row.get(attribute(StandardAttributes.vehicleCombinationNumber));
+    if (combination.isEmpty()) {
+      return 0;
+    }
+    return Integer.valueOf(combination);
+  }
+
+  protected String typeOf(Row row) {
+    return row.get(attribute(StandardAttributes.type));
+  }
+
+  protected int toTimeProfileElementIndexOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.toTimeProfileElementIndex));
+  }
+
+  protected int fromTimeProfileElementIndexOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.fromTimeProfileElementIndex));
+  }
+
+  protected int departureOf(Row row) {
+    return parseTimeAsSeconds(row.get(attribute(StandardAttributes.departure)));
+  }
+
+  protected String profileNameOf(Row row) {
+    return row.get(attribute(StandardAttributes.timeProfileName));
+  }
+
+  protected String lineRouteIdOf(Row row) {
+    String lineName = row.get(lineName());
+    String lineRouteName = row.get(attribute(StandardAttributes.lineRouteName));
+    String lineRouteDirection = row.get(directionCode());
+    return lineName + ";" + lineRouteName + ";" + lineRouteDirection;
+  }
+
+  protected String profileIdOf(Row row) {
+    return lineRouteIdOf(row) + ";" + profileNameOf(row);
+  }
+
+  protected int idOf(Row row) {
+    return row.valueAsInteger(id());
   }
 
 }

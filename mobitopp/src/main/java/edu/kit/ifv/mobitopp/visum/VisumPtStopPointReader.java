@@ -30,22 +30,30 @@ public class VisumPtStopPointReader extends VisumBaseReader {
   }
 
   private VisumPtStopPoint createStopPoint(Row row) {
-    int id = row.valueAsInteger(number());
-    VisumTransportSystemSet systemSet = transportSystemsOf(row);
+    int id = numberOf(row);
+    VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
     VisumPtStopArea stopArea = stopAreaOf(row);
-    String code = row.get(code());
-    String name = row.get(name());
-    int type = row.valueAsInteger(typeNumber());
+    String code = codeOf(row);
+    String name = nameOf(row);
+    int type = typeNumberOf(row);
     boolean directed = row.valueAsInteger(directed()) == 1;
-    if (!row.get(nodeNumber()).isEmpty()) {
+    if (isNode(row)) {
       VisumNode node = atNodeOf(row);
       return new VisumPtStopPoint.Node(id, stopArea, code, name, type, systemSet, directed, node);
     }
-    VisumNode nodeBefore = fromNodeOf(row);
+    VisumNode nodeBefore = nodes.get(fromNodeOf(row));
     VisumLink link = linkOf(row);
     float relativePosition = row.valueAsFloat(attribute(StandardAttributes.relativePosition));
     return new VisumPtStopPoint.Link(id, stopArea, code, name, type, systemSet, directed,
         nodeBefore, link, relativePosition);
+  }
+
+  private String directed() {
+    return attribute(StandardAttributes.directed);
+  }
+
+  private boolean isNode(Row row) {
+    return !row.get(nodeNumber()).isEmpty();
   }
 
   private VisumPtStopArea stopAreaOf(Row row) {
@@ -53,18 +61,8 @@ public class VisumPtStopPointReader extends VisumBaseReader {
     return ptStopAreas.get(areaId);
   }
 
-  private VisumTransportSystemSet transportSystemsOf(Row row) {
-    String transportSystems = row.get(transportSystemsSet());
-    return VisumTransportSystemSet.getByCode(transportSystems, allSystems);
-  }
-
-  VisumNode atNodeOf(Row row) {
-    Integer nodeId = row.valueAsInteger(nodeNumber());
-    return nodes.get(nodeId);
-  }
-
-  private VisumNode fromNodeOf(Row row) {
-    Integer nodeId = row.valueAsInteger(fromNode());
+  private VisumNode atNodeOf(Row row) {
+    int nodeId = nodeNumberOf(row);
     return nodes.get(nodeId);
   }
 

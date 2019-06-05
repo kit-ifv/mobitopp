@@ -23,26 +23,18 @@ public class VisumVehicleUnitsToCombinationsReader extends VisumBaseReader {
   }
 
   private VisumVehicleCombinationUnit create(Row row) {
-    int combinationId = vehicleCombination(row);
+    int combinationId = vehicleCombinationOf(row);
     VisumVehicleUnit unit = vehicleUnit(row);
     int quantity = numberOfVehicleUnits(row);
     return new VisumVehicleCombinationUnit(combinationId, unit, quantity);
   }
 
-  int numberOfVehicleUnits(Row row) {
+  private int numberOfVehicleUnits(Row row) {
     return row.valueAsInteger(attribute(StandardAttributes.numberOfVehicleUnits));
   }
 
-  VisumVehicleUnit vehicleUnit(Row row) {
+  private VisumVehicleUnit vehicleUnit(Row row) {
     int unitId = row.valueAsInteger(attribute(StandardAttributes.vehicleUnitNumber));
     return vehicleUnits.get(unitId);
-  }
-
-  private Integer vehicleCombination(Row row) {
-    String combination = row.get(vehicleCombinationNumber());
-    if (combination.isEmpty()) {
-      return 0;
-    }
-    return Integer.valueOf(combination);
   }
 }

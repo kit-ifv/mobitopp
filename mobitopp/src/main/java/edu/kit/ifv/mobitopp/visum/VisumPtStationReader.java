@@ -19,12 +19,12 @@ public class VisumPtStationReader extends VisumBaseReader {
   }
 
   private VisumPtStop createPtStop(Row row) {
-    int id = row.valueAsInteger(number());
-    String code = row.get(code());
-    String name = row.get(name());
-    Integer type = row.valueAsInteger(typeNumber());
-    float xCoord = row.valueAsFloat(xCoord());
-    float yCoord = row.valueAsFloat(yCoord());
+    int id = numberOf(row);
+    String code = codeOf(row);
+    String name = nameOf(row);
+    Integer type = typeNumberOf(row);
+    float xCoord = xCoordOf(row);
+    float yCoord = yCoordOf(row);
     return new VisumPtStop(id, code, name, type, xCoord, yCoord);
   }
 

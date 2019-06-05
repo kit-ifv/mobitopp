@@ -25,17 +25,22 @@ public class VisumPtStopAreaReader extends VisumBaseReader {
   }
 
   VisumPtStopArea createPtStopArea(Row row) {
-    int id = row.valueAsInteger(number());
+    int id = numberOf(row);
     int stopId = row.valueAsInteger(attribute(StandardAttributes.stationNumber));
-    int nodeId = row.valueAsInteger(nodeNumber());
     VisumPtStop stop = ptStops.get(stopId);
-    String code = row.get(code());
-    String name = row.get(name());
-    VisumNode node = nodes.get(nodeId);
-    int type = row.valueAsInteger(typeNumber());
-    float xCoord = row.valueAsFloat(xCoord());
-    float yCoord = row.valueAsFloat(yCoord());
+    String code = codeOf(row);
+    String name = nameOf(row);
+    VisumNode node = nodeOf(row);
+    int type = typeNumberOf(row);
+    float xCoord = xCoordOf(row);
+    float yCoord = yCoordOf(row);
     return new VisumPtStopArea(id, stop, code, name, node, type, xCoord, yCoord);
+  }
+
+  private VisumNode nodeOf(Row row) {
+    int nodeId = nodeNumberOf(row);
+    VisumNode node = nodes.get(nodeId);
+    return node;
   }
 
 }

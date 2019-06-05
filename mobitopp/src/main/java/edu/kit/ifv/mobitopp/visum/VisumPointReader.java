@@ -14,16 +14,12 @@ public class VisumPointReader extends VisumBaseReader {
   }
 
   public Map<Integer, VisumPoint> readPoints(Stream<Row> content) {
-    return content.collect(toMap(this::id, this::createPoint));
+    return content.collect(toMap(this::idOf, this::createPoint));
   }
 
-  public int id(Row row) {
-    return row.valueAsInteger(id());
-  }
-
-  public VisumPoint createPoint(Row row) {
-    float x = row.valueAsFloat(xCoord());
-    float y = row.valueAsFloat(yCoord());
+  private VisumPoint createPoint(Row row) {
+    float x = xCoordOf(row);
+    float y = yCoordOf(row);
     return new VisumPoint(x, y);
   }
 

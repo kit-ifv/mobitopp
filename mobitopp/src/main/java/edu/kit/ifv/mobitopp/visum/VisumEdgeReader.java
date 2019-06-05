@@ -30,7 +30,7 @@ public class VisumEdgeReader extends VisumBaseReader {
   }
 
   public VisumEdge createEdge(Row row) {
-    int edgeId = row.valueAsInteger(id());
+    int edgeId = idOf(row);
     int fromId = row.valueAsInteger(attribute(StandardAttributes.fromPointId));
     int toId = row.valueAsInteger(attribute(StandardAttributes.toPointId));
 

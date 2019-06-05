@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.StopWatch;
+import edu.kit.ifv.mobitopp.visum.reader.VisumChargingFacilityReader;
 import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReader extends VisumBaseReader {
@@ -162,29 +163,6 @@ public class VisumNetworkReader extends VisumBaseReader {
     VisumLinkTypeReader reader = new VisumLinkTypeReader(language);
     Stream<Row> rows = loadContentOf(table(Table.linkTypes));
     return reader.readLinkTypes(allSystems, rows);
-  }
-
-  static int walkSpeed(Row row, NetfileLanguage language) {
-    String publicWalkSpeed = language.resolve(StandardAttributes.publicTransportWalkSpeed);
-    String individualWalkSpeed = language.resolve(StandardAttributes.individualWalkSpeed);
-    if (row.containsAttribute(publicWalkSpeed)) {
-      Integer publicTransport = parseSpeed(row.get(publicWalkSpeed), language);
-      if (row.containsAttribute(individualWalkSpeed)) {
-        Integer individualTransport = parseSpeed(row.get(individualWalkSpeed), language);
-        if (publicTransport.equals(individualTransport)) {
-          return publicTransport;
-        }
-        System.err
-            .println(
-                "Different speed values für walk speed in public transport walk type and individual traffic walk type");
-        return 0;
-      }
-      return publicTransport;
-    }
-    if (row.containsAttribute(individualWalkSpeed)) {
-      return parseSpeed(row.get(individualWalkSpeed), language);
-    }
-    return 0;
   }
 
   private Map<Integer, VisumNode> readNodes() {
@@ -395,10 +373,22 @@ public class VisumNetworkReader extends VisumBaseReader {
     return Collections.emptyMap();
   }
 
+  private String poiCategory() {
+    return table(Table.poiCategory);
+  }
+
   private Map<Integer, VisumChargingFacility> readChargingStations(POICategories categories) {
     int nr = categories.numberByCode(chargingStations());
     Stream<Row> rows = loadContentOf(poiCategoryPrefix() + nr);
     return new VisumChargingFacilityReader(language).readStations(rows);
+  }
+
+  private String chargingStations() {
+    return attribute(StandardAttributes.chargingStationsCode);
+  }
+
+  private String poiCategoryPrefix() {
+    return table(Table.poiCategoryPrefix);
   }
 
   Map<Integer, VisumChargingPoint> readChargingPoints() {
@@ -414,6 +404,10 @@ public class VisumNetworkReader extends VisumBaseReader {
     int nr = categories.numberByCode(chargingPoints());
     Stream<Row> content = loadContentOf(poiCategoryPrefix() + nr);
     return new VisumChargingPointReader(language).readPoints(content);
+  }
+
+  private String chargingPoints() {
+    return attribute(StandardAttributes.chargingPoints);
   }
 
   private Map<Integer, VisumCarSharingStation> readCarSharingStadtmobil() {

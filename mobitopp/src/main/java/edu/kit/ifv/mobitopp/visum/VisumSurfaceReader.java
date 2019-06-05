@@ -48,10 +48,14 @@ public class VisumSurfaceReader extends VisumBaseReader {
   }
 
   public RingInfo createRingInfo(Row row) {
-    int areaId = row.valueAsInteger(areaId());
-    int ringId = row.valueAsInteger(ringId());
-    int enclave = row.valueAsInteger(attribute(StandardAttributes.enclave));
+    int areaId = areaIdOf(row);
+    int ringId = ringIdOf(row);
+    int enclave = enclaveOf(row);
     return new RingInfo(areaId, ringId, enclave);
+  }
+
+  private int enclaveOf(Row row) {
+    return row.valueAsInteger(attribute(StandardAttributes.enclave));
   }
 
   private static final class RingInfo {

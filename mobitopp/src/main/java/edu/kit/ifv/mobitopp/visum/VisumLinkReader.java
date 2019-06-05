@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumLinkReader extends VisumBaseReader {
 
-  private final Map<Integer, VisumNode> nodes;
+  final Map<Integer, VisumNode> nodes;
   private final VisumTransportSystems allSystems;
   private final VisumLinkTypes linkTypes;
 
@@ -37,52 +37,30 @@ public class VisumLinkReader extends VisumBaseReader {
   }
 
   private VisumLink createLink(Row first, Row second) {
-    int id = first.valueAsInteger(number());
+    int id = numberOf(first);
     VisumOrientedLink link1 = readOrientedLink("" + id + ":1", first);
     VisumOrientedLink link2 = readOrientedLink("" + id + ":2", second);
     return new VisumLink(id, link1, link2);
   }
 
   private VisumOrientedLink readOrientedLink(String id, Row row) {
-    VisumNode fromNode = fromNodeOf(row);
-    VisumNode toNode = toNodeOf(row);
-    String name = row.get(name());
+    VisumNode fromNode = nodes.get(fromNodeOf(row));
+    VisumNode toNode = nodes.get(toNodeOf(row));
+    String name = nameOf(row);
     VisumLinkType linkType = linkTypeOf(row);
-    VisumTransportSystemSet systemSet = transportSystemOf(row);
-    float distance = parseDistance(row.get(length()));
-    int numberOfLanes = row.valueAsInteger(numberOfLanes());
-    int capacity = row.valueAsInteger(capacityCar());
-    int speed = parseSpeed(row.get(freeFlowSpeedCar()), language);
-    int walkSpeed = walkSpeed(row, language);
+    VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
+    float distance = lengthOf(row);
+    int numberOfLanes = numberOfLanesOf(row);
+    int capacity = capacityCarOf(row);
+    int speed = freeFlowSpeedOf(row);
+    int walkSpeed = walkSpeedOf(row);
     VisumLinkAttributes attributes = new VisumLinkAttributes(numberOfLanes, capacity, speed,
         walkSpeed);
     return new VisumOrientedLink(id, fromNode, toNode, name, linkType, systemSet, distance,
         attributes);
   }
 
-  VisumNode fromNodeOf(Row row) {
-    VisumNode fromNode = nodes.get(row.valueAsInteger(fromNode()));
-    return fromNode;
-  }
-
-  VisumNode toNodeOf(Row row) {
-    VisumNode toNode = nodes.get(row.valueAsInteger(toNode()));
-    return toNode;
-  }
-
-  VisumLinkType linkTypeOf(Row row) {
-    VisumLinkType linkType = linkTypes.getById(row.valueAsInteger(typeNumber()));
-    return linkType;
-  }
-
-  VisumTransportSystemSet transportSystemOf(Row row) {
-    String transportSystems = row.get(transportSystemsSet());
-    VisumTransportSystemSet systemSet = VisumTransportSystemSet
-        .getByCode(transportSystems, allSystems);
-    return systemSet;
-  }
-
-  private int walkSpeed(Row row, NetfileLanguage language) {
-    return VisumNetworkReader.walkSpeed(row, language);
+  private VisumLinkType linkTypeOf(Row row) {
+    return linkTypes.getById(typeNumberOf(row));
   }
 }

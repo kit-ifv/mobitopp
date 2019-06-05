@@ -26,13 +26,21 @@ public class VisumChargingPointReader extends VisumBaseReader {
   }
 
   private VisumChargingPoint createChargingPoint(Row row) {
-    int id = row.valueAsInteger(number());
-    float xCoord = row.valueAsFloat(xCoord());
-    float yCoord = row.valueAsFloat(yCoord());
-    String station = row.get(id());
+    int id = numberOf(row);
+    float xCoord = xCoordOf(row);
+    float yCoord = yCoordOf(row);
+    String station = stationIdOf(row);
     int stationId = Double.valueOf(station.isEmpty() ? "0" : station).intValue();
-    float power = Float.parseFloat(row.get(power()));
+    float power = row.valueAsFloat(power());
     return new VisumChargingPoint(id, xCoord, yCoord, stationId, power);
+  }
+
+  private String stationIdOf(Row row) {
+    return row.get(id());
+  }
+
+  protected String power() {
+    return attribute(StandardAttributes.power);
   }
 
 }

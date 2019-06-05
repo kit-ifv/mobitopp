@@ -22,7 +22,7 @@ public class VisumPtLineReader extends VisumBaseReader {
   }
 
   private VisumPtLine createPtLine(Row row) {
-    String name = row.get(name());
+    String name = nameOf(row);
     VisumTransportSystem transportSystem = transportSystemOf(row);
     return new VisumPtLine(name, transportSystem);
   }

@@ -13,24 +13,11 @@ public class VisumTransportSystemReader extends VisumBaseReader {
   }
 
   public VisumTransportSystems readTransportSystems(Stream<Row> content) {
-    return new VisumTransportSystems(
-        content.collect(toMap(r -> codeIn(r), r -> systemIn(r))));
+    return new VisumTransportSystems(content.collect(toMap(r -> codeOf(r), r -> systemOf(r))));
   }
 
-  private VisumTransportSystem systemIn(Row row) {
-    return new VisumTransportSystem(codeIn(row), nameIn(row), typeIn(row));
-  }
-
-  private String codeIn(Row row) {
-    return row.get(attribute(StandardAttributes.code));
-  }
-
-  private String nameIn(Row row) {
-    return row.get(attribute(StandardAttributes.name));
-  }
-
-  private String typeIn(Row row) {
-    return row.get(attribute(StandardAttributes.type));
+  private VisumTransportSystem systemOf(Row row) {
+    return new VisumTransportSystem(codeOf(row), nameOf(row), typeOf(row));
   }
 
 }

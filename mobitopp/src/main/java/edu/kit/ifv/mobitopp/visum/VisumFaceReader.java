@@ -43,11 +43,15 @@ public class VisumFaceReader extends VisumBaseReader {
   }
 
   public RingElement createRingElement(Row row) {
-    int id = row.valueAsInteger(ringId());
-    int index = row.valueAsInteger(index());
-    int lineId = row.valueAsInteger(edgeId());
-    int direction = row.valueAsInteger(direction());
+    int id = ringIdOf(row);
+    int index = indexOf(row);
+    int lineId = edgeIdOf(row);
+    int direction = directionOf(row);
     return new RingElement(id, index, lineId, direction);
+  }
+
+  private int directionOf(Row row) {
+    return row.valueAsInteger(direction());
   }
 
   private static final class RingElement {

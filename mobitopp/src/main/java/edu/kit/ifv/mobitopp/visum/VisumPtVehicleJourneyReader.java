@@ -29,29 +29,21 @@ public class VisumPtVehicleJourneyReader extends VisumBaseReader {
   }
 
   private VisumPtVehicleJourney createJourney(Row row) {
-    String lineId = lineIdOf(row);
-    String profileName = row.get(timeProfileName());
+    String lineId = lineRouteIdOf(row);
+    String profileName = profileNameOf(row);
     String profileId = lineId + ";" + profileName;
 
     VisumPtLineRoute route = ptLineRoutes.get(lineId);
     VisumPtTimeProfile profile = ptTimeProfiles.get(profileId);
 
-    int number = row.valueAsInteger(number());
-    String name = row.get(name());
-    int departure = parseTimeAsSeconds(row.get(departure()));
-    int fromIndex = row.valueAsInteger(fromTimeProfileElementIndex());
-    int toIndex = row.valueAsInteger(toTimeProfileElementIndex());
+    int number = numberOf(row);
+    String name = nameOf(row);
+    int departure = departureOf(row);
+    int fromIndex = fromTimeProfileElementIndexOf(row);
+    int toIndex = toTimeProfileElementIndexOf(row);
     List<VisumPtVehicleJourneySection> sections = this.sectionMapping.get(number);
-
     return new VisumPtVehicleJourney(number, name, departure, route, profile, fromIndex, toIndex,
         sections);
-  }
-
-  private String lineIdOf(Row row) {
-    String lineName = row.get(lineName());
-    String lineRouteName = row.get(lineRouteName());
-    String lineRouteDirection = row.get(directionCode());
-    return lineName + ";" + lineRouteName + ";" + lineRouteDirection;
   }
 
 }
