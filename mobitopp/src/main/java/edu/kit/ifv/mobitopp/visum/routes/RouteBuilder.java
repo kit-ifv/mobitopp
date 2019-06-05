@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum.routes;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,32 +12,33 @@ public class RouteBuilder {
   private final ZoneIdTime origin;
   private final ZoneIdTime destination;
   private final LinkedList<ZoneIdTime> zones;
-  private RelativeTime travelTime;
+  private Duration travelTime;
 
   public RouteBuilder(ZoneIdTime origin, ZoneIdTime destination) {
     super();
     this.origin = origin;
     this.destination = destination;
     zones = new LinkedList<>();
-    travelTime = RelativeTime.ZERO;
+    travelTime = Duration.ZERO;
   }
 
-  public void addZone(ZoneIdTime zone) {
+  public void addZone(String zone, Duration time) {
     if (lastElementMatchesZoneOf(zone)) {
-      travelTime = travelTime.plus(zone.time());
+      travelTime = travelTime.plus(time);
       return;
     }
-    doAddZone(zone);
+    doAddZone(zone, time);
   }
 
-  public void doAddZone(ZoneIdTime zone) {
-    ZoneIdTime combinedTime = zone.addTime(travelTime);
+  public void doAddZone(String zone, Duration time) {
+    Duration completeTime = travelTime.plus(time);
+    ZoneIdTime combinedTime = new ZoneIdTime(zone, RelativeTime.of(completeTime));
     zones.add(combinedTime);
-    travelTime = RelativeTime.ZERO;
+    travelTime = Duration.ZERO;
   }
 
-  private boolean lastElementMatchesZoneOf(ZoneIdTime zoneTime) {
-    return !zones.isEmpty() && zones.getLast().zone().equals(zoneTime.zone());
+  private boolean lastElementMatchesZoneOf(String zone) {
+    return !zones.isEmpty() && zones.getLast().zone().equals(zone);
   }
 
   public OdPair buildOdPair() {

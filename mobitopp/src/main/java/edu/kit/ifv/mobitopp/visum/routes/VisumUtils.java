@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum.routes;
 
+import java.time.Duration;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -17,23 +18,26 @@ public final class VisumUtils {
     super();
   }
 
-  public static RelativeTime parseTime(String time) {
+  public static Duration parseTime(String time) {
     Objects.requireNonNull(time, "time");
     if (time.isEmpty()) {
-      return RelativeTime.ZERO;
+      return RelativeTime.ZERO.toDuration();
     }
     String text = time.replaceAll(" ", "");
+    
     Matcher matcher = PATTERN.matcher(text);
     if (matcher.matches()) {
       String hourMatch = matcher.group(1);
       String minuteMatch = matcher.group(2);
       String secondMatch = matcher.group(3);
+      String nanosecondMatch = matcher.group(4);
       if (hourMatch != null || minuteMatch != null || secondMatch != null) {
         int hoursAsSecs = parseNumber(text, hourMatch, RelativeTime.secondsPerHour, "hours");
         int minsAsSecs = parseNumber(text, minuteMatch, RelativeTime.secondsPerMinute, "minutes");
         int seconds = parseNumber(text, secondMatch, 1, "seconds");
+        int nanoSeconds = parseFraction(text, nanosecondMatch);
         try {
-          return create(hoursAsSecs, minsAsSecs, seconds);
+          return create(hoursAsSecs, minsAsSecs, seconds, nanoSeconds);
         } catch (ArithmeticException ex) {
           throw (DateTimeParseException) new DateTimeParseException(
               "Text cannot be parsed to a Duration: overflow", text, 0).initCause(ex);
@@ -41,6 +45,27 @@ public final class VisumUtils {
       }
     }
     throw new DateTimeParseException("Text cannot be parsed to a Duration", text, 0);
+  }
+
+  /**
+   * Parses fraction of seconds in the time string. Empty matcher groups are allowed to be <code>null</code>.
+   */
+  private static int parseFraction(String text, String parsed) {
+    if (null == parsed) {
+      return 0;
+    }
+    try {
+      int nanoSecondsLength = 9;
+      int lastChar = Math.min(nanoSecondsLength, parsed.length());
+      int fraction = Integer.parseInt(parsed.substring(0, lastChar));
+      for(int i = 0; i < nanoSecondsLength - parsed.length(); i++) {
+        fraction *= 10;
+      }
+      return fraction;
+    } catch (NumberFormatException | ArithmeticException ex) {
+      throw (DateTimeParseException) new DateTimeParseException(
+          "Text cannot be parsed to a Duration: nano seconds", text, 0).initCause(ex);
+    }
   }
 
   /**
@@ -59,8 +84,8 @@ public final class VisumUtils {
     }
   }
 
-  private static RelativeTime create(int hoursAsSecs, int minsAsSecs, int seconds) {
+  private static Duration create(int hoursAsSecs, int minsAsSecs, int seconds, int nanoSeconds) {
     int duration = Math.toIntExact(Math.addExact(hoursAsSecs, Math.addExact(minsAsSecs, seconds)));
-    return RelativeTime.ofSeconds(duration);
+    return Duration.ofSeconds(duration, nanoSeconds);
   }
 }

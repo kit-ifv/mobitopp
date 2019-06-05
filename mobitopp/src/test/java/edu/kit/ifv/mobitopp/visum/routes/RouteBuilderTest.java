@@ -4,6 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,14 +49,19 @@ public class RouteBuilderTest {
 
   @Test
   void buildsRoute() throws Exception {
-    RouteBuilder builder = new RouteBuilder(origin, destination);
-    builder.addZone(origin);
-    builder.addZone(intermediateZone);
-    builder.addZone(destination);
+    RouteBuilder builder = createBuilder(origin, destination, origin, intermediateZone,
+        destination);
     ZoneRoute route = builder.buildZoneRoute();
 
     ZoneIdTime intermediateZoneArrival = arriveAt(intermediateZone, start.plus(toIntermediate));
     assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival, destination))));
+  }
+
+  private RouteBuilder createBuilder(
+      ZoneIdTime origin, ZoneIdTime destination, ZoneIdTime... zones) {
+    RouteBuilder builder = new RouteBuilder(origin, destination);
+    Arrays.stream(zones).forEach(z -> builder.addZone(z.zone(), z.time().toDuration()));
+    return builder;
   }
 
   private ZoneIdTime arriveAt(ZoneIdTime zone, RelativeTime time) {
@@ -67,11 +74,8 @@ public class RouteBuilderTest {
     RelativeTime secondArrivalAtIntermediate = start.plus(toIntermediate);
     ZoneIdTime arrivalAtDestination = arriveAt(destination,
         secondArrivalAtIntermediate.plus(toDestination));
-    RouteBuilder builder = new RouteBuilder(origin, arrivalAtDestination);
-    builder.addZone(origin);
-    builder.addZone(intermediateZone);
-    builder.addZone(intermediateZone);
-    builder.addZone(destination);
+    RouteBuilder builder = createBuilder(origin, destination, origin, intermediateZone,
+        intermediateZone, destination);
     ZoneRoute route = builder.buildZoneRoute();
 
     assertThat(route, is(equalTo(new ZoneRoute(intermediateZoneArrival, arrivalAtDestination))));
@@ -85,12 +89,8 @@ public class RouteBuilderTest {
         .plus(toIntermediate)
         .plus(toDestination);
     ZoneIdTime atDestination = arriveAt(destination, arrival);
-    RouteBuilder builder = new RouteBuilder(origin, atDestination);
-    builder.addZone(origin);
-    builder.addZone(intermediateZone);
-    builder.addZone(otherIntermediateZone);
-    builder.addZone(intermediateZone);
-    builder.addZone(destination);
+    RouteBuilder builder = createBuilder(origin, atDestination, origin, intermediateZone,
+        otherIntermediateZone, intermediateZone, destination);
     ZoneRoute route = builder.buildZoneRoute();
 
     assertThat(route, is(equalTo(
@@ -104,10 +104,8 @@ public class RouteBuilderTest {
     ZoneIdTime startAtIntermediate = arriveAt(intermediateZone, start);
     ZoneIdTime enterDestinationZone = arriveAt(destination, enterDestinationTime);
     ZoneIdTime atDestination = arriveAt(destination, arrival);
-    RouteBuilder builder = new RouteBuilder(startAtIntermediate, atDestination);
-    builder.addZone(intermediateZone);
-    builder.addZone(intermediateZone);
-    builder.addZone(destination);
+    RouteBuilder builder = createBuilder(startAtIntermediate, atDestination, intermediateZone,
+        intermediateZone, destination);
     ZoneRoute route = builder.buildZoneRoute();
 
     assertThat(route, is(equalTo(new ZoneRoute(enterDestinationZone))));

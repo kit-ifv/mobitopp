@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.visum.routes;
 
-import edu.kit.ifv.mobitopp.time.RelativeTime;
+import java.time.Duration;
 
 enum State {
   start {
@@ -21,14 +21,13 @@ enum State {
     @Override
     public void parse(Row row, RouteReader routeReader) {
       String zone = row.get("LINK\\TONODE\\BEZIRKNR");
-      RelativeTime time = parse(row.get("LINK\\T0_PRTSYS(SOV)"));
-      RelativeTime connectorTime = parse(row.get("TURN\\T0_PRTSYS(SOV)"));
-      RelativeTime completeTime = time.plus(connectorTime);
-      ZoneIdTime zoneTime = new ZoneIdTime(zone, completeTime);
-      routeReader.addZone(zoneTime);
+      Duration time = parse(row.get("LINK\\T0_PRTSYS(SOV)"));
+      Duration connectorTime = parse(row.get("TURN\\T0_PRTSYS(SOV)"));
+      Duration completeTime = time.plus(connectorTime);
+      routeReader.addZone(zone, completeTime);
     }
 
-    private RelativeTime parse(String time) {
+    private Duration parse(String time) {
       return VisumUtils.parseTime(time);
     }
 

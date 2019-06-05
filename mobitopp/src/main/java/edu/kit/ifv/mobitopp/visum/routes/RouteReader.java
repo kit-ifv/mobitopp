@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum.routes;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -56,8 +57,8 @@ public class RouteReader {
     return new ZoneIdTime(destinationZone, destinationTime);
   }
 
-  void addZone(ZoneIdTime zone) {
-    current.addZone(zone);
+  void addZone(String zone, Duration time) {
+    current.addZone(zone, time);
   }
 
   void addRoute() {
