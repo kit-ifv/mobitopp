@@ -29,7 +29,7 @@ public class VisumPtStopAreaReader extends VisumBaseReader {
     return content.map(this::createPtStopArea).collect(toMap(s -> s.id, Function.identity()));
   }
 
-  VisumPtStopArea createPtStopArea(Row row) {
+  private VisumPtStopArea createPtStopArea(Row row) {
     int id = numberOf(row);
     int stopId = row.valueAsInteger(attribute(StandardAttributes.stationNumber));
     VisumPtStop stop = ptStops.get(stopId);

@@ -40,7 +40,7 @@ public class VisumSurfaceReader extends VisumBaseReader {
         .collect(toMap(s -> s.id, Function.identity(), StreamUtils.throwingMerger(), TreeMap::new));
   }
 
-  public VisumSurface createSurface(Entry<Integer, List<RingInfo>> entry) {
+  private VisumSurface createSurface(Entry<Integer, List<RingInfo>> entry) {
     int id = entry.getKey();
     List<VisumFace> faces = entry
         .getValue()
@@ -51,7 +51,7 @@ public class VisumSurfaceReader extends VisumBaseReader {
     return new VisumSurface(id, faces, enclave);
   }
 
-  public RingInfo createRingInfo(Row row) {
+  private RingInfo createRingInfo(Row row) {
     int areaId = areaIdOf(row);
     int ringId = ringIdOf(row);
     int enclave = enclaveOf(row);

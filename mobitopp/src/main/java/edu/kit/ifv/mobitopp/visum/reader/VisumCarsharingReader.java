@@ -21,7 +21,7 @@ public class VisumCarsharingReader extends VisumBaseReader {
     return content.map(this::createStation).collect(toMap(s -> s.id, Function.identity()));
   }
 
-  VisumCarSharingStation createStation(Row row) {
+  private VisumCarSharingStation createStation(Row row) {
     int id = readStadtMobilId(row);
     String name = nameOf(row);
     float xCoord = xCoordOf(row);

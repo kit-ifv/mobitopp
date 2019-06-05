@@ -55,7 +55,6 @@ import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReader extends VisumBaseReader {
 
-  static final double alwaysAllowed = 1.0;
   private final StopWatch stopWatch;
   private File file;
   private VisumFileReader visumReader;
@@ -224,7 +223,7 @@ public class VisumNetworkReader extends VisumBaseReader {
     return data;
   }
 
-  public void assignTurnsToNodes(
+  private void assignTurnsToNodes(
       Map<Integer, VisumNode> nodes, Map<Integer, List<VisumTurn>> data) {
     for (Integer nodeId : nodes.keySet()) {
       VisumNode node = nodes.get(nodeId);
@@ -322,7 +321,7 @@ public class VisumNetworkReader extends VisumBaseReader {
         .forEach(e -> ptLines.get(e.getKey()).setLineRoutes(e.getValue()));
   }
 
-  protected VisumPtLineRouteDirection direction(String lineRouteDirection) {
+  private VisumPtLineRouteDirection direction(String lineRouteDirection) {
     return isInDirection(lineRouteDirection) ? VisumPtLineRouteDirection.H
         : VisumPtLineRouteDirection.R;
   }

@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumLinkReader extends VisumBaseReader {
 
-  final Map<Integer, VisumNode> nodes;
+  private final Map<Integer, VisumNode> nodes;
   private final VisumTransportSystems allSystems;
   private final VisumLinkTypes linkTypes;
 

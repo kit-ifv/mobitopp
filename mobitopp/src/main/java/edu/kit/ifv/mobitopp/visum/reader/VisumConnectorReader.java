@@ -19,7 +19,7 @@ public class VisumConnectorReader extends VisumBaseReader {
 
   private final Map<Integer, VisumNode> nodes;
   private final Map<Integer, VisumZone> zones;
-  final VisumTransportSystems allSystems;
+  private final VisumTransportSystems allSystems;
 
   public VisumConnectorReader(
       NetfileLanguage language, Map<Integer, VisumNode> nodes, Map<Integer, VisumZone> zones,
@@ -34,7 +34,7 @@ public class VisumConnectorReader extends VisumBaseReader {
     return content.map(this::createConnector).collect(groupingBy(c -> c.zone.id));
   }
 
-  public VisumConnector createConnector(Row row) {
+  private VisumConnector createConnector(Row row) {
     VisumZone zone = zones.get(row.valueAsInteger(attribute(StandardAttributes.zoneNumber)));
     VisumNode node = nodes.get(nodeNumberOf(row));
 
