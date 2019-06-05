@@ -21,7 +21,7 @@ public class StateTest {
     RouteReader routeReader = mock(RouteReader.class);
     State.intermediateZone.parse(row, routeReader);
 
-    verify(routeReader).addZone(new ZoneIdTime(zone, time));
+    verify(routeReader).addZone(zone, time.toDuration());
   }
 
   private String serialised(RelativeTime time) {

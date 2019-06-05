@@ -113,7 +113,7 @@ public class TestRoutes {
   }
 
   public RelativeTime connectorTime() {
-    return VisumUtils.parseTime(connectorTime);
+    return RelativeTime.of(VisumUtils.parseTime(connectorTime));
   }
 
   public ZoneRoute someRouteWithConnector() {
