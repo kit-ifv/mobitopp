@@ -28,7 +28,7 @@ public class CsvForeignKeyDeserialiser<T> implements ForeignKeyDeserialiser<T> {
 			format.parse(asList(line), context).ifPresent(elements::add);
 			count++;
       if (0 == count % 1000) {
-        System.out.println("Number of persons: " + count);
+        System.out.println("Number of read elements: " + count);
       }
 		}
 		return elements;
