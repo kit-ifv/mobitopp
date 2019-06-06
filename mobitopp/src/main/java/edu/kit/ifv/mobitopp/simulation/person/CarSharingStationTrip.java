@@ -25,7 +25,10 @@ public class CarSharingStationTrip extends CarBasedTrip implements Trip {
   @Override
   protected Car allocateCar(ImpedanceIfc impedance, Time currentTime) {
     Zone zone = person().currentActivity().zone();
-    assert zone.carSharing().isStationBasedCarSharingCarAvailable(person()) : "Carsharing is not available.";
+    assert zone
+        .carSharing()
+        .isStationBasedCarSharingCarAvailable(person()) : "Carsharing is not available."
+            + person().getId();
     return zone.carSharing().bookStationBasedCar(person());
   }
   
