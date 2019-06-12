@@ -66,4 +66,6 @@ public interface PersonForSetup {
 
   TourBasedActivityPattern getActivityPattern();
 
+  void setDrivingLicense(boolean hasDrivingLicense);
+
 }
