@@ -11,8 +11,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.kit.ifv.mobitopp.visum.routes.TestTables;
-
 public class TableDescriptionReaderTest {
 
   private static final String defaultSeparator = ";";

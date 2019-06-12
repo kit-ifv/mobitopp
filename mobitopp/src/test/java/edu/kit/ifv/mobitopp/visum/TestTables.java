@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.visum.routes;
+package edu.kit.ifv.mobitopp.visum;
 
 import static java.util.Arrays.asList;
 
