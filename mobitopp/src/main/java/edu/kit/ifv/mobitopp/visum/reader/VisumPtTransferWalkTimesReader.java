@@ -7,12 +7,12 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.StopArea;
 import edu.kit.ifv.mobitopp.visum.StopAreaPair;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopArea;
 import edu.kit.ifv.mobitopp.visum.VisumPtTransferWalkTimes;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumPtTransferWalkTimesReader extends VisumBaseReader {
 

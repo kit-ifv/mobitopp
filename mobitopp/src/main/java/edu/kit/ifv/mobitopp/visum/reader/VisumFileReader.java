@@ -7,9 +7,9 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.TableDescription;
 import edu.kit.ifv.mobitopp.visum.TableDescriptionReader;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public abstract class VisumFileReader {
 

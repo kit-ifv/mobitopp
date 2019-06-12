@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 
 public class TestRoutes {

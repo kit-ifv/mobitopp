@@ -7,10 +7,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumPtLine;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRoute;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRouteDirection;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumPtLineRouteReader extends VisumBaseReader {
 

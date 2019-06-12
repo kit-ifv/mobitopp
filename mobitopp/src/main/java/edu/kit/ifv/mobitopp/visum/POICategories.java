@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.visum.routes.Row;
-
 public class POICategories {
 
   private final Map<String, Integer> codeToNumber;

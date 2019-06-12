@@ -8,9 +8,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumZoneReader extends VisumBaseReader {
 
