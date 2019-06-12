@@ -2,6 +2,8 @@ package edu.kit.ifv.mobitopp.visum.routes;
 
 import java.time.Duration;
 
+import edu.kit.ifv.mobitopp.visum.Row;
+
 enum State {
   start {
 

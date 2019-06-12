@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.visum.Row;
 
 /**
  * This class parses elements of a visum route assignment. The route assignment data is given as

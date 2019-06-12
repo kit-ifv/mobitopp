@@ -23,6 +23,7 @@ import org.junit.jupiter.api.function.Executable;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.visum.Example;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.Table;
 import edu.kit.ifv.mobitopp.visum.VisumChargingFacility;
@@ -30,7 +31,6 @@ import edu.kit.ifv.mobitopp.visum.VisumChargingPoint;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumNetworkReaderTest {
 

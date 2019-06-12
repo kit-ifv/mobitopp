@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StreamReader;
 import edu.kit.ifv.mobitopp.visum.reader.VisumFileReader;
 

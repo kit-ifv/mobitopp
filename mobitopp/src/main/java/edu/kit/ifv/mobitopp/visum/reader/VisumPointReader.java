@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumPoint;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumPointReader extends VisumBaseReader {
 

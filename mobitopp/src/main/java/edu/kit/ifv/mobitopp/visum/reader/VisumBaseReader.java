@@ -2,12 +2,12 @@ package edu.kit.ifv.mobitopp.visum.reader;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.Table;
 import edu.kit.ifv.mobitopp.visum.Unit;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumBaseReader {
 

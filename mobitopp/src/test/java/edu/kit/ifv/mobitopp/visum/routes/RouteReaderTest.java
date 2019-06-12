@@ -10,6 +10,8 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import edu.kit.ifv.mobitopp.visum.Row;
+
 public class RouteReaderTest {
 
   private RouteReader reader;

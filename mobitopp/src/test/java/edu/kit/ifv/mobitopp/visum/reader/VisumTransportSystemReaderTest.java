@@ -15,13 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
 import edu.kit.ifv.mobitopp.visum.reader.VisumTransportSystemReader;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumTransportSystemReaderTest {
 

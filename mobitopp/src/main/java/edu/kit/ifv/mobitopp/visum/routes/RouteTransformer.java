@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StreamReader;
 
 /**

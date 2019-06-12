@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRoute;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfile;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourneySection;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumPtVehicleJourneyReader extends VisumBaseReader {
 

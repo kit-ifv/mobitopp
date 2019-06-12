@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import edu.kit.ifv.mobitopp.visum.Row;
 
 public class StateTest {
 

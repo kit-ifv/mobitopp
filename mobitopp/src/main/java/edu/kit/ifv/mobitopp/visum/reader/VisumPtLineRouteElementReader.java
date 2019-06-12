@@ -9,12 +9,12 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
+import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRoute;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRouteElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtStopPoint;
-import edu.kit.ifv.mobitopp.visum.routes.Row;
 
 public class VisumPtLineRouteElementReader extends VisumBaseReader {
 
