@@ -19,7 +19,6 @@ import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
-import edu.kit.ifv.mobitopp.network.NetworkSerializer;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -33,6 +32,7 @@ import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
+import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
 
 public class ContextBuilder {
 
@@ -131,7 +131,8 @@ public class ContextBuilder {
   }
 
   protected VisumNetwork loadNetwork() {
-    return NetworkSerializer.readVisumNetwork(configuration.getVisumFile(), netfileLanguage);
+    File visumFile = Convert.asFile(configuration.getVisumFile());
+    return new VisumNetworkReader(netfileLanguage).readNetwork(visumFile);
   }
 
   private void roadNetwork() {
