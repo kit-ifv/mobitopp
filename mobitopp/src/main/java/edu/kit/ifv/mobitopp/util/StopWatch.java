@@ -9,7 +9,8 @@ import java.util.function.Supplier;
 
 public class StopWatch {
 
-	private final Supplier<LocalDateTime> timer;
+	static final String overall = "overall";
+  private final Supplier<LocalDateTime> timer;
 	private final LinkedHashMap<String, LocalDateTime> points;
 	private LocalDateTime start;
 
@@ -42,6 +43,7 @@ public class StopWatch {
 			consumer.accept(label, runtime);
 			last = current.getValue();
 		}
+		consumer.accept(overall, Duration.between(start, last));
 	}
 
 	public void start() {
