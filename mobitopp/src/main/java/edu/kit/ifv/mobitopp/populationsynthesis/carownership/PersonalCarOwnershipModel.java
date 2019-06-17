@@ -32,9 +32,14 @@ abstract class PersonalCarOwnershipModel
 		this.random = new Random(seed);
 	}
 
+	@Override
 	public Collection<PrivateCarForSetup> createCars(HouseholdForSetup household) {
 	  int numberOfCars = household.getTotalNumberOfCars();
-		List<PersonForSetup> personsWithLicense = getPersonsWithLicense(household);
+		return createCars(household, numberOfCars);
+	}
+
+  public Collection<PrivateCarForSetup> createCars(HouseholdForSetup household, int numberOfCars) {
+    List<PersonForSetup> personsWithLicense = getPersonsWithLicense(household);
 
 		List<PrivateCarForSetup> cars = new ArrayList<>();
 
@@ -97,7 +102,7 @@ abstract class PersonalCarOwnershipModel
 		}
 
 		return cars;
-	}
+  }
 
 	private List<PersonForSetup> getPersonsWithLicense(HouseholdForSetup household) {
 
