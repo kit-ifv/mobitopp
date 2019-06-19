@@ -157,7 +157,7 @@ public class PublicTransportFromVisum extends BasePublicTransportConverter imple
 		Time simulationStart = simulationStart();
 		JourneyKey key = JourneyKey.from(visum);
 		for (Connection connection : journey.connections().asCollection()) {
-			int departure = (int) connection.departure().differenceTo(simulationStart).seconds();
+			int departure = connection.departure().differenceTo(simulationStart).seconds();
 			JourneyKey derived = key.derive(departure);
 			mapping.put(derived, journey);
 		}
