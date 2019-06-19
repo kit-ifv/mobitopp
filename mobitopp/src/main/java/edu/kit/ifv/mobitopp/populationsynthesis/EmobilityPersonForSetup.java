@@ -22,7 +22,7 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   private final PersonForSetup person;
   private float eMobilityAcceptance;
   private PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice;
-  private Map<String, Boolean> carSharingCustomership;
+  private Map<String, Boolean> carSharingMembership;
 
   public EmobilityPersonForSetup(
       PersonForSetup person, float eMobilityAcceptance,
@@ -32,7 +32,7 @@ public class EmobilityPersonForSetup implements PersonForSetup {
     this.person = person;
     this.eMobilityAcceptance = eMobilityAcceptance;
     this.chargingInfluencesDestinationChoice = chargingInfluencesDestinationChoice;
-    this.carSharingCustomership = carSharingCustomership;
+    this.carSharingMembership = carSharingCustomership;
   }
 
   @Override
@@ -59,7 +59,7 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   public Person toPerson(Household household) {
     Person normal = person.toPerson(household);
     return new EmobilityPerson(normal, eMobilityAcceptance, chargingInfluencesDestinationChoice,
-        carSharingCustomership);
+        carSharingMembership);
   }
 
   @Override
@@ -170,6 +170,11 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   @Override
   public String toString() {
     return person.toString();
+  }
+  
+  @Override
+  public void setCarsharingMembership(Map<String, Boolean> membership) {
+    this.carSharingMembership = membership;
   }
 
 }
