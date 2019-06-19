@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Map;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -67,5 +68,7 @@ public interface PersonForSetup {
   TourBasedActivityPattern getActivityPattern();
 
   void setDrivingLicense(boolean hasDrivingLicense);
+  
+  void setCarsharingMembership(Map<String, Boolean> membership);
 
 }

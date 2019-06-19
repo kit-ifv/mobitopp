@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Map;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -191,6 +192,13 @@ public class DefaultPersonForSetup implements PersonForSetup {
         .getFixedDestination()
         .map(FixedDestination::zone)
         .orElseGet(() -> household().homeZone());
+  }
+  
+  /**
+   * This class does not support carsharing membership. The method does nothing.
+   */
+  @Override
+  public void setCarsharingMembership(Map<String, Boolean> membership) {
   }
 
   @Override
