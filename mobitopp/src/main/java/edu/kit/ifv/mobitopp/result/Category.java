@@ -29,6 +29,10 @@ public class Category {
 	public String name() {
 		return name;
 	}
+	
+	public List<String> headerColumns() {
+	  return Collections.unmodifiableList(columns);
+	}
 
 	@Override
 	public int hashCode() {
