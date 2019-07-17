@@ -16,7 +16,8 @@ import java.util.Map;
 
 public class ParameterFormularParser {
 
-	static final List<String> prefixes = asList("//", "#", "!");
+  static final List<String> inlineComment = asList("//");
+	static final List<String> lineCommentPrefixes = asList("//", "#", "!");
 
   public LogitParameters parseToParameter(File input) {
     try (BufferedReader reader = Files.newBufferedReader(input.toPath())) {
@@ -64,7 +65,7 @@ public class ParameterFormularParser {
 	}
 
 	private boolean isCommented(String line) {
-		return prefixes.stream().anyMatch(prefix -> line.trim().startsWith(prefix));
+		return lineCommentPrefixes.stream().anyMatch(prefix -> line.trim().startsWith(prefix));
 	}
 
 	private Coefficient parse(String line) {

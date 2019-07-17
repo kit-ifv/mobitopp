@@ -74,7 +74,7 @@ public class ParameterFormularParserTest {
 
   @Test
   public void filtersCommentedLines() {
-    assertAll(ParameterFormularParser.prefixes
+    assertAll(ParameterFormularParser.lineCommentPrefixes
         .stream()
         .map(prefix -> () -> parseCommentedLineWith(prefix)));
   }
@@ -83,6 +83,23 @@ public class ParameterFormularParserTest {
     String emptyLine = prefix + " Test";
     String content = "parameter1 = 0.5 - 2.5" + System.lineSeparator() + emptyLine
         + System.lineSeparator();
+    InputStream fileContent = readerWith(content);
+
+    parser.parseConfig(fileContent, model);
+
+    assertThat(model.parameter1, is(closeTo(-2.0d, margin)));
+  }
+
+  @Test
+  void filtersCommentedCode() throws Exception {
+    assertAll(ParameterFormularParser.inlineComment
+        .stream()
+        .map(prefix -> () -> parseCommentedCodeWith(prefix)));
+  }
+
+  private void parseCommentedCodeWith(String prefix) {
+    String commentedCode = prefix + " Test";
+    String content = "parameter1 = 0.5 - 2.5" + commentedCode + System.lineSeparator();
     InputStream fileContent = readerWith(content);
 
     parser.parseConfig(fileContent, model);

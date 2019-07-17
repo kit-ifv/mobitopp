@@ -3,13 +3,14 @@ package edu.kit.ifv.mobitopp.simulation;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
+import edu.kit.ifv.mobitopp.result.CsvConverter;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.result.TripConverter;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
-import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -20,6 +21,7 @@ public class TripfileWriter implements PersonListener {
 	private final ImpedanceIfc impedance;
 	private final TripfileCategories categories;
 	private final LocationParser locationParser;
+  private final TripConverter tripConverter;
 
 	public TripfileWriter(ResultWriter results, ImpedanceIfc impedance) {
 		super();
@@ -28,6 +30,7 @@ public class TripfileWriter implements PersonListener {
 		format = results.dateFormat();
 		categories = new TripfileCategories();
 		locationParser = new LocationParser();
+		tripConverter = new CsvConverter(impedance, format, locationParser);
 	}
 
 	private ResultWriter results() {
@@ -53,108 +56,16 @@ public class TripfileWriter implements PersonListener {
 			Location location_from,
 			Location location_to
 	) {
-
-    String origin = finishedTrip.origin().zone().getId().getExternalId();
-    String destination = activity.zone().getId().getExternalId();
-    ZoneId originId = finishedTrip.origin().zone().getId();
-    ZoneId destinationId = finishedTrip.destination().zone().getId();
-    float distance = impedance.getDistance(originId, destinationId);
-
-			double distance_km = distance/1000.0;
-
-			Household hh = person.household();
-
-		String homeZone = hh.homeZone().getId().getExternalId();
-
-
-			int duration_trip = finishedTrip.plannedDuration();
-
-			int modeType = finishedTrip.mode().getTypeAsInt();
-			String vehicleId = finishedTrip.vehicleId().orElse("");
-			
-			int employmentType 		= person.employment().getTypeAsInt();
-			int sex								= person.gender().getTypeAsInt();
-			int activityType 			= activity.activityType().getTypeAsInt();
-			int activityDuration 	= activity.duration();
-			int activityNumber 		= activity.getActivityNrOfWeek();
-
-			int personnumber 		= person.getId().getPersonNumber();
-			int personOid				= person.getOid();
-			int household_oid			= hh.getOid();
-
-
-			Time begin = previousActivity.calculatePlannedEndDate();
-			
-			int isStartOfTour =  previousActivity.activityType().isHomeActivity() ? 1 : 0;
-
-		String tripBeginDay = format.asDay(begin);
-		String tripBeginTime = format.asTime(begin);
-
-			Time end = finishedTrip.plannedEndDate();
-
-		String tripEndDay = format.asDay(end);
-		String tripEndTime = format.asTime(end);
-
-			int tourNumber = -1;
-			int isMainActivity = -1;
-			int isFirstActivity = -1;
-			int tourPurpose = -1;
-			
-			if (person.activitySchedule() instanceof TourAwareActivitySchedule ) {
-				Tour tour  = ((TourAwareActivitySchedule)person.activitySchedule()).correspondingTour(activity);
-				tourNumber = tour.tourNumber();
-				isMainActivity = activity == tour.mainActivity() ? 1 : 0;
-				
-				tourPurpose = tour.purpose().getTypeAsInt();
-				
-				assert tour.contains(activity);
-				isFirstActivity = tour.isFirstActivity(activity) ? 1 : 0;
-				
-				assert isFirstActivity == isStartOfTour;
-			}
-			Time realEnd = finishedTrip.endDate();
-			String realEndDay = format.asDay(realEnd);
-			String realEndTime = format.asTime(realEnd);
-
-      CsvBuilder message = new CsvBuilder();
-			message.append("W");
-			message.append(personnumber);
-			message.append(household_oid);
-			message.append(personOid);
-			message.append(tripBeginDay);
-			message.append(activityNumber);
-			message.append(tripBeginTime);
-			message.append(activityType);
-			message.append(modeType);
-			message.append(vehicleId);
-			message.append(tripEndDay);
-			message.append(tripEndTime);
-			message.append(distance_km);
-			message.append(duration_trip);
-			message.append(origin);
-			message.append(destination);
-			message.append(employmentType);
-			message.append(homeZone);
-			message.append(activityDuration);
-			message.append(locationParser.serialiseRounded(location_from));
-			message.append(locationParser.serialiseRounded(location_to));
-			message.append(sex);
-			message.append(tourNumber);
-			message.append(isStartOfTour);
-			message.append(tourPurpose);
-			message.append(isMainActivity);
-			message.append(realEndDay);
-			message.append(realEndTime);
-
-    results().write(this.categories.result, message.toString());
+    String line = tripConverter
+        .convert(person, finishedTrip, previousActivity, activity, location_from, location_to);
+    results().write(this.categories.result, line);
     CsvBuilder statistics = new CsvBuilder();
-    statistics.append(personOid);
+    statistics.append(person.getOid());
     finishedTrip.statistic().forAllElements(statistics::append);
     results().write(categories.ptTimes, statistics.toString());
   }
 
-
-	@Override
+  @Override
 	public void notifyStartActivity(Person person, ActivityIfc activity) {
 		Location location = activity.location();
 		Zone zone = activity.zone();

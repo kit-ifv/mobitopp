@@ -24,4 +24,7 @@ public class ZoneAndLocation {
 		return this.location;
 	}
 
+	public static ZoneAndLocation atCenterOf(Zone zone) {
+	  return new ZoneAndLocation(zone, zone.centroidLocation());
+	}
 }

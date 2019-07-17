@@ -1,12 +1,17 @@
 package edu.kit.ifv.mobitopp.util.collections;
 
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,6 +31,42 @@ public final class StreamUtils {
   public static <T> BinaryOperator<T> throwingMerger() {
     return (u, v) -> {
       throw new IllegalStateException(String.format("Duplicate key: %s and %s", u, v));
+    };
+  }
+  
+  /**
+   * Analog method to {@link Collectors#toSet()}, but preserves the insertion
+   * order.
+   * 
+   * @see Collectors#toMap(Function, Function)
+   */
+  public static <T> Collector<T, ?, Set<T>> toLinkedSet() {
+    return new Collector<T, Set<T>, Set<T>>() {
+
+      @Override
+      public Supplier<Set<T>> supplier() {
+        return (Supplier<Set<T>>) LinkedHashSet::new;
+      }
+
+      @Override
+      public BiConsumer<Set<T>, T> accumulator() {
+        return Set::add;
+      }
+
+      @Override
+      public BinaryOperator<Set<T>> combiner() {
+        return (left, right) -> { left.addAll(right); return left; };
+      }
+
+      @Override
+      public Function<Set<T>, Set<T>> finisher() {
+        return i -> i;
+      }
+
+      @Override
+      public Set<Characteristics> characteristics() {
+        return EnumSet.of(Collector.Characteristics.IDENTITY_FINISH);
+      }
     };
   }
 
