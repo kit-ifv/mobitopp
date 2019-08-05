@@ -16,20 +16,22 @@ public class POICategories {
     this.codeToNumber = codeToNumber;
   }
 
-  public static POICategories from(VisumTable table) {
+  public static POICategories from(VisumTable table, NetfileLanguage language) {
     Objects.requireNonNull(table);
     assert table.containsAttribute("NR");
     assert table.containsAttribute("CODE");
-    return from(table.rows());
+    return from(table.rows(), language);
   }
 
-  public static POICategories from(Collection<Row> rows) {
-    return from(rows.stream());
+  public static POICategories from(Collection<Row> rows, NetfileLanguage language) {
+    return from(rows.stream(), language);
   }
 
-  public static POICategories from(Stream<Row> streamedRows) {
+  public static POICategories from(Stream<Row> streamedRows, NetfileLanguage language) {
+    String code = language.resolve(StandardAttributes.code);
+    String number = language.resolve(StandardAttributes.number);
     Map<String, Integer> codeToNumber = streamedRows
-        .collect(toMap(row -> row.get("CODE"), row -> row.valueAsInteger("NR")));
+        .collect(toMap(row -> row.get(code), row -> row.valueAsInteger(number)));
     return new POICategories(codeToNumber);
   }
 

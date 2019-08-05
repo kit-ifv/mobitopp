@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -33,19 +34,27 @@ public final class StreamUtils {
       throw new IllegalStateException(String.format("Duplicate key: %s and %s", u, v));
     };
   }
-  
+
   /**
-   * Analog method to {@link Collectors#toSet()}, but preserves the insertion
-   * order.
+   * Analog method to {@link Collectors#toSet()}, but preserves the insertion order.
    * 
    * @see Collectors#toMap(Function, Function)
    */
   public static <T> Collector<T, ?, Set<T>> toLinkedSet() {
+    return toSet(LinkedHashSet::new);
+  }
+
+  /**
+   * Analog method to {@link Collectors#toSet()}, but allows other implementations of {@link Set}
+   * 
+   * @see Collectors#toMap(Function, Function)
+   */
+  public static <T> Collector<T, ?, Set<T>> toSet(Supplier<Set<T>> supplier) {
     return new Collector<T, Set<T>, Set<T>>() {
 
       @Override
       public Supplier<Set<T>> supplier() {
-        return (Supplier<Set<T>>) LinkedHashSet::new;
+        return supplier;
       }
 
       @Override
@@ -55,7 +64,10 @@ public final class StreamUtils {
 
       @Override
       public BinaryOperator<Set<T>> combiner() {
-        return (left, right) -> { left.addAll(right); return left; };
+        return (left, right) -> {
+          left.addAll(right);
+          return left;
+        };
       }
 
       @Override
@@ -96,5 +108,9 @@ public final class StreamUtils {
   public static <T, K, U> Collector<T, ?, SortedMap<K, U>> toSortedMap(
       Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
     return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), TreeMap::new);
+  }
+
+  public static <T> Collector<T, ?, Set<T>> toSortedSet() {
+    return toSet(TreeSet::new);
   }
 }
