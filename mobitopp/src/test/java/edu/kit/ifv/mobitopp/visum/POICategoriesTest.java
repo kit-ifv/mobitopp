@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class POICategoriesTest {
 
+  private static final NetfileLanguage language = StandardNetfileLanguages.german();
   private static final int missingNumber = 0;
   private static final String missingCode = "missing-code";
   private static final int someNumber = 1;
@@ -42,7 +43,7 @@ public class POICategoriesTest {
 
   @Test
   void containsCode() throws Exception {
-    POICategories poiCategories = POICategories.from(table);
+    POICategories poiCategories = POICategories.from(table, language);
 
     assertAll(() -> assertTrue(poiCategories.containsCode(someCode), someCode),
         () -> assertTrue(poiCategories.containsCode(otherCode), otherCode),
@@ -51,7 +52,7 @@ public class POICategoriesTest {
 
   @Test
   void containsNumber() throws Exception {
-    POICategories poiCategories = POICategories.from(table);
+    POICategories poiCategories = POICategories.from(table, language);
 
     assertAll(() -> assertTrue(poiCategories.containsNumber(someNumber), someNumberAsString()),
         () -> assertTrue(poiCategories.containsNumber(otherNumber), otherNumberAsString()),
@@ -60,7 +61,7 @@ public class POICategoriesTest {
 
   @Test
   void resolvesNumberByCode() throws Exception {
-    POICategories poiCategories = POICategories.from(table);
+    POICategories poiCategories = POICategories.from(table, language);
 
     assertAll(() -> assertThat(poiCategories.numberByCode(someCode), is(equalTo(someNumber))),
         () -> assertThat(poiCategories.numberByCode(otherCode), is(equalTo(otherNumber))),

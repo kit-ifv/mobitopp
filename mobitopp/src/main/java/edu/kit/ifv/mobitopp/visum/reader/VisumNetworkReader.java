@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.visum.reader;
 
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -402,7 +403,8 @@ public class VisumNetworkReader extends VisumBaseReader {
 
   Map<Integer, VisumChargingFacility> readChargingFacilities() {
     Stream<Row> content = loadContentOf(poiCategory());
-    POICategories categories = POICategories.from(content);
+    List<Row> rows = content.collect(toList());
+    POICategories categories = POICategories.from(rows.stream(), language);
     if (categories.containsCode(chargingStations())) {
       return readChargingStations(categories);
     }
@@ -429,7 +431,7 @@ public class VisumNetworkReader extends VisumBaseReader {
 
   Map<Integer, VisumChargingPoint> readChargingPoints() {
     Stream<Row> content = loadContentOf(poiCategory());
-    POICategories categories = POICategories.from(content);
+    POICategories categories = POICategories.from(content, language);
     if (categories.containsCode(chargingPoints())) {
       return readChargingPoints(categories);
     }
@@ -448,7 +450,7 @@ public class VisumNetworkReader extends VisumBaseReader {
 
   private Map<Integer, VisumCarSharingStation> readCarSharingStadtmobil() {
     final String categoryName = attribute(StandardAttributes.carsharingStadtmobil);
-    POICategories categories = POICategories.from(loadContentOf(poiCategory()));
+    POICategories categories = POICategories.from(loadContentOf(poiCategory()), language);
     if (!categories.containsCode(categoryName)) {
       return emptyMap();
     }
@@ -459,7 +461,7 @@ public class VisumNetworkReader extends VisumBaseReader {
 
   private Map<Integer, VisumCarSharingStation> readCarSharingFlinkster() {
     final String categoryName = attribute(StandardAttributes.carsharingFlinkster);
-    POICategories categories = POICategories.from(loadContentOf(poiCategory()));
+    POICategories categories = POICategories.from(loadContentOf(poiCategory()), language);
     if (!categories.containsCode(categoryName)) {
       return emptyMap();
     }

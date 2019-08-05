@@ -16,6 +16,8 @@ public abstract class StandardNetfileLanguages {
     language.add(Table.edges, "EDGE");
     language.add(Table.faces, "FACEITEM");
     language.add(Table.territories, "TERRITORY");
+    language.add(Table.poiCategory, "POICATEGORY");
+    language.add(Table.poiCategoryPrefix, "POIOFCAT_");
     // TODO translation still missing
     language.add(Table.connectors, "ANBINDUNG");
     language.add(Table.vehicleUnit, "FZGEINHEIT");
@@ -32,8 +34,6 @@ public abstract class StandardNetfileLanguages {
     language.add(Table.timeProfileElement, "FAHRZEITPROFILELEMENT");
     language.add(Table.vehicleJourney, "FAHRPLANFAHRT");
     language.add(Table.vehicleJourneyPart, "FAHRPLANFAHRTABSCHNITT");
-    language.add(Table.poiCategory, "POIKATEGORIE");
-    language.add(Table.poiCategoryPrefix, "POIOFCAT_");
     
     // TransportSystem
     language.add(StandardAttributes.code, "CODE");
