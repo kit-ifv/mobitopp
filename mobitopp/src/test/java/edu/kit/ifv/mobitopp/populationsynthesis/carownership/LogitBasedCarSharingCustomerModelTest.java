@@ -17,7 +17,7 @@ import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -42,9 +42,9 @@ public class LogitBasedCarSharingCustomerModelTest {
 	private HouseholdForSetup household_dummy;
 	private HouseholdForSetup household;
 
-	private PersonForSetup person_dummy;
-	private PersonForSetup male_working;
-	private PersonForSetup female_working;
+	private PersonBuilder person_dummy;
+	private PersonBuilder male_working;
+	private PersonBuilder female_working;
 
 	@Before
 	public void setUp() throws URISyntaxException {
@@ -106,11 +106,14 @@ public class LogitBasedCarSharingCustomerModelTest {
 												90, // age,
 												Employment.NONE,
 												Gender.MALE,
-                        Graduation.undefined,
+												Graduation.undefined,
 												0, // income
-												false, true, false,  false, true,
-												null, null
-										);
+												null)
+												.setHasBike(false)
+												.setHasAccessToCar(true)
+												.setHasPersonalCar(false)
+												.setHasCommuterTicket(false)
+												.setHasDrivingLicense(true);
 
 		male_working = new DefaultPersonForSetup(	
 												null, // id
@@ -120,9 +123,12 @@ public class LogitBasedCarSharingCustomerModelTest {
 												Gender.MALE,
                         Graduation.undefined,
 												0, // income
-												false, true, false,  false, true,
-												null, null
-										);
+												null)
+												.setHasBike(false)
+												.setHasAccessToCar(true)
+												.setHasPersonalCar(false)
+												.setHasCommuterTicket(false)
+												.setHasDrivingLicense(true);
 
 		female_working = new DefaultPersonForSetup(	
 												null, // id
@@ -132,9 +138,12 @@ public class LogitBasedCarSharingCustomerModelTest {
 												Gender.FEMALE,
                         Graduation.undefined,
 												0, // income
-												false, true, false,  false, true,
-												null, null
-										);
+												null)
+												.setHasBike(false)
+												.setHasAccessToCar(true)
+												.setHasPersonalCar(false)
+												.setHasCommuterTicket(false)
+												.setHasDrivingLicense(true);
 
 		household.addPerson(male_working);
 		household.addPerson(female_working);
@@ -170,7 +179,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																		);
 	}
 
-	protected static PersonForSetup makePerson(
+	protected static PersonBuilder makePerson(
 		int age,
 		Employment employment,
 		Gender sex,
@@ -183,13 +192,14 @@ public class LogitBasedCarSharingCustomerModelTest {
 												age, // age,
 												employment,
 												sex,
-                        Graduation.undefined,
+												Graduation.undefined,
 												0, // income
-												false, true, false, 
-												ticket,
-												true, 
-												null, null
-										);
+												null)
+												.setHasBike(false)
+												.setHasAccessToCar(true)
+												.setHasPersonalCar(false)
+												.setHasCommuterTicket(ticket)
+												.setHasDrivingLicense(true);
 	}
 
 	@Test
@@ -223,7 +233,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -237,7 +247,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + 0.1095;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				true
@@ -251,7 +261,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + 0.0763 ;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.FULLTIME, 
 																				Gender.MALE,
 																				false
@@ -265,7 +275,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + -0.5607 + 0.0763;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.FULLTIME, 
 																				Gender.FEMALE,
 																				false
@@ -279,7 +289,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 -0.69665;
 
-		PersonForSetup person = makePerson(24, 
+		PersonBuilder person = makePerson(24, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -293,7 +303,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162  + 0.0763 + 1.3747;
 
-		PersonForSetup person = makePerson(30, 
+		PersonBuilder person = makePerson(30, 
 																				Employment.FULLTIME, 
 																				Gender.MALE,
 																				false
@@ -307,7 +317,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + -0.5607 + 0.0763 + 1.3747;
 
-		PersonForSetup person = makePerson(30, 
+		PersonBuilder person = makePerson(30, 
 																				Employment.FULLTIME, 
 																				Gender.FEMALE,
 																				false
@@ -321,7 +331,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -351,7 +361,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -396,7 +406,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 	@Test
 	public void testStadtmobilMaleHouseholdSize1() {
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -417,7 +427,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 	@Test
 	public void testStadtmobilMaleHouseholdSize2() {
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				false
@@ -439,7 +449,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + -0.5607;
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.FEMALE,
 																				false
@@ -518,7 +528,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 	@Test
 	public void testStadtmobilMaleHouseholdSize2Ticket() {
 
-		PersonForSetup person = makePerson(90, 
+		PersonBuilder person = makePerson(90, 
 																				Employment.NONE, 
 																				Gender.MALE,
 																				true
@@ -537,7 +547,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 
 		double expected = -6.5162 + -0.5607 + -0.69665;
 
-		PersonForSetup person = makePerson(20, 
+		PersonBuilder person = makePerson(20, 
 																				Employment.NONE, 
 																				Gender.FEMALE,
 																				false

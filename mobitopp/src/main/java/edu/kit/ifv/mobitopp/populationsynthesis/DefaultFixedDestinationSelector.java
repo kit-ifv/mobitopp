@@ -74,7 +74,7 @@ implements FixedDestinationSelector
 
 	public void setFixedDestinations(
 		Zone zone, 
-		Map<Integer, PersonForSetup> persons,
+		Map<Integer, PersonBuilder> persons,
 		Map<Integer, PersonOfPanelData> panelPersons
 	)
 	{
@@ -87,7 +87,7 @@ implements FixedDestinationSelector
 			// 5. Pole zuordnen
 
 		for (ActivityType activityType : this.activityTypes) {
-			SortedMap<Integer,List<PersonForSetup>> personDistances 
+			SortedMap<Integer,List<PersonBuilder>> personDistances 
 				= calculatePersonDistanceDistribution(activityType, persons, panelPersons);
 
 			// 3. Verteilung der Zielzellen nach Distanz
@@ -187,17 +187,17 @@ implements FixedDestinationSelector
 		}
 	}
 
-	private SortedMap<Integer,List<PersonForSetup>> calculatePersonDistanceDistribution(
+	private SortedMap<Integer,List<PersonBuilder>> calculatePersonDistanceDistribution(
 		ActivityType activityType,
-		Map<Integer, PersonForSetup> demandPersons,
+		Map<Integer, PersonBuilder> demandPersons,
 		Map<Integer, PersonOfPanelData> panelPersons
 	) {
-			SortedMap<Integer,List<PersonForSetup>> distances = new TreeMap<>();
+			SortedMap<Integer,List<PersonBuilder>> distances = new TreeMap<>();
 
 			for (Integer personId : demandPersons.keySet()) {
 
 				PersonOfPanelData personOfPanelData = panelPersons.get(personId);
-				PersonForSetup person = demandPersons.get(personId);
+				PersonBuilder person = demandPersons.get(personId);
 				assert person != null;
 				assert personOfPanelData != null;
 
@@ -241,7 +241,7 @@ implements FixedDestinationSelector
 
 
 	private void rescaleZoneDistanceDistributions(
-		SortedMap<Integer,List<PersonForSetup>> personDistances, 
+		SortedMap<Integer,List<PersonBuilder>> personDistances, 
 		SortedMap<Integer,Map<ZoneId,Float>> zoneDistances
 	) {
 
@@ -295,7 +295,7 @@ implements FixedDestinationSelector
 
 	private void setPersonsPoleZones(
 		ActivityType activityType,
-		SortedMap<Integer,List<PersonForSetup>> personDistances, 
+		SortedMap<Integer,List<PersonBuilder>> personDistances, 
 		SortedMap<Integer,Map<ZoneId,Float>> zoneDistances
 	) {
 
@@ -311,7 +311,7 @@ implements FixedDestinationSelector
 
 
 			for (Integer dist : personDistances.keySet()) {
-				for (PersonForSetup person : personDistances.get(dist)) {
+				for (PersonBuilder person : personDistances.get(dist)) {
 					ZoneId zoneId = zoneOids.remove();
 					Zone zone = this.zoneRepository.getZoneById(zoneId);
 					assert zone != null;

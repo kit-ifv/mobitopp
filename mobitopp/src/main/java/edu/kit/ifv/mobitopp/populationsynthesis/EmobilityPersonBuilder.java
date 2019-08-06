@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.Map;
 import java.util.Optional;
 
@@ -16,23 +18,22 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
-public class EmobilityPersonForSetup implements PersonForSetup {
+public class EmobilityPersonBuilder implements PersonBuilder {
 
-  private final PersonForSetup person;
+  private static final float defaultEMobilityAcceptance = 0.0f;
+  private final PersonBuilder person;
   private float eMobilityAcceptance;
   private PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice;
   private Map<String, Boolean> carSharingMembership;
 
-  public EmobilityPersonForSetup(
-      PersonForSetup person, float eMobilityAcceptance,
-      PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice,
-      Map<String, Boolean> carSharingCustomership) {
+  public EmobilityPersonBuilder(PersonBuilder person) {
     super();
     this.person = person;
-    this.eMobilityAcceptance = eMobilityAcceptance;
-    this.chargingInfluencesDestinationChoice = chargingInfluencesDestinationChoice;
-    this.carSharingMembership = carSharingCustomership;
+    this.eMobilityAcceptance = defaultEMobilityAcceptance;
+    this.chargingInfluencesDestinationChoice = PublicChargingInfluencesDestinationChoice.NEVER;
+    this.carSharingMembership = emptyMap();
   }
 
   @Override
@@ -41,13 +42,15 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   }
 
   @Override
-  public void setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
+  public EmobilityPersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
     person.setPatternActivityWeek(activityPattern);
+    return this;
   }
 
   @Override
-  public void setFixedDestination(FixedDestination fixedDestination) {
+  public EmobilityPersonBuilder setFixedDestination(FixedDestination fixedDestination) {
     person.setFixedDestination(fixedDestination);
+    return this;
   }
 
   @Override
@@ -58,8 +61,7 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   @Override
   public Person toPerson(Household household) {
     Person normal = person.toPerson(household);
-    return new EmobilityPerson(normal, eMobilityAcceptance, chargingInfluencesDestinationChoice,
-        carSharingMembership);
+    return new EmobilityPerson(normal, eMobilityAcceptance, chargingInfluencesDestinationChoice, carSharingMembership);
   }
 
   @Override
@@ -96,7 +98,7 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   public Gender gender() {
     return person.gender();
   }
-  
+
   @Override
   public Graduation graduation() {
     return person.graduation();
@@ -113,18 +115,20 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   }
 
   @Override
-  public void setDrivingLicense(boolean hasDrivingLicense) {
-    person.setDrivingLicense(hasDrivingLicense);
+  public EmobilityPersonBuilder setHasDrivingLicense(boolean hasDrivingLicense) {
+    person.setHasDrivingLicense(hasDrivingLicense);
+    return this;
   }
 
   @Override
   public boolean hasCommuterTicket() {
     return person.hasCommuterTicket();
   }
-  
+
   @Override
-  public void setCommuterTicket(boolean hasCommuterTicket) {
-    person.setCommuterTicket(hasCommuterTicket);
+  public EmobilityPersonBuilder setHasCommuterTicket(boolean hasCommuterTicket) {
+    person.setHasCommuterTicket(hasCommuterTicket);
+    return this;
   }
 
   @Override
@@ -133,15 +137,33 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   }
 
   @Override
+  public EmobilityPersonBuilder setHasBike(boolean hasBike) {
+    person.setHasBike(hasBike);
+    return this;
+  }
+
+  @Override
   public boolean hasAccessToCar() {
     return person.hasAccessToCar();
+  }
+
+  @Override
+  public EmobilityPersonBuilder setHasAccessToCar(boolean hasAccessToCar) {
+    person.setHasAccessToCar(hasAccessToCar);
+    return this;
   }
 
   @Override
   public boolean hasPersonalCar() {
     return person.hasPersonalCar();
   }
-  
+
+  @Override
+  public EmobilityPersonBuilder setHasPersonalCar(boolean hasPersonalCar) {
+    person.setHasPersonalCar(hasPersonalCar);
+    return this;
+  }
+
   @Override
   public Optional<Zone> fixedZoneFor(ActivityType activityType) {
     return person.fixedZoneFor(activityType);
@@ -166,15 +188,43 @@ public class EmobilityPersonForSetup implements PersonForSetup {
   public TourBasedActivityPattern getActivityPattern() {
     return person.getActivityPattern();
   }
-  
+
+  @Override
+  public ModeChoicePreferences getModeChoicePreferences() {
+    return person.getModeChoicePreferences();
+  }
+
+  @Override
+  public ModeChoicePreferences getModeChoicePrefsSurvey() {
+    return person.getModeChoicePrefsSurvey();
+  }
+
+  @Override
+  public EmobilityPersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences) {
+    person.setModeChoicePreferences(modeChoicePreferences);
+    return this;
+  }
+
+  public EmobilityPersonBuilder setEmobilityAcceptance(float eMobilityAcceptance) {
+    this.eMobilityAcceptance = eMobilityAcceptance;
+    return this;
+  }
+
+  public EmobilityPersonBuilder setChargingInfluencesDestinationChoice(
+      PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice) {
+    this.chargingInfluencesDestinationChoice = chargingInfluencesDestinationChoice;
+    return this;
+  }
+
+  @Override
+  public EmobilityPersonBuilder setCarsharingMembership(Map<String, Boolean> membership) {
+    this.carSharingMembership = membership;
+    return this;
+  }
+
   @Override
   public String toString() {
     return person.toString();
-  }
-  
-  @Override
-  public void setCarsharingMembership(Map<String, Boolean> membership) {
-    this.carSharingMembership = membership;
   }
 
 }

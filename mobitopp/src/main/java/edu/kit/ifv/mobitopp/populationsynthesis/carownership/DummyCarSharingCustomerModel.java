@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 import java.util.Random;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 
 public class DummyCarSharingCustomerModel 
 	implements CarSharingCustomerModel {
@@ -22,7 +22,7 @@ public class DummyCarSharingCustomerModel
 
 
 	public boolean estimateCustomership(
-  	PersonForSetup person
+  	PersonBuilder person
   ) {
 
 		double random = this.random.nextDouble();

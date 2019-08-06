@@ -15,7 +15,7 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
@@ -88,7 +88,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 	}
 
 	@Override
-	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
+	public double calculateProbabilityForElectricCar(final PersonBuilder person, Car.Segment segment) {
 		return probabilityFrom(bevUtility(person) + erevUtility(person));
 	}
 
@@ -98,7 +98,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 
 	@Override
 	public TypeProbabilities calculateProbabilities(
-			PersonForSetup person, Car.Segment segment) {
+			PersonBuilder person, Car.Segment segment) {
 		Map<CarType, Double> utilities = new HashMap<>();
 		utilities.put(CarType.conventional, 0.0d);
 		utilities.put(CarType.bev, bevUtility(person));
@@ -108,14 +108,14 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 		return new TypeProbabilities(logitProbabilities);
 	}
 
-	private double distance(PersonForSetup person) {
+	private double distance(PersonBuilder person) {
 		HouseholdForSetup household = person.household();
 		ZoneId homeZone = household.homeZone().getId();
 		ZoneId poleZone = person.fixedActivityZone().getId();
 		return impedance.getDistance(homeZone, poleZone) / 1000.0d;
 	}
 
-	private double bevUtility(PersonForSetup person) {
+	private double bevUtility(PersonBuilder person) {
 		double distance = distance(person);
 		return CONST_BEV
 				+ WORKDIS_BEV * distance
@@ -146,7 +146,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 				+ HHGRO_4_BEV * hhgro4(person);
 	}
 
-	private double erevUtility(PersonForSetup person) {
+	private double erevUtility(PersonBuilder person) {
 		double distance = distance(person);
 		return CONST_EREV
 				+ WORKDIS_EREV * distance
@@ -177,99 +177,99 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 				+ HHGRO_4_EREV * hhgro4(person);
 	}
 
-	private static int sexMale(PersonForSetup person) {
+	private static int sexMale(PersonBuilder person) {
 		return MALE == person.gender() ? 1 : 0;
 	}
 
-	private static int fulltime(PersonForSetup person) {
+	private static int fulltime(PersonBuilder person) {
 		return FULLTIME == person.employment() ? 1 : 0;
 	}
 
-	private static int parttime(PersonForSetup person) {
+	private static int parttime(PersonBuilder person) {
 		return PARTTIME == person.employment() ? 1 : 0;
 	}
 
-	private static int jobless(PersonForSetup person) {
+	private static int jobless(PersonBuilder person) {
 		return UNEMPLOYED == person.employment() ? 1 : 0;
 	}
 
-	private static int studentTertiary(PersonForSetup person) {
+	private static int studentTertiary(PersonBuilder person) {
 		return STUDENT_TERTIARY == person.employment() ? 1 : 0;
 	}
 
-	private static int studentSecondary(PersonForSetup person) {
+	private static int studentSecondary(PersonBuilder person) {
 		return STUDENT_SECONDARY == person.employment() ? 1 : 0;
 	}
 
-	private static int education(PersonForSetup person) {
+	private static int education(PersonBuilder person) {
 		return EDUCATION == person.employment() ? 1 : 0;
 	}
 
-	private static int unemployed(PersonForSetup person) {
+	private static int unemployed(PersonBuilder person) {
 		return HOMEKEEPER == person.employment() ? 1 : 0;
 	}
 
-	private static int retired(PersonForSetup person) {
+	private static int retired(PersonBuilder person) {
 		return RETIRED == person.employment() ? 1 : 0;
 	}
 
-	private static int age18To25(PersonForSetup person) {
+	private static int age18To25(PersonBuilder person) {
 		return 18 <= person.age() && 25 > person.age() ? 1 : 0;
 	}
 
-	private static int age25To35(PersonForSetup person) {
+	private static int age25To35(PersonBuilder person) {
 		return 25 <= person.age() && 35 > person.age() ? 1 : 0;
 	}
 
-	private static int age35To45(PersonForSetup person) {
+	private static int age35To45(PersonBuilder person) {
 		return 35 <= person.age() && 45 > person.age() ? 1 : 0;
 	}
 
-	private static int age45To55(PersonForSetup person) {
+	private static int age45To55(PersonBuilder person) {
 		return 45 <= person.age() && 55 > person.age() ? 1 : 0;
 	}
 
-	private static int age55To65(PersonForSetup person) {
+	private static int age55To65(PersonBuilder person) {
 		return 55 <= person.age() && 65 > person.age() ? 1 : 0;
 	}
 
-	private static int age65To75(PersonForSetup person) {
+	private static int age65To75(PersonBuilder person) {
 		return 65 <= person.age() && 75 > person.age() ? 1 : 0;
 	}
 
-	private static int age75To85(PersonForSetup person) {
+	private static int age75To85(PersonBuilder person) {
 		return 75 <= person.age() && 85 > person.age() ? 1 : 0;
 	}
 
-	private static int oneCar(PersonForSetup person) {
+	private static int oneCar(PersonBuilder person) {
 		return 1 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int twoCars(PersonForSetup person) {
+	private static int twoCars(PersonBuilder person) {
 		return 2 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int threeCars(PersonForSetup person) {
+	private static int threeCars(PersonBuilder person) {
 		return 3 == person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int moreThan4Cars(PersonForSetup person) {
+	private static int moreThan4Cars(PersonBuilder person) {
 		return 4 <= person.household().getTotalNumberOfCars() ? 1 : 0;
 	}
 
-	private static int hhgro1(PersonForSetup person) {
+	private static int hhgro1(PersonBuilder person) {
 		return person.household().getSize() == 1 ? 1 : 0;
 	}
 
-	private static int hhgro2(PersonForSetup person) {
+	private static int hhgro2(PersonBuilder person) {
 		return person.household().getSize() == 2 ? 1 : 0;
 	}
 
-	private static int hhgro3(PersonForSetup person) {
+	private static int hhgro3(PersonBuilder person) {
 		return person.household().getSize() == 3 ? 1 : 0;
 	}
 
-	private static int hhgro4(PersonForSetup person) {
+	private static int hhgro4(PersonBuilder person) {
 		return person.household().getSize() == 4 ? 1 : 0;
 	}
 

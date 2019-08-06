@@ -28,12 +28,12 @@ public class DefaultActivityScheduleAssigner implements ActivityScheduleAssigner
 
   @Override
   public void assignActivitySchedule(HouseholdForSetup toHousehold) {
-    for (PersonForSetup personInHH : toHousehold.getPersons()) {
+    for (PersonBuilder personInHH : toHousehold.getPersons()) {
       doAssign(toHousehold, personInHH);
     }
   }
 
-  private void doAssign(HouseholdForSetup household, PersonForSetup person) {
+  private void doAssign(HouseholdForSetup household, PersonBuilder person) {
     HouseholdOfPanelDataId householdId = createPanelId(household.getId());
     PersonOfPanelDataId personId = createPanelId(person.getId());
     HouseholdOfPanelData panelHousehold = panelDataRepository.getHousehold(householdId);

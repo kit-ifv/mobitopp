@@ -2,6 +2,9 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.PersonOfPanelDataBuilder.personOfPanelData;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
@@ -45,4 +48,14 @@ public class ExamplePersonOfPanelData {
 	public static PersonOfPanelData withAge(PersonOfPanelDataId id, int age) {
 		return personOfPanelData().withId(id).withAge(age).build();
 	}
+
+  public static PersonId personIdOf(PersonOfPanelDataId id, int householdOid, int personOid) {
+    HouseholdId householdId = householdIdOf(id.getHouseholdId(), householdOid);
+    return new PersonId(personOid, householdId, id.getPersonNumber());
+  }
+
+  private static HouseholdId householdIdOf(HouseholdOfPanelDataId householdId, int householdOid) {
+    return new HouseholdId(householdOid, householdId.getYear(), householdId.getHouseholdNumber());
+  }
+  
 }

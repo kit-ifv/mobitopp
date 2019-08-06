@@ -10,7 +10,7 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
@@ -27,7 +27,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   private final int income;
   private final int incomeClass;
   private final boolean canChargePrivately;
-  private final List<PersonForSetup> persons;
+  private final List<PersonBuilder> persons;
   private final List<PrivateCarForSetup> ownedCars;
 
   public DefaultHouseholdForSetup(
@@ -51,12 +51,12 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
   }
 
   @Override
-  public void addPerson(PersonForSetup person) {
+  public void addPerson(PersonBuilder person) {
     persons.add(person);
   }
 
   @Override
-  public List<PersonForSetup> getPersons() {
+  public List<PersonBuilder> getPersons() {
     return Collections.unmodifiableList(persons);
   }
 
@@ -131,7 +131,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
     return Math
         .toIntExact(persons
             .stream()
-            .mapToInt(PersonForSetup::age)
+            .mapToInt(PersonBuilder::age)
             .filter(age -> fromIncluding <= age)
             .filter(age -> toIncluding >= age)
             .count());

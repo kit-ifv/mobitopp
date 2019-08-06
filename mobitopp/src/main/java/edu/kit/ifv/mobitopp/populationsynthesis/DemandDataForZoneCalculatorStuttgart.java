@@ -218,7 +218,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 		for (PersonOfPanelData aPersonOfPanelData: personsOfPanelData) {
 
-			PersonForSetup person = this.personCreator.createPerson(aPersonOfPanelData, householdOfPanelData, household, zone.zone());
+			PersonBuilder person = this.personCreator.createPerson(aPersonOfPanelData, householdOfPanelData, household, zone.zone());
 			household.addPerson(person);
 			
 			zone.actualDemography().incrementAge(person.gender(), person.age());
@@ -297,10 +297,10 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
 
 	private void instantiatePoleZones(DemandZone zone, List<HouseholdForSetup> households) {
-    Map<PersonForSetup, PersonOfPanelData> mappedPersons = new LinkedHashMap<>();
+    Map<PersonBuilder, PersonOfPanelData> mappedPersons = new LinkedHashMap<>();
 
     Map<Integer, PersonOfPanelData> panelPersons = new LinkedHashMap<>();
-    Map<Integer, PersonForSetup> demandPersons = new LinkedHashMap<>();
+    Map<Integer, PersonBuilder> demandPersons = new LinkedHashMap<>();
 
 		for (HouseholdForSetup household : households) {
 			HouseholdOfPanelDataId id = householdToId.get(household);
@@ -316,7 +316,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 				sortedPersons.put(persnum, p);
 			}
 	
-			for (PersonForSetup person : household.getPersons()) {
+			for (PersonBuilder person : household.getPersons()) {
 	
 				PersonOfPanelData aPersonOfPanelData = sortedPersons.get(person.getId().getPersonNumber());
 

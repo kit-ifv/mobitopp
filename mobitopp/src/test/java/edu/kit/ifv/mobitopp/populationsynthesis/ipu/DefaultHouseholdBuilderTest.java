@@ -23,7 +23,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
@@ -44,8 +44,8 @@ public class DefaultHouseholdBuilderTest {
 				.thenReturn(demandHousehold);
 		PersonOfPanelData someMember = personOfPanelData().build();
 		PersonOfPanelData otherMember = personOfPanelData().build();
-		PersonForSetup somePerson = createPerson();
-		PersonForSetup otherPerson = createPerson();
+		PersonBuilder somePerson = createPerson();
+		PersonBuilder otherPerson = createPerson();
 		when(personCreator.createPerson(someMember, panelHousehold, demandHousehold, demandZone.zone()))
 				.thenReturn(somePerson);
 		when(personCreator.createPerson(otherMember, panelHousehold, demandHousehold, demandZone.zone()))
@@ -65,8 +65,8 @@ public class DefaultHouseholdBuilderTest {
 				.createPerson(any(), eq(panelHousehold), eq(household), eq(demandZone.zone()));
 	}
 
-	private PersonForSetup createPerson() {
-		PersonForSetup person = mock(PersonForSetup.class);
+	private PersonBuilder createPerson() {
+		PersonBuilder person = mock(PersonBuilder.class);
 		when(person.gender()).thenReturn(Gender.MALE);
 		when(person.age()).thenReturn(20);
 		when(person.employment()).thenReturn(Employment.FULLTIME);

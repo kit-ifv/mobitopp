@@ -17,7 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
-public class DefaultPersonForSetup implements PersonForSetup {
+public class DefaultPersonForSetup implements PersonBuilder {
 
   private final PersonId id;
   private final HouseholdForSetup household;
@@ -26,46 +26,36 @@ public class DefaultPersonForSetup implements PersonForSetup {
   private final Gender gender;
   private final Graduation graduation;
   private final int income;
-  private final boolean hasBike;
-  private final boolean hasAccessToCar;
-  private final boolean hasPersonalCar;
-  private boolean hasCommuterTicket;
-  private boolean hasDrivingLicense;
   private final FixedDestinations fixedDestinations;
   private final ModeChoicePreferences modeChoicePrefsSurvey;
-  private final ModeChoicePreferences modeChoicePreferences;
+
+  private boolean hasBike;
+  private boolean hasAccessToCar;
+  private boolean hasPersonalCar;
+  private boolean hasCommuterTicket;
+  private boolean hasDrivingLicense;
+  private ModeChoicePreferences modeChoicePreferences;
   private TourBasedActivityPattern activityPattern;
 
-  public DefaultPersonForSetup(
-      PersonId id, HouseholdForSetup household, int age, Employment employment, Gender gender,
-      Graduation graduation, int income, boolean hasBike, boolean hasAccessToCar,
-      boolean hasPersonalCar, boolean hasCommuterTicket, boolean hasLicense,
-      ModeChoicePreferences modeChoicePrefsSurvey, ModeChoicePreferences modeChoicePreferences) {
+  public DefaultPersonForSetup(PersonId id, HouseholdForSetup household, int age, Employment employment,
+      Gender gender, Graduation graduation, int income, ModeChoicePreferences modeChoicePrefsSurvey) {
+    super();
     this.id = id;
-
     this.household = household;
-
     this.age = (short) age;
-
     this.employment = employment;
     this.gender = gender;
     this.graduation = graduation;
-
     this.income = income;
-
-    this.hasBike = hasBike;
-    this.hasAccessToCar = hasAccessToCar;
-    this.hasPersonalCar = hasPersonalCar;
-    this.hasCommuterTicket = hasCommuterTicket;
-    this.hasDrivingLicense = hasLicense;
-
-    fixedDestinations = new FixedDestinations();
-
     this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
-    this.modeChoicePreferences = modeChoicePreferences;
-
+    fixedDestinations = new FixedDestinations();
+    this.hasBike = false;
+    this.hasAccessToCar = false;
+    this.hasPersonalCar = false;
+    this.hasCommuterTicket = false;
+    this.hasDrivingLicense = false;
   }
-
+  
   @Override
   public HouseholdForSetup household() {
     return household;
@@ -77,23 +67,42 @@ public class DefaultPersonForSetup implements PersonForSetup {
   }
 
   @Override
+  public DefaultPersonForSetup setHasPersonalCar(boolean hasPersonalCar) {
+    this.hasPersonalCar = hasPersonalCar;
+    return this;
+  }
+  
+  @Override
   public boolean hasAccessToCar() {
     return hasAccessToCar;
   }
 
+  @Override
+  public DefaultPersonForSetup setHasAccessToCar(boolean hasAccessToCar) {
+    this.hasAccessToCar = hasAccessToCar;
+    return this;
+  }
+  
   @Override
   public boolean hasBike() {
     return hasBike;
   }
 
   @Override
+  public DefaultPersonForSetup setHasBike(boolean hasBike) {
+    this.hasBike = hasBike;
+    return this;
+  }
+  
+  @Override
   public boolean hasCommuterTicket() {
     return hasCommuterTicket;
   }
   
   @Override
-  public void setCommuterTicket(boolean hasCommuterTicket) {
+  public DefaultPersonForSetup setHasCommuterTicket(boolean hasCommuterTicket) {
     this.hasCommuterTicket = hasCommuterTicket;
+    return this;
   }
 
   @Override
@@ -102,8 +111,9 @@ public class DefaultPersonForSetup implements PersonForSetup {
   }
   
   @Override
-  public void setDrivingLicense(boolean hasDrivingLicense) {
+  public DefaultPersonForSetup setHasDrivingLicense(boolean hasDrivingLicense) {
     this.hasDrivingLicense = hasDrivingLicense;
+    return this;
   }
 
   @Override
@@ -157,8 +167,9 @@ public class DefaultPersonForSetup implements PersonForSetup {
   }
 
   @Override
-  public void setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
+  public DefaultPersonForSetup setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
     this.activityPattern = activityPattern;
+    return this;
   }
 
   @Override
@@ -167,8 +178,9 @@ public class DefaultPersonForSetup implements PersonForSetup {
   }
 
   @Override
-  public void setFixedDestination(FixedDestination fixedDestination) {
+  public DefaultPersonForSetup setFixedDestination(FixedDestination fixedDestination) {
     fixedDestinations.add(fixedDestination);
+    return this;
   }
 
   @Override
@@ -194,11 +206,28 @@ public class DefaultPersonForSetup implements PersonForSetup {
         .orElseGet(() -> household().homeZone());
   }
   
+  @Override
+  public ModeChoicePreferences getModeChoicePrefsSurvey() {
+	  return modeChoicePrefsSurvey;
+  }
+  
+  @Override
+  public ModeChoicePreferences getModeChoicePreferences() {
+	  return modeChoicePreferences;
+  }
+  
+  @Override
+  public DefaultPersonForSetup setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences) {
+    this.modeChoicePreferences = modeChoicePreferences;
+    return this;
+  }
+  
   /**
    * This class does not support carsharing membership. The method does nothing.
    */
   @Override
-  public void setCarsharingMembership(Map<String, Boolean> membership) {
+  public DefaultPersonForSetup setCarsharingMembership(Map<String, Boolean> membership) {
+    return this;
   }
 
   @Override

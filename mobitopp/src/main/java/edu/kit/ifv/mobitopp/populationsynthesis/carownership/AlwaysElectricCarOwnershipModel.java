@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 
@@ -15,12 +15,12 @@ public class AlwaysElectricCarOwnershipModel implements ProbabilityForElectricCa
 	}
 
 	@Override
-	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
+	public double calculateProbabilityForElectricCar(final PersonBuilder person, Car.Segment segment) {
 		return always;
 	}
 
 	@Override
-	public CarTypeSelector calculateProbabilities(PersonForSetup person, Segment segment) {
+	public CarTypeSelector calculateProbabilities(PersonBuilder person, Segment segment) {
 		return new SegmentProbabilities(segment, always, probabilities);
 	}
 

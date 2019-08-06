@@ -94,7 +94,7 @@ public abstract class ExampleSetup {
 	public static Population population(Zone zone) {
 		Population population = new Population();
 		HouseholdForSetup householdSetup = household(zone, firstHousehold, totalNumberOfCars);
-		PersonForSetup personForDemand = personOf(householdSetup, firstPerson, zone);
+		PersonBuilder personForDemand = personOf(householdSetup, firstPerson, zone);
 		householdSetup.addPerson(personForDemand);
 		householdSetup.ownCars(cars(householdSetup.getId(), personForDemand, zone));
     population.add(householdSetup.toHousehold());
@@ -104,13 +104,13 @@ public abstract class ExampleSetup {
 		return population;
 	}
 
-	private static Collection<PrivateCarForSetup> cars(HouseholdId household, PersonForSetup personForDemand, Zone zone) {
+	private static Collection<PrivateCarForSetup> cars(HouseholdId household, PersonBuilder personForDemand, Zone zone) {
 		ArrayList<PrivateCarForSetup> cars = new ArrayList<>();
 		cars.add(conventionalCar(household, personForDemand, zone));
 		return cars;
 	}
 
-	public static PrivateCarForSetup conventionalCar(HouseholdId household, PersonForSetup person, Zone zone) {
+	public static PrivateCarForSetup conventionalCar(HouseholdId household, PersonBuilder person, Zone zone) {
 		Car car = conventionalCar(zone);
 		PersonId personId = person.getId();
     return new DefaultPrivateCarForSetup(car, household, personId, personId);
@@ -153,10 +153,12 @@ public abstract class ExampleSetup {
 	      numberOfNotSimulatedChildren, numberOfCars, income, incomeClass, canChargePrivately);
 	}
 
-	public static PersonForSetup emobilityPersonOf(HouseholdForSetup household, int personNumber, Zone zone) {
+	public static PersonBuilder emobilityPersonOf(HouseholdForSetup household, int personNumber, Zone zone) {
 		Map<String, Boolean> carSharingCustomership = carSharingCustomership();
-		return new EmobilityPersonForSetup(personOf(household, personNumber, zone, ActivityType.WORK), eMobilityAcceptance,
-				chargingInfluencesDestinationChoice, carSharingCustomership);
+    return new EmobilityPersonBuilder(personOf(household, personNumber, zone, ActivityType.WORK))
+        .setEmobilityAcceptance(eMobilityAcceptance)
+        .setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice)
+        .setCarsharingMembership(carSharingCustomership);
 	}
 
 	public static Map<String, Boolean> carSharingCustomership() {
@@ -166,15 +168,16 @@ public abstract class ExampleSetup {
 		return carSharingCustomership;
 	}
 
-	public static PersonForSetup personOf(HouseholdForSetup household, int personNumber, Zone zone) {
+	public static PersonBuilder personOf(HouseholdForSetup household, int personNumber, Zone zone) {
 		return personOf(household, personNumber, zone, ActivityType.HOME);
 	}
 	
-	public static PersonForSetup personOf(HouseholdForSetup household, int personNumber, Zone zone, ActivityType activityType) {
+	public static PersonBuilder personOf(HouseholdForSetup household, int personNumber, Zone zone, ActivityType activityType) {
 		PersonId id = new PersonId(personNumber, household.getId(), personNumber);
 		TourBasedActivityPattern activitySchedule = activitySchedule();
-		PersonForSetup person = new DefaultPersonForSetup(id, household, age, employment, gender, graduation, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
+		PersonBuilder person = new DefaultPersonForSetup(id, household, age, employment, gender, graduation, income, ModeChoicePreferences.NOPREFERENCES)
+		    .setHasBike(hasBike).setHasAccessToCar(hasAccessToCar).setHasPersonalCar(hasPersonalCar).setHasCommuterTicket(hasCommuterTicket).setHasDrivingLicense(hasLicense);
+		person.setModeChoicePreferences(ModeChoicePreferences.NOPREFERENCES);
 		person.setFixedDestination(new FixedDestination(activityType, zone, location));
 		person.setPatternActivityWeek(activitySchedule);
 		return person;

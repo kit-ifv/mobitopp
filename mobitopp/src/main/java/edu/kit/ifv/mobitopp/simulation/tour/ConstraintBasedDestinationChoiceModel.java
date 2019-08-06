@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -148,11 +148,11 @@ public class ConstraintBasedDestinationChoiceModel
 		assert previousActivity.isLocationSet();
 		assert nextActivity != mainActivity: (previousActivity + "\n " + nextActivity + "\n" + mainActivity + "\n\n"
 				+ person.activitySchedule()
-				+ "\n" + ((PersonForSetup)person).getPatternActivityWeek());
+				+ "\n" + ((PersonBuilder)person).getPatternActivityWeek());
 		assert mainActivity.isLocationSet() || mainActivity.activityType().isHomeActivity() : 
 			(previousActivity + "\n " + nextActivity + "\n" + mainActivity + "\n\n"
 					+ person.activitySchedule()
-					+ "\n" + ((PersonForSetup)person).getPatternActivityWeek());
+					+ "\n" + ((PersonBuilder)person).getPatternActivityWeek());
 		assert !nextActivity.isLocationSet();
 		
 		Zone currentZone = previousActivity.zone();

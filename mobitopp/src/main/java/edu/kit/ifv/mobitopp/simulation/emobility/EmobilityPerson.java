@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
@@ -86,10 +86,10 @@ public class EmobilityPerson extends PersonDecorator
 		return s;
 	}
 
-	public PersonForSetup personForSetup() {
-		assert person() instanceof PersonForSetup;
+	public PersonBuilder personForSetup() {
+		assert person() instanceof PersonBuilder;
 
-		return (PersonForSetup) person();
+		return (PersonBuilder) person();
 	}
 
 }

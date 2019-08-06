@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 
 
@@ -15,7 +15,7 @@ public class DefaultCarSegmentModel
 		this.defaultSegment = defaultSegment;
 	}
 
-	public Car.Segment determineCarSegment(PersonForSetup person) {
+	public Car.Segment determineCarSegment(PersonBuilder person) {
 
 		return this.defaultSegment;
 	}

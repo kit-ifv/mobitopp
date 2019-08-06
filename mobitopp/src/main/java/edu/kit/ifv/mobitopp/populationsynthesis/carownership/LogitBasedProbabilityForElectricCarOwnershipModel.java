@@ -5,7 +5,7 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -70,7 +70,7 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 
 
 	@Override
-	public double calculateProbabilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
+	public double calculateProbabilityForElectricCar(final PersonBuilder person, Car.Segment segment) {
 
 		double utility = calculateUtilityForElectricCar(person, segment);
 
@@ -80,12 +80,12 @@ public class LogitBasedProbabilityForElectricCarOwnershipModel
 	}
 
 	@Override
-	public CarTypeSelector calculateProbabilities(PersonForSetup person, Segment segment) {
+	public CarTypeSelector calculateProbabilities(PersonBuilder person, Segment segment) {
 		double probabilityElectricCar = calculateProbabilityForElectricCar(person, segment);
 		return bevProbabilites.createFor(segment, probabilityElectricCar);
 	}
 
-	private double calculateUtilityForElectricCar(final PersonForSetup person, Car.Segment segment) {
+	private double calculateUtilityForElectricCar(final PersonBuilder person, Car.Segment segment) {
 		final HouseholdForSetup household = person.household();
 
 		final ZoneId home = household .homeZone().getId();
