@@ -35,7 +35,7 @@ public class DefaultActivityAssignerTest {
     HouseholdOfPanelDataId householdPanelId = new HouseholdOfPanelDataId(year, householdNumber);
     TourBasedActivityPattern alicesPattern = new TourBasedActivityPattern(asList(new HomeActivity(
         DayOfWeek.MONDAY, SimpleActivity.fromPatternActivity(PatternActivity.WHOLE_WEEK_AT_HOME))));
-    PersonForSetup alice = mock(PersonForSetup.class);
+    PersonBuilder alice = mock(PersonBuilder.class);
     HouseholdForSetup household = mock(HouseholdForSetup.class);
     HouseholdId householdId = new HouseholdId(householdOid, year, householdNumber);
     ActivityScheduleCreator scheduleCreator = mock(ActivityScheduleCreator.class);

@@ -6,7 +6,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public interface PersonCreator {
 
-	public PersonForSetup createPerson(
+	public PersonBuilder createPerson(
 		PersonOfPanelData panelPerson,
 		HouseholdOfPanelData panelHousehold,
 		HouseholdForSetup household,

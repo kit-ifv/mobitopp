@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
 import edu.kit.ifv.mobitopp.util.logit.LogitModel;
@@ -46,7 +46,7 @@ public class PublicChargingInfluenceModel {
 
 
 	public EmobilityPerson.PublicChargingInfluencesDestinationChoice estimatePublicChargingInfluence(
-		PersonForSetup person,
+		PersonBuilder person,
 		Map<String, Boolean> carSharingCustomership,
 		double randomNumber
 	) {
@@ -57,7 +57,7 @@ public class PublicChargingInfluenceModel {
 	}
 
 	protected Map<EmobilityPerson.PublicChargingInfluencesDestinationChoice,Double> calculateUtilities(
-		PersonForSetup person,
+		PersonBuilder person,
 		Map<String, Boolean> carSharingCustomership
 	) {
 

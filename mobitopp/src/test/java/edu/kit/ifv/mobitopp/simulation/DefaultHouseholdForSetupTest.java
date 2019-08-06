@@ -17,7 +17,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
@@ -32,7 +32,7 @@ public class DefaultHouseholdForSetupTest {
   @Test
   public void addPeople() {
     HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withSize(1).build();
-    PersonForSetup setupPerson = mock(PersonForSetup.class);
+    PersonBuilder setupPerson = mock(PersonBuilder.class);
     int personOid = 1;
     int personNumber = 1;
     when(setupPerson.getId())
@@ -78,8 +78,8 @@ public class DefaultHouseholdForSetupTest {
         () -> assertThat(household.getNumberOfPersonsInAgeRange(lowerBound, oldAge), is(2)));
   }
   
-  private PersonForSetup newPersonWithAge(int age) {
-    PersonForSetup person = mock(PersonForSetup.class);
+  private PersonBuilder newPersonWithAge(int age) {
+    PersonBuilder person = mock(PersonBuilder.class);
     when(person.age()).thenReturn(age);
     return person;
   }

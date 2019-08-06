@@ -25,7 +25,7 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 
 public class DefaultPersonForSetupTest {
 
-  private PersonForSetup setupPerson;
+  private PersonBuilder setupPerson;
   private HouseholdId householdId;
   private Zone zone;
 

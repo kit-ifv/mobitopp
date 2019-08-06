@@ -10,9 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 
 public interface HouseholdForSetup {
 
-  void addPerson(PersonForSetup person);
+  void addPerson(PersonBuilder person);
 
-  List<PersonForSetup> getPersons();
+  List<PersonBuilder> getPersons();
 
   Household toHousehold();
 

@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Car.Segment;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
@@ -44,7 +44,7 @@ public class GenericElectricCarOwnershipModelTest {
 	private CarSegmentModel notNeeded;
 	private long seed;
 	private ProbabilityForElectricCarOwnershipModel probabilityCalculator;
-	private PersonForSetup person;
+	private PersonBuilder person;
 	private CarTypeSelector creator;
 	private ConventionalCar conventionalCar;
 	private BatteryElectricCar smallBevCar;
@@ -65,7 +65,7 @@ public class GenericElectricCarOwnershipModelTest {
 		notNeeded = mock(CarSegmentModel.class);
 		seed = 1234;
 		probabilityCalculator = mock(ProbabilityForElectricCarOwnershipModel.class);
-		person = mock(PersonForSetup.class);
+		person = mock(PersonBuilder.class);
 		creator = mock(CarTypeSelector.class);
 		createCars();
 

@@ -23,8 +23,8 @@ public class DefaultActivityScheduleAssignerTest {
   public void assignProgramById() {
     Zone zone = ExampleZones.create().someZone();
     HouseholdForSetup household = ExampleHousehold.createHousehold(zone);
-    PersonForSetup alice = mock(PersonForSetup.class);
-    PersonForSetup bob = mock(PersonForSetup.class);
+    PersonBuilder alice = mock(PersonBuilder.class);
+    PersonBuilder bob = mock(PersonBuilder.class);
     when(alice.getId()).thenReturn(new PersonId(1, household.getId(), 1));
     when(bob.getId()).thenReturn(new PersonId(2, household.getId(), 1));
     household.addPerson(alice);

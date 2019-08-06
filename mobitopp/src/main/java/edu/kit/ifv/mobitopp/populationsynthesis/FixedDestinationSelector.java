@@ -9,7 +9,7 @@ public interface FixedDestinationSelector {
 
 	public void setFixedDestinations(
   	Zone zone,
-  	Map<Integer, PersonForSetup> persons,
+  	Map<Integer, PersonBuilder> persons,
   	Map<Integer, PersonOfPanelData> panelPersons
 	);
 }

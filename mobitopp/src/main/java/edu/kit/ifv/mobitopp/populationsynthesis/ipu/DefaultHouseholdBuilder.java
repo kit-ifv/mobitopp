@@ -8,7 +8,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
@@ -51,13 +51,13 @@ public class DefaultHouseholdBuilder implements HouseholdBuilder {
 	}
 
 	private void createPerson(PersonOfPanelData panelPerson, HouseholdOfPanelData panelHousehold) {
-	  PersonForSetup person = personCreator
+	  PersonBuilder person = personCreator
 				.createPerson(panelPerson, panelHousehold, currentHousehold, zone());
 		updateDemography(person);
 		currentHousehold.addPerson(person);
 	}
 
-	private void updateDemography(PersonForSetup person) {
+	private void updateDemography(PersonBuilder person) {
 		demandZone.actualDemography().incrementAge(person.gender(), person.age());
 		demandZone.actualDemography().incrementEmployment(person.employment());
 	}

@@ -25,7 +25,7 @@ public class DefaultActivityAssigner implements ActivityScheduleAssigner {
   }
 
   private PersonOfPanelDataId createPersonPanelIdFor(
-      PersonForSetup person, HouseholdOfPanelDataId householdId) {
+      PersonBuilder person, HouseholdOfPanelDataId householdId) {
     int personNumber = person.getId().getPersonNumber();
     return new PersonOfPanelDataId(householdId, personNumber);
   }
@@ -36,13 +36,13 @@ public class DefaultActivityAssigner implements ActivityScheduleAssigner {
     long householdNumber = household.getId().getHouseholdNumber();
     HouseholdOfPanelDataId householdId = new HouseholdOfPanelDataId(year, householdNumber);
     HouseholdOfPanelData panelHousehold = panelRepository.getHousehold(householdId);
-    for (PersonForSetup person : household.getPersons()) {
+    for (PersonBuilder person : household.getPersons()) {
       doAssignActivityProgramTo(person, householdId, panelHousehold, household);
     }
   }
 
   private void doAssignActivityProgramTo(
-      PersonForSetup person, HouseholdOfPanelDataId householdId,
+      PersonBuilder person, HouseholdOfPanelDataId householdId,
       HouseholdOfPanelData panelHousehold, HouseholdForSetup household) {
     PersonOfPanelDataId personId = createPersonPanelIdFor(person, householdId);
     PersonOfPanelData panelPerson = panelRepository.getPerson(personId);

@@ -8,7 +8,7 @@ import static edu.kit.ifv.mobitopp.simulation.Car.Segment.MIDSIZE;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPrivateCarForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
@@ -79,7 +79,7 @@ public class GenericElectricCarOwnershipModel
 
 	@Override
 	protected PrivateCarForSetup createCar(
-		PersonForSetup person,
+		PersonBuilder person,
 		CarPosition position,
 		Car.Segment segment,
 		boolean personal
@@ -96,7 +96,7 @@ public class GenericElectricCarOwnershipModel
 	}
 
 	protected Car createCarInternal(
-		PersonForSetup person,
+		PersonBuilder person,
 		CarPosition position,
 		Car.Segment segment
 	) {
