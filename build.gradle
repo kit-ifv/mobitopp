@@ -8,7 +8,7 @@ subprojects {
     apply plugin: 'jacoco'
   
     group = 'edu.kit.ifv.mobitopp'
-    version = '0.2.1' + snapshot()
+    version = '0.0'
     
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -32,11 +32,4 @@ subprojects {
     eclipse.classpath {
         downloadSources=true
     }
-}
-
-String snapshot() {
-    if (project.hasProperty('release')) {
-        return ''
-    }
-    return '-SNAPSHOT'
 }
