@@ -73,53 +73,6 @@ artifacts {
     archives javadocJar
 }
 
-jar.doLast {
-    File distDir = new File(buildDir, 'dist')
-    File oldDistribution = new File("dist")
-    createDistDir(oldDistribution)
-}
-
-task copyDependencies(type: Copy, dependsOn: jar) {
-    from configurations.runtime
-    into "dist/lib"
-}
-
-task copyMobitopp(type: Copy, dependsOn: jar) {
-    from jar
-    into "dist"
-}
-
-distZip.dependsOn copyDependencies
-distZip.dependsOn copyMobitopp
-
-void createDistDir(File parent) {
-    File libDir = new File(parent, 'lib')
-    libDir.mkdirs()
-}
-
-distributions {
-    main {
-        contents {
-            baseName = 'mobitopp'
-            into('dist') {
-                from jar
-                into('lib') {
-                    from(project.configurations.runtime)
-                }
-            }
-            into('bin') {
-                from('bin.run') {
-                    fileMode 0755
-                    include 'run*.sh'
-                }
-            }
-            into('') {
-                from { "$buildDir/dist" }
-            }
-        }
-    }
-}
-
 publishing {
     publications {
         mavenPublication(MavenPublication) {
@@ -174,8 +127,20 @@ bintray {
 
 uploadArchives {
     repositories {
+        def repositoryUrl = getPropertyOrDefault('repositoryUrl')
+        def repositoryUsername = getPropertyOrDefault('repositoryUsername')
+        def repositoryPassword = getPropertyOrDefault('repositoryPassword')
         mavenDeployer {
-           repository(url: project.ext["mobitopp.repository.url"])
+            repository(url: "${repositoryUrl}/repository/maven-releases/") {
+                authentication(userName: repositoryUsername, password: repositoryPassword)
+            }
+            snapshotRepository(url: "${repositoryUrl}/repository/maven-snapshots") {
+                authentication(userName: repositoryUsername, password: repositoryPassword)
+            }
         }
     }
+}
+
+def getPropertyOrDefault(key) {
+    return project.hasProperty(key) ? project.property(key) : key
 }
