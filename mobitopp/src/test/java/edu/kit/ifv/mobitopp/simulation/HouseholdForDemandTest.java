@@ -3,13 +3,17 @@ package edu.kit.ifv.mobitopp.simulation;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 
 public class HouseholdForDemandTest {
 
@@ -19,13 +23,15 @@ public class HouseholdForDemandTest {
 	private int domCode;
 	private Zone homeZone;
 	private Location homeLocation;
+	private int numberOfMinors;
 	private int numberOfNotSimulatedChildren;
 	private int totalNumberOfCars;
 	private int income;
 	private int incomeClass;
 	private boolean canChargePrivately;
+	private HouseholdForDemand household;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		oid = 1;
 		short year = 2000;
@@ -34,25 +40,48 @@ public class HouseholdForDemandTest {
 		domCode = 4;
 		homeZone = mock(Zone.class);
 		homeLocation = mock(Location.class);
+		numberOfMinors = 5;
 		numberOfNotSimulatedChildren = 5;
 		totalNumberOfCars = 6;
 		income = 7;
 		incomeClass = 1;
 		canChargePrivately = true;
+		household = new HouseholdForDemand(id, nominalSize, domCode, homeZone, homeLocation,
+				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+				canChargePrivately);
 	}
 
 	@Test
 	public void provideAttributes() {
-		HouseholdForDemand household = new HouseholdForDemand(id, nominalSize, domCode, homeZone,
-				homeLocation, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
-
 		HouseholdAttributes attributes = household.attributes();
-		
+
 		assertThat(attributes, is(equalTo(householdAttributes())));
 	}
 
-  private HouseholdAttributes householdAttributes() {
-    return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
-        numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, canChargePrivately);
-  }
+	@Test
+	void getPersonById() throws Exception {
+		Person person = mock(Person.class);
+		PersonId personId = new PersonId(0, id, 1);
+		when(person.getId()).thenReturn(personId);
+		household.addPerson(person);
+
+		Person getPerson = household.getPerson(personId);
+
+		assertEquals(person, getPerson);
+	}
+
+	@Test
+	void getMissingPerson() throws Exception {
+		Person person = mock(Person.class);
+		PersonId personId = new PersonId(0, id, 1);
+		when(person.getId()).thenReturn(personId);
+
+		assertThrows(IllegalArgumentException.class, () -> household.getPerson(personId));
+	}
+
+	private HouseholdAttributes householdAttributes() {
+		return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
+				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+				canChargePrivately);
+	}
 }

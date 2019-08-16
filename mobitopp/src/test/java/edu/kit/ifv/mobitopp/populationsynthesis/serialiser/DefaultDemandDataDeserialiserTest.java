@@ -22,12 +22,14 @@ import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
@@ -39,20 +41,22 @@ public class DefaultDemandDataDeserialiserTest {
   private static final int householdOid = 1;
   private static final short householdYear = 2000;
   private static final long householdNumber = 1;
-	private Deserialiser<Household> householdDeserialiser;
+	private Deserialiser<HouseholdForSetup> householdDeserialiser;
 	private Deserialiser<PersonPatternActivity> activityDeserialiser;
-	private ForeignKeyDeserialiser<Person> personDeserialiser;
-	private ForeignKeyDeserialiser<PrivateCar> carDeserialiser;
+	private ForeignKeyDeserialiser<PersonBuilder> personDeserialiser;
+	private ForeignKeyDeserialiser<PrivateCarForSetup> carDeserialiser;
 	private Deserialiser<PersonFixedDestination> fixedDestinationDeserialiser;
 	private Deserialiser<Opportunity> opportunityDeserialiser;
 	
 	private HouseholdId householdId;
+	private HouseholdForSetup householdForSetup;
 	private Household household;
 	private PersonId personId;
+	private PersonBuilder personBuilder;
 	private Person person;
 	private PersonPatternActivity personActivity;
 	private ExtendedPatternActivity patternActivity;
-	private PrivateCar car;
+	private PrivateCarForSetup car;
 	private PersonFixedDestination personDestination;
 	private FixedDestination fixedDestination;
 	private Opportunity opportunity;
@@ -67,12 +71,14 @@ public class DefaultDemandDataDeserialiserTest {
 	@Before
 	public void initialise() throws IOException {
 	  householdId = new HouseholdId(householdOid, householdYear, householdNumber);
+	  householdForSetup = mock(HouseholdForSetup.class);
 	  household = mock(Household.class);
 		personId = new PersonId(personOid, householdId, personNumber);
+		personBuilder = mock(PersonBuilder.class);
 		person = mock(Person.class);
 		personActivity = mock(PersonPatternActivity.class);
 		patternActivity = mock(ExtendedPatternActivity.class);
-		car = mock(PrivateCar.class);
+		car = mock(PrivateCarForSetup.class);
 		fixedDestination = mock(FixedDestination.class);
 		personDestination = new PersonFixedDestination(personId, fixedDestination);
 		opportunity = mock(Opportunity.class);
@@ -84,20 +90,20 @@ public class DefaultDemandDataDeserialiserTest {
 		fixedDestinationDeserialiser = mock(Deserialiser.class);
 		opportunityDeserialiser = mock(Deserialiser.class);
 		
-		when(household.getId()).thenReturn(householdId);
-		when(household.getOid()).thenReturn(householdOid);
-		when(person.household()).thenReturn(household);
-		when(person.getId()).thenReturn(personId);
-		when(person.getOid()).thenReturn(personOid);
+		when(householdForSetup.toHousehold()).thenReturn(household);
+		when(householdForSetup.getId()).thenReturn(householdId);
+		when(personBuilder.toPerson(household)).thenReturn(person);
+		when(personBuilder.household()).thenReturn(householdForSetup);
+		when(personBuilder.getId()).thenReturn(personId);
 		when(personActivity.personOid()).thenReturn(personOid);
 		when(personActivity.pattern()).thenReturn(patternActivity);
-		when(car.owner()).thenReturn(household);
+		when(car.getOwner()).thenReturn(householdId);
 		when(car.isPersonal()).thenReturn(true);
-		when(car.personalUser()).thenReturn(personId);
+		when(car.getPersonalUser()).thenReturn(personId);
 		when(activityDeserialiser.deserialise()).thenReturn(asList(personActivity));
-		when(householdDeserialiser.deserialise()).thenReturn(asList(household));
+		when(householdDeserialiser.deserialise()).thenReturn(asList(householdForSetup));
 		when(fixedDestinationDeserialiser.deserialise()).thenReturn(asList(personDestination));
-		when(personDeserialiser.deserialise(any())).thenReturn(asList(person));
+		when(personDeserialiser.deserialise(any())).thenReturn(asList(personBuilder));
 		when(carDeserialiser.deserialise(any())).thenReturn(asList(car));
 		when(opportunityDeserialiser.deserialise()).thenReturn(asList(opportunity));
 	}
@@ -120,16 +126,15 @@ public class DefaultDemandDataDeserialiserTest {
 
 		Population population = deserialiser.loadPopulation();
 
-		assertThat(population.households().collect(toList()), contains(household));
+		assertThat(population.households().collect(toList()), contains(householdForSetup));
 		verify(householdDeserialiser).deserialise();
 		verify(personDeserialiser).deserialise(population);
 		verify(activityDeserialiser).deserialise();
 		verify(personActivity).personOid();
 		verify(personActivity).pattern();
 		verify(carDeserialiser).deserialise(population);
-		verify(household).ownCars(asList(car));
+		verify(householdForSetup).ownCars(asList(car));
 		verify(fixedDestinationDeserialiser).deserialise();
-		verify(person).assignPersonalCar(car);
 	}
 	
 	@Test

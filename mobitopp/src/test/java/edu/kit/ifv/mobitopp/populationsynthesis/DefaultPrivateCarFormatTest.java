@@ -25,11 +25,9 @@ import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ConventionalCarFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public class DefaultPrivateCarFormatTest {
 
@@ -41,12 +39,12 @@ public class DefaultPrivateCarFormatTest {
   private static final short year = 2000;
 
   private HouseholdId householdId;
-  private Household household;
-  private Person mainUser;
-  private Person personalUser;
+  private HouseholdForSetup household;
+  private PersonBuilder mainUser;
+  private PersonBuilder personalUser;
   private Zone zone;
   private DefaultPrivateCarFormat format;
-  private PrivateCar privateConventionalCar;
+  private PrivateCarForSetup privateConventionalCar;
   private PopulationContext context;
   private ConventionalCar conventionalCar;
   private ConventionalCarFormat conventionalCarFormat;
@@ -54,9 +52,9 @@ public class DefaultPrivateCarFormatTest {
   @Before
   public void initialise() {
     householdId = new HouseholdId(householdOid, year, householdOid);
-    household = mock(Household.class);
-    mainUser = mock(Person.class);
-    personalUser = mock(Person.class);
+    household = mock(HouseholdForSetup.class);
+    mainUser = mock(PersonBuilder.class);
+    personalUser = mock(PersonBuilder.class);
     zone = mock(Zone.class);
     conventionalCar = ExampleSetup.conventionalCar(zone);
     conventionalCarFormat = mock(ConventionalCarFormat.class);
@@ -65,18 +63,15 @@ public class DefaultPrivateCarFormatTest {
     PersonId personalUserId = new PersonId(personalUserOid, householdId, personalUserOid);
 
     when(household.getId()).thenReturn(householdId);
-    when(household.getOid()).thenReturn(householdOid);
-    when(mainUser.getOid()).thenReturn(mainUserOid);
     when(mainUser.getId()).thenReturn(mainUserId);
-    when(personalUser.getOid()).thenReturn(personalUserOid);
     when(personalUser.getId()).thenReturn(personalUserId);
     when(zone.getId()).thenReturn(zoneId);
-    when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
-    when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
+    when(context.getPersonBuilderByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
+    when(context.getPersonBuilderByOid(personalUserOid)).thenReturn(Optional.of(personalUser));
     when(conventionalCarFormat.prepare(any())).thenReturn(conventionalCar());
     when(conventionalCarFormat.parse(conventionalCar())).thenReturn(Optional.of(conventionalCar));
     
-    privateConventionalCar = ExampleSetup.conventionalCar(household, mainUser, personalUser, zone);
+		privateConventionalCar = ExampleSetup.conventionalCar(household, mainUser, personalUser, zone);
     format = new DefaultPrivateCarFormat();
     format.register(CarType.conventional, conventionalCarFormat);
   }
@@ -85,18 +80,18 @@ public class DefaultPrivateCarFormatTest {
   public void parseCarForMissingHousehold() {
     prepareMissingHousehold();
 
-    Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+    Optional<PrivateCarForSetup> parsed = format.parse(privateCar(), context);
 
     assertThat(parsed, isEmpty());
-    verify(context).getHouseholdByOid(householdOid);
+    verify(context).getHouseholdForSetupByOid(householdOid);
   }
 
   private void prepareMissingHousehold() {
-    when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.empty());
+    when(context.getHouseholdForSetupByOid(householdOid)).thenReturn(Optional.empty());
   }
 
   private void prepareExistingHousehold() {
-    when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.of(household));
+    when(context.getHouseholdForSetupByOid(householdOid)).thenReturn(Optional.of(household));
   }
 
   @Test
@@ -104,20 +99,20 @@ public class DefaultPrivateCarFormatTest {
     prepareExistingHousehold();
     prepareExistingMainUser();
     prepareMissingPersonalUser();
-    PrivateCar carMissingPersonalUser = ExampleSetup
+    PrivateCarForSetup carMissingPersonalUser = ExampleSetup
         .conventionalCar(household, mainUser, null, zone);
 
-    Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+    Optional<PrivateCarForSetup> parsed = format.parse(privateCar(), context);
 
     assertCars(parsed.get(), carMissingPersonalUser);
   }
 
   private void prepareExistingMainUser() {
-    when(context.getPersonByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
+    when(context.getPersonBuilderByOid(mainUserOid)).thenReturn(Optional.of(mainUser));
   }
 
   private void prepareMissingPersonalUser() {
-    when(context.getPersonByOid(personalUserOid)).thenReturn(Optional.empty());
+    when(context.getPersonBuilderByOid(personalUserOid)).thenReturn(Optional.empty());
   }
 
   @Test
@@ -132,30 +127,30 @@ public class DefaultPrivateCarFormatTest {
   public void parseConventionalCar() {
     prepareExistingHousehold();
 
-    Optional<PrivateCar> parsed = format.parse(privateCar(), context);
+    Optional<PrivateCarForSetup> parsed = format.parse(privateCar(), context);
 
     assertCars(parsed.get(), privateConventionalCar);
     verify(conventionalCarFormat).parse(conventionalCar());
   }
 
-  private void assertCars(PrivateCar actual, PrivateCar original) {
-    assertValue(PrivateCar::owner, actual, original);
-    assertValue(PrivateCar::mainUser, actual, original);
-    assertValue(PrivateCar::personalUser, actual, original);
-    assertValue(PrivateCar::id, actual, original);
-    assertCarPosition(actual, original);
-    assertValue(PrivateCar::carSegment, actual, original);
-    assertValue(PrivateCar::capacity, actual, original);
-    assertValue(PrivateCar::currentMileage, actual, original);
-    assertValue(PrivateCar::currentFuelLevel, actual, original);
-    assertValue(PrivateCar::maxRange, actual, original);
+  private void assertCars(PrivateCarForSetup actual, PrivateCarForSetup original) {
+    assertValue(PrivateCarForSetup::getOwner, actual, original);
+    assertValue(PrivateCarForSetup::getMainUser, actual, original);
+    assertValue(PrivateCarForSetup::getPersonalUser, actual, original);
+    assertCarType(actual.getCar(), original.getCar());
   }
 
-  private void assertCarPosition(PrivateCar actual, PrivateCar original) {
+	private void assertCarType(Car actual, Car expected) {
+		assertValue(Car::id, actual, expected);
+		assertValue(Car::carSegment, actual, expected);
+    assertValue(Car::capacity, actual, expected);
+    assertValue(Car::currentMileage, actual, expected);
+    assertValue(Car::currentFuelLevel, actual, expected);
+    assertValue(Car::maxRange, actual, expected);
     CarPosition actualPosition = actual.position();
-    CarPosition originalPosition = original.position();
-    assertValue(CarPosition::zone, actualPosition, originalPosition);
-    assertValue(CarPosition::location, actualPosition, originalPosition);
+    CarPosition expectedPosition = expected.position();
+    assertValue(CarPosition::zone, actualPosition, expectedPosition);
+    assertValue(CarPosition::location, actualPosition, expectedPosition);
   }
 
   private List<String> privateCar() {

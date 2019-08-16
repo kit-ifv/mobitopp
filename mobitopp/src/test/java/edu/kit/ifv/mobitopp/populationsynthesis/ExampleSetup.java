@@ -21,16 +21,12 @@ import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Graduation;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.car.BatteryElectricCar;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
 import edu.kit.ifv.mobitopp.simulation.car.ExtendedRangeElectricCar;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson.PublicChargingInfluencesDestinationChoice;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -97,9 +93,9 @@ public abstract class ExampleSetup {
 		PersonBuilder personForDemand = personOf(householdSetup, firstPerson, zone);
 		householdSetup.addPerson(personForDemand);
 		householdSetup.ownCars(cars(householdSetup.getId(), personForDemand, zone));
-    population.add(householdSetup.toHousehold());
+    population.add(householdSetup);
 		HouseholdForSetup eMobilityHouseholdSetup = household(zone, secondHousehold);
-    population.add(eMobilityHouseholdSetup.toHousehold());
+    population.add(eMobilityHouseholdSetup);
 		eMobilityHouseholdSetup.addPerson(emobilityPersonOf(eMobilityHouseholdSetup, secondPerson, zone));
 		return population;
 	}
@@ -116,12 +112,12 @@ public abstract class ExampleSetup {
     return new DefaultPrivateCarForSetup(car, household, personId, personId);
 	}
 	
-	public static PrivateCar conventionalCar(
-			Household household, Person mainUser, Person personalUser, Zone zone) {
+	public static PrivateCarForSetup conventionalCar(
+			HouseholdForSetup household, PersonBuilder mainUser, PersonBuilder personalUser, Zone zone) {
 		Car car = conventionalCar(zone);
 		PersonId mainUserId = mainUser.getId();
     PersonId personalUserId = personalUser == null ? null : personalUser.getId();
-    return new DefaultPrivateCar(car, household, mainUserId, personalUserId);
+    return new DefaultPrivateCarForSetup(car, household.getId(), mainUserId, personalUserId);
 	}
 
 	public static ConventionalCar conventionalCar(Zone zone) {

@@ -17,7 +17,6 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PopulationForSetup;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataSerialiser;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 
@@ -55,7 +54,7 @@ public class BufferedDemandRepositoryTest {
 		repository.store(demandData);
 		repository.finishExecution();
 
-		verify(serialiser, times(2)).serialise(any(Household.class));
+		verify(serialiser, times(2)).serialise(any(HouseholdForSetup.class));
 		verify(serialiser).serialise(any(OpportunityLocations.class));
 		verify(demandData).getPopulation();
 		verify(population).households();

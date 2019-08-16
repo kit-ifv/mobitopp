@@ -12,26 +12,22 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 
 public class SerialisingDemandRepositoryTest {
 
-  @Test
-  public void serialsesZonesOnStorage() {
-    DemandDataSerialiser serialiser = mock(DemandDataSerialiser.class);
-    SerialisingDemandRepository repository = new SerialisingDemandRepository(serialiser);
-    HouseholdForSetup setupHousehold = mock(HouseholdForSetup.class);
-    Household household = mock(Household.class);
-    when(setupHousehold.toHousehold()).thenReturn(household);
+	@Test
+	public void serialsesZonesOnStorage() {
+		DemandDataSerialiser serialiser = mock(DemandDataSerialiser.class);
+		SerialisingDemandRepository repository = new SerialisingDemandRepository(serialiser);
+		HouseholdForSetup setupHousehold = mock(HouseholdForSetup.class);
+		Household household = mock(Household.class);
+		when(setupHousehold.toHousehold()).thenReturn(household);
 
-    DemandZone demandZone = ExampleDemandZones.create().someZone();
-    demandZone.getPopulation().addHousehold(setupHousehold);
-    OpportunityLocations expectedLocations = new OpportunityLocations();
-    demandZone.opportunities().forEach(expectedLocations::add);
-    
-    repository.store(demandZone);
+		DemandZone demandZone = ExampleDemandZones.create().someZone();
+		demandZone.getPopulation().addHousehold(setupHousehold);
+		OpportunityLocations expectedLocations = new OpportunityLocations();
+		demandZone.opportunities().forEach(expectedLocations::add);
 
-    demandZone
-        .getPopulation()
-        .households()
-        .map(HouseholdForSetup::toHousehold)
-        .forEach(verify(serialiser)::serialise);
-    verify(serialiser).serialise(expectedLocations);
-  }
+		repository.store(demandZone);
+
+		demandZone.getPopulation().households().forEach(verify(serialiser)::serialise);
+		verify(serialiser).serialise(expectedLocations);
+	}
 }

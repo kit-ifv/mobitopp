@@ -27,9 +27,7 @@ import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatte
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonFixedDestination;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class PopulationTest {
@@ -41,9 +39,9 @@ public class PopulationTest {
   private static final short year = 2000;
   private static final long householdNumber = 1;
 	
-	private Household household;
-	private Person aPerson;
-	private Person otherPerson;
+	private HouseholdForSetup household;
+	private PersonBuilder aPerson;
+	private PersonBuilder otherPerson;
 	private Population population;
 	private ExtendedPatternActivity aPattern;
 	private ExtendedPatternActivity otherPattern;
@@ -58,15 +56,15 @@ public class PopulationTest {
 		when(otherPattern.isMainActivity()).thenReturn(false);
 		when(aPattern.startTime()).thenReturn(Time.start);
 		when(otherPattern.startTime()).thenReturn(Time.start.plusMinutes(5));
-		aPerson = mock(Person.class);
-		otherPerson = mock(Person.class);
-		household = mock(Household.class);
+		aPerson = mock(PersonBuilder.class);
+		otherPerson = mock(PersonBuilder.class);
+		household = mock(HouseholdForSetup.class);
 		aHouseholdId = new HouseholdId(householdId, year, householdNumber);
 		aPersonId =  new PersonId(aPersonOid, aHouseholdId, aPersonNumber);
+		PersonId otherPersonId = new PersonId(otherPersonOid, aHouseholdId, aPersonNumber);
     when(aPerson.getId()).thenReturn(aPersonId);
-		when(aPerson.getOid()).thenReturn(aPersonOid);
-		when(otherPerson.getOid()).thenReturn(otherPersonOid);
-		when(household.getOid()).thenReturn(householdId);
+		when(otherPerson.getId()).thenReturn(otherPersonId);
+		when(household.getId()).thenReturn(aHouseholdId);
 		when(household.getPersons()).thenReturn(asList(aPerson, otherPerson));
 		
 		population = Population.empty();
@@ -78,7 +76,7 @@ public class PopulationTest {
 		
 		assertThat(population.households().collect(toList()), contains(household));
 		assertThat(population.householdOids(), contains(householdId));
-		assertThat(population.getHouseholdByOid(householdId), hasValue(household));
+		assertThat(population.getHouseholdForSetupByOid(householdId), hasValue(household));
 	}
 
 	private void addHousehold() {
@@ -90,8 +88,8 @@ public class PopulationTest {
 		addHousehold();
 		
 		assertThat(population.getPersonOids(), containsInAnyOrder(aPersonOid, otherPersonOid));
-		assertThat(population.getPersonByOid(aPersonOid), hasValue(aPerson));
-		assertThat(population.getPersonByOid(otherPersonOid), hasValue(otherPerson));
+		assertThat(population.getPersonBuilderByOid(aPersonOid), hasValue(aPerson));
+		assertThat(population.getPersonBuilderByOid(otherPersonOid), hasValue(otherPerson));
 	}
 	
 	@Test
@@ -99,7 +97,7 @@ public class PopulationTest {
 		population.add(aPerson);
 		
 		assertThat(population.getPersonOids(), containsInAnyOrder(aPersonOid));
-		assertThat(population.getPersonByOid(aPersonOid), hasValue(aPerson));
+		assertThat(population.getPersonBuilderByOid(aPersonOid), hasValue(aPerson));
 	}
 	
 	@Test
@@ -149,7 +147,7 @@ public class PopulationTest {
   public void getPersonById() {
     addHousehold();
     
-    Person person = population.getPerson(aPersonId);
+    PersonBuilder person = population.getPerson(aPersonId);
     
     assertThat(person, is(equalTo(aPerson)));
   }

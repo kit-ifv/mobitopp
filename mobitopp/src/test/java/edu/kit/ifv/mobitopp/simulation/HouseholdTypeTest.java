@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
 
@@ -43,17 +45,23 @@ public class HouseholdTypeTest {
 	Household withKids0to7;
 	Household withKids8to12;
 	Household withKids13plus;
+
+	private int personIds;
+
+	private int householdIds;
 	
 	@Before
 	public void setUp() {
+		householdIds = 0;
+		personIds = 0;
 		
-		single = new HouseholdForDemand(null, 1, 0, null, null, 0, 0, 0, 0, false);
-		couple = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, 0, false);
-		multiadult = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, 0, false);
-		multigeneration = new HouseholdForDemand(null, 2, 0, null, null, 0, 0, 0, 0, false);
-		withKids0to7 = new HouseholdForDemand(null, 3, 0, null, null, 0, 0, 0, 0, false);
-		withKids8to12 = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, 0, false);
-		withKids13plus = new HouseholdForDemand(null, 4, 0, null, null, 0, 0, 0, 0, false);
+		single = newHousehold(1);
+		couple = newHousehold(2);
+		multiadult = newHousehold(3);
+		multigeneration = newHousehold(2);
+		withKids0to7 = newHousehold(3);
+		withKids8to12 = newHousehold(4);
+		withKids13plus = newHousehold(4);
 		
 		personSingle = newPerson(single, 20);
 		single.addPerson(personSingle);
@@ -101,9 +109,17 @@ public class HouseholdTypeTest {
 		withKids13plus.addPerson(adultkidWithKids13plus);
 	}
 
+	private HouseholdForDemand newHousehold(int nominalSize) {
+		short year = 0;
+		long householdNumber = 0;
+		HouseholdId householdId = new HouseholdId(householdIds++, year, householdNumber);
+		return new HouseholdForDemand(householdId, nominalSize, 0, null, null, 0, 0, 0, 0, 0, false);
+	}
+
   private PersonForDemand newPerson(Household household, int age) {
     Graduation graduation = Graduation.undefined;
-    return new PersonForDemand(null, household, age, null, null, graduation, 0, false, false, false, false, false, null, null, null, null);
+    PersonId id = new PersonId(personIds++, household.getId(), personIds % household.nominalSize());
+		return new PersonForDemand(id, household, age, null, null, graduation, 0, false, false, false, false, false, null, null, null, null);
   }
 	
 	@Test

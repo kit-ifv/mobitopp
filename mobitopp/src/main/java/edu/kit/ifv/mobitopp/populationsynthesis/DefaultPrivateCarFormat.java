@@ -1,10 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.lang.String.valueOf;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,57 +14,51 @@ import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ForeignKeySerialiserF
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
-public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<PrivateCar> {
+public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<PrivateCarForSetup> {
 
-	private static final int householdIndex = 0;
-	private static final int mainUserIndex = 1;
-	private static final int personalUserIndex = 2;
-	private static final int carTypeIndex = 3;
-	private static final int carAttributeStart = 4;
-	
 	private final Map<CarType, SerialiserFormat<? extends Car>> formats;
+	private ColumnMapping<PrivateCarForSetup> columns;
 
 	public DefaultPrivateCarFormat() {
 		super();
 		formats = new HashMap<>();
+		columns = new ColumnMapping<>();
+		columns.add("ownerId", e -> e.getOwner().getOid());
+		columns.add("mainUserId", e -> e.getMainUser().getOid());
+		columns.add("personalUserId", e -> personalUserOf(e));
+		columns.add("carType", e -> carTypeOf(e));
+		columns.add("car attributes", e -> carAttributes(e));
 	}
 
 	public <T extends Car> void register(CarType carType, SerialiserFormat<T> format) {
 		formats.put(carType, format);
 	}
-	
+
 	@Override
 	public List<String> header() {
-		return asList("ownerId", "mainUserId", "personalUserId", "carType", "car attributes");
+		return columns.header();
 	}
 
 	@Override
-	public List<String> prepare(PrivateCar car) {
-		int personalUser = null != car.personalUser() ? car.personalUser().getOid() : -1;
-		ArrayList<String> attributes = new ArrayList<>();
-		attributes.add(valueOf(car.owner().getOid()));
-		attributes.add(valueOf(car.mainUser().getOid()));
-		attributes.add(valueOf(personalUser));
-		attributes.add(valueOf(carTypeOf(car)));
-		attributes.addAll(carAttributes(car));
-		return attributes;
+	public List<String> prepare(PrivateCarForSetup car) {
+		return columns.prepare(car);
 	}
 
-	private List<String> carAttributes(PrivateCar car) {
+	private int personalUserOf(PrivateCarForSetup car) {
+		return null != car.getPersonalUser() ? car.getPersonalUser().getOid() : -1;
+	}
+
+	private List<String> carAttributes(PrivateCarForSetup car) {
 		CarType carType = carTypeOf(car);
 		if (formats.containsKey(carType)) {
-			return formats.get(carType).prepare(cast(car.car()));
+			return formats.get(carType).prepare(cast(car.getCar()));
 		}
 		return emptyList();
 	}
 
-	private CarType carTypeOf(PrivateCar car) {
-		CarType carType = CarType.of(car.car());
+	private CarType carTypeOf(PrivateCarForSetup car) {
+		CarType carType = CarType.of(car.getCar());
 		return carType;
 	}
 
@@ -77,43 +68,49 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 	}
 
 	@Override
-	public Optional<PrivateCar> parse(List<String> data, PopulationContext context) {
-		Optional<Household> household = householdOf(data, context);
+	public Optional<PrivateCarForSetup> parse(List<String> data, PopulationContext context) {
+		Optional<HouseholdForSetup> household = householdOf(data, context);
 		Supplier<PersonId> mainUser = () -> mainUserOf(data, context);
 		Supplier<PersonId> personalUser = () -> personalUserOf(data, context);
 		Optional<? extends Car> car = parseCar(data);
 		return household.flatMap(h -> createCar(mainUser, personalUser, car, h));
 	}
 
-  private Optional<PrivateCar> createCar(
-      Supplier<PersonId> mainUser, Supplier<PersonId> personalUser, Optional<? extends Car> car,
-      Household household) {
-    return car.map(c -> new DefaultPrivateCar(c, household, mainUser.get(), personalUser.get()));
-  }
+	private Optional<PrivateCarForSetup> createCar(
+			Supplier<PersonId> mainUser, Supplier<PersonId> personalUser, Optional<? extends Car> car,
+			HouseholdForSetup household) {
+		return car
+				.map(c -> new DefaultPrivateCarForSetup(c, household.getId(), mainUser.get(),
+						personalUser.get()));
+	}
 
 	private Optional<? extends Car> parseCar(List<String> data) {
 		CarType carType = carTypeOf(data);
-		return formats.get(carType).parse(data.subList(carAttributeStart, data.size()));
+		int attributesStart = columns.indexOf("car attributes");
+		return formats.get(carType).parse(data.subList(attributesStart, data.size()));
 	}
 
 	private CarType carTypeOf(List<String> data) {
-		String carType = data.get(carTypeIndex);
+		String carType = columns.get("carType", data).asString();
 		return CarType.valueOf(carType);
 	}
 
-	private Optional<Household> householdOf(List<String> data, PopulationContext context) {
-		int oid = Integer.parseInt(data.get(householdIndex));
-		return context.getHouseholdByOid(oid);
+	private Optional<HouseholdForSetup> householdOf(List<String> data, PopulationContext context) {
+		int oid = columns.get("ownerId", data).asInt();
+		return context.getHouseholdForSetupByOid(oid);
 	}
 
 	private PersonId mainUserOf(List<String> data, PopulationContext context) {
-		int oid = Integer.parseInt(data.get(mainUserIndex));
-		return context.getPersonByOid(oid).map(Person::getId).orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
+		int oid = columns.get("mainUserId", data).asInt();
+		return context
+				.getPersonBuilderByOid(oid)
+				.map(PersonBuilder::getId)
+				.orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
 	}
 
 	private PersonId personalUserOf(List<String> data, PopulationContext context) {
-		int oid = Integer.parseInt(data.get(personalUserIndex));
-		return context.getPersonByOid(oid).map(Person::getId).orElse(null);
+		int oid = columns.get("personalUserId", data).asInt();
+		return context.getPersonBuilderByOid(oid).map(PersonBuilder::getId).orElse(null);
 	}
 
 }

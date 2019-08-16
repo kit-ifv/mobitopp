@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
@@ -29,7 +30,9 @@ public class Population implements PopulationContext, Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  private final Map<Integer, HouseholdForSetup> householdsForSetup;
   private final Map<Integer, Household> households;
+  private final Map<Integer, PersonBuilder> personBuilders;
   private final Map<Integer, Person> persons;
   private final Map<Integer, List<ExtendedPatternActivity>> activityPatterns;
   private final List<PersonFixedDestination> destinations;
@@ -37,7 +40,9 @@ public class Population implements PopulationContext, Serializable {
 
   public Population() {
     super();
+    householdsForSetup = new LinkedHashMap<>();
     households = new LinkedHashMap<>();
+    personBuilders = new LinkedHashMap<>();
     persons = new LinkedHashMap<>();
     activityPatterns = new LinkedHashMap<>();
     destinations = new ArrayList<>();
@@ -48,41 +53,66 @@ public class Population implements PopulationContext, Serializable {
   }
 
   public Collection<Integer> householdOids() {
-    return Collections.unmodifiableCollection(households.keySet());
+    return Collections.unmodifiableCollection(householdsForSetup.keySet());
   }
 
-  public void add(Household household) {
-    households.put(household.getOid(), household);
-    for (Person person : household.getPersons()) {
+  public void add(HouseholdForSetup household) {
+    householdsForSetup.put(household.getId().getOid(), household);
+    for (PersonBuilder person : household.getPersons()) {
       add(person);
     }
   }
 
-  public void add(Person person) {
-    persons.put(person.getOid(), person);
+  public void add(PersonBuilder person) {
+    personBuilders.put(person.getId().getOid(), person);
   }
 
   @Override
   public Optional<Household> getHouseholdByOid(int householdOid) {
-    return Optional.ofNullable(households.get(householdOid));
+  	if (households.containsKey(householdOid)) {
+  		return Optional.of(households.get(householdOid));
+  	}
+    Optional<Household> household = getHouseholdForSetupByOid(householdOid).map(HouseholdForSetup::toHousehold);
+    household.ifPresent(h -> households.put(h.getId().getOid(), h));
+    household.map(h -> h.getPersons()).ifPresent(ps -> ps.forEach(p -> persons.put(p.getId().getOid(), p)));
+		return household;
   }
 
-  public Stream<Household> households() {
-    return households.values().stream();
+	@Override
+	public Optional<HouseholdForSetup> getHouseholdForSetupByOid(int householdOid) {
+		return Optional.ofNullable(householdsForSetup.get(householdOid));
+	}
+
+  public Stream<HouseholdForSetup> households() {
+    return householdsForSetup.values().stream();
   }
 
   public void removeHousehold(int oid) {
-    Household household = households.remove(oid);
-    household.getPersons().forEach(person -> persons.remove(person.getOid()));
+    HouseholdForSetup household = householdsForSetup.remove(oid);
+    household.getPersons().forEach(person -> personBuilders.remove(person.getId().getOid()));
   }
 
   public Collection<Integer> getPersonOids() {
-    return Collections.unmodifiableCollection(persons.keySet());
+    return Collections.unmodifiableCollection(personBuilders.keySet());
   }
 
   @Override
   public Optional<Person> getPersonByOid(int id) {
-    return Optional.ofNullable(persons.get(id));
+  	if (persons.containsKey(id)) {
+  		return Optional.of(persons.get(id));
+  	}
+  	Optional<PersonBuilder> builder = getPersonBuilderByOid(id);
+  	if (builder.isPresent()) {
+  		HouseholdId householdId = builder.get().household().getId();
+  		Optional<Household> household = getHouseholdByOid(householdId.getOid());
+  		return household.map(h -> h.getPerson(builder.get().getId()));
+  	}
+		return Optional.empty();
+  }
+  
+  @Override
+  public Optional<PersonBuilder> getPersonBuilderByOid(int id) {
+  	return Optional.ofNullable(personBuilders.get(id));
   }
 
   @Override
@@ -109,8 +139,8 @@ public class Population implements PopulationContext, Serializable {
     activityPatterns.put(personOid, patternWeek);
   }
 
-  public Person getPerson(PersonId id) {
-    return persons.get(id.getOid());
+  public PersonBuilder getPerson(PersonId id) {
+    return personBuilders.get(id.getOid());
   }
 
   public void add(PersonFixedDestination destination) {
