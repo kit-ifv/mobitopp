@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
@@ -43,6 +44,11 @@ public class LocalPersonLoader implements PersonLoader {
 		return population
 				.getPersonByOid(id)
 				.orElseThrow(() -> new NoSuchElementException("Missing person for id: " + id));
+	}
+
+	@Override
+	public Stream<Household> households() {
+		return population.households();
 	}
 
 }

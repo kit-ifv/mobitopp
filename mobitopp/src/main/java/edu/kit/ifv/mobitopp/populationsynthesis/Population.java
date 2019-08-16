@@ -25,6 +25,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class Population implements PopulationContext, Serializable {
 
@@ -83,8 +84,15 @@ public class Population implements PopulationContext, Serializable {
 		return Optional.ofNullable(householdsForSetup.get(householdOid));
 	}
 
-  public Stream<HouseholdForSetup> households() {
+  public Stream<HouseholdForSetup> householdsForSetup() {
     return householdsForSetup.values().stream();
+  }
+  
+  public Stream<Household> households() {
+		return householdOids()
+				.stream()
+				.map(this::getHouseholdByOid)
+				.flatMap(StreamUtils::streamOf);
   }
 
   public void removeHousehold(int oid) {

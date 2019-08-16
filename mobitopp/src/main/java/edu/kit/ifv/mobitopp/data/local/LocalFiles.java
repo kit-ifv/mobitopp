@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.data.CreateFolder;
@@ -32,6 +33,7 @@ import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
@@ -218,7 +220,7 @@ public class LocalFiles implements DataSource {
 	public DataRepositoryForSimulation forSimulation(
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
-			AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
+			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, Predicate<HouseholdForSetup> householdFilter)
 			throws IOException {
 	  Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository, matrices);
@@ -227,7 +229,7 @@ public class LocalFiles implements DataSource {
 		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
 		ImpedanceIfc impedance = data.impedance(localImpedance, zoneRepository);
 		VehicleBehaviour vehicleBehaviour = data.vehicleBehaviour(results);
-		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones);
+		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones, householdFilter);
 		triggerGarbageCollector();
 		return new LocalDataForSimulation(matrices, zoneRepository, impedance, personLoader,
 				vehicleBehaviour);
@@ -257,19 +259,19 @@ public class LocalFiles implements DataSource {
 		return charging.factory(defaultPower());
 	}
 
-	private PersonLoader personLoader(ZoneRepository zoneRepository, int numberOfZones) {
+	private PersonLoader personLoader(ZoneRepository zoneRepository, int numberOfZones, Predicate<HouseholdForSetup> householdFilter) {
 		try {
-			return loadFromLocalFolder(zoneRepository, numberOfZones);
+			return loadFromLocalFolder(zoneRepository, numberOfZones, householdFilter);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private PersonLoader loadFromLocalFolder(ZoneRepository zoneRepository, int numberOfZones)
+	private PersonLoader loadFromLocalFolder(ZoneRepository zoneRepository, int numberOfZones, Predicate<HouseholdForSetup> householdFilter)
 			throws Exception {
 		DemandDataFolder demandDataFolder = demandDataFolder(zoneRepository, numberOfZones);
 		try (DemandDataDeserialiser deserialiser = demandDataFolder.deserialiseFromCsv()) {
-			Population population = deserialiser.loadPopulation();
+			Population population = deserialiser.loadPopulation(householdFilter);
 			return new LocalPersonLoader(population);
 		}
 	}

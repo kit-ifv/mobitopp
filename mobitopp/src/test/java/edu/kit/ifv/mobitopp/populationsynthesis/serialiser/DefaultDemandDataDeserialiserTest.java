@@ -126,7 +126,7 @@ public class DefaultDemandDataDeserialiserTest {
 
 		Population population = deserialiser.loadPopulation();
 
-		assertThat(population.households().collect(toList()), contains(householdForSetup));
+		assertThat(population.householdsForSetup().collect(toList()), contains(householdForSetup));
 		verify(householdDeserialiser).deserialise();
 		verify(personDeserialiser).deserialise(population);
 		verify(activityDeserialiser).deserialise();

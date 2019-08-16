@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -16,7 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 
 class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 
-  private final Deserialiser<HouseholdForSetup> households;
+	private final Deserialiser<HouseholdForSetup> households;
   private final Deserialiser<PersonPatternActivity> activities;
   private final Deserialiser<PersonFixedDestination> fixedDestinationDeserialiser;
   private final ForeignKeyDeserialiser<PersonBuilder> personDeserialiser;
@@ -40,15 +41,20 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 
   @Override
   public Population loadPopulation() throws IOException {
-    Population population = new Population();
-    loadHouseholds(population);
+		return loadPopulation(DemandDataDeserialiser.acceptAll());
+  }
+
+	@Override
+	public Population loadPopulation(Predicate<HouseholdForSetup> householdFilter) throws IOException {
+		Population population = new Population();
+    loadHouseholds(population, householdFilter);
     loadPatterns(population);
     loadFixedDestinations(population);
     loadPersons(population);
     loadCars(population);
     population.cleanCache();
     return population;
-  }
+	}
 
   private void loadPatterns(Population population) throws IOException {
     System.out.println("Load patterns");
@@ -57,11 +63,9 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
     }
   }
 
-  private void loadHouseholds(Population population) throws IOException {
+  private void loadHouseholds(Population population, Predicate<HouseholdForSetup> householdFilter) throws IOException {
     System.out.println("Load households");
-    for (HouseholdForSetup household : households.deserialise()) {
-      population.add(household);
-    }
+    households.deserialise().stream().filter(householdFilter).forEach(population::add);
   }
 
   private void loadPersons(Population population) throws IOException {

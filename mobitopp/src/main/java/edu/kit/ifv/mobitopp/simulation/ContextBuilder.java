@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.Network;
@@ -15,6 +16,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultMappings;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
@@ -33,6 +35,7 @@ public class ContextBuilder {
 	private final NetfileLanguage language;
 
 	private WrittenConfiguration configuration;
+	private Predicate<HouseholdForSetup> householdFilter;
 	private DynamicParameters experimentalParameters;
 	private ResultWriter resultWriter;
 	private ElectricChargingWriter electricChargingWriter;
@@ -77,6 +80,7 @@ public class ContextBuilder {
 	private SimulationContext loadData() throws IOException {
 		startLoading();
 		validateConfiguration();
+		createHouseholdFilter();
 		experimentalParameters();
 		destinationChoiceParameters();
 		modeChoiceParameters();
@@ -106,6 +110,10 @@ public class ContextBuilder {
 	private void validateConfiguration() throws IOException {
 		new Validate().now(configuration);
 		log("Validate configuration");
+	}
+	
+	private void createHouseholdFilter() {
+		householdFilter = new FilterFractionOfHouseholds(configuration.getFractionOfPopulation());
 	}
 
 	private void experimentalParameters() {
@@ -181,7 +189,7 @@ public class ContextBuilder {
 		dataRepository = configuration
 				.getDataSource()
 				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
-						electricChargingWriter, areaTypeRepository, modeToType);
+						electricChargingWriter, areaTypeRepository, modeToType, householdFilter);
 		log("Load data repository");
 	}
 
