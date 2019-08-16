@@ -26,7 +26,7 @@ public class BufferedDemandRepository implements DemandDataRepository {
   @Override
   public void finishExecution() throws IOException {
     try {
-      population.households().forEach(serialiser::serialise);
+      population.householdsForSetup().forEach(serialiser::serialise);
       serialiser.serialise(locations);
     } finally {
       serialiser.close();

@@ -1,10 +1,10 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -17,6 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.events.SimpleEventQueue;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
+import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
 import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
@@ -32,6 +33,7 @@ public class DemandSimulatorPassenger
 
 	private static final int defaultMaxDifferenceInMinutes = 30;
 	
+	private final SimulationPersonFactory personFactory;
 	private final SimulationContext context;
   private final DestinationChoiceModel destinationChoiceModel;
 	private final TourBasedModeChoiceModel modeChoice;
@@ -51,6 +53,7 @@ public class DemandSimulatorPassenger
 
 	protected final TourFactory tourFactory = new TourWithWalkAsSubtourFactory();
 
+
 	
   public DemandSimulatorPassenger(
       final DestinationChoiceModel destinationChoiceModel,
@@ -61,9 +64,11 @@ public class DemandSimulatorPassenger
       final ReschedulingStrategy rescheduling,
 			final Set<Mode> modesInSimulation,
 			final PersonState initialState, 
-			final SimulationContext context 
+			final SimulationContext context,
+			final SimulationPersonFactory personFactory
 	)
   {
+  	this.personFactory = personFactory;
 		this.context = context;
 		this.destinationChoiceModel = destinationChoiceModel;
 		this.modeChoice = modeChoiceModel;
@@ -83,6 +88,29 @@ public class DemandSimulatorPassenger
 		beforeTimeSlice = new Hooks();
 		afterTimeSlice = new Hooks();
 		registerStandardHooks();
+  }
+  
+  public DemandSimulatorPassenger(
+  		final DestinationChoiceModel destinationChoiceModel,
+			final TourBasedModeChoiceModel modeChoiceModel,
+			final ZoneBasedRouteChoice routeChoice,
+			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
+			final TripFactory tripFactory,
+      final ReschedulingStrategy rescheduling,
+			final Set<Mode> modesInSimulation,
+			final PersonState initialState, 
+			final SimulationContext context)
+  {
+		this(destinationChoiceModel, 
+				modeChoiceModel, 
+				routeChoice, 
+				activityDurationRandomizer,
+				tripFactory, 
+				rescheduling,
+				modesInSimulation,
+				initialState, 
+				context,
+				SimulationPersonPassenger::new);
   }
   
   public DemandSimulatorPassenger(
@@ -205,49 +233,19 @@ public class DemandSimulatorPassenger
 		Set<Mode> modesInSimulation, 
 		PersonState initialState
 	) {
-
-		float fraction = context.fractionOfPopulation();
-		float remainder = 0.0f;
-
-		List<Integer> householdsToBeRemoved = new ArrayList<Integer>();
-
-		int instantiatedHouseholds = 0;
-
-		for (int aHouseholdOid: personLoader().getHouseholdOids() ) {
-
-			remainder += fraction;
-
-			if (remainder >= 1.0) {
-      
-      	Household household = personLoader().getHouseholdByOid(aHouseholdOid);      
-
-				for(Person p: household.getPersons()) {
-					createSimulatedPerson(queue, boarder, seed, p, listener, modesInSimulation, initialState);
-				} 
-
-				remainder -= Math.floor(remainder);
-				instantiatedHouseholds++;
-			} else {
-				householdsToBeRemoved.add(aHouseholdOid);
-			}
-
-		}
-		for (Integer oid : householdsToBeRemoved) {
-			personLoader().removeHousehold(oid);
-		}
-		
-		System.out.println(instantiatedHouseholds + " households instantiated");
-
+		Consumer<Person> createAgent = p -> createSimulatedPerson(queue, boarder, seed, p, listener,
+				modesInSimulation, initialState);
+		personLoader().households().flatMap(Household::persons).forEach(createAgent);
 	}
 
 	private PersonLoader personLoader() {
 		return context.personLoader();
 	}
 
-	protected SimulationPersonPassenger createSimulatedPerson(
+	protected SimulationPerson createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
-		return new SimulationPersonPassenger(p, 
+		return personFactory.create(p, 
 																					queue,
 																					simulationOptions(), 
 																					simulationDays(),

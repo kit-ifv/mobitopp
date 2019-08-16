@@ -96,11 +96,11 @@ public class DefaultDemandDataSerialiserTest {
   }
 
   private void serialisePopulation() {
-    population.households().forEach(serialiser::serialise);
+    population.householdsForSetup().forEach(serialiser::serialise);
   }
 
   private void verifyWrittenHousehold() throws IOException {
-    population.households().forEach(verify(householdSerialiser)::write);
+    population.householdsForSetup().forEach(verify(householdSerialiser)::write);
   }
 
   @Test
@@ -132,12 +132,12 @@ public class DefaultDemandDataSerialiserTest {
   }
 
   private void verifyWrittenPersonOfHousehold() throws IOException {
-    population.households().flatMap(HouseholdForSetup::persons).forEach(verify(personSerialiser)::write);
+    population.householdsForSetup().flatMap(HouseholdForSetup::persons).forEach(verify(personSerialiser)::write);
   }
 
   private void verifyWrittenPatternActivityWeek() throws IOException {
     population
-        .households()
+        .householdsForSetup()
         .flatMap(HouseholdForSetup::persons)
         .flatMap(DefaultDemandDataSerialiserTest::toPersonPattern)
         .forEach(verify(activitySerialiser)::write);
@@ -150,12 +150,12 @@ public class DefaultDemandDataSerialiserTest {
   }
 
   private void verifyWrittenCars() throws IOException {
-    population.households().flatMap(HouseholdForSetup::ownedCars).forEach(verify(carSerialiser)::write);
+    population.householdsForSetup().flatMap(HouseholdForSetup::ownedCars).forEach(verify(carSerialiser)::write);
   }
 
   private void verifyWrittenFixedDestinations() throws IOException {
     population
-        .households()
+        .householdsForSetup()
         .flatMap(HouseholdForSetup::persons)
         .flatMap(DefaultDemandDataSerialiserTest::toPersonDestination)
         .peek(System.out::println)
