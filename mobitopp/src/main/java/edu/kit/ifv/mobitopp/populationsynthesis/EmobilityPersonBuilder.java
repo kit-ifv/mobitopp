@@ -4,6 +4,7 @@ import static java.util.Collections.emptyMap;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -183,6 +184,16 @@ public class EmobilityPersonBuilder implements PersonBuilder {
   public boolean hasFixedActivityZone() {
     return person.hasFixedActivityZone();
   }
+  
+  @Override
+  public Stream<FixedDestination> fixedDestinations() {
+  	return person.fixedDestinations();
+  }
+
+	@Override
+	public Optional<FixedDestination> getFixedDestination(ActivityType activityType) {
+		return person.getFixedDestination(activityType);
+	}
 
   @Override
   public TourBasedActivityPattern getActivityPattern() {
@@ -204,10 +215,18 @@ public class EmobilityPersonBuilder implements PersonBuilder {
     person.setModeChoicePreferences(modeChoicePreferences);
     return this;
   }
+  
+  public float getEmobilityAcceptance() {
+  	return this.eMobilityAcceptance;
+  }
 
   public EmobilityPersonBuilder setEmobilityAcceptance(float eMobilityAcceptance) {
     this.eMobilityAcceptance = eMobilityAcceptance;
     return this;
+  }
+  
+  public PublicChargingInfluencesDestinationChoice getChargingInfluencesDestinationChoice() {
+  	return this.chargingInfluencesDestinationChoice;
   }
 
   public EmobilityPersonBuilder setChargingInfluencesDestinationChoice(
@@ -216,6 +235,10 @@ public class EmobilityPersonBuilder implements PersonBuilder {
     return this;
   }
 
+  public Map<String, Boolean> getCarsharingMembership() {
+  	return this.carSharingMembership;
+  }
+  
   @Override
   public EmobilityPersonBuilder setCarsharingMembership(Map<String, Boolean> membership) {
     this.carSharingMembership = membership;

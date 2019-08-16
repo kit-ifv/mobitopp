@@ -15,9 +15,9 @@ import au.com.bytecode.opencsv.CSVWriter;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultFixedDestinationFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPrivateCarFormat;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 
 public class DemandDataFolder {
@@ -47,12 +47,12 @@ public class DemandDataFolder {
 		folder.mkdirs();
 	}
 
-	private Serialiser<Household> households() throws IOException {
+	private Serialiser<HouseholdForSetup> households() throws IOException {
 		DefaultHouseholdFormat householdFormat = householdFormat();
 		return serialiser(household, householdFormat);
 	}
 
-	private ForeignKeySerialiser<Person> persons() throws IOException {
+	private ForeignKeySerialiser<PersonBuilder> persons() throws IOException {
 		DefaultPersonFormat format = personFormat();
 		return serialiser(person, format);
 	}
@@ -62,7 +62,7 @@ public class DemandDataFolder {
 		return serialiser(activity, format);
 	}
 
-	private ForeignKeySerialiser<PrivateCar> cars() throws IOException {
+	private ForeignKeySerialiser<PrivateCarForSetup> cars() throws IOException {
 		DefaultPrivateCarFormat format = privateCarFormat();
 		return serialiser(car, format);
 	}
@@ -78,24 +78,24 @@ public class DemandDataFolder {
 	}
 
 	public DemandDataSerialiser serialiseAsCsv() throws IOException {
-		DefaultDemandDataSerialiser serialiser = new DefaultDemandDataSerialiser(households(), persons(), activities(), cars(),
-				fixedDestinations(), opportunitys());
+		DefaultDemandDataSerialiser serialiser = new DefaultDemandDataSerialiser(households(),
+				persons(), activities(), cars(), fixedDestinations(), opportunitys());
 		serialiser.writeHeader();
 		return serialiser;
 	}
 
 	public DemandDataDeserialiser deserialiseFromCsv() throws IOException {
-		Deserialiser<Household> households = deserialiseHousehold();
+		Deserialiser<HouseholdForSetup> households = deserialiseHousehold();
 		Deserialiser<PersonPatternActivity> activities = deserialiseActivity();
-		ForeignKeyDeserialiser<Person> persons = deserialisePerson();
-		ForeignKeyDeserialiser<PrivateCar> cars = deserialiseCars();
+		ForeignKeyDeserialiser<PersonBuilder> persons = deserialisePerson();
+		ForeignKeyDeserialiser<PrivateCarForSetup> cars = deserialiseCars();
 		Deserialiser<PersonFixedDestination> fixedDestinations = deserialiseFixedDestinations();
 		Deserialiser<Opportunity> opportunities = deserialiseOpportunities();
 		return new DefaultDemandDataDeserialiser(households, persons, activities, cars,
-				fixedDestinations, opportunities );
+				fixedDestinations, opportunities);
 	}
 
-	private Deserialiser<Household> deserialiseHousehold() throws IOException {
+	private Deserialiser<HouseholdForSetup> deserialiseHousehold() throws IOException {
 		DefaultHouseholdFormat format = householdFormat();
 		return deserialiser(household, format);
 	}
@@ -105,18 +105,17 @@ public class DemandDataFolder {
 		return deserialiser(activity, format);
 	}
 
-	private ForeignKeyDeserialiser<Person> deserialisePerson() throws IOException {
+	private ForeignKeyDeserialiser<PersonBuilder> deserialisePerson() throws IOException {
 		DefaultPersonFormat format = personFormat();
 		return deserialiser(person, format);
 	}
 
-	private ForeignKeyDeserialiser<PrivateCar> deserialiseCars() throws IOException {
+	private ForeignKeyDeserialiser<PrivateCarForSetup> deserialiseCars() throws IOException {
 		DefaultPrivateCarFormat format = privateCarFormat();
 		return deserialiser(car, format);
 	}
 
-	private Deserialiser<PersonFixedDestination> deserialiseFixedDestinations()
-			throws IOException {
+	private Deserialiser<PersonFixedDestination> deserialiseFixedDestinations() throws IOException {
 		DefaultFixedDestinationFormat format = fixedDestinationFormat();
 		return deserialiser(fixedDestination, format);
 	}
@@ -124,7 +123,7 @@ public class DemandDataFolder {
 	private Deserialiser<Opportunity> deserialiseOpportunities() throws IOException {
 		return deserialiser(opportunity, opportunityFormat());
 	}
-	
+
 	private <T> CsvSerialiser<T> serialiser(DemandDataInput input, SerialiserFormat<T> format)
 			throws IOException {
 		CSVWriter writer = input.writerIn(demandDataFolder);

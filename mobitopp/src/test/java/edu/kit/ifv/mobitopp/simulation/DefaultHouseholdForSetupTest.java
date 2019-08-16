@@ -3,8 +3,11 @@ package edu.kit.ifv.mobitopp.simulation;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
+import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
@@ -58,6 +62,26 @@ public class DefaultHouseholdForSetupTest {
 
     assertThat(household.whichCars(), contains(privateCar));
   }
+  
+  @Test
+	void assignPersonalCars() throws Exception {
+    HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withCars(1).build();
+    PersonBuilder personalUser = ExampleSetup.personOf(setupHousehold, 0, zone);
+    setupHousehold.addPerson(personalUser);
+    PrivateCarForSetup car = mock(PrivateCarForSetup.class);
+    PrivateCar privateCar = mock(PrivateCar.class);
+    when(car.toCar(any())).thenReturn(privateCar);
+		when(car.getPersonalUser()).thenReturn(personalUser.getId());
+		when(privateCar.personalUser()).thenReturn(personalUser.getId());
+
+    setupHousehold.ownCars(asList(car));
+    Household household = setupHousehold.toHousehold();
+    Person person = household.getPerson(personalUser.getId());
+
+    assertEquals(personalUser.getId(), person.getId());
+    assertTrue(person.hasPersonalCar());
+    assertThat(person.personalCar(), is(equalTo(privateCar)));
+	}
 
   @Test
   void getNumberOfPersonsInAgeRange() throws Exception {

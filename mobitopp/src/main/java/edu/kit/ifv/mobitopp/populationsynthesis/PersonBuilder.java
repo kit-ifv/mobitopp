@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -18,76 +19,81 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
 public interface PersonBuilder {
 
-  /**
-   * Generates a {@link Person} for the {@link Household} based on the configured attributes.
-   * 
-   * @param household household of the person
-   * @return person belonging to the given household with all attributes set
-   */
-  Person toPerson(Household household);
+	/**
+	 * Generates a {@link Person} for the {@link Household} based on the configured attributes.
+	 * 
+	 * @param household
+	 *          household of the person
+	 * @return person belonging to the given household with all attributes set
+	 */
+	Person toPerson(Household household);
 
-  PersonId getId();
+	PersonId getId();
 
-  HouseholdForSetup household();
+	HouseholdForSetup household();
 
-  Zone homeZone();
+	Zone homeZone();
 
-  int age();
+	int age();
 
-  Employment employment();
+	Employment employment();
 
-  Gender gender();
+	Gender gender();
 
-  boolean isMale();
+	boolean isMale();
 
-  boolean isFemale();
+	boolean isFemale();
 
-  Graduation graduation();
+	Graduation graduation();
 
-  int getIncome();
+	int getIncome();
 
-  Optional<Zone> fixedZoneFor(ActivityType activityType);
+	Optional<Zone> fixedZoneFor(ActivityType activityType);
 
-  boolean hasFixedZoneFor(ActivityType activityType);
+	boolean hasFixedZoneFor(ActivityType activityType);
 
-  Zone fixedActivityZone();
+	Zone fixedActivityZone();
 
-  boolean hasFixedActivityZone();
+	boolean hasFixedActivityZone();
 
-  PersonBuilder setFixedDestination(FixedDestination fixedDestination);
+	PersonBuilder setFixedDestination(FixedDestination fixedDestination);
+	
+	Optional<FixedDestination> getFixedDestination(ActivityType activityType);
 
-  ModeChoicePreferences getModeChoicePrefsSurvey();
+	Stream<FixedDestination> fixedDestinations();
 
-  boolean hasBike();
+	ModeChoicePreferences getModeChoicePrefsSurvey();
 
-  PersonBuilder setHasBike(boolean hasBike);
+	boolean hasBike();
 
-  boolean hasAccessToCar();
+	PersonBuilder setHasBike(boolean hasBike);
 
-  PersonBuilder setHasAccessToCar(boolean hasAccessToCar);
+	boolean hasAccessToCar();
 
-  boolean hasPersonalCar();
+	PersonBuilder setHasAccessToCar(boolean hasAccessToCar);
 
-  PersonBuilder setHasPersonalCar(boolean hasPersonalCar);
+	boolean hasPersonalCar();
 
-  boolean hasCommuterTicket();
+	PersonBuilder setHasPersonalCar(boolean hasPersonalCar);
 
-  PersonBuilder setHasCommuterTicket(boolean hasCommuterTicket);
+	boolean hasCommuterTicket();
 
-  boolean hasDrivingLicense();
+	PersonBuilder setHasCommuterTicket(boolean hasCommuterTicket);
 
-  PersonBuilder setHasDrivingLicense(boolean hasDrivingLicense);
+	boolean hasDrivingLicense();
 
-  ModeChoicePreferences getModeChoicePreferences();
+	PersonBuilder setHasDrivingLicense(boolean hasDrivingLicense);
 
-  PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePrefsSurvey);
+	ModeChoicePreferences getModeChoicePreferences();
 
-  TourBasedActivityPattern getActivityPattern();
+	PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePrefsSurvey);
 
-  PersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern);
+	TourBasedActivityPattern getActivityPattern();
 
-  PatternActivityWeek getPatternActivityWeek();
+	PersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern);
 
-  PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
+	PatternActivityWeek getPatternActivityWeek();
+
+	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
 
 }

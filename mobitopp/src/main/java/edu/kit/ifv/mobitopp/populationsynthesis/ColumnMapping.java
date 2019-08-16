@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Value;
 
@@ -44,8 +45,16 @@ public class ColumnMapping<T> {
         .values()
         .stream()
         .map(f -> f.apply(element))
+        .flatMap(this::elementToString)
         .map(Object::toString)
         .collect(toList());
+  }
+  
+  private Stream<?> elementToString(Object element) {
+  	if (element instanceof List<?>) {
+  		return ((List<?>) element).stream();
+  	}
+  	return Stream.of(element);
   }
 
   public List<String> header() {
@@ -56,8 +65,11 @@ public class ColumnMapping<T> {
   }
 
   public Value get(String field, List<String> data) {
-    int index = offset + header().indexOf(field);
-    return new Value(data.get(index));
+    return new Value(data.get(indexOf(field)));
   }
 
+	public int indexOf(String field) {
+		return offset + header().indexOf(field);
+	}
+  
 }

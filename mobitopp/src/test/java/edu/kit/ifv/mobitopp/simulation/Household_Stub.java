@@ -9,6 +9,7 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public class Household_Stub
@@ -33,6 +34,7 @@ public class Household_Stub
 
 	public void addPerson(Person person) {}
 	public List<Person> getPersons() { return null; }
+	public Person getPerson(PersonId id) { return null; }
 
 	public void ownCars(Collection<PrivateCar> cars) {}
 

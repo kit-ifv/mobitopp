@@ -4,10 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 
@@ -27,6 +30,7 @@ public class HouseholdForDemand
   private final Location homeLocation;
 
   private final byte numberOfCars;
+  private final byte numberOfMinors;
   private final byte numberOfNotSimulatedChildren;
 
   private final byte nominalSize;
@@ -35,7 +39,7 @@ public class HouseholdForDemand
 	private final int incomeClass;
 	private final boolean canChargePrivately;
   
-  private List<Person> persons =  new ArrayList<>();
+  private Map<PersonId, Person> persons =  new LinkedHashMap<>();
 
   private List<PrivateCar> availableCars = new ArrayList<PrivateCar>();
   private List<PrivateCar> ownedCars = new ArrayList<PrivateCar>();
@@ -49,6 +53,7 @@ public class HouseholdForDemand
 		int domcode,
 		Zone zone,
 		Location location,
+		int numberOfMinors,
 		int numberOfNotSimulatedChildren,
 		int totalNumberOfCars,
 		int income,
@@ -61,6 +66,7 @@ public class HouseholdForDemand
 		this.domCode = domcode;
 		this.homeZone = zone;
 		this.homeLocation = location;
+		this.numberOfMinors = (byte) numberOfMinors;
 		this.numberOfNotSimulatedChildren = (byte) numberOfNotSimulatedChildren;
 		this.numberOfCars = (byte) totalNumberOfCars;
 		this.nominalSize = (byte) nominalSize;
@@ -108,13 +114,21 @@ public class HouseholdForDemand
 
   public void addPerson(Person person) {
     assert person != null;
-    this.persons.add(person);
+    this.persons.put(person.getId(), person);
   }
   
   public List<Person> getPersons()
   {
-    return new ArrayList<>(this.persons);
+    return new ArrayList<>(this.persons.values());
   }
+
+  @Override
+	public Person getPerson(PersonId id) {
+  	if (persons.containsKey(id)) {
+  		return persons.get(id);
+  	}
+  	throw new IllegalArgumentException("No person found for id: " + id);
+	}
 
   public int getSize()
   {
@@ -269,7 +283,7 @@ public class HouseholdForDemand
   @Override
   public HouseholdAttributes attributes() {
     return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), homeZone(),
-        homeLocation(), numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
+        homeLocation(), numberOfMinors, numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
         incomeClass(), canChargePrivately());
 	}
 

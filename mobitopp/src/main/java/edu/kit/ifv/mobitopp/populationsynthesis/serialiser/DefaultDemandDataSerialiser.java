@@ -6,25 +6,26 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.OpportunityLocations;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 
 class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 
-	private final Serialiser<Household> householdSerialiser;
-	private final ForeignKeySerialiser<Person> personSerialiser;
+	private final Serialiser<HouseholdForSetup> householdSerialiser;
+	private final ForeignKeySerialiser<PersonBuilder> personSerialiser;
 	private final Serialiser<PersonPatternActivity> activitySerialiser;
-	private final ForeignKeySerialiser<PrivateCar> carSerialiser;
+	private final ForeignKeySerialiser<PrivateCarForSetup> carSerialiser;
 	private final Serialiser<PersonFixedDestination> fixedDestinationSerialiser;
 	private final Serialiser<Opportunity> opportunitySerialiser;
 
 	DefaultDemandDataSerialiser(
-			Serialiser<Household> householdSerialiser, ForeignKeySerialiser<Person> personSerialiser,
+			Serialiser<HouseholdForSetup> householdSerialiser,
+			ForeignKeySerialiser<PersonBuilder> personSerialiser,
 			Serialiser<PersonPatternActivity> activitySerialiser,
-			ForeignKeySerialiser<PrivateCar> carSerialiser,
+			ForeignKeySerialiser<PrivateCarForSetup> carSerialiser,
 			Serialiser<PersonFixedDestination> fixedDestinationSerialiser,
 			Serialiser<Opportunity> opportunitySerialiser) {
 		super();
@@ -46,60 +47,59 @@ class DefaultDemandDataSerialiser implements DemandDataSerialiser {
 	}
 
 	@Override
-	public void serialise(Collection<Household> households) {
-		for (Household household : households) {
+	public void serialise(Collection<HouseholdForSetup> households) {
+		for (HouseholdForSetup household : households) {
 			serialise(household);
 		}
 	}
 
 	@Override
-	public void serialise(Household household) {
+	public void serialise(HouseholdForSetup household) {
 		write(household);
 		writePersonsOf(household);
 		writeCarsOf(household);
 	}
 
-	private void write(Household household) {
+	private void write(HouseholdForSetup household) {
 		householdSerialiser.write(household);
 	}
 
-	private void writeCarsOf(Household household) {
-		for (PrivateCar car : household.whichCars()) {
-			carSerialiser.write(car);
-		}
+	private void writeCarsOf(HouseholdForSetup household) {
+		household.ownedCars().forEach(carSerialiser::write);
 	}
 
-	private void writePersonsOf(Household household) {
-		for (Person person : household.getPersons()) {
+	private void writePersonsOf(HouseholdForSetup household) {
+		for (PersonBuilder person : household.getPersons()) {
 			write(person);
 			writeTourbasedActivityPattern(person);
 			writeFixedDestinationsOf(person);
 		}
 	}
 
-	private void write(Person person) {
+	private void write(PersonBuilder person) {
 		personSerialiser.write(person);
 	}
 
-	private void writeTourbasedActivityPattern(Person person) {
-    person.tourBasedActivityPattern().ifPresent(pattern -> writeActivities(person, pattern));
+	private void writeTourbasedActivityPattern(PersonBuilder person) {
+    writeActivities(person, person.getActivityPattern());
 	}
 
-  private void writeActivities(Person person, TourBasedActivityPattern patternActivityWeek) {
+  private void writeActivities(PersonBuilder person, TourBasedActivityPattern patternActivityWeek) {
     List<ExtendedPatternActivity> patternActivities = patternActivityWeek.asPatternActivities();
 		for (ExtendedPatternActivity patternActivity : patternActivities) {
 			write(person, patternActivity);
 		}
   }
 
-	private void write(Person person, ExtendedPatternActivity activity) {
-		PersonPatternActivity personActivity = new PersonPatternActivity(person.getOid(), activity);
+	private void write(PersonBuilder person, ExtendedPatternActivity activity) {
+		PersonPatternActivity personActivity = new PersonPatternActivity(person.getId().getOid(),
+				activity);
 		activitySerialiser.write(personActivity);
 	}
 
-  private void writeFixedDestinationsOf(Person person) {
+  private void writeFixedDestinationsOf(PersonBuilder person) {
     person
-        .getFixedDestinations()
+        .fixedDestinations()
         .map(d -> new PersonFixedDestination(person.getId(), d))
         .forEach(fixedDestinationSerialiser::write);
   }

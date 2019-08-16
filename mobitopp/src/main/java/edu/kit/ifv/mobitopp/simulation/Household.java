@@ -6,12 +6,14 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public interface Household
 {
 	void addPerson(Person person);
 	List<Person> getPersons();
+	Person getPerson(PersonId id);
 
   default Stream<Person> persons() {
     return getPersons().stream();

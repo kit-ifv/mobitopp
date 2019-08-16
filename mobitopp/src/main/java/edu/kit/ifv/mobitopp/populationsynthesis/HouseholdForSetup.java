@@ -2,10 +2,12 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.simulation.Household;
+import edu.kit.ifv.mobitopp.simulation.HouseholdAttributes;
 import edu.kit.ifv.mobitopp.simulation.Location;
 
 public interface HouseholdForSetup {
@@ -13,6 +15,8 @@ public interface HouseholdForSetup {
   void addPerson(PersonBuilder person);
 
   List<PersonBuilder> getPersons();
+  
+  Stream<PersonBuilder> persons();
 
   Household toHousehold();
 
@@ -29,6 +33,8 @@ public interface HouseholdForSetup {
   boolean canChargePrivately();
 
   void ownCars(Collection<PrivateCarForSetup> cars);
+  
+  Stream<PrivateCarForSetup> ownedCars();
 
   int getTotalNumberOfCars();
 
@@ -41,5 +47,7 @@ public interface HouseholdForSetup {
   int numberOfMinors();
 
   int numberOfNotSimulatedChildren();
+
+	HouseholdAttributes attributes();
 
 }

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -182,6 +183,11 @@ public class DefaultPersonForSetup implements PersonBuilder {
     fixedDestinations.add(fixedDestination);
     return this;
   }
+  
+  @Override
+  public Optional<FixedDestination> getFixedDestination(ActivityType activityType) {
+  	return fixedDestinations.getDestination(activityType);
+  }
 
   @Override
   public boolean hasFixedZoneFor(ActivityType activityType) {
@@ -204,6 +210,11 @@ public class DefaultPersonForSetup implements PersonBuilder {
         .getFixedDestination()
         .map(FixedDestination::zone)
         .orElseGet(() -> household().homeZone());
+  }
+  
+  @Override
+	public Stream<FixedDestination> fixedDestinations() {
+  	return fixedDestinations.stream();
   }
   
   @Override

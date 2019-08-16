@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -26,8 +27,8 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PopulationDataForZone;
-import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 
 public class DefaultHouseholdFormatTest {
@@ -35,7 +36,7 @@ public class DefaultHouseholdFormatTest {
 	private static final int zoneOid = 1;
 	private static final ZoneId zoneId = new ZoneId("1", zoneOid);
 	private static final int householdOid = 1;
-	private Household originalHousehold;
+	private HouseholdForSetup originalHousehold;
 	
 	private DefaultHouseholdFormat format;
 	private ZoneRepository zoneRepository;
@@ -52,7 +53,7 @@ public class DefaultHouseholdFormatTest {
 		populationData = mock(PopulationDataForZone.class);
 		DataForZone demandData = mock(DataForZone.class);
 		zone = mock(Zone.class);
-		originalHousehold = ExampleSetup.household(zone, ExampleSetup.firstHousehold).toHousehold();
+		originalHousehold = ExampleSetup.household(zone, ExampleSetup.firstHousehold);
 		zoneRepository = mock(ZoneRepository.class);
 		
 		when(demandData.getPopulationData()).thenReturn(populationData);
@@ -79,6 +80,7 @@ public class DefaultHouseholdFormatTest {
 				valueOf(ExampleSetup.domcode),
 				valueOf(zoneOid), 
 				valueOf(ExampleSetup.serialisedLocation), 
+				valueOf(ExampleSetup.numberOfMinors),
 				valueOf(ExampleSetup.numberOfNotSimulatedChildren),
 				valueOf(ExampleSetup.noCars), 
         valueOf(ExampleSetup.income), 
@@ -91,10 +93,10 @@ public class DefaultHouseholdFormatTest {
 		when(zoneRepository.hasZone(anyInt())).thenReturn(true);
 		List<String> serialisedHousehold = format.prepare(originalHousehold);
 		
-		Optional<Household> household = format.parse(serialisedHousehold);
+		Optional<HouseholdForSetup> household = format.parse(serialisedHousehold);
 
-		assertValue(Household::attributes, household.get(), originalHousehold);
-		verify(populationData).addHousehold(household.get());
+		assertValue(HouseholdForSetup::attributes, household.get(), originalHousehold);
+		verify(populationData).addHousehold(any());
 	}
 	
 	@Test
@@ -102,7 +104,7 @@ public class DefaultHouseholdFormatTest {
 		when(zoneRepository.hasZone(anyInt())).thenReturn(false);
 		List<String> serialisedHousehold = format.prepare(originalHousehold);
 		
-		Optional<Household> household = format.parse(serialisedHousehold);
+		Optional<HouseholdForSetup> household = format.parse(serialisedHousehold);
 
 		assertThat(household, isEmpty());
 		verify(zoneRepository).hasZone(anyInt());

@@ -19,7 +19,7 @@ public class BufferedDemandRepository implements DemandDataRepository {
 
   @Override
   public void store(DemandZone zone) {
-    zone.getPopulation().households().map(HouseholdForSetup::toHousehold).forEach(population::add);
+    zone.getPopulation().households().forEach(population::add);
     zone.opportunities().forEach(locations::add);
   }
 

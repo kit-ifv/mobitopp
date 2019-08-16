@@ -26,10 +26,10 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
-import edu.kit.ifv.mobitopp.simulation.Household;
-import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
@@ -43,9 +43,9 @@ public class DefaultPersonFormatTest {
   private static final int householdOid = 0;
 
   private DefaultPersonFormat format;
-  private Household household;
-  private Person personForDemand;
-  private Person emobilityPerson;
+  private HouseholdForSetup household;
+  private PersonBuilder personForDemand;
+  private PersonBuilder emobilityPerson;
   private PopulationContext context;
   private Zone zone;
   private FixedDestination destination;
@@ -54,13 +54,12 @@ public class DefaultPersonFormatTest {
   public void initialise() {
     context = mock(PopulationContext.class);
     format = new DefaultPersonFormat();
-    household = mock(Household.class);
+    household = mock(HouseholdForSetup.class);
     zone = mock(Zone.class);
     when(zone.getId()).thenReturn(zoneId);
     when(household.getId()).thenReturn(new HouseholdId(householdOid, year, householdOid));
-    when(household.getOid()).thenReturn(householdOid);
-    personForDemand = Example.personOf(household, personOid, zone);
-    emobilityPerson = Example.emobilityPersonOf(household, personOid, zone);
+    personForDemand = ExampleSetup.personOf(household, personOid, zone);
+    emobilityPerson = ExampleSetup.emobilityPersonOf(household, personOid, zone);
     destination = new FixedDestination(ActivityType.HOME, zone, Example.location);
     when(context.activityScheduleFor(personOid)).thenReturn(ExampleSetup.activitySchedule());
   }
@@ -83,11 +82,11 @@ public class DefaultPersonFormatTest {
   public void parseNormalPerson() {
     prepareExistingHoushold();
     prepareFixedLocations();
-    Optional<Person> parsedPerson = format.parse(personFormat(), context);
+    Optional<PersonBuilder> parsedPerson = format.parse(personFormat(), context);
 
     assertPersons(parsedPerson.get(), personForDemand);
-    assertThat(parsedPerson.map(p -> p.fixedDestinationFor(destination.activityType())),
-        hasValue(destination.location()));
+    assertThat(parsedPerson.map(p -> p.getFixedDestination(destination.activityType())),
+        hasValue(Optional.of(destination)));
     verify(household).addPerson(parsedPerson.get());
   }
 
@@ -98,21 +97,21 @@ public class DefaultPersonFormatTest {
   @Test
   public void parseEmobilityPerson() {
     prepareExistingHoushold();
-    Optional<Person> parsedPerson = format.parse(emobilityPerson(), context);
+    Optional<PersonBuilder> parsedPerson = format.parse(emobilityPerson(), context);
 
     assertPersons(parsedPerson.get(), emobilityPerson);
     verify(household).addPerson(parsedPerson.get());
   }
 
   private void prepareExistingHoushold() {
-    when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.of(household));
+    when(context.getHouseholdForSetupByOid(householdOid)).thenReturn(Optional.of(household));
   }
 
   @Test
   public void parseMissingHousehold() {
     prepareMissingHousehold();
 
-    Optional<Person> parsedPerson = format.parse(personFormat(), context);
+    Optional<PersonBuilder> parsedPerson = format.parse(personFormat(), context);
 
     assertThat(parsedPerson, isEmpty());
   }
@@ -121,22 +120,21 @@ public class DefaultPersonFormatTest {
     when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.empty());
   }
 
-  private void assertPersons(Person person, Person originalPerson) {
-    assertValue(Person::getOid, person, originalPerson);
-    assertValue(Person::getId, person, originalPerson);
-    assertValue(Person::age, person, originalPerson);
-    assertValue(Person::employment, person, originalPerson);
-    assertValue(Person::gender, person, originalPerson);
-    assertValue(Person::graduation, person, originalPerson);
-    assertValue(Person::hasBike, person, originalPerson);
-    assertValue(Person::hasAccessToCar, person, originalPerson);
-    assertValue(Person::hasPersonalCar, person, originalPerson);
-    assertValue(Person::hasCommuterTicket, person, originalPerson);
-    assertValue(Person::tourBasedActivityPattern, person, originalPerson);
+  private void assertPersons(PersonBuilder person, PersonBuilder originalPerson) {
+    assertValue(PersonBuilder::getId, person, originalPerson);
+    assertValue(PersonBuilder::age, person, originalPerson);
+    assertValue(PersonBuilder::employment, person, originalPerson);
+    assertValue(PersonBuilder::gender, person, originalPerson);
+    assertValue(PersonBuilder::graduation, person, originalPerson);
+    assertValue(PersonBuilder::hasBike, person, originalPerson);
+    assertValue(PersonBuilder::hasAccessToCar, person, originalPerson);
+    assertValue(PersonBuilder::hasPersonalCar, person, originalPerson);
+    assertValue(PersonBuilder::hasCommuterTicket, person, originalPerson);
+    assertValue(PersonBuilder::getActivityPattern, person, originalPerson);
     assertEmobilityPersons(person, originalPerson);
   }
 
-  private void assertEmobilityPersons(Person person, Person originalPerson) {
+  private void assertEmobilityPersons(PersonBuilder person, PersonBuilder originalPerson) {
     assertThat(person.getClass(), is(equalTo(originalPerson.getClass())));
     if (originalPerson instanceof EmobilityPerson && person instanceof EmobilityPerson) {
       assertEmobilityValuesOf((EmobilityPerson) person, (EmobilityPerson) originalPerson);
