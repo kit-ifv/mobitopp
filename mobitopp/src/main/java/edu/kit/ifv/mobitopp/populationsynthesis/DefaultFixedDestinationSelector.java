@@ -321,7 +321,7 @@ implements FixedDestinationSelector
 					} else {
 						location = zone.centroidLocation();
 					}
-					person.setFixedDestination(new FixedDestination(activityType, zone, location));
+					person.addFixedDestination(new FixedDestination(activityType, zone, location));
 				}
 			}
 

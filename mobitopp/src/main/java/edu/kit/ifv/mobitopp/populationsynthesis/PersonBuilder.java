@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -56,7 +57,9 @@ public interface PersonBuilder {
 
 	boolean hasFixedActivityZone();
 
-	PersonBuilder setFixedDestination(FixedDestination fixedDestination);
+	PersonBuilder addFixedDestination(FixedDestination fixedDestination);
+	
+	PersonBuilder clearFixedDestinations();
 	
 	Optional<FixedDestination> getFixedDestination(ActivityType activityType);
 
@@ -93,7 +96,12 @@ public interface PersonBuilder {
 	PersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern);
 
 	PatternActivityWeek getPatternActivityWeek();
+	
+	PersonBuilder clearPatternActivityWeek();
+
+	PersonBuilder addPatternActivity(ExtendedPatternActivity pattern);
 
 	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
+
 
 }

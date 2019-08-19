@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -7,6 +9,7 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -27,8 +30,9 @@ public class DefaultPersonForSetup implements PersonBuilder {
   private final Gender gender;
   private final Graduation graduation;
   private final int income;
-  private final FixedDestinations fixedDestinations;
   private final ModeChoicePreferences modeChoicePrefsSurvey;
+  private final List<ExtendedPatternActivity> activityPatterns;
+  private FixedDestinations fixedDestinations;
 
   private boolean hasBike;
   private boolean hasAccessToCar;
@@ -49,6 +53,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
     this.graduation = graduation;
     this.income = income;
     this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
+    activityPatterns = new LinkedList<>();
     fixedDestinations = new FixedDestinations();
     this.hasBike = false;
     this.hasAccessToCar = false;
@@ -170,7 +175,25 @@ public class DefaultPersonForSetup implements PersonBuilder {
   @Override
   public DefaultPersonForSetup setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
     this.activityPattern = activityPattern;
+    clearPatternActivities();
     return this;
+  }
+  
+  private void clearPatternActivities() {
+  	activityPatterns.clear();
+	}
+
+	@Override
+  public PersonBuilder addPatternActivity(ExtendedPatternActivity pattern) {
+  	activityPatterns.add(pattern);
+  	clearPatternActivityWeek();
+  	return this;
+  }
+  
+  @Override
+  public PersonBuilder clearPatternActivityWeek() {
+  	this.activityPattern = null;
+  	return this;
   }
 
   @Override
@@ -179,9 +202,15 @@ public class DefaultPersonForSetup implements PersonBuilder {
   }
 
   @Override
-  public DefaultPersonForSetup setFixedDestination(FixedDestination fixedDestination) {
+  public DefaultPersonForSetup addFixedDestination(FixedDestination fixedDestination) {
     fixedDestinations.add(fixedDestination);
     return this;
+  }
+  
+  @Override
+  public PersonBuilder clearFixedDestinations() {
+  	fixedDestinations = new FixedDestinations();
+  	return this;
   }
   
   @Override
@@ -243,10 +272,17 @@ public class DefaultPersonForSetup implements PersonBuilder {
 
   @Override
   public Person toPerson(Household household) {
-    return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
-        hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, activityPattern,
+  	return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
+        hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, tourPattern(),
         fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
   }
+
+	private TourBasedActivityPattern tourPattern() {
+		if (null != activityPattern) {
+			return activityPattern;
+		}
+		return TourBasedActivityPattern.fromExtendedPatternActivities(activityPatterns);
+	}
   
   @Override
   public String toString() {

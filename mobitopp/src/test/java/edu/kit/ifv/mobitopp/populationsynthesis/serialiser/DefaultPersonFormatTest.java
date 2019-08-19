@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
@@ -8,7 +7,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +25,6 @@ import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
@@ -48,7 +43,6 @@ public class DefaultPersonFormatTest {
   private PersonBuilder emobilityPerson;
   private PopulationContext context;
   private Zone zone;
-  private FixedDestination destination;
 
   @Before
   public void initialise() {
@@ -59,8 +53,11 @@ public class DefaultPersonFormatTest {
     when(zone.getId()).thenReturn(zoneId);
     when(household.getId()).thenReturn(new HouseholdId(householdOid, year, householdOid));
     personForDemand = ExampleSetup.personOf(household, personOid, zone);
+    personForDemand.clearFixedDestinations();
+    personForDemand.clearPatternActivityWeek();
     emobilityPerson = ExampleSetup.emobilityPersonOf(household, personOid, zone);
-    destination = new FixedDestination(ActivityType.HOME, zone, Example.location);
+    emobilityPerson.clearFixedDestinations();
+    emobilityPerson.clearPatternActivityWeek();
     when(context.activityScheduleFor(personOid)).thenReturn(ExampleSetup.activitySchedule());
   }
 
@@ -81,17 +78,10 @@ public class DefaultPersonFormatTest {
   @Test
   public void parseNormalPerson() {
     prepareExistingHoushold();
-    prepareFixedLocations();
     Optional<PersonBuilder> parsedPerson = format.parse(personFormat(), context);
 
     assertPersons(parsedPerson.get(), personForDemand);
-    assertThat(parsedPerson.map(p -> p.getFixedDestination(destination.activityType())),
-        hasValue(Optional.of(destination)));
     verify(household).addPerson(parsedPerson.get());
-  }
-
-  private void prepareFixedLocations() {
-    when(context.destinations(any())).thenReturn(Stream.of(destination));
   }
 
   @Test
