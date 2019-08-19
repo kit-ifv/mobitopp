@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -47,11 +48,29 @@ public class EmobilityPersonBuilder implements PersonBuilder {
     person.setPatternActivityWeek(activityPattern);
     return this;
   }
+  
+  @Override
+  public PersonBuilder clearPatternActivityWeek() {
+  	person.clearPatternActivityWeek();
+  	return this;
+  }
+  
+  @Override
+  public PersonBuilder addPatternActivity(ExtendedPatternActivity pattern) {
+  	person.addPatternActivity(pattern);
+  	return this;
+  }
 
   @Override
-  public EmobilityPersonBuilder setFixedDestination(FixedDestination fixedDestination) {
-    person.setFixedDestination(fixedDestination);
+  public EmobilityPersonBuilder addFixedDestination(FixedDestination fixedDestination) {
+    person.addFixedDestination(fixedDestination);
     return this;
+  }
+  
+  @Override
+  public PersonBuilder clearFixedDestinations() {
+  	person.clearFixedDestinations();
+  	return this;
   }
 
   @Override

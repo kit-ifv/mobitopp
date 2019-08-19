@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -11,12 +12,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
@@ -29,7 +32,7 @@ public class DefaultPersonForSetupTest {
   private HouseholdId householdId;
   private Zone zone;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     HouseholdForSetup setupHousehold = mock(HouseholdForSetup.class);
     int householdOid = 1;
@@ -50,13 +53,27 @@ public class DefaultPersonForSetupTest {
 
     Person person = setupPerson.toPerson(household);
 
-    assertThat(setupPerson.getId(), is(equalTo(person.getId())));
+    assertThat(person.getId(), is(equalTo(setupPerson.getId())));
   }
   
   @Test
+	void addPatternActivity() throws Exception {
+    Household household = mock(Household.class);
+    when(household.getId()).thenReturn(householdId);
+    ExtendedPatternActivity pattern = ExtendedPatternActivity.STAYATHOME_ACTIVITY;
+    setupPerson.addPatternActivity(pattern);
+
+    Person person = setupPerson.toPerson(household);
+
+		TourBasedActivityPattern expectedPattern = TourBasedActivityPattern
+				.fromExtendedPatternActivities(asList(pattern));
+		assertThat(person.tourBasedActivityPattern(), hasValue(expectedPattern));		
+	}
+  
+  @Test
   public void hasFixedDestinations() {
-    setupPerson.setFixedDestination(fixedDestinationFor(ActivityType.WORK));
-    setupPerson.setFixedDestination(fixedDestinationFor(ActivityType.EDUCATION));
+    setupPerson.addFixedDestination(fixedDestinationFor(ActivityType.WORK));
+    setupPerson.addFixedDestination(fixedDestinationFor(ActivityType.EDUCATION));
    
     assertTrue(setupPerson.hasFixedZoneFor(ActivityType.WORK));
     assertTrue(setupPerson.hasFixedZoneFor(ActivityType.EDUCATION));
@@ -66,7 +83,7 @@ public class DefaultPersonForSetupTest {
   
   @Test
   public void getFixedZoneForActivityType() {
-    setupPerson.setFixedDestination(fixedDestinationFor(ActivityType.WORK));
+    setupPerson.addFixedDestination(fixedDestinationFor(ActivityType.WORK));
     
     Optional<Zone> fixedZone = setupPerson.fixedZoneFor(ActivityType.WORK);
     
@@ -78,7 +95,7 @@ public class DefaultPersonForSetupTest {
     ActivityType activityType = ActivityType.WORK;
     FixedDestination destination = fixedDestinationFor(activityType);
     
-    setupPerson.setFixedDestination(destination);
+    setupPerson.addFixedDestination(destination);
     Zone fixedActivityZone = setupPerson.fixedActivityZone();
     
     assertThat(fixedActivityZone, is(equalTo(zone)));

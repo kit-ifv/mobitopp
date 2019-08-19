@@ -18,63 +18,69 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 
 	private final Deserialiser<HouseholdForSetup> households;
-  private final Deserialiser<PersonPatternActivity> activities;
-  private final Deserialiser<PersonFixedDestination> fixedDestinationDeserialiser;
-  private final ForeignKeyDeserialiser<PersonBuilder> personDeserialiser;
-  private final ForeignKeyDeserialiser<PrivateCarForSetup> carDeserialiser;
-  private final Deserialiser<Opportunity> opportunityDeserialiser;
+	private final Deserialiser<PersonPatternActivity> activities;
+	private final Deserialiser<PersonFixedDestination> fixedDestinationDeserialiser;
+	private final ForeignKeyDeserialiser<PersonBuilder> personDeserialiser;
+	private final ForeignKeyDeserialiser<PrivateCarForSetup> carDeserialiser;
+	private final Deserialiser<Opportunity> opportunityDeserialiser;
 
-  DefaultDemandDataDeserialiser(
-      Deserialiser<HouseholdForSetup> households, ForeignKeyDeserialiser<PersonBuilder> personDeserialiser,
-      Deserialiser<PersonPatternActivity> activities,
-      ForeignKeyDeserialiser<PrivateCarForSetup> carDeserialiser,
-      Deserialiser<PersonFixedDestination> fixedDestinations,
-      Deserialiser<Opportunity> opportunityDeserialiser) {
-    super();
-    this.households = households;
-    this.personDeserialiser = personDeserialiser;
-    this.activities = activities;
-    this.carDeserialiser = carDeserialiser;
-    this.fixedDestinationDeserialiser = fixedDestinations;
-    this.opportunityDeserialiser = opportunityDeserialiser;
-  }
-
-  @Override
-  public Population loadPopulation() throws IOException {
-		return loadPopulation(DemandDataDeserialiser.acceptAll());
-  }
-
-	@Override
-	public Population loadPopulation(Predicate<HouseholdForSetup> householdFilter) throws IOException {
-		Population population = new Population();
-    loadHouseholds(population, householdFilter);
-    loadPatterns(population);
-    loadFixedDestinations(population);
-    loadPersons(population);
-    loadCars(population);
-    population.cleanCache();
-    return population;
+	DefaultDemandDataDeserialiser(
+			Deserialiser<HouseholdForSetup> households,
+			ForeignKeyDeserialiser<PersonBuilder> personDeserialiser,
+			Deserialiser<PersonPatternActivity> activities,
+			ForeignKeyDeserialiser<PrivateCarForSetup> carDeserialiser,
+			Deserialiser<PersonFixedDestination> fixedDestinations,
+			Deserialiser<Opportunity> opportunityDeserialiser) {
+		super();
+		this.households = households;
+		this.personDeserialiser = personDeserialiser;
+		this.activities = activities;
+		this.carDeserialiser = carDeserialiser;
+		this.fixedDestinationDeserialiser = fixedDestinations;
+		this.opportunityDeserialiser = opportunityDeserialiser;
 	}
 
-  private void loadPatterns(Population population) throws IOException {
-    System.out.println("Load patterns");
-    for (PersonPatternActivity patternActivity : activities.deserialise()) {
-      population.add(patternActivity.personOid(), patternActivity.pattern());
-    }
-  }
+	@Override
+	public Population loadPopulation() throws IOException {
+		return loadPopulation(DemandDataDeserialiser.acceptAll());
+	}
 
-  private void loadHouseholds(Population population, Predicate<HouseholdForSetup> householdFilter) throws IOException {
-    System.out.println("Load households");
-    households.deserialise().stream().filter(householdFilter).forEach(population::add);
-  }
+	@Override
+	public Population loadPopulation(Predicate<HouseholdForSetup> householdFilter)
+			throws IOException {
+		Population population = new Population();
+		loadHouseholds(population, householdFilter);
+		loadPersons(population);
+		loadPatterns(population);
+		loadFixedDestinations(population);
+		loadCars(population);
+		population.cleanCache();
+		return population;
+	}
 
-  private void loadPersons(Population population) throws IOException {
-    System.out.println("Load persons");
-    List<PersonBuilder> persons = personDeserialiser.deserialise(population);
-    for (PersonBuilder person : persons) {
-      population.add(person);
-    }
-  }
+	private void loadPatterns(Population population) throws IOException {
+		System.out.println("Load patterns");
+		for (PersonPatternActivity patternActivity : activities.deserialise()) {
+			population
+					.getPersonBuilderByOid(patternActivity.personOid())
+					.ifPresent(p -> p
+							.addPatternActivity(patternActivity.pattern()));
+		}
+	}
+	
+	private void loadHouseholds(Population population, Predicate<HouseholdForSetup> householdFilter)
+			throws IOException {
+		System.out.println("Load households");
+		households.deserialise().stream().filter(householdFilter).forEach(population::add);
+	}
+
+	private void loadPersons(Population population) throws IOException {
+		System.out.println("Load persons");
+		List<PersonBuilder> persons = personDeserialiser.deserialise(population);
+		for (PersonBuilder person : persons) {
+			population.add(person);
+		}
+	}
 
 	private void loadCars(Population population) throws IOException {
 		System.out.println("Load cars");
@@ -87,32 +93,34 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 						.ifPresent(ho -> ho.ownCars(c)));
 	}
 
-  private void loadFixedDestinations(Population population) throws IOException {
-    for(PersonFixedDestination destination : fixedDestinationDeserialiser.deserialise()) {
-      population.add(destination);
-    }
-  }
+	private void loadFixedDestinations(Population population) throws IOException {
+		for (PersonFixedDestination destination : fixedDestinationDeserialiser.deserialise()) {
+			population
+					.getPersonBuilderByOid(destination.person().getOid())
+					.ifPresent(p -> p.addFixedDestination(destination.fixedDestination()));
+		}
+	}
 
-  @Override
-  public void addOpportunitiesTo(ZoneRepository zoneRepository) throws IOException {
-    List<Opportunity> opportunities = opportunityDeserialiser.deserialise();
-    OpportunityLocationSelector fromFile = locationSelectorFrom(opportunities);
-    for (Zone zone : zoneRepository.getZones()) {
-      zone.getDemandData().opportunities().createLocations(fromFile);
-    }
-  }
+	@Override
+	public void addOpportunitiesTo(ZoneRepository zoneRepository) throws IOException {
+		List<Opportunity> opportunities = opportunityDeserialiser.deserialise();
+		OpportunityLocationSelector fromFile = locationSelectorFrom(opportunities);
+		for (Zone zone : zoneRepository.getZones()) {
+			zone.getDemandData().opportunities().createLocations(fromFile);
+		}
+	}
 
-  OpportunityLocationSelector locationSelectorFrom(List<Opportunity> opportunities) {
-    return LocationSelector.from(opportunities);
-  }
+	OpportunityLocationSelector locationSelectorFrom(List<Opportunity> opportunities) {
+		return LocationSelector.from(opportunities);
+	}
 
-  @Override
-  public void close() throws IOException {
-    households.close();
-    personDeserialiser.close();
-    activities.close();
-    carDeserialiser.close();
-    fixedDestinationDeserialiser.close();
-    opportunityDeserialiser.close();
-  }
+	@Override
+	public void close() throws IOException {
+		households.close();
+		personDeserialiser.close();
+		activities.close();
+		carDeserialiser.close();
+		fixedDestinationDeserialiser.close();
+		opportunityDeserialiser.close();
+	}
 }

@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -72,6 +73,7 @@ public class DefaultHouseholdForSetupTest {
     PrivateCar privateCar = mock(PrivateCar.class);
     when(car.toCar(any())).thenReturn(privateCar);
 		when(car.getPersonalUser()).thenReturn(personalUser.getId());
+		when(privateCar.isPersonal()).thenReturn(true);
 		when(privateCar.personalUser()).thenReturn(personalUser.getId());
 
     setupHousehold.ownCars(asList(car));
@@ -79,9 +81,30 @@ public class DefaultHouseholdForSetupTest {
     Person person = household.getPerson(personalUser.getId());
 
     assertEquals(personalUser.getId(), person.getId());
-    assertTrue(person.hasPersonalCar());
+    assertTrue(person.hasPersonalCarAssigned());
     assertThat(person.personalCar(), is(equalTo(privateCar)));
 	}
+  
+  @Test
+  void handleNonPersonalCars() throws Exception {
+  	HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withCars(2).build();
+  	PersonBuilder personBuilder = ExampleSetup.personOf(setupHousehold, 0, zone);
+  	setupHousehold.addPerson(personBuilder);
+  	PrivateCarForSetup someCar = mock(PrivateCarForSetup.class);
+  	PrivateCarForSetup otherCar = mock(PrivateCarForSetup.class);
+  	PrivateCar somePrivateCar = mock(PrivateCar.class);
+  	PrivateCar otherPrivateCar = mock(PrivateCar.class);
+  	when(someCar.toCar(any())).thenReturn(somePrivateCar);
+  	when(otherCar.toCar(any())).thenReturn(otherPrivateCar);
+  	when(somePrivateCar.isPersonal()).thenReturn(false);
+  	when(otherPrivateCar.isPersonal()).thenReturn(false);
+  	
+  	setupHousehold.ownCars(asList(someCar, otherCar));
+  	Household household = setupHousehold.toHousehold();
+  	Person person = household.getPerson(personBuilder.getId());
+  	
+  	assertFalse(person.hasPersonalCarAssigned());
+  }
 
   @Test
   void getNumberOfPersonsInAgeRange() throws Exception {

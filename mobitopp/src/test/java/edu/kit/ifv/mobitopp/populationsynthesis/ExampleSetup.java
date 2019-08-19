@@ -174,7 +174,7 @@ public abstract class ExampleSetup {
 		PersonBuilder person = new DefaultPersonForSetup(id, household, age, employment, gender, graduation, income, ModeChoicePreferences.NOPREFERENCES)
 		    .setHasBike(hasBike).setHasAccessToCar(hasAccessToCar).setHasPersonalCar(hasPersonalCar).setHasCommuterTicket(hasCommuterTicket).setHasDrivingLicense(hasLicense);
 		person.setModeChoicePreferences(ModeChoicePreferences.NOPREFERENCES);
-		person.setFixedDestination(new FixedDestination(activityType, zone, location));
+		person.addFixedDestination(new FixedDestination(activityType, zone, location));
 		person.setPatternActivityWeek(activitySchedule);
 		return person;
 	}

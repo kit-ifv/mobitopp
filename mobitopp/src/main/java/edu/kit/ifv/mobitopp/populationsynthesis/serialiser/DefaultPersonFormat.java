@@ -8,11 +8,9 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.populationsynthesis.ColumnMapping;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.EmobilityPersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.FixedDestinations;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Employment;
@@ -91,11 +89,10 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 	}
 
 	private Optional<PersonBuilder> personForDemand(List<String> data, PopulationContext context) {
-		return householdOf(data, context).map(household -> createPerson(data, context, household));
+		return householdOf(data, context).map(household -> createPerson(data, household));
 	}
 
-	private PersonBuilder createPerson(
-			List<String> data, PopulationContext context, HouseholdForSetup household) {
+	private PersonBuilder createPerson(List<String> data, HouseholdForSetup household) {
 		PersonId id = personIdOf(data, household);
 		int age = ageOf(data);
 		Employment employment = employmentOf(data);
@@ -107,10 +104,8 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		boolean hasPersonalCar = hasPersonalCarOf(data);
 		boolean hasCommuterTicket = hasCommuterTicketOf(data);
 		boolean hasLicense = hasLicense(data);
-		TourBasedActivityPattern activitySchedule = context.activityScheduleFor(id.getOid());
     ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
     ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
-    FixedDestinations fixedDestinations = fixedDestinations(id, context);
 		DefaultPersonForSetup person = new DefaultPersonForSetup(id, household, age, employment,
 				gender, graduation, income, modeChoicePrefsSurvey);
 		person.setHasBike(hasBike);
@@ -118,9 +113,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
     person.setHasPersonalCar(hasPersonalCar);
     person.setHasCommuterTicket(hasCommuterTicket);
     person.setHasDrivingLicense(hasLicense);
-    person.setPatternActivityWeek(activitySchedule);
     person.setModeChoicePreferences(modeChoicePreferences);
-    fixedDestinations.stream().forEach(person::setFixedDestination);
 		return person;
 	}
 
@@ -128,13 +121,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 	  return Graduation.getTypeFromNumeric(defaultColumns.get("graduation", data).asInt());
   }
 
-  private FixedDestinations fixedDestinations(PersonId id, PopulationContext context) {
-	  FixedDestinations fixedDestinations = new FixedDestinations();
-	  context.destinations(id).forEach(fixedDestinations::add);
-    return fixedDestinations;
-  }
-
-	private PersonBuilder wrapInEmobility(List<String> data, PersonBuilder person) {
+  private PersonBuilder wrapInEmobility(List<String> data, PersonBuilder person) {
 		if (normalLength == data.size()) {
 			return person;
 		}
