@@ -58,9 +58,9 @@ public interface PersonBuilder {
 	boolean hasFixedActivityZone();
 
 	PersonBuilder addFixedDestination(FixedDestination fixedDestination);
-	
+
 	PersonBuilder clearFixedDestinations();
-	
+
 	Optional<FixedDestination> getFixedDestination(ActivityType activityType);
 
 	Stream<FixedDestination> fixedDestinations();
@@ -93,15 +93,37 @@ public interface PersonBuilder {
 
 	TourBasedActivityPattern getActivityPattern();
 
+	/**
+	 * Set the {@link TourBasedActivityPattern} as pattern for the whole week. Calling this method
+	 * clears all activities collected by {@link #addPatternActivity(ExtendedPatternActivity)}.
+	 * 
+	 * @param activityPattern
+	 * @return this builder
+	 */
 	PersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern);
 
 	PatternActivityWeek getPatternActivityWeek();
-	
+
+	/**
+	 * Clear the {@link TourBasedActivityPattern} set by
+	 * {@link #setPatternActivityWeek(TourBasedActivityPattern)}.
+	 * 
+	 * @return this builder
+	 */
 	PersonBuilder clearPatternActivityWeek();
 
-	PersonBuilder addPatternActivity(ExtendedPatternActivity pattern);
+	/**
+	 * This method is used to incrementally build up the whole pattern activity week by adding one
+	 * activity after the other. Calling this method will clear the {@link TourBasedActivityPattern}
+	 * set by {@link #setPatternActivityWeek(TourBasedActivityPattern)}. The collected activities will
+	 * be cleared, when {@link #setPatternActivityWeek(TourBasedActivityPattern)} is called.
+	 * 
+	 * @param activity
+	 *          activity to add to the week.
+	 * @return this builder
+	 */
+	PersonBuilder addPatternActivity(ExtendedPatternActivity activity);
 
 	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
-
 
 }
