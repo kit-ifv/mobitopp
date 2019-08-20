@@ -29,7 +29,7 @@ public class ZoneId implements Comparable<ZoneId>, Serializable {
 
   @Override
   public int compareTo(ZoneId other) {
-    return matrixColumn - other.matrixColumn;
+    return Integer.compare(matrixColumn, other.matrixColumn);
   }
 
   @Override
