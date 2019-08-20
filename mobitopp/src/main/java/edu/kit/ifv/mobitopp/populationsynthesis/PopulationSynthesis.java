@@ -132,7 +132,6 @@ public abstract class PopulationSynthesis {
 
   void doCreatePopulation(Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
   	DemandDataForCommunityCalculator calculator = createCommunityCalculator(fdMatrices);
-    printZoneInformation();
     createDemandWith(calculator);
   }
 
@@ -146,13 +145,7 @@ public abstract class PopulationSynthesis {
 		return new SingleZoneDemandCalculator(createCalculator(fdMatrices), demandZoneRepository(), impedance());
 	}
 
-	private void printZoneInformation() {
-    for (DemandZone zone : demandZoneRepository().getZones()) {
-      System.out.println("PopulationSynthesis: Zone " + zone.getId());
-    }
-  }
-
-  protected abstract DemandDataForZoneCalculatorIfc createCalculator(
+	protected abstract DemandDataForZoneCalculatorIfc createCalculator(
       Map<ActivityType, FixedDistributionMatrix> fdMatrices);
 
   private void finishExecution() {
