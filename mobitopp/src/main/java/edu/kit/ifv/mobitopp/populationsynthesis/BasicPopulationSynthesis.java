@@ -8,6 +8,8 @@ import java.util.Random;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.SingleZoneDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.DefaultOpportunityLocationSelector;
@@ -66,9 +68,15 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		this.activityScheduleAssigner = activityScheduleAssigner;
 		categories = new DemandCategories();
 	}
-
+	
 	@Override
-	protected DemandDataForZoneCalculatorIfc createCalculator(
+	protected DemandDataCalculator createCalculator(
+			Map<ActivityType, FixedDistributionMatrix> commuterMatrices) {
+		return new SingleZoneDemandCalculator(createZoneCalculator(commuterMatrices),
+				demandZoneRepository(), impedance());
+	}
+
+	private DemandDataForZoneCalculatorIfc createZoneCalculator(
 			Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
 		FixedDestinationSelector fixedDestinationSelector = new DefaultFixedDestinationSelector(
 																											demandZoneRepository().zoneRepository(),
