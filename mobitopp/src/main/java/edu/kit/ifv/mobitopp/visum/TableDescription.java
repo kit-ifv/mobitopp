@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
+
 public class TableDescription {
 
   private final long startOfTable;

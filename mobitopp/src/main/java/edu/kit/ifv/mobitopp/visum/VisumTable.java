@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
+
 public class VisumTable {
 
 	public final String name;

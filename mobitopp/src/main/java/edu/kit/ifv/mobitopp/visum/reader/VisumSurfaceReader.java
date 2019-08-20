@@ -13,8 +13,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
-import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumFace;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;

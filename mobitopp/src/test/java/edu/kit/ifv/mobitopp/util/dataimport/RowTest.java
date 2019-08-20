@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.visum;
+package edu.kit.ifv.mobitopp.util.dataimport;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;

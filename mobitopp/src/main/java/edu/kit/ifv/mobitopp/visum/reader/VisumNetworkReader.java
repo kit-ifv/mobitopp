@@ -14,10 +14,10 @@ import java.util.SortedMap;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.StopWatch;
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.CachedVisumReader;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.POICategories;
-import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.StopAreaPair;
