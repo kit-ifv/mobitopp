@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.visum;
+package edu.kit.ifv.mobitopp.util.dataimport;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
-import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumLink;
 import edu.kit.ifv.mobitopp.visum.VisumLinkAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumLinkType;

@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
-import edu.kit.ifv.mobitopp.visum.Row;
 import edu.kit.ifv.mobitopp.visum.VisumVehicleCombination;
 import edu.kit.ifv.mobitopp.visum.VisumVehicleCombinationUnit;
 import edu.kit.ifv.mobitopp.visum.VisumVehicleUnit;
