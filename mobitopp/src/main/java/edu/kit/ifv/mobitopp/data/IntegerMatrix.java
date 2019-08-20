@@ -58,8 +58,8 @@ public class IntegerMatrix implements Serializable, Matrix<Integer> {
 
   @Override
   public void set(int row, int column, Integer value) {
-    assert 0 <= row && row <= size : ("row=" + row + ", size=" + size);
-    assert 0 <= column && column <= size : ("column=" + column + ", size=" + size);
+    assert 0 <= row && row < size : ("row=" + row + ", size=" + size);
+    assert 0 <= column && column < size : ("column=" + column + ", size=" + size);
 
     this.matrix[row][column] = value;
   }
