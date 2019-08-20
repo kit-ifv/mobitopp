@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.calculator;
 
 
-public interface DemandDataForCommunityCalculator {
+public interface DemandDataCalculator {
 
 	void calculateDemand();
 

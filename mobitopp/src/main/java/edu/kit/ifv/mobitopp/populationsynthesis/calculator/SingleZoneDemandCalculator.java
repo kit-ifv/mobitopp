@@ -7,7 +7,7 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
-public class SingleZoneDemandCalculator implements DemandDataForCommunityCalculator {
+public class SingleZoneDemandCalculator implements DemandDataCalculator {
 
 	private final DemandDataForZoneCalculatorIfc calculator;
 	private final DemandZoneRepository demandZoneRepository;

@@ -11,8 +11,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataForCommunityCalculator;
-import edu.kit.ifv.mobitopp.populationsynthesis.calculator.SingleZoneDemandCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
@@ -131,22 +130,20 @@ public abstract class PopulationSynthesis {
   }
 
   void doCreatePopulation(Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
-  	DemandDataForCommunityCalculator calculator = createCommunityCalculator(fdMatrices);
-    createDemandWith(calculator);
+  	DemandDataCalculator calculator = createCalculator(fdMatrices);
+    calculator.calculateDemand();
   }
 
-  private void createDemandWith(
-			DemandDataForCommunityCalculator communityCalculator) {
-  	communityCalculator.calculateDemand();
-	}
-
-	private DemandDataForCommunityCalculator createCommunityCalculator(
-			Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
-		return new SingleZoneDemandCalculator(createCalculator(fdMatrices), demandZoneRepository(), impedance());
-	}
-
-	protected abstract DemandDataForZoneCalculatorIfc createCalculator(
-      Map<ActivityType, FixedDistributionMatrix> fdMatrices);
+  /**
+	 * Override this method to create your own demand calculator. Otherwise, the zone based one will
+	 * be called.
+	 * 
+	 * @param commuterMatrices
+	 *          commuter matrices per activity type
+	 * @return calculator to be used for calculating the demand
+	 */
+	protected abstract DemandDataCalculator createCalculator(
+			Map<ActivityType, FixedDistributionMatrix> commuterMatrices);
 
   private void finishExecution() {
     try {

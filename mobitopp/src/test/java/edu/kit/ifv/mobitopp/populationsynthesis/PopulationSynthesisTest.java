@@ -12,13 +12,14 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 public class PopulationSynthesisTest {
 
-	private DemandDataForZoneCalculatorIfc calculator;
+	private DemandDataCalculator calculator;
 	private OpportunityLocationSelector locationSelector;
 	private SynthesisContext context;
 	private ImpedanceIfc impedance;
@@ -26,7 +27,7 @@ public class PopulationSynthesisTest {
 
 	@Before
 	public void initialise() {
-		calculator = mock(DemandDataForZoneCalculatorIfc.class);
+		calculator = mock(DemandDataCalculator.class);
 		locationSelector = mock(OpportunityLocationSelector.class);
 		context = mock(SynthesisContext.class);
 		impedance = mock(ImpedanceIfc.class);
@@ -39,21 +40,20 @@ public class PopulationSynthesisTest {
 	}
 
 	@Test
-	public void createsPopulationForEachZone() {
+	public void usesCalculatorToCalculateDemand() {
 		PopulationSynthesis synthesis = newSynthesis();
 
 		synthesis.doCreatePopulation(emptyMap());
 
-		verify(calculator).calculateDemandData(zones.someZone(), impedance);
-		verify(calculator).calculateDemandData(zones.otherZone(), impedance);
+		verify(calculator).calculateDemand();
 	}
 
 	private PopulationSynthesis newSynthesis() {
 		return new PopulationSynthesis(context) {
 
 			@Override
-			protected DemandDataForZoneCalculatorIfc createCalculator(
-					Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
+			protected DemandDataCalculator createCalculator(
+					Map<ActivityType, FixedDistributionMatrix> commuterMatrices) {
 				return calculator;
 			}
 			
