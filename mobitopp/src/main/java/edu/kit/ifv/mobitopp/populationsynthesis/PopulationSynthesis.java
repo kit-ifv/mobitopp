@@ -11,6 +11,8 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataForCommunityCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.calculator.SingleZoneDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
@@ -129,21 +131,22 @@ public abstract class PopulationSynthesis {
   }
 
   void doCreatePopulation(Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
-    DemandDataForZoneCalculatorIfc calculator = createCalculator(fdMatrices);
+  	DemandDataForCommunityCalculator calculator = createCommunityCalculator(fdMatrices);
     printZoneInformation();
-    createDemandForZonesWith(calculator);
+    createDemandWith(calculator);
   }
 
-  private void createDemandForZonesWith(DemandDataForZoneCalculatorIfc calculator) {
-    for (DemandZone zone : demandZoneRepository().getZones()) {
-      System.out
-          .println(
-              String.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId()));
-      calculator.calculateDemandData(zone, impedance());
-    }
-  }
+  private void createDemandWith(
+			DemandDataForCommunityCalculator communityCalculator) {
+  	communityCalculator.calculateDemand();
+	}
 
-  private void printZoneInformation() {
+	private DemandDataForCommunityCalculator createCommunityCalculator(
+			Map<ActivityType, FixedDistributionMatrix> fdMatrices) {
+		return new SingleZoneDemandCalculator(createCalculator(fdMatrices), demandZoneRepository(), impedance());
+	}
+
+	private void printZoneInformation() {
     for (DemandZone zone : demandZoneRepository().getZones()) {
       System.out.println("PopulationSynthesis: Zone " + zone.getId());
     }
