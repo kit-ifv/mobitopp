@@ -2,6 +2,9 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 import java.util.Objects;
 
+import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
+
 public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
 
 	private final HouseholdOfPanelDataId householdId;
@@ -52,6 +55,14 @@ public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
 
 	public int hashCode() {
 		return Objects.hash(householdId.hashCode(), personNumber);
+	}
+	
+	public static PersonOfPanelDataId fromPersonId(PersonId id) {
+		return new PersonOfPanelDataId(createPanelId(id.getHouseholdId()), id.getPersonNumber());
+	}
+
+	private static HouseholdOfPanelDataId createPanelId(HouseholdId id) {
+		return new HouseholdOfPanelDataId(id.getYear(), id.getHouseholdNumber());
 	}
 
 }

@@ -1,13 +1,17 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -18,6 +22,7 @@ public class CsvFile {
 	private final List<String> columnNames;
 	private final Map<String,Integer> columnMapping;
 	private final Map<Integer,Map<Integer,String>> data;
+	private final List<Row> rows;
 	private int length;
 	
 	public CsvFile(String filename) {
@@ -33,6 +38,7 @@ public class CsvFile {
 		columnNames = new ArrayList<>();
 		columnMapping = new HashMap<>();
 		data = new HashMap<>();
+		rows = new LinkedList<>();
 		init(file);
 	}
 
@@ -51,6 +57,7 @@ public class CsvFile {
 
 			Map<Integer,String> row = new HashMap<Integer,String>();
 			this.data.put(line_num,row);
+			rows.add(Row.createRow(asList(nextLine), columnNames));
 
 			for(int i=0; i< nextLine.length; i++) {
 
@@ -115,7 +122,10 @@ public class CsvFile {
 	public boolean hasAttribute(String attribute) {
 		return columnNames.contains(nameOf(attribute));
 	}
-	
+
+	public Stream<Row> stream() {
+		return rows.stream();
+	}
 	
 }
 	

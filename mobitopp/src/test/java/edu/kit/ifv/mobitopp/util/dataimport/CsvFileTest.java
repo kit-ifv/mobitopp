@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -12,7 +13,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,8 +90,21 @@ public class CsvFileTest {
     
     createFileFor(content);
   }
+  
+  @Test
+	void streamContent() throws Exception {
+		CsvFile csvFile = createFile();
+		
+		List<Row> content = csvFile.stream().collect(toList());
+		
+		Map<String, String> values = new HashMap<>();
+		values.put(someHeader.toLowerCase(), someContent);
+		values.put(otherHeader.toLowerCase(), otherContent);
+		Row row = new Row(values);
+		assertThat(content, contains(row));
+	}
 
-  private CsvFile createFileFor(StringBuilder content) {
+	private CsvFile createFileFor(StringBuilder content) {
     return new CsvFile("dummy-file-name") {
 
       @Override

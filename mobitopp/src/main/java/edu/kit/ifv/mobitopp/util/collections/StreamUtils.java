@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.collections;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -109,6 +110,20 @@ public final class StreamUtils {
       Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
     return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), TreeMap::new);
   }
+
+	/**
+	 * This method creates a collector which collects elements in a {@link SortedMap} using the given
+	 * comparator.
+	 * 
+	 * @param comparator used to sort the elements in the map
+	 * @see Collectors#toMap(Function, Function)
+	 */
+	public static <T, K, U> Collector<T, ?, SortedMap<K, U>> toSortedMap(
+			Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper,
+			Comparator<K> comparator) {
+		Supplier<SortedMap<K, U>> mapSupplier = () -> new TreeMap<>(comparator);
+		return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), mapSupplier);
+	}
 
   public static <T> Collector<T, ?, Set<T>> toSortedSet() {
     return toSet(TreeSet::new);
