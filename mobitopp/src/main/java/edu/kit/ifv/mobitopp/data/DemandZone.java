@@ -52,4 +52,9 @@ public class DemandZone {
     return zone.getAreaType();
   }
 
+	@Override
+	public String toString() {
+		return "DemandZone [zone=" + zone + "]";
+	}
+
 }
