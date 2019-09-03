@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -186,6 +187,17 @@ public abstract class ExampleSetup {
 	}
 
 	public static ExtendedPatternActivity activity() {
-		return new ExtendedPatternActivity(0,false,false,ActivityType.getTypeFromInt(type), observedTripDuration, startTime, duration);
+		ActivityType activityType = ActivityType.getTypeFromInt(type);
+		return activity(activityType);
+	}
+
+	public static TourBasedActivityPattern activitySchedule(ActivityType... activityType) {
+		PatternActivityWeek schedule = new PatternActivityWeek();
+		Stream.of(activityType).map(ExampleSetup::activity).forEach(schedule::addPatternActivity);
+		return TourBasedActivityPatternCreator.fromPatternActivityWeek(schedule);
+	}
+
+	private static ExtendedPatternActivity activity(ActivityType activityType) {
+		return new ExtendedPatternActivity(0,false,false,activityType, observedTripDuration, startTime, duration);
 	}
 }

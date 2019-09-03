@@ -40,7 +40,7 @@ public class ContextBuilder {
   private final PopulationSynthesisParser format;
   private final AreaTypeRepository areaTypeRepository;
   private final TypeMapping modeToType;
-  private final NetfileLanguage netfileLanguage;
+  private NetfileLanguage netfileLanguage;
 
   private WrittenConfiguration configuration;
   private DynamicParameters experimentalParameters;
@@ -68,6 +68,11 @@ public class ContextBuilder {
 
   public ContextBuilder() {
     this(new BicRepository(), DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
+  }
+  
+  public ContextBuilder use(NetfileLanguage language) {
+  	this.netfileLanguage = language;
+  	return this;
   }
 
   public SynthesisContext buildFrom(File configurationFile) throws IOException {
