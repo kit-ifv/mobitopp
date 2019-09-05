@@ -18,22 +18,21 @@ public abstract class StandardNetfileLanguages {
     language.add(Table.territories, "TERRITORY");
     language.add(Table.poiCategory, "POICATEGORY");
     language.add(Table.poiCategoryPrefix, "POIOFCAT_");
-    // TODO translation still missing
-    language.add(Table.connectors, "ANBINDUNG");
-    language.add(Table.vehicleUnit, "FZGEINHEIT");
-    language.add(Table.vehicleCombinations, "FZGKOMB");
-    language.add(Table.vehicleUnitToCombinations, "FZGEINHEITZUFZGKOMB");
-    language.add(Table.station, "HALTESTELLE");
-    language.add(Table.stopArea, "HALTESTELLENBEREICH");
-    language.add(Table.stop, "HALTEPUNKT");
-    language.add(Table.transferWalkTimes, "UEBERGANGSGEHZEITHSTBER");
-    language.add(Table.line, "LINIE");
-    language.add(Table.lineRoute, "LINIENROUTE");
-    language.add(Table.lineRouteElement, "LINIENROUTENELEMENT");
-    language.add(Table.timeProfile, "FAHRZEITPROFIL");
-    language.add(Table.timeProfileElement, "FAHRZEITPROFILELEMENT");
-    language.add(Table.vehicleJourney, "FAHRPLANFAHRT");
-    language.add(Table.vehicleJourneyPart, "FAHRPLANFAHRTABSCHNITT");
+    language.add(Table.connectors, "CONNECTOR");
+    language.add(Table.vehicleUnit, "VEHUNIT");
+    language.add(Table.vehicleCombinations, "VEHCOMB");
+    language.add(Table.vehicleUnitToCombinations, "VEHUNITTOVEHCOMB");
+    language.add(Table.station, "STOP");
+    language.add(Table.stopArea, "STOPAREA");
+    language.add(Table.stop, "STOPPOINT");
+    language.add(Table.transferWalkTimes, "TRANSFERWALKTIMESTOPAREA");
+    language.add(Table.line, "LINE");
+    language.add(Table.lineRoute, "LINEROUTE");
+    language.add(Table.lineRouteElement, "LINEROUTEITEM");
+    language.add(Table.timeProfile, "TIMEPROFILE");
+    language.add(Table.timeProfileElement, "TIMEPROFILEITEM");
+    language.add(Table.vehicleJourney, "VEHJOURNEY");
+    language.add(Table.vehicleJourneyPart, "VEHJOURNEYSECTION");
     
     // TransportSystem
     language.add(StandardAttributes.code, "CODE");
@@ -84,53 +83,53 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
     
     // VehicleUnit
-    language.add(StandardAttributes.vehicleCapacity, "GESAMTPL");
-    language.add(StandardAttributes.seats, "SITZPL");
+    language.add(StandardAttributes.vehicleCapacity, "TOTALCAP");
+    language.add(StandardAttributes.seats, "SEATCAP");
     
     // VehicleCombination
-    language.add(StandardAttributes.vehicleCombinationNumber, "FZGKOMBNR");
-    language.add(StandardAttributes.vehicleUnitNumber, "FZGEINHEITNR");
-    language.add(StandardAttributes.numberOfVehicleUnits, "ANZFZGEINH");
+    language.add(StandardAttributes.vehicleCombinationNumber, "VEHCOMBNO");
+    language.add(StandardAttributes.vehicleUnitNumber, "VEHUNITNO");
+    language.add(StandardAttributes.numberOfVehicleUnits, "NUMVEHUNITS");
 
     // StopArea
-    language.add(StandardAttributes.stationNumber, "HSTNR");
+    language.add(StandardAttributes.stationNumber, "STOPNO");
     
     // Stop
-    language.add(StandardAttributes.stopAreaNumber, "HSTBERNR");
-    language.add(StandardAttributes.directed, "GERICHTET");
-    language.add(StandardAttributes.linkNumber, "STRNR");
+    language.add(StandardAttributes.stopAreaNumber, "STOPAREANO");
+    language.add(StandardAttributes.directed, "DIRECTED");
+    language.add(StandardAttributes.linkNumber, "LINKNO");
     language.add(StandardAttributes.relativePosition, "RELPOS");
     
     // TransferWalkTimes
-    language.add(StandardAttributes.fromStopArea, "VONHSTBERNR");
-    language.add(StandardAttributes.toStopArea, "NACHHSTBERNR");
-    language.add(StandardAttributes.time, "ZEIT");
-    language.add(StandardAttributes.transportSystemCode, "VSYSCODE");
+    language.add(StandardAttributes.fromStopArea, "FROMSTOPAREANO");
+    language.add(StandardAttributes.toStopArea, "TOSTOPAREANO");
+    language.add(StandardAttributes.time, "TIME");
+    language.add(StandardAttributes.transportSystemCode, "TSYSCODE");
     
     // Pt LineRoute
-    language.add(StandardAttributes.lineName, "LINNAME");
-    language.add(StandardAttributes.directionCode, "RICHTUNGCODE");
+    language.add(StandardAttributes.lineName, "LINENAME");
+    language.add(StandardAttributes.directionCode, "DIRECTIONCODE");
     
     // Pt LineRouteElement
-    language.add(StandardAttributes.stopNumber, "HPUNKTNR");
+    language.add(StandardAttributes.stopNumber, "STOPPOINTNO");
     language.add(StandardAttributes.index, "INDEX");
-    language.add(StandardAttributes.isRoutePoint, "ISTROUTENPUNKT");
-    language.add(StandardAttributes.toLength, "NACHLAENGE");
+    language.add(StandardAttributes.isRoutePoint, "ISROUTEPOINT");
+    language.add(StandardAttributes.toLength, "POSTLENGTH");
     
     // TimeProfile
-    language.add(StandardAttributes.lineRouteName, "LINROUTENAME");
-    language.add(StandardAttributes.timeProfileName, "FZPROFILNAME");
-    language.add(StandardAttributes.lineRouteElementIndex, "LRELEMINDEX");
-    language.add(StandardAttributes.getOff, "AUS");
-    language.add(StandardAttributes.board, "EIN");
-    language.add(StandardAttributes.arrival, "ANKUNFT");
-    language.add(StandardAttributes.departure, "ABFAHRT");
+    language.add(StandardAttributes.lineRouteName, "LINEROUTENAME");
+    language.add(StandardAttributes.timeProfileName, "TIMEPROFILENAME");
+    language.add(StandardAttributes.lineRouteElementIndex, "LRITEMINDEX");
+    language.add(StandardAttributes.getOff, "ALIGHT");
+    language.add(StandardAttributes.board, "BOARD");
+    language.add(StandardAttributes.arrival, "ARR");
+    language.add(StandardAttributes.departure, "DEP");
     
     // VehicleJourney
-    language.add(StandardAttributes.vehicleJourneyNumber, "FPLFAHRTNR");
-    language.add(StandardAttributes.fromTimeProfileElementIndex, "VONFZPELEMINDEX");
-    language.add(StandardAttributes.toTimeProfileElementIndex, "NACHFZPELEMINDEX");
-    language.add(StandardAttributes.vehicleDayNumber, "VTAGNR");
+    language.add(StandardAttributes.vehicleJourneyNumber, "VEHJOURNEYNO");
+    language.add(StandardAttributes.fromTimeProfileElementIndex, "FROMTPROFITEMINDEX");
+    language.add(StandardAttributes.toTimeProfileElementIndex, "TOTPROFITEMINDEX");
+    language.add(StandardAttributes.vehicleDayNumber, "VALIDDAYSNO");
     
     // Point
     language.add(StandardAttributes.id, "ID");
