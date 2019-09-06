@@ -12,7 +12,7 @@ class HouseholdInfo {
 	public int cars;
 	public int income = -1;
   public int income_class = -1;
-
+	public float activity_radius;
 
 	public String id() {
 		return household_number + "," + year;

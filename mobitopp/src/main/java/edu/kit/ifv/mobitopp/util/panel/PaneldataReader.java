@@ -154,6 +154,7 @@ public class PaneldataReader {
 
 		info.household.income = getIntegerOrDefault(columnNames, field, "hhincome", 0);
 		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
+		info.household.activity_radius = getFloatOrDefault(columnNames, field, "activity_radius", 0.0f);
 		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
 															
 		info.person.pref_cardriver = getFloatOrDefault(columnNames, field, "pref_cardriver", 0.0f);
@@ -310,7 +311,7 @@ public class PaneldataReader {
 			int income = info.household.income > 0 ? info.household.income 
 																			: info.person.income*info.household.household_size;
 
-			float activityRadius = 0.0f;
+			float activityRadius = info.household.activity_radius;
 			HouseholdOfPanelData hh = new HouseholdOfPanelData(
 																		new HouseholdOfPanelDataId(	
 																																info.household.year,
