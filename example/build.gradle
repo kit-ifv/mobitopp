@@ -1,9 +1,10 @@
 dependencies {
     implementation project(':mobitopp')
     
-    testImplementation libraries.junit_jupiter,
-                libraries.hamcrest_all,
-                libraries.mockito_core
+    testImplementation libraries.commons_compress,
+        libraries.junit_jupiter,
+        libraries.hamcrest_all,
+        libraries.mockito_core
 }
 
 test {
