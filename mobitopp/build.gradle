@@ -101,7 +101,7 @@ artifactory {
             password = project.hasProperty('key') ? project.property('key') : 'key'
         }
         defaults {
-            publications('mavenPublication')
+            publications('mavenJava')
             publishArtifacts = true
             publishPom = true
         }
