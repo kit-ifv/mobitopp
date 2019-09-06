@@ -1,7 +1,11 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
 import edu.kit.ifv.mobitopp.data.ProjectAreaType;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@Getter
+@RequiredArgsConstructor
 public class HouseholdOfPanelData
 {
   private final static byte UNDEFINED_BYTE     = Byte.MIN_VALUE;
@@ -10,62 +14,54 @@ public class HouseholdOfPanelData
 
   private final HouseholdOfPanelDataId id;
   private final int areaType;
-  private final byte numberOfCars;
-  private final byte numberOfReportingPersons;
-  private final byte numberOfNotReportingChildren;
+  private final byte size;
   private final byte householdType;
+  private final byte numberOfReportingPersons;
+  private final byte numberOfMinors;
+  private final byte numberOfNotReportingChildren;
+  private final byte numberOfCars;
   private final int income;
   private final int incomeClass;
-  private final byte size;
-  private final byte numberOfMinors;
+	private final float activityRadius;
 
   public HouseholdOfPanelData(
-  	HouseholdOfPanelDataId id,
-		int areaType,
-		int size,
-		int domCode,
-		int numberOfReportingPersons,
-		int numberOfMinors,
-		int numberOfNotReportingChildren,
-		int numberOfCars,
-		int income, 
-		int income_class
+  	final HouseholdOfPanelDataId id,
+		final int areaType,
+		final int size,
+		final int householdType,
+		final int numberOfReportingPersons,
+		final int numberOfMinors,
+		final int numberOfNotReportingChildren,
+		final int numberOfCars,
+		final int income, 
+		final int incomeClass, 
+		final float activityRadius
 	)
-  {
-		assert id != null;
-
-		this.id = id;
-
-		this.areaType = areaType;
-		this.size = (byte) size;
-		this.householdType = (byte) domCode;
-		this.numberOfReportingPersons = (byte) numberOfReportingPersons;
-		this.numberOfMinors = (byte) numberOfMinors;
-		this.numberOfNotReportingChildren = (byte) numberOfNotReportingChildren;
-		this.numberOfCars = (byte) numberOfCars;
-		this.income = income;
-		this.incomeClass = income_class;
+	{
+		this(id, areaType, (byte) size, (byte) householdType, (byte) numberOfReportingPersons,
+				(byte) numberOfMinors, (byte) numberOfNotReportingChildren, (byte) numberOfCars, income,
+				incomeClass, activityRadius);
 	}
 
-  public HouseholdOfPanelData(HouseholdOfPanelData household) {
+  public HouseholdOfPanelData(final HouseholdOfPanelData household) {
     this(household.id, household.areaType, household.size, household.householdType,
         household.numberOfReportingPersons, household.numberOfMinors,
         household.numberOfNotReportingChildren, household.numberOfCars, household.income,
-        household.incomeClass);
+        household.incomeClass, household.activityRadius);
   }
 
   public HouseholdOfPanelDataId id()
   {
 		assert this.id != null;
 
-    return this.id;
+    return getId();
   }
 
   public int numberOfCars()
   {
 		assert this.numberOfCars != UNDEFINED_BYTE;
 
-    return this.numberOfCars;
+    return getNumberOfCars();
   }
 
 
@@ -73,7 +69,7 @@ public class HouseholdOfPanelData
   {
 		assert this.numberOfReportingPersons != UNDEFINED_BYTE;
 
-    return this.numberOfReportingPersons;
+    return getNumberOfReportingPersons();
   }
 
 
@@ -81,19 +77,19 @@ public class HouseholdOfPanelData
   {
 		assert this.numberOfNotReportingChildren != UNDEFINED_BYTE;
 
-    return this.numberOfNotReportingChildren;
+    return getNumberOfNotReportingChildren();
   }
 
 	public int numberOfMinors() {
 
-		return this.numberOfMinors;
+		return getNumberOfMinors();
 	}
 
   public int areaTypeAsInt()
   {
 		assert this.areaType != UNDEFINED_BYTE;
 
-    return this.areaType;
+    return getAreaType();
   }
 
   public ProjectAreaType areaType()
@@ -105,42 +101,30 @@ public class HouseholdOfPanelData
   {
 		assert this.size != UNDEFINED_BYTE;
 
-    return this.size;
+    return getSize();
   }
 
   public int domCode()
   {
 		assert this.householdType != UNDEFINED_BYTE;
 
-    return this.householdType;
+    return getHouseholdType();
   }
 
   public int income()
   {
 		assert this.income != UNDEFINED_INT;
 
-    return this.income;
+    return getIncome();
   }
 
   public int incomeClass() {
-    return this.incomeClass;
+    return getIncomeClass();
   }
-
+  
   public boolean isCompletelySpecified()
   {
     return (size() == (numberOfReportingPersons() + numberOfNotReportingChildren()));
   }
-
-	public String toString() {
-
-		return "[" + id + "," +
-  		+ areaType + "," +
-  		+ numberOfCars + "," +
-  		+ numberOfNotReportingChildren + "," +
-  		+ householdType + "," +
-  		+ income + "," +
-  		+ size + "," +
-  		+ numberOfMinors + "]";
-	}
 
 }
