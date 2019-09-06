@@ -107,7 +107,7 @@ public class TransferHouseholdsTest {
   private HouseholdOfPanelData createHousehold(Bbsr17 areaType, int size) {
     short year = 2011;
     HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
-    return new HouseholdOfPanelData(id, areaType.getTypeAsInt(), size, 0, 0, 0, 0, 0, 0, 0);
+    return new HouseholdOfPanelData(id, areaType.getTypeAsInt(), size, 0, 0, 0, 0, 0, 0, 0, 0.0f);
   }
 
   private PanelDataRepository createPanelRepsitory(HouseholdOfPanelData... household) {

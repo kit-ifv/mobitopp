@@ -5,6 +5,6 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public interface HouseholdBuilder {
 
-  HouseholdForSetup householdFor(HouseholdOfPanelData panelHousehold);
+	HouseholdForSetup householdFor(final HouseholdOfPanelData household);
 
 }

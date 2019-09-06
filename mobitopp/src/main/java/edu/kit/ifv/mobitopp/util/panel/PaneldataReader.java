@@ -310,6 +310,7 @@ public class PaneldataReader {
 			int income = info.household.income > 0 ? info.household.income 
 																			: info.person.income*info.household.household_size;
 
+			float activityRadius = 0.0f;
 			HouseholdOfPanelData hh = new HouseholdOfPanelData(
 																		new HouseholdOfPanelDataId(	
 																																info.household.year,
@@ -323,7 +324,8 @@ public class PaneldataReader {
 																	info.household.additionalchildren,
 																	info.household.cars,
 																	income,
-																	info.household.income_class
+																	info.household.income_class,
+																	activityRadius
 																);
 
 			assert (info.household.household_size == infos.get(id).size() + info.household.additionalchildren);
