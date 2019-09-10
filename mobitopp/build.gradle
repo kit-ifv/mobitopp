@@ -24,6 +24,7 @@ dependencies {
     
     testImplementation libraries.junit_jupiter,
                 libraries.junit_migrationsupport,
+                libraries.assertj,
                 libraries.hamcrest_all,
                 libraries.hamcrest_optional,
                 libraries.mockito_core,
