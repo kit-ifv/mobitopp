@@ -1,10 +1,12 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
-import java.util.Objects;
-
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
 
 	private final HouseholdOfPanelDataId householdId;
@@ -32,16 +34,6 @@ public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
     return this.personNumber;
   }
 
-  public boolean equals(Object obj)
-  {
-
-    PersonOfPanelDataId otherObject = 
-      (PersonOfPanelDataId) obj;
-
-		return householdId.equals(otherObject.householdId)
-				&& personNumber == otherObject.personNumber;
-  }
-
 	public int compareTo(PersonOfPanelDataId o) {
 
 		int hh_comparison = householdId.compareTo(o.householdId);
@@ -53,10 +45,6 @@ public class PersonOfPanelDataId implements Comparable<PersonOfPanelDataId> {
 		return personNumber - o.personNumber;
 	}
 
-	public int hashCode() {
-		return Objects.hash(householdId.hashCode(), personNumber);
-	}
-	
 	public static PersonOfPanelDataId fromPersonId(PersonId id) {
 		return new PersonOfPanelDataId(createPanelId(id.getHouseholdId()), id.getPersonNumber());
 	}

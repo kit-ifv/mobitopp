@@ -2,8 +2,6 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 class PersonInfo {
 
-	public int pole;
-	public float weight;
 	public int person_number;
 	public int sex;
 	public int graduation;
@@ -30,8 +28,6 @@ class PersonInfo {
 
 		return getClass().getName()
 					+ ": "
-					+ pole + ", "
-					+ weight + ", "
 					+ person_number + ", "
 					+ sex + ", "
 					+ graduation + ", "

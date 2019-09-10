@@ -3,7 +3,13 @@ package edu.kit.ifv.mobitopp.util.panel;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Graduation;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
+@EqualsAndHashCode
 public class PersonOfPanelData
 	implements Comparable<PersonOfPanelData>
 {
@@ -21,7 +27,6 @@ public class PersonOfPanelData
   private final short  birthyear;
   private final short  age;
   private final String activityPattern;
-  private final float  weight;
   private final Integer income;
   private final float poleDistance;
 
@@ -47,14 +52,11 @@ public class PersonOfPanelData
 		int  age,
 		int employmentType,
 		float poleDistance,	
-		// int commutationTicketType,
 		boolean commuterTicket,
 		boolean licence,
 		boolean bicycle,
 		boolean personalCar,
 		boolean carAvailable,
-		// String modeTypeWeights,
-		float weight,
 		Integer income,
 		String activityPattern,
 		float pref_cardriver,
@@ -82,7 +84,6 @@ public class PersonOfPanelData
 		this.personalCar = personalCar;
 		this.carAvailable = carAvailable;
 
-    this.weight = weight;
 		this.income = income;
 		this.activityPattern = activityPattern;
 		
@@ -155,14 +156,6 @@ public class PersonOfPanelData
 
 		return this.personalCar;
 	}
-
-
-  public float getWeight()
-  {
-		assert this.weight != UNDEFINED_FLOAT;
-
-    return this.weight;
-  }
 
   public int getIncome()
   {

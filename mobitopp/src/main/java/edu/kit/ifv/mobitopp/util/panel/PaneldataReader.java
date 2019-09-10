@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -20,7 +21,10 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 public class PaneldataReader {
 
 
+	private static final int defaultAdditionalChildren = 0;
+	private static final int defaultDomCode = 0;
 	private static final int graduationUndefined = -1;
+	private static final float defaultPoleDistance = 0.0f;
 	private final Map<String, String> missingColumns;
   public final Map<String,List<PaneldataInfo>> data;
 
@@ -131,10 +135,8 @@ public class PaneldataReader {
 		info.household.year 							= Short.parseShort(field[columnNames.get("year")]);
 		info.household.area_type 					= Integer.parseInt(field[columnNames.get("areatype")]);
 		info.household.household_size 		= Integer.parseInt(field[columnNames.get("size")]);
-		info.household.domcode 						= Integer.parseInt(field[columnNames.get("hhtype")]);
+		info.household.domcode 						= getIntegerOrDefault(columnNames, field, "hhtype", defaultDomCode);
 		info.household.cars							= Integer.parseInt(field[columnNames.get("cars")]);
-		info.person.pole								= Integer.parseInt(field[columnNames.get("pole")]);
-		info.person.weight							= Float.parseFloat(field[columnNames.get("weight")]);
 		info.person.person_number				= Integer.parseInt(field[columnNames.get("personnumber")]);
 		info.person.sex 								= readGender(columnNames, field);
 		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
@@ -150,11 +152,14 @@ public class PaneldataReader {
 		
 		info.household.additionalchildren	= additionalChildren(columnNames, field);
 		
-		info.household.additionalchildrenmaxage	= getIntegerOrDefault(columnNames, field, "notcontainedchildrenmaxage", -1); 
+		info.household.additionalchildrenmaxage	= getIntegerOrDefault(columnNames, field, "notcontainedchildrenmaxage", defaultAdditionalChildren); 
 
 		info.household.income = getIntegerOrDefault(columnNames, field, "hhincome", 0);
 		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
-		info.household.activity_radius = getFloatOrDefault(columnNames, field, "activity_radius", 0.0f);
+		info.household.activity_radius_time = getFloatOrDefault(columnNames, field, "hhactivity_radius_time", 0.0f);
+		info.household.activity_radius_mode = getOrDefault(columnNames, field, "hhactivity_radius_mode", "IV");
+		info.household.distance_work = getFloatOrDefault(columnNames, field, "distance_work", 0.0f);
+		info.household.distance_education = getFloatOrDefault(columnNames, field, "distance_education", 0.0f);
 		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
 															
 		info.person.pref_cardriver = getFloatOrDefault(columnNames, field, "pref_cardriver", 0.0f);
@@ -163,51 +168,72 @@ public class PaneldataReader {
 		info.person.pref_cycling = getFloatOrDefault(columnNames, field, "pref_cycling", 0.0f);
 		info.person.pref_publictransport = getFloatOrDefault(columnNames, field, "pref_publictransport", 0.0f);
 
-		int startPattern = columnNames.get("activitypattern");
-
-		for (int i=startPattern; i<field.length; i+=4) {
-		  if ("\"".equals(field[i])) {
-		    break;
-		  }
-			int purpose = java.lang.Integer.parseInt(field[i+1]);
-			if (purpose == 10) { purpose=9; }
-			
-			
-
-			info.activity_pattern.add(
-				new ActivityOfPanelData(
-					java.lang.Integer.parseInt(field[i].replaceAll("\"", "")),
-					ActivityType.getTypeFromInt(purpose),
-					java.lang.Integer.parseInt(field[i+2]),
-					java.lang.Integer.parseInt(field[i+3])
-				)
-			);
+		if (columnNames.containsKey("activitypattern")) {
+			parseActivityPattern(columnNames, info, field);
 		}
-
 
 		return info;
 	}
 
-  private int getPoleDistance(Map<String, Integer> columnNames, String[] field) {
-    return Double.valueOf(field[columnNames.get("poledistance")]).intValue();
-  }
+	private void parseActivityPattern(
+			Map<String, Integer> columnNames, PaneldataInfo info, String[] field) {
+		int startPattern = columnNames.get("activitypattern");
+
+		for (int i = startPattern; i < field.length; i += 4) {
+			if ("\"".equals(field[i])) {
+				break;
+			}
+			int purpose = java.lang.Integer.parseInt(field[i + 1]);
+			if (purpose == 10) {
+				purpose = 9;
+			}
+
+			info.activity_pattern
+					.add(new ActivityOfPanelData(
+							Integer.parseInt(field[i].replaceAll("\"", "")),
+							ActivityType.getTypeFromInt(purpose), 
+							Integer.parseInt(field[i + 2]),
+							Integer.parseInt(field[i + 3])));
+		}
+	}
+
+	private int getPoleDistance(Map<String, Integer> columnNames, String[] field) {
+		return ((Float) getFloatOrDefault(columnNames, field, "poledistance", defaultPoleDistance))
+				.intValue();
+	}
 	
 	private float getFloatOrDefault(
 	    Map<String, Integer> columnNames, String[] field, String key, float defaultValue) {
-	  if (columnNames.containsKey(key)) {
-	    return Float.parseFloat(field[columnNames.get(key)]);
-	  }
-	  missingColumns.put(key, String.valueOf(defaultValue));
-	  return defaultValue;
+		Optional<String> value = get(columnNames, field, key);
+		if (!value.isPresent()) {
+			missingColumns.put(key, String.valueOf(defaultValue));
+		}
+	  return value.filter(s -> !s.isEmpty()).map(Float::parseFloat).orElse(defaultValue);
 	}
 
   private int getIntegerOrDefault(
       Map<String, Integer> columnNames, String[] field, String key, int defaultValue) {
-    if (columnNames.containsKey(key)) {
-      return Integer.parseInt(field[columnNames.get(key)]);
+    Optional<String> value = get(columnNames, field, key);
+    if (!value.isPresent()) {
+    	missingColumns.put(key, String.valueOf(defaultValue));
     }
-    missingColumns.put(key, String.valueOf(defaultValue));
-    return defaultValue;
+    return value.map(Integer::parseInt).orElse(defaultValue);
+  }
+  
+  private String getOrDefault(
+  		Map<String, Integer> columnNames, String[] field, String key, String defaultValue) {
+  	Optional<String> value = get(columnNames, field, key);
+  	if (!value.isPresent()) {
+  		missingColumns.put(key, String.valueOf(defaultValue));
+  	}
+  	return value.orElse(defaultValue);
+  }
+  
+  private Optional<String> get(Map<String, Integer> columnNames, String[] field, String key) {
+  	if (columnNames.containsKey(key)) {
+  		return Optional.of(field[columnNames.get(key)]);
+  	}
+  	return Optional.empty();
   }
 
   private int additionalChildren(Map<String, Integer> columnNames, String[] field) {
@@ -218,8 +244,8 @@ public class PaneldataReader {
     if (columnNames.containsKey("children")) {
       return Integer.parseInt(field[columnNames.get("children")]);
     }
-    missingColumns.put("children", String.valueOf(-1));
-    return -1;
+    missingColumns.put("children", String.valueOf(defaultAdditionalChildren));
+    return defaultAdditionalChildren;
   }
 
   private boolean hasLicence(Map<String, Integer> columnNames, String[] field) {
@@ -311,7 +337,7 @@ public class PaneldataReader {
 			int income = info.household.income > 0 ? info.household.income 
 																			: info.person.income*info.household.household_size;
 
-			float activityRadius = info.household.activity_radius;
+			float activityRadius = info.household.activity_radius_time;
 			HouseholdOfPanelData hh = new HouseholdOfPanelData(
 																		new HouseholdOfPanelDataId(	
 																																info.household.year,
@@ -432,7 +458,6 @@ public class PaneldataReader {
 																	info.person.fahrrad,
 																	info.person.ppkwverf,
 																	info.person.apkwverf,
-																	info.person.weight,
 																	income,
 																	activitiesAsString(info.activity_pattern),
 																	info.person.pref_cardriver,

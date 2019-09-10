@@ -11,12 +11,12 @@ public class ExampleHouseholdOfPanelData {
 	public static final HouseholdOfPanelDataId anId = new HouseholdOfPanelDataId(year, aNumber);
 	public static final HouseholdOfPanelDataId otherId = new HouseholdOfPanelDataId(year, otherNumber);
 	public static final int areaType = 4;
-	public static final int size = 5;
-	public static final int aDomCode = 6;
+	public static final int size = 1;
+	public static final int aDomCode = 0;
 	public static final int otherDomCode = 7;
-	public static final int reportingPersons = 8;
-	public static final int minors = 9;
-	public static final int notReportingChildren = 10;
+	public static final int reportingPersons = size;
+	public static final int minors = 0;
+	public static final int notReportingChildren = 0;
 	public static final int cars = 11;
 	public static final int income = 12;
   public static final int incomeClass = 1;

@@ -34,7 +34,6 @@ class PaneldataInfo {
 												+ ", " +  person.sex
 												+ ", " +  person.birth_year
 												+ ", " +  person.employment_type
-												+ ", " +  person.pole
 												+ ", " +  person.pole_distance
 												;
 		String data;
