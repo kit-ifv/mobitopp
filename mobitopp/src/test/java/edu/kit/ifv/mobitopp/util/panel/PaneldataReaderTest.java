@@ -51,7 +51,7 @@ public class PaneldataReaderTest {
 	private static final String hhActivityRadiusMode = "1";
 	private static final String distanceWork = valueOf(person.getDistanceWork());
 	private static final String distanceEducation = valueOf(person.getDistanceEducation());
-	private static final String licence = "1";
+	private static final String licence = person.hasLicence() ? "1" : "0";
 	private LinkedHashMap<String, String> example;
 
 	@BeforeEach
