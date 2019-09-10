@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
 import edu.kit.ifv.mobitopp.data.ProjectAreaType;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @RequiredArgsConstructor
+@EqualsAndHashCode
+@ToString
 public class HouseholdOfPanelData
 {
   private final static byte UNDEFINED_BYTE     = Byte.MIN_VALUE;

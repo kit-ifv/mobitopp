@@ -13,8 +13,8 @@ public class ExamplePersonOfPanelData {
 			ExampleHouseholdOfPanelData.otherId, otherNumber);
 	public static final int genderType = 1;
 	private static final int graduation = -1;
-	public static final int birthyear = 4;
-	public static final int age = 5;
+	public static final int age = 25;
+	public static final int birthyear = ExampleHouseholdOfPanelData.year - age;
 	public static final int employmentType = 6;
 	public static final float poleDistance = 7;
 	public static final boolean commuterTicket = false;
@@ -22,9 +22,8 @@ public class ExamplePersonOfPanelData {
 	public static final boolean personalCar = false;
 	public static final boolean carAvailable = true;
 	public static final boolean hasLicense = true;
-	public static final float weight = 8;
-	public static final Integer income = 9;
-	public static final String activityPattern = "pattern";
+	public static final Integer income = ExampleHouseholdOfPanelData.income;
+	public static final String activityPattern = "-1;7;460;-1;15;1;275;475;12;7;278;-1";
 	public static final PersonOfPanelData aPerson = person(anId);
 	public static final PersonOfPanelData otherPerson = person(otherId);
 	public static float pref_cardriver = 0.5f;
@@ -40,21 +39,21 @@ public class ExamplePersonOfPanelData {
 	public static PersonOfPanelData createPersonWith(
 			PersonOfPanelDataId id, String activityPattern) {
 		return new PersonOfPanelData(id, genderType, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income,
 				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
 				pref_publictransport);
 	}
 
 	public static PersonOfPanelData personWithGender(int gender) {
 		return new PersonOfPanelData(anId, gender, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income,
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income,
 				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
 				pref_publictransport);
 	}
 	
 	public static PersonOfPanelData personWithPattern(String pattern) {
 		return new PersonOfPanelData(anId, genderType, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, weight, income, pattern,
+				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income, pattern,
 				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
 	}
 }
