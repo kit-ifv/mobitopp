@@ -5,11 +5,13 @@ class PersonInfo {
 	public int person_number;
 	public int sex;
 	public int graduation;
-	public int birth_year;
-	public int employment_type;
+	public int birthYear;
+	public int employmentType;
 	public int pole_distance;
+	public float distanceWork;
+	public float distanceEducation;
 	public int income = -1;
-	public boolean commutation_ticket;
+	public boolean commutationTicket;
 	public boolean licence;
 	
 	//modetypeweights
@@ -23,7 +25,6 @@ class PersonInfo {
 	public float pref_cycling;
 	public float pref_publictransport;
 
-
 	public String toString() {
 
 		return getClass().getName()
@@ -31,10 +32,10 @@ class PersonInfo {
 					+ person_number + ", "
 					+ sex + ", "
 					+ graduation + ", "
-					+ birth_year + ", "
-					+ employment_type + ", "
+					+ birthYear + ", "
+					+ employmentType + ", "
 					+ pole_distance + ", "
-					+ commutation_ticket + ", "
+					+ commutationTicket + ", "
 					+ fahrrad + ", "
 					+ apkwverf + ", "
 					+ ppkwverf + ", "

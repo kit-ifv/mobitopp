@@ -87,7 +87,7 @@ public class HouseholdWeightCalculatorTest {
 				simpleDistribution(), simpleDistribution(), householdIds());
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void failsForIncorrectSex() {
 		calculateWeightsFor(incorrectPersons());
 		calculateWeightedDistributions();

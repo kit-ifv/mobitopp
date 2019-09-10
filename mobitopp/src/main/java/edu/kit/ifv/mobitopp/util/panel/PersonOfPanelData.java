@@ -3,46 +3,52 @@ package edu.kit.ifv.mobitopp.util.panel;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Graduation;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
 @EqualsAndHashCode
-public class PersonOfPanelData
-	implements Comparable<PersonOfPanelData>
-{
-  protected final static byte UNDEFINED_BYTE     = Byte.MIN_VALUE;
-  protected final static short UNDEFINED_SHORT   = Short.MIN_VALUE;
-  protected final static int UNDEFINED_INT       = Integer.MIN_VALUE;
-  protected final static float UNDEFINED_FLOAT   = -Float.MAX_VALUE;
+@RequiredArgsConstructor
+@Builder
+public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 
+	@NonNull
 	private final PersonOfPanelDataId id;
 
-  private final byte employmentType;
-  private final byte genderType;
-  private final byte graduation;
+	private final byte employmentType;
+	private final byte genderType;
+	private final byte graduation;
 
-  private final short  birthyear;
-  private final short  age;
-  private final String activityPattern;
-  private final Integer income;
-  private final float poleDistance;
-
+	private final short birthyear;
+	private final short age;
+	@NonNull
+	private final String activityPattern;
+	private final int income;
+	private final float poleDistance;
+	private final float distanceWork;
+	private final float distanceEducation;
+	@Getter(AccessLevel.NONE)
 	private final boolean commuterTicket;
+	@Getter(AccessLevel.NONE)
 	private final boolean licence;
+	@Getter(AccessLevel.NONE)
 	private final boolean bicycle;
+	@Getter(AccessLevel.NONE)
 	private final boolean personalCar;
+	@Getter(AccessLevel.NONE)
 	private final boolean carAvailable;
-	
+
 	public final float pref_cardriver;
 	public final float pref_carpassenger;
 	public final float pref_walking;
 	public final float pref_cycling;
 	public final float pref_publictransport;
-
-
 
 	public PersonOfPanelData(
 		PersonOfPanelDataId personId,
@@ -52,12 +58,14 @@ public class PersonOfPanelData
 		int  age,
 		int employmentType,
 		float poleDistance,	
+		float distance_work,
+		float distance_education,
 		boolean commuterTicket,
 		boolean licence,
 		boolean bicycle,
 		boolean personalCar,
 		boolean carAvailable,
-		Integer income,
+		int income,
 		String activityPattern,
 		float pref_cardriver,
 		float pref_carpassenger,
@@ -65,18 +73,19 @@ public class PersonOfPanelData
 		float pref_cycling,
 		float pref_publictransport
 	) {
-		assert personId != null;
-		assert age >= 0 && age <= 120 : age;
-		
-		assert genderType==1 || genderType==2 : ("invalid value for sex: " + genderType);
+		verifyId(personId);
+		verifyAge(age);
+		verifyGender(genderType);
 
 		this.id = personId;
-    this.genderType = (byte) genderType;
-    this.graduation = (byte) graduation;
-    this.birthyear = (short) birthyear;
-    this.age = (short) age;
-    this.employmentType = (byte) employmentType;
-    this.poleDistance = poleDistance;
+		this.genderType = (byte) genderType;
+		this.graduation = (byte) graduation;
+		this.birthyear = (short) birthyear;
+		this.age = (short) age;
+		this.employmentType = (byte) employmentType;
+		this.poleDistance = poleDistance;
+		this.distanceWork = distance_work;
+		this.distanceEducation = distance_education;
 
 		this.commuterTicket = commuterTicket;
 		this.licence = licence;
@@ -86,7 +95,7 @@ public class PersonOfPanelData
 
 		this.income = income;
 		this.activityPattern = activityPattern;
-		
+
 		this.pref_cardriver = pref_cardriver;
 		this.pref_carpassenger = pref_carpassenger;
 		this.pref_walking = pref_walking;
@@ -94,107 +103,74 @@ public class PersonOfPanelData
 		this.pref_publictransport = pref_publictransport;
 	}
 
-  public PersonOfPanelDataId getId()
-	{
-		assert id != null;
-
-    return this.id;
+	private void verifyGender(int genderType) {
+		if (genderType != 1 && genderType != 2) {
+			throw new IllegalArgumentException("Invalid value for gender: " + genderType);
+		}
 	}
 
-  public int getGenderTypeAsInt()
-  {
-		assert this.genderType != UNDEFINED_BYTE;
+	private void verifyId(PersonOfPanelDataId personId) {
+		if (null == personId) {
+			throw new NullPointerException("personId is not allowed to be null.");
+		}
+	}
 
-    return this.genderType;
-  }
+	private void verifyAge(int age) {
+		if (age < 0) {
+			throw new IllegalArgumentException("Age is lower than 0: " + age);
+		}
+		if (age > 120) {
+			throw new IllegalArgumentException("Age is higher than 120: " + age);
+		}
+	}
 
-  public int getBirthyear()
-  {
-		assert this.birthyear != UNDEFINED_SHORT;
+	public int getGenderTypeAsInt() {
+		return getGenderType();
+	}
 
-    return this.birthyear;
-  }
+	public int getBirthyear() {
+		return this.birthyear;
+	}
 
-
-  public int getEmploymentTypeAsInt()
-  {
-		assert this.employmentType != UNDEFINED_BYTE;
-
-    return this.employmentType;
-  }
-
-  public String getActivityPattern()
-  {
-		assert this.activityPattern != null;
-
-    return this.activityPattern;
-  }
-
-  public float getPoleDistance()
-  {
-		assert this.poleDistance != UNDEFINED_FLOAT;
-
-    return this.poleDistance;
-  }
+	public int getEmploymentTypeAsInt() {
+		return this.employmentType;
+	}
 
 	public boolean hasCommuterTicket() {
-		
 		return this.commuterTicket;
 	}
 
 	public boolean hasBicycle() {
-
 		return this.bicycle;
 	}
 
 	public boolean hasAccessToCar() {
-
 		return this.carAvailable;
 	}
 
 	public boolean hasPersonalCar() {
-
 		return this.personalCar;
 	}
 
-  public int getIncome()
-  {
-		assert this.income != UNDEFINED_INT;
+	public Gender gender() {
+		return Gender.getTypeFromInt(getGenderType());
+	}
 
-    return this.income;
-  }
+	public Graduation graduation() {
+		return Graduation.getTypeFromNumeric(getGraduation());
+	}
 
+	public Employment employment() {
+		return Employment.getTypeFromInt(getEmploymentTypeAsInt());
+	}
 
-  public Gender gender()
-  {
-    return Gender.getTypeFromInt(getGenderTypeAsInt());
-  }
+	public int age() {
+		return getAge();
+	}
 
-  public Graduation graduation() {
-    return Graduation.getTypeFromNumeric(getGraduationTypeAsInt());
-  }
-
-  public int getGraduationTypeAsInt() {
-    return this.graduation;
-  }
-
-  public Employment employment()
-  {
-    return Employment.getTypeFromInt(getEmploymentTypeAsInt());
-  }
-
-
-  public int age()
-  {
-		return this.age;
-  }
-  
-  public boolean hasLicence()
-  {
+	public boolean hasLicence() {
 		return this.licence;
-  }
-
-
+	}
 
 	public int compareTo(PersonOfPanelData o) {
 		PersonOfPanelDataId id = getId();
@@ -202,4 +178,3 @@ public class PersonOfPanelData
 	}
 
 }
-

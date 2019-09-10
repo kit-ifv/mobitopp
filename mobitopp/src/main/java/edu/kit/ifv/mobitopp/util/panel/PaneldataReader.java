@@ -140,10 +140,10 @@ public class PaneldataReader {
 		info.person.person_number				= Integer.parseInt(field[columnNames.get("personnumber")]);
 		info.person.sex 								= readGender(columnNames, field);
 		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
-		info.person.birth_year 					= Integer.parseInt(field[columnNames.get("birthyear")]);
-		info.person.employment_type 		= Integer.parseInt(field[columnNames.get("employmenttype")]);
+		info.person.birthYear 					= Integer.parseInt(field[columnNames.get("birthyear")]);
+		info.person.employmentType 		= Integer.parseInt(field[columnNames.get("employmenttype")]);
 		info.person.pole_distance 			= getPoleDistance(columnNames, field);
-		info.person.commutation_ticket 	= field[columnNames.get("commuterticket")].trim().equals("1");
+		info.person.commutationTicket 	= field[columnNames.get("commuterticket")].trim().equals("1");
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
 		info.person.apkwverf 						= hasCarAvailable(columnNames, field);
 		info.person.ppkwverf 						= hasPersonalCar(columnNames, field);
@@ -158,8 +158,8 @@ public class PaneldataReader {
 		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
 		info.household.activity_radius_time = getFloatOrDefault(columnNames, field, "hhactivity_radius_time", 0.0f);
 		info.household.activity_radius_mode = getOrDefault(columnNames, field, "hhactivity_radius_mode", "IV");
-		info.household.distance_work = getFloatOrDefault(columnNames, field, "distance_work", 0.0f);
-		info.household.distance_education = getFloatOrDefault(columnNames, field, "distance_education", 0.0f);
+		info.person.distanceWork = getFloatOrDefault(columnNames, field, "distance_work", 0.0f);
+		info.person.distanceEducation = getFloatOrDefault(columnNames, field, "distance_education", 0.0f);
 		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
 															
 		info.person.pref_cardriver = getFloatOrDefault(columnNames, field, "pref_cardriver", 0.0f);
@@ -316,7 +316,7 @@ public class PaneldataReader {
 
 			for (PaneldataInfo pinfo : infos.get(id)) {
 				
-				if ( pinfo.household.year - pinfo.person.birth_year < 18) {
+				if ( pinfo.household.year - pinfo.person.birthYear < 18) {
 					minors++;
 				}
 
@@ -449,11 +449,13 @@ public class PaneldataReader {
 																	),
 																	info.person.sex,
 																	info.person.graduation,
-																	info.person.birth_year,
-																	info.household.year - info.person.birth_year,
-																	info.person.employment_type,
+																	info.person.birthYear,
+																	info.household.year - info.person.birthYear,
+																	info.person.employmentType,
 																	info.person.pole_distance,
-																	info.person.commutation_ticket,
+																	info.person.distanceWork,
+																	info.person.distanceEducation,
+																	info.person.commutationTicket,
 																	info.person.licence,
 																	info.person.fahrrad,
 																	info.person.ppkwverf,
