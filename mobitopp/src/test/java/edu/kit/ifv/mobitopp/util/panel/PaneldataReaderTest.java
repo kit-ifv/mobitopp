@@ -49,8 +49,8 @@ public class PaneldataReaderTest {
 	private static final String graduation = valueOf(person.getGraduation());
 	private static final String hhActivityRadiusTime = valueOf(household.getActivityRadius());
 	private static final String hhActivityRadiusMode = "1";
-	private static final String distanceWork = "1";
-	private static final String distanceEducation = "1";
+	private static final String distanceWork = valueOf(person.getDistanceWork());
+	private static final String distanceEducation = valueOf(person.getDistanceEducation());
 	private static final String licence = "1";
 	private LinkedHashMap<String, String> example;
 
