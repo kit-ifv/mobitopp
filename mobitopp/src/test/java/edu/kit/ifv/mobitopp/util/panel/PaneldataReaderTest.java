@@ -46,7 +46,7 @@ public class PaneldataReaderTest {
 	private static final String poleDistance = valueOf(person.getPoleDistance());
 	private static final String carAvailable = person.hasAccessToCar() ? "1" : "0";
 	private static final String personalCar = person.hasPersonalCar() ? "1" : "0";
-	private static final String graduation = valueOf(person.getGraduationTypeAsInt());
+	private static final String graduation = valueOf(person.getGraduation());
 	private static final String hhActivityRadiusTime = valueOf(household.getActivityRadius());
 	private static final String hhActivityRadiusMode = "1";
 	private static final String distanceWork = "1";

@@ -87,7 +87,7 @@ public class HouseholdWeightCalculatorIPFlikeTest {
 				simpleDistribution(), simpleDistribution(), householdIds(), doNotPrintStatistics);
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void failsForIncorrectSex() {
 		calculateWeightsFor(incorrectPersons());
 		calculateWeightedDistributions();

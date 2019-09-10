@@ -32,8 +32,8 @@ class PaneldataInfo {
 												+ ", " +  household.additionalchildren
 												+ ", " +  household.cars
 												+ ", " +  person.sex
-												+ ", " +  person.birth_year
-												+ ", " +  person.employment_type
+												+ ", " +  person.birthYear
+												+ ", " +  person.employmentType
 												+ ", " +  person.pole_distance
 												;
 		String data;

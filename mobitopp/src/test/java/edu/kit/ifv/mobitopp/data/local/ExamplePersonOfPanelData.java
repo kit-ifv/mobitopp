@@ -17,6 +17,8 @@ public class ExamplePersonOfPanelData {
 	public static final int birthyear = ExampleHouseholdOfPanelData.year - age;
 	public static final int employmentType = 6;
 	public static final float poleDistance = 7;
+	public static final float distanceWork = 1.0f;
+	public static final float distanceEducation = 2.0f;
 	public static final boolean commuterTicket = false;
 	public static final boolean bicycle = true;
 	public static final boolean personalCar = false;
@@ -36,24 +38,24 @@ public class ExamplePersonOfPanelData {
 		return createPersonWith(id, activityPattern);
 	}
 
-	public static PersonOfPanelData createPersonWith(
-			PersonOfPanelDataId id, String activityPattern) {
-		return new PersonOfPanelData(id, genderType, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income,
-				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
-				pref_publictransport);
+	public static PersonOfPanelData createPersonWith(PersonOfPanelDataId id, String activityPattern) {
+		return new PersonOfPanelData(id, genderType, graduation, birthyear, age, employmentType,
+				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
+				carAvailable, hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger,
+				pref_walking, pref_cycling, pref_publictransport);
 	}
 
 	public static PersonOfPanelData personWithGender(int gender) {
-		return new PersonOfPanelData(anId, gender, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income,
-				activityPattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
-				pref_publictransport);
+		return new PersonOfPanelData(anId, gender, graduation, birthyear, age, employmentType,
+				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
+				carAvailable, hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger,
+				pref_walking, pref_cycling, pref_publictransport);
 	}
-	
+
 	public static PersonOfPanelData personWithPattern(String pattern) {
-		return new PersonOfPanelData(anId, genderType, graduation, birthyear, age, employmentType, poleDistance,
-				commuterTicket, bicycle, personalCar, carAvailable, hasLicense, income, pattern,
-				pref_cardriver, pref_carpassenger, pref_walking, pref_cycling, pref_publictransport);
+		return new PersonOfPanelData(anId, genderType, graduation, birthyear, age, employmentType,
+				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
+				carAvailable, hasLicense, income, pattern, pref_cardriver, pref_carpassenger, pref_walking,
+				pref_cycling, pref_publictransport);
 	}
 }

@@ -20,6 +20,8 @@ public class PersonOfPanelDataBuilder {
 	public static final int defaultAge = 5;
 	public static final int defaultEmployment = 6;
 	public static final float defaultPoleDistance = 7;
+	public static final float defaultDistanceWork = 1.0f;
+	public static final float defaultDistanceEducation = 2.0f;
 	public static final boolean defaultCommuterTicket = false;
 	public static final boolean defaultBicycle = true;
 	public static final boolean defaultPersonalCar = false;
@@ -78,7 +80,7 @@ public class PersonOfPanelDataBuilder {
 
 	public PersonOfPanelData build() {
 		return new PersonOfPanelData(id, gender, graduation, defaultBirthyear, age, defaultEmployment,
-				poleDistance, defaultCommuterTicket, defaultBicycle, defaultPersonalCar,
+				poleDistance, defaultDistanceWork, defaultDistanceEducation, defaultCommuterTicket, defaultBicycle, defaultPersonalCar,
 				defaultCarAvailable, defaultHasLicense, income, defaultActivityPattern,
 				defaultPreferenceCardriver, defaultPreferenceCarpassenger, defaultPreferenceWalking,
 				defaultPrefCycling, defaultPrefPublictransport);
