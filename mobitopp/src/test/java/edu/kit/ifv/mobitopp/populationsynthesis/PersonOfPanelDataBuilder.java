@@ -20,8 +20,8 @@ public class PersonOfPanelDataBuilder {
 	public static final int defaultAge = 5;
 	public static final int defaultEmployment = 6;
 	public static final float defaultPoleDistance = 7;
-	public static final float defaultDistanceWork = 1.0f;
-	public static final float defaultDistanceEducation = 2.0f;
+	public static final float defaultDistanceWork = 0.0f;
+	public static final float defaultDistanceEducation = 0.0f;
 	public static final boolean defaultCommuterTicket = false;
 	public static final boolean defaultBicycle = true;
 	public static final boolean defaultPersonalCar = false;
@@ -39,14 +39,16 @@ public class PersonOfPanelDataBuilder {
 	private int gender;
 	private int age;
 	private int income;
-	private float poleDistance;
+	private float distanceWork;
+	private float distanceEducation;
 
 	public PersonOfPanelDataBuilder() {
 		id = anId;
 		gender = defaultGender;
 		age = defaultAge;
 		income = defaultIncome;
-		poleDistance = defaultPoleDistance;
+		distanceWork = defaultDistanceWork;
+		distanceEducation = defaultDistanceEducation;
 	}
 
 	public static PersonOfPanelDataBuilder personOfPanelData() {
@@ -73,14 +75,19 @@ public class PersonOfPanelDataBuilder {
 		return this;
 	}
 
-	public PersonOfPanelDataBuilder withPoleDistance(float poleDistance) {
-		this.poleDistance = poleDistance;
+	public PersonOfPanelDataBuilder withDistanceWork(float distance) {
+		this.distanceWork = distance;
+		return this;
+	}
+
+	public PersonOfPanelDataBuilder withDistanceEducation(float distance) {
+		this.distanceEducation = distance;
 		return this;
 	}
 
 	public PersonOfPanelData build() {
 		return new PersonOfPanelData(id, gender, graduation, defaultBirthyear, age, defaultEmployment,
-				poleDistance, defaultDistanceWork, defaultDistanceEducation, defaultCommuterTicket, defaultBicycle, defaultPersonalCar,
+				distanceWork, distanceEducation, defaultCommuterTicket, defaultBicycle, defaultPersonalCar,
 				defaultCarAvailable, defaultHasLicense, income, defaultActivityPattern,
 				defaultPreferenceCardriver, defaultPreferenceCarpassenger, defaultPreferenceWalking,
 				defaultPrefCycling, defaultPrefPublictransport);

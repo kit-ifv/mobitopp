@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.Graduation;
@@ -28,7 +29,6 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 	@NonNull
 	private final String activityPattern;
 	private final int income;
-	private final float poleDistance;
 	private final float distanceWork;
 	private final float distanceEducation;
 	@Getter(AccessLevel.NONE)
@@ -55,7 +55,6 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 		int  birthyear,
 		int  age,
 		int employmentType,
-		float poleDistance,	
 		float distance_work,
 		float distance_education,
 		boolean commuterTicket,
@@ -81,7 +80,6 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 		this.birthyear = (short) birthyear;
 		this.age = (short) age;
 		this.employmentType = (byte) employmentType;
-		this.poleDistance = poleDistance;
 		this.distanceWork = distance_work;
 		this.distanceEducation = distance_education;
 
@@ -173,6 +171,20 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 	public int compareTo(PersonOfPanelData o) {
 		PersonOfPanelDataId id = getId();
 		return id.compareTo(o.getId());
+	}
+	
+	public float getPoleDistance() {
+		if (0.0f != distanceWork) {
+			return distanceWork;
+		}
+		return distanceEducation;
+	}
+
+	public float getPoleDistance(ActivityType activityType) {
+		if (ActivityType.WORK.equals(activityType)) {
+			return distanceWork;
+		}
+		return distanceEducation;
 	}
 
 }
