@@ -2,7 +2,6 @@ wrapper.gradleVersion = '5.2'
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'distribution'
     apply plugin: 'eclipse'
     apply plugin: 'maven'
     apply plugin: 'jacoco'
