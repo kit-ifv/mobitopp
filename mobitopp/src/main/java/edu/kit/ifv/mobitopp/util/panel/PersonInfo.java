@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
+import lombok.ToString;
+
+@ToString
 class PersonInfo {
 
 	public int person_number;
@@ -7,7 +10,6 @@ class PersonInfo {
 	public int graduation;
 	public int birthYear;
 	public int employmentType;
-	public int pole_distance;
 	public float distanceWork;
 	public float distanceEducation;
 	public int income = -1;
@@ -25,20 +27,4 @@ class PersonInfo {
 	public float pref_cycling;
 	public float pref_publictransport;
 
-	public String toString() {
-
-		return getClass().getName()
-					+ ": "
-					+ person_number + ", "
-					+ sex + ", "
-					+ graduation + ", "
-					+ birthYear + ", "
-					+ employmentType + ", "
-					+ pole_distance + ", "
-					+ commutationTicket + ", "
-					+ fahrrad + ", "
-					+ apkwverf + ", "
-					+ ppkwverf + ", "
-				;
-	}
 }
