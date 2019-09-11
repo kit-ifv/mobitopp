@@ -452,7 +452,6 @@ public class PaneldataReader {
 																	info.person.birthYear,
 																	info.household.year - info.person.birthYear,
 																	info.person.employmentType,
-																	info.person.pole_distance,
 																	info.person.distanceWork,
 																	info.person.distanceEducation,
 																	info.person.commutationTicket,

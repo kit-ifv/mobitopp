@@ -58,8 +58,8 @@ public class PersonAttributeTest {
   @Test
   public void valueForMatchingPeople() {
     float matchingDistance = 1f;
-    PersonOfPanelData somePerson = personOfPanelData().withPoleDistance(matchingDistance).build();
-    PersonOfPanelData otherPerson = personOfPanelData().withPoleDistance(matchingDistance).build();
+    PersonOfPanelData somePerson = personOfPanelData().withDistanceWork(matchingDistance).build();
+    PersonOfPanelData otherPerson = personOfPanelData().withDistanceWork(matchingDistance).build();
     List<PersonOfPanelData> people = asList(somePerson, otherPerson);
     HouseholdOfPanelData household = householdOfPanelData().build();
     PanelDataRepository panelDataRepository = mock(PanelDataRepository.class);

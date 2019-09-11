@@ -16,7 +16,6 @@ public class ExamplePersonOfPanelData {
 	public static final int age = 25;
 	public static final int birthyear = ExampleHouseholdOfPanelData.year - age;
 	public static final int employmentType = 6;
-	public static final float poleDistance = 7;
 	public static final float distanceWork = 1.0f;
 	public static final float distanceEducation = 2.0f;
 	public static final boolean commuterTicket = false;
@@ -40,22 +39,22 @@ public class ExamplePersonOfPanelData {
 
 	public static PersonOfPanelData createPersonWith(PersonOfPanelDataId id, String activityPattern) {
 		return new PersonOfPanelData(id, genderType, graduation, birthyear, age, employmentType,
-				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
-				carAvailable, hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger,
-				pref_walking, pref_cycling, pref_publictransport);
+				distanceWork, distanceEducation, commuterTicket, bicycle, personalCar, carAvailable,
+				hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger, pref_walking,
+				pref_cycling, pref_publictransport);
 	}
 
 	public static PersonOfPanelData personWithGender(int gender) {
 		return new PersonOfPanelData(anId, gender, graduation, birthyear, age, employmentType,
-				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
-				carAvailable, hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger,
-				pref_walking, pref_cycling, pref_publictransport);
+				distanceWork, distanceEducation, commuterTicket, bicycle, personalCar, carAvailable,
+				hasLicense, income, activityPattern, pref_cardriver, pref_carpassenger, pref_walking,
+				pref_cycling, pref_publictransport);
 	}
 
 	public static PersonOfPanelData personWithPattern(String pattern) {
 		return new PersonOfPanelData(anId, genderType, graduation, birthyear, age, employmentType,
-				poleDistance, distanceWork, distanceEducation, commuterTicket, bicycle, personalCar,
-				carAvailable, hasLicense, income, pattern, pref_cardriver, pref_carpassenger, pref_walking,
-				pref_cycling, pref_publictransport);
+				distanceWork, distanceEducation, commuterTicket, bicycle, personalCar, carAvailable,
+				hasLicense, income, pattern, pref_cardriver, pref_carpassenger, pref_walking, pref_cycling,
+				pref_publictransport);
 	}
 }
