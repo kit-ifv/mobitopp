@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -72,12 +72,15 @@ public class PaneldataReaderTest {
 		LinkedHashMap<String, String> optional = new LinkedHashMap<>();
 		optional.put("caravailable", carAvailable);
 		optional.put("personalcar", personalCar);
+		optional.put("poledistance", poleDistance);
 		optional.forEach(example::put);
 	}
 
 	private void addNewColumnNames() {
 		LinkedHashMap<String, String> required = new LinkedHashMap<>();
 		required.put("licence", licence);
+		required.put("distance_work", distanceWork);
+		required.put("distance_education", distanceEducation);
 		required.forEach(example::put);
 	}
 
@@ -86,15 +89,12 @@ public class PaneldataReaderTest {
 		optional.put("hhtype", hhType);
 		optional.put("notcontainedchildren", notContainedChildren);
 		optional.put("notcontainedchildrenmaxage", notContainedChildrenMaxAge);
-		optional.put("poledistance", poleDistance);
 		optional.put("caravailable", carAvailable);
 		optional.put("personalcar", personalCar);
 		optional.put("graduation", graduation);
 		optional.put("hhincome_class", hhIncomeClass);
 		optional.put("hhactivity_radius_time", hhActivityRadiusTime);
 		optional.put("hhactivity_radius_mode", hhActivityRadiusMode);
-		optional.put("distance_work", distanceWork);
-		optional.put("distance_education", distanceEducation);
 		optional.forEach(example::put);
 	}
 
@@ -144,8 +144,6 @@ public class PaneldataReaderTest {
 		final LinkedHashMap<String, String> missingColumns = new LinkedHashMap<>();
 		missingColumns.put("hhactivity_radius_time", "0.0");
 		missingColumns.put("hhactivity_radius_mode", "IV");
-		missingColumns.put("distance_work", "0.0");
-		missingColumns.put("distance_education", "0.0");
 
 		final PaneldataReader reader = createReader();
 
@@ -163,14 +161,30 @@ public class PaneldataReaderTest {
 		final List<String> optionalColumns = new LinkedList<>();
 		optionalColumns.add("hhactivity_radius_time");
 		optionalColumns.add("hhactivity_radius_mode");
-		optionalColumns.add("distance_work");
-		optionalColumns.add("distance_education");
 
 		final PaneldataReader reader = createReader();
 
 		assertAll(optionalColumns
 				.stream()
 				.map(e -> () -> assertThat(reader.missingColumns()).doesNotContainKey(e)));
+	}
+	
+	@Test
+	void reportsMissingColumnsWhenOldNamesAreAvailable() throws Exception {
+		addRequired();
+		addOldColumnNames();
+		final LinkedHashMap<String, String> missingColumns = new LinkedHashMap<>();
+		missingColumns.put("hhactivity_radius_time", "0.0");
+		missingColumns.put("hhactivity_radius_mode", "IV");
+		missingColumns.put("distance_work", "poledistance");
+		missingColumns.put("distance_education", "0.0");
+
+		final PaneldataReader reader = createReader();
+
+		assertAll(missingColumns
+				.entrySet()
+				.stream()
+				.map(e -> () -> assertThat(reader.missingColumns()).contains(e)));
 	}
 
 	@Test
@@ -186,11 +200,12 @@ public class PaneldataReaderTest {
 	void parsesRequiredPersonAttributes() throws Exception {
 		addRequired();
 		addOptional();
+		addNewColumnNames();
 		List<PersonOfPanelData> persons = createReader().readPersons();
 		
 		assertThat(persons).contains(person);
 	}
-
+	
 	private PaneldataReader createReader() {
 		final String input = createExample();
 		final Reader reader = new InputStreamReader(new ByteArrayInputStream(input.getBytes()));

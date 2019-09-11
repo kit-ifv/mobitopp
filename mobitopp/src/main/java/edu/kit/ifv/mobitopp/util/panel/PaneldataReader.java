@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 public class PaneldataReader {
 
-
+	private static final float defaultDistanceWork = 0.0f;
 	private static final int defaultAdditionalChildren = 0;
 	private static final int defaultDomCode = 0;
 	private static final int graduationUndefined = -1;
@@ -142,7 +142,6 @@ public class PaneldataReader {
 		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
 		info.person.birthYear 					= Integer.parseInt(field[columnNames.get("birthyear")]);
 		info.person.employmentType 		= Integer.parseInt(field[columnNames.get("employmenttype")]);
-		info.person.pole_distance 			= getPoleDistance(columnNames, field);
 		info.person.commutationTicket 	= field[columnNames.get("commuterticket")].trim().equals("1");
 		info.person.fahrrad 						= field[columnNames.get("bicycle")].trim().equals("1");
 		info.person.apkwverf 						= hasCarAvailable(columnNames, field);
@@ -158,7 +157,7 @@ public class PaneldataReader {
 		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
 		info.household.activity_radius_time = getFloatOrDefault(columnNames, field, "hhactivity_radius_time", 0.0f);
 		info.household.activity_radius_mode = getOrDefault(columnNames, field, "hhactivity_radius_mode", "IV");
-		info.person.distanceWork = getFloatOrDefault(columnNames, field, "distance_work", 0.0f);
+		info.person.distanceWork = getDistanceWork(columnNames, field);
 		info.person.distanceEducation = getFloatOrDefault(columnNames, field, "distance_education", 0.0f);
 		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
 															
@@ -173,6 +172,21 @@ public class PaneldataReader {
 		}
 
 		return info;
+	}
+
+	private float getDistanceWork(Map<String, Integer> columnNames, String[] field) {
+		String key = "distance_work";
+		Optional<String> value = get(columnNames, field, key);
+		if (value.isPresent()) {
+			return get(value, defaultDistanceWork);
+		}
+		missingColumns.put(key, "poledistance");
+		return getPoleDistance(columnNames, field);
+	}
+
+	private int getPoleDistance(Map<String, Integer> columnNames, String[] field) {
+		return ((Float) getFloatOrDefault(columnNames, field, "poledistance", defaultPoleDistance))
+				.intValue();
 	}
 
 	private void parseActivityPattern(
@@ -196,11 +210,6 @@ public class PaneldataReader {
 							Integer.parseInt(field[i + 3])));
 		}
 	}
-
-	private int getPoleDistance(Map<String, Integer> columnNames, String[] field) {
-		return ((Float) getFloatOrDefault(columnNames, field, "poledistance", defaultPoleDistance))
-				.intValue();
-	}
 	
 	private float getFloatOrDefault(
 	    Map<String, Integer> columnNames, String[] field, String key, float defaultValue) {
@@ -208,7 +217,11 @@ public class PaneldataReader {
 		if (!value.isPresent()) {
 			missingColumns.put(key, String.valueOf(defaultValue));
 		}
-	  return value.filter(s -> !s.isEmpty()).map(Float::parseFloat).orElse(defaultValue);
+	  return get(value, defaultValue);
+	}
+
+	private Float get(Optional<String> value, float defaultValue) {
+		return value.filter(s -> !s.isEmpty()).map(Float::parseFloat).orElse(defaultValue);
 	}
 
   private int getIntegerOrDefault(
