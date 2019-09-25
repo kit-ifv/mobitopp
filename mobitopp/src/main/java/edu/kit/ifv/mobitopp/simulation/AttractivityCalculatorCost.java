@@ -219,7 +219,12 @@ public class AttractivityCalculatorCost
 	protected boolean IsZoneOutlying(ZoneId zoneId) {
 		Zone zone = this.zones.get(zoneId);
 
-		return ZoneClassificationType.outlyingArea.equals(zone.getClassification());
+		return isOutlying(zone);
+	}
+
+	private boolean isOutlying(Zone zone) {
+		return ZoneClassificationType.outlyingArea.equals(zone.getClassification())
+				|| ZoneClassificationType.extendedStudyArea.equals(zone.getClassification());
 	}
 
 	protected boolean IsZoneExternal(ZoneId destination) {
@@ -227,7 +232,7 @@ public class AttractivityCalculatorCost
 		Zone zone = this.zones.get(destination);
 		String zoneId = zone.getId().getExternalId();
 
-		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
+		boolean isOutlying = isOutlying(zone);
 		boolean isExternal = isOutlying && (zoneId.startsWith("7")
 																				|| zoneId.startsWith("8")
 																				|| zoneId.startsWith("9"));
