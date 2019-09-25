@@ -198,7 +198,8 @@ public class DestinationChoiceModelStuttgart
 	private boolean isInternal(Zone zone) {
 		String zoneId = zone.getId().getExternalId();
 		
-		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification());
+		boolean isOutlying = ZoneClassificationType.outlyingArea.equals(zone.getClassification())
+				|| ZoneClassificationType.extendedStudyArea.equals(zone.getClassification());
 		boolean isExternal = isOutlying && (zoneId.startsWith("7")
 																				|| zoneId.startsWith("8")
 																				|| zoneId.startsWith("9"));

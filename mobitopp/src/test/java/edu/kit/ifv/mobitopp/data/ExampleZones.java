@@ -40,7 +40,7 @@ public class ExampleZones {
     String name = "zone " + id;
     AreaType areaType = ZoneAreaType.METROPOLITAN;
     RegionType regionType = new DefaultRegionType(1);
-    ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
+    ZoneClassificationType classification = ZoneClassificationType.studyArea;
     Attractivities attractivities = new Attractivities();
     ChargingDataForZone charging = createChargingData();
     Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);

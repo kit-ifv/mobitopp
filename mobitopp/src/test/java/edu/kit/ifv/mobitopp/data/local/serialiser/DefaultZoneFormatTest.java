@@ -37,7 +37,7 @@ public class DefaultZoneFormatTest {
 	private static final String name = "zone name";
 	private static final AreaType areaType = ZoneAreaType.CITYOUTSKIRT;
 	private static final RegionType regionType = new DefaultRegionType(1);
-	private static final ZoneClassificationType classification = ZoneClassificationType.areaOfInvestigation;
+	private static final ZoneClassificationType classification = ZoneClassificationType.studyArea;
 	private static final int parkingPlaces = 2;
 	private static final Location centroidLocation = ExampleSetup.location;
 	private DefaultZoneFormat format;

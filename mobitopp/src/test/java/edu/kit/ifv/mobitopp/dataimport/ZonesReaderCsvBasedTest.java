@@ -110,7 +110,7 @@ public class ZonesReaderCsvBasedTest {
         () -> assertThat(zone.getAreaType(), is(equalTo(ZoneAreaType.CITYOUTSKIRT))),
         () -> assertThat(zone.getRegionType(), is(equalTo(new DefaultRegionType(1)))),
         () -> assertThat(zone.getClassification(),
-            is(equalTo(ZoneClassificationType.areaOfInvestigation))),
+            is(equalTo(ZoneClassificationType.studyArea))),
         () -> assertThat(zone.carSharing(), is(equalTo(carSharingData))),
         () -> assertThat(zone.charging(), is(equalTo(chargingData))),
         () -> assertThat(zone.attractivities(), is(equalTo(attractivities))),
