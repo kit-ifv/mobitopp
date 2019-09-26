@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
@@ -27,6 +28,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	private final int nominalNumberOfCars;
 	private final int income;
 	private final int incomeClass;
+	private final EconomicalStatus economicalStatus;
 	private final boolean canChargePrivately;
 	private final List<PersonBuilder> persons;
 	private final List<PrivateCarForSetup> ownedCars;
@@ -35,7 +37,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	public DefaultHouseholdForSetup(
 			HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
 			int numberOfMinors, int numberOfNotSimulatedChildren, int nominalNumberOfCars, int income,
-			int incomeClass, boolean canChargePrivately) {
+			int incomeClass, EconomicalStatus economicalStatus, boolean canChargePrivately) {
 		super();
 		this.householdId = householdId;
 		this.nominalSize = nominalSize;
@@ -47,6 +49,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		this.nominalNumberOfCars = nominalNumberOfCars;
 		this.income = income;
 		this.incomeClass = incomeClass;
+		this.economicalStatus = economicalStatus;
 		this.canChargePrivately = canChargePrivately;
 		this.persons = new ArrayList<>();
 		this.ownedCars = new ArrayList<>();
@@ -69,19 +72,16 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
 	@Override
 	public Household toHousehold() {
-		household = new HouseholdForDemand(getId(), nominalSize(), domcode,
-				homeZone(), homeLocation(), numberOfMinors(), numberOfNotSimulatedChildren(),
-				ownedCars.size(), monthlyIncomeEur(), incomeClass(), canChargePrivately());
+		household = new HouseholdForDemand(getId(), nominalSize(), domcode, homeZone(), homeLocation(),
+				numberOfMinors(), numberOfNotSimulatedChildren(), ownedCars.size(), monthlyIncomeEur(),
+				incomeClass(), canChargePrivately());
 		persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
-		List<PrivateCar> cars = ownedCars
-				.stream()
-				.map(car -> car.toCar(household))
-				.collect(toList());
+		List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
 		household.ownCars(cars);
 		cars.stream().filter(PrivateCar::isPersonal).forEach(this::assignPersonalCar);
 		return household;
 	}
-	
+
 	private void assignPersonalCar(PrivateCar car) {
 		household.getPerson(car.personalUser()).assignPersonalCar(car);
 	}
@@ -109,6 +109,11 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	@Override
 	public int incomeClass() {
 		return incomeClass;
+	}
+
+	@Override
+	public EconomicalStatus economicalStatus() {
+		return economicalStatus;
 	}
 
 	@Override
@@ -178,4 +183,5 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 				homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren, nominalNumberOfCars,
 				income, incomeClass, canChargePrivately);
 	}
+
 }
