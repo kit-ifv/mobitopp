@@ -44,17 +44,16 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesis {
     System.out.println("Population synthesis took " + runtime);
   }
 
-  private static PopulationSynthesisConfiguration startSynthesis(File configurationFile)
+  private static void startSynthesis(File configurationFile)
       throws Exception {
     SynthesisContext context = new ContextBuilder().buildFrom(configurationFile);
-    return startSynthesis(context);
+    startSynthesis(context);
   }
 
-  public static PopulationSynthesisConfiguration startSynthesis(SynthesisContext context) {
+  public static void startSynthesis(SynthesisContext context) {
     context.printStartupInformationOn(System.out);
     PopulationSynthesisConfiguration synthesizer = populationSynthesis(context);
     synthesizer.createPopulation();
-    return synthesizer;
   }
 
   private static HouseholdLocationSelector householdLocations(SynthesisContext context) {
