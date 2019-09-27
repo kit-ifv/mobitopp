@@ -6,8 +6,8 @@ import static org.junit.Assert.assertThat;
 
 import java.net.URISyntaxException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
@@ -17,7 +17,7 @@ public class AttractivitiesDataTest {
 
   private AttractivitiesData attractivityData;
 
-  @Before
+  @BeforeEach
   public void initialise() throws URISyntaxException {
     attractivityData = new AttractivitiesData(Example.attractivityData(),
         Example.areaTypeRepository());
@@ -26,9 +26,11 @@ public class AttractivitiesDataTest {
   @Test
   public void classification() {
     ZoneClassificationType insideArea = attractivityData.currentClassification(Example.someZone);
-    ZoneClassificationType outsideArea = attractivityData.currentClassification(Example.anotherZone);
+    ZoneClassificationType insideExtendedArea = attractivityData.currentClassification(Example.anotherZone);
+    ZoneClassificationType outsideArea = attractivityData.currentClassification(Example.otherZone);
 
-    assertThat(insideArea, is(equalTo(ZoneClassificationType.areaOfInvestigation)));
+    assertThat(insideArea, is(equalTo(ZoneClassificationType.studyArea)));
+    assertThat(insideExtendedArea, is(equalTo(ZoneClassificationType.extendedStudyArea)));
     assertThat(outsideArea, is(equalTo(ZoneClassificationType.outlyingArea)));
   }
 

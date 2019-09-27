@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.data;
 
 public enum ZoneClassificationType {
 
-	areaOfInvestigation("AREAOFINVESTIGATION"), outlyingArea("OUTLYINGAREA");
+	studyArea("STUDYAREA"), extendedStudyArea("EXTENDEDSTUDYAREA"), outlyingArea("OUTLYINGAREA");
 
 	private final String name;
 

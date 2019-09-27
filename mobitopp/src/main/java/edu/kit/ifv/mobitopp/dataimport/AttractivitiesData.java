@@ -46,12 +46,15 @@ public class AttractivitiesData {
   }
 
   public ZoneClassificationType currentClassification(String zoneId) {
-    String classification = classificationValue(zoneId);
-    if (Integer.valueOf(classification) > 0) {
-      return ZoneClassificationType.outlyingArea;
-    }
-    return ZoneClassificationType.areaOfInvestigation;
-  }
+		String classification = classificationValue(zoneId);
+		if (0 == Integer.valueOf(classification)) {
+			return ZoneClassificationType.studyArea;
+		}
+		if (1 == Integer.valueOf(classification)) {
+			return ZoneClassificationType.extendedStudyArea;
+		}
+		return ZoneClassificationType.outlyingArea;
+	}
 
   private String classificationValue(String zoneId) {
     return hasValue(zoneId, newClassificationKey) ? getValue(zoneId, newClassificationKey)
