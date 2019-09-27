@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 
 public class HouseholdForDemandTest {
 
@@ -28,6 +29,7 @@ public class HouseholdForDemandTest {
 	private int totalNumberOfCars;
 	private int income;
 	private int incomeClass;
+	private EconomicalStatus economicalStatus;
 	private boolean canChargePrivately;
 	private HouseholdForDemand household;
 
@@ -45,10 +47,11 @@ public class HouseholdForDemandTest {
 		totalNumberOfCars = 6;
 		income = 7;
 		incomeClass = 1;
+		economicalStatus = EconomicalStatus.veryLow;
 		canChargePrivately = true;
 		household = new HouseholdForDemand(id, nominalSize, domCode, homeZone, homeLocation,
 				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
-				canChargePrivately);
+				economicalStatus, canChargePrivately);
 	}
 
 	@Test
@@ -82,6 +85,6 @@ public class HouseholdForDemandTest {
 	private HouseholdAttributes householdAttributes() {
 		return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
 				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
-				canChargePrivately);
+				economicalStatus, canChargePrivately);
 	}
 }
