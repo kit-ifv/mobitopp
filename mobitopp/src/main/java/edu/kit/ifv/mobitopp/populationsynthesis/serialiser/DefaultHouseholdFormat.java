@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.populationsynthesis.ColumnMapping;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -35,6 +36,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		columns.add("totalNumberOfCars", e -> e.attributes().totalNumberOfCars);
 		columns.add("income", e -> e.attributes().monthlyIncomeEur);
 		columns.add("incomeClass", e -> e.attributes().incomeClass);
+		columns.add("economicalStatus", e -> e.attributes().economicalStatus.getCode());
 		columns.add("canChargePrivately", e -> e.attributes().canChargePrivately);
 	}
 
@@ -63,13 +65,15 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		int totalNumberOfCars = carsOf(data);
 		int income = incomeOf(data);
 		int incomeClass = incomeClassOf(data);
+		EconomicalStatus economicalStatus = economicalStatusOf(data);
 		boolean canChargePrivately = chargePrivatelyOf(data);
 		HouseholdForSetup household = new DefaultHouseholdForSetup(id, nominalSize, domCode, zone,
 				location, numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income,
-				incomeClass, canChargePrivately);
+				incomeClass, economicalStatus, canChargePrivately);
 		assign(household, zone);
 		return household;
 	}
+
 
 	private void assign(HouseholdForSetup household, Zone zone) {
 		zone.getDemandData().getPopulationData().addHousehold(household.toHousehold());
@@ -123,6 +127,10 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		return columns.get("incomeClass", data).asInt();
 	}
 
+	private EconomicalStatus economicalStatusOf(List<String> data) {
+		return EconomicalStatus.of(columns.get("economicalStatus", data).asInt());
+	}
+	
 	private boolean chargePrivatelyOf(List<String> data) {
 		return columns.get("canChargePrivately", data).asBoolean();
 	}

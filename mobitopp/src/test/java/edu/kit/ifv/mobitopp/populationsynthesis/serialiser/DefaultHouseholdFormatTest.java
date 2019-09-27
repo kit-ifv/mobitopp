@@ -85,6 +85,7 @@ public class DefaultHouseholdFormatTest {
 				valueOf(ExampleSetup.noCars), 
         valueOf(ExampleSetup.income), 
         valueOf(ExampleSetup.incomeClass),
+        valueOf(ExampleSetup.economicalStatus.getCode()),
 				valueOf(ExampleSetup.canChargePrivately)
 			);
 	}

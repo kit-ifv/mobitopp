@@ -55,6 +55,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
   private ImpedanceIfc impedance;
   private DataRepositoryForPopulationSynthesis dataRepository;
   private PanelDataRepository panelDataRepository;
+	private EconomicalStatusCalculator economicalStatusCalculator;
 
   @Before
   public void initialise() throws Exception {
@@ -69,6 +70,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
     demandDataRepository = mock(DemandDataRepository.class);
     panelDataRepository = mock(PanelDataRepository.class);
     panelData = mock(HouseholdOfPanelData.class);
+    economicalStatusCalculator = (size, income) -> EconomicalStatus.veryLow;
     when(panelData.id()).thenReturn(panelId);
     when(panelDataRepository.getHouseholdIds(anyInt())).thenReturn(emptyList());
     when(dataRepository.demandDataRepository()).thenReturn(demandDataRepository);
@@ -141,7 +143,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
   private DemandDataForZoneCalculatorStuttgart calculator() {
     return new DemandDataForZoneCalculatorStuttgart(results, householdSelector,
         householdWeightCalculator, destinationSelector, carOwnership, householdLocationSelector,
-        chargePrivatelySelector, personCreator, activityProgramAssigner, dataRepository) {
+        chargePrivatelySelector, personCreator, activityProgramAssigner, economicalStatusCalculator, dataRepository) {
 
       @Override
       void calculateDemandDataInternal(DemandZone zone_) {

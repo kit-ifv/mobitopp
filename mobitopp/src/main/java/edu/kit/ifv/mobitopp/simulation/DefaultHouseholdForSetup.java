@@ -74,7 +74,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	public Household toHousehold() {
 		household = new HouseholdForDemand(getId(), nominalSize(), domcode, homeZone(), homeLocation(),
 				numberOfMinors(), numberOfNotSimulatedChildren(), ownedCars.size(), monthlyIncomeEur(),
-				incomeClass(), canChargePrivately());
+				incomeClass(), economicalStatus(), canChargePrivately());
 		persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
 		List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
 		household.ownCars(cars);
@@ -181,7 +181,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	public HouseholdAttributes attributes() {
 		return new HouseholdAttributes(householdId.getOid(), householdId, nominalSize, domcode,
 				homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren, nominalNumberOfCars,
-				income, incomeClass, canChargePrivately);
+				income, incomeClass, economicalStatus, canChargePrivately);
 	}
 
 }

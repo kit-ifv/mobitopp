@@ -36,16 +36,18 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 	private final ChargePrivatelySelector chargePrivatelySelector;
 	private final DemandCategories categories;
   private final ActivityScheduleAssigner activityScheduleAssigner;
+	private final EconomicalStatusCalculator economicalStatusCalculator;
 
 	public BasicPopulationSynthesis(
 			CarOwnershipModel carOwnershipModel,
 			HouseholdLocationSelector householdLocationSelector,
 			PersonCreator personCreator,
 			ActivityScheduleAssigner activityScheduleAssigner,
+			EconomicalStatusCalculator economicalStatusCalculator,
 			SynthesisContext context
 			) {
     this(carOwnershipModel, householdLocationSelector, chargeAlways(), personCreator,
-        activityScheduleAssigner, context);
+        activityScheduleAssigner, economicalStatusCalculator, context);
 	}
 	
 	private static ChargePrivatelySelector chargeAlways() {
@@ -58,6 +60,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		ChargePrivatelySelector chargePrivatelySelector,
 		PersonCreator personCreator, 
 		ActivityScheduleAssigner activityScheduleAssigner,
+		EconomicalStatusCalculator economicalStatusCalculator,
 		SynthesisContext context
 	) {
 		super(context);
@@ -66,6 +69,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		this.chargePrivatelySelector = chargePrivatelySelector;
 		this.carOwnershipModel = carOwnershipModel;
 		this.activityScheduleAssigner = activityScheduleAssigner;
+		this.economicalStatusCalculator = economicalStatusCalculator;
 		categories = new DemandCategories();
 	}
 	
@@ -97,10 +101,15 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 																												householdLocationSelector,
 																												chargePrivatelySelector,
 																												personCreator,
-																												activityScheduleAssigner, 
+																												activityScheduleAssigner,
+																												economicalStatusCalculator(),
 																												dataRepository()
 																												);
 		return calculator;
+	}
+
+	protected EconomicalStatusCalculator economicalStatusCalculator() {
+		return economicalStatusCalculator;
 	}
 
 	// BEGIN CarSharing

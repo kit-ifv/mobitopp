@@ -16,6 +16,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharingCustomerModel;
@@ -82,6 +83,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			4, // number of cars,
 																			3000, // income
                                       1, // income class
+																			EconomicalStatus.veryLow,
 																			true
 																		);
 
@@ -96,6 +98,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			0, // number of cars
 																			3000, // income
                                       1, // income class
+																			EconomicalStatus.veryLow,
 																			true
 																		);
 
@@ -174,6 +177,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			number_of_cars, // number of cars
 																			3000, // income
 																			1, // income class
+																			EconomicalStatus.veryLow,
 																			true
 																		);
 	}
