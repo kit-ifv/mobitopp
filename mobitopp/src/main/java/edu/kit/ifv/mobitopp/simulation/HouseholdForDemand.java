@@ -11,9 +11,8 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-
-
 
 public class HouseholdForDemand
   implements Household, Serializable
@@ -37,6 +36,7 @@ public class HouseholdForDemand
 
 	private final int income;
 	private final int incomeClass;
+	private final EconomicalStatus economicalStatus;
 	private final boolean canChargePrivately;
   
   private Map<PersonId, Person> persons =  new LinkedHashMap<>();
@@ -57,12 +57,12 @@ public class HouseholdForDemand
 		int numberOfNotSimulatedChildren,
 		int totalNumberOfCars,
 		int income,
-		int incomeClass, 
+		int incomeClass,
+		EconomicalStatus economicalStatus,
 		boolean canChargePrivately
 	)
   {
 		this.id = id_;
-
 		this.domCode = domcode;
 		this.homeZone = zone;
 		this.homeLocation = location;
@@ -72,6 +72,7 @@ public class HouseholdForDemand
 		this.nominalSize = (byte) nominalSize;
 		this.income = income;
 		this.incomeClass = incomeClass;
+		this.economicalStatus = economicalStatus;
 		this.canChargePrivately = canChargePrivately;
   }
 
@@ -263,6 +264,10 @@ public class HouseholdForDemand
 	  return this.incomeClass;
 	}
 
+	private EconomicalStatus economicalStatus() {
+		return economicalStatus;
+	}
+
 	public String forLogging() {
 
 		StringBuffer buffer = new StringBuffer();
@@ -284,7 +289,7 @@ public class HouseholdForDemand
   public HouseholdAttributes attributes() {
     return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), homeZone(),
         homeLocation(), numberOfMinors, numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
-        incomeClass(), canChargePrivately());
+        incomeClass(), economicalStatus(), canChargePrivately());
 	}
 
 }

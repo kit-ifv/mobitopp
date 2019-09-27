@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
 
@@ -113,7 +114,8 @@ public class HouseholdTypeTest {
 		short year = 0;
 		long householdNumber = 0;
 		HouseholdId householdId = new HouseholdId(householdIds++, year, householdNumber);
-		return new HouseholdForDemand(householdId, nominalSize, 0, null, null, 0, 0, 0, 0, 0, false);
+		return new HouseholdForDemand(householdId, nominalSize, 0, null, null, 0, 0, 0, 0, 0,
+				EconomicalStatus.veryLow, false);
 	}
 
   private PersonForDemand newPerson(Household household, int age) {

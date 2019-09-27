@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatusCalculators.mid2017;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.mock;
@@ -65,7 +66,7 @@ public class BasicPopulationSynthesisTest {
 
   private PopulationSynthesis synthesis() {
     return new BasicPopulationSynthesis(carOwnershipModel, householdLocationSelector, personCreator,
-        activityAssigner, context);
+        activityAssigner, mid2017(), context);
   }
 
   private static Map<ActivityType, FixedDistributionMatrix> matrices(ActivityType activityType) {
