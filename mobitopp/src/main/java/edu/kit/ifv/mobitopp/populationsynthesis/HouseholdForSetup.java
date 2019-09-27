@@ -50,4 +50,6 @@ public interface HouseholdForSetup {
 
 	HouseholdAttributes attributes();
 
+	EconomicalStatus economicalStatus();
+
 }

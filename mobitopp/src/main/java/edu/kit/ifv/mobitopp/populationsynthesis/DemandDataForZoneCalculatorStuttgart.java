@@ -65,6 +65,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 
   private int householdIds = 1;
   private final ActivityScheduleAssigner activityProgramAssigner;
+  private final EconomicalStatusCalculator economicalStatusCalculator;
 
 	public DemandDataForZoneCalculatorStuttgart(
 		Results results,
@@ -76,6 +77,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		ChargePrivatelySelector chargePrivatelySelector,
 		PersonCreator personCreator,
 		ActivityScheduleAssigner activityProgramAssigner,
+		EconomicalStatusCalculator economicalStatusCalculator,		
 		DataRepositoryForPopulationSynthesis dataRepository
 	) {
 
@@ -92,6 +94,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		this.chargePrivatelySelector = chargePrivatelySelector;
 		this.personCreator = personCreator;
 		this.activityProgramAssigner = activityProgramAssigner;
+		this.economicalStatusCalculator = economicalStatusCalculator;
 
 		householdToId = new HashMap<>();
 		householdCache = new LinkedHashMap<>();
@@ -274,6 +277,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																				+ householdOfPanelData.numberOfNotReportingChildren();
 		boolean canChargePrivately = chargePrivatelySelector.canChargeAt(zone);
 
+		EconomicalStatus economicalStatus = economicalStatusCalculator
+				.calculateFor(householdOfPanelData.size(), householdOfPanelData.income());
 		HouseholdForSetup household = new DefaultHouseholdForSetup(
 																id,
 																householdOfPanelData.size(),
@@ -285,6 +290,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																householdOfPanelData.numberOfCars(),
 																householdOfPanelData.income(),
 																householdOfPanelData.incomeClass(),
+																economicalStatus,
 																canChargePrivately
 													);
 		householdToId.put(household, panel_id);
