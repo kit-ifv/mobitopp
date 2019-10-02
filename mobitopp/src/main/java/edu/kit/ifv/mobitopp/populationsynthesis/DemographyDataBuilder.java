@@ -28,7 +28,7 @@ public class DemographyDataBuilder {
   }
 
   private static DataFactory defaultFactory() {
-    return file -> new StructuralData(new CsvFile(file));
+    return file -> new StructuralData(CsvFile.createFrom(file));
   }
 
   public DemographyData build() {

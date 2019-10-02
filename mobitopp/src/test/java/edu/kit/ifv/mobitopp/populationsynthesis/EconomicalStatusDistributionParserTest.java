@@ -3,10 +3,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.TreeMap;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
-import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class EconomicalStatusDistributionParserTest {
 
@@ -32,26 +27,13 @@ public class EconomicalStatusDistributionParserTest {
 		expected.put(1.0d, oneDistribution);
 		expected.put(1.5d, oneHalfDistribution);
 
-		EconomicalStatusDistributionParser parser = createParser(content);
-		TreeMap<Double, RangeDistributionIfc> distribution = parser.parse(new File(""));
+		TreeMap<Double, RangeDistributionIfc> distribution = parse(content);
 
 		assertThat(distribution).isEqualTo(expected);
 	}
 
-	private EconomicalStatusDistributionParser createParser(String content) {
-		return new EconomicalStatusDistributionParser() {
-
-			@Override
-			CsvFile createCsvFile(File file) {
-
-				return new CsvFile("dummy-file-name") {
-
-					@Override
-					protected Reader createReader(File file) throws FileNotFoundException {
-						return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
-					}
-				};
-			}
-		};
+	private TreeMap<Double, RangeDistributionIfc> parse(String content) {
+		EconomicalStatusDistributionParser parser = new EconomicalStatusDistributionParser();
+		return parser.parse(new ByteArrayInputStream(content.toString().getBytes()));
 	}
 }

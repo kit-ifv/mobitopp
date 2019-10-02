@@ -9,16 +9,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class CsvFileTest {
 
@@ -29,6 +30,9 @@ public class CsvFileTest {
   private static final String escapedName = "\"other content\"";
 
   private StringBuilder content;
+  
+  @TempDir
+  Path tempDir = Paths.get("tempDir");
 
   @BeforeEach
   public void initialise() {
@@ -42,8 +46,8 @@ public class CsvFileTest {
   }
 
   @Test
-  public void ignoreCaseInHeader() {
-    CsvFile csvFile = createFile();
+  public void ignoreCaseInHeader() throws IOException {
+    CsvFile csvFile = createFromFile();
 
     List<String> attributes = csvFile.getAttributes();
 
@@ -51,8 +55,8 @@ public class CsvFileTest {
   }
 
   @Test
-  public void accessesValuesIgnoringCase() {
-    CsvFile csvFile = createFile();
+  public void accessesValuesIgnoringCase() throws IOException {
+    CsvFile csvFile = createFromFile();
 
     String value = csvFile.getValue(0, someHeader);
 
@@ -60,23 +64,23 @@ public class CsvFileTest {
   }
 
   @Test
-  public void missingAttribute() {
-    CsvFile csvFile = createFile();
+  public void missingAttribute() throws IOException {
+    CsvFile csvFile = createFromFile();
 
     assertFalse(csvFile.hasAttribute("missing-attribute"));
   }
 
   @Test
-  public void hasAttribute() {
-    CsvFile csvFile = createFile();
+  public void hasAttribute() throws IOException {
+    CsvFile csvFile = createFromFile();
 
     assertTrue(csvFile.hasAttribute(someHeader));
   }
 
   @Test
-  public void ignoresEmptyLines() {
+  public void ignoresEmptyLines() throws IOException {
     content.append(System.lineSeparator());
-    CsvFile csvFile = createFile();
+    CsvFile csvFile = createFromFile();
 
     assertThat(csvFile.getLength(), is(1));
   }
@@ -93,7 +97,7 @@ public class CsvFileTest {
   
   @Test
 	void streamContent() throws Exception {
-		CsvFile csvFile = createFile();
+		CsvFile csvFile = createFromStream();
 		
 		List<Row> content = csvFile.stream().collect(toList());
 		
@@ -104,23 +108,17 @@ public class CsvFileTest {
 		assertThat(content, contains(row));
 	}
 
-	private CsvFile createFileFor(StringBuilder content) {
-    return new CsvFile("dummy-file-name") {
-
-      @Override
-      protected Reader createReader(File file) throws FileNotFoundException {
-        return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
-      }
-    };
+	private CsvFile createFileFor(StringBuilder content) throws IOException {
+    return CsvFile.createFrom(new ByteArrayInputStream(content.toString().getBytes()));
   }
-
-  private CsvFile createFile() {
-    return new CsvFile("dummy-file-name") {
-
-      @Override
-      protected Reader createReader(File file) throws FileNotFoundException {
-        return new InputStreamReader(new ByteArrayInputStream(content.toString().getBytes()));
-      }
-    };
+	
+	private CsvFile createFromStream() throws IOException {
+		return createFileFor(content);
+	}
+	
+  private CsvFile createFromFile() throws IOException {
+  	Path tempFile = tempDir.resolve("file");
+		Files.write(tempFile, content.toString().getBytes());
+    return CsvFile.createFrom(tempFile.toFile());
   }
 }

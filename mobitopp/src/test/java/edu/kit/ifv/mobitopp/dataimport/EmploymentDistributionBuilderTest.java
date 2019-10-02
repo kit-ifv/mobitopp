@@ -60,7 +60,7 @@ public class EmploymentDistributionBuilderTest {
 	}
 
 	private StructuralData missingData() {
-		return new StructuralData(new CsvFile(emptyFile.getAbsolutePath()));
+		return new StructuralData(CsvFile.createFrom(emptyFile.getAbsolutePath()));
 	}
 
 	private EmploymentDistribution expectedEmployment() {

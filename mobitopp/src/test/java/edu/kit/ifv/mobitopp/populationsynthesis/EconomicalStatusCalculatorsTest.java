@@ -1,8 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class EconomicalStatusCalculatorsTest {
 	private EconomicalStatusCalculators.DefaultEconomicalStatusCalculator calculator;
 
 	@BeforeEach
-	public void initialise() throws URISyntaxException {
+	public void initialise() throws IOException {
 		calculator = new EconomicalStatusCalculators.DefaultEconomicalStatusCalculator(EconomicalStatusCalculators.loadMid());
 	}
 	

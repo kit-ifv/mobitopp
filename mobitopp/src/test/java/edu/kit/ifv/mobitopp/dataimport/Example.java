@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.awt.geom.Point2D;
-import java.io.File;
-import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
@@ -25,62 +25,38 @@ public class Example {
   static final int dummyEdge = 3;
   static final double positionOnEdge = 0.0d;
 
-  public static StructuralData demographyData() {
-    try {
-      String path = new File(Example.class.getResource("Demography.csv").toURI()).getAbsolutePath();
-      CsvFile csv = new CsvFile(path);
-      return new StructuralData(csv);
-    } catch (URISyntaxException cause) {
-      throw new RuntimeException(cause);
-    }
-  }
+	public static StructuralData demographyData() {
+		return create("Demography.csv");
+	}
   
-  public static StructuralData notStartingAtZeroAge() {
-    try {
-      String path = new File(Example.class.getResource("NotStartingAtZeroAge.csv").toURI()).getAbsolutePath();
-      CsvFile csv = new CsvFile(path);
-      return new StructuralData(csv);
-    } catch (URISyntaxException cause) {
-      throw new RuntimeException(cause);
-    }
-  }
+	public static StructuralData notStartingAtZeroAge() {
+		return create("NotStartingAtZeroAge.csv");
+	}
 
-  public static StructuralData missingAgeGroup() {
-    try {
-      String path = new File(Example.class.getResource("MissingAgeGroup.csv").toURI())
-          .getAbsolutePath();
-      CsvFile csv = new CsvFile(path);
-      return new StructuralData(csv);
-    } catch (URISyntaxException cause) {
-      throw new RuntimeException(cause);
-    }
-  }
+	private static StructuralData create(String fileName) {
+		try {
+		CsvFile csv = CsvFile.createFrom(Example.class.getResourceAsStream(fileName));
+		return new StructuralData(csv);
+		} catch (IOException cause) {
+			throw new UncheckedIOException(cause);
+		}
+	}
+
+	public static StructuralData missingAgeGroup() {
+		return create("MissingAgeGroup.csv");
+	}
 
   public static BicRepository areaTypeRepository() {
     return new BicRepository();
   }
 
-  public static StructuralData attractivityData() {
-    try {
-      String path = new File(Example.class.getResource("Attractivities.csv").toURI())
-          .getAbsolutePath();
-      CsvFile csv = new CsvFile(path);
-      return new StructuralData(csv);
-    } catch (URISyntaxException cause) {
-      throw new RuntimeException(cause);
-    }
-  }
+	public static StructuralData attractivityData() {
+		return create("Attractivities.csv");
+	}
 
-  public static StructuralData attractivityDataByCode() {
-    try {
-      String path = new File(Example.class.getResource("Attractivities-Code.csv").toURI())
-          .getAbsolutePath();
-      CsvFile csv = new CsvFile(path);
-      return new StructuralData(csv);
-    } catch (URISyntaxException cause) {
-      throw new RuntimeException(cause);
-    }
-  }
+	public static StructuralData attractivityDataByCode() {
+		return create("Attractivities-Code.csv");
+	}
 
   public Location location() {
     Point2D coordinate = Data.coordinate(pointX, pointY);

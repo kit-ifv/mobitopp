@@ -1,6 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -21,7 +23,7 @@ public class EconomicalStatusDistributionParser {
 		itemParser = new RangeItemParser("economical_status:");
 	}
 
-	public TreeMap<Double, RangeDistributionIfc> parse(File input) {
+	public TreeMap<Double, RangeDistributionIfc> parse(InputStream input) {
 		csvFile = createCsvFile(input);
 		distributions = new TreeMap<>();
 		IntStream.range(0, csvFile.getLength()).forEach(this::parse);
@@ -45,8 +47,12 @@ public class EconomicalStatusDistributionParser {
 		return itemParser.parse(value, column);
 	}
 
-	CsvFile createCsvFile(File input) {
-		return new CsvFile(input);
+	CsvFile createCsvFile(InputStream input) {
+		try {
+			return CsvFile.createFrom(input);
+		} catch (IOException cause) {
+			throw new UncheckedIOException(cause);
+		}
 	}
 
 }
