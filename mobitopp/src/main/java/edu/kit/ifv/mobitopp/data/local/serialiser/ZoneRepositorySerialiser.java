@@ -215,7 +215,7 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private static AttractivitiesData attractivityDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
-    StructuralData data = new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+    StructuralData data = new StructuralData(CsvFile.createFrom(structuralDataFile.getAbsoluteFile()));
     return new AttractivitiesData(data, areaTypeRepository);
 	}
 

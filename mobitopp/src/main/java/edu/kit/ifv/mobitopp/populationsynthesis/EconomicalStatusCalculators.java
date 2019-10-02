@@ -1,7 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import java.io.File;
-import java.net.URISyntaxException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -27,34 +28,31 @@ public class EconomicalStatusCalculators {
 			Entry<Double, RangeDistributionIfc> floorEntry = distributions.floorEntry(weightedSize);
 			RangeDistributionIfc value = floorEntry.getValue();
 			RangeDistributionItem item = value.getItem(income);
-			return EconomicalStatus
-					.of(item.amount());
+			return EconomicalStatus.of(item.amount());
 		}
 
 		double calculateOecdSize(int nominalSize, int numberOfMinors) {
 			int adults = nominalSize - numberOfMinors;
 			double additionalAdults = Math.max(0.0d, adults - 1);
-			return firstPerson + additionalPersons * additionalAdults
-					+ children * numberOfMinors;
+			return firstPerson + additionalPersons * additionalAdults + children * numberOfMinors;
 		}
 
 	}
 
-	private static final String mid2017File = "economical-status-mid2017.csv";
+	private static final String oecd2017File = "economical-status-oecd2017.csv";
 
 	public static EconomicalStatusCalculator oecd2017() {
 		try {
 			TreeMap<Double, RangeDistributionIfc> distributions = loadMid();
 			return new DefaultEconomicalStatusCalculator(distributions);
-		} catch (URISyntaxException cause) {
-			throw new RuntimeException(cause);
+		} catch (IOException cause) {
+			throw new UncheckedIOException(cause);
 		}
 	}
 
-	static TreeMap<Double, RangeDistributionIfc> loadMid() throws URISyntaxException {
-		File file = new File(EconomicalStatusCalculators.class.getResource(mid2017File).toURI());
-		TreeMap<Double, RangeDistributionIfc> distributions = new EconomicalStatusDistributionParser()
-				.parse(file);
-		return distributions;
+	static TreeMap<Double, RangeDistributionIfc> loadMid() throws IOException {
+		try (InputStream input = EconomicalStatusCalculators.class.getResourceAsStream(oecd2017File)) {
+			return new EconomicalStatusDistributionParser().parse(input);
+		}
 	}
 }

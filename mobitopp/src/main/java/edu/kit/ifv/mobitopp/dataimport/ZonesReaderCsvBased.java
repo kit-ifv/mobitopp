@@ -152,7 +152,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
   private static AttractivitiesData structuralDataFrom(
       File structuralDataFile, AreaTypeRepository areaTypeRepository) {
-    StructuralData dataFile = new StructuralData(new CsvFile(structuralDataFile.getAbsolutePath()));
+    StructuralData dataFile = new StructuralData(CsvFile.createFrom(structuralDataFile.getAbsoluteFile()));
     return new AttractivitiesData(dataFile, areaTypeRepository);
   }
 

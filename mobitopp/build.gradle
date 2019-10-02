@@ -12,6 +12,10 @@ plugins {
     id "maven-publish"
 }
 
+configurations {
+    testImplementation.extendsFrom compileOnly
+}
+
 dependencies {
     annotationProcessor libraries.lombok
     
@@ -21,6 +25,10 @@ dependencies {
             libraries.opencsv,
             libraries.commons_compress,
             libraries.snakeyaml
+    
+    testAnnotationProcessor libraries.lombok
+    
+    testCompileOnly libraries.lombok
     
     testImplementation libraries.junit_jupiter,
                 libraries.junit_migrationsupport,
