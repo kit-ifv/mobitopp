@@ -278,7 +278,8 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		boolean canChargePrivately = chargePrivatelySelector.canChargeAt(zone);
 
 		EconomicalStatus economicalStatus = economicalStatusCalculator
-				.calculateFor(householdOfPanelData.size(), householdOfPanelData.income());
+				.calculateFor(householdOfPanelData.size(), householdOfPanelData.numberOfMinors(),
+						householdOfPanelData.income());
 		HouseholdForSetup household = new DefaultHouseholdForSetup(
 																id,
 																householdOfPanelData.size(),

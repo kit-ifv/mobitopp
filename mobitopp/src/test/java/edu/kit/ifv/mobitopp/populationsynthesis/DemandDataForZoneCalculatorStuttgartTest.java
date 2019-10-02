@@ -70,7 +70,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
     demandDataRepository = mock(DemandDataRepository.class);
     panelDataRepository = mock(PanelDataRepository.class);
     panelData = mock(HouseholdOfPanelData.class);
-    economicalStatusCalculator = (size, income) -> EconomicalStatus.veryLow;
+    economicalStatusCalculator = (size, minors, income) -> EconomicalStatus.veryLow;
     when(panelData.id()).thenReturn(panelId);
     when(panelDataRepository.getHouseholdIds(anyInt())).thenReturn(emptyList());
     when(dataRepository.demandDataRepository()).thenReturn(demandDataRepository);
