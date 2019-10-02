@@ -11,10 +11,10 @@ import lombok.Getter;
 public enum EconomicalStatus {
 
 	veryLow(1),
-	low(1),
-	middle(1),
-	high(1),
-	veryHigh(1);
+	low(2),
+	middle(3),
+	high(4),
+	veryHigh(5);
 
 	private final int code;
 

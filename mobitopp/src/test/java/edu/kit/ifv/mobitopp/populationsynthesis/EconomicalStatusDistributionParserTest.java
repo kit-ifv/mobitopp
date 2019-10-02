@@ -32,17 +32,17 @@ public class EconomicalStatusDistributionParserTest {
 		expected.put(1.0d, oneDistribution);
 		expected.put(1.5d, oneHalfDistribution);
 
-		EconomicalStatusDistributionParser parser = createParser();
-		TreeMap<Double, RangeDistributionIfc> distribution = parser.parse(content);
+		EconomicalStatusDistributionParser parser = createParser(content);
+		TreeMap<Double, RangeDistributionIfc> distribution = parser.parse(new File(""));
 
 		assertThat(distribution).isEqualTo(expected);
 	}
 
-	private EconomicalStatusDistributionParser createParser() {
+	private EconomicalStatusDistributionParser createParser(String content) {
 		return new EconomicalStatusDistributionParser() {
 
 			@Override
-			CsvFile createCsvFile(String content) {
+			CsvFile createCsvFile(File file) {
 
 				return new CsvFile("dummy-file-name") {
 
