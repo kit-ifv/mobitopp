@@ -21,7 +21,7 @@ subprojects {
     }
     
     ext.versions = [
-        junit: '5.4.0',
+        junit: '5.5.2',
         mockito: '3.0.0'
     ]
     
