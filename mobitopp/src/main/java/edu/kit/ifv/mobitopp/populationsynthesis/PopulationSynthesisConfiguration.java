@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatusCalculators.mid2017;
+import static edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatusCalculators.oecd2017;
 
 import java.io.File;
 import java.time.Duration;
@@ -29,7 +29,7 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesis {
       ActivityScheduleAssigner activityScheduleAssigner, SynthesisContext context) {
 
     super(carOwnershipModel, householdLocationSelector, chargePrivatelySelector, personCreator,
-        activityScheduleAssigner, mid2017(), context);
+        activityScheduleAssigner, oecd2017(), context);
   }
 
   public static void main(String... args) throws Exception {

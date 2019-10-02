@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,7 +65,7 @@ public class DefaultHouseholdCreatorTest {
 	
 	@Test
 	void calculatesEconomicalStatus() throws Exception {
-		when(economicalStatusCalculator.calculateFor(anyInt(), anyInt())).thenReturn(EconomicalStatus.veryLow);
+		when(economicalStatusCalculator.calculateFor(anyInt(), anyInt(), anyInt())).thenReturn(EconomicalStatus.veryLow);
 		HouseholdOfPanelData panelHousehold = ExampleHouseholdOfPanelData.household;
 		HouseholdForSetup household = creator.createHousehold(panelHousehold, zone);
 

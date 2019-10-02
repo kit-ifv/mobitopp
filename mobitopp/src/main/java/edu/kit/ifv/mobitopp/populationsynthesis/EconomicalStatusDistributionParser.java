@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.io.File;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
@@ -20,8 +21,8 @@ public class EconomicalStatusDistributionParser {
 		itemParser = new RangeItemParser("economical_status:");
 	}
 
-	public TreeMap<Double, RangeDistributionIfc> parse(String content) {
-		csvFile = createCsvFile(content);
+	public TreeMap<Double, RangeDistributionIfc> parse(File input) {
+		csvFile = createCsvFile(input);
 		distributions = new TreeMap<>();
 		IntStream.range(0, csvFile.getLength()).forEach(this::parse);
 		return distributions;
@@ -44,8 +45,8 @@ public class EconomicalStatusDistributionParser {
 		return itemParser.parse(value, column);
 	}
 
-	CsvFile createCsvFile(String content) {
-		return new CsvFile(content);
+	CsvFile createCsvFile(File input) {
+		return new CsvFile(input);
 	}
 
 }

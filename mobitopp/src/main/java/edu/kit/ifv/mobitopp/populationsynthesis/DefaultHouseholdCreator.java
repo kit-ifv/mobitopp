@@ -39,7 +39,7 @@ public class DefaultHouseholdCreator implements HouseholdCreator {
 		int income = household.income();
 		int incomeClass = household.incomeClass();
 		EconomicalStatus economicalStatus = economicalStatusCalculator
-				.calculateFor(nominalSize, income);
+				.calculateFor(nominalSize, numberOfMinors, income);
 		boolean canChargePrivately = canChargePrivatelySelector.canChargeAt(zone);
 		return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
 				numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, economicalStatus,
