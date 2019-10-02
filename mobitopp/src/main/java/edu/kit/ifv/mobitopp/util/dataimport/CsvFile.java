@@ -118,7 +118,11 @@ public class CsvFile {
 	public double getDouble(int row_num, String attribute) {
 		return Double.parseDouble(getValue(row_num, attribute));
 	}
-
+	
+	public int getInteger(int row_num, String attribute) {
+		return Integer.parseInt(getValue(row_num, attribute));
+	}
+	
 	public boolean hasAttribute(String attribute) {
 		return columnNames.contains(nameOf(attribute));
 	}

@@ -41,8 +41,8 @@ public class RangeDistributionItem
     }
   }
 
-  public boolean matches(int age) {
-    return lowerBound <= age && upperBound >= age;
+  public boolean matches(int key) {
+    return lowerBound <= key && upperBound >= key;
   }
 
   public int lowerBound() {
