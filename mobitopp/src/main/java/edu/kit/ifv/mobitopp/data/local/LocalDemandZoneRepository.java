@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -67,18 +68,15 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 	public static DemandZoneRepository from(
 			ZoneRepository zoneRepository, DemographyData demographyData, int numberOfZones) {
 		Function<Zone, DemandZone> toDemandZone = zone -> createZone(zone, demographyData);
-		Map<ZoneId, DemandZone> zones = zoneRepository
+		List<DemandZone> demandZones = zoneRepository
 				.getZones()
 				.stream()
 				.limit(numberOfZones)
-				.map(toDemandZone)
+				.map(toDemandZone).collect(toList());
+		Map<ZoneId, DemandZone> zones = demandZones.stream()
 				.collect(toMap(DemandZone::getId, Function.identity(), StreamUtils.throwingMerger(),
 						TreeMap::new));
-		Map<String, DemandZone> zonesByExternal = zoneRepository
-				.getZones()
-				.stream()
-				.limit(numberOfZones)
-				.map(toDemandZone)
+		Map<String, DemandZone> zonesByExternal = demandZones.stream()
 				.collect(toMap(d -> d.getId().getExternalId(), Function.identity(),
 						StreamUtils.throwingMerger(), TreeMap::new));
 		return new LocalDemandZoneRepository(zones, zonesByExternal, zoneRepository);

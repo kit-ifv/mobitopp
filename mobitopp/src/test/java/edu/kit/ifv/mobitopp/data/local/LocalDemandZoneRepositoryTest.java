@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.sameInstance;
@@ -74,6 +75,15 @@ public class LocalDemandZoneRepositoryTest {
     
     assertThat(demandRepository.getZones(), hasSize(numberOfZones));
   }
+	
+	@Test
+	void returnsSameInstanceRegardlessOfGetter() throws Exception {
+		DemandZoneRepository demandRepository = newDemandRepository();
+		
+		DemandZone byExternalId = demandRepository.zoneByExternalId("1").get();
+		DemandZone byId = demandRepository.zoneById(byExternalId.getId()).get();
+		assertThat(byExternalId).isSameAs(byId);
+	}
 
 	private void createZones() {
 		createZoneWithOid(0, "1");
