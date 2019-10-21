@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,7 +24,6 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
-import edu.kit.ifv.mobitopp.dataimport.AttractivitiesBuilder;
 import edu.kit.ifv.mobitopp.dataimport.AttractivitiesData;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
@@ -202,21 +200,12 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private Map<Integer, Attractivities> attractivities() {
-		Map<Integer, Attractivities> mapping = new LinkedHashMap<>();
-		AttractivitiesData structuralData = attractivityDataFrom(attractivitiesDataFile, areaTypeRepository);
-		while (structuralData.hasNext()) {
-		  int currentZone = structuralData.currentZone();
-		  String zoneId = String.valueOf(currentZone);
-			Attractivities attractivities = new AttractivitiesBuilder(structuralData).attractivities(zoneId);
-      mapping.put(currentZone, attractivities);
-			structuralData.next();
-		}
-		return mapping;
+		return attractivityDataFrom(attractivitiesDataFile).build();
 	}
 
-	private static AttractivitiesData attractivityDataFrom(File structuralDataFile, AreaTypeRepository areaTypeRepository) {
-    StructuralData data = new StructuralData(CsvFile.createFrom(structuralDataFile.getAbsoluteFile()));
-    return new AttractivitiesData(data, areaTypeRepository);
+	private static AttractivitiesData attractivityDataFrom(File structuralDataFile) {
+    StructuralData data = new StructuralData(CsvFile.createFrom(structuralDataFile.getAbsolutePath()));
+    return new AttractivitiesData(data);
 	}
 
 	private ChargingDataResolver chargingFrom(

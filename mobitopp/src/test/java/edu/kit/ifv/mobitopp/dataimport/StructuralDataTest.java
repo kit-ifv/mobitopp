@@ -1,17 +1,20 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class StructuralDataTest {
 
@@ -20,7 +23,7 @@ public class StructuralDataTest {
   private final String thirdZone = "3";
   private StructuralData demographyData;
 
-  @Before
+  @BeforeEach
   public void initialise() throws URISyntaxException {
     demographyData = Example.demographyData();
   }
@@ -36,10 +39,10 @@ public class StructuralDataTest {
     assertEquals("Zone 3", third);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void getValueForMissingZone() {
     String missingZone = "missingZone";
-    demographyData.getValue(missingZone, "NAME");
+    assertThrows(IllegalArgumentException.class, () -> demographyData.getValue(missingZone, "NAME"));
   }
 
   @Test
@@ -64,6 +67,20 @@ public class StructuralDataTest {
 
     assertFalse(hasValue);
   }
+  
+  @Test
+	void valueAsDouble() throws Exception {
+		double value = demographyData.valueOrDefaultAsDouble(firstZone, "age_m:0-5");
+		
+		assertThat(value).isCloseTo(119.4392138d, offset(1e-6d));
+	}
+  
+  @Test
+  void valueAsFloat() throws Exception {
+  	float value = demographyData.valueOrDefaultAsFloat(firstZone, "age_m:0-5");
+  	
+  	assertThat(value).isCloseTo(119.4392138f, offset(1e-6f));
+  }
 
   @Test
   public void hasValue() {
@@ -75,7 +92,7 @@ public class StructuralDataTest {
     assertFalse(hasNoPrivateVisitValue);
     assertFalse(missingZone);
   }
-
+  
   @Test
   public void getAttributes() {
     List<String> attributes = demographyData.getAttributes();

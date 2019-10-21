@@ -105,6 +105,10 @@ public class CsvFile {
 		assert row.containsKey(column) : (">> " + row + " " + attribute);
 		return row.get(column);
 	}
+	
+	public float getFloat(int row_num, String attribute) {
+		return Float.parseFloat(getValue(row_num, attribute));
+	}
 
 	public double getDouble(int row_num, String attribute) {
 		return Double.parseDouble(getValue(row_num, attribute));

@@ -60,7 +60,10 @@ public class LocalFiles implements DataSource {
 	private File zoneRepositoryFolder;
 	private File matrixConfigurationFile;
 	private File demandDataFolder;
+	private File zonePropertiesDataFile;
 	private File attractivityDataFile;
+	private File parkingFacilitiesDataFile;
+	private File carSharingStationsDataFile;
 	private ChargingType charging;
 	private String defaultChargingPower;
 	private boolean mapIds;
@@ -71,6 +74,20 @@ public class LocalFiles implements DataSource {
 		zoneRepositoryFolder = new File(defaultZoneRepository);
 		mapIds = defaultMapIds;
 	}
+
+	/**
+	 * Load zone properties from data file, if available. Otherwise fall back to attractivities data file.
+	 */
+	private File getZonePropertiesDataAsFile() {
+		/* Fallback solution to return attractivitiesDataFile to ensure backward compatibility */
+		if (zonePropertiesDataFile.exists()) {
+			return zonePropertiesDataFile;
+		}
+		System.out
+				.println(
+						"referenced zonePropertiesDataFile does not exist - using attractivityDataFile instead!");
+		return attractivityDataFile;
+	}	
 	
 	public String getZoneRepositoryFolder() {
 		return Convert.asString(zoneRepositoryFolder);
@@ -96,12 +113,36 @@ public class LocalFiles implements DataSource {
 		this.demandDataFolder = Convert.asFile(demandDataFolder);
 	}
 
+	public String getZonePropertiesDataFile() {
+		return Convert.asString(zonePropertiesDataFile);
+	}
+	
+	public void setZonePropertiesDataFile(String zonePropertiesDataFile) {
+		this.zonePropertiesDataFile = Convert.asFile(zonePropertiesDataFile);
+	}
+	
 	public String getAttractivityDataFile() {
 		return Convert.asString(attractivityDataFile);
 	}
 	
 	public void setAttractivityDataFile(String attractivityDataFile) {
 		this.attractivityDataFile = Convert.asFile(attractivityDataFile);
+	}
+	
+	public String getParkingFacilitiesDataFile() {
+		return Convert.asString(parkingFacilitiesDataFile);
+	}
+	
+	public void setParkingFacilitiesDataFile(String parkingFacilitiesDataFile) {
+		this.parkingFacilitiesDataFile = Convert.asFile(parkingFacilitiesDataFile);
+	}
+	
+	public String getCarSharingStationsDataFile() {
+		return Convert.asString(carSharingStationsDataFile);
+	}
+	
+	public void setCarSharingStationsDataFile(String carSharingStationsDataFile) {
+		this.carSharingStationsDataFile = Convert.asFile(carSharingStationsDataFile);
 	}
 
 	public ChargingType getCharging() {
@@ -182,8 +223,8 @@ public class LocalFiles implements DataSource {
 				.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
 		IdToOidMapper mapper = map::get;
 		ZoneRepository fromVisum = LocalZoneRepository
-				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile,
-						areaTypeRepository, mapper);
+				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(), 
+						attractivityDataFile, parkingFacilitiesDataFile, carSharingStationsDataFile, areaTypeRepository, mapper);
 		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);
 		return fromVisum;
@@ -322,8 +363,9 @@ public class LocalFiles implements DataSource {
 	@Override
 	public String toString() {
 		return getClass().getName() + " [matrixConfigurationFile=" + matrixConfigurationFile
-				+ ", demandDataFolder=" + demandDataFolder + ", attractivityDataFile="
-				+ attractivityDataFile + ", charging=" + charging + ", defaultChargingPower="
-				+ defaultChargingPower + "]";
+				+ ", demandDataFolder=" + demandDataFolder + "zonePropertiesDataFile=" + getZonePropertiesDataAsFile() 
+				+ ", attractivityDataFile=" + attractivityDataFile + ", parkingFacilitiesDataFile=" + parkingFacilitiesDataFile
+				+ ", carSharingstationsDataFile=" + carSharingStationsDataFile
+				+ ", charging=" + charging  + ", defaultChargingPower=" + defaultChargingPower + "]";
 	}
 }
