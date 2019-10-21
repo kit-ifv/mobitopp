@@ -1,80 +1,48 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
-import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
-import edu.kit.ifv.mobitopp.data.areatype.AreaType;
-import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import edu.kit.ifv.mobitopp.data.Attractivities;
 
 public class AttractivitiesData {
 
-  private static final String newClassificationKey = "zoneclassification";
-  private static final String oldClassificationKey = "Outlyingarea";
+	private final StructuralData data;
 
-  private final StructuralData data;
-  private final AreaTypeRepository areaTypeRepository;
-
-  public AttractivitiesData(StructuralData data, AreaTypeRepository areaTypeRepository) {
-    this.data = data;
-    this.areaTypeRepository = areaTypeRepository;
-  }
-
-  public void next() {
-    data.next();
-  }
-
-  public void resetIndex() {
-    data.resetIndex();
-  }
-
-  public boolean hasNext() {
-    return data.hasNext();
-  }
-
-  public int currentZone() {
-    return data.currentZone();
-  }
-
-  public boolean hasValue(String zoneId, String key) {
-    return data.hasValue(zoneId, key);
-  }
-
-  public int valueOrDefault(String zoneId, String key) {
-    return data.valueOrDefault(zoneId, key);
-  }
-  
-  private String getValue(String zoneId, String key) {
-    return data.getValue(zoneId, key);
-  }
-
-  public ZoneClassificationType currentClassification(String zoneId) {
-		String classification = classificationValue(zoneId);
-		if (0 == Integer.valueOf(classification)) {
-			return ZoneClassificationType.studyArea;
-		}
-		if (1 == Integer.valueOf(classification)) {
-			return ZoneClassificationType.extendedStudyArea;
-		}
-		return ZoneClassificationType.outlyingArea;
+	public AttractivitiesData(StructuralData data) {
+		this.data = data;
 	}
 
-  private String classificationValue(String zoneId) {
-    return hasValue(zoneId, newClassificationKey) ? getValue(zoneId, newClassificationKey)
-        : getValue(zoneId, oldClassificationKey);
-  }
+	public boolean hasValue(String zoneId, String key) {
+		return data.hasValue(zoneId, key);
+	}
 
-  public RegionType currentRegionType(String zoneId) {
-    return new DefaultRegionType(valueOrDefault(zoneId, "regiontype"));
-  }
+	public int valueOrDefault(String zoneId, String key) {
+		return data.valueOrDefault(zoneId, key);
+	}
 
-  public AreaType currentZoneAreaType(String zoneId) {
-    String areaType = getValue(zoneId, "AreaType");
-    try {
-      int code = Integer.parseInt(areaType);
-      return areaTypeRepository.getTypeForCode(code);
-    } catch (NumberFormatException cause) {
-      return areaType.isEmpty() ? areaTypeRepository.getDefault()
-          : areaTypeRepository.getTypeForName(areaType);
-    }
-  }
+	public Map<Integer, Attractivities> build() {
+		Map<Integer, Attractivities> mapping = new LinkedHashMap<>();
+		while (hasNext()) {
+			int currentZone = currentZone();
+			String zoneId = String.valueOf(currentZone);
+			Attractivities attractivities = new AttractivitiesBuilder(this).attractivities(zoneId);
+			mapping.put(currentZone, attractivities);
+			next();
+		}
+		return mapping;
+	}
 
+	private boolean hasNext() {
+		return data.hasNext();
+	}
+
+	private int currentZone() {
+		return data.currentZone();
+	}
+
+	private void next() {
+		data.next();
+	}
 
 }

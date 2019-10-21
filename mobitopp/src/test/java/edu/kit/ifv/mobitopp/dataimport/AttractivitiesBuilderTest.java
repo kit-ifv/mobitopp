@@ -16,8 +16,7 @@ public class AttractivitiesBuilderTest {
 
   @Before
   public void initialise() {
-    attractivityData = new AttractivitiesData(Example.attractivityData(),
-        Example.areaTypeRepository());
+    attractivityData = new AttractivitiesData(Example.attractivityData());
   }
 
   @Test

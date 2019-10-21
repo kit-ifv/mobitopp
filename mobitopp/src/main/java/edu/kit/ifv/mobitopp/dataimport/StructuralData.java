@@ -69,9 +69,31 @@ public class StructuralData {
     return defaultValue;
   }
 
+  public double valueOrDefaultAsDouble(String zoneId, String key) {
+    if (hasValue(zoneId, key)) {
+      return parsedValueAsDouble(zoneId, key);
+    }
+    return defaultValue;
+  }
+  
+  public float valueOrDefaultAsFloat(String zoneId, String key) {
+  	if (hasValue(zoneId, key)) {
+  		return parsedValueAsFloat(zoneId, key);
+  	}
+  	return defaultValue;
+  }
+  
   private int parsedValue(String zoneId, String key) {
     return Math.toIntExact(Math.round(Double.parseDouble(getValue(zoneId, key))));
   }
+  
+  private double parsedValueAsDouble(String zoneId, String key) {
+    return Double.parseDouble(getValue(zoneId, key));
+  } 
+  
+  private float parsedValueAsFloat(String zoneId, String key) {
+  	return Float.parseFloat(getValue(zoneId, key));
+  } 
 
   public void next() {
     index++;

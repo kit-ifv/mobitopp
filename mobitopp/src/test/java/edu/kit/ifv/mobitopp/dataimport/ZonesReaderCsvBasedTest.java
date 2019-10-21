@@ -20,6 +20,9 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -35,6 +38,7 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
 
+@ExtendWith(MockitoExtension.class)
 public class ZonesReaderCsvBasedTest {
 
   private static final int someZoneId = 1;
@@ -43,11 +47,11 @@ public class ZonesReaderCsvBasedTest {
   private static final int areaId = 1;
   private static final String someZoneName = "some name";
   private static final DefaultPower defaultPower = DefaultPower.zero;
+	private static final int parkingFacilities = 1;
 
   private VisumNetwork network;
   private SimpleRoadNetwork roadNetwork;
   private AttractivitiesData attractivityData;
-  private CarSharingBuilder carSharingBuilder;
   private CarSharingDataForZone carSharingData;
   private ChargingDataBuilder chargingDataBuilder;
   private ChargingDataForZone chargingData;
@@ -55,6 +59,12 @@ public class ZonesReaderCsvBasedTest {
   private Attractivities attractivities;
   private ZoneLocationSelector locationSelector;
   private IdToOidMapper idToOid;
+	private StructuralData structuralData;
+	
+	@Mock
+	private CarSharingDataRepository carSharingDataRepository;
+	@Mock
+	private ParkingFacilityDataRepository parkingFacilitiesDataRepository;
 
   @BeforeEach
   public void initialise() {
@@ -78,9 +88,8 @@ public class ZonesReaderCsvBasedTest {
         .collect(toMap(z -> String.valueOf(z), z -> z - 1));
     idToOid = map::get;
     roadNetwork = new SimpleRoadNetwork(network);
-    attractivityData = new AttractivitiesData(Example.attractivityData(),
-        Example.areaTypeRepository());
-    carSharingBuilder = mock(CarSharingBuilder.class);
+    structuralData = Example.attractivityData();
+		attractivityData = new AttractivitiesData(structuralData);
     carSharingData = mock(CarSharingDataForZone.class);
     chargingDataBuilder = mock(ChargingDataBuilder.class);
     chargingData = mock(ChargingDataForZone.class);
@@ -88,10 +97,11 @@ public class ZonesReaderCsvBasedTest {
     attractivities = mock(Attractivities.class);
     locationSelector = mock(ZoneLocationSelector.class);
 
-    when(carSharingBuilder.carsharingIn(any(), any(), any())).thenReturn(carSharingData);
     when(chargingDataBuilder.chargingData(any(), any())).thenReturn(chargingData);
     when(attractivitiesBuilder.attractivities(anyString())).thenReturn(attractivities);
     when(locationSelector.selectLocation(eq(someZone), any())).thenReturn(dummyLocation());
+    when(carSharingDataRepository.getData(any(), any(), any())).thenReturn(carSharingData);
+    when(parkingFacilitiesDataRepository.getNumberOfParkingLots(any(), any())).thenReturn(parkingFacilities);
   }
 
   private Location dummyLocation() {
@@ -114,18 +124,15 @@ public class ZonesReaderCsvBasedTest {
         () -> assertThat(zone.carSharing(), is(equalTo(carSharingData))),
         () -> assertThat(zone.charging(), is(equalTo(chargingData))),
         () -> assertThat(zone.attractivities(), is(equalTo(attractivities))),
+        () -> assertThat(zone.getNumberOfParkingPlaces(), is(equalTo(parkingFacilities))),
         () -> assertThat(zone.centroidLocation(), is(equalTo(dummyLocation()))));
   }
 
   private ZonesReaderCsvBased newReader() {
     ChargingType charging = ChargingType.limited;
-    return new ZonesReaderCsvBased(network, roadNetwork, attractivityData, charging, defaultPower,
+    ZonePropertiesData zoneProperties = new ZonePropertiesData(structuralData, Example.areaTypeRepository());
+		return new ZonesReaderCsvBased(network, roadNetwork, zoneProperties, attractivityData, parkingFacilitiesDataRepository, carSharingDataRepository, charging, defaultPower,
         idToOid) {
-
-      @Override
-      CarSharingBuilder carSharingBuilder() {
-        return carSharingBuilder;
-      }
 
       @Override
       ChargingDataBuilder chargingDataBuilder() {

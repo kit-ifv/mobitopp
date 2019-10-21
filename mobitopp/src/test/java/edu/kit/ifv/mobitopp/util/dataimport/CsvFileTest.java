@@ -1,12 +1,15 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,9 +26,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 public class CsvFileTest {
 
-  private static final String someHeader = "hEaDer1";
+	private static final String someHeader = "hEaDer1";
   private static final String otherHeader = "HeaDeR2";
-  private static final String someContent = "some content";
+  private static final int someValue = 1;
+  private static final String someContent = String.valueOf(someValue);
   private static final String otherContent = "other content";
   private static final String escapedName = "\"other content\"";
 
@@ -61,6 +65,15 @@ public class CsvFileTest {
     String value = csvFile.getValue(0, someHeader);
 
     assertThat(value, is(equalTo(someContent)));
+  }
+  
+  @Test
+  public void getValues() throws IOException {
+  	CsvFile csvFile = createFromFile();
+  	
+  	assertAll(() -> assertThat(csvFile.getInteger(0, someHeader)).isEqualTo(someValue),
+  			() -> assertThat(csvFile.getDouble(0, someHeader)).isCloseTo(someValue, offset(1e-6d)),
+  			() -> assertThat(csvFile.getFloat(0, someHeader)).isCloseTo(someValue, offset(1e-6f)));
   }
 
   @Test

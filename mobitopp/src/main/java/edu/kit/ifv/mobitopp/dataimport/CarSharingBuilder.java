@@ -10,8 +10,8 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
-import edu.kit.ifv.mobitopp.network.SimpleEdge;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
@@ -22,19 +22,13 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
 
-public class CarSharingBuilder {
+public class CarSharingBuilder extends BaseCarSharingBuilder {
 
 	private final VisumNetwork visumNetwork;
-	private final SimpleRoadNetwork roadNetwork;
-	private final Map<String, StationBasedCarSharingOrganization> carSharingCompanies;
-	private final Map<String, FreeFloatingCarSharingOrganization> freeFloatingOrganizations;
 
-	public CarSharingBuilder(VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork) {
-		super();
+	public CarSharingBuilder(VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, IdSequence carSharingCarIds) {
+		super(roadNetwork, carSharingCarIds);
 		this.visumNetwork = visumNetwork;
-		this.roadNetwork = roadNetwork;
-		carSharingCompanies = new LinkedHashMap<>();
-		freeFloatingOrganizations = new LinkedHashMap<>();
 	}
 
 	public CarSharingDataForZone carsharingIn(VisumZone visumZone, ZonePolygon polygon, Zone zone) {
@@ -43,10 +37,10 @@ public class CarSharingBuilder {
 				carSharingStationsWithinZonePolygon(visumZone.id, polygon.polygon(), "Stadtmobil", zone));
 		carSharingStations.put("Flinkster",
 				carSharingStationsWithinZonePolygon(visumZone.id, polygon.polygon(), "Flinkster", zone));
-		List<StationBasedCarSharingOrganization> stationBasedCarSharingCompanaies = new ArrayList<>();
+		List<StationBasedCarSharingOrganization> stationBasedCarSharingCompanies = new ArrayList<>();
 		for (Entry<String, List<CarSharingStation>> entry : carSharingStations.entrySet()) {
 			if (!entry.getValue().isEmpty()) {
-				stationBasedCarSharingCompanaies.add(carSharingCompany(entry.getKey()));
+				stationBasedCarSharingCompanies.add(carSharingCompany(entry.getKey()));
 			}
 		}
 		Map<String, Boolean> freeFloatingArea = new LinkedHashMap<>();
@@ -58,23 +52,13 @@ public class CarSharingBuilder {
 			freeFloatingCars.put(companyName, visumZone.freeFloatingCarSharingCars);
 		}
 		List<FreeFloatingCarSharingOrganization> freeFloatingCarSharingCompanies = new ArrayList<>(
-				freeFloatingOrganizations.values());
+				getFreeFloatingOrganizations().values());
 		Map<String, Float> carsharingCarDensities = new LinkedHashMap<>(
 				visumZone.carsharingcarDensities);
 		CarSharingDataForZone carSharingData = new CarSharingDataForZone(zone,
-				stationBasedCarSharingCompanaies, carSharingStations, freeFloatingCarSharingCompanies,
+				stationBasedCarSharingCompanies, carSharingStations, freeFloatingCarSharingCompanies,
 				freeFloatingArea, freeFloatingCars, carsharingCarDensities);
 		return carSharingData;
-	}
-
-	private FreeFloatingCarSharingOrganization createFreeFloatingCarSharingOrganizationFor(
-			String companyName) {
-		if (!freeFloatingOrganizations.containsKey(companyName)) {
-			FreeFloatingCarSharingOrganization company = new FreeFloatingCarSharingOrganization(
-					companyName);
-			freeFloatingOrganizations.put(companyName, company);
-		}
-		return freeFloatingOrganizations.get(companyName);
 	}
 
 	private List<CarSharingStation> carSharingStationsWithinZonePolygon(
@@ -95,19 +79,6 @@ public class CarSharingBuilder {
 			}
 		}
 		return result;
-	}
-
-	Location makeLocation(int zoneId, Point2D coord) {
-		SimpleEdge road = roadNetwork.zones().get(zoneId).nearestEdge(coord);
-		double pos = road.nearestPositionOnEdge(coord);
-		return new Location(coord, road.id(), pos);
-	}
-
-	private StationBasedCarSharingOrganization carSharingCompany(String company) {
-		if (!carSharingCompanies.containsKey(company)) {
-			carSharingCompanies.put(company, new StationBasedCarSharingOrganization(company));
-		}
-		return carSharingCompanies.get(company);
 	}
 
 }
