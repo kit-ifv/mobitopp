@@ -48,18 +48,15 @@ public class DateFormat {
 	}
 
 	private static DateTimeFormatter fullFormat() {
-		return new DateTimeFormatterBuilder()
+		return toLocalizedFormatter(new DateTimeFormatterBuilder()
 				.append(weekdayFormat())
 				.appendLiteral(dateTimeSeparator)
-				.append(timeFormat())
-				.toFormatter();
+				.append(timeFormat()));
 	}
 
 	private static DateTimeFormatter timeFormat() {
-		return hourMinute()
-				.appendLiteral(':')
-				.appendValue(ChronoField.SECOND_OF_MINUTE, width)
-				.toFormatter();
+		return toLocalizedFormatter(
+				hourMinute().appendLiteral(':').appendValue(ChronoField.SECOND_OF_MINUTE, width));
 	}
 
 	private static DateTimeFormatterBuilder hourMinute() {
