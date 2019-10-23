@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.Locale;
 
 public class DateFormat {
 
@@ -75,7 +76,7 @@ public class DateFormat {
 	}
 
 	private static DateTimeFormatter weekdayFormat() {
-		return new DateTimeFormatterBuilder().appendPattern("EE").toFormatter();
+		return new DateTimeFormatterBuilder().appendPattern("EE").toFormatter(Locale.GERMAN);
 	}
 
 	private static DateTimeFormatter weekdayTimeFormat() {
