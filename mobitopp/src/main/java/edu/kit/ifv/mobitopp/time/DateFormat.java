@@ -9,7 +9,7 @@ import java.util.Locale;
 public class DateFormat {
 
 	private static final LocalDateTime monday = LocalDateTime.of(2018, 1, 1, 0, 0);
-	
+
 	private static final String weekdayDateSeparator = ", ";
 	private static final String dateTimeSeparator = " ";
 	private static final int width = 2;
@@ -70,31 +70,32 @@ public class DateFormat {
 	}
 
 	private static DateTimeFormatter dateFormat() {
-		return new DateTimeFormatterBuilder()
-				.appendValue(ChronoField.DAY_OF_MONTH, width)
-				.toFormatter();
+		return toLocalizedFormatter(
+				new DateTimeFormatterBuilder().appendValue(ChronoField.DAY_OF_MONTH, width));
 	}
 
 	private static DateTimeFormatter weekdayFormat() {
-		return new DateTimeFormatterBuilder().appendPattern("EE").toFormatter(Locale.GERMAN);
+		return toLocalizedFormatter(new DateTimeFormatterBuilder().appendPattern("EE"));
 	}
 
 	private static DateTimeFormatter weekdayTimeFormat() {
-		return new DateTimeFormatterBuilder()
+		return toLocalizedFormatter(new DateTimeFormatterBuilder()
 				.append(weekdayFormat())
 				.appendLiteral(weekdayDateSeparator)
 				.append(dateFormat())
 				.appendLiteral(dateTimeSeparator)
-				.append(timeFormat())
-				.toFormatter();
+				.append(timeFormat()));
 	}
-	
+
 	private static DateTimeFormatter dayTimeFormat() {
-		return new DateTimeFormatterBuilder()
+		return toLocalizedFormatter(new DateTimeFormatterBuilder()
 				.append(weekdayFormat())
 				.appendLiteral(dateTimeSeparator)
-				.append(hourMinute().toFormatter())
-				.toFormatter();
+				.append(hourMinute().toFormatter()));
+	}
+
+	private static DateTimeFormatter toLocalizedFormatter(DateTimeFormatterBuilder builder) {
+		return builder.toFormatter(Locale.GERMAN);
 	}
 
 }
