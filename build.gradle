@@ -9,8 +9,8 @@ subprojects {
     group = 'edu.kit.ifv.mobitopp'
     version = project.hasProperty('next-version') ? project.property('next-version') : '0.0-SNAPSHOT'
     
-    sourceCompatibility = 1.11
-    targetCompatibility = 1.11
+    sourceCompatibility = 1.13
+    targetCompatibility = 1.13
     
     repositories {
         mavenLocal()
@@ -33,7 +33,7 @@ subprojects {
         snakeyaml: 'org.yaml:snakeyaml:1.18',
 
         assertj: 'org.assertj:assertj-core:3.13.2',
-        equalsverifier: 'nl.jqno.equalsverifier:equalsverifier:3.1.7',
+        equalsverifier: 'nl.jqno.equalsverifier:equalsverifier:3.1.10',
         hamcrest_all: 'org.hamcrest:hamcrest-all:1.3',
         hamcrest_optional: 'com.github.npathai:hamcrest-optional:1.0',
         junit_jupiter: 'org.junit.jupiter:junit-jupiter:' + versions.junit,
