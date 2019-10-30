@@ -125,7 +125,7 @@ artifactory {
 bintray {
     user = project.hasProperty('user') ? project.property('user') : 'user'
     key = project.hasProperty('key')? project.property('key') : 'key'
-    publications = ['mavenPublication']
+    publications = ['mavenJava']
     pkg {
         repo = 'ifv-mobitopp'
         name = project.name
