@@ -1,4 +1,4 @@
-"personId";"activityType";"observedTripDuration";"startTime";"duration";"tournr";"isMainActivity"
+"personId";"activityType";"observedTripDuration";"startTime";"duration";"tournr";"isMainActivity";"isSupertour"
 "1";"7";"-1";"0";"440";"0";"false";"false"
 "1";"1";"10";"450";"585";"1";"true";"false"
 "1";"7";"10";"1045";"140";"2";"false";"false"
