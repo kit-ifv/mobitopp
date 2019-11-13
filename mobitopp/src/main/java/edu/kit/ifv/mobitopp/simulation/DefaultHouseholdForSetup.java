@@ -141,9 +141,29 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		return ownedCars.stream();
 	}
 
+	/**
+	 * Returns the nominal number of cars as mentioned in the input data. After a car ownership model
+	 * has added cars, this number might not fit. The {@link #getNumberOfOwnedCars()} method returns
+	 * the correct number of cars. If you really want to know the number of cars from the input data,
+	 * use {@link #getNominalNumberOfCars()}.
+	 * 
+	 * @deprecated
+	 * @see #getNumberOfOwnedCars()
+	 * @see #getNominalNumberOfCars()
+	 */
 	@Override
 	public int getTotalNumberOfCars() {
 		return nominalNumberOfCars;
+	}
+	
+	@Override
+	public int getNominalNumberOfCars() {
+		return nominalNumberOfCars;
+	}
+	
+	@Override
+	public int getNumberOfOwnedCars() {
+		return ownedCars.size();
 	}
 
 	@Override
@@ -180,7 +200,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	@Override
 	public HouseholdAttributes attributes() {
 		return new HouseholdAttributes(householdId.getOid(), householdId, nominalSize, domcode,
-				homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren, nominalNumberOfCars,
+				homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren, getNumberOfOwnedCars(),
 				income, incomeClass, economicalStatus, canChargePrivately);
 	}
 

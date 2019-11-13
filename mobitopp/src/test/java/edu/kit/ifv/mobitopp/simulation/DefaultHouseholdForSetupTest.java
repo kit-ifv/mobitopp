@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -60,6 +61,21 @@ public class DefaultHouseholdForSetupTest {
     Household household = setupHousehold.toHousehold();
 
     assertThat(household.whichCars(), contains(privateCar));
+    assertThat(household.getTotalNumberOfCars()).isEqualTo(1);
+  }
+  
+  @Test
+  public void addMoreCarsThanNominal() {
+  	HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withCars(0).build();
+  	PrivateCarForSetup car = mock(PrivateCarForSetup.class);
+  	PrivateCar privateCar = mock(PrivateCar.class);
+  	when(car.toCar(any())).thenReturn(privateCar);
+  	
+  	setupHousehold.ownCars(asList(car));
+  	Household household = setupHousehold.toHousehold();
+  	
+  	assertThat(household.whichCars(), contains(privateCar));
+  	assertThat(setupHousehold.getNumberOfOwnedCars()).isEqualTo(1);
   }
   
   @Test
