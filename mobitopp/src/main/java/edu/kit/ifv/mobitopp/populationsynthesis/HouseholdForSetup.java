@@ -12,41 +12,56 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 
 public interface HouseholdForSetup {
 
-  void addPerson(PersonBuilder person);
+	void addPerson(PersonBuilder person);
 
-  List<PersonBuilder> getPersons();
-  
-  Stream<PersonBuilder> persons();
+	List<PersonBuilder> getPersons();
 
-  Household toHousehold();
+	Stream<PersonBuilder> persons();
 
-  HouseholdId getId();
+	Household toHousehold();
 
-  Zone homeZone();
+	HouseholdId getId();
 
-  Location homeLocation();
+	Zone homeZone();
 
-  int monthlyIncomeEur();
-  
-  int incomeClass();
+	Location homeLocation();
 
-  boolean canChargePrivately();
+	int monthlyIncomeEur();
 
-  void ownCars(Collection<PrivateCarForSetup> cars);
-  
-  Stream<PrivateCarForSetup> ownedCars();
+	int incomeClass();
 
-  int getTotalNumberOfCars();
+	boolean canChargePrivately();
 
-  int getSize();
-  
-  int getNumberOfPersonsInAgeRange(int fromIncluding, int toIncluding);
+	void ownCars(Collection<PrivateCarForSetup> cars);
 
-  int nominalSize();
+	Stream<PrivateCarForSetup> ownedCars();
 
-  int numberOfMinors();
 
-  int numberOfNotSimulatedChildren();
+	/**
+	 * Returns the nominal number of cars as mentioned in the input data. After a car ownership model
+	 * has added cars, this number might not fit. The {@link #getNumberOfOwnedCars()} method returns
+	 * the correct number of cars. If you really want to know the number of cars from the input data,
+	 * use {@link #getNominalNumberOfCars()}.
+	 * 
+	 * @deprecated
+	 * @see #getNumberOfOwnedCars()
+	 * @see #getNominalNumberOfCars()
+	 */
+	int getTotalNumberOfCars();
+
+	int getNominalNumberOfCars();
+	
+	int getNumberOfOwnedCars();
+
+	int getSize();
+
+	int getNumberOfPersonsInAgeRange(int fromIncluding, int toIncluding);
+
+	int nominalSize();
+
+	int numberOfMinors();
+
+	int numberOfNotSimulatedChildren();
 
 	HouseholdAttributes attributes();
 
