@@ -25,7 +25,7 @@ public class DefaultActivityFormat implements SerialiserFormat<PersonPatternActi
 	@Override
 	public List<String> header() {
 		return asList("personId", "activityType", "observedTripDuration", "startTime",
-				"duration", "tournr", "isMainActivity");
+				"duration", "tournr", "isMainActivity", "isSupertour");
 	}
 	
 	@Override
