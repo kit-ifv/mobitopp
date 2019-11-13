@@ -60,8 +60,8 @@ public class DefaultActivityFormatTest {
 				valueOf(ExampleSetup.startTime.toMinutes()),
 				valueOf(ExampleSetup.duration),
 				valueOf(ExampleSetup.tourNumber),
-				valueOf(ExampleSetup.isInSupertour),
-				valueOf(ExampleSetup.isMainActivity)
+				valueOf(ExampleSetup.isMainActivity),
+				valueOf(ExampleSetup.isInSupertour)
 			);
 	}
 }
