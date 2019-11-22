@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.kit.ifv.mobitopp.simulation.SimulationExample;
 
-public class UseLocalDataTest {
+public class IpfBasedTest {
 
   public static Stream<ResultFile> logFileNames() {
     return Stream
@@ -43,7 +43,7 @@ public class UseLocalDataTest {
   }
 
   private static void createPopulation() throws Exception {
-    PopulationSynthesisExample
+    PopulationSynthesisIpf
         .startSynthesis(new File("config/leopoldshafen/population-synthesis.yaml"));
   }
 

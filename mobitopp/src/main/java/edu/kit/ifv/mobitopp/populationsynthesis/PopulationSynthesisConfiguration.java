@@ -21,7 +21,7 @@ import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
 
-public class PopulationSynthesisConfiguration extends BasicPopulationSynthesis {
+public class PopulationSynthesisConfiguration extends BasicPopulationSynthesisIpf {
 
   public PopulationSynthesisConfiguration(
       CarOwnershipModel carOwnershipModel, HouseholdLocationSelector householdLocationSelector,

@@ -28,7 +28,7 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganiza
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
 
-public class BasicPopulationSynthesis extends PopulationSynthesis { 
+public class BasicPopulationSynthesisIpf extends PopulationSynthesis { 
 
 	private final PersonCreator personCreator;
 	private final HouseholdLocationSelector householdLocationSelector;
@@ -38,7 +38,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
   private final ActivityScheduleAssigner activityScheduleAssigner;
 	private final EconomicalStatusCalculator economicalStatusCalculator;
 
-	public BasicPopulationSynthesis(
+	public BasicPopulationSynthesisIpf(
 			CarOwnershipModel carOwnershipModel,
 			HouseholdLocationSelector householdLocationSelector,
 			PersonCreator personCreator,
@@ -54,7 +54,7 @@ public class BasicPopulationSynthesis extends PopulationSynthesis {
 		return (zone) -> true;
 	}
 	
-	public BasicPopulationSynthesis(
+	public BasicPopulationSynthesisIpf(
 		CarOwnershipModel carOwnershipModel,
 		HouseholdLocationSelector householdLocationSelector,
 		ChargePrivatelySelector chargePrivatelySelector,

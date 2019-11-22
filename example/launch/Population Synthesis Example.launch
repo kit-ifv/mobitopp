@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-        <listEntry value="/example/src/main/java/edu/kit/ifv/mobitopp/populationsynthesis/PopulationSynthesisExample.java"/>
+        <listEntry value="/example/src/main/java/edu/kit/ifv/mobitopp/populationsynthesis/PopulationSynthesisIpf.java"/>
     </listAttribute>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
         <listEntry value="1"/>
@@ -12,7 +12,7 @@
     </listAttribute>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.buildship.core.classpathprovider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisExample"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisIpf"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${workspace_loc:example}/config/leopoldshafen/population-synthesis.yaml"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="example"/>
     <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx29G -Xss512M -ea"/>
