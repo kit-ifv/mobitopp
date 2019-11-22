@@ -21,9 +21,9 @@ import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
 
-public class PopulationSynthesisExample extends BasicPopulationSynthesis {
+public class PopulationSynthesisIpf extends BasicPopulationSynthesisIpf {
 
-  public PopulationSynthesisExample(
+  public PopulationSynthesisIpf(
       CarOwnershipModel carOwnershipModel, HouseholdLocationSelector householdLocationSelector,
       ChargePrivatelySelector chargePrivatelySelector, PersonCreator personCreator,
       ActivityScheduleAssigner activityScheduleAssigner, SynthesisContext context) {
@@ -46,14 +46,14 @@ public class PopulationSynthesisExample extends BasicPopulationSynthesis {
     System.out.println("Population synthesis took " + runtime);
   }
 
-  static PopulationSynthesisExample startSynthesis(File configurationFile) throws Exception {
+  static PopulationSynthesisIpf startSynthesis(File configurationFile) throws Exception {
     SynthesisContext context = new ContextBuilder().buildFrom(configurationFile);
     return startSynthesis(context);
   }
 
-  public static PopulationSynthesisExample startSynthesis(SynthesisContext context) {
+  public static PopulationSynthesisIpf startSynthesis(SynthesisContext context) {
     context.printStartupInformationOn(System.out);
-    PopulationSynthesisExample synthesizer = populationSynthesis(context);
+    PopulationSynthesisIpf synthesizer = populationSynthesis(context);
     synthesizer.createPopulation();
     return synthesizer;
   }
@@ -62,7 +62,7 @@ public class PopulationSynthesisExample extends BasicPopulationSynthesis {
     return new LanduseCLCwithRoadsHouseholdLocationSelector(context);
   }
 
-  private static PopulationSynthesisExample populationSynthesis(SynthesisContext context) {
+  private static PopulationSynthesisIpf populationSynthesis(SynthesisContext context) {
     HouseholdLocationSelector householdLocationSelector = householdLocations(context);
     CommutationTicketModelIfc commuterTicketModel = commuterTickets(context);
     CarOwnershipModel carOwnershipModel = carOwnership(context);
@@ -105,11 +105,11 @@ public class PopulationSynthesisExample extends BasicPopulationSynthesis {
     return new AllowChargingProbabilityBased(context.seed());
   }
 
-  private static PopulationSynthesisExample populationSynthesis(
+  private static PopulationSynthesisIpf populationSynthesis(
       HouseholdLocationSelector householdLocationSelector, CarOwnershipModel carOwnershipModel,
       ChargePrivatelySelector chargePrivatelySelector, PersonCreator personCreator,
       ActivityScheduleAssigner activityScheduleAssigner, SynthesisContext context) {
-    return new PopulationSynthesisExample(carOwnershipModel, householdLocationSelector,
+    return new PopulationSynthesisIpf(carOwnershipModel, householdLocationSelector,
         chargePrivatelySelector, personCreator, activityScheduleAssigner, context);
   }
 

@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocat
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
-public class BasicPopulationSynthesisTest {
+public class BasicPopulationSynthesisIpfTest {
 
   private static final long seed = 0;
 
@@ -65,7 +65,7 @@ public class BasicPopulationSynthesisTest {
   }
 
   private PopulationSynthesis synthesis() {
-    return new BasicPopulationSynthesis(carOwnershipModel, householdLocationSelector, personCreator,
+    return new BasicPopulationSynthesisIpf(carOwnershipModel, householdLocationSelector, personCreator,
         activityAssigner, oecd2017(), context);
   }
 
