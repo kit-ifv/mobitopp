@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -80,6 +82,12 @@ public class DefaultCommunityRepository implements CommunityRepository, Communit
 		if (0.0d != remainder && null != last) {
 			destinations.put(last.getKey(), last.getValue() + 1);
 		}
-		destinations.keySet().forEach(d -> cleanUpRelation(origin, d));
+		destinations
+				.entrySet()
+				.stream()
+				.filter(e -> 0 == e.getValue())
+				.map(Entry::getKey)
+				.collect(toList())
+				.forEach(d -> cleanUpRelation(origin, d));
 	}
 }
