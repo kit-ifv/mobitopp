@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
@@ -152,6 +153,13 @@ public abstract class PopulationSynthesis {
       throw new UncheckedIOException(cause);
     }
   }
+
+	protected PopulationSynthesisStep storeData() {
+		return community -> {
+			community.zones().forEach(dataRepository().demandDataRepository()::store);
+			System.gc();
+		};
+	}
 
   private Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices() {
     System.out.println("Lade Matrizen....");

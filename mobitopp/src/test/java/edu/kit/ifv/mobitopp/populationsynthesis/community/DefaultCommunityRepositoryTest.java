@@ -1,11 +1,13 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.LinkedHashMap;
@@ -119,6 +121,24 @@ public class DefaultCommunityRepositoryTest {
 				.collect(toList());
 		
 		assertThat(remaining, is(empty()));
+	}
+
+	@Test
+	void scaleOneMissingOfCommuterRelations() throws Exception {
+		addRelation(someCommunity, otherCommunity, 4);
+		addRelation(someCommunity, someCommunity, 3);
+
+		DefaultCommunityRepository repository = newRepository();
+		repository.scale(someCommunity, 2);
+
+		assertAll(
+				() -> assertThat(commutingRelations.get(someCommunity).get(otherCommunity))
+						.as("some to other")
+						.isOne(),
+				() -> assertThat(commutingRelations.get(someCommunity).get(someCommunity))
+						.as("some to some")
+						.isOne()
+				);
 	}
 
 	private void addRelation(Community origin, Community destination, int relation) {
