@@ -10,12 +10,12 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import edu.kit.ifv.mobitopp.data.CostMatrix;
 import edu.kit.ifv.mobitopp.data.CreateFolder;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.DataSource;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
-import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.InputSpecification;
 import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
@@ -39,7 +39,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.CarSharingWriter;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
@@ -48,6 +47,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.LocalPersonLoader;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
+import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
@@ -171,9 +171,12 @@ public class LocalFiles implements DataSource {
 	private ZoneRepository loadZonesFromVisum(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
 			AreaTypeRepository areaTypeRepository, Matrices matrices) throws IOException {
-	  FixedDistributionMatrix matrix = matrices.fixedDistributionMatrixFor(ActivityType.WORK);
-	  Map<String, Integer> map = matrix.ids().stream().collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
-	  IdToOidMapper mapper = map::get;
+	  CostMatrix matrix = matrices.distanceMatrix(Time.start);
+		Map<String, Integer> map = matrix
+				.ids()
+				.stream()
+				.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
+		IdToOidMapper mapper = map::get;
 		ZoneRepository fromVisum = LocalZoneRepository
 				.from(visumNetwork, roadNetwork, charging, defaultPower(), attractivityDataFile,
 						areaTypeRepository, mapper);

@@ -100,7 +100,8 @@ public class LocalZoneRepository implements ZoneRepository {
 
 	public static ZoneRepository from(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
+			DefaultPower defaultPower, File attractivityDataFile, AreaTypeRepository areaTypeRepository,
+			IdToOidMapper mapper) {
 		ZonesReaderCsvBased zonesReader = ZonesReaderCsvBased
 				.from(visumNetwork, roadNetwork, charging, defaultPower, attractivityDataFile,
 						areaTypeRepository, mapper);

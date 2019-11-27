@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
@@ -67,20 +66,20 @@ public class DefaultCommunityRepository implements CommunityRepository, Communit
 		final Map<Community, Integer> destinations = commutingRelations.get(origin);
 		final int sum = destinations.values().stream().mapToInt(Integer::intValue).sum();
 		final double factor = (double) numberOfCommuters / sum;
-		final Collection<Community> toBeRemoved = new LinkedList<>();
 		double remainder = 0.0d;
+		Entry<Community, Integer> last = null;
 		for (Entry<Community, Integer> entry : destinations.entrySet()) {
+			last = entry;
 			final double scaled = entry.getValue() * factor;
 			final double withRemainder = scaled + remainder;
 			final double floored = Math.floor(withRemainder);
 			remainder = withRemainder - floored;
 			final int newValue = (int) floored;
-			if (0 < newValue) {
-				destinations.put(entry.getKey(), newValue);
-			} else {
-				toBeRemoved.add(entry.getKey());
-			}
+			destinations.put(entry.getKey(), newValue);
 		}
-		toBeRemoved.forEach(d -> updateRelation(origin, d));
+		if (0.0d != remainder && null != last) {
+			destinations.put(last.getKey(), last.getValue() + 1);
+		}
+		destinations.keySet().forEach(d -> cleanUpRelation(origin, d));
 	}
 }
