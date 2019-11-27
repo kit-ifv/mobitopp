@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 
 import edu.kit.ifv.mobitopp.network.Node;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
@@ -128,8 +129,8 @@ public class PublicTransportFromVisum extends BasePublicTransportConverter imple
 	}
 
 	private Map<Integer, List<Node>> nodesForStations() {
-		return visumStopAreas().values().stream().collect(
-				groupingBy(area -> area.stop.id, mapping(area -> area.node, toList())));
+		Collector<VisumPtStopArea, ?, List<Node>> mapping = mapping(area -> area.node, toList());
+		return visumStopAreas().values().stream().collect(groupingBy(area -> area.stop.id, mapping));
 	}
 
 	Map<Integer, VisumPtStopArea> visumStopAreas() {
