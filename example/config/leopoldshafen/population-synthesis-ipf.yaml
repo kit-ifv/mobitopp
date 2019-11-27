@@ -8,15 +8,15 @@ commuterTicket: config/leopoldshafen/parameters/TransitPassParameter.txt
 dataSource: !file
   demandDataFolder: output/demand-data-local
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
-  attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
+  attractivityDataFile: data/leopoldshafen/leopoldshafen-Attractivities.csv
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
 demographyData: 
-  age_f: data/leopoldshafen/leopoldshafen_Demography.csv
-  age_m: data/leopoldshafen/leopoldshafen_Demography.csv
-  hhtyp: data/leopoldshafen/leopoldshafen_Demography.csv
-  job: data/leopoldshafen/leopoldshafen_Demography.csv
+  age_f: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
+  age_m: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
+  hhtyp: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
+  job: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
 #numberOfZones: 2147483647
 panelData: data/leopoldshafen/population.csv
 resultFolder: results/population-synthesis
