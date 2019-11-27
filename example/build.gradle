@@ -11,13 +11,13 @@ test {
     useJUnitPlatform()
 }
 
-task runPopulationSynthesis(type: JavaExec) {
-    args = ['config/leopoldshafen/population-synthesis.yaml']
+task runPopulationSynthesisIpf(type: JavaExec) {
+    args = ['config/leopoldshafen/population-synthesis-ipf.yaml']
     main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisExample"
 }
 
-task runSimulation(type: JavaExec, dependsOn: compileJava) {
-    args = ['config/leopoldshafen/simulation.yaml']
+task runSimulationIpf(type: JavaExec, dependsOn: compileJava) {
+    args = ['config/leopoldshafen/simulation-ipf.yaml']
     main = "edu.kit.ifv.mobitopp.simulation.SimulationExample"
 }
 

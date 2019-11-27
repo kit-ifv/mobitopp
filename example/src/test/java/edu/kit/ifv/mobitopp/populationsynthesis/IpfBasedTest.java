@@ -44,11 +44,11 @@ public class IpfBasedTest {
 
   private static void createPopulation() throws Exception {
     PopulationSynthesisIpf
-        .startSynthesis(new File("config/leopoldshafen/population-synthesis.yaml"));
+        .startSynthesis(new File("config/leopoldshafen/population-synthesis-ipf.yaml"));
   }
 
   private static void simulatePopulation() throws IOException {
-    SimulationExample.startSimulation(new File("config/leopoldshafen/simulation.yaml"));
+    SimulationExample.startSimulation(new File("config/leopoldshafen/simulation-ipf.yaml"));
   }
 
   @ParameterizedTest(name="{0}")

@@ -1,7 +1,7 @@
 dataSource: !file
   demandDataFolder: output/demand-data-local
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
-  attractivityDataFile: data/leopoldshafen/leopoldshafen_Attractivities.csv
+  attractivityDataFile: data/leopoldshafen/leopoldshafen-Attractivities.csv
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
