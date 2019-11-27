@@ -14,6 +14,7 @@ public abstract class DefaultMappings {
   private static DynamicTypeMapping createNormalModes() {
     DynamicTypeMapping types = new DynamicTypeMapping();
     types.add(Mode.BIKE, TravelTimeMatrixType.bike);
+    types.add(Mode.BIKESHARING, TravelTimeMatrixType.bike);
     types.add(Mode.CAR, TravelTimeMatrixType.car);
     types.add(Mode.CARSHARING_FREE, TravelTimeMatrixType.car);
     types.add(Mode.CARSHARING_STATION, TravelTimeMatrixType.car);
