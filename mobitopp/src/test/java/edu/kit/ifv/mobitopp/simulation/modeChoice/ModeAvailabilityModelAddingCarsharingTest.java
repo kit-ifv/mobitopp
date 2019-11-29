@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 public class ModeAvailabilityModelAddingCarsharingTest {
@@ -39,7 +39,7 @@ public class ModeAvailabilityModelAddingCarsharingTest {
     person = setup.person;
     origin = setup.origin;
     destination = setup.destination;
-    allModes = EnumSet.of(Mode.PUBLICTRANSPORT, Mode.CARSHARING_FREE);
+    allModes = Set.of(StandardMode.PUBLICTRANSPORT, StandardMode.CARSHARING_FREE);
     when(origin.carSharing().isFreeFloatingCarSharingCarAvailable(any())).thenReturn(true);
 
     model = new ModeAvailabilityModelAddingCarsharing(impedance);

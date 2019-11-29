@@ -143,23 +143,23 @@ Likelihood ratio test : chisq = 1770 (p.value = <2e-16)
 			return  modeAttributes;
 		}
 
-	public Map<String,Double> parameterForMode(Mode mode) {
-	
-		switch(mode) {
-			case PEDESTRIAN:
-				return parameterWalk;
-			case BIKE:
-				return parameterBike;
-			case CAR:
-				return parameterCar;
-			case PASSENGER:
-				return parameterPassenger;
-			case PUBLICTRANSPORT:
-				return parameterPt;
-			default:
-				throw new AssertionError("invalid mode: " + mode);
+	public Map<String, Double> parameterForMode(Mode mode) {
+		if (Mode.PEDESTRIAN.equals(mode)) {
+			return parameterWalk;
 		}
-	
+		if (Mode.BIKE.equals(mode)) {
+			return parameterBike;
+		}
+		if (Mode.CAR.equals(mode)) {
+			return parameterCar;
+		}
+		if (Mode.PASSENGER.equals(mode)) {
+			return parameterPassenger;
+		}
+		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+			return parameterPt;
+		}
+		throw new AssertionError("invalid mode: " + mode);
 	}
 
 }

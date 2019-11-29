@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 public class ModeChoicePreferences 
 	implements Serializable
@@ -62,7 +63,7 @@ public class ModeChoicePreferences
 			
 			for(String entry : entries) {
 				String parts[] = entry.split("=");
-				Mode key = Mode.valueOf(parts[0].trim());
+				Mode key = StandardMode.valueOf(parts[0].trim());
 				Double value = Double.valueOf(parts[1].trim());
 				
 				values.put(key, value);
