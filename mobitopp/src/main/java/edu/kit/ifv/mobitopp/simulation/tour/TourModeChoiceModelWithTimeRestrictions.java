@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.TripfileWriter;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
@@ -93,7 +94,7 @@ public class TourModeChoiceModelWithTimeRestrictions
 
 		if (tour.isStartOfSubtour(nextActivity)) {
 			
-			augmentedChoiceSet.addAll(Mode.CHOICE_SET_FLEXIBLE);
+			augmentedChoiceSet.addAll(StandardChoiceSet.CHOICE_SET_FLEXIBLE);
 		}
 		
 		Set<Mode> feasibleChoiceSet = feasibleModesModel.feasibleModes(previousActivity, nextActivity, 0, augmentedChoiceSet);

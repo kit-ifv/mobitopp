@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
@@ -72,8 +73,8 @@ public class SimpleTourBasedModeChoiceModelTest {
 	@Test
 	public void testSingleModeChoiceSet() {
 		
-		Mode chosen0 = model.selectMode(null, null, Mode.MODESET_CAR_ONLY, 0.0);
-		Mode chosen1 = model.selectMode(null, null, Mode.MODESET_CAR_ONLY, 1.0);
+		Mode chosen0 = model.selectMode(null, null, StandardChoiceSet.MODESET_CAR_ONLY, 0.0);
+		Mode chosen1 = model.selectMode(null, null, StandardChoiceSet.MODESET_CAR_ONLY, 1.0);
 		
 		assertEquals(StandardMode.CAR, chosen0);
 		assertEquals(StandardMode.CAR, chosen1);
@@ -82,13 +83,13 @@ public class SimpleTourBasedModeChoiceModelTest {
 	@Test(expected = AssertionError.class)
 	public void testInvalidRandomNumberTooHigh() {
 		
-		model.selectMode(null, null, Mode.MODESET_CAR_ONLY, 2.0);
+		model.selectMode(null, null, StandardChoiceSet.MODESET_CAR_ONLY, 2.0);
 	}
 	
 	@Test(expected = AssertionError.class)
 	public void testInvalidRandomNumberTooLow() {
 		
-		model.selectMode(null, null, Mode.MODESET_CAR_ONLY, -0.1);
+		model.selectMode(null, null, StandardChoiceSet.MODESET_CAR_ONLY, -0.1);
 	}
 	
 	@Test

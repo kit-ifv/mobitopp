@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
 
@@ -44,7 +45,7 @@ public class DefaultWithinTourModeChoiceUtilityFunction
 		this(
 			modeChoiceParameter,
 			impedance,
-			makeUtilityFunctions(modeChoiceParameter, Mode.CHOICE_SET_FLEXIBLE)
+			makeUtilityFunctions(modeChoiceParameter, StandardChoiceSet.CHOICE_SET_FLEXIBLE)
 		);
 	}
 

@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
 
 public class DefaultTourModeChoiceUtilityFunction
@@ -33,7 +34,7 @@ public class DefaultTourModeChoiceUtilityFunction
 		this.parameter = modeChoiceParameter;
 		this.impedance = impedance;
 
-		this.modes = Collections.unmodifiableCollection(Mode.CHOICE_SET_FULL);
+		this.modes = Collections.unmodifiableCollection(StandardChoiceSet.CHOICE_SET_FULL);
 
 		this.modeUtilityFunctions = Collections.unmodifiableMap(makeUtilityFunctions(this.parameter));
 	}

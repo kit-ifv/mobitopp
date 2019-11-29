@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
@@ -53,7 +54,7 @@ public class DemandSimulatorTour
 					activityDurationRandomizer,
 					tripFactory, 
 					rescheduling,
-					Mode.CHOICE_SET_FULL,
+					StandardChoiceSet.CHOICE_SET_FULL,
 					initialState, 
 					context
 			);
