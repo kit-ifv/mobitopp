@@ -15,8 +15,8 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -46,7 +46,7 @@ public class PrivateCarTripTest {
     location = setup.location;
     currentTime = setup.currentTime;
     results = setup.results;
-    when(trip.mode()).thenReturn(Mode.CAR);
+    when(trip.mode()).thenReturn(StandardMode.CAR);
   }
 
   @Test

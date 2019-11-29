@@ -9,24 +9,6 @@ import java.util.Set;
 
 public interface Mode {
 	
-	public static Mode UNDEFINED = StandardMode.UNDEFINED;
-	public static Mode UNKNOWN = StandardMode.UNKNOWN;
-	public static Mode BIKE = StandardMode.BIKE;
-	public static Mode CAR = StandardMode.CAR;
-	public static Mode PASSENGER = StandardMode.PASSENGER;
-	public static Mode PEDESTRIAN = StandardMode.PEDESTRIAN;
-	public static Mode PUBLICTRANSPORT = StandardMode.PUBLICTRANSPORT;
-	public static Mode TRUCK = StandardMode.TRUCK;
-	public static Mode PARK_AND_RIDE = StandardMode.PARK_AND_RIDE;
-	public static Mode TAXI = StandardMode.TAXI;
-	public static Mode CARSHARING_STATION = StandardMode.CARSHARING_STATION;
-	public static Mode CARSHARING_FREE = StandardMode.CARSHARING_FREE;
-	public static Mode PEDELEC = StandardMode.PEDELEC;
-	public static Mode BIKESHARING = StandardMode.BIKESHARING;
-	public static Mode RIDE_POOLING = StandardMode.RIDE_POOLING;
-	public static Mode RIDE_HAILING = StandardMode.RIDE_HAILING;
-	public static Mode PREMIUM_RIDE_HAILING = StandardMode.PREMIUM_RIDE_HAILING;
-	
 	public static final Set<Mode>	CHOICE_SET_FULL = Collections.unmodifiableSet(EnumSet.of(
 																														StandardMode.CAR,
 																														StandardMode.PASSENGER,

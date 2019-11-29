@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ImpedanceLocalData implements ImpedanceIfc {
@@ -44,7 +45,7 @@ public class ImpedanceLocalData implements ImpedanceIfc {
 
   @Override
   public float getTravelCost(ZoneId origin, ZoneId destination, Mode mode, Time date) {
-    if(mode == Mode.BIKE || mode == Mode.PASSENGER || mode == Mode.PEDESTRIAN) {
+    if(mode == StandardMode.BIKE || mode == StandardMode.PASSENGER || mode == StandardMode.PEDESTRIAN) {
     	return 0.0f;
     }
     return matrices.travelCostFor(mode, date).get(origin, destination);

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 public class UncorrelatedModeChoicePreferenceCreator 
 	implements ModeChoicePreferenceCreator {
@@ -30,11 +31,11 @@ public class UncorrelatedModeChoicePreferenceCreator
 		
 		Map<Mode,Double> prefs = new LinkedHashMap<Mode,Double>();
 		
-		prefs.put(Mode.CAR, 						sd_cardriver*random.nextGaussian());
-		prefs.put(Mode.PASSENGER, 			sd_carpassenger*random.nextGaussian());
-		prefs.put(Mode.PEDESTRIAN, 			sd_walking*random.nextGaussian());
-		prefs.put(Mode.BIKE, 						sd_cycling*random.nextGaussian());
-		prefs.put(Mode.PUBLICTRANSPORT, sd_publictransport*random.nextGaussian());
+		prefs.put(StandardMode.CAR, 						sd_cardriver*random.nextGaussian());
+		prefs.put(StandardMode.PASSENGER, 			sd_carpassenger*random.nextGaussian());
+		prefs.put(StandardMode.PEDESTRIAN, 			sd_walking*random.nextGaussian());
+		prefs.put(StandardMode.BIKE, 						sd_cycling*random.nextGaussian());
+		prefs.put(StandardMode.PUBLICTRANSPORT, sd_publictransport*random.nextGaussian());
 	
 		return new ModeChoicePreferences(prefs);
 	}

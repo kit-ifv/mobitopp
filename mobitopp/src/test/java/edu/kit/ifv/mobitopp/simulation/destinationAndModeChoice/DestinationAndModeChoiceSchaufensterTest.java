@@ -19,12 +19,13 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 
 public class DestinationAndModeChoiceSchaufensterTest {
 
-	private static final Mode chosenMode = Mode.PUBLICTRANSPORT;
+	private static final Mode chosenMode = StandardMode.PUBLICTRANSPORT;
 	private ActivityType activityType;
 	private ModeAvailabilityModel modeAvailabilityModel;
 	private DestinationAndModeChoiceUtility utilityFunction;
@@ -90,10 +91,10 @@ public class DestinationAndModeChoiceSchaufensterTest {
 	}
 
 	private Set<Mode> filteredChoiceSet() {
-		return fullChoiceSet.stream().filter(mode -> Mode.CAR != mode).collect(toSet());
+		return fullChoiceSet.stream().filter(mode -> StandardMode.CAR != mode).collect(toSet());
 	}
 
 	protected Set<Mode> reasonableTimeChoiceSet() {
-		return fullChoiceSet.stream().filter(mode -> Mode.BIKE != mode).collect(toSet());
+		return fullChoiceSet.stream().filter(mode -> StandardMode.BIKE != mode).collect(toSet());
 	}
 }

@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixType;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedCostMatrix;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix> {
@@ -24,15 +25,15 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 
 	private static Map<Mode, CostMatrixType> modeToTypes() {
 		HashMap<Mode, CostMatrixType> types = new HashMap<>();
-		types.put(Mode.BIKESHARING, CostMatrixType.bikesharing);
-		types.put(Mode.CAR, CostMatrixType.car);
-		types.put(Mode.PUBLICTRANSPORT, CostMatrixType.publictransport);
-		types.put(Mode.TAXI, CostMatrixType.taxi);
-    types.put(Mode.PARK_AND_RIDE, CostMatrixType.park_and_ride);
-    types.put(Mode.RIDE_HAILING, CostMatrixType.ride_hailing);
-    types.put(Mode.PREMIUM_RIDE_HAILING, CostMatrixType.premium_ride_hailing);
-    types.put(Mode.RIDE_POOLING, CostMatrixType.ride_pooling);
-    types.put(Mode.TRUCK, CostMatrixType.truck);
+		types.put(StandardMode.BIKESHARING, CostMatrixType.bikesharing);
+		types.put(StandardMode.CAR, CostMatrixType.car);
+		types.put(StandardMode.PUBLICTRANSPORT, CostMatrixType.publictransport);
+		types.put(StandardMode.TAXI, CostMatrixType.taxi);
+    types.put(StandardMode.PARK_AND_RIDE, CostMatrixType.park_and_ride);
+    types.put(StandardMode.RIDE_HAILING, CostMatrixType.ride_hailing);
+    types.put(StandardMode.PREMIUM_RIDE_HAILING, CostMatrixType.premium_ride_hailing);
+    types.put(StandardMode.RIDE_POOLING, CostMatrixType.ride_pooling);
+    types.put(StandardMode.TRUCK, CostMatrixType.truck);
 		return types;
 	}
 

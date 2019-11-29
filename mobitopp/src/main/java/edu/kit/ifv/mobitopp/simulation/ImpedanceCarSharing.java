@@ -56,8 +56,8 @@ public class ImpedanceCarSharing
 	
   @Override
   public float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date) {
-    if (mode == Mode.CARSHARING_FREE) {
-    	float time = this.impedance.getTravelTime(origin, destination, Mode.CAR, date);
+    if (mode == StandardMode.CARSHARING_FREE) {
+    	float time = this.impedance.getTravelTime(origin, destination, StandardMode.CAR, date);
     
     	float parkingStress = getParkingStress(destination, date);
     
@@ -70,8 +70,8 @@ public class ImpedanceCarSharing
     
     	return time;
     
-    } else if (mode == Mode.CARSHARING_STATION) {
-    	float time = this.impedance.getTravelTime(origin, destination, Mode.CAR, date);
+    } else if (mode == StandardMode.CARSHARING_STATION) {
+    	float time = this.impedance.getTravelTime(origin, destination, StandardMode.CAR, date);
     
     	float parkingStress = getParkingStress(destination, date);
     
@@ -92,10 +92,10 @@ public class ImpedanceCarSharing
 
   @Override
   public float getTravelCost(ZoneId origin, ZoneId destination, Mode mode, Time date) {
-    if (mode == Mode.CARSHARING_STATION) {
+    if (mode == StandardMode.CARSHARING_STATION) {
     
     	float distanceKm = getDistance(origin, destination)/1000.0f;
-    	float timeMinutes = getTravelTime(origin, destination, Mode.CAR, date);
+    	float timeMinutes = getTravelTime(origin, destination, StandardMode.CAR, date);
     
     	float billableDistanceKm = (float) Math.ceil(distanceKm);
     	float billableTimeHours = (float) Math.ceil(timeMinutes/60.0);
@@ -104,9 +104,9 @@ public class ImpedanceCarSharing
     				+ CARSHARING_COST_STATION_BASED_EUR_PER_KM*billableDistanceKm
     				+ CARSHARING_COST_STATION_BASED_EUR_PER_HOUR*billableTimeHours;
     
-    } else if (mode == Mode.CARSHARING_FREE) {
+    } else if (mode == StandardMode.CARSHARING_FREE) {
     
-    	float time = getTravelTime(origin, destination, Mode.CAR, date);
+    	float time = getTravelTime(origin, destination, StandardMode.CAR, date);
     
     	float cost = freeFloatingCost(time);
     

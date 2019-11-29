@@ -21,7 +21,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.TaggedTravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TimeSpan;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixId;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 
 public class TravelTimeMatrixCacheTest {
@@ -43,8 +43,8 @@ public class TravelTimeMatrixCacheTest {
     configureMatrix(TravelTimeMatrixType.bike, bikeMatrix);
     TravelTimeMatrixCache cache = newCache();
 
-    TravelTimeMatrix cachedCarMatrix = cache.matrixFor(Mode.CAR, SimpleTime.start);
-    TravelTimeMatrix cachedBikeMatrix = cache.matrixFor(Mode.BIKE, SimpleTime.start);
+    TravelTimeMatrix cachedCarMatrix = cache.matrixFor(StandardMode.CAR, SimpleTime.start);
+    TravelTimeMatrix cachedBikeMatrix = cache.matrixFor(StandardMode.BIKE, SimpleTime.start);
 
     assertAll(() -> assertThat(cachedCarMatrix, is(sameInstance(carMatrix))),
         () -> assertThat(cachedBikeMatrix, is(sameInstance(bikeMatrix))));
@@ -55,7 +55,7 @@ public class TravelTimeMatrixCacheTest {
     TravelTimeMatrixCache cache = newCache();
 
     assertThrows(IllegalArgumentException.class,
-        () -> cache.matrixFor(Mode.RIDE_HAILING, SimpleTime.start));
+        () -> cache.matrixFor(StandardMode.RIDE_HAILING, SimpleTime.start));
   }
 
   private void configureMatrix(TravelTimeMatrixType matrixType, TravelTimeMatrix matrix)
@@ -68,8 +68,8 @@ public class TravelTimeMatrixCacheTest {
 
   private TravelTimeMatrixCache newCache() {
     DynamicTypeMapping types = new DynamicTypeMapping();
-    types.add(Mode.BIKE, TravelTimeMatrixType.bike);
-    types.add(Mode.CAR, TravelTimeMatrixType.car);
+    types.add(StandardMode.BIKE, TravelTimeMatrixType.bike);
+    types.add(StandardMode.CAR, TravelTimeMatrixType.car);
     return new TravelTimeMatrixCache(configuration, types);
   }
 }

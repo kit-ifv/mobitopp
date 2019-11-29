@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
@@ -102,7 +103,7 @@ public class WithinTourModeChoiceAttributes
 					double age_61to70 					= person.age() >= 61  && person.age() <= 70 ? 1 : 0;
 					double age_71plus 					= person.age() >= 71                           ? 1 : 0;
 					
-					Mode previousMode = tour.hasPreviousTour() ? tour.previousTour().mode() : Mode.UNDEFINED;
+					Mode previousMode = tour.hasPreviousTour() ? tour.previousTour().mode() : StandardMode.UNDEFINED;
 					double initialTour = tour.hasPreviousTour() ? 0.0 : 1.0;
 					
 					boolean withinTour = tour.lastActivity() != nextActivity;
@@ -201,17 +202,17 @@ public class WithinTourModeChoiceAttributes
 					attributes.put("WITHINTOUR",  				withinTour ? 1.0 : 0.0);
 					
 					
-					attributes.put("TOURMODE_WALK",  				tourMode == Mode.PEDESTRIAN ? 1.0 : 0.0);
-					attributes.put("TOURMODE_BIKE",  				tourMode == Mode.BIKE ? 1.0 : 0.0);
-					attributes.put("TOURMODE_CAR",  				tourMode == Mode.CAR ? 1.0 : 0.0);
-					attributes.put("TOURMODE_PASSENGER", 		tourMode == Mode.PASSENGER ? 1.0 : 0.0);
-					attributes.put("TOURMODE_PT",  					tourMode == Mode.PUBLICTRANSPORT ? 1.0 : 0.0);
+					attributes.put("TOURMODE_WALK",  				tourMode == StandardMode.PEDESTRIAN ? 1.0 : 0.0);
+					attributes.put("TOURMODE_BIKE",  				tourMode == StandardMode.BIKE ? 1.0 : 0.0);
+					attributes.put("TOURMODE_CAR",  				tourMode == StandardMode.CAR ? 1.0 : 0.0);
+					attributes.put("TOURMODE_PASSENGER", 		tourMode == StandardMode.PASSENGER ? 1.0 : 0.0);
+					attributes.put("TOURMODE_PT",  					tourMode == StandardMode.PUBLICTRANSPORT ? 1.0 : 0.0);
 					
-					attributes.put("TOURMODE_WALK_WITHINTOUR",  		withinTour && tourMode == Mode.PEDESTRIAN ? 1.0 : 0.0);
-					attributes.put("TOURMODE_BIKE_WITHINTOUR",  		withinTour && tourMode == Mode.BIKE ? 1.0 : 0.0);
-					attributes.put("TOURMODE_CAR_WITHINTOUR",  			withinTour && tourMode == Mode.CAR ? 1.0 : 0.0);
-					attributes.put("TOURMODE_PASSENGER_WITHINTOUR", withinTour && tourMode == Mode.PASSENGER ? 1.0 : 0.0);
-					attributes.put("TOURMODE_PT_WITHINTOUR",  			withinTour && tourMode == Mode.PUBLICTRANSPORT ? 1.0 : 0.0);
+					attributes.put("TOURMODE_WALK_WITHINTOUR",  		withinTour && tourMode == StandardMode.PEDESTRIAN ? 1.0 : 0.0);
+					attributes.put("TOURMODE_BIKE_WITHINTOUR",  		withinTour && tourMode == StandardMode.BIKE ? 1.0 : 0.0);
+					attributes.put("TOURMODE_CAR_WITHINTOUR",  			withinTour && tourMode == StandardMode.CAR ? 1.0 : 0.0);
+					attributes.put("TOURMODE_PASSENGER_WITHINTOUR", withinTour && tourMode == StandardMode.PASSENGER ? 1.0 : 0.0);
+					attributes.put("TOURMODE_PT_WITHINTOUR",  			withinTour && tourMode == StandardMode.PUBLICTRANSPORT ? 1.0 : 0.0);
 					
 					Map<Mode,Map<String,Double>> modeAttributes = new LinkedHashMap<Mode,Map<String,Double>>();
 			
@@ -221,7 +222,7 @@ public class WithinTourModeChoiceAttributes
 			
 						double time 	= impedance.getTravelTime(sourceId, destinationId, mode, date);
 			
-						double cost 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
+						double cost 	= (mode==StandardMode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
 															: impedance.getTravelCost(sourceId, destinationId, mode, date);
 						
 			

@@ -18,8 +18,8 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
@@ -52,7 +52,7 @@ public class CarSharingFreeFloatingTripTest {
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
-    when(data.mode()).thenReturn(Mode.CARSHARING_FREE);
+    when(data.mode()).thenReturn(StandardMode.CARSHARING_FREE);
     when(car.id()).thenReturn(0);
   }
 
@@ -152,7 +152,7 @@ public class CarSharingFreeFloatingTripTest {
   }
 
   private void configureMode() {
-    when(data.mode()).thenReturn(Mode.CARSHARING_FREE);
+    when(data.mode()).thenReturn(StandardMode.CARSHARING_FREE);
   }
 
   private void configureCarUsage() {

@@ -27,6 +27,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.Person_Stub;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.Activity;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -66,9 +67,9 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 		utility = new DestinationAndModeChoiceUtilitySchaufenster(impedance, parameterFile());
 
 		modes = new TreeSet<Mode>();
-		modes.add(Mode.PEDESTRIAN);
+		modes.add(StandardMode.PEDESTRIAN);
 
-		activity1.setMode(Mode.PEDESTRIAN);
+		activity1.setMode(StandardMode.PEDESTRIAN);
 		zones = MockedZones.create();
 	}
 	
@@ -119,9 +120,9 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 																																				someZone(), otherZone());
 
 		assertEquals(1, result.size());
-		assertTrue(result.containsKey(Mode.PEDESTRIAN));
+		assertTrue(result.containsKey(StandardMode.PEDESTRIAN));
 
-		assertEquals(1.00, result.get(Mode.PEDESTRIAN), EPSILON);
+		assertEquals(1.00, result.get(StandardMode.PEDESTRIAN), EPSILON);
 	}
 
 	@Test
@@ -134,9 +135,9 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 		assertFalse(person_noTicket.hasCommuterTicket());
 
 		ZoneId zoneId = new ZoneId("0", 0);
-    assertEquals(2.0, impedance.getTravelCost(zoneId,zoneId, Mode.PUBLICTRANSPORT, (Time)null), EPSILON);
+    assertEquals(2.0, impedance.getTravelCost(zoneId,zoneId, StandardMode.PUBLICTRANSPORT, (Time)null), EPSILON);
 
-		modes.add(Mode.PUBLICTRANSPORT);
+		modes.add(StandardMode.PUBLICTRANSPORT);
 
 		assertEquals(2, modes.size());
 
@@ -150,17 +151,17 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 		assertEquals(2, result.size());
 		assertEquals(2, result_noTicket.size());
 
-		assertTrue(result.containsKey(Mode.PEDESTRIAN));
-		assertTrue(result.containsKey(Mode.PUBLICTRANSPORT));
+		assertTrue(result.containsKey(StandardMode.PEDESTRIAN));
+		assertTrue(result.containsKey(StandardMode.PUBLICTRANSPORT));
 
-		assertTrue(result_noTicket.containsKey(Mode.PEDESTRIAN));
-		assertTrue(result_noTicket.containsKey(Mode.PUBLICTRANSPORT));
+		assertTrue(result_noTicket.containsKey(StandardMode.PEDESTRIAN));
+		assertTrue(result_noTicket.containsKey(StandardMode.PUBLICTRANSPORT));
 
-		assertEquals(1.00, result.get(Mode.PEDESTRIAN), EPSILON);
-		assertEquals(1.00, result_noTicket.get(Mode.PEDESTRIAN), EPSILON);
+		assertEquals(1.00, result.get(StandardMode.PEDESTRIAN), EPSILON);
+		assertEquals(1.00, result_noTicket.get(StandardMode.PEDESTRIAN), EPSILON);
 
-		assertEquals(2.50, result.get(Mode.PUBLICTRANSPORT), EPSILON);
-		assertEquals(-2.50, result_noTicket.get(Mode.PUBLICTRANSPORT), EPSILON);
+		assertEquals(2.50, result.get(StandardMode.PUBLICTRANSPORT), EPSILON);
+		assertEquals(-2.50, result_noTicket.get(StandardMode.PUBLICTRANSPORT), EPSILON);
 	}
 
 }

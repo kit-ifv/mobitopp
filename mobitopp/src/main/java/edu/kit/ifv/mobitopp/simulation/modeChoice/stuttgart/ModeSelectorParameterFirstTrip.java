@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
@@ -449,13 +450,13 @@ public class ModeSelectorParameterFirstTrip
 
 		Map<Mode,Map<String,Double>> parameterForMode = new LinkedHashMap<Mode,Map<String,Double>>();
 
-		parameterForMode.put(Mode.PEDESTRIAN, 				Collections.unmodifiableMap(parameterWalk));
-		parameterForMode.put(Mode.BIKE, 							Collections.unmodifiableMap(parameterBike));
-		parameterForMode.put(Mode.CAR, 								Collections.unmodifiableMap(parameterCar));
-		parameterForMode.put(Mode.PASSENGER,		 			Collections.unmodifiableMap(parameterPassenger));
-		parameterForMode.put(Mode.PUBLICTRANSPORT, 		Collections.unmodifiableMap(parameterPt));
-		parameterForMode.put(Mode.CARSHARING_STATION, Collections.unmodifiableMap(parameterCarsharingStation));
-		parameterForMode.put(Mode.CARSHARING_FREE, 		Collections.unmodifiableMap(parameterCarsharingFree));
+		parameterForMode.put(StandardMode.PEDESTRIAN, 				Collections.unmodifiableMap(parameterWalk));
+		parameterForMode.put(StandardMode.BIKE, 							Collections.unmodifiableMap(parameterBike));
+		parameterForMode.put(StandardMode.CAR, 								Collections.unmodifiableMap(parameterCar));
+		parameterForMode.put(StandardMode.PASSENGER,		 			Collections.unmodifiableMap(parameterPassenger));
+		parameterForMode.put(StandardMode.PUBLICTRANSPORT, 		Collections.unmodifiableMap(parameterPt));
+		parameterForMode.put(StandardMode.CARSHARING_STATION, Collections.unmodifiableMap(parameterCarsharingStation));
+		parameterForMode.put(StandardMode.CARSHARING_FREE, 		Collections.unmodifiableMap(parameterCarsharingFree));
 
 		return parameterForMode;
 	}
@@ -583,7 +584,7 @@ public class ModeSelectorParameterFirstTrip
 
 			double time 	= impedance.getTravelTime(originId, destinationId, mode, date);
 
-			double cost_km 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
+			double cost_km 	= (mode==StandardMode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
 												: impedance.getTravelCost(originId, destinationId, mode, date)/distance;
 
 		 	attrib.put("TIME", 		time);

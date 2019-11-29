@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
@@ -49,46 +50,46 @@ public class ModeAvailabilityModelAddingCarsharing
 				if ( person.hasDrivingLicense() && person.household().getNumberOfAvailableCars() == 0) {
 	
 					if( currentZone.carSharing().isStationBasedCarSharingCarAvailable((CarSharingPerson)person)) {
-						choiceSet.add(Mode.CARSHARING_STATION);
+						choiceSet.add(StandardMode.CARSHARING_STATION);
 					}
 
 					if( currentZone.carSharing().isFreeFloatingCarSharingCarAvailable((CarSharingPerson)person)) {
-						choiceSet.add(Mode.CARSHARING_FREE);
+						choiceSet.add(StandardMode.CARSHARING_FREE);
 					}
 				}
 	
 				if(previousActivity.isModeSet()
-						&& previousActivity.mode()==Mode.CARSHARING_FREE && person.hasParkedCar()) {
+						&& previousActivity.mode()==StandardMode.CARSHARING_FREE && person.hasParkedCar()) {
 	
 					assert !currentZone.carSharing().isFreeFloatingZone((CarSharingCar)person.whichCar());
 
-					choiceSet = Collections.singleton(Mode.CARSHARING_FREE);
+					choiceSet = Collections.singleton(StandardMode.CARSHARING_FREE);
 				} 
 			} else {
 	
 				Mode previousMode = previousActivity.mode();
 	
-				if(previousMode==Mode.CARSHARING_STATION) {
+				if(previousMode==StandardMode.CARSHARING_STATION) {
 
-						choiceSet = Collections.singleton(Mode.CARSHARING_STATION);
+						choiceSet = Collections.singleton(StandardMode.CARSHARING_STATION);
 
-				} else if(previousMode==Mode.CARSHARING_FREE) {
+				} else if(previousMode==StandardMode.CARSHARING_FREE) {
 
 					if(person.hasParkedCar()) {
 		
 						assert !currentZone.carSharing().isFreeFloatingZone((CarSharingCar)person.whichCar());
 		
-						choiceSet = Collections.singleton(Mode.CARSHARING_FREE);
+						choiceSet = Collections.singleton(StandardMode.CARSHARING_FREE);
 
 					} 
 					else {
-						choiceSet.remove(Mode.CAR);
-						choiceSet.remove(Mode.BIKE);
+						choiceSet.remove(StandardMode.CAR);
+						choiceSet.remove(StandardMode.BIKE);
 		
 						assert person instanceof CarSharingPerson : person.getClass();
 		
 						if(currentZone.carSharing().isFreeFloatingCarSharingCarAvailable((CarSharingPerson)person)) {
-							choiceSet.add(Mode.CARSHARING_FREE);
+							choiceSet.add(StandardMode.CARSHARING_FREE);
 						}
 					}
 				} 

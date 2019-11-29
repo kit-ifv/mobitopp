@@ -60,11 +60,11 @@ public class ModeAvailabilityModelAddingCarsharingTest {
     configureCurrentActivity(ActivityType.WORK);
     configureNextActivity(ActivityType.HOME);
     when(person.hasParkedCar()).thenReturn(true);
-    when(previousActivity.mode()).thenReturn(Mode.CARSHARING_FREE);
+    when(previousActivity.mode()).thenReturn(StandardMode.CARSHARING_FREE);
 
     Set<Mode> filteredModes = filterModes();
 
-    assertThat(filteredModes, contains(Mode.CARSHARING_FREE));
+    assertThat(filteredModes, contains(StandardMode.CARSHARING_FREE));
   }
 
   @Test
@@ -73,11 +73,11 @@ public class ModeAvailabilityModelAddingCarsharingTest {
     configureNextActivity(ActivityType.WORK);
     when(person.hasParkedCar()).thenReturn(true);
     when(previousActivity.isModeSet()).thenReturn(true);
-    when(previousActivity.mode()).thenReturn(Mode.CARSHARING_FREE);
+    when(previousActivity.mode()).thenReturn(StandardMode.CARSHARING_FREE);
 
     Set<Mode> filteredModes = filterModes();
 
-    assertThat(filteredModes, contains(Mode.CARSHARING_FREE));
+    assertThat(filteredModes, contains(StandardMode.CARSHARING_FREE));
   }
 
   public Set<Mode> filterModes() {

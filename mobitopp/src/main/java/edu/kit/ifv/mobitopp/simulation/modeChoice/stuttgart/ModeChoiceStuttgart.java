@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
@@ -46,13 +47,13 @@ public class ModeChoiceStuttgart
 	protected Map<Mode,LinearUtilityFunction> makeUtilityFunctions() {
 
 		Collection<Mode> modes = Arrays.asList(new Mode[] { 
-															Mode.PEDESTRIAN ,
-															Mode.PUBLICTRANSPORT,
-															Mode.PASSENGER,
-															Mode.BIKE,
-															Mode.CAR,
-															Mode.CARSHARING_STATION,
-															Mode.CARSHARING_FREE
+															StandardMode.PEDESTRIAN ,
+															StandardMode.PUBLICTRANSPORT,
+															StandardMode.PASSENGER,
+															StandardMode.BIKE,
+															StandardMode.CAR,
+															StandardMode.CARSHARING_STATION,
+															StandardMode.CARSHARING_FREE
 														});
 
 		Map<Mode,LinearUtilityFunction> utilityFunctions = new LinkedHashMap<Mode,LinearUtilityFunction>();
@@ -97,13 +98,13 @@ public class ModeChoiceStuttgart
 	) {
 
 		Set<Mode> modes = new LinkedHashSet<>(Arrays.asList(new Mode[] { 
-															Mode.PEDESTRIAN ,
-															Mode.PUBLICTRANSPORT,
-															Mode.PASSENGER,
-															Mode.BIKE,
-															Mode.CAR,
-															Mode.CARSHARING_STATION,
-															Mode.CARSHARING_FREE
+															StandardMode.PEDESTRIAN ,
+															StandardMode.PUBLICTRANSPORT,
+															StandardMode.PASSENGER,
+															StandardMode.BIKE,
+															StandardMode.CAR,
+															StandardMode.CARSHARING_STATION,
+															StandardMode.CARSHARING_FREE
 														}));
 
 		modes.retainAll(choiceSet);

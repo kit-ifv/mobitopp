@@ -7,6 +7,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -33,7 +34,7 @@ public class PublicTransportTripFactory implements TripFactory {
   public Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity) {
-    if (Mode.PUBLICTRANSPORT.equals(mode)) {
+    if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
       return doCreateTrip(person, impedance, mode, previousActivity, nextActivity);
     }
     return base.createTrip(person, impedance, mode, previousActivity, nextActivity);

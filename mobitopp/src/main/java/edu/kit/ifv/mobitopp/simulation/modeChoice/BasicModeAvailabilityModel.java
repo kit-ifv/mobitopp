@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -43,17 +44,17 @@ public class BasicModeAvailabilityModel
 	) {
 
 		Set<Mode> choiceSet = new LinkedHashSet<Mode>(allModes);
-		choiceSet.remove(Mode.CARSHARING_FREE);
-		choiceSet.remove(Mode.CARSHARING_STATION);
+		choiceSet.remove(StandardMode.CARSHARING_FREE);
+		choiceSet.remove(StandardMode.CARSHARING_STATION);
 
 
 		if (isAtHome(previousActivity)) {
 			if(!carAvailable(person)) {
-				choiceSet.remove(Mode.CAR);
+				choiceSet.remove(StandardMode.CAR);
 			} 
 
 			if(!person.hasBike()) {
-				choiceSet.remove(Mode.BIKE);
+				choiceSet.remove(StandardMode.BIKE);
 			}
 
 		} else {
@@ -89,7 +90,7 @@ public class BasicModeAvailabilityModel
 		Set<Mode> choiceSet = new LinkedHashSet<>(
 				availableModes(person, origin, previousActivity, proposedChoiceSet));
 
-		if (choiceSet.contains(Mode.CAR)) {
+		if (choiceSet.contains(StandardMode.CAR)) {
 
 			if (isAtHome(previousActivity)) {
 
@@ -110,7 +111,7 @@ public class BasicModeAvailabilityModel
 				if (range < distanceKm*DIVERSION_FACTOR
 						&& range < distanceKm + RANGE_BUFFER_KM
 				) {
-					choiceSet.remove(Mode.CAR);
+					choiceSet.remove(StandardMode.CAR);
 				}
 			}
 		}
@@ -147,7 +148,7 @@ public class BasicModeAvailabilityModel
 
 			if (time <= fastestTravelTime) {
 
-				if (time < fastestTravelTime || fastestMode == Mode.PASSENGER) {
+				if (time < fastestTravelTime || fastestMode == StandardMode.PASSENGER) {
 					fastestMode = mode;
 				} 
 

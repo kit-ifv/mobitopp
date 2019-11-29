@@ -7,6 +7,7 @@ import java.util.Set;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
 import edu.kit.ifv.mobitopp.util.logit.LogitModel;
@@ -39,8 +40,8 @@ public class DefaultWithinTourModeChoiceModel
 			return choiceSet.iterator().next();
 		}
 		
-		assert !choiceSet.contains(Mode.CAR) : choiceSet;
-		assert !choiceSet.contains(Mode.BIKE) : choiceSet;
+		assert !choiceSet.contains(StandardMode.CAR) : choiceSet;
+		assert !choiceSet.contains(StandardMode.BIKE) : choiceSet;
 		
 	
 		Map<Mode,Double> utilities 

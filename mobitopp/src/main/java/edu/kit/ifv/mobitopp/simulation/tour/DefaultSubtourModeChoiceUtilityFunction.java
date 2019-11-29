@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
 
 public class DefaultSubtourModeChoiceUtilityFunction
@@ -39,11 +40,11 @@ public class DefaultSubtourModeChoiceUtilityFunction
 	private static Set<Mode> modeChoiceSetForWithinTourModeChoice() {
 
 		Set<Mode> tmp = new LinkedHashSet<Mode>();
-		tmp.add(Mode.PEDESTRIAN);
-		tmp.add(Mode.BIKE);
-		tmp.add(Mode.CAR);
-		tmp.add(Mode.PASSENGER);
-		tmp.add(Mode.PUBLICTRANSPORT);
+		tmp.add(StandardMode.PEDESTRIAN);
+		tmp.add(StandardMode.BIKE);
+		tmp.add(StandardMode.CAR);
+		tmp.add(StandardMode.PASSENGER);
+		tmp.add(StandardMode.PUBLICTRANSPORT);
 
 		return Collections.unmodifiableSet(tmp);
 	}

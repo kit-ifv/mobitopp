@@ -287,7 +287,7 @@ public class AttractivityCalculatorCost
 
 	protected float getTravelTime(Mode mode, ZoneId origin, ZoneId destination, Time date) {
 		float travelTime = this.impedance.getTravelTime(origin, destination, mode, date);
-		return mode == Mode.PUBLICTRANSPORT ?  Math.min(1440.0f,travelTime) : travelTime;
+		return mode == StandardMode.PUBLICTRANSPORT ?  Math.min(1440.0f,travelTime) : travelTime;
 	}
 
 	protected float getTravelCost(
@@ -298,20 +298,20 @@ public class AttractivityCalculatorCost
 		boolean commmuterTicket
 	) {
 
-		if (mode == Mode.PEDESTRIAN || mode == Mode.BIKE) {
+		if (mode == StandardMode.PEDESTRIAN || mode == StandardMode.BIKE) {
 			return 0.0f;
 		}
 
-		if (mode == Mode.PUBLICTRANSPORT && commmuterTicket) {
+		if (mode == StandardMode.PUBLICTRANSPORT && commmuterTicket) {
 			return 0.0f;
 		}
 
-		if (mode == Mode.CAR) {
+		if (mode == StandardMode.CAR) {
 
 			return this.impedance.getTravelCost(origin, destination, mode, date);
 		}
 
-		if (mode == Mode.PUBLICTRANSPORT) {
+		if (mode == StandardMode.PUBLICTRANSPORT) {
 
 			return this.impedance.getTravelCost(origin, destination, mode, date);
 		}
@@ -326,18 +326,18 @@ public class AttractivityCalculatorCost
 		int duration
 	) {
 
-		if ( mode == Mode.PEDESTRIAN 
-				|| mode == Mode.BIKE 
-				|| mode == Mode.PUBLICTRANSPORT
-				|| mode == Mode.PASSENGER
+		if ( mode == StandardMode.PEDESTRIAN 
+				|| mode == StandardMode.BIKE 
+				|| mode == StandardMode.PUBLICTRANSPORT
+				|| mode == StandardMode.PASSENGER
 		) {
 			return 0.0f;
 		}
 
 
-		if (mode == Mode.CAR
-				|| mode == Mode.CARSHARING_STATION
-				|| mode == Mode.CARSHARING_FREE
+		if (mode == StandardMode.CAR
+				|| mode == StandardMode.CARSHARING_STATION
+				|| mode == StandardMode.CARSHARING_FREE
 		) {
 
 			float parkingCostPerMinute = this.impedance.getParkingCost(destination, date);

@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.tour;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 public class WithinTourModeChoiceParameterOnlyFlexibleModesAgeSexPurposeTourmodeWithintour 
 	extends WithinTourModeChoiceParameterOnlyFlexibleModesBase 
@@ -330,15 +331,15 @@ Likelihood ratio test : chisq = 98900 (p.value = <2e-16)
 	// Copied from TourModeChoiceParameterBase -- refactor?
 	@Override
 	public Map<String,Double> parameterForMode(Mode mode) {
-		assert mode != Mode.BIKE : mode;
-		assert mode != Mode.CAR : mode;
-		if (Mode.PEDESTRIAN.equals(mode)) {
+		assert mode != StandardMode.BIKE : mode;
+		assert mode != StandardMode.CAR : mode;
+		if (StandardMode.PEDESTRIAN.equals(mode)) {
 			return parameterWalk;
 		}
-		if (Mode.PASSENGER.equals(mode)) {
+		if (StandardMode.PASSENGER.equals(mode)) {
 			return parameterPassenger;
 		}
-		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+		if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
 			return parameterPt;
 		}
 		throw new AssertionError("invalid mode: " + mode);

@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
@@ -96,7 +97,7 @@ public class FeasibleModesWithTimeRestrictions implements FeasibleModesModel {
 			
 			if (time <= fastestTravelTime) {
 	
-				if (time < fastestTravelTime || fastestMode == Mode.PASSENGER) {
+				if (time < fastestTravelTime || fastestMode == StandardMode.PASSENGER) {
 					fastestMode = mode;
 				} 
 	

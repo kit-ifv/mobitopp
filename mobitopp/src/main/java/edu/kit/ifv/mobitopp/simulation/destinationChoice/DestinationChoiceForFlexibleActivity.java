@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.AttractivityCalculatorIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
@@ -65,7 +66,7 @@ public class DestinationChoiceForFlexibleActivity
 		Set<Mode> availableModes = new LinkedHashSet<Mode>(
 																this.modeAvailabilityModel.availableModes(person, currentZone, previousActivity)
 															);
-		availableModes.remove(Mode.PASSENGER);
+		availableModes.remove(StandardMode.PASSENGER);
 
 		Time startDate = previousActivity.calculatePlannedEndDate();
 

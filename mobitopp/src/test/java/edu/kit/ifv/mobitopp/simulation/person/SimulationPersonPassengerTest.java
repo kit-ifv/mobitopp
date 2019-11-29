@@ -46,6 +46,7 @@ import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
@@ -153,7 +154,7 @@ public class SimulationPersonPassengerTest {
     when(options.impedance()).thenReturn(impedance);
     when(household.homeZone()).thenReturn(zone);
     when(household.homeLocation()).thenReturn(someLocation());
-    when(tripData.mode()).thenReturn(Mode.PUBLICTRANSPORT);
+    when(tripData.mode()).thenReturn(StandardMode.PUBLICTRANSPORT);
     when(person.employment()).thenReturn(someEmploymentType);
     when(person.getId()).thenReturn(personId);
     when(firstActivity.calculatePlannedEndDate()).thenReturn(someTime());
@@ -182,7 +183,7 @@ public class SimulationPersonPassengerTest {
   private void configurePublicTransportTrip(SimulationPerson person) {
     PublicTransportTrip trip = createPublicTransportTrip(person);
     when(tripFactory
-        .createTrip(person, impedance, Mode.PUBLICTRANSPORT, firstActivity, firstActivity))
+        .createTrip(person, impedance, StandardMode.PUBLICTRANSPORT, firstActivity, firstActivity))
             .thenReturn(trip);
   }
 
@@ -238,7 +239,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void failToEnterFirstStopWithoutPublicTransportTrip() {
     when(person.currentTrip()).thenReturn(mockedTrip);
-    when(mockedTrip.mode()).thenReturn(Mode.CAR);
+    when(mockedTrip.mode()).thenReturn(StandardMode.CAR);
     SimulationPersonPassenger simulationPerson = newPerson();
 
     thrown.expect(IllegalArgumentException.class);
@@ -321,7 +322,7 @@ public class SimulationPersonPassengerTest {
   @Test
   public void createTrip() {
     SimulationPersonPassenger person = newPerson();
-    Mode mode = Mode.CAR;
+    Mode mode = StandardMode.CAR;
     Time startDate = someTime();
     float plannedDuration = 1.0f;
     ActivityIfc nextActivity = mock(ActivityIfc.class);
@@ -347,7 +348,7 @@ public class SimulationPersonPassengerTest {
     FinishedTrip finishedTrip = mock(FinishedTrip.class);
     SimulationPersonPassenger person = newPerson();
     when(person.currentTrip()).thenReturn(mockedTrip);
-    when(mockedTrip.mode()).thenReturn(Mode.CAR);
+    when(mockedTrip.mode()).thenReturn(StandardMode.CAR);
     when(mockedTrip.finish(currentDate, results)).thenReturn(finishedTrip);
     
     person.endTrip(impedance, rescheduling, currentDate);

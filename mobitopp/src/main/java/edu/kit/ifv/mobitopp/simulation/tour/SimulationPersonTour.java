@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
@@ -207,7 +208,7 @@ public class SimulationPersonTour
 	) {
 		Set<Mode> choiceSet = new LinkedHashSet<Mode>(this.modesInSimulation);
 		if (!passengerAsOption) {
-			choiceSet.remove(Mode.PASSENGER);
+			choiceSet.remove(StandardMode.PASSENGER);
 		}
 		
 		Mode mode = modeChoiceModel.selectMode( tour,
@@ -289,7 +290,7 @@ public class SimulationPersonTour
 		
 		Set<Mode> choiceSet = new LinkedHashSet<Mode>(this.modesInSimulation);
 		if (!passengerAsOption) {
-			choiceSet.remove(Mode.PASSENGER);
+			choiceSet.remove(StandardMode.PASSENGER);
 		}
 		
 		Zone origin = previousActivity.zone();

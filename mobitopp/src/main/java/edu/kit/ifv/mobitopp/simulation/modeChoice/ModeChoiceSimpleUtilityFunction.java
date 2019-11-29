@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
 
@@ -40,11 +41,11 @@ public class ModeChoiceSimpleUtilityFunction
 	private static Collection<Mode> universalModeSet() {
 
 		Collection<Mode> tmp = new ArrayList<Mode>();
-		tmp.add(Mode.PEDESTRIAN);
-		tmp.add(Mode.BIKE);
-		tmp.add(Mode.CAR);
-		tmp.add(Mode.PASSENGER);
-		tmp.add(Mode.PUBLICTRANSPORT);
+		tmp.add(StandardMode.PEDESTRIAN);
+		tmp.add(StandardMode.BIKE);
+		tmp.add(StandardMode.CAR);
+		tmp.add(StandardMode.PASSENGER);
+		tmp.add(StandardMode.PUBLICTRANSPORT);
 
 		return Collections.unmodifiableCollection(tmp);
 	}

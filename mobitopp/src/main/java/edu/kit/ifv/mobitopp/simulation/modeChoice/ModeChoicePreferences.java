@@ -21,11 +21,11 @@ public class ModeChoicePreferences
 	
 	private static ModeChoicePreferences createNopreferences() {
 		Map<Mode,Double> tmp = new LinkedHashMap<Mode,Double>();
-		tmp.put(Mode.CAR, 0.0);
-		tmp.put(Mode.PASSENGER, 0.0);
-		tmp.put(Mode.PEDESTRIAN, 0.0);
-		tmp.put(Mode.BIKE, 0.0);
-		tmp.put(Mode.PUBLICTRANSPORT, 0.0);
+		tmp.put(StandardMode.CAR, 0.0);
+		tmp.put(StandardMode.PASSENGER, 0.0);
+		tmp.put(StandardMode.PEDESTRIAN, 0.0);
+		tmp.put(StandardMode.BIKE, 0.0);
+		tmp.put(StandardMode.PUBLICTRANSPORT, 0.0);
 		
 		return new ModeChoicePreferences(Collections.unmodifiableMap(tmp));
 	}

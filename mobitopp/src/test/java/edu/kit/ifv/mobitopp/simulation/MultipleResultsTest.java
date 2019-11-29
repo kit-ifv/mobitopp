@@ -44,7 +44,7 @@ public class MultipleResultsTest {
     StateChange stateChange = mock(StateChange.class);
     Tour tour = mock(Tour.class);
     Subtour subtour = mock(Subtour.class);
-    Mode tourMode = Mode.CAR;
+    Mode tourMode = StandardMode.CAR;
     Zone tourDestination = ExampleZones.create().someZone();
     return Stream
         .of(l -> l.notifyEndTrip(person, trip, activity),
