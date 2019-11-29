@@ -75,7 +75,7 @@ public class TargetChoiceParameter {
 
 			for (int i = 0; i < nr; i++) {
 				float val = Float.parseFloat(tokens.nextToken().trim());
-				map.put(Mode.MODESET_VALUES.get(i),val);
+				map.put(StandardChoiceSet.MODESET_VALUES.get(i),val);
 			}
 
 			addTypeAndActivity(type, activity, map);
@@ -112,7 +112,7 @@ public class TargetChoiceParameter {
 				System.out.println("    Act: " + act.getTypeAsInt() + " " + act.getTypeAsString());
 
 				System.out.print("     ");
-				for (Set<Mode> ms : Mode.MODESET_VALUES ) {
+				for (Set<Mode> ms : StandardChoiceSet.MODESET_VALUES ) {
 
 					float val = parameter.get(zone).get(act).get(ms);
 

@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
@@ -50,7 +51,7 @@ public class DestinationAndModeChoiceSchaufensterTest {
 		destination = mock(Zone.class);
 		previousActivity = mock(ActivityIfc.class);
 		nextActivity = mock(ActivityIfc.class);
-		fullChoiceSet = Mode.CHOICE_SET_FULL;
+		fullChoiceSet = StandardChoiceSet.CHOICE_SET_FULL;
 		randomNumber = 1.0d;
     model = new DestinationAndModeChoiceSchaufenster(modeAvailabilityModel, utilityFunctions);
 

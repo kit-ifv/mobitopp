@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
 
@@ -33,7 +34,7 @@ public class DefaultSubtourModeChoiceUtilityFunction
 		super(
 			modeChoiceParameter,
 			impedance,
-			makeUtilityFunctions(modeChoiceParameter, Mode.CHOICE_SET_FULL)
+			makeUtilityFunctions(modeChoiceParameter, StandardChoiceSet.CHOICE_SET_FULL)
 		);
 	}
 

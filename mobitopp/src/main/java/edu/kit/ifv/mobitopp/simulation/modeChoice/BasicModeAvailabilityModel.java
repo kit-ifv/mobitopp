@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -33,7 +34,7 @@ public class BasicModeAvailabilityModel
 		Zone currentZone,
 		ActivityIfc previousActivity
 	) {
-		return availableModes(person, currentZone, previousActivity, Mode.CHOICE_SET_FULL);
+		return availableModes(person, currentZone, previousActivity, StandardChoiceSet.CHOICE_SET_FULL);
 	}
 
 	public Set<Mode> availableModes(
@@ -63,7 +64,7 @@ public class BasicModeAvailabilityModel
 
 			if (previousMode.isFlexible())
 			{
-				choiceSet.removeAll(Mode.FIXED_MODES);
+				choiceSet.removeAll(StandardChoiceSet.FIXED_MODES);
 			} 
 			else 
 			{

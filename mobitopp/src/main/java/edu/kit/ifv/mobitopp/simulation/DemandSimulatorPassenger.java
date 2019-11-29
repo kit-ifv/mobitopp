@@ -130,7 +130,7 @@ public class DemandSimulatorPassenger
 					activityDurationRandomizer,
 					tripFactory,
 					rescheduling,
-					Mode.CHOICE_SET_FULL,
+					StandardChoiceSet.CHOICE_SET_FULL,
 					initialState, 
 					context
 			);
