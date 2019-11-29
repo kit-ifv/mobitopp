@@ -28,6 +28,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityZoneMappingPa
 import edu.kit.ifv.mobitopp.populationsynthesis.community.DefaultCommunityRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.HouseholdBasedStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPairSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.PersonBasedStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.CommunityBasedZoneSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.CommunityDestinationSelector;
@@ -41,8 +42,8 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ProbabilityBasedSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.DefaultOpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.RoadBasedOpportunitySelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -57,15 +58,17 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		super(context);
 	}
 
+
 	@Override
 	protected DemandDataCalculator createCalculator(
 			Map<ActivityType, FixedDistributionMatrix> commuterMatrices) {
 		DefaultCommunityRepository communityRepository = loadCommunities();
 		LinkedList<PopulationSynthesisStep> steps = new LinkedList<>();
 		steps.add(activityScheduleAssignment());
-		steps.add(fixedDestinationSelector(communityRepository));
+		steps.add(workDestinationSelector(communityRepository));
+		steps.add(educationDestinationSelector());
 		steps.add(createCarOwnershipModel());
-		steps.add(this::storeData);
+		steps.add(storeData());
 		DemandDataForZoneCalculatorIfc zoneCalculator = createZoneCalculator();
 		return new CommunityDemandCalculator(communityRepository, zoneCalculator, steps, impedance());
 	}
@@ -80,7 +83,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		return new CommunityRelationsParser(communities).parse(communityRelationsFile);
 	}
 
-	private PopulationSynthesisStep fixedDestinationSelector(DefaultCommunityRepository communities) {
+	private PopulationSynthesisStep workDestinationSelector(DefaultCommunityRepository communities) {
 		PanelDataRepository dataRepository = context().dataRepository().panelDataRepository();
 		OdPairSelector communityPairCreator = new CommunityOdPairCreator(communities);
 		ImpedanceIfc impedance = impedance();
@@ -93,13 +96,19 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 				newRandom());
 	}
 
+	private PopulationSynthesisStep educationDestinationSelector() {
+		return new PersonBasedStep(new EducationInHomeZone());
+	}
+
 	private PopulationSynthesisStep activityScheduleAssignment() {
 		return new HouseholdBasedStep(activityScheduleAssigner()::assignActivitySchedule);
 	}
 
-	protected void storeData(Community community) {
-		community.zones().forEach(dataRepository().demandDataRepository()::store);
-		System.gc();
+	protected PopulationSynthesisStep storeData() {
+		return community -> {
+			community.zones().forEach(dataRepository().demandDataRepository()::store);
+			System.gc();
+		};
 	}
 
 	private DemandDataForZoneCalculatorIfc createZoneCalculator() {
@@ -178,7 +187,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	@Override
 	protected OpportunityLocationSelector createOpportunityLocationSelector() {
-		return new DefaultOpportunityLocationSelector(context());
+		return new RoadBasedOpportunitySelector(context(), edgeFilter(), maxDistance);
 	}
 
 	private static EdgeFilter edgeFilter() {
