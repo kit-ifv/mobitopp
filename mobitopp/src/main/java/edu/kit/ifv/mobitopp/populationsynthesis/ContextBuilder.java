@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
@@ -40,6 +41,7 @@ public class ContextBuilder {
   private final PopulationSynthesisParser format;
   private final AreaTypeRepository areaTypeRepository;
   private final TypeMapping modeToType;
+  private PersonChanger personChanger;
   private NetfileLanguage netfileLanguage;
 
   private WrittenConfiguration configuration;
@@ -52,15 +54,24 @@ public class ContextBuilder {
   private File carEngineFile;
   private DemographyData demographyData;
 
-  public ContextBuilder(AreaTypeRepository areaTypeReposirtory, TypeMapping modeToType, NetfileLanguage netfileLanguage) {
-    super();
-    areaTypeRepository = areaTypeReposirtory;
-    this.modeToType = modeToType;
-    this.netfileLanguage = netfileLanguage;
-    performanceLogger = new StopWatch(LocalDateTime::now);
-    ParserBuilder parser = new ParserBuilder();
-    format = parser.forPopulationSynthesis();
-  }
+	public ContextBuilder(
+			final AreaTypeRepository areaTypeReposirtory, final TypeMapping modeToType,
+			final NetfileLanguage netfileLanguage, final PersonChanger personChanger) {
+		super();
+		areaTypeRepository = areaTypeReposirtory;
+		this.modeToType = modeToType;
+		this.netfileLanguage = netfileLanguage;
+		this.personChanger = personChanger;
+		performanceLogger = new StopWatch(LocalDateTime::now);
+		ParserBuilder parser = new ParserBuilder();
+		format = parser.forPopulationSynthesis();
+	}
+	
+	public ContextBuilder(
+			AreaTypeRepository areaTypeReposirtory, TypeMapping modeToType,
+			NetfileLanguage netfileLanguage) {
+		this(areaTypeReposirtory, modeToType, netfileLanguage, PersonChanger.noChange());
+	}
 
   public ContextBuilder(AreaTypeRepository areaTypeRepository) {
     this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
@@ -68,6 +79,11 @@ public class ContextBuilder {
 
   public ContextBuilder() {
     this(new BicRepository(), DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
+  }
+  
+  public ContextBuilder use(PersonChanger personChanger) {
+  	this.personChanger = personChanger;
+  	return this;
   }
   
   public ContextBuilder use(NetfileLanguage language) {
@@ -174,7 +190,7 @@ public class ContextBuilder {
     dataRepository = configuration
         .getDataSource()
         .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
-            startDate(), resultWriter, areaTypeRepository, modeToType);
+            startDate(), resultWriter, areaTypeRepository, modeToType, personChanger);
     log("Load data repository");
   }
 

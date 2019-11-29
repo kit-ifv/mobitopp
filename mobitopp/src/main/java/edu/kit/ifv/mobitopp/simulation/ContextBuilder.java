@@ -17,6 +17,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.SimulationParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DefaultMappings;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
@@ -31,8 +32,9 @@ public class ContextBuilder {
 	private final StopWatch performanceLogger;
 	private final SimulationParser format;
 	private final AreaTypeRepository areaTypeRepository;
-	private final TypeMapping modeToType;
-	private final NetfileLanguage language;
+	private TypeMapping modeToType;
+	private PersonChanger personChanger;
+	private NetfileLanguage language;
 
 	private WrittenConfiguration configuration;
 	private Predicate<HouseholdForSetup> householdFilter;
@@ -48,16 +50,23 @@ public class ContextBuilder {
 	private DynamicParameters destinationChoiceParameters;
 	private DynamicParameters modeChoiceParameters;
 
-  public ContextBuilder(
-      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language) {
+	public ContextBuilder(
+			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language,
+			PersonChanger personChanger) {
     super();
 		this.areaTypeRepository = areaTypeRepository;
     this.modeToType = modeToType;
     this.language = language;
+		this.personChanger = personChanger;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
 	}
+  
+  public ContextBuilder(
+      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language) {
+  	this(areaTypeRepository, modeToType, language, PersonChanger.noChange());
+  }
 	
 	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
 	  this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
@@ -66,6 +75,21 @@ public class ContextBuilder {
 	public ContextBuilder() {
 		this(new BicRepository());
 	}
+	
+	public ContextBuilder use(TypeMapping modeToType) {
+		this.modeToType = modeToType;
+		return this;
+	}
+  
+  public ContextBuilder use(PersonChanger personChanger) {
+  	this.personChanger = personChanger;
+  	return this;
+  }
+  
+  public ContextBuilder use(NetfileLanguage language) {
+  	this.language = language;
+  	return this;
+  }
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
 		WrittenConfiguration configuration = format.parse(configurationFile);
@@ -189,7 +213,7 @@ public class ContextBuilder {
 		dataRepository = configuration
 				.getDataSource()
 				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
-						electricChargingWriter, areaTypeRepository, modeToType, householdFilter);
+						electricChargingWriter, areaTypeRepository, modeToType, householdFilter, personChanger);
 		log("Load data repository");
 	}
 
