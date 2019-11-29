@@ -33,10 +33,11 @@ public class ContextBuilder {
 	private final SimulationParser format;
 	private final AreaTypeRepository areaTypeRepository;
 	private TypeMapping modeToType;
-	private PersonChanger personChanger;
+	private PersonChangerFactory personChangerFactory;
 	private NetfileLanguage language;
 
 	private WrittenConfiguration configuration;
+	private PersonChanger personChanger;
 	private Predicate<HouseholdForSetup> householdFilter;
 	private DynamicParameters experimentalParameters;
 	private ResultWriter resultWriter;
@@ -81,8 +82,8 @@ public class ContextBuilder {
 		return this;
 	}
   
-  public ContextBuilder use(PersonChanger personChanger) {
-  	this.personChanger = personChanger;
+  public ContextBuilder use(PersonChangerFactory personChangerFactory) {
+  	this.personChangerFactory = personChangerFactory;
   	return this;
   }
   
@@ -104,6 +105,7 @@ public class ContextBuilder {
 	private SimulationContext loadData() throws IOException {
 		startLoading();
 		validateConfiguration();
+		createPersonChanger();
 		createHouseholdFilter();
 		experimentalParameters();
 		destinationChoiceParameters();
@@ -117,6 +119,7 @@ public class ContextBuilder {
 		printPerformance();
 		return createContext;
 	}
+
 
 	private void startLoading() {
 		performanceLogger.start();
@@ -134,6 +137,10 @@ public class ContextBuilder {
 	private void validateConfiguration() throws IOException {
 		new Validate().now(configuration);
 		log("Validate configuration");
+	}
+	
+	private void createPersonChanger() {
+		personChanger = personChangerFactory.create(configuration);
 	}
 	
 	private void createHouseholdFilter() {
