@@ -67,7 +67,7 @@ public class ConstraintBasedDestinationChoiceModel
 		assert tourMode != null;
 		
 		Set<Mode> availableModes = tourMode.isPresent()
-															? Mode.exclusive(tourMode.get())
+															? Set.of(tourMode.get())
 															: modeAvailabilityModel.availableModes(person, currentZone, previousActivity);
 		
 		Map<Zone,Set<Mode>> reachableZones = calculateReachableZones(
