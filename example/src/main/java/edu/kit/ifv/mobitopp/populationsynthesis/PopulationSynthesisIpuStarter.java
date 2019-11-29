@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.util.dataimport.Bbsr17Repository;
+import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 
 public class PopulationSynthesisIpuStarter {
 
@@ -25,6 +26,7 @@ public class PopulationSynthesisIpuStarter {
 	private static void startSynthesis(File configurationFile) throws Exception {
 		Bbsr17Repository areaTypeRepository = new Bbsr17Repository();
 		SynthesisContext context = new ContextBuilder(areaTypeRepository)
+				.use(StandardNetfileLanguages.english())
 				.buildFrom(configurationFile);
 		startSynthesis(context);
 	}

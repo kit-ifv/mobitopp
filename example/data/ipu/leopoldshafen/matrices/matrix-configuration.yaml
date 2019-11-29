@@ -1,0 +1,119 @@
+costMatrices:
+  car:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  constant:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  parkingstress:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  distance:
+    at:
+      weekdays:
+        between:
+          0 to 23: 5_DIS_Car
+      saturday:
+        between:
+          0 to 23: 5_DIS_Car
+      sunday:
+        between:
+          0 to 23: 5_DIS_Car
+  parking:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  publictransport:
+    at:
+      weekdays:
+        between:
+          0 to 23: 14_Cost_PUT
+      saturday:
+        between:
+          0 to 23: 14_Cost_PUT
+      sunday:
+        between:
+          0 to 23: 14_Cost_PUT
+fixedDistributionMatrices:
+  EDUCATION_PRIMARY: distribution.work.mtx
+  EDUCATION_TERTIARY: distribution.work.mtx
+  EDUCATION_OCCUP: distribution.work.mtx
+  EDUCATION_SECONDARY: distribution.work.mtx
+  EDUCATION: distribution.work.mtx
+  WORK: distribution.work.mtx
+travelTimeMatrices:
+  pedestrian:
+    at:
+      weekdays:
+        between:
+          0 to 23: 2_TTC_Bike
+      saturday:
+        between:
+          0 to 23: 2_TTC_Bike
+      sunday:
+        between:
+          0 to 23: 2_TTC_Bike
+  car:
+    at:
+      weekdays:
+        between:
+          0 to 23: 4_TTC_Car
+      saturday:
+        between:
+          0 to 23: 4_TTC_Car
+      sunday:
+        between:
+          0 to 23: 4_TTC_Car
+  publictransport:
+    at:
+      weekdays:
+        between:
+          0 to 23: 12_JRT_PUT
+      saturday:
+        between:
+          0 to 23: 12_JRT_PUT
+      sunday:
+        between:
+          0 to 23: 12_JRT_PUT
+  bike:
+    at:
+      weekdays:
+        between:
+          0 to 23: 2_TTC_Bike
+      saturday:
+        between:
+          0 to 23: 2_TTC_Bike
+      sunday:
+        between:
+          0 to 23: 2_TTC_Bike
