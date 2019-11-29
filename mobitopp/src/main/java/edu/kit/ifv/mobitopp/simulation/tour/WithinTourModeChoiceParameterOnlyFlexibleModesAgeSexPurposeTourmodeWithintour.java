@@ -330,20 +330,18 @@ Likelihood ratio test : chisq = 98900 (p.value = <2e-16)
 	// Copied from TourModeChoiceParameterBase -- refactor?
 	@Override
 	public Map<String,Double> parameterForMode(Mode mode) {
-		
 		assert mode != Mode.BIKE : mode;
 		assert mode != Mode.CAR : mode;
-		
-		switch(mode) {
-			case PEDESTRIAN:
-				return parameterWalk;
-			case PASSENGER:
-				return parameterPassenger;
-			case PUBLICTRANSPORT:
-				return parameterPt;
-			default:
-				throw new AssertionError("invalid mode: " + mode);
+		if (Mode.PEDESTRIAN.equals(mode)) {
+			return parameterWalk;
 		}
+		if (Mode.PASSENGER.equals(mode)) {
+			return parameterPassenger;
+		}
+		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+			return parameterPt;
+		}
+		throw new AssertionError("invalid mode: " + mode);
 	}
 
 }
