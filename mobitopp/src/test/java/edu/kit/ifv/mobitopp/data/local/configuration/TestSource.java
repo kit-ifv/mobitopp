@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
@@ -35,8 +36,8 @@ public class TestSource implements DataSource {
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping typeMapping)
-			throws IOException {
+			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping typeMapping,
+			PersonChanger perChanger) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 
@@ -45,7 +46,7 @@ public class TestSource implements DataSource {
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping typeMapping,
-			Predicate<HouseholdForSetup> householdFilter) throws IOException {
+			Predicate<HouseholdForSetup> householdFilter, PersonChanger perChanger) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 

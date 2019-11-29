@@ -24,19 +24,23 @@ public class DemandDataFolder {
 
 	private final File demandDataFolder;
 	private final InputFormats formats;
+	private final PersonChanger personChanger;
 
-	private DemandDataFolder(File demandDataFolder, InputFormats formats) {
+	private DemandDataFolder(
+			final File demandDataFolder, final InputFormats formats, final PersonChanger personChanger) {
 		super();
 		this.demandDataFolder = demandDataFolder;
 		this.formats = formats;
+		this.personChanger = personChanger;
 	}
 
 	public static DemandDataFolder at(
-			File demandDataFolder, ZoneRepository zoneRepository, ZoneRepository zonesToSimulate)
+			final File demandDataFolder, final ZoneRepository zoneRepository,
+			final ZoneRepository zonesToSimulate, final PersonChanger personChanger)
 			throws IOException {
 		initialiseDirectory(demandDataFolder);
 		InputFormats formats = new InputFormats(zoneRepository, zonesToSimulate);
-		return new DemandDataFolder(demandDataFolder, formats);
+		return new DemandDataFolder(demandDataFolder, formats, personChanger);
 	}
 
 	private static void initialiseDirectory(File folder) {
@@ -52,8 +56,9 @@ public class DemandDataFolder {
 		return serialiser(household, householdFormat);
 	}
 
-	private ForeignKeySerialiser<PersonBuilder> persons() throws IOException {
-		DefaultPersonFormat format = personFormat();
+	private ForeignKeySerialiser<PersonBuilder> persons(PersonChanger personChanger)
+			throws IOException {
+		DefaultPersonFormat format = personFormat(personChanger);
 		return serialiser(person, format);
 	}
 
@@ -79,7 +84,7 @@ public class DemandDataFolder {
 
 	public DemandDataSerialiser serialiseAsCsv() throws IOException {
 		DefaultDemandDataSerialiser serialiser = new DefaultDemandDataSerialiser(households(),
-				persons(), activities(), cars(), fixedDestinations(), opportunitys());
+				persons(PersonChanger.noChange()), activities(), cars(), fixedDestinations(), opportunitys());
 		serialiser.writeHeader();
 		return serialiser;
 	}
@@ -87,7 +92,7 @@ public class DemandDataFolder {
 	public DemandDataDeserialiser deserialiseFromCsv() throws IOException {
 		Deserialiser<HouseholdForSetup> households = deserialiseHousehold();
 		Deserialiser<PersonPatternActivity> activities = deserialiseActivity();
-		ForeignKeyDeserialiser<PersonBuilder> persons = deserialisePerson();
+		ForeignKeyDeserialiser<PersonBuilder> persons = deserialisePerson(personChanger);
 		ForeignKeyDeserialiser<PrivateCarForSetup> cars = deserialiseCars();
 		Deserialiser<PersonFixedDestination> fixedDestinations = deserialiseFixedDestinations();
 		Deserialiser<Opportunity> opportunities = deserialiseOpportunities();
@@ -105,8 +110,9 @@ public class DemandDataFolder {
 		return deserialiser(activity, format);
 	}
 
-	private ForeignKeyDeserialiser<PersonBuilder> deserialisePerson() throws IOException {
-		DefaultPersonFormat format = personFormat();
+	private ForeignKeyDeserialiser<PersonBuilder> deserialisePerson(PersonChanger personChanger)
+			throws IOException {
+		DefaultPersonFormat format = personFormat(personChanger);
 		return deserialiser(person, format);
 	}
 
@@ -152,8 +158,8 @@ public class DemandDataFolder {
 		return formats.householdFormat();
 	}
 
-	private DefaultPersonFormat personFormat() {
-		return formats.personFormat();
+	private DefaultPersonFormat personFormat(PersonChanger personChanger) {
+		return formats.personFormat(personChanger);
 	}
 
 	private DefaultActivityFormat activityFormat() {

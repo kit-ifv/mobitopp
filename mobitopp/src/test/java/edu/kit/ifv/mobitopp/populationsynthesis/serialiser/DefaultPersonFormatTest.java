@@ -7,6 +7,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
@@ -43,13 +44,16 @@ public class DefaultPersonFormatTest {
   private PersonBuilder emobilityPerson;
   private PopulationContext context;
   private Zone zone;
+	private PersonChanger changer;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     context = mock(PopulationContext.class);
-    format = new DefaultPersonFormat();
+    changer = mock(PersonChanger.class);
+    format = new DefaultPersonFormat(changer);
     household = mock(HouseholdForSetup.class);
     zone = mock(Zone.class);
+    when(changer.attributesOf(any())).thenAnswer(i -> i.getArgument(0));
     when(zone.getId()).thenReturn(zoneId);
     when(household.getId()).thenReturn(new HouseholdId(householdOid, year, householdOid));
     personForDemand = ExampleSetup.personOf(household, personOid, zone);
@@ -81,6 +85,7 @@ public class DefaultPersonFormatTest {
     Optional<PersonBuilder> parsedPerson = format.parse(personFormat(), context);
 
     assertPersons(parsedPerson.get(), personForDemand);
+    verify(changer).attributesOf(parsedPerson.get());
     verify(household).addPerson(parsedPerson.get());
   }
 
@@ -109,7 +114,7 @@ public class DefaultPersonFormatTest {
   private void prepareMissingHousehold() {
     when(context.getHouseholdByOid(householdOid)).thenReturn(Optional.empty());
   }
-
+  
   private void assertPersons(PersonBuilder person, PersonBuilder originalPerson) {
     assertValue(PersonBuilder::getId, person, originalPerson);
     assertValue(PersonBuilder::age, person, originalPerson);

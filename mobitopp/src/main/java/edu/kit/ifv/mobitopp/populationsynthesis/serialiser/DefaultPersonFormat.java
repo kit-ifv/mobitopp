@@ -24,9 +24,11 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 	private final int normalLength;
   private final ColumnMapping<PersonBuilder> defaultColumns;
   private final ColumnMapping<EmobilityPersonBuilder> eMobilityColumns;
+	private final PersonChanger change;
 
-	public DefaultPersonFormat() {
+	public DefaultPersonFormat(PersonChanger changer) {
 		super();
+		this.change = changer;
     defaultColumns = new ColumnMapping<>();
     defaultColumns.add("personId", e -> e.getId().getOid());
     defaultColumns.add("personNumber", e -> e.getId().getPersonNumber());
@@ -106,7 +108,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		boolean hasLicense = hasLicense(data);
     ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
     ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
-		DefaultPersonForSetup person = new DefaultPersonForSetup(id, household, age, employment,
+		PersonBuilder person = new DefaultPersonForSetup(id, household, age, employment,
 				gender, graduation, income, modeChoicePrefsSurvey);
 		person.setHasBike(hasBike);
     person.setHasAccessToCar(hasAccessToCar);
@@ -114,7 +116,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
     person.setHasCommuterTicket(hasCommuterTicket);
     person.setHasDrivingLicense(hasLicense);
     person.setModeChoicePreferences(modeChoicePreferences);
-		return person;
+    return change.attributesOf(person);
 	}
 
 	private Graduation graduationOf(List<String> data) {

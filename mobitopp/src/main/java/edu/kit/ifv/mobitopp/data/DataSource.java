@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
@@ -19,14 +20,14 @@ public interface DataSource {
 	DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping modeToType)
-			throws IOException;
+			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
+			PersonChanger personChanger) throws IOException;
 
 	DataRepositoryForSimulation forSimulation(
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
-			Predicate<HouseholdForSetup> householdFilter) throws IOException;
+			Predicate<HouseholdForSetup> householdFilter, PersonChanger personChanger) throws IOException;
 
 	void validate() throws IOException;
 

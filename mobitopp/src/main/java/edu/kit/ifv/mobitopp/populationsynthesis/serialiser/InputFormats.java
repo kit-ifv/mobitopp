@@ -20,8 +20,8 @@ class InputFormats {
 		return new DefaultHouseholdFormat(zonesToSimulate);
 	}
 
-	public DefaultPersonFormat personFormat() {
-		return new DefaultPersonFormat();
+	public DefaultPersonFormat personFormat(PersonChanger personChanger) {
+		return new DefaultPersonFormat(personChanger);
 	}
 
 	public DefaultActivityFormat activityFormat() {
