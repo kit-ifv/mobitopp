@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -156,11 +157,11 @@ public class DestinationChoiceModelEmployment
 		float opportunity = this.impedance.getOpportunities(activityType, destinationId);
 
 		float time_next = this.impedance.getTravelTime(originId, destinationId, mode, date);
-		float cost_next = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
+		float cost_next = mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
 													: this.impedance.getTravelCost(originId, destinationId, mode, date);
 
 		float time_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, mode, date);
-		float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
+		float cost_pole = mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
 													: this.impedance.getTravelCost(destinationId, nextFixedDestinationId, mode, date);
 
 		double OPPORTUNITY_OFFSET = 1.0;

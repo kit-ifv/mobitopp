@@ -25,6 +25,7 @@ import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffer;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
@@ -204,7 +205,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		assert trip != null;
 
-		if (trip.mode() == Mode.CAR) {
+		if (trip.mode() == StandardMode.CAR) {
 	  	assert person().isCarDriver();
 
 			offerRide(options.rideSharingOffers(), this, trip);
@@ -276,7 +277,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		
 		Set<Mode> choiceSet = new LinkedHashSet<Mode>(this.modesInSimulation);
 		if (!passengerAsOption) {
-			choiceSet.remove(Mode.PASSENGER);
+			choiceSet.remove(StandardMode.PASSENGER);
 		}
 
 		Zone origin = previousActivity.zone();
@@ -446,7 +447,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 		Time currentTime
 	) {
 		
-		if (trip.mode() == Mode.CAR) {
+		if (trip.mode() == StandardMode.CAR) {
 			rideOffers.remove(trip, this);
 		}
 	}
@@ -570,7 +571,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 	}
 
 	private static boolean isPublicTransportTrip(Trip trip) {
-		return Mode.PUBLICTRANSPORT.equals(trip.mode());
+		return StandardMode.PUBLICTRANSPORT.equals(trip.mode());
 	}
 
 	public boolean isCarSharingCustomer(String company) {

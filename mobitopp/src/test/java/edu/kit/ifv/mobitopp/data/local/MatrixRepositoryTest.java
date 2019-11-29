@@ -37,6 +37,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixId;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class MatrixRepositoryTest {
@@ -75,7 +76,7 @@ public class MatrixRepositoryTest {
 
   private TypeMapping modeToType() {
     DynamicTypeMapping typeMapping = new DynamicTypeMapping();
-    typeMapping.add(Mode.CAR, TravelTimeMatrixType.car);
+    typeMapping.add(StandardMode.CAR, TravelTimeMatrixType.car);
     return typeMapping;
   }
 
@@ -86,7 +87,7 @@ public class MatrixRepositoryTest {
 		when(configuration.idOf(id.matrixType(), date)).thenReturn(id);
 		when(configuration.travelTimeMatrixFor(id)).thenReturn(matrix);
 
-		TravelTimeMatrix loadedMatrix = store.travelTimeFor(Mode.CAR, date);
+		TravelTimeMatrix loadedMatrix = store.travelTimeFor(StandardMode.CAR, date);
 
 		assertThat(loadedMatrix, is(equalTo(travelTimeMatrix)));
 		verify(configuration).idOf(TravelTimeMatrixType.car, date);
@@ -110,7 +111,7 @@ public class MatrixRepositoryTest {
 	public void resolvesCostMatrixForCar() throws IOException {
 		findCostMatrixFor(carId);
 
-		CostMatrix loadedMatrix = load(Mode.CAR);
+		CostMatrix loadedMatrix = load(StandardMode.CAR);
 
 		assertThat(loadedMatrix, is(equalTo(costMatrix)));
 		verifyResolveId(car);
@@ -139,7 +140,7 @@ public class MatrixRepositoryTest {
 	public void resolvesCostMatrixForPublicTransport() throws IOException {
 		findCostMatrixFor(publicTransportId);
 
-		CostMatrix loadedMatrix = load(Mode.PUBLICTRANSPORT);
+		CostMatrix loadedMatrix = load(StandardMode.PUBLICTRANSPORT);
 
 		assertThat(loadedMatrix, is(equalTo(costMatrix)));
 		verifyResolveId(publictransport);
@@ -150,8 +151,8 @@ public class MatrixRepositoryTest {
 	public void cacheCostMatrices() throws IOException {
 		findCostMatrixFor(carId);
 
-		load(Mode.CAR);
-		load(Mode.CAR);
+		load(StandardMode.CAR);
+		load(StandardMode.CAR);
 
 		verify(configuration, times(2)).idOf(car, date);
 		verifyResolveMatrix(carId);

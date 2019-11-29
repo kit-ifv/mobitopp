@@ -17,8 +17,8 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
@@ -51,7 +51,7 @@ public class CarSharingStationTripTest {
     car = mock(CarSharingCar.class);
     carSharingData = mock(CarSharingDataForZone.class);
     zone.setCarSharing(carSharingData);
-    when(trip.mode()).thenReturn(Mode.CARSHARING_STATION);
+    when(trip.mode()).thenReturn(StandardMode.CARSHARING_STATION);
     when(car.id()).thenReturn(0);
   }
 

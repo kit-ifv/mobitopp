@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.TargetChoiceParameterCost;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
@@ -68,13 +69,13 @@ public class DestinationChoiceModelStuttgart
 
 
 		float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
-		float cost_next = (mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
+		float cost_next = (mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
 											: this.impedance.getTravelCost(origin, destination, mode, date)
 											)
 											+ calculateParkingCost(mode, destination, date, nextActivity.duration());
 
 		float time_pole = this.impedance.getTravelTime(destination, nextPoleOid, mode, date);
-		float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
+		float cost_pole = mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f 
 											: this.impedance.getTravelCost(destination, nextPoleOid, mode, date);
 
 		float constant = this.impedance.getConstant(origin, destination, date);
@@ -118,13 +119,13 @@ public class DestinationChoiceModelStuttgart
 			float cost_coeff = this.getParameterCost(activityType, weekday);
 
 			float time_next = this.impedance.getTravelTime(origin, destination, mode, date);
-			float cost_next = (mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f
+			float cost_next = (mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f
 												: this.impedance.getTravelCost(origin, destination, mode, date)
 												)
 											+ calculateParkingCost(mode, destination, date, nextActivity.duration());
 
 			float time_pole = this.impedance.getTravelTime(destination, nextPoleOid, mode, date);
-			float cost_pole = mode == Mode.PUBLICTRANSPORT && commuterTicket ? 0.0f
+			float cost_pole = mode == StandardMode.PUBLICTRANSPORT && commuterTicket ? 0.0f
 											 : this.impedance.getTravelCost(destination, nextPoleOid, mode, date);
 
 			float constant = this.impedance.getConstant(origin, destination, date);
@@ -156,14 +157,14 @@ public class DestinationChoiceModelStuttgart
 		int durationInMinutes
 	) {
 
-		if ( mode == Mode.PEDESTRIAN 
-				|| mode == Mode.BIKE 
-				|| mode == Mode.PUBLICTRANSPORT
+		if ( mode == StandardMode.PEDESTRIAN 
+				|| mode == StandardMode.BIKE 
+				|| mode == StandardMode.PUBLICTRANSPORT
 		) {
 			return 0.0f;
 		}
 
-		if (mode == Mode.CAR) {
+		if (mode == StandardMode.CAR) {
 
 			float costPerHour = this.impedance.getParkingCost(destination, date);
 
@@ -248,8 +249,8 @@ public class DestinationChoiceModelStuttgart
 
 	protected Collection<Mode> getModes(Set<Mode> choiceSetForModes) {
 		Collection<Mode> c = new LinkedHashSet<Mode>();
-		c.add(Mode.PEDESTRIAN);
-		c.add(Mode.PUBLICTRANSPORT);
+		c.add(StandardMode.PEDESTRIAN);
+		c.add(StandardMode.PUBLICTRANSPORT);
 		c.addAll(choiceSetForModes);
 		return c;
 	}

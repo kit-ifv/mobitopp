@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationFinder;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationPaths;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -31,7 +32,7 @@ public class PublicTransportImpedanceTest {
 	private static final Location target = new Example().location(coordinate(1, 1));
 	private static final Location source = new Example().location();
 	private static final Location sameAsSource = new Example().location();
-	private static final Mode notPublicTransport = Mode.BIKE;
+	private static final Mode notPublicTransport = StandardMode.BIKE;
 	private RouteSearch routeSearch;
 	private ImpedanceIfc impedance;
 	private Time date;
@@ -67,7 +68,7 @@ public class PublicTransportImpedanceTest {
 
 		PublicTransportImpedance publicTransport = publicTransport();
 		Optional<PublicTransportRoute> tour = publicTransport.getPublicTransportRoute(source, target,
-				Mode.PUBLICTRANSPORT, date);
+				StandardMode.PUBLICTRANSPORT, date);
 
 		assertThat("find shortest tour", tour, hasValue(expectedTour));
 		verify(stationResolver).findReachableStations(source);
@@ -80,7 +81,7 @@ public class PublicTransportImpedanceTest {
 	@Test
 	public void doNotSearchWhenSourceAndTargetLocationAreEqual() throws Exception {
 		Optional<PublicTransportRoute> route = publicTransport().getPublicTransportRoute(source,
-				sameAsSource, Mode.PUBLICTRANSPORT, date);
+				sameAsSource, StandardMode.PUBLICTRANSPORT, date);
 
 		assertThat(route, isEmpty());
 

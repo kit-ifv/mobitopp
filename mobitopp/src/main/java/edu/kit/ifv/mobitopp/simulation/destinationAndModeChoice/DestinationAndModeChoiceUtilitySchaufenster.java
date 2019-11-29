@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceCarSharing;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -159,9 +160,9 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 
 	protected final Set<Mode> modes = new LinkedHashSet<>(Arrays.asList(
 																			new Mode[] {
-																				Mode.PEDESTRIAN, Mode.BIKE, Mode.CAR, Mode.PASSENGER, Mode.PUBLICTRANSPORT,
-																				Mode.PEDELEC, Mode.BIKESHARING,
-																				Mode.CARSHARING_STATION, Mode.CARSHARING_FREE
+																				StandardMode.PEDESTRIAN, StandardMode.BIKE, StandardMode.CAR, StandardMode.PASSENGER, StandardMode.PUBLICTRANSPORT,
+																				StandardMode.PEDELEC, StandardMode.BIKESHARING,
+																				StandardMode.CARSHARING_STATION, StandardMode.CARSHARING_FREE
 																			}
 																		));
 
@@ -363,8 +364,8 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 
 				assert !Float.isNaN(log_opportunities);
 
-				float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, Mode.CAR, date)/60.0f;
-				float time_h_car_pole	= this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.CAR, nextDate)/60.0f;
+				float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, StandardMode.CAR, date)/60.0f;
+				float time_h_car_pole	= this.impedance.getTravelTime(destinationId, nextFixedDestinationId, StandardMode.CAR, nextDate)/60.0f;
 
 				float distance 				= (float) Math.max(0.0, this.impedance.getDistance(originId, destinationId)/1000.0);
 				float distance_pole 	= (float) Math.max(0.0, this.impedance.getDistance(destinationId, nextFixedDestinationId)/1000.0);
@@ -501,7 +502,7 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 
 		boolean isCarElectric = false;
 
-		if (choiceSetForModes.contains(Mode.CAR)) {
+		if (choiceSetForModes.contains(StandardMode.CAR)) {
 			assert person.isCarDriver() || person.hasParkedCar() || person.household().getNumberOfAvailableCars() > 0;
 			Car availableCar = person.isCarDriver() || person.hasParkedCar() ?  person.whichCar() 
 																							: person.household().nextAvailableCar(person, tourDistanceKm);
@@ -513,38 +514,38 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		float time_h_till_home = startOfNextHomeActivity.differenceTo(currentTime).toHours();
 
 
-		float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, Mode.CAR, date)/60.0f;
+		float time_h_car 	= this.impedance.getTravelTime(originId, destinationId, StandardMode.CAR, date)/60.0f;
 
-		float time_h_walk = this.impedance.getTravelTime(originId, destinationId, Mode.PEDESTRIAN, date)/60.0f;
+		float time_h_walk = this.impedance.getTravelTime(originId, destinationId, StandardMode.PEDESTRIAN, date)/60.0f;
 
-		float time_h_pt 	= this.impedance.getTravelTime(originId, destinationId, Mode.PUBLICTRANSPORT, date)/60.0f;
+		float time_h_pt 	= this.impedance.getTravelTime(originId, destinationId, StandardMode.PUBLICTRANSPORT, date)/60.0f;
 
-		float time_h_pass = this.impedance.getTravelTime(originId, destinationId, Mode.PASSENGER, date)/60.0f;
+		float time_h_pass = this.impedance.getTravelTime(originId, destinationId, StandardMode.PASSENGER, date)/60.0f;
 
-		float time_h_bike = this.impedance.getTravelTime(originId, destinationId, Mode.BIKE, date)/60.0f;
-		float time_h_bike_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.BIKE, nextDate)/60.0f;
+		float time_h_bike = this.impedance.getTravelTime(originId, destinationId, StandardMode.BIKE, date)/60.0f;
+		float time_h_bike_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, StandardMode.BIKE, nextDate)/60.0f;
 
 		float time_h_pedelec = time_h_bike / 1.2f;
 
 		float time_h_bikesharing = time_h_bike +(5.0f-parkingstress_source/5.0f) + (5.0f-parkingstress/5.0f);
 
-		float time_h_cs_station = this.impedance.getTravelTime(originId, destinationId, Mode.CARSHARING_STATION, date)/60.0f;
-		float time_h_cs_station_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, Mode.CARSHARING_STATION, nextDate)/60.0f;
+		float time_h_cs_station = this.impedance.getTravelTime(originId, destinationId, StandardMode.CARSHARING_STATION, date)/60.0f;
+		float time_h_cs_station_pole = this.impedance.getTravelTime(destinationId, nextFixedDestinationId, StandardMode.CARSHARING_STATION, nextDate)/60.0f;
 
-		float time_h_cs_free = this.impedance.getTravelTime(originId, destinationId, Mode.CARSHARING_FREE, date)/60.0f;
+		float time_h_cs_free = this.impedance.getTravelTime(originId, destinationId, StandardMode.CARSHARING_FREE, date)/60.0f;
 
 		// Time related parameters in h
 
-		float cost_car 	= this.impedance.getTravelCost(originId, destinationId, Mode.CAR, date);
-		float cost_car_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CAR, nextDate);
+		float cost_car 	= this.impedance.getTravelCost(originId, destinationId, StandardMode.CAR, date);
+		float cost_car_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, StandardMode.CAR, nextDate);
 
 		float cost_walk = 0.0f;
 		float cost_walk_pole = 0.0f;
 
 		float cost_pt 	= commticket_true==1 ? 0.0f
-																: this.impedance.getTravelCost(originId, destinationId, Mode.PUBLICTRANSPORT, date);
+																: this.impedance.getTravelCost(originId, destinationId, StandardMode.PUBLICTRANSPORT, date);
 		float cost_pt_pole   = commticket_true==1 ? 0.0f
-																: this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.PUBLICTRANSPORT, nextDate);
+																: this.impedance.getTravelCost(destinationId, nextFixedDestinationId, StandardMode.PUBLICTRANSPORT, nextDate);
 
 		float cost_pass = use_car_cost_as_passenger_cost ? 
 												USE_CAR_COST_AS_PASSENGER_COST_SCALING_FACTOR.floatValue()*cost_car : 0.0f;
@@ -561,24 +562,24 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		float cost_bikesharing_pole = 0.08f*60f*time_h_bike_pole;
 
 
-		float cost_cs_station 	= this.impedance.getTravelCost(originId, destinationId, Mode.CARSHARING_STATION, date);
-		float cost_cs_station_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CARSHARING_STATION, nextDate);
+		float cost_cs_station 	= this.impedance.getTravelCost(originId, destinationId, StandardMode.CARSHARING_STATION, date);
+		float cost_cs_station_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, StandardMode.CARSHARING_STATION, nextDate);
 		float cost_cs_station_standing = Math.max(0.0f, time_h_till_home - time_h_cs_station - time_h_cs_station_pole)
 																			* ImpedanceCarSharing.CARSHARING_COST_STATION_BASED_EUR_PER_HOUR;
 
-		float cost_cs_free 	= this.impedance.getTravelCost(originId, destinationId, Mode.CARSHARING_FREE, date);
-		float cost_cs_free_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, Mode.CARSHARING_FREE, nextDate);
+		float cost_cs_free 	= this.impedance.getTravelCost(originId, destinationId, StandardMode.CARSHARING_FREE, date);
+		float cost_cs_free_pole  = this.impedance.getTravelCost(destinationId, nextFixedDestinationId, StandardMode.CARSHARING_FREE, nextDate);
 
 
 
-		int last_mode_car 	= previousActivity.mode() == Mode.CAR 
-														|| previousActivity.mode() == Mode.CARSHARING_STATION 
-														|| previousActivity.mode() == Mode.CARSHARING_FREE 
+		int last_mode_car 	= previousActivity.mode() == StandardMode.CAR 
+														|| previousActivity.mode() == StandardMode.CARSHARING_STATION 
+														|| previousActivity.mode() == StandardMode.CARSHARING_FREE 
 																																					? 1 : 0;
-		int last_mode_walk 	= previousActivity.mode() == Mode.PEDESTRIAN ? 1 : 0;
-		int last_mode_pt 		= previousActivity.mode() == Mode.PUBLICTRANSPORT ? 1 : 0;
-		int last_mode_pass 	= previousActivity.mode() == Mode.PASSENGER ? 1 : 0;
-		int last_mode_bike 	= previousActivity.mode() == Mode.BIKE ? 1 : 0;
+		int last_mode_walk 	= previousActivity.mode() == StandardMode.PEDESTRIAN ? 1 : 0;
+		int last_mode_pt 		= previousActivity.mode() == StandardMode.PUBLICTRANSPORT ? 1 : 0;
+		int last_mode_pass 	= previousActivity.mode() == StandardMode.PASSENGER ? 1 : 0;
+		int last_mode_bike 	= previousActivity.mode() == StandardMode.BIKE ? 1 : 0;
 
 		assert person instanceof EmobilityPerson;
 
@@ -742,16 +743,16 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 													; 
 
 
-		utilities.put(Mode.PEDESTRIAN, u_walk * MU );
-		utilities.put(Mode.BIKE, u_bike * MU ); 
-		utilities.put(Mode.CAR, u_car_driver * MU ); 
-		utilities.put(Mode.PASSENGER, u_pass * MU ); 
-		utilities.put(Mode.PUBLICTRANSPORT, u_pt * MU ); 
+		utilities.put(StandardMode.PEDESTRIAN, u_walk * MU );
+		utilities.put(StandardMode.BIKE, u_bike * MU ); 
+		utilities.put(StandardMode.CAR, u_car_driver * MU ); 
+		utilities.put(StandardMode.PASSENGER, u_pass * MU ); 
+		utilities.put(StandardMode.PUBLICTRANSPORT, u_pt * MU ); 
 
-		utilities.put(Mode.PEDELEC, u_pedelec * MU ); 
-		utilities.put(Mode.BIKESHARING, u_bikesharing * MU ); 
-		utilities.put(Mode.CARSHARING_STATION, u_cs_station * MU ); 
-		utilities.put(Mode.CARSHARING_FREE, u_cs_free * MU ); 
+		utilities.put(StandardMode.PEDELEC, u_pedelec * MU ); 
+		utilities.put(StandardMode.BIKESHARING, u_bikesharing * MU ); 
+		utilities.put(StandardMode.CARSHARING_STATION, u_cs_station * MU ); 
+		utilities.put(StandardMode.CARSHARING_FREE, u_cs_free * MU ); 
 
 		utilities.keySet().retainAll(choiceSetForModes);
 

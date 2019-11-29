@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 
 public class SubtourModeChoiceParameterBase
@@ -212,19 +213,19 @@ public class SubtourModeChoiceParameterBase
 
 	@Override
 	public Map<String, Double> parameterForMode(Mode mode) {
-		if (Mode.PEDESTRIAN.equals(mode)) {
+		if (StandardMode.PEDESTRIAN.equals(mode)) {
 			return parameterWalk;
 		}
-		if (Mode.BIKE.equals(mode)) {
+		if (StandardMode.BIKE.equals(mode)) {
 			return parameterBike;
 		}
-		if (Mode.CAR.equals(mode)) {
+		if (StandardMode.CAR.equals(mode)) {
 			return parameterCar;
 		}
-		if (Mode.PASSENGER.equals(mode)) {
+		if (StandardMode.PASSENGER.equals(mode)) {
 			return parameterPassenger;
 		}
-		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+		if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
 			return parameterPt;
 		}
 		throw new AssertionError("invalid mode: " + mode);

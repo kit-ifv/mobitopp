@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -554,7 +555,7 @@ class ModeChoiceParameterSimple implements ModeChoiceParameter {
 
 			double time_km 	= impedance.getTravelTime(originId, destinationId, mode, date)/distance;
 
-			double cost_km 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
+			double cost_km 	= (mode==StandardMode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
 												: impedance.getTravelCost(originId, destinationId, mode, date)/distance;
 
 
@@ -568,19 +569,19 @@ class ModeChoiceParameterSimple implements ModeChoiceParameter {
 	}
 
 	public Map<String, Double> parameterForMode(Mode mode) {
-		if (Mode.PEDESTRIAN.equals(mode)) {
+		if (StandardMode.PEDESTRIAN.equals(mode)) {
 			return parameterWalk;
 		}
-		if (Mode.BIKE.equals(mode)) {
+		if (StandardMode.BIKE.equals(mode)) {
 			return parameterBike;
 		}
-		if (Mode.CAR.equals(mode)) {
+		if (StandardMode.CAR.equals(mode)) {
 			return parameterCar;
 		}
-		if (Mode.PASSENGER.equals(mode)) {
+		if (StandardMode.PASSENGER.equals(mode)) {
 			return parameterPassenger;
 		}
-		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+		if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
 			return parameterPt;
 		}
 		throw new AssertionError("invalid mode: " + mode);

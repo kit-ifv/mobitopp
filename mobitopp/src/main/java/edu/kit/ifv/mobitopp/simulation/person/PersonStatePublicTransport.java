@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.Event;
@@ -237,7 +237,7 @@ public enum PersonStatePublicTransport implements PersonState {
 
 		@Override
 		public PersonState nextState(SimulationPerson person, Time currentTime) {
-			if (Mode.PUBLICTRANSPORT.equals(person.currentTrip().mode())) {
+			if (StandardMode.PUBLICTRANSPORT.equals(person.currentTrip().mode())) {
 				return USE_PUBLIC_TRANSPORT;
 			}
 			return USE_OTHER_MODE;

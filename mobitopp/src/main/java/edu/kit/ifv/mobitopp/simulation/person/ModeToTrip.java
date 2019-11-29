@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 
@@ -22,10 +23,10 @@ public class ModeToTrip {
   public static ModeToTrip createDefault() {
     BiFunction<TripData, SimulationPerson, Trip> defaultTrip = NoActionTrip::new;
     ModeToTrip modeToTrip = new ModeToTrip(defaultTrip);
-    modeToTrip.add(Mode.CAR, PrivateCarTrip::new);
-    modeToTrip.add(Mode.CARSHARING_STATION, CarSharingStationTrip::new);
-    modeToTrip.add(Mode.CARSHARING_FREE, CarSharingFreeFloatingTrip::new);
-    modeToTrip.add(Mode.PASSENGER, PassengerTrip::new);
+    modeToTrip.add(StandardMode.CAR, PrivateCarTrip::new);
+    modeToTrip.add(StandardMode.CARSHARING_STATION, CarSharingStationTrip::new);
+    modeToTrip.add(StandardMode.CARSHARING_FREE, CarSharingFreeFloatingTrip::new);
+    modeToTrip.add(StandardMode.PASSENGER, PassengerTrip::new);
     return modeToTrip;
   }
   

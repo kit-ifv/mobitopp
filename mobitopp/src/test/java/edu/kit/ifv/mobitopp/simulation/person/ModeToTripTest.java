@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 
@@ -30,7 +30,7 @@ public class ModeToTripTest {
     BiFunction<TripData, SimulationPerson, Trip> defaultTrip = mock(BiFunction.class);
     ModeToTrip modeToTrip = new ModeToTrip(defaultTrip);
     
-    modeToTrip.create(Mode.CAR, tripData, person);
+    modeToTrip.create(StandardMode.CAR, tripData, person);
     
     verify(defaultTrip).apply(tripData, person);
   }
@@ -42,10 +42,10 @@ public class ModeToTripTest {
     BiFunction<TripData, SimulationPerson, Trip> carTrip = mock(BiFunction.class);
     BiFunction<TripData, SimulationPerson, Trip> passengerTrip = mock(BiFunction.class);
     ModeToTrip modeToTrip = new ModeToTrip(defaultTrip);
-    modeToTrip.add(Mode.CAR, carTrip);
-    modeToTrip.add(Mode.PASSENGER, passengerTrip);
+    modeToTrip.add(StandardMode.CAR, carTrip);
+    modeToTrip.add(StandardMode.PASSENGER, passengerTrip);
     
-    modeToTrip.create(Mode.CAR, tripData, person);
+    modeToTrip.create(StandardMode.CAR, tripData, person);
     
     verify(carTrip).apply(tripData, person);
     verifyZeroInteractions(carTrip);

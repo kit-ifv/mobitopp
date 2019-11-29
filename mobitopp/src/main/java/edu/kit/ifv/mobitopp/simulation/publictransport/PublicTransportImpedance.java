@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationFinder;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationPaths;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -34,7 +35,7 @@ public class PublicTransportImpedance implements ImpedanceIfc {
 		if (source.equals(target)) {
 			return Optional.empty();
 		}
-		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+		if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
 			StationPaths fromStart = stationResolver.findReachableStations(source);
 			StationPaths toEnd = stationResolver.findReachableStations(target);
 			return fromStart.findRoute(toEnd, atTime, viaRouteSearch);
@@ -48,7 +49,7 @@ public class PublicTransportImpedance implements ImpedanceIfc {
 		if (start.equals(end)) {
 			return Optional.empty();
 		}
-		if (Mode.PUBLICTRANSPORT.equals(mode)) {
+		if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
 			return viaRouteSearch.findRoute(start, end, atTime);
 		}
 		return Optional.empty();

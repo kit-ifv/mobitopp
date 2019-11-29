@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.PublicTransportBehaviour;
@@ -68,7 +69,7 @@ public class PublicTransportTripFactoryTest {
   @Test
   public void createPublicTransportTrip() {
     PublicTransportRoute route = mock(PublicTransportRoute.class);
-    Mode mode = Mode.PUBLICTRANSPORT;
+    Mode mode = StandardMode.PUBLICTRANSPORT;
     use(mode);
     when(impedance.getPublicTransportRoute(originLocation, destinationLocation, mode, startDate))
         .thenReturn(Optional.of(route));

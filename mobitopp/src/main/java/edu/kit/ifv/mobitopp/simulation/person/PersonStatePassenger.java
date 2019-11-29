@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
 
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.Event;
@@ -42,7 +42,7 @@ public enum PersonStatePassenger
 		}
 
 		public PersonState nextState(SimulationPerson person, Time currentTime) {
-			if (person.currentTrip().mode() == Mode.PASSENGER) {
+			if (person.currentTrip().mode() == StandardMode.PASSENGER) {
 				return PersonStatePassenger.EXECUTE_ACTIVITY_CHECKRIDEOFFER;
 			} else {
 				return PersonStatePassenger.EXECUTE_ACTIVITYMODECHOSEN;

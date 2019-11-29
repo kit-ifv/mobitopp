@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.CarSharingCategories;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourModeChoiceModelWithTimeRestrictions;
@@ -79,7 +80,7 @@ public class ModeChoiceModelUsingAvailableModes
 																									randomNumber
 																								);
 
-		if (selectedMode == Mode.CARSHARING_FREE) {
+		if (selectedMode == StandardMode.CARSHARING_FREE) {
 			String message = "person: " + person.getOid();
 			message += "\n Zone: " + source.getId().getExternalId();
 			message += "\n selected mode: " + selectedMode;

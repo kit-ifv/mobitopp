@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
@@ -46,8 +47,8 @@ public class SimpleTourBasedModeChoiceModelTest {
 		model = new DefaultTourModeChoiceModel(new PreferenceOnlyUtilityFunction());
 		
 		binaryChoiceSet = new LinkedHashSet<Mode>();
-		binaryChoiceSet.add(Mode.CAR);
-		binaryChoiceSet.add(Mode.PUBLICTRANSPORT);
+		binaryChoiceSet.add(StandardMode.CAR);
+		binaryChoiceSet.add(StandardMode.PUBLICTRANSPORT);
 		
 		schedule = new ActivityPeriod(new DefaultTourFactory());
 		
@@ -74,8 +75,8 @@ public class SimpleTourBasedModeChoiceModelTest {
 		Mode chosen0 = model.selectMode(null, null, Mode.MODESET_CAR_ONLY, 0.0);
 		Mode chosen1 = model.selectMode(null, null, Mode.MODESET_CAR_ONLY, 1.0);
 		
-		assertEquals(Mode.CAR, chosen0);
-		assertEquals(Mode.CAR, chosen1);
+		assertEquals(StandardMode.CAR, chosen0);
+		assertEquals(StandardMode.CAR, chosen1);
 	}
 
 	@Test(expected = AssertionError.class)
@@ -94,14 +95,14 @@ public class SimpleTourBasedModeChoiceModelTest {
 	public void testBinaryModeChoiceEqualProb() {
 
 		Map<Mode,Double> utilities = new LinkedHashMap<Mode,Double>();
-		utilities.put(Mode.CAR, 0.1);
-		utilities.put(Mode.PUBLICTRANSPORT, 0.1);
-		utilities.put(Mode.BIKE, 1.0);
+		utilities.put(StandardMode.CAR, 0.1);
+		utilities.put(StandardMode.PUBLICTRANSPORT, 0.1);
+		utilities.put(StandardMode.BIKE, 1.0);
 		
 		Mode chosen0 = model.selectMode(null, null, binaryChoiceSet, 0.49);
 		Mode chosen1 = model.selectMode(null, null, binaryChoiceSet, 0.51);
 		
-		assertEquals(Mode.CAR, chosen0);
-		assertEquals(Mode.PUBLICTRANSPORT, chosen1);
+		assertEquals(StandardMode.CAR, chosen0);
+		assertEquals(StandardMode.PUBLICTRANSPORT, chosen1);
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferenceCreator;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.UncorrelatedModeChoicePreferenceCreator;
@@ -69,11 +70,11 @@ public class PanelBasedPersonCreator implements PersonCreator {
 
   private ModeChoicePreferences createPreferencesFor(PersonOfPanelData personOfPanelData) {
     Map<Mode, Double> preferences = new LinkedHashMap<>();
-    preferences.put(Mode.BIKE, (double) personOfPanelData.pref_cycling);
-    preferences.put(Mode.CAR, (double) personOfPanelData.pref_cardriver);
-    preferences.put(Mode.PASSENGER, (double) personOfPanelData.pref_carpassenger);
-    preferences.put(Mode.PEDESTRIAN, (double) personOfPanelData.pref_walking);
-    preferences.put(Mode.PUBLICTRANSPORT, (double) personOfPanelData.pref_publictransport);
+    preferences.put(StandardMode.BIKE, (double) personOfPanelData.pref_cycling);
+    preferences.put(StandardMode.CAR, (double) personOfPanelData.pref_cardriver);
+    preferences.put(StandardMode.PASSENGER, (double) personOfPanelData.pref_carpassenger);
+    preferences.put(StandardMode.PEDESTRIAN, (double) personOfPanelData.pref_walking);
+    preferences.put(StandardMode.PUBLICTRANSPORT, (double) personOfPanelData.pref_publictransport);
     return new ModeChoicePreferences(preferences);
   }
 

@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
@@ -533,13 +534,13 @@ public class ModeSelectorParameterOtherTrip
 
 		Map<Mode,Map<String,Double>> parameterForMode = new LinkedHashMap<>();
 
-		parameterForMode.put(Mode.PEDESTRIAN, 				Collections.unmodifiableMap(parameterWalk));
-		parameterForMode.put(Mode.BIKE, 							Collections.unmodifiableMap(parameterBike));
-		parameterForMode.put(Mode.CAR, 								Collections.unmodifiableMap(parameterCar));
-		parameterForMode.put(Mode.PASSENGER,		 			Collections.unmodifiableMap(parameterPassenger));
-		parameterForMode.put(Mode.PUBLICTRANSPORT, 		Collections.unmodifiableMap(parameterPt));
-		parameterForMode.put(Mode.CARSHARING_STATION, Collections.unmodifiableMap(parameterCarsharingStation));
-		parameterForMode.put(Mode.CARSHARING_FREE, 		Collections.unmodifiableMap(parameterCarsharingFree));
+		parameterForMode.put(StandardMode.PEDESTRIAN, 				Collections.unmodifiableMap(parameterWalk));
+		parameterForMode.put(StandardMode.BIKE, 							Collections.unmodifiableMap(parameterBike));
+		parameterForMode.put(StandardMode.CAR, 								Collections.unmodifiableMap(parameterCar));
+		parameterForMode.put(StandardMode.PASSENGER,		 			Collections.unmodifiableMap(parameterPassenger));
+		parameterForMode.put(StandardMode.PUBLICTRANSPORT, 		Collections.unmodifiableMap(parameterPt));
+		parameterForMode.put(StandardMode.CARSHARING_STATION, Collections.unmodifiableMap(parameterCarsharingStation));
+		parameterForMode.put(StandardMode.CARSHARING_FREE, 		Collections.unmodifiableMap(parameterCarsharingFree));
 
 		return parameterForMode;
 	}
@@ -617,14 +618,14 @@ public class ModeSelectorParameterOtherTrip
 
 		double shorttrip = distance <= 1.5 ? 1.0f : 0.0f;
 
-		double last_mode_car 	= previousActivity.mode() == Mode.CAR
-														|| previousActivity.mode() == Mode.CARSHARING_STATION
-														|| previousActivity.mode() == Mode.CARSHARING_FREE
+		double last_mode_car 	= previousActivity.mode() == StandardMode.CAR
+														|| previousActivity.mode() == StandardMode.CARSHARING_STATION
+														|| previousActivity.mode() == StandardMode.CARSHARING_FREE
 																																					? 1.0f : 0.0f;
-		double last_mode_foot 	= previousActivity.mode() == Mode.PEDESTRIAN ? 1.0f : 0.0f;
-		double last_mode_pt 		= previousActivity.mode() == Mode.PUBLICTRANSPORT ? 1.0f : 0.0f;
-		double last_mode_pass 	= previousActivity.mode() == Mode.PASSENGER ? 1.0f : 0.0f;
-		double last_mode_bike 	= previousActivity.mode() == Mode.BIKE ? 1.0f : 0.0f;
+		double last_mode_foot 	= previousActivity.mode() == StandardMode.PEDESTRIAN ? 1.0f : 0.0f;
+		double last_mode_pt 		= previousActivity.mode() == StandardMode.PUBLICTRANSPORT ? 1.0f : 0.0f;
+		double last_mode_pass 	= previousActivity.mode() == StandardMode.PASSENGER ? 1.0f : 0.0f;
+		double last_mode_bike 	= previousActivity.mode() == StandardMode.BIKE ? 1.0f : 0.0f;
 
 
 		Map<String,Double> attributes = new LinkedHashMap<>();
@@ -686,7 +687,7 @@ public class ModeSelectorParameterOtherTrip
 
 			double time 	= impedance.getTravelTime(originId, destinationId, mode, date);
 
-			double cost_km 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
+			double cost_km 	= (mode==StandardMode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
 												: impedance.getTravelCost(originId, destinationId, mode, date)/distance;
 
 		 	attrib.put("TIME", 		time);

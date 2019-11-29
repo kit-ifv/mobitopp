@@ -16,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.HouseholdType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
@@ -151,14 +152,14 @@ public class ModeChoiceAttributes {
 			double hhtype_kids_13to18			= HouseholdType.type(hh) == HouseholdType.KIDS13PLUS 	? 1 : 0;
 			double hhtype_multiadult			= HouseholdType.type(hh) == HouseholdType.MULTIADULT 	? 1 : 0;
 			
-			Mode previousMode = tour.hasPreviousTour() ? tour.previousTour().mode() : Mode.UNDEFINED;
+			Mode previousMode = tour.hasPreviousTour() ? tour.previousTour().mode() : StandardMode.UNDEFINED;
 			double initialTour = tour.hasPreviousTour() ? 0.0 : 1.0;
 			
-			double shares_walking = sharesAsPreferences.get(Mode.PEDESTRIAN);
-			double shares_cycling = sharesAsPreferences.get(Mode.BIKE);
-			double shares_cardriver = sharesAsPreferences.get(Mode.CAR);
-			double shares_carpassenger = sharesAsPreferences.get(Mode.PASSENGER);
-			double shares_publictransport = sharesAsPreferences.get(Mode.PUBLICTRANSPORT);
+			double shares_walking = sharesAsPreferences.get(StandardMode.PEDESTRIAN);
+			double shares_cycling = sharesAsPreferences.get(StandardMode.BIKE);
+			double shares_cardriver = sharesAsPreferences.get(StandardMode.CAR);
+			double shares_carpassenger = sharesAsPreferences.get(StandardMode.PASSENGER);
+			double shares_publictransport = sharesAsPreferences.get(StandardMode.PUBLICTRANSPORT);
 			
 			TourAwareActivitySchedule schedule = (TourAwareActivitySchedule) person.activitySchedule();
 			
@@ -291,7 +292,7 @@ public class ModeChoiceAttributes {
 	
 				double time 	= impedance.getTravelTime(origin, destination, mode, date);
 	
-				double cost 	= (mode==Mode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
+				double cost 	= (mode==StandardMode.PUBLICTRANSPORT && person.hasCommuterTicket()) ? 0.0
 													: impedance.getTravelCost(origin, destination, mode, date);
 	
 	
@@ -307,11 +308,11 @@ public class ModeChoiceAttributes {
 				
 				attrib.put("SAME_MODE_AS_BEFORE", mode == previousMode ? 1.0 : 0.0);
 				
-				attrib.put("PREVIOUS_MODE_WALK", previousMode == Mode.PEDESTRIAN ? 1.0 : 0.0);
-				attrib.put("PREVIOUS_MODE_BIKE", previousMode == Mode.BIKE ? 1.0 : 0.0);
-				attrib.put("PREVIOUS_MODE_CAR", previousMode == Mode.CAR ? 1.0 : 0.0);
-				attrib.put("PREVIOUS_MODE_PASSENGER", previousMode == Mode.PASSENGER ? 1.0 : 0.0);
-				attrib.put("PREVIOUS_MODE_PT", previousMode == Mode.PUBLICTRANSPORT ? 1.0 : 0.0);
+				attrib.put("PREVIOUS_MODE_WALK", previousMode == StandardMode.PEDESTRIAN ? 1.0 : 0.0);
+				attrib.put("PREVIOUS_MODE_BIKE", previousMode == StandardMode.BIKE ? 1.0 : 0.0);
+				attrib.put("PREVIOUS_MODE_CAR", previousMode == StandardMode.CAR ? 1.0 : 0.0);
+				attrib.put("PREVIOUS_MODE_PASSENGER", previousMode == StandardMode.PASSENGER ? 1.0 : 0.0);
+				attrib.put("PREVIOUS_MODE_PT", previousMode == StandardMode.PUBLICTRANSPORT ? 1.0 : 0.0);
 				
 				assert preferences.containsKey(mode);
 				assert sharesAsPreferences.containsKey(mode);

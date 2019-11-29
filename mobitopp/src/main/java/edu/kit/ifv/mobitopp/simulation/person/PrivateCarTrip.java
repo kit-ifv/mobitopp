@@ -3,8 +3,8 @@ package edu.kit.ifv.mobitopp.simulation.person;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -14,7 +14,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class PrivateCarTrip extends CarBasedTrip implements Trip {
 
   public PrivateCarTrip(TripData trip, SimulationPerson person) {
-    super(trip, person, PrivateCar.class, Mode.CAR);
+    super(trip, person, PrivateCar.class, StandardMode.CAR);
   }
 
   @Override

@@ -24,6 +24,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class ImpedanceLocalDataTest {
@@ -35,7 +36,7 @@ public class ImpedanceLocalDataTest {
 	private static final Time date = Data.someTime();
 	private static final Location sourceLocation = null;
 	private static final Location targetLocation = null;
-	private static final Mode mode = Mode.CAR;
+	private static final Mode mode = StandardMode.CAR;
 	private static final float cost = 1.0f;
 	private static final float distance = 1.0f;
 	private static final float storedParkingCost = 1.0f;
@@ -111,9 +112,9 @@ public class ImpedanceLocalDataTest {
 	
 	@Test
 	public void noCostForBikePassengerAndPedestrian() {
-		float bikeCost = impedance.getTravelCost(origin, destination, Mode.BIKE, date);
-		float passangerCost = impedance.getTravelCost(origin, destination, Mode.PASSENGER, date);
-		float pedestrianCost = impedance.getTravelCost(origin, destination, Mode.PEDESTRIAN, date);
+		float bikeCost = impedance.getTravelCost(origin, destination, StandardMode.BIKE, date);
+		float passangerCost = impedance.getTravelCost(origin, destination, StandardMode.PASSENGER, date);
+		float pedestrianCost = impedance.getTravelCost(origin, destination, StandardMode.PEDESTRIAN, date);
 		
 		assertThat(bikeCost, is(equalTo(0.0f)));
 		assertThat(passangerCost, is(equalTo(0.0f)));

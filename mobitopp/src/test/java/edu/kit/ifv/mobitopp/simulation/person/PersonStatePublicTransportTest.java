@@ -42,7 +42,7 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.publictransport.model.FootJourney;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.Activity;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -95,7 +95,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void driveCarAfterModeSelectionWhenModeIsCar() throws Exception {
-		when(trip.mode()).thenReturn(Mode.CAR);
+		when(trip.mode()).thenReturn(StandardMode.CAR);
 		when(person.currentTrip()).thenReturn(trip);
 
 		PersonState nextState = SELECT_MODE.nextState(person, someDate());
@@ -105,7 +105,7 @@ public class PersonStatePublicTransportTest {
 
 	@Test
 	public void usePublicTransportAfterModeSelectionWhenModeIsPublicTransport() throws Exception {
-		when(trip.mode()).thenReturn(Mode.PUBLICTRANSPORT);
+		when(trip.mode()).thenReturn(StandardMode.PUBLICTRANSPORT);
 		when(person.currentTrip()).thenReturn(trip);
 
 		PersonState nextState = SELECT_MODE.nextState(person, someDate());
