@@ -53,12 +53,12 @@ public class ContextBuilder {
 
 	public ContextBuilder(
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language,
-			PersonChanger personChanger) {
+			PersonChangerFactory personChangerFactory) {
     super();
 		this.areaTypeRepository = areaTypeRepository;
     this.modeToType = modeToType;
     this.language = language;
-		this.personChanger = personChanger;
+		this.personChangerFactory = personChangerFactory;
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
@@ -66,7 +66,7 @@ public class ContextBuilder {
   
   public ContextBuilder(
       AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language) {
-  	this(areaTypeRepository, modeToType, language, PersonChanger.noChange());
+  	this(areaTypeRepository, modeToType, language, (c) -> PersonChanger.noChange());
   }
 	
 	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
