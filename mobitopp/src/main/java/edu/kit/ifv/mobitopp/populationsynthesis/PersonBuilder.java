@@ -89,7 +89,7 @@ public interface PersonBuilder {
 
 	ModeChoicePreferences getModeChoicePreferences();
 
-	PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePrefsSurvey);
+	PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences);
 
 	TourBasedActivityPattern getActivityPattern();
 

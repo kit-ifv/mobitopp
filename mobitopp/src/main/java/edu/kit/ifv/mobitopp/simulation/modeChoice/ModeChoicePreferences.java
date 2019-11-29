@@ -1,15 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 
@@ -72,5 +69,9 @@ public class ModeChoicePreferences
 			}
 			
 			return new ModeChoicePreferences(values);
+	}
+
+	public double get(Mode mode) {
+		return preferences.get(mode);
 	}
 }
