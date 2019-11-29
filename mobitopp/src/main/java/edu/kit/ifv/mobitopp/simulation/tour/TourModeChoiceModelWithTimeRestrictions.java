@@ -76,7 +76,7 @@ public class TourModeChoiceModelWithTimeRestrictions
 				context.personResults().writeSubourinfoToFile(person, tour, subtour, tourMode);
 			
 				if (!tourMode.isFlexible()) {
-					currentChoiceSet = Mode.exclusive(tourMode);
+					currentChoiceSet = Set.of(tourMode);
 				}
 			}
 
