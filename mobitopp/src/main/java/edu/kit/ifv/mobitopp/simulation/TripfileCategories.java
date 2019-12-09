@@ -31,7 +31,7 @@ public class TripfileCategories {
 
 	private Category result() {
 		List<String> header = new ArrayList<>();
-		header.add("W");
+		header.add("tripId");
 		header.add("personnumber");
 		header.add("householdOid");
 		header.add("personOid");

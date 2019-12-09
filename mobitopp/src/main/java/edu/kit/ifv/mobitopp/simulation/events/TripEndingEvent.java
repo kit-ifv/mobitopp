@@ -31,7 +31,7 @@ public class TripEndingEvent extends DemandSimulationEvent {
 		assert prevActivity != null;
 
 		FinishedTrip finishedTrip = trip.finish(trip.calculatePlannedEndDate(), listener);
-		listener.notifyEndTrip(person, finishedTrip, activity);
+		listener.notifyEndTrip(person, finishedTrip);
 		if (person.isCarDriver()) {
 			listener.notifyFinishCarTrip(person, person.whichCar(), finishedTrip, activity);
 		}

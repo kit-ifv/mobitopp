@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.data.IntegerMatrix;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 
 public class AggregateDemandTest {
@@ -37,9 +36,8 @@ public class AggregateDemandTest {
     ZoneAndLocation zoneLocation = new ZoneAndLocation(zone, location);
     when(trip.origin()).thenReturn(zoneLocation);
     when(trip.destination()).thenReturn(zoneLocation);
-    ActivityIfc activity = mock(ActivityIfc.class);
 
-    aggregateDemand.notifyEndTrip(person, trip, activity);
+    aggregateDemand.notifyEndTrip(person, trip);
 
     aggregateDemand.notifyFinishSimulation();
 

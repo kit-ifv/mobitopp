@@ -354,7 +354,7 @@ public class SimulationPersonPassengerTest {
     person.endTrip(impedance, rescheduling, currentDate);
     
     verify(mockedTrip).finish(currentDate, results);
-    verify(results).notifyEndTrip(this.person, finishedTrip, firstActivity);
+    verify(results).notifyEndTrip(this.person, finishedTrip);
   }
   
   @Test

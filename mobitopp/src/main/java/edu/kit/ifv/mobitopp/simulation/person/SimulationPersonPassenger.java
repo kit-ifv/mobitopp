@@ -482,7 +482,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 			
 			FinishedTrip finishedTrip = finish(currentDate, trip);
 
-			notifyEndTrip(finishedTrip, activity);
+			notifyEndTrip(finishedTrip);
 
 			startActivityInternal(rescheduling, activity, currentDate, trip);
 	}
@@ -494,9 +494,9 @@ public class SimulationPersonPassenger extends PersonDecorator
 		return trip.finish(currentDate, listener);
 	}
 	
-	private void notifyEndTrip(FinishedTrip trip, ActivityIfc activity) {
+	private void notifyEndTrip(FinishedTrip trip) {
 	  Objects.requireNonNull(trip, "Missing finished trip.");
-		listener.notifyEndTrip(person(), trip, activity);
+		listener.notifyEndTrip(person(), trip);
 	}
 
 	private void startActivityInternal(

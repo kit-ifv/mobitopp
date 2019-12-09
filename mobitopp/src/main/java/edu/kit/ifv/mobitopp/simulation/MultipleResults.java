@@ -21,8 +21,8 @@ public class MultipleResults implements PersonResults {
   }
 
   @Override
-  public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
-    notifyAllListener(l -> l.notifyEndTrip(person, trip, activity));
+  public void notifyEndTrip(Person person, FinishedTrip trip) {
+    notifyAllListener(l -> l.notifyEndTrip(person, trip));
   }
 
   @Override

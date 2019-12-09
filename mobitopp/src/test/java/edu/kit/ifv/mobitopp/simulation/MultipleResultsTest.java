@@ -47,7 +47,7 @@ public class MultipleResultsTest {
     Mode tourMode = StandardMode.CAR;
     Zone tourDestination = ExampleZones.create().someZone();
     return Stream
-        .of(l -> l.notifyEndTrip(person, trip, activity),
+        .of(l -> l.notifyEndTrip(person, trip),
             l -> l.notifyFinishCarTrip(person, car, trip, activity),
             l -> l.notifyStartActivity(person, activity),
             l -> l.notifySelectCarRoute(person, car, tripData, route),
