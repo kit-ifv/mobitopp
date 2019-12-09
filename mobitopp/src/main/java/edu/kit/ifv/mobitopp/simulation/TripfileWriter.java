@@ -38,34 +38,21 @@ public class TripfileWriter implements PersonListener {
   }
 
 	@Override
-	public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
+	public void notifyEndTrip(final Person person, final FinishedTrip trip) {
 		ActivityIfc prevActivity = trip.previousActivity();
 		assert prevActivity != null;
-		
-		Location location = activity.location();
-		Location prevLocation = prevActivity.location();
+		final Person person1 = person;
+		final FinishedTrip finishedTrip = trip;
 
-		writeTripToFile(person, trip, prevActivity, activity, prevLocation, location);
+		String line = tripConverter.convert(person1, finishedTrip);
+		results().write(this.categories.result, line);
+		CsvBuilder statistics = new CsvBuilder();
+		statistics.append(person1.getOid());
+		finishedTrip.statistic().forAllElements(statistics::append);
+		results().write(categories.ptTimes, statistics.toString());
 	}
 
-	private void writeTripToFile(
-      Person person,
-      FinishedTrip finishedTrip,
-      ActivityIfc previousActivity,
-      ActivityIfc activity,
-			Location location_from,
-			Location location_to
-	) {
-    String line = tripConverter
-        .convert(person, finishedTrip, previousActivity, activity, location_from, location_to);
-    results().write(this.categories.result, line);
-    CsvBuilder statistics = new CsvBuilder();
-    statistics.append(person.getOid());
-    finishedTrip.statistic().forAllElements(statistics::append);
-    results().write(categories.ptTimes, statistics.toString());
-  }
-
-  @Override
+	@Override
 	public void notifyStartActivity(Person person, ActivityIfc activity) {
 		Location location = activity.location();
 		Zone zone = activity.zone();

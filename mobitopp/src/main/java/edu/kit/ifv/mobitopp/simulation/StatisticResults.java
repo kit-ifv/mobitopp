@@ -23,7 +23,7 @@ public class StatisticResults implements PersonListener {
 	}
 
 	@Override
-	public void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity) {
+	public void notifyEndTrip(Person person, FinishedTrip trip) {
 		trips.add(trip);
 	}
 

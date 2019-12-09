@@ -26,10 +26,12 @@ public class CsvConverter implements TripConverter {
     this.locationParser = locationParser;
   }
 
-  @Override
-  public String convert(
-      Person person, FinishedTrip finishedTrip, ActivityIfc previousActivity,
-      ActivityIfc nextActivity, Location location_from, Location location_to) {
+	@Override
+	public String convert(final Person person, final FinishedTrip finishedTrip) {
+  	ActivityIfc previousActivity = finishedTrip.previousActivity();
+  	ActivityIfc nextActivity = finishedTrip.nextActivity();
+  	Location location_from = previousActivity.location();
+  	Location location_to = nextActivity.location();
     String origin = finishedTrip.origin().zone().getId().getExternalId();
     String destination = nextActivity.zone().getId().getExternalId();
     ZoneId originId = finishedTrip.origin().zone().getId();
@@ -90,9 +92,10 @@ public class CsvConverter implements TripConverter {
     Time realEnd = finishedTrip.endDate();
     String realEndDay = format.asDay(realEnd);
     String realEndTime = format.asTime(realEnd);
+    int tripId = finishedTrip.getOid();
 
     CsvBuilder message = new CsvBuilder();
-    message.append("W");
+		message.append(tripId);
     message.append(personnumber);
     message.append(household_oid);
     message.append(personOid);

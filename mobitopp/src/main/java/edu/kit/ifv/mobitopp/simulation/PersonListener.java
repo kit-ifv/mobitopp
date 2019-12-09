@@ -9,7 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
 public interface PersonListener {
 
-  void notifyEndTrip(Person person, FinishedTrip trip, ActivityIfc activity);
+  void notifyEndTrip(Person person, FinishedTrip trip);
 
   void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity);
 
