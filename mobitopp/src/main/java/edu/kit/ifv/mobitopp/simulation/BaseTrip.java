@@ -32,6 +32,11 @@ public class BaseTrip implements TripData, Trip {
   public int getOid() {
     return data.getOid();
   }
+  
+  @Override
+  public int getLegId() {
+  	return data.getLegId();
+  }
 
   @Override
   public Time calculatePlannedEndDate() {

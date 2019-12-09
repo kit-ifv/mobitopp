@@ -94,9 +94,11 @@ public class CsvConverter implements TripConverter {
     String realEndDay = format.asDay(realEnd);
     String realEndTime = format.asTime(realEnd);
     int tripId = finishedTrip.getOid();
+    int legId = finishedTrip.getLegId();
 
     CsvBuilder message = new CsvBuilder();
 		message.append(tripId);
+		message.append(legId);
     message.append(personnumber);
     message.append(household_oid);
     message.append(personOid);

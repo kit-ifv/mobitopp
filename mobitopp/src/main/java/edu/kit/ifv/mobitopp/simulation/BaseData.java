@@ -14,13 +14,15 @@ public class BaseData implements TripData
 	/** in minutes **/
 	private final short plannedDuration;
 
-  private final int oid;
+  private final int tripId;
+  private final int legId;
 
 	private final ActivityIfc previousActivity;
 	private final ActivityIfc nextActivity;
 
 	public BaseData(
-			final int oid,
+			final int tripId,
+			final int legId,
 			final ActivityIfc previousActivity,
 			final ActivityIfc nextActivity,
 			final ZoneAndLocation origin,
@@ -31,7 +33,8 @@ public class BaseData implements TripData
 	)
 	{
 		super();
-    this.oid = oid;
+    this.tripId = tripId;
+    this.legId = legId;
 		this.previousActivity = previousActivity;
 		this.nextActivity = nextActivity;
     this.origin = origin;
@@ -42,7 +45,8 @@ public class BaseData implements TripData
 	}
 	
 	public BaseData(
-		final int oid,
+		final int tripId,
+		final int legId,
 		final ActivityIfc previousActivity,
 		final ActivityIfc nextActivity,
 		final Mode modeType,
@@ -50,17 +54,18 @@ public class BaseData implements TripData
 		final short plannedDuration
 	)
   {
-		this(oid, previousActivity, nextActivity, previousActivity.zoneAndLocation(),
+		this(tripId, legId, previousActivity, nextActivity, previousActivity.zoneAndLocation(),
 				nextActivity.zoneAndLocation(), modeType, start, plannedDuration);
   }
   
   public BaseData(
-  	final int tripId, 
+  	final int tripId,
+		final int legId, 
   	final Mode mode, 
   	final ActivityIfc prev, 
   	final ActivityIfc next, 
   	final short duration) {
-  	this(tripId, prev, next, mode, prev.calculatePlannedEndDate(), duration);
+  	this(tripId, legId, prev, next, mode, prev.calculatePlannedEndDate(), duration);
   }
 
   @Override
@@ -96,7 +101,12 @@ public class BaseData implements TripData
   @Override
   public int getOid()
   {
-    return this.oid;
+    return this.tripId;
+  }
+  
+  @Override
+  public int getLegId() {
+  	return this.legId;
   }
 
 

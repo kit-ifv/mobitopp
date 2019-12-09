@@ -42,6 +42,7 @@ public class Trip_Stub implements TripData, Trip
   public ActivityIfc nextActivity() { return null; }
 
 	public int getOid() { return -1; }
+	public int getLegId() { return -1; }
   public Time calculatePlannedEndDate() {return null; }
 
 	@Override
