@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
@@ -82,4 +83,8 @@ public class FinishedPublicTransport implements FinishedTrip {
     return Optional.empty();
   }
 	
+  @Override
+  public Stream<FinishedTrip> trips() {
+  	return Stream.of(this);
+  }
 }

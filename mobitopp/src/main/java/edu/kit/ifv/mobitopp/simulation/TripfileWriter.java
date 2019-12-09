@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.function.Consumer;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
@@ -41,15 +43,19 @@ public class TripfileWriter implements PersonListener {
 	public void notifyEndTrip(final Person person, final FinishedTrip trip) {
 		ActivityIfc prevActivity = trip.previousActivity();
 		assert prevActivity != null;
-		final Person person1 = person;
-		final FinishedTrip finishedTrip = trip;
 
-		String line = tripConverter.convert(person1, finishedTrip);
-		results().write(this.categories.result, line);
+		Consumer<FinishedTrip> tripWriter = finishedTrip -> writeTrip(person, finishedTrip);
+		trip.trips().forEach(tripWriter);
+		tripWriter.accept(trip);
 		CsvBuilder statistics = new CsvBuilder();
-		statistics.append(person1.getOid());
-		finishedTrip.statistic().forAllElements(statistics::append);
+		statistics.append(person.getOid());
+		trip.statistic().forAllElements(statistics::append);
 		results().write(categories.ptTimes, statistics.toString());
+	}
+
+	private void writeTrip(final Person person, final FinishedTrip finishedTrip) {
+		String line = tripConverter.convert(person, finishedTrip);
+		results().write(this.categories.result, line);
 	}
 
 	@Override

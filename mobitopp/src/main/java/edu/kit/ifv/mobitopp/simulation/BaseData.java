@@ -19,32 +19,47 @@ public class BaseData implements TripData
 	private final ActivityIfc previousActivity;
 	private final ActivityIfc nextActivity;
 
-
-  public BaseData(
-		int oid,
-		ActivityIfc previousActivity,
-		ActivityIfc nextActivity,
-		Mode modeType,
-		Time start,
-		short plannedDuration
+	public BaseData(
+			final int oid,
+			final ActivityIfc previousActivity,
+			final ActivityIfc nextActivity,
+			final ZoneAndLocation origin,
+			final ZoneAndLocation destination,
+			final Mode modeType,
+			final Time start,
+			final short plannedDuration
 	)
-  {
+	{
+		super();
     this.oid = oid;
 		this.previousActivity = previousActivity;
 		this.nextActivity = nextActivity;
-    this.origin = previousActivity.zoneAndLocation();
-    this.destination = nextActivity.zoneAndLocation();
+    this.origin = origin;
+    this.destination = destination;
     this.modeType = modeType;
     this.startDate = start;
     this.plannedDuration = plannedDuration;
+	}
+	
+	public BaseData(
+		final int oid,
+		final ActivityIfc previousActivity,
+		final ActivityIfc nextActivity,
+		final Mode modeType,
+		final Time start,
+		final short plannedDuration
+	)
+  {
+		this(oid, previousActivity, nextActivity, previousActivity.zoneAndLocation(),
+				nextActivity.zoneAndLocation(), modeType, start, plannedDuration);
   }
   
   public BaseData(
-  	int tripId, 
-  	Mode mode, 
-  	ActivityIfc prev, 
-  	ActivityIfc next, 
-  	short duration) {
+  	final int tripId, 
+  	final Mode mode, 
+  	final ActivityIfc prev, 
+  	final ActivityIfc next, 
+  	final short duration) {
   	this(tripId, prev, next, mode, prev.calculatePlannedEndDate(), duration);
   }
 
