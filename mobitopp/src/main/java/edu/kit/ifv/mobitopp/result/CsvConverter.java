@@ -46,7 +46,8 @@ public class CsvConverter implements TripConverter {
 
     int duration_trip = finishedTrip.plannedDuration();
 
-    int modeType = finishedTrip.mode().getTypeAsInt();
+    String modeType = finishedTrip.mode().forLogging();
+    String mainMode = finishedTrip.mode().mainMode().forLogging();
     String vehicleId = finishedTrip.vehicleId().orElse("");
 
     int employmentType = person.employment().getTypeAsInt();
@@ -104,6 +105,7 @@ public class CsvConverter implements TripConverter {
     message.append(tripBeginTime);
     message.append(activityType);
     message.append(modeType);
+		message.append(mainMode);
     message.append(vehicleId);
     message.append(tripEndDay);
     message.append(tripEndTime);
