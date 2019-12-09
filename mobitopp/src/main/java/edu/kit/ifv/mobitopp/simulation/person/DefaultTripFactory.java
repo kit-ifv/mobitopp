@@ -56,7 +56,8 @@ public class DefaultTripFactory implements TripFactory {
 
     assert duration > 0;
 
-    return new BaseData(nextTripId(), mode, previousActivity, nextActivity, (short) duration);
+    int legId = 0;
+		return new BaseData(nextTripId(), legId, mode, previousActivity, nextActivity, (short) duration);
   }
 
   @Override

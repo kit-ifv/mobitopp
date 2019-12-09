@@ -16,6 +16,8 @@ public interface TripData {
   int plannedDuration();
 
   int getOid();
+  
+  int getLegId();
 
   Time calculatePlannedEndDate();
 

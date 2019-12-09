@@ -456,6 +456,7 @@ public class SimulationPersonPassenger extends PersonDecorator
 
 		TripData modifiedTrip = new BaseData(
 																	trip.getOid(),
+																	trip.getLegId(),
 																	trip.previousActivity(),
 																	trip.nextActivity(),
 																	trip.mode(),

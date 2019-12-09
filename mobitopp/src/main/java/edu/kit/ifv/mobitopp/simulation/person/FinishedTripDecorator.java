@@ -21,6 +21,11 @@ public class FinishedTripDecorator implements FinishedTrip {
   public int getOid() {
     return trip.getOid();
   }
+	
+	@Override
+	public int getLegId() {
+		return trip.getLegId();
+	}
 
   @Override
   public ZoneAndLocation origin() {

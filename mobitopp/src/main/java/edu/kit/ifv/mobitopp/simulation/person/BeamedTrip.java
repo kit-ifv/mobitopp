@@ -30,6 +30,11 @@ public class BeamedTrip implements FinishedTrip {
 	public int getOid() {
 		return data.getOid();
 	}
+	
+	@Override
+	public int getLegId() {
+		return data.getLegId();
+	}
 
 	@Override
 	public ZoneAndLocation origin() {

@@ -12,6 +12,8 @@ public interface FinishedTrip {
 
 	int getOid();
 
+	int getLegId();
+
 	ZoneAndLocation origin();
 
 	ZoneAndLocation destination();
@@ -32,7 +34,7 @@ public interface FinishedTrip {
 
 	Statistic statistic();
 
-  Optional<String> vehicleId();
+	Optional<String> vehicleId();
 
 	Stream<FinishedTrip> trips();
 

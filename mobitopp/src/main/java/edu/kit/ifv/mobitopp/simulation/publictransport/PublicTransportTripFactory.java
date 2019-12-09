@@ -57,7 +57,8 @@ public class PublicTransportTripFactory implements TripFactory {
         .map(RelativeTime::toMinutes)
         .orElse(matrixDuration);
     duration = Math.max(1, duration);
-    TripData trip = new BaseData(nextTripId(), mode, previousActivity, nextActivity,
+    int legId = 0;
+		TripData trip = new BaseData(nextTripId(), legId, mode, previousActivity, nextActivity,
         (short) duration);
     return PublicTransportTrip.of(trip, person, publicTransportBehaviour, route);
   }
