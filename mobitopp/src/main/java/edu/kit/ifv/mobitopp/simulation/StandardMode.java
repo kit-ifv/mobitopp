@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 public enum StandardMode implements Mode {
 
@@ -23,14 +24,13 @@ public enum StandardMode implements Mode {
 	PREMIUM_RIDE_HAILING(23),
 	;
 
-	private final int mode_numeric;
+	private final int code;
 
 	private StandardMode(int mode_numeric) {
-		this.mode_numeric = mode_numeric;
+		this.code = mode_numeric;
 	}
-	
-	public int getTypeAsInt() { return this.mode_numeric; }
 
+	@Override
 	public boolean isFlexible() {
 
 		switch(this) {
@@ -55,19 +55,31 @@ public enum StandardMode implements Mode {
 				throw new AssertionError("invalid mode: " + this);
 		}
 	}
-	
+
+	@Override
 	public boolean isDefined() {
-			return this.mode_numeric >= 0;
+			return this.code >= 0;
 	}
-	
+
+	@Override
 	public boolean usesCarAsDriver() {
 		return this == CAR || this == CARSHARING_STATION || this == CARSHARING_FREE;
 	}
+	
+	@Override
+	public String forLogging() {
+		return Objects.toString(code);
+	}
+	
+	@Override
+	public Mode mainMode() {
+		return this;
+	}
 
-	public static Mode getTypeFromInt(int mode_numeric) {
-		for (Mode mode : EnumSet.allOf(StandardMode.class)) {
+	public static Mode getTypeFromInt(int code) {
+		for (StandardMode mode : EnumSet.allOf(StandardMode.class)) {
 
-			if (mode.getTypeAsInt() ==  mode_numeric) {
+			if (mode.code == code) {
 				return mode;
 			}
 		}
