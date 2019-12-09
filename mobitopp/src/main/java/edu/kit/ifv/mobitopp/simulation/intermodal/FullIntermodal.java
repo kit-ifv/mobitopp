@@ -38,5 +38,13 @@ public class FullIntermodal implements Mode {
 	public Mode mainMode() {
 		return mainMode;
 	}
+
+	public Mode accessMode() {
+		return accessMode;
+	}
+	
+	public Mode egressMode() {
+		return egressMode;
+	}
 	
 }

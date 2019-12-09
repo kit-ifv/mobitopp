@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
@@ -83,6 +84,11 @@ public class BeamedTrip implements FinishedTrip {
   @Override
   public Optional<String> vehicleId() {
     return Optional.empty();
+  }
+  
+  @Override
+  public Stream<FinishedTrip> trips() {
+  	return Stream.of(this);
   }
 
 }
