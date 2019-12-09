@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public class Household_Stub
@@ -70,6 +71,11 @@ public class Household_Stub
 
 	@Override
 	public HouseholdAttributes attributes() {
+		return null;
+	}
+
+	@Override
+	public EconomicalStatus economicalStatus() {
 		return null;
 	}
 
