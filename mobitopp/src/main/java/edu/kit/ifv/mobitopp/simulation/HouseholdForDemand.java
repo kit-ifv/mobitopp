@@ -264,7 +264,8 @@ public class HouseholdForDemand
 	  return this.incomeClass;
 	}
 
-	private EconomicalStatus economicalStatus() {
+	@Override
+	public EconomicalStatus economicalStatus() {
 		return economicalStatus;
 	}
 
