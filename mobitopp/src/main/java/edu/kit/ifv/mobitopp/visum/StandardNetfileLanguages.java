@@ -80,7 +80,9 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.zoneNumber, "ZONENO");
     language.add(StandardAttributes.nodeNumber, "NODENO");
     language.add(StandardAttributes.direction, "DIRECTION");
-    language.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
+    language.add(StandardAttributes.fromOrigin, "O");
+    language.add(StandardAttributes.toDestination, "D");
+    language.add(StandardAttributes.travelTimeCar, "T0_TSYS(P)");
     
     // VehicleUnit
     language.add(StandardAttributes.vehicleCapacity, "TOTALCAP");
@@ -258,6 +260,8 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.zoneNumber, "BEZNR");
     language.add(StandardAttributes.nodeNumber, "KNOTNR");
     language.add(StandardAttributes.direction, "RICHTUNG");
+    language.add(StandardAttributes.fromOrigin, "Q");
+    language.add(StandardAttributes.toDestination, "Z");
     language.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
     
     // VehicleUnit

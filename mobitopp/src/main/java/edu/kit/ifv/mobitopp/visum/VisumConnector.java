@@ -24,7 +24,7 @@ public class VisumConnector
 	public VisumConnector(
 		VisumZone zone,
 		VisumNode node,
-		String direction,
+		Direction direction,
 		int type,
 		VisumTransportSystemSet transportSystems,
 		float length, 
@@ -33,7 +33,7 @@ public class VisumConnector
 	
 		this.zone = zone;
 		this.node = node;
-		this.direction = getDirection(direction);
+		this.direction = direction;
 		this.type = type;
 		this.transportSystems = transportSystems;
 		this.length = length;
@@ -41,15 +41,6 @@ public class VisumConnector
 
 		this.id = "C" + zone.id + "-" + node.id() + ":" + (this.direction == Direction.ORIGIN ? "O" : "D");
 		
-	}
-
-	private static Direction getDirection(String direction) {
-
-		if (!direction.equals("Q") && !direction.equals("Z")) {
-			throw new IllegalArgumentException("VisumConnector: direction does not match (Q|Z)");
-		}
-
-		return direction.equals("Q") ? Direction.ORIGIN : Direction.DESTINATION;
 	}
 
 	@Override

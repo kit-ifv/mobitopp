@@ -6,6 +6,7 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import java.util.Collections;
 
 import edu.kit.ifv.mobitopp.visum.VisumConnector;
+import edu.kit.ifv.mobitopp.visum.VisumConnector.Direction;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
@@ -15,8 +16,8 @@ public class VisumConnectorBuilder {
 
 	private static final VisumZone defaultZone = visumZone().build();
 	private static final VisumNode defaultNode = visumNode().build();
-	private static final String sourceDirection = "Q";
-	private static final String destinationDirection = "Z";
+	private static final Direction sourceDirection = Direction.ORIGIN;
+	private static final Direction destinationDirection = Direction.DESTINATION;
 	private static final int defaultType = 1;
 	private static final String defaultCode = "P";
 	private static final float defaultLength = 1.0f;
@@ -24,7 +25,7 @@ public class VisumConnectorBuilder {
 	
 	private VisumZone zone;
 	private VisumNode node;
-	private String direction;
+	private Direction direction;
 	private int type;
 	private VisumTransportSystemSet transportSystems;
 	private float length;
