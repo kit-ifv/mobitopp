@@ -31,6 +31,8 @@ public enum StandardAttributes {
   privateChargingProbability,
   zoneNumber,
   direction,
+  fromOrigin, 
+  toDestination,
   nodeNumber,
   vehicleCapacity,
   seats,

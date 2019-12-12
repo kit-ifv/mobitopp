@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumConnector;
+import edu.kit.ifv.mobitopp.visum.VisumConnector.Direction;
 import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
@@ -39,7 +40,7 @@ public class VisumConnectorReader extends VisumBaseReader {
     VisumNode node = nodes.get(nodeNumberOf(row));
 
     VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
-    String direction = directionOf(row);
+    Direction direction = directionOf(row);
     int type = typeNumberOf(row);
     float distance = lengthOf(row);
     int travelTimeInSeconds = travelTimeCarOf(row);
@@ -55,8 +56,19 @@ public class VisumConnectorReader extends VisumBaseReader {
     return attribute(StandardAttributes.travelTimeCar);
   }
 
-  private String directionOf(Row row) {
-    return row.get(direction());
+  private Direction directionOf(Row row) {
+    return getDirection(row.get(direction()));
+  }
+  
+  private Direction getDirection(String direction) {
+  	String fromOrigin = attribute(StandardAttributes.fromOrigin);
+		String toDestination = attribute(StandardAttributes.toDestination);
+		if (!direction.equals(fromOrigin) && !direction.equals(toDestination)) {
+			throw new IllegalArgumentException(String
+					.format("VisumConnector: direction does not match (%s|%s)", fromOrigin, toDestination));
+  	}
+  	
+  	return direction.equals(fromOrigin) ? Direction.ORIGIN : Direction.DESTINATION;
   }
 
 }
