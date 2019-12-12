@@ -37,7 +37,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.PanelDistanceS
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.ZoneSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.EdgeFilter;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.RoadBasedHouseholdLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.ZoneBasedHouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ProbabilityBasedSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
@@ -167,7 +167,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 	}
 
 	private HouseholdLocationSelector createHouseholdLocationSelector() {
-		return new RoadBasedHouseholdLocationSelector(context(), maxDistance, edgeFilter());
+		return new ZoneBasedHouseholdLocationSelector(context());
 	}
 
 	private ChargePrivatelySelector createChargePrivatelySelector() {
