@@ -39,9 +39,9 @@ public class TripfileCategories {
 		header.add("tripBeginDay");
 		header.add("activityNumber");
 		header.add("tripBeginTime");
+		header.add("previousActivityType");
 		header.add("activityType");
 		header.add("modeType");
-		header.add("mainMode");
 		header.add("vehicleId");
 		header.add("tripEndDay");
 		header.add("tripEndTime");
