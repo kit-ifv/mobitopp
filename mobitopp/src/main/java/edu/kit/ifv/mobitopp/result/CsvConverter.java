@@ -90,6 +90,13 @@ public class CsvConverter implements TripConverter {
 
       assert isFirstActivity == isStartOfTour;
     }
+    Time Actbegin = nextActivity.startDate();
+    String activityStartTime = format.asTime(Actbegin);
+    String activityStartDay = format.asDay(Actbegin);
+    int previousActivityType = previousActivity.activityType().getTypeAsInt();
+    Time prevActbegin = previousActivity.startDate();
+    String previousActivityStartTime = format.asTime(prevActbegin);
+    String previousActivityStartDay = format.asDay(prevActbegin);
     Time realEnd = finishedTrip.endDate();
     String realEndDay = format.asDay(realEnd);
     String realEndTime = format.asTime(realEnd);
@@ -106,6 +113,7 @@ public class CsvConverter implements TripConverter {
     message.append(activityNumber);
     message.append(tripBeginTime);
     message.append(activityType);
+    message.append(previousActivityType);
     message.append(modeType);
 		message.append(mainMode);
     message.append(vehicleId);
@@ -118,8 +126,12 @@ public class CsvConverter implements TripConverter {
     message.append(employmentType);
     message.append(homeZone);
     message.append(activityDuration);
-    message.append(locationParser.serialiseRounded(location_from));
-    message.append(locationParser.serialiseRounded(location_to));
+    message.append(previousActivityStartTime);
+    message.append(previousActivityStartDay);
+    message.append(activityStartTime);
+    message.append(activityStartDay);
+    message.append(locationParser.serialise(location_from));
+    message.append(locationParser.serialise(location_to));
     message.append(sex);
     message.append(tourNumber);
     message.append(isStartOfTour);
