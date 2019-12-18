@@ -35,7 +35,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.CommunityDesti
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.HasWorkActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.PanelDistanceSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.ZoneSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.EdgeFilter;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.ZoneBasedHouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -43,7 +42,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ProbabilityBasedSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.RoadBasedOpportunitySelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.ZoneBasedOpportunitySelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -52,12 +51,9 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
-	private static final double maxDistance = 1.0d;
-
 	public PopulationSynthesisIpuExample(SynthesisContext context) {
 		super(context);
 	}
-
 
 	@Override
 	protected DemandDataCalculator createCalculator(
@@ -187,11 +183,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	@Override
 	protected OpportunityLocationSelector createOpportunityLocationSelector() {
-		return new RoadBasedOpportunitySelector(context(), edgeFilter(), maxDistance);
-	}
-
-	private static EdgeFilter edgeFilter() {
-		return EdgeFilter.allEdges;
+		return new ZoneBasedOpportunitySelector(context());
 	}
 
 }
