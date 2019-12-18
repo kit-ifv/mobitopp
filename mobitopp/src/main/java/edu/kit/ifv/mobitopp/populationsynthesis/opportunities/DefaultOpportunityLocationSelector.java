@@ -303,6 +303,9 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		return areasWithWeight;
 	}
 
+	protected Random random() {
+		return random;
+	}
 
 
 }
