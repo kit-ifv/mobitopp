@@ -4,12 +4,14 @@ import static java.util.Collections.emptyList;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.LimitedChargingDataForZone;
@@ -42,10 +44,13 @@ public class ExampleZones {
     RegionType regionType = new DefaultRegionType(1);
     ZoneClassificationType classification = ZoneClassificationType.studyArea;
     Attractivities attractivities = new Attractivities();
+    attractivities.addAttractivity(ActivityType.WORK, 1);
     ChargingDataForZone charging = createChargingData();
     Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
-    return new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces, centroid,
+    Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces, centroid,
         attractivities, charging);
+    zone.opportunities().createLocations((z, a, i) -> Map.of(centroid, 1));
+		return zone;
   }
 
   private static LimitedChargingDataForZone createChargingData() {

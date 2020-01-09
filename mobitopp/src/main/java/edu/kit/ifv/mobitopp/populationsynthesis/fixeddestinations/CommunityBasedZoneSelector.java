@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -11,16 +12,19 @@ import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunitySelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
+import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
 public class CommunityBasedZoneSelector implements ZoneSelector {
 
 	private final CommunitySelector communitySelector;
+	private final DoubleSupplier random;
 
-	public CommunityBasedZoneSelector(CommunitySelector communitySelector) {
+	public CommunityBasedZoneSelector(CommunitySelector communitySelector, DoubleSupplier random) {
 		super();
 		this.communitySelector = communitySelector;
+		this.random = random;
 	}
 
 	@Override
@@ -39,9 +43,14 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 	}
 
 	private void assignZone(PersonBuilder person, Zone zone) {
+		Location location = zone.opportunities().selectRandomLocation(ActivityType.WORK, nextRandom());
 		person
 				.addFixedDestination(
-						new FixedDestination(ActivityType.WORK, zone, zone.centroidLocation()));
+						new FixedDestination(ActivityType.WORK, zone, location));
+	}
+
+	private double nextRandom() {
+		return random.getAsDouble();
 	}
 
 	private Map<Zone, Integer> collectPossibleZones(Collection<OdPair> relations) {

@@ -127,6 +127,10 @@ public class CsvConverter implements TripConverter {
     message.append(isMainActivity);
     message.append(realEndDay);
     message.append(realEndTime);
+    message.append(location_from.coordinatesP().getX());
+    message.append(location_from.coordinatesP().getY());
+    message.append(location_to.coordinatesP().getX());
+    message.append(location_to.coordinatesP().getY());
     return message.toString();
   }
 

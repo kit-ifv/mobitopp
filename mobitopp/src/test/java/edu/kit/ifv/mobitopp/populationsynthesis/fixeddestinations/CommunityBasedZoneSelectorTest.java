@@ -61,6 +61,6 @@ public class CommunityBasedZoneSelectorTest {
 	}
 
 	private CommunityBasedZoneSelector newSelector() {
-		return new CommunityBasedZoneSelector(communitySelector);
+		return new CommunityBasedZoneSelector(communitySelector, () -> 0.42d);
 	}
 }

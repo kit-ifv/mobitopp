@@ -61,6 +61,10 @@ public class TripfileCategories {
 		header.add("isMainActivity");
 		header.add("realEndDay");
 		header.add("realEndTime");
+		header.add("fromX");
+		header.add("fromY");
+		header.add("toX");
+		header.add("toY");
 		return new Category("demandsimulationResult", header);
 	}
 

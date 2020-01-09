@@ -102,7 +102,9 @@ public class DefaultFixedDestinationFormatTest {
 				valueOf(householdNumber),
 				valueOf(activityType),
 				valueOf(zoneOid),
-				valueOf(serialisedLocation)
+				valueOf(serialisedLocation),
+				valueOf(location.coordinatesP().getX()),
+				valueOf(location.coordinatesP().getY())
 		);
 	}
 }

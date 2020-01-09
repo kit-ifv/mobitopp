@@ -32,7 +32,7 @@ public class DefaultOpportunityFormat implements SerialiserFormat<Opportunity> {
 	
 	@Override
 	public List<String> header() {
-		return asList("zoneId", "activityType", "location", "attractivity");
+		return asList("zoneId", "activityType", "location", "attractivity", "locationX", "locationY");
 	}
 
 	@Override
@@ -43,6 +43,8 @@ public class DefaultOpportunityFormat implements SerialiserFormat<Opportunity> {
 		attributes.add(valueOf(opportunity.activityType()));
 		attributes.add(location);
 		attributes.add(valueOf(opportunity.attractivity()));
+		attributes.add(valueOf(opportunity.location().coordinatesP().getX()));
+		attributes.add(valueOf(opportunity.location().coordinatesP().getY()));
 		return attributes;
 	}
 
