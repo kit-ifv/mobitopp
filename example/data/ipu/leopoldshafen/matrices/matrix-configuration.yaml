@@ -84,6 +84,17 @@ travelTimeMatrices:
       sunday:
         between:
           0 to 23: 2_TTC_Bike
+  passenger:
+    at:
+      weekdays:
+        between:
+          0 to 23: 4_TTC_Car
+      saturday:
+        between:
+          0 to 23: 4_TTC_Car
+      sunday:
+        between:
+          0 to 23: 4_TTC_Car
   car:
     at:
       weekdays:

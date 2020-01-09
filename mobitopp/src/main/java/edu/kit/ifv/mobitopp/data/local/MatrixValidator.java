@@ -73,7 +73,7 @@ public class MatrixValidator {
 						.of(TravelTimeMatrixType.truck, TravelTimeMatrixType.ride_pooling,
 								TravelTimeMatrixType.ride_hailing, TravelTimeMatrixType.premium_ride_hailing,
 								TravelTimeMatrixType.taxi, TravelTimeMatrixType.park_and_ride,
-								TravelTimeMatrixType.bikesharing));
+								TravelTimeMatrixType.bikesharing, TravelTimeMatrixType.passenger));
   }
 
   private void verifyFixedDistributionMatrices() {
