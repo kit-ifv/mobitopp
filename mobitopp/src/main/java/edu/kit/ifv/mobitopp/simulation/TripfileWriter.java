@@ -78,6 +78,8 @@ public class TripfileWriter implements PersonListener {
 		message.append(activity.duration());
 		message.append(zoneId);
 		message.append(location.coordinates());
+    message.append(location.coordinatesP().getX());
+    message.append(location.coordinatesP().getY());
 
 		results().write(this.categories.activity, message.toString());
 	}

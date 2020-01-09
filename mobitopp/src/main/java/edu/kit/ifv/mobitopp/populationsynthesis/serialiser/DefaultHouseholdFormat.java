@@ -31,6 +31,8 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		columns.add("domCode", e -> e.attributes().domCode);
 		columns.add("homeZone", e -> e.attributes().homeZone.getId().getMatrixColumn());
 		columns.add("homeLocation", e -> locationParser.serialise(e.attributes().homeLocation));
+		columns.add("homeX", e -> e.attributes().homeLocation.coordinatesP().getX());
+		columns.add("homeY", e -> e.attributes().homeLocation.coordinatesP().getY());
 		columns.add("numberOfMinors", e -> e.attributes().numberOfMinors);
 		columns.add("numberOfNotSimulatedChildren", e -> e.attributes().numberOfNotSimulatedChildren);
 		columns.add("totalNumberOfCars", e -> e.attributes().totalNumberOfCars);

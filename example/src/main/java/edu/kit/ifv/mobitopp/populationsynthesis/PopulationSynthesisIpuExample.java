@@ -86,14 +86,14 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		int range = context().experimentalParameters().valueAsInteger("poleDistanceRange");
 		OdPairSelector odPairSelector = new PanelDistanceSelector(dataRepository, communityPairCreator,
 				impedance, range);
-		ZoneSelector zoneSelector = new CommunityBasedZoneSelector(communities);
+		ZoneSelector zoneSelector = new CommunityBasedZoneSelector(communities, newRandom());
 		Predicate<PersonBuilder> personFilter = new HasWorkActivity();
 		return new CommunityDestinationSelector(odPairSelector, zoneSelector, personFilter,
 				newRandom());
 	}
 
 	private PopulationSynthesisStep educationDestinationSelector() {
-		return new PersonBasedStep(new EducationInHomeZone());
+		return new PersonBasedStep(new EducationInHomeZone(newRandom()));
 	}
 
 	private PopulationSynthesisStep activityScheduleAssignment() {

@@ -91,7 +91,9 @@ public class DefaultOpportunityFormatTest {
 				valueOf(zoneOid),
 				valueOf(activityType),
 				ExampleSetup.serialisedLocation,
-				valueOf(attractivity)
+				valueOf(attractivity),
+				valueOf(ExampleSetup.location.coordinatesP().getX()),
+				valueOf(ExampleSetup.location.coordinatesP().getY())
 				);
 	}
 }

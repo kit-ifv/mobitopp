@@ -331,17 +331,19 @@ public class SimulationPersonPassenger extends PersonDecorator
 			return person.fixedDestinationFor(activityType);
 
 		} else {
-			
+
 			if (zone.hasDemandData()
 					&& zone.getDemandData().opportunities().locationsAvailable(activityType)) {
 				double randomNumber = this.random.nextDouble();
 
-
-			if (activityType == ActivityType.PRIVATE_VISIT) {
-  			location = privateVisit(zone, activityType, randomNumber);
-			} else {
-				location = zone.getDemandData().opportunities().selectRandomLocation(activityType, randomNumber);
-			}
+				if (activityType == ActivityType.PRIVATE_VISIT) {
+					location = privateVisit(zone, activityType, randomNumber);
+				} else {
+					location = zone
+							.getDemandData()
+							.opportunities()
+							.selectRandomLocation(activityType, randomNumber);
+				}
 			} else {
 				consumeRandomNumber();
 				location = zone.centroidLocation();
