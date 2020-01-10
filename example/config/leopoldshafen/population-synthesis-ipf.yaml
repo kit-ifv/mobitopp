@@ -8,7 +8,10 @@ commuterTicket: config/leopoldshafen/parameters/TransitPassParameter.txt
 dataSource: !file
   demandDataFolder: output/demand-data-local
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
-  attractivityDataFile: data/leopoldshafen/leopoldshafen-Attractivities.csv
+  attractivityDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
+  zonePropertiesDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
+  parkingFacilitiesDataFile: data/leopoldshafen/zoneproperties/parkingFacilities.csv
+  carSharingStationsDataFile: data/leopoldshafen/zoneproperties/carsharingstations.csv
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
