@@ -223,8 +223,9 @@ public class LocalFiles implements DataSource {
 				.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
 		IdToOidMapper mapper = map::get;
 		ZoneRepository fromVisum = LocalZoneRepository
-				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(), 
-						attractivityDataFile, parkingFacilitiesDataFile, carSharingStationsDataFile, areaTypeRepository, mapper);
+				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(),
+						attractivityDataFile, parkingFacilitiesDataFile, carSharingStationsDataFile,
+						areaTypeRepository, mapper);
 		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);
 		return fromVisum;
