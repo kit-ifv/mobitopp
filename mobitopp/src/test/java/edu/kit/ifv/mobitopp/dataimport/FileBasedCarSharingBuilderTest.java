@@ -40,9 +40,12 @@ public class FileBasedCarSharingBuilderTest {
 
 	private static final int areaId = 1;
 	private static final int stationId = 1;
-	private static final String dummyData = "\"ID\";\"zone_ID\";\"system\";\"name\";\"num_vehicles\";\"x_coordinate\";\"y_coordinate\""
+	private static final String stationData = "\"ID\";\"zone_ID\";\"system\";\"name\";\"num_vehicles\";\"x_coordinate\";\"y_coordinate\""
 			+ System.lineSeparator() + stationId + ";" + areaId
 			+ ";\"Blubber\";\"0\";1;-71,077644;42,394373";
+
+	private static final String freeFloatingData = "\"zone_ID\";\"system\";\"num_vehicles\""
+			+ System.lineSeparator() + areaId + ";\"Blubber\";1";
 
 	private VisumNetworkBuilder networkBuilder;
 	private VisumCarSharingStation someStation;
@@ -96,7 +99,7 @@ public class FileBasedCarSharingBuilderTest {
 		VisumNetwork network = networkBuilder.build();
 		SimpleRoadNetwork roadNetwork = new SimpleRoadNetwork(network);
 		IdSequence carIds = new IdSequence();
-		return new FileBasedCarSharingBuilder(roadNetwork, carIds, content()) {
+		return new FileBasedCarSharingBuilder(roadNetwork, carIds, stationData(), freeFloatingData()) {
 
 			@Override
 			protected Location makeLocation(int zoneId, Point2D coord) {
@@ -105,7 +108,11 @@ public class FileBasedCarSharingBuilderTest {
 		};
 	}
 
-	private CsvFile content() throws IOException {
-		return CsvFile.createFrom(new ByteArrayInputStream(dummyData.getBytes()));
+	private CsvFile stationData() throws IOException {
+		return CsvFile.createFrom(new ByteArrayInputStream(stationData.getBytes()));
+	}
+	
+	private CsvFile freeFloatingData() throws IOException {
+		return CsvFile.createFrom(new ByteArrayInputStream(freeFloatingData.getBytes()));
 	}
 }

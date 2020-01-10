@@ -147,16 +147,17 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return zoneproperties.currentZoneAreaType(zoneId);
   }
 
-  public static ZonesReaderCsvBased from(
-      VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-      DefaultPower defaultPower, File zonePropertiesDataFile, File attractivityDataFile, File parkingFacilitiesDataFile,
-      File carSharingStationsDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
-  	ZonePropertiesData zonePropertiesData = zonePropertyDataFrom(zonePropertiesDataFile,
+	public static ZonesReaderCsvBased from(
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
+			DefaultPower defaultPower, File zonePropertiesDataFile, File attractivityDataFile,
+			File parkingFacilitiesDataFile, File stationsDataFile, File freeFloatingDataFile,
+			AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
+		ZonePropertiesData zonePropertiesData = zonePropertyDataFrom(zonePropertiesDataFile,
         areaTypeRepository);
     AttractivitiesData attractivityData = attractivityDataFrom(attractivityDataFile);
     ParkingFacilityDataRepository parkingFacilitiesData = parkingFacilitiesDataFrom(parkingFacilitiesDataFile);
 		CarSharingDataRepository carSharingStationsData = carSharingStationsDataFrom(visumNetwork,
-				roadNetwork, carSharingStationsDataFile);
+				roadNetwork, stationsDataFile, freeFloatingDataFile);
     return new ZonesReaderCsvBased(visumNetwork, roadNetwork, zonePropertiesData, attractivityData, parkingFacilitiesData,
     		carSharingStationsData, charging, defaultPower, mapper);
   }
@@ -186,12 +187,14 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return new ZonePropertiesData(dataFile, areaTypeRepository);
   }
 
-  private static CarSharingDataRepository carSharingStationsDataFrom(
-  		VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, File carSharingStationsDataFile) {
-  	IdSequence carIds = new IdSequence();
-		if (carSharingStationsDataFile.exists()) {
-			CsvFile stationData = CsvFile.createFrom(carSharingStationsDataFile.getAbsolutePath());
-			return new FileBasedCarSharingDataRepository(roadNetwork, stationData, carIds);
+	private static CarSharingDataRepository carSharingStationsDataFrom(
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, File stationsDataFile,
+			File freeFloatingDataFile) {
+		IdSequence carIds = new IdSequence();
+		if (stationsDataFile.exists()) {
+			CsvFile stationData = CsvFile.createFrom(stationsDataFile.getAbsolutePath());
+			CsvFile freeFloatingData = CsvFile.createFrom(freeFloatingDataFile.getAbsolutePath());
+			return new FileBasedCarSharingDataRepository(roadNetwork, stationData, freeFloatingData, carIds);
 		}
 		System.out
 				.println(

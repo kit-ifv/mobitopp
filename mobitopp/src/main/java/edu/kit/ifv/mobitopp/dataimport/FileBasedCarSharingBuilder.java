@@ -27,11 +27,13 @@ import edu.kit.ifv.mobitopp.visum.VisumPoint2;
 
 public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 
-	private final CsvFile carSharingData;
+	private final CsvFile stationData;
+	private final CsvFile freeFloatingData;
 
-	public FileBasedCarSharingBuilder(SimpleRoadNetwork roadNetwork, IdSequence carSharingCarIds, CsvFile carSharingData) {
+	public FileBasedCarSharingBuilder(SimpleRoadNetwork roadNetwork, IdSequence carSharingCarIds, CsvFile stationData, CsvFile freeFloatinData) {
 		super(roadNetwork, carSharingCarIds);
-		this.carSharingData = carSharingData;
+		this.stationData = stationData;
+		this.freeFloatingData = freeFloatinData;
 	}
 
 	public CarSharingDataForZone carsharingIn(Zone zone) {
@@ -44,8 +46,8 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 				stationBasedCarSharingCompanies.add(carSharingCompany(entry.getKey()));
 			}
 		}
-		Map<String, Boolean> freeFloatingArea = new LinkedHashMap<>();
-		Map<String, Integer> freeFloatingCars = new LinkedHashMap<>();
+		Map<String, Boolean> freeFloatingArea = readFreeFloatinArea(zone);
+		Map<String, Integer> freeFloatingCars = readFreeFloatingCars(zone);
 		List<FreeFloatingCarSharingOrganization> freeFloatingCarSharingCompanies =  new ArrayList<>(
 				getFreeFloatingOrganizations().values());
 		Map<String, Float> carsharingCarDensities = new LinkedHashMap<>();
@@ -55,22 +57,30 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 		createStationBasedCarSharingCarsFor(zone, carSharingData);	
 		return carSharingData;
 	}
+
+	private LinkedHashMap<String, Integer> readFreeFloatingCars(Zone zone) {
+		return new LinkedHashMap<>();
+	}
 	
+	private Map<String, Boolean> readFreeFloatinArea(Zone zone) {
+		return new LinkedHashMap<>();
+	}
+
 	private List<CarSharingStation> carSharingStationsFor(Zone zone) {
 		String zoneId = zone.getId().getExternalId();
 		List<CarSharingStation> result = new ArrayList<>();
 		
-		for (int index = 0; index < carSharingData.getLength(); index++) {
-			if (carSharingData.getValue(index, "zone_ID").equals(zoneId)) {
+		for (int index = 0; index < stationData.getLength(); index++) {
+			if (stationData.getValue(index, "zone_ID").equals(zoneId)) {
 				Point2D coordinates = new VisumPoint2(
-						carSharingData.getFloat(index, "x_coordinate"),
-						carSharingData.getFloat(index, "y_coordinate")).asPoint2D();
-				String company = carSharingData.getValue(index, "system");
+						stationData.getFloat(index, "x_coordinate"),
+						stationData.getFloat(index, "y_coordinate")).asPoint2D();
+				String company = stationData.getValue(index, "system");
 				StationBasedCarSharingOrganization organisation = carSharingCompany(company);
-				int id = carSharingData.getInteger(index, "ID");
-				String name = carSharingData.getValue(index, "name");
+				int id = stationData.getInteger(index, "ID");
+				String name = stationData.getValue(index, "name");
 				String parkingSpace = "";// dataFile.getValue(index, "parking_space");
-				int numberOfCars = carSharingData.getInteger(index, "num_vehicles");
+				int numberOfCars = stationData.getInteger(index, "num_vehicles");
 				Location location = makeLocation(Integer.valueOf(zoneId), coordinates);
 				CarSharingStation realStation = new CarSharingStation(organisation, zone, id, name,
 						parkingSpace, location, numberOfCars);

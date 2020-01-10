@@ -11,15 +11,18 @@ import edu.kit.ifv.mobitopp.visum.VisumZone;
 public class FileBasedCarSharingDataRepository implements CarSharingDataRepository {
 
 	private final SimpleRoadNetwork roadNetwork;
-	private final CsvFile carSharingStationData;
+	private final CsvFile stationData;
+	private final CsvFile freeFloatingData;
 	private final IdSequence carSharingCarIds;
 
 	public FileBasedCarSharingDataRepository(
-			SimpleRoadNetwork roadNetwork, CsvFile carSharingStationData, IdSequence carSharingCarIds) {
+			SimpleRoadNetwork roadNetwork, CsvFile stationData, CsvFile freeFloatingData,
+			IdSequence carSharingCarIds) {
 		super();
-		assert null != carSharingStationData;
+		assert null != stationData;
 		this.roadNetwork = roadNetwork;
-		this.carSharingStationData = carSharingStationData;
+		this.stationData = stationData;
+		this.freeFloatingData = freeFloatingData;
 		this.carSharingCarIds = carSharingCarIds;
 	}
 
@@ -29,7 +32,7 @@ public class FileBasedCarSharingDataRepository implements CarSharingDataReposito
 	}
 
 	FileBasedCarSharingBuilder carSharingBuilder() {
-		return new FileBasedCarSharingBuilder(roadNetwork, carSharingCarIds, carSharingStationData);
+		return new FileBasedCarSharingBuilder(roadNetwork, carSharingCarIds, stationData, freeFloatingData);
 	}
 
 }
