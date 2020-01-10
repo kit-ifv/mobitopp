@@ -11,7 +11,8 @@ dataSource: !file
   attractivityDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   zonePropertiesDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   parkingFacilitiesDataFile: data/leopoldshafen/zoneproperties/parkingFacilities.csv
-  carSharingStationsDataFile: data/leopoldshafen/zoneproperties/carsharingstations.csv
+  carSharingStationsDataFile: data/leopoldshafen/zoneproperties/carsharing-stations.csv
+  carSharingFreeFloatingDataFile: data/leopoldshafen/zoneproperties/carsharing-free-floating.csv
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
