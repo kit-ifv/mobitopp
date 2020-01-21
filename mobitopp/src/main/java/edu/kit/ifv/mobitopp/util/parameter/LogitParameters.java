@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.util.parameter;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -44,6 +45,12 @@ public class LogitParameters {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return new LogitParameters(map);
   }
+
+	public LogitParameters combineWith(LogitParameters other) {
+		Map<String, Double> combined = new HashMap<>(parameters);
+		combined.putAll(other.parameters);
+		return new LogitParameters(combined);
+	}
 
   @Override
   public int hashCode() {
