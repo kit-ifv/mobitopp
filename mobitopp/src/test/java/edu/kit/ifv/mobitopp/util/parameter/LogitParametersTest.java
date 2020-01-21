@@ -22,4 +22,16 @@ public class LogitParametersTest {
     
     assertThat(filtered, is(equalTo(new LogitParameters(emptyMap()))));
   }
+  
+  @Test
+	void combinesToParameterSets() throws Exception {
+  	String first = "first";
+  	String second = "second";
+    LogitParameters some = new LogitParameters(singletonMap(first, 1.0d));
+    LogitParameters other = new LogitParameters(singletonMap(second, 2.0d));
+    
+    LogitParameters filtered = some.combineWith(other);
+    
+    assertThat(filtered, is(equalTo(new LogitParameters(Map.of(first, 1.0d, second, 2.0d))))); 
+	}
 }
