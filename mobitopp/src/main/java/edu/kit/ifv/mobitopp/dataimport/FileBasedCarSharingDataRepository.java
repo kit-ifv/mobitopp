@@ -32,7 +32,8 @@ public class FileBasedCarSharingDataRepository implements CarSharingDataReposito
 	}
 
 	FileBasedCarSharingBuilder carSharingBuilder() {
-		return new FileBasedCarSharingBuilder(roadNetwork, carSharingCarIds, stationData, freeFloatingData);
+		return new FileBasedCarSharingBuilder(roadNetwork, carSharingCarIds, stationData,
+				freeFloatingData);
 	}
 
 }
