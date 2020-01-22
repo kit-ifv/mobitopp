@@ -84,7 +84,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 	private HouseholdId idOf(List<String> data) {
 		int oid = columns.get("householdId", data).asInt();
 		short year = columns.get("year", data).asShort();
-		int householdNumber = columns.get("householdNumber", data).asInt();
+		long householdNumber = columns.get("householdNumber", data).asLong();
 		return new HouseholdId(oid, year, householdNumber);
 	}
 
