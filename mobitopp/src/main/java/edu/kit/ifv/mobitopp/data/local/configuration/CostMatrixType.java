@@ -4,6 +4,8 @@ public enum CostMatrixType implements MatrixType {
 
 	bikesharing,
 	car,
+	carsharing_free_floating,
+	carsharing_station,
 	publictransport,
 	taxi,
 	truck,
