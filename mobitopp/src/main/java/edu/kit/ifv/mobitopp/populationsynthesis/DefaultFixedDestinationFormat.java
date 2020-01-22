@@ -61,7 +61,7 @@ public class DefaultFixedDestinationFormat implements SerialiserFormat<PersonFix
   private PersonId personOf(List<String> fromData) {
     int householdOid = columns.get("householdOid", fromData).asInt();
     short year = columns.get("householdYear", fromData).asShort();
-    long householdNumber = columns.get("householdNumber", fromData).asInt();
+    long householdNumber = columns.get("householdNumber", fromData).asLong();
     HouseholdId householdId = new HouseholdId(householdOid, year, householdNumber);
     int oid = columns.get("personOid", fromData).asInt();
     int personNumber = columns.get("personNumber", fromData).asInt();
