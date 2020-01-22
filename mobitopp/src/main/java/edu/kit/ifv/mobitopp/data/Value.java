@@ -7,6 +7,10 @@ public class Value {
   public Value(String value) {
     this.value = value;
   }
+  
+  public long asLong() {
+  	return Long.parseLong(value);
+  }
 
   public int asInt() {
     return Integer.parseInt(value);

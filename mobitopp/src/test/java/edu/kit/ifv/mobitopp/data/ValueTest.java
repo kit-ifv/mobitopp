@@ -6,8 +6,16 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-public class ValueTest {
+class ValueTest {
 
+	@Test
+	public void parseAsLong() {
+		long value = 2;
+		Value wrapper = new Value(String.valueOf(value));
+		
+		assertThat(wrapper.asLong(), is(equalTo(value)));
+	}
+	
   @Test
   public void parseAsInt() {
     int value = 2;
