@@ -4,8 +4,10 @@ import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.network.SimpleEdge;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.network.Zone;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
@@ -51,6 +53,13 @@ public class BaseCarSharingBuilder {
 		SimpleEdge road = roadNetwork.zones().get(zoneId).nearestEdge(coord);
 		double pos = road.nearestPositionOnEdge(coord);
 		return new Location(coord, road.id(), pos);
+	}
+	
+	protected Location useZoneCenterLocation(ZoneId zoneId) {
+		Integer externalId = Integer.valueOf(zoneId.getExternalId());
+		Zone networkZone = roadNetwork.zones().get(externalId);
+		Point2D center = networkZone.center();
+		return makeLocation(externalId, center);
 	}
 
 	protected int nextId() {
