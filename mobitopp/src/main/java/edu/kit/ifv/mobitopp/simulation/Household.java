@@ -4,13 +4,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
-import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
-public interface Household
+public interface Household extends BaseHousehold
 {
 	void addPerson(Person person);
 	List<Person> getPersons();
@@ -30,25 +27,16 @@ public interface Household
 	PrivateCar nextAvailableCar(Person person, float tourDistanceKm);
 	PrivateCar takeAvailableCar(Person person, float tourDistanceKm);
 
-	int getTotalNumberOfCars();
 	int getNumberOfAvailableCars();
 	boolean canChargePrivately();
 
 	int getOid();
-	HouseholdId getId();
-
-	Zone homeZone();
-
-	int getSize();
-	int numberOfNotSimulatedChildren();
-
-	int monthlyIncomeEur();
-	int incomeClass();
-	EconomicalStatus economicalStatus();
-	Location homeLocation();
 
 	int nominalNumberOfCars();
-	int nominalSize();
+	
+	default int getNominalNumberOfCars() {
+		return nominalNumberOfCars();
+	}
 	
 	HouseholdAttributes attributes();
 }

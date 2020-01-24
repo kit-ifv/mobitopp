@@ -10,8 +10,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -85,9 +83,9 @@ public class DefaultPersonForSetupTest {
   public void getFixedZoneForActivityType() {
     setupPerson.addFixedDestination(fixedDestinationFor(ActivityType.WORK));
     
-    Optional<Zone> fixedZone = setupPerson.fixedZoneFor(ActivityType.WORK);
+    Zone fixedZone = setupPerson.fixedZoneFor(ActivityType.WORK);
     
-    assertThat(fixedZone, hasValue(zone));
+    assertThat(fixedZone, is(equalTo(zone)));
   }
 
   @Test

@@ -2,20 +2,17 @@ package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public interface Person {
+public interface Person extends BasePerson {
 
 	boolean isCarDriver();
 	boolean isCarPassenger();
@@ -31,34 +28,14 @@ public interface Person {
 	Household household();
 
 	boolean hasPersonalCar();
-	boolean hasAccessToCar();
-	boolean hasBike();
-
-	boolean hasCommuterTicket();
-	boolean hasDrivingLicense();
 
 	int getOid();
-	PersonId getId();
-
+	
 	ActivityScheduleWithState activitySchedule();
 
-	Gender gender();
-	Employment employment();
-	int age();
-	Graduation graduation();
-
-	int getIncome();
-
-	Zone homeZone();
-	boolean hasFixedZoneFor(ActivityType activityType);
- 	Zone fixedZoneFor(ActivityType activityType);
-	boolean hasFixedActivityZone();
-	Zone fixedActivityZone();
 	Zone nextFixedActivityZone(ActivityIfc activity); 
 
- 	Location fixedDestinationFor(ActivityType activityType);
-
-	void useCarAsPassenger(Car car);
+ 	void useCarAsPassenger(Car car);
 	void leaveCar();
 
 	void assignPersonalCar(PrivateCar personalCar);
@@ -75,17 +52,9 @@ public interface Person {
 
 	void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
 
-	boolean isFemale();
-	boolean isMale();
-
 	String forLogging(ImpedanceIfc impedance);
-	Stream<FixedDestination> getFixedDestinations();
 	void startActivity(Time currentDate, ActivityIfc activity, Trip precedingTrip,
 			ReschedulingStrategy rescheduling);
-	
-	PersonAttributes attributes();
-	
-	ModeChoicePreferences modeChoicePrefsSurvey();
-	ModeChoicePreferences modeChoicePreferences();
 
+	PersonAttributes attributes();
 }

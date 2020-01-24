@@ -21,7 +21,7 @@ public class PopulationDataForZone implements Serializable {
 		assert household_ != null;
 
 		boolean addFlag = this._households.add(household_);
-		inhabitants += household_.getSize();
+		inhabitants += household_.nominalSize();
 
 		assert addFlag;
 	}

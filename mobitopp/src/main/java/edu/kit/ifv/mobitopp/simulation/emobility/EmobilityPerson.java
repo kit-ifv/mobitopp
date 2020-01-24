@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonDecorator;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
 public class EmobilityPerson extends PersonDecorator
-		implements Person, CarSharingPerson, Serializable {
+		implements CarSharingPerson, Serializable {
 
 	private static final long serialVersionUID = 1L;
 

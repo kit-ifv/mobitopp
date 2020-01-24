@@ -185,7 +185,7 @@ public class EmobilityPersonBuilder implements PersonBuilder {
   }
 
   @Override
-  public Optional<Zone> fixedZoneFor(ActivityType activityType) {
+  public Zone fixedZoneFor(ActivityType activityType) {
     return person.fixedZoneFor(activityType);
   }
 

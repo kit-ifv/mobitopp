@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -224,9 +225,16 @@ public class DefaultPersonForSetup implements PersonBuilder {
   }
 
   @Override
-  public Optional<Zone> fixedZoneFor(ActivityType activityType) {
-    return fixedDestinations.getDestination(activityType).map(FixedDestination::zone);
+  public Zone fixedZoneFor(ActivityType activityType) {
+		return fixedDestinations
+				.getDestination(activityType)
+				.map(FixedDestination::zone)
+				.orElseThrow(() -> missingDestination(activityType));
   }
+
+	private NoSuchElementException missingDestination(ActivityType activityType)  {
+    return new NoSuchElementException("No destination available for activity type: " + activityType);
+	}
 
   @Override
   public boolean hasFixedActivityZone() {

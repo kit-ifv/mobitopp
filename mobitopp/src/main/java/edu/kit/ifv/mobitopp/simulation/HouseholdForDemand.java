@@ -243,7 +243,13 @@ public class HouseholdForDemand
 		return result;
 	}
 
+	@Override
 	public int getTotalNumberOfCars() {
+		return this.numberOfCars;
+	}
+	
+	@Override
+	public int getNumberOfOwnedCars() {
 		return this.numberOfCars;
 	}
 

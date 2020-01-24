@@ -45,6 +45,7 @@ public class Household_Stub
 	public int getTotalNumberOfCars() { return -1; }
 	public int getNumberOfAvailableCars() { return -1; }
 	public boolean canChargePrivately() { return false; }
+	public int getNumberOfOwnedCars() { return -1; }
 
 	public int getOid() { return this.oid; }
 	public HouseholdId getId() { return null; }
