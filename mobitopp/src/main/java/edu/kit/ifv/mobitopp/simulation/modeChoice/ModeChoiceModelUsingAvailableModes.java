@@ -5,18 +5,16 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.CarSharingCategories;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.tour.Tour;
-import edu.kit.ifv.mobitopp.simulation.tour.TourModeChoiceModelWithTimeRestrictions;
-import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
-
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
+import edu.kit.ifv.mobitopp.simulation.tour.Tour;
+import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
+import edu.kit.ifv.mobitopp.simulation.tour.TourModeChoiceModelWithTimeRestrictions;
 
 public class ModeChoiceModelUsingAvailableModes
 	implements TourBasedModeChoiceModel
@@ -25,13 +23,13 @@ public class ModeChoiceModelUsingAvailableModes
 	private	TourBasedModeChoiceModel modeChoiceModel;
 
 	protected final ModeAvailabilityModel modeAvailabilityModel;
-	private final ResultWriter results;
+	private final Results results;
 	private final CarSharingCategories categories;
 
 	public ModeChoiceModelUsingAvailableModes(
 		ModeAvailabilityModel modeAvailabilityModel,
 		TourBasedModeChoiceModel modeChoiceModel, 
-		ResultWriter results
+		Results results
 	) {
 		this.modeAvailabilityModel = modeAvailabilityModel;
 		this.modeChoiceModel =  modeChoiceModel;
@@ -94,7 +92,7 @@ public class ModeChoiceModelUsingAvailableModes
 		return selectedMode;
 	}
 
-	private ResultWriter results() {
+	private Results results() {
 		return results;
 	}
 
