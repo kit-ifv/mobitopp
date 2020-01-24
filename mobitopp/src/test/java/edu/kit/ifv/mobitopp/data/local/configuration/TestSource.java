@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
 import java.io.IOException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -19,6 +20,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
@@ -37,7 +39,7 @@ public class TestSource implements DataSource {
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
 			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
 			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping typeMapping,
-			PersonChanger perChanger) throws IOException {
+			PersonChanger perChanger, Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 
@@ -46,7 +48,8 @@ public class TestSource implements DataSource {
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping typeMapping,
-			Predicate<HouseholdForSetup> householdFilter, PersonChanger perChanger) throws IOException {
+			Predicate<HouseholdForSetup> householdFilter, PersonChanger perChanger,
+			Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 
