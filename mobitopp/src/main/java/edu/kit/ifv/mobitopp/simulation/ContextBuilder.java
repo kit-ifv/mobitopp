@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
@@ -35,6 +36,7 @@ public class ContextBuilder {
 	private TypeMapping modeToType;
 	private PersonChangerFactory personChangerFactory;
 	private NetfileLanguage language;
+	private Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance;
 
 	private WrittenConfiguration configuration;
 	private PersonChanger personChanger;
@@ -59,6 +61,7 @@ public class ContextBuilder {
     this.modeToType = modeToType;
     this.language = language;
 		this.personChangerFactory = personChangerFactory;
+		this.wrapImpedance = Function.identity();
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
@@ -89,6 +92,11 @@ public class ContextBuilder {
   
   public ContextBuilder use(NetfileLanguage language) {
   	this.language = language;
+  	return this;
+  }
+  
+  public ContextBuilder use(Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) {
+  	this.wrapImpedance = wrapImpedance;
   	return this;
   }
 
@@ -220,7 +228,8 @@ public class ContextBuilder {
 		dataRepository = configuration
 				.getDataSource()
 				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
-						electricChargingWriter, areaTypeRepository, modeToType, householdFilter, personChanger);
+						electricChargingWriter, areaTypeRepository, modeToType, householdFilter, personChanger,
+						wrapImpedance);
 		log("Load data repository");
 	}
 

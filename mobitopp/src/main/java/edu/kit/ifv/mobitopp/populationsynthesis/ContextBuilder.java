@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
@@ -25,6 +26,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.util.StopWatch;
@@ -43,6 +45,7 @@ public class ContextBuilder {
   private final TypeMapping modeToType;
   private PersonChanger personChanger;
   private NetfileLanguage netfileLanguage;
+  private Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance;
 
   private WrittenConfiguration configuration;
   private DynamicParameters experimentalParameters;
@@ -62,6 +65,7 @@ public class ContextBuilder {
 		this.modeToType = modeToType;
 		this.netfileLanguage = netfileLanguage;
 		this.personChanger = personChanger;
+		this.wrapImpedance = Function.identity();
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forPopulationSynthesis();
@@ -88,6 +92,11 @@ public class ContextBuilder {
   
   public ContextBuilder use(NetfileLanguage language) {
   	this.netfileLanguage = language;
+  	return this;
+  }
+  
+  public ContextBuilder use(Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) {
+  	this.wrapImpedance = wrapImpedance;
   	return this;
   }
 
@@ -190,7 +199,7 @@ public class ContextBuilder {
     dataRepository = configuration
         .getDataSource()
         .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
-            startDate(), resultWriter, areaTypeRepository, modeToType, personChanger);
+            startDate(), resultWriter, areaTypeRepository, modeToType, personChanger, wrapImpedance);
     log("Load data repository");
   }
 
