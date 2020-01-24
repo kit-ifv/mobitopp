@@ -1,5 +1,38 @@
 costMatrices:
+  bikesharing:
+    at:
+      weekdays:
+        between:
+          0 to 23: 6_Cost_Bike
+      saturday:
+        between:
+          0 to 23: 6_Cost_Bike
+      sunday:
+        between:
+          0 to 23: 6_Cost_Bike
   car:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  carsharing_free_floating:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
+  carsharing_station:
     at:
       weekdays:
         between:
@@ -65,6 +98,17 @@ costMatrices:
       sunday:
         between:
           0 to 23: 14_Cost_PUT
+  taxi:
+    at:
+      weekdays:
+        between:
+          0 to 23: 7_Cost_Car
+      saturday:
+        between:
+          0 to 23: 7_Cost_Car
+      sunday:
+        between:
+          0 to 23: 7_Cost_Car
 fixedDistributionMatrices:
   EDUCATION_PRIMARY: distribution.work.mtx
   EDUCATION_TERTIARY: distribution.work.mtx

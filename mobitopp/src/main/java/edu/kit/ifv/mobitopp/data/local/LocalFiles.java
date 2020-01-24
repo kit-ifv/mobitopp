@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -43,7 +44,6 @@ import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.CarSharingWriter;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.ElectricChargingWriter;
-import edu.kit.ifv.mobitopp.simulation.ImpedanceCarSharing;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.LocalPersonLoader;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
@@ -180,17 +180,19 @@ public class LocalFiles implements DataSource {
 
 	@Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
-			final VisumNetwork visumNetwork, final SimpleRoadNetwork roadNetwork, final DemographyData demographyData,
-			final PanelDataRepository panelDataRepository, final int numberOfZones, final StartDateSpecification input,
-			final ResultWriter results, final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
-			final PersonChanger personChanger) throws IOException {
+			final VisumNetwork visumNetwork, final SimpleRoadNetwork roadNetwork,
+			final DemographyData demographyData, final PanelDataRepository panelDataRepository,
+			final int numberOfZones, final StartDateSpecification input, final ResultWriter results,
+			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
+			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
+			throws IOException {
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData, numberOfZones);
-		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository);
+		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository, wrapImpedance);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones, personChanger);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
 		return new LocalDataForPopulationSynthesis(matrices, demandZoneRepository, panelDataRepository,
@@ -270,10 +272,11 @@ public class LocalFiles implements DataSource {
 	}
 
 	private ImpedanceIfc impedance(
-			StartDateSpecification input, Matrices matrices, ZoneRepository zoneRepository) {
+			StartDateSpecification input, Matrices matrices, ZoneRepository zoneRepository,
+			Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) {
 		ImpedanceLocalData localImpedance = new ImpedanceLocalData(matrices, zoneRepository,
 				input.startDate());
-		return new ImpedanceCarSharing(localImpedance);
+		return wrapImpedance.apply(localImpedance);
 	}
 
 	@Override
@@ -281,13 +284,13 @@ public class LocalFiles implements DataSource {
 			Supplier<Network> network, int numberOfZones, InputSpecification input,
 			PublicTransportData data, ResultWriter results, ElectricChargingWriter electricChargingWriter,
 			AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
-			Predicate<HouseholdForSetup> householdFilter, PersonChanger personChanger)
-			throws IOException {
+			Predicate<HouseholdForSetup> householdFilter, PersonChanger personChanger,
+			Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) throws IOException {
 		Matrices matrices = matrices(modeToType);
 		ZoneRepository zoneRepository = loadZonesFromMobiTopp(network, areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
 		addOpportunities(zoneRepository, numberOfZones, personChanger);
-		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository);
+		ImpedanceIfc localImpedance = impedance(input, matrices, zoneRepository, wrapImpedance);
 		ImpedanceIfc impedance = data.impedance(localImpedance, zoneRepository);
 		VehicleBehaviour vehicleBehaviour = data.vehicleBehaviour(results);
 		PersonLoader personLoader = personLoader(zoneRepository, numberOfZones, householdFilter,
