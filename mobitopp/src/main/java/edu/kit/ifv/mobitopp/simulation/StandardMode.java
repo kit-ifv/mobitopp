@@ -3,6 +3,9 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.EnumSet;
 import java.util.Objects;
 
+import lombok.Getter;
+
+@Getter
 public enum StandardMode implements Mode {
 
 	UNDEFINED(-2),

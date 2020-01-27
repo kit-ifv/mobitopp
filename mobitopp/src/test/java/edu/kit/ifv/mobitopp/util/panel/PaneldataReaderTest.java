@@ -143,7 +143,7 @@ public class PaneldataReaderTest {
 		addNewColumnNames();
 		final LinkedHashMap<String, String> missingColumns = new LinkedHashMap<>();
 		missingColumns.put("hhactivity_radius_time", "0.0");
-		missingColumns.put("hhactivity_radius_mode", "IV");
+		missingColumns.put("hhactivity_radius_mode", "1");
 
 		final PaneldataReader reader = createReader();
 
@@ -175,7 +175,7 @@ public class PaneldataReaderTest {
 		addOldColumnNames();
 		final LinkedHashMap<String, String> missingColumns = new LinkedHashMap<>();
 		missingColumns.put("hhactivity_radius_time", "0.0");
-		missingColumns.put("hhactivity_radius_mode", "IV");
+		missingColumns.put("hhactivity_radius_mode", "1");
 		missingColumns.put("distance_work", "poledistance");
 		missingColumns.put("distance_education", "0.0");
 

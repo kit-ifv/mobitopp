@@ -15,11 +15,13 @@ import java.util.Optional;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 
 public class PaneldataReader {
 
+	private static final int defaultActivityRadiusMode = StandardMode.CAR.getCode();
 	private static final float defaultDistanceWork = 0.0f;
 	private static final int defaultAdditionalChildren = 0;
 	private static final int defaultDomCode = 0;
@@ -156,7 +158,7 @@ public class PaneldataReader {
 		info.household.income = getIntegerOrDefault(columnNames, field, "hhincome", 0);
 		info.household.income_class = getIntegerOrDefault(columnNames, field, "hhincome_class", 0);
 		info.household.activity_radius_time = getFloatOrDefault(columnNames, field, "hhactivity_radius_time", 0.0f);
-		info.household.activity_radius_mode = getOrDefault(columnNames, field, "hhactivity_radius_mode", "IV");
+		info.household.activity_radius_mode = getIntegerOrDefault(columnNames, field, "hhactivity_radius_mode", defaultActivityRadiusMode);
 		info.person.distanceWork = getDistanceWork(columnNames, field);
 		info.person.distanceEducation = getFloatOrDefault(columnNames, field, "distance_education", 0.0f);
 		info.person.income = getIntegerOrDefault(columnNames, field, "incomeperson", 0);
@@ -231,15 +233,6 @@ public class PaneldataReader {
     	missingColumns.put(key, String.valueOf(defaultValue));
     }
     return value.map(Integer::parseInt).orElse(defaultValue);
-  }
-  
-  private String getOrDefault(
-  		Map<String, Integer> columnNames, String[] field, String key, String defaultValue) {
-  	Optional<String> value = get(columnNames, field, key);
-  	if (!value.isPresent()) {
-  		missingColumns.put(key, String.valueOf(defaultValue));
-  	}
-  	return value.orElse(defaultValue);
   }
   
   private Optional<String> get(Map<String, Integer> columnNames, String[] field, String key) {
@@ -351,6 +344,7 @@ public class PaneldataReader {
 																			: info.person.income*info.household.household_size;
 
 			float activityRadius = info.household.activity_radius_time;
+			int activityRadiusMode = info.household.activity_radius_mode;
 			HouseholdOfPanelData hh = new HouseholdOfPanelData(
 																		new HouseholdOfPanelDataId(	
 																																info.household.year,
@@ -365,7 +359,8 @@ public class PaneldataReader {
 																	info.household.cars,
 																	income,
 																	info.household.income_class,
-																	activityRadius
+																	activityRadius,
+																	activityRadiusMode
 																);
 
 			assert (info.household.household_size == infos.get(id).size() + info.household.additionalchildren);

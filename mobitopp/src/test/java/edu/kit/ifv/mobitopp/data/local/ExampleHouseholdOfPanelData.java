@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
@@ -21,11 +22,12 @@ public class ExampleHouseholdOfPanelData {
 	public static final int income = 12;
   public static final int incomeClass = 1;
   public static final float activityRadius = 13.0f;
+  public static final int activityRadiusMode = StandardMode.CAR.getCode();
 	public static final HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household(aDomCode, anId);
 
 	public static HouseholdOfPanelData household(int domCode, HouseholdOfPanelDataId id) {
 		return new HouseholdOfPanelData(id, areaType, size, domCode, reportingPersons, minors,
-				notReportingChildren, cars, income, incomeClass, activityRadius);
+				notReportingChildren, cars, income, incomeClass, activityRadius, activityRadiusMode);
 	}
 
 }
