@@ -66,17 +66,8 @@ public class ModeChoiceModelUsingAvailableModes
 																									);
 
 
-		Mode selectedMode = this.modeChoiceModel.selectMode(
-																									tour,
-																									tourMode,
-																									person, 
-																									source,
-																									destination,
-																									previousActivity, 
-																									nextActivity,
-																									availableModes,
-																									randomNumber
-																								);
+		Mode selectedMode = selectMode(tour, tourMode, person, source, destination, previousActivity,
+				nextActivity, randomNumber, availableModes);
 
 		if (selectedMode == StandardMode.CARSHARING_FREE) {
 			String message = "person: " + person.getOid();
@@ -90,6 +81,26 @@ public class ModeChoiceModelUsingAvailableModes
 		}
 
 		return selectedMode;
+	}
+
+	private Mode selectMode(
+			Tour tour, Mode tourMode, Person person, Zone source, Zone destination,
+			ActivityIfc previousActivity, ActivityIfc nextActivity, double randomNumber,
+			Set<Mode> availableModes) {
+		if (1 == availableModes.size()) {
+			return availableModes.iterator().next();
+		}
+		return this.modeChoiceModel.selectMode(
+																									tour,
+																									tourMode,
+																									person, 
+																									source,
+																									destination,
+																									previousActivity, 
+																									nextActivity,
+																									availableModes,
+																									randomNumber
+																								);
 	}
 
 	private Results results() {
