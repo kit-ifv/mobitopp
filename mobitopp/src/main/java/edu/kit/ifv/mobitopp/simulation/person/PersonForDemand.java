@@ -60,6 +60,7 @@ public class PersonForDemand implements Person, Serializable {
 	
 	private final ModeChoicePreferences modeChoicePrefsSurvey;
 	private final ModeChoicePreferences modeChoicePreferences;
+	private final ModeChoicePreferences travelTimeSensitivity;
   
 	private final FixedDestinations fixedDestinations;
 
@@ -80,6 +81,7 @@ public class PersonForDemand implements Person, Serializable {
 	private CarUsage currentCarUsage = CarUsage.NONE;
 
 
+
   public PersonForDemand(
 		PersonId id,
 		Household household,
@@ -96,7 +98,8 @@ public class PersonForDemand implements Person, Serializable {
 		TourBasedActivityPattern tourPattern,
 		FixedDestinations fixedDestinations,
 		ModeChoicePreferences modeChoicePrefsSurvey,
-    ModeChoicePreferences modeChoicePreferences 
+    ModeChoicePreferences modeChoicePreferences, 
+    ModeChoicePreferences travelTimeSensitivity 
 	)
   {
 		this.id = id;
@@ -122,6 +125,7 @@ public class PersonForDemand implements Person, Serializable {
 		
 		this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
     this.modeChoicePreferences = modeChoicePreferences;
+    this.travelTimeSensitivity = travelTimeSensitivity;
 
   }
 
@@ -559,6 +563,11 @@ public class PersonForDemand implements Person, Serializable {
   @Override
   public ModeChoicePreferences modeChoicePreferences() {
     return this.modeChoicePreferences;
+  }
+  
+  @Override
+  public ModeChoicePreferences travelTimeSensitivity() {
+  	return this.travelTimeSensitivity;
   }
 
 	@Override

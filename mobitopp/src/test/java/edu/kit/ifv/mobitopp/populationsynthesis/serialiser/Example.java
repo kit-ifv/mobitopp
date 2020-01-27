@@ -59,10 +59,11 @@ public class Example {
     TourBasedActivityPattern activitySchedule = activitySchedule();
     FixedDestinations fixedDestinations = new FixedDestinations();
     fixedDestinations.add(new FixedDestination(activityType, zone, location));
-    return new PersonForDemand(id, household, age, employment, gender, graduation, income,
-        hasBike, hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule,
-        fixedDestinations, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES);
-  }
+		return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule,
+				fixedDestinations, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES,
+				ModeChoicePreferences.NOPREFERENCES);
+	}
 
   public static TourBasedActivityPattern activitySchedule() {
     PatternActivityWeek schedule = new PatternActivityWeek();

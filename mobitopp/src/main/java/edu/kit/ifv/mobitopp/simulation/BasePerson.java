@@ -51,5 +51,7 @@ public interface BasePerson {
 	ModeChoicePreferences modeChoicePrefsSurvey();
 
 	ModeChoicePreferences modeChoicePreferences();
+  
+	ModeChoicePreferences travelTimeSensitivity();
 
 }
