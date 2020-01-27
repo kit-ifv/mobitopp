@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
@@ -23,6 +24,7 @@ public class HouseholdOfPanelDataBuilder {
   public static final int defaultIncome = 12;
   public static final int defaultIncomeClass = 1;
 	public static final float activityRadius = 13.0f;
+  public static final int activityRadiusMode = StandardMode.CAR.getCode();
 
   private HouseholdOfPanelDataId id;
   private int domCode;
@@ -53,9 +55,10 @@ public class HouseholdOfPanelDataBuilder {
     return this;
   }
 
-  public HouseholdOfPanelData build() {
-    return new HouseholdOfPanelData(id, defaultAreaType, size, domCode, defaultReportingPersons,
-        defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome, defaultIncomeClass, activityRadius);
-  }
+	public HouseholdOfPanelData build() {
+		return new HouseholdOfPanelData(id, defaultAreaType, size, domCode, defaultReportingPersons,
+				defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome, defaultIncomeClass,
+				activityRadius, activityRadiusMode);
+	}
 
 }
