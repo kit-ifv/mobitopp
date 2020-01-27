@@ -65,6 +65,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		steps.add(educationDestinationSelector());
 		steps.add(createCarOwnershipModel());
 		steps.add(storeData());
+		steps.add(cleanData());
 		DemandDataForZoneCalculatorIfc zoneCalculator = createZoneCalculator();
 		return new CommunityDemandCalculator(communityRepository, zoneCalculator, steps, impedance());
 	}
@@ -98,13 +99,6 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	private PopulationSynthesisStep activityScheduleAssignment() {
 		return new HouseholdBasedStep(activityScheduleAssigner()::assignActivitySchedule);
-	}
-
-	protected PopulationSynthesisStep storeData() {
-		return community -> {
-			community.zones().forEach(dataRepository().demandDataRepository()::store);
-			System.gc();
-		};
 	}
 
 	private DemandDataForZoneCalculatorIfc createZoneCalculator() {
