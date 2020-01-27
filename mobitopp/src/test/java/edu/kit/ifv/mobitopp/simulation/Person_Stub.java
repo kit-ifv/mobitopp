@@ -154,6 +154,11 @@ public class Person_Stub
 	public ModeChoicePreferences modeChoicePreferences() {
 		return null;
 	}
+	
+	@Override
+	public ModeChoicePreferences travelTimeSensitivity() {
+		return null;
+	}
 
 	@Override
 	public Optional<TourBasedActivityPattern> tourBasedActivityPattern() {

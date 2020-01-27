@@ -74,6 +74,8 @@ public interface PersonBuilder extends BasePerson {
 	ModeChoicePreferences getModeChoicePreferences();
 
 	PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences);
+
+	PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity);
 	
 	@Override
 	default ModeChoicePreferences modeChoicePreferences() {

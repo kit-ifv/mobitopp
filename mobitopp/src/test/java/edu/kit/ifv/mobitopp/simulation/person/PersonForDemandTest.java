@@ -58,6 +58,7 @@ public class PersonForDemandTest {
 	private FixedDestinations fixedDestinations;
 	private ModeChoicePreferences prefSurvey;
 	private ModeChoicePreferences prefSimulation;
+	private ModeChoicePreferences travelTimeSensitivity;
 	private PersonForDemand person;
 
 	@BeforeEach
@@ -82,12 +83,14 @@ public class PersonForDemandTest {
 		fixedDestinations = new FixedDestinations();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
 		prefSimulation = ModeChoicePreferences.NOPREFERENCES;
+		travelTimeSensitivity = ModeChoicePreferences.NOPREFERENCES;
 		person = newPerson();
 	}
 
 	private PersonForDemand newPerson() {
 		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
-				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activityPattern, fixedDestinations, prefSurvey, prefSimulation);
+				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activityPattern,
+				fixedDestinations, prefSurvey, prefSimulation, travelTimeSensitivity);
     return newPerson;
 	}
 

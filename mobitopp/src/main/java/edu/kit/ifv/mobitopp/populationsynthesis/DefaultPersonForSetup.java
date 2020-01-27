@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
   private boolean hasCommuterTicket;
   private boolean hasDrivingLicense;
   private ModeChoicePreferences modeChoicePreferences;
+  private ModeChoicePreferences travelTimeSensitivity;
   private TourBasedActivityPattern activityPattern;
 
   public DefaultPersonForSetup(PersonId id, HouseholdForSetup household, int age, Employment employment,
@@ -61,6 +64,8 @@ public class DefaultPersonForSetup implements PersonBuilder {
     this.hasPersonalCar = false;
     this.hasCommuterTicket = false;
     this.hasDrivingLicense = false;
+    this.modeChoicePreferences = ModeChoicePreferences.NOPREFERENCES;
+    this.travelTimeSensitivity = ModeChoicePreferences.NOPREFERENCES;
   }
   
   @Override
@@ -270,6 +275,17 @@ public class DefaultPersonForSetup implements PersonBuilder {
     return this;
   }
   
+  @Override
+  public ModeChoicePreferences travelTimeSensitivity() {
+  	return travelTimeSensitivity;
+  }
+  
+  @Override
+  public PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity) {
+  	this.travelTimeSensitivity = travelTimeSensitivity;
+  	return this;
+  }
+  
   /**
    * This class does not support carsharing membership. The method does nothing.
    */
@@ -282,7 +298,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
   public Person toPerson(Household household) {
   	return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
         hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, tourPattern(),
-        fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences);
+        fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences, travelTimeSensitivity);
   }
 
 	private TourBasedActivityPattern tourPattern() {

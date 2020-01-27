@@ -228,6 +228,16 @@ public class EmobilityPersonBuilder implements PersonBuilder {
   public ModeChoicePreferences getModeChoicePrefsSurvey() {
     return person.getModeChoicePrefsSurvey();
   }
+  
+  @Override
+  public ModeChoicePreferences travelTimeSensitivity() {
+  	return person.travelTimeSensitivity();
+  }
+  
+  @Override
+  public PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity) {
+  	return person.setTravelTimeSensitivity(travelTimeSensitivity);
+  }
 
   @Override
   public EmobilityPersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences) {

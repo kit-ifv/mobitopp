@@ -121,7 +121,7 @@ public class HouseholdTypeTest {
   private PersonForDemand newPerson(Household household, int age) {
     Graduation graduation = Graduation.undefined;
     PersonId id = new PersonId(personIds++, household.getId(), personIds % household.nominalSize());
-		return new PersonForDemand(id, household, age, null, null, graduation, 0, false, false, false, false, false, null, null, null, null);
+		return new PersonForDemand(id, household, age, null, null, graduation, 0, false, false, false, false, false, null, null, null, null, null);
   }
 	
 	@Test

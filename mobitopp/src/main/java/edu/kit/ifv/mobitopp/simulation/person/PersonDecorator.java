@@ -257,6 +257,11 @@ public class PersonDecorator
 	public ModeChoicePreferences modeChoicePreferences() {
 		return person.modeChoicePreferences();
 	}
+	
+	@Override
+	public ModeChoicePreferences travelTimeSensitivity() {
+		return person.travelTimeSensitivity();
+	}
 
 	@Override
 	public Optional<TourBasedActivityPattern> tourBasedActivityPattern() {
