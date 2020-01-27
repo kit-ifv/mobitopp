@@ -10,8 +10,10 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
+import edu.kit.ifv.mobitopp.data.PopulationForSetup;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
@@ -155,10 +157,21 @@ public abstract class PopulationSynthesis {
   }
 
 	protected PopulationSynthesisStep storeData() {
-		return community -> {
-			community.zones().forEach(dataRepository().demandDataRepository()::store);
-			System.gc();
-		};
+		return this::storeData;
+	}
+
+	private void storeData(Community community) {
+		community.zones().forEach(dataRepository().demandDataRepository()::store);
+		System.gc();
+	}
+
+	protected PopulationSynthesisStep cleanData() {
+		return this::cleanData;
+	}
+	
+	private void cleanData(Community community) {
+		community.zones().map(DemandZone::getPopulation).forEach(PopulationForSetup::clear);
+		System.gc();
 	}
 
   private Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices() {

@@ -22,5 +22,9 @@ public class PopulationForSetup {
   public Stream<HouseholdForSetup> households() {
     return households.stream();
   }
+  
+  public void clear() {
+  	households.clear();
+  }
 
 }
