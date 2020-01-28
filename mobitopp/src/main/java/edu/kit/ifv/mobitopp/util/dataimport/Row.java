@@ -42,7 +42,7 @@ public class Row {
 
   public static Row createRow(List<String> values, List<String> attributes)
       throws IllegalArgumentException {
-    if (values.size() != attributes.size()) {
+    if (values.size() < attributes.size()) {
       LinkedList<String> extended = extendValues(values, attributes);
       return createRow(extended, attributes);
     }
@@ -63,7 +63,7 @@ public class Row {
   }
 
   private static Row doCreateRow(List<String> values, List<String> attributes) {
-    Map<String, String> row = new HashMap<String, String>();
+    Map<String, String> row = new HashMap<>();
     for (int i = 0; i < attributes.size(); i++) {
       row.put(attributes.get(i), values.get(i));
     }
