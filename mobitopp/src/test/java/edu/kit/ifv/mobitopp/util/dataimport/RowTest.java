@@ -1,13 +1,12 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -32,6 +31,20 @@ public class RowTest {
         () -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))),
         () -> assertThat(row.valueAsDouble(attribute), is(equalTo(1.0d))));
   }
+  
+  @Test
+	void fillsUpEmptyValues() throws Exception {
+		Row row = Row.createRow(emptyList(), List.of(attribute));
+		
+		assertThat(row.get(attribute)).isEmpty();
+	}
+
+  @Test
+	void ignoresMoreValuesThanAttributes() throws Exception {
+		Row row = Row.createRow(List.of("1", "2"), List.of(attribute));
+		
+		assertThat(row.get(attribute)).isEqualTo("1");
+	}
   
   @Test
   void failsForMissingValue() throws Exception {
