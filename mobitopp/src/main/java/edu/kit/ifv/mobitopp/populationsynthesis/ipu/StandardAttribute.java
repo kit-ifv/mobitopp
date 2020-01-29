@@ -10,7 +10,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public enum StandardAttribute implements AttributeType {
 
-  householdType("hhtyp") {
+  domCode("domCode") {
 
     @Override
     public Stream<Attribute> createAttributes(Demography demography) {

@@ -84,7 +84,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
     RangeDistributionIfc femaleAge = defaultDistributions.createFemaleAge();
     RangeDistributionIfc maleAge = defaultDistributions.createMaleAge();
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = new LinkedHashMap<>();
-    rangeDistributions.put(StandardAttribute.householdType, household);
+    rangeDistributions.put(StandardAttribute.domCode, household);
     rangeDistributions.put(StandardAttribute.maleAge, maleAge);
     rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
     return new Demography(employment, rangeDistributions);
