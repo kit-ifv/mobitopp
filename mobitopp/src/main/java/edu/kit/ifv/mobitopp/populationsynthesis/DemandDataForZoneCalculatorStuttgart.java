@@ -33,7 +33,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCalculatorIfc {
 	
-  private static final AttributeType householdType = StandardAttribute.householdType;
+  private static final AttributeType domCode = StandardAttribute.domCode;
   private final Results results;
 	public final DemandCategories categories;
 
@@ -350,11 +350,11 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	}
 
   private void incrementHousehold(DemandZone zone, HouseholdOfPanelData householdOfPanelData) {
-    zone.actualDemography().increment(householdType, householdOfPanelData.domCode());
+    zone.actualDemography().increment(domCode, householdOfPanelData.domCode());
   }
 
 	private RangeDistributionIfc getNominalHouseholdDistribution(DemandZone zone) {
-    return zone.nominalDemography().getDistribution(householdType);
+    return zone.nominalDemography().getDistribution(domCode);
 	}
 
 	private EmploymentDistribution getNominalEmploymentDistribution(DemandZone zone) {

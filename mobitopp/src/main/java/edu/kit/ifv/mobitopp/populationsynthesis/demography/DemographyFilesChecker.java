@@ -20,8 +20,8 @@ public class DemographyFilesChecker {
 
   String calculateMissingAttributes(DemographyData data) {
     boolean containsSize = data.attributes().contains(StandardAttribute.householdSize);
-    boolean containsType = data.attributes().contains(StandardAttribute.householdType);
-    return containsSize || containsType ? "" : "Missing household size or type";
+    boolean containsDomCode = data.attributes().contains(StandardAttribute.domCode);
+    return containsSize || containsDomCode ? "" : "Missing household size or dom code";
   }
 
 }

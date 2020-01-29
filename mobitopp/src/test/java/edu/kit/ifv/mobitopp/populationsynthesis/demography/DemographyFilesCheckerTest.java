@@ -28,7 +28,7 @@ public class DemographyFilesCheckerTest {
   @Test
   public void checksAvailabilityOfHouseholdType() {
     DemographyData data = mock(DemographyData.class);
-    when(data.attributes()).thenReturn(asList(StandardAttribute.householdType));
+    when(data.attributes()).thenReturn(asList(StandardAttribute.domCode));
     DemographyFilesChecker checker = new DemographyFilesChecker();
 
     String missingAttributes = checker.calculateMissingAttributes(data);
