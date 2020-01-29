@@ -24,6 +24,13 @@ public enum StandardAttribute implements AttributeType {
       return createHouseholdAttributes(demography, HouseholdOfPanelData::size);
     }
   },
+	householdType("household_type") {
+	
+	  @Override
+	  public Stream<Attribute> createAttributes(Demography demography) {
+	    return createHouseholdAttributes(demography, HouseholdOfPanelData::type);
+	  }
+	},
   income("income") {
 
     @Override

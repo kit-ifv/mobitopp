@@ -24,6 +24,7 @@ public class PaneldataReader {
 	private static final int defaultActivityRadiusMode = StandardMode.CAR.getCode();
 	private static final float defaultDistanceWork = 0.0f;
 	private static final int defaultAdditionalChildren = 0;
+	private static final int defaultType = 0;
 	private static final int defaultDomCode = 0;
 	private static final int graduationUndefined = -1;
 	private static final float defaultPoleDistance = 0.0f;
@@ -137,6 +138,7 @@ public class PaneldataReader {
 		info.household.year 							= Short.parseShort(field[columnNames.get("year")]);
 		info.household.area_type 					= Integer.parseInt(field[columnNames.get("areatype")]);
 		info.household.household_size 		= Integer.parseInt(field[columnNames.get("size")]);
+		info.household.household_type 		= getIntegerOrDefault(columnNames, field, "type", defaultType);
 		info.household.domcode 						= getIntegerOrDefault(columnNames, field, "hhtype", defaultDomCode);
 		info.household.cars							= Integer.parseInt(field[columnNames.get("cars")]);
 		info.person.person_number				= Integer.parseInt(field[columnNames.get("personnumber")]);
@@ -352,6 +354,7 @@ public class PaneldataReader {
 																														),
 																	info.household.area_type,
 																	info.household.household_size,
+																	info.household.household_type,
 																	info.household.domcode,
 																	infos.get(id).size(), // reporting persons
 																	minors,

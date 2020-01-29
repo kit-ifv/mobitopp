@@ -19,6 +19,7 @@ public class HouseholdOfPanelData
   private final HouseholdOfPanelDataId id;
   private final int areaType;
   private final byte size;
+  private final byte type;
   private final byte domCode;
   private final byte numberOfReportingPersons;
   private final byte numberOfMinors;
@@ -33,6 +34,7 @@ public class HouseholdOfPanelData
   	final HouseholdOfPanelDataId id,
 		final int areaType,
 		final int size,
+		final int type,
 		final int domCode,
 		final int numberOfReportingPersons,
 		final int numberOfMinors,
@@ -44,13 +46,13 @@ public class HouseholdOfPanelData
 		final int activityRadiusMode
 	)
 	{
-		this(id, areaType, (byte) size, (byte) domCode, (byte) numberOfReportingPersons,
+		this(id, areaType, (byte) size, (byte) type, (byte) domCode, (byte) numberOfReportingPersons,
 				(byte) numberOfMinors, (byte) numberOfNotReportingChildren, (byte) numberOfCars, income,
 				incomeClass, activityRadius, activityRadiusMode);
 	}
 
   public HouseholdOfPanelData(final HouseholdOfPanelData household) {
-    this(household.id, household.areaType, household.size, household.domCode,
+    this(household.id, household.areaType, household.size, household.type, household.domCode,
         household.numberOfReportingPersons, household.numberOfMinors,
         household.numberOfNotReportingChildren, household.numberOfCars, household.income,
         household.incomeClass, household.activityRadius, household.activityRadiusMode);
@@ -108,6 +110,13 @@ public class HouseholdOfPanelData
 		assert this.size != UNDEFINED_BYTE;
 
     return getSize();
+  }
+  
+  public int type()
+  {
+  	assert this.type != UNDEFINED_BYTE;
+  	
+  	return getType();
   }
 
   public int domCode()
