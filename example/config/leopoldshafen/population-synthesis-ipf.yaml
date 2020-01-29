@@ -19,7 +19,7 @@ dataSource: !file
 demographyData: 
   age_f: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
   age_m: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
-  hhtyp: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
+  dom_code: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
   job: data/leopoldshafen/leopoldshafen-Demography-ipf.csv
 #numberOfZones: 2147483647
 panelData: data/leopoldshafen/population.csv
