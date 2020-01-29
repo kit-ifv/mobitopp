@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 public class TransferHouseholdsTest {
 
   private static final int defaultHouseholdSize = 1;
+	private static final int defaultHouseholdType = 0;
 
   @Test
   public void transfersHouseholdsFromPanelToWeighted() {
@@ -104,11 +105,12 @@ public class TransferHouseholdsTest {
     return createHousehold(areaType, defaultHouseholdSize);
   }
 
-  private HouseholdOfPanelData createHousehold(Bbsr17 areaType, int size) {
-    short year = 2011;
-    HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
-    return new HouseholdOfPanelData(id, areaType.getTypeAsInt(), size, 0, 0, 0, 0, 0, 0, 0, 0.0f, 0);
-  }
+	private HouseholdOfPanelData createHousehold(Bbsr17 areaType, int size) {
+		short year = 2011;
+		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
+		return new HouseholdOfPanelData(id, areaType.getTypeAsInt(), size, defaultHouseholdType, 0, 0, 0, 0, 0, 0, 0,
+				0.0f, 0);
+	}
 
   private PanelDataRepository createPanelRepsitory(HouseholdOfPanelData... household) {
     PanelDataRepository panel = mock(PanelDataRepository.class);
