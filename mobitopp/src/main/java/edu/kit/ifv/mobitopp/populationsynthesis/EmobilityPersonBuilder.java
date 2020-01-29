@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static java.util.Collections.emptyMap;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -218,6 +219,16 @@ public class EmobilityPersonBuilder implements PersonBuilder {
   public TourBasedActivityPattern getActivityPattern() {
     return person.getActivityPattern();
   }
+  
+  @Override
+  public boolean hasActivityOfType(ActivityType... activityType) {
+  	return person.hasActivityOfType(activityType);
+  }
+
+	@Override
+	public boolean hasActivityOfTypes(Collection<ActivityType> activityTypes) {
+		return person.hasActivityOfTypes(activityTypes);
+	}
 
   @Override
   public ModeChoicePreferences getModeChoicePreferences() {
