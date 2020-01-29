@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -38,12 +39,12 @@ public interface PersonBuilder extends BasePerson {
 	Optional<FixedDestination> getFixedDestination(ActivityType activityType);
 
 	Stream<FixedDestination> fixedDestinations();
-	
+
 	@Override
 	default Stream<FixedDestination> getFixedDestinations() {
 		return fixedDestinations();
 	}
-	
+
 	@Override
 	default Location fixedDestinationFor(ActivityType activityType) {
 		return getFixedDestination(activityType)
@@ -58,7 +59,7 @@ public interface PersonBuilder extends BasePerson {
 	default ModeChoicePreferences modeChoicePrefsSurvey() {
 		return getModeChoicePrefsSurvey();
 	}
-	
+
 	PersonBuilder setHasBike(boolean hasBike);
 
 	PersonBuilder setHasAccessToCar(boolean hasAccessToCar);
@@ -76,7 +77,7 @@ public interface PersonBuilder extends BasePerson {
 	PersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences);
 
 	PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity);
-	
+
 	@Override
 	default ModeChoicePreferences modeChoicePreferences() {
 		return getModeChoicePreferences();
@@ -114,6 +115,10 @@ public interface PersonBuilder extends BasePerson {
 	 * @return this builder
 	 */
 	PersonBuilder addPatternActivity(ExtendedPatternActivity activity);
+
+	boolean hasActivityOfType(ActivityType... activityType);
+
+	boolean hasActivityOfTypes(Collection<ActivityType> activityTypes);
 
 	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
 

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -66,6 +67,17 @@ public class DefaultPersonForSetupTest {
 		TourBasedActivityPattern expectedPattern = TourBasedActivityPattern
 				.fromExtendedPatternActivities(asList(pattern));
 		assertThat(person.tourBasedActivityPattern(), hasValue(expectedPattern));		
+	}
+  
+  @Test
+	void hasActivityOfType() throws Exception {
+    Household household = mock(Household.class);
+    when(household.getId()).thenReturn(householdId);
+    ExtendedPatternActivity pattern = ExtendedPatternActivity.STAYATHOME_ACTIVITY;
+    setupPerson.addPatternActivity(pattern);
+
+		assertThat(setupPerson.hasActivityOfType(ActivityType.HOME)).isTrue();
+		assertThat(setupPerson.hasActivityOfType(ActivityType.WORK)).isFalse();
 	}
   
   @Test

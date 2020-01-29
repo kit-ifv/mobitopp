@@ -1,17 +1,18 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.util.Collections.emptyMap;
-
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
+import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.Activity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -206,8 +207,22 @@ public class DefaultPersonForSetup implements PersonBuilder {
   public TourBasedActivityPattern getActivityPattern() {
     return activityPattern;
   }
-
+  
   @Override
+  public boolean hasActivityOfType(ActivityType... activityType) {
+  	return hasActivityOfTypes(Set.of(activityType));
+  }
+
+	@Override
+	public boolean hasActivityOfTypes(Collection<ActivityType> activityTypes) {
+		return tourPattern()
+				.asActivities()
+				.stream()
+				.map(Activity::activityType)
+				.anyMatch(activityTypes::contains);
+	}
+
+	@Override
   public DefaultPersonForSetup addFixedDestination(FixedDestination fixedDestination) {
     fixedDestinations.add(fixedDestination);
     return this;
