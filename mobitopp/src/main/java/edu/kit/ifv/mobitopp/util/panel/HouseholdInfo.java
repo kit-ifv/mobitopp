@@ -6,6 +6,7 @@ class HouseholdInfo {
 	public short year;
 	public int area_type;
 	public int household_size;
+	public int household_type;
 	public int domcode;
 	public int additionalchildren;
 	public int additionalchildrenmaxage;
@@ -28,6 +29,7 @@ class HouseholdInfo {
 					+ year + ", "
 					+ area_type + ", "
 					+ household_size + ", "
+					+ household_type + ", "
 					+ domcode + ", "
 					+ additionalchildren + ", "
 					+ cars 
