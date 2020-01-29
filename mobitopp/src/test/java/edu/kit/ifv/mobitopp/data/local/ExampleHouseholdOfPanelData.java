@@ -13,6 +13,7 @@ public class ExampleHouseholdOfPanelData {
 	public static final HouseholdOfPanelDataId otherId = new HouseholdOfPanelDataId(year, otherNumber);
 	public static final int areaType = 4;
 	public static final int size = 1;
+	private static final int type = 0;
 	public static final int aDomCode = 0;
 	public static final int otherDomCode = 7;
 	public static final int reportingPersons = size;
@@ -26,7 +27,7 @@ public class ExampleHouseholdOfPanelData {
 	public static final HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household(aDomCode, anId);
 
 	public static HouseholdOfPanelData household(int domCode, HouseholdOfPanelDataId id) {
-		return new HouseholdOfPanelData(id, areaType, size, domCode, reportingPersons, minors,
+		return new HouseholdOfPanelData(id, areaType, size, type, domCode, reportingPersons, minors,
 				notReportingChildren, cars, income, incomeClass, activityRadius, activityRadiusMode);
 	}
 
