@@ -39,6 +39,7 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingFacility;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class ZoneRepositorySerialiser {
@@ -77,8 +78,9 @@ public class ZoneRepositorySerialiser {
 			Map<String, List<CarSharingStation>> carSharingStations = carSharingStations(
 					stationBasedOrganizations, zoneRepository);
 			loadStationBasedCars(stationBasedOrganizations, cars);
-			Map<String, Boolean> freeFloatingArea = freeFloatingArea();
-			Map<String, Integer> freeFloatingCars = freeFloatingCars(zoneRepository, freeFloatingOrganizations, cars);
+			loadFreeFloatingCars(zoneRepository, freeFloatingOrganizations, cars);
+			Map<String, Boolean> freeFloatingArea = freeFloatingArea(freeFloatingOrganizations, zone);
+			Map<String, Integer> freeFloatingCars = freeFloatingCars(freeFloatingOrganizations, zone);
 			Map<String, Float> carsharingCarDensities = freeFloatingDensities();
 			CarSharingDataForZone carSharingDataForZone = new CarSharingDataForZone(zone,
 					stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
@@ -124,7 +126,7 @@ public class ZoneRepositorySerialiser {
 		return emptyMap();
 	}
 
-	private Map<String, Integer> freeFloatingCars(
+	private void loadFreeFloatingCars(
 			ZoneRepository zoneRepository, List<FreeFloatingCarSharingOrganization> owners,
 			Collection<Car> cars) {
 		Map<String, FreeFloatingCarSharingOrganization> nameToOwner = owners
@@ -138,15 +140,29 @@ public class ZoneRepositorySerialiser {
 				nameToOwner
 						.get(freeFloatingCar.car.owner().name())
 						.ownCar(freeFloatingCar.car, freeFloatingCar.startZone);
+				
 			}
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
 		}
-		return emptyMap();
 	}
 
-	private Map<String, Boolean> freeFloatingArea() {
-		return emptyMap();
+	private Map<String, Boolean> freeFloatingArea(
+			List<FreeFloatingCarSharingOrganization> owners, Zone zone) {
+		return owners
+				.stream()
+				.collect(StreamUtils
+						.toLinkedMap(FreeFloatingCarSharingOrganization::name,
+								owner -> owner.isCarAvailable(zone)));
+	}
+
+	private Map<String, Integer> freeFloatingCars(
+			List<FreeFloatingCarSharingOrganization> owners, Zone zone) {
+		return owners
+				.stream()
+				.collect(StreamUtils
+						.toLinkedMap(FreeFloatingCarSharingOrganization::name,
+								owner -> owner.availableCars(zone)));
 	}
 
 	private Map<String, List<CarSharingStation>> carSharingStations(
@@ -178,7 +194,7 @@ public class ZoneRepositorySerialiser {
 	
 	private List<FreeFloatingCarSharingOrganization> freeFloatingOrganizations() {
 		FreeFloatingCarSharingOrganizationFormat format = new FreeFloatingCarSharingOrganizationFormat();
-		try (CsvDeserialiser<FreeFloatingCarSharingOrganization> deserialiser = new CsvDeserialiser<>(readerFor(DemandDataInput.stationBased), format )) {
+		try (CsvDeserialiser<FreeFloatingCarSharingOrganization> deserialiser = new CsvDeserialiser<>(readerFor(DemandDataInput.freeFloating), format )) {
 			return deserialiser.deserialise();
 		} catch (IOException cause) {
 			throw new UncheckedIOException(cause);
