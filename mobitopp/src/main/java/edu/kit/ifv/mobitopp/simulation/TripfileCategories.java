@@ -79,6 +79,8 @@ public class TripfileCategories {
 		header.add("duration");
 		header.add("zoneId");
 		header.add("location");
+		header.add("X");
+		header.add("Y");
 		return new Category("demandsimulationResultActivity", header);
 	}
 
