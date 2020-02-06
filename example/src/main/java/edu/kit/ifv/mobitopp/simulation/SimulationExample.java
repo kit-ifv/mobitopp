@@ -89,7 +89,7 @@ public class SimulationExample extends Simulation {
   	Set<OutputHandler> outputhandlers = new HashSet<OutputHandler>();
     List<ZoneId> ids = Collections
         .unmodifiableList(
-            context().dataRepository().fixedDistributionMatrices().get(ActivityType.WORK).ids());
+            context().dataRepository().zoneRepository().getZoneIds());
   	for (Mode mode : choiceSet) {		
   		outputhandlers.add(createOutputHandler(mode, 0, 5, ids, "_100p", (int)(1/context().fractionOfPopulation())));
   		outputhandlers.add(createOutputHandler(mode, 6, 8, ids, "_100p", (int)(1/context().fractionOfPopulation())));
