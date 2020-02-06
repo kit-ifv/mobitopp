@@ -4,8 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 
+import edu.kit.ifv.mobitopp.data.IntegerMatrix;
+import edu.kit.ifv.mobitopp.data.OutputHandler;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.CarRangeReachableZonesFilter;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceForFlexibleActivity;
@@ -22,6 +31,7 @@ import edu.kit.ifv.mobitopp.simulation.person.DefaultTripFactory;
 import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
 import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
+import edu.kit.ifv.mobitopp.util.dataexport.MatrixPrinter;
 
 public class SimulationExample extends Simulation {
 
@@ -38,6 +48,11 @@ public class SimulationExample extends Simulation {
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
 		ReschedulingStrategy rescheduling = new ReschedulingSkipTillHome(context().simulationDays());
 		TripFactory tripFactory = new DefaultTripFactory();
+		Set<Mode> choiceSet = 	Collections
+				.unmodifiableSet(EnumSet
+						.of(StandardMode.CAR, StandardMode.PASSENGER, StandardMode.BIKE, StandardMode.PEDESTRIAN,
+								StandardMode.PUBLICTRANSPORT));
+    context().personResults().addListener(createMatrixListener(choiceSet));
 		System.out.println("Initializing simulator...");
 		return new DemandSimulatorPassenger(targetSelector,
 				new TourBasedModeChoiceModelDummy(modeSelector), routeChoice,
@@ -69,6 +84,37 @@ public class SimulationExample extends Simulation {
 										impedance, destinationChoiceFiles.get("cost"), 0.5f)),
 						destinationChoiceFiles.get("repetition")));
 	}
+
+  private PersonListener createMatrixListener(Set<Mode> choiceSet ) {
+  	Set<OutputHandler> outputhandlers = new HashSet<OutputHandler>();
+    List<ZoneId> ids = Collections
+        .unmodifiableList(
+            context().dataRepository().fixedDistributionMatrices().get(ActivityType.WORK).ids());
+  	for (Mode mode : choiceSet) {		
+  		outputhandlers.add(createOutputHandler(mode, 0, 5, ids, "_100p", (int)(1/context().fractionOfPopulation())));
+  		outputhandlers.add(createOutputHandler(mode, 6, 8, ids, "_100p", (int)(1/context().fractionOfPopulation())));
+  		outputhandlers.add(createOutputHandler(mode, 9, 14, ids, "_100p", (int)(1/context().fractionOfPopulation())));
+  		outputhandlers.add(createOutputHandler(mode, 15, 17, ids, "_100p",(int)(1/context().fractionOfPopulation())));
+  		outputhandlers.add(createOutputHandler(mode, 18, 23, ids,"_100p", (int)(1/context().fractionOfPopulation())));
+    }
+    
+    return new AggregateDemand(outputhandlers);
+  }
+
+  private OutputHandler createOutputHandler(Mode mode, int from, int to, List<ZoneId> ids, String suffix, int scalingfactor) {
+    IntegerMatrix matrix = new IntegerMatrix(ids);
+    return new OutputHandler(createMatrixWriter(mode, from, to, suffix), matrix, mode,
+        from, to, scalingfactor);
+  }
+
+  private Consumer<IntegerMatrix> createMatrixWriter(Mode mode, int from, int to, String suffix) {
+    MatrixPrinter printer = new MatrixPrinter();
+    String filenamemodedescriptor = mode.toString();
+    File toOutputFile = new File(context().configuration().getResultFolder(), filenamemodedescriptor + "_" + from + "_" + to + suffix + "_demand.mtx");
+    return matrix -> {
+      printer.writeMatrixToFile(matrix, Integer.toString(from), Integer.toString(to), toOutputFile);
+    };
+  }
 
 	public static void main(String... args) throws IOException {
 		if (1 > args.length) {
