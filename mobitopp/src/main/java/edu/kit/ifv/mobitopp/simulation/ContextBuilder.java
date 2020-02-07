@@ -35,7 +35,7 @@ public class ContextBuilder {
 	private final AreaTypeRepository areaTypeRepository;
 	private TypeMapping modeToType;
 	private PersonChangerFactory personChangerFactory;
-	private NetfileLanguage language;
+	private LanguageFactory languageFactory;
 	private Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance;
 
 	private WrittenConfiguration configuration;
@@ -54,12 +54,12 @@ public class ContextBuilder {
 	private DynamicParameters modeChoiceParameters;
 
 	public ContextBuilder(
-			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language,
+			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, LanguageFactory language,
 			PersonChangerFactory personChangerFactory) {
     super();
 		this.areaTypeRepository = areaTypeRepository;
     this.modeToType = modeToType;
-    this.language = language;
+    this.languageFactory = language;
 		this.personChangerFactory = personChangerFactory;
 		this.wrapImpedance = Function.identity();
 		performanceLogger = new StopWatch(LocalDateTime::now);
@@ -68,12 +68,17 @@ public class ContextBuilder {
 	}
   
   public ContextBuilder(
-      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, NetfileLanguage language) {
+      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, LanguageFactory language) {
   	this(areaTypeRepository, modeToType, language, (c) -> PersonChanger.noChange());
   }
-	
+
 	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
-	  this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
+		this(areaTypeRepository, DefaultMappings.noAutonomousModes(),
+				defaultLanguageFactory());
+	}
+
+	private static LanguageFactory defaultLanguageFactory() {
+		return StandardNetfileLanguages::german;
 	}
 
 	public ContextBuilder() {
@@ -90,8 +95,8 @@ public class ContextBuilder {
   	return this;
   }
   
-  public ContextBuilder use(NetfileLanguage language) {
-  	this.language = language;
+  public ContextBuilder use(LanguageFactory languageFactory) {
+  	this.languageFactory = languageFactory;
   	return this;
   }
   
@@ -184,8 +189,21 @@ public class ContextBuilder {
 	private void loadVisumNetwork() {
 		System.out.println("Reading VISUM network");
 		if (null == network) {
-			network = doLoadVisumNetwork(configuration.getVisumFile(), language);
+			network = doLoadVisumNetwork(configuration.getVisumFile(), buildLanguage());
 		}
+	}
+
+	private NetfileLanguage buildLanguage() {
+		String carSystem = configuration.getVisumToMobitopp().getCarTransportSystemCode();
+		String individualWalkSystem = configuration.getVisumToMobitopp().getIndividualWalkTransportSystemCode();
+		String publicTransportWalkSystem = configuration.getVisumToMobitopp().getPtWalkTransportSystemCode();
+		StandardNetfileLanguages builder = StandardNetfileLanguages
+				.builder()
+				.carSystem(carSystem)
+				.individualWalkSystem(individualWalkSystem)
+				.publicTransportWalkSystem(publicTransportWalkSystem)
+				.build();
+		return languageFactory.createFrom(builder);
 	}
 
 	protected VisumNetwork doLoadVisumNetwork(String fileName, NetfileLanguage language) {

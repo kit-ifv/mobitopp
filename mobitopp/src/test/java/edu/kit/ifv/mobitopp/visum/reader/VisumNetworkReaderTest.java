@@ -39,7 +39,7 @@ public class VisumNetworkReaderTest {
 
   @BeforeEach
   public void initialise() {
-    language = StandardNetfileLanguages.german();
+    language = StandardNetfileLanguages.defaultSystems().german();
     network = Example.createVisumNetwork();
   }
 
@@ -248,7 +248,7 @@ public class VisumNetworkReaderTest {
 	}
 	
 	private static VisumNetworkReader reader(Map<String, VisumTable> tables) {
-	  return new VisumNetworkReader(StandardNetfileLanguages.german()) {
+	  return new VisumNetworkReader(StandardNetfileLanguages.defaultSystems().german()) {
 	    @Override
 	    Stream<Row> loadContentOf(String tableName) {
 	      return tables.get(tableName).rows();
@@ -257,7 +257,7 @@ public class VisumNetworkReaderTest {
 	}
 
 	private static VisumNetworkReader reader(Stream<Row> content) {
-		return new VisumNetworkReader(StandardNetfileLanguages.german()) {
+		return new VisumNetworkReader(StandardNetfileLanguages.defaultSystems().german()) {
 		  @Override
 		  Stream<Row> loadContentOf(String tableName) {
 		    return content;

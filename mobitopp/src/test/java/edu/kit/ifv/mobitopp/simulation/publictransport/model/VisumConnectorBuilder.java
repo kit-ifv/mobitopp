@@ -18,7 +18,6 @@ public class VisumConnectorBuilder {
 	private static final VisumNode defaultNode = visumNode().build();
 	private static final Direction sourceDirection = Direction.ORIGIN;
 	private static final Direction destinationDirection = Direction.DESTINATION;
-	private static final int defaultType = 1;
 	private static final String defaultCode = "P";
 	private static final float defaultLength = 1.0f;
 	private static final int defaultTravelTimeInSeconds = 1;
@@ -26,7 +25,6 @@ public class VisumConnectorBuilder {
 	private VisumZone zone;
 	private VisumNode node;
 	private Direction direction;
-	private int type;
 	private VisumTransportSystemSet transportSystems;
 	private float length;
 	private int travelTimeInSeconds;
@@ -36,7 +34,6 @@ public class VisumConnectorBuilder {
 		zone = defaultZone;
 		node = defaultNode;
 		direction = sourceDirection;
-		type = defaultType;
 		length = defaultLength;
 		travelTimeInSeconds = defaultTravelTimeInSeconds;
 	}
@@ -51,7 +48,7 @@ public class VisumConnectorBuilder {
 
 	public VisumConnector build() {
 	  ensureExistingTransportSystemSet();
-		return new VisumConnector(zone, node, direction, type, transportSystems, length, travelTimeInSeconds);
+		return new VisumConnector(zone, node, direction, transportSystems, length, travelTimeInSeconds);
 	}
 
   private void ensureExistingTransportSystemSet() {
@@ -87,11 +84,6 @@ public class VisumConnectorBuilder {
 
   public VisumConnectorBuilder withLength(float length) {
     this.length = length;
-    return this;
-  }
-  
-  public VisumConnectorBuilder withType(int type) {
-    this.type = type;
     return this;
   }
   

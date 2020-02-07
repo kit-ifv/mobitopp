@@ -27,6 +27,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.LanguageFactory;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.util.StopWatch;
@@ -44,7 +45,7 @@ public class ContextBuilder {
   private final AreaTypeRepository areaTypeRepository;
   private final TypeMapping modeToType;
   private PersonChanger personChanger;
-  private NetfileLanguage netfileLanguage;
+  private LanguageFactory languageFactory;
   private Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance;
 
   private WrittenConfiguration configuration;
@@ -59,11 +60,11 @@ public class ContextBuilder {
 
 	public ContextBuilder(
 			final AreaTypeRepository areaTypeReposirtory, final TypeMapping modeToType,
-			final NetfileLanguage netfileLanguage, final PersonChanger personChanger) {
+			final LanguageFactory languageFactory, final PersonChanger personChanger) {
 		super();
 		areaTypeRepository = areaTypeReposirtory;
 		this.modeToType = modeToType;
-		this.netfileLanguage = netfileLanguage;
+		this.languageFactory = languageFactory;
 		this.personChanger = personChanger;
 		this.wrapImpedance = Function.identity();
 		performanceLogger = new StopWatch(LocalDateTime::now);
@@ -73,25 +74,26 @@ public class ContextBuilder {
 	
 	public ContextBuilder(
 			AreaTypeRepository areaTypeReposirtory, TypeMapping modeToType,
-			NetfileLanguage netfileLanguage) {
+			LanguageFactory netfileLanguage) {
 		this(areaTypeReposirtory, modeToType, netfileLanguage, PersonChanger.noChange());
 	}
 
-  public ContextBuilder(AreaTypeRepository areaTypeRepository) {
-    this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
-  }
+	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
+		this(areaTypeRepository, DefaultMappings.noAutonomousModes(), StandardNetfileLanguages::german);
+	}
 
-  public ContextBuilder() {
-    this(new BicRepository(), DefaultMappings.noAutonomousModes(), StandardNetfileLanguages.german());
-  }
+	public ContextBuilder() {
+		this(new BicRepository(), DefaultMappings.noAutonomousModes(),
+				StandardNetfileLanguages::german);
+	}
   
   public ContextBuilder use(PersonChanger personChanger) {
   	this.personChanger = personChanger;
   	return this;
   }
   
-  public ContextBuilder use(NetfileLanguage language) {
-  	this.netfileLanguage = language;
+  public ContextBuilder use(LanguageFactory languageFactory) {
+  	this.languageFactory = languageFactory;
   	return this;
   }
   
@@ -163,8 +165,21 @@ public class ContextBuilder {
   protected VisumNetwork loadNetwork() {
     File visumFile = Convert.asFile(configuration.getVisumFile());
     String ptSystemCode = configuration.getVisumToMobitopp().getPtTransportSystemCode();
-		return new VisumNetworkReader(netfileLanguage).readNetwork(visumFile, ptSystemCode);
+		return new VisumNetworkReader(buildLanguage()).readNetwork(visumFile, ptSystemCode);
   }
+
+	private NetfileLanguage buildLanguage() {
+		String carSystem = configuration.getVisumToMobitopp().getCarTransportSystemCode();
+		String individualWalkSystem = configuration.getVisumToMobitopp().getIndividualWalkTransportSystemCode();
+		String publicTransportWalkSystem = configuration.getVisumToMobitopp().getPtWalkTransportSystemCode();
+		StandardNetfileLanguages builder = StandardNetfileLanguages
+				.builder()
+				.carSystem(carSystem)
+				.individualWalkSystem(individualWalkSystem)
+				.publicTransportWalkSystem(publicTransportWalkSystem)
+				.build();
+		return languageFactory.createFrom(builder);
+	}
 
   private void roadNetwork() {
     roadNetwork = createRoadNetwork(network);

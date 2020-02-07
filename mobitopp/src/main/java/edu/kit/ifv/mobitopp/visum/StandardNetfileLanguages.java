@@ -1,8 +1,22 @@
 package edu.kit.ifv.mobitopp.visum;
 
-public abstract class StandardNetfileLanguages {
+import lombok.Builder;
 
-  public static NetfileLanguage english() {
+@Builder
+public class StandardNetfileLanguages {
+	
+  private final String carSystem;
+	private final String individualWalkSystem;
+	private final String publicTransportWalkSystem;
+
+	public static StandardNetfileLanguages defaultSystems() {
+		String carSystem = "P";
+    String individualWalkSystem = "FUSS";
+    String publicTransportWalkSystem = "F";
+		return new StandardNetfileLanguages(carSystem, individualWalkSystem, publicTransportWalkSystem);
+	}
+	
+	public NetfileLanguage english() {
     DynamicNetfileLanguage language = new DynamicNetfileLanguage();
     language.add(Table.transportSystems, "TSYS");
     language.add(Table.linkTypes, "LINKTYPE");
@@ -56,8 +70,8 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.fromNodeNumber, "FROMNODENO");
     language.add(StandardAttributes.toNodeNumber, "TONODENO");
     language.add(StandardAttributes.length, "LENGTH");
-    language.add(StandardAttributes.individualWalkSpeed, "VMAX-IVSYS(FUSS)");
-    language.add(StandardAttributes.publicTransportWalkSpeed, "VSTD-OEVSYS(F)");
+		language.add(StandardAttributes.individualWalkSpeed, "VMAX-IVSYS(" + individualWalkSystem + ")");
+		language.add(StandardAttributes.publicTransportWalkSpeed, "VSTD-OEVSYS(" + publicTransportWalkSystem + ")");
     
     // Abbieger
     language.add(StandardAttributes.freeFlowTravelTimeCar, "T0PRT");
@@ -82,7 +96,7 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.direction, "DIRECTION");
     language.add(StandardAttributes.fromOrigin, "O");
     language.add(StandardAttributes.toDestination, "D");
-    language.add(StandardAttributes.travelTimeCar, "T0_TSYS(P)");
+		language.add(StandardAttributes.travelTimeCar, "T0_TSYS(" + carSystem + ")");
     
     // VehicleUnit
     language.add(StandardAttributes.vehicleCapacity, "TOTALCAP");
@@ -182,7 +196,7 @@ public abstract class StandardNetfileLanguages {
     return language;
   }
 
-  public static NetfileLanguage german() {
+  public NetfileLanguage german() {
     DynamicNetfileLanguage language = new DynamicNetfileLanguage();
     language.add(Table.transportSystems, "VSYS");
     language.add(Table.linkTypes, "STRECKENTYP");
@@ -236,8 +250,8 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.fromNodeNumber, "VONKNOTNR");
     language.add(StandardAttributes.toNodeNumber, "NACHKNOTNR");
     language.add(StandardAttributes.length, "LAENGE");
-    language.add(StandardAttributes.individualWalkSpeed, "VMAX-IVSYS(FUSS)");
-    language.add(StandardAttributes.publicTransportWalkSpeed, "VSTD-OEVSYS(F)");
+    language.add(StandardAttributes.individualWalkSpeed, "VMAX-IVSYS(" + individualWalkSystem + ")");
+    language.add(StandardAttributes.publicTransportWalkSpeed, "VSTD-OEVSYS(" + publicTransportWalkSystem + ")");
     
     // Abbieger
     language.add(StandardAttributes.freeFlowTravelTimeCar, "T0IV");
@@ -262,7 +276,7 @@ public abstract class StandardNetfileLanguages {
     language.add(StandardAttributes.direction, "RICHTUNG");
     language.add(StandardAttributes.fromOrigin, "Q");
     language.add(StandardAttributes.toDestination, "Z");
-    language.add(StandardAttributes.travelTimeCar, "T0-VSYS(P)");
+    language.add(StandardAttributes.travelTimeCar, "T0-VSYS(" + carSystem + ")");
     
     // VehicleUnit
     language.add(StandardAttributes.vehicleCapacity, "GESAMTPL");

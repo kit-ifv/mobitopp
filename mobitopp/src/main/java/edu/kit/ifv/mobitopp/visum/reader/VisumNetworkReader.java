@@ -67,7 +67,7 @@ public class VisumNetworkReader extends VisumBaseReader {
   }
 
   public VisumNetworkReader() {
-    this(StandardNetfileLanguages.german());
+    this(StandardNetfileLanguages.defaultSystems().german());
   }
 
   public VisumNetwork readNetwork(File file, String ptSystemCode) {

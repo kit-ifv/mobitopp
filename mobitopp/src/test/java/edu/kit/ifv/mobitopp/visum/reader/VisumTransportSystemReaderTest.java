@@ -36,7 +36,7 @@ public class VisumTransportSystemReaderTest {
 
   @BeforeEach
   public void initialise() {
-    language = StandardNetfileLanguages.german();
+    language = StandardNetfileLanguages.defaultSystems().german();
     table = new VisumTable(tableName, attributes());
     reader = new VisumTransportSystemReader(language);
   }

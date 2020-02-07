@@ -41,10 +41,9 @@ public class VisumConnectorReader extends VisumBaseReader {
 
     VisumTransportSystemSet systemSet = transportSystemsOf(row, allSystems);
     Direction direction = directionOf(row);
-    int type = typeNumberOf(row);
     float distance = lengthOf(row);
     int travelTimeInSeconds = travelTimeCarOf(row);
-    return new VisumConnector(zone, node, direction, type, systemSet, distance,
+    return new VisumConnector(zone, node, direction, systemSet, distance,
         travelTimeInSeconds);
   }
 
