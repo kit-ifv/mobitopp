@@ -13,7 +13,7 @@ public class VisumToMobitopp {
 
 	private String carTransportSystemCode = "P";
 	private String ptTransportSystemCode = "PUTW";
-	private String individualWalkTransportSystemCode = "PUTW";
-	private String ptWalkTransportSystemCode = "PUTW";
+	private String individualWalkTransportSystemCode = "FUSS";
+	private String ptWalkTransportSystemCode = "F";
 
 }
