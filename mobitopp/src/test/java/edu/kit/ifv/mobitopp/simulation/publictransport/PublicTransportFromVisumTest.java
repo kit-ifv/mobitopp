@@ -160,7 +160,7 @@ public class PublicTransportFromVisumTest {
 		File file = new File(
 				PublicTransportFromVisumTest.class.getResource(filename).toURI());
 		VisumNetworkReader networkReader = new VisumNetworkReader();
-		return networkReader.readNetwork(file);
+		return networkReader.readNetwork(file, "F");
 	}
 
 	@Test

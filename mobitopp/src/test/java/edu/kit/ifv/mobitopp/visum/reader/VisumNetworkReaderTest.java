@@ -46,7 +46,7 @@ public class VisumNetworkReaderTest {
   @Test
   void loadsNetwork() throws Exception {
     VisumNetwork loadedNetwork = new VisumNetworkReader()
-        .readNetwork(networkFile());
+        .readNetwork(networkFile(), "F");
 
     Stream<Executable> complete = Stream
         .of(() -> assertThat(loadedNetwork.transportSystems, is(equalTo(network.transportSystems))),
