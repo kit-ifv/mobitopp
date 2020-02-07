@@ -3,9 +3,7 @@ package edu.kit.ifv.mobitopp.visum;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class VisumConnector 
-	implements Serializable
-{
+public class VisumConnector implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -14,7 +12,6 @@ public class VisumConnector
 	public final VisumZone zone;
 	public final VisumNode node;
 	public final Direction direction;
-	public final int type;
 	public final VisumTransportSystemSet transportSystems;
 	public float length;
 	public final String id;
@@ -25,7 +22,6 @@ public class VisumConnector
 		VisumZone zone,
 		VisumNode node,
 		Direction direction,
-		int type,
 		VisumTransportSystemSet transportSystems,
 		float length, 
 		int travelTimeInSeconds
@@ -34,11 +30,9 @@ public class VisumConnector
 		this.zone = zone;
 		this.node = node;
 		this.direction = direction;
-		this.type = type;
 		this.transportSystems = transportSystems;
 		this.length = length;
 		this.travelTimeInSeconds = travelTimeInSeconds;
-
 		this.id = "C" + zone.id + "-" + node.id() + ":" + (this.direction == Direction.ORIGIN ? "O" : "D");
 		
 	}
@@ -46,7 +40,7 @@ public class VisumConnector
 	@Override
   public int hashCode() {
     return Objects
-        .hash(direction, id, length, node, transportSystems, travelTimeInSeconds, type, zone);
+        .hash(direction, id, length, node, transportSystems, travelTimeInSeconds, zone);
   }
 
   @Override
@@ -62,16 +56,16 @@ public class VisumConnector
         && Float.floatToIntBits(length) == Float.floatToIntBits(other.length)
         && Objects.equals(node, other.node)
         && Objects.equals(transportSystems, other.transportSystems)
-        && travelTimeInSeconds == other.travelTimeInSeconds && type == other.type
+        && travelTimeInSeconds == other.travelTimeInSeconds
         && Objects.equals(zone, other.zone);
   }
 
-  @Override
-  public String toString() {
-    return "VisumConnector [zone=" + zone.id + ", node=" + node.id() + ", direction=" + direction
-        + ", type=" + type + ", transportSystems=" + transportSystems + ", length=" + length
-        + ", id=" + id + ", travelTimeInSeconds=" + travelTimeInSeconds + "]";
-  }
+	@Override
+	public String toString() {
+		return "VisumConnector [zone=" + zone.id + ", node=" + node.id() + ", direction=" + direction
+				+ ", transportSystems=" + transportSystems + ", length=" + length + ", id=" + id
+				+ ", travelTimeInSeconds=" + travelTimeInSeconds + "]";
+	}
 
 
 

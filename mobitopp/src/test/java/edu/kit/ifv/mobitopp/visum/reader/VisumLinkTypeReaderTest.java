@@ -40,7 +40,7 @@ public class VisumLinkTypeReaderTest {
 
   @BeforeEach
   public void initialise() {
-    language = StandardNetfileLanguages.german();
+		language = StandardNetfileLanguages.defaultSystems().german();
     table = new VisumTable(tableName, attributes());
     reader = new VisumLinkTypeReader(language);
   }

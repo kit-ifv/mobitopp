@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class POICategoriesTest {
 
-  private static final NetfileLanguage language = StandardNetfileLanguages.german();
+  private static final NetfileLanguage language = StandardNetfileLanguages.defaultSystems().german();
   private static final int missingNumber = 0;
   private static final String missingCode = "missing-code";
   private static final int someNumber = 1;
