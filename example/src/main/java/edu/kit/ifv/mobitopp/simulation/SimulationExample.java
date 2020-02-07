@@ -86,7 +86,7 @@ public class SimulationExample extends Simulation {
 	}
 
   private PersonListener createMatrixListener(Set<Mode> choiceSet ) {
-  	Set<OutputHandler> outputhandlers = new HashSet<OutputHandler>();
+  	Set<OutputHandler> outputhandlers = new HashSet<>();
     List<ZoneId> ids = Collections
         .unmodifiableList(
             context().dataRepository().zoneRepository().getZoneIds());
@@ -98,7 +98,7 @@ public class SimulationExample extends Simulation {
   		outputhandlers.add(createOutputHandler(mode, 18, 23, ids,"_100p", (int)(1/context().fractionOfPopulation())));
     }
     
-    return new AggregateDemand(outputhandlers);
+    return new AggregateDemandPerMode(outputhandlers);
   }
 
   private OutputHandler createOutputHandler(Mode mode, int from, int to, List<ZoneId> ids, String suffix, int scalingfactor) {

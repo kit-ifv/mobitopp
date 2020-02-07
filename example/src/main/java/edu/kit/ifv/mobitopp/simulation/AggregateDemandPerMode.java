@@ -11,11 +11,11 @@ import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
-public class AggregateDemand implements PersonListener {
+public class AggregateDemandPerMode implements PersonListener {
 
 	private final Set<OutputHandler> outputHandlers;
 
-  public AggregateDemand(Set<OutputHandler> outputHandlers) {
+  public AggregateDemandPerMode(Set<OutputHandler> outputHandlers) {
     super();
     this.outputHandlers = outputHandlers;
   } 
