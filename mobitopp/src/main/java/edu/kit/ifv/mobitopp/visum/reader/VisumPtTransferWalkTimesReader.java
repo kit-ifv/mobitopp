@@ -17,16 +17,19 @@ import edu.kit.ifv.mobitopp.visum.VisumPtTransferWalkTimes;
 public class VisumPtTransferWalkTimesReader extends VisumBaseReader {
 
   private final Map<Integer, VisumPtStopArea> ptStopAreas;
+	private final String ptSystemCode;
 
-  public VisumPtTransferWalkTimesReader(
-      NetfileLanguage language, Map<Integer, VisumPtStopArea> ptStopAreas) {
+	public VisumPtTransferWalkTimesReader(
+			NetfileLanguage language, Map<Integer, VisumPtStopArea> ptStopAreas, String ptSystemCode) {
     super(language);
     this.ptStopAreas = ptStopAreas;
+    this.ptSystemCode = ptSystemCode;
   }
 
   public Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimes(Stream<Row> content) {
     return content
         .map(this::createTransferWalkTime)
+        .filter(transfer -> ptSystemCode.equals(transfer.vsysCode))
         .collect(toMap(this::createKey, Function.identity()));
   }
 

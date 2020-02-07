@@ -59,6 +59,7 @@ public class VisumNetworkReader extends VisumBaseReader {
   private final StopWatch stopWatch;
   private File file;
   private VisumFileReader visumReader;
+	private String ptSystemCode;
 
   public VisumNetworkReader(NetfileLanguage language) {
     super(language);
@@ -69,16 +70,10 @@ public class VisumNetworkReader extends VisumBaseReader {
     this(StandardNetfileLanguages.german());
   }
 
-  public VisumNetwork readNetwork(String filename) {
-
-    File file = new File(filename);
-
-    return readNetwork(file);
-  }
-
-  public VisumNetwork readNetwork(File file) {
-    stopWatch.start();
+  public VisumNetwork readNetwork(File file, String ptSystemCode) {
+		stopWatch.start();
     this.file = file;
+    this.ptSystemCode = ptSystemCode;
     visumReader = new CachedVisumReader();
 
     System.out.println("reading tables...");
@@ -296,7 +291,7 @@ public class VisumNetworkReader extends VisumBaseReader {
   private Map<StopAreaPair, VisumPtTransferWalkTimes> readTransferWalkTimesMatrix(
       Map<Integer, VisumPtStopArea> ptStopAreas) {
     Stream<Row> content = loadContentOf(table(Table.transferWalkTimes));
-    return new VisumPtTransferWalkTimesReader(language, ptStopAreas).readTransferWalkTimes(content);
+    return new VisumPtTransferWalkTimesReader(language, ptStopAreas, ptSystemCode).readTransferWalkTimes(content);
   }
 
   private Map<String, VisumPtLine> readPtLines(VisumTransportSystems systems) {

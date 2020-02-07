@@ -190,7 +190,8 @@ public class ContextBuilder {
 
 	protected VisumNetwork doLoadVisumNetwork(String fileName, NetfileLanguage language) {
 	  File visumFile = Convert.asFile(fileName);
-    return new VisumNetworkReader(language).readNetwork(visumFile);
+    String ptSystemCode = configuration.getVisumToMobitopp().getPtTransportSystemCode();
+    return new VisumNetworkReader(language).readNetwork(visumFile, ptSystemCode);
 	}
 
 	private void loadRoadNetwork() {
