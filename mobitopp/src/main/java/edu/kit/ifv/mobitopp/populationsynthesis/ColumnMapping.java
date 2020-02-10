@@ -39,6 +39,10 @@ public class ColumnMapping<T> {
   private void resetHeader() {
     header = null;
   }
+  
+  public boolean hasColumn(String name) {
+  	return columns.containsKey(name);
+  }
 
   public List<String> prepare(T element) {
     return columns

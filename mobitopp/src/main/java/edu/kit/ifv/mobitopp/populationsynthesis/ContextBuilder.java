@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
+import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -31,6 +32,7 @@ import edu.kit.ifv.mobitopp.simulation.LanguageFactory;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.VisumToMobitopp;
 import edu.kit.ifv.mobitopp.util.StopWatch;
+import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
@@ -57,6 +59,7 @@ public class ContextBuilder {
   private Map<String, CarSharingCustomerModel> carSharing;
   private File carEngineFile;
   private DemographyData demographyData;
+	private StructuralData zonePropertiesData;
 
 	public ContextBuilder(
 			final AreaTypeRepository areaTypeReposirtory, final TypeMapping modeToType,
@@ -117,6 +120,7 @@ public class ContextBuilder {
     validateConfiguration();
     experimentalParameters();
     resultWriter();
+    zoneProperties();
     visumNetwork();
     roadNetwork();
     demography();
@@ -154,6 +158,12 @@ public class ContextBuilder {
   private void resultWriter() {
     File inBaseFolder = Convert.asFile(configuration.getResultFolder());
     resultWriter = ResultWriter.create(inBaseFolder);
+    log("Configure result writer");
+  }
+  
+  private void zoneProperties() {
+  	File file = Convert.asFile(configuration.getSynthesisZoneProperties());
+    zonePropertiesData = new StructuralData(CsvFile.createFrom(file));
     log("Configure result writer");
   }
 
@@ -214,7 +224,7 @@ public class ContextBuilder {
     int numberOfZones = configuration.getNumberOfZones();
     dataRepository = configuration
         .getDataSource()
-        .forPopulationSynthesis(network, roadNetwork, demographyData, panelData(), numberOfZones,
+        .forPopulationSynthesis(network, roadNetwork, demographyData, zonePropertiesData, panelData(), numberOfZones,
             startDate(), resultWriter, areaTypeRepository, modeToType, personChanger, wrapImpedance);
     log("Load data repository");
   }

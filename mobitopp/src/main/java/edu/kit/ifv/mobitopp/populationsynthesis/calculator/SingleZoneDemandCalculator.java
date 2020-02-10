@@ -24,12 +24,14 @@ public class SingleZoneDemandCalculator implements DemandDataCalculator {
 
 	@Override
 	public void calculateDemand() {
-		for (DemandZone zone : demandZoneRepository.getZones()) {
-      System.out
-          .println(
-              String.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId()));
-      calculator.calculateDemandData(zone, impedance);
-    }
+		demandZoneRepository
+				.getZones()
+				.stream()
+				.filter(DemandZone::shouldGeneratePopulation)
+				.peek(zone -> System.out
+						.println(String
+								.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId())))
+				.forEach(zone -> calculator.calculateDemandData(zone, impedance));
 	}
 
 }

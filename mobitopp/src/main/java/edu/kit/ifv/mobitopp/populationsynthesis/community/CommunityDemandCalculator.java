@@ -40,7 +40,8 @@ public class CommunityDemandCalculator implements DemandDataCalculator {
 	}
 
 	private boolean zonesToGenerate(DemandZone zone) {
-		return !ZoneClassificationType.outlyingArea.equals(zone.zone().getClassification());
+		return zone.shouldGeneratePopulation()
+				&& !ZoneClassificationType.outlyingArea.equals(zone.zone().getClassification());
 	}
 
 	private void processSteps(Community community) {

@@ -31,6 +31,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
+import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
@@ -181,8 +182,9 @@ public class LocalFiles implements DataSource {
 	@Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
 			final VisumNetwork visumNetwork, final SimpleRoadNetwork roadNetwork,
-			final DemographyData demographyData, final PanelDataRepository panelDataRepository,
-			final int numberOfZones, final StartDateSpecification input, final ResultWriter results,
+			final DemographyData demographyData, final StructuralData zoneProperties,
+			final PanelDataRepository panelDataRepository, final int numberOfZones,
+			final StartDateSpecification input, final ResultWriter results,
 			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
 			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
 			throws IOException {
@@ -191,7 +193,8 @@ public class LocalFiles implements DataSource {
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
-		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData, numberOfZones);
+		DemandZoneRepository demandZoneRepository = demandZoneRepository(zoneRepository, demographyData,
+				numberOfZones, zoneProperties);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository, wrapImpedance);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones, personChanger);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
@@ -200,8 +203,10 @@ public class LocalFiles implements DataSource {
 	}
 
 	private DemandZoneRepository demandZoneRepository(
-			ZoneRepository zoneRepository, DemographyData demographyData, int numberOfZones) {
-		return LocalDemandZoneRepository.from(zoneRepository, demographyData, numberOfZones);
+			final ZoneRepository zoneRepository, final DemographyData demographyData,
+			final int numberOfZones, final StructuralData zoneProperties) {
+		return LocalDemandZoneRepository
+				.from(zoneRepository, demographyData, numberOfZones, zoneProperties);
 	}
 
 	private DemandDataFolder demandDataFolder(

@@ -50,7 +50,7 @@ public class DefaultZoneFormatTest {
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		ZoneId zoneId = new ZoneId(id, oid);
     zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroidLocation, attractivity, charging);
+        centroidLocation, true, attractivity, charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);

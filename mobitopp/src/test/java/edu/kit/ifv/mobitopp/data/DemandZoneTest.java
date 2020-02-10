@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -8,8 +9,8 @@ import static org.mockito.Mockito.mock;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
@@ -30,7 +31,7 @@ public class DemandZoneTest {
   private RangeDistributionIfc nominalFemale;
   private RangeDistributionIfc nominalMale;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     zone = mock(Zone.class);
     nominalEmployment = EmploymentDistribution.createDefault();
@@ -108,6 +109,15 @@ public class DemandZoneTest {
 
     assertThat(distribution, is(equalTo(expectedMale())));
   }
+  
+  @Test
+	void shouldGeneratePopulation() throws Exception {
+		DemandZone noGeneration = newDataFor(zone, false);
+		DemandZone generation = newDataFor(zone, true);
+
+		assertThat(noGeneration.shouldGeneratePopulation()).isFalse();
+		assertThat(generation.shouldGeneratePopulation()).isTrue();
+	}
 
   private RangeDistributionIfc expectedMale() {
     RangeDistributionIfc expectedMale = new RangeDistribution();
@@ -116,6 +126,10 @@ public class DemandZoneTest {
   }
 
   private DemandZone newDataFor(Zone zone) {
-    return new DemandZone(zone, nominal);
+    return newDataFor(zone, true);
+  }
+  
+  private DemandZone newDataFor(Zone zone, boolean generatePopulation) {
+    return new DemandZone(zone, nominal, generatePopulation);
   }
 }

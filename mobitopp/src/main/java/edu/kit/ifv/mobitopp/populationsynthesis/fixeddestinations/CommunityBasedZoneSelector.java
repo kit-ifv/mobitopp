@@ -57,6 +57,7 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 		return relations
 				.stream()
 				.map(OdPair::getPossibleDestination)
+				.filter(Zone::isDestination)
 				.collect(StreamUtils
 						.toSortedMap(Function.identity(), z -> (int) z.getAttractivity(ActivityType.WORK),
 								Comparator.comparing(Zone::getId)));

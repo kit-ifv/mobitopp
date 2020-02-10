@@ -25,6 +25,7 @@ public class WrittenConfiguration {
   private Map<String, String> carSharing;
   private String commuterTicket;
   private String resultFolder;
+  private String synthesisZoneProperties;
   private VisumToMobitopp visumToMobitopp;
   private Map<String, String> experimental;
 
@@ -112,6 +113,14 @@ public class WrittenConfiguration {
   public void setPanelData(String panelData) {
     this.panelData = panelData;
   }
+  
+	public String getSynthesisZoneProperties() {
+		return synthesisZoneProperties;
+	}
+	
+	public void setSynthesisZoneProperties(String synthesisZoneProperties) {
+		this.synthesisZoneProperties = synthesisZoneProperties;
+	}
 
   public String getVisumFile() {
     return visumFile;
