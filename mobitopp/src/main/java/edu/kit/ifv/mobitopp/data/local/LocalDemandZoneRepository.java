@@ -19,11 +19,13 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
+import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {
 
+	private static final String shouldGeneratePopulation = "generatePopulation";
 	private final Map<ZoneId, DemandZone> zones;
 	private final Map<String, DemandZone> zonesByExternal;
 	private final List<DemandZone> zonesAsList;
@@ -66,25 +68,37 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 	}
 
 	public static DemandZoneRepository from(
-			ZoneRepository zoneRepository, DemographyData demographyData, int numberOfZones) {
-		Function<Zone, DemandZone> toDemandZone = zone -> createZone(zone, demographyData);
+			ZoneRepository zoneRepository, DemographyData demographyData, int numberOfZones,
+			StructuralData zoneProperties) {
+		Function<Zone, DemandZone> toDemandZone = zone -> createZone(zone, demographyData,
+				zoneProperties);
 		List<DemandZone> demandZones = zoneRepository
 				.getZones()
 				.stream()
 				.limit(numberOfZones)
-				.map(toDemandZone).collect(toList());
-		Map<ZoneId, DemandZone> zones = demandZones.stream()
+				.map(toDemandZone)
+				.collect(toList());
+		Map<ZoneId, DemandZone> zones = demandZones
+				.stream()
 				.collect(toMap(DemandZone::getId, Function.identity(), StreamUtils.throwingMerger(),
 						TreeMap::new));
-		Map<String, DemandZone> zonesByExternal = demandZones.stream()
+		Map<String, DemandZone> zonesByExternal = demandZones
+				.stream()
 				.collect(toMap(d -> d.getId().getExternalId(), Function.identity(),
 						StreamUtils.throwingMerger(), TreeMap::new));
 		return new LocalDemandZoneRepository(zones, zonesByExternal, zoneRepository);
 	}
 
-	private static DemandZone createZone(Zone zone, DemographyData demographyData) {
+	private static DemandZone createZone(
+			Zone zone, DemographyData demographyData, StructuralData zoneProperties) {
 		Demography demography = new DemographyBuilder(demographyData).build(idOf(zone));
-		return new DemandZone(zone, demography);
+		boolean generatePopulation = shouldGeneratePopulation(zone, zoneProperties);
+		return new DemandZone(zone, demography, generatePopulation);
+	}
+
+	private static boolean shouldGeneratePopulation(Zone zone, StructuralData zoneProperties) {
+		return zoneProperties.hasValue(idOf(zone), shouldGeneratePopulation)
+				&& "1".equals(zoneProperties.getValue(idOf(zone), shouldGeneratePopulation));
 	}
 
 	private static String idOf(Zone zone) {

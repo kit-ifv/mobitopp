@@ -103,12 +103,13 @@ public abstract class PopulationSynthesis {
 
   private void createLocations(OpportunityLocationSelector opportunityLocationSelector) {
     List<Zone> zones = demandZoneRepository().zoneRepository().getZones();
-    for (Zone zone : zones) {
-      System.out
-          .println(
-              "zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable());
-      createLocationsForZone(opportunityLocationSelector, zone);
-    }
+		zones
+				.stream()
+				.filter(Zone::isDestination)
+				.peek(zone -> System.out
+						.println(
+								"zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable()))
+				.forEach(zone -> createLocationsForZone(opportunityLocationSelector, zone));
   }
 
   private void createLocationsForZone(

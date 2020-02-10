@@ -25,6 +25,7 @@ demographyData:
 panelData: data/leopoldshafen/population.csv
 resultFolder: results/population-synthesis
 seed: 77859
+synthesisZoneProperties: data/leopoldshafen/synthesis-zone-properties.csv
 visumFile: data/leopoldshafen/leopoldshafen.net
 #experimental:
 #  parameter1: 1

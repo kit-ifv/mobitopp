@@ -9,15 +9,21 @@ public class DemandZone {
 
   private final Zone zone;
   private final Demography nominalDemography;
+  private final boolean generatePopulation;
   private final Demography actualDemography;
   private final PopulationForSetup population;
 
-  public DemandZone(Zone zone, Demography nominalDemand) {
+  public DemandZone(final Zone zone, final Demography nominalDemand, final boolean generatePopulation) {
     super();
     this.zone = zone;
     this.nominalDemography = nominalDemand;
+		this.generatePopulation = generatePopulation;
     actualDemography = nominalDemand.createEmpty();
     this.population = new PopulationForSetup();
+  }
+  
+  public DemandZone(final Zone zone, final Demography nominalDemand) {
+    this(zone, nominalDemand, true);
   }
 
   public ZoneId getId() {
@@ -26,6 +32,10 @@ public class DemandZone {
 
   public Zone zone() {
     return zone;
+  }
+  
+  public boolean shouldGeneratePopulation() {
+  	return generatePopulation;
   }
 
   public PopulationForSetup getPopulation() {

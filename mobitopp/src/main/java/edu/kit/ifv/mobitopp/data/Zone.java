@@ -32,6 +32,7 @@ public class Zone implements Serializable {
 	private ZoneClassificationType classification = null;
 	private int parkingPlaces;
   private Location centroidLocation;
+  private boolean isDestination;
   private Attractivities attractivities;
 
   private transient DataForZone zoneData = null;
@@ -44,16 +45,17 @@ public class Zone implements Serializable {
     this.internalId = internalId;
   }
 
-  public Zone(
-      ZoneId id, String name, AreaType areaType, RegionType regionType,
-      ZoneClassificationType classification, int parkingPlaces, Location centroidLocation,
-      Attractivities attractivities, ChargingDataForZone charging) {
+	public Zone(
+			ZoneId id, String name, AreaType areaType, RegionType regionType,
+			ZoneClassificationType classification, int parkingPlaces, Location centroidLocation,
+			boolean isDestination, Attractivities attractivities, ChargingDataForZone charging) {
     this(id);
     this.name = name;
     this.areaType = areaType;
     this.regionType = regionType;
     this.classification = classification;
     this.parkingPlaces = parkingPlaces;
+		this.isDestination = isDestination;
     this.charging = charging;
     this.attractivities = attractivities;
     this.centroidLocation = centroidLocation;
@@ -109,6 +111,10 @@ public class Zone implements Serializable {
 
   public Location centroidLocation() {
   	return this.centroidLocation;
+  }
+  
+  public boolean isDestination() {
+  	return isDestination;
   }
 
 	public void setCarSharing(CarSharingDataForZone carSharingData) {

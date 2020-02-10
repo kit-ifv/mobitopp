@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.TypeMapping;
+import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
@@ -36,10 +37,13 @@ public class TestSource implements DataSource {
 
 	@Override
 	public DataRepositoryForPopulationSynthesis forPopulationSynthesis(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, DemographyData demographyData,
-			PanelDataRepository panelDataRepository, int numberOfZones, StartDateSpecification input,
-			ResultWriter results, AreaTypeRepository areaTypeRepository, TypeMapping typeMapping,
-			PersonChanger perChanger, Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) throws IOException {
+			final VisumNetwork visumNetwork, final SimpleRoadNetwork roadNetwork,
+			final DemographyData demographyData, final StructuralData zoneProperties,
+			final PanelDataRepository panelDataRepository, final int numberOfZones,
+			final StartDateSpecification input, final ResultWriter results,
+			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
+			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
+			throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}
 

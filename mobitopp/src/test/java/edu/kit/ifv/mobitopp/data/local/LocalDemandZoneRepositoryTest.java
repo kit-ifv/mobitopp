@@ -9,6 +9,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,10 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.Example;
+import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
+import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class LocalDemandZoneRepositoryTest {
 
@@ -33,9 +36,10 @@ public class LocalDemandZoneRepositoryTest {
 	private ZoneRepository zoneRepository;
 	private Demography expectedDemography;
 	private List<Zone> zones;
+	private StructuralData zoneProperties;
 
 	@BeforeEach
-	public void initialise() {
+	public void initialise() throws IOException {
 		zones = new ArrayList<>();
 		zoneRepository = mock(ZoneRepository.class);
 		createZones();
@@ -46,6 +50,8 @@ public class LocalDemandZoneRepositoryTest {
 		demographyData.store(StandardAttribute.employment, Example.demographyData());
 		demographyData.store(StandardAttribute.income, Example.demographyData());
 		expectedDemography = new DemographyBuilder(demographyData).build("1");
+		zoneProperties = new StructuralData(
+				CsvFile.createFrom(getClass().getResourceAsStream("ZoneProperties.csv")));
 	}
 
 	@Test
@@ -84,6 +90,15 @@ public class LocalDemandZoneRepositoryTest {
 		DemandZone byId = demandRepository.zoneById(byExternalId.getId()).get();
 		assertThat(byExternalId).isSameAs(byId);
 	}
+	
+	@Test
+	void readsZoneProperties() throws Exception {
+		DemandZoneRepository demandRepository = newDemandRepository();
+
+		assertThat(demandRepository.zoneByExternalId("1").get().shouldGeneratePopulation()).isTrue();
+		assertThat(demandRepository.zoneByExternalId("2").get().shouldGeneratePopulation()).isTrue();
+		assertThat(demandRepository.zoneByExternalId("3").get().shouldGeneratePopulation()).isFalse();
+	}
 
 	private void createZones() {
 		createZoneWithOid(0, "1");
@@ -107,6 +122,6 @@ public class LocalDemandZoneRepositoryTest {
 	}
 
 	private DemandZoneRepository newDemandRepository(int numberOfZones) {
-		return LocalDemandZoneRepository.from(zoneRepository, demographyData, numberOfZones);
+		return LocalDemandZoneRepository.from(zoneRepository, demographyData, numberOfZones, zoneProperties);
 	}
 }

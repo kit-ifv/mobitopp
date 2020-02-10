@@ -31,7 +31,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
   private final VisumNetwork visumNetwork;
   private final ChargingDataBuilder chargingDataBuilder;
-  private final ZonePropertiesData zoneproperties;
+  private final ZonePropertiesData zoneProperties;
   private final AttractivitiesData attractivities;
 
   private final ZoneLocationSelector locationSelector;
@@ -44,7 +44,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
       ParkingFacilityDataRepository parkingFacilitiesDataRepository, CarSharingDataRepository carSharingDataRepository, ChargingType charging, DefaultPower defaultPower, IdToOidMapper mapper) {
     super();
     this.visumNetwork = visumNetwork;
-    this.zoneproperties = zoneproperties;
+    this.zoneProperties = zoneproperties;
     this.attractivities = attractivities;
     this.parkingFacilitiesDataRepository = parkingFacilitiesDataRepository;
     this.carSharingDataRepository = carSharingDataRepository;
@@ -57,17 +57,17 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
 	@Override
 	public List<Zone> getZones() {
-		zoneproperties.data().resetIndex();
+		zoneProperties.data().resetIndex();
 		ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
 		Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
 		List<Zone> zones = new ArrayList<>();
-		while (zoneproperties.data().hasNext()) {
-			VisumZone visumZone = visumNetwork.zones.get(zoneproperties.data().currentZone());
+		while (zoneProperties.data().hasNext()) {
+			VisumZone visumZone = visumNetwork.zones.get(zoneProperties.data().currentZone());
 			zones.add(zoneFrom(visumZone));
 			System.out
 					.println(
 							String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
-			zoneproperties.data().next();
+			zoneProperties.data().next();
 		}
 		return zones;
 	}
@@ -83,10 +83,11 @@ public class ZonesReaderCsvBased implements ZonesReader {
     int parkingPlaces = getParkingPlaces(visumZone, zoneId);
     ZonePolygon polygon = currentZonePolygon(visumZone);
     Location centroid = polygon.centroidLocation();
+    boolean isDestination = isDestination(visumId);
     Attractivities attractivities = attractivities(visumId);
     ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-    Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroid, attractivities, chargingData);
+		Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
+        centroid, isDestination, attractivities, chargingData);
     CarSharingDataForZone carSharingData = getCarSharingData(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
     zone.setMaas(MaasDataForZone.everywhereAvailable());
@@ -136,16 +137,20 @@ public class ZonesReaderCsvBased implements ZonesReader {
   }
 
   private ZoneClassificationType currentClassification(String zoneId) {
-    return zoneproperties.currentClassification(zoneId);
+    return zoneProperties.currentClassification(zoneId);
   }
 
   private RegionType regionType(String zoneId) {
-    return zoneproperties.currentRegionType(zoneId);
+    return zoneProperties.currentRegionType(zoneId);
   }
   
   private AreaType currentZoneAreaType(String zoneId) {
-    return zoneproperties.currentZoneAreaType(zoneId);
+    return zoneProperties.currentZoneAreaType(zoneId);
   }
+
+	private boolean isDestination(String zoneId) {
+		return zoneProperties.isDestination(zoneId);
+	}
 
 	public static ZonesReaderCsvBased from(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,

@@ -1,8 +1,5 @@
 package edu.kit.ifv.mobitopp.data.local.serialiser;
 
-import static java.lang.String.valueOf;
-import static java.util.Arrays.asList;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +12,7 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ColumnMapping;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
@@ -23,14 +21,7 @@ import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 
 public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
-	private static final int matrixColumnIndex = 0;
-	private static final int idIndex = 1;
-	private static final int nameIndex = 2;
-	private static final int areaTypeIndex = 3;
-	private static final int regionTypeIndex = 4;
-	private static final int classificationIndex = 5;
-	private static final int parkingPlaces = 6;
-	private static final int locationIndex = 7;
+	private final ColumnMapping<Zone> columns;
 	
 	private final ChargingDataResolver charging;
 	private final Map<Integer, Attractivities> attractivities;
@@ -43,24 +34,26 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		this.attractivities = attractivities;
 		this.areaTypeRepository = areaTypeRepository;
 		locationParser = new LocationParser();
+		columns = new ColumnMapping<>();
+		columns.add("matrixColumn", zone -> zone.getId().getMatrixColumn());
+		columns.add("id", zone -> zone.getId().getExternalId());
+		columns.add("name", Zone::getName);
+		columns.add("areaType", zone -> zone.getAreaType().getTypeAsInt());
+		columns.add("regionType", zone -> zone.getRegionType().code());
+		columns.add("classification", Zone::getClassification);
+		columns.add("parkingPlaces", Zone::getNumberOfParkingPlaces);
+    columns.add("centroidLocation", zone -> locationParser.serialise(zone.centroidLocation()));
+    columns.add("isDestination", Zone::isDestination);
 	}
 
 	@Override
 	public List<String> header() {
-    return asList("matrixColumn", "id", "name", "areaType", "regionType", "classification", "parkingPlaces",
-        "centroidLocation");
+    return columns.header();
 	}
 
 	@Override
 	public List<String> prepare(Zone zone) {
-		return asList(valueOf(zone.getId().getMatrixColumn()), 
-				zone.getId().getExternalId(),
-				zone.getName(),
-				valueOf(zone.getAreaType().getTypeAsInt()),
-				valueOf(zone.getRegionType().code()),
-				valueOf(zone.getClassification()),
-				valueOf(zone.getNumberOfParkingPlaces()),
-				valueOf(locationParser.serialise(zone.centroidLocation())));
+		return columns.prepare(zone);
 	}
 
 	@Override
@@ -74,49 +67,53 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		ZoneClassificationType classification = classificationOf(data);
 		int parkingPlaces = parkingPlacesOf(data);
 		Location centroidLocation = locationOf(data);
+		boolean isDestination = isDestinationOf(data);
 		Attractivities attractivities = attractivitiesOf(data);
 		ChargingDataForZone charging = chargingOf(data);
-    Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroidLocation, attractivities, charging);
+		Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
+        centroidLocation, isDestination, attractivities, charging);
 		return Optional.of(zone);
 	}
 
   private int oidOf(List<String> data) {
-		String oid = data.get(matrixColumnIndex);
-		return Integer.parseInt(oid);
+		return columns.get("matrixColumn", data).asInt();
 	}
 
 	private String idOf(List<String> data) {
-		return data.get(idIndex);
+		return columns.get("id", data).asString();
 	}
 
 	private String nameOf(List<String> data) {
-		return data.get(nameIndex);
+		return columns.get("name", data).asString();
 	}
 
 	private AreaType areaTypeOf(List<String> data) {
-		String areaType = data.get(areaTypeIndex);
-		return areaTypeRepository.getTypeForCode(Integer.parseInt(areaType));
+		int areaType = columns.get("areaType", data).asInt();
+		return areaTypeRepository.getTypeForCode(areaType);
 	}
 	
 	private RegionType regionTypeOf(List<String> data) {
-	  String value = data.get(regionTypeIndex);
-	  int type = Integer.valueOf(value);
+	  int type = columns.get("regionType", data).asInt();
 	  return new DefaultRegionType(type);
 	}
 
 	private ZoneClassificationType classificationOf(List<String> data) {
-		String classification = data.get(classificationIndex);
+		String classification = columns.get("classification", data).asString();
 		return ZoneClassificationType.valueOf(classification);
 	}
 	
 	private int parkingPlacesOf(List<String> data) {
-	  return Integer.valueOf(data.get(parkingPlaces));
+	  return columns.get("parkingPlaces", data).asInt();
 	}
 
 	private Location locationOf(List<String> data) {
-		String location = data.get(locationIndex);
+		String location = columns.get("centroidLocation", data).asString();
 		return locationParser.parse(location);
+	}
+
+	private boolean isDestinationOf(List<String> data) {
+		return columns.hasColumn("isDestination") ? columns.get("isDestination", data).asBoolean()
+				: true;
 	}
 
 	private Attractivities attractivitiesOf(List<String> data) {
