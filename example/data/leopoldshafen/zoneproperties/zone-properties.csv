@@ -1,0 +1,11 @@
+ID;isDestination;NAME;Outlyingarea;AirDistanceOffset;AreaType
+1;1;Zone 1;0;0;3
+2;1;Zone 2;0;0;5
+3;1;Zone 3;0;0;5
+4;1;Zone 4;0;0;5
+5;1;Zone 5;0;0;3
+6;1;Zone 6;0;0;3
+7;1;Zone 7;0;0;2
+8;1;Zone 8;0;0;2
+9;1;Zone 9;0;0;2
+10;1;Zone 10;0;0;5
