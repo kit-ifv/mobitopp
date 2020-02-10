@@ -40,6 +40,7 @@ public class DefaultZoneFormatTest {
 	private static final ZoneClassificationType classification = ZoneClassificationType.studyArea;
 	private static final int parkingPlaces = 2;
 	private static final Location centroidLocation = ExampleSetup.location;
+	private static final boolean isDestination = true;
 	private DefaultZoneFormat format;
 	private Zone zone;
 
@@ -50,7 +51,7 @@ public class DefaultZoneFormatTest {
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		ZoneId zoneId = new ZoneId(id, oid);
     zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroidLocation, true, attractivity, charging);
+        centroidLocation, isDestination, attractivity, charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
@@ -72,7 +73,8 @@ public class DefaultZoneFormatTest {
 				valueOf(regionType.code()),
 				valueOf(classification),
 				valueOf(parkingPlaces),
-				serialised(centroidLocation)));
+				serialised(centroidLocation),
+				valueOf(isDestination)));
 	}
 
 	private String serialised(Location location) {
