@@ -4,6 +4,7 @@ dataSource: !file
   attractivityDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   zonePropertiesDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   parkingFacilitiesDataFile: data/leopoldshafen/zoneproperties/parkingFacilities.csv
+  carSharingPropertiesDataFile: data/leopoldshafen/zoneproperties/carsharing-properties.csv
   carSharingStationsDataFile: data/leopoldshafen/zoneproperties/carsharing-stations.csv
   carSharingFreeFloatingDataFile: data/leopoldshafen/zoneproperties/carsharing-free-floating.csv
   #charging: unlimited
