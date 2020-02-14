@@ -155,14 +155,14 @@ public class ZonesReaderCsvBased implements ZonesReader {
 	public static ZonesReaderCsvBased from(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
 			DefaultPower defaultPower, File zonePropertiesDataFile, File attractivityDataFile,
-			File parkingFacilitiesDataFile, File stationsDataFile, File freeFloatingDataFile,
-			AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
+			File parkingFacilitiesDataFile, File carSharingPropertiesFile, File stationsDataFile,
+			File freeFloatingDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
 		ZonePropertiesData zonePropertiesData = zonePropertyDataFrom(zonePropertiesDataFile,
         areaTypeRepository);
     AttractivitiesData attractivityData = attractivityDataFrom(attractivityDataFile);
     ParkingFacilityDataRepository parkingFacilitiesData = parkingFacilitiesDataFrom(parkingFacilitiesDataFile);
 		CarSharingDataRepository carSharingStationsData = carSharingStationsDataFrom(visumNetwork,
-				roadNetwork, stationsDataFile, freeFloatingDataFile);
+				roadNetwork, carSharingPropertiesFile, stationsDataFile, freeFloatingDataFile);
     return new ZonesReaderCsvBased(visumNetwork, roadNetwork, zonePropertiesData, attractivityData, parkingFacilitiesData,
     		carSharingStationsData, charging, defaultPower, mapper);
   }
@@ -193,13 +193,15 @@ public class ZonesReaderCsvBased implements ZonesReader {
   }
 
 	private static CarSharingDataRepository carSharingStationsDataFrom(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, File stationsDataFile,
-			File freeFloatingDataFile) {
+			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, File carSharingPropertiesFile,
+			File stationsDataFile, File freeFloatingDataFile) {
 		IdSequence carIds = new IdSequence();
 		if (stationsDataFile.exists()) {
+			CsvFile properties = CsvFile.createFrom(carSharingPropertiesFile.getAbsolutePath());
 			CsvFile stationData = CsvFile.createFrom(stationsDataFile.getAbsolutePath());
 			CsvFile freeFloatingData = CsvFile.createFrom(freeFloatingDataFile.getAbsolutePath());
-			return new FileBasedCarSharingDataRepository(roadNetwork, stationData, freeFloatingData, carIds);
+			return new FileBasedCarSharingDataRepository(roadNetwork, properties, stationData,
+					freeFloatingData, carIds);
 		}
 		System.out
 				.println(

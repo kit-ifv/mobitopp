@@ -64,6 +64,7 @@ public class LocalFiles implements DataSource {
 	private File zonePropertiesDataFile;
 	private File attractivityDataFile;
 	private File parkingFacilitiesDataFile;
+	private File carSharingPropertiesDataFile;
 	private File carSharingStationsDataFile;
 	private File carSharingFreeFloatingDataFile;
 	private ChargingType charging;
@@ -137,6 +138,14 @@ public class LocalFiles implements DataSource {
 	
 	public void setParkingFacilitiesDataFile(String parkingFacilitiesDataFile) {
 		this.parkingFacilitiesDataFile = Convert.asFile(parkingFacilitiesDataFile);
+	}
+
+	public String getCarSharingPropertiesDataFile() {
+		return Convert.asString(carSharingPropertiesDataFile);
+	}
+	
+	public void setCarSharingPropertiesDataFile(String carSharingPropertiesDataFile) {
+		this.carSharingPropertiesDataFile = Convert.asFile(carSharingPropertiesDataFile);
 	}
 
 	public String getCarSharingStationsDataFile() {
@@ -240,7 +249,7 @@ public class LocalFiles implements DataSource {
 		IdToOidMapper mapper = map::get;
 		ZoneRepository fromVisum = LocalZoneRepository
 				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(),
-						attractivityDataFile, parkingFacilitiesDataFile, carSharingStationsDataFile,
+						attractivityDataFile, parkingFacilitiesDataFile, carSharingPropertiesDataFile, carSharingStationsDataFile,
 						carSharingFreeFloatingDataFile, areaTypeRepository, mapper);
 		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);

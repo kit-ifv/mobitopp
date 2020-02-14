@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,11 +30,15 @@ import edu.kit.ifv.mobitopp.visum.VisumPoint2;
 
 public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 
+	private final CsvFile properties;
 	private final CsvFile stationData;
 	private final CsvFile freeFloatingData;
 
-	public FileBasedCarSharingBuilder(SimpleRoadNetwork roadNetwork, IdSequence carSharingCarIds, CsvFile stationData, CsvFile freeFloatinData) {
+	public FileBasedCarSharingBuilder(
+			SimpleRoadNetwork roadNetwork, IdSequence carSharingCarIds, CsvFile properties,
+			CsvFile stationData, CsvFile freeFloatinData) {
 		super(roadNetwork, carSharingCarIds);
+		this.properties = properties;
 		this.stationData = stationData;
 		this.freeFloatingData = freeFloatinData;
 	}
@@ -62,11 +65,18 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 		freeFloatingCars.keySet().forEach(this::createFreeFloatingCarSharingOrganizationFor);
 		List<FreeFloatingCarSharingOrganization> freeFloatingCarSharingCompanies =  new ArrayList<>(
 				getFreeFloatingOrganizations().values());
-		Map<String, Float> carsharingCarDensities = new LinkedHashMap<>();
+		Map<String, Float> carsharingCarDensities = readDensities(zone);
 		CarSharingDataForZone carSharingData = new CarSharingDataForZone(zone,
 			stationBasedCarSharingCompanies, carSharingStations, freeFloatingCarSharingCompanies,
 			freeFloatingArea, freeFloatingCars, carsharingCarDensities);
 		return carSharingData;
+	}
+
+	private Map<String, Float> readDensities(Zone zone) {
+		return properties
+				.stream()
+				.filter(row -> zone.getId().getExternalId().equals(row.get("zone_id")))
+				.collect(toLinkedMap(row -> row.get("system"), row -> (float) row.valueAsInteger("density")));
 	}
 
 	private Map<String, Integer> readFreeFloatingCars(Zone zone) {
