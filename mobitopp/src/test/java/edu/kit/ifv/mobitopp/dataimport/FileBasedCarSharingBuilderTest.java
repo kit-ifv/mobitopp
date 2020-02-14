@@ -42,6 +42,8 @@ public class FileBasedCarSharingBuilderTest {
 	private static final float yCoord = 2.0f;
 	private static final int areaId = 1;
 	private static final int stationId = 1;
+	private static final String propertiesData = "\"zone_ID\";\"system\";\"density\""
+			+ System.lineSeparator() + areaId + ";\"BlubberFree\";1";
 	private static final String stationData = "\"ID\";\"zone_ID\";\"system\";\"name\";\"num_vehicles\";\"x_coordinate\";\"y_coordinate\""
 			+ System.lineSeparator() + stationId + ";" + areaId
 			+ ";\"Blubber\";\"0\";1;-71,077644;42,394373";
@@ -112,13 +114,18 @@ public class FileBasedCarSharingBuilderTest {
 		VisumNetwork network = networkBuilder.build();
 		SimpleRoadNetwork roadNetwork = new SimpleRoadNetwork(network);
 		IdSequence carIds = new IdSequence();
-		return new FileBasedCarSharingBuilder(roadNetwork, carIds, stationData(), freeFloatingData()) {
+		return new FileBasedCarSharingBuilder(roadNetwork, carIds, propertiesData(), stationData(),
+				freeFloatingData()) {
 
 			@Override
 			protected Location makeLocation(int zoneId, Point2D coord) {
 				return new Example().location();
 			}
 		};
+	}
+
+	private CsvFile propertiesData() throws IOException {
+		return CsvFile.createFrom(new ByteArrayInputStream(propertiesData.getBytes()));
 	}
 
 	private CsvFile stationData() throws IOException {
