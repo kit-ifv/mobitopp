@@ -30,8 +30,8 @@ public class ModeToTrip {
     return modeToTrip;
   }
   
-  public void add(Mode passenger, BiFunction<TripData, SimulationPerson, Trip> function) {
-    modeToTrip.put(passenger, function);
+  public void add(Mode mode, BiFunction<TripData, SimulationPerson, Trip> function) {
+    modeToTrip.put(mode, function);
   }
 
   private BiFunction<TripData, SimulationPerson, Trip> get(Mode mode) {
