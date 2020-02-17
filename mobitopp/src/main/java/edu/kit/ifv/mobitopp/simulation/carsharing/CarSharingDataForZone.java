@@ -16,12 +16,12 @@ import java.io.IOException;
 import java.lang.ClassNotFoundException;
 
 
-
 public class CarSharingDataForZone implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	protected final static Random random = new Random(1234);
+	static final float defaultDensity = 0.0f;
 
 	protected final Zone zone;
 
@@ -377,9 +377,7 @@ System.out.println("sb companies: " + deserializedStationBasedCarSharing.size())
 	}
 
 	public float carsharingcarDensity(String company) {
-		assert carsharingCarDensities.containsKey(company);
-
-		return carsharingCarDensities.get(company);
+		return carsharingCarDensities.getOrDefault(company, defaultDensity);
 	}
 
 	public void clearCars() {

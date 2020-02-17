@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -16,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -62,7 +64,7 @@ public class CarSharingDataForZoneTest  {
 	private StationBasedCarSharingCar stationBasedCar;
 	private DefaultCarSharingCar freeFloatingCar;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		zones = ExampleZones.create();
 
@@ -90,6 +92,7 @@ public class CarSharingDataForZoneTest  {
 		freeFloatingArea = new HashMap<String, Boolean>();
 		freeFloatingCars = new HashMap<String, Integer>();
 		carsharingcarDensities = new HashMap<String, Float>();
+		carsharingcarDensities.put(freeFloatingName, 2.0f);
 
 		freeFloatingArea.put(freeFloatingName, true);
 		freeFloatingCars.put(freeFloatingName, 3);
@@ -249,6 +252,20 @@ public class CarSharingDataForZoneTest  {
 		assertEquals(carSharingStations.get(stationBasedName).size(), stations.size());
 		assertTrue(stations.containsAll(carSharingStations.get(stationBasedName)));
 		assertTrue(carSharingStations.get(stationBasedName).containsAll(stations));
+	}
+	
+	@Test
+	void returnsDefaultValueIfDensityIsMissing() throws Exception {
+		float density = carSharing.carsharingcarDensity(stationBasedName);
+		
+		assertThat(density).isCloseTo(CarSharingDataForZone.defaultDensity, offset(1e-6f));
+	}
+	
+	@Test
+	void returnDensity() throws Exception {
+		float density = carSharing.carsharingcarDensity(freeFloatingName);
+		
+		assertThat(density).isCloseTo(2.0f, offset(1e-6f));
 	}
 
 	@Test
