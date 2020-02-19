@@ -26,7 +26,7 @@ public class DefaultTripFactory implements TripFactory {
   @Override
   public Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
-      ActivityIfc nextActivity) {
+      ActivityIfc nextActivity, double randomNumber) {
     BaseData tripData = createTripData(impedance, mode, previousActivity, nextActivity);
     return modeToTrip.create(mode, tripData, person);
   }
@@ -56,9 +56,9 @@ public class DefaultTripFactory implements TripFactory {
 
     assert duration > 0;
 
-    int legId = 0;
+		int legId = 0;
 		return new BaseData(nextTripId(), legId, mode, previousActivity, nextActivity, (short) duration);
-  }
+	}
 
   @Override
   public int nextTripId() {

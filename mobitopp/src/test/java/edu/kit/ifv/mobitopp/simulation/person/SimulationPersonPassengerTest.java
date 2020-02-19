@@ -62,6 +62,7 @@ public class SimulationPersonPassengerTest {
   private static final Employment someEmploymentType = Employment.FULLTIME;
   private static final ActivityType defaultActivity = ActivityType.HOME;
   private static final int seed = 0;
+	private static final double randomNumber = 0.42d;
 
   @Rule
   public final TemporaryFolder baseFolder = new TemporaryFolder();
@@ -180,12 +181,12 @@ public class SimulationPersonPassengerTest {
     return new ZoneAndLocation(someZone(), someLocation());
   }
   
-  private void configurePublicTransportTrip(SimulationPerson person) {
-    PublicTransportTrip trip = createPublicTransportTrip(person);
-    when(tripFactory
-        .createTrip(person, impedance, StandardMode.PUBLICTRANSPORT, firstActivity, firstActivity))
-            .thenReturn(trip);
-  }
+	private void configurePublicTransportTrip(SimulationPerson person) {
+		PublicTransportTrip trip = createPublicTransportTrip(person);
+		when(tripFactory
+				.createTrip(person, impedance, StandardMode.PUBLICTRANSPORT, firstActivity, firstActivity,
+						randomNumber)).thenReturn(trip);
+	}
 
   @Test
   public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
@@ -332,14 +333,14 @@ public class SimulationPersonPassengerTest {
     when(nextActivity.isLocationSet()).thenReturn(true);
     when(impedance.getTravelTime(zone.getId(), zone.getId(), mode, startDate))
         .thenReturn(plannedDuration);
-    when(tripFactory.createTrip(person, impedance, mode, firstActivity, nextActivity))
+    when(tripFactory.createTrip(person, impedance, mode, firstActivity, nextActivity, randomNumber))
         .thenReturn(mockedTrip);
 
-    Trip trip = person.createTrip(impedance, mode, firstActivity, nextActivity);
+    Trip trip = person.createTrip(impedance, mode, firstActivity, nextActivity, randomNumber);
 
     assertEquals(mockedTrip, trip);
     
-    verify(tripFactory).createTrip(person, impedance, mode, firstActivity, nextActivity);
+    verify(tripFactory).createTrip(person, impedance, mode, firstActivity, nextActivity, randomNumber);
   }
   
   @Test

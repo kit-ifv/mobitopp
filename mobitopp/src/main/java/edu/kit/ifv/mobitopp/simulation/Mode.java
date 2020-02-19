@@ -12,4 +12,6 @@ public interface Mode {
 
 	public Mode mainMode();
 
+	public Mode legMode();
+
 }

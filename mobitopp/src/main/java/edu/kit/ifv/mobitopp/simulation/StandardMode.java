@@ -78,6 +78,11 @@ public enum StandardMode implements Mode {
 	public Mode mainMode() {
 		return this;
 	}
+	
+	@Override
+	public Mode legMode() {
+		return this;
+	}
 
 	public static Mode getTypeFromInt(int code) {
 		for (StandardMode mode : EnumSet.allOf(StandardMode.class)) {

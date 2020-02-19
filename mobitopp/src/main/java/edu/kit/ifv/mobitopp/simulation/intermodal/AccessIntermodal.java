@@ -4,37 +4,42 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 
 public class AccessIntermodal implements Mode {
 
-	private final Mode mainMode;
-	private final Mode accessMode;
+	private final Mode main;
+	private final Mode access;
 
 	public AccessIntermodal(Mode mainMode, Mode accessMode) {
-		this.mainMode = mainMode;
-		this.accessMode = accessMode;
+		this.main = mainMode;
+		this.access = accessMode;
 	}
 
 	@Override
 	public boolean isFlexible() {
-		return mainMode.isFlexible();
+		return main.isFlexible();
 	}
 
 	@Override
 	public boolean isDefined() {
-		return mainMode.isDefined();
+		return main.isDefined();
 	}
 
 	@Override
 	public boolean usesCarAsDriver() {
-		return mainMode.usesCarAsDriver();
+		return main.usesCarAsDriver();
 	}
 
 	@Override
 	public String forLogging() {
-		return accessMode.forLogging() + "," + mainMode.forLogging();
+		return access.forLogging() + "," + main.forLogging();
 	}
 
 	@Override
 	public Mode mainMode() {
-		return mainMode;
+		return main;
+	}
+
+	@Override
+	public Mode legMode() {
+		return access;
 	}
 
 }

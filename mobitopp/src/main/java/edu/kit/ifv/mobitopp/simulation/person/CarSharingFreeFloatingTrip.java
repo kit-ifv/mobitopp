@@ -35,6 +35,11 @@ public class CarSharingFreeFloatingTrip extends CarBasedTrip implements Trip {
   protected boolean canReturnCar(ActivityIfc nextActivity) {
     return nextActivity.zone().carSharing().isFreeFloatingZone((CarSharingCar) person().whichCar());
   }
+  
+  @Override
+  protected Zone getCarReturnZone() {
+  	return nextActivity().zone();
+  }
 
   @Override
   protected void notifyBeforeReturn(PersonListener listener, FinishedTrip finishedTrip) {

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -41,5 +42,10 @@ public class PrivateCarTrip extends CarBasedTrip implements Trip {
   @Override
   protected boolean canReturnCar(ActivityIfc activity) {
     return activity.activityType().isHomeActivity();
+  }
+  
+  @Override
+  protected Zone getCarReturnZone() {
+  	return nextActivity().zone();
   }
 }

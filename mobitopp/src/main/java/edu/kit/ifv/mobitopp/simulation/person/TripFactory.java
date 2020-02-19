@@ -10,7 +10,7 @@ public interface TripFactory {
 
   Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
-      ActivityIfc nextActivity);
+      ActivityIfc nextActivity, double randomNumber);
 
   int nextTripId();
 

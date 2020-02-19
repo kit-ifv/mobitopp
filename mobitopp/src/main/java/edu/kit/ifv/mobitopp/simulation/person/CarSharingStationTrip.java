@@ -41,4 +41,9 @@ public class CarSharingStationTrip extends CarBasedTrip implements Trip {
   protected void notifyBeforeReturn(PersonListener listener, FinishedTrip finishedTrip) {
   }
 
+	@Override
+	protected Zone getCarReturnZone() {
+		return nextActivity().zone();
+	}
+
 }
