@@ -70,7 +70,7 @@ public abstract class CarBasedTrip extends BaseTrip {
   }
   
   private void assertMode() {
-    assert mode() == mode : (trip() + "\n" + "prev: " + previousActivity() + "\n" + "next : "
+    assert mode().mainMode() == mode : (trip() + "\n" + "prev: " + previousActivity() + "\n" + "next : "
         + nextActivity() + "\n --- \n" + person().activitySchedule() + "\n");
   }
 
@@ -113,7 +113,7 @@ public abstract class CarBasedTrip extends BaseTrip {
 
   private int stopCar(Time currentDate) {
     assertMode();
-    Zone zone = nextActivity().zone();
+    Zone zone = getCarReturnZone();
     Location location = nextActivity().location();
     CarPosition position = new CarPosition(zone, location);
     Car car = person().whichCar();
@@ -131,7 +131,7 @@ public abstract class CarBasedTrip extends BaseTrip {
   protected abstract void notifyBeforeReturn(PersonListener listener, FinishedTrip finishedTrip);
 
   private void returnCar(Time currentDate) {
-    Zone zone = nextActivity().zone();
+    Zone zone = getCarReturnZone();
     if (canReturnCar(nextActivity())) {
       Car car = person().releaseCar(currentDate);
       car.returnCar(zone);
@@ -141,6 +141,8 @@ public abstract class CarBasedTrip extends BaseTrip {
       assertCarTypeOf(car);
     }
   }
+
+	protected abstract Zone getCarReturnZone();
 
   protected abstract boolean canReturnCar(ActivityIfc nextActivity);
 }

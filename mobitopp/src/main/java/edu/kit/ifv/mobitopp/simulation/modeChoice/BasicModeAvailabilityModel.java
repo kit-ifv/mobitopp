@@ -60,7 +60,7 @@ public class BasicModeAvailabilityModel
 
 		} else {
 
-			Mode previousMode = previousActivity.mode();
+			Mode previousMode = previousActivity.mode().mainMode();
 
 			if (previousMode.isFlexible())
 			{

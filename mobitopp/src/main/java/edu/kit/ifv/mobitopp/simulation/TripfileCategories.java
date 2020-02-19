@@ -40,8 +40,9 @@ public class TripfileCategories {
 		header.add("activityNumber");
 		header.add("tripBeginTime");
 		header.add("activityType");
-		header.add("modeType");
+		header.add("legMode");
 		header.add("mainMode");
+		header.add("tripMode");
 		header.add("vehicleId");
 		header.add("tripEndDay");
 		header.add("tripEndTime");

@@ -41,6 +41,7 @@ public class CarSharingStationTripTest {
   @BeforeEach
   public void initialise() {
     setup = TripSetup.create();
+    setup.configureCurrentActivity(ActivityType.HOME);
     impedance = setup.impedance;
     person = setup.person;
     trip = setup.tripData;
@@ -69,7 +70,6 @@ public class CarSharingStationTripTest {
   @Test
   void allocateVehicle() throws Exception {
     CarSharingCar carSharingCar = mock(CarSharingCar.class);
-    setup.configureCurrentActivity(ActivityType.HOME);
     when(carSharingData.isStationBasedCarSharingCarAvailable(person)).thenReturn(true);
     when(carSharingData.bookStationBasedCar(person)).thenReturn(carSharingCar);
     CarSharingStationTrip carSharingTrip = new CarSharingStationTrip(trip, person);
@@ -95,7 +95,6 @@ public class CarSharingStationTripTest {
 
   @Test
   void parkCarAtWork() throws Exception {
-    setup.configureCurrentActivity(ActivityType.HOME);
     setup.configureNextActivity(ActivityType.WORK);
     when(person.isCarDriver()).thenReturn(true);
     when(person.whichCar()).thenReturn(car);

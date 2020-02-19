@@ -33,11 +33,11 @@ public class PublicTransportTripFactory implements TripFactory {
   @Override
   public Trip createTrip(
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
-      ActivityIfc nextActivity) {
+      ActivityIfc nextActivity, double randomNumber) {
     if (StandardMode.PUBLICTRANSPORT.equals(mode)) {
       return doCreateTrip(person, impedance, mode, previousActivity, nextActivity);
     }
-    return base.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    return base.createTrip(person, impedance, mode, previousActivity, nextActivity, randomNumber);
   }
 
   private Trip doCreateTrip(

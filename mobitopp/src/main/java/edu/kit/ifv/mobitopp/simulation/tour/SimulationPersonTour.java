@@ -7,17 +7,16 @@ import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
@@ -26,11 +25,7 @@ import edu.kit.ifv.mobitopp.simulation.person.SimulationOptions;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPersonPassenger;
 import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
-import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
-import edu.kit.ifv.mobitopp.simulation.tour.Tour;
-import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
-import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
-import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
+import edu.kit.ifv.mobitopp.time.Time;
 
 
 
@@ -323,7 +318,8 @@ public class SimulationPersonTour
 																							impedance,
 																							mode, 
 																							previousActivity, 
-																							nextActivity
+																							nextActivity, 
+																							this.getNextRandom()
 																						);
 
 		currentTrip(trip);

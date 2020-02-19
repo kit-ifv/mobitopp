@@ -4,37 +4,42 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 
 public class EgressIntermodal implements Mode {
 
-	private final Mode mainMode;
-	private final Mode egressMode;
+	private final Mode main;
+	private final Mode egress;
 
 	public EgressIntermodal(Mode mainMode, Mode egressMode) {
-		this.mainMode = mainMode;
-		this.egressMode = egressMode;
+		this.main = mainMode;
+		this.egress = egressMode;
 	}
 
 	@Override
 	public boolean isFlexible() {
-		return mainMode.isFlexible();
+		return main.isFlexible();
 	}
 
 	@Override
 	public boolean isDefined() {
-		return mainMode.isDefined();
+		return main.isDefined();
 	}
 
 	@Override
 	public boolean usesCarAsDriver() {
-		return mainMode.usesCarAsDriver();
+		return main.usesCarAsDriver();
 	}
 
 	@Override
 	public String forLogging() {
-		return mainMode.forLogging() + "," + egressMode.forLogging();
+		return main.forLogging() + "," + egress.forLogging();
 	}
 
 	@Override
 	public Mode mainMode() {
-		return mainMode;
+		return main;
+	}
+	
+	@Override
+	public Mode legMode() {
+		return egress;
 	}
 
 }

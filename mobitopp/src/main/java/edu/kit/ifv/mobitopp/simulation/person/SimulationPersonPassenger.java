@@ -301,7 +301,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 													    impedance,
 													    mode, 
 													    previousActivity, 
-													    nextActivity
+													    nextActivity, 
+													    this.getNextRandom()
 													  );
 
 		currentTrip(trip);
@@ -382,8 +383,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 
   protected Trip createTrip(
       ImpedanceIfc impedance, Mode modeType, ActivityIfc previousActivity,
-      ActivityIfc nextActivity) {
-    return tripFactory.createTrip(this, impedance, modeType, previousActivity, nextActivity);
+      ActivityIfc nextActivity, double nextRandom) {
+    return tripFactory.createTrip(this, impedance, modeType, previousActivity, nextActivity, nextRandom);
   }
 
 	protected Optional<PublicTransportRoute> findRoute(

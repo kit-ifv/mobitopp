@@ -34,6 +34,7 @@ public class PublicTransportTripFactoryTest {
   private static final int oid = 1;
   private static final Time startDate = someTime();
   private static final int plannedDuration = 1;
+	private static final double randomNumber = 0.42d;
   private SimulationPerson person;
   private ImpedanceIfc impedance;
   private ActivityIfc previousActivity;
@@ -76,7 +77,7 @@ public class PublicTransportTripFactoryTest {
     when(route.duration()).thenReturn(RelativeTime.ofMinutes(plannedDuration));
 
     TripFactory factory = new PublicTransportTripFactory(base, publicTransportBehaviour);
-    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity);
+    Trip trip = factory.createTrip(person, impedance, mode, previousActivity, nextActivity, randomNumber);
 
     assertThat(trip, is(instanceOf(PublicTransportTrip.class)));
     assertEquals(oid, trip.getOid());
