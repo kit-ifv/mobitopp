@@ -52,4 +52,9 @@ public class FullIntermodal implements Mode {
 		return new LegMode(this, egressMode);
 	}
 	
+	@Override
+	public String toString() {
+		return accessMode + "," + mainMode + "," + egressMode;
+	}
+	
 }

@@ -9,7 +9,9 @@ import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.ToString;
 
+@ToString
 public class BeamedTrip implements FinishedTrip {
 
 	private final TripData data;
