@@ -5,6 +5,7 @@ import edu.kit.ifv.mobitopp.simulation.BaseData;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -28,8 +29,13 @@ public class DefaultTripFactory implements TripFactory {
       SimulationPerson person, ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity,
       ActivityIfc nextActivity, double randomNumber) {
     BaseData tripData = createTripData(impedance, mode, previousActivity, nextActivity);
-    return modeToTrip.create(mode, tripData, person);
+    return createTrip(person, mode, tripData);
   }
+
+	@Override
+	public Trip createTrip(SimulationPerson person, Mode mode, TripData tripData) {
+		return modeToTrip.create(mode, tripData, person);
+	}
 
   @Override
   public BaseData createTripData(
