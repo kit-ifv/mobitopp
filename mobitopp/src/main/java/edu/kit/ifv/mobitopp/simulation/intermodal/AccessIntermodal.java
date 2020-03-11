@@ -1,7 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import lombok.ToString;
 
+@ToString
 public class AccessIntermodal implements Mode {
 
 	private final Mode main;
