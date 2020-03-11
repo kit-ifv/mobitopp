@@ -165,9 +165,10 @@ public class TripfileWriter implements PersonListener {
 			Location location
 	) {
 
-		assert trip.mode() == StandardMode.CAR
-					|| trip.mode() == StandardMode.CARSHARING_STATION
-					|| trip.mode() == StandardMode.CARSHARING_FREE : ("invalid mode: " + trip.mode());
+		Mode legMode = trip.mode().legMode();
+		assert legMode == StandardMode.CAR
+					|| legMode == StandardMode.CARSHARING_STATION
+					|| legMode == StandardMode.CARSHARING_FREE : ("invalid mode: " + legMode);
 
 
 		String origin = previousActivity.zone().getId().getExternalId();

@@ -2,8 +2,8 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 public interface TripFactory {
@@ -16,5 +16,7 @@ public interface TripFactory {
 
   TripData createTripData(
       ImpedanceIfc impedance, Mode mode, ActivityIfc previousActivity, ActivityIfc nextActivity);
+
+	Trip createTrip(SimulationPerson person, Mode mode, TripData tripData);
 
 }

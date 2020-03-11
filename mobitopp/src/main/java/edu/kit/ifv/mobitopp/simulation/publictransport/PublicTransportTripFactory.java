@@ -81,4 +81,9 @@ public class PublicTransportTripFactory implements TripFactory {
     return base.createTripData(impedance, mode, previousActivity, nextActivity);
   }
 
+	@Override
+	public Trip createTrip(SimulationPerson person, Mode mode, TripData tripData) {
+		return base.createTrip(person, mode, tripData);
+	}
+
 }

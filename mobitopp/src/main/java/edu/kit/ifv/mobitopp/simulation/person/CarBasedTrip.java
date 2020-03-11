@@ -70,7 +70,7 @@ public abstract class CarBasedTrip extends BaseTrip {
   }
   
   private void assertMode() {
-    assert mode().mainMode() == mode : (trip() + "\n" + "prev: " + previousActivity() + "\n" + "next : "
+    assert mode().legMode() == mode : (trip() + "\n" + "prev: " + previousActivity() + "\n" + "next : "
         + nextActivity() + "\n --- \n" + person().activitySchedule() + "\n");
   }
 
