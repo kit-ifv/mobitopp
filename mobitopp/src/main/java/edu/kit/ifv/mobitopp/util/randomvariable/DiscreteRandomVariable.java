@@ -23,8 +23,9 @@ public class DiscreteRandomVariable<T> {
 	}
 
 	protected NavigableMap<Double,T> cumulativeDistribution(Map<T,? extends Number> distribution) {
-
-		assert distribution.size() > 0;
+		if (0 >= distribution.size()) {
+			throw new IllegalArgumentException("At least one element is required to select from.");
+		}
 
 		NavigableMap<Double,T> cumul = new TreeMap<Double,T>();
 
