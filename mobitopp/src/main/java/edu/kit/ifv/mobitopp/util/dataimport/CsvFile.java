@@ -137,8 +137,12 @@ public class CsvFile {
 	}
 
 	public static CsvFile createFrom(InputStream inputStream) throws IOException {
+		return createFrom(new InputStreamReader(inputStream, Charset.forName("UTF-8")));
+	}
+
+	public static CsvFile createFrom(InputStreamReader reader) throws IOException {
 		CsvFile csv = new CsvFile();
-		csv.init(new CSVReader(new InputStreamReader(inputStream, Charset.forName("UTF-8")), defaultSeparator));
+		csv.init(new CSVReader(reader, defaultSeparator));
 		return csv;
 	}
 }
