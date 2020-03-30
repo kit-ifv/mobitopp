@@ -50,12 +50,12 @@ public class SimpleTime implements Time, Comparable<Time> {
   }
 
   @Override
-  public long toSeconds() {
+  public int toSeconds() {
     return this.seconds;
   }
   
   @Override
-  public long toMinutes() {
+  public int toMinutes() {
     return RelativeTime.ofSeconds(seconds).toMinutes();
   }
   

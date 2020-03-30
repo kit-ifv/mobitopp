@@ -10,8 +10,8 @@ public interface Time extends Comparable<Time> {
 	int getHour();
 	int getMinute();
 	int getSecond();
-	long toSeconds();
-	long toMinutes();
+	int toSeconds();
+	int toMinutes();
 
 	Time previousDay();
 	Time nextDay();
