@@ -92,7 +92,8 @@ publishing {
             artifact javadocJar
             groupId project.group
             artifactId project.name
-            def snapshotVersion = project.version.replaceAll("\\.${project.build_number}", '') + '-SNAPSHOT'
+            def buildNumber = project.hasProperty('build_number') ? project.property('build_number') : '123'
+            def snapshotVersion = project.version.replaceAll("\\.${buildNumber}", '') + '-SNAPSHOT'
             version snapshotVersion
         }
     }
