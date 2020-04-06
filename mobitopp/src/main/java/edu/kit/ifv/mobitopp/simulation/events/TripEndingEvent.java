@@ -7,11 +7,16 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class TripEndingEvent extends DemandSimulationEvent {
 
+	public TripEndingEvent(int priority, SimulationPerson person, OccupationIfc occupation, Time plannedEndDate) {
+		super(priority, person, occupation, plannedEndDate);
+	}
+	
 	public TripEndingEvent(int priority, SimulationPerson person, OccupationIfc occupation) {
-		super(priority, person, occupation, occupation.calculatePlannedEndDate());
+		this(priority, person, occupation, occupation.calculatePlannedEndDate());
 	}
 	
 	@Override
