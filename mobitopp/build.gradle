@@ -78,13 +78,21 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        release(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
             groupId project.group
             artifactId project.name
             version project.version
+        }
+        snapshot(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            groupId project.group
+            artifactId project.name
+            version project.version + '-SNAPSHOT'
         }
     }
     repositories {
@@ -94,7 +102,7 @@ publishing {
                 password getPropertyOrDefault('repositoryPassword')
             }
             def repositoryUrl = getPropertyOrDefault('repositoryUrl')
-            def releasesRepoUrl = "${repositoryUrl}/repository/maven-releases/"
+            def releasesRepoUrl = "${repositoryUrl}/repository/maven-releases"
             def snapshotsRepoUrl = "${repositoryUrl}/repository/maven-snapshots"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
@@ -110,7 +118,7 @@ artifactory {
             password = project.hasProperty('key') ? project.property('key') : 'key'
         }
         defaults {
-            publications('mavenJava')
+            publications('snapshot')
             publishArtifacts = true
             publishPom = true
         }
@@ -125,7 +133,7 @@ artifactory {
 bintray {
     user = project.hasProperty('user') ? project.property('user') : 'user'
     key = project.hasProperty('key')? project.property('key') : 'key'
-    publications = ['mavenJava']
+    publications = ['release']
     pkg {
         repo = 'ifv-mobitopp'
         name = project.name
@@ -136,22 +144,6 @@ bintray {
           name = project.version
           description = project.version
           released = new Date()
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        def repositoryUrl = getPropertyOrDefault('repositoryUrl')
-        def repositoryUsername = getPropertyOrDefault('repositoryUsername')
-        def repositoryPassword = getPropertyOrDefault('repositoryPassword')
-        mavenDeployer {
-            repository(url: "${repositoryUrl}/repository/maven-releases/") {
-                authentication(userName: repositoryUsername, password: repositoryPassword)
-            }
-            snapshotRepository(url: "${repositoryUrl}/repository/maven-snapshots") {
-                authentication(userName: repositoryUsername, password: repositoryPassword)
-            }
         }
     }
 }
