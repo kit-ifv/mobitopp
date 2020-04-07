@@ -310,6 +310,11 @@ public class DefaultPersonForSetup implements PersonBuilder {
   }
 
   @Override
+  public Map<String, Boolean> getCarsharingMembership() {
+  	throw new RuntimeException("Not supported method");
+  }
+
+  @Override
   public Person toPerson(Household household) {
   	return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
         hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, tourPattern(),
@@ -327,4 +332,5 @@ public class DefaultPersonForSetup implements PersonBuilder {
   public String toString() {
     return id.toString();
   }
+
 }

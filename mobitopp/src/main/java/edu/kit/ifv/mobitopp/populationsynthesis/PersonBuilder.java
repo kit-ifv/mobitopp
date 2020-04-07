@@ -122,4 +122,6 @@ public interface PersonBuilder extends BasePerson {
 
 	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
 
+	Map<String, Boolean> getCarsharingMembership();
+
 }

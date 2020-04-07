@@ -275,7 +275,8 @@ public class EmobilityPersonBuilder implements PersonBuilder {
     return this;
   }
 
-  public Map<String, Boolean> getCarsharingMembership() {
+  @Override
+	public Map<String, Boolean> getCarsharingMembership() {
   	return this.carSharingMembership;
   }
   
