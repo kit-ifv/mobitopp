@@ -6,7 +6,8 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 
 public class ZonePropertiesData {
 
-  private static final String isDestination = "isDestination";
+  private static final String relief = "relief";
+	private static final String isDestination = "isDestination";
 	private static final String newClassificationKey = "zoneclassification";
   private static final String oldClassificationKey = "Outlyingarea";
 
@@ -59,5 +60,8 @@ public class ZonePropertiesData {
 				&& "1".equals(data.getValue(zoneId, isDestination));
 	}
 
+	public double relief(String zoneId) {
+		return data.valueOrDefaultAsDouble(zoneId, relief);
+	}
 
 }

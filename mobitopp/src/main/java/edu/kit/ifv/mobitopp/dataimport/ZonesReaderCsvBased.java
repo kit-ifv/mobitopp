@@ -85,10 +85,20 @@ public class ZonesReaderCsvBased implements ZonesReader {
     ZonePolygon polygon = currentZonePolygon(visumZone);
     Location centroid = polygon.centroidLocation();
     boolean isDestination = isDestination(visumId);
+    double relief = relief(visumId);
     Attractivities attractivities = attractivities(visumId);
 		ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-		ZoneProperties zoneProperties = new ZoneProperties(name, areaType, regionType, classification,
-				parkingPlaces, isDestination, centroid);
+		ZoneProperties zoneProperties = ZoneProperties
+				.builder()
+				.name(name)
+				.areaType(areaType)
+				.regionType(regionType)
+				.classification(classification)
+				.parkingPlaces(parkingPlaces)
+				.isDestination(isDestination)
+				.centroidLocation(centroid)
+				.relief(relief)
+				.build();
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
     CarSharingDataForZone carSharingData = getCarSharingData(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
@@ -152,6 +162,10 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
 	private boolean isDestination(String zoneId) {
 		return zonePropertiesData.isDestination(zoneId);
+	}
+
+	private double relief(String zoneId) {
+		return zonePropertiesData.relief(zoneId);
 	}
 
 	public static ZonesReaderCsvBased from(
