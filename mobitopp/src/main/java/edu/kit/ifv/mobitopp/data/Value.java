@@ -27,6 +27,10 @@ public class Value {
   public float asFloat() {
     return Float.valueOf(value);
   }
+  
+  public double asDouble() {
+  	return Double.valueOf(value);
+  }
 
   public String asString() {
     return value;
