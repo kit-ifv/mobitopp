@@ -8,10 +8,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.geom.Point2D;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -266,29 +262,6 @@ public class CarSharingDataForZoneTest  {
 		float density = carSharing.carsharingcarDensity(freeFloatingName);
 		
 		assertThat(density).isCloseTo(2.0f, offset(1e-6f));
-	}
-
-	@Test
-	public void testSerialization() 
-		throws java.io.IOException, java.lang.ClassNotFoundException
-	{
-
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		ObjectOutputStream out = new ObjectOutputStream(bout);
-		out.writeObject(carSharing);
-		out.writeObject(otherCarSharing);
-
-		ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
-		ObjectInputStream in = new ObjectInputStream(bin);
-
-		CarSharingDataForZone serializedCarSharing = (CarSharingDataForZone) in.readObject();
-		CarSharingDataForZone serializedOtherCarSharing = (CarSharingDataForZone) in.readObject();
-
-		assertNotNull(serializedCarSharing);
-		assertNotNull(serializedOtherCarSharing);
-
-		assertEquals(carSharing.stationBasedCarSharingCompanies().size(), 
-									serializedCarSharing.stationBasedCarSharingCompanies().size());
 	}
 
 }
