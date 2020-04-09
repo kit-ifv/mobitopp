@@ -1,12 +1,5 @@
 package edu.kit.ifv.mobitopp.data;
 
-import java.io.ObjectStreamException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
@@ -17,76 +10,62 @@ import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.NoChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
-public class Zone implements Serializable {
+public class Zone {
 
-	protected final static int UNDEFINED_OID       = -1;
-	protected final static byte INITIAL_VERSION = 1;
+	private final ZoneId id;
+	private final ZoneProperties zoneProperties;
+	private final Attractivities attractivities;
+	private final ChargingDataForZone charging;
 
-	public static final long serialVersionUID = 3459190403580397878L;
-  public final static String IDPREFIX = "";
-
-  private final ZoneId internalId;
-	private String name = null;
-	private AreaType areaType;
-	private RegionType regionType;
-	private ZoneClassificationType classification = null;
-	private int parkingPlaces;
-  private Location centroidLocation;
-  private boolean isDestination;
-  private Attractivities attractivities;
-
-  private transient DataForZone zoneData = null;
-  private CarSharingDataForZone carSharingData = null;
-	private ChargingDataForZone charging;
+  private transient DataForZone zoneData;
+  private CarSharingDataForZone carSharingData;
 	private MaasDataForZone maasData;
 
-  private Zone(ZoneId internalId) {
-    super();
-    this.internalId = internalId;
-  }
-
 	public Zone(
-			ZoneId id, String name, AreaType areaType, RegionType regionType,
-			ZoneClassificationType classification, int parkingPlaces, Location centroidLocation,
-			boolean isDestination, Attractivities attractivities, ChargingDataForZone charging) {
-    this(id);
-    this.name = name;
-    this.areaType = areaType;
-    this.regionType = regionType;
-    this.classification = classification;
-    this.parkingPlaces = parkingPlaces;
-		this.isDestination = isDestination;
-    this.charging = charging;
-    this.attractivities = attractivities;
-    this.centroidLocation = centroidLocation;
-  }
+			final ZoneId id, final ZoneProperties zoneProperties, final Attractivities attractivities,
+			final ChargingDataForZone charging) {
+		super();
+		this.id = id;
+		this.zoneProperties = zoneProperties;
+		this.attractivities = attractivities;
+		this.charging = charging;
+	}
+	
+	public ZoneId getId() {
+		return id;
+	}
 
-  public ZoneId getId() {
-    return internalId;
-  }
-
-  public AreaType getAreaType()
-  {
-		assert this.areaType != null;
-
-    return this.areaType;
-  }
+	public AreaType getAreaType() {
+		return zoneProperties.getAreaType();
+	}
   
   public RegionType getRegionType() {
-    assert null != this.regionType;
-    return regionType;
+    return zoneProperties.getRegionType();
   }
 
-  public ZoneClassificationType getClassification()
-  {
-		assert this.classification != null;
+	public ZoneClassificationType getClassification() {
+		return zoneProperties.getClassification();
+	}
 
-    return this.classification;
-  }
+	public int getNumberOfParkingPlaces() {
+		return zoneProperties.getParkingPlaces();
+	}
 
-  public int getNumberOfParkingPlaces() {
-    return parkingPlaces;
+	public String getName() {
+		return zoneProperties.getName();
+	}
+
+  public Location centroidLocation() {
+  	return zoneProperties.getCentroidLocation();
   }
+  
+	public boolean isDestination() {
+		return zoneProperties.isDestination();
+	}
+	
+	public double getRelief() {
+		return zoneProperties.getRelief();
+	}
 
 	public DataForZone getDemandData() 
 	{
@@ -100,21 +79,6 @@ public class Zone implements Serializable {
   public boolean hasDemandData()
   {
 		return this.zoneData != null;
-  }
-
-  public String getName()
-  {
-		assert  this.name != null;
-
-    return this.name;
-  }
-
-  public Location centroidLocation() {
-  	return this.centroidLocation;
-  }
-  
-  public boolean isDestination() {
-  	return isDestination;
   }
 
 	public void setCarSharing(CarSharingDataForZone carSharingData) {
@@ -164,31 +128,9 @@ public class Zone implements Serializable {
 		return null == charging ? NoChargingDataForZone.noCharging : charging;
 	}
 
-	// (de)serialization
-
-	private static Set<ZoneId> serializedZones = new HashSet<>();
-	private static Map<ZoneId,Zone> deSerializedZones = new HashMap<>();
-
-  private Object writeReplace() throws ObjectStreamException {
-    if (!serializedZones.contains(this.internalId)) {
-      serializedZones.add(this.internalId);
-      return this;
-    } else {
-      return new Zone(this.internalId);
-    }
-  }
-
-  private Object readResolve() throws ObjectStreamException {
-    if (!deSerializedZones.containsKey(internalId)) {
-      deSerializedZones.put(internalId, this);
-    }
-
-    return deSerializedZones.get(internalId);
-  }
-
 	@Override
   public String toString() {
-    return "Zone [internalId=" + internalId + ", name=" + name + "]";
+    return "Zone [internalId=" + id + ", name=" + getName() + "]";
   }
 
 }

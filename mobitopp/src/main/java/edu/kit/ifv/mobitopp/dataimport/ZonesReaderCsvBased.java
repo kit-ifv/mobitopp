@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZonePolygon;
+import edu.kit.ifv.mobitopp.data.ZoneProperties;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
@@ -31,7 +32,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
   private final VisumNetwork visumNetwork;
   private final ChargingDataBuilder chargingDataBuilder;
-  private final ZonePropertiesData zoneProperties;
+  private final ZonePropertiesData zonePropertiesData;
   private final AttractivitiesData attractivities;
 
   private final ZoneLocationSelector locationSelector;
@@ -44,7 +45,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
       ParkingFacilityDataRepository parkingFacilitiesDataRepository, CarSharingDataRepository carSharingDataRepository, ChargingType charging, DefaultPower defaultPower, IdToOidMapper mapper) {
     super();
     this.visumNetwork = visumNetwork;
-    this.zoneProperties = zoneproperties;
+    this.zonePropertiesData = zoneproperties;
     this.attractivities = attractivities;
     this.parkingFacilitiesDataRepository = parkingFacilitiesDataRepository;
     this.carSharingDataRepository = carSharingDataRepository;
@@ -57,17 +58,17 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
 	@Override
 	public List<Zone> getZones() {
-		zoneProperties.data().resetIndex();
+		zonePropertiesData.data().resetIndex();
 		ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
 		Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
 		List<Zone> zones = new ArrayList<>();
-		while (zoneProperties.data().hasNext()) {
-			VisumZone visumZone = visumNetwork.zones.get(zoneProperties.data().currentZone());
+		while (zonePropertiesData.data().hasNext()) {
+			VisumZone visumZone = visumNetwork.zones.get(zonePropertiesData.data().currentZone());
 			zones.add(zoneFrom(visumZone));
 			System.out
 					.println(
 							String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
-			zoneProperties.data().next();
+			zonePropertiesData.data().next();
 		}
 		return zones;
 	}
@@ -85,9 +86,10 @@ public class ZonesReaderCsvBased implements ZonesReader {
     Location centroid = polygon.centroidLocation();
     boolean isDestination = isDestination(visumId);
     Attractivities attractivities = attractivities(visumId);
-    ChargingDataForZone chargingData = chargingData(visumZone, polygon);
-		Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroid, isDestination, attractivities, chargingData);
+		ChargingDataForZone chargingData = chargingData(visumZone, polygon);
+		ZoneProperties zoneProperties = new ZoneProperties(name, areaType, regionType, classification,
+				parkingPlaces, isDestination, centroid);
+		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
     CarSharingDataForZone carSharingData = getCarSharingData(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
     zone.setMaas(MaasDataForZone.everywhereAvailable());
@@ -137,19 +139,19 @@ public class ZonesReaderCsvBased implements ZonesReader {
   }
 
   private ZoneClassificationType currentClassification(String zoneId) {
-    return zoneProperties.currentClassification(zoneId);
+    return zonePropertiesData.currentClassification(zoneId);
   }
 
   private RegionType regionType(String zoneId) {
-    return zoneProperties.currentRegionType(zoneId);
+    return zonePropertiesData.currentRegionType(zoneId);
   }
   
   private AreaType currentZoneAreaType(String zoneId) {
-    return zoneProperties.currentZoneAreaType(zoneId);
+    return zonePropertiesData.currentZoneAreaType(zoneId);
   }
 
 	private boolean isDestination(String zoneId) {
-		return zoneProperties.isDestination(zoneId);
+		return zonePropertiesData.isDestination(zoneId);
 	}
 
 	public static ZonesReaderCsvBased from(

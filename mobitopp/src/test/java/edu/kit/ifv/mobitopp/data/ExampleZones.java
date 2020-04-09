@@ -47,8 +47,10 @@ public class ExampleZones {
     attractivities.addAttractivity(ActivityType.WORK, 1);
     ChargingDataForZone charging = createChargingData();
     Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
-		Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-				centroid, true, attractivities, charging);
+		boolean isDestination = true;
+		ZoneProperties zoneProperties = new ZoneProperties(name, areaType, regionType, classification,
+				parkingPlaces, isDestination, centroid);
+		Zone zone = new Zone(zoneId, zoneProperties, attractivities, charging);
 		zone.opportunities().createLocations((z, a, i) -> Map.of(centroid, 1));
 		return zone;
   }

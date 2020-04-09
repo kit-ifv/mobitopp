@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.data.ZoneProperties;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
@@ -41,6 +42,7 @@ public class DefaultZoneFormatTest {
 	private static final int parkingPlaces = 2;
 	private static final Location centroidLocation = ExampleSetup.location;
 	private static final boolean isDestination = true;
+	private static final double relief = 1.0d;
 	private DefaultZoneFormat format;
 	private Zone zone;
 
@@ -50,8 +52,18 @@ public class DefaultZoneFormatTest {
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		ZoneId zoneId = new ZoneId(id, oid);
-    zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroidLocation, isDestination, attractivity, charging);
+		ZoneProperties zoneProperties = ZoneProperties
+				.builder()
+				.name(name)
+				.areaType(areaType)
+				.regionType(regionType)
+				.classification(classification)
+				.parkingPlaces(parkingPlaces)
+				.isDestination(isDestination)
+				.centroidLocation(centroidLocation)
+				.relief(relief)
+				.build();
+		zone = new Zone(zoneId, zoneProperties, attractivity, charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
 		when(chargingData.chargingDataFor(oid)).thenReturn(charging);
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
@@ -74,7 +86,8 @@ public class DefaultZoneFormatTest {
 				valueOf(classification),
 				valueOf(parkingPlaces),
 				serialised(centroidLocation),
-				valueOf(isDestination)));
+				valueOf(isDestination),
+				valueOf(relief)));
 	}
 
 	private String serialised(Location location) {

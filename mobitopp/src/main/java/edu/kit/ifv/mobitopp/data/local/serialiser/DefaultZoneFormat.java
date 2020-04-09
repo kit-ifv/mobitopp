@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.data.ZoneProperties;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.dataimport.DefaultRegionType;
@@ -18,17 +19,18 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 
-
 public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
 	private final ColumnMapping<Zone> columns;
-	
+
 	private final ChargingDataResolver charging;
 	private final Map<Integer, Attractivities> attractivities;
 	private final LocationParser locationParser;
 	private final AreaTypeRepository areaTypeRepository;
 
-	public DefaultZoneFormat(ChargingDataResolver charging, Map<Integer, Attractivities> attractivities, AreaTypeRepository areaTypeRepository) {
+	public DefaultZoneFormat(
+			ChargingDataResolver charging, Map<Integer, Attractivities> attractivities,
+			AreaTypeRepository areaTypeRepository) {
 		super();
 		this.charging = charging;
 		this.attractivities = attractivities;
@@ -42,13 +44,14 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		columns.add("regionType", zone -> zone.getRegionType().code());
 		columns.add("classification", Zone::getClassification);
 		columns.add("parkingPlaces", Zone::getNumberOfParkingPlaces);
-    columns.add("centroidLocation", zone -> locationParser.serialise(zone.centroidLocation()));
-    columns.add("isDestination", Zone::isDestination);
+		columns.add("centroidLocation", zone -> locationParser.serialise(zone.centroidLocation()));
+		columns.add("isDestination", Zone::isDestination);
+		columns.add("relief", Zone::getRelief);
 	}
 
 	@Override
 	public List<String> header() {
-    return columns.header();
+		return columns.header();
 	}
 
 	@Override
@@ -61,21 +64,24 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		int oid = oidOf(data);
 		String id = idOf(data);
 		ZoneId zoneId = new ZoneId(id, oid);
-		String name = nameOf(data);
-		AreaType areaType = areaTypeOf(data);
-		RegionType regionType = regionTypeOf(data);
-		ZoneClassificationType classification = classificationOf(data);
-		int parkingPlaces = parkingPlacesOf(data);
-		Location centroidLocation = locationOf(data);
-		boolean isDestination = isDestinationOf(data);
+		ZoneProperties zoneProperties = ZoneProperties
+				.builder()
+				.name(nameOf(data))
+				.areaType(areaTypeOf(data))
+				.regionType(regionTypeOf(data))
+				.classification(classificationOf(data))
+				.parkingPlaces(parkingPlacesOf(data))
+				.centroidLocation(locationOf(data))
+				.isDestination(isDestinationOf(data))
+				.relief(reliefOf(data))
+				.build();
 		Attractivities attractivities = attractivitiesOf(data);
 		ChargingDataForZone charging = chargingOf(data);
-		Zone zone = new Zone(zoneId, name, areaType, regionType, classification, parkingPlaces,
-        centroidLocation, isDestination, attractivities, charging);
+		Zone zone = new Zone(zoneId, zoneProperties, attractivities, charging);
 		return Optional.of(zone);
 	}
 
-  private int oidOf(List<String> data) {
+	private int oidOf(List<String> data) {
 		return columns.get("matrixColumn", data).asInt();
 	}
 
@@ -91,19 +97,19 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 		int areaType = columns.get("areaType", data).asInt();
 		return areaTypeRepository.getTypeForCode(areaType);
 	}
-	
+
 	private RegionType regionTypeOf(List<String> data) {
-	  int type = columns.get("regionType", data).asInt();
-	  return new DefaultRegionType(type);
+		int type = columns.get("regionType", data).asInt();
+		return new DefaultRegionType(type);
 	}
 
 	private ZoneClassificationType classificationOf(List<String> data) {
 		String classification = columns.get("classification", data).asString();
 		return ZoneClassificationType.valueOf(classification);
 	}
-	
+
 	private int parkingPlacesOf(List<String> data) {
-	  return columns.get("parkingPlaces", data).asInt();
+		return columns.get("parkingPlaces", data).asInt();
 	}
 
 	private Location locationOf(List<String> data) {
@@ -114,6 +120,10 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 	private boolean isDestinationOf(List<String> data) {
 		return columns.hasColumn("isDestination") ? columns.get("isDestination", data).asBoolean()
 				: true;
+	}
+
+	private double reliefOf(List<String> data) {
+		return columns.hasColumn("relief") ? columns.get("relief", data).asDouble() : 0.0d;
 	}
 
 	private Attractivities attractivitiesOf(List<String> data) {
