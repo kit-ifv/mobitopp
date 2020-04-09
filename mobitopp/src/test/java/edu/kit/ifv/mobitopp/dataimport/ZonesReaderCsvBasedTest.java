@@ -4,13 +4,10 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumSurface;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumZone;
 import static java.util.stream.Collectors.toMap;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -99,7 +96,7 @@ public class ZonesReaderCsvBasedTest {
 
     when(chargingDataBuilder.chargingData(any(), any())).thenReturn(chargingData);
     when(attractivitiesBuilder.attractivities(anyString())).thenReturn(attractivities);
-    when(locationSelector.selectLocation(eq(someZone), any())).thenReturn(dummyLocation());
+    when(locationSelector.selectLocation(any(), any())).thenReturn(dummyLocation());
     when(carSharingDataRepository.getData(any(), any(), any())).thenReturn(carSharingData);
     when(parkingFacilitiesDataRepository.getNumberOfParkingLots(any(), any())).thenReturn(parkingFacilities);
   }
@@ -115,39 +112,40 @@ public class ZonesReaderCsvBasedTest {
     List<Zone> zones = reader.getZones();
 
     Zone zone = zones.get(0);
-    assertAll(() -> assertThat(zone.getId().getExternalId(), is(equalTo("" + someZoneId))),
-        () -> assertThat(zone.getName(), is(equalTo(someZoneName))),
-        () -> assertThat(zone.getAreaType(), is(equalTo(ZoneAreaType.CITYOUTSKIRT))),
-        () -> assertThat(zone.getRegionType(), is(equalTo(new DefaultRegionType(1)))),
-        () -> assertThat(zone.getClassification(),
-            is(equalTo(ZoneClassificationType.studyArea))),
-        () -> assertThat(zone.carSharing(), is(equalTo(carSharingData))),
-        () -> assertThat(zone.charging(), is(equalTo(chargingData))),
-        () -> assertThat(zone.attractivities(), is(equalTo(attractivities))),
-        () -> assertThat(zone.getNumberOfParkingPlaces(), is(equalTo(parkingFacilities))),
-        () -> assertThat(zone.centroidLocation(), is(equalTo(dummyLocation()))));
+		assertAll(() -> assertThat(zone.getId().getExternalId()).isEqualTo("" + someZoneId),
+				() -> assertThat(zone.getName()).isEqualTo(someZoneName),
+				() -> assertThat(zone.getAreaType()).isEqualTo(ZoneAreaType.CITYOUTSKIRT),
+				() -> assertThat(zone.getRegionType()).isEqualTo(new DefaultRegionType(1)),
+				() -> assertThat(zone.getClassification()).isEqualTo(ZoneClassificationType.studyArea),
+				() -> assertThat(zone.carSharing()).isEqualTo(carSharingData),
+				() -> assertThat(zone.charging()).isEqualTo(chargingData),
+				() -> assertThat(zone.attractivities()).isEqualTo(attractivities),
+				() -> assertThat(zone.getNumberOfParkingPlaces()).isEqualTo(parkingFacilities),
+				() -> assertThat(zone.centroidLocation()).isEqualTo(dummyLocation()));
   }
 
-  private ZonesReaderCsvBased newReader() {
-    ChargingType charging = ChargingType.limited;
-    ZonePropertiesData zoneProperties = new ZonePropertiesData(structuralData, Example.areaTypeRepository());
-		return new ZonesReaderCsvBased(network, roadNetwork, zoneProperties, attractivityData, parkingFacilitiesDataRepository, carSharingDataRepository, charging, defaultPower,
-        idToOid) {
+	private ZonesReaderCsvBased newReader() {
+		ChargingType charging = ChargingType.limited;
+		ZonePropertiesData zoneProperties = new ZonePropertiesData(structuralData,
+				Example.areaTypeRepository());
+		return new ZonesReaderCsvBased(network, roadNetwork, zoneProperties, attractivityData,
+				parkingFacilitiesDataRepository, carSharingDataRepository, charging, defaultPower,
+				idToOid) {
 
-      @Override
-      ChargingDataBuilder chargingDataBuilder() {
-        return chargingDataBuilder;
-      }
+			@Override
+			ChargingDataBuilder chargingDataBuilder() {
+				return chargingDataBuilder;
+			}
 
-      @Override
-      AttractivitiesBuilder attractivitiesBuilder() {
-        return attractivitiesBuilder;
-      }
+			@Override
+			AttractivitiesBuilder attractivitiesBuilder() {
+				return attractivitiesBuilder;
+			}
 
-      @Override
-      ZoneLocationSelector locationSelector() {
-        return locationSelector;
-      }
-    };
-  }
+			@Override
+			ZoneLocationSelector locationSelector() {
+				return locationSelector;
+			}
+		};
+	}
 }
