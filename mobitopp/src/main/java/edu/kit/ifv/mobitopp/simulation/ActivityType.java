@@ -24,6 +24,7 @@ public enum ActivityType
 	LEISURE_INDOOR   (51),
 	LEISURE_OUTDOOR  (52),
 	LEISURE_OTHER    (53),
+	PICK_UP_PARCEL   (71),
 	LEISURE_WALK     (77),
 
 	EDUCATION_PRIMARY    (31),
