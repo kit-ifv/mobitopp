@@ -53,6 +53,8 @@ public class TripfileCategories {
 		header.add("employmentType");
 		header.add("homeZone");
 		header.add("activityDuration");
+		header.add("previousActivityZone");
+		header.add("nextActivityZone");
 		header.add("locationFrom");
 		header.add("locationTo");
 		header.add("sex");
