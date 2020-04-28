@@ -1,4 +1,4 @@
-wrapper.gradleVersion = '5.6'
+wrapper.gradleVersion = '6.3'
 
 subprojects {
     apply plugin: 'java'
