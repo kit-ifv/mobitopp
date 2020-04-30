@@ -28,15 +28,17 @@ public class CsvConverter implements TripConverter {
 
 	@Override
 	public String convert(final Person person, final FinishedTrip finishedTrip) {
-  	ActivityIfc previousActivity = finishedTrip.previousActivity();
-  	ActivityIfc nextActivity = finishedTrip.nextActivity();
-  	Location location_from = previousActivity.location();
-  	Location location_to = nextActivity.location();
-    String origin = finishedTrip.origin().zone().getId().getExternalId();
-    String destination = nextActivity.zone().getId().getExternalId();
-    ZoneId originId = finishedTrip.origin().zone().getId();
-    ZoneId destinationId = finishedTrip.destination().zone().getId();
-    float distance = impedance.getDistance(originId, destinationId);
+		ActivityIfc previousActivity = finishedTrip.previousActivity();
+		ActivityIfc nextActivity = finishedTrip.nextActivity();
+		String previousActivityZone = previousActivity.zone().getId().getExternalId();
+		String nextActivityZone = nextActivity.zone().getId().getExternalId();
+		Location location_from = previousActivity.location();
+		Location location_to = nextActivity.location();
+		ZoneId originId = finishedTrip.origin().zone().getId();
+		ZoneId destinationId = finishedTrip.destination().zone().getId();
+		String origin = originId.getExternalId();
+		String destination = destinationId.getExternalId();
+		float distance = impedance.getDistance(originId, destinationId);
 
     double distance_km = distance / 1000.0;
 
@@ -120,6 +122,8 @@ public class CsvConverter implements TripConverter {
     message.append(employmentType);
     message.append(homeZone);
     message.append(activityDuration);
+    message.append(previousActivityZone);
+    message.append(nextActivityZone);
     message.append(locationParser.serialiseRounded(location_from));
     message.append(locationParser.serialiseRounded(location_to));
     message.append(sex);
