@@ -1,10 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static java.util.Collections.emptyList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -52,7 +50,6 @@ public class DemandDataForZoneCalculatorStuttgartTest {
   private Zone zone;
   private DemandZone demandZone;
   private DemandDataRepository demandDataRepository;
-  private ImpedanceIfc impedance;
   private DataRepositoryForPopulationSynthesis dataRepository;
   private PanelDataRepository panelDataRepository;
 	private EconomicalStatusCalculator economicalStatusCalculator;
@@ -65,7 +62,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
     chargePrivatelySelector = mock(ChargePrivatelySelector.class);
     zone = mock(Zone.class);
     demandZone = new DemandZone(zone, demography());
-    impedance = mock(ImpedanceIfc.class);
+    mock(ImpedanceIfc.class);
     dataRepository = mock(DataRepositoryForPopulationSynthesis.class);
     demandDataRepository = mock(DemandDataRepository.class);
     panelDataRepository = mock(PanelDataRepository.class);
@@ -122,7 +119,7 @@ public class DemandDataForZoneCalculatorStuttgartTest {
 
   @Test
   public void storeCalculatedDemandData() {
-    calculator().calculateDemandData(demandZone, impedance);
+    calculator().saveDemandData(demandZone);
 
     verify(demandDataRepository).store(demandZone);
   }
@@ -135,8 +132,8 @@ public class DemandDataForZoneCalculatorStuttgartTest {
       List<HouseholdOfPanelDataId> firstReqeust = calculator().retrieveHouseholdIds(domCode);
       List<HouseholdOfPanelDataId> secondReqeust = calculator().retrieveHouseholdIds(domCode);
 
-      assertThat(firstReqeust, is(sameInstance(households)));
-      assertThat(secondReqeust, is(sameInstance(firstReqeust)));
+      assertThat(firstReqeust).isSameAs(households);
+      assertThat(secondReqeust).isSameAs(firstReqeust);
     }
   }
 
