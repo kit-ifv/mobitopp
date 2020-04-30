@@ -133,10 +133,9 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		log_calculateDemandData_log1(zone);
 
 		calculateDemandDataInternal(zone);
-		saveDomainData(zone);
 	}
 
-	private void saveDomainData(DemandZone zone) {
+	public void saveDemandData(DemandZone zone) {
 		dataRepository.demandDataRepository().store(zone);
 	}
 

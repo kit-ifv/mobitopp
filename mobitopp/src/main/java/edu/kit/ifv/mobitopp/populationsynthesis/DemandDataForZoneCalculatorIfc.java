@@ -5,6 +5,15 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 public interface DemandDataForZoneCalculatorIfc {
 
-	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance);
+	void calculateDemandData(DemandZone zone, ImpedanceIfc impedance);
+
+	/**
+	 * Save the demand data 
+	 * @deprecated This is for backward compatibility for the ipf based population synthesis
+	 * @param zone
+	 */
+	default void saveDemandData(DemandZone zone) {
+		
+	}
 
 }
