@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.calculator;
 
 import java.time.LocalDateTime;
+import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
@@ -24,14 +25,37 @@ public class SingleZoneDemandCalculator implements DemandDataCalculator {
 
 	@Override
 	public void calculateDemand() {
+		Predicate<DemandZone> zonesWithPopulation = DemandZone::shouldGeneratePopulation;
+		Predicate<DemandZone> zonesWithoutPopulation = zonesWithPopulation.negate();
+		calculateDemandFor(zonesWithPopulation);
+		saveZoneAttributesOf(zonesWithoutPopulation);
+	}
+
+	private void calculateDemandFor(Predicate<DemandZone> zonesWithPopulation) {
 		demandZoneRepository
 				.getZones()
 				.stream()
-				.filter(DemandZone::shouldGeneratePopulation)
+				.filter(zonesWithPopulation)
+				.peek(zone -> System.out
+						.println(String
+								.format("%s: Calculate demand for: Zone %s", LocalDateTime.now(), zone.getId())))
+				.forEach(this::calculateAndSave);
+	}
+
+	private void calculateAndSave(DemandZone zone) {
+		calculator.calculateDemandData(zone, impedance);
+		calculator.saveDemandData(zone);
+	}
+
+	private void saveZoneAttributesOf(Predicate<DemandZone> zonesWithoutPopulation) {
+		demandZoneRepository
+				.getZones()
+				.stream()
+				.filter(zonesWithoutPopulation)
 				.peek(zone -> System.out
 						.println(String
 								.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId())))
-				.forEach(zone -> calculator.calculateDemandData(zone, impedance));
+				.forEach(zone -> calculator.saveDemandData(zone));
 	}
 
 }
