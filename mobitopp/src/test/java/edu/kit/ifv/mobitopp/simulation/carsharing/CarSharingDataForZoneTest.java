@@ -24,10 +24,10 @@ import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Household_Stub;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.Person_Stub;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 
 public class CarSharingDataForZoneTest  {
 
@@ -54,8 +54,8 @@ public class CarSharingDataForZoneTest  {
 	private CarSharingDataForZone noCarSharing;
 	private CarSharingDataForZone noFreeFloating;
 
-	private CarSharingPerson customer;
-	private CarSharingPerson noCustomer;
+	private Person customer;
+	private Person noCustomer;
 
 	private StationBasedCarSharingCar stationBasedCar;
 	private DefaultCarSharingCar freeFloatingCar;
@@ -141,19 +141,8 @@ public class CarSharingDataForZoneTest  {
 		noCustomership.put(stationBasedName, false);
 		noCustomership.put(freeFloatingName, false);
 
-		customer = new EmobilityPerson(
-												new Person_Stub(1, new Household_Stub(1)),
-												0.0f,
-												EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER,
-												customership
-											);
-
-		noCustomer = new EmobilityPerson(
-												new Person_Stub(1, new Household_Stub(1)),
-												0.0f,
-												EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER,
-												noCustomership
-											);
+		customer = new Person_Stub(1, new Household_Stub(1), customership);
+		noCustomer = new Person_Stub(1, new Household_Stub(1), noCustomership);
 
 		CarPosition position = new CarPosition(someZone(), new Example().location());
 

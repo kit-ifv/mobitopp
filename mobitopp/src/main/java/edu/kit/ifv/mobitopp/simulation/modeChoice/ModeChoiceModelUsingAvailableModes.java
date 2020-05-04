@@ -11,7 +11,6 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourModeChoiceModelWithTimeRestrictions;
@@ -74,8 +73,8 @@ public class ModeChoiceModelUsingAvailableModes
 			message += "\n Zone: " + source.getId().getExternalId();
 			message += "\n selected mode: " + selectedMode;
 			message += "\n available modes: " + availableModes;
-			message += "\n car available: " 
-					+ source.carSharing().isFreeFloatingCarSharingCarAvailable((CarSharingPerson)person);
+			message += "\n car available: "
+					+ source.carSharing().isFreeFloatingCarSharingCarAvailable(person);
 			message += "\n is driver: " + person.isCarDriver();
 			results().write(categories.carsharing, message);
 		}

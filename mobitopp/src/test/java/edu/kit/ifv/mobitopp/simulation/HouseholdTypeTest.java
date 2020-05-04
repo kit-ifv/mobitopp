@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
@@ -121,7 +122,8 @@ public class HouseholdTypeTest {
   private PersonForDemand newPerson(Household household, int age) {
     Graduation graduation = Graduation.undefined;
     PersonId id = new PersonId(personIds++, household.getId(), personIds % household.nominalSize());
-		return new PersonForDemand(id, household, age, null, null, graduation, 0, false, false, false, false, false, null, null, null, null, null);
+		return new PersonForDemand(id, household, age, null, null, graduation, 0, false, false, false,
+				false, false, null, null, emptyMap(), null, null, null);
   }
 	
 	@Test

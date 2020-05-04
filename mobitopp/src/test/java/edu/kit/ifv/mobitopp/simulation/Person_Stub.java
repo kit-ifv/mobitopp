@@ -1,6 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -17,15 +20,14 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class Person_Stub
-	implements Person
-{
+public class Person_Stub implements Person {
 
 	private final int oid;
 	private final Car car;
 	private final Household household;
 	private final ActivityIfc nextHomeActivity;
 	private final boolean commuterTicket;
+	private final Map<String, Boolean> customership;
 
 	private final Zone zone = ExampleZones.create().someZone();
 
@@ -33,15 +35,20 @@ public class Person_Stub
 	public Person_Stub(
 		int oid, 
 		Household household, 
-		Car car, ActivityIfc 
-		nextHomeActivity, 
-		boolean commuterTicket
+		Car car, 
+		ActivityIfc nextHomeActivity, 
+		boolean commuterTicket, 
+		Map<String, Boolean> customership
 	) {
 		this.oid = oid;
 		this.household = household;
 		this.car = car;
 		this.nextHomeActivity = nextHomeActivity;
 		this.commuterTicket = commuterTicket;
+		this.customership = customership;
+	}
+	public Person_Stub(int oid, Household household, Car car, ActivityIfc nextHomeActivity, boolean commuterTicket) {
+		this(oid, household, car, nextHomeActivity, commuterTicket, emptyMap());
 	}
 
 	public Person_Stub(int oid, Household household, Car car, ActivityIfc nextHomeActivity) {
@@ -50,6 +57,10 @@ public class Person_Stub
 
 	public Person_Stub(int oid, Household household, Car car) {
 		this(oid, household, car, null);
+	}
+	
+	public Person_Stub(int oid, Household_Stub household, Map<String, Boolean> customership) {
+		this(oid, household, null, null, false, customership);
 	}
 
 	public Person_Stub(int oid, Household household) {
@@ -65,6 +76,15 @@ public class Person_Stub
 	public Car whichCar() { return this.car; }
 	public Car releaseCar(Time time) { return null; }
 
+	@Override
+	public boolean isMobilityProviderCustomer(String company) {
+		return customership.getOrDefault(company, false);
+	}
+
+	@Override
+	public Map<String, Boolean> mobilityProviderCustomership() {
+		return customership;
+	}
 
 	public boolean hasPersonalCar() { return false; }
 	public boolean hasAccessToCar() { return false; }
