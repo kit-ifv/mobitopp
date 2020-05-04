@@ -32,7 +32,6 @@ import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.DemandSimulationEventIfc;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
@@ -43,8 +42,7 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
-public class SimulationPersonPassenger extends PersonDecorator
-		implements SimulationPerson, CarSharingPerson {
+public class SimulationPersonPassenger extends PersonDecorator implements SimulationPerson {
 
 	private static final long serialVersionUID = 1L;
 	private final SimulationOptions options;
@@ -578,13 +576,8 @@ public class SimulationPersonPassenger extends PersonDecorator
 		return StandardMode.PUBLICTRANSPORT.equals(trip.mode());
 	}
 
-	public boolean isCarSharingCustomer(String company) {
-
-		if (!(person() instanceof CarSharingPerson)) {
-			return false;
-		}
-
-		return ((CarSharingPerson)person()). isCarSharingCustomer(company);
+	public boolean isMobilityProviderCustomer(String company) {
+		return person().isMobilityProviderCustomer(company);
 	}
 
 	@Override

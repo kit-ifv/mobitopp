@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -24,6 +25,9 @@ public interface Person extends BasePerson {
 	Car parkCar(Zone zone,Location location,Time time);
 	boolean hasParkedCar();
 	void takeCarFromParking();
+	
+	boolean isMobilityProviderCustomer(String company);
+	Map<String, Boolean> mobilityProviderCustomership();
 
 	Household household();
 

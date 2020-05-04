@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -51,13 +50,11 @@ public class DestinationAndModeChoiceUtilitySchaufensterTest {
 	Household household = new Household_Stub(1, 1000);
 	Person person = new EmobilityPerson(new Person_Stub(1,household, null, homeActivity, true), 
 																			1.0f,
-																			EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER,
-																			new HashMap<String, Boolean>());
+																			EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER);
 
 	Person person_noTicket = new EmobilityPerson(new Person_Stub(2,household, null, homeActivity, false), 
 																			1.0f, 
-																			EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER,
-																			new HashMap<String, Boolean>());
+																			EmobilityPerson.PublicChargingInfluencesDestinationChoice.NEVER);
 
 	private MockedZones zones;
 

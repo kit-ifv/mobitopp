@@ -49,7 +49,7 @@ public class Example {
   public static final float eMobilityAcceptance = 1.0f;
   public static final PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice = PublicChargingInfluencesDestinationChoice.ALWAYS;
 
-  public static Person personOf(Household household, int personNumber, Zone zone) {
+    public static Person personOf(Household household, int personNumber, Zone zone) {
     return personOf(household, personNumber, zone, ActivityType.HOME);
   }
 
@@ -61,7 +61,7 @@ public class Example {
     fixedDestinations.add(new FixedDestination(activityType, zone, location));
 		return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activitySchedule,
-				fixedDestinations, ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES,
+				fixedDestinations, mobilityProviderCustomership(), ModeChoicePreferences.NOPREFERENCES, ModeChoicePreferences.NOPREFERENCES,
 				ModeChoicePreferences.NOPREFERENCES);
 	}
 
@@ -77,12 +77,11 @@ public class Example {
   }
 
   public static Person emobilityPersonOf(Household household, int personNumber, Zone zone) {
-    Map<String, Boolean> carSharingCustomership = carSharingCustomership();
     return new EmobilityPerson(personOf(household, personNumber, zone, ActivityType.WORK),
-        eMobilityAcceptance, chargingInfluencesDestinationChoice, carSharingCustomership);
+        eMobilityAcceptance, chargingInfluencesDestinationChoice);
   }
 
-  public static Map<String, Boolean> carSharingCustomership() {
+  public static Map<String, Boolean> mobilityProviderCustomership() {
     Map<String, Boolean> carSharingCustomership = new HashMap<>();
     carSharingCustomership.put("company-one", true);
     carSharingCustomership.put("company-two", false);

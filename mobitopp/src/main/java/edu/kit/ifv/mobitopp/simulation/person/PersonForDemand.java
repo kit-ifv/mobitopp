@@ -2,7 +2,9 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -57,7 +59,8 @@ public class PersonForDemand implements Person, Serializable {
 	private final boolean hasPersonalCar;
 	private final boolean hasCommuterTicket;
 	private final boolean hasLicense;
-	
+
+	private	final Map<String, Boolean> mobilityProviderCustomership;
 	private final ModeChoicePreferences modeChoicePrefsSurvey;
 	private final ModeChoicePreferences modeChoicePreferences;
 	private final ModeChoicePreferences travelTimeSensitivity;
@@ -97,9 +100,10 @@ public class PersonForDemand implements Person, Serializable {
 		boolean hasLicense,
 		TourBasedActivityPattern tourPattern,
 		FixedDestinations fixedDestinations,
+		Map<String, Boolean> mobilityProviderCustomership, 
 		ModeChoicePreferences modeChoicePrefsSurvey,
     ModeChoicePreferences modeChoicePreferences, 
-    ModeChoicePreferences travelTimeSensitivity 
+    ModeChoicePreferences travelTimeSensitivity
 	)
   {
 		this.id = id;
@@ -122,7 +126,8 @@ public class PersonForDemand implements Person, Serializable {
 		this.hasLicense = hasLicense;
 		
 		this.fixedDestinations = fixedDestinations;
-		
+
+		this.mobilityProviderCustomership = Collections.unmodifiableMap(mobilityProviderCustomership);
 		this.modeChoicePrefsSurvey = modeChoicePrefsSurvey;
     this.modeChoicePreferences = modeChoicePreferences;
     this.travelTimeSensitivity = travelTimeSensitivity;
@@ -226,7 +231,16 @@ public class PersonForDemand implements Person, Serializable {
 		
 		this.currentCarUsage = CarUsage.DRIVER;
 	}
+	
+	@Override
+	public boolean isMobilityProviderCustomer(String company) {
+		return mobilityProviderCustomership.getOrDefault(company, false);
+	}
 
+	public Map<String, Boolean> mobilityProviderCustomership() {
+		return mobilityProviderCustomership;
+	}
+	
 	public Household household() {
 
 		return this.household;

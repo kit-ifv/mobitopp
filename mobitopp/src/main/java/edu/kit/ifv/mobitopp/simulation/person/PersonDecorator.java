@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -29,10 +30,7 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class PersonDecorator
-	implements Person
-	, Serializable
-{
+public class PersonDecorator implements Person, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,6 +62,16 @@ public class PersonDecorator
 
 	public Car releaseCar(Time time) {
 		return person().releaseCar(time);
+	}
+	
+	@Override
+	public boolean isMobilityProviderCustomer(String company) {
+		return person().isMobilityProviderCustomer(company);
+	}
+	
+	@Override
+	public Map<String, Boolean> mobilityProviderCustomership() {
+		return person().mobilityProviderCustomership();
 	}
 
 	public Household household() {

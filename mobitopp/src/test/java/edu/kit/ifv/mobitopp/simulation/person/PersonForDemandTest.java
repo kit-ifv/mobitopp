@@ -1,17 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
-import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -87,11 +88,14 @@ public class PersonForDemandTest {
 		person = newPerson();
 	}
 
-	private PersonForDemand newPerson() {
-		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
+	private PersonForDemand newPerson(Map<String, Boolean> carSharingCustomership) {
+		return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activityPattern,
-				fixedDestinations, prefSurvey, prefSimulation, travelTimeSensitivity);
-    return newPerson;
+				fixedDestinations, carSharingCustomership, prefSurvey, prefSimulation, travelTimeSensitivity);
+	}
+	
+	private PersonForDemand newPerson() {
+		return newPerson(emptyMap());
 	}
 
 	@Test
@@ -100,7 +104,7 @@ public class PersonForDemandTest {
 		
 		Car usedCar = person.whichCar();
 		
-    assertThat(usedCar, is(equalTo(car))); 
+    assertThat(usedCar).isEqualTo(car); 
     verify(car).use(person, someDate());
 	}
 	
@@ -113,7 +117,7 @@ public class PersonForDemandTest {
 		
 		Car parkedCar = person.whichCar();
 		
-		assertThat(parkedCar, is(equalTo(car)));
+		assertThat(parkedCar).isEqualTo(car);
 	}
 	
 	@Test
@@ -123,7 +127,7 @@ public class PersonForDemandTest {
 		
 		Car usedCar = person.whichCar();
 		
-		assertThat(usedCar, is(equalTo(car)));
+		assertThat(usedCar).isEqualTo(car);
 	}
 
 	private Time someDate() {
@@ -134,7 +138,7 @@ public class PersonForDemandTest {
 	public void providesAttributes() {
 		PersonAttributes attributes = person.attributes();
 
-		assertThat(attributes, is(equalTo(personAttributes())));
+		assertThat(attributes).isEqualTo(personAttributes());
 	}
 
 	private PersonAttributes personAttributes() {
@@ -154,11 +158,38 @@ public class PersonForDemandTest {
     
     Optional<TourBasedActivityPattern> after = person.tourBasedActivityPattern();
     
-    assertAll(() -> assertThat(before, hasValue(activityPattern)),
-        () -> assertThat(after, isEmpty()));
-  }
+		assertAll(() -> assertThat(before).hasValue(activityPattern),
+				() -> assertThat(after).isEmpty());
+	}
 
   private ExtendedPatternActivity somePattern() {
     return ExtendedPatternActivity.STAYATHOME_ACTIVITY;
   }
+  
+
+	@Test
+	public void hasNoAssignedCarSharingCompanies() {
+		Map<String, Boolean> carSharingCustomership = Collections.emptyMap();
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertFalse(person.isMobilityProviderCustomer("Stadtmobil"));
+	}
+	
+	@Test
+	public void isCarSharingCustomer() {
+		String company = "Stadtmobil";
+		Map<String, Boolean> carSharingCustomership = Collections.singletonMap(company, true);
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertTrue(person.isMobilityProviderCustomer(company));
+	}
+	
+	@Test
+	public void isNoCarSharingCustomer() {
+		String company = "Stadtmobil";
+		Map<String, Boolean> carSharingCustomership = Collections.singletonMap(company, false);
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertFalse(person.isMobilityProviderCustomer(company));
+	}
 }
