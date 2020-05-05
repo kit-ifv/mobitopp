@@ -184,19 +184,12 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		return sizes;
 	}
 
-	private Integer numberOfLocations(
-		ActivityType activityType,
-		Integer total_opportunities
-	) {
-
+	private Integer numberOfLocations(ActivityType activityType, Integer total_opportunities) {
 		if (total_opportunities == 0) {
-			return 1; // assures that at least one location for each activity type exists in zone
+			return 0;
 		}
-
 		double averageSize = averageLocationSize(activityType);
-
-		int estimatedNumber = (int) Math.round(total_opportunities/averageSize);
-
+		int estimatedNumber = (int) Math.round(total_opportunities / averageSize);
 		return Math.max(1, estimatedNumber);
 	}
 
