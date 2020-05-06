@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
@@ -45,9 +46,7 @@ public class CommunityBasedZoneSelectorTest {
 	void assignsZone() throws Exception {
 		Zone homeZone = ExampleZones.zoneWithId("1", 0);
 		Zone someZone = ExampleZones.zoneWithId("2", 1);
-		someZone.attractivities().addAttractivity(ActivityType.WORK, 1);
 		Zone otherZone = ExampleZones.zoneWithId("3", 2);
-		otherZone.attractivities().addAttractivity(ActivityType.WORK, 1);
 		Collection<OdPair> relations = asList(new OdPair(homeZone, someZone),
 				new OdPair(homeZone, otherZone));
 		when(person.homeZone()).thenReturn(homeZone);
@@ -58,6 +57,25 @@ public class CommunityBasedZoneSelectorTest {
 				.addFixedDestination(
 						new FixedDestination(ActivityType.WORK, someZone, someZone.centroidLocation()));
 		verify(communitySelector).notifyAssignedRelation(homeZone, someZone);
+	}
+	
+	@Test
+	void filterZonesWithoutAttractivity() throws Exception {
+		Zone homeZone = ExampleZones.zoneWithId("1", 0);
+		Zone someZone = ExampleZones.zoneWithAttractivities("2", 1, noAttractivities());
+		Zone otherZone = ExampleZones.zoneWithAttractivities("3", 2, noAttractivities());
+		Collection<OdPair> relations = asList(new OdPair(homeZone, someZone),
+				new OdPair(homeZone, otherZone));
+		CommunityBasedZoneSelector selector = newSelector();
+		selector.select(person, relations, randomNumber);
+		
+		verifyZeroInteractions(person, communitySelector);
+	}
+
+	private Attractivities noAttractivities() {
+		Attractivities attractivities = new Attractivities();
+		attractivities.addAttractivity(ActivityType.WORK, 0);
+		return attractivities;
 	}
 
 	private CommunityBasedZoneSelector newSelector() {
