@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
@@ -38,26 +39,39 @@ public class ExampleZones {
   }
 
   public static Zone zoneWithId(String id, int oid) {
-    ZoneId zoneId = new ZoneId(id, oid);
+  	Attractivities attractivities = new Attractivities();
+    attractivities.addAttractivity(ActivityType.WORK, 1);
+    Zone zone = zoneWithAttractivities(id, oid, attractivities);
+		return zone;
+  }
+  
+  public static Zone zoneWithAttractivities(String id, int oid, Attractivities attractivities) {
+  	ZoneId zoneId = new ZoneId(id, oid);
     String name = "zone " + id;
     AreaType areaType = ZoneAreaType.METROPOLITAN;
     RegionType regionType = new DefaultRegionType(1);
     ZoneClassificationType classification = ZoneClassificationType.studyArea;
-    Attractivities attractivities = new Attractivities();
-    attractivities.addAttractivity(ActivityType.WORK, 1);
     ChargingDataForZone charging = createChargingData();
     Location centroid = new Location(dummyPoint, dummyAccessEdge, 0.0d);
 		boolean isDestination = true;
 		ZoneProperties zoneProperties = new ZoneProperties(name, areaType, regionType, classification,
 				parkingPlaces, isDestination, centroid);
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, charging);
-		zone.opportunities().createLocations((z, a, i) -> Map.of(centroid, 1));
+		zone.opportunities().createLocations(ExampleZones::centroidAsLocation);
 		return zone;
   }
 
   private static LimitedChargingDataForZone createChargingData() {
     return new LimitedChargingDataForZone(emptyList(), DefaultPower.zero);
   }
+
+	private static Map<Location, Integer> centroidAsLocation(
+			Zone zone, ActivityType activityType, int opportunities) {
+		if (0 < zone.getAttractivity(activityType)) {
+			return Map.of(zone.centroidLocation(), opportunities);
+		}
+		return emptyMap();
+	}
 
   public Zone someZone() {
     return someZone;

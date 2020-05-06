@@ -20,11 +20,13 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 
 	private final CommunitySelector communitySelector;
 	private final DoubleSupplier random;
+	private final ActivityType activityType;
 
 	public CommunityBasedZoneSelector(CommunitySelector communitySelector, DoubleSupplier random) {
 		super();
 		this.communitySelector = communitySelector;
 		this.random = random;
+		this.activityType = ActivityType.WORK;
 	}
 
 	@Override
@@ -43,23 +45,22 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 	}
 
 	private void assignZone(PersonBuilder person, Zone zone) {
-		Location location = zone.opportunities().selectRandomLocation(ActivityType.WORK, nextRandom());
-		person
-				.addFixedDestination(
-						new FixedDestination(ActivityType.WORK, zone, location));
+		Location location = zone.opportunities().selectRandomLocation(activityType, nextRandom());
+		person.addFixedDestination(new FixedDestination(activityType, zone, location));
 	}
 
 	private double nextRandom() {
 		return random.getAsDouble();
 	}
 
-	private Map<Zone, Integer> collectPossibleZones(Collection<OdPair> relations) {
+	private Map<Zone, Integer> collectPossibleZones(final Collection<OdPair> relations) {
 		return relations
 				.stream()
 				.map(OdPair::getPossibleDestination)
 				.filter(Zone::isDestination)
+				.filter(zone -> zone.opportunities().locationsAvailable(activityType))
 				.collect(StreamUtils
-						.toSortedMap(Function.identity(), z -> (int) z.getAttractivity(ActivityType.WORK),
+						.toSortedMap(Function.identity(), z -> (int) z.getAttractivity(activityType),
 								Comparator.comparing(Zone::getId)));
 	}
 
