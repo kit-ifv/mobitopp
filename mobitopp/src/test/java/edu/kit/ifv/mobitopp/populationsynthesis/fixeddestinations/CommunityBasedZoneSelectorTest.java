@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -32,12 +33,14 @@ public class CommunityBasedZoneSelectorTest {
 	private CommunitySelector communitySelector;
 
 	@Test
-	void doesNothingForMissingZones() throws Exception {
+	void failsMissingZones() throws Exception {
 		CommunityBasedZoneSelector selector = newSelector();
 
 		Collection<OdPair> relations = emptyList();
-		selector.select(person, relations, randomNumber);
 
+		assertThrows(IllegalArgumentException.class,
+				() -> selector.select(person, relations, randomNumber));
+		
 		verifyZeroInteractions(person);
 		verifyZeroInteractions(communitySelector);
 	}
@@ -58,7 +61,7 @@ public class CommunityBasedZoneSelectorTest {
 						new FixedDestination(ActivityType.WORK, someZone, someZone.centroidLocation()));
 		verify(communitySelector).notifyAssignedRelation(homeZone, someZone);
 	}
-	
+
 	@Test
 	void filterZonesWithoutAttractivity() throws Exception {
 		Zone homeZone = ExampleZones.zoneWithId("1", 0);
@@ -67,8 +70,9 @@ public class CommunityBasedZoneSelectorTest {
 		Collection<OdPair> relations = asList(new OdPair(homeZone, someZone),
 				new OdPair(homeZone, otherZone));
 		CommunityBasedZoneSelector selector = newSelector();
-		selector.select(person, relations, randomNumber);
-		
+		assertThrows(IllegalArgumentException.class,
+				() -> selector.select(person, relations, randomNumber));
+
 		verifyZeroInteractions(person, communitySelector);
 	}
 
