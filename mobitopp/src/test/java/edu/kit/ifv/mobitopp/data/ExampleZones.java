@@ -5,6 +5,7 @@ import static java.util.Collections.emptyMap;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
+import java.util.EnumSet;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
@@ -25,18 +26,29 @@ public class ExampleZones {
 
   private final Zone someZone;
   private final Zone otherZone;
+	private final Zone zoneWithoutLocations;
 
-  public ExampleZones(Zone someZone, Zone otherZone) {
+  public ExampleZones(Zone someZone, Zone otherZone, Zone zoneWithoutLocations) {
     super();
     this.someZone = someZone;
     this.otherZone = otherZone;
+		this.zoneWithoutLocations = zoneWithoutLocations;
   }
 
   public static ExampleZones create() {
     Zone someZone = zoneWithId("1", 1);
     Zone otherZone = zoneWithId("2", 2);
-    return new ExampleZones(someZone, otherZone);
+    Zone zoneWithoutLocations = zoneWithAttractivities("3", 3, emptyAttractivities());
+    return new ExampleZones(someZone, otherZone, zoneWithoutLocations);
   }
+
+	private static Attractivities emptyAttractivities() {
+		Attractivities attractivities = new Attractivities();
+		EnumSet
+				.allOf(ActivityType.class)
+				.forEach(activityType -> attractivities.addAttractivity(activityType, 0));
+		return attractivities;
+	}
 
   public static Zone zoneWithId(String id, int oid) {
   	Attractivities attractivities = new Attractivities();
@@ -79,6 +91,10 @@ public class ExampleZones {
 
   public Zone otherZone() {
     return otherZone;
+  }
+  
+  public Zone zoneWithoutLocations() {
+    return zoneWithoutLocations;
   }
 
 }

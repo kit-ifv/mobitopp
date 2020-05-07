@@ -20,7 +20,7 @@ public class SerialisingDemandRepositoryTest {
 		Household household = mock(Household.class);
 		when(setupHousehold.toHousehold()).thenReturn(household);
 
-		DemandZone demandZone = ExampleDemandZones.create().someZone();
+		DemandZone demandZone = ExampleDemandZones.create().getSomeZone();
 		demandZone.getPopulation().addHousehold(setupHousehold);
 		OpportunityLocations expectedLocations = new OpportunityLocations();
 		demandZone.opportunities().forEach(expectedLocations::add);

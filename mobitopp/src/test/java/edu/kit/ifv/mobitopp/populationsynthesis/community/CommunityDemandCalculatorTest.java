@@ -37,8 +37,8 @@ public class CommunityDemandCalculatorTest {
 
 	@Test
 	void calculateDemand() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
-		DemandZone otherZone = ExampleDemandZones.create().otherZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		Community someCommunity = new MultipleZones(communityId, someZone, otherZone);
 		when(communityToZone.getCommunities()).thenReturn(asList(someCommunity));
 		List<PopulationSynthesisStep> steps = asList(firstStep, secondStep);

@@ -44,8 +44,8 @@ public class CommunityDestinationSelectorTest {
 
 	@BeforeEach
 	public void beforeEach() {
-		final DemandZone someZone = ExampleDemandZones.create().someZone();
-		final DemandZone otherZone = ExampleDemandZones.create().otherZone();
+		final DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		final DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		someZone.getPopulation().addHousehold(household);
 		community = new SingleZone(someZone);
 		relations = createRelation(someZone, otherZone);

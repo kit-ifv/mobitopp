@@ -82,7 +82,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	private PopulationSynthesisStep workDestinationSelector(DefaultCommunityRepository communities) {
 		PanelDataRepository dataRepository = context().dataRepository().panelDataRepository();
-		OdPairSelector communityPairCreator = new CommunityOdPairCreator(communities);
+		OdPairSelector communityPairCreator = CommunityOdPairCreator.forWork(communities);
 		ImpedanceIfc impedance = impedance();
 		int range = context().experimentalParameters().valueAsInteger("poleDistanceRange");
 		OdPairSelector odPairSelector = new PanelDistanceSelector(dataRepository, communityPairCreator,

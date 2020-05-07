@@ -14,23 +14,28 @@ import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
+import lombok.Getter;
 
+@Getter
 public class ExampleDemandZones {
 
   private final DemandZone someZone;
   private final DemandZone otherZone;
+	private final DemandZone zoneWithoutLocations;
 
-  public ExampleDemandZones(DemandZone someZone, DemandZone otherZone) {
+  public ExampleDemandZones(DemandZone someZone, DemandZone otherZone, DemandZone zoneWithoutLocations) {
     super();
     this.someZone = someZone;
     this.otherZone = otherZone;
+		this.zoneWithoutLocations = zoneWithoutLocations;
   }
 
   public static ExampleDemandZones create() {
     ExampleZones zones = ExampleZones.create();
     DemandZone someZone = new DemandZone(zones.someZone(), someDemography());
     DemandZone otherZone = new DemandZone(zones.otherZone(), otherDemography());
-    return new ExampleDemandZones(someZone, otherZone);
+    DemandZone zoneWithoutLocations = new DemandZone(zones.zoneWithoutLocations(), otherDemography());
+    return new ExampleDemandZones(someZone, otherZone, zoneWithoutLocations);
   }
 
   private static Demography someDemography() {
@@ -90,16 +95,8 @@ public class ExampleDemandZones {
     return income;
   }
 
-  public DemandZone someZone() {
-    return someZone;
-  }
-
-  public DemandZone otherZone() {
-    return otherZone;
-  }
-
   public List<DemandZone> asList() {
-    return Arrays.asList(someZone, otherZone);
+    return Arrays.asList(someZone, otherZone, zoneWithoutLocations);
   }
 
 }

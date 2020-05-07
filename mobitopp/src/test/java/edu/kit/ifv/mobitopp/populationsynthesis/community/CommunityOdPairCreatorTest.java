@@ -26,31 +26,33 @@ public class CommunityOdPairCreatorTest {
 	private CommunityRepository communityRepository;
 	private Community otherCommunity;
 	private DemandZone otherZone;
+	private DemandZone noWorkZone;
 
 	@BeforeEach
 	public void beforeEach() {
-		otherZone = ExampleDemandZones.create().otherZone();
-		otherCommunity = new SingleZone(otherZone);
+		otherZone = ExampleDemandZones.create().getOtherZone();
+		noWorkZone = ExampleDemandZones.create().getZoneWithoutLocations();
+		otherCommunity = new MultipleZones("community", otherZone, noWorkZone);
 	}
 
 	@Test
 	void createPairsForCommunityZones() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		when(communityRepository.getCommutingCommunitiesFrom(someZone.getId()))
 				.thenReturn(Stream.of(otherCommunity));
 		when(person.homeZone()).thenReturn(someZone.zone());
 
-		CommunityOdPairCreator selector = new CommunityOdPairCreator(communityRepository);
+		CommunityOdPairCreator selector = CommunityOdPairCreator.forWork(communityRepository);
 
 		assertThat(selector.select(person), containsInAnyOrder(OdPair.from(someZone, otherZone)));
 
 		verify(communityRepository).getCommutingCommunitiesFrom(someZone.getId());
 	}
-
+	
 	@Test
 	void scaleRelations() throws Exception {
 		int numberOfCommuters = 1;
-		CommunityOdPairCreator creator = new CommunityOdPairCreator(communityRepository);
+		CommunityOdPairCreator creator = CommunityOdPairCreator.forWork(communityRepository);
 
 		creator.scale(otherCommunity, numberOfCommuters);
 

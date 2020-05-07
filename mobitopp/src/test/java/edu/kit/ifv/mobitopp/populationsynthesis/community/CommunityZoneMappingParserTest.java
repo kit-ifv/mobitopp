@@ -30,7 +30,7 @@ public class CommunityZoneMappingParserTest {
 
 	@Test
 	void parseCommunityRelations() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		setAvailable(someZone);
 		Row row = createMappingFor(someZone);
 		Map<String, Community> repository = parse(row);
@@ -40,7 +40,7 @@ public class CommunityZoneMappingParserTest {
 
 	@Test
 	void parseMissingZone() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		Row row = createMappingFor(someZone);
 		Map<String, Community> repository = parse(row);
 

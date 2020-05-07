@@ -33,8 +33,8 @@ public class DefaultCommunityRepositoryTest {
 
 	@BeforeEach
 	public void beforeEach() {
-		someZone = ExampleDemandZones.create().someZone();
-		otherZone = ExampleDemandZones.create().otherZone();
+		someZone = ExampleDemandZones.create().getSomeZone();
+		otherZone = ExampleDemandZones.create().getOtherZone();
 		someCommunity = new SingleZone(someZone);
 		otherCommunity = new SingleZone(otherZone);
 		commutingRelations = new LinkedHashMap<>();

@@ -8,14 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.SingleZone;
 
 public class SingleZoneTest {
 
 	@Test
 	void contains() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
-		DemandZone otherZone = ExampleDemandZones.create().otherZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		SingleZone singleZone = new SingleZone(someZone);
 
 		assertAll(
