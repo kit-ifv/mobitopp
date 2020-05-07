@@ -33,7 +33,7 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 	public void select(PersonBuilder person, Collection<OdPair> relations, double randomNumber) {
 		Map<Zone, Integer> attractivities = collectPossibleZones(relations);
 		if (attractivities.isEmpty()) {
-			return;
+			throw new IllegalArgumentException("Could not determine a location for " + person);
 		}
 		Zone zone = selectZone(randomNumber, attractivities);
 		assignZone(person, zone);
