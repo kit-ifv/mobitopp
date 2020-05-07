@@ -48,7 +48,14 @@ public class DemographyCsvTest {
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseActual(results);
 
-    String content = "1;1;0;0;0;0;0;0" + System.lineSeparator() + "2;2;0;0;0;0;0;0" + System.lineSeparator();
+		String content = new StringBuilder()
+				.append("1;1;0;0;0;0;0;0")
+				.append(System.lineSeparator())
+				.append("2;2;0;0;0;0;0;0")
+				.append(System.lineSeparator())
+				.append("3;3;0;0;0;0;0;0")
+				.append(System.lineSeparator())
+				.toString();
     verify(results).accept(content);
   }
 
@@ -58,7 +65,14 @@ public class DemographyCsvTest {
     Consumer<String> results = mock(Consumer.class);
     demographyCsv.serialiseNominal(results);
 
-    String content = "1;1;2;3;4;2;2;1" + System.lineSeparator() + "2;2;2;3;4;2;2;1" + System.lineSeparator();
+		String content = new StringBuilder()
+				.append("1;1;2;3;4;2;2;1")
+				.append(System.lineSeparator())
+				.append("2;2;2;3;4;2;2;1")
+				.append(System.lineSeparator())
+				.append("3;3;2;3;4;2;2;1")
+				.append(System.lineSeparator())
+				.toString();
     verify(results).accept(content);
   }
 }

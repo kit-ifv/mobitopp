@@ -25,7 +25,7 @@ public class HouseholdBasedStepTest {
 
 	@Test
 	void assignsActivities() throws Exception {
-		final DemandZone someZone = ExampleDemandZones.create().someZone();
+		final DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		someZone.getPopulation().addHousehold(household);
 		community = new SingleZone(someZone);
 		

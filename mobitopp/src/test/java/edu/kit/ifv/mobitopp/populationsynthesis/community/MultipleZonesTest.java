@@ -16,8 +16,8 @@ public class MultipleZonesTest {
 
 	@Test
 	void containsZone() throws Exception {
-		DemandZone someZone = ExampleDemandZones.create().someZone();
-		DemandZone otherZone = ExampleDemandZones.create().otherZone();
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		ZoneId notAvailableZone = new ZoneId("undefined", otherZone.getId().getMatrixColumn() + 1);
 		MultipleZones multipleZones = new MultipleZones("1", someZone, otherZone);
 

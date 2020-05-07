@@ -30,7 +30,7 @@ class PersonBasedStepTest {
 
 	@Test
 	void assignsActivities() throws Exception {
-		final DemandZone someZone = ExampleDemandZones.create().someZone();
+		final DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		when(household.persons()).thenReturn(Stream.of(person));
 		someZone.getPopulation().addHousehold(household);
 		community = new SingleZone(someZone);

@@ -63,6 +63,10 @@ public class Zone {
 		return zoneProperties.isDestination();
 	}
 	
+	public boolean isDestinationFor(ActivityType activityType) {
+		return isDestination() && opportunities().locationsAvailable(activityType);
+	}
+	
 	public double getRelief() {
 		return zoneProperties.getRelief();
 	}
