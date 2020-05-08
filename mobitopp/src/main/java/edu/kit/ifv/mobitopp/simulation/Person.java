@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPatte
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
@@ -22,9 +23,16 @@ public interface Person extends BasePerson {
 	Car whichCar();
 
 	Car releaseCar(Time time);
-	Car parkCar(Zone zone,Location location,Time time);
+	Car parkCar(Zone zone, Location location, Time time);
 	boolean hasParkedCar();
 	void takeCarFromParking();
+	
+	void useBike(Bike bike, Time time);
+	Bike whichBike();
+	Bike releaseBike(Time currentTime);
+	Bike parkBike(Zone zone, Location location, Time time);
+	boolean hasParkedBike();
+	void takeBikeFromParking();
 	
 	boolean isMobilityProviderCustomer(String company);
 	Map<String, Boolean> mobilityProviderCustomership();
