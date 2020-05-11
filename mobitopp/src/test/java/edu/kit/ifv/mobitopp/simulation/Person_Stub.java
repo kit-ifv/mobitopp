@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
@@ -76,6 +77,39 @@ public class Person_Stub implements Person {
 	public Car whichCar() { return this.car; }
 	public Car releaseCar(Time time) { return null; }
 
+	@Override
+	public boolean hasParkedBike() {
+		return false;
+	}
+
+	@Override
+	public boolean isCycling() {
+		return false;
+	}
+
+	@Override
+	public Bike parkBike(Zone zone, Location location, Time time) {
+		return null;
+	}
+
+	@Override
+	public Bike releaseBike(Time time) {
+		return null;
+	}
+
+	@Override
+	public void takeBikeFromParking() {
+	}
+
+	@Override
+	public void useBike(Bike bike, Time time) {
+	}
+
+	@Override
+	public Bike whichBike() {
+		return null;
+	}
+	
 	@Override
 	public boolean isMobilityProviderCustomer(String company) {
 		return customership.getOrDefault(company, false);

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -33,6 +34,7 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.DefaultActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
@@ -79,11 +81,13 @@ public class PersonForDemand implements Person, Serializable {
 	private PrivateCar personalCar = null;
 
 	private enum CarUsage { NONE, DRIVER, PASSENGER, PARKED }
+	private enum BikeUsage { NONE, DRIVER, PARKED }
 
 	private Car car;
 	private CarUsage currentCarUsage = CarUsage.NONE;
 
-
+	private Bike bike;
+	private BikeUsage currentBikeUsage;
 
   public PersonForDemand(
 		PersonId id,
@@ -230,6 +234,61 @@ public class PersonForDemand implements Person, Serializable {
 		assert this.car != null;
 		
 		this.currentCarUsage = CarUsage.DRIVER;
+	}
+	
+	@Override
+	public boolean isCycling() {
+		return null != bike && this.currentBikeUsage == BikeUsage.DRIVER;
+	}
+	
+	@Override
+	public boolean hasParkedBike() {
+		return null != bike && currentBikeUsage == BikeUsage.PARKED;
+	}
+	
+	@Override
+	public void useBike(Bike bike, Time time) {
+		Objects.requireNonNull(bike);
+		this.currentBikeUsage = BikeUsage.DRIVER;
+		this.bike = bike;
+		bike.use(this, time);
+	}
+	
+	@Override
+	public Bike whichBike() {
+		return bike;
+	}
+
+	@Override
+	public Bike parkBike(Zone zone, Location location, Time time) {
+		if (!isCycling()) {
+			throw new IllegalStateException(
+					"There is no bike to park available. The person first needs to use a bike: " + this);
+		}
+		this.currentBikeUsage = BikeUsage.PARKED;
+		return this.bike;
+	}
+
+	@Override
+	public void takeBikeFromParking() {
+		if (!hasParkedBike()) {
+			throw new IllegalStateException(
+					"There is no parked bike available. The person first needs to park a bike: " + this);
+		}
+		this.currentBikeUsage = BikeUsage.DRIVER;
+	}
+	
+	@Override
+	public Bike releaseBike(Time time) {
+		if (!isCycling()) {
+			throw new IllegalStateException(
+					"There is no bike in use. The person first needs to use a bike: " + this);
+		}
+		Bike bike = this.bike;
+		this.bike = null;
+		this.currentBikeUsage = BikeUsage.NONE;
+		bike.release(this, time);
+		return bike;
 	}
 	
 	@Override

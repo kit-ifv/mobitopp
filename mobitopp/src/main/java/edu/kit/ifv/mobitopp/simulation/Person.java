@@ -27,11 +27,51 @@ public interface Person extends BasePerson {
 	boolean hasParkedCar();
 	void takeCarFromParking();
 	
+	boolean isCycling();
+	
+	/**
+	 * Uses the given {@link Bike} until it is released.
+	 * @param bike to use
+	 * @param time at which {@link Bike} usage starts
+	 * @see Person#parkBike(Zone, Location, Time)
+	 * @see Person#releaseBike(Time)
+	 */
 	void useBike(Bike bike, Time time);
 	Bike whichBike();
-	Bike releaseBike(Time currentTime);
+	
+	/**
+	 * Releases the {@link Bike} from usage. The {@link Person} must use a {@link Bike} before
+	 * releasing.
+	 * 
+	 * @param time
+	 *          at which the {@link Bike} is released
+	 * @return the released {@link Bike}
+	 * @see Person#useBike(Bike, Time)
+	 */
+	Bike releaseBike(Time time);
+
+	/**
+	 * Parkes a bike in a parking lot of the given {@link Zone} and {@link Location} at the given
+	 * {@link Time}. The {@link Person} must use a {@link Bike} before parking.
+	 * 
+	 * @param zone
+	 *          to park the {@link Bike}
+	 * @param location
+	 *          to park the {@link Bike}
+	 * @param time
+	 *          at which the {@link Bike} is parked
+	 * @return the parked {@link Bike}
+	 * @see Person#useBike(Bike, Time)
+	 */
 	Bike parkBike(Zone zone, Location location, Time time);
 	boolean hasParkedBike();
+
+	/**
+	 * The {@link Person} uses a parked bike on the next trip. The {@link Person} must have a parked
+	 * bike.
+	 * 
+	 * @see Person#parkBike(Zone, Location, Time)
+	 */
 	void takeBikeFromParking();
 	
 	boolean isMobilityProviderCustomer(String company);

@@ -5,7 +5,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +34,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
@@ -55,6 +56,7 @@ public class PersonForDemandTest {
 	private boolean hasCommuterTicket;
 	private boolean hasLicense;
 	private TourBasedActivityPattern activityPattern;
+	private Bike bike;
 	private Car car;
 	private FixedDestinations fixedDestinations;
 	private ModeChoicePreferences prefSurvey;
@@ -80,6 +82,7 @@ public class PersonForDemandTest {
 		hasCommuterTicket = false;
 		hasLicense = false;
 		activityPattern = mock(TourBasedActivityPattern.class);
+		bike = mock(Bike.class);
 		car = mock(Car.class);
 		fixedDestinations = new FixedDestinations();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
@@ -96,6 +99,88 @@ public class PersonForDemandTest {
 	
 	private PersonForDemand newPerson() {
 		return newPerson(emptyMap());
+	}
+	
+	@Test
+	void usesBike() throws Exception {
+		person.useBike(bike, someDate());
+		
+		Bike usedBike = person.whichBike();
+		
+		assertThat(usedBike).isEqualTo(bike);
+		assertThat(person.isCycling()).isTrue();
+		assertThat(person.hasParkedBike()).isFalse();
+		verify(bike).use(person, someDate());
+	}
+
+	@Test
+	void needsABikeToUse() throws Exception {
+		assertThrows(NullPointerException.class, () -> person.useBike(null, someDate()));
+	}
+	
+	@Test
+	void parksBike() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		person.useBike(bike, someDate());
+		
+		person.parkBike(zone, location, someDate());
+		Bike parkedBike = person.whichBike();
+		
+		assertThat(parkedBike).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isTrue();
+		assertThat(person.isCycling()).isFalse();
+	}
+	
+	@Test
+	void needsBikeToPark() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		
+		assertThrows(IllegalStateException.class, () -> person.parkBike(zone, location, someDate()));
+	}
+	
+	@Test
+	void takesBikeFromParking() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		person.useBike(bike, someDate());
+		person.parkBike(zone, location, someDate());
+		
+		person.takeBikeFromParking();
+		
+		assertThat(person.whichBike()).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isFalse();
+		assertThat(person.isCycling()).isTrue();
+	}
+	
+	@Test
+	void needsBikeToTakeFromParking() throws Exception {
+		assertThrows(IllegalStateException.class, () -> person.takeBikeFromParking());
+	}
+	
+	@Test
+	void needsAParkedBikeToTakeFromParking() throws Exception {
+		person.useBike(bike, someDate());
+		assertThrows(IllegalStateException.class, () -> person.takeBikeFromParking());
+	}
+	
+	@Test
+	void releasesBike() throws Exception {
+		person.useBike(bike, someDate());
+		
+		Bike releasedBike = person.releaseBike(someDate());
+		
+		assertThat(releasedBike).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isFalse();
+		assertThat(person.isCycling()).isFalse();
+		assertThat(person.whichBike()).isNull();
+		verify(releasedBike).release(person, someDate());
+	}
+	
+	@Test
+	void needsBikeToRelease() throws Exception {
+		assertThrows(IllegalStateException.class, () -> person.releaseBike(someDate()));
 	}
 
 	@Test
@@ -166,7 +251,6 @@ public class PersonForDemandTest {
     return ExtendedPatternActivity.STAYATHOME_ACTIVITY;
   }
   
-
 	@Test
 	public void hasNoAssignedCarSharingCompanies() {
 		Map<String, Boolean> carSharingCustomership = Collections.emptyMap();

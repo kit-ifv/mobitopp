@@ -25,6 +25,7 @@ import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
@@ -62,6 +63,41 @@ public class PersonDecorator implements Person, Serializable {
 
 	public Car releaseCar(Time time) {
 		return person().releaseCar(time);
+	}
+	
+	@Override
+	public boolean hasParkedBike() {
+		return person().hasParkedBike();
+	}
+	
+	@Override
+	public boolean isCycling() {
+		return person().isCycling();
+	}
+	
+	@Override
+	public Bike parkBike(Zone zone, Location location, Time time) {
+		return person().parkBike(zone, location, time);
+	}
+	
+	@Override
+	public Bike releaseBike(Time time) {
+		return person().releaseBike(time);
+	}
+	
+	@Override
+	public void takeBikeFromParking() {
+		person().takeBikeFromParking();
+	}
+	
+	@Override
+	public void useBike(Bike bike, Time time) {
+		person().useBike(bike, time);
+	}
+	
+	@Override
+	public Bike whichBike() {
+		return person().whichBike();
 	}
 	
 	@Override
