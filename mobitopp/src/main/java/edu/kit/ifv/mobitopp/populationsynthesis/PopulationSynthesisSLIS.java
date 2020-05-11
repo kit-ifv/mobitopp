@@ -11,7 +11,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSegmentModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ElectricCarOwnershipBasedOnSociodemographic;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
@@ -77,7 +77,7 @@ public class PopulationSynthesisSLIS extends BasicPopulationSynthesisIpf {
     return new EmobilityPersonCreator(commuterTicketModel, noCarSharing(), context.seed());
   }
 
-  private static Map<String, CarSharingCustomerModel> noCarSharing() {
+  private static Map<String, MobilityProviderCustomerModel> noCarSharing() {
     return emptyMap();
   }
 
