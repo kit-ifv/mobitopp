@@ -1,4 +1,4 @@
-"ID";"zone_ID";"system";"name";"num_vehicles";"x_coordinate";"y_coordinate"
+"ID";"zoneId";"system";"name";"num_vehicles";"x_coordinate";"y_coordinate"
 1;1;Stadtmobil;KIT-Campus Nord;7;8.4281522360;49.0908530371
 2;2;Stadtmobil;Nordring;7;8.4001911780;49.0968305821
 3;3;Stadtmobil;Schweriner Straße;7;8.4017758491;49.0854954178

@@ -1,4 +1,4 @@
-ID;isDestination;NAME;Outlyingarea;AirDistanceOffset;AreaType
+zoneId;isDestination;NAME;Outlyingarea;AirDistanceOffset;AreaType
 1;1;Zone 1;0;0;3
 2;1;Zone 2;0;0;5
 3;1;Zone 3;0;0;5
