@@ -8,7 +8,8 @@ import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class StructuralData {
 
-  private static final int defaultIndex = 0;
+  private static final String zoneIdColumn = "zoneId";
+	private static final int defaultIndex = 0;
   static final int defaultValue = 0;
 
   private final CsvFile structuralData;
@@ -25,7 +26,7 @@ public class StructuralData {
   private Map<String, Integer> buildUpZoneIdMapping(CsvFile structuralData) {
     HashMap<String, Integer> idMapping = new HashMap<>();
     for (int index = 0; index < structuralData.getLength(); index++) {
-      String zoneId = structuralData.getValue(index, "ID");
+      String zoneId = structuralData.getValue(index, zoneIdColumn);
       idMapping.put(zoneId, index);
     }
     return idMapping;
@@ -108,7 +109,7 @@ public class StructuralData {
   }
 
   public int currentZone() {
-    return Integer.parseInt(structuralData.getValue(index, "ID"));
+    return Integer.parseInt(structuralData.getValue(index, zoneIdColumn));
   }
 
 }

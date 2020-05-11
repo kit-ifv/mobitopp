@@ -95,7 +95,7 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 		List<CarSharingStation> result = new ArrayList<>();
 		
 		for (int index = 0; index < stationData.getLength(); index++) {
-			if (stationData.getValue(index, "zone_ID").equals(zoneId)) {
+			if (stationData.getValue(index, "zoneId").equals(zoneId)) {
 				Point2D coordinates = new VisumPoint2(
 						stationData.getFloat(index, "x_coordinate"),
 						stationData.getFloat(index, "y_coordinate")).asPoint2D();
