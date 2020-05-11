@@ -245,11 +245,11 @@ public class ContextBuilder {
     return SimulationDays::simulationStart;
   }
 
-  private void carSharing() {
-    carSharing = new CarSharingParser(configuration.getCarSharing(), configuration.getSeed())
-        .parse();
-    log("Load car sharing");
-  }
+	private void carSharing() {
+		carSharing = new CarSharingParser(configuration.getMobilityProviders(), configuration.getSeed())
+				.parse();
+		log("Load car sharing");
+	}
 
   private void carEngine() {
     carEngineFile = Convert.asFile(configuration.getCarOwnership().getEngine());

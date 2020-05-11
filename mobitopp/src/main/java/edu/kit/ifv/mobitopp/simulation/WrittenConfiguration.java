@@ -5,7 +5,13 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataSource;
 import edu.kit.ifv.mobitopp.data.local.configuration.NoPublicTransport;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Getter
+@Setter
+@ToString
 public class WrittenConfiguration {
 
 	static final int defaultTimeStepLength = 60;
@@ -52,119 +58,6 @@ public class WrittenConfiguration {
 		this.timeStepLength = other.timeStepLength;
 		this.visumToMobitopp = other.visumToMobitopp;
 		this.experimental = other.experimental;
-	}
-
-	public float getFractionOfPopulation() {
-		return fractionOfPopulation;
-	}
-
-	public void setFractionOfPopulation(float fractionOfPopulation) {
-		this.fractionOfPopulation = fractionOfPopulation;
-	}
-
-	public long getSeed() {
-		return seed;
-	}
-
-	public void setSeed(long seed) {
-		this.seed = seed;
-	}
-
-	public int getDays() {
-		return days;
-	}
-
-	public void setDays(int days) {
-		this.days = days;
-	}
-
-	public int getNumberOfZones() {
-		return numberOfZones;
-	}
-
-	public void setNumberOfZones(int numberOfZones) {
-		this.numberOfZones = numberOfZones;
-	}
-
-	public DataSource getDataSource() {
-		return dataSource;
-	}
-
-	public void setDataSource(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
-	public PublicTransport getPublicTransport() {
-		return publicTransport;
-	}
-
-	public void setPublicTransport(PublicTransport publicTransport) {
-		this.publicTransport = publicTransport;
-	}
-
-	public String getResultFolder() {
-		return resultFolder;
-	}
-
-	public void setResultFolder(String resultFolder) {
-		this.resultFolder = resultFolder;
-	}
-
-	public String getVisumFile() {
-		return visumFile;
-	}
-
-	public void setVisumFile(String visumFile) {
-		this.visumFile = visumFile;
-	}
-
-	public Map<String, String> getDestinationChoice() {
-		return destinationChoice;
-	}
-
-	public void setDestinationChoice(Map<String, String> destinationChoice) {
-		this.destinationChoice = destinationChoice;
-	}
-	
-	public Map<String, String> getModeChoice() {
-		return modeChoice;
-	}
-	
-	public void setModeChoice(Map<String, String> modeChoice) {
-		this.modeChoice = modeChoice;
-	}
-
-	public int getTimeStepLength() {
-		return timeStepLength;
-	}
-
-	public void setTimeStepLength(int timeStepLength) {
-		this.timeStepLength = timeStepLength;
-	}
-
-	public VisumToMobitopp getVisumToMobitopp() {
-		return visumToMobitopp;
-	}
-
-	public void setVisumToMobitopp(VisumToMobitopp visumToMobitopp) {
-		this.visumToMobitopp = visumToMobitopp;
-	}
-
-	public Map<String, String> getExperimental() {
-		return experimental;
-	}
-
-	public void setExperimental(Map<String, String> experimental) {
-		this.experimental = experimental;
-	}
-
-	@Override
-	public String toString() {
-		return getClass().getName() + " [fractionOfPopulation=" + fractionOfPopulation + ", seed="
-				+ seed + ", days=" + days + ", numberOfZones=" + numberOfZones + ", dataSource="
-				+ dataSource + ", publicTransport=" + publicTransport + ", resultFolder=" + resultFolder
-				+ ", visumFile=" + visumFile + ", destinationChoice=" + destinationChoice
-				+ ", timeStepLength=" + timeStepLength + ", experimental=" + experimental + "]";
 	}
 
 }

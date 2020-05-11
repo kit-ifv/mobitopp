@@ -1,4 +1,4 @@
-activityScheduleCreator: standard
+activityScheduleAssigner: standard
 carOwnership:
   engine: config/leopoldshafen/parameters/SociodemographicCoefficients.txt
   ownership: config/leopoldshafen/parameters/CarOwnershipModelParameter.txt
