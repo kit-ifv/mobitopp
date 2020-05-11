@@ -10,7 +10,7 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -24,7 +24,7 @@ public class SimpleSynthesisContext implements SynthesisContext {
   private final SimpleRoadNetwork roadNetwork;
   private final DataRepositoryForPopulationSynthesis dataRepository;
   private final ResultWriter resultWriter;
-  private final Map<String, CarSharingCustomerModel> carSharing;
+  private final Map<String, MobilityProviderCustomerModel> carSharing;
   private final PopulationSynthesisParser format;
   private final File carEngineFile;
   private final List<AttributeType> attributes;
@@ -33,7 +33,7 @@ public class SimpleSynthesisContext implements SynthesisContext {
       WrittenConfiguration configuration, DynamicParameters experimentalParameters,
       VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
       DataRepositoryForPopulationSynthesis dataRepository,
-      Map<String, CarSharingCustomerModel> carSharing, File carEngineFile,
+      Map<String, MobilityProviderCustomerModel> carSharing, File carEngineFile,
       List<AttributeType> attributes, PopulationSynthesisParser format, ResultWriter resultWriter) {
     super();
     this.configuration = configuration;
@@ -94,7 +94,7 @@ public class SimpleSynthesisContext implements SynthesisContext {
   }
 
   @Override
-  public Map<String, CarSharingCustomerModel> carSharing() {
+  public Map<String, MobilityProviderCustomerModel> carSharing() {
     return carSharing;
   }
 

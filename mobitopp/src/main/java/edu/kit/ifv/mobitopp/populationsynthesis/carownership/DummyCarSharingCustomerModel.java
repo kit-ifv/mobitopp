@@ -6,7 +6,7 @@ import java.util.Random;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 
 public class DummyCarSharingCustomerModel 
-	implements CarSharingCustomerModel {
+	implements MobilityProviderCustomerModel {
 
 	private Random random;
 

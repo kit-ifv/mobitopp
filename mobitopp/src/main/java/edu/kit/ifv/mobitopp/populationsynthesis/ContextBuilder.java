@@ -22,7 +22,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.ParserBuilder;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.Logger;
@@ -56,7 +56,7 @@ public class ContextBuilder {
   private VisumNetwork network;
   private SimpleRoadNetwork roadNetwork;
   private DataRepositoryForPopulationSynthesis dataRepository;
-  private Map<String, CarSharingCustomerModel> carSharing;
+  private Map<String, MobilityProviderCustomerModel> carSharing;
   private File carEngineFile;
   private DemographyData demographyData;
 	private StructuralData zonePropertiesData;
