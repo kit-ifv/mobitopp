@@ -24,7 +24,7 @@ public class AttractivitiesDataTest {
 	}
 
 	private StructuralData content() throws IOException {
-		String content = "ID;Attractivity:Work;Attractivity:Business\r\n"
+		String content = "zoneId;Attractivity:Work;Attractivity:Business\r\n"
 				+ "1;2745;2745" + System.lineSeparator()
 				+ "2;1388;1388" + System.lineSeparator()
 				+ "3;2872;2872" + System.lineSeparator();

@@ -42,13 +42,13 @@ public class FileBasedCarSharingBuilderTest {
 	private static final float yCoord = 2.0f;
 	private static final int areaId = 1;
 	private static final int stationId = 1;
-	private static final String propertiesData = "\"zone_ID\";\"system\";\"density\""
+	private static final String propertiesData = "\"zoneId\";\"system\";\"density\""
 			+ System.lineSeparator() + areaId + ";\"BlubberFree\";1";
-	private static final String stationData = "\"ID\";\"zone_ID\";\"system\";\"name\";\"num_vehicles\";\"x_coordinate\";\"y_coordinate\""
+	private static final String stationData = "\"ID\";\"zoneId\";\"system\";\"name\";\"num_vehicles\";\"x_coordinate\";\"y_coordinate\""
 			+ System.lineSeparator() + stationId + ";" + areaId
 			+ ";\"Blubber\";\"0\";1;-71,077644;42,394373";
 
-	private static final String freeFloatingData = "\"zone_ID\";\"system\";\"num_vehicles\""
+	private static final String freeFloatingData = "\"zoneId\";\"system\";\"num_vehicles\""
 			+ System.lineSeparator() + areaId + ";\"BlubberFree\";1";
 
 	private VisumNetworkBuilder networkBuilder;
