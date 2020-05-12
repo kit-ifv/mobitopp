@@ -1,17 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
-import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,7 @@ import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.DefaultTourFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
@@ -54,6 +56,7 @@ public class PersonForDemandTest {
 	private boolean hasCommuterTicket;
 	private boolean hasLicense;
 	private TourBasedActivityPattern activityPattern;
+	private Bike bike;
 	private Car car;
 	private FixedDestinations fixedDestinations;
 	private ModeChoicePreferences prefSurvey;
@@ -79,6 +82,7 @@ public class PersonForDemandTest {
 		hasCommuterTicket = false;
 		hasLicense = false;
 		activityPattern = mock(TourBasedActivityPattern.class);
+		bike = mock(Bike.class);
 		car = mock(Car.class);
 		fixedDestinations = new FixedDestinations();
 		prefSurvey = ModeChoicePreferences.NOPREFERENCES;
@@ -87,11 +91,96 @@ public class PersonForDemandTest {
 		person = newPerson();
 	}
 
-	private PersonForDemand newPerson() {
-		PersonForDemand newPerson = new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
+	private PersonForDemand newPerson(Map<String, Boolean> carSharingCustomership) {
+		return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
 				hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasLicense, activityPattern,
-				fixedDestinations, prefSurvey, prefSimulation, travelTimeSensitivity);
-    return newPerson;
+				fixedDestinations, carSharingCustomership, prefSurvey, prefSimulation, travelTimeSensitivity);
+	}
+	
+	private PersonForDemand newPerson() {
+		return newPerson(emptyMap());
+	}
+	
+	@Test
+	void usesBike() throws Exception {
+		person.useBike(bike, someDate());
+		
+		Bike usedBike = person.whichBike();
+		
+		assertThat(usedBike).isEqualTo(bike);
+		assertThat(person.isCycling()).isTrue();
+		assertThat(person.hasParkedBike()).isFalse();
+		verify(bike).use(person, someDate());
+	}
+
+	@Test
+	void needsABikeToUse() throws Exception {
+		assertThrows(NullPointerException.class, () -> person.useBike(null, someDate()));
+	}
+	
+	@Test
+	void parksBike() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		person.useBike(bike, someDate());
+		
+		person.parkBike(zone, location, someDate());
+		Bike parkedBike = person.whichBike();
+		
+		assertThat(parkedBike).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isTrue();
+		assertThat(person.isCycling()).isFalse();
+	}
+	
+	@Test
+	void needsBikeToPark() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		
+		assertThrows(IllegalStateException.class, () -> person.parkBike(zone, location, someDate()));
+	}
+	
+	@Test
+	void takesBikeFromParking() throws Exception {
+		Zone zone = mock(Zone.class);
+		Location location = new Example().location();
+		person.useBike(bike, someDate());
+		person.parkBike(zone, location, someDate());
+		
+		person.takeBikeFromParking();
+		
+		assertThat(person.whichBike()).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isFalse();
+		assertThat(person.isCycling()).isTrue();
+	}
+	
+	@Test
+	void needsBikeToTakeFromParking() throws Exception {
+		assertThrows(IllegalStateException.class, () -> person.takeBikeFromParking());
+	}
+	
+	@Test
+	void needsAParkedBikeToTakeFromParking() throws Exception {
+		person.useBike(bike, someDate());
+		assertThrows(IllegalStateException.class, () -> person.takeBikeFromParking());
+	}
+	
+	@Test
+	void releasesBike() throws Exception {
+		person.useBike(bike, someDate());
+		
+		Bike releasedBike = person.releaseBike(someDate());
+		
+		assertThat(releasedBike).isEqualTo(bike);
+		assertThat(person.hasParkedBike()).isFalse();
+		assertThat(person.isCycling()).isFalse();
+		assertThat(person.whichBike()).isNull();
+		verify(releasedBike).release(person, someDate());
+	}
+	
+	@Test
+	void needsBikeToRelease() throws Exception {
+		assertThrows(IllegalStateException.class, () -> person.releaseBike(someDate()));
 	}
 
 	@Test
@@ -100,7 +189,7 @@ public class PersonForDemandTest {
 		
 		Car usedCar = person.whichCar();
 		
-    assertThat(usedCar, is(equalTo(car))); 
+    assertThat(usedCar).isEqualTo(car); 
     verify(car).use(person, someDate());
 	}
 	
@@ -113,7 +202,7 @@ public class PersonForDemandTest {
 		
 		Car parkedCar = person.whichCar();
 		
-		assertThat(parkedCar, is(equalTo(car)));
+		assertThat(parkedCar).isEqualTo(car);
 	}
 	
 	@Test
@@ -123,7 +212,7 @@ public class PersonForDemandTest {
 		
 		Car usedCar = person.whichCar();
 		
-		assertThat(usedCar, is(equalTo(car)));
+		assertThat(usedCar).isEqualTo(car);
 	}
 
 	private Time someDate() {
@@ -134,7 +223,7 @@ public class PersonForDemandTest {
 	public void providesAttributes() {
 		PersonAttributes attributes = person.attributes();
 
-		assertThat(attributes, is(equalTo(personAttributes())));
+		assertThat(attributes).isEqualTo(personAttributes());
 	}
 
 	private PersonAttributes personAttributes() {
@@ -154,11 +243,37 @@ public class PersonForDemandTest {
     
     Optional<TourBasedActivityPattern> after = person.tourBasedActivityPattern();
     
-    assertAll(() -> assertThat(before, hasValue(activityPattern)),
-        () -> assertThat(after, isEmpty()));
-  }
+		assertAll(() -> assertThat(before).hasValue(activityPattern),
+				() -> assertThat(after).isEmpty());
+	}
 
   private ExtendedPatternActivity somePattern() {
     return ExtendedPatternActivity.STAYATHOME_ACTIVITY;
   }
+  
+	@Test
+	public void hasNoAssignedCarSharingCompanies() {
+		Map<String, Boolean> carSharingCustomership = Collections.emptyMap();
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertFalse(person.isMobilityProviderCustomer("Stadtmobil"));
+	}
+	
+	@Test
+	public void isCarSharingCustomer() {
+		String company = "Stadtmobil";
+		Map<String, Boolean> carSharingCustomership = Collections.singletonMap(company, true);
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertTrue(person.isMobilityProviderCustomer(company));
+	}
+	
+	@Test
+	public void isNoCarSharingCustomer() {
+		String company = "Stadtmobil";
+		Map<String, Boolean> carSharingCustomership = Collections.singletonMap(company, false);
+		PersonForDemand person = newPerson(carSharingCustomership);
+		
+		assertFalse(person.isMobilityProviderCustomer(company));
+	}
 }

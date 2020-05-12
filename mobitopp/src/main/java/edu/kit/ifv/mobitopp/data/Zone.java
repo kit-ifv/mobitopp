@@ -5,6 +5,7 @@ import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.NoChargingDataForZone;
@@ -19,6 +20,7 @@ public class Zone {
 
   private transient DataForZone zoneData;
   private CarSharingDataForZone carSharingData;
+  private BikeSharingDataForZone bikeSharingData;
 	private MaasDataForZone maasData;
 
 	public Zone(
@@ -93,6 +95,16 @@ public class Zone {
 		assert this.carSharingData != null;
 
 		return this.carSharingData;
+	}
+	
+	public void setBikeSharing(BikeSharingDataForZone bikeSharingData) {
+		assert bikeSharingData != null;
+		this.bikeSharingData = bikeSharingData;
+	}
+
+	public BikeSharingDataForZone bikeSharing() {
+		assert this.bikeSharingData != null;
+		return this.bikeSharingData;
 	}
 	
 	public void setMaas(MaasDataForZone maasData) {

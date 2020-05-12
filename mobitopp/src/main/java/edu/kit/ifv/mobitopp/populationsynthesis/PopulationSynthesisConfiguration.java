@@ -10,7 +10,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSegmentModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ElectricCarOwnershipBasedOnSociodemographic;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
@@ -78,7 +78,7 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesisIp
 
   private static EmobilityPersonCreator personCreator(
       SynthesisContext context, CommutationTicketModelIfc commuterTicketModel) {
-    Map<String, CarSharingCustomerModel> carSharing = context.carSharing();
+    Map<String, MobilityProviderCustomerModel> carSharing = context.carSharing();
     return new EmobilityPersonCreator(commuterTicketModel, carSharing, context.seed());
   }
 

@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.AssignCars;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSegmentModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ElectricCarOwnershipBasedOnSociodemographic;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
@@ -166,7 +166,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	private PersonCreator createPersonCreator() {
 		CommutationTicketModelIfc commuterTicketModel = commuterTickets();
-		Map<String, CarSharingCustomerModel> carSharing = context().carSharing();
+		Map<String, MobilityProviderCustomerModel> carSharing = context().carSharing();
 		return new EmobilityPersonCreator(commuterTicketModel, carSharing, seed());
 	}
 

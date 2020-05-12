@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.carsharing;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.CarSharingListener;
+import edu.kit.ifv.mobitopp.simulation.Person;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -103,13 +104,13 @@ public class CarSharingDataForZone implements Serializable {
 	}
 
 
-	public boolean isStationBasedCarSharingCarAvailable(CarSharingPerson person) {
+	public boolean isStationBasedCarSharingCarAvailable(Person person) {
 		assert this.stationBasedCarSharing != null;
 
 		return !availableStationBasedCarSharingCompanies(person).isEmpty();
 	}
 
-	public boolean isFreeFloatingCarSharingCarAvailable(CarSharingPerson person) {
+	public boolean isFreeFloatingCarSharingCarAvailable(Person person) {
 		assert this.freeFloatingCarSharing != null;
 
 		return !availableFreeFloatingCarSharingCompanies(person).isEmpty();
@@ -122,7 +123,7 @@ public class CarSharingDataForZone implements Serializable {
 		return this.freeFloatingArea.containsKey(company) && this.freeFloatingArea.get(company);
 	}
 
-	public List<CarSharingOrganization> availableStationBasedCarSharingCompanies(CarSharingPerson person) {
+	public List<CarSharingOrganization> availableStationBasedCarSharingCompanies(Person person) {
 		assert this.stationBasedCarSharing != null;
 
 		List<CarSharingOrganization> availableCompanies = new ArrayList<CarSharingOrganization>();
@@ -131,7 +132,7 @@ public class CarSharingDataForZone implements Serializable {
 
 			CarSharingOrganization company = stationBasedCarSharing.get(companyName);
 
-			if ( person.isCarSharingCustomer(companyName)
+			if ( person.isMobilityProviderCustomer(companyName)
 						&& company.isCarAvailable(this.zone) 
 			) {
 				availableCompanies.add(company);
@@ -141,7 +142,7 @@ public class CarSharingDataForZone implements Serializable {
 		return availableCompanies;
 	}
 
-	public List<CarSharingOrganization> availableFreeFloatingCarSharingCompanies(CarSharingPerson person) {
+	public List<CarSharingOrganization> availableFreeFloatingCarSharingCompanies(Person person) {
 		assert this.freeFloatingCarSharing != null;
 
 		List<CarSharingOrganization> availableCompanies = new ArrayList<CarSharingOrganization>();
@@ -150,7 +151,7 @@ public class CarSharingDataForZone implements Serializable {
 
 			CarSharingOrganization company = freeFloatingCarSharing.get(companyName);
 
-			if ( person.isCarSharingCustomer(companyName)
+			if ( person.isMobilityProviderCustomer(companyName)
 						&& isFreeFloatingZone(companyName)
 						&& company.isCarAvailable(this.zone) 
 			) {
@@ -203,14 +204,14 @@ public class CarSharingDataForZone implements Serializable {
 		return stations;
 	}
 
-	public CarSharingCar bookStationBasedCar(CarSharingPerson person) {
+	public CarSharingCar bookStationBasedCar(Person person) {
 		assert isStationBasedCarSharingCarAvailable(person);
 		List<CarSharingOrganization> companies = availableStationBasedCarSharingCompanies(person);
 		CarSharingOrganization company = selectCompanyRandomly(companies);
 		return company.bookCar(this.zone);
 	}
 
-	public CarSharingCar bookFreeFloatingCar(CarSharingPerson person) {
+	public CarSharingCar bookFreeFloatingCar(Person person) {
 		assert isFreeFloatingCarSharingCarAvailable(person);
 		
 		List<CarSharingOrganization> companies = availableFreeFloatingCarSharingCompanies(person);

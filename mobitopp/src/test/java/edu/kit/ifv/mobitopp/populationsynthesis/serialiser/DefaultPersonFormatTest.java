@@ -1,12 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -69,14 +66,14 @@ public class DefaultPersonFormatTest {
   public void serialisePersonAttributes() throws IOException {
     List<String> prepared = format.prepare(personForDemand);
 
-    assertThat(prepared, is(equalTo(personFormat())));
+    assertThat(prepared).isEqualTo(personFormat());
   }
 
   @Test
   public void serialialiseEmobilityPerson() throws IOException {
     List<String> prepared = format.prepare(emobilityPerson);
 
-    assertThat(prepared, is(equalTo(emobilityPerson())));
+    assertThat(prepared).isEqualTo(emobilityPerson());
   }
 
   @Test
@@ -108,7 +105,7 @@ public class DefaultPersonFormatTest {
 
     Optional<PersonBuilder> parsedPerson = format.parse(personFormat(), context);
 
-    assertThat(parsedPerson, isEmpty());
+    assertThat(parsedPerson).isEmpty();
   }
 
   private void prepareMissingHousehold() {
@@ -126,11 +123,12 @@ public class DefaultPersonFormatTest {
     assertValue(PersonBuilder::hasPersonalCar, person, originalPerson);
     assertValue(PersonBuilder::hasCommuterTicket, person, originalPerson);
     assertValue(PersonBuilder::getActivityPattern, person, originalPerson);
+    assertValue(PersonBuilder::getCarsharingMembership, person, originalPerson);
     assertEmobilityPersons(person, originalPerson);
   }
 
   private void assertEmobilityPersons(PersonBuilder person, PersonBuilder originalPerson) {
-    assertThat(person.getClass(), is(equalTo(originalPerson.getClass())));
+    assertThat(person.getClass()).isEqualTo(originalPerson.getClass());
     if (originalPerson instanceof EmobilityPerson && person instanceof EmobilityPerson) {
       assertEmobilityValuesOf((EmobilityPerson) person, (EmobilityPerson) originalPerson);
     }
@@ -139,7 +137,6 @@ public class DefaultPersonFormatTest {
   private void assertEmobilityValuesOf(EmobilityPerson person, EmobilityPerson originalPerson) {
     assertValue(EmobilityPerson::eMobilityAcceptance, person, originalPerson);
     assertValue(EmobilityPerson::chargingInfluencesDestinantionChoice, person, originalPerson);
-    assertValue(EmobilityPerson::carSharingCustomership, person, originalPerson);
   }
 
   private List<String> personFormat() {

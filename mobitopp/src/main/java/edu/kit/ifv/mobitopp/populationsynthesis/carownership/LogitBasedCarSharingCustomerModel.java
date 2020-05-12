@@ -9,7 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 
 public class LogitBasedCarSharingCustomerModel 
-	implements CarSharingCustomerModel {
+	implements MobilityProviderCustomerModel {
 
 	private final Random random;
 

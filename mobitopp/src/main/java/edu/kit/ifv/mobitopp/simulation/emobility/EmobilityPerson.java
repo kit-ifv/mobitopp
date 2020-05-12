@@ -3,19 +3,15 @@ package edu.kit.ifv.mobitopp.simulation.emobility;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingPerson;
 import edu.kit.ifv.mobitopp.simulation.person.PersonDecorator;
 import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
-public class EmobilityPerson extends PersonDecorator
-		implements CarSharingPerson, Serializable {
+public class EmobilityPerson extends PersonDecorator implements Person, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,35 +19,16 @@ public class EmobilityPerson extends PersonDecorator
 		ALWAYS, ONLY_WHEN_BATTERY_LOW, NEVER
 	}
 
-	protected final float eMobilityAcceptance;
+	private final float eMobilityAcceptance;
+	private final PublicChargingInfluencesDestinationChoice chargingInfluencesDestinantionChoice;
 
-	protected	final Map<String, Boolean> carSharingCustomership;
-
-	protected final PublicChargingInfluencesDestinationChoice chargingInfluencesDestinantionChoice;
-
-  public EmobilityPerson(
-		Person person,
-		float eMobilityAcceptance,
-		PublicChargingInfluencesDestinationChoice chargingInfluencesDestinantionChoice,
-		Map<String, Boolean> carSharingCustomership
-	) {
+	public EmobilityPerson(
+			final Person person, final float eMobilityAcceptance,
+			final PublicChargingInfluencesDestinationChoice chargingInfluencesDestinantionChoice) {
 		super(person);
 
 		this.eMobilityAcceptance = eMobilityAcceptance;
 		this.chargingInfluencesDestinantionChoice = chargingInfluencesDestinantionChoice;
-		this.carSharingCustomership = Collections.unmodifiableMap(carSharingCustomership);
-	}
-
-
-	public boolean isCarSharingCustomer(String company) {
-		if (carSharingCustomership.containsKey(company)) {
-			return carSharingCustomership.get(company);
-		}
-		return false;
-	}
-	
-	public Map<String, Boolean> carSharingCustomership() {
-		return carSharingCustomership;
 	}
 
 	public float eMobilityAcceptance() {
@@ -72,9 +49,9 @@ public class EmobilityPerson extends PersonDecorator
 
 		List<String> customer = new ArrayList<String>();
 
-		for (String company : this.carSharingCustomership.keySet()) {
+		for (String company : person().mobilityProviderCustomership().keySet()) {
 
-			if (isCarSharingCustomer(company)) {
+			if (isMobilityProviderCustomer(company)) {
 				customer.add(company);
 			}
 		}

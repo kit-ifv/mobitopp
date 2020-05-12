@@ -8,7 +8,7 @@ public class ZonePropertiesData {
 
   private static final String relief = "relief";
 	private static final String isDestination = "isDestination";
-	private static final String newClassificationKey = "zoneclassification";
+	private static final String newClassificationKey = "zoneClassification";
   private static final String oldClassificationKey = "Outlyingarea";
 
   private final StructuralData data;
@@ -41,7 +41,7 @@ public class ZonePropertiesData {
   }
 
   public RegionType currentRegionType(String zoneId) {
-    return new DefaultRegionType(data.valueOrDefault(zoneId, "regiontype"));
+    return new DefaultRegionType(data.valueOrDefault(zoneId, "RegionType"));
   }
 
   public AreaType currentZoneAreaType(String zoneId) {

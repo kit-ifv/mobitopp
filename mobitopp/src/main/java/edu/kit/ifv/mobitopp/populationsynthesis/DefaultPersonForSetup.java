@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.emptyMap;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +45,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
   private boolean hasPersonalCar;
   private boolean hasCommuterTicket;
   private boolean hasDrivingLicense;
+  private Map<String, Boolean> mobilityProviderMembership;
   private ModeChoicePreferences modeChoicePreferences;
   private ModeChoicePreferences travelTimeSensitivity;
   private TourBasedActivityPattern activityPattern;
@@ -65,6 +68,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
     this.hasPersonalCar = false;
     this.hasCommuterTicket = false;
     this.hasDrivingLicense = false;
+    this.mobilityProviderMembership = emptyMap();
     this.modeChoicePreferences = ModeChoicePreferences.NOPREFERENCES;
     this.travelTimeSensitivity = ModeChoicePreferences.NOPREFERENCES;
   }
@@ -301,24 +305,22 @@ public class DefaultPersonForSetup implements PersonBuilder {
   	return this;
   }
   
-  /**
-   * This class does not support carsharing membership. The method does nothing.
-   */
+  @Override
+	public Map<String, Boolean> getCarsharingMembership() {
+  	return this.mobilityProviderMembership;
+  }
+  
   @Override
   public DefaultPersonForSetup setCarsharingMembership(Map<String, Boolean> membership) {
+    this.mobilityProviderMembership = membership;
     return this;
-  }
-
-  @Override
-  public Map<String, Boolean> getCarsharingMembership() {
-  	throw new RuntimeException("Not supported method");
   }
 
   @Override
   public Person toPerson(Household household) {
   	return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
         hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, tourPattern(),
-        fixedDestinations, modeChoicePrefsSurvey, modeChoicePreferences, travelTimeSensitivity);
+        fixedDestinations, mobilityProviderMembership, modeChoicePrefsSurvey, modeChoicePreferences, travelTimeSensitivity);
   }
 
 	private TourBasedActivityPattern tourPattern() {

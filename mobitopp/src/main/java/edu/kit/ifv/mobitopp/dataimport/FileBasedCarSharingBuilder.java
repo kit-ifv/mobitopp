@@ -75,14 +75,14 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 	private Map<String, Float> readDensities(Zone zone) {
 		return properties
 				.stream()
-				.filter(row -> zone.getId().getExternalId().equals(row.get("zone_id")))
+				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneId")))
 				.collect(toLinkedMap(row -> row.get("system"), row -> (float) row.valueAsInteger("density")));
 	}
 
 	private Map<String, Integer> readFreeFloatingCars(Zone zone) {
 		return freeFloatingData
 				.stream()
-				.filter(row -> zone.getId().getExternalId().equals(row.get("zone_id")))
+				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneId")))
 				.collect(toLinkedMap(row -> row.get("system"), row -> row.valueAsInteger("num_vehicles")));
 	}
 	
@@ -95,7 +95,7 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 		List<CarSharingStation> result = new ArrayList<>();
 		
 		for (int index = 0; index < stationData.getLength(); index++) {
-			if (stationData.getValue(index, "zone_ID").equals(zoneId)) {
+			if (stationData.getValue(index, "zoneId").equals(zoneId)) {
 				Point2D coordinates = new VisumPoint2(
 						stationData.getFloat(index, "x_coordinate"),
 						stationData.getFloat(index, "y_coordinate")).asPoint2D();

@@ -17,6 +17,8 @@ import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
 public class CommunityZoneMappingParser {
 
+	private static final String communityColumn = "communityId";
+	private static final String zoneColumn = "zoneId";
 	private final DemandZoneRepository zoneRepository;
 	private final Map<String, CommunityZones> communityZones;
 
@@ -39,8 +41,8 @@ public class CommunityZoneMappingParser {
 	}
 
 	private void addCommunityRelation(final Row row) {
-		String communityId = row.get("communityid");
-		String zoneId = row.get("zoneid");
+		String communityId = row.get(communityColumn);
+		String zoneId = row.get(zoneColumn);
 		Optional<DemandZone> zone = zoneRepository.zoneByExternalId(zoneId);
 		CommunityZones community = getCommunity(communityId);
 		zone.ifPresent(community.zones::add);

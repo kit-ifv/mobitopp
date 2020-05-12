@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -25,270 +23,269 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 
 public class EmobilityPersonBuilder implements PersonBuilder {
 
-  private static final float defaultEMobilityAcceptance = 0.0f;
-  private final PersonBuilder person;
-  private float eMobilityAcceptance;
-  private PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice;
-  private Map<String, Boolean> carSharingMembership;
+	private static final float defaultEMobilityAcceptance = 0.0f;
+	private final PersonBuilder person;
+	private float eMobilityAcceptance;
+	private PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice;
 
-  public EmobilityPersonBuilder(PersonBuilder person) {
-    super();
-    this.person = person;
-    this.eMobilityAcceptance = defaultEMobilityAcceptance;
-    this.chargingInfluencesDestinationChoice = PublicChargingInfluencesDestinationChoice.NEVER;
-    this.carSharingMembership = emptyMap();
-  }
+	public EmobilityPersonBuilder(PersonBuilder person) {
+		super();
+		this.person = person;
+		this.eMobilityAcceptance = defaultEMobilityAcceptance;
+		this.chargingInfluencesDestinationChoice = PublicChargingInfluencesDestinationChoice.NEVER;
+	}
 
-  @Override
-  public PatternActivityWeek getPatternActivityWeek() {
-    return person.getPatternActivityWeek();
-  }
+	@Override
+	public PatternActivityWeek getPatternActivityWeek() {
+		return person.getPatternActivityWeek();
+	}
 
-  @Override
-  public EmobilityPersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
-    person.setPatternActivityWeek(activityPattern);
-    return this;
-  }
-  
-  @Override
-  public PersonBuilder clearPatternActivityWeek() {
-  	person.clearPatternActivityWeek();
-  	return this;
-  }
-  
-  @Override
-  public PersonBuilder addPatternActivity(ExtendedPatternActivity pattern) {
-  	person.addPatternActivity(pattern);
-  	return this;
-  }
+	@Override
+	public EmobilityPersonBuilder setPatternActivityWeek(TourBasedActivityPattern activityPattern) {
+		person.setPatternActivityWeek(activityPattern);
+		return this;
+	}
 
-  @Override
-  public EmobilityPersonBuilder addFixedDestination(FixedDestination fixedDestination) {
-    person.addFixedDestination(fixedDestination);
-    return this;
-  }
-  
-  @Override
-  public PersonBuilder clearFixedDestinations() {
-  	person.clearFixedDestinations();
-  	return this;
-  }
+	@Override
+	public PersonBuilder clearPatternActivityWeek() {
+		person.clearPatternActivityWeek();
+		return this;
+	}
 
-  @Override
-  public HouseholdForSetup household() {
-    return person.household();
-  }
+	@Override
+	public PersonBuilder addPatternActivity(ExtendedPatternActivity pattern) {
+		person.addPatternActivity(pattern);
+		return this;
+	}
 
-  @Override
-  public Person toPerson(Household household) {
-    Person normal = person.toPerson(household);
-    return new EmobilityPerson(normal, eMobilityAcceptance, chargingInfluencesDestinationChoice, carSharingMembership);
-  }
+	@Override
+	public EmobilityPersonBuilder addFixedDestination(FixedDestination fixedDestination) {
+		person.addFixedDestination(fixedDestination);
+		return this;
+	}
 
-  @Override
-  public boolean isMale() {
-    return person.isMale();
-  }
+	@Override
+	public PersonBuilder clearFixedDestinations() {
+		person.clearFixedDestinations();
+		return this;
+	}
 
-  @Override
-  public boolean isFemale() {
-    return person.isFemale();
-  }
+	@Override
+	public HouseholdForSetup household() {
+		return person.household();
+	}
 
-  @Override
-  public Zone homeZone() {
-    return person.homeZone();
-  }
+	@Override
+	public Person toPerson(Household household) {
+		Person normal = person.toPerson(household);
+		return new EmobilityPerson(normal, eMobilityAcceptance, chargingInfluencesDestinationChoice);
+	}
 
-  @Override
-  public int getIncome() {
-    return person.getIncome();
-  }
+	@Override
+	public boolean isMale() {
+		return person.isMale();
+	}
 
-  @Override
-  public int age() {
-    return person.age();
-  }
+	@Override
+	public boolean isFemale() {
+		return person.isFemale();
+	}
 
-  @Override
-  public Employment employment() {
-    return person.employment();
-  }
+	@Override
+	public Zone homeZone() {
+		return person.homeZone();
+	}
 
-  @Override
-  public Gender gender() {
-    return person.gender();
-  }
+	@Override
+	public int getIncome() {
+		return person.getIncome();
+	}
 
-  @Override
-  public Graduation graduation() {
-    return person.graduation();
-  }
+	@Override
+	public int age() {
+		return person.age();
+	}
 
-  @Override
-  public PersonId getId() {
-    return person.getId();
-  }
+	@Override
+	public Employment employment() {
+		return person.employment();
+	}
 
-  @Override
-  public boolean hasDrivingLicense() {
-    return person.hasDrivingLicense();
-  }
+	@Override
+	public Gender gender() {
+		return person.gender();
+	}
 
-  @Override
-  public EmobilityPersonBuilder setHasDrivingLicense(boolean hasDrivingLicense) {
-    person.setHasDrivingLicense(hasDrivingLicense);
-    return this;
-  }
+	@Override
+	public Graduation graduation() {
+		return person.graduation();
+	}
 
-  @Override
-  public boolean hasCommuterTicket() {
-    return person.hasCommuterTicket();
-  }
+	@Override
+	public PersonId getId() {
+		return person.getId();
+	}
 
-  @Override
-  public EmobilityPersonBuilder setHasCommuterTicket(boolean hasCommuterTicket) {
-    person.setHasCommuterTicket(hasCommuterTicket);
-    return this;
-  }
+	@Override
+	public boolean hasDrivingLicense() {
+		return person.hasDrivingLicense();
+	}
 
-  @Override
-  public boolean hasBike() {
-    return person.hasBike();
-  }
+	@Override
+	public EmobilityPersonBuilder setHasDrivingLicense(boolean hasDrivingLicense) {
+		person.setHasDrivingLicense(hasDrivingLicense);
+		return this;
+	}
 
-  @Override
-  public EmobilityPersonBuilder setHasBike(boolean hasBike) {
-    person.setHasBike(hasBike);
-    return this;
-  }
+	@Override
+	public boolean hasCommuterTicket() {
+		return person.hasCommuterTicket();
+	}
 
-  @Override
-  public boolean hasAccessToCar() {
-    return person.hasAccessToCar();
-  }
+	@Override
+	public EmobilityPersonBuilder setHasCommuterTicket(boolean hasCommuterTicket) {
+		person.setHasCommuterTicket(hasCommuterTicket);
+		return this;
+	}
 
-  @Override
-  public EmobilityPersonBuilder setHasAccessToCar(boolean hasAccessToCar) {
-    person.setHasAccessToCar(hasAccessToCar);
-    return this;
-  }
+	@Override
+	public boolean hasBike() {
+		return person.hasBike();
+	}
 
-  @Override
-  public boolean hasPersonalCar() {
-    return person.hasPersonalCar();
-  }
+	@Override
+	public EmobilityPersonBuilder setHasBike(boolean hasBike) {
+		person.setHasBike(hasBike);
+		return this;
+	}
 
-  @Override
-  public EmobilityPersonBuilder setHasPersonalCar(boolean hasPersonalCar) {
-    person.setHasPersonalCar(hasPersonalCar);
-    return this;
-  }
+	@Override
+	public boolean hasAccessToCar() {
+		return person.hasAccessToCar();
+	}
 
-  @Override
-  public Zone fixedZoneFor(ActivityType activityType) {
-    return person.fixedZoneFor(activityType);
-  }
+	@Override
+	public EmobilityPersonBuilder setHasAccessToCar(boolean hasAccessToCar) {
+		person.setHasAccessToCar(hasAccessToCar);
+		return this;
+	}
 
-  @Override
-  public boolean hasFixedZoneFor(ActivityType activityType) {
-    return person.hasFixedZoneFor(activityType);
-  }
+	@Override
+	public boolean hasPersonalCar() {
+		return person.hasPersonalCar();
+	}
 
-  @Override
-  public Zone fixedActivityZone() {
-    return person.fixedActivityZone();
-  }
+	@Override
+	public EmobilityPersonBuilder setHasPersonalCar(boolean hasPersonalCar) {
+		person.setHasPersonalCar(hasPersonalCar);
+		return this;
+	}
 
-  @Override
-  public boolean hasFixedActivityZone() {
-    return person.hasFixedActivityZone();
-  }
-  
-  @Override
-  public Stream<FixedDestination> fixedDestinations() {
-  	return person.fixedDestinations();
-  }
+	@Override
+	public Zone fixedZoneFor(ActivityType activityType) {
+		return person.fixedZoneFor(activityType);
+	}
+
+	@Override
+	public boolean hasFixedZoneFor(ActivityType activityType) {
+		return person.hasFixedZoneFor(activityType);
+	}
+
+	@Override
+	public Zone fixedActivityZone() {
+		return person.fixedActivityZone();
+	}
+
+	@Override
+	public boolean hasFixedActivityZone() {
+		return person.hasFixedActivityZone();
+	}
+
+	@Override
+	public Stream<FixedDestination> fixedDestinations() {
+		return person.fixedDestinations();
+	}
 
 	@Override
 	public Optional<FixedDestination> getFixedDestination(ActivityType activityType) {
 		return person.getFixedDestination(activityType);
 	}
 
-  @Override
-  public TourBasedActivityPattern getActivityPattern() {
-    return person.getActivityPattern();
-  }
-  
-  @Override
-  public boolean hasActivityOfType(ActivityType... activityType) {
-  	return person.hasActivityOfType(activityType);
-  }
+	@Override
+	public TourBasedActivityPattern getActivityPattern() {
+		return person.getActivityPattern();
+	}
+
+	@Override
+	public boolean hasActivityOfType(ActivityType... activityType) {
+		return person.hasActivityOfType(activityType);
+	}
 
 	@Override
 	public boolean hasActivityOfTypes(Collection<ActivityType> activityTypes) {
 		return person.hasActivityOfTypes(activityTypes);
 	}
 
-  @Override
-  public ModeChoicePreferences getModeChoicePreferences() {
-    return person.getModeChoicePreferences();
-  }
+	@Override
+	public ModeChoicePreferences getModeChoicePreferences() {
+		return person.getModeChoicePreferences();
+	}
 
-  @Override
-  public ModeChoicePreferences getModeChoicePrefsSurvey() {
-    return person.getModeChoicePrefsSurvey();
-  }
-  
-  @Override
-  public ModeChoicePreferences travelTimeSensitivity() {
-  	return person.travelTimeSensitivity();
-  }
-  
-  @Override
-  public PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity) {
-  	return person.setTravelTimeSensitivity(travelTimeSensitivity);
-  }
+	@Override
+	public ModeChoicePreferences getModeChoicePrefsSurvey() {
+		return person.getModeChoicePrefsSurvey();
+	}
 
-  @Override
-  public EmobilityPersonBuilder setModeChoicePreferences(ModeChoicePreferences modeChoicePreferences) {
-    person.setModeChoicePreferences(modeChoicePreferences);
-    return this;
-  }
-  
-  public float getEmobilityAcceptance() {
-  	return this.eMobilityAcceptance;
-  }
+	@Override
+	public ModeChoicePreferences travelTimeSensitivity() {
+		return person.travelTimeSensitivity();
+	}
 
-  public EmobilityPersonBuilder setEmobilityAcceptance(float eMobilityAcceptance) {
-    this.eMobilityAcceptance = eMobilityAcceptance;
-    return this;
-  }
-  
-  public PublicChargingInfluencesDestinationChoice getChargingInfluencesDestinationChoice() {
-  	return this.chargingInfluencesDestinationChoice;
-  }
+	@Override
+	public PersonBuilder setTravelTimeSensitivity(ModeChoicePreferences travelTimeSensitivity) {
+		return person.setTravelTimeSensitivity(travelTimeSensitivity);
+	}
 
-  public EmobilityPersonBuilder setChargingInfluencesDestinationChoice(
-      PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice) {
-    this.chargingInfluencesDestinationChoice = chargingInfluencesDestinationChoice;
-    return this;
-  }
+	@Override
+	public EmobilityPersonBuilder setModeChoicePreferences(
+			ModeChoicePreferences modeChoicePreferences) {
+		person.setModeChoicePreferences(modeChoicePreferences);
+		return this;
+	}
 
-  @Override
+	public float getEmobilityAcceptance() {
+		return this.eMobilityAcceptance;
+	}
+
+	public EmobilityPersonBuilder setEmobilityAcceptance(float eMobilityAcceptance) {
+		this.eMobilityAcceptance = eMobilityAcceptance;
+		return this;
+	}
+
+	public PublicChargingInfluencesDestinationChoice getChargingInfluencesDestinationChoice() {
+		return this.chargingInfluencesDestinationChoice;
+	}
+
+	public EmobilityPersonBuilder setChargingInfluencesDestinationChoice(
+			PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice) {
+		this.chargingInfluencesDestinationChoice = chargingInfluencesDestinationChoice;
+		return this;
+	}
+
+	@Override
 	public Map<String, Boolean> getCarsharingMembership() {
-  	return this.carSharingMembership;
-  }
-  
-  @Override
-  public EmobilityPersonBuilder setCarsharingMembership(Map<String, Boolean> membership) {
-    this.carSharingMembership = membership;
-    return this;
-  }
+		return person.getCarsharingMembership();
+	}
 
-  @Override
-  public String toString() {
-    return person.toString();
-  }
+	@Override
+	public PersonBuilder setCarsharingMembership(Map<String, Boolean> membership) {
+		person.setCarsharingMembership(membership);
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		return person.toString();
+	}
 
 }
