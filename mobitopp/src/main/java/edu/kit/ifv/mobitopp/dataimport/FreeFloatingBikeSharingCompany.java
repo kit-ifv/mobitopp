@@ -9,9 +9,9 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
-import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import lombok.ToString;
 
 @ToString
@@ -43,14 +43,14 @@ public class FreeFloatingBikeSharingCompany implements BikeSharingCompany {
 	}
 
 	@Override
-	public boolean isBikeAvailableFor(SimulationPerson person) {
+	public boolean isBikeAvailableFor(Person person) {
 		ZoneId currentZone = person.currentActivity().zone().getId();
 		return person.isMobilityProviderCustomer(companyName) && availableBikes.containsKey(currentZone)
 				&& !availableBikes.get(currentZone).isEmpty();
 	}
 
 	@Override
-	public Bike bookBikeFor(SimulationPerson person) {
+	public Bike bookBikeFor(Person person) {
 		if (!isBikeAvailableFor(person)) {
 			throw new IllegalStateException("There is no bike available for " + person);
 		}
