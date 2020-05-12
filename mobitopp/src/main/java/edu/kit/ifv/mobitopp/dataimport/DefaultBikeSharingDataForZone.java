@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
-import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 
 public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 
@@ -21,11 +21,11 @@ public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 	}
 
 	@Override
-	public boolean isBikeAvailableFor(SimulationPerson person) {
+	public boolean isBikeAvailableFor(Person person) {
 		return availableCompaniesFor(person).findAny().isPresent();
 	}
 
-	private Stream<BikeSharingCompany> availableCompaniesFor(SimulationPerson person) {
+	private Stream<BikeSharingCompany> availableCompaniesFor(Person person) {
 		return companies
 				.entrySet()
 				.stream()
@@ -35,7 +35,7 @@ public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 	}
 
 	@Override
-	public Bike bookBike(SimulationPerson person) {
+	public Bike bookBike(Person person) {
 		return availableCompaniesFor(person)
 				.findFirst()
 				.map(company -> company.bookBikeFor(person))
