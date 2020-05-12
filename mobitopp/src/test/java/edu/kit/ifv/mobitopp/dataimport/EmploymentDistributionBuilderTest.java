@@ -1,8 +1,6 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +43,7 @@ public class EmploymentDistributionBuilderTest {
 		String zoneId = "1";
     EmploymentDistribution distribution = builder.build(zoneId);
 
-		assertThat(distribution, is(equalTo(expectedEmployment())));
+		assertThat(distribution).isEqualTo(expectedEmployment());
 	}
 
 	@Test
@@ -56,7 +54,7 @@ public class EmploymentDistributionBuilderTest {
 
 		EmploymentDistribution distribution = builder.build(zoneId);
 
-		assertThat(distribution, is(equalTo(new EmploymentDistribution())));
+		assertThat(distribution).isEqualTo(new EmploymentDistribution());
 	}
 
 	private StructuralData missingData() {

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -50,28 +49,21 @@ public class CsvFileTest {
   }
 
   @Test
-  public void ignoreCaseInHeader() throws IOException {
+  public void ensureCaseInHeader() throws IOException {
     CsvFile csvFile = createFromFile();
 
     List<String> attributes = csvFile.getAttributes();
 
-    assertThat(attributes, contains(someHeader.toLowerCase(), otherHeader.toLowerCase()));
-  }
-
-  @Test
-  public void accessesValuesIgnoringCase() throws IOException {
-    CsvFile csvFile = createFromFile();
-
-    String value = csvFile.getValue(0, someHeader);
-
-    assertThat(value, is(equalTo(someContent)));
+    assertThat(attributes, contains(someHeader, otherHeader));
   }
   
   @Test
   public void getValues() throws IOException {
   	CsvFile csvFile = createFromFile();
   	
-  	assertAll(() -> assertThat(csvFile.getInteger(0, someHeader)).isEqualTo(someValue),
+  	assertAll(
+  			() -> assertThat(csvFile.getValue(0, someHeader)).isEqualTo(someContent),
+  			() -> assertThat(csvFile.getInteger(0, someHeader)).isEqualTo(someValue),
   			() -> assertThat(csvFile.getDouble(0, someHeader)).isCloseTo(someValue, offset(1e-6d)),
   			() -> assertThat(csvFile.getFloat(0, someHeader)).isCloseTo(someValue, offset(1e-6f)));
   }
@@ -115,8 +107,8 @@ public class CsvFileTest {
 		List<Row> content = csvFile.stream().collect(toList());
 		
 		Map<String, String> values = new HashMap<>();
-		values.put(someHeader.toLowerCase(), someContent);
-		values.put(otherHeader.toLowerCase(), otherContent);
+		values.put(someHeader, someContent);
+		values.put(otherHeader, otherContent);
 		Row row = new Row(values);
 		assertThat(content, contains(row));
 	}

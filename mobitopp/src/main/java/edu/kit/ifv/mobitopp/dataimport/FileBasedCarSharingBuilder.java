@@ -75,14 +75,14 @@ public class FileBasedCarSharingBuilder extends BaseCarSharingBuilder {
 	private Map<String, Float> readDensities(Zone zone) {
 		return properties
 				.stream()
-				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneid")))
+				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneId")))
 				.collect(toLinkedMap(row -> row.get("system"), row -> (float) row.valueAsInteger("density")));
 	}
 
 	private Map<String, Integer> readFreeFloatingCars(Zone zone) {
 		return freeFloatingData
 				.stream()
-				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneid")))
+				.filter(row -> zone.getId().getExternalId().equals(row.get("zoneId")))
 				.collect(toLinkedMap(row -> row.get("system"), row -> row.valueAsInteger("num_vehicles")));
 	}
 	

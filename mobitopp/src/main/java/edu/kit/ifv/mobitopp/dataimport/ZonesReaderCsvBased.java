@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
@@ -38,16 +39,26 @@ public class ZonesReaderCsvBased implements ZonesReader {
   private final ZoneLocationSelector locationSelector;
   private final IdToOidMapper idToOid;
   private final ParkingFacilityDataRepository parkingFacilitiesDataRepository;
+  private final BikeSharingDataRepository bikeSharingDataRepository;
 	private final CarSharingDataRepository carSharingDataRepository;
 
-  ZonesReaderCsvBased(
-      VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ZonePropertiesData zoneproperties, AttractivitiesData attractivities, 
-      ParkingFacilityDataRepository parkingFacilitiesDataRepository, CarSharingDataRepository carSharingDataRepository, ChargingType charging, DefaultPower defaultPower, IdToOidMapper mapper) {
-    super();
+	ZonesReaderCsvBased(
+			final VisumNetwork visumNetwork, 
+			final SimpleRoadNetwork roadNetwork, 
+			final ZonePropertiesData zoneproperties,
+			final AttractivitiesData attractivities,
+			final ParkingFacilityDataRepository parkingFacilitiesDataRepository,
+			final BikeSharingDataRepository bikeSharingDataRepository, 
+			final CarSharingDataRepository carSharingDataRepository, 
+			final ChargingType charging,
+			final DefaultPower defaultPower, 
+			final IdToOidMapper mapper) {
+		super();
     this.visumNetwork = visumNetwork;
     this.zonePropertiesData = zoneproperties;
     this.attractivities = attractivities;
     this.parkingFacilitiesDataRepository = parkingFacilitiesDataRepository;
+    this.bikeSharingDataRepository = bikeSharingDataRepository;
     this.carSharingDataRepository = carSharingDataRepository;
     this.idToOid = mapper;
     ChargingDataFactory factory = charging.factory(defaultPower);
@@ -100,11 +111,18 @@ public class ZonesReaderCsvBased implements ZonesReader {
 				.relief(relief)
 				.build();
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
+		BikeSharingDataForZone bikeSharingData = getBikeSharingData(visumZone, polygon, zone);
+		zone.setBikeSharing(bikeSharingData);
     CarSharingDataForZone carSharingData = getCarSharingData(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
     zone.setMaas(MaasDataForZone.everywhereAvailable());
     return zone;
   }
+
+	private BikeSharingDataForZone getBikeSharingData(
+			VisumZone visumZone, ZonePolygon polygon, Zone zone) {
+		return bikeSharingDataRepository.getData(visumZone, polygon, zone);
+	}
 
 	private CarSharingDataForZone getCarSharingData(
 			VisumZone visumZone, ZonePolygon polygon, Zone zone) {
@@ -169,21 +187,32 @@ public class ZonesReaderCsvBased implements ZonesReader {
 	}
 
 	public static ZonesReaderCsvBased from(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, ChargingType charging,
-			DefaultPower defaultPower, File zonePropertiesDataFile, File attractivityDataFile,
-			File parkingFacilitiesDataFile, File carSharingPropertiesFile, File stationsDataFile,
-			File freeFloatingDataFile, AreaTypeRepository areaTypeRepository, IdToOidMapper mapper) {
+			final VisumNetwork visumNetwork, 
+			final SimpleRoadNetwork roadNetwork, 
+			final ChargingType charging,
+			final DefaultPower defaultPower, 
+			final File zonePropertiesDataFile, 
+			final File attractivityDataFile,
+			final File parkingFacilitiesDataFile, 
+			final File carSharingPropertiesFile, 
+			final File stationsDataFile,
+			final File freeFloatingDataFile, 
+			final File bikeSharingPropertiesFile,
+			final AreaTypeRepository areaTypeRepository, 
+			final IdToOidMapper mapper) {
 		ZonePropertiesData zonePropertiesData = zonePropertyDataFrom(zonePropertiesDataFile,
         areaTypeRepository);
     AttractivitiesData attractivityData = attractivityDataFrom(attractivityDataFile);
     ParkingFacilityDataRepository parkingFacilitiesData = parkingFacilitiesDataFrom(parkingFacilitiesDataFile);
+		BikeSharingDataRepository bikeSharingData = bikeSharingDataFrom(
+				bikeSharingPropertiesFile);
 		CarSharingDataRepository carSharingStationsData = carSharingStationsDataFrom(visumNetwork,
 				roadNetwork, carSharingPropertiesFile, stationsDataFile, freeFloatingDataFile);
     return new ZonesReaderCsvBased(visumNetwork, roadNetwork, zonePropertiesData, attractivityData, parkingFacilitiesData,
-    		carSharingStationsData, charging, defaultPower, mapper);
+    		bikeSharingData, carSharingStationsData, charging, defaultPower, mapper);
   }
 
-  private static ParkingFacilityDataRepository parkingFacilitiesDataFrom(
+	private static ParkingFacilityDataRepository parkingFacilitiesDataFrom(
   		File parkingFacilitiesDataFile) {
 		if (parkingFacilitiesDataFile.exists()) {
 			CsvFile dataFile = CsvFile.createFrom(parkingFacilitiesDataFile.getAbsolutePath());
@@ -207,6 +236,11 @@ public class ZonesReaderCsvBased implements ZonesReader {
     StructuralData dataFile = new StructuralData(CsvFile.createFrom(structuralDataFile.getAbsolutePath()));
     return new ZonePropertiesData(dataFile, areaTypeRepository);
   }
+
+	private static BikeSharingDataRepository bikeSharingDataFrom(File bikeSharingPropertiesFile) {
+		StructuralData properties = new StructuralData(CsvFile.createFrom(bikeSharingPropertiesFile));
+		return new BikeSharingPropertiesData(properties);
+	}
 
 	private static CarSharingDataRepository carSharingStationsDataFrom(
 			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork, File carSharingPropertiesFile,

@@ -36,7 +36,7 @@ public class BikeSharingTripTest {
 		trip.prepareTrip(tripSetup.impedance, tripSetup.currentTime);
 
 		verify(bikeSharingData).isBikeAvailableFor(tripSetup.person);
-		Bike bike = verify(bikeSharingData).bookFreeBike(tripSetup.person);
+		Bike bike = verify(bikeSharingData).bookBike(tripSetup.person);
 		verify(tripSetup.person).useBike(bike, tripSetup.currentTime);
 	}
 
@@ -73,7 +73,7 @@ public class BikeSharingTripTest {
 
 		verify(bikeSharingData).isBikeSharingAreaFor(bike);
 		verify(tripSetup.person).releaseBike(tripSetup.currentTime);
-		verify(bike).returnBike(tripSetup.zone);
+		verify(bike).returnBike(tripSetup.zone.getId());
 	}
 
 	@Test
