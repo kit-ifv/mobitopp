@@ -9,12 +9,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
-import edu.kit.ifv.mobitopp.data.ZonePolygon;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
-import edu.kit.ifv.mobitopp.visum.VisumZone;
 
 public class BikeSharingPropertiesData implements BikeSharingDataRepository {
 
@@ -28,9 +25,9 @@ public class BikeSharingPropertiesData implements BikeSharingDataRepository {
 	}
 
 	@Override
-	public BikeSharingDataForZone getData(VisumZone visumZone, ZonePolygon polygon, Zone zone) {
-		Map<String, Boolean> serviceArea = buildServiceAreaFor(zone.getId());
-		Map<String, BikeSharingCompany> companies = buildCompanies(zone.getId());
+	public BikeSharingDataForZone getData(ZoneId zone) {
+		Map<String, Boolean> serviceArea = buildServiceAreaFor(zone);
+		Map<String, BikeSharingCompany> companies = buildCompanies(zone);
 		return new DefaultBikeSharingDataForZone(serviceArea, companies);
 	}
 

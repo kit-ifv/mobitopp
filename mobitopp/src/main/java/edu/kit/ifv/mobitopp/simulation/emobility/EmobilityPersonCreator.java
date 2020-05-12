@@ -56,7 +56,7 @@ public class EmobilityPersonCreator extends PanelBasedPersonCreator implements P
     return new EmobilityPersonBuilder(person)
         .setEmobilityAcceptance(eMobilityAcceptance)
         .setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice)
-        .setCarsharingMembership(carSharingCustomership);
+        .setMobilityProviderMembership(carSharingCustomership);
 	}
 
 }

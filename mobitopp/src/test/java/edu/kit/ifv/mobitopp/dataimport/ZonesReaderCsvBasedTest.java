@@ -102,7 +102,7 @@ public class ZonesReaderCsvBasedTest {
     when(chargingDataBuilder.chargingData(any(), any())).thenReturn(chargingData);
     when(attractivitiesBuilder.attractivities(anyString())).thenReturn(attractivities);
     when(locationSelector.selectLocation(any(), any())).thenReturn(dummyLocation());
-    when(bikeSharingDataRepository.getData(any(), any(), any())).thenReturn(bikeSharingData);
+    when(bikeSharingDataRepository.getData(any())).thenReturn(bikeSharingData);
     when(carSharingDataRepository.getData(any(), any(), any())).thenReturn(carSharingData);
     when(parkingFacilitiesDataRepository.getNumberOfParkingLots(any(), any())).thenReturn(parkingFacilities);
   }

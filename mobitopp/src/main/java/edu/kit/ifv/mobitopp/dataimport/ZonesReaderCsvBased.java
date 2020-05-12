@@ -111,7 +111,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 				.relief(relief)
 				.build();
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
-		BikeSharingDataForZone bikeSharingData = getBikeSharingData(visumZone, polygon, zone);
+		BikeSharingDataForZone bikeSharingData = getBikeSharingData(zone);
 		zone.setBikeSharing(bikeSharingData);
     CarSharingDataForZone carSharingData = getCarSharingData(visumZone, polygon, zone);
     zone.setCarSharing(carSharingData);
@@ -119,9 +119,8 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return zone;
   }
 
-	private BikeSharingDataForZone getBikeSharingData(
-			VisumZone visumZone, ZonePolygon polygon, Zone zone) {
-		return bikeSharingDataRepository.getData(visumZone, polygon, zone);
+	private BikeSharingDataForZone getBikeSharingData(Zone zone) {
+		return bikeSharingDataRepository.getData(zone.getId());
 	}
 
 	private CarSharingDataForZone getCarSharingData(

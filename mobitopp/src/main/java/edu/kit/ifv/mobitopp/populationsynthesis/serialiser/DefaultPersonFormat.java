@@ -53,7 +53,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
     eMobilityColumns
         .add("chargingInfluencesDestinationChoice",
             EmobilityPersonBuilder::getChargingInfluencesDestinationChoice);
-    eMobilityColumns.add("carSharingCustomership", e -> e.getCarsharingMembership().toString());
+    eMobilityColumns.add("mobilityProviderCustomership", e -> e.getMobilityProviderMembership().toString());
   }
 	
 	@Override
@@ -131,10 +131,10 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		float eMobilityAcceptance = eMobilityAcceptanceOf(data);
 		PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice = destinationChoiceInfluenceOf(
 				data);
-		Map<String, Boolean> carSharingCustomership = carSharingOf(data);
+		Map<String, Boolean> mobilityProviderCustomership = mobilityProviderOf(data);
 		emobilityPerson.setEmobilityAcceptance(eMobilityAcceptance);
 		emobilityPerson.setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice);
-		emobilityPerson.setCarsharingMembership(carSharingCustomership);
+		emobilityPerson.setMobilityProviderMembership(mobilityProviderCustomership);
 		return emobilityPerson;
 	}
 
@@ -198,20 +198,20 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
         .valueOf(eMobilityColumns.get("chargingInfluencesDestinationChoice", data).asString());
 	}
 
-	private Map<String, Boolean> carSharingOf(List<String> data) {
-		String carSharings = eMobilityColumns.get("carSharingCustomership", data).asString();
-		String pureEntries = carSharings.substring(1, carSharings.length() - 1);
-		return parseCarSharing(pureEntries);
+	private Map<String, Boolean> mobilityProviderOf(List<String> data) {
+		String mobilityProviderCustomership = eMobilityColumns.get("mobilityProviderCustomership", data).asString();
+		String pureEntries = mobilityProviderCustomership.substring(1, mobilityProviderCustomership.length() - 1);
+		return parseMobilityProviderEntries(pureEntries);
 	}
 
-	private Map<String, Boolean> parseCarSharing(String pureEntries) {
-		TreeMap<String, Boolean> toCarSharingCompanies = new TreeMap<>();
+	private Map<String, Boolean> parseMobilityProviderEntries(String pureEntries) {
+		TreeMap<String, Boolean> toCompanies = new TreeMap<>();
 		StringTokenizer entries = new StringTokenizer(pureEntries, ",");
 		while(entries.hasMoreTokens()) {
 			String company = entries.nextToken();
-			add(company, toCarSharingCompanies);
+			add(company, toCompanies);
 		}
-		return toCarSharingCompanies;
+		return toCompanies;
 	}
 
 	private ModeChoicePreferences modeChoicePrefsSurveyOf(List<String> data) {
@@ -224,10 +224,10 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		return ModeChoicePreferences.fromCommaSeparatedString(preferences);
 	}
 
-	private void add(String entry, TreeMap<String, Boolean> carSharingCompanies) {
+	private void add(String entry, TreeMap<String, Boolean> companies) {
 		String[] split = entry.split("=");
 		String company = split[0].trim();
 		Boolean customer = Boolean.parseBoolean(split[1].trim());
-		carSharingCompanies.put(company, customer);
+		companies.put(company, customer);
 	}
 }
