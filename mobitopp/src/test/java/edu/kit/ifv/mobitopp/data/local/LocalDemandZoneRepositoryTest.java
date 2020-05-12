@@ -1,11 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -61,8 +57,12 @@ public class LocalDemandZoneRepositoryTest {
 		for (Zone zone : zoneRepository.getZones()) {
 			Optional<DemandZone> demandZone = demandZoneRepository.zoneById(zone.getId());
 
-			assertThat(demandZone.map(DemandZone::zone), hasValue(sameInstance(zone)));
+			assertThat(demandZone.map(DemandZone::zone)).hasValueSatisfying(sameAs(zone));
 		}
+	}
+
+	private <T> Condition<T> sameAs(Zone zone) {
+		return new Condition<T>(z -> z == zone, "same object");
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class LocalDemandZoneRepositoryTest {
 
 		Optional<DemandZone> zone = demandRepository.zoneById(new ZoneId("0" ,0));
 
-		assertThat(zone.map(DemandZone::nominalDemography), hasValue(equalTo(expectedDemography)));
+		assertThat(zone.map(DemandZone::nominalDemography)).hasValue(expectedDemography);
 	}
 	
 	@Test
@@ -79,7 +79,7 @@ public class LocalDemandZoneRepositoryTest {
     int numberOfZones = 2;
     DemandZoneRepository demandRepository = newDemandRepository(numberOfZones);
     
-    assertThat(demandRepository.getZones(), hasSize(numberOfZones));
+    assertThat(demandRepository.getZones()).hasSize(numberOfZones);
   }
 	
 	@Test

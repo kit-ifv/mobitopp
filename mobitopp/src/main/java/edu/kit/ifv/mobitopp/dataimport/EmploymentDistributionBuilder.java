@@ -29,15 +29,15 @@ public class EmploymentDistributionBuilder {
 
 	private EmploymentDistribution createDistribution(String zoneId) {
 		EmploymentDistribution jobDistribution = new EmploymentDistribution();
-		jobDistribution.addItem(itemFor(Employment.FULLTIME, zoneId, "Job:FullTime"));
-		jobDistribution.addItem(itemFor(Employment.PARTTIME, zoneId, "Job:PartTime"));
-		jobDistribution.addItem(itemFor(Employment.NONE, zoneId, "Job:None"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_PRIMARY, zoneId, "Job:Education_primary"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_SECONDARY, zoneId, "Job:Education_secondary"));
-		jobDistribution.addItem(itemFor(Employment.STUDENT_TERTIARY, zoneId, "Job:Education_tertiary"));
-		jobDistribution.addItem(itemFor(Employment.EDUCATION, zoneId, "Job:Education_occup"));
-		jobDistribution.addItem(itemFor(Employment.RETIRED, zoneId, "Job:Retired"));
-		jobDistribution.addItem(itemFor(Employment.INFANT, zoneId, "Job:Infant"));
+		jobDistribution.addItem(itemFor(Employment.FULLTIME, zoneId, "job:FullTime"));
+		jobDistribution.addItem(itemFor(Employment.PARTTIME, zoneId, "job:PartTime"));
+		jobDistribution.addItem(itemFor(Employment.NONE, zoneId, "job:None"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_PRIMARY, zoneId, "job:Education_primary"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_SECONDARY, zoneId, "job:Education_secondary"));
+		jobDistribution.addItem(itemFor(Employment.STUDENT_TERTIARY, zoneId, "job:Education_tertiary"));
+		jobDistribution.addItem(itemFor(Employment.EDUCATION, zoneId, "job:Education_occup"));
+		jobDistribution.addItem(itemFor(Employment.RETIRED, zoneId, "job:Retired"));
+		jobDistribution.addItem(itemFor(Employment.INFANT, zoneId, "job:Infant"));
 		return jobDistribution;
 	}
 

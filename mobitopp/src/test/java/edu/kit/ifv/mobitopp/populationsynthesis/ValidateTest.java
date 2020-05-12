@@ -93,9 +93,9 @@ public class ValidateTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void validateCarSharingFiles() throws IOException {
+	public void validateMobilityProviderFiles() throws IOException {
 		configuration
-				.setCarSharing(Collections.singletonMap("non-existing", nonExistingFile.getAbsolutePath()));
+				.setMobilityProviders(Collections.singletonMap("non-existing", nonExistingFile.getAbsolutePath()));
 
 		validate();
 	}

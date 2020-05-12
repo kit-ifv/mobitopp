@@ -29,7 +29,7 @@ public class WrittenConfigurationTest {
     assertAll(
         () -> assertValue(WrittenConfiguration::getActivityScheduleAssigner, copied, original),
         () -> assertValue(WrittenConfiguration::getCarOwnership, copied, original),
-        () -> assertValue(WrittenConfiguration::getCarSharing, copied, original),
+        () -> assertValue(WrittenConfiguration::getMobilityProviders, copied, original),
         () -> assertValue(WrittenConfiguration::getCommuterTicket, copied, original),
         () -> assertValue(WrittenConfiguration::getDataSource, copied, original),
         () -> assertValue(WrittenConfiguration::getDemographyData, copied, original),

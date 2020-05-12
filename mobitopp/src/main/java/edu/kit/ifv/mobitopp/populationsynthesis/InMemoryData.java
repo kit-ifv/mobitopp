@@ -28,7 +28,7 @@ public class InMemoryData implements DemographyData {
 
   @Override
   public boolean hasData(String zoneId) {
-    return data.values().stream().anyMatch(data -> data.hasValue(zoneId, "ID"));
+    return data.values().stream().anyMatch(data -> data.hasValue(zoneId, "zoneId"));
   }
   
   @Override

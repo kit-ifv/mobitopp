@@ -81,7 +81,7 @@ public class CsvFile {
 	}
 
 	private String nameOf(String string) {
-		return string.toLowerCase().replaceAll("\"", "");
+		return string.replaceAll("\"", "");
 	}
 
 	private String fixDecimalPoint(String s) {

@@ -24,7 +24,7 @@ public class Validate implements Validation {
 		validateNumberOfZones();
 		validateVisumFile();
 		validateCarOwnershipFiles();
-		validateCarSharingFiles();
+		validateMobilityProviderFiles();
 		validateCommuterTicketFile();
 		validateDataSource();
 		validateDemographyDataFile();
@@ -55,8 +55,8 @@ public class Validate implements Validation {
 		add(carOwnership.getSegment());
 	}
 
-	private void validateCarSharingFiles() {
-		for (String path : configuration.getCarSharing().values()) {
+	private void validateMobilityProviderFiles() {
+		for (String path : configuration.getMobilityProviders().values()) {
 			add(path);
 		}
 	}

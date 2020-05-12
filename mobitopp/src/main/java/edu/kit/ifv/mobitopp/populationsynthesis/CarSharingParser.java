@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharingCustomerModel;
 
 public class CarSharingParser {
@@ -19,8 +19,8 @@ public class CarSharingParser {
 		this.models = models;
 	}
 
-	public Map<String, CarSharingCustomerModel> parse() {
-		Map<String, CarSharingCustomerModel> customerModels = new TreeMap<>();
+	public Map<String, MobilityProviderCustomerModel> parse() {
+		Map<String, MobilityProviderCustomerModel> customerModels = new TreeMap<>();
 		for (Entry<String, String> entry : models.entrySet()) {
 			customerModels.put(entry.getKey(), modelFor(entry));
 		}

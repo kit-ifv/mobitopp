@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 
 public class CarSharingParserTest {
 
@@ -36,8 +35,8 @@ public class CarSharingParserTest {
 		models.put("Flinkster", existingFile.getAbsolutePath());
 		CarSharingParser carSharing = new CarSharingParser(models, seed);
 		
-		Map<String, CarSharingCustomerModel> customerModels = carSharing.parse();
+		Map<String, MobilityProviderCustomerModel> customerModels = carSharing.parse();
 		
-		assertThat(customerModels.entrySet(), hasSize(models.size()));
+		assertThat(customerModels.entrySet()).hasSize(models.size());
 	}
 }
