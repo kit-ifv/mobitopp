@@ -50,7 +50,7 @@ public class CommunityZoneMappingParserTest {
 	private Row createMappingFor(DemandZone someZone) {
 		return Row
 				.createRow(asList(communityId, someZone.getId().getExternalId()),
-						asList("communityid", "zoneid"));
+						asList("communityId", "zoneId"));
 	}
 
 	private void setAvailable(DemandZone someZone) {
