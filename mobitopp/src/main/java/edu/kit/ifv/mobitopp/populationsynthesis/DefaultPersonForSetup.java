@@ -306,12 +306,12 @@ public class DefaultPersonForSetup implements PersonBuilder {
   }
   
   @Override
-	public Map<String, Boolean> getCarsharingMembership() {
+	public Map<String, Boolean> getMobilityProviderMembership() {
   	return this.mobilityProviderMembership;
   }
   
   @Override
-  public DefaultPersonForSetup setCarsharingMembership(Map<String, Boolean> membership) {
+  public DefaultPersonForSetup setMobilityProviderMembership(Map<String, Boolean> membership) {
     this.mobilityProviderMembership = membership;
     return this;
   }

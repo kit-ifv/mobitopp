@@ -123,7 +123,7 @@ public class DefaultPersonFormatTest {
     assertValue(PersonBuilder::hasPersonalCar, person, originalPerson);
     assertValue(PersonBuilder::hasCommuterTicket, person, originalPerson);
     assertValue(PersonBuilder::getActivityPattern, person, originalPerson);
-    assertValue(PersonBuilder::getCarsharingMembership, person, originalPerson);
+    assertValue(PersonBuilder::getMobilityProviderMembership, person, originalPerson);
     assertEmobilityPersons(person, originalPerson);
   }
 

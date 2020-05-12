@@ -20,17 +20,20 @@ import au.com.bytecode.opencsv.CSVReader;
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.MaasDataForZone;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.local.LocalZoneRepository;
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
 import edu.kit.ifv.mobitopp.dataimport.AttractivitiesData;
+import edu.kit.ifv.mobitopp.dataimport.BikeSharingPropertiesData;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ConventionalCarFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.CsvDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataInput;
 import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingStation;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCar;
@@ -47,15 +50,21 @@ public class ZoneRepositorySerialiser {
 	private final File zoneRepositoryFolder;
 	private final ChargingDataFactory factory;
 	private final File attractivitiesDataFile;
+	private final File bikeSharingDataFile;
 	private final AreaTypeRepository areaTypeRepository;
+	private BikeSharingPropertiesData bikeSharingProperties;
 
 	public ZoneRepositorySerialiser(
-			File zoneRepositoryFolder, ChargingDataFactory factory, File attractivitiesDataFile,
-			AreaTypeRepository areaTypeRepository) {
+			final File zoneRepositoryFolder, 
+			final ChargingDataFactory factory, 
+			final File attractivitiesDataFile,
+			final File bikeSharingDataFile, 
+			final AreaTypeRepository areaTypeRepository) {
 		super();
 		this.zoneRepositoryFolder = zoneRepositoryFolder;
 		this.factory = factory;
 		this.attractivitiesDataFile = attractivitiesDataFile;
+		this.bikeSharingDataFile = bikeSharingDataFile;
 		this.areaTypeRepository = areaTypeRepository;
 	}
 
@@ -85,9 +94,22 @@ public class ZoneRepositorySerialiser {
 			CarSharingDataForZone carSharingDataForZone = new CarSharingDataForZone(zone,
 					stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
 					freeFloatingArea, freeFloatingCars, carsharingCarDensities);
+			zone.setBikeSharing(createBikeSharing(zone.getId()));
 			zone.setCarSharing(carSharingDataForZone);
 			zone.setMaas(MaasDataForZone.everywhereAvailable());
 		}
+	}
+
+	private BikeSharingDataForZone createBikeSharing(ZoneId zoneId) {
+		if (null == bikeSharingProperties) {
+			loadBikeSharingData();
+		}
+		return bikeSharingProperties.getData(zoneId);
+	}
+
+	private void loadBikeSharingData() {
+		StructuralData properties = new StructuralData(CsvFile.createFrom(bikeSharingDataFile));
+		bikeSharingProperties = new BikeSharingPropertiesData(properties);
 	}
 
 	private void loadStationBasedCars(

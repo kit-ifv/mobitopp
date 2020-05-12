@@ -156,7 +156,7 @@ public abstract class ExampleSetup {
     return new EmobilityPersonBuilder(personOf(household, personNumber, zone, ActivityType.WORK))
         .setEmobilityAcceptance(eMobilityAcceptance)
         .setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice)
-        .setCarsharingMembership(carSharingCustomership);
+        .setMobilityProviderMembership(carSharingCustomership);
 	}
 
 	public static Map<String, Boolean> carSharingCustomership() {

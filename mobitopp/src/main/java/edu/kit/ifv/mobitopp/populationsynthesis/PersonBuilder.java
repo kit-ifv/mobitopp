@@ -120,8 +120,8 @@ public interface PersonBuilder extends BasePerson {
 
 	boolean hasActivityOfTypes(Collection<ActivityType> activityTypes);
 
-	PersonBuilder setCarsharingMembership(Map<String, Boolean> membership);
+	PersonBuilder setMobilityProviderMembership(Map<String, Boolean> membership);
 
-	Map<String, Boolean> getCarsharingMembership();
+	Map<String, Boolean> getMobilityProviderMembership();
 
 }

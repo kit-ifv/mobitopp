@@ -341,7 +341,7 @@ public class LocalFiles implements DataSource {
 	private ZoneRepositorySerialiser createSerialiser(AreaTypeRepository areaTypeRepository) {
 		ChargingDataFactory factory = createChargingFactory();
 		return new ZoneRepositorySerialiser(zoneRepositoryFolder, factory, attractivityDataFile,
-				areaTypeRepository);
+				bikeSharingPropertiesDataFile, areaTypeRepository);
 	}
 
 	private ChargingDataFactory createChargingFactory() {
