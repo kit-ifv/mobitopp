@@ -44,8 +44,8 @@ public class StructuralDataTest {
 
   @Test
   public void valueOrDefault() {
-    int defaultValue = demographyData.valueOrDefault(firstZone, "job:infant");
-    int existingValue = demographyData.valueOrDefault(secondZone, "job:infant");
+    int defaultValue = demographyData.valueOrDefault(firstZone, "job:Infant");
+    int existingValue = demographyData.valueOrDefault(secondZone, "job:Infant");
 
     assertEquals(StructuralData.defaultValue, defaultValue);
     assertEquals(457, existingValue);
@@ -95,15 +95,15 @@ public class StructuralDataTest {
     List<String> attributes = demographyData.getAttributes();
 
 		assertThat(attributes)
-				.contains("zoneid", "name", "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18",
+				.contains("zoneId", "NAME", "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18",
 						"age_m:19-24", "age_m:25-29", "age_m:30-44", "age_m:45-59", "age_m:60-64",
 						"age_m:65-74", "age_m:75-", "age_f:0-5", "age_f:6-9", "age_f:10-15", "age_f:16-18",
 						"age_f:19-24", "age_f:25-29", "age_f:30-44", "age_f:45-59", "age_f:60-64",
 						"age_f:65-74", "age_f:75-", "household_size:1", "household_size:2", "household_size:3",
 						"household_size:4", "household_size:5", "household_size:6", "household_size:7",
 						"household_size:8", "household_size:9", "household_size:10", "household_size:11",
-						"household_size:12", "job:fulltime", "job:parttime", "job:none",
-						"job:education_tertiary", "job:education_secondary", "job:education_primary",
-						"job:education_occup", "job:retired", "job:infant");
+						"household_size:12", "job:FullTime", "job:PartTime", "job:None",
+						"job:Education_tertiary", "job:Education_secondary", "job:Education_primary",
+						"job:Education_occup", "job:Retired", "job:Infant");
   }
 }

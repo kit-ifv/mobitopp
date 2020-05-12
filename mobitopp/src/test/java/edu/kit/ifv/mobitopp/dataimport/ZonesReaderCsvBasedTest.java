@@ -28,6 +28,7 @@ import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
 import edu.kit.ifv.mobitopp.data.local.ChargingType;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
@@ -49,6 +50,7 @@ public class ZonesReaderCsvBasedTest {
   private VisumNetwork network;
   private SimpleRoadNetwork roadNetwork;
   private AttractivitiesData attractivityData;
+  private BikeSharingDataForZone bikeSharingData;
   private CarSharingDataForZone carSharingData;
   private ChargingDataBuilder chargingDataBuilder;
   private ChargingDataForZone chargingData;
@@ -58,6 +60,8 @@ public class ZonesReaderCsvBasedTest {
   private IdToOidMapper idToOid;
 	private StructuralData structuralData;
 	
+	@Mock
+	private BikeSharingDataRepository bikeSharingDataRepository;
 	@Mock
 	private CarSharingDataRepository carSharingDataRepository;
 	@Mock
@@ -87,6 +91,7 @@ public class ZonesReaderCsvBasedTest {
     roadNetwork = new SimpleRoadNetwork(network);
     structuralData = Example.attractivityData();
 		attractivityData = new AttractivitiesData(structuralData);
+		bikeSharingData = mock(BikeSharingDataForZone.class);
     carSharingData = mock(CarSharingDataForZone.class);
     chargingDataBuilder = mock(ChargingDataBuilder.class);
     chargingData = mock(ChargingDataForZone.class);
@@ -97,6 +102,7 @@ public class ZonesReaderCsvBasedTest {
     when(chargingDataBuilder.chargingData(any(), any())).thenReturn(chargingData);
     when(attractivitiesBuilder.attractivities(anyString())).thenReturn(attractivities);
     when(locationSelector.selectLocation(any(), any())).thenReturn(dummyLocation());
+    when(bikeSharingDataRepository.getData(any(), any(), any())).thenReturn(bikeSharingData);
     when(carSharingDataRepository.getData(any(), any(), any())).thenReturn(carSharingData);
     when(parkingFacilitiesDataRepository.getNumberOfParkingLots(any(), any())).thenReturn(parkingFacilities);
   }
@@ -117,6 +123,7 @@ public class ZonesReaderCsvBasedTest {
 				() -> assertThat(zone.getAreaType()).isEqualTo(ZoneAreaType.CITYOUTSKIRT),
 				() -> assertThat(zone.getRegionType()).isEqualTo(new DefaultRegionType(1)),
 				() -> assertThat(zone.getClassification()).isEqualTo(ZoneClassificationType.studyArea),
+				() -> assertThat(zone.bikeSharing()).isEqualTo(bikeSharingData),
 				() -> assertThat(zone.carSharing()).isEqualTo(carSharingData),
 				() -> assertThat(zone.charging()).isEqualTo(chargingData),
 				() -> assertThat(zone.attractivities()).isEqualTo(attractivities),
@@ -129,7 +136,7 @@ public class ZonesReaderCsvBasedTest {
 		ZonePropertiesData zoneProperties = new ZonePropertiesData(structuralData,
 				Example.areaTypeRepository());
 		return new ZonesReaderCsvBased(network, roadNetwork, zoneProperties, attractivityData,
-				parkingFacilitiesDataRepository, carSharingDataRepository, charging, defaultPower,
+				parkingFacilitiesDataRepository, bikeSharingDataRepository, carSharingDataRepository, charging, defaultPower,
 				idToOid) {
 
 			@Override

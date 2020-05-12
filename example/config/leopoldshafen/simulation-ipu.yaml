@@ -4,6 +4,7 @@ dataSource: !file
   attractivityDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
   zonePropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
   parkingFacilitiesDataFile: data/ipu/leopoldshafen/zoneproperties/parkingFacilities.csv
+  bikeSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/bikesharing-properties.csv
   carSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/carsharing-properties.csv
   carSharingStationsDataFile: data/ipu/leopoldshafen/zoneproperties/carsharing-stations.csv
   carSharingFreeFloatingDataFile: data/ipu/leopoldshafen/zoneproperties/carsharing-free-floating.csv

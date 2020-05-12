@@ -35,23 +35,23 @@ public class BikeSharingTrip extends BaseTrip implements Trip {
 		if (!bikeSharing.isBikeAvailableFor(person())) {
 			throw new IllegalStateException("No bike sharing bike is available for: " + person());
 		}
-		Bike bike = bikeSharing.bookFreeBike(person());
+		Bike bike = bikeSharing.bookBike(person());
 		person().useBike(bike, currentTime);
 	}
 
 	@Override
 	public FinishedTrip finish(Time currentDate, PersonListener listener) {
 		FinishedTrip finish = super.finish(currentDate, listener);
-		int bikeId = returnBike(currentDate);
+		String bikeId = returnBike(currentDate);
 		return new FinishedBikeSharingTrip(finish, bikeId);
 	}
 
-	private int returnBike(Time currentDate) {
+	private String returnBike(Time currentDate) {
 		Zone zone = nextActivity().zone();
 		Bike bike = person().whichBike();
 		if (zone.bikeSharing().isBikeSharingAreaFor(bike)) {
 			Bike releasedBike = person().releaseBike(currentDate);
-			releasedBike.returnBike(zone);
+			releasedBike.returnBike(zone.getId());
 			return releasedBike.getId();
 		}
 		Bike parkedBike = person().parkBike(zone, nextActivity().location(), currentDate);

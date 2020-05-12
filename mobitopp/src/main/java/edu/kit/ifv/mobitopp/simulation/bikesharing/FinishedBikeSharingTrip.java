@@ -8,16 +8,16 @@ import edu.kit.ifv.mobitopp.simulation.person.FinishedTripDecorator;
 
 public class FinishedBikeSharingTrip extends FinishedTripDecorator implements FinishedTrip {
 
-	private final int bikeId;
+	private final String bikeId;
 
-	public FinishedBikeSharingTrip(FinishedTrip trip, int bikeId) {
+	public FinishedBikeSharingTrip(FinishedTrip trip, String bikeId) {
 		super(trip);
 		this.bikeId = bikeId;
 	}
 
 	@Override
 	public Optional<String> vehicleId() {
-		return Optional.of(String.valueOf(bikeId));
+		return Optional.of(bikeId);
 	}
 
 	@Override
