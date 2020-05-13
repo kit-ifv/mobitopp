@@ -3,7 +3,7 @@ carOwnership:
   engine: config/leopoldshafen/parameters/SociodemographicCoefficients.txt
   ownership: config/leopoldshafen/parameters/CarOwnershipModelParameter.txt
   segment: config/leopoldshafen/parameters/LogitBasedCarSegmentModelParameter.txt
-#carSharing:
+#mobilityProviders:
 commuterTicket: config/leopoldshafen/parameters/TransitPassParameter.txt
 dataSource: !file
   demandDataFolder: output/demand-data-local
