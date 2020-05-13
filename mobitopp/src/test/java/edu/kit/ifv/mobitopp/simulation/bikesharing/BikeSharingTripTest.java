@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.bikesharing;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -19,24 +19,26 @@ public class BikeSharingTripTest {
 
 	private TripSetup tripSetup;
 	@Mock
-	private BikeSharingDataForZone bikeSharingData;
+	private BikeSharingDataForZone originData;
+	@Mock
+	private BikeSharingDataForZone destinationData;
 
 	@BeforeEach
 	void before() {
 		tripSetup = TripSetup.create();
-		tripSetup.zone.setBikeSharing(bikeSharingData);
+		tripSetup.origin.setBikeSharing(originData);
+		tripSetup.destination.setBikeSharing(destinationData);
 	}
 
 	@Test
 	void allocateBike() throws Exception {
-		tripSetup.configureCurrentActivity(ActivityType.HOME);
-		when(bikeSharingData.isBikeAvailableFor(tripSetup.person)).thenReturn(true);
+		when(originData.isBikeAvailableFor(tripSetup.person)).thenReturn(true);
 		BikeSharingTrip trip = new BikeSharingTrip(tripSetup.tripData, tripSetup.person);
 
 		trip.prepareTrip(tripSetup.impedance, tripSetup.currentTime);
 
-		verify(bikeSharingData).isBikeAvailableFor(tripSetup.person);
-		Bike bike = verify(bikeSharingData).bookBike(tripSetup.person);
+		verify(originData).isBikeAvailableFor(tripSetup.person);
+		Bike bike = verify(originData).bookBike(tripSetup.person);
 		verify(tripSetup.person).useBike(bike, tripSetup.currentTime);
 	}
 
@@ -48,12 +50,11 @@ public class BikeSharingTripTest {
 		trip.prepareTrip(tripSetup.impedance, tripSetup.currentTime);
 
 		verify(tripSetup.person).takeBikeFromParking();
-		verifyZeroInteractions(bikeSharingData);
+		verifyZeroInteractions(originData);
 	}
 
 	@Test
 	void failsForMissingBike() throws Exception {
-		tripSetup.configureCurrentActivity(ActivityType.HOME);
 		BikeSharingTrip trip = new BikeSharingTrip(tripSetup.tripData, tripSetup.person);
 
 		assertThrows(IllegalStateException.class,
@@ -62,18 +63,17 @@ public class BikeSharingTripTest {
 
 	@Test
 	void returnBikeToMobilityProvier() throws Exception {
-		tripSetup.configureNextActivity(ActivityType.HOME);
 		Bike bike = mock(Bike.class);
 		when(tripSetup.person.whichBike()).thenReturn(bike);
-		when(bikeSharingData.isBikeSharingAreaFor(bike)).thenReturn(true);
+		when(destinationData.isBikeSharingAreaFor(bike)).thenReturn(true);
 		when(tripSetup.person.releaseBike(tripSetup.currentTime)).thenReturn(bike);
 		BikeSharingTrip trip = new BikeSharingTrip(tripSetup.tripData, tripSetup.person);
 
 		trip.finish(tripSetup.currentTime, tripSetup.results);
 
-		verify(bikeSharingData).isBikeSharingAreaFor(bike);
+		verify(destinationData).isBikeSharingAreaFor(bike);
 		verify(tripSetup.person).releaseBike(tripSetup.currentTime);
-		verify(bike).returnBike(tripSetup.zone.getId());
+		verify(bike).returnBike(tripSetup.destination.getId());
 	}
 
 	@Test
@@ -81,14 +81,14 @@ public class BikeSharingTripTest {
 		tripSetup.configureNextActivity(ActivityType.WORK);
 		Bike bike = mock(Bike.class);
 		when(tripSetup.person.whichBike()).thenReturn(bike);
-		when(bikeSharingData.isBikeSharingAreaFor(bike)).thenReturn(false);
-		when(tripSetup.person.parkBike(tripSetup.zone, tripSetup.location, tripSetup.currentTime))
+		when(destinationData.isBikeSharingAreaFor(bike)).thenReturn(false);
+		when(tripSetup.person.parkBike(tripSetup.destination, tripSetup.end, tripSetup.currentTime))
 				.thenReturn(bike);
 		BikeSharingTrip trip = new BikeSharingTrip(tripSetup.tripData, tripSetup.person);
 
 		trip.finish(tripSetup.currentTime, tripSetup.results);
 
-		verify(bikeSharingData).isBikeSharingAreaFor(bike);
-		verify(tripSetup.person).parkBike(tripSetup.zone, tripSetup.location, tripSetup.currentTime);
+		verify(destinationData).isBikeSharingAreaFor(bike);
+		verify(tripSetup.person).parkBike(tripSetup.destination, tripSetup.end, tripSetup.currentTime);
 	}
 }
