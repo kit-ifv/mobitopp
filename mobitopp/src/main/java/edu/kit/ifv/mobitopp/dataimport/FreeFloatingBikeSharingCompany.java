@@ -43,18 +43,18 @@ public class FreeFloatingBikeSharingCompany implements BikeSharingCompany {
 	}
 
 	@Override
-	public boolean isBikeAvailableFor(Person person) {
-		ZoneId currentZone = person.currentActivity().zone().getId();
+	public boolean isBikeAvailableFor(Person person, ZoneId zoneId) {
+		ZoneId currentZone = zoneId;
 		return person.isMobilityProviderCustomer(companyName) && availableBikes.containsKey(currentZone)
 				&& !availableBikes.get(currentZone).isEmpty();
 	}
 
 	@Override
-	public Bike bookBikeFor(Person person) {
-		if (!isBikeAvailableFor(person)) {
+	public Bike bookBikeFor(Person person, ZoneId zoneId) {
+		if (!isBikeAvailableFor(person, zoneId)) {
 			throw new IllegalStateException("There is no bike available for " + person);
 		}
-		ZoneId currentZone = person.currentActivity().zone().getId();
+		ZoneId currentZone = zoneId;
 		return availableBikes.get(currentZone).removeFirst();
 	}
 

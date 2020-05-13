@@ -8,9 +8,9 @@ public interface BikeSharingCompany {
 
 	String name();
 
-	boolean isBikeAvailableFor(Person person);
+	boolean isBikeAvailableFor(Person person, ZoneId zoneId);
 
-	Bike bookBikeFor(Person person);
+	Bike bookBikeFor(Person person, ZoneId zoneId);
 
 	void returnBike(BikeSharingBike bike, ZoneId zone);
 
