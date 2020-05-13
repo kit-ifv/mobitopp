@@ -28,7 +28,7 @@ public class BikeSharingPropertiesData implements BikeSharingDataRepository {
 	public BikeSharingDataForZone getData(ZoneId zone) {
 		Map<String, Boolean> serviceArea = buildServiceAreaFor(zone);
 		Map<String, BikeSharingCompany> companies = buildCompanies(zone);
-		return new DefaultBikeSharingDataForZone(serviceArea, companies);
+		return new DefaultBikeSharingDataForZone(zone, serviceArea, companies);
 	}
 
 	Map<String, BikeSharingCompany> buildCompanies(ZoneId zoneId) {

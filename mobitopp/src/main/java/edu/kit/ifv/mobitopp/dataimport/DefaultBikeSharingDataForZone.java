@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
@@ -11,11 +12,13 @@ import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 
 public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 
+	private final ZoneId zoneId;
 	private final Map<String, Boolean> serviceArea;
 	private final Map<String, BikeSharingCompany> companies;
 
-	public DefaultBikeSharingDataForZone(
+	public DefaultBikeSharingDataForZone(ZoneId zoneId,
 			Map<String, Boolean> serviceArea, Map<String, BikeSharingCompany> companies) {
+		this.zoneId = zoneId;
 		this.serviceArea = serviceArea;
 		this.companies = companies;
 	}
@@ -31,16 +34,16 @@ public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 				.stream()
 				.filter(entry -> person.isMobilityProviderCustomer(entry.getKey()))
 				.map(Entry::getValue)
-				.filter(company -> company.isBikeAvailableFor(person));
+				.filter(company -> company.isBikeAvailableFor(person, zoneId));
 	}
 
 	@Override
 	public Bike bookBike(Person person) {
 		return availableCompaniesFor(person)
 				.findFirst()
-				.map(company -> company.bookBikeFor(person))
-				.orElseThrow(
-						() -> new IllegalArgumentException("There is no bike available for: " + person));
+				.map(company -> company.bookBikeFor(person, zoneId))
+				.orElseThrow(() -> new IllegalArgumentException(
+						String.format("There is no bike available in zone %s for person %s", zoneId, person)));
 	}
 
 	@Override
