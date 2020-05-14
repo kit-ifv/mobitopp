@@ -57,21 +57,21 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 	}
 
 	@Override
-	public void calculateDemandData(DemandZone forZone, ImpedanceIfc impedance) {
+	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
 		IterationBuilder builder = new IterationBuilder(panelData(), attributes());
-		Iteration iteration = builder.buildFor(forZone);
-		AttributeResolver attributeResolver = builder.createAttributeResolver(forZone);
-		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), logger(forZone));
+		Iteration iteration = builder.buildFor(zone);
+		AttributeResolver attributeResolver = builder.createAttributeResolverFor(zone);
+		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
 		List<WeightedHousehold> households = ipu
-				.adjustWeightsOf(households(forZone, attributeResolver));
-		create(households, forZone);
+				.adjustWeightsOf(householdsOf(zone, attributeResolver));
+		create(households, zone);
 	}
 
 	private List<AttributeType> attributes() {
 		return context.attributes();
 	}
 
-	private Logger logger(DemandZone forZone) {
+	private Logger loggerFor(DemandZone forZone) {
 		return message -> System.out.println(String.format("%s: %s", forZone.getId(), message));
 	}
 
@@ -109,7 +109,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		return dataRepository.panelDataRepository();
 	}
 
-	private List<WeightedHousehold> households(DemandZone zone, AttributeResolver attributeResolver) {
+	private List<WeightedHousehold> householdsOf(DemandZone zone, AttributeResolver attributeResolver) {
 		PanelDataRepository panelDataRepository = panelData();
 		AreaType areaType = zone.getAreaType();
 		List<String> householdAttributes = householdAttributesOf(zone);

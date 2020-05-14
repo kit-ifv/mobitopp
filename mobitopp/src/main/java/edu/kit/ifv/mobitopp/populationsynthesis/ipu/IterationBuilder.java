@@ -33,7 +33,7 @@ public class IterationBuilder {
     return types.stream().flatMap(type -> type.createAttributes(zone.nominalDemography()));
   }
 
-  public AttributeResolver createAttributeResolver(DemandZone forZone) {
+  public AttributeResolver createAttributeResolverFor(DemandZone forZone) {
     List<Attribute> attributes = attributes(forZone).collect(toList());
     return new DefaultAttributeResolver(attributes, panelDataRepository);
   }
