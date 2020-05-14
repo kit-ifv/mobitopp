@@ -8,12 +8,12 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 
-public class IterationBuilder {
+public class ZoneBasedIterationBuilder {
 
   private final PanelDataRepository panelDataRepository;
   private final List<AttributeType> types;
 
-  public IterationBuilder(PanelDataRepository panelDataRepository, List<AttributeType> types) {
+  public ZoneBasedIterationBuilder(PanelDataRepository panelDataRepository, List<AttributeType> types) {
     super();
     this.panelDataRepository = panelDataRepository;
     this.types = types;
