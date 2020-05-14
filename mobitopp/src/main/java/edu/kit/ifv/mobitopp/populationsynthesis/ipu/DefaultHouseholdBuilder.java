@@ -7,8 +7,8 @@ import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
