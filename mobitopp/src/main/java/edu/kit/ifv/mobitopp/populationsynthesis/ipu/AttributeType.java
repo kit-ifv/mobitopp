@@ -4,7 +4,6 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Attribute;
 
 public interface AttributeType {
 
