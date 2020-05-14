@@ -67,7 +67,10 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		steps.add(storeData());
 		steps.add(cleanData());
 		DemandDataForZoneCalculatorIfc zoneCalculator = createZoneCalculator();
-		return new IsolatedZonesCommunityDemandCalculator(communityRepository, zoneCalculator, steps, impedance());
+		DemandDataForCommunityCalculator communityCalculator = new IsolatedZonesCommunityDemandCalculator(
+				zoneCalculator);
+		return new CommunityDemandCalculator(communityRepository, communityCalculator, steps,
+				impedance());
 	}
 
 	private DefaultCommunityRepository loadCommunities() {
