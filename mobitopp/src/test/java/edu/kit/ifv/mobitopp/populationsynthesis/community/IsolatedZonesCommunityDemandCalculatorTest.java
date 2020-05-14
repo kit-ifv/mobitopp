@@ -18,7 +18,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 @ExtendWith(MockitoExtension.class)
-public class CommunityDemandCalculatorTest {
+public class IsolatedZonesCommunityDemandCalculatorTest {
 
 	private static final String communityId = "1";
 	
@@ -42,7 +42,7 @@ public class CommunityDemandCalculatorTest {
 		Community someCommunity = new MultipleZones(communityId, someZone, otherZone);
 		when(communityToZone.getCommunities()).thenReturn(asList(someCommunity));
 		List<PopulationSynthesisStep> steps = asList(firstStep, secondStep);
-		CommunityDemandCalculator calculator = new CommunityDemandCalculator(communityToZone,
+		IsolatedZonesCommunityDemandCalculator calculator = new IsolatedZonesCommunityDemandCalculator(communityToZone,
 				zoneCalculator, steps, impedance);
 
 		calculator.calculateDemand();

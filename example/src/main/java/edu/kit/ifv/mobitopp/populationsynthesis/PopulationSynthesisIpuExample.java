@@ -21,7 +21,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarO
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityDemandCalculator;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.IsolatedZonesCommunityDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityOdPairCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityRelationsParser;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityZoneMappingParser;
@@ -67,7 +67,7 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 		steps.add(storeData());
 		steps.add(cleanData());
 		DemandDataForZoneCalculatorIfc zoneCalculator = createZoneCalculator();
-		return new CommunityDemandCalculator(communityRepository, zoneCalculator, steps, impedance());
+		return new IsolatedZonesCommunityDemandCalculator(communityRepository, zoneCalculator, steps, impedance());
 	}
 
 	private DefaultCommunityRepository loadCommunities() {

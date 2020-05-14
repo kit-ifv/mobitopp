@@ -8,14 +8,14 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
-public class CommunityDemandCalculator implements DemandDataCalculator {
+public class IsolatedZonesCommunityDemandCalculator implements DemandDataCalculator {
 
 	private final DemandDataForZoneCalculatorIfc zoneCalculator;
 	private final List<PopulationSynthesisStep> steps;
 	private final ImpedanceIfc impedance;
 	private final CommunityRepository communities;
 
-	public CommunityDemandCalculator(
+	public IsolatedZonesCommunityDemandCalculator(
 			CommunityRepository communities, DemandDataForZoneCalculatorIfc zoneCalculator,
 			List<PopulationSynthesisStep> steps, ImpedanceIfc impedance) {
 		this.communities = communities;
