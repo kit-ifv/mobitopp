@@ -18,7 +18,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.HouseholdBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ZoneBasedIterationBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
@@ -58,7 +58,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 
 	@Override
 	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
-		IterationBuilder builder = new IterationBuilder(panelData(), attributes());
+		ZoneBasedIterationBuilder builder = new ZoneBasedIterationBuilder(panelData(), attributes());
 		Iteration iteration = builder.buildFor(zone);
 		AttributeResolver attributeResolver = builder.createAttributeResolverFor(zone);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
