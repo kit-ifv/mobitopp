@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyZoneIdCheckerTest {

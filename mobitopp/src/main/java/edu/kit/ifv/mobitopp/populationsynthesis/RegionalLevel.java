@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static java.util.stream.Collectors.toMap;
 

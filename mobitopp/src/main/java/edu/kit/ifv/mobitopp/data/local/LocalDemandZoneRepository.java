@@ -21,7 +21,7 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {

@@ -1,9 +1,6 @@
 package edu.kit.ifv.mobitopp.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.LinkedHashMap;
@@ -49,22 +46,22 @@ public class DemandZoneTest {
   @Test
   public void employmentDistribution() {
     EmploymentDistribution expectedEmployment = EmploymentDistribution.createDefault();
-    DemandZone data = newDataFor(zone);
+    DemandRegion data = newDataFor(zone);
 
     EmploymentDistribution distribution = data.actualDemography().employment();
 
-    assertThat(distribution, is(equalTo(expectedEmployment)));
+    assertThat(distribution).isEqualTo(expectedEmployment);
   }
 
   @Test
   public void householdDistribution() {
     int nominalAmount = 2;
     nominalHousehold.addItem(householdItem(nominalAmount));
-    DemandZone data = newDataFor(zone);
+    DemandRegion data = newDataFor(zone);
 
     RangeDistributionIfc distribution = data.actualDemography().household();
 
-    assertThat(distribution, is(equalTo(expectedHousehold())));
+    assertThat(distribution).isEqualTo(expectedHousehold());
   }
 
   private RangeDistributionIfc expectedHousehold() {
@@ -82,11 +79,11 @@ public class DemandZoneTest {
   public void femaleAgeDistribution() {
     int nominalAmount = 3;
     nominalFemale.addItem(newAgeItem(nominalAmount));
-    DemandZone data = newDataFor(zone);
+    DemandRegion data = newDataFor(zone);
 
     RangeDistributionIfc distribution = data.actualDemography().femaleAge();
 
-    assertThat(distribution, is(equalTo(expectedFemale())));
+    assertThat(distribution).isEqualTo(expectedFemale());
   }
 
   private RangeDistributionIfc expectedFemale() {
@@ -103,11 +100,11 @@ public class DemandZoneTest {
   public void maleAgeDistribution() {
     int nominalAmount = 4;
     nominalMale.addItem(newAgeItem(nominalAmount));
-    DemandZone data = newDataFor(zone);
+    DemandRegion data = newDataFor(zone);
 
     RangeDistributionIfc distribution = data.actualDemography().maleAge();
 
-    assertThat(distribution, is(equalTo(expectedMale())));
+    assertThat(distribution).isEqualTo(expectedMale());
   }
   
   @Test
@@ -125,7 +122,7 @@ public class DemandZoneTest {
     return expectedMale;
   }
 
-  private DemandZone newDataFor(Zone zone) {
+  private DemandRegion newDataFor(Zone zone) {
     return newDataFor(zone, true);
   }
   

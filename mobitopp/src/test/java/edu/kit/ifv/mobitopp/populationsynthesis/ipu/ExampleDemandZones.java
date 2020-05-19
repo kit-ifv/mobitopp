@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
@@ -92,7 +93,7 @@ public class ExampleDemandZones {
     return someZone;
   }
 
-  public DemandZone otherZone() {
+  public DemandRegion otherZone() {
     return otherZone;
   }
 

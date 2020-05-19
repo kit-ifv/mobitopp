@@ -3,9 +3,10 @@ package edu.kit.ifv.mobitopp.data;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
-public class DemandZone {
+public class DemandZone implements DemandRegion {
 
   private final Zone zone;
   private final Demography nominalDemography;
@@ -24,6 +25,16 @@ public class DemandZone {
   
   public DemandZone(final Zone zone, final Demography nominalDemand) {
     this(zone, nominalDemand, true);
+  }
+  
+  @Override
+  public RegionalLevel regionalLevel() {
+  	return RegionalLevel.zone;
+  }
+  
+  @Override
+  public String getExternalId() {
+  	return getId().getExternalId();
   }
 
   public ZoneId getId() {
@@ -50,11 +61,13 @@ public class DemandZone {
     return zone.getDemandData();
   }
 
-  public Demography nominalDemography() {
+  @Override
+	public Demography nominalDemography() {
     return nominalDemography;
   }
 
-  public Demography actualDemography() {
+  @Override
+	public Demography actualDemography() {
     return actualDemography;
   }
 

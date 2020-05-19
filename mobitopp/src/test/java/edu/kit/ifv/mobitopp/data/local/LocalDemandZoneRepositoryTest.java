@@ -13,6 +13,7 @@ import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -23,7 +24,7 @@ import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
@@ -89,7 +90,7 @@ public class LocalDemandZoneRepositoryTest {
 		DemandZoneRepository demandRepository = newDemandRepository();
 		
 		DemandZone byExternalId = demandRepository.zoneByExternalId("1").get();
-		DemandZone byId = demandRepository.zoneById(byExternalId.getId()).get();
+		DemandRegion byId = demandRepository.zoneById(byExternalId.getId()).get();
 		assertThat(byExternalId).isSameAs(byId);
 	}
 	
