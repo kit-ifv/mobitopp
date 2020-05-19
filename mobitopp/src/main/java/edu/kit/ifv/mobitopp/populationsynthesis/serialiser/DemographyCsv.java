@@ -5,11 +5,12 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.data.DemandZone;
-import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.demand.DemandModelDistributionItemIfc;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
@@ -21,19 +22,21 @@ import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 public class DemographyCsv {
 
   private final List<AttributeType> attributeTypes;
-  private final DemandZoneRepository zoneRepository;
+  private final Supplier<List<? extends DemandRegion>> demandSupplier;
 
-  public DemographyCsv(List<AttributeType> attributeTypes, DemandZoneRepository zoneRepository) {
+	public DemographyCsv(
+			final List<AttributeType> attributeTypes,
+			final Supplier<List<? extends DemandRegion>> demandSupplier) {
     super();
     this.attributeTypes = attributeTypes;
-    this.zoneRepository = zoneRepository;
+    this.demandSupplier = demandSupplier;
   }
 
   public List<String> createHeader() {
-    DemandZone demandZone = zoneRepository.getZones().iterator().next();
+    DemandRegion demandZone = demandSupplier.get().iterator().next();
     Demography demography = demandZone.actualDemography();
     return StreamUtils
-        .concat(Stream.of("externalId", "matrixColumn"),
+        .concat(Stream.of("externalId"),
             attributes().flatMap(type -> headerOf(demography, type)))
         .map(String::valueOf)
         .collect(toList());
@@ -45,26 +48,22 @@ public class DemographyCsv {
   }
 
   public void serialiseActual(Consumer<String> results) {
-    CsvBuilder line = new CsvBuilder();
-    for (DemandZone demandZone : zoneRepository.getZones()) {
-      Demography demography = demandZone.actualDemography();
-      line.append(demandZone.getId().getExternalId());
-      line.append(demandZone.getId().getMatrixColumn());
-      write(demography, line);
-    }
-    results.accept(line.toString());
+  	results.accept(serialised(DemandRegion::actualDemography));
   }
 
-  public void serialiseNominal(Consumer<String> toWriter) {
-    CsvBuilder line = new CsvBuilder();
-    for (DemandZone demandZone : zoneRepository.getZones()) {
-      Demography demography = demandZone.nominalDemography();
-      line.append(demandZone.getId().getExternalId());
-      line.append(demandZone.getId().getMatrixColumn());
+  public void serialiseNominal(Consumer<String> results) {
+  	results.accept(serialised(DemandRegion::nominalDemography));
+  }
+
+	private String serialised(Function<DemandRegion, Demography> toDemography) {
+		CsvBuilder line = new CsvBuilder();
+    for (DemandRegion region : demandSupplier.get()) {
+      Demography demography = toDemography.apply(region);
+      line.append(region.getExternalId());
       write(demography, line);
     }
-    toWriter.accept(line.toString());
-  }
+		return line.toString();
+	}
 
   private void write(Demography demography, CsvBuilder line) {
     line.newLine(serialised(demography));

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -153,7 +154,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		}
 	}
 
-	private void recalculateHouseholdWeights(DemandZone zone) {
+	private void recalculateHouseholdWeights(DemandRegion zone) {
 
 		RangeDistributionIfc hhDistribution = getNominalHouseholdDistribution(zone);
 
@@ -348,23 +349,23 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 		return householdCache.get(domCodeType_);
 	}
 
-  private void incrementHousehold(DemandZone zone, HouseholdOfPanelData householdOfPanelData) {
+  private void incrementHousehold(DemandRegion zone, HouseholdOfPanelData householdOfPanelData) {
     zone.actualDemography().increment(domCode, householdOfPanelData.domCode());
   }
 
-	private RangeDistributionIfc getNominalHouseholdDistribution(DemandZone zone) {
+	private RangeDistributionIfc getNominalHouseholdDistribution(DemandRegion zone) {
     return zone.nominalDemography().getDistribution(domCode);
 	}
 
-	private EmploymentDistribution getNominalEmploymentDistribution(DemandZone zone) {
+	private EmploymentDistribution getNominalEmploymentDistribution(DemandRegion zone) {
 		return zone.nominalDemography().employment();
 	}
 
-	private RangeDistributionIfc getNominalMaleAgeDistribution(DemandZone zone) {
+	private RangeDistributionIfc getNominalMaleAgeDistribution(DemandRegion zone) {
 		return zone.nominalDemography().maleAge();
 	}
 
-	private RangeDistributionIfc getNominalFemaleAgeDistribution(DemandZone zone) {
+	private RangeDistributionIfc getNominalFemaleAgeDistribution(DemandRegion zone) {
 		return zone.nominalDemography().femaleAge();
 	}
 

@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyFilesCheckerTest {

@@ -1,6 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
-import static edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel.community;
+import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;

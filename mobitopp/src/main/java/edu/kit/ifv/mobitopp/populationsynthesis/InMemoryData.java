@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 
 public class InMemoryData implements DemographyData {

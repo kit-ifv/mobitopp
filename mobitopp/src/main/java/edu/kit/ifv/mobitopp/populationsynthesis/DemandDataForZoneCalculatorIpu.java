@@ -7,11 +7,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultHouseholdBuilder;
@@ -19,10 +19,10 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.HouseholdBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ZoneBasedIterationBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ZoneBasedIterationBuilder;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -91,7 +91,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		return create.demandFor(households, distribution);
 	}
 
-	private RangeDistributionIfc householdDistributionFor(DemandZone forZone) {
+	private RangeDistributionIfc householdDistributionFor(DemandRegion forZone) {
 		return forZone.nominalDemography().getDistribution(householdFilterType);
 	}
 
@@ -118,7 +118,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 				.forAreaType(areaType);
 	}
 
-	private List<String> householdAttributesOf(DemandZone zone) {
+	private List<String> householdAttributesOf(DemandRegion zone) {
 		RangeDistributionIfc distribution = householdDistributionFor(zone);
 		return distribution.items().map(householdFilterType::createInstanceName).collect(toList());
 	}

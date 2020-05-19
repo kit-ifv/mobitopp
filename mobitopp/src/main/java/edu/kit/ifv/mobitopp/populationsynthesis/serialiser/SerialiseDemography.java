@@ -16,7 +16,7 @@ public class SerialiseDemography {
   public SerialiseDemography(List<AttributeType> attributeTypes, DemandZoneRepository zoneRepository, ResultWriter resultWriter) {
     super();
     this.resultWriter = resultWriter;
-    demographyCsv = new DemographyCsv(attributeTypes, zoneRepository);
+    demographyCsv = new DemographyCsv(attributeTypes, zoneRepository::getZones);
   }
 
   public void serialiseDemography() {
