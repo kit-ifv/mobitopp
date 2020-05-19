@@ -16,7 +16,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 
-public class ZoneBasedIterationBuilderTest {
+public class IterationBuilderTest {
 
   private DemandZone zone;
   private RangeDistributionIfc household;
@@ -36,15 +36,16 @@ public class ZoneBasedIterationBuilderTest {
     panelDataRepository = mock(PanelDataRepository.class);
   }
 
-  @Test
-  public void createsIterationForVariousTypes() {
-    List<AttributeType> types = asList(StandardAttribute.householdSize, StandardAttribute.income,
-        StandardAttribute.femaleAge, StandardAttribute.maleAge);
-    Iteration iteration = new ZoneBasedIterationBuilder(panelDataRepository, types).buildFor(zone);
+	@Test
+	public void createsIterationForVariousTypes() {
+		List<AttributeType> types = List
+				.of(StandardAttribute.householdSize, StandardAttribute.income, StandardAttribute.femaleAge,
+						StandardAttribute.maleAge);
+		Iteration iteration = IterationBuilder.forZone(panelDataRepository, types).buildFor(zone);
 
-    Iteration expectedIteration = createExpectedIteration();
-    assertThat(iteration, is(equalTo(expectedIteration)));
-  }
+		Iteration expectedIteration = createExpectedIteration();
+		assertThat(iteration, is(equalTo(expectedIteration)));
+	}
 
   private Iteration createExpectedIteration() {
     List<Constraint> constraints = new ArrayList<>();
@@ -63,7 +64,7 @@ public class ZoneBasedIterationBuilderTest {
   @Test
   public void createsIterationForSingleType() {
     List<AttributeType> types = asList(StandardAttribute.householdSize);
-    Iteration iteration = new ZoneBasedIterationBuilder(panelDataRepository, types).buildFor(zone);
+    Iteration iteration = IterationBuilder.forZone(panelDataRepository, types).buildFor(zone);
 
     Iteration expectedIteration = createExpectedSingleTypeIteration();
     assertThat(iteration, is(equalTo(expectedIteration)));
