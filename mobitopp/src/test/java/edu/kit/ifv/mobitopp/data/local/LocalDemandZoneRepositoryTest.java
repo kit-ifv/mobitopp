@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
@@ -36,16 +37,17 @@ public class LocalDemandZoneRepositoryTest {
 
 	@BeforeEach
 	public void initialise() throws IOException {
+		RegionalLevel level = RegionalLevel.zone;
 		zones = new ArrayList<>();
 		zoneRepository = mock(ZoneRepository.class);
 		createZones();
 		demographyData = new InMemoryData();
-		demographyData.store(StandardAttribute.householdSize, Example.demographyData());
-		demographyData.store(StandardAttribute.maleAge, Example.demographyData());
-		demographyData.store(StandardAttribute.femaleAge, Example.demographyData());
-		demographyData.store(StandardAttribute.employment, Example.demographyData());
-		demographyData.store(StandardAttribute.income, Example.demographyData());
-		expectedDemography = new DemographyBuilder(demographyData).build("1");
+		demographyData.store(level, StandardAttribute.householdSize, Example.demographyData());
+		demographyData.store(level, StandardAttribute.maleAge, Example.demographyData());
+		demographyData.store(level, StandardAttribute.femaleAge, Example.demographyData());
+		demographyData.store(level, StandardAttribute.employment, Example.demographyData());
+		demographyData.store(level, StandardAttribute.income, Example.demographyData());
+		expectedDemography = new DemographyBuilder(demographyData).getDemographyFor(level, "1");
 		zoneProperties = new StructuralData(
 				CsvFile.createFrom(getClass().getResourceAsStream("ZoneProperties.csv")));
 	}

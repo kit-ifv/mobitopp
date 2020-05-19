@@ -15,10 +15,12 @@ import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
-public class DemographyBuilder {
+public class DemographyBuilder implements DemographyRepository {
 
   private static final AttributeType employment = StandardAttribute.employment;
 
@@ -28,17 +30,18 @@ public class DemographyBuilder {
     super();
     this.demographyData = demographyData;
   }
-
-  public Demography build(String forZoneId) {
-    if (demographyData.hasData(forZoneId)) {
-      return createDemography(forZoneId);
-    }
-    return createEmptyDemography();
+  
+  @Override
+  public Demography getDemographyFor(RegionalLevel level, String id) {
+  	if (demographyData.hasData(level, id)) {
+		  return createDemography(level, id);
+		}
+		return createEmptyDemography(level);
   }
 
-  Demography createEmptyDemography() {
+  Demography createEmptyDemography(RegionalLevel level) {
     EmploymentDistribution employment = EmploymentDistribution.createDefault();
-    Map<AttributeType, RangeDistributionIfc> rangeDistributions = rangeAttributes()
+    Map<AttributeType, RangeDistributionIfc> rangeDistributions = rangeAttributes(level)
         .stream()
         .collect(Collectors
             .toMap(Function.identity(), item -> new RangeDistribution(), uniqueDistributions(),
@@ -46,8 +49,8 @@ public class DemographyBuilder {
     return new Demography(employment, rangeDistributions);
   }
 
-  private List<AttributeType> rangeAttributes() {
-    List<AttributeType> attributes = new ArrayList<>(demographyData.attributes());
+  private List<AttributeType> rangeAttributes(RegionalLevel level) {
+    List<AttributeType> attributes = new ArrayList<>(demographyData.attributes(level));
     attributes.remove(employment);
     return attributes;
   }
@@ -61,30 +64,31 @@ public class DemographyBuilder {
     };
   }
 
-  private Demography createDemography(String zoneId) {
-    EmploymentDistribution employment = parseJobDistribution(zoneId);
+  private Demography createDemography(RegionalLevel level, String zoneId) {
+    EmploymentDistribution employment = parseJobDistribution(level, zoneId);
     Map<AttributeType, RangeDistributionIfc> rangeDistributions = parseDistributions(
-        zoneId);
+        level, zoneId);
     return new Demography(employment, rangeDistributions);
   }
 
-  private Map<AttributeType, RangeDistributionIfc> parseDistributions(String zoneId) {
-    return rangeAttributes()
+	private Map<AttributeType, RangeDistributionIfc> parseDistributions(
+			RegionalLevel level, String zoneId) {
+    return rangeAttributes(level)
         .stream()
-        .collect(toMap(Function.identity(), item -> parseDistribution(zoneId, item),
+        .collect(toMap(Function.identity(), item -> parseDistribution(level, zoneId, item),
             uniqueDistributions(), TreeMap::new));
   }
 
-  private EmploymentDistribution parseJobDistribution(String zoneId) {
-    if (demographyData.hasAttribute(employment)) {
-      StructuralData structuralData = demographyData.get(employment);
+  private EmploymentDistribution parseJobDistribution(RegionalLevel level, String zoneId) {
+    if (demographyData.hasAttribute(level, employment)) {
+      StructuralData structuralData = demographyData.get(level, employment);
       return new EmploymentDistributionBuilder(structuralData, employment).build(zoneId);
     }
     return EmploymentDistribution.createDefault();
   }
 
-  private RangeDistributionIfc parseDistribution(String zoneId, AttributeType type) {
-    StructuralData structuralData = demographyData.get(type);
+  private RangeDistributionIfc parseDistribution(RegionalLevel level, String zoneId, AttributeType type) {
+    StructuralData structuralData = demographyData.get(level, type);
     return new RangeDistributionBuilder(structuralData, type)
         .buildFor(zoneId, RangeDistribution::new);
   }

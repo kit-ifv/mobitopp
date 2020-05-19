@@ -8,13 +8,15 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class DemographyDataBuilder {
 
-  private final WrittenConfiguration configuration;
+  static final String seperator = ":";
+	private final WrittenConfiguration configuration;
   private final DataFactory dataFactory;
 
   public DemographyDataBuilder(WrittenConfiguration configuration, DataFactory dataFactory) {
@@ -34,18 +36,33 @@ public class DemographyDataBuilder {
   public DemographyData build() {
     Map<String, String> input = configuration.getDemographyData();
     TreeMap<String, String> sorted = new TreeMap<>(input);
-    InMemoryData data = new InMemoryData();
+    InMemoryData toData = new InMemoryData();
     for (Entry<String, String> entry : sorted.entrySet()) {
-      String filePath = entry.getValue();
-      StructuralData structuralData = createStructuralData(filePath);
-      String attributeName = entry.getKey();
-      AttributeType type = createType(attributeName);
-      data.store(type, structuralData);
+      add(entry, toData);
     }
-    return data;
+    return toData;
   }
 
-  private AttributeType createType(String attributeName) {
+	private void add(Entry<String, String> entry, InMemoryData data) {
+		String filePath = entry.getValue();
+		StructuralData structuralData = createStructuralData(filePath);
+		String attributeName = entry.getKey();
+		RegionalLevel level = createRegionalLevel(attributeName);
+		AttributeType type = createType(attributeName);
+		data.store(level, type, structuralData);
+	}
+
+  private RegionalLevel createRegionalLevel(String attributeName) {
+  	String[] split = attributeName.split(seperator);
+  	if (1 == split.length) {
+  		return RegionalLevel.zone;
+  	}
+		return RegionalLevel.levelOf(split[0]);
+	}
+
+	private AttributeType createType(String attribute) {
+		String[] split = attribute.split(seperator);
+		String attributeName = split[split.length - 1];
     return Arrays
         .stream(StandardAttribute.values())
         .filter(type -> attributeName.equals(type.attributeName()))

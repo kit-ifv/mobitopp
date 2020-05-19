@@ -1,38 +1,39 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class InMemoryDataTest {
 
   private static final AttributeType type = StandardAttribute.income;
+  private static final RegionalLevel level = RegionalLevel.zone;
 
   @Test
   public void holdsStructuralData() {
     StructuralData addedData = Example.demographyData();
     InMemoryData data = new InMemoryData();
 
-    data.store(type, addedData);
-    StructuralData structuralData = data.get(type);
+		data.store(level, type, addedData);
+    StructuralData structuralData = data.get(level, type);
 
-    assertThat(structuralData, is(sameInstance(addedData)));
+    assertThat(structuralData).isSameAs(addedData);
   }
 
   @Test
   public void hasNoData() {
     InMemoryData data = new InMemoryData();
 
-    assertFalse(data.hasData("1"));
+    assertFalse(data.hasData(level, "1"));
   }
 
   @Test
@@ -40,9 +41,12 @@ public class InMemoryDataTest {
     StructuralData addedData = Example.demographyData();
     InMemoryData data = new InMemoryData();
 
-    data.store(type, addedData);
+    data.store(level, type, addedData);
 
-    assertTrue(data.hasData("1"));
+    assertAll(
+    	() -> assertTrue(data.hasData(level, "1")),
+    	() -> assertFalse(data.hasData(RegionalLevel.community, "1"))
+    );
   }
   
   @Test
@@ -50,15 +54,32 @@ public class InMemoryDataTest {
     StructuralData addedData = Example.demographyData();
     InMemoryData data = new InMemoryData();
 
-    data.store(type, addedData);
+    data.store(level, type, addedData);
 
-    assertTrue(data.hasAttribute(type));
+    assertAll(
+    	() -> assertTrue(data.hasAttribute(level, type)),
+    	() -> assertFalse(data.hasAttribute(RegionalLevel.community, type))
+    );
   }
   
   @Test
   public void hasNoAttribute() {
     InMemoryData data = new InMemoryData();
     
-    assertFalse(data.hasAttribute(type));
+    assertFalse(data.hasAttribute(level, type));
   }
+  
+  @Test
+	void storeDataForDifferentRegionalLevels() throws Exception {
+    StructuralData zoneDemography = Example.demographyData();
+    StructuralData communityDemography = Example.missingAgeGroup();
+    InMemoryData data = new InMemoryData();
+
+		data.store(RegionalLevel.community, type, communityDemography);
+		data.store(RegionalLevel.zone, type, zoneDemography);
+		assertAll(
+	    () -> assertThat(data.get(RegionalLevel.community, type)).isSameAs(communityDemography),
+	    () -> assertThat(data.get(RegionalLevel.zone, type)).isSameAs(zoneDemography)
+    );
+	}
 }

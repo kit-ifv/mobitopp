@@ -1,59 +1,73 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasItem;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
+@ExtendWith(MockitoExtension.class)
 public class DemographyContentCheckerTest {
 
-  private DemographyData data;
-  private DemographyContentChecker checker;
+	@Mock
+	private DemographyData data;
+	private DemographyContentChecker checker;
 
-  @Before
-  public void initialise() {
-    data = mock(DemographyData.class);
-    checker = new DemographyContentChecker();
-  }
+	@BeforeEach
+	public void initialise() {
+		checker = new DemographyContentChecker();
+	}
 
-  @Test
-  public void checkDemographyContainsAttributesOfType() {
-    when(data.attributes()).thenReturn(asList(StandardAttribute.femaleAge));
-    when(data.get(StandardAttribute.femaleAge)).thenReturn(Example.demographyData());
+	@Test
+	public void checkDemographyContainsAttributesOfType() {
+		StructuralData communityData = Example.demographyData();
+		StructuralData zoneData = Example.demographyData();
+		when(data.attributes(RegionalLevel.community)).thenReturn(asList(StandardAttribute.femaleAge));
+		when(data.attributes(RegionalLevel.zone)).thenReturn(asList(StandardAttribute.householdSize));
+		when(data.get(RegionalLevel.community, StandardAttribute.femaleAge)).thenReturn(communityData);
+		when(data.get(RegionalLevel.zone, StandardAttribute.householdSize)).thenReturn(zoneData);
 
-    checker.verify(data);
-  }
+		checker.verify(data);
+	}
 
-  @Test(expected = IllegalArgumentException.class)
-  public void failsForMissingAttributeType() {
-    when(data.attributes()).thenReturn(asList(StandardAttribute.distance));
-    when(data.get(StandardAttribute.distance)).thenReturn(Example.demographyData());
+	@Test
+	public void failsForMissingAttributeType() {
+		when(data.attributes(RegionalLevel.community)).thenReturn(List.of(StandardAttribute.domCode));
+		when(data.attributes(RegionalLevel.zone)).thenReturn(List.of(StandardAttribute.distance));
+		when(data.get(RegionalLevel.community, StandardAttribute.domCode))
+				.thenReturn(Example.demographyData());
+		when(data.get(RegionalLevel.zone, StandardAttribute.distance))
+				.thenReturn(Example.demographyData());
 
-    checker.verify(data);
-  }
+		assertThrows(IllegalArgumentException.class, () -> checker.verify(data));
+	}
 
-  @Test
-  public void calculateMissingAttributes() {
-    when(data.attributes())
-        .thenReturn(asList(StandardAttribute.distance, StandardAttribute.femaleAge));
-    StructuralData structuralData = Example.demographyData();
-    when(data.get(StandardAttribute.distance)).thenReturn(structuralData);
-    when(data.get(StandardAttribute.femaleAge)).thenReturn(structuralData);
+	@Test
+	public void calculateMissingAttributes() {
+		when(data.attributes(RegionalLevel.community)).thenReturn(List.of(StandardAttribute.domCode));
+		when(data.attributes(RegionalLevel.zone))
+				.thenReturn(asList(StandardAttribute.distance, StandardAttribute.femaleAge));
+		StructuralData structuralData = Example.demographyData();
+		when(data.get(RegionalLevel.community, StandardAttribute.domCode)).thenReturn(structuralData);
+		when(data.get(RegionalLevel.zone, StandardAttribute.distance)).thenReturn(structuralData);
+		when(data.get(RegionalLevel.zone, StandardAttribute.femaleAge)).thenReturn(structuralData);
 
-    List<AttributeType> missingAttributes = checker.calculateMissingAttributes(data);
+		List<AttributeType> missingAttributes = checker.calculateMissingAttributes(data);
 
-    assertThat(missingAttributes, hasItem(StandardAttribute.distance));
-  }
+		assertThat(missingAttributes).contains(StandardAttribute.domCode, StandardAttribute.distance);
+	}
 
 }

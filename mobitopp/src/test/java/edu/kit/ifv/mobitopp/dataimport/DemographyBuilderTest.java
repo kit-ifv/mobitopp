@@ -10,6 +10,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyBuilderTest {
@@ -21,20 +22,21 @@ public class DemographyBuilderTest {
     DemographyBuilder builder = new DemographyBuilder(data);
 
     String zone = Example.someZone;
-    Demography demography = builder.build(zone);
+    Demography demography = builder.getDemographyFor(RegionalLevel.zone, zone);
 
-    assertThat(demography, is(builder.createEmptyDemography()));
+    assertThat(demography, is(builder.createEmptyDemography(RegionalLevel.zone)));
   }
   
   @Test
-  public void buildEmploymentIfExisting() {
-    DemographyData data = mock(DemographyData.class);
-    String zone = Example.someZone;
-    when(data.hasData(zone)).thenReturn(true);
-    when(data.get(StandardAttribute.householdSize)).thenReturn(Example.demographyData());
-    
+	public void buildEmploymentIfExisting() {
+		DemographyData data = mock(DemographyData.class);
+		String zone = Example.someZone;
+		when(data.hasData(RegionalLevel.zone, zone)).thenReturn(true);
+		when(data.get(RegionalLevel.zone, StandardAttribute.householdSize))
+				.thenReturn(Example.demographyData());
+
     DemographyBuilder builder = new DemographyBuilder(data);
-    Demography demography = builder.build(zone);
+    Demography demography = builder.getDemographyFor(RegionalLevel.zone, zone);
     
     assertThat(demography.employment(), is(EmploymentDistribution.createDefault()));
   }

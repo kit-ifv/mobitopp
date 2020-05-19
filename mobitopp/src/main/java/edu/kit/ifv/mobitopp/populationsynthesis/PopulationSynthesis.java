@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.PopulationSynthesisStep;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
@@ -123,12 +124,12 @@ public abstract class PopulationSynthesis {
   protected void executeBeforeCreation() {
   }
 
-  private void doExecuteAfterCreation() {
-    SerialiseDemography serialiser = new SerialiseDemography(context.attributes(), context.zoneRepository(),
-        context.resultWriter());
-    serialiser.serialiseDemography();
-    executeAfterCreation();
-  }
+	private void doExecuteAfterCreation() {
+		SerialiseDemography serialiser = new SerialiseDemography(context.attributes(RegionalLevel.zone),
+				context.zoneRepository(), context.resultWriter());
+		serialiser.serialiseDemography();
+		executeAfterCreation();
+	}
 
   protected void executeAfterCreation() {
   }

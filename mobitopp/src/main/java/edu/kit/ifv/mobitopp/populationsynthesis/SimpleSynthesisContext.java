@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -27,15 +28,16 @@ public class SimpleSynthesisContext implements SynthesisContext {
   private final Map<String, MobilityProviderCustomerModel> carSharing;
   private final PopulationSynthesisParser format;
   private final File carEngineFile;
-  private final List<AttributeType> attributes;
+	private final Map<RegionalLevel, List<AttributeType>> attributes;
 
-  SimpleSynthesisContext(
-      WrittenConfiguration configuration, DynamicParameters experimentalParameters,
-      VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
-      DataRepositoryForPopulationSynthesis dataRepository,
-      Map<String, MobilityProviderCustomerModel> carSharing, File carEngineFile,
-      List<AttributeType> attributes, PopulationSynthesisParser format, ResultWriter resultWriter) {
-    super();
+	SimpleSynthesisContext(
+			final WrittenConfiguration configuration, final DynamicParameters experimentalParameters,
+			final VisumNetwork visumNetwork, final SimpleRoadNetwork roadNetwork,
+			final DataRepositoryForPopulationSynthesis dataRepository,
+			final Map<String, MobilityProviderCustomerModel> carSharing, final File carEngineFile,
+			final Map<RegionalLevel, List<AttributeType>> attributes,
+			final PopulationSynthesisParser format, final ResultWriter resultWriter) {
+		super();
     this.configuration = configuration;
     this.experimentalParameters = experimentalParameters;
     this.visumNetwork = visumNetwork;
@@ -104,8 +106,8 @@ public class SimpleSynthesisContext implements SynthesisContext {
   }
 
   @Override
-  public List<AttributeType> attributes() {
-    return attributes;
+  public List<AttributeType> attributes(RegionalLevel level) {
+    return attributes.get(level);
   }
 
   @Override

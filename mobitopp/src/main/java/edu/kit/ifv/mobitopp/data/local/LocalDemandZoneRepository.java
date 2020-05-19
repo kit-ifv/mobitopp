@@ -21,6 +21,7 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {
@@ -91,7 +92,8 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 
 	private static DemandZone createZone(
 			Zone zone, DemographyData demographyData, StructuralData zoneProperties) {
-		Demography demography = new DemographyBuilder(demographyData).build(idOf(zone));
+		Demography demography = new DemographyBuilder(demographyData)
+				.getDemographyFor(RegionalLevel.zone, idOf(zone));
 		boolean generatePopulation = shouldGeneratePopulation(zone, zoneProperties);
 		return new DemandZone(zone, demography, generatePopulation);
 	}

@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultHouseholdBuilder;
@@ -68,7 +69,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 	}
 
 	private List<AttributeType> attributes() {
-		return context.attributes();
+		return context.attributes(RegionalLevel.zone);
 	}
 
 	private Logger loggerFor(DemandZone forZone) {
