@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -26,6 +27,8 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.local.configuration.FileMatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
@@ -38,6 +41,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
@@ -208,6 +212,7 @@ public class LocalFiles implements DataSource {
 			throws IOException {
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		Matrices matrices = matrices(modeToType);
+		DemographyRepository demographyRepository = demographyRepository(demographyData);
 		ZoneRepository zoneRepository = loadZonesFromVisum(visumNetwork, roadNetwork,
 				areaTypeRepository, matrices);
 		initialiseResultWriting(zoneRepository, results, electricChargingWriter);
@@ -215,9 +220,10 @@ public class LocalFiles implements DataSource {
 				numberOfZones, zoneProperties);
 		ImpedanceIfc impedance = impedance(input, matrices, zoneRepository, wrapImpedance);
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones, personChanger);
-		DemandDataRepository demandRepository = new SerialisingDemandRepository(demandData.serialiseAsCsv());
-		return new LocalDataForPopulationSynthesis(matrices, demandZoneRepository, panelDataRepository,
-				impedance, demandRepository, results);
+		DemandDataRepository demandRepository = new SerialisingDemandRepository(
+				demandData.serialiseAsCsv());
+		return new LocalDataForPopulationSynthesis(matrices, demographyRepository, demandZoneRepository,
+				panelDataRepository, impedance, demandRepository, results);
 	}
 
 	private DemandZoneRepository demandZoneRepository(
@@ -245,6 +251,10 @@ public class LocalFiles implements DataSource {
 		File configFile = matrixConfigurationFile;
 		File matrixFolder = configFile.getParentFile();
 		return FileMatrixConfiguration.from(configFile, matrixFolder);
+	}
+
+	private DemographyRepository demographyRepository(DemographyData demographyData) {
+		return (level, id) -> new Demography(EmploymentDistribution.createDefault(), emptyMap());
 	}
 
 	private ZoneRepository loadZonesFromVisum(

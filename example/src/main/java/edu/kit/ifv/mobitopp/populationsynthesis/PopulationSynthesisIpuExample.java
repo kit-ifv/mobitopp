@@ -75,7 +75,8 @@ public class PopulationSynthesisIpuExample extends PopulationSynthesis {
 
 	private DefaultCommunityRepository loadCommunities() {
 		File mappingFile = context().experimentalParameters().valueAsFile("communityToZone");
-		Map<String, Community> communities = new CommunityZoneMappingParser(demandZoneRepository())
+		Map<String, Community> communities = new CommunityZoneMappingParser(demandZoneRepository(),
+				dataRepository().demographyRepository())
 				.parse(mappingFile);
 		File communityRelationsFile = context()
 				.experimentalParameters()

@@ -8,43 +8,33 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
-public class PersonAttribute implements Attribute {
+public class PersonAttribute extends NamedAttribute implements Attribute {
 
-  private final AttributeType attributeType;
-  private final int lowerBound;
-  private final int upperBound;
-  private final Function<PersonOfPanelData, Integer> personValue;
+	private final Function<PersonOfPanelData, Integer> personValue;
 
-  public PersonAttribute(
-      AttributeType attributeType, int lowerBound, int upperBound,
-      Function<PersonOfPanelData, Integer> personValue) {
-    super();
-    this.attributeType = attributeType;
-    this.lowerBound = lowerBound;
-    this.upperBound = upperBound;
-    this.personValue = personValue;
-  }
+	public PersonAttribute(
+			final AttributeContext context, final AttributeType attributeType, final int lowerBound,
+			final int upperBound, final Function<PersonOfPanelData, Integer> personValue) {
+		super(context, attributeType, lowerBound, upperBound);
+		this.personValue = personValue;
+	}
 
-  @Override
-  public Constraint createConstraint(Demography demography) {
-    int requestedWeight = demography.getDistribution(attributeType).amount(lowerBound);
-    return new PersonConstraint(requestedWeight, name());
-  }
+	@Override
+	public Constraint createConstraint(final Demography demography) {
+		int requestedWeight = demography.getDistribution(attributeType).amount(lowerBound);
+		return new PersonConstraint(requestedWeight, name());
+	}
 
-  @Override
-  public int valueFor(HouseholdOfPanelData household, PanelDataRepository panelDataRepository) {
-    List<PersonOfPanelData> persons = panelDataRepository.getPersonsOfHousehold(household.id());
-    return Math
-        .toIntExact(persons
-            .stream()
-            .filter(person -> personValue.apply(person) >= lowerBound)
-            .filter(person -> personValue.apply(person) <= upperBound)
-            .count());
-  }
-
-  @Override
-  public String name() {
-    return attributeType.createInstanceName(lowerBound, upperBound);
-  }
+	@Override
+	public int valueFor(
+			final HouseholdOfPanelData household, final PanelDataRepository panelDataRepository) {
+		List<PersonOfPanelData> persons = panelDataRepository.getPersonsOfHousehold(household.id());
+		return Math
+				.toIntExact(persons
+						.stream()
+						.filter(person -> personValue.apply(person) >= lowerBound)
+						.filter(person -> personValue.apply(person) <= upperBound)
+						.count());
+	}
 
 }

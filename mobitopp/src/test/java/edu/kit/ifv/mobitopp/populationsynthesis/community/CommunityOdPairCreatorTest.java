@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 
@@ -32,7 +33,8 @@ public class CommunityOdPairCreatorTest {
 	public void beforeEach() {
 		otherZone = ExampleDemandZones.create().getOtherZone();
 		noWorkZone = ExampleDemandZones.create().getZoneWithoutLocations();
-		otherCommunity = new MultipleZones("community", otherZone, noWorkZone);
+		Demography someDemography = otherZone.nominalDemography();
+		otherCommunity = new MultipleZones("community", someDemography, otherZone, noWorkZone);
 	}
 
 	@Test

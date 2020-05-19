@@ -2,13 +2,20 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.PersonOfPanelDataBuilder.personOfPanelData;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
@@ -18,16 +25,26 @@ import edu.kit.ifv.mobitopp.populationsynthesis.PersonOfPanelDataBuilder;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
+@ExtendWith(MockitoExtension.class)
 public class FemaleAgeTest {
 
-  @Test
+	@Mock
+  private AttributeContext context;
+
+	@BeforeEach
+	public void initialise() {
+		lenient().when(context.name()).thenReturn("my-context-1");
+	}
+
+	@Test
   public void createsConstraint() {
     Demography demography = ExampleDemandZones.create().someZone().nominalDemography();
     FemaleAge femaleAge = newAttribute();
 
     Constraint constraint = femaleAge.createConstraint(demography);
 
-    assertThat(constraint, is(equalTo(new PersonConstraint(2, femaleAge.name()))));
+    assertThat(constraint).isEqualTo(new PersonConstraint(2, femaleAge.name()));
+    verify(context, times(2)).name();
   }
 
   @Test
@@ -55,6 +72,6 @@ public class FemaleAgeTest {
   }
 
   private FemaleAge newAttribute() {
-    return new FemaleAge(StandardAttribute.femaleAge, 0, 5);
+    return new FemaleAge(context, StandardAttribute.femaleAge, 0, 5);
   }
 }

@@ -8,27 +8,23 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
-public class FemaleAge implements Attribute {
+public class FemaleAge extends NamedAttribute implements Attribute {
 
-  private final AttributeType attributeType;
-  private final int lowerBound;
-  private final int upperBound;
+	public FemaleAge(
+			final AttributeContext context, final AttributeType attributeType, final int lowerBound,
+			final int upperBound) {
+		super(context, attributeType, lowerBound, upperBound);
+	}
 
-  public FemaleAge(AttributeType attributeType, int lowerBound, int upperBound) {
-    super();
-    this.attributeType = attributeType;
-    this.lowerBound = lowerBound;
-    this.upperBound = upperBound;
-  }
+	@Override
+	public int valueFor(
+			final HouseholdOfPanelData household, final PanelDataRepository panelDataRepository) {
+		List<PersonOfPanelData> persons = panelDataRepository.getPersonsOfHousehold(household.id());
+		return valueFor(persons);
+	}
 
-  @Override
-  public int valueFor(HouseholdOfPanelData household, PanelDataRepository panelDataRepository) {
-    List<PersonOfPanelData> persons = panelDataRepository.getPersonsOfHousehold(household.id());
-    return valueFor(persons);
-  }
-
-  private int valueFor(List<PersonOfPanelData> persons) {
-    return Math
+	private int valueFor(final List<PersonOfPanelData> persons) {
+	  return Math
         .toIntExact(persons
             .stream()
             .filter(person -> person.age() >= lowerBound)
@@ -38,14 +34,9 @@ public class FemaleAge implements Attribute {
   }
 
   @Override
-  public Constraint createConstraint(Demography demography) {
+  public Constraint createConstraint(final Demography demography) {
     int requestedWeight = demography.femaleAge().amount(lowerBound);
     return new PersonConstraint(requestedWeight, name());
-  }
-
-  @Override
-  public String name() {
-    return attributeType.createInstanceName(lowerBound, upperBound);
   }
 
 }

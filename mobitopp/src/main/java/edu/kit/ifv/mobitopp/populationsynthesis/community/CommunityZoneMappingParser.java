@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel.community;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
@@ -20,11 +22,14 @@ public class CommunityZoneMappingParser {
 	private static final String communityColumn = "communityId";
 	private static final String zoneColumn = "zoneId";
 	private final DemandZoneRepository zoneRepository;
+	private final DemographyRepository demographyRepository;
 	private final Map<String, CommunityZones> communityZones;
 
-	public CommunityZoneMappingParser(final DemandZoneRepository zoneRepository) {
+	public CommunityZoneMappingParser(
+			final DemandZoneRepository zoneRepository, final DemographyRepository demographyRepository) {
 		super();
 		this.zoneRepository = zoneRepository;
+		this.demographyRepository = demographyRepository;
 		communityZones = new LinkedHashMap<>();
 	}
 
@@ -33,7 +38,7 @@ public class CommunityZoneMappingParser {
 		return communityZones
 				.entrySet()
 				.stream()
-				.collect(toMap(e -> e.getKey(), e -> e.getValue().build()));
+				.collect(toMap(e -> e.getKey(), e -> e.getValue().build(demographyRepository)));
 	}
 
 	Stream<Row> load(final File mappingFile) {
@@ -68,8 +73,9 @@ public class CommunityZoneMappingParser {
 			zones = new LinkedList<>();
 		}
 
-		public Community build() {
-			return new MultipleZones(id, zones);
+		public Community build(DemographyRepository demographyRepository) {
+			Demography demography = demographyRepository.getDemographyFor(community, id);
+			return new MultipleZones(id, demography, zones);
 		}
 	}
 
