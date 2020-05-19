@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +30,15 @@ public class DefaultAttributeResolver implements AttributeResolver {
 			resolvedAttributes.put(attribute.name(), amount);
 		}
 		return resolvedAttributes;
+	}
+
+	@Override
+	public List<Attribute> attributesOf(AttributeType attributeType) {
+		return attributes
+				.stream()
+				.filter(attribute -> attribute.attributeType().equals(attributeType))
+				.sorted(Comparator.comparing(Attribute::name))
+				.collect(toList());
 	}
 
 }

@@ -19,24 +19,24 @@ public class DemandCreator {
 	private final HouseholdBuilder householdBuilder;
 	private final PanelDataRepository panelData;
 	private final WeightedHouseholdSelector householdSelector;
-	private final AttributeType attributeType;
+	private final List<Attribute> attributes;
 	private final Predicate<HouseholdOfPanelData> householdFilter;
 
 	public DemandCreator(
 			final HouseholdBuilder householdBuilder, final PanelDataRepository panelDataRepository,
-			final WeightedHouseholdSelector householdSelector, final AttributeType attributeType,
+			final WeightedHouseholdSelector householdSelector, final List<Attribute> householdAttributes,
 			final Predicate<HouseholdOfPanelData> householdFilter) {
 		super();
 		this.householdBuilder = householdBuilder;
 		this.panelData = panelDataRepository;
 		this.householdSelector = householdSelector;
-		this.attributeType = attributeType;
+		this.attributes = householdAttributes;
 		this.householdFilter = householdFilter;
 	}
 
 	public DemandCreator(
 			final HouseholdBuilder householdBuilder, final WeightedHouseholdSelector householdSelector,
-			final AttributeType attributeType, final PanelDataRepository panelData) {
+			final List<Attribute> attributeType, final PanelDataRepository panelData) {
 		this(householdBuilder, panelData, householdSelector, attributeType, acceptAll);
 	}
 
@@ -62,8 +62,10 @@ public class DemandCreator {
 	}
 
 	private boolean filterType(WeightedHousehold household, RangeDistributionItem item) {
-		String instanceName = attributeType.createInstanceName(item);
-		return household.attribute(instanceName) > 0;
+		return attributes
+				.stream()
+				.filter(attribute -> attribute.matches(item))
+				.anyMatch(attribute -> 0 < household.attribute(attribute.name()));
 	}
 
 }

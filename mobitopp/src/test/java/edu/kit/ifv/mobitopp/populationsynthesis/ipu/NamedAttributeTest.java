@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,6 +30,18 @@ public class NamedAttributeTest {
 		type = StandardAttribute.householdSize;
 		lowerBound = 1;
 		upperBound = lowerBound;
+	}
+	
+	@Test
+	void matchesDistributionItem() throws Exception {
+		Attribute attribute = newAttribute();
+		
+		RangeDistributionItem matchingItem = new RangeDistributionItem(lowerBound, upperBound, 1);
+		RangeDistributionItem notMatchingItem = new RangeDistributionItem(lowerBound - 1, upperBound - 1, 1);
+		assertAll(
+			() -> assertThat(attribute.matches(matchingItem)).isTrue(),
+			() -> assertThat(attribute.matches(notMatchingItem)).isFalse()
+		);
 	}
 
 	@Test
