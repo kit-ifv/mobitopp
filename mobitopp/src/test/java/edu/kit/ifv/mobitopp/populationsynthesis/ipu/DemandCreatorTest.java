@@ -2,11 +2,9 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.HouseholdOfPanelDataBuilder.householdOfPanelData;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonMap;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,6 +51,7 @@ public class DemandCreatorTest {
 	private WeightedHousehold first;
 	private WeightedHousehold second;
 	private WeightedHousehold third;
+	private List<Attribute> householdAttributes;
 
 	@BeforeEach
 	public void initialise() {
@@ -62,6 +61,10 @@ public class DemandCreatorTest {
 		firstHousehold = ExampleHousehold.createHousehold(dummyZone(), firstId());
 		secondHousehold = ExampleHousehold.createHousehold(dummyZone(), secondId());
 		thirdHousehold = ExampleHousehold.createHousehold(dummyZone(), thirdId());
+		householdAttributes = StandardAttribute.householdSize
+				.createAttributes(ExampleDemandZones.create().someZone().nominalDemography(),
+						() -> "my-context-1")
+				.collect(toList());
 
 		configureMockObjects();
 	}
@@ -98,7 +101,7 @@ public class DemandCreatorTest {
 
 		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
 
-		assertThat(newHouseholds, hasSize(amount));
+		assertThat(newHouseholds).hasSize(amount);
 	}
 
 	@Test
@@ -114,7 +117,7 @@ public class DemandCreatorTest {
 
 		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
 
-		assertThat(newHouseholds, hasSize(amount));
+		assertThat(newHouseholds).hasSize(amount);
 	}
 
 	@Test
@@ -130,12 +133,11 @@ public class DemandCreatorTest {
 
 		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
 
-		assertThat(newHouseholds, is(empty()));
+		assertThat(newHouseholds).isEmpty();
 	}
 
 	private DemandCreator newCreator() {
-		return new DemandCreator(builder, panelData, householdSelector, StandardAttribute.householdSize,
-				filter);
+		return new DemandCreator(builder, panelData, householdSelector, householdAttributes, filter);
 	}
 
 	private RangeDistributionIfc householdDistributionFor(HouseholdOfPanelData... panelHousehold) {
@@ -159,9 +161,10 @@ public class DemandCreatorTest {
 	}
 
 	private Map<String, Integer> attributes(HouseholdOfPanelData panelHousehold) {
-		String type = StandardAttribute.householdSize
-				.createInstanceName(panelHousehold.size(), panelHousehold.size());
-		return singletonMap(type, 1);
+		return householdAttributes
+				.stream()
+				.collect(
+						toMap(Attribute::name, attribute -> attribute.valueFor(panelHousehold, panelData)));
 	}
 
 	private HouseholdOfPanelDataId secondId() {

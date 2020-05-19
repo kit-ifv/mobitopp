@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Attribute;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultHouseholdBuilder;
@@ -65,7 +66,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
 		List<WeightedHousehold> households = ipu
 				.adjustWeightsOf(householdsOf(zone, attributeResolver));
-		create(households, zone);
+		create(households, zone, attributeResolver);
 	}
 
 	private List<AttributeType> attributes() {
@@ -76,17 +77,18 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		return message -> System.out.println(String.format("%s: %s", forZone.getId(), message));
 	}
 
-	private void create(List<WeightedHousehold> households, DemandZone forZone) {
-		List<HouseholdForSetup> demand = createDemand(households, forZone);
+	private void create(List<WeightedHousehold> households, DemandZone forZone, AttributeResolver attributeResolver) {
+		List<HouseholdForSetup> demand = createDemand(households, forZone, attributeResolver);
 		save(demand, forZone);
 	}
 
 	private List<HouseholdForSetup> createDemand(
-			List<WeightedHousehold> households, DemandZone zone) {
+			List<WeightedHousehold> households, DemandZone zone, AttributeResolver attributeResolver) {
 		HouseholdBuilder usingBuilder = new DefaultHouseholdBuilder(zone, householdCreator,
 				personCreator, panelData());
+		List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
 		DemandCreator create = new DemandCreator(usingBuilder, panelData(), householdSelector,
-				householdFilterType, householdFilter.apply(zone));
+				householdAttributes, householdFilter.apply(zone));
 		RangeDistributionIfc distribution = householdDistributionFor(zone);
 		return create.demandFor(households, distribution);
 	}
