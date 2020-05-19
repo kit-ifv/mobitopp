@@ -1,9 +1,6 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -47,22 +44,22 @@ public class DemographyTest {
 
 	@Test
 	public void employment() {
-		assertThat(demandModel.employment(), is(sameInstance(employment)));
+		assertThat(demandModel.employment()).isSameAs(employment);
 	}
 
 	@Test
 	public void household() {
-		assertThat(demandModel.household(), is(sameInstance(household)));
+		assertThat(demandModel.household()).isSameAs(household);
 	}
 
 	@Test
 	public void femaleAge() {
-		assertThat(demandModel.femaleAge(), is(sameInstance(femaleAge)));
+		assertThat(demandModel.femaleAge()).isSameAs(femaleAge);
 	}
 
 	@Test
 	public void maleAge() {
-		assertThat(demandModel.maleAge(), is(sameInstance(maleAge)));
+		assertThat(demandModel.maleAge()).isSameAs(maleAge);
 	}
 	
 	@Test
@@ -73,7 +70,7 @@ public class DemographyTest {
 		demandModel.incrementHousehold(type);
 		int actualAmount = demandModel.household().amount(type);
 		
-		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
 	
 	@Test
@@ -84,7 +81,7 @@ public class DemographyTest {
 		demandModel.incrementEmployment(employment);
 		int actualAmount = demandModel.employment().amount(employment);
 
-		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
 	
 	@Test
@@ -95,7 +92,7 @@ public class DemographyTest {
     demandModel.increment(StandardAttribute.householdSize, size);
     int actualAmount = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
     
-    assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+    assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
   }
 	
 	@Test
@@ -105,7 +102,7 @@ public class DemographyTest {
     demandModel.increment(StandardAttribute.income, income);
     int actualAmount = demandModel.getDistribution(StandardAttribute.income).amount(income);
     
-    assertThat(actualAmount, is(equalTo(1)));
+    assertThat(actualAmount).isEqualTo(1);
   }
 	
 	@Test
@@ -116,7 +113,7 @@ public class DemographyTest {
 		demandModel.incrementAge(Gender.FEMALE, age);
 		int actualAmount = demandModel.femaleAge().amount(age);
 		
-		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
 	
 	@Test
@@ -127,13 +124,14 @@ public class DemographyTest {
 		demandModel.incrementAge(Gender.MALE, age);
 		int actualAmount = demandModel.maleAge().amount(age);
 		
-		assertThat(actualAmount, is(equalTo(beforeIncrement + 1)));
+		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
 	
 	@Test
   public void createsEmpty() {
     Demography empty = demandModel.createEmpty();
     
-    assertThat(empty.femaleAge(), is(equalTo(femaleAge.createEmpty())));
+    assertThat(empty.femaleAge()).isEqualTo(femaleAge.createEmpty());
   }
+	
 }

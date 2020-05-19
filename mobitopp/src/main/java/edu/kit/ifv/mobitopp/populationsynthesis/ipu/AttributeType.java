@@ -11,7 +11,7 @@ public interface AttributeType {
 
   String prefix();
 
-  Stream<Attribute> createAttributes(Demography demography);
+  Stream<Attribute> createAttributes(Demography demography, AttributeContext context);
 
   String createInstanceName(int lowerBound, int upperBound);
 

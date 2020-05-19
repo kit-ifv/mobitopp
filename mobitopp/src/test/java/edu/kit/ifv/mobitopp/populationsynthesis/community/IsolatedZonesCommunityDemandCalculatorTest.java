@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -26,7 +27,8 @@ public class IsolatedZonesCommunityDemandCalculatorTest {
 	void calculateDemand() throws Exception {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
-		Community someCommunity = new MultipleZones(communityId, someZone, otherZone);
+		Demography someDemography = someZone.nominalDemography();
+		Community someCommunity = new MultipleZones(communityId, someDemography, someZone, otherZone);
 		IsolatedZonesCommunityDemandCalculator calculator = new IsolatedZonesCommunityDemandCalculator(
 				zoneCalculator);
 

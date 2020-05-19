@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +12,14 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 
 public class SingleZoneTest {
 
+	@Test
+	void idIsEqualToZoneId() throws Exception {
+		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		SingleZone singleZone = new SingleZone(someZone);
+		
+		assertThat(singleZone.getId()).isEqualTo(someZone.getId().getExternalId());
+	}
+	
 	@Test
 	void contains() throws Exception {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();

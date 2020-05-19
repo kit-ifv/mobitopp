@@ -17,33 +17,25 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulationSynthesis {
 
 	private static final EnumSet<ActivityType> usedTypes = EnumSet.of(WORK, EDUCATION_PRIMARY,
 			EDUCATION_SECONDARY, EDUCATION_TERTIARY, EDUCATION_OCCUP, EDUCATION);
 
 	private final Matrices matrices;
+	private final DemographyRepository demographyRepository;
 	private final DemandZoneRepository zoneRepository;
+	private final PanelDataRepository panelDataRepository;
 	private final ImpedanceIfc impedance;
 	private final DemandDataRepository demandDataRepository;
-	private final PanelDataRepository panelDataRepository;
 	private final ResultWriter results;
-
-	public LocalDataForPopulationSynthesis(
-			Matrices matrices, DemandZoneRepository zoneRepository, PanelDataRepository panelDataRepository,
-			ImpedanceIfc impedance, DemandDataRepository demandDataRepository, ResultWriter results) {
-		super();
-		this.matrices = matrices;
-		this.zoneRepository = zoneRepository;
-		this.panelDataRepository = panelDataRepository;
-		this.impedance = impedance;
-		this.demandDataRepository = demandDataRepository;
-		this.results = results;
-	}
 
 	@Override
 	public Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices() {
@@ -54,6 +46,11 @@ public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulat
 		}
 		return typeToMatrix;
 	}
+  
+	@Override
+  public DemographyRepository demographyRepository() {
+  	return demographyRepository;
+  }
 
 	@Override
 	public DemandDataRepository demandDataRepository() {

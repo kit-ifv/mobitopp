@@ -77,22 +77,27 @@ public class ZoneBasedIterationBuilderTest {
   }
 
   private Constraint femaleConstraintFor(int lower, int upper) {
-    return new PersonConstraint(femaleAge.getItem(lower).amount(),
-        StandardAttribute.femaleAge.prefix() + lower + "-" + upper);
+    String name = name(StandardAttribute.femaleAge, lower, upper);
+		return new PersonConstraint(femaleAge.getItem(lower).amount(), name);
   }
 
   private Constraint maleConstraintFor(int lower, int upper) {
-    return new PersonConstraint(maleAge.getItem(lower).amount(),
-        StandardAttribute.maleAge.prefix() + lower + "-" + upper);
+    String name = name(StandardAttribute.maleAge, lower, upper);
+		return new PersonConstraint(maleAge.getItem(lower).amount(), name);
   }
 
   private Constraint householdConstraintFor(int type) {
-    return new HouseholdConstraint(household.getItem(type).amount(),
-        StandardAttribute.householdSize.prefix() + type + "-" + type);
+    String name = name(StandardAttribute.householdSize, type, type);
+		return new HouseholdConstraint(household.getItem(type).amount(), name);
   }
 
   private Constraint incomeConstraintFor(int lower, int upper) {
-    return new HouseholdConstraint(income.getItem(lower).amount(),
-        StandardAttribute.income.prefix() + lower + "-" + upper);
+    String name = name(StandardAttribute.income, lower, upper);
+		return new HouseholdConstraint(income.getItem(lower).amount(), name);
   }
+
+	private String name(StandardAttribute attribute, int lower, int upper) {
+		return "zone" + zone.getId().getExternalId() + NamedAttribute.nameSeparator + attribute.prefix()
+				+ lower + "-" + upper;
+	}
 }

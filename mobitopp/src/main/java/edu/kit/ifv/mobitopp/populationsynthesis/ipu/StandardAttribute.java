@@ -10,122 +10,135 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public enum StandardAttribute implements AttributeType {
 
-  domCode("dom_code") {
+	domCode("dom_code") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return createHouseholdAttributes(demography, HouseholdOfPanelData::domCode);
-    }
-  },
-  householdSize("household_size") {
-
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return createHouseholdAttributes(demography, HouseholdOfPanelData::size);
-    }
-  },
-	householdType("household_type") {
-	
-	  @Override
-	  public Stream<Attribute> createAttributes(Demography demography) {
-	    return createHouseholdAttributes(demography, HouseholdOfPanelData::type);
-	  }
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::domCode);
+		}
 	},
-  income("income") {
+	householdSize("household_size") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return createHouseholdAttributes(demography, HouseholdOfPanelData::income);
-    }
-  },
-  femaleAge("age_f") {
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::size);
+		}
+	},
+	householdType("household_type") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return demography
-          .femaleAge()
-          .items()
-          .map(item -> new FemaleAge(this, item.lowerBound(), item.upperBound()));
-    }
-  },
-  maleAge("age_m") {
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::type);
+		}
+	},
+	income("income") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return demography
-          .maleAge()
-          .items()
-          .map(item -> new MaleAge(this, item.lowerBound(), item.upperBound()));
-    }
-  },
-  employment("job") {
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::income);
+		}
+	},
+	femaleAge("age_f") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return Stream.empty();
-    }
-  },
-  distance("distance") {
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return demography
+					.femaleAge()
+					.items()
+					.map(item -> new FemaleAge(context, this, item.lowerBound(), item.upperBound()));
+		}
+	},
+	maleAge("age_m") {
 
-    @Override
-    public Stream<Attribute> createAttributes(Demography demography) {
-      return createPersonAttributes(demography, person -> (int) person.getPoleDistance());
-    }
-  };
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return demography
+					.maleAge()
+					.items()
+					.map(item -> new MaleAge(context, this, item.lowerBound(), item.upperBound()));
+		}
+	},
+	employment("job") {
 
-  private final String attributeName;
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return Stream.empty();
+		}
+	},
+	distance("distance") {
 
-  private StandardAttribute(String attributeName) {
-    this.attributeName = attributeName;
-  }
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final AttributeContext context) {
+			return createPersonAttributes(context, demography, person -> (int) person.getPoleDistance());
+		}
+	};
 
-  @Override
-  public String attributeName() {
-    return attributeName;
-  }
+	private final String attributeName;
 
-  @Override
-  public String prefix() {
-    return attributeName + ":";
-  }
-  
-  @Override
-  public String createInstanceName(int lowerBound, int upperBound) {
-    return prefix() + lowerBound + "-" + upperBound;
-  }
-  
-  @Override
-  public String createInstanceName(RangeDistributionItem item) {
-    return createInstanceName(item.lowerBound(), item.upperBound());
-  }
+	private StandardAttribute(final String attributeName) {
+		this.attributeName = attributeName;
+	}
 
-  Stream<Attribute> createPersonAttributes(
-      Demography demography, Function<PersonOfPanelData, Integer> valueOfPerson) {
-    return demography
-        .getDistribution(this)
-        .items()
-        .map(item -> createPersonAttribute(valueOfPerson, item));
-  }
+	@Override
+	public String attributeName() {
+		return attributeName;
+	}
 
-  private PersonAttribute createPersonAttribute(
-      Function<PersonOfPanelData, Integer> personValue, RangeDistributionItem item) {
-    return new PersonAttribute(this, item.lowerBound(), item.upperBound(), personValue);
-  }
+	@Override
+	public String prefix() {
+		return attributeName + ":";
+	}
 
-  Stream<Attribute> createHouseholdAttributes(
-      Demography demography, Function<HouseholdOfPanelData, Integer> valueOfHousehold) {
-    return demography
-        .getDistribution(this)
-        .items()
-        .map(item -> createHouseholdAttribute(valueOfHousehold, item));
-  }
+	@Override
+	public String createInstanceName(final int lowerBound, final int upperBound) {
+		return prefix() + lowerBound + "-" + upperBound;
+	}
 
-  private DynamicHouseholdAttribute createHouseholdAttribute(
-      Function<HouseholdOfPanelData, Integer> valueOfHousehold, RangeDistributionItem item) {
-    return new DynamicHouseholdAttribute(this, item.lowerBound(), item.upperBound(),
-        valueOfHousehold);
-  }
+	@Override
+	public String createInstanceName(final RangeDistributionItem item) {
+		return createInstanceName(item.lowerBound(), item.upperBound());
+	}
 
-  @Override
-  public abstract Stream<Attribute> createAttributes(Demography demography);
+	Stream<Attribute> createPersonAttributes(
+			final AttributeContext context, final Demography demography,
+			final Function<PersonOfPanelData, Integer> valueOfPerson) {
+		return demography
+				.getDistribution(this)
+				.items()
+				.map(item -> createPersonAttribute(context, valueOfPerson, item));
+	}
+
+	private PersonAttribute createPersonAttribute(
+			final AttributeContext context, final Function<PersonOfPanelData, Integer> personValue,
+			final RangeDistributionItem item) {
+		return new PersonAttribute(context, this, item.lowerBound(), item.upperBound(), personValue);
+	}
+
+	Stream<Attribute> createHouseholdAttributes(
+			final AttributeContext context, final Demography demography,
+			final Function<HouseholdOfPanelData, Integer> valueOfHousehold) {
+		return demography
+				.getDistribution(this)
+				.items()
+				.map(item -> createHouseholdAttribute(context, valueOfHousehold, item));
+	}
+
+	private DynamicHouseholdAttribute createHouseholdAttribute(
+			final AttributeContext context,
+			final Function<HouseholdOfPanelData, Integer> valueOfHousehold, final RangeDistributionItem item) {
+		return new DynamicHouseholdAttribute(context, this, item.lowerBound(), item.upperBound(),
+				valueOfHousehold);
+	}
+
+	@Override
+	public abstract Stream<Attribute> createAttributes(
+			final Demography demography, final AttributeContext context);
 }

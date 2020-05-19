@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityRepository;
@@ -42,7 +43,8 @@ public class CommunityDemandCalculatorTest {
 	void calculateDemand() throws Exception {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
-		Community someCommunity = new MultipleZones(communityId, someZone, otherZone);
+		Demography demography = someZone.nominalDemography();
+		Community someCommunity = new MultipleZones(communityId, demography, someZone, otherZone);
 		when(communityToZone.getCommunities()).thenReturn(asList(someCommunity));
 		List<PopulationSynthesisStep> steps = asList(firstStep, secondStep);
 		DemandDataCalculator calculator = new CommunityDemandCalculator(communityToZone,

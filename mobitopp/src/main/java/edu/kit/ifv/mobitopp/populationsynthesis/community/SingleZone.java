@@ -6,15 +6,24 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
-import lombok.RequiredArgsConstructor;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
 import lombok.ToString;
 
-@RequiredArgsConstructor
 @ToString
 public class SingleZone implements Community {
 
 	private final DemandZone zone;
+	private final Demography nominalDemography;
+	
+	public SingleZone(DemandZone zone) {
+		this.zone = zone;
+		this.nominalDemography = zone.nominalDemography();
+	}
 
+	@Override
+	public String getId() {
+		return zone.getId().getExternalId();
+	}
 	@Override
 	public Collection<DemandZone> getZones() {
 		return Collections.singleton(zone);
@@ -28,6 +37,11 @@ public class SingleZone implements Community {
 	@Override
 	public boolean contains(ZoneId id) {
 		return zone.getId().equals(id);
+	}
+	
+	@Override
+	public Demography nominalDemography() {
+		return nominalDemography;
 	}
 
 }
