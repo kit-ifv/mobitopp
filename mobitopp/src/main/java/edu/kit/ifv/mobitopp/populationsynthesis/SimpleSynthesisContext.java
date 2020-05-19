@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static java.util.Collections.emptyList;
+
 import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
@@ -106,7 +108,7 @@ public class SimpleSynthesisContext implements SynthesisContext {
 
   @Override
   public List<AttributeType> attributes(RegionalLevel level) {
-    return attributes.get(level);
+    return attributes.getOrDefault(level, emptyList());
   }
 
   @Override
