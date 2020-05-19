@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -124,10 +125,18 @@ public abstract class PopulationSynthesis {
   }
 
 	private void doExecuteAfterCreation() {
-		SerialiseDemography serialiser = new SerialiseDemography(context.attributes(RegionalLevel.zone),
-				context.zoneRepository(), context.resultWriter());
-		serialiser.serialiseDemography();
+		serialiseDemography();
 		executeAfterCreation();
+	}
+
+	private void serialiseDemography() {
+		EnumSet.allOf(RegionalLevel.class).forEach(this::serialise);
+	}
+
+	private void serialise(RegionalLevel level) {
+		SerialiseDemography serialiser = new SerialiseDemography(context.attributes(level),
+				context.zoneRepository()::getZones, context.resultWriter(), level);
+		serialiser.serialiseDemography();
 	}
 
   protected void executeAfterCreation() {
