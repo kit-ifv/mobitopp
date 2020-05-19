@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
 import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -46,7 +47,7 @@ public interface SynthesisContext {
 
 	void printStartupInformationOn(PrintStream out);
 
-  List<AttributeType> attributes();
+  List<AttributeType> attributes(RegionalLevel level);
 
   PopulationSynthesisParser format();
 

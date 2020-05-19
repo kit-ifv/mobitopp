@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
+
 public class DemographyZoneIdChecker {
 
   private final List<Integer> zoneIds;
@@ -20,7 +22,7 @@ public class DemographyZoneIdChecker {
   }
 
   private Predicate<String> missing(DemographyData data) {
-    return id -> !data.hasData(id);
+    return id -> !data.hasData(RegionalLevel.zone, id);
   }
 
   private void log(String zoneId) {

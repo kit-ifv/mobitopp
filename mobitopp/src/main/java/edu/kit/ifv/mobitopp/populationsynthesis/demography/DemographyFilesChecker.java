@@ -1,6 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.demography;
 
+import java.util.stream.Stream;
+
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyFilesChecker {
@@ -19,9 +22,16 @@ public class DemographyFilesChecker {
   }
 
   String calculateMissingAttributes(DemographyData data) {
-    boolean containsSize = data.attributes().contains(StandardAttribute.householdSize);
-    boolean containsDomCode = data.attributes().contains(StandardAttribute.domCode);
+    boolean containsSize = dataContains(data, StandardAttribute.householdSize);
+    boolean containsDomCode = dataContains(data, StandardAttribute.domCode);
     return containsSize || containsDomCode ? "" : "Missing household size or dom code";
   }
+
+	private boolean dataContains(DemographyData data, StandardAttribute attribute) {
+		return Stream
+				.of(RegionalLevel.values())
+				.map(data::attributes)
+				.anyMatch(attributes -> attributes.contains(attribute));
+	}
 
 }

@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.PopulationSynthesisParser;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.Logger;
@@ -256,12 +257,12 @@ public class ContextBuilder {
     log("Load car ownership model");
   }
 
-  private SynthesisContext createContext() {
-    List<AttributeType> attributes = demographyData.attributes();
-    SimpleSynthesisContext context = new SimpleSynthesisContext(configuration,
-        experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile,
-        attributes, format, resultWriter);
-    log("Create context");
-    return context;
-  }
+	private SynthesisContext createContext() {
+		Map<RegionalLevel, List<AttributeType>> attributes = demographyData.allAttributes();
+		SimpleSynthesisContext context = new SimpleSynthesisContext(configuration,
+				experimentalParameters, network, roadNetwork, dataRepository, carSharing, carEngineFile,
+				attributes, format, resultWriter);
+		log("Create context");
+		return context;
+	}
 }

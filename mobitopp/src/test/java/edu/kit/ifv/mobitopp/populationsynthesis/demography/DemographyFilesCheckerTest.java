@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyFilesCheckerTest {
@@ -17,7 +18,7 @@ public class DemographyFilesCheckerTest {
   @Test
   public void checksAvailabilityOfHouseholdSize() {
     DemographyData data = mock(DemographyData.class);
-    when(data.attributes()).thenReturn(asList(StandardAttribute.householdSize));
+    when(data.attributes(RegionalLevel.zone)).thenReturn(asList(StandardAttribute.householdSize));
     DemographyFilesChecker checker = new DemographyFilesChecker();
 
     String missingAttributes = checker.calculateMissingAttributes(data);
@@ -26,9 +27,9 @@ public class DemographyFilesCheckerTest {
   }
 
   @Test
-  public void checksAvailabilityOfHouseholdType() {
+  public void checksAvailabilityOfDomCode() {
     DemographyData data = mock(DemographyData.class);
-    when(data.attributes()).thenReturn(asList(StandardAttribute.domCode));
+    when(data.attributes(RegionalLevel.community)).thenReturn(asList(StandardAttribute.domCode));
     DemographyFilesChecker checker = new DemographyFilesChecker();
 
     String missingAttributes = checker.calculateMissingAttributes(data);

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 
 public class DemographyContentChecker {
@@ -22,12 +23,15 @@ public class DemographyContentChecker {
     }
   }
 
-  List<AttributeType> calculateMissingAttributes(DemographyData data) {
-    return data.attributes().stream().flatMap(type -> check(data, type)).collect(toList());
-  }
+	List<AttributeType> calculateMissingAttributes(DemographyData data) {
+		return Stream.of(RegionalLevel.values()).flatMap(level -> data.attributes(level)
+				.stream()
+				.flatMap(type -> check(data, level, type)))
+				.collect(toList());
+	}
 
-  private Stream<AttributeType> check(DemographyData data, AttributeType type) {
-    List<String> valueAttributes = data.get(type).getAttributes();
+  private Stream<AttributeType> check(DemographyData data, RegionalLevel level, AttributeType type) {
+    List<String> valueAttributes = data.get(level, type).getAttributes();
     boolean isAvailable = valueAttributes
         .stream()
         .anyMatch(attribute -> attribute.startsWith(type.attributeName()));

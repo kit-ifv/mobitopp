@@ -1,18 +1,22 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 
 public interface DemographyData {
 
-  boolean hasData(String zoneId);
+  boolean hasData(RegionalLevel level, String zoneId);
 
-  StructuralData get(AttributeType key);
+  StructuralData get(RegionalLevel level, AttributeType key);
 
-  boolean hasAttribute(AttributeType attributeType);
+  boolean hasAttribute(RegionalLevel level, AttributeType attributeType);
 
-  List<AttributeType> attributes();
+  List<AttributeType> attributes(RegionalLevel level);
+
+	Map<RegionalLevel, List<AttributeType>> allAttributes();
 
 }

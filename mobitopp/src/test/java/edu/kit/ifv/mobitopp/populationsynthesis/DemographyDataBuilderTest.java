@@ -17,6 +17,7 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 
 public class DemographyDataBuilderTest {
@@ -39,10 +40,12 @@ public class DemographyDataBuilderTest {
   }
 
   @Test
-  public void addDataForAllTypes() {
+  public void addDataForAllTypesAndDefaultToZoneLevel() {
     Map<String, String> input = new HashMap<>();
-    input.put(StandardAttribute.income.attributeName(), incomeFile.getName());
-    input.put(StandardAttribute.distance.attributeName(), distanceFile.getName());
+    String incomeKey = keyOf(RegionalLevel.zone, StandardAttribute.income);
+    String distanceKey = StandardAttribute.distance.attributeName();
+		input.put(incomeKey, incomeFile.getName());
+		input.put(distanceKey, distanceFile.getName());
     when(dataFactory.createData(incomeFile)).thenReturn(incomeData);
     when(dataFactory.createData(distanceFile)).thenReturn(distanceData);
     configuration.setDemographyData(input);
@@ -50,9 +53,13 @@ public class DemographyDataBuilderTest {
 
     DemographyData data = builder.build();
 
-    assertThat(data.get(StandardAttribute.income), is(sameInstance(incomeData)));
-    assertThat(data.get(StandardAttribute.distance), is(sameInstance(distanceData)));
+    assertThat(data.get(RegionalLevel.zone, StandardAttribute.income), is(sameInstance(incomeData)));
+    assertThat(data.get(RegionalLevel.zone, StandardAttribute.distance), is(sameInstance(distanceData)));
   }
+
+	private String keyOf(RegionalLevel level, StandardAttribute attribute) {
+		return level.identifier() + DemographyDataBuilder.seperator + attribute.attributeName();
+	}
   
   @Test(expected=IllegalArgumentException.class)
   public void parseUnknownAttributeType() {
