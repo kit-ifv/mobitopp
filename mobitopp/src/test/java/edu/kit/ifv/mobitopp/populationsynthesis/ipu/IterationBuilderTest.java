@@ -41,7 +41,7 @@ public class IterationBuilderTest {
 		List<AttributeType> types = List
 				.of(StandardAttribute.householdSize, StandardAttribute.income, StandardAttribute.femaleAge,
 						StandardAttribute.maleAge);
-		Iteration iteration = IterationBuilder.forZone(panelDataRepository, types).buildFor(zone);
+		Iteration iteration = new IterationBuilder(panelDataRepository, types).buildFor(zone);
 
 		Iteration expectedIteration = createExpectedIteration();
 		assertThat(iteration, is(equalTo(expectedIteration)));
@@ -64,7 +64,7 @@ public class IterationBuilderTest {
   @Test
   public void createsIterationForSingleType() {
     List<AttributeType> types = asList(StandardAttribute.householdSize);
-    Iteration iteration = IterationBuilder.forZone(panelDataRepository, types).buildFor(zone);
+    Iteration iteration = new IterationBuilder(panelDataRepository, types).buildFor(zone);
 
     Iteration expectedIteration = createExpectedSingleTypeIteration();
     assertThat(iteration, is(equalTo(expectedIteration)));

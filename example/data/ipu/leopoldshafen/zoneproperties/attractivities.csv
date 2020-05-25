@@ -1,23 +1,23 @@
-zoneId;NAME;zoneclassification;AreaType;Attractivity:Work;Attractivity:Business;Attractivity:Otherhome;Attractivity:Education;Attractivity:Shopping;Attractivity:Leisure;Attractivity:Service;Attractivity:Education_Primary;Attractivity:Education_Secondary;Attractivity:Education_Tertiary;Attractivity:Education_Occup;Attractivity:Leisure_Indoor;Attractivity:Leisure_Outdoor;Attractivity:Leisure_Other;Attractivity:Shopping_Daily;Attractivity:Shopping_Other;Attractivity:Private_Business;Attractivity:Private_Visit
-1;Zone 1;0;3;288;288;288;0;300;2;0;0;0;0;0;0;0;0;0;0;0;0
-2;Zone 2;0;5;408;408;408;0;500;1;0;0;0;0;0;0;0;0;0;0;0;0
-3;Zone 3;0;5;3708;3708;3708;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-4;Zone 4;0;5;193;193;193;0;1000;1;0;0;0;0;0;0;0;0;0;0;0;0
-5;Zone 5;0;3;90;90;90;0;300;1;0;0;0;0;0;0;0;0;0;0;0;0
-6;Zone 6;0;3;315;315;315;0;400;1;0;0;0;0;0;0;0;0;0;0;0;0
-7;Zone 7;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-8;Zone 8;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-9;Zone 9;0;2;50;50;50;0;100;1;0;0;0;0;0;0;0;0;0;0;0;0
-10;Zone 10;0;5;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-11;Zone 11;0;3;40;40;40;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-12;Zone 12;0;5;80;80;80;0;300;1;0;0;0;0;0;0;0;0;0;0;0;0
-13;Zone 13;0;5;50;50;50;0;100;1;0;0;0;0;0;0;0;0;0;0;0;0
-14;Zone 14;0;5;50;50;50;0;100;1;0;0;0;0;0;0;0;0;0;0;0;0
-15;Zone 15;0;3;80;80;80;0;150;1;0;0;0;0;0;0;0;0;0;0;0;0
-16;Zone 16;0;3;60;60;60;0;200;1;0;0;0;0;0;0;0;0;0;0;0;0
-17;Zone 17;0;2;1000;1000;1000;0;200;0;0;0;0;0;0;0;0;0;0;0;0;0
-18;Zone 18;0;2;400;400;400;0;300;2;0;0;0;0;0;0;0;0;0;0;0;0
-19;Zone 19;0;2;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-20;Zone 20;0;5;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-21;Zone 21;0;3;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
-22;Zone 22;0;5;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+zoneId;Attractivity:Work;Attractivity:Business;Attractivity:Otherhome;Attractivity:Education;Attractivity:Shopping;Attractivity:Leisure;Attractivity:Service;Attractivity:Education_Primary;Attractivity:Education_Secondary;Attractivity:Education_Tertiary;Attractivity:Education_Occup;Attractivity:Leisure_Indoor;Attractivity:Leisure_Outdoor;Attractivity:Leisure_Other;Attractivity:Shopping_Daily;Attractivity:Shopping_Other;Attractivity:Private_Business;Attractivity:Private_Visit
+1;288;288;288;3;300;2;1;2;3;4;5;6;7;8;9;10;11;12
+2;408;408;408;3;500;1;1;2;3;4;5;6;7;8;9;10;11;12
+3;3708;3708;3708;3;0;0;1;2;3;4;5;6;7;8;9;10;11;12
+4;193;193;193;3;1000;1;1;2;3;4;5;6;7;8;9;10;11;12
+5;90;90;90;3;300;1;1;2;3;4;5;6;7;8;9;10;11;12
+6;315;315;315;3;400;1;1;2;3;4;5;6;7;8;9;10;11;12
+7;0;0;0;3;0;0;1;2;3;4;5;6;7;8;9;10;11;12
+8;0;0;0;3;0;0;1;2;3;4;5;6;7;8;9;10;11;12
+9;50;50;50;3;100;1;1;2;3;4;5;6;7;8;9;10;11;12
+10;0;0;0;3;0;0;1;2;3;4;5;6;7;8;9;10;11;12
+11;40;40;40;3;0;0;1;2;3;4;5;6;7;8;9;10;11;12
+12;80;80;80;3;300;1;1;2;3;4;5;6;7;8;9;10;11;12
+13;50;50;50;3;100;1;1;2;3;4;5;6;7;8;9;10;11;12
+14;50;50;50;3;100;1;1;2;3;4;5;6;7;8;9;10;11;12
+15;80;80;80;3;150;1;1;2;3;4;5;6;7;8;9;10;11;12
+16;60;60;60;3;200;1;1;2;3;4;5;6;7;8;9;10;11;12
+17;1000;1000;1000;3;200;0;1;2;3;4;5;6;7;8;9;10;11;12
+18;400;400;400;3;300;2;1;2;3;4;5;6;7;8;9;10;11;12
+19;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+20;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+21;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0
+22;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0

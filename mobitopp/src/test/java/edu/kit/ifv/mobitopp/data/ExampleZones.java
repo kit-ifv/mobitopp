@@ -36,9 +36,9 @@ public class ExampleZones {
   }
 
   public static ExampleZones create() {
-    Zone someZone = zoneWithId("1", 1);
-    Zone otherZone = zoneWithId("2", 2);
-    Zone zoneWithoutLocations = zoneWithAttractivities("3", 3, emptyAttractivities());
+    Zone someZone = zoneWithId("1", 0);
+    Zone otherZone = zoneWithId("2", 1);
+    Zone zoneWithoutLocations = zoneWithAttractivities("3", 2, emptyAttractivities());
     return new ExampleZones(someZone, otherZone, zoneWithoutLocations);
   }
 

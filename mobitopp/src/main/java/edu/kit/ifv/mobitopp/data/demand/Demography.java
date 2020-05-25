@@ -42,6 +42,11 @@ public class Demography implements Serializable {
     return getDistribution(StandardAttribute.maleAge);
   }
 
+  /**
+   * May return <code>null</code>.
+   * @param type
+   * @return
+   */
   public RangeDistributionIfc getDistribution(AttributeType type) {
     return rangeDistributions.get(type);
   }

@@ -18,12 +18,15 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class IpuIterationTest {
 
 	private static final double margin = 1e-6;
+	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
+			"1");
 	private List<WeightedHousehold> households;
 	private WeightedHousehold household1;
 	private WeightedHousehold household2;
@@ -67,7 +70,7 @@ public class IpuIterationTest {
 		Map<String, Integer> attributes = new HashMap<>();
 		attributes.put("some attribute", householdType);
 		attributes.put("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, attributes);
+		return new WeightedHousehold(id, baseWeight, attributes, context);
 	}
 
 	@Test

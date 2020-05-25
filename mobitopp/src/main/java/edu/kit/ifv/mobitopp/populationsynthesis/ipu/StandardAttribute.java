@@ -14,7 +14,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::domCode);
 		}
 	},
@@ -22,7 +22,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::size);
 		}
 	},
@@ -30,7 +30,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::type);
 		}
 	},
@@ -38,7 +38,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::income);
 		}
 	},
@@ -46,7 +46,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return demography
 					.femaleAge()
 					.items()
@@ -57,7 +57,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return demography
 					.maleAge()
 					.items()
@@ -68,7 +68,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return Stream.empty();
 		}
 	},
@@ -76,7 +76,7 @@ public enum StandardAttribute implements AttributeType {
 
 		@Override
 		public Stream<Attribute> createAttributes(
-				final Demography demography, final AttributeContext context) {
+				final Demography demography, final RegionalContext context) {
 			return createPersonAttributes(context, demography, person -> (int) person.getPoleDistance());
 		}
 	};
@@ -108,7 +108,7 @@ public enum StandardAttribute implements AttributeType {
 	}
 
 	Stream<Attribute> createPersonAttributes(
-			final AttributeContext context, final Demography demography,
+			final RegionalContext context, final Demography demography,
 			final Function<PersonOfPanelData, Integer> valueOfPerson) {
 		return demography
 				.getDistribution(this)
@@ -117,13 +117,13 @@ public enum StandardAttribute implements AttributeType {
 	}
 
 	private PersonAttribute createPersonAttribute(
-			final AttributeContext context, final Function<PersonOfPanelData, Integer> personValue,
+			final RegionalContext context, final Function<PersonOfPanelData, Integer> personValue,
 			final RangeDistributionItem item) {
 		return new PersonAttribute(context, this, item.lowerBound(), item.upperBound(), personValue);
 	}
 
 	Stream<Attribute> createHouseholdAttributes(
-			final AttributeContext context, final Demography demography,
+			final RegionalContext context, final Demography demography,
 			final Function<HouseholdOfPanelData, Integer> valueOfHousehold) {
 		return demography
 				.getDistribution(this)
@@ -132,7 +132,7 @@ public enum StandardAttribute implements AttributeType {
 	}
 
 	private DynamicHouseholdAttribute createHouseholdAttribute(
-			final AttributeContext context,
+			final RegionalContext context,
 			final Function<HouseholdOfPanelData, Integer> valueOfHousehold, final RangeDistributionItem item) {
 		return new DynamicHouseholdAttribute(context, this, item.lowerBound(), item.upperBound(),
 				valueOfHousehold);
@@ -140,5 +140,5 @@ public enum StandardAttribute implements AttributeType {
 
 	@Override
 	public abstract Stream<Attribute> createAttributes(
-			final Demography demography, final AttributeContext context);
+			final Demography demography, final RegionalContext context);
 }

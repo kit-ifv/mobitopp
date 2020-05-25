@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.demand.DefaultDistributions;
@@ -52,6 +53,7 @@ public class DemandCreatorTest {
 	private WeightedHousehold second;
 	private WeightedHousehold third;
 	private List<Attribute> householdAttributes;
+	private DemandZone someZone;
 
 	@BeforeEach
 	public void initialise() {
@@ -61,9 +63,9 @@ public class DemandCreatorTest {
 		firstHousehold = ExampleHousehold.createHousehold(dummyZone(), firstId());
 		secondHousehold = ExampleHousehold.createHousehold(dummyZone(), secondId());
 		thirdHousehold = ExampleHousehold.createHousehold(dummyZone(), thirdId());
+		someZone = ExampleDemandZones.create().someZone();
 		householdAttributes = StandardAttribute.householdSize
-				.createAttributes(ExampleDemandZones.create().someZone().nominalDemography(),
-						() -> "my-context-1")
+				.createAttributes(someZone.nominalDemography(), someZone.getRegionalContext())
 				.collect(toList());
 
 		configureMockObjects();
@@ -154,9 +156,12 @@ public class DemandCreatorTest {
 
 	private List<WeightedHousehold> createWeightedHouseholds() {
 		double weight = 0.5d;
-		first = new WeightedHousehold(firstId(), weight, attributes(firstPanelHousehold));
-		second = new WeightedHousehold(secondId(), weight, attributes(secondPanelHousehold));
-		third = new WeightedHousehold(thirdId(), weight, attributes(thirdPanelHousehold));
+		first = new WeightedHousehold(firstId(), weight, attributes(firstPanelHousehold),
+				someZone.getRegionalContext());
+		second = new WeightedHousehold(secondId(), weight, attributes(secondPanelHousehold),
+				someZone.getRegionalContext());
+		third = new WeightedHousehold(thirdId(), weight, attributes(thirdPanelHousehold),
+				someZone.getRegionalContext());
 		return asList(first, second, third);
 	}
 

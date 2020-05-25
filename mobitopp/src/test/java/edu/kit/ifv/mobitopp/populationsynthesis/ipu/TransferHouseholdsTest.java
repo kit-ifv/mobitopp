@@ -16,14 +16,17 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.dataimport.Bbsr17;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class TransferHouseholdsTest {
 
-  private static final int defaultHouseholdSize = 1;
+	private static final int defaultHouseholdSize = 1;
 	private static final int defaultHouseholdType = 0;
+	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
+			"1");
 
   @Test
   public void transfersHouseholdsFromPanelToWeighted() {
@@ -72,9 +75,10 @@ public class TransferHouseholdsTest {
         newWeightedHousehold(normalHousehold), newWeightedHousehold(bigHousehold))));
   }
 
-  private WeightedHousehold newWeightedHousehold(HouseholdOfPanelData household) {
-    return new WeightedHousehold(household.id(), defaultWeight, attributes(household.size()));
-  }
+	private WeightedHousehold newWeightedHousehold(HouseholdOfPanelData household) {
+		return new WeightedHousehold(household.id(), defaultWeight, attributes(household.size()),
+				context);
+	}
 
   private List<WeightedHousehold> transferHousehold(
       Bbsr17 zoneAreaType, HouseholdOfPanelData... household) {
@@ -96,7 +100,7 @@ public class TransferHouseholdsTest {
     AttributeResolver attributeResolver = createAttributeResolver(household);
 
     TransferHouseholds transfer = new TransferHouseholds(panel, attributeResolver,
-        householdAttributes);
+        householdAttributes, context);
 
     return transfer.forAreaType(zoneAreaType);
   }

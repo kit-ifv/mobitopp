@@ -16,11 +16,14 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class IpuTest {
 
+	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
+			"1");
 	private List<WeightedHousehold> households;
 	private List<WeightedHousehold> afterFirstIteration;
 	private List<WeightedHousehold> afterSecondIteration;
@@ -60,7 +63,7 @@ public class IpuTest {
 		Map<String, Integer> attributes = new HashMap<>();
 		attributes.put("some attribute", householdType);
 		attributes.put("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, attributes);
+		return new WeightedHousehold(id, baseWeight, attributes, context);
 	}
 
 	@Test

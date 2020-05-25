@@ -20,7 +20,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 public class NamedAttributeTest {
 
 	@Mock
-	private AttributeContext context;
+	private RegionalContext context;
 	private int lowerBound;
 	private int upperBound;
 	private AttributeType type;

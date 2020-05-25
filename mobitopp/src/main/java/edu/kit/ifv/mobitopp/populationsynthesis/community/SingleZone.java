@@ -1,23 +1,21 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import lombok.ToString;
 
 @ToString
 public class SingleZone implements Community {
 
 	private final DemandZone zone;
-	private final Demography nominalDemography;
 	
 	public SingleZone(DemandZone zone) {
 		this.zone = zone;
-		this.nominalDemography = zone.nominalDemography();
 	}
 
 	@Override
@@ -25,8 +23,8 @@ public class SingleZone implements Community {
 		return zone.getId().getExternalId();
 	}
 	@Override
-	public Collection<DemandZone> getZones() {
-		return Collections.singleton(zone);
+	public List<DemandZone> getZones() {
+		return List.of(zone);
 	}
 
 	@Override
@@ -40,8 +38,23 @@ public class SingleZone implements Community {
 	}
 	
 	@Override
+	public String getExternalId() {
+		return getId();
+	}
+
+	@Override
+	public RegionalLevel regionalLevel() {
+		return RegionalLevel.community;
+	}
+	
+	@Override
 	public Demography nominalDemography() {
-		return nominalDemography;
+		return zone.nominalDemography();
+	}
+	
+	@Override
+	public Demography actualDemography() {
+		return zone.actualDemography();
 	}
 
 }

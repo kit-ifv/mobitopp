@@ -14,7 +14,7 @@ public class StandardAttributeTest {
 	void nameOfAttributesContainsContext() throws Exception {
 		Demography demography = ExampleDemandZones.create().someZone().nominalDemography();
 		String contextName = "my-context-1";
-		AttributeContext context = () -> contextName;
+		RegionalContext context = () -> contextName;
 		Stream<Attribute> attributes = Stream
 				.of(StandardAttribute.householdSize, StandardAttribute.femaleAge)
 				.flatMap(type -> type.createAttributes(demography, context));

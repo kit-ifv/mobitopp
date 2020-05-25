@@ -29,7 +29,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 public class MaleAgeTest {
 
 	@Mock
-	private AttributeContext context;
+	private RegionalContext context;
 
 	@BeforeEach
 	public void initialise() {

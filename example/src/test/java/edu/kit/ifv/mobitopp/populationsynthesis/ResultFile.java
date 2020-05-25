@@ -11,11 +11,13 @@ public class ResultFile {
 
   private final String fileName;
   private final File outputFolder;
+	private final String subpackage;
 
-  public ResultFile(File outputFolder, String fileName) {
+  public ResultFile(File outputFolder, String fileName, String subpackage) {
     super();
     this.outputFolder = outputFolder;
     this.fileName = fileName;
+		this.subpackage = subpackage;
   }
 
   public File actualFile() {
@@ -27,7 +29,7 @@ public class ResultFile {
   }
 
   private File expectedFile(Class<?> clazz) throws URISyntaxException {
-    return new File(clazz.getResource(fileName).toURI());
+    return new File(clazz.getResource(subpackage + "/" + fileName).toURI());
   }
 
   @Override

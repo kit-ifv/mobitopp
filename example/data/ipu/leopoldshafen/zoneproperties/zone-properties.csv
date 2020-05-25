@@ -1,0 +1,23 @@
+zoneId;isDestination;NAME;zoneClassification;AirDistanceOffset;AreaType
+1;1;Zone 1;0;0;3
+2;1;Zone 2;0;0;5
+3;1;Zone 3;0;0;5
+4;1;Zone 4;0;0;5
+5;1;Zone 5;0;0;3
+6;1;Zone 6;0;0;3
+7;1;Zone 7;0;0;2
+8;1;Zone 8;0;0;2
+9;1;Zone 9;0;0;2
+10;1;Zone 10;0;0;5
+11;1;Zone 11;0;0;3
+12;1;Zone 12;0;0;5
+13;1;Zone 13;0;0;5
+14;1;Zone 14;0;0;5
+15;1;Zone 15;0;0;3
+16;1;Zone 16;0;0;3
+17;1;Zone 17;0;0;2
+18;1;Zone 18;0;0;2
+19;1;Zone 19;0;0;2
+20;1;Zone 20;0;0;5
+21;1;Zone 21;0;0;3
+22;1;Zone 22;0;0;5
