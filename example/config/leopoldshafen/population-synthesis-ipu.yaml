@@ -9,7 +9,7 @@ dataSource: !file
   demandDataFolder: output/demand-data-local
   matrixConfigurationFile: data/ipu/leopoldshafen/matrices/matrix-configuration.yaml
   attractivityDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
-  zonePropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
+  zonePropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/zone-properties.csv
   parkingFacilitiesDataFile: data/ipu/leopoldshafen/zoneproperties/parkingFacilities.csv
   bikeSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/bikesharing-properties.csv
   carSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/carsharing-properties.csv
@@ -28,6 +28,7 @@ maxGoodnessDelta: 1e-5
 panelData: data/ipu/leopoldshafen/population.csv
 resultFolder: results/population-synthesis
 seed: 77859
+synthesisZoneProperties: data/ipu/leopoldshafen/zoneproperties/synthesis-zone-properties.csv
 visumFile: data/ipu/leopoldshafen/leopoldshafen.net
 visumToMobitopp:
   carTransportSystemCode: P

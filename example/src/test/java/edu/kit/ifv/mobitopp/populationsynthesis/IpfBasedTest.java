@@ -27,12 +27,12 @@ public class IpfBasedTest {
 
   private static ResultFile demandFile(String fileName) {
     File outputFolder = new File("output", "demand-data-local");
-    return new ResultFile(outputFolder, fileName);
+    return new ResultFile(outputFolder, fileName, "ipf");
   }
   
   private static ResultFile resultFile(String fileName) {
     File resultFolder = new File("results", "simulation");
-    return new ResultFile(resultFolder, fileName);
+    return new ResultFile(resultFolder, fileName, "ipf");
   }
 
   @BeforeAll

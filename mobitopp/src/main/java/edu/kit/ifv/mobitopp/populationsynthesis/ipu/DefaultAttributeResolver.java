@@ -36,8 +36,15 @@ public class DefaultAttributeResolver implements AttributeResolver {
 	public List<Attribute> attributesOf(AttributeType attributeType) {
 		return attributes
 				.stream()
-				.filter(attribute -> attribute.attributeType().equals(attributeType))
+				.filter(attribute -> attribute.type().equals(attributeType))
 				.sorted(Comparator.comparing(Attribute::name))
+				.collect(toList());
+	}
+
+	public List<Attribute> attributesOf(DefaultRegionalContext context) {
+		return attributes
+				.stream()
+				.filter(attribute -> attribute.context().equals(context))
 				.collect(toList());
 	}
 

@@ -35,7 +35,7 @@ public class DynamicHouseholdAttributeTest {
   private static final int notAvailable = 0;
   
   @Mock
-  private AttributeContext context;
+  private RegionalContext context;
   private int lowerBound;
   private int upperBound;
   private int amount;

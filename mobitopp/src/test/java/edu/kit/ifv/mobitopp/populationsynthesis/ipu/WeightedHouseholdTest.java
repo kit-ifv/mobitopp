@@ -1,16 +1,14 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
-import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class WeightedHouseholdTest {
 
@@ -20,6 +18,7 @@ public class WeightedHouseholdTest {
 	private int personType1;
 	private WeightedHousehold household;
 	private HashMap<String, Integer> attributes;
+	private RegionalContext context;
 
 	@Before
 	public void initialise() {
@@ -31,7 +30,8 @@ public class WeightedHouseholdTest {
 		attributes = new HashMap<>();
 		attributes.put("Household:Type:1", householdType1);
 		attributes.put("Person:Type:1", personType1);
-		household = new WeightedHousehold(id, weight, attributes);
+		context = new DefaultRegionalContext(RegionalLevel.community, "1");
+		household = new WeightedHousehold(id, weight, attributes, context);
 	}
 
 	@Test
@@ -39,32 +39,28 @@ public class WeightedHouseholdTest {
 		double newWeight = 2.0d;
 		WeightedHousehold newHousehold = household.newWeight(newWeight);
 
-		assertThat(newHousehold, is(equalTo(new WeightedHousehold(id, newWeight, attributes))));
+		assertThat(newHousehold).isEqualTo(new WeightedHousehold(id, newWeight, attributes, context));
 	}
 
 	@Test
 	public void getHouseholdAttributes() {
 		int attribute = household.attribute("Household:Type:1");
 
-		assertThat(attribute, is(equalTo(householdType1)));
+		assertThat(attribute).isEqualTo(householdType1);
 	}
 
 	@Test
 	public void getPersonAttributes() {
 		int attribute = household.attribute("Person:Type:1");
 
-		assertThat(attribute, is(equalTo(personType1)));
+		assertThat(attribute).isEqualTo(personType1);
 	}
 	
 	@Test
   public void getMissingAttribute() {
     int attribute = household.attribute("Missing:Attribute:1");
 
-    assertThat(attribute, is(equalTo(0)));    
+    assertThat(attribute).isEqualTo(0);    
   }
 
-	@Test
-	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(WeightedHousehold.class).usingGetClass().verify();
-	}
 }

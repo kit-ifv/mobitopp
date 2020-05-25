@@ -13,7 +13,7 @@ public class PersonAttribute extends NamedAttribute implements Attribute {
 	private final Function<PersonOfPanelData, Integer> personValue;
 
 	public PersonAttribute(
-			final AttributeContext context, final AttributeType attributeType, final int lowerBound,
+			final RegionalContext context, final AttributeType attributeType, final int lowerBound,
 			final int upperBound, final Function<PersonOfPanelData, Integer> personValue) {
 		super(context, attributeType, lowerBound, upperBound);
 		this.personValue = personValue;
@@ -21,7 +21,7 @@ public class PersonAttribute extends NamedAttribute implements Attribute {
 
 	@Override
 	public Constraint createConstraint(final Demography demography) {
-		int requestedWeight = demography.getDistribution(attributeType).amount(lowerBound);
+		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
 		return new PersonConstraint(requestedWeight, name());
 	}
 

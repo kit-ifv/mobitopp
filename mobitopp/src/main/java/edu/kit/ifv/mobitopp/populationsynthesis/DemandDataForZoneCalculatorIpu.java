@@ -48,7 +48,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 
 	@Override
 	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
-		IterationBuilder builder = IterationBuilder.forZone(panelData(), attributes());
+		IterationBuilder builder = new IterationBuilder(panelData(), attributes());
 		Iteration iteration = builder.buildFor(zone);
 		AttributeResolver attributeResolver = builder.createAttributeResolverFor(zone);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
@@ -78,8 +78,8 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		PanelDataRepository panelDataRepository = panelData();
 		AreaType areaType = zone.getAreaType();
 		List<String> householdAttributes = householdAttributesOf(zone);
-		return new TransferHouseholds(panelDataRepository, attributeResolver, householdAttributes)
-				.forAreaType(areaType);
+		return new TransferHouseholds(panelDataRepository, attributeResolver, householdAttributes,
+				zone.getRegionalContext()).forAreaType(areaType);
 	}
 
 	private List<String> householdAttributesOf(DemandRegion region) {

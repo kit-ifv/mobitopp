@@ -8,20 +8,25 @@ public abstract class NamedAttribute implements Attribute {
 
 	static final String nameSeparator = "-";
 
-	protected final AttributeContext context;
-	protected final AttributeType attributeType;
+	protected final RegionalContext context;
+	protected final AttributeType type;
 	protected final int lowerBound;
 	protected final int upperBound;
 
 	@Override
 	public final String name() {
 		return context.name() + nameSeparator
-				+ attributeType.createInstanceName(lowerBound, upperBound);
+				+ type.createInstanceName(lowerBound, upperBound);
 	}
 	
 	@Override
-	public AttributeType attributeType() {
-		return attributeType;
+	public AttributeType type() {
+		return type;
+	}
+	
+	@Override
+	public RegionalContext context() {
+		return context;
 	}
 
 	@Override

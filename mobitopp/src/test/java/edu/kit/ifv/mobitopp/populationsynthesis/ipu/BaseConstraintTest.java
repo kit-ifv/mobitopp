@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -112,7 +113,8 @@ public class BaseConstraintTest {
 	}
 
 	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {
-		return new WeightedHousehold(id, weight, attributes());
+		return new WeightedHousehold(id, weight, attributes(),
+				new DefaultRegionalContext(RegionalLevel.community, "1"));
 	}
 
 	private Map<String, Integer> attributes() {

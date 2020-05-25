@@ -13,8 +13,10 @@ public interface Attribute {
 
 	String name();
 	
-	AttributeType attributeType();
+	AttributeType type();
 
+	RegionalContext context();
+	
 	boolean matches(RangeDistributionItem item);
 
 }

@@ -19,14 +19,16 @@ public class TransferHouseholds {
   private final PanelDataRepository panelDataRepository;
   private final AttributeResolver attributeResolver;
   private final List<String> householdAttributes;
+	private final RegionalContext context;
 
   public TransferHouseholds(
-      PanelDataRepository panelDataRepository, AttributeResolver attributeResolver,
-      List<String> householdAttributes) {
+      final PanelDataRepository panelDataRepository, final AttributeResolver attributeResolver,
+      final List<String> householdAttributes, final RegionalContext context) {
     super();
     this.panelDataRepository = panelDataRepository;
     this.attributeResolver = attributeResolver;
     this.householdAttributes = householdAttributes;
+    this.context = context;
   }
 
   public List<WeightedHousehold> forAreaType(AreaType areaType) {
@@ -64,7 +66,7 @@ public class TransferHouseholds {
   private WeightedHousehold toWeightedHousehold(HouseholdOfPanelData household) {
     HouseholdOfPanelDataId id = household.id();
     Map<String, Integer> attributes = attributeResolver.attributesOf(household);
-    return new WeightedHousehold(id, defaultWeight, attributes);
+    return new WeightedHousehold(id, defaultWeight, attributes, context);
   }
 
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -22,6 +23,8 @@ public class PersonConstraintTest {
 	private static final int availablePeople = 2;
 	private static final double initialWeight = 1.0d;
 	private static final int noPeopleAvailable = 0;
+	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
+			"1");
 
 	private PersonConstraint constraint;
 	private WeightedHousehold household;
@@ -36,7 +39,7 @@ public class PersonConstraintTest {
 		Map<String, Integer> attributes = singletonMap(attribute, people);
 		short year = 2000;
 		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
-		return new WeightedHousehold(id, initialWeight, attributes);
+		return new WeightedHousehold(id, initialWeight, attributes, context);
 	}
 
 	@Test

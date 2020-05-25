@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 public class FemaleAge extends NamedAttribute implements Attribute {
 
 	public FemaleAge(
-			final AttributeContext context, final AttributeType attributeType, final int lowerBound,
+			final RegionalContext context, final AttributeType attributeType, final int lowerBound,
 			final int upperBound) {
 		super(context, attributeType, lowerBound, upperBound);
 	}

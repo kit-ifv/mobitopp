@@ -11,7 +11,7 @@ public class DynamicHouseholdAttribute extends NamedAttribute implements Attribu
 	private final Function<HouseholdOfPanelData, Integer> householdValue;
 
 	public DynamicHouseholdAttribute(
-			final AttributeContext context, final AttributeType attributeType, final int lowerBound,
+			final RegionalContext context, final AttributeType attributeType, final int lowerBound,
 			final int upperBound, final Function<HouseholdOfPanelData, Integer> householdValue) {
 		super(context, attributeType, lowerBound, upperBound);
 		this.householdValue = householdValue;
@@ -19,7 +19,7 @@ public class DynamicHouseholdAttribute extends NamedAttribute implements Attribu
 
 	@Override
 	public Constraint createConstraint(final Demography demography) {
-		int requestedWeight = demography.getDistribution(attributeType).amount(lowerBound);
+		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
 		return new HouseholdConstraint(requestedWeight, name());
 	}
 

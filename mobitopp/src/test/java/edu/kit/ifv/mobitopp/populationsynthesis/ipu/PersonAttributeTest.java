@@ -36,7 +36,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 public class PersonAttributeTest {
 
 	@Mock
-	private AttributeContext context;
+	private RegionalContext context;
 	private AttributeType attributeType;
 	private int lowerBound;
 	private int upperBound;

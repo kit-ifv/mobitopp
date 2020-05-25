@@ -1,36 +1,36 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHouseholdOfPanelData;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 
 public class ProbabilityBasedSelectorTest {
 
-  private WeightedHousehold first;
+  private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
+			"1");
+	private WeightedHousehold first;
   private WeightedHousehold second;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     double weight = 0.5d;
     Map<String, Integer> attributes = emptyMap();
-    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, attributes);
-    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, attributes);
+    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, attributes, context);
+    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, attributes, context);
   }
 
   @Test
@@ -43,7 +43,7 @@ public class ProbabilityBasedSelectorTest {
     int amount = 2;
     List<WeightedHousehold> selectedHouseholds = selector.selectFrom(households, amount);
 
-    assertThat(selectedHouseholds, is(equalTo(households)));
+    assertThat(selectedHouseholds).isEqualTo(households);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ProbabilityBasedSelectorTest {
     int amount = 1;
     List<WeightedHousehold> selectedHouseholds = selector.selectFrom(households, amount);
 
-    assertThat(selectedHouseholds, contains(first));
+    assertThat(selectedHouseholds).contains(first);
   }
 
   @Test
@@ -67,17 +67,17 @@ public class ProbabilityBasedSelectorTest {
     int amount = 1;
     List<WeightedHousehold> selectedHouseholds = selector.selectFrom(households, amount);
 
-    assertThat(selectedHouseholds, contains(second));
+    assertThat(selectedHouseholds).contains(second);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test
   public void selectWithoutHouseholds() {
     DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
     
     List<WeightedHousehold> households = emptyList();
     int amount = 1;
-    selector.selectFrom(households, amount);
+    assertThrows(IllegalArgumentException.class, () -> selector.selectFrom(households, amount));
   }
   
   @Test
@@ -89,10 +89,10 @@ public class ProbabilityBasedSelectorTest {
     int amount = 0;
     List<WeightedHousehold> selected = selector.selectFrom(households, amount);
     
-    assertThat(selected, is(empty()));
+    assertThat(selected).isEmpty();
   }
 
-  private List<WeightedHousehold> createWeightedHouseholds() {
-    return asList(first, second);
-  }
+	private List<WeightedHousehold> createWeightedHouseholds() {
+		return new LinkedList<>(List.of(first, second));
+	}
 }
