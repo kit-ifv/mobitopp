@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.toLinkedMap;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
   private List<WeightedHousehold> doSelect(List<WeightedHousehold> households, int amount) {
     Map<WeightedHousehold, Double> weightedHouseholds = households
         .stream()
-        .collect(toMap(Function.identity(), WeightedHousehold::weight));
+        .collect(toLinkedMap(Function.identity(), WeightedHousehold::weight));
     DiscreteRandomVariable<WeightedHousehold> distribution = new DiscreteRandomVariable<>(
         weightedHouseholds);
     List<WeightedHousehold> selectedHouseholds = new ArrayList<>();
