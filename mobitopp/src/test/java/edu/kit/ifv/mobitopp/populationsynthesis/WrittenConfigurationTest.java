@@ -22,6 +22,7 @@ public class WrittenConfigurationTest {
     original.setMaxIterations(1);
     original.setPanelData("panelData");
     original.setSeed(1);
+    original.setSynthesisZoneProperties("some-properties.csv");
     original.setVisumFile("visumFile");
 
     WrittenConfiguration copied = new WrittenConfiguration(original);
@@ -40,6 +41,7 @@ public class WrittenConfigurationTest {
         () -> assertValue(WrittenConfiguration::getPanelData, copied, original),
         () -> assertValue(WrittenConfiguration::getResultFolder, copied, original),
         () -> assertValue(WrittenConfiguration::getSeed, copied, original),
+        () -> assertValue(WrittenConfiguration::getSynthesisZoneProperties, copied, original),
         () -> assertValue(WrittenConfiguration::getVisumFile, copied, original),
         () -> assertValue(WrittenConfiguration::getVisumToMobitopp, copied, original));
   }
