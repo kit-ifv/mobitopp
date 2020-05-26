@@ -59,6 +59,7 @@ public class WrittenConfiguration {
     this.panelData = other.panelData;
     this.resultFolder = other.resultFolder;
     this.seed = other.seed;
+    this.synthesisZoneProperties = other.synthesisZoneProperties;
     this.visumFile = other.visumFile;
     this.visumToMobitopp = other.visumToMobitopp;
   }
