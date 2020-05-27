@@ -17,7 +17,7 @@ public class SingleZoneTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		SingleZone singleZone = new SingleZone(someZone);
 		
-		assertThat(singleZone.getId()).isEqualTo(someZone.getId().getExternalId());
+		assertThat(singleZone.getExternalId()).isEqualTo(someZone.getId().getExternalId());
 	}
 	
 	@Test
