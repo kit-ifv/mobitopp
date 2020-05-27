@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import edu.kit.ifv.mobitopp.data.local.Convert;
+import edu.kit.ifv.mobitopp.data.local.LocalFiles;
 import edu.kit.ifv.mobitopp.simulation.SimulationExample;
 
 public class IpuBasedTest {
@@ -26,7 +28,7 @@ public class IpuBasedTest {
   }
 
   private static ResultFile demandFile(String fileName) {
-    File outputFolder = new File("output", "demand-data-local");
+    File outputFolder = new File("output", "demand-data");
     return new ResultFile(outputFolder, fileName, "ipu");
   }
   
@@ -48,10 +50,22 @@ public class IpuBasedTest {
   }
   
   private static void createPopulationCommunityBased(WrittenConfiguration configuration) throws Exception {
-  	String resultFolder = configuration.getResultFolder();
-  	// TODO change result folder for community
-		PopulationSynthesisIpuCommunityBasedStarter.startSynthesis(configuration);
+  	String name = "community";
+		String resultFolder = changeTo(configuration.getResultFolder(), name);
+  	WrittenConfiguration communityConfiguration = new WrittenConfiguration(configuration);
+		communityConfiguration.setResultFolder(resultFolder);
+  	LocalFiles dataSource = (LocalFiles) communityConfiguration.getDataSource();
+  	String dataFolder = changeTo(dataSource.getDemandDataFolder(), name);
+  	dataSource.setDemandDataFolder(dataFolder);
+  	communityConfiguration.setDataSource(dataSource);
+		PopulationSynthesisIpuCommunityBasedStarter.startSynthesis(communityConfiguration);
   }
+
+	private static String changeTo(String folderAsString, String name) {
+		File folder = Convert.asFile(folderAsString);
+		File communityFolder = new File(folder, name);
+  	return Convert.asString(communityFolder);
+	}
 
   private static void simulatePopulation() throws IOException {
     SimulationExample.startSimulation(new File("config/leopoldshafen/simulation-ipu.yaml"));

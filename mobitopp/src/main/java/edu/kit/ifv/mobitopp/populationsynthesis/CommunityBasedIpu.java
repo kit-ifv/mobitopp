@@ -53,6 +53,7 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	public void calculateDemandData(Community community, ImpedanceIfc impedance) {
 		IterationBuilder builder = new IterationBuilder(panelData(), attributes());
 		Iteration iteration = builder.buildFor(community);
+		// TODO MultiIteration missing
 		// TODO see issue #224
 		AttributeResolver attributeResolver = builder.createAttributeResolverFor(community);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(community));

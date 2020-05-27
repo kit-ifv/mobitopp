@@ -1,7 +1,10 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,8 +23,8 @@ public class DemographyTest {
 	private RangeDistributionIfc household;
 	private RangeDistributionIfc femaleAge;
 	private RangeDistributionIfc maleAge;
-  private Map<AttributeType, RangeDistributionIfc> rangeDistributions;
-  private Demography demandModel;
+	private Map<AttributeType, RangeDistributionIfc> rangeDistributions;
+	private Demography demandModel;
 
 	@Test
 	public void equalsAndHashCode() {
@@ -30,16 +33,16 @@ public class DemographyTest {
 
 	@BeforeEach
 	public void initialise() {
-	  DefaultDistributions defaultDistributions = new DefaultDistributions();
+		DefaultDistributions defaultDistributions = new DefaultDistributions();
 		employment = EmploymentDistribution.createDefault();
 		household = defaultDistributions.createHousehold();
 		femaleAge = defaultDistributions.createFemaleAge();
 		maleAge = defaultDistributions.createMaleAge();
 		rangeDistributions = new LinkedHashMap<>();
 		rangeDistributions.put(StandardAttribute.householdSize, household);
-    rangeDistributions.put(StandardAttribute.maleAge, maleAge);
-    rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
-    demandModel = new Demography(employment, rangeDistributions);
+		rangeDistributions.put(StandardAttribute.maleAge, maleAge);
+		rangeDistributions.put(StandardAttribute.femaleAge, femaleAge);
+		demandModel = new Demography(employment, rangeDistributions);
 	}
 
 	@Test
@@ -61,77 +64,89 @@ public class DemographyTest {
 	public void maleAge() {
 		assertThat(demandModel.maleAge()).isSameAs(maleAge);
 	}
-	
+
 	@Test
 	public void incrementHousehold() {
 		int type = 1;
 		int beforeIncrement = demandModel.household().amount(type);
-		
+
 		demandModel.incrementHousehold(type);
 		int actualAmount = demandModel.household().amount(type);
-		
+
 		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
-	
+
 	@Test
 	public void incrementEmployment() {
 		Employment employment = Employment.FULLTIME;
 		int beforeIncrement = demandModel.employment().amount(employment);
-		
+
 		demandModel.incrementEmployment(employment);
 		int actualAmount = demandModel.employment().amount(employment);
 
 		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
-	
+
 	@Test
-  public void increment() {
-    int size = 1;
-    int beforeIncrement = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
-    
-    demandModel.increment(StandardAttribute.householdSize, size);
-    int actualAmount = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
-    
-    assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
-  }
-	
+	public void increment() {
+		int size = 1;
+		int beforeIncrement = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
+
+		demandModel.increment(StandardAttribute.householdSize, size);
+		int actualAmount = demandModel.getDistribution(StandardAttribute.householdSize).amount(size);
+
+		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
+	}
+
 	@Test
-  void incrementUnknown() throws Exception {
-	  int income = 1;
-    
-    demandModel.increment(StandardAttribute.income, income);
-    int actualAmount = demandModel.getDistribution(StandardAttribute.income).amount(income);
-    
-    assertThat(actualAmount).isEqualTo(1);
-  }
-	
+	void incrementUnknown() throws Exception {
+		int income = 1;
+
+		demandModel.increment(StandardAttribute.income, income);
+		int actualAmount = demandModel.getDistribution(StandardAttribute.income).amount(income);
+
+		assertThat(actualAmount).isEqualTo(1);
+	}
+
 	@Test
 	public void incrementFemaleAge() {
 		int age = 1;
 		int beforeIncrement = demandModel.femaleAge().amount(age);
-		
+
 		demandModel.incrementAge(Gender.FEMALE, age);
 		int actualAmount = demandModel.femaleAge().amount(age);
-		
+
 		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
-	
+
 	@Test
 	public void incrementMaleAge() {
 		int age = 1;
 		int beforeIncrement = demandModel.maleAge().amount(age);
-		
+
 		demandModel.incrementAge(Gender.MALE, age);
 		int actualAmount = demandModel.maleAge().amount(age);
-		
+
 		assertThat(actualAmount).isEqualTo(beforeIncrement + 1);
 	}
-	
+
 	@Test
-  public void createsEmpty() {
-    Demography empty = demandModel.createEmpty();
-    
-    assertThat(empty.femaleAge()).isEqualTo(femaleAge.createEmpty());
-  }
-	
+	public void createsEmpty() {
+		Demography empty = demandModel.createEmpty();
+
+		assertThat(empty.femaleAge()).isEqualTo(femaleAge.createEmpty());
+	}
+
+	@Test
+	void returnsEmptyImmutableDistribution() throws Exception {
+		Demography emptyDemography = new Demography(employment, emptyMap());
+
+		assertAll(EnumSet
+				.complementOf(EnumSet.of(StandardAttribute.employment))
+				.stream()
+				.map(attribute -> () -> assertThat(emptyDemography.getDistribution(attribute))
+						.as(attribute.attributeName())
+						.isEqualTo(new ImmutableRangeDistribution(new RangeDistribution()))));
+	}
+
 }
