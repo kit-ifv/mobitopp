@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
+import java.util.List;
+
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
@@ -59,6 +61,11 @@ public class DemandZone implements DemandRegion {
 
   public DataForZone getDemandData() {
     return zone.getDemandData();
+  }
+  
+  @Override
+  public List<DemandRegion> parts() {
+  	return List.of();
   }
 
   @Override

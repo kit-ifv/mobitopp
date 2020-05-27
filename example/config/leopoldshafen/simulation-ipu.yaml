@@ -1,8 +1,8 @@
 dataSource: !file
-  demandDataFolder: output/demand-data-local
+  demandDataFolder: output/demand-data
   matrixConfigurationFile: data/ipu/leopoldshafen/matrices/matrix-configuration.yaml
   attractivityDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
-  zonePropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/attractivities.csv
+  zonePropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/zone-properties.csv
   parkingFacilitiesDataFile: data/ipu/leopoldshafen/zoneproperties/parkingFacilities.csv
   bikeSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/bikesharing-properties.csv
   carSharingPropertiesDataFile: data/ipu/leopoldshafen/zoneproperties/carsharing-properties.csv

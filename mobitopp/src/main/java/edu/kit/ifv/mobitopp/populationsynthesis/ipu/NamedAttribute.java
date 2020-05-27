@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+@EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public abstract class NamedAttribute implements Attribute {
 
 	static final String nameSeparator = "-";
