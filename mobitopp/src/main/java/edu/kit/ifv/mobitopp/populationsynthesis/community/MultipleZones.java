@@ -30,14 +30,24 @@ public class MultipleZones implements Community {
 		this.zones = zones;
 		this.actualDemography = nominalDemography.createEmpty();
 	}
-	
+
 	public MultipleZones(
 			final String id, final Demography nominalDemography, final DemandZone... zones) {
 		this(id, nominalDemography, List.of(zones));
 	}
-	
+
 	@Override
-	public List<DemandZone> getZones() {
+	public String getExternalId() {
+		return id;
+	}
+
+	@Override
+	public RegionalLevel regionalLevel() {
+		return RegionalLevel.community;
+	}
+
+	@Override
+	public List<DemandRegion> parts() {
 		return Collections.unmodifiableList(zones);
 	}
 
@@ -50,22 +60,7 @@ public class MultipleZones implements Community {
 	public boolean contains(final ZoneId id) {
 		return zones.stream().map(DemandZone::getId).anyMatch(z -> z.equals(id));
 	}
-	
-	@Override
-	public String getExternalId() {
-		return id;
-	}
-	
-	@Override
-	public RegionalLevel regionalLevel() {
-		return RegionalLevel.community;
-	}
-	
-	@Override
-	public List<DemandRegion> parts() {
-		return Collections.unmodifiableList(zones);
-	}
-	
+
 	@Override
 	public Demography nominalDemography() {
 		return nominalDemography;

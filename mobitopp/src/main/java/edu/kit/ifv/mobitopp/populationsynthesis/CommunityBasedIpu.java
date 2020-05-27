@@ -68,7 +68,7 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	private void create(
 			List<WeightedHousehold> households, Community community, AttributeResolver attributeResolver) {
 		community
-				.getZones()
+				.zones()
 				.forEach(zone -> createAndSave(households, zone, attributeResolver));
 	}
 
@@ -88,8 +88,7 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	private List<WeightedHousehold> householdsOf(
 			Community region, AttributeResolver attributeResolver) {
 		return region
-				.getZones()
-				.stream()
+				.zones()
 				.map(zone -> createHouseholds(attributeResolver, zone))
 				.flatMap(List::stream)
 				.collect(toList());
