@@ -15,6 +15,9 @@ public class Demography implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+	private static final RangeDistributionIfc defaultDistribution = new ImmutableRangeDistribution(
+			new RangeDistribution());
+
   private final EmploymentDistribution employment;
   private final Map<AttributeType, RangeDistributionIfc> rangeDistributions;
 
@@ -48,7 +51,7 @@ public class Demography implements Serializable {
    * @return
    */
   public RangeDistributionIfc getDistribution(AttributeType type) {
-    return rangeDistributions.get(type);
+    return rangeDistributions.getOrDefault(type, defaultDistribution);
   }
 
   public RangeDistributionIfc income() {
