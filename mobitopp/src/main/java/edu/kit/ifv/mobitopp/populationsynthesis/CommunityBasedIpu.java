@@ -18,6 +18,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.MultiLevelIterationBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
@@ -51,19 +52,13 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	
 	@Override
 	public void calculateDemandData(Community community, ImpedanceIfc impedance) {
-		IterationBuilder builder = new IterationBuilder(panelData(), attributes());
+		IterationBuilder builder = new MultiLevelIterationBuilder(panelData(), context);
 		Iteration iteration = builder.buildFor(community);
-		// TODO MultiIteration missing
-		// TODO see issue #224
 		AttributeResolver attributeResolver = builder.createAttributeResolverFor(community);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(community));
 		List<WeightedHousehold> initialHouseholds = householdsOf(community, attributeResolver);
 		List<WeightedHousehold> households = ipu.adjustWeightsOf(initialHouseholds);
 		create(households, community, attributeResolver);
-	}
-
-	private List<AttributeType> attributes() {
-		return context.attributes(RegionalLevel.zone);
 	}
 
 	private Logger loggerFor(DemandRegion forZone) {

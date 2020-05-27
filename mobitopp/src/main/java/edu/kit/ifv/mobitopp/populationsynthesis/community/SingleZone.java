@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.community;
 import java.util.List;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
@@ -22,6 +23,7 @@ public class SingleZone implements Community {
 	public String getId() {
 		return zone.getId().getExternalId();
 	}
+	
 	@Override
 	public List<DemandZone> getZones() {
 		return List.of(zone);
@@ -45,6 +47,11 @@ public class SingleZone implements Community {
 	@Override
 	public RegionalLevel regionalLevel() {
 		return RegionalLevel.community;
+	}
+	
+	@Override
+	public List<DemandRegion> parts() {
+		return List.of(zone);
 	}
 	
 	@Override

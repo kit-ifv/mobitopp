@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
@@ -58,6 +59,11 @@ public class MultipleZones implements Community {
 	@Override
 	public RegionalLevel regionalLevel() {
 		return RegionalLevel.community;
+	}
+	
+	@Override
+	public List<DemandRegion> parts() {
+		return Collections.unmodifiableList(zones);
 	}
 	
 	@Override

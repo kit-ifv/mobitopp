@@ -16,23 +16,46 @@ import edu.kit.ifv.mobitopp.simulation.SimulationExample;
 
 public class IpuBasedTest {
 
-  public static Stream<ResultFile> logFileNames() {
+  private static final String community = "community";
+
+	public static Stream<ResultFile> logFileNames() {
     return Stream
-        .of(demandFile("activity.csv"), demandFile("car.csv"), demandFile("fixedDestination.csv"),
-            demandFile("household.csv"), demandFile("opportunity.csv"), demandFile("person.csv"),
-            resultFile("demandsimulationResult.csv"),
-            resultFile("demandsimulationResultActivity.csv"),
-            resultFile("demandsimulationResultCar.csv"),
-            resultFile("demandsimulationResultCharging.csv"),
-            resultFile("demandsimulationResultChargingAgg.csv"));
+        .of(singleZoneIpu("activity.csv"), singleZoneIpu("car.csv"), singleZoneIpu("fixedDestination.csv"),
+            singleZoneIpu("household.csv"), singleZoneIpu("opportunity.csv"), singleZoneIpu("person.csv"),
+            multiZoneIpu("activity.csv"), multiZoneIpu("car.csv"), multiZoneIpu("fixedDestination.csv"),
+            multiZoneIpu("household.csv"), multiZoneIpu("opportunity.csv"), multiZoneIpu("person.csv"),
+            singleZoneIpuResult("actualDemography-community.csv"),
+            singleZoneIpuResult("actualDemography-zone.csv"),
+            multiZoneIpuResult("actualDemography-community.csv"),
+            multiZoneIpuResult("actualDemography-zone.csv"),
+            simulationResult("demandsimulationResult.csv"),
+            simulationResult("demandsimulationResultActivity.csv"),
+            simulationResult("demandsimulationResultCar.csv"),
+            simulationResult("demandsimulationResultCharging.csv"),
+            simulationResult("demandsimulationResultChargingAgg.csv"));
   }
 
-  private static ResultFile demandFile(String fileName) {
+  private static ResultFile singleZoneIpu(String fileName) {
     File outputFolder = new File("output", "demand-data");
     return new ResultFile(outputFolder, fileName, "ipu");
   }
   
-  private static ResultFile resultFile(String fileName) {
+  private static ResultFile multiZoneIpu(String fileName) {
+  	File outputFolder = new File(new File("output", "demand-data"), community);
+  	return new ResultFile(outputFolder, fileName, "ipu");
+  }
+  
+  private static ResultFile singleZoneIpuResult(String fileName) {
+    File resultFolder = new File("results", "population-synthesis");
+    return new ResultFile(resultFolder, fileName, "ipu");
+  }
+  
+  private static ResultFile multiZoneIpuResult(String fileName) {
+  	File resultFolder = new File(new File("results", "population-synthesis"), community);
+  	return new ResultFile(resultFolder, fileName, "ipu");
+  }
+  
+  private static ResultFile simulationResult(String fileName) {
     File resultFolder = new File("results", "simulation");
     return new ResultFile(resultFolder, fileName, "ipu");
   }
@@ -50,12 +73,11 @@ public class IpuBasedTest {
   }
   
   private static void createPopulationCommunityBased(WrittenConfiguration configuration) throws Exception {
-  	String name = "community";
-		String resultFolder = changeTo(configuration.getResultFolder(), name);
+  	String resultFolder = changeTo(configuration.getResultFolder(), community);
   	WrittenConfiguration communityConfiguration = new WrittenConfiguration(configuration);
 		communityConfiguration.setResultFolder(resultFolder);
   	LocalFiles dataSource = (LocalFiles) communityConfiguration.getDataSource();
-  	String dataFolder = changeTo(dataSource.getDemandDataFolder(), name);
+  	String dataFolder = changeTo(dataSource.getDemandDataFolder(), community);
   	dataSource.setDemandDataFolder(dataFolder);
   	communityConfiguration.setDataSource(dataSource);
 		PopulationSynthesisIpuCommunityBasedStarter.startSynthesis(communityConfiguration);
