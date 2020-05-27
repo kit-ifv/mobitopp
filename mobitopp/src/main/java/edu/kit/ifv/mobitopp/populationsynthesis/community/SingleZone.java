@@ -14,18 +14,23 @@ import lombok.ToString;
 public class SingleZone implements Community {
 
 	private final DemandZone zone;
-	
+
 	public SingleZone(DemandZone zone) {
 		this.zone = zone;
 	}
 
 	@Override
-	public String getId() {
+	public String getExternalId() {
 		return zone.getId().getExternalId();
 	}
-	
+
 	@Override
-	public List<DemandZone> getZones() {
+	public RegionalLevel regionalLevel() {
+		return RegionalLevel.community;
+	}
+
+	@Override
+	public List<DemandRegion> parts() {
 		return List.of(zone);
 	}
 
@@ -38,27 +43,12 @@ public class SingleZone implements Community {
 	public boolean contains(ZoneId id) {
 		return zone.getId().equals(id);
 	}
-	
-	@Override
-	public String getExternalId() {
-		return getId();
-	}
 
-	@Override
-	public RegionalLevel regionalLevel() {
-		return RegionalLevel.community;
-	}
-	
-	@Override
-	public List<DemandRegion> parts() {
-		return List.of(zone);
-	}
-	
 	@Override
 	public Demography nominalDemography() {
 		return zone.nominalDemography();
 	}
-	
+
 	@Override
 	public Demography actualDemography() {
 		return zone.actualDemography();
