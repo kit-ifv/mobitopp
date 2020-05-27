@@ -16,8 +16,8 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.SingleLevelIterationBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationFactory;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.SingleLevelIterationFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
@@ -49,17 +49,13 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 
 	@Override
 	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
-		IterationBuilder builder = new SingleLevelIterationBuilder(panelData(), attributes());
-		Iteration iteration = builder.buildFor(zone);
-		AttributeResolver attributeResolver = builder.createAttributeResolverFor(zone);
+		IterationFactory factory = new SingleLevelIterationFactory(panelData(), context);
+		Iteration iteration = factory.createIterationFor(zone);
+		AttributeResolver attributeResolver = factory.createAttributeResolverFor(zone);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
 		List<WeightedHousehold> initialHouseholds = householdsOf(zone, attributeResolver);
 		List<WeightedHousehold> households = ipu.adjustWeightsOf(initialHouseholds);
 		create(households, zone, attributeResolver);
-	}
-
-	private List<AttributeType> attributes() {
-		return context.attributes(RegionalLevel.zone);
 	}
 
 	private Logger loggerFor(DemandRegion forZone) {
