@@ -25,7 +25,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.MultipleZones;
 
 @ExtendWith(MockitoExtension.class)
-public class MultiLevelIterationBuilderTest {
+public class MultiLevelIterationFactoryTest {
 
 	@Mock
 	private PanelDataRepository panelData;
@@ -74,7 +74,7 @@ public class MultiLevelIterationBuilderTest {
 	void buildsUpConstraintsOfAllLevels() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
 		Community region = new MultipleZones("1", regionDemography, zones);
-		IterationBuilder builder = new MultiLevelIterationBuilder(panelData, context);
+		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
 
 		List<Constraint> constraints = builder.constraintsFor(region);
 
@@ -116,7 +116,7 @@ public class MultiLevelIterationBuilderTest {
 	void buildsUpAttributesOfAllLevels() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
 		Community region = new MultipleZones("1", regionDemography, zones);
-		IterationBuilder builder = new MultiLevelIterationBuilder(panelData, context);
+		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
 
 		List<Attribute> attributes = builder.attributesFor(region).collect(toList());
 

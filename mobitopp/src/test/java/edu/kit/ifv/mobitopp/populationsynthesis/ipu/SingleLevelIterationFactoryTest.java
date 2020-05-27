@@ -5,19 +5,28 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
 
-public class SingleLevelIterationBuilderTest {
+@ExtendWith(MockitoExtension.class)
+public class SingleLevelIterationFactoryTest {
 
+	@Mock
+	private SynthesisContext context;
   private DemandZone zone;
   private RangeDistributionIfc household;
   private RangeDistributionIfc femaleAge;
@@ -25,7 +34,7 @@ public class SingleLevelIterationBuilderTest {
   private PanelDataRepository panelDataRepository;
   private RangeDistributionIfc income;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     ExampleDemandZones zones = ExampleDemandZones.create();
     zone = zones.someZone();
@@ -41,7 +50,9 @@ public class SingleLevelIterationBuilderTest {
 		List<AttributeType> types = List
 				.of(StandardAttribute.householdSize, StandardAttribute.income, StandardAttribute.femaleAge,
 						StandardAttribute.maleAge);
-		Iteration iteration = new SingleLevelIterationBuilder(panelDataRepository, types).buildFor(zone);
+		when(context.attributes(RegionalLevel.zone)).thenReturn(types);
+		Iteration iteration = new SingleLevelIterationFactory(panelDataRepository, context)
+				.createIterationFor(zone);
 
 		Iteration expectedIteration = createExpectedIteration();
 		assertThat(iteration, is(equalTo(expectedIteration)));
@@ -61,14 +72,16 @@ public class SingleLevelIterationBuilderTest {
     return new IpuIteration(constraints);
   }
 
-  @Test
-  public void createsIterationForSingleType() {
-    List<AttributeType> types = asList(StandardAttribute.householdSize);
-    Iteration iteration = new SingleLevelIterationBuilder(panelDataRepository, types).buildFor(zone);
+	@Test
+	public void createsIterationForSingleType() {
+		List<AttributeType> types = asList(StandardAttribute.householdSize);
+		when(context.attributes(RegionalLevel.zone)).thenReturn(types);
+		Iteration iteration = new SingleLevelIterationFactory(panelDataRepository, context)
+				.createIterationFor(zone);
 
-    Iteration expectedIteration = createExpectedSingleTypeIteration();
-    assertThat(iteration, is(equalTo(expectedIteration)));
-  }
+		Iteration expectedIteration = createExpectedSingleTypeIteration();
+		assertThat(iteration, is(equalTo(expectedIteration)));
+	}
 
   private Iteration createExpectedSingleTypeIteration() {
     List<Constraint> constraints = new ArrayList<>();
