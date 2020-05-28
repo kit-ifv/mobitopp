@@ -8,108 +8,114 @@ import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class StructuralData {
 
+	@Deprecated
   private static final String zoneIdColumn = "zoneId";
+  private static final String regionIdColumn = "regionId";
 	private static final int defaultIndex = 0;
   static final int defaultValue = 0;
 
   private final CsvFile structuralData;
-  private final Map<String, Integer> zoneToIndex;
-  private int index;
+  private final Map<String, Integer> idToRow;
+  private int row;
 
   public StructuralData(CsvFile structuralData) {
     super();
     this.structuralData = structuralData;
-    zoneToIndex = buildUpZoneIdMapping(structuralData);
-    resetIndex();
+    idToRow = buildUpIdMapping(structuralData);
+    resetRow();
   }
 
-  private Map<String, Integer> buildUpZoneIdMapping(CsvFile structuralData) {
+  private Map<String, Integer> buildUpIdMapping(CsvFile structuralData) {
     HashMap<String, Integer> idMapping = new HashMap<>();
-    for (int index = 0; index < structuralData.getLength(); index++) {
-      String zoneId = structuralData.getValue(index, zoneIdColumn);
-      idMapping.put(zoneId, index);
+    for (int row = 0; row < structuralData.getLength(); row++) {
+      String id = structuralData.getValue(row, idColumn());
+      idMapping.put(id, row);
     }
     return idMapping;
   }
+
+	private String idColumn() {
+		return structuralData.hasAttribute(regionIdColumn) ? regionIdColumn : zoneIdColumn;
+	}
 
   public List<String> getAttributes() {
     return structuralData.getAttributes();
   }
 
-  public String getValue(String zone, String attribute) {
-    return structuralData.getValue(indexOf(zone), attribute);
+  public String getValue(String id, String attribute) {
+    return structuralData.getValue(rowOf(id), attribute);
   }
 
-  private int indexOf(String zoneId) {
-    if (hasIndex(zoneId)) {
-      return zoneToIndex.getOrDefault(zoneId, defaultIndex);
+  private int rowOf(String id) {
+    if (hasRow(id)) {
+      return idToRow.getOrDefault(id, defaultIndex);
     }
-    throw new IllegalArgumentException("Can not find values for zone with id: " + zoneId);
+    throw new IllegalArgumentException("Can not find values for region with id: " + id);
   }
 
-  public boolean hasValue(String zoneId, String key) {
-    return hasAttribute(key) && hasIndex(zoneId) && isNotEmpty(zoneId, key);
+  public boolean hasValue(String id, String key) {
+    return hasAttribute(key) && hasRow(id) && isNotEmpty(id, key);
   }
 
   private boolean hasAttribute(String key) {
     return structuralData.hasAttribute(key);
   }
 
-  private boolean hasIndex(String zoneId) {
-    return zoneToIndex.containsKey(zoneId);
+  private boolean hasRow(String id) {
+    return idToRow.containsKey(id);
   }
 
-  private boolean isNotEmpty(String zoneId, String key) {
-    return !getValue(zoneId, key).isEmpty();
+  private boolean isNotEmpty(String id, String key) {
+    return !getValue(id, key).isEmpty();
   }
 
-  public int valueOrDefault(String zoneId, String key) {
-    if (hasValue(zoneId, key)) {
-      return parsedValue(zoneId, key);
+  public int valueOrDefault(String id, String key) {
+    if (hasValue(id, key)) {
+      return parsedValue(id, key);
     }
     return defaultValue;
   }
 
-  public double valueOrDefaultAsDouble(String zoneId, String key) {
-    if (hasValue(zoneId, key)) {
-      return parsedValueAsDouble(zoneId, key);
+  public double valueOrDefaultAsDouble(String id, String key) {
+    if (hasValue(id, key)) {
+      return parsedValueAsDouble(id, key);
     }
     return defaultValue;
   }
   
-  public float valueOrDefaultAsFloat(String zoneId, String key) {
-  	if (hasValue(zoneId, key)) {
-  		return parsedValueAsFloat(zoneId, key);
+  public float valueOrDefaultAsFloat(String id, String key) {
+  	if (hasValue(id, key)) {
+  		return parsedValueAsFloat(id, key);
   	}
   	return defaultValue;
   }
   
-  private int parsedValue(String zoneId, String key) {
-    return Math.toIntExact(Math.round(Double.parseDouble(getValue(zoneId, key))));
+  private int parsedValue(String id, String key) {
+    return Math.toIntExact(Math.round(Double.parseDouble(getValue(id, key))));
   }
   
-  private double parsedValueAsDouble(String zoneId, String key) {
-    return Double.parseDouble(getValue(zoneId, key));
+  private double parsedValueAsDouble(String id, String key) {
+    return Double.parseDouble(getValue(id, key));
   } 
   
-  private float parsedValueAsFloat(String zoneId, String key) {
-  	return Float.parseFloat(getValue(zoneId, key));
+  private float parsedValueAsFloat(String id, String key) {
+  	return Float.parseFloat(getValue(id, key));
   } 
 
   public void next() {
-    index++;
+    row++;
   }
 
-  public void resetIndex() {
-    index = 0;
+  public void resetRow() {
+    row = 0;
   }
 
   public boolean hasNext() {
-    return index < structuralData.getLength();
+    return row < structuralData.getLength();
   }
 
-  public int currentZone() {
-    return Integer.parseInt(structuralData.getValue(index, zoneIdColumn));
+  public int currentRegion() {
+    return Integer.parseInt(structuralData.getValue(row, idColumn()));
   }
 
 }

@@ -38,7 +38,7 @@ public class AttractivitiesData {
 	}
 
 	private int currentZone() {
-		return data.currentZone();
+		return data.currentRegion();
 	}
 
 	private void next() {
