@@ -1,5 +1,5 @@
 dataSource: !file
-  demandDataFolder: output/demand-data-local
+  demandDataFolder: output/demand-data
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
   attractivityDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   zonePropertiesDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
