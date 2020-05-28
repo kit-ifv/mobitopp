@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.data.local;
 
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -27,13 +26,12 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
-import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.local.configuration.FileMatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.serialiser.ZoneRepositorySerialiser;
 import edu.kit.ifv.mobitopp.dataimport.ChargingDataFactory;
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
+import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
@@ -254,7 +252,7 @@ public class LocalFiles implements DataSource {
 	}
 
 	private DemographyRepository demographyRepository(DemographyData demographyData) {
-		return (level, id) -> new Demography(EmploymentDistribution.createDefault(), emptyMap());
+		return new DemographyBuilder(demographyData);
 	}
 
 	private ZoneRepository loadZonesFromVisum(
