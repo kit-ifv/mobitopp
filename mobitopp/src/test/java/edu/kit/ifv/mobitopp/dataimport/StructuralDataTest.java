@@ -95,7 +95,7 @@ public class StructuralDataTest {
     List<String> attributes = demographyData.getAttributes();
 
 		assertThat(attributes)
-				.contains("zoneId", "NAME", "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18",
+				.contains("regionId", "NAME", "age_m:0-5", "age_m:6-9", "age_m:10-15", "age_m:16-18",
 						"age_m:19-24", "age_m:25-29", "age_m:30-44", "age_m:45-59", "age_m:60-64",
 						"age_m:65-74", "age_m:75-", "age_f:0-5", "age_f:6-9", "age_f:10-15", "age_f:16-18",
 						"age_f:19-24", "age_f:25-29", "age_f:30-44", "age_f:45-59", "age_f:60-64",

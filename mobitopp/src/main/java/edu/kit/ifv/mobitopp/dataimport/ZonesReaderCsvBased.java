@@ -69,12 +69,12 @@ public class ZonesReaderCsvBased implements ZonesReader {
 
 	@Override
 	public List<Zone> getZones() {
-		zonePropertiesData.data().resetIndex();
+		zonePropertiesData.data().resetRow();
 		ArrayList<VisumZone> visumZones = new ArrayList<>(visumNetwork.zones.values());
 		Collections.sort(visumZones, Comparator.comparing(zone -> zone.id));
 		List<Zone> zones = new ArrayList<>();
 		while (zonePropertiesData.data().hasNext()) {
-			VisumZone visumZone = visumNetwork.zones.get(zonePropertiesData.data().currentZone());
+			VisumZone visumZone = visumNetwork.zones.get(zonePropertiesData.data().currentRegion());
 			zones.add(zoneFrom(visumZone));
 			System.out
 					.println(
