@@ -31,12 +31,9 @@ public class DemographyOnDifferentLevelsTest {
 
 	@BeforeAll
 	public static void executeMobiTopp() throws Exception {
-		createPopulationZoneBased();
-	}
-
-	private static void createPopulationZoneBased() throws Exception {
 		DemographyOnDifferentLevelsStarter
-				.startSynthesis(new File("config/leopoldshafen/population-synthesis-ipu-different-levels.yaml"));
+				.startSynthesis(
+						new File("config/leopoldshafen/population-synthesis-ipu-different-levels.yaml"));
 	}
 
 	@ParameterizedTest(name = "{0}")
@@ -44,5 +41,5 @@ public class DemographyOnDifferentLevelsTest {
 	public void logFilesContainExpectedContent(ResultFile logFile) throws Exception {
 		assertThat(logFile.actualFile(), logFile.createMatcher(this.getClass()));
 	}
-
+	
 }

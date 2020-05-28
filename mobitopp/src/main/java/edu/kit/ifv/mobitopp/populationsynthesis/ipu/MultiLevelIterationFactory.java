@@ -13,9 +13,11 @@ import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
 public class MultiLevelIterationFactory extends BaseIterationFactory implements IterationFactory {
 
 	private final BaseIterationFactory singleLevelFactory;
+	private final PanelDataRepository panelData;
 
 	public MultiLevelIterationFactory(PanelDataRepository panelData, SynthesisContext context) {
-		super(panelData, context);
+		super(context);
+		this.panelData = panelData;
 		singleLevelFactory = new SingleLevelIterationFactory(panelData, context);
 	}
 
@@ -45,6 +47,13 @@ public class MultiLevelIterationFactory extends BaseIterationFactory implements 
 		for (DemandRegion part : region.parts()) {
 			addAttributesOf(part, toAttributes);
 		}
+	}
+
+	@Override
+	public AttributeResolver createAttributeResolverFor(DemandRegion region) {
+		// TODO implement MultiLevelAttributeResolver
+		List<Attribute> attributes = attributesFor(region).collect(toList());
+		return new DefaultAttributeResolver(attributes, panelData);
 	}
 
 }

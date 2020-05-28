@@ -12,9 +12,12 @@ import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
 
 public class SingleLevelIterationFactory extends BaseIterationFactory implements IterationFactory {
 
+	private final PanelDataRepository panelData;
+
 	public SingleLevelIterationFactory(
 			final PanelDataRepository panelData, SynthesisContext context) {
-		super(panelData, context);
+		super(context);
+		this.panelData = panelData;
 	}
 	
 	@Override
@@ -30,6 +33,12 @@ public class SingleLevelIterationFactory extends BaseIterationFactory implements
 		Demography nominalDemography = region.nominalDemography();
 		RegionalContext context = region.getRegionalContext();
 		return types.stream().flatMap(type -> type.createAttributes(nominalDemography, context));
+	}
+
+	@Override
+	public AttributeResolver createAttributeResolverFor(DemandRegion region) {
+		List<Attribute> attributes = attributesFor(region).collect(toList());
+		return new DefaultAttributeResolver(attributes, panelData);
 	}
 
 }
