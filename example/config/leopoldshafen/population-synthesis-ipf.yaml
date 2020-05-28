@@ -6,7 +6,7 @@ carOwnership:
 #mobilityProviders:
 commuterTicket: config/leopoldshafen/parameters/TransitPassParameter.txt
 dataSource: !file
-  demandDataFolder: output/demand-data-local
+  demandDataFolder: output/demand-data
   matrixConfigurationFile: data/leopoldshafen/matrices/matrix-configuration.yaml
   attractivityDataFile: data/leopoldshafen/zoneproperties/attractivities.csv
   zonePropertiesDataFile: data/leopoldshafen/zoneproperties/zone-properties.csv
