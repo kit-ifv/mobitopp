@@ -125,7 +125,7 @@ public class TransferHouseholdsTest {
   private AttributeResolver createAttributeResolver(HouseholdOfPanelData... households) {
     AttributeResolver attributeResolver = mock(AttributeResolver.class);
     for (HouseholdOfPanelData household : households) {
-      when(attributeResolver.attributesOf(household)).thenReturn(attributes(household.size()));
+      when(attributeResolver.attributesOf(household, context)).thenReturn(attributes(household.size()));
     }
     return attributeResolver;
   }

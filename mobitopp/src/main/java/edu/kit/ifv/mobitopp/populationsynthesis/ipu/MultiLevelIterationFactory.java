@@ -2,8 +2,10 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
@@ -51,9 +53,25 @@ public class MultiLevelIterationFactory extends BaseIterationFactory implements 
 
 	@Override
 	public AttributeResolver createAttributeResolverFor(DemandRegion region) {
-		// TODO implement MultiLevelAttributeResolver
-		List<Attribute> attributes = attributesFor(region).collect(toList());
-		return new DefaultAttributeResolver(attributes, panelData);
+		Map<RegionalContext, List<Attribute>> attributes = attributesPerZone(region);
+		return new MultiLevelAttributeResolver(attributes, panelData);
+	}
+
+	Map<RegionalContext, List<Attribute>> attributesPerZone(DemandRegion region) {
+		Map<RegionalContext, List<Attribute>> toAttributes = new HashMap<>();
+		addAttributesOf(region, List.of(), toAttributes);
+		return toAttributes;
+	}
+
+	private void addAttributesOf(
+			DemandRegion region, List<Attribute> upperRegionAttributes,
+			Map<RegionalContext, List<Attribute>> toAttributes) {
+		List<Attribute> andRegionAttributes = new LinkedList<>(upperRegionAttributes);
+		andRegionAttributes.addAll(singleLevelFactory.attributesFor(region).collect(toList()));
+		for (DemandRegion part : region.parts()) {
+			addAttributesOf(part, andRegionAttributes, toAttributes);
+		}
+		toAttributes.put(region.getRegionalContext(), andRegionAttributes);
 	}
 
 }

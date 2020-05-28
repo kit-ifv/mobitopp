@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -145,6 +146,27 @@ public class MultiLevelIterationFactoryTest {
 		return StandardAttribute.householdSize
 				.createAttributes(nominalDemography, regionalContext)
 				.collect(toList());
+	}
+
+	@Test
+	void buildsUpAttributesForEachZone() throws Exception {
+		List<DemandZone> zones = List.of(somePart, otherPart);
+		Community region = new MultipleZones("1", regionDemography, zones);
+		List<Attribute> someAttributes = new LinkedList<>();
+		someAttributes.addAll(householdAttributeFor(regionDemography, region.getRegionalContext()));
+		someAttributes
+				.addAll(femaleAttributesFor(somePart.nominalDemography(), somePart.getRegionalContext()));
+		List<Attribute> otherAttributes = new LinkedList<>();
+		otherAttributes.addAll(householdAttributeFor(regionDemography, region.getRegionalContext()));
+		otherAttributes
+				.addAll(femaleAttributesFor(otherPart.nominalDemography(), otherPart.getRegionalContext()));
+		MultiLevelIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
+
+		Map<RegionalContext, List<Attribute>> attributes = builder.attributesPerZone(region);
+
+		assertThat(attributes)
+				.containsEntry(somePart.getRegionalContext(), someAttributes)
+				.containsEntry(otherPart.getRegionalContext(), otherAttributes);
 	}
 
 	private String name(
