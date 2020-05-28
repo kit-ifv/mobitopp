@@ -44,6 +44,7 @@ public class CreateAndSaveDemand {
 		Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
 		DemandCreator create = new DemandCreator(usingBuilder, panelData, householdSelector,
 				householdAttributes, householdForZoneFilter);
+		// TODO find correct distribution of householdSize
 		RangeDistributionIfc distribution = householdDistributionFor(zone);
 		return create.demandFor(households, distribution);
 	}

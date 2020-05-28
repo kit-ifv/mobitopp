@@ -9,24 +9,19 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
+import lombok.RequiredArgsConstructor;
 
-public class DefaultAttributeResolver implements AttributeResolver {
+@RequiredArgsConstructor
+public class MultiLevelAttributeResolver implements AttributeResolver {
 
-	private final List<Attribute> attributes;
-	private final PanelDataRepository panelDataRepository;
-
-	public DefaultAttributeResolver(
-			List<Attribute> attributes, PanelDataRepository panelDataRepository) {
-		super();
-		this.attributes = attributes;
-		this.panelDataRepository = panelDataRepository;
-	}
+	private final Map<RegionalContext, List<Attribute>> attributes;
+	private final PanelDataRepository panelData;
 
 	@Override
 	public Map<String, Integer> attributesOf(HouseholdOfPanelData household, RegionalContext context) {
 		LinkedHashMap<String, Integer> resolvedAttributes = new LinkedHashMap<>();
-		for (Attribute attribute : attributes) {
-			int amount = attribute.valueFor(household, panelDataRepository);
+		for (Attribute attribute : attributes.get(context)) {
+			int amount = attribute.valueFor(household, panelData);
 			resolvedAttributes.put(attribute.name(), amount);
 		}
 		return resolvedAttributes;
@@ -34,8 +29,11 @@ public class DefaultAttributeResolver implements AttributeResolver {
 
 	@Override
 	public List<Attribute> attributesOf(AttributeType attributeType) {
+		// TODO filter distinct attributes
 		return attributes
+				.values()
 				.stream()
+				.flatMap(List::stream)
 				.filter(attribute -> attribute.type().equals(attributeType))
 				.sorted(Comparator.comparing(Attribute::name))
 				.collect(toList());
