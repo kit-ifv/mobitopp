@@ -38,6 +38,10 @@ public class StructuralData {
 		return structuralData.hasAttribute(regionIdColumn) ? regionIdColumn : zoneIdColumn;
 	}
 
+	public boolean hasRegion(String id) {
+		return hasValue(id, idColumn());
+	}
+
   public List<String> getAttributes() {
     return structuralData.getAttributes();
   }
