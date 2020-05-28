@@ -43,9 +43,9 @@ public class InMemoryData implements DemographyData {
 	}
 
 	@Override
-	public boolean hasData(RegionalLevel level, String zoneId) {
+	public boolean hasData(RegionalLevel level, String id) {
 		return hasDataFor(level)
-				&& data.get(level).values().stream().anyMatch(data -> data.hasValue(zoneId, "zoneId"));
+				&& data.get(level).values().stream().anyMatch(data -> data.hasRegion(id));
 	}
   
 	@Override

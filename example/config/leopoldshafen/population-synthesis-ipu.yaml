@@ -19,9 +19,9 @@ dataSource: !file
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
 demographyData: 
-  age_f: data/ipu/leopoldshafen/leopoldshafen-Demography.csv
-  age_m: data/ipu/leopoldshafen/leopoldshafen-Demography.csv
-  household_size: data/ipu/leopoldshafen/leopoldshafen-Demography.csv
+  age_f: data/ipu/leopoldshafen/demography-age-gender.csv
+  age_m: data/ipu/leopoldshafen/demography-age-gender.csv
+  household_size: data/ipu/leopoldshafen/demography-household.csv
 maxIterations: 100
 maxGoodnessDelta: 1e-5
 #numberOfZones: 2147483647
