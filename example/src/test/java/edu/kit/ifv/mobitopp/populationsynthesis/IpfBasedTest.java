@@ -26,7 +26,7 @@ public class IpfBasedTest {
   }
 
   private static ResultFile demandFile(String fileName) {
-    File outputFolder = new File("output", "demand-data-local");
+    File outputFolder = new File("output", "demand-data");
     return new ResultFile(outputFolder, fileName, "ipf");
   }
   
