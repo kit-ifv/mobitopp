@@ -108,8 +108,8 @@ public class DemographyOnDifferentLevelsExample extends PopulationSynthesis {
 		HouseholdCreator householdCreator = createHouseholdCreator();
 		PersonCreator personCreator = createPersonCreator();
 		Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter = z -> h -> true;
-		return new CommunityBasedIpu(results(), householdSelector, householdCreator, personCreator,
-				dataRepository(), context(), attributeType, householdFilter);
+		return new CommunityBasedIpu(results(), householdSelector, householdCreator, personCreator, dataRepository(),
+				context(), attributeType, householdFilter);
 	}
 
 	private ActivityScheduleAssigner activityScheduleAssigner() {

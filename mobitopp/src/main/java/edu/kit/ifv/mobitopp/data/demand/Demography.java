@@ -15,10 +15,7 @@ public class Demography implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-	private static final RangeDistributionIfc defaultDistribution = new ImmutableRangeDistribution(
-			new RangeDistribution());
-
-  private final EmploymentDistribution employment;
+	private final EmploymentDistribution employment;
   private final Map<AttributeType, RangeDistributionIfc> rangeDistributions;
 
   public Demography(
@@ -26,7 +23,7 @@ public class Demography implements Serializable {
       Map<AttributeType, RangeDistributionIfc> rangeDistributions) {
     super();
     this.employment = employment;
-    this.rangeDistributions = rangeDistributions;
+    this.rangeDistributions = new LinkedHashMap<>(rangeDistributions);
   }
 
   public EmploymentDistribution employment() {
@@ -51,7 +48,10 @@ public class Demography implements Serializable {
    * @return
    */
   public RangeDistributionIfc getDistribution(AttributeType type) {
-    return rangeDistributions.getOrDefault(type, defaultDistribution);
+  	if (!rangeDistributions.containsKey(type)) {
+  		rangeDistributions.put(type, new RangeDistribution());
+  	}
+    return rangeDistributions.get(type);
   }
 
   public RangeDistributionIfc income() {
@@ -59,10 +59,6 @@ public class Demography implements Serializable {
   }
 
   public void increment(AttributeType type, int value) {
-    if (!rangeDistributions.containsKey(type)) {
-      RangeDistribution distribution = new RangeDistribution();
-      rangeDistributions.put(type, distribution);
-    }
     RangeDistributionIfc distribution = getDistribution(type);
     if (!distribution.hasItem(value)) {
       distribution.addItem(new RangeDistributionItem(value, 0));

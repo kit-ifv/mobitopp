@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.data.demand;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -138,7 +138,7 @@ public class DemographyTest {
 	}
 
 	@Test
-	void returnsEmptyImmutableDistribution() throws Exception {
+	void returnsEmptyDistribution() throws Exception {
 		Demography emptyDemography = new Demography(employment, emptyMap());
 
 		assertAll(EnumSet
@@ -146,7 +146,7 @@ public class DemographyTest {
 				.stream()
 				.map(attribute -> () -> assertThat(emptyDemography.getDistribution(attribute))
 						.as(attribute.attributeName())
-						.isEqualTo(new ImmutableRangeDistribution(new RangeDistribution()))));
+						.isEqualTo(new RangeDistribution())));
 	}
 
 }

@@ -22,6 +22,10 @@ public class RangeDistribution
     if (0 > value) {
       throw new IllegalArgumentException("Value must be above 0, but was: " + value);
     }
+    
+    if (!hasItem(value)) {
+    	addItem(new RangeDistributionItem(value, 0));
+    }
 
     return getItemsInternal()
         .stream()

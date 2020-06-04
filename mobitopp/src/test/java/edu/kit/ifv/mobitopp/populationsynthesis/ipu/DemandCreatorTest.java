@@ -24,16 +24,20 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.demand.DefaultDistributions;
+import edu.kit.ifv.mobitopp.data.demand.Demography;
+import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 @ExtendWith(MockitoExtension.class)
 public class DemandCreatorTest {
 
+	private static final StandardAttribute householdFilterType = StandardAttribute.householdSize;
 	private HouseholdOfPanelData firstPanelHousehold;
 	private HouseholdOfPanelData secondPanelHousehold;
 	private HouseholdOfPanelData thirdPanelHousehold;
@@ -49,26 +53,30 @@ public class DemandCreatorTest {
 	WeightedHouseholdSelector householdSelector;
 	@Mock
 	Predicate<HouseholdOfPanelData> filter;
+	@Mock
+	private DemandZone someZone;
+
 	private WeightedHousehold first;
 	private WeightedHousehold second;
 	private WeightedHousehold third;
-	private List<Attribute> householdAttributes;
-	private DemandZone someZone;
 
 	@BeforeEach
 	public void initialise() {
 		firstPanelHousehold = ExampleHouseholdOfPanelData.household;
 		secondPanelHousehold = ExampleHouseholdOfPanelData.otherHousehold;
 		thirdPanelHousehold = createBiggerHousehold();
-		firstHousehold = ExampleHousehold.createHousehold(dummyZone(), firstId());
-		secondHousehold = ExampleHousehold.createHousehold(dummyZone(), secondId());
-		thirdHousehold = ExampleHousehold.createHousehold(dummyZone(), thirdId());
-		someZone = ExampleDemandZones.create().someZone();
-		householdAttributes = StandardAttribute.householdSize
-				.createAttributes(someZone.nominalDemography(), someZone.getRegionalContext())
-				.collect(toList());
+		when(someZone.zone()).thenReturn(ExampleDemandZones.create().someZone().zone());
+		DefaultRegionalContext someRegionalContext = someRegionalContext();
+		when(someZone.getRegionalContext()).thenReturn(someRegionalContext);
+		firstHousehold = ExampleHousehold.createHousehold(someZone(), firstId());
+		secondHousehold = ExampleHousehold.createHousehold(someZone(), secondId());
+		thirdHousehold = ExampleHousehold.createHousehold(someZone(), thirdId());
 
 		configureMockObjects();
+	}
+
+	private DefaultRegionalContext someRegionalContext() {
+		return new DefaultRegionalContext(RegionalLevel.zone, someZone.zone().getId().getExternalId());
 	}
 
 	private void configureMockObjects() {
@@ -93,15 +101,17 @@ public class DemandCreatorTest {
 	@Test
 	public void createsEnoughHouseholds() {
 		acceptAllHouseholds();
-		RangeDistributionIfc distribution = householdDistributionFor(firstPanelHousehold);
-		List<WeightedHousehold> households = createWeightedHouseholds();
+		Demography demography = householdDemographyFor(firstPanelHousehold);
+		when(someZone.nominalDemography()).thenReturn(demography);
+		List<Attribute> householdAttributes = createAttributes();
+		List<WeightedHousehold> households = createWeightedHouseholds(householdAttributes);
 		List<WeightedHousehold> selectedHouseholds = asList(first);
 		int amount = selectedHouseholds.size();
 		when(householdSelector.selectFrom(asList(first, second), amount))
 				.thenReturn(selectedHouseholds);
-		DemandCreator creator = newCreator();
+		DemandCreator creator = newCreator(householdAttributes);
 
-		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
+		List<HouseholdForSetup> newHouseholds = creator.demandFor(households);
 
 		assertThat(newHouseholds).hasSize(amount);
 	}
@@ -109,15 +119,17 @@ public class DemandCreatorTest {
 	@Test
 	public void createsHouseholdsForEachType() {
 		acceptAllHouseholds();
-		RangeDistributionIfc distribution = householdDistributionFor(firstPanelHousehold,
-				secondPanelHousehold, thirdPanelHousehold);
-		List<WeightedHousehold> households = createWeightedHouseholds();
+		Demography demography = householdDemographyFor(firstPanelHousehold, secondPanelHousehold,
+				thirdPanelHousehold);
+		when(someZone.nominalDemography()).thenReturn(demography);
+		List<Attribute> householdAttributes = createAttributes();
+		List<WeightedHousehold> households = createWeightedHouseholds(householdAttributes);
 		int amount = 1;
 		when(householdSelector.selectFrom(asList(first, second), amount)).thenReturn(asList(first));
 		when(householdSelector.selectFrom(eq(asList(third)), anyInt())).thenReturn(asList(third));
-		DemandCreator creator = newCreator();
+		DemandCreator creator = newCreator(householdAttributes);
 
-		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
+		List<HouseholdForSetup> newHouseholds = creator.demandFor(households);
 
 		assertThat(newHouseholds).hasSize(amount);
 	}
@@ -125,47 +137,58 @@ public class DemandCreatorTest {
 	@Test
 	void filterHouseholds() throws Exception {
 		when(filter.test(firstPanelHousehold)).thenReturn(false);
-		RangeDistributionIfc distribution = householdDistributionFor(firstPanelHousehold);
-		List<WeightedHousehold> households = createWeightedHouseholds();
+		Demography demography = householdDemographyFor(firstPanelHousehold);
+		when(someZone.nominalDemography()).thenReturn(demography);
+		List<Attribute> householdAttributes = createAttributes();
+		List<WeightedHousehold> households = createWeightedHouseholds(householdAttributes);
 		List<WeightedHousehold> selectedHouseholds = asList(first);
 		int amount = selectedHouseholds.size();
 		when(householdSelector.selectFrom(asList(first, second), amount))
 				.thenReturn(selectedHouseholds);
-		DemandCreator creator = newCreator();
+		DemandCreator creator = newCreator(householdAttributes);
 
-		List<HouseholdForSetup> newHouseholds = creator.demandFor(households, distribution);
+		List<HouseholdForSetup> newHouseholds = creator.demandFor(households);
 
 		assertThat(newHouseholds).isEmpty();
 	}
 
-	private DemandCreator newCreator() {
-		return new DemandCreator(builder, panelData, householdSelector, householdAttributes, filter);
+	private DemandCreator newCreator(List<Attribute> householdAttributes) {
+		return new DemandCreator(builder, panelData, filter, new StructuralDataHouseholdReproducer(
+				someZone, householdFilterType, householdSelector, householdAttributes));
 	}
 
-	private RangeDistributionIfc householdDistributionFor(HouseholdOfPanelData... panelHousehold) {
+	private List<Attribute> createAttributes() {
+		return householdFilterType
+				.createAttributes(someZone.nominalDemography(), someZone.getRegionalContext())
+				.collect(toList());
+	}
+
+	private Demography householdDemographyFor(HouseholdOfPanelData... panelHousehold) {
 		RangeDistributionIfc distribution = new DefaultDistributions().createHousehold();
 		for (HouseholdOfPanelData household : panelHousehold) {
 			distribution.increment(household.size());
 		}
-		return distribution;
+		return new Demography(EmploymentDistribution.createDefault(),
+				Map.of(householdFilterType, distribution));
 	}
 
-	private Zone dummyZone() {
-		return ExampleDemandZones.create().someZone().zone();
+	private Zone someZone() {
+		return someZone.zone();
 	}
 
-	private List<WeightedHousehold> createWeightedHouseholds() {
+	private List<WeightedHousehold> createWeightedHouseholds(List<Attribute> householdAttributes) {
 		double weight = 0.5d;
-		first = new WeightedHousehold(firstId(), weight, attributes(firstPanelHousehold),
-				someZone.getRegionalContext());
-		second = new WeightedHousehold(secondId(), weight, attributes(secondPanelHousehold),
-				someZone.getRegionalContext());
-		third = new WeightedHousehold(thirdId(), weight, attributes(thirdPanelHousehold),
-				someZone.getRegionalContext());
+		first = new WeightedHousehold(firstId(), weight,
+				attributes(firstPanelHousehold, householdAttributes), someZone.getRegionalContext());
+		second = new WeightedHousehold(secondId(), weight,
+				attributes(secondPanelHousehold, householdAttributes), someZone.getRegionalContext());
+		third = new WeightedHousehold(thirdId(), weight,
+				attributes(thirdPanelHousehold, householdAttributes), someZone.getRegionalContext());
 		return asList(first, second, third);
 	}
 
-	private Map<String, Integer> attributes(HouseholdOfPanelData panelHousehold) {
+	private Map<String, Integer> attributes(
+			HouseholdOfPanelData panelHousehold, List<Attribute> householdAttributes) {
 		return householdAttributes
 				.stream()
 				.collect(
