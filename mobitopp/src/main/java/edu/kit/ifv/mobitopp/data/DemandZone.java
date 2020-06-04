@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
@@ -66,6 +67,16 @@ public class DemandZone implements DemandRegion {
   @Override
   public List<DemandRegion> parts() {
   	return List.of();
+  }
+  
+  @Override
+  public boolean contains(ZoneId id) {
+  	return false;
+  }
+  
+  @Override
+  public Stream<DemandZone> zones() {
+  	return Stream.empty();
   }
 
   @Override

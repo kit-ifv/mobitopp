@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -66,7 +67,7 @@ public class MultiLevelIterationFactoryTest {
 		somePart = new DemandZone(zonesToCopyFrom.someZone().zone(), somePartDemography);
 		otherPartDemography = new Demography(EmploymentDistribution.createDefault(), otherPartDistributions);
 		otherPart = new DemandZone(zonesToCopyFrom.otherZone().zone(), otherPartDemography);
-		when(context.attributes(RegionalLevel.community))
+		when(context.attributes(community))
 				.thenReturn(List.of(StandardAttribute.householdSize));
 		when(context.attributes(RegionalLevel.zone)).thenReturn(List.of(StandardAttribute.femaleAge));
 	}
@@ -74,7 +75,7 @@ public class MultiLevelIterationFactoryTest {
 	@Test
 	void buildsUpConstraintsOfAllLevels() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
-		Community region = new MultipleZones("1", regionDemography, zones);
+		Community region = new MultipleZones("1", community, regionDemography, zones);
 		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
 
 		List<Constraint> constraints = builder.constraintsFor(region);
@@ -116,7 +117,7 @@ public class MultiLevelIterationFactoryTest {
 	@Test
 	void buildsUpAttributesOfAllLevels() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
-		Community region = new MultipleZones("1", regionDemography, zones);
+		Community region = new MultipleZones("1", community, regionDemography, zones);
 		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
 
 		List<Attribute> attributes = builder.attributesFor(region).collect(toList());
@@ -151,7 +152,7 @@ public class MultiLevelIterationFactoryTest {
 	@Test
 	void buildsUpAttributesForEachZone() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
-		Community region = new MultipleZones("1", regionDemography, zones);
+		Community region = new MultipleZones("1", community, regionDemography, zones);
 		List<Attribute> someAttributes = new LinkedList<>();
 		someAttributes.addAll(householdAttributeFor(regionDemography, region.getRegionalContext()));
 		someAttributes

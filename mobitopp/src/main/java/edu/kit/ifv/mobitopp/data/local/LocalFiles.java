@@ -35,6 +35,7 @@ import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
@@ -206,7 +207,8 @@ public class LocalFiles implements DataSource {
 			final PanelDataRepository panelDataRepository, final int numberOfZones,
 			final StartDateSpecification input, final ResultWriter results,
 			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
-			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
+			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance,
+			final DemandRegionMapping demandRegionMapping)
 			throws IOException {
 		ChargingListener electricChargingWriter = new ElectricChargingWriter(results);
 		Matrices matrices = matrices(modeToType);
@@ -220,8 +222,19 @@ public class LocalFiles implements DataSource {
 		DemandDataFolder demandData = demandDataFolder(zoneRepository, numberOfZones, personChanger);
 		DemandDataRepository demandRepository = new SerialisingDemandRepository(
 				demandData.serialiseAsCsv());
-		return new LocalDataForPopulationSynthesis(matrices, demographyRepository, demandZoneRepository,
-				panelDataRepository, impedance, demandRepository, results);
+		DemandRegionRepository demandRegionRepository = demandRegionRepository(demandZoneRepository,
+				demandRegionMapping, demographyRepository);
+		return new LocalDataForPopulationSynthesis(matrices, demographyRepository,
+				demandRegionRepository, demandZoneRepository, panelDataRepository, impedance,
+				demandRepository, results);
+	}
+
+	private DemandRegionRepository demandRegionRepository(
+			final DemandZoneRepository demandZoneRepository,
+			final DemandRegionMapping demandRegionMapping,
+			final DemographyRepository demographyRepository) {
+		return new DemandRegionRepositoryBuilder(demandRegionMapping, demandZoneRepository,
+				demographyRepository).create();
 	}
 
 	private DemandZoneRepository demandZoneRepository(

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +45,7 @@ public class CommunityDemandCalculatorTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		Demography demography = someZone.nominalDemography();
-		Community someCommunity = new MultipleZones(communityId, demography, someZone, otherZone);
+		Community someCommunity = new MultipleZones(communityId, community, demography, someZone, otherZone);
 		when(communityToZone.getCommunities()).thenReturn(asList(someCommunity));
 		List<PopulationSynthesisStep> steps = asList(firstStep, secondStep);
 		DemandDataCalculator calculator = new CommunityDemandCalculator(communityToZone,

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ public class IsolatedZonesCommunityDemandCalculatorTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		Demography someDemography = someZone.nominalDemography();
-		Community someCommunity = new MultipleZones(communityId, someDemography, someZone, otherZone);
+		Community someCommunity = new MultipleZones(communityId, community, someDemography, someZone, otherZone);
 		IsolatedZonesCommunityDemandCalculator calculator = new IsolatedZonesCommunityDemandCalculator(
 				zoneCalculator);
 

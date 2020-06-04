@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.data.Network;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.local.DemandRegionMapping;
 import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
@@ -42,7 +43,8 @@ public class TestSource implements DataSource {
 			final PanelDataRepository panelDataRepository, final int numberOfZones,
 			final StartDateSpecification input, final ResultWriter results,
 			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
-			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
+			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance,
+			final DemandRegionMapping demandRegionMapping)
 			throws IOException {
 		throw new RuntimeException("dummy implementation");
 	}

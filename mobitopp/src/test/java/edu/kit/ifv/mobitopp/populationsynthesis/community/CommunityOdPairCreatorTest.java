@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.community;
 
+import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.verify;
@@ -34,7 +35,8 @@ public class CommunityOdPairCreatorTest {
 		otherZone = ExampleDemandZones.create().getOtherZone();
 		noWorkZone = ExampleDemandZones.create().getZoneWithoutLocations();
 		Demography someDemography = otherZone.nominalDemography();
-		otherCommunity = new MultipleZones("community", someDemography, otherZone, noWorkZone);
+		otherCommunity = new MultipleZones("community", community, someDemography,
+				otherZone, noWorkZone);
 	}
 
 	@Test
@@ -50,7 +52,7 @@ public class CommunityOdPairCreatorTest {
 
 		verify(communityRepository).getCommutingCommunitiesFrom(someZone.getId());
 	}
-	
+
 	@Test
 	void scaleRelations() throws Exception {
 		int numberOfCommuters = 1;

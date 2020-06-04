@@ -13,4 +13,6 @@ public interface DemandZoneRepository {
 
 	ZoneRepository zoneRepository();
 
+	Optional<DemandRegion> getRegionByExternalId(String id);
+
 }

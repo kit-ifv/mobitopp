@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
+import edu.kit.ifv.mobitopp.data.local.DemandRegionMapping;
 import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
@@ -26,7 +27,8 @@ public interface DataSource {
 			final PanelDataRepository panelDataRepository, final int numberOfZones,
 			final StartDateSpecification input, final ResultWriter results,
 			final AreaTypeRepository areaTypeRepository, final TypeMapping modeToType,
-			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance)
+			final PersonChanger personChanger, final Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance,
+			final DemandRegionMapping demandRegionMapping)
 			throws IOException;
 
 	DataRepositoryForSimulation forSimulation(

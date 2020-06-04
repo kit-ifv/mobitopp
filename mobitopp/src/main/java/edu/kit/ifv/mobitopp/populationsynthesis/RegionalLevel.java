@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public enum RegionalLevel {
+public enum RegionalLevel implements Comparable<RegionalLevel> {
 
-	community("community"), zone("zone");
+	zone("zone"), community("community");
 
 	private static final Map<String, RegionalLevel> values = Stream
 			.of(RegionalLevel.values())
@@ -22,7 +22,7 @@ public enum RegionalLevel {
 	public String identifier() {
 		return identifier;
 	}
-
+	
 	public static RegionalLevel levelOf(String identifier) {
 		if (values.containsKey(identifier)) {
 			return values.get(identifier);
