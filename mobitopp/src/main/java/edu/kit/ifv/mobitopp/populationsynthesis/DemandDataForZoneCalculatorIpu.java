@@ -14,6 +14,8 @@ import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreatorFactory;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StructuralDataDemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationFactory;
@@ -43,8 +45,10 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		this.context = context;
 		this.householdFilterType = householdFilterType;
 		DemandCategories categories = new DemandCategories();
-		createAndSaveDemand = new CreateAndSaveDemand(householdCreator, personCreator, panelData(),
-				householdFilterType, householdFilter, householdSelector, results, categories);
+		DemandCreatorFactory demandCreatorFactory = new StructuralDataDemandCreatorFactory(
+				householdCreator, personCreator, panelData(), householdFilterType, householdFilter,
+				householdSelector);
+		createAndSaveDemand = new CreateAndSaveDemand(results, categories, demandCreatorFactory);
 	}
 
 	@Override

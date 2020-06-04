@@ -1,11 +1,9 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class RangeDistributionTest {
 
@@ -16,7 +14,7 @@ public class RangeDistributionTest {
   private RangeDistributionItem firstItem;
   private RangeDistributionItem secondItem;
 
-  @Before
+  @BeforeEach
   public void initialise() {
     distribution = new RangeDistribution();
     firstValue = 1;
@@ -33,15 +31,15 @@ public class RangeDistributionTest {
     RangeDistributionItem first = distribution.getItem(firstValue);
     RangeDistributionItem second = distribution.getItem(secondValue);
 
-    assertThat(first, is(equalTo(firstItem)));
-    assertThat(second, is(equalTo(secondItem)));
+    assertThat(first).isEqualTo(firstItem);
+    assertThat(second).isEqualTo(secondItem);
   }
 
   @Test
   public void getTotalAmount() {
     int totalAmount = distribution.getTotalAmount();
     
-    assertThat(totalAmount, is(equalTo(firstItem.amount() + secondItem.amount())));
+    assertThat(totalAmount).isEqualTo(firstItem.amount() + secondItem.amount());
   }
   
   @Test
@@ -49,21 +47,31 @@ public class RangeDistributionTest {
     distribution.increment(firstValue);
 
     int amountAfterIncrement = amount + 1;
-    assertThat(distribution.getItem(firstValue).amount(), is(equalTo(amountAfterIncrement)));
-    assertThat(distribution.getItem(secondValue), is(equalTo(secondItem)));
+    assertThat(distribution.getItem(firstValue).amount()).isEqualTo(amountAfterIncrement);
+    assertThat(distribution.getItem(secondValue)).isEqualTo(secondItem);
   }
   
   @Test
   public void amount() {
-    assertThat(distribution.amount(firstValue), is(equalTo(amount)));
-    assertThat(distribution.amount(secondValue), is(equalTo(amount)));
+    assertThat(distribution.amount(firstValue)).isEqualTo(amount);
+    assertThat(distribution.amount(secondValue)).isEqualTo(amount);
   }
   
   @Test
   public void createsEmptyDistribution() {
     RangeDistributionIfc empty = distribution.createEmpty();
     
-    assertThat(empty.getItem(firstValue).amount(), is(equalTo(0)));
-    assertThat(empty.getItem(secondValue).amount(), is(equalTo(0)));
+    assertThat(empty.getItem(firstValue).amount()).isEqualTo(0);
+    assertThat(empty.getItem(secondValue).amount()).isEqualTo(0);
   }
+  
+  @Test
+	void incrementMissingValue() throws Exception {
+		RangeDistribution distribution = new RangeDistribution();
+		distribution.addItem(firstItem);
+		
+		RangeDistributionItem secondItem = distribution.getItem(secondValue);
+		
+		assertThat(secondItem).isEqualTo(new RangeDistributionItem(secondValue, 0));
+	}
 }

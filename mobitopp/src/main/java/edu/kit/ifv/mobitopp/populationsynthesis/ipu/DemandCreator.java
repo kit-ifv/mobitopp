@@ -4,68 +4,36 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public class DemandCreator {
 
-	private static final Predicate<HouseholdOfPanelData> acceptAll = h -> true;
-
 	private final HouseholdBuilder householdBuilder;
 	private final PanelDataRepository panelData;
-	private final WeightedHouseholdSelector householdSelector;
-	private final List<Attribute> attributes;
 	private final Predicate<HouseholdOfPanelData> householdFilter;
+	private final HouseholdReproducer householdMultiplier;
 
 	public DemandCreator(
 			final HouseholdBuilder householdBuilder, final PanelDataRepository panelDataRepository,
-			final WeightedHouseholdSelector householdSelector, final List<Attribute> householdAttributes,
-			final Predicate<HouseholdOfPanelData> householdFilter) {
+			final Predicate<HouseholdOfPanelData> householdFilter,
+			final HouseholdReproducer householdMultiplier) {
 		super();
 		this.householdBuilder = householdBuilder;
 		this.panelData = panelDataRepository;
-		this.householdSelector = householdSelector;
-		this.attributes = householdAttributes;
 		this.householdFilter = householdFilter;
+		this.householdMultiplier = householdMultiplier;
 	}
 
-	public DemandCreator(
-			final HouseholdBuilder householdBuilder, final WeightedHouseholdSelector householdSelector,
-			final List<Attribute> attributeType, final PanelDataRepository panelData) {
-		this(householdBuilder, panelData, householdSelector, attributeType, acceptAll);
-	}
-
-	public List<HouseholdForSetup> demandFor(
-			List<WeightedHousehold> households, RangeDistributionIfc distribution) {
-		return distribution
-				.items()
-				.flatMap(item -> filter(households, item))
+	public List<HouseholdForSetup> demandFor(final List<WeightedHousehold> households) {
+		return householdMultiplier.getHouseholdsToCreate(households)
 				.map(WeightedHousehold::id)
 				.map(panelData::getHousehold)
 				.filter(householdFilter)
 				.map(householdBuilder::householdFor)
 				.collect(toList());
-	}
-
-	private Stream<WeightedHousehold> filter(
-			List<WeightedHousehold> households, RangeDistributionItem item) {
-		List<WeightedHousehold> householdsByType = households
-				.stream()
-				.filter(household -> filterType(household, item))
-				.collect(toList());
-		return householdSelector.selectFrom(householdsByType, item.amount()).stream();
-	}
-
-	private boolean filterType(WeightedHousehold household, RangeDistributionItem item) {
-		return attributes
-				.stream()
-				.filter(attribute -> attribute.matches(item))
-				.anyMatch(attribute -> 0 < household.attribute(attribute.name()));
 	}
 
 }

@@ -33,6 +33,6 @@ visumFile: data/ipu/leopoldshafen/leopoldshafen.net
 visumToMobitopp:
   carTransportSystemCode: P
 experimental:
-  communityToZone: data/ipu/leopoldshafen/community-to-zone.csv
-  communityCommuters: data/ipu/leopoldshafen/community-to-community-commuters.csv
+  communityToZone: data/ipu/leopoldshafen/community-to-zone-different-levels.csv
+  communityCommuters: data/ipu/leopoldshafen/community-to-community-commuters-different-levels.csv
   poleDistanceRange: 50

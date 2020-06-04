@@ -15,12 +15,14 @@ import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.MultiLevelIterationFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightDemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
 import edu.kit.ifv.mobitopp.result.Logger;
@@ -28,28 +30,28 @@ import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
-
 public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
-	
+
 	private final DataRepositoryForPopulationSynthesis dataRepository;
 	private final SynthesisContext context;
 	private final AttributeType householdFilterType;
 	private final CreateAndSaveDemand createAndSaveDemand;
 
 	public CommunityBasedIpu(
-			Results results, WeightedHouseholdSelector householdSelector,
-			HouseholdCreator householdCreator, PersonCreator personCreator,
-			DataRepositoryForPopulationSynthesis dataRepository, SynthesisContext context,
-			AttributeType householdFilterType,
-			Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter) {
+			final Results results, final WeightedHouseholdSelector householdSelector,
+			final HouseholdCreator householdCreator, final PersonCreator personCreator,
+			final DataRepositoryForPopulationSynthesis dataRepository, final SynthesisContext context,
+			final AttributeType householdFilterType,
+			final Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter) {
 		this.dataRepository = dataRepository;
 		this.context = context;
 		this.householdFilterType = householdFilterType;
 		DemandCategories categories = new DemandCategories();
-		createAndSaveDemand = new CreateAndSaveDemand(householdCreator, personCreator, panelData(),
-				householdFilterType, householdFilter, householdSelector, results, categories);
+		DemandCreatorFactory demandCreatorFactory = new WeightDemandCreatorFactory(householdCreator,
+				personCreator, panelData(), householdFilterType, householdFilter, householdSelector);
+		createAndSaveDemand = new CreateAndSaveDemand(results, categories, demandCreatorFactory);
 	}
-	
+
 	@Override
 	public void calculateDemandData(Community community, ImpedanceIfc impedance) {
 		IterationFactory factory = new MultiLevelIterationFactory(panelData(), context);
@@ -66,10 +68,9 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	}
 
 	private void create(
-			List<WeightedHousehold> households, Community community, AttributeResolver attributeResolver) {
-		community
-				.zones()
-				.forEach(zone -> createAndSave(households, zone, attributeResolver));
+			List<WeightedHousehold> households, Community community,
+			AttributeResolver attributeResolver) {
+		community.zones().forEach(zone -> createAndSave(households, zone, attributeResolver));
 	}
 
 	private void createAndSave(
