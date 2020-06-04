@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
@@ -18,6 +19,10 @@ public interface DemandRegion {
 	}
 
 	List<DemandRegion> parts();
+
+	Stream<DemandZone> zones();
+
+	boolean contains(ZoneId id);
 
 	Demography nominalDemography();
 

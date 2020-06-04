@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import java.util.Collections;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataSource;
@@ -22,6 +21,7 @@ public class WrittenConfiguration {
   private double maxGoodnessDelta;
   private int numberOfZones;
   private DataSource dataSource;
+  private Map<String, String> demandRegionMapping;
   private ActivityScheduleAssignerType activityScheduleAssigner;
   private Map<String, String> demographyData;
   private String panelData;
@@ -37,11 +37,12 @@ public class WrittenConfiguration {
   public WrittenConfiguration() {
     super();
     numberOfZones = unlimited;
+    demandRegionMapping = Map.of();
     activityScheduleAssigner = ActivityScheduleAssignerType.standard;
-    mobilityProviders = Collections.emptyMap();
+    mobilityProviders = Map.of();
     resultFolder = defaultResultFolder;
     visumToMobitopp = new VisumToMobitopp();
-    experimental = Collections.emptyMap();
+    experimental = Map.of();
   }
 
   public WrittenConfiguration(WrittenConfiguration other) {

@@ -17,6 +17,7 @@ import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -31,11 +32,13 @@ public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulat
 
 	private final Matrices matrices;
 	private final DemographyRepository demographyRepository;
+	private final DemandRegionRepository demandRegionRepository;
 	private final DemandZoneRepository zoneRepository;
 	private final PanelDataRepository panelDataRepository;
 	private final ImpedanceIfc impedance;
 	private final DemandDataRepository demandDataRepository;
 	private final ResultWriter results;
+
 
 	@Override
 	public Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices() {
@@ -55,6 +58,11 @@ public class LocalDataForPopulationSynthesis implements DataRepositoryForPopulat
 	@Override
 	public DemandDataRepository demandDataRepository() {
 		return demandDataRepository;
+	}
+	
+	@Override
+	public DemandRegionRepository demandRegionRepository() {
+		return demandRegionRepository;
 	}
 
 	@Override

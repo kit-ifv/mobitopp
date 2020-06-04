@@ -15,30 +15,30 @@ import lombok.ToString;
 
 @EqualsAndHashCode(of = "id")
 @ToString(of = "id")
-public class MultipleZones implements Community {
+public class MultipleRegions implements DemandRegion {
 
 	@Getter
 	private final String id;
-	private final RegionalLevel regionalLevel;
+	private final RegionalLevel level;
 	private final Demography nominalDemography;
-	private final List<DemandZone> zones;
+	private final List<DemandRegion> parts;
 	private final Demography actualDemography;
 
-	public MultipleZones(
-			final String id, final RegionalLevel regionalLevel, final Demography nominalDemography,
-			final List<DemandZone> zones) {
+	public MultipleRegions(
+			final String id, final RegionalLevel level, final Demography nominalDemography,
+			final List<DemandRegion> parts) {
 		super();
 		this.id = id;
-		this.regionalLevel = regionalLevel;
+		this.level = level;
 		this.nominalDemography = nominalDemography;
-		this.zones = zones;
+		this.parts = parts;
 		this.actualDemography = nominalDemography.createEmpty();
 	}
 
-	public MultipleZones(
-			final String id, final RegionalLevel regionalLevel, final Demography nominalDemography,
-			final DemandZone... zones) {
-		this(id, regionalLevel, nominalDemography, List.of(zones));
+	public MultipleRegions(
+			final String id, final RegionalLevel level, final Demography nominalDemography,
+			final DemandRegion... zones) {
+		this(id, level, nominalDemography, List.of(zones));
 	}
 
 	@Override
@@ -48,22 +48,22 @@ public class MultipleZones implements Community {
 
 	@Override
 	public RegionalLevel regionalLevel() {
-		return regionalLevel;
+		return level;
 	}
 
 	@Override
 	public List<DemandRegion> parts() {
-		return Collections.unmodifiableList(zones);
+		return Collections.unmodifiableList(parts);
 	}
 
 	@Override
 	public Stream<DemandZone> zones() {
-		return zones.stream();
+		return parts.stream().flatMap(DemandRegion::zones);
 	}
 
 	@Override
 	public boolean contains(final ZoneId id) {
-		return zones.stream().map(DemandZone::getId).anyMatch(z -> z.equals(id));
+		return parts.stream().anyMatch(part -> part.contains(id));
 	}
 
 	@Override

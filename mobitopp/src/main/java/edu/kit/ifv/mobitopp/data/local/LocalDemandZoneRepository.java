@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -56,6 +57,11 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 	@Override
 	public Optional<DemandZone> zoneByExternalId(String zoneId) {
 		return Optional.ofNullable(zonesByExternal.get(zoneId));
+	}
+	
+	@Override
+	public Optional<DemandRegion> getRegionByExternalId(String id) {
+		return Optional.ofNullable(zonesByExternal.get(id));
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import edu.kit.ifv.mobitopp.data.StartDateSpecification;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.BicRepository;
 import edu.kit.ifv.mobitopp.data.local.Convert;
+import edu.kit.ifv.mobitopp.data.local.DemandRegionMapping;
 import edu.kit.ifv.mobitopp.data.local.LocalPanelDataRepository;
 import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.configuration.DynamicParameters;
@@ -220,16 +221,22 @@ public class ContextBuilder {
     return data;
   }
 
-  private void dataRepository() throws IOException {
-    int numberOfZones = configuration.getNumberOfZones();
-    dataRepository = configuration
-        .getDataSource()
-        .forPopulationSynthesis(network, roadNetwork, demographyData, zonePropertiesData, panelData(), numberOfZones,
-            startDate(), resultWriter, areaTypeRepository, modeToType, personChanger, wrapImpedance);
-    log("Load data repository");
-  }
+	private void dataRepository() throws IOException {
+		int numberOfZones = configuration.getNumberOfZones();
+		DemandRegionMapping demandRegionMapping = loadDemandRegionMapping();
+		dataRepository = configuration
+				.getDataSource()
+				.forPopulationSynthesis(network, roadNetwork, demographyData, zonePropertiesData,
+						panelData(), numberOfZones, startDate(), resultWriter, areaTypeRepository, modeToType,
+						personChanger, wrapImpedance, demandRegionMapping);
+		log("Load data repository");
+	}
 
-  private void verify(DemographyData data, VisumNetwork network, Logger logger) {
+	private DemandRegionMapping loadDemandRegionMapping() {
+		return new DemandRegionMappingFactory().create(configuration.getDemandRegionMapping());
+	}
+
+	private void verify(DemographyData data, VisumNetwork network, Logger logger) {
     List<Integer> zoneIds = network.zones.values().stream().map(zone -> zone.id).collect(toList());
     new DemographyChecker(zoneIds, logger::println).check(data);
   }

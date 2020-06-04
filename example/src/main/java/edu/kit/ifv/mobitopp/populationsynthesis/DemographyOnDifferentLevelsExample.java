@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
@@ -23,7 +24,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElect
 import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityOdPairCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityRelationsParser;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunityZoneMappingParser;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.DemandRegionZoneMappingParser;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.DefaultCommunityRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.HouseholdBasedStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPairSelector;
@@ -72,7 +73,7 @@ public class DemographyOnDifferentLevelsExample extends PopulationSynthesis {
 
 	private DefaultCommunityRepository loadCommunities() {
 		File mappingFile = context().experimentalParameters().valueAsFile("communityToZone");
-		Map<String, Community> communities = new CommunityZoneMappingParser(demandZoneRepository(),
+		Map<String, DemandRegion> communities = new DemandRegionZoneMappingParser(demandZoneRepository(),
 				dataRepository().demographyRepository())
 				.parse(mappingFile);
 		File communityRelationsFile = context()

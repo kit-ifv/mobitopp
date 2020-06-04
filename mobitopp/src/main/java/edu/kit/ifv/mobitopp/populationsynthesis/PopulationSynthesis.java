@@ -134,8 +134,9 @@ public abstract class PopulationSynthesis {
 	}
 
 	private void serialise(RegionalLevel level) {
+		DemandRegionRepository repository = context.dataRepository().demandRegionRepository();
 		SerialiseDemography serialiser = new SerialiseDemography(context.attributes(level),
-				context.zoneRepository()::getZones, context.resultWriter(), level);
+				repository::getRegions, context.resultWriter(), level);
 		serialiser.serialiseDemography();
 	}
 

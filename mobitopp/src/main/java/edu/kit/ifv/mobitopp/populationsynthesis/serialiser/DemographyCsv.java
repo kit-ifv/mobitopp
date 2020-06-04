@@ -33,8 +33,8 @@ public class DemographyCsv {
   }
 
   public List<String> createHeader() {
-    DemandRegion demandZone = demandSupplier.get().iterator().next();
-    Demography demography = demandZone.actualDemography();
+    DemandRegion region = demandSupplier.get().iterator().next();
+    Demography demography = region.actualDemography();
     return StreamUtils
         .concat(Stream.of("externalId"),
             attributes().flatMap(type -> headerOf(demography, type)))
@@ -76,7 +76,7 @@ public class DemographyCsv {
         .collect(joining(";"));
   }
 
-  private Stream<Object> valuesOf(Demography demography, AttributeType type) {
+  private Stream<Integer> valuesOf(Demography demography, AttributeType type) {
     return demography.getDistribution(type).items().map(DemandModelDistributionItemIfc::amount);
   }
 
@@ -84,7 +84,7 @@ public class DemographyCsv {
     return type.prefix() + item.lowerBound() + "-" + item.upperBound();
   }
 
-  private Stream<Object> headerOf(Demography demography, AttributeType type) {
+  private Stream<String> headerOf(Demography demography, AttributeType type) {
     return demography.getDistribution(type).items().map(item -> toBounds(item, type));
   }
 

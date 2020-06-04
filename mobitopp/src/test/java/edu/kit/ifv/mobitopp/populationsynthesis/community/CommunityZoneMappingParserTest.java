@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -19,11 +18,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
+import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,10 +51,10 @@ public class CommunityZoneMappingParserTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		setAvailable(someZone);
 		Row row = createMappingFor(someZone);
-		Map<String, Community> repository = parse(row);
+		Map<String, DemandRegion> repository = parse(row);
 
 		assertThat(repository,
-				hasEntry(communityId, new MultipleZones(communityId, communityDemography, someZone)));
+				hasEntry(communityId, new MultipleZones(communityId, community, communityDemography, someZone)));
 		verify(demographyRepository).getDemographyFor(community, communityId);
 	}
 
@@ -61,10 +62,10 @@ public class CommunityZoneMappingParserTest {
 	void parseMissingZone() throws Exception {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		Row row = createMappingFor(someZone);
-		Map<String, Community> repository = parse(row);
+		Map<String, DemandRegion> repository = parse(row);
 
 		assertThat(repository,
-				hasEntry(communityId, new MultipleZones(communityId, communityDemography)));
+				hasEntry(communityId, new MultipleZones(communityId, community, communityDemography)));
 		verify(demographyRepository).getDemographyFor(community, communityId);
 	}
 
@@ -79,14 +80,8 @@ public class CommunityZoneMappingParserTest {
 				.thenReturn(Optional.of(someZone));
 	}
 
-	private Map<String, Community> parse(Row row) {
-		File mappingFile = new File("dummy");
-		return new CommunityZoneMappingParser(zoneRepository, demographyRepository) {
-
-			Stream<Row> load(File mappingFile) {
-				return Stream.of(row);
-			};
-
-		}.parse(mappingFile);
+	private Map<String, DemandRegion> parse(Row row) {
+		return new DemandRegionZoneMappingParser(RegionalLevel.community, zoneRepository,
+				demographyRepository).parse(Stream.of(row));
 	}
 }
