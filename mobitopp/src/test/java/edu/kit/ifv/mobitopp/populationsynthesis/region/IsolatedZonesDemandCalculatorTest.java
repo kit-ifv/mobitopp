@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static org.mockito.Mockito.verify;
@@ -8,14 +8,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.MultipleZones;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 @ExtendWith(MockitoExtension.class)
-public class IsolatedZonesCommunityDemandCalculatorTest {
+public class IsolatedZonesDemandCalculatorTest {
 
 	private static final String communityId = "1";
 
@@ -29,8 +31,8 @@ public class IsolatedZonesCommunityDemandCalculatorTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		DemandZone otherZone = ExampleDemandZones.create().getOtherZone();
 		Demography someDemography = someZone.nominalDemography();
-		Community someCommunity = new MultipleZones(communityId, community, someDemography, someZone, otherZone);
-		IsolatedZonesCommunityDemandCalculator calculator = new IsolatedZonesCommunityDemandCalculator(
+		DemandRegion someCommunity = new MultipleZones(communityId, community, someDemography, someZone, otherZone);
+		IsolatedZonesDemandCalculator calculator = new IsolatedZonesDemandCalculator(
 				zoneCalculator);
 
 		calculator.calculateDemandData(someCommunity, impedance);

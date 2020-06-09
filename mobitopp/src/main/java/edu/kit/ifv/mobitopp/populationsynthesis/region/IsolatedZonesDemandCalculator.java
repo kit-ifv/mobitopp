@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
@@ -7,11 +7,11 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForDemandRegionCalcula
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
-public class IsolatedZonesCommunityDemandCalculator implements DemandDataForDemandRegionCalculator {
+public class IsolatedZonesDemandCalculator implements DemandDataForDemandRegionCalculator {
 
 	private final DemandDataForZoneCalculatorIfc zoneCalculator;
 
-	public IsolatedZonesCommunityDemandCalculator(DemandDataForZoneCalculatorIfc zoneCalculator) {
+	public IsolatedZonesDemandCalculator(DemandDataForZoneCalculatorIfc zoneCalculator) {
 		this.zoneCalculator = zoneCalculator;
 	}
 
