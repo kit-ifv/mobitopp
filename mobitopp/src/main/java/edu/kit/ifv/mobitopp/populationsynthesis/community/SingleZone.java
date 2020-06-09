@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import lombok.ToString;
 
 @ToString
-public class SingleZone implements Community {
+public class SingleZone implements DemandRegion {
 
 	private final DemandZone zone;
 
