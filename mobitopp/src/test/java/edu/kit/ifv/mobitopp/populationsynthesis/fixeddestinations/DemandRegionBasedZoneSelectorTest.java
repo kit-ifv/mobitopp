@@ -18,23 +18,23 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunitySelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 
 @ExtendWith(MockitoExtension.class)
-public class CommunityBasedZoneSelectorTest {
+public class DemandRegionBasedZoneSelectorTest {
 
 	private static final float randomNumber = 0.42f;
 	@Mock
 	private PersonBuilder person;
 	@Mock
-	private CommunitySelector communitySelector;
+	private DemandRegionSelector communitySelector;
 
 	@Test
 	void failsMissingZones() throws Exception {
-		CommunityBasedZoneSelector selector = newSelector();
+		DemandRegionBasedZoneSelector selector = newSelector();
 
 		Collection<OdPair> relations = emptyList();
 
@@ -53,7 +53,7 @@ public class CommunityBasedZoneSelectorTest {
 		Collection<OdPair> relations = asList(new OdPair(homeZone, someZone),
 				new OdPair(homeZone, otherZone));
 		when(person.homeZone()).thenReturn(homeZone);
-		CommunityBasedZoneSelector selector = newSelector();
+		DemandRegionBasedZoneSelector selector = newSelector();
 		selector.select(person, relations, randomNumber);
 
 		verify(person)
@@ -69,7 +69,7 @@ public class CommunityBasedZoneSelectorTest {
 		Zone otherZone = ExampleZones.zoneWithAttractivities("3", 2, noAttractivities());
 		Collection<OdPair> relations = asList(new OdPair(homeZone, someZone),
 				new OdPair(homeZone, otherZone));
-		CommunityBasedZoneSelector selector = newSelector();
+		DemandRegionBasedZoneSelector selector = newSelector();
 		assertThrows(IllegalArgumentException.class,
 				() -> selector.select(person, relations, randomNumber));
 
@@ -82,7 +82,7 @@ public class CommunityBasedZoneSelectorTest {
 		return attractivities;
 	}
 
-	private CommunityBasedZoneSelector newSelector() {
-		return new CommunityBasedZoneSelector(communitySelector, () -> 0.42d);
+	private DemandRegionBasedZoneSelector newSelector() {
+		return new DemandRegionBasedZoneSelector(communitySelector, () -> 0.42d);
 	}
 }

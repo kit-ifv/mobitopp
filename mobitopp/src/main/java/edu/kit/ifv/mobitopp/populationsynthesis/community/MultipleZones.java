@@ -15,7 +15,7 @@ import lombok.ToString;
 
 @EqualsAndHashCode(of = "id")
 @ToString(of = "id")
-public class MultipleZones implements Community {
+public class MultipleZones implements DemandRegion {
 
 	@Getter
 	private final String id;

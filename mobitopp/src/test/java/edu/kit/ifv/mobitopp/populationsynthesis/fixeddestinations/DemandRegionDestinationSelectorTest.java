@@ -15,21 +15,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPairSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.SingleZone;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionOdPairSelector;
 
 @ExtendWith(MockitoExtension.class)
-public class CommunityDestinationSelectorTest {
+public class DemandRegionDestinationSelectorTest {
 
 	private static final double randomNumber = 0.42d;
 	@Mock
-	private OdPairSelector odPairSelector;
+	private DemandRegionOdPairSelector odPairSelector;
 	@Mock
 	private HouseholdForSetup household;
 	@Mock
@@ -39,7 +39,7 @@ public class CommunityDestinationSelectorTest {
 	@Mock
 	private Predicate<PersonBuilder> personFilter;
 
-	private Community community;
+	private DemandRegion community;
 	private Collection<OdPair> relations;
 
 	@BeforeEach
@@ -56,15 +56,15 @@ public class CommunityDestinationSelectorTest {
 	void selectForEachPerson() throws Exception {
 		when(odPairSelector.select(somePerson)).thenReturn(relations);
 		acceptPerson();
-		final CommunityDestinationSelector selector = newSelector();
+		final DemandRegionDestinationSelector selector = newSelector();
 		selector.process(community);
 
 		verify(odPairSelector).select(somePerson);
 		verify(zoneSelector).select(somePerson, relations, randomNumber);
 	}
 
-	private CommunityDestinationSelector newSelector() {
-		return new CommunityDestinationSelector(odPairSelector, zoneSelector, personFilter,
+	private DemandRegionDestinationSelector newSelector() {
+		return new DemandRegionDestinationSelector(odPairSelector, zoneSelector, personFilter,
 				() -> randomNumber);
 	}
 
@@ -72,7 +72,7 @@ public class CommunityDestinationSelectorTest {
 	void filtersPersonsWithWorkActivity() throws Exception {
 		rejectPerson();
 
-		final CommunityDestinationSelector selector = newSelector();
+		final DemandRegionDestinationSelector selector = newSelector();
 		selector.process(community);
 
 		verify(personFilter, atLeastOnce()).test(somePerson);

@@ -22,7 +22,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarO
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElectricCarOwnershipModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.CommunityBasedZoneSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.DemandRegionBasedZoneSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.DemandRegionDestinationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.HasWorkActivity;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.ZoneSelector;
@@ -95,7 +95,7 @@ public class PopulationSynthesisIpuZoneBasedExample extends PopulationSynthesis 
 		int range = context().experimentalParameters().valueAsInteger("poleDistanceRange");
 		DemandRegionOdPairSelector odPairSelector = new PanelDistanceSelector(dataRepository,
 				communityPairCreator, impedance, range);
-		ZoneSelector zoneSelector = new CommunityBasedZoneSelector(commuterRelations, newRandom());
+		ZoneSelector zoneSelector = new DemandRegionBasedZoneSelector(commuterRelations, newRandom());
 		Predicate<PersonBuilder> personFilter = new HasWorkActivity();
 		return new DemandRegionDestinationSelector(odPairSelector, zoneSelector, personFilter,
 				newRandom());

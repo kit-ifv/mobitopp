@@ -5,9 +5,8 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.ZoneId;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunitySelector;
 
-public interface DemandRegionRelationsRepository extends CommunitySelector {
+public interface DemandRegionRelationsRepository extends DemandRegionSelector {
 
 	Collection<DemandRegion> getRegions();
 

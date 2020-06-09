@@ -8,23 +8,23 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.CommunitySelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
-public class CommunityBasedZoneSelector implements ZoneSelector {
+public class DemandRegionBasedZoneSelector implements ZoneSelector {
 
-	private final CommunitySelector communitySelector;
+	private final DemandRegionSelector selector;
 	private final DoubleSupplier random;
 	private final ActivityType activityType;
 
-	public CommunityBasedZoneSelector(CommunitySelector communitySelector, DoubleSupplier random) {
+	public DemandRegionBasedZoneSelector(DemandRegionSelector selector, DoubleSupplier random) {
 		super();
-		this.communitySelector = communitySelector;
+		this.selector = selector;
 		this.random = random;
 		this.activityType = ActivityType.WORK;
 	}
@@ -41,7 +41,7 @@ public class CommunityBasedZoneSelector implements ZoneSelector {
 	}
 
 	private void notifyAssignment(Zone homeZone, Zone destination) {
-		communitySelector.notifyAssignedRelation(homeZone, destination);
+		selector.notifyAssignedRelation(homeZone, destination);
 	}
 
 	private void assignZone(PersonBuilder person, Zone zone) {
