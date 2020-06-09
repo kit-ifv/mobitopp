@@ -12,7 +12,6 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreatorFactory;
@@ -30,14 +29,14 @@ import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
-public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
+public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator {
 
 	private final DataRepositoryForPopulationSynthesis dataRepository;
 	private final SynthesisContext context;
 	private final AttributeType householdFilterType;
 	private final CreateAndSaveDemand createAndSaveDemand;
 
-	public CommunityBasedIpu(
+	public DemandRegionBasedIpu(
 			final Results results, final WeightedHouseholdSelector householdSelector,
 			final HouseholdCreator householdCreator, final PersonCreator personCreator,
 			final DataRepositoryForPopulationSynthesis dataRepository, final SynthesisContext context,
@@ -53,14 +52,14 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	}
 
 	@Override
-	public void calculateDemandData(Community community, ImpedanceIfc impedance) {
+	public void calculateDemandData(final DemandRegion region, final ImpedanceIfc impedance) {
 		IterationFactory factory = new MultiLevelIterationFactory(panelData(), context);
-		Iteration iteration = factory.createIterationFor(community);
-		AttributeResolver attributeResolver = factory.createAttributeResolverFor(community);
-		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(community));
-		List<WeightedHousehold> initialHouseholds = householdsOf(community, attributeResolver);
+		Iteration iteration = factory.createIterationFor(region);
+		AttributeResolver attributeResolver = factory.createAttributeResolverFor(region);
+		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(region));
+		List<WeightedHousehold> initialHouseholds = householdsOf(region, attributeResolver);
 		List<WeightedHousehold> households = ipu.adjustWeightsOf(initialHouseholds);
-		create(households, community, attributeResolver);
+		create(households, region, attributeResolver);
 	}
 
 	private Logger loggerFor(DemandRegion forZone) {
@@ -68,9 +67,9 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	}
 
 	private void create(
-			List<WeightedHousehold> households, Community community,
-			AttributeResolver attributeResolver) {
-		community.zones().forEach(zone -> createAndSave(households, zone, attributeResolver));
+			final List<WeightedHousehold> households, final DemandRegion region,
+			final AttributeResolver attributeResolver) {
+		region.zones().forEach(zone -> createAndSave(households, zone, attributeResolver));
 	}
 
 	private void createAndSave(
@@ -87,7 +86,7 @@ public class CommunityBasedIpu implements DemandDataForCommunityCalculator {
 	}
 
 	private List<WeightedHousehold> householdsOf(
-			Community region, AttributeResolver attributeResolver) {
+			final DemandRegion region, final AttributeResolver attributeResolver) {
 		return region
 				.zones()
 				.map(zone -> createHouseholds(attributeResolver, zone))

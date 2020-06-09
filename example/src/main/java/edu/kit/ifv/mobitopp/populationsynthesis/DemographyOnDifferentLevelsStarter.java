@@ -41,7 +41,7 @@ public class DemographyOnDifferentLevelsStarter {
 
 	public static void startSynthesis(SynthesisContext context) {
 		context.printStartupInformationOn(System.out);
-		PopulationSynthesis synthesizer = new PopulationSynthesisIpuCommunityBasedExample(context);
+		PopulationSynthesis synthesizer = new DemographyOnDifferentLevelsExample(context);
 		synthesizer.createPopulation();
 	}
 }

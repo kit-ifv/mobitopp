@@ -18,7 +18,7 @@ public class StandardDemandRegionMapping implements DemandRegionMapping {
 	private final Map<RegionalLevel, File> content;
 
 	@Override
-	public SortedMap<RegionalLevel, RegionalLevel> getLevels() {
+	public SortedMap<RegionalLevel, RegionalLevel> getLowToHigh() {
 		return Collections.unmodifiableSortedMap(levelMapping);
 	}
 

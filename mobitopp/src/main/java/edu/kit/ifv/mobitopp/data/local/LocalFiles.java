@@ -41,6 +41,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.SerialisingDemandRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionRepositoryBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataDeserialiser;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataFolder;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;

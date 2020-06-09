@@ -3,8 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.community;
 import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,12 +24,17 @@ import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultRegionalContext;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionZoneMappingParser;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
 @ExtendWith(MockitoExtension.class)
-public class CommunityZoneMappingParserTest {
+public class DemandRegionZoneMappingParserTest {
 
 	private static final String communityId = "1";
+	private static final RegionalContext communityContext = new DefaultRegionalContext(community,
+			communityId);
 
 	@Mock
 	private DemandZoneRepository zoneRepository;
@@ -51,36 +55,44 @@ public class CommunityZoneMappingParserTest {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
 		setAvailable(someZone);
 		Row row = createMappingFor(someZone);
-		Map<String, DemandRegion> repository = parse(row);
+		Map<RegionalContext, DemandRegion> repository = parse(row);
 
-		assertThat(repository,
-				hasEntry(communityId, new MultipleZones(communityId, community, communityDemography, someZone)));
+		assertThat(repository)
+				.containsEntry(communityContext,
+						new MultipleZones(communityId, community, communityDemography, someZone));
 		verify(demographyRepository).getDemographyFor(community, communityId);
+	}
+
+	private void setAvailable(DemandZone someZone) {
+		when(zoneRepository.zoneByExternalId(someZone.getId().getExternalId()))
+		.thenReturn(Optional.of(someZone));
 	}
 
 	@Test
 	void parseMissingZone() throws Exception {
 		DemandZone someZone = ExampleDemandZones.create().getSomeZone();
+		setUnavailable(someZone);
 		Row row = createMappingFor(someZone);
-		Map<String, DemandRegion> repository = parse(row);
+		Map<RegionalContext, DemandRegion> repository = parse(row);
 
-		assertThat(repository,
-				hasEntry(communityId, new MultipleZones(communityId, community, communityDemography)));
+		assertThat(repository)
+				.containsEntry(communityContext,
+						new MultipleZones(communityId, community, communityDemography));
 		verify(demographyRepository).getDemographyFor(community, communityId);
+	}
+
+	private void setUnavailable(DemandZone someZone) {
+		when(zoneRepository.zoneByExternalId(someZone.getId().getExternalId()))
+		.thenReturn(Optional.of(someZone));
 	}
 
 	private Row createMappingFor(DemandZone someZone) {
 		return Row
 				.createRow(asList(communityId, someZone.getId().getExternalId()),
-						asList("communityId", "zoneId"));
+						asList("regionId", "partId"));
 	}
 
-	private void setAvailable(DemandZone someZone) {
-		when(zoneRepository.zoneByExternalId(someZone.getId().getExternalId()))
-				.thenReturn(Optional.of(someZone));
-	}
-
-	private Map<String, DemandRegion> parse(Row row) {
+	private Map<RegionalContext, DemandRegion> parse(Row row) {
 		return new DemandRegionZoneMappingParser(RegionalLevel.community, zoneRepository,
 				demographyRepository).parse(Stream.of(row));
 	}

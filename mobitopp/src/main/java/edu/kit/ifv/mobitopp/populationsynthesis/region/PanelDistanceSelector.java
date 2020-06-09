@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -7,43 +7,35 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.Community;
 import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPairSelector;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
-/**
- * This class provides only limited regional context and is replaced by the general concept of a
- * {@link edu.kit.ifv.mobitopp.populationsynthesis.region.PanelDistanceSelector}.
- * 
- * @author Lars
- * @deprecated
- * @see edu.kit.ifv.mobitopp.populationsynthesis.region.PanelDistanceSelector
- */
-public class PanelDistanceSelector implements OdPairSelector {
+public class PanelDistanceSelector implements DemandRegionOdPairSelector {
 
 	private static final int noRange = 0;
 	private final PanelDataRepository panelDataRepository;
 	private final ImpedanceIfc impedance;
 	private final int range;
-	private final OdPairSelector communityPairCreator;
+	private final DemandRegionOdPairSelector regionPairCreator;
 
 	public PanelDistanceSelector(
-			final PanelDataRepository panelDataRepository, final OdPairSelector communityPairCreator,
-			final ImpedanceIfc impedance, final int range) {
+			final PanelDataRepository panelDataRepository,
+			final DemandRegionOdPairSelector regionPairCreator, final ImpedanceIfc impedance,
+			final int range) {
 		super();
 		this.panelDataRepository = panelDataRepository;
-		this.communityPairCreator = communityPairCreator;
+		this.regionPairCreator = regionPairCreator;
 		this.impedance = impedance;
 		this.range = range;
 	}
 
 	public PanelDistanceSelector(
-			final PanelDataRepository panelDataRepository, final OdPairSelector otherSelector,
+			final PanelDataRepository panelDataRepository, final DemandRegionOdPairSelector otherSelector,
 			final ImpedanceIfc impedance) {
 		this(panelDataRepository, otherSelector, impedance, noRange);
 	}
@@ -63,7 +55,7 @@ public class PanelDistanceSelector implements OdPairSelector {
 	}
 
 	private TreeMap<Integer, List<OdPair>> collectZonesByDistance(PersonBuilder person) {
-		return communityPairCreator
+		return regionPairCreator
 				.select(person)
 				.stream()
 				.collect(groupingBy(d -> differenceToPoleDistance(person, d), TreeMap::new, toList()));
@@ -87,8 +79,8 @@ public class PanelDistanceSelector implements OdPairSelector {
 	}
 
 	@Override
-	public void scale(Community community, int numberOfCommuters) {
-		communityPairCreator.scale(community, numberOfCommuters);
+	public void scale(DemandRegion region, int numberOfCommuters) {
+		regionPairCreator.scale(region, numberOfCommuters);
 	}
 
 }

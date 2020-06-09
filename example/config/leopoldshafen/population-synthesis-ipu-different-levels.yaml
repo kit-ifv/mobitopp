@@ -18,6 +18,8 @@ dataSource: !file
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
+demandRegionMapping:
+  community:zone: data/ipu/leopoldshafen/community-to-zone-different-levels.csv 
 demographyData: 
   community:household_size: data/ipu/leopoldshafen/demography-household.csv
   zone:age_f: data/ipu/leopoldshafen/demography-age-gender.csv

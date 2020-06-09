@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public enum RegionalLevel implements Comparable<RegionalLevel> {
 
-	zone("zone"), community("community");
+	zone("zone"), district("district"), community("community");
 
 	private static final Map<String, RegionalLevel> values = Stream
 			.of(RegionalLevel.values())

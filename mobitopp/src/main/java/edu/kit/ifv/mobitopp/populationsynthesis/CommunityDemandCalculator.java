@@ -10,13 +10,13 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 public class CommunityDemandCalculator implements DemandDataCalculator {
 
-	private final DemandDataForCommunityCalculator calculator;
+	private final DemandDataForDemandRegionCalculator calculator;
 	private final List<PopulationSynthesisStep> steps;
 	private final ImpedanceIfc impedance;
 	private final CommunityRepository communities;
 
 	public CommunityDemandCalculator(
-			CommunityRepository communities, DemandDataForCommunityCalculator calculator,
+			CommunityRepository communities, DemandDataForDemandRegionCalculator calculator,
 			List<PopulationSynthesisStep> steps, ImpedanceIfc impedance) {
 		this.communities = communities;
 		this.calculator = calculator;

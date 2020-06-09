@@ -1,6 +1,6 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
-import static java.util.stream.Collectors.toMap;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.toLinkedMap;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultRegionalContext;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
@@ -37,7 +40,7 @@ public class DemandRegionMappingParser {
 		regionToPart = new LinkedHashMap<>();
 	}
 
-	public Map<String, DemandRegion> parse(final File mappingFile) {
+	public Map<RegionalContext, DemandRegion> parse(final File mappingFile) {
 		Stream<Row> input = load(mappingFile);
 		return parse(input);
 	}
@@ -46,15 +49,20 @@ public class DemandRegionMappingParser {
 		return CsvFile.createFrom(mappingFile).stream();
 	}
 
-	public Map<String, DemandRegion> parse(Stream<Row> mapping) {
-		mapping.forEach(this::addCommunityRelation);
+	public Map<RegionalContext, DemandRegion> parse(Stream<Row> mapping) {
+		mapping.forEach(this::addRelation);
 		return regionToPart
 				.entrySet()
 				.stream()
-				.collect(toMap(e -> e.getKey(), e -> e.getValue().build(demographyRepository)));
+				.collect(toLinkedMap(e -> contextFor(e.getKey()),
+						e -> e.getValue().build(demographyRepository)));
 	}
 
-	private void addCommunityRelation(final Row row) {
+	private RegionalContext contextFor(String id) {
+		return new DefaultRegionalContext(regionalLevel, id);
+	}
+
+	private void addRelation(final Row row) {
 		String regionId = row.get(regionColumn);
 		String partId = row.get(partColumn);
 		Optional<DemandRegion> zone = partRepository.apply(partId);

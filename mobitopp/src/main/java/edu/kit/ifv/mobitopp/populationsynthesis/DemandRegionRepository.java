@@ -6,5 +6,7 @@ import edu.kit.ifv.mobitopp.data.DemandRegion;
 
 public interface DemandRegionRepository {
 
-	List<DemandRegion> getRegions();
+	List<DemandRegion> getRegionsOf(RegionalLevel level);
+
+	DemandRegion getRegionWith(RegionalLevel level, String id);
 }
