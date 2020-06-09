@@ -13,7 +13,6 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.MultipleZones;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 @ExtendWith(MockitoExtension.class)

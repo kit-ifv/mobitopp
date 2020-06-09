@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.data;
 
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;

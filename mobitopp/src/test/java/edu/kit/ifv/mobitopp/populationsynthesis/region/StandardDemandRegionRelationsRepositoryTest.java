@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.SingleZone;
 
 public class StandardDemandRegionRelationsRepositoryTest {
 	private DemandZone someZone;

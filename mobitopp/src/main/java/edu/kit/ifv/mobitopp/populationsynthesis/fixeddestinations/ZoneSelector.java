@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 import java.util.Collection;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
 
 public interface ZoneSelector {
 

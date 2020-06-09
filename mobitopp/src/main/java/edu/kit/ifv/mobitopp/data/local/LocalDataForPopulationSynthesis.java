@@ -14,11 +14,11 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.DemographyRepository;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;

@@ -23,11 +23,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.DemographyRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultRegionalContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;

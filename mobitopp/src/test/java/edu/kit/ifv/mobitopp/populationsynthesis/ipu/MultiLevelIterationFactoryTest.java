@@ -24,7 +24,7 @@ import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.MultipleZones;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.MultipleZones;
 
 @ExtendWith(MockitoExtension.class)
 public class MultiLevelIterationFactoryTest {

@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import java.util.List;
 import java.util.stream.Stream;

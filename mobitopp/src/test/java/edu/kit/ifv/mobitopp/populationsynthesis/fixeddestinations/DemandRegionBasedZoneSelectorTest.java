@@ -18,8 +18,8 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 

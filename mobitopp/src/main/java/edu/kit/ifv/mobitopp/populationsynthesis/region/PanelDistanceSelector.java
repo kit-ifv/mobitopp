@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
