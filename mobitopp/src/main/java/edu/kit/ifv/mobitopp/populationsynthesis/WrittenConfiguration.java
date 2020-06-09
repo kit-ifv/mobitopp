@@ -52,6 +52,7 @@ public class WrittenConfiguration {
     this.mobilityProviders = other.mobilityProviders;
     this.commuterTicket = other.commuterTicket;
     this.dataSource = other.dataSource;
+    this.demandRegionMapping = other.demandRegionMapping;
     this.demographyData = other.demographyData;
     this.experimental = other.experimental;
     this.maxGoodnessDelta = other.maxGoodnessDelta;

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -37,6 +38,17 @@ public class DemographyCsvTest {
         "externalId;household_size:1-1;household_size:2-2;age_m:0-10;age_m:11-2147483647;age_f:0-5;age_f:6-2147483647",
         header);
   }
+  
+  @Test
+	void createsHeaderForEmptyDemography() throws Exception {
+  	List<AttributeType> attributeTypes = asList(StandardAttribute.householdSize,
+        StandardAttribute.maleAge, StandardAttribute.femaleAge);
+  	DemographyCsv demographyCsv = new DemographyCsv(attributeTypes, List::of);
+  	
+  	String header = demographyCsv.createHeader().stream().collect(joining(";"));
+  	
+  	assertThat(header).isEmpty();
+	}
 
   @Test
   public void serialiseActual() throws IOException {

@@ -10,7 +10,16 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.StandardDemandRegionRelationsRepository;
 
+/**
+ * This class has only limited regional scope. It is completely replaced by
+ * {@link StandardDemandRegionRelationsRepository}.
+ * 
+ * @author Lars
+ * @deprecated
+ * @see StandardDemandRegionRelationsRepository
+ */
 public class DefaultCommunityRepository implements CommunityRepository, CommunitySelector {
 
 	private final Map<Community, Map<Community, Integer>> commutingRelations;

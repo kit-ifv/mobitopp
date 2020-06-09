@@ -8,7 +8,7 @@ import edu.kit.ifv.mobitopp.util.dataimport.Row;
 
 public interface DemandRegionMapping {
 
-	SortedMap<RegionalLevel, RegionalLevel> getLevels();
+	SortedMap<RegionalLevel, RegionalLevel> getLowToHigh();
 
 	Stream<Row> contentFor(RegionalLevel level);
 

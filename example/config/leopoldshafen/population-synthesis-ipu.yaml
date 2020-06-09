@@ -18,6 +18,8 @@ dataSource: !file
   #charging: unlimited
   defaultChargingPower: config/leopoldshafen/parameters/ChargingPower.txt
   zoneRepositoryFolder: output/zone-repository/
+demandRegionMapping:
+  community:zone: data/ipu/leopoldshafen/community-to-zone.csv 
 demographyData: 
   household_size: data/ipu/leopoldshafen/demography-household.csv
   age_f: data/ipu/leopoldshafen/demography-age-gender.csv
@@ -33,6 +35,5 @@ visumFile: data/ipu/leopoldshafen/leopoldshafen.net
 visumToMobitopp:
   carTransportSystemCode: P
 experimental:
-  communityToZone: data/ipu/leopoldshafen/community-to-zone.csv
   communityCommuters: data/ipu/leopoldshafen/community-to-community-commuters.csv
   poleDistanceRange: 50

@@ -18,4 +18,9 @@ public class DefaultRegionalContext implements RegionalContext {
 		return level.identifier() + externalId;
 	}
 
+	@Override
+	public boolean matches(RegionalLevel level) {
+		return this.level.equals(level);
+	}
+
 }

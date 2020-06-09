@@ -20,7 +20,7 @@ public class DemandRegionMappingFactory {
 			RegionalLevel region = RegionalLevel.levelOf(levels[0]);
 			RegionalLevel part = RegionalLevel.levelOf(levels[1]);
 			File file = Convert.asFile(entry.getValue());
-			levelMapping.put(region, part);
+			levelMapping.put(part, region);
 			content.put(part, file);
 		}
 		return new StandardDemandRegionMapping(levelMapping, content);

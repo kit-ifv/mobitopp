@@ -1,9 +1,10 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
-import static java.util.Collections.singletonMap;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.mock;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,8 @@ public class WrittenConfigurationTest {
     original.setCarOwnership(new CarOwnership());
     original.setCommuterTicket("commutingTicket");
     original.setDataSource(mock(DataSource.class));
-    original.setDemographyData(singletonMap("test", "test"));
+    original.setDemandRegionMapping(Map.of("test", "test"));
+    original.setDemographyData(Map.of("test", "test"));
     original.setMaxGoodnessDelta(1.0d);
     original.setMaxIterations(1);
     original.setPanelData("panelData");

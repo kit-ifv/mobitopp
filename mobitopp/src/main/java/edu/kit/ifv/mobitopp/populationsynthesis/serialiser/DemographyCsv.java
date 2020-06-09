@@ -33,7 +33,11 @@ public class DemographyCsv {
   }
 
   public List<String> createHeader() {
-    DemandRegion region = demandSupplier.get().iterator().next();
+    List<? extends DemandRegion> regions = demandSupplier.get();
+    if (regions.isEmpty()) {
+    	return List.of();
+    }
+		DemandRegion region = regions.iterator().next();
     Demography demography = region.actualDemography();
     return StreamUtils
         .concat(Stream.of("externalId"),
