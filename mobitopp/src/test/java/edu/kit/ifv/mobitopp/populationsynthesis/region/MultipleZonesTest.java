@@ -1,4 +1,4 @@
-package edu.kit.ifv.mobitopp.populationsynthesis.community;
+package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel.community;
 import static org.assertj.core.api.Assertions.assertThat;

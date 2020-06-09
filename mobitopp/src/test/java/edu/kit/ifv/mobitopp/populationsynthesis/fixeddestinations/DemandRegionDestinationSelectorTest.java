@@ -20,9 +20,9 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.SingleZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionOdPairSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.SingleZone;
 
 @ExtendWith(MockitoExtension.class)
 public class DemandRegionDestinationSelectorTest {

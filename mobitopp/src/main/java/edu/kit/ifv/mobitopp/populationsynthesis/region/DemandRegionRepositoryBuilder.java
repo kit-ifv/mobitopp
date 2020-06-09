@@ -10,11 +10,11 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
+import edu.kit.ifv.mobitopp.data.DemographyRepository;
 import edu.kit.ifv.mobitopp.data.local.DemandRegionMapping;
 import edu.kit.ifv.mobitopp.data.local.StandardDemandRegionRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.DemographyRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultRegionalContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import lombok.RequiredArgsConstructor;

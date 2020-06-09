@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.OdPair;
 
 public interface DemandRegionOdPairSelector {
 

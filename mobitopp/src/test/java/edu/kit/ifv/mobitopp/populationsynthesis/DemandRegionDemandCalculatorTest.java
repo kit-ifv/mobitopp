@@ -16,7 +16,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.MultipleZones;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.MultipleZones;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
