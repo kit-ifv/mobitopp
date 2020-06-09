@@ -22,7 +22,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarO
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElectricCarOwnershipModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.community.IsolatedZonesCommunityDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.CommunityBasedZoneSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.DemandRegionDestinationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations.HasWorkActivity;
@@ -40,6 +39,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionOdPairSelecto
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionRelationsParser;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionRelationsRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.HouseholdBasedStep;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.IsolatedZonesDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.PanelDistanceSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.PersonBasedStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.PopulationSynthesisStep;
@@ -67,7 +67,7 @@ public class PopulationSynthesisIpuZoneBasedExample extends PopulationSynthesis 
 		steps.add(storeData());
 		steps.add(cleanData());
 		DemandDataForZoneCalculatorIfc zoneCalculator = createZoneCalculator();
-		DemandDataForDemandRegionCalculator communityCalculator = new IsolatedZonesCommunityDemandCalculator(
+		DemandDataForDemandRegionCalculator communityCalculator = new IsolatedZonesDemandCalculator(
 				zoneCalculator);
 		return new DemandRegionDemandCalculator(regions(), communityCalculator, steps,
 				impedance());
