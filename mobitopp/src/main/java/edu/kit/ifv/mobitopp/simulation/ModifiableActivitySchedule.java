@@ -9,6 +9,8 @@ import edu.kit.ifv.mobitopp.time.Time;
 public interface ModifiableActivitySchedule extends ActivitySchedule {
 	
 	void removeActivity(ActivityIfc activity);
+	
+	void insertActivityAfter(ActivityIfc previous, ActivityIfc toBeInserted);
 
 	boolean checkOrderInvariant();
 
