@@ -63,6 +63,12 @@ public class DefaultActivitySchedule
 		return (ActivityIfc) this.currentOccupation;
 	}
 
+	public void insertActivityAfter(ActivityIfc previous, ActivityIfc toBeInserted) {
+		
+		this.insertAfter(previous, toBeInserted);
+		
+	}
+
 
 
 }
