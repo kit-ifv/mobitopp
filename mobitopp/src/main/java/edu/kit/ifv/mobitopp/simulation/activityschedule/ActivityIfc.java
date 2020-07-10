@@ -16,7 +16,7 @@ public interface ActivityIfc
   boolean isRunning();
   void setRunning(boolean running_);
 
-  int getActivityNrOfWeek();
+  byte getActivityNrOfWeek();
  
 	ActivityType activityType();
 
