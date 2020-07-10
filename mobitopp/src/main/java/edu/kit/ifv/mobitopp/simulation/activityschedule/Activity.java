@@ -156,7 +156,7 @@ public class Activity implements ActivityIfc {
     return this.mode;
   }
 
-  public int getActivityNrOfWeek() {
+  public byte getActivityNrOfWeek() {
   	return activityNrOfWeek;
   }
 
