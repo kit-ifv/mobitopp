@@ -204,7 +204,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
     AttractivitiesData attractivityData = attractivityDataFrom(attractivityDataFile);
     ParkingFacilityDataRepository parkingFacilitiesData = parkingFacilitiesDataFrom(parkingFacilitiesDataFile);
 		BikeSharingDataRepository bikeSharingData = bikeSharingDataFrom(
-				bikeSharingPropertiesFile);
+				bikeSharingPropertiesFile, mapper);
 		CarSharingDataRepository carSharingStationsData = carSharingStationsDataFrom(visumNetwork,
 				roadNetwork, carSharingPropertiesFile, stationsDataFile, freeFloatingDataFile);
     return new ZonesReaderCsvBased(visumNetwork, roadNetwork, zonePropertiesData, attractivityData, parkingFacilitiesData,
@@ -236,9 +236,9 @@ public class ZonesReaderCsvBased implements ZonesReader {
     return new ZonePropertiesData(dataFile, areaTypeRepository);
   }
 
-	private static BikeSharingDataRepository bikeSharingDataFrom(File bikeSharingPropertiesFile) {
+	private static BikeSharingDataRepository bikeSharingDataFrom(File bikeSharingPropertiesFile, IdToOidMapper mapper) {
 		StructuralData properties = new StructuralData(CsvFile.createFrom(bikeSharingPropertiesFile));
-		return new BikeSharingPropertiesData(properties);
+		return new BikeSharingPropertiesData(properties, mapper);
 	}
 
 	private static CarSharingDataRepository carSharingStationsDataFrom(

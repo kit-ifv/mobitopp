@@ -87,7 +87,7 @@ public class ZonesReaderCsvBasedTest {
     Map<String, Integer> map = Stream
         .of(someZoneId, anotherZoneId, otherZoneId)
         .collect(toMap(z -> String.valueOf(z), z -> z - 1));
-    idToOid = map::get;
+    idToOid = IdToOidMapper.createFrom(map);
     roadNetwork = new SimpleRoadNetwork(network);
     structuralData = Example.attractivityData();
 		attractivityData = new AttractivitiesData(structuralData);
