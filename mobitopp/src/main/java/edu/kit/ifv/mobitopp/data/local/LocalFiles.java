@@ -277,7 +277,7 @@ public class LocalFiles implements DataSource {
 				.ids()
 				.stream()
 				.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
-		IdToOidMapper mapper = map::get;
+		IdToOidMapper mapper = IdToOidMapper.createFrom(map);
 		ZoneRepository fromVisum = LocalZoneRepository
 				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(),
 						attractivityDataFile, parkingFacilitiesDataFile, carSharingPropertiesDataFile,

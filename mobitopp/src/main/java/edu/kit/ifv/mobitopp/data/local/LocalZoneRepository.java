@@ -124,5 +124,21 @@ public class LocalZoneRepository implements ZoneRepository {
 		Map<ZoneId, Zone> mapping = new LocalZoneLoader(() -> zones).mapAllZones();
 		return new LocalZoneRepository(mapping);
 	}
+
+	@Override
+	public IdToOidMapper idMapper() {
+		return new IdToOidMapper() {
+			
+			@Override
+			public ZoneId mapToZoneId(String id) {
+				return byExternalId.get(id).getId();
+			}
+			
+			@Override
+			public Integer map(String id) {
+				return mapToZoneId(id).getMatrixColumn();
+			}
+		};
+	}
   
 }

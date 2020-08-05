@@ -44,6 +44,7 @@ import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingFacility;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
+import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 
 public class ZoneRepositorySerialiser {
 
@@ -94,22 +95,22 @@ public class ZoneRepositorySerialiser {
 			CarSharingDataForZone carSharingDataForZone = new CarSharingDataForZone(zone,
 					stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
 					freeFloatingArea, freeFloatingCars, carsharingCarDensities);
-			zone.setBikeSharing(createBikeSharing(zone.getId()));
+			zone.setBikeSharing(createBikeSharing(zone.getId(), zoneRepository.idMapper()));
 			zone.setCarSharing(carSharingDataForZone);
 			zone.setMaas(MaasDataForZone.everywhereAvailable());
 		}
 	}
 
-	private BikeSharingDataForZone createBikeSharing(ZoneId zoneId) {
+	private BikeSharingDataForZone createBikeSharing(ZoneId zoneId, IdToOidMapper idMapper) {
 		if (null == bikeSharingProperties) {
-			loadBikeSharingData();
+			loadBikeSharingData(idMapper);
 		}
 		return bikeSharingProperties.getData(zoneId);
 	}
 
-	private void loadBikeSharingData() {
+	private void loadBikeSharingData(IdToOidMapper idMapper) {
 		StructuralData properties = new StructuralData(CsvFile.createFrom(bikeSharingDataFile));
-		bikeSharingProperties = new BikeSharingPropertiesData(properties);
+		bikeSharingProperties = new BikeSharingPropertiesData(properties, idMapper);
 	}
 
 	private void loadStationBasedCars(
