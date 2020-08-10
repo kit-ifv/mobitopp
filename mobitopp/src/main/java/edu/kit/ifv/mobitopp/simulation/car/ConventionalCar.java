@@ -78,5 +78,10 @@ public class ConventionalCar extends BaseCar implements Car, Serializable {
 	public int remainingCapacity() {
 		return this.capacity - (isUsed() ? 1 : 0) - passengers.size();
 	}
+	
+	@Override
+	public Car copy(int id) {
+		return new ConventionalCar(id, position, carSegment, capacity, mileage, fuelLevel, maxRange);
+	}
 
 }

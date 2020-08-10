@@ -8,9 +8,9 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 
 public interface PrivateCarForSetup {
 
-  PrivateCar toCar(HouseholdForDemand household);
-  
-  boolean isPersonal();
+	PrivateCar toCar(HouseholdForDemand household);
+
+	boolean isPersonal();
 
 	PersonId getPersonalUser();
 
@@ -19,5 +19,7 @@ public interface PrivateCarForSetup {
 	HouseholdId getOwner();
 
 	Car getCar();
+
+	PrivateCarForSetup copy(int id, HouseholdId owner, PersonId mainUser, PersonId personalUser);
 
 }

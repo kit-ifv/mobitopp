@@ -282,6 +282,15 @@ public class EmobilityPersonBuilder implements PersonBuilder {
 		person.setMobilityProviderMembership(membership);
 		return this;
 	}
+	
+	@Override
+	public PersonBuilder copy(PersonId id, HouseholdForSetup household) {
+		PersonBuilder copyPerson = this.person.copy(id, household);
+		EmobilityPersonBuilder copyE = new EmobilityPersonBuilder(copyPerson);
+		copyE.setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice);
+		copyE.setEmobilityAcceptance(eMobilityAcceptance);
+		return copyE;
+	}
 
 	@Override
 	public String toString() {

@@ -15,7 +15,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import lombok.ToString;
 
+@ToString
 public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
 	private final HouseholdId householdId;
