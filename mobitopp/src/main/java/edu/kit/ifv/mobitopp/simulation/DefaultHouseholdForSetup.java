@@ -15,9 +15,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
-import lombok.ToString;
 
-@ToString
 public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
 	private final HouseholdId householdId;
@@ -81,6 +79,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
 		household.ownCars(cars);
 		cars.stream().filter(PrivateCar::isPersonal).forEach(this::assignPersonalCar);
+		household.homeZone().getDemandData().getPopulationData().addHousehold(household);
 		return household;
 	}
 

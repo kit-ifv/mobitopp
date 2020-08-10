@@ -139,6 +139,15 @@ public class DefaultHouseholdForSetupTest {
         () -> assertThat(household.getNumberOfPersonsInAgeRange(lowerBound, oldAge), is(2)));
   }
   
+  @Test
+	void addHouseholdToDemandDataOfZone() throws Exception {
+    HouseholdForSetup setupHousehold = new ExampleHousehold(zone).withSize(1).build();
+
+    Household household = setupHousehold.toHousehold();
+
+    assertThat(zone.getDemandData().getPopulationData().getHouseholds()).contains(household);
+	}
+  
   private PersonBuilder newPersonWithAge(int age) {
     PersonBuilder person = mock(PersonBuilder.class);
     when(person.age()).thenReturn(age);

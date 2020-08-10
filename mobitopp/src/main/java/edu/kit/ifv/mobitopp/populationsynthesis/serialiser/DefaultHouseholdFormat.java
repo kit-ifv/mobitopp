@@ -72,13 +72,7 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		HouseholdForSetup household = new DefaultHouseholdForSetup(id, nominalSize, domCode, zone,
 				location, numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income,
 				incomeClass, economicalStatus, canChargePrivately);
-		assign(household, zone);
 		return household;
-	}
-
-
-	private void assign(HouseholdForSetup household, Zone zone) {
-		zone.getDemandData().getPopulationData().addHousehold(household.toHousehold());
 	}
 
 	private HouseholdId idOf(List<String> data) {
