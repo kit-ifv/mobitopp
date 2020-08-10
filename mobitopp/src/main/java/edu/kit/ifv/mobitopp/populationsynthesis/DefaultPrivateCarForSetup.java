@@ -50,6 +50,13 @@ public class DefaultPrivateCarForSetup implements PrivateCarForSetup {
 	public boolean isPersonal() {
 		return null != personalUser;
 	}
+	
+	@Override
+	public PrivateCarForSetup copy(
+			int id, HouseholdId owner, PersonId mainUser, PersonId personalUser) {
+		Car copyCar = car.copy(id);
+		return new DefaultPrivateCarForSetup(copyCar, owner, mainUser, personalUser);
+	}
 
 	@Override
 	public PrivateCar toCar(HouseholdForDemand household) {

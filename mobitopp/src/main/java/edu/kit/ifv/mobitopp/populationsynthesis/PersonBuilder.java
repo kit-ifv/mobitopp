@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.ExtendedPatternActivity;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -124,4 +125,6 @@ public interface PersonBuilder extends BasePerson {
 
 	Map<String, Boolean> getMobilityProviderMembership();
 
+	PersonBuilder copy(PersonId id, HouseholdForSetup household);
+	
 }
