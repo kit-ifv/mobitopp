@@ -47,6 +47,11 @@ public class DefaultBikeSharingDataForZone implements BikeSharingDataForZone {
 	}
 
 	@Override
+	public boolean isBikeSharingArea() {
+		return serviceArea.values().stream().anyMatch(Boolean::booleanValue);
+	}
+	
+	@Override
 	public boolean isBikeSharingAreaFor(Bike bike) {
 		String owner = bike.owner().name();
 		return serviceArea.getOrDefault(owner, false);
