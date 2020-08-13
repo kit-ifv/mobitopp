@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import java.io.Serializable;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
-import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 
 public class DataForZone
@@ -14,10 +14,10 @@ public class DataForZone
 	private final PopulationDataForZone population; 
 	private final OpportunityDataForZone opportunities;
 
-	public DataForZone(Zone zone, Attractivities attractivities) {
+	public DataForZone(ZoneId zone, Attractivities attractivities) {
 		super();
 		this.population = new PopulationDataForZone();
-		this.opportunities = new OpportunityDataForZone(zone.getId(), attractivities);
+		this.opportunities = new OpportunityDataForZone(zone, attractivities);
   }
 
 	public PopulationDataForZone getPopulationData() {
