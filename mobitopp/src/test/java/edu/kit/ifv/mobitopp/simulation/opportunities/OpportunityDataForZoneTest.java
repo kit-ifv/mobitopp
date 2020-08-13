@@ -17,7 +17,8 @@ public class OpportunityDataForZoneTest {
 		@SuppressWarnings("unchecked")
 		Consumer<Opportunity> consumeOpportunity = mock(Consumer.class);
 		Zone someZone = ExampleZones.create().someZone();
-		OpportunityDataForZone opportunities = new OpportunityDataForZone(someZone, someZone.attractivities());
+		OpportunityDataForZone opportunities = new OpportunityDataForZone(someZone.getId(),
+				someZone.attractivities());
 
 		opportunities.forEach(consumeOpportunity);
 		
