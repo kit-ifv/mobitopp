@@ -44,7 +44,7 @@ public class DefaultOpportunityFormatTest {
 		zoneRepository = mock(ZoneRepository.class);
 		when(zone.getId()).thenReturn(zoneId);
 		when(zoneRepository.getZoneByOid(zoneOid)).thenReturn(zone);
-		original = new Opportunity(zone, activityType, location, attractivity);
+		original = new Opportunity(zoneId, activityType, location, attractivity);
 		format = new DefaultOpportunityFormat(zoneRepository);
 	}
 

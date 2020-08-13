@@ -17,7 +17,7 @@ public class DataForZone
 	public DataForZone(Zone zone, Attractivities attractivities) {
 		super();
 		this.population = new PopulationDataForZone();
-		this.opportunities = new OpportunityDataForZone(zone, attractivities);
+		this.opportunities = new OpportunityDataForZone(zone.getId(), attractivities);
   }
 
 	public PopulationDataForZone getPopulationData() {

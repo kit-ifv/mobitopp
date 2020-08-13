@@ -1,30 +1,30 @@
 package edu.kit.ifv.mobitopp.simulation.opportunities;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.data.Attractivities;
-import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
-
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.LinkedHashMap;
-import java.util.EnumSet;
+
+import edu.kit.ifv.mobitopp.data.Attractivities;
+import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
 public class OpportunityDataForZone implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Zone zone;
+	private final ZoneId zone;
 	private final Attractivities attractivities;
 	private final Map<ActivityType, Integer> opportunities;
 	private Map<ActivityType, Map<Location, Integer>> opportunityLocations = null;
 
-	public OpportunityDataForZone(Zone zone, Attractivities attractivities) {
+	public OpportunityDataForZone(ZoneId zone, Attractivities attractivities) {
 		super();
 		this.zone = zone;
 		this.attractivities = attractivities;
@@ -105,15 +105,15 @@ public class OpportunityDataForZone implements Serializable {
 			Integer total_size = opportunities.get(aType);
 			Map<Location,Integer> locations = this.opportunityLocations.get(aType);
 			buffer.append("\nZZ-TOTAL; ");
-			buffer.append(zone.getId().getExternalId() + "; ");
-			buffer.append(zone.getId().getMatrixColumn() + "; ");
+			buffer.append(zone.getExternalId() + "; ");
+			buffer.append(zone.getMatrixColumn() + "; ");
 			buffer.append(aType.getTypeAsInt() + "; ");
 			buffer.append(total_size + "; ");
 			buffer.append(locations.size() + "; ");
 			for (Location location : locations.keySet()) {
 				Integer size = locations.get(location);
 				buffer.append("\nZZ; ");
-				buffer.append(zone.getId().getMatrixColumn() + "; ");
+				buffer.append(zone.getMatrixColumn() + "; ");
 				buffer.append(aType.getTypeAsInt() + "; ");
 				buffer.append(size + "; ");
 				buffer.append(location.forLogging() + "; ");
