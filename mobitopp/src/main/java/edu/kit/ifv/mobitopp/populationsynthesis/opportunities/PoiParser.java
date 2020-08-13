@@ -25,7 +25,7 @@ public class PoiParser {
 	public Opportunity parse(Row row) {
 		ZoneId zone = zoneOf(row);
 		ActivityType activityType = activityTypeOf(row);
-		Location location = locationOf(row);
+		Location location = locationOf(row, zone);
 		int attractivity = attractivityOf(row);
 		return new Opportunity(zone, activityType, location, attractivity);
 	}
@@ -38,13 +38,14 @@ public class PoiParser {
 		return ActivityType.getTypeFromInt(row.valueAsInteger(activityType));
 	}
 
-	private Location locationOf(Row row) {
+	private Location locationOf(Row row, ZoneId zone) {
 		double x = row.valueAsDouble(locationX);
 		double y = row.valueAsDouble(locationY);
-		RoadPosition position = roadLocator.getRoadPosition(x, y);
+		Point2D.Double coordinate = new Point2D.Double(x, y);
+		RoadPosition position = roadLocator.getRoadPosition(zone, coordinate);
 		int link = position.getLink();
 		double roadPosition = position.getPosition();
-		return new Location(new Point2D.Double(x, y), link, roadPosition);
+		return new Location(coordinate, link, roadPosition);
 	}
 
 	private int attractivityOf(Row row) {
