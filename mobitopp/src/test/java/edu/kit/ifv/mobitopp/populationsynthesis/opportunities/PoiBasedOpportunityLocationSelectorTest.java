@@ -50,7 +50,7 @@ public class PoiBasedOpportunityLocationSelectorTest {
 	}
 
 	private PoiBasedOpportunityLocationSelector createSelector() {
-		return new PoiBasedOpportunityLocationSelector(context, inputFile, parser) {
+		return new PoiBasedOpportunityLocationSelector(inputFile, parser) {
 
 			@Override
 			Stream<Row> pois() {
