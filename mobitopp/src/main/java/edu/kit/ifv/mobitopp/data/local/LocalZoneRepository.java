@@ -131,14 +131,19 @@ public class LocalZoneRepository implements ZoneRepository {
 			
 			@Override
 			public ZoneId mapToZoneId(String id) {
-				return byExternalId.get(id).getId();
+				return getId(id);
 			}
 			
 			@Override
 			public Integer map(String id) {
-				return mapToZoneId(id).getMatrixColumn();
+				return getId(id).getMatrixColumn();
 			}
 		};
+	}
+
+	@Override
+	public ZoneId getId(String externalId) {
+		return byExternalId.get(externalId).getId();
 	}
   
 }

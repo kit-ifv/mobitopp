@@ -25,4 +25,9 @@ public interface ZoneRepository extends ZonesReader {
 
 	public IdToOidMapper idMapper();
 
+	/**
+	 * Resolves an external zone id to a {@link ZoneId} instance.
+	 */
+	public ZoneId getId(String externalId);
+
 }
