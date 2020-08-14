@@ -39,6 +39,7 @@ public class TripfileCategories {
 		header.add("tripBeginDay");
 		header.add("activityNumber");
 		header.add("tripBeginTime");
+		header.add("previousActivityType");
 		header.add("activityType");
 		header.add("legMode");
 		header.add("mainMode");
@@ -55,6 +56,10 @@ public class TripfileCategories {
 		header.add("activityDuration");
 		header.add("previousActivityZone");
 		header.add("nextActivityZone");
+    header.add("previousActivityStartTime");
+    header.add("previousActivityStartDay");
+    header.add("activityStartTime");
+    header.add("activityStartDay");
 		header.add("locationFrom");
 		header.add("locationTo");
 		header.add("sex");
