@@ -76,7 +76,7 @@ public class DemandZone implements DemandRegion {
   
   @Override
   public Stream<DemandZone> zones() {
-  	return Stream.empty();
+  	return Stream.of(this);
   }
 
   @Override
