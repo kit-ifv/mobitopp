@@ -57,6 +57,10 @@ public class Demography implements Serializable {
   public RangeDistributionIfc income() {
     return getDistribution(StandardAttribute.income);
   }
+  
+  public boolean hasData() {
+  	return rangeDistributions.values().stream().anyMatch(RangeDistributionIfc::hasItems);
+  }
 
   public void increment(AttributeType type, int value) {
     RangeDistributionIfc distribution = getDistribution(type);

@@ -12,6 +12,11 @@ public class RangeDistribution
     super();
   }
 
+	@Override
+	public boolean hasItems() {
+		return !isEmpty() && items().map(RangeDistributionItem::amount).anyMatch(amount -> 0 < amount);
+	}
+
   @Override
   public boolean hasItem(int value) {
     return items().anyMatch(item -> item.matches(value));
