@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionRelationsObserver;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
@@ -18,13 +18,13 @@ import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
 
 public class DemandRegionBasedZoneSelector implements ZoneSelector {
 
-	private final DemandRegionSelector selector;
+	private final DemandRegionRelationsObserver observer;
 	private final DoubleSupplier random;
 	private final ActivityType activityType;
 
-	public DemandRegionBasedZoneSelector(DemandRegionSelector selector, DoubleSupplier random) {
+	public DemandRegionBasedZoneSelector(DemandRegionRelationsObserver observer, DoubleSupplier random) {
 		super();
-		this.selector = selector;
+		this.observer = observer;
 		this.random = random;
 		this.activityType = ActivityType.WORK;
 	}
@@ -41,7 +41,7 @@ public class DemandRegionBasedZoneSelector implements ZoneSelector {
 	}
 
 	private void notifyAssignment(Zone homeZone, Zone destination) {
-		selector.notifyAssignedRelation(homeZone, destination);
+		observer.notifyAssignedRelation(homeZone, destination);
 	}
 
 	private void assignZone(PersonBuilder person, Zone zone) {
