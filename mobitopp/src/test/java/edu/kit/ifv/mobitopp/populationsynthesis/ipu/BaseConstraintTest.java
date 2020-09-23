@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -29,14 +28,14 @@ public class BaseConstraintTest {
 	public void updateWeightsOnAllHousehold() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
+		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
 		BaseConstraint constraint = newConstraint();
 
-		List<WeightedHousehold> updatedHouseholds = constraint.scaleWeightsOf(households);
+		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
 		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 2.0d);
 		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
-		assertThat(updatedHouseholds,
+		assertThat(updatedHouseholds.toList(),
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 
@@ -44,14 +43,14 @@ public class BaseConstraintTest {
 	public void updateWeightOnSingleHousehold() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
+		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
 		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
-		List<WeightedHousehold> updatedHouseholds = constraint.scaleWeightsOf(households);
+		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
 		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
-		assertThat(updatedHouseholds,
+		assertThat(updatedHouseholds.toList(),
 				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
 	}
 
@@ -59,7 +58,7 @@ public class BaseConstraintTest {
 	public void calculatesGoodnessOfFit() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
-		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
+		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
 		BaseConstraint constraint = newConstraint();
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
@@ -71,7 +70,7 @@ public class BaseConstraintTest {
 	public void calculatesAnotherGoodnessOfFit() {
 		WeightedHousehold someHousehold = newHousehold(someId, 2.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 4.0d);
-		List<WeightedHousehold> households = asList(someHousehold, anotherHousehold);
+		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
 		BaseConstraint constraint = newConstraint();
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
