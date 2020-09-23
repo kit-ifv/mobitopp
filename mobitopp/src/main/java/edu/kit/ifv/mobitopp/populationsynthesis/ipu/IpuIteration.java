@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,8 +13,8 @@ public class IpuIteration implements Iteration {
 	}
 
 	@Override
-	public List<WeightedHousehold> adjustWeightsOf(List<WeightedHousehold> households) {
-		List<WeightedHousehold> newHouseholds = new ArrayList<>(households);
+	public WeightedHouseholds adjustWeightsOf(WeightedHouseholds households) {
+		WeightedHouseholds newHouseholds = households;
 		for (Constraint constraint : constraints) {
 			newHouseholds = constraint.scaleWeightsOf(newHouseholds);
 		}
@@ -23,7 +22,7 @@ public class IpuIteration implements Iteration {
 	}
 
 	@Override
-	public double calculateGoodnessOfFitFor(List<WeightedHousehold> households) {
+	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
 		return constraints
 				.stream()
 				.mapToDouble(c -> c.calculateGoodnessOfFitFor(households))

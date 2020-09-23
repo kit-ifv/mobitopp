@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.SingleLevelIterationFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -57,9 +58,10 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		Iteration iteration = factory.createIterationFor(zone);
 		AttributeResolver attributeResolver = factory.createAttributeResolverFor(zone);
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
-		List<WeightedHousehold> initialHouseholds = householdsOf(zone, attributeResolver);
-		List<WeightedHousehold> households = ipu.adjustWeightsOf(initialHouseholds);
-		create(households, zone, attributeResolver);
+		WeightedHouseholds initialHouseholds = new WeightedHouseholds(
+				householdsOf(zone, attributeResolver));
+		WeightedHouseholds households = ipu.adjustWeightsOf(initialHouseholds);
+		create(households.toList(), zone, attributeResolver);
 	}
 
 	private Logger loggerFor(DemandRegion forZone) {
