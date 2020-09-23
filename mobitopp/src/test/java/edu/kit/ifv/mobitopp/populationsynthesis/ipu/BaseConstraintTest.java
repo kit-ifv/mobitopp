@@ -2,15 +2,13 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.junit.Test;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
@@ -18,7 +16,7 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class BaseConstraintTest {
 
-	private static final double margin = 1e-6;
+	private static final Offset<Double> margin = Offset.offset(1e-6d);
 	private static final short year = 2000;
 	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
 	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(year, 2);
@@ -35,23 +33,23 @@ public class BaseConstraintTest {
 
 		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 2.0d);
 		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
-		assertThat(updatedHouseholds.toList(),
-				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
+		assertThat(updatedHouseholds.toList())
+				.containsExactly(updatedSomeHousehold, updatedAnotherHousehold);
 	}
 
 	@Test
 	public void updateWeightOnSingleHousehold() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
-		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
+		WeightedHouseholds households = new WeightedHouseholds(asList(anotherHousehold, someHousehold));
 		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
 		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
-		assertThat(updatedHouseholds.toList(),
-				containsInAnyOrder(updatedSomeHousehold, updatedAnotherHousehold));
+		assertThat(updatedHouseholds.toList())
+				.containsExactly(updatedAnotherHousehold, updatedSomeHousehold);
 	}
 
 	@Test
@@ -63,7 +61,7 @@ public class BaseConstraintTest {
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
 
-		assertThat(goodnessOfFit, is(closeTo(0.5d, margin)));
+		assertThat(goodnessOfFit).isCloseTo(0.5d, margin);
 	}
 
 	@Test
@@ -75,7 +73,7 @@ public class BaseConstraintTest {
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
 
-		assertThat(goodnessOfFit, is(closeTo(0.0d, margin)));
+		assertThat(goodnessOfFit).isCloseTo(0.0d, margin);
 	}
 
 	@Test
@@ -84,7 +82,7 @@ public class BaseConstraintTest {
 		BaseConstraint constraint = newBaseConstraint(weight);
 
 		BaseConstraint greaterZero = newBaseConstraint(BaseConstraint.greaterZero);
-		assertThat(constraint, is(greaterZero));
+		assertThat(constraint).isEqualTo(greaterZero);
 	}
 
 	private BaseConstraint newBaseConstraint(double weight) {

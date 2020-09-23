@@ -37,9 +37,9 @@ public class WeightedHouseholdTest {
 	@Test
 	public void createsHouseholdWithNewWeight() {
 		double newWeight = 2.0d;
-		WeightedHousehold newHousehold = household.setWeight(newWeight);
+		household.setWeight(newWeight);
 
-		assertThat(newHousehold.weight()).isEqualTo(newWeight);
+		assertThat(household.weight()).isEqualTo(newWeight);
 	}
 
 	@Test
