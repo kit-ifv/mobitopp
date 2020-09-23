@@ -1,10 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 
 public abstract class BaseConstraint implements Constraint {
 
@@ -41,23 +37,14 @@ public abstract class BaseConstraint implements Constraint {
 				.stream()
 				.filter(this::matches)
 				.forEach(h -> h.setWeight(h.weight() * factor));
-		// TODO clean up
-//		ArrayList<WeightedHousehold> newHouseholds = new ArrayList<>(notProcessed(households));
-//		households.toList().stream().filter(this::matches).forEach(newHouseholds::add);
-//		return new WeightedHouseholds(newHouseholds);
 		return households;
-	}
-
-	private List<WeightedHousehold> notProcessed(WeightedHouseholds households) {
-		Predicate<WeightedHousehold> predicate = this::matches;
-		return households.toList().stream().filter(predicate.negate()).collect(toList());
 	}
 
 	@Override
 	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
 		double totalWeight = totalWeight(households);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
-		}
+	}
 
 	protected abstract boolean matches(WeightedHousehold household);
 
