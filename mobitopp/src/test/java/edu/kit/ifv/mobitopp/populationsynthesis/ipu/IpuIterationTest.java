@@ -47,9 +47,15 @@ public class IpuIterationTest {
 		household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
 		households = new WeightedHouseholds(asList(household1, household2));
 		afterSomeConstraint = new WeightedHouseholds(
-				asList(household1.newWeight(2.0d), household2.newWeight(3.0d)));
+				asList(newWeight(household1, 2.0d), newWeight(household2, 3.0d)));
 		afterAnotherConstraint = new WeightedHouseholds(
-				asList(household1.newWeight(3.0d), household2.newWeight(4.0d)));
+				asList(newWeight(household1, 3.0d), newWeight(household2, 4.0d)));
+	}
+
+	private WeightedHousehold newWeight(WeightedHousehold household, double weight) {
+		WeightedHousehold copy = new WeightedHousehold(household);
+		copy.setWeight(weight);
+		return copy;
 	}
 
 	private HouseholdOfPanelDataId newId(int id) {

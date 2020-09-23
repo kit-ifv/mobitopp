@@ -42,7 +42,7 @@ public abstract class BaseConstraint implements Constraint {
 		households.toList()
 				.stream()
 				.filter(this::matches)
-				.map(h -> h.newWeight(h.weight() * factor))
+				.map(h -> h.setWeight(h.weight() * factor))
 				.forEach(newHouseholds::add);
 		return new WeightedHouseholds(newHouseholds);
 	}

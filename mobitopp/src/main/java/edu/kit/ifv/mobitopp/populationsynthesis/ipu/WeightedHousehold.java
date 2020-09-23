@@ -18,6 +18,13 @@ public class WeightedHousehold {
 	private final double weight;
 	private final Map<String, Integer> attributes;
 	private final RegionalContext context;
+	
+	public WeightedHousehold(WeightedHousehold other) {
+		this.id = other.id;
+		this.weight = other.weight;
+		this.attributes = other.attributes;
+		this.context = other.context;
+	}
 
 	public HouseholdOfPanelDataId id() {
 		return id;
@@ -35,7 +42,7 @@ public class WeightedHousehold {
 		return context;
 	}
 
-	public WeightedHousehold newWeight(double newWeight) {
+	public WeightedHousehold setWeight(double newWeight) {
 		return new WeightedHousehold(id, newWeight, attributes, context);
 	}
 

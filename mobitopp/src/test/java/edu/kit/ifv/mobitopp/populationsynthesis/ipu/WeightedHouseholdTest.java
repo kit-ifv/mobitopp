@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
@@ -20,7 +20,7 @@ public class WeightedHouseholdTest {
 	private HashMap<String, Integer> attributes;
 	private RegionalContext context;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		short year = 2000;
 		id = new HouseholdOfPanelDataId(year, 1);
@@ -37,9 +37,9 @@ public class WeightedHouseholdTest {
 	@Test
 	public void createsHouseholdWithNewWeight() {
 		double newWeight = 2.0d;
-		WeightedHousehold newHousehold = household.newWeight(newWeight);
+		WeightedHousehold newHousehold = household.setWeight(newWeight);
 
-		assertThat(newHousehold).isEqualTo(new WeightedHousehold(id, newWeight, attributes, context));
+		assertThat(newHousehold.weight()).isEqualTo(newWeight);
 	}
 
 	@Test
@@ -62,5 +62,13 @@ public class WeightedHouseholdTest {
 
     assertThat(attribute).isEqualTo(0);    
   }
+	
+	@Test
+	void copiesHousehold() throws Exception {
+		WeightedHousehold copy = new WeightedHousehold(household);
+		
+		assertThat(copy).isEqualTo(household);
+		assertThat(copy).isNotSameAs(household);
+	}
 
 }

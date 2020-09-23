@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.ArrayList;
-
 import edu.kit.ifv.mobitopp.result.Logger;
 
 public class Ipu {
@@ -49,7 +47,7 @@ public class Ipu {
 	}
 
 	private void initialise(WeightedHouseholds households) {
-		currentHouseholds = new WeightedHouseholds(new ArrayList<>(households.toList()));
+		currentHouseholds = new WeightedHouseholds(households);
 		bestHouseholds = currentHouseholds;
 		bestGoodness = calculateGoodness();
 	}
