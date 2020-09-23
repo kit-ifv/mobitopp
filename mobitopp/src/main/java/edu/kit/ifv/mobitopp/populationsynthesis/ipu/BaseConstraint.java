@@ -2,7 +2,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -38,13 +37,15 @@ public abstract class BaseConstraint implements Constraint {
 
 	private WeightedHouseholds scaleWeightsOf(
 			WeightedHouseholds households, double factor) {
-		ArrayList<WeightedHousehold> newHouseholds = new ArrayList<>(notProcessed(households));
 		households.toList()
 				.stream()
 				.filter(this::matches)
-				.map(h -> h.setWeight(h.weight() * factor))
-				.forEach(newHouseholds::add);
-		return new WeightedHouseholds(newHouseholds);
+				.forEach(h -> h.setWeight(h.weight() * factor));
+		// TODO clean up
+//		ArrayList<WeightedHousehold> newHouseholds = new ArrayList<>(notProcessed(households));
+//		households.toList().stream().filter(this::matches).forEach(newHouseholds::add);
+//		return new WeightedHouseholds(newHouseholds);
+		return households;
 	}
 
 	private List<WeightedHousehold> notProcessed(WeightedHouseholds households) {

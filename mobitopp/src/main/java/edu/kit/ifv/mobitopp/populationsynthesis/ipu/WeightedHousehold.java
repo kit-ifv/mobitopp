@@ -3,19 +3,19 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@AllArgsConstructor
 @ToString
 public class WeightedHousehold {
 
 	private static final int missingAttributeValue = 0;
 	
   private final HouseholdOfPanelDataId id;
-	private final double weight;
+	private double weight;
 	private final Map<String, Integer> attributes;
 	private final RegionalContext context;
 	
@@ -42,8 +42,8 @@ public class WeightedHousehold {
 		return context;
 	}
 
-	public WeightedHousehold setWeight(double newWeight) {
-		return new WeightedHousehold(id, newWeight, attributes, context);
+	public void setWeight(double newWeight) {
+		this.weight = newWeight;
 	}
 
 }
