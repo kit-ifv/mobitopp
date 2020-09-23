@@ -14,7 +14,7 @@ public class IpuIteration implements Iteration {
 
 	@Override
 	public WeightedHouseholds adjustWeightsOf(WeightedHouseholds households) {
-		WeightedHouseholds newHouseholds = households;
+		WeightedHouseholds newHouseholds = households.deepCopy();
 		for (Constraint constraint : constraints) {
 			newHouseholds = constraint.scaleWeightsOf(newHouseholds);
 		}
