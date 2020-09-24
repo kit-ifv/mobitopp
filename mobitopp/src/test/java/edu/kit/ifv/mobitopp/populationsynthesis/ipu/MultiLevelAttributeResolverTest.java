@@ -20,41 +20,63 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 @ExtendWith(MockitoExtension.class)
 public class MultiLevelAttributeResolverTest {
 
-	private static final RegionalContext zoneContext = new DefaultRegionalContext(RegionalLevel.zone,
-			"1");
+  private static final RegionalContext someZoneContext = new DefaultRegionalContext(
+      RegionalLevel.zone, "1");
+  private static final RegionalContext otherZoneContext = new DefaultRegionalContext(
+      RegionalLevel.zone, "2");
 
-	@Mock
-	private Attribute householdAttribute;
-	@Mock
-	private PanelDataRepository panelDataRepository;
+  @Mock
+  private Attribute householdAttribute;
+  @Mock
+  private PanelDataRepository panelDataRepository;
+  
+  @Test
+  public void resolveAttributes() {
+    HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
+    Integer value = 1;
+    String name = "name";
+    when(householdAttribute.valueFor(household, panelDataRepository)).thenReturn(value);
+    when(householdAttribute.name()).thenReturn(name);
+    Map<RegionalContext, List<Attribute>> attributes = Map
+        .of(someZoneContext, List.of(householdAttribute));
+    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
 
-	@Test
-	public void resolveAttributes() {
-		HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
-		Integer value = 1;
-		String name = "name";
-		when(householdAttribute.valueFor(household, panelDataRepository)).thenReturn(value);
-		when(householdAttribute.name()).thenReturn(name);
-		Map<RegionalContext, List<Attribute>> attributes = Map
-				.of(zoneContext, List.of(householdAttribute));
-		AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
+    Map<String, Integer> resolvedAttributes = resolver.attributesOf(household, someZoneContext);
 
-		Map<String, Integer> resolvedAttributes = resolver.attributesOf(household, zoneContext);
+    assertThat(resolvedAttributes).containsEntry(name, value);
+  }
 
-		assertThat(resolvedAttributes).containsEntry(name, value);
-	}
+  @Test
+  void filterAttributesByType() throws Exception {
+    Attribute otherAttribute = mock(Attribute.class);
+    String name = "name";
+    when(otherAttribute.type()).thenReturn(StandardAttribute.domCode);
+    when(householdAttribute.name()).thenReturn(name);
+    when(householdAttribute.type()).thenReturn(StandardAttribute.householdSize);
+    Map<RegionalContext, List<Attribute>> attributes = Map
+        .of(someZoneContext, List.of(householdAttribute, otherAttribute));
+    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
 
-	@Test
-	void filterAttributesByType() throws Exception {
-		Attribute otherAttribute = mock(Attribute.class);
-		when(otherAttribute.type()).thenReturn(StandardAttribute.domCode);
-		when(householdAttribute.type()).thenReturn(StandardAttribute.householdSize);
-		Map<RegionalContext, List<Attribute>> attributes = Map
-				.of(zoneContext, List.of(householdAttribute, otherAttribute));
-		AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
+    List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
 
-		List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
+    assertThat(resolvedAttributes).contains(householdAttribute).doesNotContain(otherAttribute);
+  }
 
-		assertThat(resolvedAttributes).contains(householdAttribute).doesNotContain(otherAttribute);
-	}
+  @Test
+  void ensureAttributesAreDistinct() throws Exception {
+    Attribute otherAttribute = mock(Attribute.class);
+    String name = "name";
+    when(otherAttribute.name()).thenReturn(name);
+    when(otherAttribute.type()).thenReturn(StandardAttribute.householdSize);
+    when(householdAttribute.type()).thenReturn(StandardAttribute.householdSize);
+    when(householdAttribute.name()).thenReturn(name);
+    Map<RegionalContext, List<Attribute>> attributes = Map
+        .of(someZoneContext, List.of(householdAttribute), otherZoneContext,
+            List.of(otherAttribute));
+    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
+
+    List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
+
+    assertThat(resolvedAttributes).contains(householdAttribute).doesNotContain(otherAttribute);
+  }
 }
