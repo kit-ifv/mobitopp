@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class MultiLevelAttributeResolverTest {
   private Attribute householdAttribute;
   @Mock
   private PanelDataRepository panelDataRepository;
-  
+
   @Test
   public void resolveAttributes() {
     HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
@@ -70,13 +71,16 @@ public class MultiLevelAttributeResolverTest {
     when(otherAttribute.type()).thenReturn(StandardAttribute.householdSize);
     when(householdAttribute.type()).thenReturn(StandardAttribute.householdSize);
     when(householdAttribute.name()).thenReturn(name);
-    Map<RegionalContext, List<Attribute>> attributes = Map
-        .of(someZoneContext, List.of(householdAttribute), otherZoneContext,
-            List.of(otherAttribute));
+    Map<RegionalContext, List<Attribute>> attributes = new LinkedHashMap<>();
+    attributes.put(someZoneContext, List.of(householdAttribute));
+    attributes.put(otherZoneContext, List.of(otherAttribute));
     AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
 
     List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
 
-    assertThat(resolvedAttributes).contains(householdAttribute).doesNotContain(otherAttribute);
+    assertThat(resolvedAttributes)
+        .hasSize(1)
+        .contains(householdAttribute)
+        .doesNotContain(otherAttribute);
   }
 }
