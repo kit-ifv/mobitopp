@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 
 public class AutonomousCar extends BaseCar {
@@ -45,6 +46,11 @@ public class AutonomousCar extends BaseCar {
   @Override
   public boolean hasDriver() {
     return false;
+  }
+  
+  @Override
+  public Car copy(int id) {
+  	return new AutonomousCar(id, position, carSegment, capacity, mileage, fuelLevel, maxRange);
   }
 
 }

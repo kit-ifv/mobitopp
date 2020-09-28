@@ -64,6 +64,16 @@ public class DemographyTest {
 	public void maleAge() {
 		assertThat(demandModel.maleAge()).isSameAs(maleAge);
 	}
+	
+	@Test
+	void testsDistributionsForData() throws Exception {
+		demandModel.incrementAge(Gender.MALE, 42);
+		boolean hasData = demandModel.hasData();
+		boolean isEmpty = demandModel.createEmpty().hasData();
+		
+		assertThat(hasData).as("has data").isTrue();
+		assertThat(isEmpty).as("is empty").isFalse();
+	}
 
 	@Test
 	public void incrementHousehold() {

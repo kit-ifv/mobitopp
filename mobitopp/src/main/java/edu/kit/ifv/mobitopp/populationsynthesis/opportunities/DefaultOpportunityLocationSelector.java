@@ -4,6 +4,7 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.network.SimpleEdge;
 import edu.kit.ifv.mobitopp.network.Zone;
 import edu.kit.ifv.mobitopp.network.ZoneArea;
@@ -82,7 +83,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 
 	@Override
 	public Map<Location,Integer> createLocations(
-		edu.kit.ifv.mobitopp.data.Zone dataZone,
+		ZoneId dataZone,
 		ActivityType activityType,
 		Integer total_opportunities
 	) {
@@ -90,7 +91,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		assert dataZone != null;
 		assert this.network != null;
 
-		Zone zone = this.network.zone(dataZone.getId());
+		Zone zone = this.network.zone(dataZone);
 
 		Map<Location,Integer> locations = new LinkedHashMap<Location,Integer>();
 

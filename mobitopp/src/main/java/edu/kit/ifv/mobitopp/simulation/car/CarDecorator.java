@@ -96,5 +96,10 @@ public class CarDecorator implements Car, Serializable {
   public boolean canCarryPassengers() {
     return car.canCarryPassengers();
   }
+  
+  @Override
+  public Car copy(int id) {
+  	return car.copy(id);
+  }
 
 }

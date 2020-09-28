@@ -16,6 +16,12 @@ public interface RangeDistributionIfc
    */
 
   RangeDistributionItem getItem(int value);
+  
+  /**
+   * Returns whether the distribution contains any items with an amount greater 0. 
+   * @return <code>true</code> if the distribution contains at least one item with an amount greater 0
+   */
+  boolean hasItems();
 
   boolean hasItem(int value);
 

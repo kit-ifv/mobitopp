@@ -11,6 +11,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -115,4 +117,17 @@ public class DefaultPersonForSetupTest {
     Location location = zone.centroidLocation();
     return new FixedDestination(activityType, zone, location);
   }
+  
+  @Test
+	void getActivityPattern() throws Exception {
+    Household household = mock(Household.class);
+    when(household.getId()).thenReturn(householdId);
+    ExtendedPatternActivity pattern = ExtendedPatternActivity.STAYATHOME_ACTIVITY;
+    setupPerson.addPatternActivity(pattern);
+    
+    TourBasedActivityPattern activityPattern = setupPerson.getActivityPattern();
+    
+		assertThat(activityPattern)
+				.isEqualTo(TourBasedActivityPattern.fromExtendedPatternActivities(List.of(pattern)));
+	}
 }

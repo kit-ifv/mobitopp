@@ -209,7 +209,10 @@ public class DefaultPersonForSetup implements PersonBuilder {
 
   @Override
   public TourBasedActivityPattern getActivityPattern() {
-    return activityPattern;
+    if (null != activityPattern) {
+			return activityPattern;
+		}
+		return TourBasedActivityPattern.fromExtendedPatternActivities(activityPatterns);
   }
   
   @Override
@@ -219,7 +222,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
 
 	@Override
 	public boolean hasActivityOfTypes(Collection<ActivityType> activityTypes) {
-		return tourPattern()
+		return getActivityPattern()
 				.asActivities()
 				.stream()
 				.map(Activity::activityType)
@@ -319,18 +322,32 @@ public class DefaultPersonForSetup implements PersonBuilder {
   @Override
   public Person toPerson(Household household) {
   	return new PersonForDemand(id, household, age, employment, gender, graduation, income, hasBike,
-        hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, tourPattern(),
+        hasAccessToCar, hasPersonalCar, hasCommuterTicket, hasDrivingLicense, getActivityPattern(),
         fixedDestinations, mobilityProviderMembership, modeChoicePrefsSurvey, modeChoicePreferences, travelTimeSensitivity);
   }
 
-	private TourBasedActivityPattern tourPattern() {
-		if (null != activityPattern) {
-			return activityPattern;
-		}
-		return TourBasedActivityPattern.fromExtendedPatternActivities(activityPatterns);
+	@Override
+	public PersonBuilder copy(PersonId id, HouseholdForSetup household) {
+		DefaultPersonForSetup copy = new DefaultPersonForSetup(id, household, age, employment, gender, graduation, income, modeChoicePrefsSurvey);
+		copy.setHasAccessToCar(hasAccessToCar);
+		copy.setHasBike(hasBike);
+		copy.setHasCommuterTicket(hasCommuterTicket);
+		copy.setHasDrivingLicense(hasDrivingLicense);
+		copy.setHasPersonalCar(hasPersonalCar);
+		copy.setMobilityProviderMembership(mobilityProviderMembership);
+		copy.setModeChoicePreferences(modeChoicePreferences);
+		copy.setPatternActivityWeek(activityPattern);
+		activityPatterns.forEach(copy::addPatternActivity);
+		copy.setTravelTimeSensitivity(travelTimeSensitivity);
+		copy.copyFixedDestination(this.fixedDestinations);
+		return copy;
 	}
   
-  @Override
+  private void copyFixedDestination(FixedDestinations other) {
+  	other.stream().forEach(this::addFixedDestination);
+	}
+
+	@Override
   public String toString() {
     return id.toString();
   }

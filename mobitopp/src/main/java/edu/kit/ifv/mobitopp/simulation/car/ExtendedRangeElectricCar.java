@@ -204,5 +204,12 @@ public class ExtendedRangeElectricCar
 
 		throw new AssertionError();
 	}
+	
+	@Override
+	public Car copy(int id) {
+		return new ExtendedRangeElectricCar(id, position, carSegment, capacity, mileage, batteryLevel,
+				fuelLevel, electricRange, remainingConventionalRange(), fullPowerRange, batteryCapacity_kWh,
+				minimumChargingLevel());
+	}
 
 }

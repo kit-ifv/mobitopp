@@ -7,11 +7,9 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -28,7 +26,6 @@ import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PopulationDataForZone;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 
 public class DefaultHouseholdFormatTest {
@@ -41,7 +38,6 @@ public class DefaultHouseholdFormatTest {
 	private DefaultHouseholdFormat format;
 	private ZoneRepository zoneRepository;
 	private Zone zone;
-	private PopulationDataForZone populationData;
 
 	@BeforeClass
 	public static void resetHouseholdIdSequence() throws ReflectiveOperationException {
@@ -50,13 +46,11 @@ public class DefaultHouseholdFormatTest {
 
 	@Before
 	public void initialise() {
-		populationData = mock(PopulationDataForZone.class);
 		DataForZone demandData = mock(DataForZone.class);
 		zone = mock(Zone.class);
 		originalHousehold = ExampleSetup.household(zone, ExampleSetup.firstHousehold);
 		zoneRepository = mock(ZoneRepository.class);
 		
-		when(demandData.getPopulationData()).thenReturn(populationData);
 		when(zone.getId()).thenReturn(zoneId);
 		when(zone.getDemandData()).thenReturn(demandData);
 		when(zoneRepository.getZoneByOid(anyInt())).thenReturn(zone);
@@ -99,7 +93,6 @@ public class DefaultHouseholdFormatTest {
 		Optional<HouseholdForSetup> household = format.parse(serialisedHousehold);
 
 		assertValue(HouseholdForSetup::attributes, household.get(), originalHousehold);
-		verify(populationData).addHousehold(any());
 	}
 	
 	@Test
@@ -111,6 +104,5 @@ public class DefaultHouseholdFormatTest {
 
 		assertThat(household, isEmpty());
 		verify(zoneRepository).hasZone(anyInt());
-		verifyZeroInteractions(populationData);		
 	}
 }

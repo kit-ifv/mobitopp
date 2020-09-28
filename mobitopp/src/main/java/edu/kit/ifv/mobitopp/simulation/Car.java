@@ -95,4 +95,6 @@ public interface Car {
 
   boolean hasDriver();
 
+	Car copy(int id);
+
 }

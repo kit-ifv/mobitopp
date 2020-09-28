@@ -26,6 +26,7 @@ public class WrittenConfiguration {
   private Map<String, String> demographyData;
   private String panelData;
   private String visumFile;
+  private String pois;
   private CarOwnership carOwnership;
   private Map<String, String> mobilityProviders;
   private String commuterTicket;
