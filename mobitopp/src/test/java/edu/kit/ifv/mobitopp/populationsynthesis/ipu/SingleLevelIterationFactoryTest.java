@@ -92,22 +92,26 @@ public class SingleLevelIterationFactoryTest {
 
   private Constraint femaleConstraintFor(int lower, int upper) {
     String name = name(StandardAttribute.femaleAge, lower, upper);
-		return new PersonConstraint(femaleAge.getItem(lower).amount(), name);
+		int requestedWeight = femaleAge.getItem(lower).amount();
+    return new BaseConstraint(name, requestedWeight);
   }
 
   private Constraint maleConstraintFor(int lower, int upper) {
     String name = name(StandardAttribute.maleAge, lower, upper);
-		return new PersonConstraint(maleAge.getItem(lower).amount(), name);
+		int requestedWeight = maleAge.getItem(lower).amount();
+    return new BaseConstraint(name, requestedWeight);
   }
 
   private Constraint householdConstraintFor(int type) {
     String name = name(StandardAttribute.householdSize, type, type);
-		return new HouseholdConstraint(household.getItem(type).amount(), name);
+		int requestedWeight = household.getItem(type).amount();
+    return new BaseConstraint(name, requestedWeight);
   }
 
   private Constraint incomeConstraintFor(int lower, int upper) {
     String name = name(StandardAttribute.income, lower, upper);
-		return new HouseholdConstraint(income.getItem(lower).amount(), name);
+		int requestedWeight = income.getItem(lower).amount();
+    return new BaseConstraint(name, requestedWeight);
   }
 
 	private String name(StandardAttribute attribute, int lower, int upper) {

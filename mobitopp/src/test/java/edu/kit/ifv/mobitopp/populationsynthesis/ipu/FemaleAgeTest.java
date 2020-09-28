@@ -43,7 +43,7 @@ public class FemaleAgeTest {
 
     Constraint constraint = femaleAge.createConstraint(demography);
 
-    assertThat(constraint).isEqualTo(new PersonConstraint(2, femaleAge.name()));
+    assertThat(constraint).isEqualTo(new BaseConstraint(femaleAge.name(), 2));
     verify(context, times(2)).name();
   }
 

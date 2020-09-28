@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
@@ -12,15 +11,16 @@ import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
-import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class BaseConstraintTest {
 
+  private static final String attribute = "attribute";
 	private static final Offset<Double> margin = Offset.offset(1e-6d);
 	private static final short year = 2000;
 	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
 	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(year, 2);
 	private static final double requestedWeight = 6.0d;
+  private static final int noPeopleAvailable = 0;
 
 	@Test
 	public void updateWeightsOnAllHousehold() {
@@ -39,14 +39,15 @@ public class BaseConstraintTest {
 
 	@Test
 	public void updateWeightOnSingleHousehold() {
-		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
-		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
+	  String otherAttribute = "other";
+		WeightedHousehold someHousehold = newHousehold(someId, 1.0d, otherAttribute);
+    WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(anotherHousehold, someHousehold));
 		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
-		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d);
+		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d, otherAttribute);
 		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
 		assertThat(updatedHouseholds.toList())
 				.containsExactly(updatedAnotherHousehold, updatedSomeHousehold);
@@ -86,23 +87,13 @@ public class BaseConstraintTest {
 	}
 
 	private BaseConstraint newBaseConstraint(double weight) {
-		return new BaseConstraint(weight) {
+		return new BaseConstraint(attribute, weight) {
 
 			@Override
 			protected double totalWeight(WeightedHousehold household) {
 				return 0;
 			}
-
-			@Override
-			protected boolean matches(WeightedHousehold household) {
-				return false;
-			}
 		};
-	}
-
-	@Test
-	public void equalsAndHashCode() {
-		EqualsVerifier.forClass(BaseConstraint.class).usingGetClass().verify();
 	}
 
 	private Predicate<WeightedHousehold> onlyAnotherHousehold() {
@@ -110,12 +101,16 @@ public class BaseConstraintTest {
 	}
 
 	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {
-		return new WeightedHousehold(id, weight, attributes(),
+	  return newHousehold(id, weight, attribute);
+	}
+	
+	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight, String attribute) {
+		return new WeightedHousehold(id, weight, attributes(attribute),
 				new DefaultRegionalContext(RegionalLevel.community, "1"));
 	}
 
-	private Map<String, Integer> attributes() {
-		return emptyMap();
+	private Map<String, Integer> attributes(String attribute) {
+		return Map.of(attribute, 1);
 	}
 
 	private BaseConstraint newConstraint() {
@@ -123,17 +118,13 @@ public class BaseConstraintTest {
 	}
 
 	private BaseConstraint newConstraint(Predicate<WeightedHousehold> filter) {
-		return new BaseConstraint(requestedWeight) {
+		return new BaseConstraint(attribute, requestedWeight) {
 
 			@Override
 			protected double totalWeight(WeightedHousehold household) {
 				return household.weight();
 			}
 
-			@Override
-			protected boolean matches(WeightedHousehold household) {
-				return filter.test(household);
-			}
 		};
 	}
 }
