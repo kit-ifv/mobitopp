@@ -4,12 +4,15 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
 public interface PersonListener {
 
   void notifyEndTrip(Person person, FinishedTrip trip);
+  
+  void notifyStartTrip(Person person, StartedTrip trip);
 
   void notifyFinishCarTrip(Person person, Car car, FinishedTrip trip, ActivityIfc activity);
 

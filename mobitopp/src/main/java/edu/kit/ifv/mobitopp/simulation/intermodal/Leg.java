@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.simulation.intermodal;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public interface Leg {
@@ -29,6 +30,17 @@ public interface Leg {
    * @return a finished trip containing all information about the executed trip
    */
   FinishedTrip finish(Time currentDate, PersonListener listener);
+  
+  /**
+   * Returns an immutable representation of the planned trip.
+   * 
+   * @param currentDate
+   *          current simulation time
+   * @param listener
+   *          listener to notify output writers and others about changes
+   * @return a started trip containing all information about the planned trip
+   */
+  StartedTrip start(Time currentDate, PersonListener listener);
 
 	int plannedDuration();
 

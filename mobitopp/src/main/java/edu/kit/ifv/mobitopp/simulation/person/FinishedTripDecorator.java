@@ -1,8 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
-import java.util.stream.Stream;
-
+import java.util.function.Consumer;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
@@ -83,8 +82,8 @@ public class FinishedTripDecorator implements FinishedTrip {
   }
   
   @Override
-  public Stream<FinishedTrip> trips() {
-  	return trip.trips();
+  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+	trip.forEachLeg(consumer);
   }
 
 }

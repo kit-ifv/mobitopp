@@ -3,9 +3,11 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.person.BaseStartedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.time.Time;
 
 
@@ -91,7 +93,13 @@ public class BaseTrip implements TripData, Trip {
   public FinishedTrip finish(Time currentDate, PersonListener listener) {
     return new BeamedTrip(data, currentDate);
   }
-
+  
+  @Override
+  public StartedTrip start(Time currentDate, PersonListener listener) {
+	//TODO Vehicle id
+	return new BaseStartedTrip(data);
+  }
+  
   @Override
   public String toString() {
     return "TripDecorator [trip=" + data + "]";

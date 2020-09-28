@@ -6,32 +6,49 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
-import lombok.ToString;
 
-@ToString
-public class BeamedTrip implements FinishedTrip {
+/**
+ * The class BaseStartedTrip is a base implementation of the StartedTrip interface.
+ */
+public class BaseStartedTrip implements StartedTrip<BaseStartedTrip> {
 
+	/** The tripData of a StartedTrip describing a planned trip. */
 	private final TripData data;
-	private final Time endDate;
-	private final Statistic statistic;
+	
+	/** An optional vehicleId String */
+	private final Optional<String> vehicleId;
 
-	public BeamedTrip(TripData data, Time endDate) {
+	
+	/**
+	 * Instantiates a new base started trip with the given tripData and an empty optional vehicleId.
+	 *
+	 * @param data the data
+	 */
+	public BaseStartedTrip(TripData data) {
 		super();
 		this.data = data;
-		this.endDate = endDate;
-		statistic = new Statistic();
-		RelativeTime plannedDuration = RelativeTime.ofMinutes(plannedDuration());
-		statistic.add(Element.realDuration, plannedDuration);
-		statistic.add(Element.plannedDuration, plannedDuration);
+		this.vehicleId = Optional.empty();
 	}
+	
+	/**
+	 * Instantiates a new base started trip with the given tripData and vehicleId.
+	 *
+	 * @param data the data
+	 * @param vehicleId the vehicle id
+	 */
+	public BaseStartedTrip(TripData data, String vehicleId) {
+		super();
+		this.data = data;
+		this.vehicleId = Optional.of(vehicleId);
+	}
+
 
 	@Override
 	public int getOid() {
 		return data.getOid();
 	}
-	
+
 	@Override
 	public int getLegId() {
 		return data.getLegId();
@@ -58,11 +75,6 @@ public class BeamedTrip implements FinishedTrip {
 	}
 
 	@Override
-	public Time endDate() {
-		return endDate;
-	}
-
-	@Override
 	public Time plannedEndDate() {
 		return data.calculatePlannedEndDate();
 	}
@@ -83,18 +95,12 @@ public class BeamedTrip implements FinishedTrip {
 	}
 
 	@Override
-	public Statistic statistic() {
-		return statistic;
+	public Optional<String> vehicleId() {
+		return vehicleId;
 	}
 
-  @Override
-  public Optional<String> vehicleId() {
-    return Optional.empty();
-  }
-  
-  @Override
-  public void forEachLeg(Consumer<FinishedTrip> consumer) {
-	consumer.accept(this);
-  }
-
+	@Override
+	public void forEachLeg(Consumer<BaseStartedTrip> consumer) {
+		consumer.accept(this);
+	}
 }

@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
@@ -25,6 +26,11 @@ public class StatisticResults implements PersonListener {
 	@Override
 	public void notifyEndTrip(Person person, FinishedTrip trip) {
 		trips.add(trip);
+	}
+	
+	@Override
+	public void notifyStartTrip(Person person, StartedTrip trip) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -63,5 +69,7 @@ public class StatisticResults implements PersonListener {
   @Override
   public void notifyFinishSimulation() {
   }
+
+
 
 }
