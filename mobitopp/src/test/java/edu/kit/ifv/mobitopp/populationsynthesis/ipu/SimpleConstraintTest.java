@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
-import java.util.function.Predicate;
 
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
@@ -20,8 +19,7 @@ public class SimpleConstraintTest {
 	private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
 	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(year, 2);
 	private static final double requestedWeight = 6.0d;
-  private static final int noPeopleAvailable = 0;
-
+  
 	@Test
 	public void updateWeightsOnAllHousehold() {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
@@ -43,7 +41,7 @@ public class SimpleConstraintTest {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d, otherAttribute);
     WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(anotherHousehold, someHousehold));
-		SimpleConstraint constraint = newConstraint(onlyAnotherHousehold());
+		SimpleConstraint constraint = newConstraint();
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
@@ -96,10 +94,6 @@ public class SimpleConstraintTest {
 		};
 	}
 
-	private Predicate<WeightedHousehold> onlyAnotherHousehold() {
-		return h -> anotherId == h.id();
-	}
-
 	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {
 	  return newHousehold(id, weight, attribute);
 	}
@@ -114,17 +108,6 @@ public class SimpleConstraintTest {
 	}
 
 	private SimpleConstraint newConstraint() {
-		return newConstraint(h -> true);
-	}
-
-	private SimpleConstraint newConstraint(Predicate<WeightedHousehold> filter) {
-		return new SimpleConstraint(attribute, requestedWeight) {
-
-			@Override
-			protected double totalWeight(WeightedHousehold household) {
-				return household.weight();
-			}
-
-		};
+		return new SimpleConstraint(attribute, requestedWeight);
 	}
 }
