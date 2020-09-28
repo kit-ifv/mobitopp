@@ -21,6 +21,14 @@ public class Hooks {
 		}
 		hooks.add(hook);
 	}
+	
+	public void remove(Hook hook) {
+		if (hook == null) {
+			System.out.println("Hook is null");
+			return;
+		}
+		hooks.remove(hook);
+	}
 
 	public void process(Time currentTime) {
 		for (Hook hook : hooks) {

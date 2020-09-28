@@ -11,6 +11,7 @@ import edu.kit.ifv.mobitopp.result.TripConverter;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 import edu.kit.ifv.mobitopp.time.DateFormat;
@@ -45,7 +46,7 @@ public class TripfileWriter implements PersonListener {
 		assert prevActivity != null;
 
 		Consumer<FinishedTrip> tripWriter = finishedTrip -> writeTrip(person, finishedTrip);
-		trip.trips().forEach(tripWriter);
+		trip.forEachLeg(tripWriter);
 		CsvBuilder statistics = new CsvBuilder();
 		statistics.append(person.getOid());
 		trip.statistic().forAllElements(statistics::append);
@@ -55,6 +56,11 @@ public class TripfileWriter implements PersonListener {
 	private void writeTrip(final Person person, final FinishedTrip finishedTrip) {
 		String line = tripConverter.convert(person, finishedTrip);
 		results().write(this.categories.result, line);
+	}
+	
+	@Override
+	public void notifyStartTrip(Person person, StartedTrip trip) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

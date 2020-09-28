@@ -355,7 +355,7 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 
 	private void consumeRandomNumber() {
 		int randomNumber = this.random.nextInt();
-		System.out.println("Consumed random integer: " + randomNumber);
+		//System.out.println("Consumed random integer: " + randomNumber);
 	}
 
 	private Location privateVisit(Zone zone, ActivityType activityType, double randomNumber) {
@@ -557,6 +557,21 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 			person().whichCar().start(date);
 			driveCar(person().whichCar(), trip, impedance); 
 		}
+		
+		
+		
+		StartedTrip startedTrip = start(date, trip);
+		notifyStartTrip(startedTrip);
+		
+	}
+	
+	private StartedTrip start(Time currentDate, Trip trip) {
+		return trip.start(currentDate, listener);
+	}
+	
+	private void notifyStartTrip(StartedTrip trip) {
+	  Objects.requireNonNull(trip, "Missing finished trip.");
+		listener.notifyStartTrip(person(), trip);
 	}
 	
 	@Override

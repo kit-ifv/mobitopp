@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
@@ -29,6 +30,11 @@ public class AggregateDemand implements PersonListener {
     ZoneId origin = trip.origin().zone().getId();
     ZoneId destination = trip.destination().zone().getId();
     matrix.increment(origin, destination);
+  }
+  
+  @Override
+  public void notifyStartTrip(Person person, StartedTrip trip) {
+	// TODO Move writing to Matrix from notifyEndTrip to notifyStartTrip
   }
   
   @Override

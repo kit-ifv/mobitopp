@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
@@ -32,6 +33,11 @@ public class AggregateDemandPerMode implements PersonListener {
 			}
 
 		}
+	}
+	
+	@Override
+	public void notifyStartTrip(Person person, StartedTrip trip) {
+		// TODO Move writing to matrix from notifyEndTrip to notifyStartTrip?
 	}
   
   @Override
