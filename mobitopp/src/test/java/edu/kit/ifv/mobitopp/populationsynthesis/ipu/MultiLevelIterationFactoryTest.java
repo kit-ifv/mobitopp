@@ -107,7 +107,7 @@ public class MultiLevelIterationFactoryTest {
         .getDistribution(StandardAttribute.femaleAge)
         .getItem(lower)
         .amount();
-    return new BaseConstraint(name, requestedWeight);
+    return new SimpleConstraint(name, requestedWeight);
   }
 
   private Constraint householdConstraintFor(
@@ -117,7 +117,7 @@ public class MultiLevelIterationFactoryTest {
         .getDistribution(StandardAttribute.householdSize)
         .getItem(type)
         .amount();
-    return new BaseConstraint(name, requestedWeight);
+    return new SimpleConstraint(name, requestedWeight);
   }
 
 	@Test

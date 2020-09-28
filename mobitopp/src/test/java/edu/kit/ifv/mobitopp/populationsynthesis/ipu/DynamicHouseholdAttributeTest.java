@@ -86,7 +86,7 @@ public class DynamicHouseholdAttributeTest {
     DynamicHouseholdAttribute attribute = newAttribute(notRequired);
     Constraint constraint = attribute.createConstraint(demography);
 
-		Constraint expectedConstraint = new BaseConstraint(attribute.name(), amount);
+		Constraint expectedConstraint = new SimpleConstraint(attribute.name(), amount);
 		assertThat(constraint, is(equalTo(expectedConstraint)));
 		verify(context, times(2)).name();
 	}
