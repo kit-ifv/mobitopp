@@ -33,7 +33,7 @@ public class SimpleConstraint implements Constraint {
 	}
 
 	private double totalWeight(WeightedHouseholds households) {
-		return households.toList().stream().filter(this::matches).mapToDouble(this::totalWeight).sum();
+		return households.toList().stream().mapToDouble(this::totalWeight).sum();
 	}
 
 	private WeightedHouseholds scaleWeightsOf(
