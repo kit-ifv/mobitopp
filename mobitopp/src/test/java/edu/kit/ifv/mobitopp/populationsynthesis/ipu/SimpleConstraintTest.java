@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
-public class BaseConstraintTest {
+public class SimpleConstraintTest {
 
   private static final String attribute = "attribute";
 	private static final Offset<Double> margin = Offset.offset(1e-6d);
@@ -27,7 +27,7 @@ public class BaseConstraintTest {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
-		BaseConstraint constraint = newConstraint();
+		SimpleConstraint constraint = newConstraint();
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
@@ -43,7 +43,7 @@ public class BaseConstraintTest {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d, otherAttribute);
     WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(anotherHousehold, someHousehold));
-		BaseConstraint constraint = newConstraint(onlyAnotherHousehold());
+		SimpleConstraint constraint = newConstraint(onlyAnotherHousehold());
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
@@ -58,7 +58,7 @@ public class BaseConstraintTest {
 		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
-		BaseConstraint constraint = newConstraint();
+		SimpleConstraint constraint = newConstraint();
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
 
@@ -70,7 +70,7 @@ public class BaseConstraintTest {
 		WeightedHousehold someHousehold = newHousehold(someId, 2.0d);
 		WeightedHousehold anotherHousehold = newHousehold(anotherId, 4.0d);
 		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
-		BaseConstraint constraint = newConstraint();
+		SimpleConstraint constraint = newConstraint();
 
 		double goodnessOfFit = constraint.calculateGoodnessOfFitFor(households);
 
@@ -80,14 +80,14 @@ public class BaseConstraintTest {
 	@Test
 	public void requestsWeightToBeGreaterThanZero() {
 		double weight = 0.0d;
-		BaseConstraint constraint = newBaseConstraint(weight);
+		SimpleConstraint constraint = newBaseConstraint(weight);
 
-		BaseConstraint greaterZero = newBaseConstraint(BaseConstraint.greaterZero);
+		SimpleConstraint greaterZero = newBaseConstraint(SimpleConstraint.greaterZero);
 		assertThat(constraint).isEqualTo(greaterZero);
 	}
 
-	private BaseConstraint newBaseConstraint(double weight) {
-		return new BaseConstraint(attribute, weight) {
+	private SimpleConstraint newBaseConstraint(double weight) {
+		return new SimpleConstraint(attribute, weight) {
 
 			@Override
 			protected double totalWeight(WeightedHousehold household) {
@@ -113,12 +113,12 @@ public class BaseConstraintTest {
 		return Map.of(attribute, 1);
 	}
 
-	private BaseConstraint newConstraint() {
+	private SimpleConstraint newConstraint() {
 		return newConstraint(h -> true);
 	}
 
-	private BaseConstraint newConstraint(Predicate<WeightedHousehold> filter) {
-		return new BaseConstraint(attribute, requestedWeight) {
+	private SimpleConstraint newConstraint(Predicate<WeightedHousehold> filter) {
+		return new SimpleConstraint(attribute, requestedWeight) {
 
 			@Override
 			protected double totalWeight(WeightedHousehold household) {

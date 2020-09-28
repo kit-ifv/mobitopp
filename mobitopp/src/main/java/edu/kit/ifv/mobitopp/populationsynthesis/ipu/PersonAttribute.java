@@ -22,7 +22,7 @@ public class PersonAttribute extends NamedAttribute implements Attribute {
 	@Override
 	public Constraint createConstraint(final Demography demography) {
 		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
-		return new BaseConstraint(name(), requestedWeight);
+		return new SimpleConstraint(name(), requestedWeight);
 	}
 
 	@Override

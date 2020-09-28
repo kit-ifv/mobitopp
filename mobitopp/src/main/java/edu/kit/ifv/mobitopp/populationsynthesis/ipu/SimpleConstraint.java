@@ -5,13 +5,13 @@ import lombok.ToString;
 
 @EqualsAndHashCode
 @ToString
-public class BaseConstraint implements Constraint {
+public class SimpleConstraint implements Constraint {
 
 	public static final double greaterZero = 1e-6;
 	private final double requestedWeight;
   private final String attribute;
 
-	public BaseConstraint(String attribute, double requestedWeight) {
+	public SimpleConstraint(String attribute, double requestedWeight) {
 		super();
     this.attribute = attribute;
 		this.requestedWeight = ensureGreaterZero(requestedWeight);

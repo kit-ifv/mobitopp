@@ -35,7 +35,7 @@ public class MaleAge extends NamedAttribute implements Attribute {
 	@Override
 	public Constraint createConstraint(Demography demography) {
 		int requestedWeight = demography.maleAge().amount(lowerBound);
-		return new BaseConstraint(name(), requestedWeight);
+		return new SimpleConstraint(name(), requestedWeight);
 	}
 
 }
