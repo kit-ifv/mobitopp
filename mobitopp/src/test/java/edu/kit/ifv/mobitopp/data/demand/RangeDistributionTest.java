@@ -25,6 +25,15 @@ public class RangeDistributionTest {
     distribution.addItem(firstItem);
     distribution.addItem(secondItem);
   }
+  
+  @Test
+	void hasItems() throws Exception {
+  	RangeDistributionIfc emptyElements = distribution.createEmpty();
+  	RangeDistribution emptyDistribution = new RangeDistribution();
+		assertThat(emptyDistribution.hasItems()).isFalse();
+		assertThat(emptyElements.hasItems()).isFalse();
+		assertThat(distribution.hasItems()).isTrue();
+	}
 
   @Test
   public void getsItemForValue() {

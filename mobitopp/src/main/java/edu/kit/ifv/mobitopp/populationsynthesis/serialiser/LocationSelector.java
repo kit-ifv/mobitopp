@@ -11,7 +11,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -19,16 +19,16 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 
 public class LocationSelector implements OpportunityLocationSelector {
 
-	private Map<Zone, Map<ActivityType, Map<Location, Integer>>> mapping;
+	private Map<ZoneId, Map<ActivityType, Map<Location, Integer>>> mapping;
 
-	private LocationSelector(Map<Zone, Map<ActivityType, Map<Location, Integer>>> mapping) {
+	private LocationSelector(Map<ZoneId, Map<ActivityType, Map<Location, Integer>>> mapping) {
 		super();
 		this.mapping = mapping;
 	}
 
 	@Override
 	public Map<Location, Integer> createLocations(
-			Zone zone, ActivityType activityType, Integer total_opportunities) {
+			ZoneId zone, ActivityType activityType, Integer total_opportunities) {
 		if (mapping.containsKey(zone)) {
 			return createLocations(mapping.get(zone), activityType);
 		}
@@ -44,13 +44,13 @@ public class LocationSelector implements OpportunityLocationSelector {
 	}
 
 	public static OpportunityLocationSelector from(List<Opportunity> opportunities) {
-		Map<Zone, Map<ActivityType, Map<Location, Integer>>> mapping = opportunities
+		Map<ZoneId, Map<ActivityType, Map<Location, Integer>>> mapping = opportunities
 				.stream()
 				.collect(byZoneAndActivityType());
 		return new LocationSelector(mapping);
 	}
 
-	private static Collector<Opportunity, ?, LinkedHashMap<Zone, Map<ActivityType, Map<Location, Integer>>>> byZoneAndActivityType() {
+	private static Collector<Opportunity, ?, LinkedHashMap<ZoneId, Map<ActivityType, Map<Location, Integer>>>> byZoneAndActivityType() {
 		return groupingBy(Opportunity::zone, LinkedHashMap::new, groupingByActivityType());
 	}
 

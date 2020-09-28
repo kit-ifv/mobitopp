@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
+import edu.kit.ifv.mobitopp.util.collections.Filter;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import lombok.RequiredArgsConstructor;
 
@@ -29,12 +30,12 @@ public class MultiLevelAttributeResolver implements AttributeResolver {
 
 	@Override
 	public List<Attribute> attributesOf(AttributeType attributeType) {
-		// TODO filter distinct attributes
 		return attributes
 				.values()
 				.stream()
 				.flatMap(List::stream)
 				.filter(attribute -> attribute.type().equals(attributeType))
+				.filter(Filter.distinctBy(Attribute::name))
 				.sorted(Comparator.comparing(Attribute::name))
 				.collect(toList());
 	}

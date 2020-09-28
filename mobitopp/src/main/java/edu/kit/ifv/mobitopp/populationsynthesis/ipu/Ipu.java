@@ -1,8 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.kit.ifv.mobitopp.result.Logger;
 
 public class Ipu {
@@ -11,9 +8,9 @@ public class Ipu {
 	private final int maxIterations;
 	private final double maxGoodness;
 	private final Logger logger;
-	private List<WeightedHousehold> bestHouseholds;
+	private WeightedHouseholds bestHouseholds;
 	private double bestGoodness;
-	private List<WeightedHousehold> currentHouseholds;
+	private WeightedHouseholds currentHouseholds;
 	private int lastIteration;
 	private int bestIteration;
 
@@ -25,9 +22,9 @@ public class Ipu {
 		this.logger = logger;
 	}
 
-	public List<WeightedHousehold> adjustWeightsOf(List<WeightedHousehold> households) {
-		initialise(households);
-		List<WeightedHousehold> lastIterationHouseholds = currentHouseholds;
+	public WeightedHouseholds adjustWeightsOf(WeightedHouseholds initialHouseholds) {
+		initialise(initialHouseholds);
+		WeightedHouseholds lastIterationHouseholds = currentHouseholds;
 		for (lastIteration = 0; lastIteration < maxIterations; lastIteration++) {
 			updateHouseholds(lastIterationHouseholds);
 			double goodnessOfFit = calculateGoodness();
@@ -49,13 +46,13 @@ public class Ipu {
 								bestIteration, bestGoodness));
 	}
 
-	private void initialise(List<WeightedHousehold> households) {
-		currentHouseholds = new ArrayList<>(households);
+	private void initialise(WeightedHouseholds households) {
+		currentHouseholds = new WeightedHouseholds(households);
 		bestHouseholds = currentHouseholds;
 		bestGoodness = calculateGoodness();
 	}
 
-	private void updateHouseholds(List<WeightedHousehold> lastIterationHouseholds) {
+	private void updateHouseholds(WeightedHouseholds lastIterationHouseholds) {
 		currentHouseholds = iteration.adjustWeightsOf(lastIterationHouseholds);
 	}
 

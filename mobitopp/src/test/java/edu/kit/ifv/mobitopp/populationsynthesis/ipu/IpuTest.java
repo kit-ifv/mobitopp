@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -24,10 +23,10 @@ public class IpuTest {
 
 	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
 			"1");
-	private List<WeightedHousehold> households;
-	private List<WeightedHousehold> afterFirstIteration;
-	private List<WeightedHousehold> afterSecondIteration;
-	private List<WeightedHousehold> afterThirdIteration;
+	private WeightedHouseholds households;
+	private WeightedHouseholds afterFirstIteration;
+	private WeightedHouseholds afterSecondIteration;
+	private WeightedHouseholds afterThirdIteration;
 	private Iteration iteration;
 	private Logger logger;
 
@@ -46,11 +45,11 @@ public class IpuTest {
 		when(iteration.calculateGoodnessOfFitFor(households)).thenReturn(1.0d);
 	}
 
-	private List<WeightedHousehold> createHouseholds(double baseWeight) {
+	private WeightedHouseholds createHouseholds(double baseWeight) {
 		int hhid = 1;
 		WeightedHousehold household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
 		WeightedHousehold household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
-		return asList(household1, household2);
+		return new WeightedHouseholds(asList(household1, household2));
 	}
 
 	private HouseholdOfPanelDataId newId(int id) {
@@ -73,7 +72,7 @@ public class IpuTest {
 		double maxGoodness = 0.0d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
 
-		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
+		WeightedHouseholds updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterSecondIteration)));
 		verify(logger).println(anyString());
@@ -86,7 +85,7 @@ public class IpuTest {
 		double maxGoodness = 0.5d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
 
-		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
+		WeightedHouseholds updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterFirstIteration)));
 	}
@@ -107,7 +106,7 @@ public class IpuTest {
 		double maxGoodness = 0.2d;
 		Ipu ipu = new Ipu(iteration, maxIterations, maxGoodness, logger);
 
-		List<WeightedHousehold> updatedHouseholds = ipu.adjustWeightsOf(households);
+		WeightedHouseholds updatedHouseholds = ipu.adjustWeightsOf(households);
 
 		assertThat(updatedHouseholds, is(equalTo(afterThirdIteration)));
 	}

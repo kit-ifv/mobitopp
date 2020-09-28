@@ -79,6 +79,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
 		household.ownCars(cars);
 		cars.stream().filter(PrivateCar::isPersonal).forEach(this::assignPersonalCar);
+		household.homeZone().getDemandData().getPopulationData().addHousehold(household);
 		return household;
 	}
 

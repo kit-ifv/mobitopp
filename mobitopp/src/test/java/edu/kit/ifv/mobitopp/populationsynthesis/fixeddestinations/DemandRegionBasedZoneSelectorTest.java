@@ -18,7 +18,7 @@ import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionRelationsObserver;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
@@ -30,7 +30,7 @@ public class DemandRegionBasedZoneSelectorTest {
 	@Mock
 	private PersonBuilder person;
 	@Mock
-	private DemandRegionSelector communitySelector;
+	private DemandRegionRelationsObserver observer;
 
 	@Test
 	void failsMissingZones() throws Exception {
@@ -42,7 +42,7 @@ public class DemandRegionBasedZoneSelectorTest {
 				() -> selector.select(person, relations, randomNumber));
 		
 		verifyZeroInteractions(person);
-		verifyZeroInteractions(communitySelector);
+		verifyZeroInteractions(observer);
 	}
 
 	@Test
@@ -59,7 +59,7 @@ public class DemandRegionBasedZoneSelectorTest {
 		verify(person)
 				.addFixedDestination(
 						new FixedDestination(ActivityType.WORK, someZone, someZone.centroidLocation()));
-		verify(communitySelector).notifyAssignedRelation(homeZone, someZone);
+		verify(observer).notifyAssignedRelation(homeZone, someZone);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class DemandRegionBasedZoneSelectorTest {
 		assertThrows(IllegalArgumentException.class,
 				() -> selector.select(person, relations, randomNumber));
 
-		verifyZeroInteractions(person, communitySelector);
+		verifyZeroInteractions(person, observer);
 	}
 
 	private Attractivities noAttractivities() {
@@ -83,6 +83,6 @@ public class DemandRegionBasedZoneSelectorTest {
 	}
 
 	private DemandRegionBasedZoneSelector newSelector() {
-		return new DemandRegionBasedZoneSelector(communitySelector, () -> 0.42d);
+		return new DemandRegionBasedZoneSelector(observer, () -> 0.42d);
 	}
 }

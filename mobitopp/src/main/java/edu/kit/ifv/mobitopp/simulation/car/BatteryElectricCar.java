@@ -129,5 +129,11 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 		}
 		throw new AssertionError();
 	}
+	
+	@Override
+	public Car copy(int id) {
+		return new BatteryElectricCar(id, position, carSegment, capacity, mileage, batteryLevel,
+				electricRange, batteryCapacity_kWh, minimumChargingLevel());
+	}
 
 }

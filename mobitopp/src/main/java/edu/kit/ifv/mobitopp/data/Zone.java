@@ -76,7 +76,7 @@ public class Zone {
 	public DataForZone getDemandData() 
 	{
 		if (this.zoneData == null) {
-			this.zoneData = new DataForZone(this, attractivities);
+			this.zoneData = new DataForZone(id, attractivities);
 		}
 
 		return this.zoneData;

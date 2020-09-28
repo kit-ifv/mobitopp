@@ -10,7 +10,7 @@ public class PersonId implements Comparable<PersonId>, Serializable {
 	
 	private final int oid;
 	private final HouseholdId householdId;
-  private final byte personNumber;
+  private final int personNumber;
 
 	public PersonId(int oid, HouseholdId householdId, int personNumber) {
 		super();
@@ -19,7 +19,7 @@ public class PersonId implements Comparable<PersonId>, Serializable {
 		verify(personNumber);
 		this.oid = oid;
 		this.householdId = householdId;
-		this.personNumber = (byte) personNumber;
+		this.personNumber = personNumber;
   }
 
   private void verify(int personNumber) {

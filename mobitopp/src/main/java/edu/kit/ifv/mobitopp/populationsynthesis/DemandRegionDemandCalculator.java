@@ -36,7 +36,7 @@ public class DemandRegionDemandCalculator implements DemandDataCalculator {
 	}
 
 	private void processSteps(DemandRegion region) {
-		steps.forEach(s -> s.process(region));
+		steps.forEach(step -> step.process(region));
 	}
 
 }

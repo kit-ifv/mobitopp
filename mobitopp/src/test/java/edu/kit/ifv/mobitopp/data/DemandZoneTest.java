@@ -115,6 +115,12 @@ public class DemandZoneTest {
 		assertThat(noGeneration.shouldGeneratePopulation()).isFalse();
 		assertThat(generation.shouldGeneratePopulation()).isTrue();
 	}
+  
+  @Test
+	void returnsItselfAsZoneToConvertFromDemandRegionToZone() throws Exception {
+  	DemandZone demandZone = newDataFor(zone);
+		assertThat(demandZone.zones()).contains(demandZone);
+	}
 
   private RangeDistributionIfc expectedMale() {
     RangeDistributionIfc expectedMale = new RangeDistribution();
@@ -122,7 +128,7 @@ public class DemandZoneTest {
     return expectedMale;
   }
 
-  private DemandRegion newDataFor(Zone zone) {
+  private DemandZone newDataFor(Zone zone) {
     return newDataFor(zone, true);
   }
   
