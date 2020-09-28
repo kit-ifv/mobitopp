@@ -1,14 +1,19 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-public abstract class BaseConstraint implements Constraint {
+@EqualsAndHashCode
+@ToString
+public class BaseConstraint implements Constraint {
 
 	public static final double greaterZero = 1e-6;
 	private final double requestedWeight;
+  private final String attribute;
 
-	public BaseConstraint(double requestedWeight) {
+	public BaseConstraint(String attribute, double requestedWeight) {
 		super();
+    this.attribute = attribute;
 		this.requestedWeight = ensureGreaterZero(requestedWeight);
 	}
 
@@ -40,37 +45,22 @@ public abstract class BaseConstraint implements Constraint {
 		return households;
 	}
 
+	private boolean matches(WeightedHousehold household) {
+	  return 0 < valueOf(household);
+	}
+
+  protected int valueOf(WeightedHousehold household) {
+    return household.attribute(attribute);
+  }
+
 	@Override
 	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
 		double totalWeight = totalWeight(households);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
 	}
 
-	protected abstract boolean matches(WeightedHousehold household);
-
-	protected abstract double totalWeight(WeightedHousehold household);
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(requestedWeight);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BaseConstraint other = (BaseConstraint) obj;
-		return Double.doubleToLongBits(requestedWeight) == Double
-				.doubleToLongBits(other.requestedWeight);
-	}
-
-	@Override
-	public String toString() {
-		return "requestedWeight=" + requestedWeight;
-	}
+  protected double totalWeight(WeightedHousehold household) {
+  	return household.weight() * valueOf(household);
+  }
 
 }

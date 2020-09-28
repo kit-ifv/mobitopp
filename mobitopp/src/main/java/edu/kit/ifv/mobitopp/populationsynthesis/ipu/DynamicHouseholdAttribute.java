@@ -20,7 +20,7 @@ public class DynamicHouseholdAttribute extends NamedAttribute implements Attribu
 	@Override
 	public Constraint createConstraint(final Demography demography) {
 		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
-		return new HouseholdConstraint(requestedWeight, name());
+		return new BaseConstraint(name(), requestedWeight);
 	}
 
 	@Override

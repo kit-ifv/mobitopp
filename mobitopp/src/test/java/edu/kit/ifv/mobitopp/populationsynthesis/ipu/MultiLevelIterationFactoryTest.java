@@ -100,19 +100,25 @@ public class MultiLevelIterationFactoryTest {
 		return constraints;
 	}
 
-	private Constraint femaleConstraintFor(
-			int lower, int upper, Demography demography, RegionalContext regionalContext) {
-		String name = name(StandardAttribute.femaleAge, regionalContext, lower, upper);
-		return new PersonConstraint(
-				demography.getDistribution(StandardAttribute.femaleAge).getItem(lower).amount(), name);
-	}
+  private Constraint femaleConstraintFor(
+      int lower, int upper, Demography demography, RegionalContext regionalContext) {
+    String name = name(StandardAttribute.femaleAge, regionalContext, lower, upper);
+    int requestedWeight = demography
+        .getDistribution(StandardAttribute.femaleAge)
+        .getItem(lower)
+        .amount();
+    return new BaseConstraint(name, requestedWeight);
+  }
 
-	private Constraint householdConstraintFor(
-			int type, Demography demography, RegionalContext regionalContext) {
-		String name = name(StandardAttribute.householdSize, regionalContext, type, type);
-		return new HouseholdConstraint(
-				demography.getDistribution(StandardAttribute.householdSize).getItem(type).amount(), name);
-	}
+  private Constraint householdConstraintFor(
+      int type, Demography demography, RegionalContext regionalContext) {
+    String name = name(StandardAttribute.householdSize, regionalContext, type, type);
+    int requestedWeight = demography
+        .getDistribution(StandardAttribute.householdSize)
+        .getItem(type)
+        .amount();
+    return new BaseConstraint(name, requestedWeight);
+  }
 
 	@Test
 	void buildsUpAttributesOfAllLevels() throws Exception {
