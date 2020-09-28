@@ -46,21 +46,17 @@ public class SimpleConstraint implements Constraint {
 	}
 
 	private boolean matches(WeightedHousehold household) {
-	  return 0 < valueOf(household);
+	  return 0 < household.attribute(attribute);
 	}
 
-  protected int valueOf(WeightedHousehold household) {
-    return household.attribute(attribute);
-  }
-
-	@Override
+  @Override
 	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
 		double totalWeight = totalWeight(households);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
 	}
 
   protected double totalWeight(WeightedHousehold household) {
-  	return household.weight() * valueOf(household);
+  	return household.weight() * household.attribute(attribute);
   }
 
 }
