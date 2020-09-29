@@ -8,6 +8,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.simulation.tour.Subtour;
 import edu.kit.ifv.mobitopp.simulation.tour.Tour;
 
@@ -23,6 +24,11 @@ public class MultipleResults implements PersonResults {
   @Override
   public void notifyEndTrip(Person person, FinishedTrip trip) {
     notifyAllListener(l -> l.notifyEndTrip(person, trip));
+  }
+  
+  @Override
+  public void notifyStartTrip(Person person, StartedTrip trip) {
+    notifyAllListener(l -> l.notifyStartTrip(person, trip));
   }
 
   @Override
@@ -68,4 +74,7 @@ public class MultipleResults implements PersonResults {
     this.listeners.add(listener);
   }
 
+  public void removeListener(PersonListener listener) {
+    this.listeners.remove(listener);
+  }
 }
