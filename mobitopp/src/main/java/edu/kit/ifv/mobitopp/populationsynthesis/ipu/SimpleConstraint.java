@@ -27,36 +27,13 @@ public class SimpleConstraint implements Constraint {
 
 	@Override
 	public WeightedHouseholds scaleWeightsOf(WeightedHouseholds households) {
-		double totalWeight = totalWeight(households);
-		double withFactor = requestedWeight / totalWeight;
-		return scaleWeightsOf(households, withFactor);
-	}
-
-	private double totalWeight(WeightedHouseholds households) {
-		return households.toList().stream().mapToDouble(this::totalWeight).sum();
-	}
-
-	private WeightedHouseholds scaleWeightsOf(
-			WeightedHouseholds households, double factor) {
-		households.toList()
-				.stream()
-				.filter(this::matches)
-				.forEach(h -> h.setWeight(h.weight() * factor));
-		return households;
-	}
-
-	private boolean matches(WeightedHousehold household) {
-	  return 0 < household.attribute(attribute);
+	  return households.scale(attribute, requestedWeight);
 	}
 
   @Override
 	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
-		double totalWeight = totalWeight(households);
+		double totalWeight = households.totalWeight(attribute);
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
 	}
-
-  protected double totalWeight(WeightedHousehold household) {
-  	return household.weight() * household.attribute(attribute);
-  }
 
 }

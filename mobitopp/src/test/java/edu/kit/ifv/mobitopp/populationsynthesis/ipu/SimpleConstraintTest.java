@@ -85,13 +85,7 @@ public class SimpleConstraintTest {
 	}
 
 	private SimpleConstraint newBaseConstraint(double weight) {
-		return new SimpleConstraint(attribute, weight) {
-
-			@Override
-			protected double totalWeight(WeightedHousehold household) {
-				return 0;
-			}
-		};
+		return new SimpleConstraint(attribute, weight);
 	}
 
 	private WeightedHousehold newHousehold(HouseholdOfPanelDataId id, double weight) {

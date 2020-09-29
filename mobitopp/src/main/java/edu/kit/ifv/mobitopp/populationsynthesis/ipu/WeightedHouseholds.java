@@ -37,4 +37,34 @@ public class WeightedHouseholds {
 		return new WeightedHouseholds(copied);
 	}
 
+  public WeightedHouseholds scale(String attribute, double requestedWeight) {
+    double totalWeight = totalWeight(attribute);
+    double withFactor = requestedWeight / totalWeight;
+    return scaleWeights(withFactor, attribute);
+  }
+
+  double totalWeight(String attribute) {
+    return households
+        .stream()
+        .mapToDouble(household -> this.totalWeight(household, attribute))
+        .sum();
+  }
+
+  private double totalWeight(WeightedHousehold household, String attribute) {
+    return household.weight() * household.attribute(attribute);
+  }
+
+  private WeightedHouseholds scaleWeights(
+      double factor, String attribute) {
+    households
+        .stream()
+        .filter(household -> this.matches(household, attribute))
+        .forEach(h -> h.setWeight(h.weight() * factor));
+    return this;
+  }
+
+  private boolean matches(WeightedHousehold household, String attribute) {
+    return 0 < household.attribute(attribute);
+  }
+
 }
