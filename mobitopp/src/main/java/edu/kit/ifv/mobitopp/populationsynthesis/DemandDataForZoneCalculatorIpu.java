@@ -61,7 +61,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		WeightedHouseholds initialHouseholds = new WeightedHouseholds(
 				householdsOf(zone, attributeResolver));
 		WeightedHouseholds households = ipu.adjustWeightsOf(initialHouseholds);
-		create(households.toList(), zone, attributeResolver);
+		create(households, zone, attributeResolver);
 	}
 
 	private Logger loggerFor(DemandRegion forZone) {
@@ -69,8 +69,8 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 	}
 
 	private void create(
-			List<WeightedHousehold> households, DemandZone forZone, AttributeResolver attributeResolver) {
-		createAndSaveDemand.createAndSave(households, forZone, attributeResolver);
+			WeightedHouseholds households, DemandZone forZone, AttributeResolver attributeResolver) {
+		createAndSaveDemand.createAndSave(households.toList(), forZone, attributeResolver);
 	}
 
 	private PanelDataRepository panelData() {
