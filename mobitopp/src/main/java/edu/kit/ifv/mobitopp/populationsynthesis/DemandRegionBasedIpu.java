@@ -57,22 +57,22 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(region));
 		WeightedHouseholds initialHouseholds = householdsOf(region, attributeResolver);
 		WeightedHouseholds households = ipu.adjustWeightsOf(initialHouseholds);
-		create(households.toList(), region, attributeResolver);
+		create(households, region, attributeResolver);
 	}
-
+	
 	private Logger loggerFor(DemandRegion forZone) {
 		return message -> System.out.println(String.format("%s: %s", forZone.getExternalId(), message));
 	}
 
 	private void create(
-			final List<WeightedHousehold> households, final DemandRegion region,
+			final WeightedHouseholds households, final DemandRegion region,
 			final AttributeResolver attributeResolver) {
 		region.zones().forEach(zone -> createAndSave(households, zone, attributeResolver));
 	}
 
 	private void createAndSave(
-			List<WeightedHousehold> households, DemandZone zone, AttributeResolver attributeResolver) {
-		List<WeightedHousehold> selectedHouseholds = households
+			WeightedHouseholds households, DemandZone zone, AttributeResolver attributeResolver) {
+		List<WeightedHousehold> selectedHouseholds = households.toList()
 				.stream()
 				.filter(household -> household.context().equals(zone.getRegionalContext()))
 				.collect(toList());
