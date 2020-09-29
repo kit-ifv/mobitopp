@@ -1,8 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.bikesharing;
 
 import java.util.Optional;
-import java.util.stream.Stream;
-
+import java.util.function.Consumer;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTripDecorator;
 
@@ -21,8 +20,8 @@ public class FinishedBikeSharingTrip extends FinishedTripDecorator implements Fi
 	}
 
 	@Override
-	public Stream<FinishedTrip> trips() {
-		return Stream.of(this);
-	}
+	  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+	  	consumer.accept(this);
+	  }
 
 }

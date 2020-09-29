@@ -4,8 +4,10 @@ import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.simulation.person.BaseStartedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
+import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 
 public class Trip_Stub implements TripData, Trip
 {
@@ -64,10 +66,18 @@ public class Trip_Stub implements TripData, Trip
 	public FinishedTrip finish(Time currentDate, PersonListener listener) {
 		return new BeamedTrip(this, currentDate);
 	}
+	
+	@Override
+	public StartedTrip start(Time currentDate, PersonListener listener) {
+		//TODO Vehicle id
+		return new BaseStartedTrip(this);
+	}
+
 
   @Override
   public void prepareTrip(ImpedanceIfc impedance, Time currentTime) {
   }
+
 
 }
 

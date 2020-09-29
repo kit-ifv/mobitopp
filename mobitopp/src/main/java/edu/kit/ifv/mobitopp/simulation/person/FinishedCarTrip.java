@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.function.Consumer;
 
 public class FinishedCarTrip extends FinishedTripDecorator implements FinishedTrip {
 
@@ -18,8 +18,8 @@ public class FinishedCarTrip extends FinishedTripDecorator implements FinishedTr
   }
   
   @Override
-  public Stream<FinishedTrip> trips() {
-  	return Stream.of(this);
+  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+  	consumer.accept(this);
   }
 
 }

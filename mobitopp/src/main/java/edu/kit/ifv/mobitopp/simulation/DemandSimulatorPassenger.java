@@ -35,7 +35,7 @@ public class DemandSimulatorPassenger
 	
 	private final SimulationPersonFactory personFactory;
 	private final SimulationContext context;
-  private final DestinationChoiceModel destinationChoiceModel;
+    private final DestinationChoiceModel destinationChoiceModel;
 	private final TourBasedModeChoiceModel modeChoice;
 	private final ActivityStartAndDurationRandomizer activityDurationRandomizer;
 	private final TripFactory tripFactory;
@@ -145,6 +145,10 @@ public class DemandSimulatorPassenger
 		return context;
 	}
 	
+	protected SimulationPersonFactory personFactory() {
+		return personFactory;
+	}
+	
 	public ImpedanceIfc impedance() {
 		return context.impedance();
 	}
@@ -238,7 +242,7 @@ public class DemandSimulatorPassenger
 		personLoader().households().flatMap(Household::persons).forEach(createAgent);
 	}
 
-	private PersonLoader personLoader() {
+	protected PersonLoader personLoader() {
 		return context.personLoader();
 	}
 
@@ -312,6 +316,14 @@ public class DemandSimulatorPassenger
 	
 	public void addAfterTimeSliceHook(Hook afterHour) {
 		this.afterTimeSlice.add(afterHour);
+	}
+	
+	public void removeBeforeTimeSliceHook(Hook beforeHour) {
+		this.beforeTimeSlice.remove(beforeHour);
+	}
+	
+	public void removeAfterTimeSliceHook(Hook afterHour) {
+		this.afterTimeSlice.remove(afterHour);
 	}
 
 	@Override
