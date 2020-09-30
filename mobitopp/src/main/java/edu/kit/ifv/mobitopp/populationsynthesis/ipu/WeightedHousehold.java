@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import java.util.Map;
+import java.util.Set;
 
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,10 @@ public class WeightedHousehold {
 
 	public int attribute(String attribute) {
 		return attributes.getOrDefault(attribute, missingAttributeValue);
+	}
+	
+	public Set<String> attributeNames() {
+	  return attributes.keySet();
 	}
 	
 	public RegionalContext context() {

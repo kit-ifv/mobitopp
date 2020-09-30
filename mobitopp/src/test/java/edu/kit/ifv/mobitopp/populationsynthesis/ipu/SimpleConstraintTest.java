@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
@@ -20,19 +21,20 @@ public class SimpleConstraintTest {
 	private static final HouseholdOfPanelDataId anotherId = new HouseholdOfPanelDataId(year, 2);
 	private static final double requestedWeight = 6.0d;
   
-	@Test
-	public void updateWeightsOnAllHousehold() {
-		WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
-		WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
-		WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
-		SimpleConstraint constraint = newConstraint();
+  @Test
+  public void updateWeightsOnAllHousehold() {
+    WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
+    WeightedHousehold anotherHousehold = newHousehold(anotherId, 2.0d);
+    WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, anotherHousehold));
+    SimpleConstraint constraint = newConstraint();
 
-		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
+    WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
-		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 2.0d);
-		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 4.0d);
-		assertThat(updatedHouseholds.toList())
-				.containsExactly(updatedSomeHousehold, updatedAnotherHousehold);
+    Map<HouseholdOfPanelDataId, Double> idToWeight = updatedHouseholds
+        .toList()
+        .stream()
+        .collect(toMap(WeightedHousehold::id, WeightedHousehold::weight));
+    assertThat(idToWeight).containsEntry(someId, 2.0d).containsEntry(anotherId, 4.0d);
 	}
 
 	@Test
@@ -45,10 +47,11 @@ public class SimpleConstraintTest {
 
 		WeightedHouseholds updatedHouseholds = constraint.scaleWeightsOf(households);
 
-		WeightedHousehold updatedSomeHousehold = newHousehold(someId, 1.0d, otherAttribute);
-		WeightedHousehold updatedAnotherHousehold = newHousehold(anotherId, 6.0d);
-		assertThat(updatedHouseholds.toList())
-				.containsExactly(updatedAnotherHousehold, updatedSomeHousehold);
+		Map<HouseholdOfPanelDataId, Double> idToWeight = updatedHouseholds
+        .toList()
+        .stream()
+        .collect(toMap(WeightedHousehold::id, WeightedHousehold::weight));
+    assertThat(idToWeight).containsEntry(someId, 1.0d).containsEntry(anotherId, 6.0d);
 	}
 
 	@Test
