@@ -25,9 +25,9 @@ public class WeightedHouseholdsTest {
   void copyContent() throws Exception {
     WeightedHousehold someHousehold = newHousehold(someId);
     WeightedHousehold otherHousehold = newHousehold(otherId);
-    WeightedHouseholds households = new WeightedHouseholds(asList(someHousehold, otherHousehold));
+    ListWeightedHouseholds households = new ListWeightedHouseholds(asList(someHousehold, otherHousehold));
 
-    WeightedHouseholds copy = households.deepCopy();
+    ListWeightedHouseholds copy = households.deepCopy();
 
     assertThat(households).isEqualTo(copy);
     assertThat(households).isNotSameAs(copy);
@@ -98,14 +98,14 @@ public class WeightedHouseholdsTest {
   }
 
   @Test
-  public void arrayUpdateWeightsOnAllHousehold() {
+  public void listUpdateWeightsOnAllHousehold() {
     WeightedHousehold someHousehold = newHousehold(someId, 1.0d);
     WeightedHousehold anotherHousehold = newHousehold(otherId, 2.0d);
-    ArrayWeightedHouseholds households = new ArrayWeightedHouseholds(
+    ListWeightedHouseholds households = new ListWeightedHouseholds(
         asList(someHousehold, anotherHousehold));
     SimpleConstraint constraint = newConstraint();
 
-    ArrayWeightedHouseholds updatedHouseholds = households.scale(attribute, requestedWeight);
+    ListWeightedHouseholds updatedHouseholds = households.scale(attribute, requestedWeight);
 
     Map<HouseholdOfPanelDataId, Double> idToWeight = updatedHouseholds
         .toList()
@@ -115,15 +115,15 @@ public class WeightedHouseholdsTest {
   }
 
   @Test
-  public void arrayUpdateWeightOnSingleHousehold() {
+  public void listUpdateWeightOnSingleHousehold() {
     String otherAttribute = "other";
     WeightedHousehold someHousehold = newHousehold(someId, 1.0d, otherAttribute);
     WeightedHousehold anotherHousehold = newHousehold(otherId, 2.0d);
-    ArrayWeightedHouseholds households = new ArrayWeightedHouseholds(
+    ListWeightedHouseholds households = new ListWeightedHouseholds(
         asList(anotherHousehold, someHousehold));
     SimpleConstraint constraint = newConstraint();
 
-    ArrayWeightedHouseholds updatedHouseholds = households.scale(attribute, requestedWeight);
+    ListWeightedHouseholds updatedHouseholds = households.scale(attribute, requestedWeight);
 
     Map<HouseholdOfPanelDataId, Double> idToWeight = updatedHouseholds
         .toList()
