@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
@@ -50,21 +51,21 @@ public final class StreamUtils {
    * 
    * @see Collectors#toMap(Function, Function)
    */
-  public static <T> Collector<T, ?, Set<T>> toSet(Supplier<Set<T>> supplier) {
-    return new Collector<T, Set<T>, Set<T>>() {
+  public static <T, S extends Set<T>> Collector<T, ?, S> toSet(Supplier<S> supplier) {
+    return new Collector<T, S, S>() {
 
       @Override
-      public Supplier<Set<T>> supplier() {
+      public Supplier<S> supplier() {
         return supplier;
       }
 
       @Override
-      public BiConsumer<Set<T>, T> accumulator() {
-        return Set::add;
+      public BiConsumer<S, T> accumulator() {
+        return S::add;
       }
 
       @Override
-      public BinaryOperator<Set<T>> combiner() {
+      public BinaryOperator<S> combiner() {
         return (left, right) -> {
           left.addAll(right);
           return left;
@@ -72,7 +73,7 @@ public final class StreamUtils {
       }
 
       @Override
-      public Function<Set<T>, Set<T>> finisher() {
+      public Function<S, S> finisher() {
         return i -> i;
       }
 
@@ -125,7 +126,7 @@ public final class StreamUtils {
 		return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), mapSupplier);
 	}
 
-  public static <T> Collector<T, ?, Set<T>> toSortedSet() {
+  public static <T> Collector<T, ?, SortedSet<T>> toSortedSet() {
     return toSet(TreeSet::new);
   }
 }
