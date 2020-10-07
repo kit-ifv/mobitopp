@@ -65,8 +65,9 @@ public class TransferHouseholds {
 
   private WeightedHousehold toWeightedHousehold(HouseholdOfPanelData household) {
     HouseholdOfPanelDataId id = household.id();
+    float weight = household.getWeight();
     Map<String, Integer> attributes = attributeResolver.attributesOf(household, context);
-    return new WeightedHousehold(id, defaultWeight, attributes, context);
+    return new WeightedHousehold(id, weight, attributes, context);
   }
 
 }

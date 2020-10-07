@@ -3,9 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import static edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute.householdSize;
 import static edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds.defaultWeight;
 import static java.util.Arrays.asList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
@@ -23,7 +22,8 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class TransferHouseholdsTest {
 
-	private static final int defaultHouseholdSize = 1;
+	private static final float defaultHouseholdWeight = 1.0f;
+  private static final int defaultHouseholdSize = 1;
 	private static final int defaultHouseholdType = 0;
 	private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
 			"1");
@@ -31,11 +31,15 @@ public class TransferHouseholdsTest {
   @Test
   public void transfersHouseholdsFromPanelToWeighted() {
     Bbsr17 areaType = Bbsr17.defaultType;
-    HouseholdOfPanelData household = createHousehold(areaType);
+    float customWeight = 2.0f;
+    HouseholdOfPanelData household = createHousehold(areaType, customWeight);
     List<WeightedHousehold> households = transferHousehold(areaType, household);
 
-    WeightedHousehold weightedHousehold = newWeightedHousehold(household);
-    assertThat(households, contains(weightedHousehold));
+    WeightedHousehold expectedHousehold = newWeightedHousehold(household);
+    expectedHousehold.setWeight(customWeight);
+    assertThat(households).contains(expectedHousehold);
+    WeightedHousehold weightedHousehold = households.get(0);
+    assertThat(weightedHousehold.weight()).isEqualTo(customWeight, Offset.offset(1e-6d));
   }
 
   @Test
@@ -47,7 +51,7 @@ public class TransferHouseholdsTest {
     List<WeightedHousehold> households = transferHousehold(zoneAreaType, householdCorrectType,
         householdOtherType);
 
-    assertThat(households, is(contains(newWeightedHousehold(householdCorrectType))));
+    assertThat(households).contains(newWeightedHousehold(householdCorrectType));
   }
 
   @Test
@@ -57,7 +61,7 @@ public class TransferHouseholdsTest {
     HouseholdOfPanelData household = createHousehold(householdAreaType);
     List<WeightedHousehold> households = transferHousehold(zoneAreaType, household);
 
-    assertThat(households, is(contains(newWeightedHousehold(household))));
+    assertThat(households).contains(newWeightedHousehold(household));
   }
 
   @Test
@@ -71,8 +75,8 @@ public class TransferHouseholdsTest {
     List<WeightedHousehold> households = transferHousehold(zoneAreaType, requiredHouseholds,
         smallHousehold, normalHousehold, bigHousehold);
 
-    assertThat(households, is(contains(newWeightedHousehold(smallHousehold),
-        newWeightedHousehold(normalHousehold), newWeightedHousehold(bigHousehold))));
+    assertThat(households).contains(newWeightedHousehold(smallHousehold),
+        newWeightedHousehold(normalHousehold), newWeightedHousehold(bigHousehold));
   }
 
 	private WeightedHousehold newWeightedHousehold(HouseholdOfPanelData household) {
@@ -106,14 +110,18 @@ public class TransferHouseholdsTest {
   }
 
   private HouseholdOfPanelData createHousehold(Bbsr17 areaType) {
-    return createHousehold(areaType, defaultHouseholdSize);
+    return createHousehold(areaType, defaultHouseholdSize, defaultHouseholdWeight);
   }
 
-	private HouseholdOfPanelData createHousehold(Bbsr17 areaType, int size) {
+  private HouseholdOfPanelData createHousehold(Bbsr17 areaType, float weight) {
+    return createHousehold(areaType, defaultHouseholdSize, weight);
+  }
+
+	private HouseholdOfPanelData createHousehold(Bbsr17 areaType, int size, float weight) {
 		short year = 2011;
 		HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, 1);
 		return new HouseholdOfPanelData(id, areaType.getTypeAsInt(), size, defaultHouseholdType, 0, 0, 0, 0, 0, 0, 0,
-				0.0f, 0);
+				0.0f, 0, weight);
 	}
 
   private PanelDataRepository createPanelRepsitory(HouseholdOfPanelData... household) {

@@ -28,6 +28,7 @@ public class PaneldataReader {
 	private static final int defaultDomCode = 0;
 	private static final int graduationUndefined = -1;
 	private static final float defaultPoleDistance = 0.0f;
+  private static final float defaultWeight = 1.0f;
 	private final Map<String, String> missingColumns;
   public final Map<String,List<PaneldataInfo>> data;
 
@@ -141,6 +142,7 @@ public class PaneldataReader {
 		info.household.household_type 		= getIntegerOrDefault(columnNames, field, "type", defaultType);
 		info.household.domcode 						= getIntegerOrDefault(columnNames, field, "hhtype", defaultDomCode);
 		info.household.cars							= Integer.parseInt(field[columnNames.get("cars")]);
+		info.household.weight           = getFloatOrDefault(columnNames, field, "weight", defaultWeight);
 		info.person.person_number				= Integer.parseInt(field[columnNames.get("personnumber")]);
 		info.person.sex 								= readGender(columnNames, field);
 		info.person.graduation					= getIntegerOrDefault(columnNames, field, "graduation", graduationUndefined);
@@ -363,7 +365,8 @@ public class PaneldataReader {
 																	income,
 																	info.household.income_class,
 																	activityRadius,
-																	activityRadiusMode
+																	activityRadiusMode,
+																	info.household.weight
 																);
 
 			assert (info.household.household_size == infos.get(id).size() + info.household.additionalchildren);

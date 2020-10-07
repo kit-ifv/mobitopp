@@ -26,6 +26,7 @@ public class HouseholdOfPanelDataBuilder {
   public static final int defaultIncomeClass = 1;
 	public static final float activityRadius = 13.0f;
   public static final int activityRadiusMode = StandardMode.CAR.getCode();
+  public static final float defaultWeight = 1.0f;
 
   private HouseholdOfPanelDataId id;
   private int domCode;
@@ -59,7 +60,7 @@ public class HouseholdOfPanelDataBuilder {
 	public HouseholdOfPanelData build() {
 		return new HouseholdOfPanelData(id, defaultAreaType, size, type, domCode, defaultReportingPersons,
 				defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome, defaultIncomeClass,
-				activityRadius, activityRadiusMode);
+				activityRadius, activityRadiusMode, defaultWeight);
 	}
 
 }

@@ -29,6 +29,7 @@ public class HouseholdOfPanelData
   private final int incomeClass;
 	private final float activityRadius;
 	private final int activityRadiusMode;
+	private final float weight;
 
   public HouseholdOfPanelData(
   	final HouseholdOfPanelDataId id,
@@ -43,19 +44,21 @@ public class HouseholdOfPanelData
 		final int income, 
 		final int incomeClass, 
 		final float activityRadius, 
-		final int activityRadiusMode
+		final int activityRadiusMode, 
+		float weight
 	)
 	{
 		this(id, areaType, (byte) size, (byte) type, (byte) domCode, (byte) numberOfReportingPersons,
 				(byte) numberOfMinors, (byte) numberOfNotReportingChildren, (byte) numberOfCars, income,
-				incomeClass, activityRadius, activityRadiusMode);
+				incomeClass, activityRadius, activityRadiusMode, weight);
 	}
 
   public HouseholdOfPanelData(final HouseholdOfPanelData household) {
     this(household.id, household.areaType, household.size, household.type, household.domCode,
         household.numberOfReportingPersons, household.numberOfMinors,
         household.numberOfNotReportingChildren, household.numberOfCars, household.income,
-        household.incomeClass, household.activityRadius, household.activityRadiusMode);
+        household.incomeClass, household.activityRadius, household.activityRadiusMode,
+        household.weight);
   }
 
   public HouseholdOfPanelDataId id()

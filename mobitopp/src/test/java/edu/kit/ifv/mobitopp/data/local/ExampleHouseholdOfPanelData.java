@@ -25,10 +25,12 @@ public class ExampleHouseholdOfPanelData {
   public static final float activityRadius = 13.0f;
   public static final int activityRadiusMode = StandardMode.CAR.getCode();
 	public static final HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household(aDomCode, anId);
+  public static final float defaultWeight = 1.0f;
 
-	public static HouseholdOfPanelData household(int domCode, HouseholdOfPanelDataId id) {
-		return new HouseholdOfPanelData(id, areaType, size, type, domCode, reportingPersons, minors,
-				notReportingChildren, cars, income, incomeClass, activityRadius, activityRadiusMode);
-	}
+  public static HouseholdOfPanelData household(int domCode, HouseholdOfPanelDataId id) {
+    return new HouseholdOfPanelData(id, areaType, size, type, domCode, reportingPersons, minors,
+        notReportingChildren, cars, income, incomeClass, activityRadius, activityRadiusMode,
+        defaultWeight);
+  }
 
 }
