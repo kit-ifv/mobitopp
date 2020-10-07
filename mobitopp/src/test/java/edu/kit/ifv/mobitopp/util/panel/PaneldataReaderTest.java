@@ -52,6 +52,7 @@ public class PaneldataReaderTest {
 	private static final String distanceWork = valueOf(person.getDistanceWork());
 	private static final String distanceEducation = valueOf(person.getDistanceEducation());
 	private static final String licence = person.hasLicence() ? "1" : "0";
+  private static final String defaultWeight = "1.0";
 	private LinkedHashMap<String, String> example;
 
 	@BeforeEach
@@ -95,6 +96,7 @@ public class PaneldataReaderTest {
 		optional.put("hhincome_class", hhIncomeClass);
 		optional.put("hhactivity_radius_time", hhActivityRadiusTime);
 		optional.put("hhactivity_radius_mode", hhActivityRadiusMode);
+		optional.put("weight", defaultWeight);
 		optional.forEach(example::put);
 	}
 

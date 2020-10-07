@@ -15,6 +15,7 @@ class HouseholdInfo {
   public int income_class = -1;
 	public float activity_radius_time;
 	public int activity_radius_mode;
+	public float weight;
 
 	public String id() {
 		return household_number + "," + year;
