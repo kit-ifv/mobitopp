@@ -89,9 +89,9 @@ public class PersonAttributeTest {
 
 		Constraint constraint = attribute.createConstraint(demography);
 
-		Constraint expectedConstraint = new SimpleConstraint(attribute.name(), amount);
+		Constraint expectedConstraint = new SimpleConstraint(attribute, amount);
 		assertThat(constraint, is(equalTo(expectedConstraint)));
-		verify(context, times(2)).name();
+		verify(context, times(0)).name();
 	}
 
 	private Demography createDemography() {
@@ -104,6 +104,6 @@ public class PersonAttributeTest {
 	}
 
 	private PersonAttribute newPersonAttribute() {
-		return new PersonAttribute(context, attributeType, lowerBound, upperBound, personValue);
+		return new PersonAttribute(context, attributeType, lowerBound, upperBound, amount, personValue);
 	}
 }

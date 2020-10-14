@@ -50,7 +50,7 @@ public enum StandardAttribute implements AttributeType {
 			return demography
 					.femaleAge()
 					.items()
-					.map(item -> new FemaleAge(context, this, item.lowerBound(), item.upperBound()));
+					.map(item -> new FemaleAge(context, this, item.lowerBound(), item.upperBound(), item.amount()));
 		}
 	},
 	maleAge("age_m") {
@@ -61,7 +61,7 @@ public enum StandardAttribute implements AttributeType {
 			return demography
 					.maleAge()
 					.items()
-					.map(item -> new MaleAge(context, this, item.lowerBound(), item.upperBound()));
+					.map(item -> new MaleAge(context, this, item.lowerBound(), item.upperBound(), item.amount()));
 		}
 	},
 	employment("job") {
@@ -116,11 +116,12 @@ public enum StandardAttribute implements AttributeType {
 				.map(item -> createPersonAttribute(context, valueOfPerson, item));
 	}
 
-	private PersonAttribute createPersonAttribute(
-			final RegionalContext context, final Function<PersonOfPanelData, Integer> personValue,
-			final RangeDistributionItem item) {
-		return new PersonAttribute(context, this, item.lowerBound(), item.upperBound(), personValue);
-	}
+  private PersonAttribute createPersonAttribute(
+      final RegionalContext context, final Function<PersonOfPanelData, Integer> personValue,
+      final RangeDistributionItem item) {
+    return new PersonAttribute(context, this, item.lowerBound(), item.upperBound(), item.amount(),
+        personValue);
+  }
 
 	Stream<Attribute> createHouseholdAttributes(
 			final RegionalContext context, final Demography demography,
@@ -134,8 +135,8 @@ public enum StandardAttribute implements AttributeType {
 	private DynamicHouseholdAttribute createHouseholdAttribute(
 			final RegionalContext context,
 			final Function<HouseholdOfPanelData, Integer> valueOfHousehold, final RangeDistributionItem item) {
-		return new DynamicHouseholdAttribute(context, this, item.lowerBound(), item.upperBound(),
-				valueOfHousehold);
+    return new DynamicHouseholdAttribute(context, this, item.lowerBound(), item.upperBound(),
+        item.amount(), valueOfHousehold);
 	}
 
 	@Override

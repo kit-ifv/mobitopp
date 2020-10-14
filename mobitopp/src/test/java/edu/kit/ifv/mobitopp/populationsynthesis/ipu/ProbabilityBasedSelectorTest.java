@@ -29,8 +29,10 @@ public class ProbabilityBasedSelectorTest {
   public void initialise() {
     double weight = 0.5d;
     Map<String, Integer> attributes = emptyMap();
-    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, attributes, context);
-    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, attributes, context);
+    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, attributes, context,
+        ExampleHouseholdOfPanelData.household);
+    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, attributes, context,
+        ExampleHouseholdOfPanelData.otherHousehold);
   }
 
   @Test

@@ -12,17 +12,18 @@ public class PersonAttribute extends NamedAttribute implements Attribute {
 
 	private final Function<PersonOfPanelData, Integer> personValue;
 
-	public PersonAttribute(
-			final RegionalContext context, final AttributeType attributeType, final int lowerBound,
-			final int upperBound, final Function<PersonOfPanelData, Integer> personValue) {
-		super(context, attributeType, lowerBound, upperBound);
+  public PersonAttribute(
+      final RegionalContext context, final AttributeType attributeType, final int lowerBound,
+      final int upperBound, final int requestedWeight,
+      final Function<PersonOfPanelData, Integer> personValue) {
+		super(context, attributeType, lowerBound, upperBound, requestedWeight);
 		this.personValue = personValue;
 	}
 
 	@Override
 	public Constraint createConstraint(final Demography demography) {
 		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
-		return new SimpleConstraint(name(), requestedWeight);
+		return new SimpleConstraint(this, requestedWeight);
 	}
 
 	@Override

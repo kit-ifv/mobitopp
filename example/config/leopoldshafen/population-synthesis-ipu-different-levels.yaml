@@ -21,7 +21,7 @@ dataSource: !file
 demandRegionMapping:
   community:zone: data/ipu/leopoldshafen/community-to-zone-different-levels.csv 
 demographyData: 
-  community:household_size: data/ipu/leopoldshafen/demography-household.csv
+  community:household_size: data/ipu/leopoldshafen/demography-household-different-levels.csv
   zone:age_f: data/ipu/leopoldshafen/demography-age-gender.csv
   zone:age_m: data/ipu/leopoldshafen/demography-age-gender.csv
 maxIterations: 100

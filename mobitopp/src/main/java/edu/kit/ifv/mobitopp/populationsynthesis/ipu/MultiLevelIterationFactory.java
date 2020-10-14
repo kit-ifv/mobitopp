@@ -9,32 +9,15 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
-import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
 
 public class MultiLevelIterationFactory extends BaseIterationFactory implements IterationFactory {
 
 	private final BaseIterationFactory singleLevelFactory;
-	private final PanelDataRepository panelData;
-
-	public MultiLevelIterationFactory(PanelDataRepository panelData, SynthesisContext context) {
+	
+	public MultiLevelIterationFactory(SynthesisContext context) {
 		super(context);
-		this.panelData = panelData;
-		singleLevelFactory = new SingleLevelIterationFactory(panelData, context);
-	}
-
-	@Override
-	protected List<Constraint> constraintsFor(final DemandRegion region) {
-		List<Constraint> toConstraints = new LinkedList<>();
-		addConstraintsOf(region, toConstraints);
-		return toConstraints;
-	}
-
-	private void addConstraintsOf(DemandRegion region, List<Constraint> toConstraints) {
-		toConstraints.addAll(singleLevelFactory.constraintsFor(region));
-		for (DemandRegion part : region.parts()) {
-			addConstraintsOf(part, toConstraints);
-		}
+		singleLevelFactory = new SingleLevelIterationFactory(context);
 	}
 
 	@Override
@@ -54,7 +37,7 @@ public class MultiLevelIterationFactory extends BaseIterationFactory implements 
 	@Override
 	public AttributeResolver createAttributeResolverFor(DemandRegion region) {
 		Map<RegionalContext, List<Attribute>> attributes = attributesPerZone(region);
-		return new MultiLevelAttributeResolver(attributes, panelData);
+		return new MultiLevelAttributeResolver(attributes);
 	}
 
 	Map<RegionalContext, List<Attribute>> attributesPerZone(DemandRegion region) {

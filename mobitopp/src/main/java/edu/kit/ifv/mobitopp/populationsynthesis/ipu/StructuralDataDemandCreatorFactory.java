@@ -39,7 +39,7 @@ public class StructuralDataDemandCreatorFactory implements DemandCreatorFactory 
 		List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
 		Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
 		StructuralDataHouseholdReproducer multiplier = new StructuralDataHouseholdReproducer(zone,
-				householdFilterType, householdSelector, householdAttributes);
+				householdFilterType, householdSelector, householdAttributes, panelData);
 		return new DemandCreator(usingBuilder, panelData, householdForZoneFilter, multiplier);
 	}
 

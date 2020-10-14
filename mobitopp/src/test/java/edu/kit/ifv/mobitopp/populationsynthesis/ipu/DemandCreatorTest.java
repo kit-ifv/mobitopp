@@ -154,7 +154,7 @@ public class DemandCreatorTest {
 
 	private DemandCreator newCreator(List<Attribute> householdAttributes) {
 		return new DemandCreator(builder, panelData, filter, new StructuralDataHouseholdReproducer(
-				someZone, householdFilterType, householdSelector, householdAttributes));
+				someZone, householdFilterType, householdSelector, householdAttributes, panelData));
 	}
 
 	private List<Attribute> createAttributes() {
@@ -176,16 +176,19 @@ public class DemandCreatorTest {
 		return someZone.zone();
 	}
 
-	private List<WeightedHousehold> createWeightedHouseholds(List<Attribute> householdAttributes) {
-		double weight = 0.5d;
-		first = new WeightedHousehold(firstId(), weight,
-				attributes(firstPanelHousehold, householdAttributes), someZone.getRegionalContext());
-		second = new WeightedHousehold(secondId(), weight,
-				attributes(secondPanelHousehold, householdAttributes), someZone.getRegionalContext());
-		third = new WeightedHousehold(thirdId(), weight,
-				attributes(thirdPanelHousehold, householdAttributes), someZone.getRegionalContext());
-		return asList(first, second, third);
-	}
+  private List<WeightedHousehold> createWeightedHouseholds(List<Attribute> householdAttributes) {
+    double weight = 0.5d;
+    first = new WeightedHousehold(firstId(), weight,
+        attributes(firstPanelHousehold, householdAttributes), someZone.getRegionalContext(),
+        firstPanelHousehold);
+    second = new WeightedHousehold(secondId(), weight,
+        attributes(secondPanelHousehold, householdAttributes), someZone.getRegionalContext(),
+        secondPanelHousehold);
+    third = new WeightedHousehold(thirdId(), weight,
+        attributes(thirdPanelHousehold, householdAttributes), someZone.getRegionalContext(),
+        thirdPanelHousehold);
+    return asList(first, second, third);
+  }
 
 	private Map<String, Integer> attributes(
 			HouseholdOfPanelData panelHousehold, List<Attribute> householdAttributes) {

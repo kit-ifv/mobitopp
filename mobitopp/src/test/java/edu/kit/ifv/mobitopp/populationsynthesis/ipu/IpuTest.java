@@ -15,8 +15,10 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdOfPanelDataBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.result.Logger;
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class IpuTest {
@@ -47,23 +49,25 @@ public class IpuTest {
 
 	private WeightedHouseholds createHouseholds(double baseWeight) {
 		int hhid = 1;
-		WeightedHousehold household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
-		WeightedHousehold household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
+		WeightedHousehold household1 = newHousehold(newPanelHousehold(hhid++), baseWeight, 1, 1);
+		WeightedHousehold household2 = newHousehold(newPanelHousehold(hhid++), baseWeight, 1, 1);
 		return new WeightedHouseholds(asList(household1, household2));
 	}
 
-	private HouseholdOfPanelDataId newId(int id) {
-		short year = 2000;
-		return new HouseholdOfPanelDataId(year, id);
-	}
+  private HouseholdOfPanelData newPanelHousehold(int id) {
+    short year = 2000;
+    HouseholdOfPanelDataId householdId = new HouseholdOfPanelDataId(year, id);
+    return new HouseholdOfPanelDataBuilder().withId(householdId).build();
+  }
 
-	private WeightedHousehold newHousehold(
-			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
-		Map<String, Integer> attributes = new HashMap<>();
-		attributes.put("some attribute", householdType);
-		attributes.put("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, attributes, context);
-	}
+  private WeightedHousehold newHousehold(
+      HouseholdOfPanelData panelHousehold, double baseWeight, int householdType, int personType) {
+    Map<String, Integer> attributes = new HashMap<>();
+    attributes.put("some attribute", householdType);
+    attributes.put("another attribute", personType);
+    return new WeightedHousehold(panelHousehold.getId(), baseWeight, attributes, context,
+        panelHousehold);
+  }
 
 	@Test
 	public void neverReachConvergence() {

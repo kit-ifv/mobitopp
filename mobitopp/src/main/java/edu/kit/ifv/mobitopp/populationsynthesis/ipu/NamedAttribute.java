@@ -16,11 +16,12 @@ public abstract class NamedAttribute implements Attribute {
 	protected final AttributeType type;
 	protected final int lowerBound;
 	protected final int upperBound;
+	protected final int requestedWeight;
 
 	@Override
 	public final String name() {
-		return context.name() + nameSeparator
-				+ type.createInstanceName(lowerBound, upperBound);
+		return context.name() + nameSeparator + 
+		    type.createInstanceName(lowerBound, upperBound);
 	}
 	
 	@Override
@@ -31,6 +32,11 @@ public abstract class NamedAttribute implements Attribute {
 	@Override
 	public RegionalContext context() {
 		return context;
+	}
+	
+	@Override
+	public int requestedWeight() {
+	  return requestedWeight;
 	}
 
 	@Override

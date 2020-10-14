@@ -28,7 +28,7 @@ public class WeightDemandCreatorFactory implements DemandCreatorFactory {
 		List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
 		Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
 		return new DemandCreator(usingBuilder, panelData, householdForZoneFilter,
-				new WeightedHouseholdReproducer(householdAttributes, householdSelector));
+				new WeightedHouseholdReproducer(householdAttributes, householdSelector, panelData));
 	}
 
 }

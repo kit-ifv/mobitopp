@@ -12,8 +12,8 @@ public class FemaleAge extends NamedAttribute implements Attribute {
 
 	public FemaleAge(
 			final RegionalContext context, final AttributeType attributeType, final int lowerBound,
-			final int upperBound) {
-		super(context, attributeType, lowerBound, upperBound);
+			final int upperBound, final int requestedWeight) {
+		super(context, attributeType, lowerBound, upperBound, requestedWeight);
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class FemaleAge extends NamedAttribute implements Attribute {
   @Override
   public Constraint createConstraint(final Demography demography) {
     int requestedWeight = demography.femaleAge().amount(lowerBound);
-    return new SimpleConstraint(name(), requestedWeight);
+    return new SimpleConstraint(this, requestedWeight);
   }
 
 }

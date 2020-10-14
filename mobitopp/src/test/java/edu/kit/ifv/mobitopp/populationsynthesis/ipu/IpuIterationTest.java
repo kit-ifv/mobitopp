@@ -15,7 +15,9 @@ import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdOfPanelDataBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
@@ -43,8 +45,8 @@ public class IpuIterationTest {
 	private void createHouseholds() {
 		int hhid = 1;
 		double baseWeight = 1.0d;
-		household1 = newHousehold(newId(hhid++), baseWeight, 1, 1);
-		household2 = newHousehold(newId(hhid++), baseWeight, 1, 1);
+		household1 = newHousehold(newPanelHousehold(hhid++), baseWeight, 1, 1);
+		household2 = newHousehold(newPanelHousehold(hhid++), baseWeight, 1, 1);
 		households = new WeightedHouseholds(asList(household1, household2));
 		afterSomeConstraint = new WeightedHouseholds(
 				asList(newWeight(household1, 2.0d), newWeight(household2, 3.0d)));
@@ -58,9 +60,10 @@ public class IpuIterationTest {
 		return copy;
 	}
 
-	private HouseholdOfPanelDataId newId(int id) {
+	private HouseholdOfPanelData newPanelHousehold(int id) {
 		short year = 2000;
-		return new HouseholdOfPanelDataId(year, id);
+		HouseholdOfPanelDataId householdId = new HouseholdOfPanelDataId(year, id);
+		return new HouseholdOfPanelDataBuilder().withId(householdId).build();
 	}
 
 	private void createConstraints() {
@@ -71,11 +74,11 @@ public class IpuIterationTest {
 	}
 
 	private WeightedHousehold newHousehold(
-			HouseholdOfPanelDataId id, double baseWeight, int householdType, int personType) {
+			HouseholdOfPanelData panelHousehold, double baseWeight, int householdType, int personType) {
 		Map<String, Integer> attributes = new HashMap<>();
 		attributes.put("some attribute", householdType);
 		attributes.put("another attribute", personType);
-		return new WeightedHousehold(id, baseWeight, attributes, context);
+		return new WeightedHousehold(panelHousehold.getId(), baseWeight, attributes, context, panelHousehold);
 	}
 
 	@Test

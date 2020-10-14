@@ -56,7 +56,7 @@ public class DynamicHouseholdAttributeTest {
   public void valueForNotMatchingHousehold() {
     int tooLarge = upperBound + 1;
     HouseholdOfPanelData household = householdOfPanelData().withSize(tooLarge).build();
-    DynamicHouseholdAttribute attribute = newAttribute(HouseholdOfPanelData::size);
+    DynamicHouseholdAttribute attribute = newAttribute(amount, HouseholdOfPanelData::size);
 
     int value = attribute.valueFor(household, panelDataRepository);
 
@@ -68,7 +68,7 @@ public class DynamicHouseholdAttributeTest {
   @Test
   public void valueForMatchingHousehold() {
     HouseholdOfPanelData household = householdOfPanelData().withSize(lowerBound).build();
-    DynamicHouseholdAttribute attribute = newAttribute(HouseholdOfPanelData::size);
+    DynamicHouseholdAttribute attribute = newAttribute(amount, HouseholdOfPanelData::size);
 
     int value = attribute.valueFor(household, panelDataRepository);
 
@@ -83,17 +83,17 @@ public class DynamicHouseholdAttributeTest {
 
     Demography demography = createDemography();
 
-    DynamicHouseholdAttribute attribute = newAttribute(notRequired);
+    DynamicHouseholdAttribute attribute = newAttribute(amount, notRequired);
     Constraint constraint = attribute.createConstraint(demography);
 
-		Constraint expectedConstraint = new SimpleConstraint(attribute.name(), amount);
+		Constraint expectedConstraint = new SimpleConstraint(attribute, amount);
 		assertThat(constraint, is(equalTo(expectedConstraint)));
-		verify(context, times(2)).name();
+		verify(context, times(0)).name();
 	}
 
   private DynamicHouseholdAttribute newAttribute(
-      Function<HouseholdOfPanelData, Integer> householdValue) {
-    return new DynamicHouseholdAttribute(context, type, lowerBound, upperBound, householdValue);
+      int requestedWeight, Function<HouseholdOfPanelData, Integer> householdValue) {
+    return new DynamicHouseholdAttribute(context, type, lowerBound, upperBound, requestedWeight, householdValue);
   }
 
   private Demography createDemography() {

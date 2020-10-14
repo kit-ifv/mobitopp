@@ -17,16 +17,14 @@ public class TransferHouseholds {
   private static final int maxDepth = 10;
   static final double defaultWeight = 1.0d;
   private final PanelDataRepository panelDataRepository;
-  private final AttributeResolver attributeResolver;
-  private final List<String> householdAttributes;
+  private final List<Attribute> householdAttributes;
 	private final RegionalContext context;
 
   public TransferHouseholds(
-      final PanelDataRepository panelDataRepository, final AttributeResolver attributeResolver,
-      final List<String> householdAttributes, final RegionalContext context) {
+      final PanelDataRepository panelDataRepository, final List<Attribute> householdAttributes,
+      final RegionalContext context) {
     super();
     this.panelDataRepository = panelDataRepository;
-    this.attributeResolver = attributeResolver;
     this.householdAttributes = householdAttributes;
     this.context = context;
   }
@@ -48,8 +46,8 @@ public class TransferHouseholds {
     return weightedHouseholds.isEmpty() || !householdMatch;
   }
 
-  private boolean isAvailable(WeightedHousehold household, String attribute) {
-    return 0 < household.attribute(attribute);
+  private boolean isAvailable(WeightedHousehold household, Attribute attribute) {
+    return 0 < attribute.valueFor(household.household(), panelDataRepository);
   }
 
   private List<WeightedHousehold> createHouseholds(
@@ -66,8 +64,8 @@ public class TransferHouseholds {
   private WeightedHousehold toWeightedHousehold(HouseholdOfPanelData household) {
     HouseholdOfPanelDataId id = household.id();
     float weight = household.getWeight();
-    Map<String, Integer> attributes = attributeResolver.attributesOf(household, context);
-    return new WeightedHousehold(id, weight, attributes, context);
+    Map<String, Integer> attributes = Map.of();
+    return new WeightedHousehold(id, weight, attributes, context, household);
   }
 
 }
