@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
@@ -18,12 +17,6 @@ public class PersonAttribute extends NamedAttribute implements Attribute {
       final Function<PersonOfPanelData, Integer> personValue) {
 		super(context, attributeType, lowerBound, upperBound, requestedWeight);
 		this.personValue = personValue;
-	}
-
-	@Override
-	public Constraint createConstraint(final Demography demography) {
-		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
-		return new SimpleConstraint(this, requestedWeight);
 	}
 
 	@Override

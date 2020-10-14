@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,10 +48,6 @@ public class WeightedHouseholdsTest {
 
   private static HouseholdOfPanelData newPanelHousehold(HouseholdOfPanelDataId id) {
     return new HouseholdOfPanelDataBuilder().withId(id).build();
-  }
-
-  private Map<String, Integer> attributes() {
-    return emptyMap();
   }
 
   private static Stream<Setup> scenarios() {
@@ -219,7 +214,7 @@ public class WeightedHouseholdsTest {
                     new RequestedWeights(new int[] { 2, 3 }, 4, 2 * numberOfHouseholds,
                         numberOfHouseholds)));
   }
-  
+
   @ParameterizedTest
   @MethodSource("scenarios")
   public void updateWeightsOnAllHousehold(Setup setup) {
@@ -242,17 +237,17 @@ public class WeightedHouseholdsTest {
     RegionalContext anotherContext = new DefaultRegionalContext(RegionalLevel.zone,
         setup.anotherZone.getExternalId());
     assertThat(updatedHouseholds.toList())
-        .contains(new WeightedHousehold(someId, expectedWeights[0], attributes(), someContext,
+        .contains(new WeightedHousehold(someId, expectedWeights[0], someContext,
             setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[1], attributes(), someContext,
+        .contains(new WeightedHousehold(otherId, expectedWeights[1], someContext,
             setup.otherPanelHousehold))
-        .contains(new WeightedHousehold(someId, expectedWeights[2], attributes(), otherContext,
+        .contains(new WeightedHousehold(someId, expectedWeights[2], otherContext,
             setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[3], attributes(), otherContext,
+        .contains(new WeightedHousehold(otherId, expectedWeights[3], otherContext,
             setup.otherPanelHousehold))
-        .contains(new WeightedHousehold(someId, expectedWeights[4], attributes(), anotherContext,
+        .contains(new WeightedHousehold(someId, expectedWeights[4], anotherContext,
             setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[5], attributes(), anotherContext,
+        .contains(new WeightedHousehold(otherId, expectedWeights[5], anotherContext,
             setup.otherPanelHousehold));
   }
 

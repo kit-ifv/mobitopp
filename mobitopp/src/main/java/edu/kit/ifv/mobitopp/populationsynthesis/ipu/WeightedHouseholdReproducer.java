@@ -15,32 +15,30 @@ public class WeightedHouseholdReproducer implements HouseholdReproducer {
 	private final WeightedHouseholdSelector householdSelector;
   private final PanelDataRepository panelData;
 
-	@Override
-	public Stream<WeightedHousehold> getHouseholdsToCreate(List<WeightedHousehold> households) {
-		return attributes.stream().flatMap(attribute -> householdsFor(attribute, households));
-	}
+  @Override
+  public Stream<WeightedHousehold> getHouseholdsToCreate(List<WeightedHousehold> households) {
+    return attributes.stream().flatMap(attribute -> householdsFor(attribute, households));
+  }
 
-	private Stream<WeightedHousehold> householdsFor(
-			Attribute attribute, List<WeightedHousehold> households) {
-		List<WeightedHousehold> possibleHouseholds = filterBy(attribute, households);
-		int totalSum = calculateTotalSum(possibleHouseholds);
-		return householdSelector.selectFrom(possibleHouseholds, totalSum).stream();
-	}
+  private Stream<WeightedHousehold> householdsFor(
+      Attribute attribute, List<WeightedHousehold> households) {
+    List<WeightedHousehold> possibleHouseholds = filterBy(attribute, households);
+    int totalSum = calculateTotalSum(possibleHouseholds);
+    return householdSelector.selectFrom(possibleHouseholds, totalSum).stream();
+  }
 
-	private int calculateTotalSum(List<WeightedHousehold> possibleHouseholds) {
-		int totalSum = Math
-				.toIntExact(
-						Math.round(possibleHouseholds.stream().mapToDouble(WeightedHousehold::weight).sum()));
-		return totalSum;
-	}
+  private int calculateTotalSum(List<WeightedHousehold> possibleHouseholds) {
+    return Math
+        .toIntExact(
+            Math.round(possibleHouseholds.stream().mapToDouble(WeightedHousehold::weight).sum()));
+  }
 
-	private List<WeightedHousehold> filterBy(
-			Attribute attribute, List<WeightedHousehold> households) {
-		List<WeightedHousehold> possibleHouseholds = households
-				.stream()
-				.filter(household -> 0 < attribute.valueFor(household.household(), panelData))
-				.collect(toList());
-		return possibleHouseholds;
-	}
+  private List<WeightedHousehold> filterBy(
+      Attribute attribute, List<WeightedHousehold> households) {
+    return households
+        .stream()
+        .filter(household -> 0 < attribute.valueFor(household.household(), panelData))
+        .collect(toList());
+  }
 
 }

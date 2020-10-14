@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
@@ -67,10 +66,6 @@ public class NamedAttributeTest {
 				throw new RuntimeException("Not necessary for test!");
 			}
 
-			@Override
-			public Constraint createConstraint(Demography demography) {
-				throw new RuntimeException("Not necessary for test!");
-			}
 		};
 	}
 }

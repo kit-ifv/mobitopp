@@ -3,7 +3,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
@@ -31,12 +30,6 @@ public class FemaleAge extends NamedAttribute implements Attribute {
             .filter(person -> person.age() <= upperBound)
             .filter(person -> Gender.FEMALE.equals(person.gender()))
             .count());
-  }
-
-  @Override
-  public Constraint createConstraint(final Demography demography) {
-    int requestedWeight = demography.femaleAge().amount(lowerBound);
-    return new SimpleConstraint(this, requestedWeight);
   }
 
 }

@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -9,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,17 +19,16 @@ import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 public class ProbabilityBasedSelectorTest {
 
   private static final RegionalContext context = new DefaultRegionalContext(RegionalLevel.community,
-			"1");
-	private WeightedHousehold first;
+      "1");
+  private WeightedHousehold first;
   private WeightedHousehold second;
 
   @BeforeEach
   public void initialise() {
     double weight = 0.5d;
-    Map<String, Integer> attributes = emptyMap();
-    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, attributes, context,
+    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, context,
         ExampleHouseholdOfPanelData.household);
-    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, attributes, context,
+    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, context,
         ExampleHouseholdOfPanelData.otherHousehold);
   }
 
@@ -76,25 +73,25 @@ public class ProbabilityBasedSelectorTest {
   public void selectWithoutHouseholds() {
     DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
-    
+
     List<WeightedHousehold> households = emptyList();
     int amount = 1;
     assertThrows(IllegalArgumentException.class, () -> selector.selectFrom(households, amount));
   }
-  
+
   @Test
   public void selectNoHouseholds() {
     DoubleSupplier random = () -> 0.75d;
     ProbabilityBasedSelector selector = new ProbabilityBasedSelector(random);
-    
+
     List<WeightedHousehold> households = createWeightedHouseholds();
     int amount = 0;
     List<WeightedHousehold> selected = selector.selectFrom(households, amount);
-    
+
     assertThat(selected).isEmpty();
   }
 
-	private List<WeightedHousehold> createWeightedHouseholds() {
-		return new LinkedList<>(List.of(first, second));
-	}
+  private List<WeightedHousehold> createWeightedHouseholds() {
+    return new LinkedList<>(List.of(first, second));
+  }
 }

@@ -45,8 +45,6 @@ public class ArrrayWeightedHouseholdsCreatorTest {
   @Test
   void create() throws Exception {
     double weight = 1.0d;
-    Map<String, Integer> attributes = Map.of();
-
     when(district.nominalDemography()).thenReturn(createDistrictDemography());
     when(district.regionalLevel()).thenReturn(RegionalLevel.district);
     when(zone.nominalDemography()).thenReturn(createZoneDemography());
@@ -75,7 +73,7 @@ public class ArrrayWeightedHouseholdsCreatorTest {
     List<WeightedHousehold> createdHouseholds = weightedHouseholds.toList();
     
     assertThat(createdHouseholds)
-        .contains(new WeightedHousehold(id, weight, attributes, householdContext, panelHousehold));
+        .contains(new WeightedHousehold(id, weight, householdContext, panelHousehold));
   }
 
   protected Demography createDistrictDemography() {
