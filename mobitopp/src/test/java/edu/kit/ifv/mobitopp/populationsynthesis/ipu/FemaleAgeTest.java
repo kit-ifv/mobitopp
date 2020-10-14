@@ -2,13 +2,10 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static edu.kit.ifv.mobitopp.populationsynthesis.PersonOfPanelDataBuilder.personOfPanelData;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.local.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.data.local.ExamplePersonOfPanelData;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonOfPanelDataBuilder;
@@ -36,17 +32,6 @@ public class FemaleAgeTest {
 	public void initialise() {
 		lenient().when(context.name()).thenReturn("my-context-1");
 	}
-
-	@Test
-  public void createsConstraint() {
-    Demography demography = ExampleDemandZones.create().someZone().nominalDemography();
-    FemaleAge femaleAge = newAttribute();
-
-    Constraint constraint = femaleAge.createConstraint(demography);
-
-    assertThat(constraint).isEqualTo(new SimpleConstraint(femaleAge, 2));
-    verify(context, times(0)).name();
-  }
 
   @Test
   public void valueForHousehold() {

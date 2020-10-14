@@ -104,19 +104,13 @@ public class ArrayWeightedHouseholds {
     List<WeightedHousehold> newHouseholds = new LinkedList<>();
     for (int index = 0; index < weights.length; index++) {
       HouseholdOfPanelData panelHousehold = households.get(index % numberOfHouseholds());
-      Map<String, Integer> attributes = attributesOf(panelHousehold);
       String zoneId = zones.get(index / numberOfHouseholds()).getExternalId();
       RegionalContext context = new DefaultRegionalContext(RegionalLevel.zone, zoneId);
       WeightedHousehold newHousehold = new WeightedHousehold(panelHousehold.getId(),
-          weights[index], attributes, context, panelHousehold);
+          weights[index], context, panelHousehold);
       newHouseholds.add(newHousehold);
     }
     return newHouseholds;
-  }
-
-  private Map<String, Integer> attributesOf(HouseholdOfPanelData panelHousehold) {
-    // TODO convert attributes if needed.
-    return Map.of();
   }
 
   public double calculateGoodnessOfFit() {

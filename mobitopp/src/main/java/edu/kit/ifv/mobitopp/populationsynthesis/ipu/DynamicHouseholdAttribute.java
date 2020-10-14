@@ -3,7 +3,6 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public class DynamicHouseholdAttribute extends NamedAttribute implements Attribute {
@@ -16,12 +15,6 @@ public class DynamicHouseholdAttribute extends NamedAttribute implements Attribu
       final Function<HouseholdOfPanelData, Integer> householdValue) {
 		super(context, attributeType, lowerBound, upperBound, requestedWeight);
 		this.householdValue = householdValue;
-	}
-
-	@Override
-	public Constraint createConstraint(final Demography demography) {
-		int requestedWeight = demography.getDistribution(type).amount(lowerBound);
-		return new SimpleConstraint(this, requestedWeight);
 	}
 
 	@Override
