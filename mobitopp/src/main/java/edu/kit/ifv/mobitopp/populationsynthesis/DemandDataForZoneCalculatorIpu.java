@@ -10,20 +10,19 @@ import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.areatype.AreaType;
-import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayWeightedHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrrayWeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultArrayIteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreatorFactory;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StructuralDataDemandCreatorFactory;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Ipu;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.Iteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.IterationFactory;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.SingleLevelIterationFactory;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.TransferHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.MultiLevelIterationFactory;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StructuralDataDemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -33,7 +32,6 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 
 	private final DataRepositoryForPopulationSynthesis dataRepository;
 	private final SynthesisContext context;
-	private final AttributeType householdFilterType;
 	private final CreateAndSaveDemand createAndSaveDemand;
 
 	public DemandDataForZoneCalculatorIpu(
@@ -44,7 +42,6 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 			Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter) {
 		this.dataRepository = dataRepository;
 		this.context = context;
-		this.householdFilterType = householdFilterType;
 		DemandCategories categories = new DemandCategories();
 		DemandCreatorFactory demandCreatorFactory = new StructuralDataDemandCreatorFactory(
 				householdCreator, personCreator, panelData(), householdFilterType, householdFilter,
@@ -52,46 +49,36 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		createAndSaveDemand = new CreateAndSaveDemand(results, categories, demandCreatorFactory);
 	}
 
-	@Override
-	public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
-		IterationFactory factory = new SingleLevelIterationFactory(panelData(), context);
-		Iteration iteration = factory.createIterationFor(zone);
-		AttributeResolver attributeResolver = factory.createAttributeResolverFor(zone);
-		Ipu ipu = new Ipu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
-		WeightedHouseholds initialHouseholds = new WeightedHouseholds(
-				householdsOf(zone, attributeResolver));
-		WeightedHouseholds households = ipu.adjustWeightsOf(initialHouseholds);
-		create(households, zone, attributeResolver);
-	}
+  @Override
+  public void calculateDemandData(DemandZone zone, ImpedanceIfc impedance) {
+    IterationFactory factory = new MultiLevelIterationFactory(context);
+    AttributeResolver attributeResolver = factory.createAttributeResolverFor(zone);
+    ArrayIteration iteration = new DefaultArrayIteration();
+    ArrayIpu ipu = new ArrayIpu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
+    ArrayWeightedHouseholds households = householdsOf(zone);
+    ArrayWeightedHouseholds scaledHouseholds = ipu.adjustWeightsOf(households);
+    create(scaledHouseholds.toList(), zone, attributeResolver);
+  }
 
-	private Logger loggerFor(DemandRegion forZone) {
-		return message -> System.out.println(String.format("%s: %s", forZone.getExternalId(), message));
-	}
+  private Logger loggerFor(DemandRegion forZone) {
+    return message -> System.out.println(String.format("%s: %s", forZone.getExternalId(), message));
+  }
 
-	private void create(
-			WeightedHouseholds households, DemandZone forZone, AttributeResolver attributeResolver) {
-		createAndSaveDemand.createAndSave(households.toList(), forZone, attributeResolver);
-	}
+  private void create(
+      List<WeightedHousehold> households, DemandZone zone, AttributeResolver attributeResolver) {
+    List<WeightedHousehold> selectedHouseholds = households
+        .stream()
+        .filter(household -> household.context().equals(zone.getRegionalContext()))
+        .collect(toList());
+    createAndSaveDemand.createAndSave(selectedHouseholds, zone, attributeResolver);
+  }
 
 	private PanelDataRepository panelData() {
 		return dataRepository.panelDataRepository();
 	}
 
-	private List<WeightedHousehold> householdsOf(DemandZone zone, AttributeResolver attributeResolver) {
-		PanelDataRepository panelDataRepository = panelData();
-		AreaType areaType = zone.getAreaType();
-		List<String> householdAttributes = householdAttributesOf(zone);
-		return new TransferHouseholds(panelDataRepository, attributeResolver, householdAttributes,
-				zone.getRegionalContext()).forAreaType(areaType);
-	}
-
-	private List<String> householdAttributesOf(DemandRegion region) {
-		RangeDistributionIfc distribution = householdDistributionFor(region);
-		return distribution.items().map(householdFilterType::createInstanceName).collect(toList());
-	}
-
-	private RangeDistributionIfc householdDistributionFor(DemandRegion forRegion) {
-		return forRegion.nominalDemography().getDistribution(householdFilterType);
+	private ArrayWeightedHouseholds householdsOf(DemandZone zone) {
+    return new ArrrayWeightedHouseholdsCreator(context, panelData()).createFor(zone);
 	}
 
 	private int maxIterations() {

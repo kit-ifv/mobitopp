@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
@@ -15,7 +16,7 @@ public class HouseholdOfPanelDataBuilder {
       otherNumber);
   public static final int defaultAreaType = 4;
   public static final int defaultSize = 1;
-	public static final int type = 0;
+	public static final int defaultType = 0;
   public static final int aDomCode = 6;
   public static final int otherDomCode = 7;
   public static final int defaultReportingPersons = 8;
@@ -31,11 +32,17 @@ public class HouseholdOfPanelDataBuilder {
   private HouseholdOfPanelDataId id;
   private int domCode;
   private int size;
+  private int areaType;
+  private int type;
+  private float weight;
 
   public HouseholdOfPanelDataBuilder() {
     this.id = anId;
     this.domCode = aDomCode;
     this.size = defaultSize;
+    this.areaType = defaultAreaType;
+    this.type = defaultType;
+    this.weight = defaultWeight;
   }
 
   public static HouseholdOfPanelDataBuilder householdOfPanelData() {
@@ -58,9 +65,24 @@ public class HouseholdOfPanelDataBuilder {
   }
 
 	public HouseholdOfPanelData build() {
-		return new HouseholdOfPanelData(id, defaultAreaType, size, type, domCode, defaultReportingPersons,
+		return new HouseholdOfPanelData(id, areaType, size, type, domCode, defaultReportingPersons,
 				defaultMinors, defaultNotReportingChildren, defaultCars, defaultIncome, defaultIncomeClass,
-				activityRadius, activityRadiusMode, defaultWeight);
+				activityRadius, activityRadiusMode, weight);
 	}
+
+  public HouseholdOfPanelDataBuilder withAreaType(AreaType areaType) {
+    this.areaType = areaType.getTypeAsInt();
+    return this;
+  }
+
+  public HouseholdOfPanelDataBuilder withType(int type) {
+    this.type = type;
+    return this;
+  }
+
+  public HouseholdOfPanelDataBuilder withWeight(float weight) {
+    this.weight = weight;
+    return this;
+  }
 
 }

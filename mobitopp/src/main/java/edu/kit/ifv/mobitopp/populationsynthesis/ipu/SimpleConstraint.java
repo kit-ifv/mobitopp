@@ -9,9 +9,9 @@ public class SimpleConstraint implements Constraint {
 
 	public static final double greaterZero = 1e-6;
 	private final double requestedWeight;
-  private final String attribute;
+  private final Attribute attribute;
 
-	public SimpleConstraint(String attribute, double requestedWeight) {
+	public SimpleConstraint(Attribute attribute, double requestedWeight) {
 		super();
     this.attribute = attribute;
 		this.requestedWeight = ensureGreaterZero(requestedWeight);
@@ -27,12 +27,12 @@ public class SimpleConstraint implements Constraint {
 
 	@Override
 	public WeightedHouseholds scaleWeightsOf(WeightedHouseholds households) {
-	  return households.scale(attribute, requestedWeight);
+	  return households.scale(attribute.name(), requestedWeight);
 	}
 
   @Override
 	public double calculateGoodnessOfFitFor(WeightedHouseholds households) {
-		double totalWeight = households.totalWeight(attribute);
+		double totalWeight = households.totalWeight(attribute.name());
 		return Math.abs(totalWeight - requestedWeight) / requestedWeight;
 	}
 

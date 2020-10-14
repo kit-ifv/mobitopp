@@ -7,7 +7,9 @@ import java.util.HashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdOfPanelDataBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class WeightedHouseholdTest {
@@ -19,11 +21,13 @@ public class WeightedHouseholdTest {
 	private WeightedHousehold household;
 	private HashMap<String, Integer> attributes;
 	private RegionalContext context;
+  private HouseholdOfPanelData panelHousehold;
 
 	@BeforeEach
 	public void initialise() {
 		short year = 2000;
 		id = new HouseholdOfPanelDataId(year, 1);
+		panelHousehold = new HouseholdOfPanelDataBuilder().withId(id).build();
 		weight = 1.0d;
 		householdType1 = 1;
 		personType1 = 1;
@@ -31,7 +35,7 @@ public class WeightedHouseholdTest {
 		attributes.put("Household:Type:1", householdType1);
 		attributes.put("Person:Type:1", personType1);
 		context = new DefaultRegionalContext(RegionalLevel.community, "1");
-		household = new WeightedHousehold(id, weight, attributes, context);
+		household = new WeightedHousehold(id, weight, attributes, context, panelHousehold);
 	}
 
 	@Test

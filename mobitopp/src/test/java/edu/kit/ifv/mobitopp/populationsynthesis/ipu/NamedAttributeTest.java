@@ -19,7 +19,8 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 @ExtendWith(MockitoExtension.class)
 public class NamedAttributeTest {
 
-	@Mock
+	private static final int requestedWeight = 1;
+  @Mock
 	private RegionalContext context;
 	private int lowerBound;
 	private int upperBound;
@@ -59,7 +60,7 @@ public class NamedAttributeTest {
 	}
 
 	private Attribute newAttribute() {
-		return new NamedAttribute(context, type, lowerBound, upperBound) {
+		return new NamedAttribute(context, type, lowerBound, upperBound, requestedWeight) {
 
 			@Override
 			public int valueFor(HouseholdOfPanelData household, PanelDataRepository panelDataRepository) {

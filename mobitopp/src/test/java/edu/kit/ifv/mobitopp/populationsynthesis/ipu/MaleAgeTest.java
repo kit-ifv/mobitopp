@@ -28,6 +28,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 @ExtendWith(MockitoExtension.class)
 public class MaleAgeTest {
 
+  private static final int requestedWeight = 0;
 	@Mock
 	private RegionalContext context;
 
@@ -39,17 +40,17 @@ public class MaleAgeTest {
 	@Test
 	public void createsConstraint() {
 		Demography demography = ExampleDemandZones.create().someZone().nominalDemography();
-		MaleAge maleAge = new MaleAge(context, StandardAttribute.maleAge, 0, 10);
+		MaleAge maleAge = new MaleAge(context, StandardAttribute.maleAge, 0, 10, requestedWeight);
 
 		Constraint constraint = maleAge.createConstraint(demography);
 
-		assertThat(constraint).isEqualTo(new SimpleConstraint(maleAge.name(), 4));
-		verify(context, times(2)).name();
+		assertThat(constraint).isEqualTo(new SimpleConstraint(maleAge, 4));
+		verify(context, times(0)).name();
 	}
 
 	@Test
 	public void valueForHousehold() {
-		MaleAge maleAge = new MaleAge(context, StandardAttribute.maleAge, 0, 5);
+		MaleAge maleAge = new MaleAge(context, StandardAttribute.maleAge, 0, 5, requestedWeight);
 
 		HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
 		PanelDataRepository panelDataRepository = mock(PanelDataRepository.class);

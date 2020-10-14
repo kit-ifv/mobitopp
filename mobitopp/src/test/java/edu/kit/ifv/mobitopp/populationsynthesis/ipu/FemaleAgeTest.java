@@ -28,7 +28,8 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 @ExtendWith(MockitoExtension.class)
 public class FemaleAgeTest {
 
-	@Mock
+	private static final int requestedWeight = 0;
+  @Mock
   private RegionalContext context;
 
 	@BeforeEach
@@ -43,8 +44,8 @@ public class FemaleAgeTest {
 
     Constraint constraint = femaleAge.createConstraint(demography);
 
-    assertThat(constraint).isEqualTo(new SimpleConstraint(femaleAge.name(), 2));
-    verify(context, times(2)).name();
+    assertThat(constraint).isEqualTo(new SimpleConstraint(femaleAge, 2));
+    verify(context, times(0)).name();
   }
 
   @Test
@@ -72,6 +73,6 @@ public class FemaleAgeTest {
   }
 
   private FemaleAge newAttribute() {
-    return new FemaleAge(context, StandardAttribute.femaleAge, 0, 5);
+    return new FemaleAge(context, StandardAttribute.femaleAge, 0, 5, requestedWeight);
   }
 }

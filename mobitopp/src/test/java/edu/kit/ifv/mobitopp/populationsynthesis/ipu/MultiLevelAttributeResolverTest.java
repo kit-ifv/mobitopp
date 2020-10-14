@@ -13,10 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.populationsynthesis.ExampleHouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
-import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 @ExtendWith(MockitoExtension.class)
 public class MultiLevelAttributeResolverTest {
@@ -28,24 +25,6 @@ public class MultiLevelAttributeResolverTest {
 
   @Mock
   private Attribute householdAttribute;
-  @Mock
-  private PanelDataRepository panelDataRepository;
-
-  @Test
-  public void resolveAttributes() {
-    HouseholdOfPanelData household = ExampleHouseholdOfPanelData.household;
-    Integer value = 1;
-    String name = "name";
-    when(householdAttribute.valueFor(household, panelDataRepository)).thenReturn(value);
-    when(householdAttribute.name()).thenReturn(name);
-    Map<RegionalContext, List<Attribute>> attributes = Map
-        .of(someZoneContext, List.of(householdAttribute));
-    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
-
-    Map<String, Integer> resolvedAttributes = resolver.attributesOf(household, someZoneContext);
-
-    assertThat(resolvedAttributes).containsEntry(name, value);
-  }
 
   @Test
   void filterAttributesByType() throws Exception {
@@ -56,7 +35,7 @@ public class MultiLevelAttributeResolverTest {
     when(householdAttribute.type()).thenReturn(StandardAttribute.householdSize);
     Map<RegionalContext, List<Attribute>> attributes = Map
         .of(someZoneContext, List.of(householdAttribute, otherAttribute));
-    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
+    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes);
 
     List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
 
@@ -74,7 +53,7 @@ public class MultiLevelAttributeResolverTest {
     Map<RegionalContext, List<Attribute>> attributes = new LinkedHashMap<>();
     attributes.put(someZoneContext, List.of(householdAttribute));
     attributes.put(otherZoneContext, List.of(otherAttribute));
-    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes, panelDataRepository);
+    AttributeResolver resolver = new MultiLevelAttributeResolver(attributes);
 
     List<Attribute> resolvedAttributes = resolver.attributesOf(StandardAttribute.householdSize);
 

@@ -17,6 +17,8 @@ public interface Attribute {
 
 	RegionalContext context();
 	
+	int requestedWeight();
+	    
 	boolean matches(RangeDistributionItem item);
 
 }

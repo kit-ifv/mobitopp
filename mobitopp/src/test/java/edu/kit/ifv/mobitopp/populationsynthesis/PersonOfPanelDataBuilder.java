@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
@@ -64,6 +65,10 @@ public class PersonOfPanelDataBuilder {
 		this.gender = gender;
 		return this;
 	}
+
+  public PersonOfPanelDataBuilder withGender(Gender gender) {
+    return withGender(gender.getTypeAsInt());
+  }
 
 	public PersonOfPanelDataBuilder withAge(int age) {
 		this.age = age;

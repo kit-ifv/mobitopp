@@ -18,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
-import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.Demography;
 import edu.kit.ifv.mobitopp.data.demand.EmploymentDistribution;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
@@ -29,8 +28,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.region.MultipleZones;
 @ExtendWith(MockitoExtension.class)
 public class MultiLevelIterationFactoryTest {
 
-	@Mock
-	private PanelDataRepository panelData;
 	@Mock
 	private SynthesisContext context;
 
@@ -73,58 +70,10 @@ public class MultiLevelIterationFactoryTest {
 	}
 
 	@Test
-	void buildsUpConstraintsOfAllLevels() throws Exception {
-		List<DemandZone> zones = List.of(somePart, otherPart);
-		DemandRegion region = new MultipleZones("1", community, regionDemography, zones);
-		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
-
-		List<Constraint> constraints = builder.constraintsFor(region);
-
-		assertThat(constraints).containsOnlyElementsOf(multiLevelConstraints(region, zones));
-	}
-
-	private List<Constraint> multiLevelConstraints(DemandRegion region, List<DemandZone> zones) {
-		List<Constraint> constraints = new ArrayList<>();
-		constraints
-				.add(householdConstraintFor(1, region.nominalDemography(),
-						region.getRegionalContext()));
-		constraints
-				.add(householdConstraintFor(2, region.nominalDemography(),
-						region.getRegionalContext()));
-		for (DemandZone zone : zones) {
-			constraints.add(femaleConstraintFor(0, 5, zone.nominalDemography(), zone.getRegionalContext()));
-			constraints
-			.add(femaleConstraintFor(6, Integer.MAX_VALUE, zone.nominalDemography(),
-					zone.getRegionalContext()));
-		}
-		return constraints;
-	}
-
-  private Constraint femaleConstraintFor(
-      int lower, int upper, Demography demography, RegionalContext regionalContext) {
-    String name = name(StandardAttribute.femaleAge, regionalContext, lower, upper);
-    int requestedWeight = demography
-        .getDistribution(StandardAttribute.femaleAge)
-        .getItem(lower)
-        .amount();
-    return new SimpleConstraint(name, requestedWeight);
-  }
-
-  private Constraint householdConstraintFor(
-      int type, Demography demography, RegionalContext regionalContext) {
-    String name = name(StandardAttribute.householdSize, regionalContext, type, type);
-    int requestedWeight = demography
-        .getDistribution(StandardAttribute.householdSize)
-        .getItem(type)
-        .amount();
-    return new SimpleConstraint(name, requestedWeight);
-  }
-
-	@Test
 	void buildsUpAttributesOfAllLevels() throws Exception {
 		List<DemandZone> zones = List.of(somePart, otherPart);
 		DemandRegion region = new MultipleZones("1", community, regionDemography, zones);
-		BaseIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
+		BaseIterationFactory builder = new MultiLevelIterationFactory(context);
 
 		List<Attribute> attributes = builder.attributesFor(region).collect(toList());
 
@@ -167,18 +116,12 @@ public class MultiLevelIterationFactoryTest {
 		otherAttributes.addAll(householdAttributeFor(regionDemography, region.getRegionalContext()));
 		otherAttributes
 				.addAll(femaleAttributesFor(otherPart.nominalDemography(), otherPart.getRegionalContext()));
-		MultiLevelIterationFactory builder = new MultiLevelIterationFactory(panelData, context);
+		MultiLevelIterationFactory builder = new MultiLevelIterationFactory(context);
 
 		Map<RegionalContext, List<Attribute>> attributes = builder.attributesPerZone(region);
 
 		assertThat(attributes)
 				.containsEntry(somePart.getRegionalContext(), someAttributes)
 				.containsEntry(otherPart.getRegionalContext(), otherAttributes);
-	}
-
-	private String name(
-			StandardAttribute attribute, RegionalContext regionalContext, int lower, int upper) {
-		return regionalContext.name() + NamedAttribute.nameSeparator + attribute.prefix() + lower + "-"
-				+ upper;
 	}
 }

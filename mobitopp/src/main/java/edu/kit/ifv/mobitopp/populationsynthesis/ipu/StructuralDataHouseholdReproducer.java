@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 
@@ -15,16 +16,18 @@ public class StructuralDataHouseholdReproducer implements HouseholdReproducer {
 	private final AttributeType householdFilterType;
 	private final WeightedHouseholdSelector householdSelector;
 	private final List<Attribute> attributes;
+  private final PanelDataRepository panelData;
 	
 	public StructuralDataHouseholdReproducer(
 			final DemandZone zone, final AttributeType householdFilterType,
 			final WeightedHouseholdSelector householdSelector,
-			final List<Attribute> householdAttributes) {
+			final List<Attribute> householdAttributes, final PanelDataRepository panelData) {
 		super();
 		this.zone = zone;
 		this.householdFilterType = householdFilterType;
 		this.householdSelector = householdSelector;
 		this.attributes = householdAttributes;
+    this.panelData = panelData;
 	}
 
 	@Override
@@ -49,7 +52,7 @@ public class StructuralDataHouseholdReproducer implements HouseholdReproducer {
 		return attributes
 				.stream()
 				.filter(attribute -> attribute.matches(item))
-				.anyMatch(attribute -> 0 < household.attribute(attribute.name()));
+				.anyMatch(attribute -> 0 < attribute.valueFor(household.household(), panelData));
 	}
 
 }
