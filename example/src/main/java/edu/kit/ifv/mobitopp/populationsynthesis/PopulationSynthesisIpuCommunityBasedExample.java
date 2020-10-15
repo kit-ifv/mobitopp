@@ -31,6 +31,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.ZoneBasedHouse
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ProbabilityBasedSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightDemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.ZoneBasedOpportunitySelector;
@@ -104,15 +105,17 @@ public class PopulationSynthesisIpuCommunityBasedExample extends PopulationSynth
 		return new HouseholdBasedStep(activityScheduleAssigner()::assignActivitySchedule);
 	}
 
-	private DemandDataForDemandRegionCalculator createZoneCalculator() {
-		AttributeType attributeType = StandardAttribute.householdSize;
-		WeightedHouseholdSelector householdSelector = createHouseholdSelector();
-		HouseholdCreator householdCreator = createHouseholdCreator();
-		PersonCreator personCreator = createPersonCreator();
-		Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter = z -> h -> true;
-		return new DemandRegionBasedIpu(results(), householdSelector, householdCreator, personCreator,
-				dataRepository(), context(), attributeType, householdFilter);
-	}
+  private DemandDataForDemandRegionCalculator createZoneCalculator() {
+    AttributeType attributeType = StandardAttribute.householdSize;
+    WeightedHouseholdSelector householdSelector = createHouseholdSelector();
+    HouseholdCreator householdCreator = createHouseholdCreator();
+    PersonCreator personCreator = createPersonCreator();
+    Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter = z -> h -> true;
+    WeightDemandCreatorFactory demandCreatorFactory = new WeightDemandCreatorFactory(
+        householdCreator, personCreator, dataRepository().panelDataRepository(), attributeType,
+        householdFilter, householdSelector);
+    return new DemandRegionBasedIpu(results(), dataRepository(), context(), demandCreatorFactory);
+  }
 
 	private ActivityScheduleAssigner activityScheduleAssigner() {
 		PanelDataRepository panelDataRepository = context().dataRepository().panelDataRepository();

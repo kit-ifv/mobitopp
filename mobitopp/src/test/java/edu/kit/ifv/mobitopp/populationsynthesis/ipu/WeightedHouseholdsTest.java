@@ -226,8 +226,7 @@ public class WeightedHouseholdsTest {
 
     WeightedHouseholds updatedHouseholds = weightedHouseholds.scale();
 
-    assertThat(updatedHouseholds.factors()).hasSize(1);
-    List<Double> factors = updatedHouseholds.factors().get(0);
+    List<Double> factors = updatedHouseholds.factors();
     for (int index = 0; index < factors.size(); index++) {
       assertThat(factors.get(index)).isCloseTo(scalingFactors.get(index), Offset.offset(1e-6d));
     }

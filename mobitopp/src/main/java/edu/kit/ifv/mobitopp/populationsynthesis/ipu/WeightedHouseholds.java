@@ -21,7 +21,7 @@ public class WeightedHouseholds {
   private final Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping;
   private final int[][] householdValues;
   private final List<DemandZone> zones;
-  private final List<List<Double>> factors;
+  private final List<Double> factors;
 
   public WeightedHouseholds(
       List<HouseholdOfPanelData> households, double[] weights,
@@ -54,7 +54,6 @@ public class WeightedHouseholds {
   }
 
   public WeightedHouseholds scale() {
-    List<Double> factorsOfRound = new LinkedList<>();
     for (RegionalLevel level : orderOfRegionalLevels) {
       List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
       for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
@@ -68,13 +67,12 @@ public class WeightedHouseholds {
           double requestedWeight = requestedWeights[relativeAttribute];
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
           double withFactor = requestedWeight / totalWeight;
-          factorsOfRound.add(withFactor);
+          factors.add(withFactor);
           scaleWeights(withFactor, absoluteAttributeIndex, offset, numberOfWeightsPerPart);
         }
         offset += numberOfWeightsPerPart;
       }
     }
-    factors.add(factorsOfRound);
     return this;
   }
 
@@ -142,7 +140,7 @@ public class WeightedHouseholds {
     return weights;
   }
 
-  List<List<Double>> factors() {
+  List<Double> factors() {
     return factors;
   }
 }
