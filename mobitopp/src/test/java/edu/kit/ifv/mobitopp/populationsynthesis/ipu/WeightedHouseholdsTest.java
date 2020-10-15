@@ -34,7 +34,7 @@ public class WeightedHouseholdsTest {
     private final HouseholdOfPanelData somePanelHousehold;
     private final HouseholdOfPanelData otherPanelHousehold;
 
-    private final ArrayWeightedHouseholds weightedHouseholds;
+    private final WeightedHouseholds weightedHouseholds;
     private final List<Double> scalingFactors;
     private final double[] expectedWeights;
     private final double initialGoodnessOfFit;
@@ -109,7 +109,7 @@ public class WeightedHouseholdsTest {
     return new double[] { 12.0d, 24.0d, 18.0d, 36.0d, 2.0d, 12.0d };
   }
 
-  private static ArrayWeightedHouseholds createSomeWeightedHouseholds(
+  private static WeightedHouseholds createSomeWeightedHouseholds(
       List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones) {
     int numberOfHouseholds = panelHouseholds.size();
     int numberOfWeights = numberOfHouseholds * allZones.size();
@@ -121,7 +121,7 @@ public class WeightedHouseholdsTest {
     Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping = createSomeWeightOffsetMapping(
         numberOfHouseholds);
     int[][] householdValues = createSomeHouseholdValues();
-    return new ArrayWeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
+    return new WeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
         householdValues, allZones);
   }
 
@@ -162,7 +162,7 @@ public class WeightedHouseholdsTest {
                         numberOfHouseholds)));
   }
 
-  private static ArrayWeightedHouseholds createOtherWeightedHouseholds(
+  private static WeightedHouseholds createOtherWeightedHouseholds(
       List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones) {
     int numberOfHouseholds = panelHouseholds.size();
     int numberOfWeights = numberOfHouseholds * allZones.size();
@@ -174,7 +174,7 @@ public class WeightedHouseholdsTest {
     Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping = createOtherWeightOffsetMapping(
         numberOfHouseholds);
     int[][] householdValues = createOtherHouseholdValues();
-    return new ArrayWeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
+    return new WeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
         householdValues, allZones);
   }
 
@@ -220,9 +220,9 @@ public class WeightedHouseholdsTest {
   public void updateWeightsOnAllHousehold(Setup setup) {
     List<Double> scalingFactors = setup.scalingFactors;
     double[] expectedWeights = setup.expectedWeights;
-    ArrayWeightedHouseholds weightedHouseholds = setup.weightedHouseholds;
+    WeightedHouseholds weightedHouseholds = setup.weightedHouseholds;
 
-    ArrayWeightedHouseholds updatedHouseholds = weightedHouseholds.scale();
+    WeightedHouseholds updatedHouseholds = weightedHouseholds.scale();
 
     assertThat(updatedHouseholds.factors()).hasSize(1);
     List<Double> factors = updatedHouseholds.factors().get(0);
@@ -248,7 +248,7 @@ public class WeightedHouseholdsTest {
   @ParameterizedTest
   @MethodSource("scenarios")
   void calculateGoodnessOfFit(Setup setup) throws Exception {
-    ArrayWeightedHouseholds households = setup.weightedHouseholds;
+    WeightedHouseholds households = setup.weightedHouseholds;
 
     double goodnessOfFit = households.calculateGoodnessOfFit();
 
@@ -263,8 +263,8 @@ public class WeightedHouseholdsTest {
   @ParameterizedTest
   @MethodSource("scenarios")
   void preservesWeightAfterCopy(Setup setup) throws Exception {
-    ArrayWeightedHouseholds copied = new ArrayWeightedHouseholds(setup.weightedHouseholds);
-    ArrayWeightedHouseholds cloned = setup.weightedHouseholds.clone();
+    WeightedHouseholds copied = new WeightedHouseholds(setup.weightedHouseholds);
+    WeightedHouseholds cloned = setup.weightedHouseholds.clone();
     double originalWeight = setup.weightedHouseholds.weights()[0];
 
     setup.weightedHouseholds.weights()[0] = originalWeight - 1;

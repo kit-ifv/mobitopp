@@ -69,7 +69,7 @@ public class ArrrayWeightedHouseholdsCreatorTest {
 
     ArrrayWeightedHouseholdsCreator creator = new ArrrayWeightedHouseholdsCreator(context, panelData);
     
-    ArrayWeightedHouseholds weightedHouseholds = creator.createFor(district);
+    WeightedHouseholds weightedHouseholds = creator.createFor(district);
     List<WeightedHousehold> createdHouseholds = weightedHouseholds.toList();
 
     assertThat(createdHouseholds)
