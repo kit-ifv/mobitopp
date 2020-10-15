@@ -14,21 +14,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WeightDemandCreatorFactory implements DemandCreatorFactory {
 
-	private final HouseholdCreator householdCreator;
-	private final PersonCreator personCreator;
-	private final PanelDataRepository panelData;
-	private final AttributeType householdFilterType;
-	private final Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter;
-	private final WeightedHouseholdSelector householdSelector;
+  private final HouseholdCreator householdCreator;
+  private final PersonCreator personCreator;
+  private final PanelDataRepository panelData;
+  private final AttributeType householdFilterType;
+  private final Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter;
+  private final WeightedHouseholdSelector householdSelector;
 
-	@Override
-	public DemandCreator create(final DemandZone zone, final AttributeResolver attributeResolver) {
-		HouseholdBuilder usingBuilder = new DefaultHouseholdBuilder(zone, householdCreator,
-				personCreator, panelData);
-		List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
-		Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
-		return new DemandCreator(usingBuilder, panelData, householdForZoneFilter,
-				new WeightedHouseholdReproducer(householdAttributes, householdSelector, panelData));
-	}
+  @Override
+  public DemandCreator create(final DemandZone zone, final AttributeResolver attributeResolver) {
+    HouseholdBuilder usingBuilder = new DefaultHouseholdBuilder(zone, householdCreator,
+        personCreator, panelData);
+    List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
+    Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
+    WeightedHouseholdReproducer multiplier = new WeightedHouseholdReproducer(householdAttributes,
+        householdSelector, panelData);
+    return new DemandCreator(usingBuilder, panelData, householdForZoneFilter, multiplier);
+  }
 
 }
