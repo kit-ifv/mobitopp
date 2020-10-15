@@ -117,8 +117,7 @@ public class WeightedHouseholds {
   }
 
   public double calculateGoodnessOfFit() {
-    double goodnessOfFit = 0.0d;
-    int count = 0;
+    GoodnessOfFit goodnessOfFit = new GoodnessOfFit();
     for (RegionalLevel level : orderOfRegionalLevels) {
       List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
       for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
@@ -131,16 +130,12 @@ public class WeightedHouseholds {
               + requestedWeightsList.getAtttributeOffset();
           double requestedWeight = requestedWeights[relativeAttribute];
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
-          double goodness = Math.abs(totalWeight - requestedWeight) / requestedWeight;
-          if (Double.isFinite(goodness)) {
-            goodnessOfFit += goodness;
-            count++;
-          }
+          goodnessOfFit.add(totalWeight, requestedWeight);
         }
         offset += numberOfWeightsPerPart;
       }
     }
-    return goodnessOfFit / count;
+    return goodnessOfFit.calculate();// goodnessOfFit / count;
   }
 
   double[] weights() {
