@@ -146,7 +146,8 @@ public class WeightedHouseholdsTest {
   private static Map<RegionalLevel, List<RequestedWeights>> createSomeWeightOffsetMapping(
       int numberOfHouseholds) {
     return Map
-        .of(RegionalLevel.community,
+        .of(RegionalLevel.county, List.of(),
+            RegionalLevel.community,
             List.of(new RequestedWeights(new int[] { 3, 6 }, 0, 0, 3 * numberOfHouseholds)),
             RegionalLevel.district,
             List
@@ -199,7 +200,8 @@ public class WeightedHouseholdsTest {
   private static Map<RegionalLevel, List<RequestedWeights>> createOtherWeightOffsetMapping(
       int numberOfHouseholds) {
     return Map
-        .of(RegionalLevel.community,
+        .of(RegionalLevel.county, List.of(),
+            RegionalLevel.community,
             List.of(new RequestedWeights(new int[] { 4, 4 }, 0, 0, 3 * numberOfHouseholds)),
             RegionalLevel.district,
             List
@@ -272,4 +274,5 @@ public class WeightedHouseholdsTest {
     assertThat(copied.weights()[0]).isCloseTo(originalWeight, Offset.offset(1e-6d));
     assertThat(cloned.weights()[0]).isCloseTo(originalWeight, Offset.offset(1e-6d));
   }
+  
 }
