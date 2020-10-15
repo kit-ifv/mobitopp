@@ -177,12 +177,9 @@ public class DemandCreatorTest {
 
   private List<WeightedHousehold> createWeightedHouseholds() {
     double weight = 0.5d;
-    first = new WeightedHousehold(firstId(), weight, someZone.getRegionalContext(),
-        firstPanelHousehold);
-    second = new WeightedHousehold(secondId(), weight, someZone.getRegionalContext(),
-        secondPanelHousehold);
-    third = new WeightedHousehold(thirdId(), weight, someZone.getRegionalContext(),
-        thirdPanelHousehold);
+    first = new WeightedHousehold(weight, someZone.getRegionalContext(), firstPanelHousehold);
+    second = new WeightedHousehold(weight, someZone.getRegionalContext(), secondPanelHousehold);
+    third = new WeightedHousehold(weight, someZone.getRegionalContext(), thirdPanelHousehold);
     return asList(first, second, third);
   }
 
