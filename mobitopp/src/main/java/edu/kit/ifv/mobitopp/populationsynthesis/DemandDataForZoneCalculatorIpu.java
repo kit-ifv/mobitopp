@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayWeightedHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrrayWeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -55,8 +55,8 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
     AttributeResolver attributeResolver = factory.createAttributeResolverFor(zone);
     ArrayIteration iteration = new DefaultArrayIteration();
     ArrayIpu ipu = new ArrayIpu(iteration, maxIterations(), maxGoodness(), loggerFor(zone));
-    ArrayWeightedHouseholds households = householdsOf(zone);
-    ArrayWeightedHouseholds scaledHouseholds = ipu.adjustWeightsOf(households);
+    WeightedHouseholds households = householdsOf(zone);
+    WeightedHouseholds scaledHouseholds = ipu.adjustWeightsOf(households);
     create(scaledHouseholds.toList(), zone, attributeResolver);
   }
 
@@ -77,7 +77,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 		return dataRepository.panelDataRepository();
 	}
 
-	private ArrayWeightedHouseholds householdsOf(DemandZone zone) {
+	private WeightedHouseholds householdsOf(DemandZone zone) {
     return new ArrrayWeightedHouseholdsCreator(context, panelData()).createFor(zone);
 	}
 

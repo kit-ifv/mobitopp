@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayWeightedHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrrayWeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
@@ -52,8 +52,8 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 	public void calculateDemandData(final DemandRegion region, final ImpedanceIfc impedance) {
 		ArrayIteration iteration = new DefaultArrayIteration();
     ArrayIpu ipu = new ArrayIpu(iteration, maxIterations(), maxGoodness(), loggerFor(region));
-	  ArrayWeightedHouseholds households = householdsOf(region);
-	  ArrayWeightedHouseholds scaledHouseholds = ipu.adjustWeightsOf(households);
+	  WeightedHouseholds households = householdsOf(region);
+	  WeightedHouseholds scaledHouseholds = ipu.adjustWeightsOf(households);
 	  IterationFactory factory = new MultiLevelIterationFactory(context);
 	  AttributeResolver attributeResolver = factory.createAttributeResolverFor(region);
 		create(scaledHouseholds.toList(), region, attributeResolver);
@@ -82,7 +82,7 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 		return dataRepository.panelDataRepository();
 	}
 
-  private ArrayWeightedHouseholds householdsOf(final DemandRegion region) {
+  private WeightedHouseholds householdsOf(final DemandRegion region) {
     return new ArrrayWeightedHouseholdsCreator(context, panelData()).createFor(region);
   }
 

@@ -2,8 +2,8 @@ package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 public interface ArrayIteration {
 
-	ArrayWeightedHouseholds adjustWeightsOf(ArrayWeightedHouseholds households);
+	WeightedHouseholds adjustWeightsOf(WeightedHouseholds households);
 
-	double calculateGoodnessOfFitFor(ArrayWeightedHouseholds households);
+	double calculateGoodnessOfFitFor(WeightedHouseholds households);
 
 }

@@ -8,9 +8,9 @@ public class ArrayIpu {
 	private final int maxIterations;
 	private final double maxGoodness;
 	private final Logger logger;
-	private ArrayWeightedHouseholds bestHouseholds;
+	private WeightedHouseholds bestHouseholds;
 	private double bestGoodness;
-	private ArrayWeightedHouseholds currentHouseholds;
+	private WeightedHouseholds currentHouseholds;
 	private int lastIteration;
 	private int bestIteration;
 
@@ -22,9 +22,9 @@ public class ArrayIpu {
 		this.logger = logger;
 	}
 
-	public ArrayWeightedHouseholds adjustWeightsOf(ArrayWeightedHouseholds initialHouseholds) {
+	public WeightedHouseholds adjustWeightsOf(WeightedHouseholds initialHouseholds) {
 		initialise(initialHouseholds);
-		ArrayWeightedHouseholds lastIterationHouseholds = currentHouseholds;
+		WeightedHouseholds lastIterationHouseholds = currentHouseholds;
 		for (lastIteration = 0; lastIteration < maxIterations; lastIteration++) {
 			updateHouseholds(lastIterationHouseholds);
 			double goodnessOfFit = calculateGoodness();
@@ -46,13 +46,13 @@ public class ArrayIpu {
 								bestIteration, bestGoodness));
 	}
 
-	private void initialise(ArrayWeightedHouseholds households) {
-		currentHouseholds = new ArrayWeightedHouseholds(households);
+	private void initialise(WeightedHouseholds households) {
+		currentHouseholds = new WeightedHouseholds(households);
 		bestHouseholds = currentHouseholds;
 		bestGoodness = calculateGoodness();
 	}
 
-	private void updateHouseholds(ArrayWeightedHouseholds lastIterationHouseholds) {
+	private void updateHouseholds(WeightedHouseholds lastIterationHouseholds) {
 		currentHouseholds = iteration.adjustWeightsOf(lastIterationHouseholds);
 	}
 

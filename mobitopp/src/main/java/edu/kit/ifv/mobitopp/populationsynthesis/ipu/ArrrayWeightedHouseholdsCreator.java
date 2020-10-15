@@ -27,7 +27,7 @@ public class ArrrayWeightedHouseholdsCreator {
     this.panelData = panelData;
   }
 
-  public ArrayWeightedHouseholds createFor(DemandRegion region) {
+  public WeightedHouseholds createFor(DemandRegion region) {
     List<HouseholdOfPanelData> households = panelData.getHouseholds();
     List<DemandZone> zones = region.zones().collect(toList());
     int numberOfZones = Math.toIntExact(zones.size());
@@ -42,7 +42,7 @@ public class ArrrayWeightedHouseholdsCreator {
         numberOfHouseholds, startOffset);
     ensureAllLevelsArePresent(requestedWeightsMapping);
     int[][] householdValues = createHouseholdValues(households, attributes);
-    return new ArrayWeightedHouseholds(households, weights, requestedWeightsMapping, householdValues,
+    return new WeightedHouseholds(households, weights, requestedWeightsMapping, householdValues,
         zones);
   }
 

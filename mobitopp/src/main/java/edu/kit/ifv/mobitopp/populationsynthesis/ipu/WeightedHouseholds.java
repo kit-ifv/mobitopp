@@ -10,7 +10,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
-public class ArrayWeightedHouseholds {
+public class WeightedHouseholds {
 
   private final List<HouseholdOfPanelData> households;
   private final double[] weights;
@@ -19,7 +19,7 @@ public class ArrayWeightedHouseholds {
   private final List<DemandZone> zones;
   private final List<List<Double>> factors;
 
-  public ArrayWeightedHouseholds(
+  public WeightedHouseholds(
       List<HouseholdOfPanelData> households, double[] weights,
       Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping, int[][] householdValues,
       List<DemandZone> zones) {
@@ -32,16 +32,16 @@ public class ArrayWeightedHouseholds {
     this.factors = new LinkedList<>();
   }
 
-  public ArrayWeightedHouseholds(ArrayWeightedHouseholds other) {
+  public WeightedHouseholds(WeightedHouseholds other) {
     this(other.households, Arrays.copyOf(other.weights, other.weights.length),
         other.requestedWeightsMapping, other.householdValues, other.zones);
   }
   
-  public ArrayWeightedHouseholds clone() {
-    return new ArrayWeightedHouseholds(this);
+  public WeightedHouseholds clone() {
+    return new WeightedHouseholds(this);
   }
 
-  public ArrayWeightedHouseholds scale() {
+  public WeightedHouseholds scale() {
     List<Double> factorsOfRound = new LinkedList<>();
     for (RegionalLevel level : List
         .of(RegionalLevel.community, RegionalLevel.district, RegionalLevel.zone)) {

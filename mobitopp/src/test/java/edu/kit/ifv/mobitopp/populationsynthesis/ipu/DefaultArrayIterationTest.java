@@ -12,11 +12,11 @@ public class DefaultArrayIterationTest {
 
   @Test
   void adjustWeightsOfHouseholds() throws Exception {
-    ArrayWeightedHouseholds households = mock(ArrayWeightedHouseholds.class);
+    WeightedHouseholds households = mock(WeightedHouseholds.class);
     when(households.scale()).thenReturn(households);
 
     DefaultArrayIteration iteration = new DefaultArrayIteration();
-    ArrayWeightedHouseholds updatedHouseholds = iteration.adjustWeightsOf(households);
+    WeightedHouseholds updatedHouseholds = iteration.adjustWeightsOf(households);
 
     assertThat(updatedHouseholds).isSameAs(households);
 
@@ -26,7 +26,7 @@ public class DefaultArrayIterationTest {
   @Test
   void calculateGoodnessOfFit() throws Exception {
     double goodness = 1.0d;
-    ArrayWeightedHouseholds households = mock(ArrayWeightedHouseholds.class);
+    WeightedHouseholds households = mock(WeightedHouseholds.class);
     when(households.calculateGoodnessOfFit()).thenReturn(goodness);
 
     DefaultArrayIteration iteration = new DefaultArrayIteration();
