@@ -13,7 +13,7 @@ import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrrayWeightedHouseholdsCreator;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultArrayIteration;
@@ -83,7 +83,7 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 	}
 
   private WeightedHouseholds householdsOf(final DemandRegion region) {
-    return new ArrrayWeightedHouseholdsCreator(context, panelData()).createFor(region);
+    return new WeightedHouseholdsCreator(context, panelData()).createFor(region);
   }
 
 	private int maxIterations() {

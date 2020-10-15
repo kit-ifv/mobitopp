@@ -31,7 +31,7 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
 
 @ExtendWith(MockitoExtension.class)
-public class ArrrayWeightedHouseholdsCreatorTest {
+public class WeightedHouseholdsCreatorTest {
 
   @Mock
   public SynthesisContext context;
@@ -67,7 +67,7 @@ public class ArrrayWeightedHouseholdsCreatorTest {
     when(panelData.getPersonsOfHousehold(id)).thenReturn(List.of(panelPerson));
     RegionalContext householdContext = new DefaultRegionalContext(RegionalLevel.zone, zone.getExternalId());
 
-    ArrrayWeightedHouseholdsCreator creator = new ArrrayWeightedHouseholdsCreator(context, panelData);
+    WeightedHouseholdsCreator creator = new WeightedHouseholdsCreator(context, panelData);
     
     WeightedHouseholds weightedHouseholds = creator.createFor(district);
     List<WeightedHousehold> createdHouseholds = weightedHouseholds.toList();
