@@ -1,16 +1,20 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public class WeightedHouseholds {
+
+  private static final List<RegionalLevel> orderOfRegionalLevels = createOrderOfRegionalLevels();
 
   private final List<HouseholdOfPanelData> households;
   private final double[] weights;
@@ -32,6 +36,14 @@ public class WeightedHouseholds {
     this.factors = new LinkedList<>();
   }
 
+  private static List<RegionalLevel> createOrderOfRegionalLevels() {
+    return EnumSet
+        .allOf(RegionalLevel.class)
+        .stream()
+        .sorted(Comparator.comparing(RegionalLevel::ordinal).reversed())
+        .collect(Collectors.toList());
+  }
+  
   public WeightedHouseholds(WeightedHouseholds other) {
     this(other.households, Arrays.copyOf(other.weights, other.weights.length),
         other.requestedWeightsMapping, other.householdValues, other.zones);
@@ -43,8 +55,7 @@ public class WeightedHouseholds {
 
   public WeightedHouseholds scale() {
     List<Double> factorsOfRound = new LinkedList<>();
-    for (RegionalLevel level : List
-        .of(RegionalLevel.community, RegionalLevel.district, RegionalLevel.zone)) {
+    for (RegionalLevel level : orderOfRegionalLevels) {
       List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
       for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
         RequestedWeights requestedWeightsList = requestedWeightsPerRegion.get(partIndex);
@@ -92,14 +103,6 @@ public class WeightedHouseholds {
     return householdValues.length;
   }
 
-  double[] weights() {
-    return weights;
-  }
-
-  List<List<Double>> factors() {
-    return factors;
-  }
-
   public List<WeightedHousehold> toList() {
     List<WeightedHousehold> newHouseholds = new LinkedList<>();
     for (int index = 0; index < weights.length; index++) {
@@ -114,11 +117,9 @@ public class WeightedHouseholds {
   }
 
   public double calculateGoodnessOfFit() {
-    List<Double> goodnesses = new ArrayList<>();
     double goodnessOfFit = 0.0d;
     int count = 0;
-    for (RegionalLevel level : List
-        .of(RegionalLevel.community, RegionalLevel.district, RegionalLevel.zone)) {
+    for (RegionalLevel level : orderOfRegionalLevels) {
       List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
       for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
         RequestedWeights requestedWeightsList = requestedWeightsPerRegion.get(partIndex);
@@ -130,10 +131,9 @@ public class WeightedHouseholds {
               + requestedWeightsList.getAtttributeOffset();
           double requestedWeight = requestedWeights[relativeAttribute];
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
-          double goody = Math.abs(totalWeight - requestedWeight) / requestedWeight;
-          goodnesses.add(goody);
-          if (Double.isFinite(goody)) {
-            goodnessOfFit += goody;
+          double goodness = Math.abs(totalWeight - requestedWeight) / requestedWeight;
+          if (Double.isFinite(goodness)) {
+            goodnessOfFit += goodness;
             count++;
           }
         }
@@ -141,5 +141,13 @@ public class WeightedHouseholds {
       }
     }
     return goodnessOfFit / count;
+  }
+
+  double[] weights() {
+    return weights;
+  }
+
+  List<List<Double>> factors() {
+    return factors;
   }
 }
