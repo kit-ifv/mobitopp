@@ -43,17 +43,24 @@ public class WeightedHouseholds {
         .sorted(Comparator.comparing(RegionalLevel::ordinal).reversed())
         .collect(Collectors.toList());
   }
-  
+
   public WeightedHouseholds(WeightedHouseholds other) {
     this(other.households, Arrays.copyOf(other.weights, other.weights.length),
         other.requestedWeightsMapping, other.householdValues, other.zones);
   }
-  
+
   public WeightedHouseholds clone() {
     return new WeightedHouseholds(this);
   }
 
   public WeightedHouseholds scale() {
+    Scale scale = new Scale(weights, householdValues);
+    process(scale);
+    factors.addAll(scale.factors());
+    return this;
+  }
+
+  protected void process(WeightedHouseholdsConsumer processor) {
     for (RegionalLevel level : orderOfRegionalLevels) {
       List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
       for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
@@ -66,14 +73,13 @@ public class WeightedHouseholds {
               + requestedWeightsList.getAtttributeOffset();
           double requestedWeight = requestedWeights[relativeAttribute];
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
-          double withFactor = requestedWeight / totalWeight;
-          factors.add(withFactor);
-          scaleWeights(withFactor, absoluteAttributeIndex, offset, numberOfWeightsPerPart);
+          processor
+              .process(offset, numberOfWeightsPerPart, absoluteAttributeIndex, requestedWeight,
+                  totalWeight);
         }
         offset += numberOfWeightsPerPart;
       }
     }
-    return this;
   }
 
   private double totalWeight(int attributeIndex, int offset, int numberOfWeightsPerPart) {
@@ -84,17 +90,6 @@ public class WeightedHouseholds {
       newWeight += weights[weightsIndex] * householdValues[householdIndex][attributeIndex];
     }
     return newWeight;
-  }
-
-  private void scaleWeights(
-      double withFactor, int attributeIndex, int offset, int numberOfWeightsPerPart) {
-    for (int weightsIndex = offset; (weightsIndex < offset + numberOfWeightsPerPart)
-        && (weightsIndex < weights.length); weightsIndex++) {
-      int householdIndex = weightsIndex % numberOfHouseholds();
-      if (0 != householdValues[householdIndex][attributeIndex]) {
-        weights[weightsIndex] *= withFactor;
-      }
-    }
   }
 
   private int numberOfHouseholds() {
@@ -116,24 +111,8 @@ public class WeightedHouseholds {
 
   public double calculateGoodnessOfFit() {
     GoodnessOfFit goodnessOfFit = new GoodnessOfFit();
-    for (RegionalLevel level : orderOfRegionalLevels) {
-      List<RequestedWeights> requestedWeightsPerRegion = requestedWeightsMapping.get(level);
-      for (int partIndex = 0; partIndex < requestedWeightsPerRegion.size(); partIndex++) {
-        RequestedWeights requestedWeightsList = requestedWeightsPerRegion.get(partIndex);
-        int offset = requestedWeightsList.getWeightOffset();
-        int numberOfWeightsPerPart = requestedWeightsList.getNumberOfWeights();
-        int[] requestedWeights = requestedWeightsList.getRequestedWeights();
-        for (int relativeAttribute = 0; relativeAttribute < requestedWeights.length; relativeAttribute++) {
-          int absoluteAttributeIndex = relativeAttribute
-              + requestedWeightsList.getAtttributeOffset();
-          double requestedWeight = requestedWeights[relativeAttribute];
-          double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
-          goodnessOfFit.add(totalWeight, requestedWeight);
-        }
-        offset += numberOfWeightsPerPart;
-      }
-    }
-    return goodnessOfFit.calculate();// goodnessOfFit / count;
+    process(goodnessOfFit);
+    return goodnessOfFit.calculate();
   }
 
   double[] weights() {
