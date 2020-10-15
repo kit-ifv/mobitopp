@@ -100,6 +100,6 @@ public class WeightedHouseholdReproducerTest {
     short year = 2000;
     HouseholdOfPanelDataId id = new HouseholdOfPanelDataId(year, number);
     HouseholdOfPanelData panelHousehold = new HouseholdOfPanelDataBuilder().withId(id).build();
-    return new WeightedHousehold(id, weight, context, panelHousehold);
+    return new WeightedHousehold(weight, context, panelHousehold);
   }
 }

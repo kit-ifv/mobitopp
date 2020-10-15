@@ -26,10 +26,8 @@ public class ProbabilityBasedSelectorTest {
   @BeforeEach
   public void initialise() {
     double weight = 0.5d;
-    first = new WeightedHousehold(ExampleHouseholdOfPanelData.anId, weight, context,
-        ExampleHouseholdOfPanelData.household);
-    second = new WeightedHousehold(ExampleHouseholdOfPanelData.otherId, weight, context,
-        ExampleHouseholdOfPanelData.otherHousehold);
+    first = new WeightedHousehold(weight, context, ExampleHouseholdOfPanelData.household);
+    second = new WeightedHousehold(weight, context, ExampleHouseholdOfPanelData.otherHousehold);
   }
 
   @Test

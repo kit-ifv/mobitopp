@@ -106,8 +106,8 @@ public class ArrayWeightedHouseholds {
       HouseholdOfPanelData panelHousehold = households.get(index % numberOfHouseholds());
       String zoneId = zones.get(index / numberOfHouseholds()).getExternalId();
       RegionalContext context = new DefaultRegionalContext(RegionalLevel.zone, zoneId);
-      WeightedHousehold newHousehold = new WeightedHousehold(panelHousehold.getId(),
-          weights[index], context, panelHousehold);
+      WeightedHousehold newHousehold = new WeightedHousehold(weights[index], context,
+          panelHousehold);
       newHouseholds.add(newHousehold);
     }
     return newHouseholds;

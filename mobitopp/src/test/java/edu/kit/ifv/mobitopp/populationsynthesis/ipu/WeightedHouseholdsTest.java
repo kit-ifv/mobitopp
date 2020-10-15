@@ -237,18 +237,12 @@ public class WeightedHouseholdsTest {
     RegionalContext anotherContext = new DefaultRegionalContext(RegionalLevel.zone,
         setup.anotherZone.getExternalId());
     assertThat(updatedHouseholds.toList())
-        .contains(new WeightedHousehold(someId, expectedWeights[0], someContext,
-            setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[1], someContext,
-            setup.otherPanelHousehold))
-        .contains(new WeightedHousehold(someId, expectedWeights[2], otherContext,
-            setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[3], otherContext,
-            setup.otherPanelHousehold))
-        .contains(new WeightedHousehold(someId, expectedWeights[4], anotherContext,
-            setup.somePanelHousehold))
-        .contains(new WeightedHousehold(otherId, expectedWeights[5], anotherContext,
-            setup.otherPanelHousehold));
+        .contains(new WeightedHousehold(expectedWeights[0], someContext, setup.somePanelHousehold))
+        .contains(new WeightedHousehold(expectedWeights[1], someContext, setup.otherPanelHousehold))
+        .contains(new WeightedHousehold(expectedWeights[2], otherContext, setup.somePanelHousehold))
+        .contains(new WeightedHousehold(expectedWeights[3], otherContext, setup.otherPanelHousehold))
+        .contains(new WeightedHousehold(expectedWeights[4], anotherContext, setup.somePanelHousehold))
+        .contains(new WeightedHousehold(expectedWeights[5], anotherContext, setup.otherPanelHousehold));
   }
 
   @ParameterizedTest

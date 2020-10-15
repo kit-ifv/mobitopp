@@ -71,9 +71,9 @@ public class ArrrayWeightedHouseholdsCreatorTest {
     
     ArrayWeightedHouseholds weightedHouseholds = creator.createFor(district);
     List<WeightedHousehold> createdHouseholds = weightedHouseholds.toList();
-    
+
     assertThat(createdHouseholds)
-        .contains(new WeightedHousehold(id, weight, householdContext, panelHousehold));
+        .contains(new WeightedHousehold(weight, householdContext, panelHousehold));
   }
 
   protected Demography createDistrictDemography() {
