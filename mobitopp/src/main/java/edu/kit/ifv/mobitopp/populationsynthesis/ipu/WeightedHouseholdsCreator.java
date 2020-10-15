@@ -16,13 +16,13 @@ import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
-public class ArrrayWeightedHouseholdsCreator {
+public class WeightedHouseholdsCreator {
 
   private static final int startOffset = 0;
   private final SynthesisContext context;
   private final PanelDataRepository panelData;
 
-  public ArrrayWeightedHouseholdsCreator(SynthesisContext context, PanelDataRepository panelData) {
+  public WeightedHouseholdsCreator(SynthesisContext context, PanelDataRepository panelData) {
     this.context = context;
     this.panelData = panelData;
   }
@@ -90,7 +90,7 @@ public class ArrrayWeightedHouseholdsCreator {
     requestedWeightsMapping
         .merge(region.regionalLevel(),
             List.of(newRequestedWeights),
-            ArrrayWeightedHouseholdsCreator::mergeLists);
+            WeightedHouseholdsCreator::mergeLists);
 
     int nextLevelAttributeOffset = attributes.size();
     int nextLevelWeightOffset = 0;
