@@ -44,6 +44,7 @@ public class StructuralDataHouseholdReproducer implements HouseholdReproducer {
 		List<WeightedHousehold> householdsByType = households
 				.stream()
 				.filter(household -> filterType(household, item))
+				.filter(household -> Double.isFinite(household.weight()))
 				.collect(toList());
 		return householdSelector.selectFrom(householdsByType, item.amount()).stream();
 	}
