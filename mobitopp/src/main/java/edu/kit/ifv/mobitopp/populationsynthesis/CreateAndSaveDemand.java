@@ -44,11 +44,15 @@ public class CreateAndSaveDemand {
   private void addHouseholdsOf(List<HouseholdForSetup> demand, DemandZone zone) {
     demand
         .stream()
-        .filter(household -> zone.getId().equals(household.homeZone().getId()))
+        .filter(household -> matchesHomeZone(zone, household))
         .forEach(household -> addHousehold(zone, household));
   }
 
-  protected void addHousehold(DemandZone zone, HouseholdForSetup household) {
+  private boolean matchesHomeZone(DemandZone zone, HouseholdForSetup household) {
+    return zone.getId().equals(household.homeZone().getId());
+  }
+
+  private void addHousehold(DemandZone zone, HouseholdForSetup household) {
     zone.getPopulation().addHousehold(household);
     log(household);
   }
