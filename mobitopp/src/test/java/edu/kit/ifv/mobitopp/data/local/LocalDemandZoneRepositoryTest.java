@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +26,8 @@ import edu.kit.ifv.mobitopp.dataimport.Example;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.InMemoryData;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultRegionalContext;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
@@ -88,11 +91,23 @@ public class LocalDemandZoneRepositoryTest {
 	@Test
 	void returnsSameInstanceRegardlessOfGetter() throws Exception {
 		DemandZoneRepository demandRepository = newDemandRepository();
-		
+
+    RegionalContext context = new DefaultRegionalContext(RegionalLevel.zone, "1");
 		DemandZone byExternalId = demandRepository.zoneByExternalId("1").get();
 		DemandRegion byId = demandRepository.zoneById(byExternalId.getId()).get();
+		DemandZone byContext = demandRepository.getRegionBy(context);
 		assertThat(byExternalId).isSameAs(byId);
+		assertThat(byExternalId).isSameAs(byContext);
 	}
+	
+	@Test
+  void failsForIncorrectContext() throws Exception {
+    DemandZoneRepository demandRepository = newDemandRepository();
+    
+	  RegionalContext context = new DefaultRegionalContext(RegionalLevel.district, "1");
+	  
+	  assertThrows(IllegalArgumentException.class, () -> demandRepository.getRegionBy(context));
+  }
 	
 	@Test
 	void readsZoneProperties() throws Exception {
@@ -102,7 +117,7 @@ public class LocalDemandZoneRepositoryTest {
 		assertThat(demandRepository.zoneByExternalId("2").get().shouldGeneratePopulation()).isTrue();
 		assertThat(demandRepository.zoneByExternalId("3").get().shouldGeneratePopulation()).isFalse();
 	}
-
+  
 	private void createZones() {
 		createZoneWithOid(0, "1");
 		createZoneWithOid(1, "2");

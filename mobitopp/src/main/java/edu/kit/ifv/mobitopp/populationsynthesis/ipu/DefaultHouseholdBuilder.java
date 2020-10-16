@@ -4,7 +4,6 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
-import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
@@ -14,35 +13,35 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 public class DefaultHouseholdBuilder implements HouseholdBuilder {
 
-	private final DemandZone demandZone;
 	private final HouseholdCreator householdCreator;
 	private final PersonCreator personCreator;
 	private final PanelDataRepository panelData;
 	private HouseholdForSetup currentHousehold;
 	
-	public DefaultHouseholdBuilder(
-			DemandZone demandZone, HouseholdCreator householdCreator, PersonCreator personCreator,
-			PanelDataRepository panelData) {
-		super();
-		this.demandZone = demandZone;
-		this.householdCreator = householdCreator;
-		this.personCreator = personCreator;
-		this.panelData = panelData;
-	}
+  public DefaultHouseholdBuilder(
+      final HouseholdCreator householdCreator, final PersonCreator personCreator,
+      final PanelDataRepository panelData) {
+    super();
+    this.householdCreator = householdCreator;
+    this.personCreator = personCreator;
+    this.panelData = panelData;
+  }
 
 	@Override
-  public HouseholdForSetup householdFor(HouseholdOfPanelData panelHousehold) {
-		currentHousehold = householdCreator.createHousehold(panelHousehold, zone());
-		createSimulatedPeople(panelHousehold);
-		demandZone.actualDemography().incrementHousehold(currentHousehold.getSize());
+  public HouseholdForSetup householdFor(
+      final HouseholdOfPanelData panelHousehold, final DemandZone zone) {
+    currentHousehold = householdCreator.createHousehold(panelHousehold, zone.zone());
+  	createSimulatedPeople(panelHousehold, zone);
+		zone.actualDemography().incrementHousehold(currentHousehold.getSize());
 		int income = currentHousehold.monthlyIncomeEur();
-    demandZone.actualDemography().increment(StandardAttribute.income, income);
+    zone.actualDemography().increment(StandardAttribute.income, income);
 		return currentHousehold;
 	}
 
-	private void createSimulatedPeople(HouseholdOfPanelData panelHousehold) {
-		for (PersonOfPanelData panelPerson : peopleOf(panelHousehold)) {
-			createPerson(panelPerson, panelHousehold);
+  private void createSimulatedPeople(
+      final HouseholdOfPanelData panelHousehold, final DemandZone zone) {
+  	for (PersonOfPanelData panelPerson : peopleOf(panelHousehold)) {
+			createPerson(panelPerson, panelHousehold, zone);
 		}
 	}
 
@@ -50,20 +49,18 @@ public class DefaultHouseholdBuilder implements HouseholdBuilder {
 		return panelData.getPersonsOfHousehold(panelHousehold.id());
 	}
 
-	private void createPerson(PersonOfPanelData panelPerson, HouseholdOfPanelData panelHousehold) {
-	  PersonBuilder person = personCreator
-				.createPerson(panelPerson, panelHousehold, currentHousehold, zone());
-		updateDemography(person);
+  private void createPerson(
+      final PersonOfPanelData panelPerson, final HouseholdOfPanelData panelHousehold,
+      final DemandZone zone) {
+    PersonBuilder person = personCreator
+  			.createPerson(panelPerson, panelHousehold, currentHousehold, zone.zone());
+		updateDemography(person, zone);
 		currentHousehold.addPerson(person);
 	}
 
-	private void updateDemography(PersonBuilder person) {
-		demandZone.actualDemography().incrementAge(person.gender(), person.age());
-		demandZone.actualDemography().incrementEmployment(person.employment());
-	}
-
-	private Zone zone() {
-		return demandZone.zone();
+	private void updateDemography(final PersonBuilder person, final DemandZone zone) {
+		zone.actualDemography().incrementAge(person.gender(), person.age());
+		zone.actualDemography().incrementEmployment(person.employment());
 	}
 
 }

@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.dataimport.DemographyBuilder;
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class LocalDemandZoneRepository implements DemandZoneRepository {
@@ -63,6 +64,16 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
 	public Optional<DemandRegion> getRegionByExternalId(String id) {
 		return Optional.ofNullable(zonesByExternal.get(id));
 	}
+
+  @Override
+  public DemandZone getRegionBy(final RegionalContext context) {
+    if (context.matches(RegionalLevel.zone)) {
+      return zoneByExternalId(context.externalId())
+          .orElseThrow(() -> new IllegalArgumentException("Element not found: " + context.name()));
+    }
+    throw new IllegalArgumentException(String
+        .format("Level of context must be %s but was %s.", RegionalLevel.zone, context.name()));
+  }
 
 	@Override
 	public List<DemandZone> getZones() {

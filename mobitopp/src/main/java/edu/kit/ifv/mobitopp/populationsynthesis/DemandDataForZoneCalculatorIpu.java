@@ -12,8 +12,6 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
-import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DefaultArrayIteration;
@@ -23,6 +21,8 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.MultiLevelIterationFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StructuralDataDemandCreatorFactory;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHousehold;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholds;
+import edu.kit.ifv.mobitopp.populationsynthesis.ipu.WeightedHouseholdsCreator;
 import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -35,17 +35,17 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
 	private final CreateAndSaveDemand createAndSaveDemand;
 
 	public DemandDataForZoneCalculatorIpu(
-			Results results, WeightedHouseholdSelector householdSelector,
-			HouseholdCreator householdCreator, PersonCreator personCreator,
-			DataRepositoryForPopulationSynthesis dataRepository, SynthesisContext context,
-			AttributeType householdFilterType,
-			Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter) {
+      final Results results, final WeightedHouseholdSelector householdSelector,
+      final HouseholdCreator householdCreator, final PersonCreator personCreator,
+      final DataRepositoryForPopulationSynthesis dataRepository, final SynthesisContext context,
+      final AttributeType householdFilterType,
+      final Function<DemandRegion, Predicate<HouseholdOfPanelData>> householdFilter) {
 		this.dataRepository = dataRepository;
 		this.context = context;
 		DemandCategories categories = new DemandCategories();
 		DemandCreatorFactory demandCreatorFactory = new StructuralDataDemandCreatorFactory(
 				householdCreator, personCreator, panelData(), householdFilterType, householdFilter,
-				householdSelector);
+				householdSelector, dataRepository.zoneRepository());
 		createAndSaveDemand = new CreateAndSaveDemand(results, categories, demandCreatorFactory);
 	}
 

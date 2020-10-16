@@ -7,5 +7,7 @@ public interface RegionalContext {
 	String name();
 
 	boolean matches(RegionalLevel level);
+	
+	String externalId();
 
 }

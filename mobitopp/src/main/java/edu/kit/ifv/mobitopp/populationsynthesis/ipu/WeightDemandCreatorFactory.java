@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.DemandRegion;
+import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
@@ -18,18 +19,19 @@ public class WeightDemandCreatorFactory implements DemandCreatorFactory {
   private final PersonCreator personCreator;
   private final PanelDataRepository panelData;
   private final AttributeType householdFilterType;
-  private final Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter;
+  private final Function<DemandRegion, Predicate<HouseholdOfPanelData>> householdFilter;
   private final WeightedHouseholdSelector householdSelector;
+  private final DemandZoneRepository zoneRepository;
 
   @Override
-  public DemandCreator create(final DemandZone zone, final AttributeResolver attributeResolver) {
-    HouseholdBuilder usingBuilder = new DefaultHouseholdBuilder(zone, householdCreator,
+  public DemandCreator create(final DemandRegion region, final AttributeResolver attributeResolver) {
+    HouseholdBuilder usingBuilder = new DefaultHouseholdBuilder(householdCreator,
         personCreator, panelData);
     List<Attribute> householdAttributes = attributeResolver.attributesOf(householdFilterType);
-    Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(zone);
+    Predicate<HouseholdOfPanelData> householdForZoneFilter = householdFilter.apply(region);
     WeightedHouseholdReproducer multiplier = new WeightedHouseholdReproducer(householdAttributes,
         householdSelector, panelData);
-    return new DemandCreator(usingBuilder, panelData, householdForZoneFilter, multiplier);
+    return new DemandCreator(usingBuilder, panelData, householdForZoneFilter, multiplier, zoneRepository);
   }
 
 }
