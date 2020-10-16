@@ -22,5 +22,10 @@ public class DefaultRegionalContext implements RegionalContext {
 	public boolean matches(RegionalLevel level) {
 		return this.level.equals(level);
 	}
+	
+	@Override
+	public String externalId() {
+	  return externalId;
+	}
 
 }

@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
-import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
@@ -114,10 +113,10 @@ public class DemographyOnDifferentLevelsExample extends PopulationSynthesis {
     WeightedHouseholdSelector householdSelector = createHouseholdSelector();
     HouseholdCreator householdCreator = createHouseholdCreator();
     PersonCreator personCreator = createPersonCreator();
-    Function<DemandZone, Predicate<HouseholdOfPanelData>> householdFilter = z -> h -> true;
+    Function<DemandRegion, Predicate<HouseholdOfPanelData>> householdFilter = region -> h -> true;
     WeightDemandCreatorFactory demandCreatorFactory = new WeightDemandCreatorFactory(
         householdCreator, personCreator, dataRepository().panelDataRepository(), attributeType,
-        householdFilter, householdSelector);
+        householdFilter, householdSelector, dataRepository().zoneRepository());
     return new DemandRegionBasedIpu(results(), dataRepository(), context(), demandCreatorFactory);
   }
 

@@ -5,25 +5,25 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 
 public class StructuralDataHouseholdReproducer implements HouseholdReproducer {
 
-	private final DemandZone zone;
+	private final DemandRegion region;
 	private final AttributeType householdFilterType;
 	private final WeightedHouseholdSelector householdSelector;
 	private final List<Attribute> attributes;
   private final PanelDataRepository panelData;
 	
 	public StructuralDataHouseholdReproducer(
-			final DemandZone zone, final AttributeType householdFilterType,
+			final DemandRegion region, final AttributeType householdFilterType,
 			final WeightedHouseholdSelector householdSelector,
 			final List<Attribute> householdAttributes, final PanelDataRepository panelData) {
 		super();
-		this.zone = zone;
+		this.region = region;
 		this.householdFilterType = householdFilterType;
 		this.householdSelector = householdSelector;
 		this.attributes = householdAttributes;
@@ -36,7 +36,7 @@ public class StructuralDataHouseholdReproducer implements HouseholdReproducer {
 	}
 
 	private RangeDistributionIfc householdDistribution() {
-		return zone.nominalDemography().getDistribution(householdFilterType);
+		return region.nominalDemography().getDistribution(householdFilterType);
 	}
 
 	private Stream<WeightedHousehold> filter(

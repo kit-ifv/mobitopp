@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
+import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.demand.DefaultDistributions;
@@ -54,6 +55,8 @@ public class DemandCreatorTest {
   Predicate<HouseholdOfPanelData> filter;
   @Mock
   private DemandZone someZone;
+  @Mock
+  private DemandZoneRepository zoneRepository;
 
   private WeightedHousehold first;
   private WeightedHousehold second;
@@ -79,9 +82,9 @@ public class DemandCreatorTest {
   }
 
   private void configureMockObjects() {
-    when(builder.householdFor(firstPanelHousehold)).thenReturn(firstHousehold);
-    when(builder.householdFor(secondPanelHousehold)).thenReturn(secondHousehold);
-    when(builder.householdFor(thirdPanelHousehold)).thenReturn(thirdHousehold);
+    when(builder.householdFor(firstPanelHousehold, someZone)).thenReturn(firstHousehold);
+    when(builder.householdFor(secondPanelHousehold, someZone)).thenReturn(secondHousehold);
+    when(builder.householdFor(thirdPanelHousehold, someZone)).thenReturn(thirdHousehold);
     when(panelData.getHousehold(firstId())).thenReturn(firstPanelHousehold);
     when(panelData.getHousehold(secondId())).thenReturn(secondPanelHousehold);
     when(panelData.getHousehold(thirdId())).thenReturn(thirdPanelHousehold);
@@ -153,7 +156,7 @@ public class DemandCreatorTest {
 
   private DemandCreator newCreator(List<Attribute> householdAttributes) {
     return new DemandCreator(builder, panelData, filter, new StructuralDataHouseholdReproducer(
-        someZone, householdFilterType, householdSelector, householdAttributes, panelData));
+        someZone, householdFilterType, householdSelector, householdAttributes, panelData), zoneRepository);
   }
 
   private List<Attribute> createAttributes() {

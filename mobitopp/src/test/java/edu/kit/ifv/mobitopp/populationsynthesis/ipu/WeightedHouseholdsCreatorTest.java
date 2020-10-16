@@ -50,6 +50,7 @@ public class WeightedHouseholdsCreatorTest {
     when(zone.nominalDemography()).thenReturn(createZoneDemography());
     when(zone.regionalLevel()).thenReturn(RegionalLevel.zone);
     when(zone.getExternalId()).thenReturn("zone");
+    when(zone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "zone"));
     when(district.parts()).thenReturn(List.of(zone));
     when(district.zones()).then(invocation -> Stream.of(zone));
     when(context.attributes(RegionalLevel.district))

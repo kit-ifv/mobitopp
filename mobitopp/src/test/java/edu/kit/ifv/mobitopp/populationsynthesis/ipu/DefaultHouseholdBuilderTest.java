@@ -53,10 +53,10 @@ public class DefaultHouseholdBuilderTest {
 		List<PersonOfPanelData> householdMembers = asList(someMember, otherMember);
 		when(panelData.getPersonsOfHousehold(panelHousehold.id())).thenReturn(householdMembers);
 
-		HouseholdBuilder build = new DefaultHouseholdBuilder(demandZone, householdCreator, personCreator,
+		HouseholdBuilder build = new DefaultHouseholdBuilder(householdCreator, personCreator,
 				panelData);
 
-		HouseholdForSetup household = build.householdFor(panelHousehold);
+		HouseholdForSetup household = build.householdFor(panelHousehold, demandZone);
 
 		assertThat(demandZone.actualDemography().maleAge().getItems(),
 				hasItem(new RangeDistributionItem(11, Integer.MAX_VALUE, 2)));
