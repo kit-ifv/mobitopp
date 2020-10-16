@@ -62,7 +62,8 @@ public abstract class ExampleSetup {
 	public static final short householdYear = 2011;
 	public static final int householdNumber = 1;
 	public static final int nominalSize = 1;
-	public static final int domcode = 2;
+  public static final int domcode = 2;
+  public static final int householdType = 3;
 	public static final Location location = new Location(new Point2D.Double(1.0, 2.0), 1, 0.5);
 	public static final String serialisedLocation = new LocationParser().serialise(location);
 	public static final Location anotherLocation = new Location(new Point2D.Double(3.0, 4.0), 2, 0.5);
@@ -147,9 +148,10 @@ public abstract class ExampleSetup {
 	
 	public static HouseholdForSetup household(Zone zone, int householdOid, int numberOfCars) {
 	  HouseholdId id = new HouseholdId(householdOid, householdYear, householdNumber);
-	  return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
-	      numberOfNotSimulatedChildren, numberOfCars, income, incomeClass, economicalStatus, canChargePrivately);
-	}
+    return new DefaultHouseholdForSetup(id, nominalSize, domcode, householdType, zone, location,
+        numberOfMinors, numberOfNotSimulatedChildren, numberOfCars, income, incomeClass,
+        economicalStatus, canChargePrivately);
+  }
 
 	public static PersonBuilder emobilityPersonOf(HouseholdForSetup household, int personNumber, Zone zone) {
 		Map<String, Boolean> carSharingCustomership = carSharingCustomership();

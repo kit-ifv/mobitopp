@@ -15,6 +15,7 @@ public class ExampleHousehold {
 	public static final HouseholdId id = new HouseholdId(oid, year, 3);
 	static final int defaultNominalSize = 2;
 	static final int domcode = 5;
+	static final int type = 6;
 	static final Location location = new Location(new Point2D.Double(), 0, 0.0d);
 	static final int numberOfMinors = 0;
 	static final int numberOfNotSimulatedChildren = 0;
@@ -35,14 +36,14 @@ public class ExampleHousehold {
 	}
 
 	public static HouseholdForSetup createHousehold(Zone zone) {
-		return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
+		return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, type, zone, location,
 				numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income, incomeClass,
 				economicalStatus, canChargePrivately);
 	}
 
 	public static HouseholdForSetup createHousehold(Zone zone, HouseholdOfPanelDataId panelId) {
 		HouseholdId id = new HouseholdId(oid, panelId.getYear(), panelId.getHouseholdNumber());
-		return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, zone, location,
+		return new DefaultHouseholdForSetup(id, defaultNominalSize, domcode, type, zone, location,
 				numberOfMinors, numberOfNotSimulatedChildren, defaultTotalNumberOfCars, income, incomeClass,
 				economicalStatus, canChargePrivately);
 	}
@@ -58,7 +59,7 @@ public class ExampleHousehold {
 	}
 
 	public HouseholdForSetup build() {
-		return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
+		return new DefaultHouseholdForSetup(id, nominalSize, domcode, type, zone, location, numberOfMinors,
 				numberOfNotSimulatedChildren, numberOfCars, income, incomeClass, economicalStatus,
 				canChargePrivately);
 	}

@@ -28,7 +28,8 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		columns.add("year", e -> e.attributes().id.getYear());
 		columns.add("householdNumber", e -> e.attributes().id.getHouseholdNumber());
 		columns.add("nominalSize", e -> e.attributes().nominalSize);
-		columns.add("domCode", e -> e.attributes().domCode);
+    columns.add("domCode", e -> e.attributes().domCode);
+    columns.add("type", e -> e.attributes().type);
 		columns.add("homeZone", e -> e.attributes().homeZone.getId().getMatrixColumn());
 		columns.add("homeLocation", e -> locationParser.serialise(e.attributes().homeLocation));
 		columns.add("homeX", e -> e.attributes().homeLocation.coordinatesP().getX());
@@ -57,23 +58,23 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		return zoneOf(data).map(zone -> createHousehold(data, zone));
 	}
 
-	private HouseholdForSetup createHousehold(List<String> data, Zone zone) {
-		HouseholdId id = idOf(data);
-		int nominalSize = nominalSizeOf(data);
-		int domCode = domCodeOf(data);
-		Location location = locationOf(data);
-		int numberOfMinors = minorsOf(data);
-		int numberOfNotSimulatedChildren = childrenOf(data);
-		int totalNumberOfCars = carsOf(data);
-		int income = incomeOf(data);
-		int incomeClass = incomeClassOf(data);
-		EconomicalStatus economicalStatus = economicalStatusOf(data);
-		boolean canChargePrivately = chargePrivatelyOf(data);
-		HouseholdForSetup household = new DefaultHouseholdForSetup(id, nominalSize, domCode, zone,
-				location, numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income,
-				incomeClass, economicalStatus, canChargePrivately);
-		return household;
-	}
+	private HouseholdForSetup createHousehold(final List<String> data, final Zone zone) {
+    HouseholdId id = idOf(data);
+    int nominalSize = nominalSizeOf(data);
+    int domCode = domCodeOf(data);
+    int type = typeOf(data);
+    Location location = locationOf(data);
+    int numberOfMinors = minorsOf(data);
+    int numberOfNotSimulatedChildren = childrenOf(data);
+    int totalNumberOfCars = carsOf(data);
+    int income = incomeOf(data);
+    int incomeClass = incomeClassOf(data);
+    EconomicalStatus economicalStatus = economicalStatusOf(data);
+    boolean canChargePrivately = chargePrivatelyOf(data);
+    return new DefaultHouseholdForSetup(id, nominalSize, domCode, type, zone, location,
+        numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+        economicalStatus, canChargePrivately);
+  }
 
 	private HouseholdId idOf(List<String> data) {
 		int oid = columns.get("householdId", data).asInt();
@@ -86,9 +87,13 @@ public class DefaultHouseholdFormat implements SerialiserFormat<HouseholdForSetu
 		return columns.get("nominalSize", data).asInt();
 	}
 
-	private int domCodeOf(List<String> data) {
-		return columns.get("domCode", data).asInt();
-	}
+  private int domCodeOf(List<String> data) {
+    return columns.get("domCode", data).asInt();
+  }
+
+  private int typeOf(List<String> data) {
+    return columns.get("type", data).asInt();
+  }
 
 	private Optional<Zone> zoneOf(List<String> data) {
 		int oid = columns.get("homeZone", data).asInt();

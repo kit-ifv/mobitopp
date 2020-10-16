@@ -19,7 +19,6 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DefaultPersonForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharingCustomerModel;
 import edu.kit.ifv.mobitopp.simulation.DefaultHouseholdForSetup;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -76,6 +75,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			null, // id
 																			6,
 																			0, // domcode
+                                      1, // type
 																			zone(),
 																			null, // Location
 																			5, // number of minors
@@ -91,6 +91,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			null, // id
 																			4,
 																			0, // domcode
+                                      1, // type
 																			zone(),
 																			null, // Location
 																			2, // number of minors
@@ -170,6 +171,7 @@ public class LogitBasedCarSharingCustomerModelFlinksterTest {
 																			null, // id
 																			nominalSize, // nominalSize
 																			0, // domcode
+																			1, // type
 																			null, // zone,
 																			null, // Location
 																			nominalSize-1, // number of minors

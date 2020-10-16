@@ -284,6 +284,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 																id,
 																householdOfPanelData.size(),
 																householdOfPanelData.domCode(),
+																householdOfPanelData.type(), 
 																zone,
 																location,
 																householdOfPanelData.numberOfMinors(),

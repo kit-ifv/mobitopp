@@ -24,6 +24,7 @@ public class HouseholdForDemand
   private final HouseholdId id;
 
   private final int domCode;
+  private final int type;
   
   private final Zone homeZone;
   private final Location homeLocation;
@@ -51,6 +52,7 @@ public class HouseholdForDemand
 		HouseholdId id_,
 		int nominalSize,
 		int domcode,
+		int type,
 		Zone zone,
 		Location location,
 		int numberOfMinors,
@@ -64,6 +66,7 @@ public class HouseholdForDemand
   {
 		this.id = id_;
 		this.domCode = domcode;
+		this.type = type;
 		this.homeZone = zone;
 		this.homeLocation = location;
 		this.numberOfMinors = (byte) numberOfMinors;
@@ -86,6 +89,10 @@ public class HouseholdForDemand
 
 	private int domCode() {
 		return domCode;
+	}
+	
+	public int type() {
+	  return type;
 	}
 
   public int numberOfNotSimulatedChildren()
@@ -294,7 +301,7 @@ public class HouseholdForDemand
 
   @Override
   public HouseholdAttributes attributes() {
-    return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), homeZone(),
+    return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), type(), homeZone(),
         homeLocation(), numberOfMinors, numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
         incomeClass(), economicalStatus(), canChargePrivately());
 	}

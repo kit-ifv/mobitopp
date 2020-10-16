@@ -22,6 +22,7 @@ public class HouseholdForDemandTest {
 	private HouseholdId id;
 	private int nominalSize;
 	private int domCode;
+	private int type;
 	private Zone homeZone;
 	private Location homeLocation;
 	private int numberOfMinors;
@@ -40,6 +41,7 @@ public class HouseholdForDemandTest {
 		id = new HouseholdId(oid, year, 2);
 		nominalSize = 3;
 		domCode = 4;
+		type = 5;
 		homeZone = mock(Zone.class);
 		homeLocation = mock(Location.class);
 		numberOfMinors = 5;
@@ -49,9 +51,9 @@ public class HouseholdForDemandTest {
 		incomeClass = 1;
 		economicalStatus = EconomicalStatus.veryLow;
 		canChargePrivately = true;
-		household = new HouseholdForDemand(id, nominalSize, domCode, homeZone, homeLocation,
-				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
-				economicalStatus, canChargePrivately);
+    household = new HouseholdForDemand(id, nominalSize, domCode, type, homeZone, homeLocation,
+        numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+        economicalStatus, canChargePrivately);
 	}
 
 	@Test
@@ -82,9 +84,9 @@ public class HouseholdForDemandTest {
 		assertThrows(IllegalArgumentException.class, () -> household.getPerson(personId));
 	}
 
-	private HouseholdAttributes householdAttributes() {
-		return new HouseholdAttributes(oid, id, nominalSize, domCode, homeZone, homeLocation,
-				numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
-				economicalStatus, canChargePrivately);
-	}
+  private HouseholdAttributes householdAttributes() {
+    return new HouseholdAttributes(oid, id, nominalSize, domCode, type, homeZone, homeLocation,
+        numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+        economicalStatus, canChargePrivately);
+  }
 }

@@ -49,6 +49,7 @@ public class Household_Stub
 
 	public int getOid() { return this.oid; }
 	public HouseholdId getId() { return null; }
+	public int type() { return 0; }
 
 	public Zone homeZone() { return zone; }
 
