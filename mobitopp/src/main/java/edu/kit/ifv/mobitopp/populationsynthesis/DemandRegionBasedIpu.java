@@ -1,12 +1,9 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.DataRepositoryForPopulationSynthesis;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
-import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIpu;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.ArrayIteration;
@@ -55,16 +52,7 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 	private void create(
 			final List<WeightedHousehold> households, final DemandRegion region,
 			final AttributeResolver attributeResolver) {
-		region.zones().forEach(zone -> createAndSave(households, zone, attributeResolver));
-	}
-
-	private void createAndSave(
-			List<WeightedHousehold> households, DemandZone zone, AttributeResolver attributeResolver) {
-		List<WeightedHousehold> selectedHouseholds = households
-				.stream()
-				.filter(household -> household.context().equals(zone.getRegionalContext()))
-				.collect(toList());
-		createAndSaveDemand.createAndSave(selectedHouseholds, zone, attributeResolver);
+	  createAndSaveDemand.createAndSave(households, region, attributeResolver);
 	}
 
 	private PanelDataRepository panelData() {
