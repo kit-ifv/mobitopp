@@ -100,8 +100,7 @@ public class WeightedHouseholds {
     List<WeightedHousehold> newHouseholds = new LinkedList<>();
     for (int index = 0; index < weights.length; index++) {
       HouseholdOfPanelData panelHousehold = households.get(index % numberOfHouseholds());
-      String zoneId = zones.get(index / numberOfHouseholds()).getExternalId();
-      RegionalContext context = new DefaultRegionalContext(RegionalLevel.zone, zoneId);
+      RegionalContext context = zones.get(index / numberOfHouseholds()).getRegionalContext();
       WeightedHousehold newHousehold = new WeightedHousehold(weights[index], context,
           panelHousehold);
       newHouseholds.add(newHousehold);

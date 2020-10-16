@@ -59,6 +59,9 @@ public class WeightedHouseholdsTest {
     when(someZone.getExternalId()).thenReturn("some zone");
     when(otherZone.getExternalId()).thenReturn("other zone");
     when(anotherZone.getExternalId()).thenReturn("another zone");
+    when(someZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "some zone"));
+    when(otherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "other zone"));
+    when(anotherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "another zone"));
     List<DemandZone> someDistrictZones = List.of(someZone, otherZone);
     List<DemandZone> otherDistrictZones = List.of(anotherZone);
     List<DemandZone> allZones = new ArrayList<>(someDistrictZones);
