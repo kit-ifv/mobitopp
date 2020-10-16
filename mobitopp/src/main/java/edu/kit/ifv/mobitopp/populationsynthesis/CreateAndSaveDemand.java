@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import java.util.List;
 
+import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeResolver;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.DemandCreator;
@@ -18,32 +19,41 @@ public class CreateAndSaveDemand {
 	private final DemandCreatorFactory demandCreatorFactory;
 
 	public void createAndSave(
-			final List<WeightedHousehold> households, final DemandZone forZone,
+			final List<WeightedHousehold> households, final DemandRegion region,
 			final AttributeResolver attributeResolver) {
-		List<HouseholdForSetup> demand = createDemand(households, forZone, attributeResolver);
-		save(demand, forZone);
+		List<HouseholdForSetup> demand = createDemand(households, region, attributeResolver);
+		save(demand, region);
 	}
 
 	private List<HouseholdForSetup> createDemand(
-			final List<WeightedHousehold> households, final DemandZone zone,
+			final List<WeightedHousehold> households, final DemandRegion region,
 			final AttributeResolver attributeResolver) {
-		DemandCreator create = createDemandCreator(zone, attributeResolver);
+		DemandCreator create = createDemandCreator(region, attributeResolver);
 		return create.demandFor(households);
 	}
 
 	private DemandCreator createDemandCreator(
-			final DemandZone zone, final AttributeResolver attributeResolver) {
-		return demandCreatorFactory.create(zone, attributeResolver);
+			final DemandRegion region, final AttributeResolver attributeResolver) {
+		return demandCreatorFactory.create(region, attributeResolver);
 	}
 
-	private void save(final List<HouseholdForSetup> demand, final DemandZone demandZone) {
-		for (HouseholdForSetup newHousehold : demand) {
-			log(newHousehold);
-			demandZone.getPopulation().addHousehold(newHousehold);
-		}
+	private void save(final List<HouseholdForSetup> demand, final DemandRegion region) {
+	  region.zones().forEach(toZone -> addHouseholdsOf(demand, toZone));
 	}
 
-	private void log(final HouseholdForSetup newHousehold) {
+  private void addHouseholdsOf(List<HouseholdForSetup> demand, DemandZone zone) {
+    demand
+        .stream()
+        .filter(household -> zone.getId().equals(household.homeZone().getId()))
+        .forEach(household -> addHousehold(zone, household));
+  }
+
+  protected void addHousehold(DemandZone zone, HouseholdForSetup household) {
+    zone.getPopulation().addHousehold(household);
+    log(household);
+  }
+
+  private void log(final HouseholdForSetup newHousehold) {
 		results.write(categories.demanddataResult, newHousehold.toString());
 	}
 
