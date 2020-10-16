@@ -7,15 +7,16 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-@AllArgsConstructor
 public class HouseholdAttributes {
 
 	public final int oid;
 	public final HouseholdId id;
 	public final int nominalSize;
 	public final int domCode;
+	public final int type;
 	public final Zone homeZone;
 	public final Location homeLocation;
 	public final int numberOfMinors;

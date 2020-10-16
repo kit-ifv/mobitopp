@@ -115,7 +115,7 @@ public class HouseholdTypeTest {
 		short year = 0;
 		long householdNumber = 0;
 		HouseholdId householdId = new HouseholdId(householdIds++, year, householdNumber);
-		return new HouseholdForDemand(householdId, nominalSize, 0, null, null, 0, 0, 0, 0, 0,
+		return new HouseholdForDemand(householdId, nominalSize, 0, 0, null, null, 0, 0, 0, 0, 0,
 				EconomicalStatus.veryLow, false);
 	}
 

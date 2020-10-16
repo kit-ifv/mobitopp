@@ -10,6 +10,8 @@ import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 public interface BaseHousehold {
 
 	HouseholdId getId();
+	
+	int type();
 
 	Zone homeZone();
 

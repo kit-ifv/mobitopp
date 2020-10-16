@@ -21,6 +21,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	private final HouseholdId householdId;
 	private final int nominalSize;
 	private final int domcode;
+	private final int type;
 	private final Zone homeZone;
 	private final Location homeLocation;
 	private final int numberOfMinors;
@@ -35,13 +36,14 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	private HouseholdForDemand household;
 
 	public DefaultHouseholdForSetup(
-			HouseholdId householdId, int nominalSize, int domcode, Zone zone, Location location,
+			HouseholdId householdId, int nominalSize, int domcode, int type, Zone zone, Location location,
 			int numberOfMinors, int numberOfNotSimulatedChildren, int nominalNumberOfCars, int income,
 			int incomeClass, EconomicalStatus economicalStatus, boolean canChargePrivately) {
 		super();
 		this.householdId = householdId;
 		this.nominalSize = nominalSize;
 		this.domcode = domcode;
+		this.type = type;
 		this.homeZone = zone;
 		this.homeLocation = location;
 		this.numberOfMinors = numberOfMinors;
@@ -70,18 +72,18 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		return persons.stream();
 	}
 
-	@Override
-	public Household toHousehold() {
-		household = new HouseholdForDemand(getId(), nominalSize(), domcode, homeZone(), homeLocation(),
-				numberOfMinors(), numberOfNotSimulatedChildren(), ownedCars.size(), monthlyIncomeEur(),
-				incomeClass(), economicalStatus(), canChargePrivately());
-		persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
-		List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
-		household.ownCars(cars);
-		cars.stream().filter(PrivateCar::isPersonal).forEach(this::assignPersonalCar);
-		household.homeZone().getDemandData().getPopulationData().addHousehold(household);
-		return household;
-	}
+  @Override
+  public Household toHousehold() {
+    household = new HouseholdForDemand(getId(), nominalSize(), domcode, type, homeZone(),
+        homeLocation(), numberOfMinors(), numberOfNotSimulatedChildren(), ownedCars.size(),
+        monthlyIncomeEur(), incomeClass(), economicalStatus(), canChargePrivately());
+    persons.stream().map(person -> person.toPerson(household)).forEach(household::addPerson);
+    List<PrivateCar> cars = ownedCars.stream().map(car -> car.toCar(household)).collect(toList());
+    household.ownCars(cars);
+    cars.stream().filter(PrivateCar::isPersonal).forEach(this::assignPersonalCar);
+    household.homeZone().getDemandData().getPopulationData().addHousehold(household);
+    return household;
+  }
 
 	private void assignPersonalCar(PrivateCar car) {
 		household.getPerson(car.personalUser()).assignPersonalCar(car);
@@ -90,6 +92,11 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	@Override
 	public HouseholdId getId() {
 		return householdId;
+	}
+	
+	@Override
+	public int type() {
+	  return type;
 	}
 
 	@Override
@@ -198,11 +205,11 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 		return numberOfNotSimulatedChildren;
 	}
 
-	@Override
-	public HouseholdAttributes attributes() {
-		return new HouseholdAttributes(householdId.getOid(), householdId, nominalSize, domcode,
-				homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren, getNumberOfOwnedCars(),
-				income, incomeClass, economicalStatus, canChargePrivately);
-	}
+  @Override
+  public HouseholdAttributes attributes() {
+    return new HouseholdAttributes(householdId.getOid(), householdId, nominalSize, domcode, type,
+        homeZone, homeLocation, numberOfMinors, numberOfNotSimulatedChildren,
+        getNumberOfOwnedCars(), income, incomeClass, economicalStatus, canChargePrivately);
+  }
 
 }

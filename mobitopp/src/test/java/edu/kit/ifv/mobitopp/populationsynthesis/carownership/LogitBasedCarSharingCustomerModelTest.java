@@ -77,6 +77,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			null, // id
 																			6, // nominalSize
 																			0, // domcode
+                                      1, // type
 																			zone(),
 																			null, // Location
 																			5, // number of minors
@@ -92,6 +93,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			null, // id
 																			3, // nominalSize
 																			0, // domcode
+                                      1, // type
 																			zone(),
 																			null, // Location
 																			1, // number of minors
@@ -171,6 +173,7 @@ public class LogitBasedCarSharingCustomerModelTest {
 																			null, // id
 																			nominalSize, // nominalSize
 																			0, // domcode
+                                      1, // type
 																			null, // zone,
 																			null, // Location
 																			nominalSize-1, // number of minors

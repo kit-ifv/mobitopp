@@ -25,25 +25,26 @@ public class DefaultHouseholdCreator implements HouseholdCreator {
 		oids = 0;
 	}
 
-	@Override
-	public HouseholdForSetup createHousehold(HouseholdOfPanelData household, Zone zone) {
-		int oid = oids++;
-		HouseholdId id = new HouseholdId(oid, household.id().getYear(),
-				household.id().getHouseholdNumber());
-		int nominalSize = household.size();
-		int domcode = household.domCode();
-		Location location = householdLocationSelector.selectLocation(zone);
-		int numberOfMinors = household.numberOfMinors();
-		int numberOfNotSimulatedChildren = household.numberOfNotReportingChildren();
-		int totalNumberOfCars = household.numberOfCars();
-		int income = household.income();
-		int incomeClass = household.incomeClass();
-		EconomicalStatus economicalStatus = economicalStatusCalculator
-				.calculateFor(nominalSize, numberOfMinors, income);
-		boolean canChargePrivately = canChargePrivatelySelector.canChargeAt(zone);
-		return new DefaultHouseholdForSetup(id, nominalSize, domcode, zone, location, numberOfMinors,
-				numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass, economicalStatus,
-				canChargePrivately);
-	}
+  @Override
+  public HouseholdForSetup createHousehold(final HouseholdOfPanelData household, final Zone zone) {
+    int oid = oids++;
+    HouseholdId id = new HouseholdId(oid, household.id().getYear(),
+        household.id().getHouseholdNumber());
+    int nominalSize = household.size();
+    int domcode = household.domCode();
+    int type = household.type();
+    Location location = householdLocationSelector.selectLocation(zone);
+    int numberOfMinors = household.numberOfMinors();
+    int numberOfNotSimulatedChildren = household.numberOfNotReportingChildren();
+    int totalNumberOfCars = household.numberOfCars();
+    int income = household.income();
+    int incomeClass = household.incomeClass();
+    EconomicalStatus economicalStatus = economicalStatusCalculator
+        .calculateFor(nominalSize, numberOfMinors, income);
+    boolean canChargePrivately = canChargePrivatelySelector.canChargeAt(zone);
+    return new DefaultHouseholdForSetup(id, nominalSize, domcode, type, zone, location,
+        numberOfMinors, numberOfNotSimulatedChildren, totalNumberOfCars, income, incomeClass,
+        economicalStatus, canChargePrivately);
+  }
 
 }
