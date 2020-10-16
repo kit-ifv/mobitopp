@@ -251,11 +251,6 @@ public class WeightedHouseholdsTest {
         .contains(new WeightedHousehold(expectedWeights[5], anotherContext, setup.otherPanelHousehold));
   }
   
-  @Test
-  void ignoreHouseholdsWithIncorrectWeight() throws Exception {
-    throw new RuntimeException("Implement this");
-  }
-
   @ParameterizedTest
   @MethodSource("scenarios")
   void calculateGoodnessOfFit(Setup setup) throws Exception {
