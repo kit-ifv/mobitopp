@@ -1,5 +1,9 @@
 package edu.kit.ifv.mobitopp.data;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.populationsynthesis.DataForZone;
@@ -71,6 +75,14 @@ public class Zone {
 	
 	public double getRelief() {
 		return zoneProperties.getRelief();
+	}
+	
+	public Optional<Value> getProperty(String name) {
+	  return Optional.ofNullable(zoneProperties.getZoneProperties().get(name));
+	}
+	
+	public Map<String, Value> getProperties() {
+	  return Collections.unmodifiableMap(zoneProperties.getZoneProperties());
 	}
 
 	public DataForZone getDemandData() 

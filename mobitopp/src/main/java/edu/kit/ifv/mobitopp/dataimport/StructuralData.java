@@ -3,7 +3,10 @@ package edu.kit.ifv.mobitopp.dataimport;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
+import edu.kit.ifv.mobitopp.data.Value;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 
 public class StructuralData {
@@ -120,6 +123,16 @@ public class StructuralData {
 
   public int currentRegion() {
     return Integer.parseInt(structuralData.getValue(row, idColumn()));
+  }
+
+  public Map<String, Value> getValues(String zoneId) {
+    List<String> attributes = structuralData.getAttributes();
+    Function<String, Value> toValue = attribute -> toValue(zoneId, attribute);
+    return attributes.stream().collect(StreamUtils.toLinkedMap(Function.identity(), toValue ));
+  }
+  
+  private Value toValue(String zoneId, String attribute) {
+    return new Value(getValue(zoneId, attribute));
   }
 
 }

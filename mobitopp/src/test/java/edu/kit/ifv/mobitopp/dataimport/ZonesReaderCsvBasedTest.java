@@ -118,17 +118,22 @@ public class ZonesReaderCsvBasedTest {
     List<Zone> zones = reader.getZones();
 
     Zone zone = zones.get(0);
-		assertAll(() -> assertThat(zone.getId().getExternalId()).isEqualTo("" + someZoneId),
-				() -> assertThat(zone.getName()).isEqualTo(someZoneName),
-				() -> assertThat(zone.getAreaType()).isEqualTo(ZoneAreaType.CITYOUTSKIRT),
-				() -> assertThat(zone.getRegionType()).isEqualTo(new DefaultRegionType(1)),
-				() -> assertThat(zone.getClassification()).isEqualTo(ZoneClassificationType.studyArea),
-				() -> assertThat(zone.bikeSharing()).isEqualTo(bikeSharingData),
-				() -> assertThat(zone.carSharing()).isEqualTo(carSharingData),
-				() -> assertThat(zone.charging()).isEqualTo(chargingData),
-				() -> assertThat(zone.attractivities()).isEqualTo(attractivities),
-				() -> assertThat(zone.getNumberOfParkingPlaces()).isEqualTo(parkingFacilities),
-				() -> assertThat(zone.centroidLocation()).isEqualTo(dummyLocation()));
+    String missingProperty = "NAME";
+    String existingProperty = "zoneClassification";
+    assertAll(() -> assertThat(zone.getId().getExternalId()).isEqualTo("" + someZoneId),
+        () -> assertThat(zone.getName()).isEqualTo(someZoneName),
+        () -> assertThat(zone.getAreaType()).isEqualTo(ZoneAreaType.CITYOUTSKIRT),
+        () -> assertThat(zone.getRegionType()).isEqualTo(new DefaultRegionType(1)),
+        () -> assertThat(zone.getClassification()).isEqualTo(ZoneClassificationType.studyArea),
+        () -> assertThat(zone.bikeSharing()).isEqualTo(bikeSharingData),
+        () -> assertThat(zone.carSharing()).isEqualTo(carSharingData),
+        () -> assertThat(zone.charging()).isEqualTo(chargingData),
+        () -> assertThat(zone.attractivities()).isEqualTo(attractivities),
+        () -> assertThat(zone.getNumberOfParkingPlaces()).isEqualTo(parkingFacilities),
+        () -> assertThat(zone.centroidLocation()).isEqualTo(dummyLocation()),
+        () -> assertThat(zone.getProperty(missingProperty)).isEmpty(),
+        () -> assertThat(zone.getProperty(existingProperty))
+            .hasValue(structuralData.getValues("" + someZoneId).get(existingProperty)));
   }
 
 	private ZonesReaderCsvBased newReader() {

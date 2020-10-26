@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
+import java.util.Map;
+
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.dataimport.RegionType;
 import edu.kit.ifv.mobitopp.simulation.Location;
@@ -23,5 +25,6 @@ public class ZoneProperties {
 	private final boolean isDestination;
 	@NonNull private final Location centroidLocation;
 	private double relief;
+	@NonNull private final Map<String, Value> zoneProperties;
 
 }
