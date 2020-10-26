@@ -9,12 +9,12 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 public class OnlyAllZonesCalculator implements DemandDataForDemandRegionCalculator {
 
   private final DemandDataForDemandRegionCalculator other;
-  private final Predicate<DemandRegion> filter;
+  private final Predicate<DemandRegion> predicate;
 
   public OnlyAllZonesCalculator(
-      final DemandDataForDemandRegionCalculator other, final Predicate<DemandRegion> filter) {
+      final DemandDataForDemandRegionCalculator other, final Predicate<DemandRegion> predicate) {
     this.other = other;
-    this.filter = filter;
+    this.predicate = predicate;
   }
 
   public OnlyAllZonesCalculator(DemandDataForDemandRegionCalculator other) {
@@ -23,7 +23,7 @@ public class OnlyAllZonesCalculator implements DemandDataForDemandRegionCalculat
 
   @Override
   public void calculateDemandData(DemandRegion region, ImpedanceIfc impedance) {
-    if (filter.test(region)) {
+    if (predicate.test(region)) {
       other.calculateDemandData(region, impedance);
     }
   }

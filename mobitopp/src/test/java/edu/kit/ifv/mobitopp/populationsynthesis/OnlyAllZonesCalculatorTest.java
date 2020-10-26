@@ -23,7 +23,7 @@ public class OnlyAllZonesCalculatorTest {
 
   @Test
   void executeIfAccepted() throws Exception {
-    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> false);
+    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> true);
     
     calculator.calculateDemandData(region, impedance);
     
@@ -32,7 +32,7 @@ public class OnlyAllZonesCalculatorTest {
   
   @Test
   void doNothingIfNotAccepted() throws Exception {
-    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> true);
+    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> false);
     
     calculator.calculateDemandData(region, impedance);
     
