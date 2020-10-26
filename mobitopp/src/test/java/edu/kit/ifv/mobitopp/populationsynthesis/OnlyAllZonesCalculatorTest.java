@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,6 @@ public class OnlyAllZonesCalculatorTest {
     
     calculator.calculateDemandData(region, impedance);
     
-    verify(other).calculateDemandData(region, impedance);
+    verifyZeroInteractions(other);
   }
 }
