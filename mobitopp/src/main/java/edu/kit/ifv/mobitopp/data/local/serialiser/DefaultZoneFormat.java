@@ -3,8 +3,10 @@ package edu.kit.ifv.mobitopp.data.local.serialiser;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
+import edu.kit.ifv.mobitopp.data.Value;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
@@ -18,6 +20,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
@@ -74,6 +77,7 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 				.centroidLocation(locationOf(data))
 				.isDestination(isDestinationOf(data))
 				.relief(reliefOf(data))
+				.zoneProperties(zonePropertiesOf(data))
 				.build();
 		Attractivities attractivities = attractivitiesOf(data);
 		ChargingDataForZone charging = chargingOf(data);
@@ -124,6 +128,15 @@ public class DefaultZoneFormat implements SerialiserFormat<Zone> {
 
 	private double reliefOf(List<String> data) {
 		return columns.hasColumn("relief") ? columns.get("relief", data).asDouble() : 0.0d;
+	}
+	
+	private Map<String, Value> zonePropertiesOf(List<String> data) {
+    return columns
+        .header()
+        .stream()
+        .collect(StreamUtils
+            .toLinkedMap(Function.identity(),
+                attribute -> columns.get(attribute, data)));
 	}
 
 	private Attractivities attractivitiesOf(List<String> data) {

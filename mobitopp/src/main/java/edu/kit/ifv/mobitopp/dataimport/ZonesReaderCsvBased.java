@@ -109,6 +109,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 				.isDestination(isDestination)
 				.centroidLocation(centroid)
 				.relief(relief)
+				.zoneProperties(zonePropertiesData.getValues(visumId))
 				.build();
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
 		BikeSharingDataForZone bikeSharingData = getBikeSharingData(zone);

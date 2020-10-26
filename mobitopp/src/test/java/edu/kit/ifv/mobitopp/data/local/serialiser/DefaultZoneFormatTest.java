@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local.serialiser;
 
 import static edu.kit.ifv.mobitopp.util.TestUtil.assertValue;
+import static edu.kit.ifv.mobitopp.util.TestUtil.assertValues;
 import static java.lang.String.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -8,14 +9,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
+import edu.kit.ifv.mobitopp.data.Value;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
@@ -46,13 +49,13 @@ public class DefaultZoneFormatTest {
 	private DefaultZoneFormat format;
 	private Zone zone;
 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		AreaTypeRepository areaTypeRepository = new BicRepository();
 		Attractivities attractivity = new Attractivities();
 		ChargingDataForZone charging = mock(ChargingDataForZone.class);
 		ZoneId zoneId = new ZoneId(id, oid);
-		ZoneProperties zoneProperties = ZoneProperties
+    ZoneProperties zoneProperties = ZoneProperties
 				.builder()
 				.name(name)
 				.areaType(areaType)
@@ -62,6 +65,7 @@ public class DefaultZoneFormatTest {
 				.isDestination(isDestination)
 				.centroidLocation(centroidLocation)
 				.relief(relief)
+				.zoneProperties(allProperties())
 				.build();
 		zone = new Zone(zoneId, zoneProperties, attractivity, charging);
 		ChargingDataResolver chargingData = mock(ChargingDataResolver.class);
@@ -69,6 +73,22 @@ public class DefaultZoneFormatTest {
 		Map<Integer, Attractivities> attractivities = Collections.singletonMap(zoneId(), attractivity);
 		format = new DefaultZoneFormat(chargingData, attractivities, areaTypeRepository);
 	}
+
+  protected LinkedHashMap<String, Value> allProperties() {
+    LocationParser locationParser = new LocationParser();
+    LinkedHashMap<String, Value> properties = new LinkedHashMap<>();
+    properties.put("id", new Value(id));
+    properties.put("matrixColumn", new Value(String.valueOf(oid)));
+    properties.put("name", new Value(name));
+    properties.put("areaType", new Value(String.valueOf(areaType.getTypeAsInt())));
+    properties.put("regionType", new Value(String.valueOf(regionType.code())));
+    properties.put("classification", new Value(String.valueOf(classification)));
+    properties.put("parkingPlaces", new Value(String.valueOf(parkingPlaces)));
+    properties.put("isDestination", new Value(String.valueOf(isDestination)));
+    properties.put("centroidLocation", new Value(locationParser.serialise(centroidLocation)));
+    properties.put("relief", new Value(String.valueOf(relief)));
+    return properties;
+  }
 
 	private int zoneId() {
 		return Integer.parseInt(id);
@@ -106,6 +126,7 @@ public class DefaultZoneFormatTest {
 		assertValue(Zone::getClassification, parsedZone, zone);
 		assertValue(Zone::getNumberOfParkingPlaces, parsedZone, zone);
 		assertValue(Zone::centroidLocation, parsedZone, zone);
-		assertValue(Zone::attractivities, parsedZone, zone);
+    assertValue(Zone::attractivities, parsedZone, zone);
+    assertValues(Zone::getProperties, parsedZone, zone);
 	}
 }

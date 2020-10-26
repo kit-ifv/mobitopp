@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import java.util.Map;
+
+import edu.kit.ifv.mobitopp.data.Value;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
@@ -63,5 +66,9 @@ public class ZonePropertiesData {
 	public double relief(String zoneId) {
 		return data.valueOrDefaultAsDouble(zoneId, relief);
 	}
+
+  public Map<String, Value> getValues(String zoneId) {
+    return data.getValues(zoneId);
+  }
 
 }

@@ -5,13 +5,16 @@ import static org.assertj.core.data.Offset.offset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import edu.kit.ifv.mobitopp.data.Value;
 
 public class StructuralDataTest {
 
@@ -88,6 +91,15 @@ public class StructuralDataTest {
     assertTrue(hasNameValue);
     assertFalse(hasNoPrivateVisitValue);
     assertFalse(missingZone);
+  }
+  
+  @Test
+  void valuesForZone() throws Exception {
+    Map<String, Value> values = demographyData.getValues(firstZone);
+    
+    assertThat(values)
+        .containsEntry("NAME", new Value("Zone 1"))
+        .containsEntry("age_m:0-5", new Value("119.4392138"));
   }
   
   @Test
