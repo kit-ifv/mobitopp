@@ -90,10 +90,10 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 	public PersonState currentState() {
 		return this.state;
 	}
+	
 	public SimulationOptions options() {
 		return this.options;
 	}
-
 
 	public boolean rideOfferAccepted() { return this.rideOfferAccepted; }
 	public void acceptRideOffer() { this.rideOfferAccepted=true; }
@@ -107,18 +107,31 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 
 		assert firstActivity != null;
 		assert !firstActivity.isRunning();
-		assert firstActivity.activityType().isHomeActivity();
+    assert firstActivity.activityType().isHomeActivity();
 
-		
-    firstActivity
-        .setLocation(new ZoneAndLocation(person().household().homeZone(),
-            person().household().homeLocation()));
+    ZoneAndLocation zoneAndlocation = getFixedLocationFor(firstActivity.activityType());
+    firstActivity.setLocation(zoneAndlocation);
 
-		firstActivity.setRunning(true);
+    firstActivity.setRunning(true);
 		notifyStartActivity(person(), firstActivity);
 
 		updateState(queue, options.simulationStart());
 	}
+
+  private ZoneAndLocation getFixedLocationFor(final ActivityType activityType) {
+    if (ActivityType.HOME.equals(activityType)) {
+      return new ZoneAndLocation(person().household().homeZone(),
+          person().household().homeLocation());
+    }
+    if (person().hasFixedZoneFor(activityType)) {
+      Location location = person().fixedDestinationFor(activityType);
+      Zone zone = person().fixedZoneFor(activityType);
+      return new ZoneAndLocation(zone, location);
+    }
+    throw new IllegalStateException(String
+        .format("Agent %s misses fixed destination for activity type %s", person().getOid(),
+            activityType));
+  }
 
 	private void notifyStartActivity(Person person, ActivityIfc firstActivity) {
 		listener.notifyStartActivity(person, firstActivity);
