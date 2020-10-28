@@ -20,6 +20,7 @@ public enum StandardMode implements Mode {
 	TAXI(7),
 	CARSHARING_STATION(11),
 	CARSHARING_FREE(12),
+	E_SCOOTER(15),
 	PEDELEC(16),
 	BIKESHARING(17),
 	RIDE_POOLING(21),
