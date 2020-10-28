@@ -18,46 +18,47 @@ import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 public class TourBasedActivityPatternCreator {
 
 
-	public static TourBasedActivityPattern fromPatternActivityWeek(PatternActivityWeek activityWeek) {
-		
-		
-		List<TourBasedActivityPatternElement> elements = new ArrayList<TourBasedActivityPatternElement>();
-		
-		PatternActivity starthome = activityWeek.getPatternActivities().get(0);
-		assert starthome.getActivityType()==ActivityType.HOME : starthome;
-		elements.add(new HomeActivity(starthome.getWeekDayType(),SimpleActivity.fromPatternActivity(starthome)));
-	
+  public static TourBasedActivityPattern fromPatternActivityWeek(PatternActivityWeek activityWeek) {
+    List<TourBasedActivityPatternElement> elements = new ArrayList<>();
+
+    PatternActivity startActivity = activityWeek.getPatternActivities().get(0);
+    if (ActivityType.HOME.equals(startActivity.getActivityType())) {
+      assert startActivity.getActivityType() == ActivityType.HOME : startActivity;
+      elements
+          .add(new HomeActivity(startActivity.getWeekDayType(),
+              SimpleActivity.fromPatternActivity(startActivity)));
+    }
+    
 		List<List<PatternActivity>>  tours = asTours(activityWeek);
 	
-		for (List<PatternActivity> tour : tours) {
-		
-			assert !tour.isEmpty();
-	//		assert !(tour.size()==1 && tour.get(0).getActivityType()==ActivityType.HOME);
-			if(tour.size()==1 && tour.get(0).getActivityType()==ActivityType.HOME) {
-				PatternActivity home = tour.get(0);
-				assert home.getActivityType()==ActivityType.HOME;
-				elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
-				
-			} else {
-		
-				assert tour.get(0).getActivityType()!=ActivityType.HOME;
-				
-				if(!isSupertour(tour)) {
-					
-					TourPattern tourPattern = TourPattern.fromPatternActivities(tour);
-					
-					elements.add(tourPattern);
-					
-				} else {
-					SuperTourPattern tourPattern = asSuperTourPattern(tour);
-					elements.add(tourPattern);
-				}
-					
-				PatternActivity home = tour.get(tour.size()-1);
-				assert home.getActivityType()==ActivityType.HOME;
-				elements.add(new HomeActivity(home.getWeekDayType(),SimpleActivity.fromPatternActivity(home)));
-			}
-		}
+    for (List<PatternActivity> tour : tours) {
+
+      assert !tour.isEmpty();
+      if (tour.size() == 1 && tour.get(0).getActivityType() == ActivityType.HOME) {
+        PatternActivity home = tour.get(0);
+        elements
+            .add(new HomeActivity(home.getWeekDayType(), SimpleActivity.fromPatternActivity(home)));
+      } else {
+
+        assert tour.get(0).getActivityType() != ActivityType.HOME;
+
+        if (!isSupertour(tour)) {
+
+          TourPattern tourPattern = TourPattern.fromPatternActivities(tour);
+
+          elements.add(tourPattern);
+
+        } else {
+          SuperTourPattern tourPattern = asSuperTourPattern(tour);
+          elements.add(tourPattern);
+        }
+
+        PatternActivity home = tour.get(tour.size() - 1);
+        assert home.getActivityType() == ActivityType.HOME;
+        elements
+            .add(new HomeActivity(home.getWeekDayType(), SimpleActivity.fromPatternActivity(home)));
+      }
+    }
 		
 		return new TourBasedActivityPattern(elements);
 	}
@@ -110,34 +111,34 @@ public class TourBasedActivityPatternCreator {
 					).getKey();
 	}
 
-	static List<List<PatternActivity>> asTours(PatternActivityWeek week) {
-		List<List<PatternActivity>>  tours = new ArrayList<List<PatternActivity>>();
-		
-		List<PatternActivity>  tour = new ArrayList<PatternActivity>();
-		
-		boolean firstTrip = true;
-		
-		for(PatternActivity activity : week.getPatternActivities()) {
-		
-			tour.add(activity);
-			
-			if (activity.getActivityType() == ActivityType.HOME ) {
-				
-			//	if (tour.size() >= 2) {
-			if (!firstTrip) {
-					tours.add(tour);
-			}
-				tour = new ArrayList<PatternActivity>();
-			}
-			firstTrip = false;
-		}
-		
-		if (!tour.isEmpty()) {
-				tours.add(tour);
-		}
-		
-		return tours;
-	}
+  static List<List<PatternActivity>> asTours(PatternActivityWeek week) {
+    List<List<PatternActivity>> tours = new ArrayList<List<PatternActivity>>();
+
+    List<PatternActivity> tour = new ArrayList<PatternActivity>();
+
+    boolean firstTrip = true;
+
+    for (PatternActivity activity : week.getPatternActivities()) {
+
+      tour.add(activity);
+
+      if (activity.getActivityType() == ActivityType.HOME) {
+
+        // if (tour.size() >= 2) {
+        if (!firstTrip) {
+          tours.add(tour);
+        }
+        tour = new ArrayList<PatternActivity>();
+      }
+      firstTrip = false;
+    }
+
+    if (!tour.isEmpty()) {
+      tours.add(tour);
+    }
+
+    return tours;
+  }
 	
 	static List<Activity> fromPatternActivity(List<PatternActivity> activities) {
 		

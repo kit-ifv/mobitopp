@@ -1,12 +1,13 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -31,6 +32,7 @@ public class TourBasedActivityPatternCreatorTest {
 	static final String pattern_with_supertour = "-1;7;1125;-1;165;9;555;1125;194;9;3;1874;45;2;630;1920;45;9;720;2595;45;1;525;3360;225;7;810;4110;10;41;120;4930;10;7;1280;5060;20;42;30;6360;5;2;365;6395;20;7;1020;6780;20;41;110;7820;20;7;1230;7950;15;11;210;9195;15;7;180;9420;90;6;3;9690;89;7;1260;9780";
 	static final String pattern_with_supertour2 = "-1;7;630;-1;0;42;120;630;5;6;85;755;5;12;265;845;5;7;25;1115;5;12;5;1145;25;53;5;1175;20;53;100;1200;20;12;660;1320;15;3;135;1995;15;7;220;2145;5;12;150;2370;5;7;80;2525;5;12;1410;2610;30;53;20;4050;5;7;790;4075;25;3;240;4890;60;51;179;5190;31;7;90;5400;10;12;800;5500;30;3;219;6330;21;7;390;6570;15;51;165;6975;15;7;15;7155;5;12;740;7175;5;1;360;7920;5;7;1070;8285;5;1;120;9360;5;7;115;9485;5;12;385;9605;5;7;715;9995";
 	
+	static final String pattern_otherhome = "-1;9;6260;-1;15;1;315;6260;15;9;35;6590;20;1;200;6645;15;9;200;6860;15;7;9465;7060";
 	// static final String pattern_with_split_activity = "-1;7;582;-1;8;1;236;582;1;11;5;819;5;2;105;829;15;42;24;949;19;42;5;992;9;2;118;1006;2;11;3;1126;11;11;3;1140;6;7;809;1149;7;2;47;1965;8;1;60;2020;11;2;56;2091;9;2;56;2156;7;12;40;2219;8;2;71;2267;20;2;27;2358;4;2;11;2389;6;2;8;2406;2;7;979;2416;10;2;68;3405;10;1;8;3483;1;77;3;3492;1;7;224;3494;1;77;18;3719;9;7;1079;3746;11;1;237;4836;1;77;23;5074;1;7;127;5098;9;2;83;5234;10;1;87;5327;9;7;834;5423;9;1;142;6266;4;2;61;6412;8;1;106;6481;4;2;62;6591;6;2;3;6659;3;2;70;6665;3;2;3;6738;6;1;3;6747;1;11;6;6749;1;11;4;6756;2;1;176;6762;9;7;771;6947;7;11;37;7725;11;11;6;7773;3;42;11;7782;15;7;1569;7808;12;6;6;9389;10;51;88;9405;8;6;29;9501;10;7;1114;9540";
 	
 	
@@ -57,7 +59,7 @@ public class TourBasedActivityPatternCreatorTest {
 	List<PatternActivity> worktour_withservice;
 		 
 		 
-	@Before
+	@BeforeEach
 	public void initialise() {
 		 
 		 week = createActivityWeek();
@@ -167,6 +169,15 @@ public class TourBasedActivityPatternCreatorTest {
 		return tour;
 	}
 
+	@Test
+  void patternStartsAtOtherhome() throws Exception {
+    List<ActivityOfPanelData> activityOfPanelData = ActivityOfPanelData.parseActivities(pattern_otherhome);
+    PatternActivityWeek week = PatternActivityWeek.fromActivityOfPanelData(activityOfPanelData);
+    TourBasedActivityPattern tourPattern = TourBasedActivityPatternCreator.fromPatternActivityWeek(week);
+    List<ExtendedPatternActivity> patternActivities = tourPattern.asPatternActivities();
+    
+    assertThat(patternActivities.get(0).getActivityType()).isEqualTo(ActivityType.OTHERHOME);
+  }
 
 	@Test
 	public void asTours() {
@@ -434,7 +445,7 @@ public class TourBasedActivityPatternCreatorTest {
       Time start,
       RelativeTime duration
 			) {
-		return new PatternActivity(activityType, 15, start, (int) duration.toMinutes());
+		return new PatternActivity(activityType, 15, start, Math.toIntExact(duration.toMinutes()));
 	}
 	
 	
