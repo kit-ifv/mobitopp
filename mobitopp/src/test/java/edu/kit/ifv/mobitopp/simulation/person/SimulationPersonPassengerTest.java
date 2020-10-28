@@ -7,6 +7,7 @@ import static edu.kit.ifv.mobitopp.publictransport.model.Data.someTime;
 import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.another;
 import static edu.kit.ifv.mobitopp.simulation.person.DummyStates.some;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,20 +16,21 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -48,8 +50,8 @@ import edu.kit.ifv.mobitopp.simulation.PersonResults;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.StateChange;
-import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
@@ -63,12 +65,7 @@ public class SimulationPersonPassengerTest {
   private static final ActivityType defaultActivity = ActivityType.HOME;
   private static final int seed = 0;
 	private static final double randomNumber = 0.42d;
-
-  @Rule
-  public final TemporaryFolder baseFolder = new TemporaryFolder();
-  @Rule
-  public final ExpectedException thrown = ExpectedException.none();
-
+	
   private PublicTransportBehaviour boarder;
   private Person person;
   private SimulationOptions options;
@@ -89,7 +86,7 @@ public class SimulationPersonPassengerTest {
   private PersonResults results;
   private TripFactory tripFactory;
 
-  @Before
+  @BeforeEach
   public void initialise() throws Exception {
     createElements();
     initializeBehaviour();
@@ -187,7 +184,74 @@ public class SimulationPersonPassengerTest {
 				.createTrip(person, impedance, StandardMode.PUBLICTRANSPORT, firstActivity, firstActivity,
 						randomNumber)).thenReturn(trip);
 	}
+	
+	@Test
+  void initsTheFirstActivityWithFixedDestination() throws Exception {
+	  Zone otherZone = mock(Zone.class);
+	  ActivityType activityType = ActivityType.OTHERHOME;
+    when(firstActivity.activityType()).thenReturn(activityType);
+    when(person.hasFixedZoneFor(activityType)).thenReturn(true);
+	  when(person.fixedDestinationFor(activityType)).thenReturn(otherLocation());
+	  when(person.fixedZoneFor(activityType)).thenReturn(otherZone);
+	  when(household.homeLocation()).thenReturn(someLocation());
+	  when(household.homeZone()).thenReturn(zone);
+    List<ZoneAndLocation> locations = new LinkedList<>();
+    doAnswer(invocation -> locations.add(invocation.getArgument(0)))
+        .when(firstActivity)
+        .setLocation(any());
+    SimulationPersonPassenger personPassenger = newPerson();
+	  
+    ZoneAndLocation zoneAndLocation = locations.get(0);
+    assertThat(zoneAndLocation.location()).isEqualTo(otherLocation());
+    assertThat(zoneAndLocation.zone()).isEqualTo(otherZone);
+    
+    verify(firstActivity).setLocation(any());
+    verify(person).initSchedule(any(), any(), any());
+    verify(household, times(0)).homeLocation();
+    verify(household, times(0)).homeZone();
+  }
 
+	@Test
+  void initsTheFirstActivityWithHomeLocation() throws Exception {
+	  ActivityType activityType = ActivityType.HOME;
+    when(firstActivity.activityType()).thenReturn(activityType);
+	  when(household.homeLocation()).thenReturn(someLocation());
+    when(household.homeZone()).thenReturn(zone);
+    List<ZoneAndLocation> locations = new LinkedList<>();
+    doAnswer(invocation -> locations.add(invocation.getArgument(0)))
+        .when(firstActivity)
+        .setLocation(any());
+    SimulationPersonPassenger personPassenger = newPerson();
+    
+    ZoneAndLocation zoneAndLocation = locations.get(0);
+    assertThat(zoneAndLocation.location()).isEqualTo(someLocation());
+    assertThat(zoneAndLocation.zone()).isEqualTo(zone);
+    
+    verify(firstActivity).setLocation(any());
+    verify(person).initSchedule(any(), any(), any());
+    verify(household).homeLocation();
+    verify(household).homeZone();
+  }
+
+  @Test
+  void failsIfTheFirstActivityMissesFixedDestination() throws Exception {
+    ActivityType activityType = ActivityType.OTHERHOME;
+    when(firstActivity.activityType()).thenReturn(activityType);
+    when(person.hasFixedZoneFor(activityType)).thenReturn(false);
+    List<ZoneAndLocation> locations = new LinkedList<>();
+    doAnswer(invocation -> locations.add(invocation.getArgument(0)))
+        .when(firstActivity)
+        .setLocation(any());
+    
+    assertThrows(IllegalStateException.class, () -> newPerson());
+    
+    verify(person).initSchedule(any(), any(), any());
+    verify(person, times(0)).fixedDestinationFor(activityType);
+    verify(person, times(0)).fixedZoneFor(activityType);
+    verify(household, times(0)).homeLocation();
+    verify(household, times(0)).homeZone();
+  }
+	
   @Test
   public void boardsAndGetsOffTheFirstVehicleOnItsTrip() throws Exception {
     SimulationPerson simulationPerson = newPerson();
@@ -243,8 +307,7 @@ public class SimulationPersonPassengerTest {
     when(mockedTrip.mode()).thenReturn(StandardMode.CAR);
     SimulationPersonPassenger simulationPerson = newPerson();
 
-    thrown.expect(IllegalArgumentException.class);
-    simulationPerson.enterFirstStop(someTime());
+    assertThrows(IllegalArgumentException.class, () -> simulationPerson.enterFirstStop(someTime()));
   }
 
   @Test
