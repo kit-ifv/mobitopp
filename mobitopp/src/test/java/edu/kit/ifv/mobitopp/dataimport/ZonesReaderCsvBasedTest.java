@@ -120,6 +120,7 @@ public class ZonesReaderCsvBasedTest {
     Zone zone = zones.get(0);
     String missingProperty = "NAME";
     String existingProperty = "zoneClassification";
+    String resolvedPropertyName = existingProperty.toLowerCase();
     assertAll(() -> assertThat(zone.getId().getExternalId()).isEqualTo("" + someZoneId),
         () -> assertThat(zone.getName()).isEqualTo(someZoneName),
         () -> assertThat(zone.getAreaType()).isEqualTo(ZoneAreaType.CITYOUTSKIRT),
@@ -132,7 +133,7 @@ public class ZonesReaderCsvBasedTest {
         () -> assertThat(zone.getNumberOfParkingPlaces()).isEqualTo(parkingFacilities),
         () -> assertThat(zone.centroidLocation()).isEqualTo(dummyLocation()),
         () -> assertThat(zone.getProperty(missingProperty)).isEmpty(),
-        () -> assertThat(zone.getProperty(existingProperty))
+        () -> assertThat(zone.getProperty(resolvedPropertyName))
             .hasValue(structuralData.getValues("" + someZoneId).get(existingProperty)));
   }
 

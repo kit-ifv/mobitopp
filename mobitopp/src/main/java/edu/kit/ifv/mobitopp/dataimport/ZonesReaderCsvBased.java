@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.Attractivities;
 import edu.kit.ifv.mobitopp.data.MaasDataForZone;
+import edu.kit.ifv.mobitopp.data.Value;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneClassificationType;
 import edu.kit.ifv.mobitopp.data.ZoneId;
@@ -22,6 +24,7 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
 import edu.kit.ifv.mobitopp.simulation.emobility.ChargingDataForZone;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
@@ -109,7 +112,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 				.isDestination(isDestination)
 				.centroidLocation(centroid)
 				.relief(relief)
-				.zoneProperties(zonePropertiesData.getValues(visumId))
+				.zoneProperties(zonePropertiesFor(visumId))
 				.build();
 		Zone zone = new Zone(zoneId, zoneProperties, attractivities, chargingData);
 		BikeSharingDataForZone bikeSharingData = getBikeSharingData(zone);
@@ -118,6 +121,15 @@ public class ZonesReaderCsvBased implements ZonesReader {
     zone.setCarSharing(carSharingData);
     zone.setMaas(MaasDataForZone.everywhereAvailable());
     return zone;
+  }
+
+  private Map<String, Value> zonePropertiesFor(String visumId) {
+    return zonePropertiesData
+        .getValues(visumId)
+        .entrySet()
+        .stream()
+        .collect(StreamUtils
+            .toLinkedMap(entry -> entry.getKey().toLowerCase(), entry -> entry.getValue()));
   }
 
 	private BikeSharingDataForZone getBikeSharingData(Zone zone) {
