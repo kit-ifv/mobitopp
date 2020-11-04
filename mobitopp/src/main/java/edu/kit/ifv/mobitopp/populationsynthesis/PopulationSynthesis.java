@@ -37,7 +37,7 @@ public abstract class PopulationSynthesis {
 		performanceLogger = new StopWatch(LocalDateTime::now);
 	}
 
-	SynthesisContext context() {
+	protected SynthesisContext context() {
 		return context;
 	}
 
