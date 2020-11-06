@@ -194,7 +194,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		return Math.max(1, estimatedNumber);
 	}
 
-	private double averageLocationSize(
+	protected double averageLocationSize(
 		ActivityType activityType
 	) {
 
