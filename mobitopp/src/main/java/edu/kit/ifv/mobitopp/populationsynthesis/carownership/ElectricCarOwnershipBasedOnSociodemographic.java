@@ -14,12 +14,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
+import edu.kit.ifv.mobitopp.util.parameter.ParameterFormularParser;
 
 public class ElectricCarOwnershipBasedOnSociodemographic
 		implements ProbabilityForElectricCarOwnershipModel {
@@ -84,7 +85,7 @@ public class ElectricCarOwnershipBasedOnSociodemographic
 
 	public ElectricCarOwnershipBasedOnSociodemographic(ImpedanceIfc impedance, String configFile) {
 		this.impedance = impedance;
-		new ParameterFileParser().parseConfig(configFile, this);
+		new ParameterFormularParser().parseConfig(Convert.asFile(configFile), this);
 	}
 
 	@Override
