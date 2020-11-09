@@ -7,18 +7,14 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
+public interface DestinationChoiceModel {
 
-public interface DestinationChoiceModel
-{
+  Zone selectDestination(
+      Person person, Optional<Mode> tourMode, ActivityIfc previousActivity,
+      ActivityIfc nextActivity, double randomNumber);
 
-  public Zone selectDestination(
-      Person person, 
-      Optional<Mode> tourMode,
-      ActivityIfc previousActivity,
-      ActivityIfc nextActivity,
-			double randomNumber
-	);
-  
-  public boolean isTourBased();
+  default boolean isTourBased() {
+    return false;
+  }
 
 }
