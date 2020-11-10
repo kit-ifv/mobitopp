@@ -71,8 +71,8 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 		float pref_publictransport
 	) {
 		verifyId(personId);
-		verifyAge(age);
-		verifyGender(genderType);
+		verifyAge(age, personId);
+		verifyGender(genderType, personId);
 
 		this.id = personId;
 		this.genderType = (byte) genderType;
@@ -99,11 +99,12 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 		this.pref_publictransport = pref_publictransport;
 	}
 
-	private void verifyGender(int genderType) {
-		if (genderType != 1 && genderType != 2) {
-			throw new IllegalArgumentException("Invalid value for gender: " + genderType);
-		}
-	}
+  private void verifyGender(int genderType, PersonOfPanelDataId personId) {
+    if (genderType != 1 && genderType != 2) {
+      throw new IllegalArgumentException(
+          String.format("%s is an invalid value for gender of %s.", genderType, personId));
+    }
+  }
 
 	private void verifyId(PersonOfPanelDataId personId) {
 		if (null == personId) {
@@ -111,14 +112,16 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 		}
 	}
 
-	private void verifyAge(int age) {
-		if (age < 0) {
-			throw new IllegalArgumentException("Age is lower than 0: " + age);
-		}
-		if (age > 120) {
-			throw new IllegalArgumentException("Age is higher than 120: " + age);
-		}
-	}
+  private void verifyAge(int age, PersonOfPanelDataId personId) {
+    if (age < 0) {
+      throw new IllegalArgumentException(
+          String.format("Age %s is lower than 0 for %s.", age, personId));
+    }
+    if (age > 120) {
+      throw new IllegalArgumentException(
+          String.format("Age %s is higher than 120 for %s.", age, personId));
+    }
+  }
 
 	public int getGenderTypeAsInt() {
 		return getGenderType();
