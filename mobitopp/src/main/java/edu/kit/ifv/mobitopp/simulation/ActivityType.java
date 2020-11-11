@@ -79,7 +79,8 @@ public enum ActivityType
 				|| type == LEISURE_INDOOR
 				|| type == LEISURE_OUTDOOR
 				|| type == LEISURE_OTHER
-				|| type == LEISURE_WALK
+		    || type == LEISURE_WALK
+		    || type == LEISURE_SIGHTSEEING
 				|| type == PRIVATE_VISIT
 		;
 	}
