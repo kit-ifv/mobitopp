@@ -4,6 +4,11 @@ import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 
+/**
+ * Execute the given step only of the predicate accepts the region.
+ * 
+ * @author Lars Briem
+ */
 public class FilterStep implements PopulationSynthesisStep {
 
   private final PopulationSynthesisStep other;
@@ -16,7 +21,7 @@ public class FilterStep implements PopulationSynthesisStep {
   }
 
   @Override
-  public void process(DemandRegion region) {
+  public void process(final DemandRegion region) {
     if (predicate.test(region)) {
       other.process(region);
     }
