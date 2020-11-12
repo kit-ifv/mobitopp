@@ -51,10 +51,20 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 	@Override
 	public Stream<DemandRegion> getCommutingRegionsFrom(ZoneId zoneId) {
 		final DemandRegion region = get(zoneId);
-		return commutingRelations.get(region).keySet().stream();
+		return commutingRelations.get(region).keySet().stream().filter(destination -> filter(destination, zoneId, region));
 	}
 	
-	DemandRegion get(ZoneId id) {
+  private boolean filter(DemandRegion destination, ZoneId zoneId, DemandRegion region) {
+    if (null == destination) {
+      System.out
+          .println(String
+              .format("Commuting relations for zone %s and region %s contains a reference to null.",
+                  zoneId, region));
+    }
+    return null != destination;
+  }
+
+  DemandRegion get(ZoneId id) {
 		return commutingRelations
 				.keySet()
 				.stream()
