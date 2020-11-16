@@ -14,6 +14,8 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 
 public class WeightedHouseholds {
 
+  private static final double lowestTotalWeight = 1e-6d;
+
   private static final List<RegionalLevel> orderOfRegionalLevels = createOrderOfRegionalLevels();
 
   private final List<HouseholdOfPanelData> households;
@@ -89,7 +91,7 @@ public class WeightedHouseholds {
       int householdIndex = weightsIndex % numberOfHouseholds();
       newWeight += weights[weightsIndex] * householdValues[householdIndex][attributeIndex];
     }
-    return 1e-6d < newWeight ? newWeight : 1e-6d;
+    return lowestTotalWeight < newWeight ? newWeight : lowestTotalWeight;
   }
 
   private int numberOfHouseholds() {

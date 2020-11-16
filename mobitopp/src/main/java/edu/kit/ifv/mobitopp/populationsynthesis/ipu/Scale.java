@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Scale implements WeightedHouseholdsConsumer {
 
+  private static final double lowestScalingFactor = 1e-6d;
   private final double[] weights;
   private final int[][] householdValues;
   private final List<Double> factors;
@@ -27,7 +28,7 @@ public class Scale implements WeightedHouseholdsConsumer {
 
   protected double ensureExistingFactor(double requestedWeight, double totalWeight) {
     double factor = requestedWeight / totalWeight;
-    return Double.isFinite(factor) ? factor : 1e-6d;
+    return Double.isFinite(factor) ? factor : lowestScalingFactor;
   }
 
   private void scaleWeights(
