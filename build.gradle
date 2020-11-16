@@ -40,7 +40,9 @@ subprojects {
         junit_migrationsupport: 'org.junit.jupiter:junit-jupiter-migrationsupport:' + versions.junit,
         junit_vintage: 'org.junit.vintage:junit-vintage-engine:' + versions.junit,
         mockito_core: 'org.mockito:mockito-core:' + versions.mockito,
-        mockito_junit_jupiter: 'org.mockito:mockito-junit-jupiter:' + versions.mockito
+        mockito_junit_jupiter: 'org.mockito:mockito-junit-jupiter:' + versions.mockito,
+        rhino_engine: 'org.mozilla:rhino-engine:1.7.13',
+        rhino: 'org.mozilla:rhino:1.7.13'
     ]
     
     configurations.all {

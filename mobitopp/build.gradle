@@ -24,7 +24,9 @@ dependencies {
     implementation libraries.actitopp,
             libraries.opencsv,
             libraries.commons_compress,
-            libraries.snakeyaml
+            libraries.snakeyaml,
+            libraries.rhino,
+            libraries.rhino_engine
     
     testAnnotationProcessor libraries.lombok
     
