@@ -15,8 +15,18 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 
 public class IpuSetupBuilder {
+  
+  public IpuSetupBuilder() {
+    super();
+  }
 
   public Stream<Setup> buildScenarios() {
+    Setup otherSetup = createOtherSetupBuilder().build();
+    Setup someSetup = createSomeSetupBuilder().build();
+    return Stream.of(someSetup, otherSetup);
+  }
+
+  public Setup.SetupBuilder createSomeSetupBuilder() {
     HouseholdOfPanelData somePanelHousehold = newPanelHousehold(someId);
     HouseholdOfPanelData otherPanelHousehold = newPanelHousehold(otherId);
     DemandZone someZone = mock(DemandZone.class);
@@ -33,7 +43,7 @@ public class IpuSetupBuilder {
     List<DemandZone> allZones = new ArrayList<>(someDistrictZones);
     allZones.addAll(otherDistrictZones);
     List<HouseholdOfPanelData> panelHouseholds = List.of(somePanelHousehold, otherPanelHousehold);
-    Setup someSetup = new Setup.SetupBuilder()
+    return new Setup.SetupBuilder()
         .scalingFactors(someExpectedFactors())
         .expectedWeights(someExpectedWeights())
         .initialGoodnessOfFit(0.670138888888889d)
@@ -43,9 +53,27 @@ public class IpuSetupBuilder {
         .otherZone(otherZone)
         .anotherZone(anotherZone)
         .somePanelHousehold(somePanelHousehold)
-        .otherPanelHousehold(otherPanelHousehold)
-        .build();
-    Setup otherSetup = new Setup.SetupBuilder()
+        .otherPanelHousehold(otherPanelHousehold);
+  }
+  
+  public Setup.SetupBuilder createOtherSetupBuilder() {
+    HouseholdOfPanelData somePanelHousehold = newPanelHousehold(someId);
+    HouseholdOfPanelData otherPanelHousehold = newPanelHousehold(otherId);
+    DemandZone someZone = mock(DemandZone.class);
+    DemandZone otherZone = mock(DemandZone.class);
+    DemandZone anotherZone = mock(DemandZone.class);
+    when(someZone.getExternalId()).thenReturn("some zone");
+    when(otherZone.getExternalId()).thenReturn("other zone");
+    when(anotherZone.getExternalId()).thenReturn("another zone");
+    when(someZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "some zone"));
+    when(otherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "other zone"));
+    when(anotherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "another zone"));
+    List<DemandZone> someDistrictZones = List.of(someZone, otherZone);
+    List<DemandZone> otherDistrictZones = List.of(anotherZone);
+    List<DemandZone> allZones = new ArrayList<>(someDistrictZones);
+    allZones.addAll(otherDistrictZones);
+    List<HouseholdOfPanelData> panelHouseholds = List.of(somePanelHousehold, otherPanelHousehold);
+    return new Setup.SetupBuilder()
         .scalingFactors(otherExpectedFactors())
         .expectedWeights(otherExpectedWeights())
         .initialGoodnessOfFit(0.458333333333333d)
@@ -55,11 +83,8 @@ public class IpuSetupBuilder {
         .otherZone(otherZone)
         .anotherZone(anotherZone)
         .somePanelHousehold(somePanelHousehold)
-        .otherPanelHousehold(otherPanelHousehold)
-        .build();
-    return Stream.of(someSetup, otherSetup);
+        .otherPanelHousehold(otherPanelHousehold);
   }
-
   
   private static final short year = 2020;
   private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
