@@ -72,9 +72,6 @@ public class WeightedHouseholds {
           int absoluteAttributeIndex = relativeAttribute
               + requestedWeightsList.getAtttributeOffset();
           double requestedWeight = requestedWeights[relativeAttribute];
-          if (0 == requestedWeight) {
-            continue;
-          }
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
           processor
               .process(offset, numberOfWeightsPerPart, absoluteAttributeIndex, requestedWeight,
@@ -92,7 +89,7 @@ public class WeightedHouseholds {
       int householdIndex = weightsIndex % numberOfHouseholds();
       newWeight += weights[weightsIndex] * householdValues[householdIndex][attributeIndex];
     }
-    return newWeight;
+    return 1e-6d < newWeight ? newWeight : 1e-6d;
   }
 
   private int numberOfHouseholds() {
