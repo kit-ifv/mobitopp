@@ -1,11 +1,13 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandZone;
@@ -86,6 +88,36 @@ public class IpuSetupBuilder {
         .otherPanelHousehold(otherPanelHousehold);
   }
   
+  public Setup.SetupBuilder createZeroWeightSetupBuilder() {
+    HouseholdOfPanelData somePanelHousehold = newPanelHousehold(someId);
+    HouseholdOfPanelData otherPanelHousehold = newPanelHousehold(otherId);
+    DemandZone someZone = mock(DemandZone.class);
+    DemandZone otherZone = mock(DemandZone.class);
+    DemandZone anotherZone = mock(DemandZone.class);
+    lenient().when(someZone.getExternalId()).thenReturn("some zone");
+    lenient().when(otherZone.getExternalId()).thenReturn("other zone");
+    lenient().when(anotherZone.getExternalId()).thenReturn("another zone");
+    lenient().when(someZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "some zone"));
+    lenient().when(otherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "other zone"));
+    lenient().when(anotherZone.getRegionalContext()).thenReturn(new DefaultRegionalContext(RegionalLevel.zone, "another zone"));
+    List<DemandZone> someDistrictZones = List.of(someZone, otherZone);
+    List<DemandZone> otherDistrictZones = List.of(anotherZone);
+    List<DemandZone> allZones = new ArrayList<>(someDistrictZones);
+    allZones.addAll(otherDistrictZones);
+    List<HouseholdOfPanelData> panelHouseholds = List.of(somePanelHousehold, otherPanelHousehold);
+    return new Setup.SetupBuilder()
+        .scalingFactors(otherExpectedFactors())
+        .expectedWeights(otherExpectedWeights())
+        .initialGoodnessOfFit(0.458333333333333d)
+        .scaledGoodnessOfFit(0.125d)
+        .weightedHouseholds(createZeroWeightedHouseholds(panelHouseholds, allZones))
+        .someZone(someZone)
+        .otherZone(otherZone)
+        .anotherZone(anotherZone)
+        .somePanelHousehold(somePanelHousehold)
+        .otherPanelHousehold(otherPanelHousehold);
+  }
+  
   private static final short year = 2020;
   private static final HouseholdOfPanelDataId someId = new HouseholdOfPanelDataId(year, 1);
   private static final HouseholdOfPanelDataId otherId = new HouseholdOfPanelDataId(year, 2);
@@ -114,18 +146,8 @@ public class IpuSetupBuilder {
 
   private WeightedHouseholds createSomeWeightedHouseholds(
       List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones) {
-    int numberOfHouseholds = panelHouseholds.size();
-    int numberOfWeights = numberOfHouseholds * allZones.size();
-    double[] weights = new double[numberOfWeights];
-    for (int index = 0; index < weights.length; index++) {
-      weights[index] = 1.0d;
-    }
-
-    Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping = createSomeWeightOffsetMapping(
-        numberOfHouseholds);
-    int[][] householdValues = createSomeHouseholdValues();
-    return new WeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
-        householdValues, allZones);
+    return createWeightedHouseholds(panelHouseholds, allZones, this::createSomeWeightOffsetMapping,
+        createSomeHouseholdValues());
   }
 
   private int[][] createSomeHouseholdValues() {
@@ -168,6 +190,14 @@ public class IpuSetupBuilder {
 
   private WeightedHouseholds createOtherWeightedHouseholds(
       List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones) {
+    return createWeightedHouseholds(panelHouseholds, allZones, this::createOtherWeightOffsetMapping,
+        createOtherHouseholdValues());
+  }
+
+  protected WeightedHouseholds createWeightedHouseholds(
+      List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones,
+      IntFunction<Map<RegionalLevel, List<RequestedWeights>>> toRequestedWeightsMapping,
+      int[][] householdValues) {
     int numberOfHouseholds = panelHouseholds.size();
     int numberOfWeights = numberOfHouseholds * allZones.size();
     double[] weights = new double[numberOfWeights];
@@ -175,9 +205,8 @@ public class IpuSetupBuilder {
       weights[index] = 1.0d;
     }
 
-    Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping = createOtherWeightOffsetMapping(
+    Map<RegionalLevel, List<RequestedWeights>> requestedWeightsMapping = toRequestedWeightsMapping.apply(
         numberOfHouseholds);
-    int[][] householdValues = createOtherHouseholdValues();
     return new WeightedHouseholds(panelHouseholds, weights, requestedWeightsMapping,
         householdValues, allZones);
   }
@@ -217,6 +246,46 @@ public class IpuSetupBuilder {
                     new RequestedWeights(new int[] { 3, 2 }, 4, numberOfHouseholds,
                         numberOfHouseholds),
                     new RequestedWeights(new int[] { 2, 3 }, 4, 2 * numberOfHouseholds,
+                        numberOfHouseholds)));
+  }
+  
+  private WeightedHouseholds createZeroWeightedHouseholds(
+      List<HouseholdOfPanelData> panelHouseholds, List<DemandZone> allZones) {
+    return createWeightedHouseholds(panelHouseholds, allZones, this::createZeroWeightOffsetMapping,
+        createSomeHouseholdValues());
+  }
+
+  /**
+   * <pre>
+        hs1 hs2 ag1 ag2 in1 in2
+  h1  h1   1   0   1   0   1   0
+  h2  h2   0   1   0   2   0   2
+  h1  h3   1   0   1   0   1   0
+  h2  h4   0   1   0   2   0   2
+  h1  h5   1   0   1   0   1   0
+  h2  h6   0   1   0   2   0   2
+           4   0   4   0   1   1
+                           3   2
+                   2   4   0   3
+   * </pre>
+   **/
+  private Map<RegionalLevel, List<RequestedWeights>> createZeroWeightOffsetMapping(
+      int numberOfHouseholds) {
+    return Map
+        .of(RegionalLevel.county, List.of(),
+            RegionalLevel.community,
+            List.of(new RequestedWeights(new int[] { 4, 0 }, 0, 0, 3 * numberOfHouseholds)),
+            RegionalLevel.district,
+            List
+                .of(new RequestedWeights(new int[] { 4, 0 }, 2, 0, 2 * numberOfHouseholds),
+                    new RequestedWeights(
+                        new int[] { 2, 4 }, 2, 2 * numberOfHouseholds, numberOfHouseholds)),
+            RegionalLevel.zone,
+            List
+                .of(new RequestedWeights(new int[] { 1, 1 }, 4, 0, numberOfHouseholds),
+                    new RequestedWeights(new int[] { 3, 2 }, 4, numberOfHouseholds,
+                        numberOfHouseholds),
+                    new RequestedWeights(new int[] { 0, 3 }, 4, 2 * numberOfHouseholds,
                         numberOfHouseholds)));
   }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -75,6 +76,15 @@ public class WeightedHouseholdsTest {
 
     assertThat(copied.weights()[0]).isCloseTo(originalWeight, Offset.offset(1e-6d));
     assertThat(cloned.weights()[0]).isCloseTo(originalWeight, Offset.offset(1e-6d));
+  }
+
+  @Test
+  void failsForRequestedWeightOfZero() throws Exception {
+    Setup setup = new IpuSetupBuilder().createZeroWeightSetupBuilder().build();
+    WeightedHouseholds weightedHouseholds = setup.getWeightedHouseholds();
+    weightedHouseholds.scale();
+    
+    assertThat(weightedHouseholds.weights()).doesNotContain(Double.NaN);
   }
   
 }
