@@ -72,6 +72,9 @@ public class WeightedHouseholds {
           int absoluteAttributeIndex = relativeAttribute
               + requestedWeightsList.getAtttributeOffset();
           double requestedWeight = requestedWeights[relativeAttribute];
+          if (0 == requestedWeight) {
+            continue;
+          }
           double totalWeight = totalWeight(absoluteAttributeIndex, offset, numberOfWeightsPerPart);
           processor
               .process(offset, numberOfWeightsPerPart, absoluteAttributeIndex, requestedWeight,
