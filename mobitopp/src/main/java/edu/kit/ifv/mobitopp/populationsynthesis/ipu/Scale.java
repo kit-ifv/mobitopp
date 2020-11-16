@@ -20,9 +20,14 @@ public class Scale implements WeightedHouseholdsConsumer {
   public void process(
       int offset, int numberOfWeightsPerPart, int absoluteAttributeIndex, double requestedWeight,
       double totalWeight) {
-    double withFactor = requestedWeight / totalWeight;
+    double withFactor = ensureExistingFactor(requestedWeight, totalWeight);
     factors.add(withFactor);
     scaleWeights(withFactor, absoluteAttributeIndex, offset, numberOfWeightsPerPart);
+  }
+
+  protected double ensureExistingFactor(double requestedWeight, double totalWeight) {
+    double factor = requestedWeight / totalWeight;
+    return Double.isFinite(factor) ? factor : 1e-6d;
   }
 
   private void scaleWeights(
