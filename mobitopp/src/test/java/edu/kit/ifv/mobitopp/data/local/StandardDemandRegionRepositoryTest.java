@@ -29,7 +29,7 @@ public class StandardDemandRegionRepositoryTest {
 		Map<RegionalContext, DemandRegion> mapping = Map.of(id, someRegion);
 		StandardDemandRegionRepository repository = new StandardDemandRegionRepository(mapping);
 		
-		assertThat(repository.getRegionWith(id)).isEqualTo(someRegion);
+		assertThat(repository.getRegionWith(id)).hasValue(someRegion);
 	}
 	
 	@Test
@@ -39,7 +39,7 @@ public class StandardDemandRegionRepositoryTest {
 		Map<RegionalContext, DemandRegion> mapping = Map.of(communityId, someRegion, zoneId, someZone);
 		StandardDemandRegionRepository repository = new StandardDemandRegionRepository(mapping);
 		
-		assertThat(repository.getRegionWith(communityId)).isEqualTo(someRegion);
+		assertThat(repository.getRegionWith(communityId)).hasValue(someRegion);
 	}
 	
 	@Test
