@@ -70,9 +70,9 @@ public class DemandRegionRepositoryBuilderTest {
 
 		DemandRegionRepository repository = builder.create();
 
-		DemandRegion community = repository.getRegionWith(RegionalLevel.community, communityId);
-		DemandRegion district = repository.getRegionWith(RegionalLevel.district, districtId);
-		DemandRegion zone = repository.getRegionWith(RegionalLevel.zone, zoneId);
+		DemandRegion community = repository.getRegionWith(RegionalLevel.community, communityId).get();
+		DemandRegion district = repository.getRegionWith(RegionalLevel.district, districtId).get();
+		DemandRegion zone = repository.getRegionWith(RegionalLevel.zone, zoneId).get();
 		assertThat(community.getRegionalContext()).isEqualTo(communityContext());
 		assertThat(community.parts())
 				.anyMatch(part -> districtContext().equals(part.getRegionalContext()));
@@ -91,9 +91,9 @@ public class DemandRegionRepositoryBuilderTest {
 
 		DemandRegionRepository repository = builder.create();
 
-		DemandRegion community = repository.getRegionWith(RegionalLevel.community, communityId);
-		DemandRegion zone = repository.getRegionWith(RegionalLevel.zone, zoneId);
-		assertThat(community).isNull();
+		Optional<DemandRegion> community = repository.getRegionWith(RegionalLevel.community, communityId);
+		DemandRegion zone = repository.getRegionWith(RegionalLevel.zone, zoneId).get();
+		assertThat(community).isEmpty();
 		assertThat(zone).isEqualTo(someZone);
 		verify(demandRegionMapping, never()).contentFor(any());
 	}
