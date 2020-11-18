@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +38,8 @@ public class DemandRegionRelationsParserTest {
 
 	@BeforeEach
 	public void beforeEach() {
-		when(regions.getRegionWith(community, someId)).thenReturn(someRegion);
-		when(regions.getRegionWith(community, otherId)).thenReturn(otherRegion);
+		when(regions.getRegionWith(community, someId)).thenReturn(Optional.of(someRegion));
+		when(regions.getRegionWith(community, otherId)).thenReturn(Optional.of(otherRegion));
 		relations = new LinkedList<>();
 	}
 
