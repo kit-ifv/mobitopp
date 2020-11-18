@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
@@ -29,12 +30,12 @@ public class StandardDemandRegionRepository implements DemandRegionRepository {
 	}
 
 	@Override
-	public DemandRegion getRegionWith(RegionalLevel level, String id) {
+	public Optional<DemandRegion> getRegionWith(RegionalLevel level, String id) {
 		return getRegionWith(new DefaultRegionalContext(level, id));
 	}
 
-	public DemandRegion getRegionWith(RegionalContext context) {
-		return mapping.get(context);
+	public Optional<DemandRegion> getRegionWith(RegionalContext context) {
+		return Optional.ofNullable(mapping.get(context));
 	}
 
 }
