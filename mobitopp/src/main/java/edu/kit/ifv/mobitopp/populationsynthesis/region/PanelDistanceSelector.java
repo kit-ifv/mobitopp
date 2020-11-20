@@ -42,10 +42,11 @@ public class PanelDistanceSelector implements DemandRegionOdPairSelector {
 	@Override
 	public Collection<OdPair> select(PersonBuilder person) {
 		TreeMap<Integer, List<OdPair>> zones = collectZonesByDistance(person);
-		if (zones.isEmpty()) {
-			throw new IllegalArgumentException(
-					"No zones to commute to are available for person: " + person.toString());
-		}
+    if (zones.isEmpty()) {
+      throw new IllegalArgumentException(String
+          .format("No zones to commute to are available for person %s living in %s ",
+              person.toString(), person.homeZone().getId()));
+    }
 		Collection<OdPair> possibleDestinations = selectZonesInRange(zones);
 		if (possibleDestinations.isEmpty()) {
 			return zones.firstEntry().getValue();
