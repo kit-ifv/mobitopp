@@ -7,9 +7,9 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +22,7 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleDemandZones;
 
 public class StandardDemandRegionRelationsRepositoryTest {
+  
 	private DemandZone someZone;
 	private DemandZone otherZone;
 	private DemandRegion someRegion;
@@ -48,10 +49,21 @@ public class StandardDemandRegionRelationsRepositoryTest {
 
 	@Test
 	void failsForMissingCommunity() throws Exception {
-		StandardDemandRegionRelationsRepository repository = newRepository();
+		StandardDemandRegionRelationsRepository repository = newRepository(List.of(otherRegion));
 
 		assertThrows(IllegalArgumentException.class, () -> repository.get(someZone.getId()));
 	}
+  
+  @Test
+  void getUnidirectionalRelation() throws Exception {
+    addRelation(someZone, otherZone, 1);
+    
+    StandardDemandRegionRelationsRepository repository = newRepository();
+    
+    DemandRegion demandRegion = repository.get(otherZone.getId());
+    
+    assertThat(demandRegion).isEqualTo(otherRegion);
+  }
 
 	@Test
 	void getCommunitiesOnEmptyRepository() throws Exception {
@@ -146,6 +158,12 @@ public class StandardDemandRegionRelationsRepositoryTest {
 	}
 
 	private StandardDemandRegionRelationsRepository newRepository() {
-		return new StandardDemandRegionRelationsRepository(relations);
+    Collection<DemandRegion> regions = List.of(someRegion, otherRegion);
+    return newRepository(regions);
 	}
+
+  protected StandardDemandRegionRelationsRepository newRepository(
+      final Collection<DemandRegion> regions) {
+    return new StandardDemandRegionRelationsRepository(relations, regions);
+  }
 }
