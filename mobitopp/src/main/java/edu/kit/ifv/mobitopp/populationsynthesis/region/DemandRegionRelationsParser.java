@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,7 +29,9 @@ public class DemandRegionRelationsParser {
 
 	public DemandRegionRelationsRepository parse(File input) {
 		load(input).forEach(this::parse);
-		return new StandardDemandRegionRelationsRepository(Collections.unmodifiableMap(relations));
+		Map<DemandRegion, Map<DemandRegion, Integer>> unmodifiableRelations = Collections.unmodifiableMap(relations);
+    Collection<DemandRegion> regions = repository.getRegionsOf(level);
+    return new StandardDemandRegionRelationsRepository(unmodifiableRelations, regions);
 	}
 
 	Stream<Row> load(File input) {

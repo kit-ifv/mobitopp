@@ -15,13 +15,16 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 public class StandardDemandRegionRelationsRepository implements DemandRegionRelationsRepository {
 
 	private final Map<DemandRegion, Map<DemandRegion, Integer>> commutingRelations;
+  private final Collection<DemandRegion> regions;
 
-	public StandardDemandRegionRelationsRepository(
-			Map<DemandRegion, Map<DemandRegion, Integer>> regionToRegion) {
-				this.commutingRelations = regionToRegion;
-	}
+  public StandardDemandRegionRelationsRepository(
+      final Map<DemandRegion, Map<DemandRegion, Integer>> regionToRegion,
+      final Collection<DemandRegion> regionRepository) {
+    this.commutingRelations = regionToRegion;
+    this.regions = regionRepository;
+  }
 
-	@Override
+  @Override
 	public Collection<DemandRegion> getRegions() {
 		return Collections.unmodifiableCollection(commutingRelations.keySet());
 	}
@@ -65,8 +68,7 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
   }
 
   DemandRegion get(ZoneId id) {
-		return commutingRelations
-				.keySet()
+		return this.regions
 				.stream()
 				.filter(c -> c.contains(id))
 				.findFirst()
