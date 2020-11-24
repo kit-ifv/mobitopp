@@ -16,7 +16,6 @@ subprojects {
         mavenLocal()
         mavenCentral()
         jcenter()
-        maven { url "http://mvn.collide.info/content/repositories/releases/" }
         maven { url "https://jitpack.io" }
     }
     
