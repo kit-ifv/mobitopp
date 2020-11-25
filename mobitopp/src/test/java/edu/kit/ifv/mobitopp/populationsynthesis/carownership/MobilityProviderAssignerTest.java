@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.carownership;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Map;
 
@@ -21,6 +22,7 @@ public class MobilityProviderAssignerTest {
 
   @Test
   void assignNewMembership() throws Exception {
+    when(someModel.estimateCustomership(person)).thenReturn(true);
     MobilityProviderAssigner assigner = new MobilityProviderAssigner(Map.of("some", someModel));
     
     assigner.accept(person);
