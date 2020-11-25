@@ -1,8 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
-import static java.util.Collections.emptyMap;
-
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class DefaultPersonForSetup implements PersonBuilder {
     this.hasPersonalCar = false;
     this.hasCommuterTicket = false;
     this.hasDrivingLicense = false;
-    this.mobilityProviderMembership = emptyMap();
+    this.mobilityProviderMembership = new LinkedHashMap<>();
     this.modeChoicePreferences = ModeChoicePreferences.NOPREFERENCES;
     this.travelTimeSensitivity = ModeChoicePreferences.NOPREFERENCES;
   }
@@ -311,6 +310,12 @@ public class DefaultPersonForSetup implements PersonBuilder {
   @Override
 	public Map<String, Boolean> getMobilityProviderMembership() {
   	return this.mobilityProviderMembership;
+  }
+  
+  @Override
+  public PersonBuilder setMobilityProviderMembership(String company, boolean membership) {
+    this.mobilityProviderMembership.put(company, membership);
+    return this;
   }
   
   @Override

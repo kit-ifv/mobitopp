@@ -276,6 +276,12 @@ public class EmobilityPersonBuilder implements PersonBuilder {
 	public Map<String, Boolean> getMobilityProviderMembership() {
 		return person.getMobilityProviderMembership();
 	}
+	
+	@Override
+	public PersonBuilder setMobilityProviderMembership(String company, boolean membership) {
+	  person.setMobilityProviderMembership(company, membership);
+	  return this;
+	}
 
 	@Override
 	public PersonBuilder setMobilityProviderMembership(Map<String, Boolean> membership) {

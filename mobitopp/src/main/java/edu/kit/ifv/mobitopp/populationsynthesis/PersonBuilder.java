@@ -121,6 +121,8 @@ public interface PersonBuilder extends BasePerson {
 
 	boolean hasActivityOfTypes(Collection<ActivityType> activityTypes);
 
+	PersonBuilder setMobilityProviderMembership(String company, boolean membership);
+	
 	PersonBuilder setMobilityProviderMembership(Map<String, Boolean> membership);
 
 	Map<String, Boolean> getMobilityProviderMembership();
