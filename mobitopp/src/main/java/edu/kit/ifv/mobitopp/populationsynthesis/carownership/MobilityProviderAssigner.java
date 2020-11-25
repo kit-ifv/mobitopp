@@ -18,7 +18,8 @@ public class MobilityProviderAssigner implements Consumer<PersonBuilder> {
     this.models.forEach((company, model) -> assign(person, model, company));
   }
 
-  private void assign(PersonBuilder person, MobilityProviderCustomerModel model, String company) {
+  private void assign(
+      final PersonBuilder person, final MobilityProviderCustomerModel model, final String company) {
     person.setMobilityProviderMembership(company, model.estimateCustomership(person));
   }
 
