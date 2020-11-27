@@ -50,10 +50,18 @@ public class DemandRegionDestinationSelector implements PopulationSynthesisStep 
 				.forEach(this::assignZone);
 	}
 
-	private void assignZone(final PersonBuilder person) {
-		final Collection<OdPair> relations = odPairSelector.select(person);
-		double randomNumber = random.getAsDouble();
-		zoneSelector.select(person, relations, randomNumber);
+  private void assignZone(final PersonBuilder person) {
+    try {
+      final Collection<OdPair> relations = odPairSelector.select(person);
+      double randomNumber = random.getAsDouble();
+      zoneSelector.select(person, relations, randomNumber);
+    } catch (IllegalArgumentException exception) {
+      System.out
+          .println(String
+              .format("Could not assign a destination for person %s: %s", person.getId(),
+                  exception));
+      exception.printStackTrace();
+    }
 	}
 
 }
