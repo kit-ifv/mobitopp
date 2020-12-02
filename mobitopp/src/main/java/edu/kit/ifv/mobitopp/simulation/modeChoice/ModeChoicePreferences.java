@@ -3,13 +3,16 @@ package edu.kit.ifv.mobitopp.simulation.modeChoice;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 
 public class ModeChoicePreferences 
 	implements Serializable
@@ -17,19 +20,17 @@ public class ModeChoicePreferences
 	
 	private static final long serialVersionUID = 1L;
 	
-	public static final ModeChoicePreferences NOPREFERENCES = createNopreferences();
+	public static final ModeChoicePreferences NOPREFERENCES = createAllSamePreferences(0.0d);
+
+	public static final ModeChoicePreferences ALL_SAME = createAllSamePreferences(1.0d);
 	
-	private static ModeChoicePreferences createNopreferences() {
-		Map<Mode,Double> tmp = new LinkedHashMap<Mode,Double>();
-		tmp.put(StandardMode.CAR, 0.0);
-		tmp.put(StandardMode.PASSENGER, 0.0);
-		tmp.put(StandardMode.PEDESTRIAN, 0.0);
-		tmp.put(StandardMode.BIKE, 0.0);
-		tmp.put(StandardMode.PUBLICTRANSPORT, 0.0);
-		
-		return new ModeChoicePreferences(Collections.unmodifiableMap(tmp));
+	private static ModeChoicePreferences createAllSamePreferences(double preference) {
+    return new ModeChoicePreferences(Collections
+        .unmodifiableMap(EnumSet
+            .allOf(StandardMode.class)
+            .stream()
+            .collect(StreamUtils.toLinkedMap(Function.identity(), mode -> preference))));
 	}
-	
 	
 	protected final Map<Mode,Double> preferences;
 
@@ -40,7 +41,8 @@ public class ModeChoicePreferences
 		this.preferences = Collections.unmodifiableMap(new LinkedHashMap<Mode,Double>(preferences));
 	}
 	
-	public Map<Mode,Double> asMap() {
+
+  public Map<Mode,Double> asMap() {
 		
 		return Collections.unmodifiableMap(preferences);
 	}
