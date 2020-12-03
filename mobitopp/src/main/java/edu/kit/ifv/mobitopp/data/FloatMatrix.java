@@ -48,8 +48,8 @@ public class FloatMatrix
 
   public Float get(int row,int column)
   {
-		assert row >= 0 && row < size;
-		assert column >= 0 && column < size;
+		assert row >= 0 && row < size : String.format("Row %s is higher than size %s", row, size);
+		assert column >= 0 && column < size : String.format("column %s is higher than size %s", column, size);
 
     return this.matrix[row][column];
   }
