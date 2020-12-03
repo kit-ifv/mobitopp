@@ -55,8 +55,20 @@ public class FloatMatrix
   }
 
 	public Float get(ZoneId origin, ZoneId destination) {
-		return get(origin.getMatrixColumn(), destination.getMatrixColumn());
+	  verify(origin, destination);
+    return get(origin.getMatrixColumn(), destination.getMatrixColumn());
 	}
+
+  private void verify(ZoneId origin, ZoneId destination) {
+    int row = origin.getMatrixColumn();
+	  int column = destination.getMatrixColumn();
+    assert row >= 0 && row < size : missingRelationMessage(origin, destination);
+    assert column >= 0 && column < size : missingRelationMessage(origin, destination);
+  }
+
+  private String missingRelationMessage(ZoneId origin, ZoneId destination) {
+    return String.format("Origin (%s) and destination (%s) pair is not available.", origin, destination);
+  }
 
   public void set(int row, int column, Float value)
   {
@@ -67,6 +79,7 @@ public class FloatMatrix
   }
   
   public void set(ZoneId origin, ZoneId destination, Float value) {
+    verify(origin, destination);
     set(origin.getMatrixColumn(), destination.getMatrixColumn(), value);
   }
  
