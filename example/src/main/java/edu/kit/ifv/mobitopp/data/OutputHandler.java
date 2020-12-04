@@ -1,10 +1,11 @@
 package edu.kit.ifv.mobitopp.data;
 
 import java.util.function.Consumer;
+
 import edu.kit.ifv.mobitopp.simulation.Mode;
 
 public class OutputHandler {
-	
+
 	private final Consumer<IntegerMatrix> writer;
 	private final IntegerMatrix matrix;
 	private final Mode mode;

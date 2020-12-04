@@ -1,9 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import java.io.Serializable;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Location;
-
-import java.io.Serializable;
 
 public class CarSharingStation implements Serializable {
 

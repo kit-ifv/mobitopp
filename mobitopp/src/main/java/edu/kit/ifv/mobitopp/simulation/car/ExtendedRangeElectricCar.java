@@ -2,11 +2,9 @@ package edu.kit.ifv.mobitopp.simulation.car;
 
 import java.io.Serializable;
 
-
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
-import edu.kit.ifv.mobitopp.simulation.IdSequence;
-
 import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.IdSequence;
 
 public class ExtendedRangeElectricCar
 	extends AbstractElectricCar

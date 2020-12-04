@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
 import java.util.Collection;
-
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -13,10 +12,10 @@ import edu.kit.ifv.mobitopp.simulation.AttractivityCalculatorIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 
 public class DestinationChoiceForFlexibleActivity

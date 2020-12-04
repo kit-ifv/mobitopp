@@ -1,14 +1,14 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
-
-import java.util.TreeSet;
-import java.util.Set;
-import java.util.Map;
 
 public class AttractivityCalculatorCostNextPole
 	extends AttractivityCalculatorCost

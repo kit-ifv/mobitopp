@@ -9,11 +9,11 @@ import static java.util.Arrays.asList;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
+import edu.kit.ifv.mobitopp.simulation.person.VehicleLeg;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.person.PublicTransportLeg;
-import edu.kit.ifv.mobitopp.simulation.person.VehicleLeg;
 
 public class Data {
 

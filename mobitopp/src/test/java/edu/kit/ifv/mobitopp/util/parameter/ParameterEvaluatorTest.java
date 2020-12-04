@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.util.parameter;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.script.ScriptException;
 

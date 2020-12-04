@@ -3,10 +3,10 @@ package edu.kit.ifv.mobitopp.simulation.tour;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;

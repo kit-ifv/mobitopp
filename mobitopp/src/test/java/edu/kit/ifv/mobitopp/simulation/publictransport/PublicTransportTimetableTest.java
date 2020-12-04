@@ -18,10 +18,10 @@ import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.publictransport.serializer.Serializer;
+import edu.kit.ifv.mobitopp.simulation.publictransport.model.ModifiableJourneys;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationFinder;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Stations;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StopPoints;
-import edu.kit.ifv.mobitopp.simulation.publictransport.model.ModifiableJourneys;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicles;
 import nl.jqno.equalsverifier.EqualsVerifier;
 

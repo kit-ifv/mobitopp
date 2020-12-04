@@ -11,7 +11,9 @@ import edu.kit.ifv.mobitopp.routing.Path;
 import edu.kit.ifv.mobitopp.routing.util.PriorityQueueBasedPQ;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ZoneBasedDijkstraRouteChoice
 	implements ZoneBasedRouteChoice {
 
@@ -35,7 +37,7 @@ public class ZoneBasedDijkstraRouteChoice
 			Node source = graph.getNodeForZone(sourceZoneId);
 			Node target = graph.getNodeForZone(targetZoneId);
 	
-			System.out.println(source + "(" + sourceZoneId + ")" + " <-> " + target + "(" + targetZoneId + ")");
+			log.info(source + "(" + sourceZoneId + ")" + " <-> " + target + "(" + targetZoneId + ")");
 			return dijkstra.shortestPath(graph, source,target);
 
 		} else {

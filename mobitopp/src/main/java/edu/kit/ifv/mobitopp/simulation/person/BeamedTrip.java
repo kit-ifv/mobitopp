@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.person;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;

@@ -9,8 +9,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 public class ParameterFileParser {
 
 	private class Coefficient {
@@ -28,7 +30,7 @@ public class ParameterFileParser {
 	}
 
 	public void parseConfig(String filename, Object model) {
-		System.out.println("parsing config");
+		log.info("parsing config");
 		File f = new File(filename);
 		parseConfig(f, model);
 	}
@@ -51,9 +53,9 @@ public class ParameterFileParser {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			System.out.print(" Datei wurde nicht gefunden : " + file.getName());
+			log.error(" Datei wurde nicht gefunden : " + file.getName());
 		} catch (IOException e) {
-			System.out.print(" Datei konnte nicht geÃ¶ffnet werden :" + e);
+			log.error(" Datei konnte nicht geöffnet werden :" + e);
 		}
 
 		findCoefficientsUsingReflection(coeffs, model);
@@ -118,11 +120,11 @@ public class ParameterFileParser {
 			}
 
 		} catch(NoSuchFieldException e) {
-			System.out.println("Field '" + name + "' not found!");
+			log.error("Field '" + name + "' not found!");
 			e.printStackTrace();
 			System.exit(-1);
 		} catch(IllegalAccessException e) {
-			System.out.println("Field '" + name + "' not accessible!");
+			log.error("Field '" + name + "' not accessible!");
 			e.printStackTrace();
 			System.exit(-1);
 		}

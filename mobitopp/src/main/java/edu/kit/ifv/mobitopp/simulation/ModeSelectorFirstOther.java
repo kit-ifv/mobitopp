@@ -4,9 +4,9 @@ import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeAvailabilityModel;
 
 
 public class ModeSelectorFirstOther

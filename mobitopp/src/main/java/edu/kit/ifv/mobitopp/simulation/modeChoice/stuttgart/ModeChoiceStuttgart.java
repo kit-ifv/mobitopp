@@ -1,25 +1,24 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice.stuttgart;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
-
-import edu.kit.ifv.mobitopp.util.logit.LogitModel;
+import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceParameter;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
 import edu.kit.ifv.mobitopp.util.logit.LinearUtilityFunction;
+import edu.kit.ifv.mobitopp.util.logit.LogitModel;
 
 public class ModeChoiceStuttgart
 	implements ModeChoiceModel 

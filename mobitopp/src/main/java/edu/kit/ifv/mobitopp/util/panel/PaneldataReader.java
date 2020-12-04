@@ -17,8 +17,9 @@ import java.util.TreeMap;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class PaneldataReader {
 
 	private static final int defaultActivityRadiusMode = StandardMode.CAR.getCode();
@@ -97,7 +98,7 @@ public class PaneldataReader {
         .entrySet()
         .stream()
         .map(e -> e.getKey() + " column not available in population data, using " + e.getValue())
-        .forEach(System.out::println);
+        .forEach(log::warn);
   }
 
   Reader readerFor(File file) throws IOException {
@@ -118,10 +119,10 @@ public class PaneldataReader {
 			columnNames.put(fields[i].toLowerCase(), i);
 		}
 
-		System.out.println("--- ");
+		log.info("--- ");
 
 		for(String c: columnNames.keySet()) {
-			System.out.println(columnNames.get(c) + ": " + c);
+			log.info(columnNames.get(c) + ": " + c);
 		}
 
 		return columnNames;
@@ -334,7 +335,7 @@ public class PaneldataReader {
 
 
 			if (info.household.household_size != infos.get(id).size() + info.household.additionalchildren) {
-				System.out.println(id + " " + 
+				log.warn(id + " " + 
 						"size=" + info.household.household_size 
 							+ ", children=" + info.household.additionalchildren 
 							+ ", reported=" + infos.get(id).size() );
@@ -375,8 +376,8 @@ public class PaneldataReader {
 
 		}
 
-		System.out.println(result.size() + " households read");
-		System.out.println(invalid + " households corrected");
+		log.info(result.size() + " households read");
+		log.info(invalid + " households corrected");
 
 		return result;
 	}
@@ -387,7 +388,7 @@ public class PaneldataReader {
 		int correctedSize = info.household.additionalchildren + reporting_persons;
 		int correctedDomcode = domcode(correctedSize, info.household.cars);
 
-			System.out.println("size: " +  info.household.household_size + "->" + correctedSize 
+			log.info("size: " +  info.household.household_size + "->" + correctedSize 
 											+ " domcode: " + info.household.domcode + "->" + correctedDomcode);
 
 		info.household.household_size = correctedSize;

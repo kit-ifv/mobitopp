@@ -11,7 +11,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.data.local.ZoneChargingFacility;
-import edu.kit.ifv.mobitopp.data.local.serialiser.ChargingFacilityFormat;
 import edu.kit.ifv.mobitopp.populationsynthesis.ExampleSetup;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.LocationParser;

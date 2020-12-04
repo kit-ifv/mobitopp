@@ -14,7 +14,9 @@ import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.visum.VisumMatrixParser;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MatrixToCsv {
 
 	private static final String matrixFileExtension = ".mtx";
@@ -47,7 +49,7 @@ public class MatrixToCsv {
 
 	public static void main(String[] args) throws IOException {
 		if (1 != args.length) {
-			System.out.println("Usage: ... <visum matrix folder>");
+			log.error("Usage: ... <visum matrix folder>");
 			System.exit(1);
 		}
 

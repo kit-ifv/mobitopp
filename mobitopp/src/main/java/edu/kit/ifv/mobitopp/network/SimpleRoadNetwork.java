@@ -17,7 +17,9 @@ import edu.kit.ifv.mobitopp.visum.VisumPoint2;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimpleRoadNetwork 
 	extends SimpleGraph
 	implements Graph, Serializable
@@ -42,21 +44,21 @@ public class SimpleRoadNetwork
 	
 	public SimpleRoadNetwork(VisumRoadNetwork network, VisumTransportSystem car) {
 		super(car);
-		System.out.println("Parsing nodes...");
+		log.info("Parsing nodes...");
 		this.nodes = Collections.unmodifiableMap(parseNodes(network.nodes));
-		System.out.println(this.nodes.size() + " nodes");
+		log.info(this.nodes.size() + " nodes");
 
-		System.out.println("Parsing edges...");
+		log.info("Parsing edges...");
 		this.edges = Collections.unmodifiableMap(parseEdges(network.links.links));
-		System.out.println(this.edges.size() + " edges");
+		log.info(this.edges.size() + " edges");
 
-		System.out.println("Parsing zones...");
+		log.info("Parsing zones...");
 		this.zones = Collections.unmodifiableMap(parseZones(network));
-		System.out.println(this.zones.size() + " zones");
+		log.info(this.zones.size() + " zones");
 
-		System.out.println("Parsing zone center nodes...");
+		log.info("Parsing zone center nodes...");
 		this.zoneCenterNodes = Collections.unmodifiableMap(parseZoneCenterNodes(network.zones));
-		System.out.println("Parsing connectors...");
+		log.info("Parsing connectors...");
 		this.connectorEdges = Collections.unmodifiableMap(parseConnectors(network.connectors));
 	}
 
@@ -157,7 +159,7 @@ public class SimpleRoadNetwork
 		Map<Integer,Zone> result = new HashMap<Integer,Zone>();
 
 		for (Integer id : zones.keySet()) {
-System.out.println("parsing zone " + id);
+			log.info("parsing zone " + id);
 			VisumZone zone = zones.get(id);
 
 			result.put(id, new Zone(this, visum, zone));

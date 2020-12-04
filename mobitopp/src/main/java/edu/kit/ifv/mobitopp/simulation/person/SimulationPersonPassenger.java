@@ -368,7 +368,7 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 
 	private void consumeRandomNumber() {
 		int randomNumber = this.random.nextInt();
-		//System.out.println("Consumed random integer: " + randomNumber);
+		//log.info("Consumed random integer: " + randomNumber);
 	}
 
 	private Location privateVisit(Zone zone, ActivityType activityType, double randomNumber) {

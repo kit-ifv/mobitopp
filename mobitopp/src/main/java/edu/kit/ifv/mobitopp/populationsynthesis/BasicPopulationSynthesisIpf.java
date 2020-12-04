@@ -27,7 +27,9 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.DefaultCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BasicPopulationSynthesisIpf extends PopulationSynthesis { 
 
 	private final PersonCreator personCreator;
@@ -227,7 +229,7 @@ public class BasicPopulationSynthesisIpf extends PopulationSynthesis {
 		for (Zone zone : zones) {
 
 
-System.out.println("zone " + zone.getId() + " is ready? " + zone.carSharing().isReady());
+log.debug("zone " + zone.getId() + " is ready? " + zone.carSharing().isReady());
 
 			Integer zoneid = Integer.parseInt(zone.getId().getExternalId());
 

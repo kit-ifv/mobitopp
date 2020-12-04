@@ -1,23 +1,21 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.opportunities;
 
-import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.network.SimpleEdge;
+import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.network.Zone;
 import edu.kit.ifv.mobitopp.network.ZoneArea;
 import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
-
-
-import java.awt.geom.Point2D;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
 
 
 public class DefaultOpportunityLocationSelector implements OpportunityLocationSelector {

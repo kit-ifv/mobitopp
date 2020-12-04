@@ -21,8 +21,9 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPerson;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class DestinationAndModeChoiceUtilitySchaufenster
 		implements DestinationAndModeChoiceUtility {
 
@@ -191,10 +192,10 @@ public class DestinationAndModeChoiceUtilitySchaufenster
 		ignore_miv_constant = IGNORE_VM3 > 0.0;
 
 		if (USE_CAR_COST_AS_PASSENGER_COST_SCALING_FACTOR > 0.0) {
-			System.out.println("car costs used as passenger costs (file: <" + configFile + ">");
-			System.out.println("passenger costs scaling factor: " + USE_CAR_COST_AS_PASSENGER_COST_SCALING_FACTOR);
+			log.info("car costs used as passenger costs (file: <" + configFile + ">");
+			log.info("passenger costs scaling factor: " + USE_CAR_COST_AS_PASSENGER_COST_SCALING_FACTOR);
 		} else {
-			System.out.println("no passenger costs (file: <" + configFile + ">");
+			log.info("no passenger costs (file: <" + configFile + ">");
 		}
 		
 

@@ -24,7 +24,9 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
 import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimulationPublicTransport extends Simulation {
 
 	private final PersonState initialState;
@@ -65,7 +67,7 @@ public class SimulationPublicTransport extends Simulation {
     DefaultActivityDurationRandomizer activityDurationRandomizer = new DefaultActivityDurationRandomizer(
         context().seed());
     TripFactory tripFactory = new DefaultTripFactory();
-		System.out.println("Initializing simulator...");
+		log.info("Initializing simulator...");
 
     DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector,
         new TourBasedModeChoiceModelDummy(modeSelector), routeChoice, activityDurationRandomizer,
@@ -80,8 +82,8 @@ public class SimulationPublicTransport extends Simulation {
 
 	public static void main(String[] args) throws IOException {
 		if (1 > args.length) {
-			System.out.println("Arguments: " + args.length + ": " + args.toString());
-			System.out.println("Usage: ... <configuration file>");
+			log.error("Arguments: " + args.length + ": " + args.toString());
+			log.error("Usage: ... <configuration file>");
 			System.exit(-1);
 		}
 		File configurationFile = new File(args[0]);
@@ -89,7 +91,7 @@ public class SimulationPublicTransport extends Simulation {
 		startSimulation(configurationFile);
 		LocalDateTime end = LocalDateTime.now();
 		Duration runtime = Duration.between(start, end);
-		System.out.println("Simulation took " + runtime);
+		log.info("Simulation took " + runtime);
 	}
 
 	private static void startSimulation(File configurationFile) throws IOException {

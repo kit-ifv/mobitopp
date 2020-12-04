@@ -1,13 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
-import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.simulation.Person;
-import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-
 import java.util.Optional;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.Person;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 public interface DestinationChoiceModelChoiceSet 
 {

@@ -10,7 +10,6 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
 import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
-import edu.kit.ifv.mobitopp.simulation.TripfileWriter;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 

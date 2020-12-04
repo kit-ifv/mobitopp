@@ -1,23 +1,23 @@
 package edu.kit.ifv.mobitopp.network;
 
-import java.awt.geom.Area;
-import java.awt.geom.Point2D;
-import java.awt.geom.Line2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
 import java.awt.Shape;
-
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collection;
-
-import java.io.Serializable;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 import edu.kit.ifv.mobitopp.util.geom.AreaUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ZoneArea
 	implements Serializable
 {
@@ -46,7 +46,7 @@ public class ZoneArea
 		while (!this.area.contains(point)){
 
 			if (i>0 && i%100000 == 0	) { 
-					System.out.println("try " + i); 
+					log.debug("try " + i); 
 			}
 
 			point = randomPointWithinEnvelope(random.nextDouble(), random.nextDouble());

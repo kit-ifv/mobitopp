@@ -1,10 +1,10 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.HashMap;
-import java.io.Serializable;
 
 public class VisumLinks
 	implements Serializable

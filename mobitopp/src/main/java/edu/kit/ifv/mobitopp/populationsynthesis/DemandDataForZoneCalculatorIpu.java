@@ -27,7 +27,9 @@ import edu.kit.ifv.mobitopp.result.Logger;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculatorIfc {
 
 	private final DataRepositoryForPopulationSynthesis dataRepository;
@@ -61,7 +63,7 @@ public class DemandDataForZoneCalculatorIpu implements DemandDataForZoneCalculat
   }
 
   private Logger loggerFor(DemandRegion forZone) {
-    return message -> System.out.println(String.format("%s: %s", forZone.getExternalId(), message));
+    return message -> log.info(String.format("%s: %s", forZone.getExternalId(), message));
   }
 
   private void create(

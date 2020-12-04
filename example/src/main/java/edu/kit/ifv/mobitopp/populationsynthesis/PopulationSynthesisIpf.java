@@ -20,7 +20,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.LanduseCLCwith
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PopulationSynthesisIpf extends BasicPopulationSynthesisIpf {
 
   public PopulationSynthesisIpf(
@@ -34,7 +36,7 @@ public class PopulationSynthesisIpf extends BasicPopulationSynthesisIpf {
 
   public static void main(String... args) throws Exception {
     if (1 > args.length) {
-      System.out.println("Usage: ... <configuration file>");
+      log.error("Usage: ... <configuration file>");
       System.exit(-1);
     }
 
@@ -43,7 +45,7 @@ public class PopulationSynthesisIpf extends BasicPopulationSynthesisIpf {
     startSynthesis(configurationFile);
     LocalDateTime end = LocalDateTime.now();
     Duration runtime = Duration.between(start, end);
-    System.out.println("Population synthesis took " + runtime);
+    log.info("Population synthesis took " + runtime);
   }
 
   static PopulationSynthesisIpf startSynthesis(File configurationFile) throws Exception {

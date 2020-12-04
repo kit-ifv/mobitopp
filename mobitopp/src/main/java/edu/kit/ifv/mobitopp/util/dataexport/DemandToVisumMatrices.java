@@ -18,7 +18,9 @@ import java.util.regex.Pattern;
 
 import edu.kit.ifv.mobitopp.data.IntegerMatrix;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandToVisumMatrices {
 
 	private static final Pattern pattern = Pattern
@@ -33,7 +35,7 @@ public class DemandToVisumMatrices {
 
 	public static void main(String[] args) throws IOException {
 		if (2 > args.length) {
-			System.out.println("Usage: java DemandToVisumMatrices <simulation result log file> <output folder>");
+			log.error("Usage: java DemandToVisumMatrices <simulation result log file> <output folder>");
 			return;
 		}
 

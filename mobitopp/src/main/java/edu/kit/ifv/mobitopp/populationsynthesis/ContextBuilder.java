@@ -40,7 +40,11 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
+import lombok.extern.slf4j.Slf4j;
+import uk.org.lidalia.sysoutslf4j.context.LogLevel;
+import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
+@Slf4j
 public class ContextBuilder {
 
   private final StopWatch performanceLogger;
@@ -74,6 +78,11 @@ public class ContextBuilder {
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forPopulationSynthesis();
+		setUpLogging();
+	}
+	
+	private void setUpLogging() {
+		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(LogLevel.INFO, LogLevel.ERROR);
 	}
 	
 	public ContextBuilder(
@@ -142,8 +151,8 @@ public class ContextBuilder {
   }
 
   private void printPerformance() {
-    System.out.println("Runtimes while loading context:");
-    performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
+    log.info("Runtimes while loading context:");
+    performanceLogger.forEach((m, d) -> log.info(m + " " + d));
   }
 
   private void validateConfiguration() throws IOException {
@@ -208,7 +217,7 @@ public class ContextBuilder {
   }
 
   private void demography() {
-    Logger logger = zoneId -> System.out.println("Missing zone with ID: " + zoneId);
+    Logger logger = zoneId -> log.warn("Missing zone with ID: " + zoneId);
     demographyData = demographyData(network, logger);
     log("Load demography data");
   }

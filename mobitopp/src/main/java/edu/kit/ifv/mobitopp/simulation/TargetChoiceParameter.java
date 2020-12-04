@@ -13,7 +13,9 @@ import java.util.StringTokenizer;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TargetChoiceParameter {
 
 	private Map<AreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter = new HashMap<>();
@@ -29,7 +31,7 @@ public class TargetChoiceParameter {
 	{
 		File f = new File(fileName);
 		if (!f.exists()) {
-			System.out.println("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
+			log.error("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
 					f.getAbsolutePath());
 		}
 
@@ -40,9 +42,9 @@ public class TargetChoiceParameter {
 					parseParameterData(in);
 				}
 			} catch (FileNotFoundException e) {
-				System.out.print("TargetChoiceParameter: Datei wurde nicht gefunden : " + fileName);
+				log.error("TargetChoiceParameter: Datei wurde nicht gefunden : " + fileName);
 			} catch (IOException e) {
-				System.out.print(" Datei konnte nicht geöffnet werden :" + e);
+				log.error(" Datei konnte nicht geöffnet werden :" + e);
 			}
 
 			printParameter(this.parameter);
@@ -81,7 +83,7 @@ public class TargetChoiceParameter {
 			addTypeAndActivity(type, activity, map);
 
 		} catch (NumberFormatException nex) {
-			System.out.println("Probleme mit der Zeile " + line_ + "  " + nex);
+			log.error("Probleme mit der Zeile " + line_ + "  " + nex);
 		}
 	}
 
@@ -101,25 +103,25 @@ public class TargetChoiceParameter {
 		Map<AreaType, Map<ActivityType, Map<Set<Mode>, Float>>> parameter
 	) {
 
-		System.out.println("Targetparameter");
+		log.info("Targetparameter");
 
 		for (AreaType zone : parameter.keySet()) {
 
-			System.out.println("Type: " + zone.getTypeAsInt() + " " + zone.getTypeAsString());
+			log.info("Type: " + zone.getTypeAsInt() + " " + zone.getTypeAsString());
 
 			for (ActivityType act : parameter.get(zone).keySet()) {
 
-				System.out.println("    Act: " + act.getTypeAsInt() + " " + act.getTypeAsString());
+				log.info("    Act: " + act.getTypeAsInt() + " " + act.getTypeAsString());
 
-				System.out.print("     ");
+				String msg = ("     ");
 				for (Set<Mode> ms : StandardChoiceSet.MODESET_VALUES ) {
 
 					float val = parameter.get(zone).get(act).get(ms);
 
-					System.out.print("  " + ms + ": " + val);
+					msg += ("  " + ms + ": " + val);
 				}
 
-				System.out.println();
+				log.info(msg);
 			}
 		}
 	}

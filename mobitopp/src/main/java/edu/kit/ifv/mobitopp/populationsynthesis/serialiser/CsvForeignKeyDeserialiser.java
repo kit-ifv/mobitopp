@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CsvForeignKeyDeserialiser<T> implements ForeignKeyDeserialiser<T> {
 
 	private final CSVReader reader;
@@ -28,7 +30,7 @@ public class CsvForeignKeyDeserialiser<T> implements ForeignKeyDeserialiser<T> {
 			format.parse(asList(line), context).ifPresent(elements::add);
 			count++;
       if (0 == count % 1000) {
-        System.out.println("Number of read elements: " + count);
+        log.info("Number of read elements: " + count);
       }
 		}
 		return elements;

@@ -4,7 +4,9 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.result.Category;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CarSharingWriter implements CarSharingListener {
 
 	private final Results results;
@@ -44,7 +46,7 @@ public class CarSharingWriter implements CarSharingListener {
 
 	protected void write(Category category, String message) {
 		if (null == results) {
-			System.out.println("No result writer registered.");
+			log.warn("No result writer registered.");
 			return;
 		}
 		results.write(category, message);

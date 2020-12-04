@@ -1,10 +1,10 @@
 package edu.kit.ifv.mobitopp.data;
 
+import java.awt.geom.Point2D;
+import java.io.Serializable;
+
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
-
-import java.io.Serializable;
-import java.awt.geom.Point2D;
 
 public class ZonePolygon implements Serializable {
 

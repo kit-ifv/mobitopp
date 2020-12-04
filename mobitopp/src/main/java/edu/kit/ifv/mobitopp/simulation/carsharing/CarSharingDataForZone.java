@@ -1,22 +1,21 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.CarSharingListener;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Random;
-
-import java.io.IOException;
-import java.lang.ClassNotFoundException;
-
-
+@Slf4j
 public class CarSharingDataForZone implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -289,7 +288,7 @@ public class CarSharingDataForZone implements Serializable {
 
 			if (!deserializedFreeFloatingCarSharing.containsKey(companyName)) {
 
-System.out.println("reading ff '" + companyName + "'");
+log.info("reading ff '" + companyName + "'");
 
 				FreeFloatingCarSharingOrganization company = (FreeFloatingCarSharingOrganization) in.readObject();
 
@@ -297,7 +296,7 @@ System.out.println("reading ff '" + companyName + "'");
 
 				deserializedFreeFloatingCarSharing.put(companyName, company);
 
-System.out.println("ff companies: " + deserializedFreeFloatingCarSharing.size());
+log.info("ff companies: " + deserializedFreeFloatingCarSharing.size());
 			}
 
 			FreeFloatingCarSharingOrganization company = deserializedFreeFloatingCarSharing.get(companyName);
@@ -316,14 +315,14 @@ System.out.println("ff companies: " + deserializedFreeFloatingCarSharing.size())
 
 			if (!deserializedStationBasedCarSharing.containsKey(companyName)) {
 
-System.out.println("reading sb " + companyName);
+log.info("reading sb " + companyName);
 
 				StationBasedCarSharingOrganization company = (StationBasedCarSharingOrganization) in.readObject();
 
 				assert company != null;
 
 				deserializedStationBasedCarSharing.put(companyName, company);
-System.out.println("sb companies: " + deserializedStationBasedCarSharing.size());
+log.info("sb companies: " + deserializedStationBasedCarSharing.size());
 			}
 
 			StationBasedCarSharingOrganization company = deserializedStationBasedCarSharing.get(companyName);

@@ -10,17 +10,19 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.PanelDataRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarSegmentModel;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ElectricCarOwnershipBasedOnSociodemographic;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.GenericElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSegmentModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.ProbabilityForElectricCarOwnershipModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.HouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.householdlocation.LanduseCLCwithRoadsHouseholdLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.emobility.EmobilityPersonCreator;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PopulationSynthesisConfiguration extends BasicPopulationSynthesisIpf {
 
   public PopulationSynthesisConfiguration(
@@ -34,7 +36,7 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesisIp
 
   public static void main(String... args) throws Exception {
     if (1 > args.length) {
-      System.out.println("Usage: ... <configuration file>");
+      log.info("Usage: ... <configuration file>");
       System.exit(-1);
     }
 
@@ -43,7 +45,7 @@ public class PopulationSynthesisConfiguration extends BasicPopulationSynthesisIp
     startSynthesis(configurationFile);
     LocalDateTime end = LocalDateTime.now();
     Duration runtime = Duration.between(start, end);
-    System.out.println("Population synthesis took " + runtime);
+    log.info("Population synthesis took " + runtime);
   }
 
   private static void startSynthesis(File configurationFile)

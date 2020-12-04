@@ -15,17 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
+import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
-import edu.kit.ifv.mobitopp.publictransport.serializer.ConnectionDeserializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.Deserializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.JourneyDeserializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.NodeResolver;
-import edu.kit.ifv.mobitopp.publictransport.serializer.StationDeserializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.StopDeserializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.StopResolver;
-import edu.kit.ifv.mobitopp.publictransport.serializer.TimetableDeserializer;
 
 public class TimetableDeserializerTest {
 

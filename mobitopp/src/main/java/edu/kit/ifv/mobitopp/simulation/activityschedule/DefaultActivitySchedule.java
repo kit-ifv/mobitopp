@@ -3,16 +3,16 @@ package edu.kit.ifv.mobitopp.simulation.activityschedule;
 
 
 
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.simulation.ModifiableActivityScheduleWithState;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
+import edu.kit.ifv.mobitopp.time.Time;
 
 
 public class DefaultActivitySchedule 

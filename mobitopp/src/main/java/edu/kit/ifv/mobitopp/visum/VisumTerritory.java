@@ -1,11 +1,10 @@
 package edu.kit.ifv.mobitopp.visum;
 
 
+import java.awt.geom.Area;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-import java.awt.geom.Area;
-
-import java.io.Serializable;
 
 public class VisumTerritory 
 	implements Serializable

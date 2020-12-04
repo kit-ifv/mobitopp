@@ -32,9 +32,11 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonStateSimple;
 import edu.kit.ifv.mobitopp.simulation.person.TripFactory;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModelDummy;
 import edu.kit.ifv.mobitopp.util.dataexport.MatrixPrinter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimulationExample extends Simulation {
-
+	
 	public SimulationExample(SimulationContext context) {
 		super(context);
 	}
@@ -53,7 +55,7 @@ public class SimulationExample extends Simulation {
 						.of(StandardMode.CAR, StandardMode.PASSENGER, StandardMode.BIKE, StandardMode.PEDESTRIAN,
 								StandardMode.PUBLICTRANSPORT));
     context().personResults().addListener(createMatrixListener(choiceSet));
-		System.out.println("Initializing simulator...");
+		log.info("Initializing simulator...");
 		return new DemandSimulatorPassenger(targetSelector,
 				new TourBasedModeChoiceModelDummy(modeSelector), routeChoice,
 				new DefaultActivityDurationRandomizer(context().seed()), tripFactory, rescheduling,
@@ -118,7 +120,7 @@ public class SimulationExample extends Simulation {
 
 	public static void main(String... args) throws IOException {
 		if (1 > args.length) {
-			System.out.println("Usage: ... <configuration file>");
+			log.error("Usage: ... <configuration file>");
 			System.exit(-1);
 		}
 
@@ -127,7 +129,7 @@ public class SimulationExample extends Simulation {
 		startSimulation(configurationFile);
 		LocalDateTime end = LocalDateTime.now();
 		Duration runtime = Duration.between(start, end);
-		System.out.println("Simulation took " + runtime);
+		log.info("Simulation took " + runtime);
 	}
 
 	public static void startSimulation(File configurationFile) throws IOException {

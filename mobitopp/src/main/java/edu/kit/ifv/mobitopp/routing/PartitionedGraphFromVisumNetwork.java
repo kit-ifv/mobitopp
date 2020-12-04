@@ -12,7 +12,9 @@ import edu.kit.ifv.mobitopp.routing.util.PriorityQueueBasedPQ;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PartitionedGraphFromVisumNetwork 
  	extends GraphFromVisumNetwork 
 	implements Graph
@@ -33,7 +35,7 @@ public class PartitionedGraphFromVisumNetwork
 		this.partitionedNodes = partitionNodes(this.nodes, this.polygons);
 
 		printParttionedNodes(partitionedNodes);
-		System.out.println("total nodes: " + this.nodes.size()); 
+		log.info("total nodes: " + this.nodes.size()); 
 	}
 
 	protected static Map<Integer,Area> makePolygons(
@@ -104,12 +106,12 @@ public class PartitionedGraphFromVisumNetwork
 
 			List<Node> nodes = partitionedNodes.get(zoneId);
 
-			System.out.println("Zone : " + zoneId + ": " + nodes.size());
+			log.info("Zone : " + zoneId + ": " + nodes.size());
 			total += nodes.size();
 
 		}
 
-		System.out.println("total nodes in partition: " + total);
+		log.info("total nodes in partition: " + total);
 	}
 
 }

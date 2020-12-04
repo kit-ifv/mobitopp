@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.routing;
 
-import edu.kit.ifv.mobitopp.visum.VisumZone;
 import edu.kit.ifv.mobitopp.visum.VisumPoint2;
+import edu.kit.ifv.mobitopp.visum.VisumZone;
 
 public class NodeFromVisumZone
 	extends DefaultNode

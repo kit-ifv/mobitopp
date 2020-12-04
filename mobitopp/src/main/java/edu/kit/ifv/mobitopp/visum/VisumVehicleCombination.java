@@ -1,9 +1,9 @@
 package edu.kit.ifv.mobitopp.visum;
 
-import java.util.Map;
-import java.util.Objects;
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 
 @SuppressWarnings("serial")
 public class VisumVehicleCombination 

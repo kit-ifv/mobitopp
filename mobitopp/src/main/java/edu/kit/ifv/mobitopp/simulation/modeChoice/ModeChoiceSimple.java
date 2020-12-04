@@ -8,9 +8,8 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoiceModel;
-import edu.kit.ifv.mobitopp.util.logit.LogitModel;
 import edu.kit.ifv.mobitopp.util.logit.DefaultLogitModel;
+import edu.kit.ifv.mobitopp.util.logit.LogitModel;
 
 public class ModeChoiceSimple
 	implements ModeChoiceModel 

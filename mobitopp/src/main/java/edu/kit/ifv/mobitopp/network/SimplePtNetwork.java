@@ -12,7 +12,9 @@ import edu.kit.ifv.mobitopp.visum.VisumPtLineRoute;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRouteElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtStop;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimplePtNetwork 
 	extends SimpleGraph
 	implements Graph
@@ -27,10 +29,10 @@ public class SimplePtNetwork
 
 	public SimplePtNetwork(VisumNetwork visum) {
 		super(visum.transportSystems);
-		System.out.println("Parsing stops...");
+		log.info("Parsing stops...");
 		this.stops = Collections.unmodifiableMap(parseStops(visum.ptStops));
 
-		System.out.println("Parsing lines...");
+		log.info("Parsing lines...");
 		parseLineRoutes(visum.ptLineRoutes);
 	}
 

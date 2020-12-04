@@ -3,10 +3,10 @@ package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import edu.kit.ifv.mobitopp.publictransport.model.StopPath;
-import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import edu.kit.ifv.mobitopp.publictransport.model.StopPath;
+import edu.kit.ifv.mobitopp.time.RelativeTime;
 
 public class StationPath {
 

@@ -30,8 +30,9 @@ import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCalculatorIfc {
 	
   private static final AttributeType domCode = StandardAttribute.domCode;
@@ -141,7 +142,7 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	}
 
 	void calculateDemandDataInternal(DemandZone zone) {
-		System.out.println("Nachfragedaten Zone "+zone.getId());
+		log.info("Nachfragedaten Zone "+zone.getId());
 
 		if (getNominalHouseholdDistribution(zone).getTotalAmount() > 0) {
 	
@@ -334,9 +335,9 @@ public class DemandDataForZoneCalculatorStuttgart implements DemandDataForZoneCa
 	
 			}
 		}
-		System.out.println("mapped: " + mappedPersons.size());
-		System.out.println("panel: " + panelPersons.size());
-		System.out.println("demand: " + demandPersons.size());
+		log.info("mapped: " + mappedPersons.size());
+		log.info("panel: " + panelPersons.size());
+		log.info("demand: " + demandPersons.size());
 
 		this.fixedDestinationSelector.setFixedDestinations(zone.zone(), demandPersons, panelPersons);
 	}

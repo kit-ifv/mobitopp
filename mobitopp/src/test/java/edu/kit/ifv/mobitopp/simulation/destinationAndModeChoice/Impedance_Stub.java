@@ -1,16 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice;
 
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
-import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.time.Time;
-
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class Impedance_Stub
 	implements ImpedanceIfc 

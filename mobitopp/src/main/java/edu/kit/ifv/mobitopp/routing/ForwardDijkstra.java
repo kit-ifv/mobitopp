@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.routing.util.PriorityQueue;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ForwardDijkstra implements Router {
 
 	private PriorityQueue<Node> forward;
@@ -112,7 +114,7 @@ public class ForwardDijkstra implements Router {
 
 		boolean finished = false;
 
-System.out.println("starting forwardDijkstra...");
+log.info("starting forwardDijkstra...");
 
 		while (!forward.isEmpty() && !finished) {
 

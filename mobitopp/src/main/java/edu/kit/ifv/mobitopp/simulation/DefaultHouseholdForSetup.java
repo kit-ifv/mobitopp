@@ -15,7 +15,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
 	private final HouseholdId householdId;
@@ -137,8 +139,7 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 
 	private void checkNumberOfCars(Collection<PrivateCarForSetup> cars) {
 		if (this.nominalNumberOfCars != cars.size()) {
-			System.out
-					.println(String
+			log.warn(String
 							.format("Nominal number of cars (%s) deviates from generated number of cars (%s).",
 									nominalNumberOfCars, cars.size()));
 		}

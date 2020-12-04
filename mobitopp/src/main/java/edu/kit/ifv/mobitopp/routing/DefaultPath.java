@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.routing;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DefaultPath 
 	implements Path 

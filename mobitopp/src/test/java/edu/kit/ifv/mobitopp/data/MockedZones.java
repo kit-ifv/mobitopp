@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import org.mockito.Mockito;
 
-import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.emobility.NoChargingDataForZone;
 
 public class MockedZones {

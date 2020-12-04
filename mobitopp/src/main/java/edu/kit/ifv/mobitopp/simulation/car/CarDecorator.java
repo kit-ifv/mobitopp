@@ -1,12 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
 
+import java.io.Serializable;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
-
-import java.io.Serializable;
 
 
 

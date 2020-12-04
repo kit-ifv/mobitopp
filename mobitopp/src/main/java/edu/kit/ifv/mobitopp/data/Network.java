@@ -1,8 +1,7 @@
 package edu.kit.ifv.mobitopp.data;
 
-import edu.kit.ifv.mobitopp.visum.VisumNetwork;
-
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
+import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
 public class Network {
 

@@ -1,17 +1,18 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
-import java.util.Map;
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
+@Slf4j
 class TargetChoiceRepetitionParameter2 {
 
 
@@ -31,7 +32,7 @@ class TargetChoiceRepetitionParameter2 {
 
 		File f = new File(fileName);
 		if (!f.exists()) {
-			System.out.println("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
+			log.error("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
 					f.getAbsolutePath());
 		}
 
@@ -42,9 +43,9 @@ class TargetChoiceRepetitionParameter2 {
 					parseParameterData(in);
 				}
 			} catch (FileNotFoundException e) {
-				System.out.print(" Datei wurde nicht gefunden : " + fileName);
+				log.error(" Datei wurde nicht gefunden : " + fileName);
 			} catch (IOException e) {
-				System.out.print(" Datei konnte nicht geöffnet werden :" + e);
+				log.error(" Datei konnte nicht geöffnet werden :" + e);
 			}
 
 			printParameter(this.parameter);
@@ -94,7 +95,7 @@ class TargetChoiceRepetitionParameter2 {
 			this.parameter.get(activityKey).get(previous).put(community_type,map);
 
 		} catch (NumberFormatException nex) {
-			System.out.println("Probleme mit der Zeile " + line_ + "  " + nex);
+			log.error("Probleme mit der Zeile " + line_ + "  " + nex);
 		}
 	}
 
@@ -102,27 +103,27 @@ class TargetChoiceRepetitionParameter2 {
 		Map<ActivityType, Map<Integer, Map<Integer, Map<Integer,Float>>>> parameter
 	) {
 
-		System.out.println("Targetparameter");
+		log.debug("Targetparameter");
 
 		for (ActivityType activity : parameter.keySet()) {
 
-			System.out.println("Type: " + activity.getTypeAsInt() + " " + activity.getTypeAsString());
+			log.debug("Type: " + activity.getTypeAsInt() + " " + activity.getTypeAsString());
 
 			for (Integer before : parameter.get(activity).keySet()) {
 
-				System.out.println("    before: " + before + " " + (before==0 ? "FIXED" : "FLEXIBLE") );
+				log.debug("    before: " + before + " " + (before==0 ? "FIXED" : "FLEXIBLE") );
 
 				for (Integer community_type : parameter.get(activity).get(before).keySet() ) {
 
-					System.out.print("Community: " + community_type + "	");
+					String msg = ("Community: " + community_type + "	");
 
 					for (Integer wnr : parameter.get(activity).get(before).get(community_type).keySet() ) {
 	
 						float val = parameter.get(activity).get(before).get(community_type).get(wnr);
 
-						System.out.print("  " + wnr + ": " + val);
+						msg += ("  " + wnr + ": " + val);
 					}
-					System.out.println();
+					log.debug(msg);
 				}
 			}
 		}

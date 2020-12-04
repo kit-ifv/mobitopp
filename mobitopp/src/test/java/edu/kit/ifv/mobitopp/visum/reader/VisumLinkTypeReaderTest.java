@@ -21,7 +21,6 @@ import edu.kit.ifv.mobitopp.visum.VisumLinkTypes;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
-import edu.kit.ifv.mobitopp.visum.reader.VisumLinkTypeReader;
 
 public class VisumLinkTypeReaderTest {
 

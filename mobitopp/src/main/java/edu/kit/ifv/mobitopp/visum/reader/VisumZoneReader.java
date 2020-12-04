@@ -11,7 +11,9 @@ import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VisumZoneReader extends VisumBaseReader {
 
   static final double alwaysAllowed = 1.0;
@@ -65,7 +67,7 @@ public class VisumZoneReader extends VisumBaseReader {
     if (row.containsAttribute(diagPt)) {
       return row.valueAsFloat(diagPt);
     }
-    System.out.println(
+    log.warn(
         "No travel time for public transport inside a single zone is given. Using 0 as travel time.");
     return 0.0f;
   }

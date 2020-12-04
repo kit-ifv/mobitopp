@@ -9,7 +9,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.profilescan.Profile;
 import edu.kit.ifv.mobitopp.simulation.publictransport.profilescan.Store;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CachedStore implements Store {
 
 	private final Store store;
@@ -38,7 +40,7 @@ public class CachedStore implements Store {
 	}
 
 	public void cleanBefore(Time time) {
-		System.out.println("Clean profile cache");
+		log.info("Clean profile cache");
 		clean(profilesBefore(time));
 		triggerGc();
 	}

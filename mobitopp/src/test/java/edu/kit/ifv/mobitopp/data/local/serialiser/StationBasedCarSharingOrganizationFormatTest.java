@@ -10,7 +10,6 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.data.local.serialiser.StationBasedCarSharingOrganizationFormat;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
 
 public class StationBasedCarSharingOrganizationFormatTest {

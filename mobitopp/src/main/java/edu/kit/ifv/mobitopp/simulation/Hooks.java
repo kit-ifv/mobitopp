@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Hooks {
 
 	private List<Hook> hooks;
@@ -16,7 +18,7 @@ public class Hooks {
 
 	public void add(Hook hook) {
 		if (hook == null) {
-			System.out.println("Hook is null");
+			log.warn("The list of Hooks is null");
 			return;
 		}
 		hooks.add(hook);
@@ -24,7 +26,7 @@ public class Hooks {
 	
 	public void remove(Hook hook) {
 		if (hook == null) {
-			System.out.println("Hook is null");
+			log.warn("The list of Hooks is null");
 			return;
 		}
 		hooks.remove(hook);

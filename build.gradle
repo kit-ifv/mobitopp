@@ -41,7 +41,11 @@ subprojects {
         mockito_core: 'org.mockito:mockito-core:' + versions.mockito,
         mockito_junit_jupiter: 'org.mockito:mockito-junit-jupiter:' + versions.mockito,
         rhino_engine: 'org.mozilla:rhino-engine:1.7.13',
-        rhino: 'org.mozilla:rhino:1.7.13'
+        rhino: 'org.mozilla:rhino:1.7.13',
+        
+        slf4j: 'org.slf4j:slf4j-api:1.7.9',
+        log4j: 'org.apache.logging.log4j:log4j-slf4j-impl:2.14.0',
+        log_sys_out: 'uk.org.lidalia:sysout-over-slf4j:1.0.2'
     ]
     
     configurations.all {

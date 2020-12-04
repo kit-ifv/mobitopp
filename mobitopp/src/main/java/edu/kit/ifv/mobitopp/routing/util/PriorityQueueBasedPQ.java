@@ -2,6 +2,9 @@ package edu.kit.ifv.mobitopp.routing.util;
 
 import java.util.HashMap;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PriorityQueueBasedPQ<T extends Comparable<T>>
 	implements PriorityQueue<T> {
 
@@ -55,7 +58,7 @@ public class PriorityQueueBasedPQ<T extends Comparable<T>>
 			mapping.remove(toBeRemoved.data);
 			data.remove(toBeRemoved);
 		} else {
-			System.out.println("Warning: PriorityQueue does not contain element " + object);
+			log.warn("Warning: PriorityQueue does not contain element " + object);
 		}
 
 		mapping.put(object, toBeAdded);

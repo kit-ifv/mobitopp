@@ -4,7 +4,9 @@ import java.io.Serializable;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.CarSharingListener;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BaseCarSharingOrganization implements CarSharingOrganization, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -26,7 +28,7 @@ public abstract class BaseCarSharingOrganization implements CarSharingOrganizati
 			Zone zone, int availableBefore, CarSharingCar car, int availableCars, String nextAvailableCar,
 			String availableCarsAsString) {
 		if (null == listener) {
-			System.out.println("No car sharing listener/writer available.");
+			log.warn("No car sharing listener/writer available.");
 			return;
 		}
 		listener.bookCar(zone, availableBefore, car, availableCars, nextAvailableCar,
@@ -37,7 +39,7 @@ public abstract class BaseCarSharingOrganization implements CarSharingOrganizati
 			CarSharingCar car, Zone zone, int availableBefore, int availableCars,
 			CarSharingCar nextAvailableCar, String availableCarsAsString) {
 		if (null == listener) {
-			System.out.println("No car sharing listener/writer available.");
+			log.warn("No car sharing listener/writer available.");
 			return;
 		}
 		listener.returnCar(car, zone, availableBefore, availableCars, nextAvailableCar,

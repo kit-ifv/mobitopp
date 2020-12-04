@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LogitParameters {
 
   private static final double defaultValue = 0.0d;
@@ -29,7 +32,7 @@ public class LogitParameters {
     if (parameters.containsKey(parameter)) {
       return parameters.get(parameter);
     }
-    System.out.println(String.format("Logit parameter missing: %s using %s instead", parameter, defaultValue));
+    log.warn(String.format("Logit parameter missing: %s using %s instead", parameter, defaultValue));
     return defaultValue;
   }
 

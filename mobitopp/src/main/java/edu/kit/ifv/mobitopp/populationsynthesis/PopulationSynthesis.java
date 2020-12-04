@@ -15,15 +15,17 @@ import edu.kit.ifv.mobitopp.data.FixedDistributionMatrix;
 import edu.kit.ifv.mobitopp.data.PopulationForSetup;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.populationsynthesis.calculator.DemandDataCalculator;
-import edu.kit.ifv.mobitopp.populationsynthesis.region.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.PopulationSynthesisStep;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiseDemography;
 import edu.kit.ifv.mobitopp.result.Results;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.opportunities.OpportunityDataForZone;
 import edu.kit.ifv.mobitopp.util.StopWatch;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class PopulationSynthesis {
 
 	private final SynthesisContext context;
@@ -89,15 +91,15 @@ public abstract class PopulationSynthesis {
 	}
 
 	private void printPerformance() {
-		System.out.println("Runtimes while creating population:");
-		performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
+		log.info("Runtimes while creating population:");
+		performanceLogger.forEach((m, d) -> log.info(m + " " + d));
 	}
 
 	private void createLocations() {
-		System.out.println("creating destinations...");
+		log.info("creating destinations...");
 		OpportunityLocationSelector locationSelector = createOpportunityLocationSelector();
 		createLocations(locationSelector);
-		System.out.println("creating DONE.");
+		log.info("creating DONE.");
 	}
 
 	protected abstract OpportunityLocationSelector createOpportunityLocationSelector();
@@ -107,9 +109,7 @@ public abstract class PopulationSynthesis {
 		zones
 				.stream()
 				.filter(Zone::isDestination)
-				.peek(zone -> System.out
-						.println(
-								"zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable()))
+				.peek(zone -> log.debug("zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable()))
 				.forEach(zone -> createLocationsForZone(opportunityLocationSelector, zone));
 	}
 
@@ -187,10 +187,10 @@ public abstract class PopulationSynthesis {
 	}
 
 	private Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices() {
-		System.out.println("Lade Matrizen....");
+		log.info("Lade Matrizen....");
 		Map<ActivityType, FixedDistributionMatrix> fixedDistributionMatrices = dataRepository()
 				.fixedDistributionMatrices();
-		System.out.println("...geladen!\n");
+		log.info("...geladen!\n");
 		return fixedDistributionMatrices;
 	}
 
@@ -203,6 +203,7 @@ public abstract class PopulationSynthesis {
 	private void verify(
 			ActivityType activityType, Map<ActivityType, FixedDistributionMatrix> matrices) {
 		if (!matrices.containsKey(activityType)) {
+			log.error("Fixed distribution matrix missing for " + activityType);
 			throw new IllegalStateException("Fixed distribution matrix missing for " + activityType);
 		}
 	}
