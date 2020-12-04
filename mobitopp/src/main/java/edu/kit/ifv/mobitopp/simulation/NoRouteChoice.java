@@ -1,11 +1,11 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import edu.kit.ifv.mobitopp.routing.Path;
-import edu.kit.ifv.mobitopp.time.Time;
+import java.util.ArrayList;
+
 import edu.kit.ifv.mobitopp.routing.DefaultPath;
 import edu.kit.ifv.mobitopp.routing.Link;
-
-import java.util.ArrayList;
+import edu.kit.ifv.mobitopp.routing.Path;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class NoRouteChoice 
 	implements ZoneBasedRouteChoice {

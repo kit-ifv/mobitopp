@@ -23,10 +23,9 @@ import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;
 
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.TransferWalkTime;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
-import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.simulation.publictransport.VisumWalkTime;
 import edu.kit.ifv.mobitopp.util.ReflectionHelper;
 import edu.kit.ifv.mobitopp.visum.StopArea;
 import edu.kit.ifv.mobitopp.visum.StopAreaPair;

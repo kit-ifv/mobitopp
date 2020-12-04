@@ -5,7 +5,9 @@ import java.io.Serializable;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BatteryElectricCar extends AbstractElectricCar implements Car, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -72,12 +74,12 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 			
 		if (distanceKm > remainingRange() ) {
 
-			System.out.println("WARNING: BatteryElectricCar.drive(): distance > remainingRange !!!");
-			System.out.println("distance:" + distanceKm);
-			System.out.println("remaining Range:" +  remainingRange());
-			System.out.println("effective Range:" +  effectiveRange());
-			System.out.println("battery Level:" +  currentBatteryLevel());
-			System.out.println(this);
+			log.warn("WARNING: BatteryElectricCar.drive(): distance > remainingRange !!!");
+			log.warn("distance:" + distanceKm);
+			log.warn("remaining Range:" +  remainingRange());
+			log.warn("effective Range:" +  effectiveRange());
+			log.warn("battery Level:" +  currentBatteryLevel());
+			log.warn(this.toString());
 
 			lastMode = Mode.TOWED;
 

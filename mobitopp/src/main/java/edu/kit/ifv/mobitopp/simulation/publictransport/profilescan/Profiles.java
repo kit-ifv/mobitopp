@@ -3,7 +3,9 @@ package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Profiles {
 
 	private final ProfileBuilder builder;
@@ -29,7 +31,7 @@ public class Profiles {
 
 	private void cleanup() {
 		if (cleanupIsNecessary()) {
-			System.out.println(elements());
+			log.debug("" + elements());
 			System.gc();
 		}
 	}

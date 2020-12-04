@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.util.logit;
 
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
 
 public interface LogitModel<T>
 {

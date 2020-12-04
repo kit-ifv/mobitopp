@@ -14,7 +14,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.Population;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocationSelector;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 
 	private final Deserialiser<HouseholdForSetup> households;
@@ -59,7 +61,7 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 	}
 
 	private void loadPatterns(Population population) throws IOException {
-		System.out.println("Load patterns");
+		log.info("Load patterns");
 		for (PersonPatternActivity patternActivity : activities.deserialise()) {
 			population
 					.getPersonBuilderByOid(patternActivity.personOid())
@@ -70,12 +72,12 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 	
 	private void loadHouseholds(Population population, Predicate<HouseholdForSetup> householdFilter)
 			throws IOException {
-		System.out.println("Load households");
+		log.info("Load households");
 		households.deserialise().stream().filter(householdFilter).forEach(population::add);
 	}
 
 	private void loadPersons(Population population) throws IOException {
-		System.out.println("Load persons");
+		log.info("Load persons");
 		List<PersonBuilder> persons = personDeserialiser.deserialise(population);
 		for (PersonBuilder person : persons) {
 			population.add(person);
@@ -83,7 +85,7 @@ class DefaultDemandDataDeserialiser implements DemandDataDeserialiser {
 	}
 
 	private void loadCars(Population population) throws IOException {
-		System.out.println("Load cars");
+		log.info("Load cars");
 		List<PrivateCarForSetup> cars = carDeserialiser.deserialise(population);
 		cars
 				.stream()

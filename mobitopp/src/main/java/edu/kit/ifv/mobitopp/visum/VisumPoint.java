@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.visum;
 
 import java.awt.geom.Point2D;
-
 import java.io.Serializable;
 import java.util.Objects;
 

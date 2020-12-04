@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VisumTable {
 
 	public final String name;
@@ -27,8 +29,8 @@ public class VisumTable {
 
 		if (values.size() != attributes.size()) {
 
-			System.out.println("Attributes: " + attributes);
-			System.out.println("Values: " + values);
+			log.error("Attributes: " + attributes);
+			log.error("Values: " + values);
 
 			throw new IllegalArgumentException();
 		}

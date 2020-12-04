@@ -1,12 +1,12 @@
 package edu.kit.ifv.mobitopp.data;
 
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.io.Serializable;
 
 @EqualsAndHashCode
 @ToString

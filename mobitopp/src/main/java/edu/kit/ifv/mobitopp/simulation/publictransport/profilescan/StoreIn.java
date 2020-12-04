@@ -12,7 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.simulation.publictransport.Timetable;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StoreIn implements Store {
 
 	private final File output;
@@ -40,7 +42,7 @@ public class StoreIn implements Store {
 			saveSingle(part);
 		}
 		int profiles = savedProfiles.incrementAndGet();
-		System.out.println(LocalDateTime.now() + "Profiles: " + profiles);
+		log.info(LocalDateTime.now() + "Profiles: " + profiles);
 	}
 
 	private void saveSingle(Profile profile) {

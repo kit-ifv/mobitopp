@@ -5,7 +5,7 @@ import static org.assertj.core.data.Offset.offset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URISyntaxException;
 import java.util.List;

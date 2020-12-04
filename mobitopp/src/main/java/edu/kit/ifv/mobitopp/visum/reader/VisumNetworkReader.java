@@ -53,7 +53,9 @@ import edu.kit.ifv.mobitopp.visum.VisumVehicleCombination;
 import edu.kit.ifv.mobitopp.visum.VisumVehicleCombinationUnit;
 import edu.kit.ifv.mobitopp.visum.VisumVehicleUnit;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VisumNetworkReader extends VisumBaseReader {
 
   private final StopWatch stopWatch;
@@ -76,41 +78,41 @@ public class VisumNetworkReader extends VisumBaseReader {
     this.ptSystemCode = ptSystemCode;
     visumReader = new CachedVisumReader();
 
-    System.out.println("reading tables...");
+    log.info("reading tables...");
     VisumTransportSystems transportSystems = readTransportSystems();
     finishStep("transport systems");
     VisumLinkTypes linkTypes = readLinkTypes(transportSystems);
     finishStep("link types");
 
-    System.out.println(" reading nodes...");
+    log.info(" reading nodes...");
     Map<Integer, VisumNode> nodes = readNodes();
     finishStep("nodes");
 
-    System.out.println(" reading links...");
+    log.info(" reading links...");
     Map<Integer, VisumLink> links = readLinks(nodes, transportSystems, linkTypes);
     finishStep("links");
 
-    System.out.println(" reading turns...");
+    log.info(" reading turns...");
     Map<Integer, List<VisumTurn>> turns = readTurns(nodes, transportSystems);
     finishStep("turns");
 
-    System.out.println(" reading zones...");
+    log.info(" reading zones...");
     Map<Integer, VisumZone> zones = readZones();
     finishStep("zones");
 
-    System.out.println(" reading connectors...");
+    log.info(" reading connectors...");
     Map<Integer, List<VisumConnector>> connectors = readConnectors(nodes, zones, transportSystems);
     finishStep("connectors");
 
-    System.out.println(" public transport network...");
-    System.out.println(" reading other...");
+    log.info(" public transport network...");
+    log.info(" reading other...");
     Map<Integer, VisumVehicleUnit> vehicleUnits = readVehicleUnits(transportSystems);
     finishStep("vehicle units");
     Map<Integer, VisumVehicleCombination> vehicleCombinations = readVehicleCombinations(
         vehicleUnits);
     finishStep("vehicle combinations");
 
-    System.out.println(" reading stop hierarchy...");
+    log.info(" reading stop hierarchy...");
     Map<Integer, VisumPtStop> ptStops = readPtStations();
     finishStep("stops");
     Map<Integer, VisumPtStopArea> ptStopAreas = readPtStopAreas(nodes, ptStops);
@@ -122,25 +124,25 @@ public class VisumNetworkReader extends VisumBaseReader {
         ptStopAreas);
     finishStep("walk times");
 
-    System.out.println(" reading other...");
+    log.info(" reading other...");
     Map<String, VisumPtLine> ptLines = readPtLines(transportSystems);
     finishStep("lines");
     Map<String, VisumPtLineRoute> ptLineRoutes = readPtLineRoutes(ptLines);
     finishStep("line routes");
     readPtLineRouteElements(ptLineRoutes, ptStopPoints, nodes);
 
-    System.out.println(" reading other...");
+    log.info(" reading other...");
     Map<String, VisumPtTimeProfile> ptTimeProfiles = readPtTimeProfile(ptLineRoutes);
     finishStep("time profiles");
     List<VisumPtVehicleJourney> ptVehicleJourneys = readPtVehicleJourneys(ptLineRoutes,
         ptTimeProfiles, vehicleCombinations);
     finishStep("vehicle journeys");
 
-    System.out.println(" reading polygons...");
+    log.info(" reading polygons...");
     SortedMap<Integer, VisumSurface> areas = readSurfaces();
     finishStep("surfaces");
 
-    System.out.println(" reading custom data...");
+    log.info(" reading custom data...");
     Map<Integer, VisumChargingFacility> chargingFacilities = readChargingFacilities();
     finishStep("charging facilities");
     Map<Integer, VisumChargingPoint> chargingPoints = readChargingPoints();
@@ -156,7 +158,7 @@ public class VisumNetworkReader extends VisumBaseReader {
     carSharingStations.put("Flinkster", Collections.unmodifiableMap(carSharingStationsFlinkster));
     finishStep("car sharing stations");
 
-    System.out.println(" reading territories...");
+    log.info(" reading territories...");
     Map<Integer, VisumTerritory> territories = readTerritories(areas);
     finishStep("territories");
 
@@ -172,11 +174,11 @@ public class VisumNetworkReader extends VisumBaseReader {
   }
 
   private void printRuntimeInformation() {
-    stopWatch.forEach((m, d) -> System.out.println(m + " " + d));
+    stopWatch.forEach((m, d) -> log.info(m + " " + d));
   }
 
   private void finishStep(String message) {
-    System.out.println(String.format("%s loaded", message));
+    log.info(String.format("%s loaded", message));
     stopWatch.measurePoint(message);
   }
 
@@ -227,7 +229,7 @@ public class VisumNetworkReader extends VisumBaseReader {
         List<VisumTurn> turns = data.get(nodeId);
         node.setTurns(turns);
       } else {
-        System.out.println("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
+        log.error("\n\n\n nodeId= " + nodeId + " has no turns!!!\n\n\n");
       }
     }
   }
@@ -249,7 +251,7 @@ public class VisumNetworkReader extends VisumBaseReader {
     Map<Integer, VisumVehicleUnit> vehicleUnits = new VisumVehicleUnitReader(language, allSystems)
         .readVehicleUnits(content);
     if (vehicleUnits.isEmpty()) {
-      System.out.println("Vehicle units are missing!");
+      log.error("Vehicle units are missing!");
     }
     return vehicleUnits;
   }
@@ -264,7 +266,7 @@ public class VisumNetworkReader extends VisumBaseReader {
     Map<Integer, VisumVehicleCombination> combinations = new VisumVehicleCombinationReader(language,
         units2combinations).readCombinations(combinationContent);
     if (combinations.isEmpty()) {
-      System.out.println("Vehicle combinations are missing!");
+      log.error("Vehicle combinations are missing!");
     }
     return combinations;
   }
@@ -356,7 +358,7 @@ public class VisumNetworkReader extends VisumBaseReader {
         language, vehicleCombinations).readSections(content);
 
     if (sections.isEmpty()) {
-      System.out.println("Vehicle journey parts are missing!");
+      log.error("Vehicle journey parts are missing!");
     }
 
     Stream<Row> journeyContent = loadContentOf(table(Table.vehicleJourney));

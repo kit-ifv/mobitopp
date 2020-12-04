@@ -18,7 +18,9 @@ import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 import edu.kit.ifv.mobitopp.visum.VisumTerritory;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Zone implements Serializable {
 
 	private static final long serialVersionUID = 6726608239268453865L;
@@ -107,7 +109,7 @@ public class Zone implements Serializable {
 
 		for (String type : residentialAreaTypes) {
 			if (!areasByLanduse.containsKey(type)) {
-				System.out.println("Zone - Residential area type not available: " + type);
+				log.warn("Zone - Residential area type not available: " + type);
 				continue;
 			}
 			Area a = areasByLanduse.get(type);
@@ -115,8 +117,7 @@ public class Zone implements Serializable {
 		}
 
 		if (area.isEmpty() && !areasByLanduse.containsKey(industrialAreaType)) {
-			System.out.println(
-					"Zone - No residential area types are available and industrial area type is also not available: "
+			log.warn("Zone - No residential area types are available and industrial area type is also not available: "
 							+ industrialAreaType);
 		}
 		if (area.isEmpty() && areasByLanduse.containsKey(industrialAreaType)) {

@@ -3,11 +3,11 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.person.BaseStartedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.BeamedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class Trip_Stub implements TripData, Trip
 {

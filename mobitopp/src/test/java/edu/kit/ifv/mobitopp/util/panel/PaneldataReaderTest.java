@@ -2,7 +2,7 @@ package edu.kit.ifv.mobitopp.util.panel;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

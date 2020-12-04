@@ -1,11 +1,11 @@
 package edu.kit.ifv.mobitopp.publictransport.model;
 
-import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
-import static edu.kit.ifv.mobitopp.publictransport.model.Data.otherStop;
-import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.hasValue;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresent;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.otherStop;
+import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.is;

@@ -56,7 +56,9 @@ import edu.kit.ifv.mobitopp.simulation.VehicleBehaviour;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocalFiles implements DataSource {
 
 	private static final String defaultZoneRepository = "output/zone-repository/";
@@ -91,9 +93,7 @@ public class LocalFiles implements DataSource {
 		if (zonePropertiesDataFile.exists()) {
 			return zonePropertiesDataFile;
 		}
-		System.out
-				.println(
-						"referenced zonePropertiesDataFile does not exist - using attractivityDataFile instead!");
+		log.warn("referenced zonePropertiesDataFile does not exist - using attractivityDataFile instead!");
 		return attractivityDataFile;
 	}	
 	
@@ -302,7 +302,7 @@ public class LocalFiles implements DataSource {
 		if (Convert.asFile(defaultChargingPower).exists()) {
 			return new DefaultPower(defaultChargingPower);
 		}
-		System.out.println("Default charging power file not specified using zero charging power.");
+		log.warn("Default charging power file not specified using zero charging power.");
 		return DefaultPower.zero;
 	}
 
@@ -313,6 +313,7 @@ public class LocalFiles implements DataSource {
 		try (DemandDataDeserialiser deserialiser = demandData.deserialiseFromCsv()) {
 			deserialiser.addOpportunitiesTo(zoneRepository);
 		} catch (Exception e) {
+			log.error("Could not load demand data.");
 			throw new IOException("Could not load demand data.", e);
 		}
 	}

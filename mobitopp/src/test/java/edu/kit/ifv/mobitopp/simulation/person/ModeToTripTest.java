@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
-import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 
 public class ModeToTripTest {
 

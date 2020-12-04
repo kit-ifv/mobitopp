@@ -1,7 +1,7 @@
 package edu.kit.ifv.mobitopp.util.logit;
 
-import java.util.Map;
 import java.util.Collections;
+import java.util.Map;
 
 
 public class LinearUtilityFunction

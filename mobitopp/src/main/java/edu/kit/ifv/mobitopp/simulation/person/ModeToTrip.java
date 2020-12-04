@@ -6,8 +6,8 @@ import java.util.function.BiFunction;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
-import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.Trip;
+import edu.kit.ifv.mobitopp.simulation.TripData;
 
 public class ModeToTrip {
 

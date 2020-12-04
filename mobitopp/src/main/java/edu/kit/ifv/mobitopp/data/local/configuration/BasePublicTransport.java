@@ -17,7 +17,9 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportTimetable;
 import edu.kit.ifv.mobitopp.simulation.publictransport.SearchFootpath;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BasePublicTransport {
 
 	public BasePublicTransport() {
@@ -43,9 +45,9 @@ public abstract class BasePublicTransport {
 			TimetableFiles timetableFiles, PublicTransportFromVisum converter, Time startTime,
 			JourneyFactory factory) {
 		PublicTransportTimetable timetable = converter.convert();
-		System.out.println("Start serializing mobiTopp timetable");
+		log.info("Start serializing mobiTopp timetable");
 		serialize(timetableFiles, startTime, factory, timetable);
-		System.out.println("Serializing mobiTopp timetable finished");
+		log.info("Serializing mobiTopp timetable finished");
 		return timetable;
 	}
 

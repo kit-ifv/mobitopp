@@ -5,8 +5,9 @@ import java.io.Serializable;
 import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class ChargingFacility
   implements Serializable
 {
@@ -105,7 +106,7 @@ public class ChargingFacility
 			ElectricCar car, float suppliedElectricity_kWh, int availableChargingDuration,
 			int chargingDurationMinutes, float oldBattery, float newBattery) {
 		if (null == chargingListener) {
-			System.out.println("No charging listener/writer assigned.");
+			log.warn("No charging listener/writer assigned.");
 			return;
 		}
 		chargingListener.stopCharging(car, this.startOfCharging, availableChargingDuration,

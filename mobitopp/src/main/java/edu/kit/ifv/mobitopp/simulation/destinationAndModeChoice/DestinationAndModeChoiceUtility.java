@@ -1,12 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice;
 
+import java.util.Map;
+import java.util.Set;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-
-import java.util.Set;
-import java.util.Map;
 
 
 public interface DestinationAndModeChoiceUtility {

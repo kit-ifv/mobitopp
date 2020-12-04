@@ -5,8 +5,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.LogitBasedCarSharingCustomerModel;
+import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 
 public class CarSharingParser {
 

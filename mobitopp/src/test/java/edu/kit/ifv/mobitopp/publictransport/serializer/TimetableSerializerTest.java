@@ -11,12 +11,6 @@ import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.publictransport.serializer.DefaultConnectionSerializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.DefaultJourneySerializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.DefaultStationSerializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.DefaultStopSerializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.Serializer;
-import edu.kit.ifv.mobitopp.publictransport.serializer.TimetableSerializer;
 
 public class TimetableSerializerTest {
 

@@ -15,7 +15,9 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.vehicle.VehiclesConverter
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BasePublicTransportConverter implements PublicTransportConverter {
 
 	static final String walkingCode = "F";
@@ -50,7 +52,7 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 	
 	@Override
 	public PublicTransportTimetable convert() {
-		System.out.println("Start converting visum network to mobiTopp");
+		log.info("Start converting visum network to mobiTopp");
 		Stations stations = convertStations();
 		createFactory(stations);
 		StopPoints stopPoints = convertStopPoints(stations);
@@ -58,7 +60,7 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 		ModifiableJourneys journeys = convertJourneys(stopPoints);
 		Connections connections = convertConnections(stopPoints, journeys);
 		Vehicles vehicles = convertVehicles(journeys);
-		System.out.println("Converting visum network to mobiTopp finished");
+		log.info("Converting visum network to mobiTopp finished");
 		return new PublicTransportTimetable(connections, stopPoints, journeys, finder, stations, vehicles);
 	}
 

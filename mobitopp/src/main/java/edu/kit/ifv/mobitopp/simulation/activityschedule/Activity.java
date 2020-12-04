@@ -5,8 +5,8 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
-import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
+import edu.kit.ifv.mobitopp.time.Time;
 
 public class Activity implements ActivityIfc {
 

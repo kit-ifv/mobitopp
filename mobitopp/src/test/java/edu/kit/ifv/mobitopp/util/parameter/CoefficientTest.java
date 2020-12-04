@@ -6,8 +6,6 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.util.parameter.Coefficient;
-
 public class CoefficientTest {
 
 	private static final double margin = 1e-6;

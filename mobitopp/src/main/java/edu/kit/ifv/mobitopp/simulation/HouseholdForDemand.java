@@ -13,7 +13,9 @@ import edu.kit.ifv.mobitopp.data.person.HouseholdId;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.populationsynthesis.EconomicalStatus;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class HouseholdForDemand
   implements Household, Serializable
 {
@@ -158,9 +160,9 @@ public class HouseholdForDemand
 	public void ownCars(Collection<PrivateCar> cars) {
 
 		if (this.numberOfCars != cars.size()) {
-			System.out.println("amount: " + this.numberOfCars);
-			System.out.println("size: " + cars.size());
-			System.out.println(cars);
+			log.warn("amount: " + this.numberOfCars);
+			log.warn("size: " + cars.size());
+			log.warn(cars.toString());
 		}
 
 		assert this.numberOfCars == cars.size();

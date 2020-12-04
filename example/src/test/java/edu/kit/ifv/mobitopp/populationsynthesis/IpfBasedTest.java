@@ -11,7 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import edu.kit.ifv.mobitopp.simulation.SimulationExample;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class IpfBasedTest {
 
   public static Stream<ResultFile> logFileNames() {
@@ -37,6 +39,7 @@ public class IpfBasedTest {
 
   @BeforeAll
   public static void executeMobiTopp() throws Exception {
+	log.debug("Test Logging");
     System.getProperties().entrySet().stream().forEach(System.out::println);
     createPopulation();
     simulatePopulation();

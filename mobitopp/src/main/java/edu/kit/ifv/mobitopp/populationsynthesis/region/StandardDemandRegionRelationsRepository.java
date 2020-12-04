@@ -11,7 +11,9 @@ import java.util.stream.Stream;
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StandardDemandRegionRelationsRepository implements DemandRegionRelationsRepository {
 
 	private final Map<DemandRegion, Map<DemandRegion, Integer>> commutingRelations;
@@ -59,8 +61,7 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 	
   private boolean filter(DemandRegion destination, ZoneId zoneId, DemandRegion region) {
     if (null == destination) {
-      System.out
-          .println(String
+      log.warn(String
               .format("Commuting relations for zone %s and region %s contains a reference to null.",
                   zoneId, region));
     }

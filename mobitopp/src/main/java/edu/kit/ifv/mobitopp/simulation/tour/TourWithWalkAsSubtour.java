@@ -1,15 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.tour;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 
 public class TourWithWalkAsSubtour extends DefaultTour 

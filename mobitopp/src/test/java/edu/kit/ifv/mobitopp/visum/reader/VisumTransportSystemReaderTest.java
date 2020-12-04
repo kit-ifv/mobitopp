@@ -21,7 +21,6 @@ import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
 import edu.kit.ifv.mobitopp.visum.VisumTable;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
-import edu.kit.ifv.mobitopp.visum.reader.VisumTransportSystemReader;
 
 public class VisumTransportSystemReaderTest {
 

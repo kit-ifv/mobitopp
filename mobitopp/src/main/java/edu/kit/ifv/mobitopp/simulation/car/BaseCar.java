@@ -9,8 +9,9 @@ import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public abstract class BaseCar implements Car, Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -97,7 +98,6 @@ public abstract class BaseCar implements Car, Serializable {
   public void refuel(float aimedFuelLevel) {
 
     if (aimedFuelLevel < 0.0f || aimedFuelLevel > 1.0f) {
-
       throw(new IllegalArgumentException("aimedFuelLevel must be between 0.0 and 1.0"));
     }
 
@@ -113,8 +113,8 @@ public abstract class BaseCar implements Car, Serializable {
       distanceKm -= remainingRange();
       driveInternal(remainingRange());
       refuel(1.0f);
-      System.out.println("Refueling !!!");
-      System.out.println("Remaining: " + remainingRange() + "\n" );
+      log.info("Refueling !!!");
+      log.info("Remaining: " + remainingRange() + "\n" );
     }
 
     driveInternal(distanceKm);

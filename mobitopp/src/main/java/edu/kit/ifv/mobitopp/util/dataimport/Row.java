@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Row {
 
   private final Map<String, String> values;
@@ -51,12 +54,11 @@ public class Row {
   }
 
   private static LinkedList<String> extendValues(List<String> values, List<String> attributes) {
-    System.out
-        .println(String
+    log.info(String
             .format("Fewer values (%s) than attributes (%s). Adding empty values.", values.size(),
                 attributes.size()));
-    System.out.println("Attributes: " + attributes);
-    System.out.println("Values: " + values);
+    log.info("Attributes: " + attributes);
+    log.info("Values: " + values);
     LinkedList<String> extended = new LinkedList<>(values);
     extended.add("");
     return extended;

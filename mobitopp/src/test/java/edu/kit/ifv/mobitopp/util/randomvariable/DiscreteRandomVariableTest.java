@@ -3,13 +3,11 @@ package edu.kit.ifv.mobitopp.util.randomvariable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-import org.junit.Before;
-
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DiscreteRandomVariableTest {
 

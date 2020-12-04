@@ -23,7 +23,9 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourAwareActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ActivityPeriod extends ActivitySequenceAsLinkedList
 	implements Serializable
 	, ActivitySequence
@@ -474,7 +476,7 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 			if (act.activityType().isHomeActivity()) { return act; }
 		}
 		
-		System.out.println("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act
+		log.info("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act
 												+ "\nisHomeActivity? " + act.activityType().isHomeActivity());
 		throw new AssertionError();
 	}

@@ -1,8 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.householdlocation;
 
-import edu.kit.ifv.mobitopp.simulation.Location;
-
 import edu.kit.ifv.mobitopp.network.Zone;
+import edu.kit.ifv.mobitopp.simulation.Location;
 
 public interface HouseholdLocationSelector {
 

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.bikesharing;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTripDecorator;
 

@@ -31,7 +31,9 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumPoint2;
 import edu.kit.ifv.mobitopp.visum.VisumSurface;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ZonesReaderCsvBased implements ZonesReader {
 
   private final VisumNetwork visumNetwork;
@@ -79,9 +81,9 @@ public class ZonesReaderCsvBased implements ZonesReader {
 		while (zonePropertiesData.data().hasNext()) {
 			VisumZone visumZone = visumNetwork.zones.get(zonePropertiesData.data().currentRegion());
 			zones.add(zoneFrom(visumZone));
-			System.out
-					.println(
-							String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
+			
+			log.info(String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
+			
 			zonePropertiesData.data().next();
 		}
 		return zones;
@@ -231,9 +233,8 @@ public class ZonesReaderCsvBased implements ZonesReader {
 			StructuralData structuralData = new StructuralData(dataFile);
 			return (zone, id) -> structuralData.valueOrDefault(id.getExternalId(), "numberofparkingplaces");
 		}
-		System.out
-				.println(
-						"parking facility data file is not available - will try to get parkingfacilities from visum zone information!");
+
+		log.warn("parking facility data file is not available - will try to get parkingfacilities from visum zone information!");
 		return (zone, id) -> zone.parkingPlaces;
   }
   
@@ -265,9 +266,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 			return new FileBasedCarSharingDataRepository(roadNetwork, properties, stationData,
 					freeFloatingData, carIds);
 		}
-		System.out
-				.println(
-						"carsharingstation data file is not available - will try to get carsharingstation data from visum zone information!");
+		log.warn("carsharingstation data file is not available - will try to get carsharingstation data from visum zone information!");
 		return new VisumBasedCarSharingDataRepository(visumNetwork, roadNetwork, carIds);
   }
 }

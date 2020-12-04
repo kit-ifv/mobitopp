@@ -8,7 +8,9 @@ import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultTripFactory implements TripFactory {
 
   private int tripCount;
@@ -55,7 +57,7 @@ public class DefaultTripFactory implements TripFactory {
     int duration = (int) impedance.getTravelTime(originId, destinationId, mode, plannedEnd);
 
     if (duration > java.lang.Short.MAX_VALUE) {
-      System.out.println("WARNING: duration > java.lang.Short.MAX_VALUE");
+      log.warn("WARNING: duration > java.lang.Short.MAX_VALUE");
       duration = java.lang.Short.MAX_VALUE;
     }
     duration = Math.max(1, duration);

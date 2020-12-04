@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.routing;
 
 import java.util.Collection;
-import java.lang.Comparable;
 
 class DefaultNode
 	implements Node, Comparable<Node>

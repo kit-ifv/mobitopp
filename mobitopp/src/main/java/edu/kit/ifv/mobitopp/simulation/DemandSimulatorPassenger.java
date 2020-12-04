@@ -26,7 +26,9 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourWithWalkAsSubtourFactory;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandSimulatorPassenger
 	implements DemandSimulator, SimulationOptions
 {
@@ -176,7 +178,7 @@ public class DemandSimulatorPassenger
 	private static void executeGc(Time currentTime) {
 		if (Time.start.equals(currentTime)) {
 			String formattedTime = new DateFormat().asFullDate(currentTime);
-			System.out.println("GC (Simulation): " + formattedTime);
+			log.info("GC (Simulation): " + formattedTime);
 			System.gc();
 		}
 	}
@@ -184,7 +186,7 @@ public class DemandSimulatorPassenger
 	private static void printCurrentTime(Time currentTime) {
 		LocalDateTime realTime = LocalDateTime.now();
 		String simulationTime = new DateFormat().asWeekdayTime(currentTime);
-		System.out.println(realTime + ": Aktuelle Simulationszeit: " + simulationTime);
+		log.info(realTime + ": Aktuelle Simulationszeit: " + simulationTime);
 	}
 
 	public void startSimulation() {
@@ -204,7 +206,7 @@ public class DemandSimulatorPassenger
 				handle(currentTime);
 			}
 
-			System.out.println("Noch " + this.queue.size() + " Eintraege in events");
+			log.info("Noch " + this.queue.size() + " Eintraege in events");
 
 			Time future = SimpleTime.future;
 			writeRemainingTripsToFile(this.queue, future);
@@ -212,9 +214,9 @@ public class DemandSimulatorPassenger
 
 		}
 		catch(java.lang.AbstractMethodError e) {
-			System.out.println("ABSTRACT METHOD ERROR:");
-			System.out.println(e.getMessage());
-			System.out.println(e.getCause());
+			log.error("ABSTRACT METHOD ERROR:");
+			log.error(e.getMessage());
+			log.error(e.getCause().toString());
 			e.printStackTrace();
 		}
 	}

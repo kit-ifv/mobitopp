@@ -27,7 +27,11 @@ import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
+import lombok.extern.slf4j.Slf4j;
+import uk.org.lidalia.sysoutslf4j.context.LogLevel;
+import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
+@Slf4j
 public class ContextBuilder {
 
 	private final StopWatch performanceLogger;
@@ -65,6 +69,11 @@ public class ContextBuilder {
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
+		setUpLogging();
+	}
+	
+	private void setUpLogging() {
+		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(LogLevel.INFO, LogLevel.ERROR);
 	}
   
   public ContextBuilder(
@@ -143,8 +152,8 @@ public class ContextBuilder {
 	}
 
 	private void printPerformance() {
-		System.out.println("Runtimes while loading context:");
-		performanceLogger.forEach((m, d) -> System.out.println(m + " " + d));
+		log.info("Runtimes while loading context:");
+		performanceLogger.forEach((m, d) -> log.info(m + " " + d));
 	}
 
 	private void validateConfiguration() throws IOException {
@@ -187,7 +196,7 @@ public class ContextBuilder {
 	}
 
 	private void loadVisumNetwork() {
-		System.out.println("Reading VISUM network");
+		log.info("Reading VISUM network");
 		if (null == network) {
 			network = doLoadVisumNetwork(configuration.getVisumFile(), buildLanguage());
 		}
@@ -214,7 +223,7 @@ public class ContextBuilder {
 
 	private void loadRoadNetwork() {
 		loadVisumNetwork();
-		System.out.println("creating road network");
+		log.info("creating road network");
 		if (null == roadNetwork) {
 			roadNetwork = doLoadRoadNetwork(network);
 		}
@@ -236,13 +245,13 @@ public class ContextBuilder {
 	}
 
 	private void publicTransport() {
-		System.out.println("reading PT network");
+		log.info("reading PT network");
 		publicTransport = configuration.getPublicTransport().loadData(this::network, simulationDays);
 		log("Load public transport");
 	}
 
 	private void dataRepository() throws IOException {
-		System.out.println("Loading data repository");
+		log.info("Loading data repository");
 		int numberOfZones = configuration.getNumberOfZones();
 		dataRepository = configuration
 				.getDataSource()
@@ -253,7 +262,7 @@ public class ContextBuilder {
 	}
 
 	private void personResults() {
-		System.out.println("Configuring output");
+		log.info("Configuring output");
 		personResults = createResults();
 		log("Create output");
 	}

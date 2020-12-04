@@ -1,12 +1,11 @@
 package edu.kit.ifv.mobitopp.util.geom;
 
-import java.awt.geom.PathIterator;
 import java.awt.geom.Area;
 import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class AreaUtil {

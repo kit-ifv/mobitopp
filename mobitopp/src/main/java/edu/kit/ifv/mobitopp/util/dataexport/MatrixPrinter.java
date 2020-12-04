@@ -9,7 +9,9 @@ import java.util.Locale;
 
 import edu.kit.ifv.mobitopp.data.Matrix;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MatrixPrinter {
 
 	private static final int defaultValuesPerLine = 10;
@@ -47,11 +49,12 @@ public class MatrixPrinter {
 
 	private void write(String content, File outputFile) {
 		try (FileWriter fw = new FileWriter(outputFile)) {
-			System.out.println("writing matrix file: " + outputFile.getAbsolutePath());
+			log.info("writing matrix file: " + outputFile.getAbsolutePath());
 			fw.write(content);
-			System.out.println("DONE.");
+			log.info("DONE.");
 		} catch (Exception e) {
-			System.out.println(e);
+			log.error(e.getMessage());
+			log.error(e.getCause().toString());
 			throw new RuntimeException(e);
 		}
 	}

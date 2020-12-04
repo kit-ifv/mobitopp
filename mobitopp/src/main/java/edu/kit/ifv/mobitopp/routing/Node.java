@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.routing;
 
-import java.lang.Comparable;
-
 public interface Node 
 	extends Comparable<Node>
 {

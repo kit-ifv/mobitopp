@@ -1,9 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import java.io.Serializable;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Location;
-
-import java.io.Serializable;
 
 
 public class CarPosition implements Serializable {

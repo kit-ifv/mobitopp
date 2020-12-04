@@ -1,13 +1,13 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice;
 
+import java.util.Map;
+import java.util.Set;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-
-import java.util.Map;
-import java.util.Set;
 
 public interface ModeChoiceParameter {
 

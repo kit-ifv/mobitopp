@@ -18,7 +18,9 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class HouseholdWeightCalculatorIPFlike 
 	implements HouseholdWeightCalculatorIfc
 {
@@ -112,7 +114,7 @@ class HouseholdWeightCalculatorIPFlike
 						false
 					);
 
-			System.out.println(quotients.get("MALE").get(5));
+			log.debug(String.valueOf(quotients.get("MALE").get(5)));
 		}
 
 		return new ArrayList<HouseholdOfPanelDataId>();
@@ -198,11 +200,11 @@ class HouseholdWeightCalculatorIPFlike
 		}
 
 		if (printStatistics) {
-			System.out.println("\nMALE:");
+			log.debug("\nMALE:");
 			printDist(maleDist, normalizedDistribution(maleCurr));
-			System.out.println("\nFEMALE:");
+			log.debug("\nFEMALE:");
 			printDist(femaleDist, normalizedDistribution(femaleCurr));
-			System.out.println("\nEMP:");
+			log.debug("\nEMP:");
 			printDist(empDist, normalizedDistribution(empCurr));
 		}
 
@@ -234,13 +236,13 @@ class HouseholdWeightCalculatorIPFlike
 			diff1 += Math.pow(Math.abs(1.0-quotient),2.0);
 			diff2 += Math.pow(Math.abs(soll_val-ist_val),2.0);
 
-			System.out.println(key + ": " 
+			log.debug(key + ": " 
 							+ ist_val + " / " + soll_val
 							+ ":\t" + quotient
 			);
 		}
-		System.out.println("MSE: " + diff1/cnt);
-		System.out.println("MSE: " + diff2/cnt);
+		log.debug("MSE: " + diff1/cnt);
+		log.debug("MSE: " + diff2/cnt);
 	}
 
 

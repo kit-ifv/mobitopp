@@ -7,26 +7,27 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson;
 import edu.kit.ifv.mobitopp.actitopp.Configuration;
 import edu.kit.ifv.mobitopp.actitopp.HActivity;
 import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException;
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase;
+import edu.kit.ifv.mobitopp.actitopp.RNGHelper;
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
 import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
-import edu.kit.ifv.mobitopp.actitopp.RNGHelper;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
-import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -37,6 +38,7 @@ import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
  * @author Tim Hilgert
  *
  */
+@Slf4j
 public class ActiToppScheduleCreator implements ActivityScheduleCreator, ActivityScheduleAssigner
 {
 	
@@ -107,7 +109,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
 					); 		
 			
 			// DEBUG purpose
-		  // System.out.println(personOfActiTopp);
+		  // log.debug(personOfActiTopp);
 			
 	    // Erzeuge solange Schedules, bis kein InvalidPatternException mehr vorliegt
 	    boolean scheduleOK = false;
@@ -148,9 +150,9 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
     // Statusinformationen und Log4J-Export
     if (personIndex % Configuration.anzexportds == 0)
     {
-    	System.out.println("Doing person Nr... " + personIndex);
+    	log.info("Doing person Nr... " + personIndex);
     	int prozent = (int) Math.round(100*((double) globalretries/(double) Configuration.anzexportds));
-    	System.err.println("Anzahl Retries: " + globalretries + " (~ " + prozent + "% der Personen)");
+    	log.error("Anzahl Retries: " + globalretries + " (~ " + prozent + "% der Personen)");
     	globalretries=0;
     	
     	exportData();
@@ -256,7 +258,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
   	}
   	writer.close();
   	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	System.out.println("CSV Data Person geschrieben " + Uhrzeit);
+  	log.info("CSV Data Person geschrieben " + Uhrzeit);
   }
  
   /**
@@ -315,7 +317,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
   	}
   	writer.close();
   	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	System.out.println("CSV Data Act geschrieben " + Uhrzeit);
+  	log.info("CSV Data Act geschrieben " + Uhrzeit);
   }
     
   /**
@@ -329,7 +331,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
   		logElementsTo(resultWriter);
   	}
   	String Uhrzeit = new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new java.util.Date());  	
-  	System.out.println("Log4J Data geschrieben " + Uhrzeit);
+  	log.info("Log4J Data geschrieben " + Uhrzeit);
   }
 
 

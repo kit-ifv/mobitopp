@@ -4,7 +4,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class Simulation {
 
 	private final SimulationContext context;
@@ -33,16 +35,16 @@ public abstract class Simulation {
 	}
 
 	private void doSimulate() {
-		System.out.println("Initializing sub-systems...");
+		log.info("Initializing sub-systems...");
 		DemandSimulator simulator = simulator();
 
-		System.out.println("ready for simulation");
+		log.info("ready for simulation");
 
 		LocalDateTime start = LocalDateTime.now();
 		simulator.startSimulation();
 		LocalDateTime end = LocalDateTime.now();
 		Duration runtime = Duration.between(start, end);
-		System.out.println("Start: " + start + " End: " + end + " Runtime: " + runtime);
+		log.info("Start: " + start + " End: " + end + " Runtime: " + runtime);
 	}
 
 	abstract protected DemandSimulator simulator();

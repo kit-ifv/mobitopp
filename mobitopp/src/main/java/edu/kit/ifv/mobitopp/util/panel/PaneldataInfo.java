@@ -1,8 +1,11 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 class PaneldataInfo {
 
 	public HouseholdInfo household	= new HouseholdInfo();
@@ -50,7 +53,7 @@ class PaneldataInfo {
 						+ ", " + pattern.getStarttime()
 						+ ", " + pattern.getDuration() ;
 
-			System.out.println(data);
+			log.info(data);
 		}
 	}
 

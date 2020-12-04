@@ -1,15 +1,13 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import java.util.Random;
+
 import edu.kit.ifv.mobitopp.data.Zone;
-import edu.kit.ifv.mobitopp.util.ParameterFileParser;
-
-import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
-import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
-
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
-
-import java.util.Random;
+import edu.kit.ifv.mobitopp.util.ParameterFileParser;
+import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
+import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
 class CommutationTicketModelStuttgart
 	implements CommutationTicketModelIfc {

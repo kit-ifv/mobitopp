@@ -1,26 +1,21 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.HashMap;
+
 import org.junit.Before;
+import org.junit.Test;
 
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingDataForZone;
-import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
-import edu.kit.ifv.mobitopp.simulation.carsharing.CarSharingCar;
-import edu.kit.ifv.mobitopp.simulation.carsharing.DefaultCarSharingCar;
-
-import edu.kit.ifv.mobitopp.simulation.Car;
-import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
-import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
-import edu.kit.ifv.mobitopp.simulation.IdSequence;
 import edu.kit.ifv.mobitopp.data.ExampleZones;
 import edu.kit.ifv.mobitopp.data.Zone;
-
-import java.util.HashMap;
+import edu.kit.ifv.mobitopp.simulation.Car;
+import edu.kit.ifv.mobitopp.simulation.IdSequence;
+import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
+import edu.kit.ifv.mobitopp.simulation.car.ConventionalCar;
 
 
 public class FreeFloatingCarSharingCompanyTest {

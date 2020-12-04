@@ -23,19 +23,19 @@ import org.junit.Test;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
+import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
-import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.serializer.Deserializer;
 import edu.kit.ifv.mobitopp.publictransport.serializer.JourneyProvider;
 import edu.kit.ifv.mobitopp.publictransport.serializer.NeighbourhoodCoupler;
 import edu.kit.ifv.mobitopp.publictransport.serializer.NodeResolver;
 import edu.kit.ifv.mobitopp.publictransport.serializer.StationResolver;
 import edu.kit.ifv.mobitopp.publictransport.serializer.StopResolver;
+import edu.kit.ifv.mobitopp.simulation.publictransport.model.ModifiableJourneys;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Stations;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StopPoints;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.simulation.publictransport.model.ModifiableJourneys;
 
 public class PublicTransportFromMobitoppTest {
 

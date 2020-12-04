@@ -26,7 +26,10 @@ dependencies {
             libraries.commons_compress,
             libraries.snakeyaml,
             libraries.rhino,
-            libraries.rhino_engine
+            libraries.rhino_engine,
+            libraries.log4j,
+            libraries.slf4j,
+            libraries.log_sys_out
     
     testAnnotationProcessor libraries.lombok
     

@@ -7,7 +7,9 @@ import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.DemandZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandDataForZoneCalculatorIfc;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SingleZoneDemandCalculator implements DemandDataCalculator {
 
 	private final DemandDataForZoneCalculatorIfc calculator;
@@ -36,8 +38,7 @@ public class SingleZoneDemandCalculator implements DemandDataCalculator {
 				.getZones()
 				.stream()
 				.filter(zonesWithPopulation)
-				.peek(zone -> System.out
-						.println(String
+				.peek(zone -> log.info(String
 								.format("%s: Calculate demand for: Zone %s", LocalDateTime.now(), zone.getId())))
 				.forEach(this::calculateAndSave);
 	}
@@ -52,8 +53,7 @@ public class SingleZoneDemandCalculator implements DemandDataCalculator {
 				.getZones()
 				.stream()
 				.filter(zonesWithoutPopulation)
-				.peek(zone -> System.out
-						.println(String
+				.peek(zone -> log.info(String
 								.format("%s: PopulationSynthesis: Zone %s", LocalDateTime.now(), zone.getId())))
 				.forEach(zone -> calculator.saveDemandData(zone));
 	}

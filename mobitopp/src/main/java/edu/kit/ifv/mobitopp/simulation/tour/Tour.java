@@ -2,11 +2,11 @@ package edu.kit.ifv.mobitopp.simulation.tour;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
-import java.util.Optional;
 
 public interface Tour {
 

@@ -6,12 +6,14 @@ import java.time.LocalDateTime;
 
 import edu.kit.ifv.mobitopp.util.dataimport.Bbsr17Repository;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PopulationSynthesisIpuCommunityBasedStarter {
 
 	public static void main(String... args) throws Exception {
 		if (1 > args.length) {
-			System.out.println("Usage: ... <configuration file>");
+			log.error("Usage: ... <configuration file>");
 			System.exit(-1);
 		}
 
@@ -20,7 +22,7 @@ public class PopulationSynthesisIpuCommunityBasedStarter {
 		startSynthesis(configurationFile);
 		LocalDateTime end = LocalDateTime.now();
 		Duration runtime = Duration.between(start, end);
-		System.out.println("Population synthesis took " + runtime);
+		log.info("Population synthesis took " + runtime);
 	}
 
 	public static void startSynthesis(File configurationFile) throws Exception {

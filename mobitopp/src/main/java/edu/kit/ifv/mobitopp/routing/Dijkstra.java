@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.kit.ifv.mobitopp.routing.util.PriorityQueue;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Dijkstra 
 	implements Router 
 {
@@ -82,7 +84,7 @@ public class Dijkstra
 
 	public Map<Node,Path> shortestPathToAll(Graph g, Node s) {
 
-System.out.println("starting shortestPathToAll... from " + s);
+log.info("starting shortestPathToAll... from " + s);
 		assert s != null;
 
 		initDataStructures(g);
@@ -111,7 +113,7 @@ System.out.println("starting shortestPathToAll... from " + s);
 
 		assert t != null;
 
-System.out.println("starting shortestPathFromAll... " + t);
+log.info("starting shortestPathFromAll... " + t);
 
 		initDataStructures(g);
 
@@ -139,7 +141,7 @@ System.out.println("starting shortestPathFromAll... " + t);
 
 		assert t != null;
 
-System.out.println("starting shortestPathGraphFromAll... " + t);
+log.info("starting shortestPathGraphFromAll... " + t);
 
 		initDataStructures(g);
 

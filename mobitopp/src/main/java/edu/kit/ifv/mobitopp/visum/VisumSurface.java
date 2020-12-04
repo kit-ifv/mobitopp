@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SuppressWarnings("serial")
 public class VisumSurface 
 	implements Serializable
@@ -91,7 +94,7 @@ public class VisumSurface
 
 	private static Area combinedArea(List<Area> areas) {
 
-System.out.println("calculating combinedArea for " + areas.size() + " faces");
+log.info("calculating combinedArea for " + areas.size() + " faces");
 
 		Area area = new Area();
 

@@ -1,14 +1,17 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.util.Map;
-import java.io.File;
 import java.io.BufferedReader;
-import java.util.StringTokenizer;
-import java.util.HashMap;
-import java.io.FileReader;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TargetChoiceParameterCost {
 
 
@@ -30,7 +33,7 @@ public class TargetChoiceParameterCost {
 
 		File f = new File(fileName);
 		if (!f.exists()) {
-			System.out.println("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
+			log.error("FEHLER: Datei nicht da!  Aktuelles Verzeichnis " +
 					f.getAbsolutePath());
 		}
 
@@ -41,9 +44,9 @@ public class TargetChoiceParameterCost {
 					parseLine(in);
 				}
 			} catch (FileNotFoundException e) {
-				System.out.print("TargetChoiceParameterCost: Datei wurde nicht gefunden : " + fileName);
+				log.error("TargetChoiceParameterCost: Datei wurde nicht gefunden : " + fileName);
 			} catch (IOException e) {
-				System.out.print(" Datei konnte nicht geöffnet werden :" + e);
+				log.error(" Datei konnte nicht geöffnet werden :" + e);
 			}
 
 			printParameter();
@@ -64,7 +67,7 @@ public class TargetChoiceParameterCost {
 		StringTokenizer tokens = new StringTokenizer(line_, ";");
 
 		if (tokens.countTokens() != 4) {
-			System.out.println("Probleme mit der Zeile " + line_ );
+			log.error("Probleme mit der Zeile " + line_ );
 			return;
 		}
 
@@ -81,17 +84,17 @@ public class TargetChoiceParameterCost {
 
 
 		} catch (NumberFormatException nex) {
-			System.out.println("Probleme mit der Zeile " + line_ + "  " + nex);
+			log.error("Probleme mit der Zeile " + line_ + "  " + nex);
 		}
 	}
 
 	private void printParameter()
 	{
-		System.out.println("Targetparameter");
+		log.info("Targetparameter");
 
 		for (ActivityType activity : this.opportunity.keySet()) {
 
-			System.out.println(activity.getTypeAsInt() + ": " 
+			log.info(activity.getTypeAsInt() + ": " 
 																	+ this.opportunity.get(activity) + " "
 																	+ this.time.get(activity) + " "
 																	+ this.cost.get(activity)
@@ -100,11 +103,10 @@ public class TargetChoiceParameterCost {
 
 		}
 
-		System.out.println();
 
 		for (ActivityType activity : this.opportunity.keySet()) {
 
-			System.out.println(activity.getTypeAsInt() + ": " 
+			log.info(activity.getTypeAsInt() + ": " 
 																	+ getParameterOpportunity(activity) + " "
 																	+ getParameterTime(activity) + " "
 																	+ getParameterCost(activity)

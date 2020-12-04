@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.data.tourbasedactivitypattern;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;

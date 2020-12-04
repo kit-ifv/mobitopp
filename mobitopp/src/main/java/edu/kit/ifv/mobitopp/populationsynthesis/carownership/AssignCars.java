@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarOwnershipModel;
 
 public class AssignCars {
 

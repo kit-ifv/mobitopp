@@ -6,11 +6,11 @@ import java.util.Random;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.CommutationTicketModelIfc;
-import edu.kit.ifv.mobitopp.populationsynthesis.PanelBasedPersonCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.EmobilityPersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
-import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
+import edu.kit.ifv.mobitopp.populationsynthesis.PanelBasedPersonCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
+import edu.kit.ifv.mobitopp.populationsynthesis.PersonCreator;
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.MobilityProviderCustomerModel;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 
