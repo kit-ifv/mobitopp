@@ -39,9 +39,12 @@ public class DemandRegionRelationsParser {
 	}
 	
 	private void parse(Row row) {
-		Optional<DemandRegion> origin = repository.getRegionWith(level, row.get("origin"));
-		Optional<DemandRegion> destination = repository.getRegionWith(level, row.get("destination"));
+		String originId = row.get("origin");
+		String destinationId = row.get("destination");
+    Optional<DemandRegion> origin = repository.getRegionWith(level, originId);
+    Optional<DemandRegion> destination = repository.getRegionWith(level, destinationId);
 		if (origin.isEmpty() || destination.isEmpty()) {
+		  System.out.println(String.format("Could not find origin %s or destination %s to parse demand region relation.", originId, destinationId));
 		  return;
 		}
 		int commuters = row.valueAsInteger("commuters");
