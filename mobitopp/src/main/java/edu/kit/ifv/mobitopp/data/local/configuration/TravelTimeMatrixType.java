@@ -4,6 +4,7 @@ public enum TravelTimeMatrixType implements MatrixType {
   bike,
   bikesharing,
   car,
+  e_scooter,
   passenger,
   pedestrian,
   publictransport,

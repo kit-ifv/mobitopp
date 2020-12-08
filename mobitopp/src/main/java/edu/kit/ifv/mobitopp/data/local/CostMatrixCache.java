@@ -29,13 +29,14 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 		types.put(StandardMode.CAR, CostMatrixType.car);
 		types.put(StandardMode.CARSHARING_FREE, CostMatrixType.carsharing_free_floating);
 		types.put(StandardMode.CARSHARING_STATION, CostMatrixType.carsharing_station);
+		types.put(StandardMode.E_SCOOTER, CostMatrixType.e_scooter);
 		types.put(StandardMode.PUBLICTRANSPORT, CostMatrixType.publictransport);
 		types.put(StandardMode.TAXI, CostMatrixType.taxi);
-    types.put(StandardMode.PARK_AND_RIDE, CostMatrixType.park_and_ride);
-    types.put(StandardMode.RIDE_HAILING, CostMatrixType.ride_hailing);
-    types.put(StandardMode.PREMIUM_RIDE_HAILING, CostMatrixType.premium_ride_hailing);
-    types.put(StandardMode.RIDE_POOLING, CostMatrixType.ride_pooling);
-    types.put(StandardMode.TRUCK, CostMatrixType.truck);
+		types.put(StandardMode.PARK_AND_RIDE, CostMatrixType.park_and_ride);
+		types.put(StandardMode.RIDE_HAILING, CostMatrixType.ride_hailing);
+		types.put(StandardMode.PREMIUM_RIDE_HAILING, CostMatrixType.premium_ride_hailing);
+		types.put(StandardMode.RIDE_POOLING, CostMatrixType.ride_pooling);
+		types.put(StandardMode.TRUCK, CostMatrixType.truck);
 		return types;
 	}
 
@@ -58,9 +59,10 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 	protected TaggedCostMatrix loadMatrixBy(CostMatrixId id) throws IOException {
 		return configuration().costMatrixFor(id);
 	}
-	
+
 	@Override
 	protected Stream<CostMatrixId> split(TaggedCostMatrix taggedMatrix) {
 		return taggedMatrix.id().split();
 	}
+
 }
