@@ -18,6 +18,7 @@ public abstract class DefaultMappings {
     types.add(StandardMode.CAR, TravelTimeMatrixType.car);
     types.add(StandardMode.CARSHARING_FREE, TravelTimeMatrixType.car);
     types.add(StandardMode.CARSHARING_STATION, TravelTimeMatrixType.car);
+    types.add(StandardMode.E_SCOOTER, TravelTimeMatrixType.e_scooter);
     types.add(StandardMode.PASSENGER, TravelTimeMatrixType.car);
     types.add(StandardMode.PEDELEC, TravelTimeMatrixType.bike);
     types.add(StandardMode.PEDESTRIAN, TravelTimeMatrixType.pedestrian);
