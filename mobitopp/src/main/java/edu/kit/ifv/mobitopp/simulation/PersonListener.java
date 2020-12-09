@@ -20,7 +20,7 @@ public interface PersonListener {
 
   void notifySelectCarRoute(Person person, Car car, TripData trip, Path route);
 
-  void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode);
+  void writeSubtourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode);
 
   void writeTourinfoToFile(Person person, Tour tour, Zone tourDestination, Mode tourMode);
 

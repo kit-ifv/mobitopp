@@ -58,7 +58,7 @@ public class TripLegListenerTest {
 				Arguments.of("FinishCarTrip", (Consumer<PersonListener>) listener -> listener.notifyFinishCarTrip(person, car, trip, activity)),
 				Arguments.of("StartActivity", (Consumer<PersonListener>) listener -> listener.notifyStartActivity(person, activity)),
 				Arguments.of("SelectCarRoute", (Consumer<PersonListener>) listener -> listener.notifySelectCarRoute(person, car, tripData, route)),
-				Arguments.of("SubtourinfoToFile", (Consumer<PersonListener>) listener -> listener.writeSubourinfoToFile(person, tour, subtour, tourMode)),
+				Arguments.of("SubtourinfoToFile", (Consumer<PersonListener>) listener -> listener.writeSubtourinfoToFile(person, tour, subtour, tourMode)),
 				Arguments.of("TourinfoToFile", (Consumer<PersonListener>) listener -> listener.writeTourinfoToFile(person, tour, tourDestination, tourMode)),
 				Arguments.of("StateChange", (Consumer<PersonListener>) listener -> listener.notifyStateChanged(stateChange )),
 				Arguments.of("FinishSimulation", (Consumer<PersonListener>) listener -> listener.notifyFinishSimulation()));

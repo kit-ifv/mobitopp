@@ -72,7 +72,7 @@ public class TourModeChoiceModelWithTimeRestrictions
 				
 				Subtour subtour = tour.correspondingSubtour(previousActivity).get();
 				
-				context.personResults().writeSubourinfoToFile(person, tour, subtour, tourMode);
+				context.personResults().writeSubtourinfoToFile(person, tour, subtour, tourMode);
 			
 				if (!tourMode.isFlexible()) {
 					currentChoiceSet = Set.of(tourMode);
