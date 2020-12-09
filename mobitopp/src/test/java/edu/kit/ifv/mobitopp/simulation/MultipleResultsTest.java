@@ -52,7 +52,7 @@ public class MultipleResultsTest {
             l -> l.notifyStartActivity(person, activity),
             l -> l.notifySelectCarRoute(person, car, tripData, route),
             l -> l.notifyStateChanged(stateChange), l -> l.notifyFinishSimulation(),
-            l -> l.writeSubourinfoToFile(person, tour, subtour, tourMode),
+            l -> l.writeSubtourinfoToFile(person, tour, subtour, tourMode),
             l -> l.writeTourinfoToFile(person, subtour, tourDestination, tourMode));
   }
 }

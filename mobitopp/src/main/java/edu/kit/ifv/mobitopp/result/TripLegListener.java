@@ -55,8 +55,8 @@ public class TripLegListener implements PersonListener {
 	}
 
 	@Override
-	public void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
-		other.writeSubourinfoToFile(person, tour, subtour, tourMode);
+	public void writeSubtourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
+		other.writeSubtourinfoToFile(person, tour, subtour, tourMode);
 	}
 
 	@Override
