@@ -18,6 +18,10 @@ public class WrittenConfiguration {
 	public static final int unlimited = Integer.MAX_VALUE;
 	private static final String defaultResultFolder = "log";
 
+	static final int defaulThreadCount = Math.max(1,
+			Runtime.getRuntime().availableProcessors() / 2);
+	private static final String defaultLogLevel = "INFO";
+
 	private float fractionOfPopulation;
 	private long seed;
 	private int days;
@@ -29,6 +33,8 @@ public class WrittenConfiguration {
 	private Map<String, String> destinationChoice;
 	private Map<String, String> modeChoice;
 	private int timeStepLength;
+	private int threadCount;
+	private String logLevel;
 	private VisumToMobitopp visumToMobitopp;
 	private Map<String, String> experimental;
 
@@ -38,6 +44,8 @@ public class WrittenConfiguration {
 		publicTransport = new NoPublicTransport();
 		resultFolder = defaultResultFolder;
 		timeStepLength = defaultTimeStepLength;
+		threadCount = defaulThreadCount;
+		logLevel = defaultLogLevel;
 		destinationChoice = Collections.emptyMap();
 		modeChoice = Collections.emptyMap();
 		visumToMobitopp = new VisumToMobitopp();
@@ -56,6 +64,8 @@ public class WrittenConfiguration {
 		this.destinationChoice = other.destinationChoice;
 		this.modeChoice = other.modeChoice;
 		this.timeStepLength = other.timeStepLength;
+		this.threadCount = other.threadCount;
+		this.logLevel = other.logLevel;
 		this.visumToMobitopp = other.visumToMobitopp;
 		this.experimental = other.experimental;
 	}

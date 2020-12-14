@@ -57,33 +57,27 @@ public class ContextBuilder {
 	private DynamicParameters destinationChoiceParameters;
 	private DynamicParameters modeChoiceParameters;
 
-	public ContextBuilder(
-			AreaTypeRepository areaTypeRepository, TypeMapping modeToType, LanguageFactory language,
-			PersonChangerFactory personChangerFactory) {
-    super();
+	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
+			LanguageFactory language, PersonChangerFactory personChangerFactory) {
+		super();
 		this.areaTypeRepository = areaTypeRepository;
-    this.modeToType = modeToType;
-    this.languageFactory = language;
+		this.modeToType = modeToType;
+		this.languageFactory = language;
 		this.personChangerFactory = personChangerFactory;
 		this.wrapImpedance = Function.identity();
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
-		setUpLogging();
+
 	}
-	
-	private void setUpLogging() {
-		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(LogLevel.INFO, LogLevel.ERROR);
+
+	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
+			LanguageFactory language) {
+		this(areaTypeRepository, modeToType, language, (c) -> PersonChanger.noChange());
 	}
-  
-  public ContextBuilder(
-      AreaTypeRepository areaTypeRepository, TypeMapping modeToType, LanguageFactory language) {
-  	this(areaTypeRepository, modeToType, language, (c) -> PersonChanger.noChange());
-  }
 
 	public ContextBuilder(AreaTypeRepository areaTypeRepository) {
-		this(areaTypeRepository, DefaultMappings.noAutonomousModes(),
-				defaultLanguageFactory());
+		this(areaTypeRepository, DefaultMappings.noAutonomousModes(), defaultLanguageFactory());
 	}
 
 	private static LanguageFactory defaultLanguageFactory() {
@@ -93,26 +87,26 @@ public class ContextBuilder {
 	public ContextBuilder() {
 		this(new BicRepository());
 	}
-	
+
 	public ContextBuilder use(TypeMapping modeToType) {
 		this.modeToType = modeToType;
 		return this;
 	}
-  
-  public ContextBuilder use(PersonChangerFactory personChangerFactory) {
-  	this.personChangerFactory = personChangerFactory;
-  	return this;
-  }
-  
-  public ContextBuilder use(LanguageFactory languageFactory) {
-  	this.languageFactory = languageFactory;
-  	return this;
-  }
-  
-  public ContextBuilder use(Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) {
-  	this.wrapImpedance = wrapImpedance;
-  	return this;
-  }
+
+	public ContextBuilder use(PersonChangerFactory personChangerFactory) {
+		this.personChangerFactory = personChangerFactory;
+		return this;
+	}
+
+	public ContextBuilder use(LanguageFactory languageFactory) {
+		this.languageFactory = languageFactory;
+		return this;
+	}
+
+	public ContextBuilder use(Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) {
+		this.wrapImpedance = wrapImpedance;
+		return this;
+	}
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
 		WrittenConfiguration configuration = format.parse(configurationFile);
@@ -127,6 +121,7 @@ public class ContextBuilder {
 	private SimulationContext loadData() throws IOException {
 		startLoading();
 		validateConfiguration();
+		setUpLogging();
 		createPersonChanger();
 		createHouseholdFilter();
 		experimentalParameters();
@@ -142,6 +137,18 @@ public class ContextBuilder {
 		return createContext;
 	}
 
+	private void setUpLogging() {
+		LogLevel level = LogLevel.INFO;
+
+		try {
+			level = LogLevel.valueOf(configuration.getLogLevel());
+		} catch (IllegalArgumentException | NullPointerException e) {
+			log.warn("Could not parse log level '" + String.valueOf(configuration.getLogLevel())
+					+ "' given in the configuration.");
+		}
+
+		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(level, LogLevel.ERROR);
+	}
 
 	private void startLoading() {
 		performanceLogger.start();
@@ -160,11 +167,11 @@ public class ContextBuilder {
 		new Validate().now(configuration);
 		log("Validate configuration");
 	}
-	
+
 	private void createPersonChanger() {
 		personChanger = personChangerFactory.create(configuration);
 	}
-	
+
 	private void createHouseholdFilter() {
 		householdFilter = new FilterFractionOfHouseholds(configuration.getFractionOfPopulation());
 	}
@@ -173,10 +180,10 @@ public class ContextBuilder {
 		experimentalParameters = new DynamicParameters(configuration.getExperimental());
 		log("Create experimental parameters");
 	}
-	
+
 	private void destinationChoiceParameters() {
-	  destinationChoiceParameters = new DynamicParameters(configuration.getDestinationChoice());
-	  log("Create destination choice parameters");
+		destinationChoiceParameters = new DynamicParameters(configuration.getDestinationChoice());
+		log("Create destination choice parameters");
 	}
 
 	private void modeChoiceParameters() {
@@ -204,21 +211,20 @@ public class ContextBuilder {
 
 	private NetfileLanguage buildLanguage() {
 		String carSystem = configuration.getVisumToMobitopp().getCarTransportSystemCode();
-		String individualWalkSystem = configuration.getVisumToMobitopp().getIndividualWalkTransportSystemCode();
-		String publicTransportWalkSystem = configuration.getVisumToMobitopp().getPtWalkTransportSystemCode();
-		StandardNetfileLanguages builder = StandardNetfileLanguages
-				.builder()
-				.carSystem(carSystem)
+		String individualWalkSystem = configuration.getVisumToMobitopp()
+				.getIndividualWalkTransportSystemCode();
+		String publicTransportWalkSystem = configuration.getVisumToMobitopp()
+				.getPtWalkTransportSystemCode();
+		StandardNetfileLanguages builder = StandardNetfileLanguages.builder().carSystem(carSystem)
 				.individualWalkSystem(individualWalkSystem)
-				.publicTransportWalkSystem(publicTransportWalkSystem)
-				.build();
+				.publicTransportWalkSystem(publicTransportWalkSystem).build();
 		return languageFactory.createFrom(builder);
 	}
 
 	protected VisumNetwork doLoadVisumNetwork(String fileName, NetfileLanguage language) {
-	  File visumFile = Convert.asFile(fileName);
-    String ptSystemCode = configuration.getVisumToMobitopp().getPtTransportSystemCode();
-    return new VisumNetworkReader(language).readNetwork(visumFile, ptSystemCode);
+		File visumFile = Convert.asFile(fileName);
+		String ptSystemCode = configuration.getVisumToMobitopp().getPtTransportSystemCode();
+		return new VisumNetworkReader(language).readNetwork(visumFile, ptSystemCode);
 	}
 
 	private void loadRoadNetwork() {
@@ -229,9 +235,9 @@ public class ContextBuilder {
 		}
 	}
 
-  private SimpleRoadNetwork doLoadRoadNetwork(VisumNetwork network) {
-    return new SimpleRoadNetwork(network, carOf(network));
-  }
+	private SimpleRoadNetwork doLoadRoadNetwork(VisumNetwork network) {
+		return new SimpleRoadNetwork(network, carOf(network));
+	}
 
 	private VisumTransportSystem carOf(VisumRoadNetwork network) {
 		VisumToMobitopp visumToMobitopp = configuration.getVisumToMobitopp();
@@ -246,18 +252,17 @@ public class ContextBuilder {
 
 	private void publicTransport() {
 		log.info("reading PT network");
-		publicTransport = configuration.getPublicTransport().loadData(this::network, simulationDays);
+		publicTransport = configuration.getPublicTransport().loadData(this::network,
+				simulationDays);
 		log("Load public transport");
 	}
 
 	private void dataRepository() throws IOException {
 		log.info("Loading data repository");
 		int numberOfZones = configuration.getNumberOfZones();
-		dataRepository = configuration
-				.getDataSource()
-				.forSimulation(this::network, numberOfZones, simulationDays, publicTransport, resultWriter,
-						electricChargingWriter, areaTypeRepository, modeToType, householdFilter, personChanger,
-						wrapImpedance);
+		dataRepository = configuration.getDataSource().forSimulation(this::network, numberOfZones,
+				simulationDays, publicTransport, resultWriter, electricChargingWriter,
+				areaTypeRepository, modeToType, householdFilter, personChanger, wrapImpedance);
 		log("Load data repository");
 	}
 
@@ -268,15 +273,16 @@ public class ContextBuilder {
 	}
 
 	protected PersonResults createResults() {
-	  PersonResults results = new MultipleResults();
-	  results.addListener(new TripfileWriter(resultWriter, dataRepository.impedance()));
-    return results;
+		PersonResults results = new MultipleResults();
+		results.addListener(new TripfileWriter(resultWriter, dataRepository.impedance()));
+		return results;
 	}
 
 	private SimulationContext createContext() {
 		SimpleSimulationContext context = new SimpleSimulationContext(configuration,
 				experimentalParameters, dataRepository, simulationDays, format, resultWriter,
-				electricChargingWriter, personResults, destinationChoiceParameters, modeChoiceParameters);
+				electricChargingWriter, personResults, destinationChoiceParameters,
+				modeChoiceParameters);
 		log("Create context");
 		return context;
 	}
