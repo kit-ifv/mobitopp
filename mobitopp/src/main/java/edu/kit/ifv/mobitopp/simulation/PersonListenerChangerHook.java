@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,11 +12,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class PersonListenerChangerHook is a {@link Hook} that can change {@link PersonListener PersonListeners}
  * at specific change times throughout the simulation.
  */
+@Slf4j
 public class PersonListenerChangerHook implements Hook {
 
 	private static ExecutorService executorService;
@@ -32,38 +35,33 @@ public class PersonListenerChangerHook implements Hook {
 	 * @param hookConsumer the hook consumer
 	 */
 	public PersonListenerChangerHook(Consumer<PersonListener> hookConsumer) {
-		this.hookConsumer = hookConsumer;
-		this.changeTimes = new LinkedHashMap<Time, Collection<PersonListener>>();
-		this.actions = new LinkedHashMap<PersonListener, Runnable>();
+		this(hookConsumer, WrittenConfiguration.defaulThreadCount);
 	}
 
 	/**
 	 * Instantiates a new
 	 * {@link PersonListenerChangerHook#PersonListenerChangerHook(Consumer) PersonListenerChangerHook}.
-	 * Additionally initializes the executor service with the amount of threads
-	 * specified in the given context's configuration.
-	 * 
-	 * @param context      the context
-	 * @param hookConsumer the hook consumer
-	 */
-	public PersonListenerChangerHook(SimulationContext context,
-			Consumer<PersonListener> hookConsumer) {
-		this(hookConsumer);
-
-		createExecutor(context.configuration().getThreadCount());
-	}
-
-	/**
-	 * Adds the given person listener at the given change time with the given
-	 * action.
+	 * Additionally initializes the executor service with the given amount of threads.
 	 *
-	 * @param time     the change time at which the given person listener should to
-	 *                 be updated
-	 * @param listener the person listener to be changed
-	 * @param action   the action to be performed after the person listener was
-	 *                 changed
+	 * @param hookConsumer the hook consumer
+	 * @param threadCount the amount of threads to be used
 	 */
-	public void add(Time time, PersonListener listener, Runnable action) {
+	public PersonListenerChangerHook(Consumer<PersonListener> hookConsumer, int threadCount) {
+		this.hookConsumer = hookConsumer;
+		this.changeTimes = new LinkedHashMap<Time, Collection<PersonListener>>();
+		this.actions = new LinkedHashMap<PersonListener, Runnable>();
+
+		createExecutor(threadCount);
+	}
+	
+	/**
+	 * Adds the given person listener at the given change time.
+	 *
+	 * @param time     the change {@link Time} at which the given person listener should to
+	 *                 be updated
+	 * @param listener the {@link PersonListener} to be changed
+	 */
+	public void add(Time time, PersonListener listener) {
 		if (changeTimes.keySet().contains(time)) {
 			changeTimes.get(time).add(listener);
 
@@ -72,6 +70,21 @@ public class PersonListenerChangerHook implements Hook {
 			changeTimes.put(time, list);
 		}
 
+	}
+
+	/**
+	 * Adds the given person listener at the given change time with the given
+	 * action.
+	 *
+	 * @param time     the change {@link Time} at which the given person listener should to
+	 *                 be updated
+	 * @param listener the {@link PersonListener} to be changed
+	 * @param action   the action to be performed after the person listener was
+	 *                 changed
+	 */
+	public void add(Time time, PersonListener listener, Runnable action) {
+		this.add(time, listener);
+
 		if (action != null) {
 			actions.put(listener, action);
 		}
@@ -79,8 +92,8 @@ public class PersonListenerChangerHook implements Hook {
 	}
 
 	/**
-	 * Processes all registered person listeners. All listeners with change times
-	 * that predate the given time are processed by the general hook consumer.
+	 * Processes all registered {@link PersonListener listeners}. All listeners with change times
+	 * that predate the given {@link Time} are processed by the general hook consumer.
 	 * Additionally their specific actions are executed (in a separate thread). Every person listener that
 	 * has been changed is then removed from this hook.
 	 *
@@ -125,22 +138,17 @@ public class PersonListenerChangerHook implements Hook {
 			executorService.awaitTermination(10, TimeUnit.HOURS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
-
+	
 	/**
-	 * Gets the service executor. If it has not been created yet, creates a new one
-	 * with the default thread count.
+	 * Gets the {@link ExecutorService executor service}.
 	 *
 	 * @return the executor service
 	 */
-	private static ExecutorService getExecutor() {
-		if (executorService != null) {
-			int threads = WrittenConfiguration.defaulThreadCount;
-			return createExecutor(threads);
-		}
-
-		return executorService;
+	private ExecutorService getExecutor() {
+		return PersonListenerChangerHook.executorService;
 	}
 
 	/**

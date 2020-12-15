@@ -77,7 +77,7 @@ public class DemandResultListenerRegistryTest {
 	}
 
 	@Test
-	void testAddHourlyDayListeners() {
+	void addHourlyDayListeners() {
 
 		registry.addHourlyDayListeners(oids, choiceSet, DayOfWeek.MONDAY, context);
 
@@ -93,7 +93,7 @@ public class DemandResultListenerRegistryTest {
 	}
 
 	@Test
-	void testAddHourlyWeekdayListeners() {
+	void addHourlyWeekdayListeners() {
 
 		registry.addHourlyWeekdayListeners(oids, choiceSet, context);
 		

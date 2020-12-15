@@ -10,12 +10,13 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.simulation.person.StartedTrip;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.dataexport.AbstractMatrixPrinter;
+import edu.kit.ifv.mobitopp.util.dataexport.MatrixPrinter;
 import edu.kit.ifv.mobitopp.util.dataexport.ZipMatrixPrinterDecorator;
 
-// TODO: Auto-generated Javadoc
 /**
- * A factory for creating AggregateDemand objects.
+ * A factory for creating {@link AggregateDemand} objects.
  */
 public class AggregateDemandFactory {
 
@@ -26,7 +27,7 @@ public class AggregateDemandFactory {
 	private SimulationContext context;
 
 	/**
-	 * Instantiates a new aggregate demand factory with the given MatrixPrinter and
+	 * Instantiates a new {@link AggregateDemandFactory} with the given {@link MatrixPrinter} and
 	 * SimulationContext.
 	 *
 	 * @param context the context
@@ -38,8 +39,8 @@ public class AggregateDemandFactory {
 	}
 
 	/**
-	 * Instantiates a new aggregate demand factory with the given SimulationContext
-	 * and a ZipMatrixPrinter for printing matrices.
+	 * Instantiates a new {@link AggregateDemandFactory} with the given {@link SimulationContext}
+	 * and a {@link ZipMatrixPrinterDecorator} for printing matrices.
 	 *
 	 * @param context the context
 	 */
@@ -50,10 +51,10 @@ public class AggregateDemandFactory {
 
 	/**
 	 * Creates a new weekday listener which will will listen for results on weekdays
-	 * during the given hour, for the given mode and zoneIds.
+	 * during the given hour, for the given {@link Mode} and zoneIds.
 	 *
-	 * @param ids    the zone ids for which demand will be aggregated
-	 * @param mode   the mode for which demand will be aggregated
+	 * @param ids    the {@link ZoneId zone ids} for which demand will be aggregated
+	 * @param mode   the {@link Mode mode} for which demand will be aggregated
 	 * @param hour   the hour during which demand will be aggregated
 	 * @param suffix the suffix appended to the matrix file name
 	 * @return the aggregate demand person listener
@@ -67,12 +68,12 @@ public class AggregateDemandFactory {
 
 	/**
 	 * Creates a new day listener which will listen for results on a specific day
-	 * during the given hour, for the given mode and zoneIds.
+	 * during the given hour, for the given {@link Mode} and zoneIds.
 	 *
-	 * @param ids       the zone ids for which demand will be aggregated
-	 * @param mode      the mode for which demand will be aggregated
+	 * @param ids       the {@link ZoneId zone ids} for which demand will be aggregated
+	 * @param mode      the {@link Mode mode} for which demand will be aggregated
 	 * @param hour      the hour during which demand will be aggregated
-	 * @param dayOfWeek the day of week on which demand will be aggregated
+	 * @param dayOfWeek the {@link DayOfWeek day of week} on which demand will be aggregated
 	 * @return the aggregate demand person listener
 	 */
 	public AggregateDemandOfStartedTrips newDayListener(List<ZoneId> ids, Mode mode, int hour,
@@ -85,9 +86,9 @@ public class AggregateDemandFactory {
 	}
 
 	/**
-	 * Create a BiPredicate to filter started trips by mode and hour.
+	 * Create a BiPredicate to filter {@link StartedTrip started trips} by {@link Mode} and hour.
 	 *
-	 * @param mode the mode
+	 * @param mode the {@link Mode mode}
 	 * @param hour the hour
 	 * @return the bi predicate
 	 */
@@ -98,9 +99,9 @@ public class AggregateDemandFactory {
 	/**
 	 * Creates a new matrix consumer to print matrices to files.
 	 *
-	 * @param mode   the mode for which demand was aggregated
-	 * @param from   the time from where on demand was aggregated
-	 * @param to     the time until which demand was aggregated
+	 * @param mode   the {@link Mode mode} for which demand was aggregated
+	 * @param from   the {@link Time time} from where on demand was aggregated
+	 * @param to     the {@link Time time} until which demand was aggregated
 	 * @param suffix the suffix appended to the matrix file name
 	 * @return a matrix consumer for printing matrices to files
 	 */
@@ -133,7 +134,7 @@ public class AggregateDemandFactory {
 	 * Creates a Day-of-week filter for filtering trips taking place on the given
 	 * day.
 	 *
-	 * @param dayType the day of the weef to be filtered
+	 * @param dayType the {@link DayOfWeek day of the week} to be filtered
 	 * @return the filter
 	 */
 	public static BiPredicate<Person, StartedTrip<?>> dayOfWeekFilter(DayOfWeek dayType) {
