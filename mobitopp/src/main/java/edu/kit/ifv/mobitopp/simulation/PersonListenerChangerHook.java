@@ -34,6 +34,7 @@ public class PersonListenerChangerHook implements Hook {
 	public PersonListenerChangerHook(Consumer<PersonListener> hookConsumer) {
 		this.hookConsumer = hookConsumer;
 		this.changeTimes = new LinkedHashMap<Time, Collection<PersonListener>>();
+		this.actions = new LinkedHashMap<PersonListener, Runnable>();
 	}
 
 	/**

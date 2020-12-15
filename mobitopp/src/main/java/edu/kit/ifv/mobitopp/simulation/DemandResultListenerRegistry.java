@@ -84,17 +84,33 @@ public class DemandResultListenerRegistry {
 			for (int hour = 0; hour < 24; hour++) {
 				AggregateDemandOfStartedTrips ad = factory.newDayListener(zoneIds, mode, hour, dayOfWeek);
 
-				// Register listener one hour too early just to be safe
-				registerHook.add(day.plusHours(hour - 1), ad, null);
+				registerHook.add(day.plusHours(hour), ad, null);
 
-				Time stop = day.plusHours(hour + 2);
-				stop = (context.simulationDays().endDate().isBefore(stop))
-						? context.simulationDays().endDate()
-						: stop;
-
-				// Unregister listener one hour too late just to be safe
+				Time stop = day.plusHours(hour + 1);
 				unregisterHook.add(stop, ad, () -> ad.writeMatrix());
 			}
+		}
+
+	}
+	
+	public void addCompleteDayListeners(List<ZoneId> zoneIds, Set<Mode> choiceSet,
+			DayOfWeek dayOfWeek, SimulationContext context) {
+
+		AggregateDemandFactory factory = new AggregateDemandFactory(context,
+				new ZipMatrixPrinterDecorator());
+
+		Time day = Time.start.plusDays(dayOfWeek.getTypeAsInt());
+
+		for (Mode mode : choiceSet) {
+			AggregateDemandOfStartedTrips ad = factory.newDayListener(zoneIds, mode, 0, dayOfWeek);
+
+			// Register listener one hour too early just to be safe
+			registerHook.add(day, ad, null);
+
+			Time stop = day.nextDay();
+
+			// Unregister listener one hour too late just to be safe
+			unregisterHook.add(stop, ad, () -> ad.writeMatrix());
 		}
 
 	}
