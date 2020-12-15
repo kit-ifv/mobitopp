@@ -59,7 +59,7 @@ public class StatisticResults implements PersonListener {
   }
 
   @Override
-  public void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
+  public void writeSubtourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
   }
 
   @Override

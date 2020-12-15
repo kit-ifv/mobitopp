@@ -136,7 +136,7 @@ public class TripfileWriter implements PersonListener {
     }
 
 	@Override
-  public void writeSubourinfoToFile(
+  public void writeSubtourinfoToFile(
       Person person,
       Tour tour,
       Subtour subtour,
