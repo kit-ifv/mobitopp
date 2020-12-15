@@ -25,5 +25,8 @@ public class WrittenConfigurationTest {
 		assertValue(WrittenConfiguration::getTimeStepLength, copied, original);
 		assertValue(WrittenConfiguration::getVisumToMobitopp, copied, original);
 		assertValue(WrittenConfiguration::getExperimental, copied, original);
+		assertValue(WrittenConfiguration::getLogLevel, copied, original);
+		assertValue(WrittenConfiguration::getThreadCount, copied, original);
+		
 	}
 }
