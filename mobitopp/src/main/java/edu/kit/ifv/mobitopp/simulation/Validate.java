@@ -15,6 +15,7 @@ public class Validate implements Validation {
 	@Override
 	public void now(WrittenConfiguration configuration) throws IOException {
 		this.configuration = configuration;
+		validateThreadCount();
 		validateTimeStepLength();
 		validateNumberOfZones();
 		validateFractionOfPopulation();
@@ -22,6 +23,13 @@ public class Validate implements Validation {
 		validateDataSource();
 	}
 
+	private void validateThreadCount() {
+		if (1 > configuration.getThreadCount()) {
+			throw new IllegalArgumentException(
+					"Thread count must be at least 1. Specified number of threads: " + configuration.getThreadCount());
+		}
+	}
+	
 	private void validateTimeStepLength() {
 		if (WrittenConfiguration.defaultTimeStepLength != configuration.getTimeStepLength()) {
 			throw new IllegalArgumentException(

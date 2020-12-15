@@ -84,6 +84,13 @@ public class ValidateTest {
 
 		validate();
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void incorrectThreadCount() throws IOException {
+		configuration.setThreadCount(0);
+
+		validate();
+	}
 
 	private void validate() throws IOException {
 		new Validate().now(configuration);
