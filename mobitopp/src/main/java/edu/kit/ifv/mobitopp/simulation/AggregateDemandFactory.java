@@ -13,17 +13,21 @@ import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.util.dataexport.AbstractMatrixPrinter;
 import edu.kit.ifv.mobitopp.util.dataexport.ZipMatrixPrinterDecorator;
 
+// TODO: Auto-generated Javadoc
 /**
  * A factory for creating AggregateDemand objects.
  */
 public class AggregateDemandFactory {
 
+	/** The printer. */
 	private AbstractMatrixPrinter printer;
+
+	/** The context. */
 	private SimulationContext context;
 
 	/**
 	 * Instantiates a new aggregate demand factory with the given MatrixPrinter and
-	 * SimulationContext
+	 * SimulationContext.
 	 *
 	 * @param context the context
 	 * @param printer the printer
@@ -38,7 +42,6 @@ public class AggregateDemandFactory {
 	 * and a ZipMatrixPrinter for printing matrices.
 	 *
 	 * @param context the context
-	 * @param printer the printer
 	 */
 	public AggregateDemandFactory(SimulationContext context) {
 		this.printer = new ZipMatrixPrinterDecorator();
@@ -82,7 +85,7 @@ public class AggregateDemandFactory {
 	}
 
 	/**
-	 * Create a BiPredicate to filter started trips by mode and hour
+	 * Create a BiPredicate to filter started trips by mode and hour.
 	 *
 	 * @param mode the mode
 	 * @param hour the hour
@@ -125,27 +128,55 @@ public class AggregateDemandFactory {
 	private int scaleFactor() {
 		return (int) Math.round(1.0d / context.fractionOfPopulation());
 	}
-	
+
+	/**
+	 * Creates a Day-of-week filter for filtering trips taking place on the given
+	 * day.
+	 *
+	 * @param dayType the day of the weef to be filtered
+	 * @return the filter
+	 */
 	public static BiPredicate<Person, StartedTrip<?>> dayOfWeekFilter(DayOfWeek dayType) {
 		return (person, trip) -> trip.startDate().weekDay().equals(dayType);
 	}
 
+	/**
+	 * Creates a weekend filter for filtering trips taking place on the weekend.
+	 *
+	 * @return the filter
+	 */
 	public static BiPredicate<Person, StartedTrip<?>> weekendFilter() {
 		return dayOfWeekFilter(DayOfWeek.SATURDAY).or(dayOfWeekFilter(DayOfWeek.SUNDAY));
 	}
 
+	/**
+	 * Creates a weekday filter for filtering trips taking place on a weekday (not
+	 * weekend day).
+	 *
+	 * @return the filter
+	 */
 	public static BiPredicate<Person, StartedTrip<?>> weekdayFilter() {
-		return dayOfWeekFilter(DayOfWeek.MONDAY)
-				.or(dayOfWeekFilter(DayOfWeek.TUESDAY))
-				.or(dayOfWeekFilter(DayOfWeek.WEDNESDAY))
-				.or(dayOfWeekFilter(DayOfWeek.THURSDAY))
+		return dayOfWeekFilter(DayOfWeek.MONDAY).or(dayOfWeekFilter(DayOfWeek.TUESDAY))
+				.or(dayOfWeekFilter(DayOfWeek.WEDNESDAY)).or(dayOfWeekFilter(DayOfWeek.THURSDAY))
 				.or(dayOfWeekFilter(DayOfWeek.FRIDAY));
 	}
 
+	/**
+	 * Creates an hour filter for filtering trips taking place at the given hour.
+	 *
+	 * @param hour the hour to be filtered
+	 * @return the filter
+	 */
 	public static BiPredicate<Person, StartedTrip<?>> hourFilter(int hour) {
 		return (person, trip) -> trip.startDate().getHour() == hour;
 	}
 
+	/**
+	 * Creates a mode filter for filtering trips using the given mode.
+	 *
+	 * @param mode the mode to be filtered
+	 * @return the filter
+	 */
 	public static BiPredicate<Person, StartedTrip<?>> modeFilter(Mode mode) {
 		return (person, trip) -> trip.mode().equals(mode);
 	}

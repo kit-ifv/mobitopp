@@ -43,6 +43,6 @@ public class AggregateDemandTest {
 
     IntegerMatrix matrix = new IntegerMatrix(asList(zoneId));
     matrix.set(matrixColumn, matrixColumn, 1);
-    verify(writer).accept(any(IntegerMatrix.class));
+    verify(writer).accept(matrix);
   }
 }

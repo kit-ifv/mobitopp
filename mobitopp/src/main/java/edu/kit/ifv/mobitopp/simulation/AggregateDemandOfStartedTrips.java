@@ -22,25 +22,15 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 	private final IntegerMatrix matrix;
 	private final BiPredicate<Person, StartedTrip<?>> demandFilter;
 	private final int scaleFactor;
-	private final ArrayList<Long> times;
 
 	public AggregateDemandOfStartedTrips(final List<ZoneId> zones,
 			final BiPredicate<Person, StartedTrip<?>> demandFilter,
 			final Consumer<IntegerMatrix> output, final int scaleFactor) {
 
-		List<ZoneId> moreZones = new ArrayList<ZoneId>();
-		moreZones.addAll(zones);
-		int maxId = zones.stream().map(zone -> zone.getMatrixColumn()).max(Integer::compare).get();
-		for (int i = 0; i < zones.size() * 10; i++) {
-			maxId++;
-			moreZones.add(new ZoneId("ADD_ID_" + maxId, maxId));
-		}
-
-		this.matrix = new IntegerMatrix(moreZones);
+		this.matrix = new IntegerMatrix(zones);
 		this.demandFilter = demandFilter;
 		this.output = output;
 		this.scaleFactor = scaleFactor;
-		this.times = new ArrayList<Long>();
 	}
 
 	@Override
@@ -91,11 +81,7 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 	}
 
 	public void writeMatrix() {
-		long start = System.nanoTime();
 		output.accept(matrix);
-		long time = System.nanoTime() - start;
-		this.times.add(time);
-		System.out.println(this.times.stream().mapToDouble(a -> a).average());
 	}
 
 }
