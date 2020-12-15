@@ -1,17 +1,22 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import edu.kit.ifv.mobitopp.data.Matrix;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The Class ZipMatrixPrinterDecorator decorates a MatrixPrinter by ziping the
  * content provided by the wrapped {@link AbstractMatrixPrinter MatrixPrinter}.
  */
+@Slf4j
 public class ZipMatrixPrinterDecorator extends AbstractMatrixPrinter {
 
 	/** The matrix printer. */
@@ -62,25 +67,18 @@ public class ZipMatrixPrinterDecorator extends AbstractMatrixPrinter {
 	protected void write(StringBuffer content, File outputFile) {
 		File bz2OutputFile = new File(outputFile.getAbsolutePath() + ".bz2");
 
-		try (FileOutputStream fos = new FileOutputStream(bz2OutputFile)) {
-			System.out.println("writing matrix file: " + outputFile.getAbsolutePath());
+		try (OutputStream fos = Files.newOutputStream(bz2OutputFile.toPath());
+				BZip2CompressorOutputStream zipOutputStream = new BZip2CompressorOutputStream(fos);
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(zipOutputStream);
+				OutputStreamWriter writer = new OutputStreamWriter(bufferedOutputStream)) {
 
-			BZip2CompressorOutputStream zipOutputStream = new BZip2CompressorOutputStream(fos);
-			OutputStreamWriter writer = new OutputStreamWriter(zipOutputStream);
+			log.info("writing matrix file: " + outputFile.getAbsolutePath());
+			writer.write(content.toString());
 
-			try {
-				writer.write(content.toString());
-			} finally {
-				writer.close();
-			}
-
-			fos.close();
-			zipOutputStream.close();
 
 		} catch (Exception e) {
+			log.warn(e.getMessage());
 			System.out.println(e);
-			throw new RuntimeException(e);
-
 		}
 	}
 

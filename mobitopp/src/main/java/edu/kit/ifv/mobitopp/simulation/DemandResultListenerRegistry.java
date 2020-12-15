@@ -55,7 +55,7 @@ public class DemandResultListenerRegistry {
 			for (int hour = 0; hour < 24; hour++) {
 				AggregateDemandOfStartedTrips ad = factory.newWeekdayListener(zoneIds, mode, hour, "weekday");
 
-				registerHook.add(Time.start, ad, null);
+				registerHook.add(Time.start, ad);
 
 				unregisterHook.add(stop, ad, () -> ad.writeMatrix());
 			}
@@ -84,7 +84,7 @@ public class DemandResultListenerRegistry {
 			for (int hour = 0; hour < 24; hour++) {
 				AggregateDemandOfStartedTrips ad = factory.newDayListener(zoneIds, mode, hour, dayOfWeek);
 
-				registerHook.add(day.plusHours(hour), ad, null);
+				registerHook.add(day.plusHours(hour), ad);
 
 				Time stop = day.plusHours(hour + 1);
 				unregisterHook.add(stop, ad, () -> ad.writeMatrix());
