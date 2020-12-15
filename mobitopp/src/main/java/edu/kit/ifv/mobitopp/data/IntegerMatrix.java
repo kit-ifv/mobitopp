@@ -101,22 +101,4 @@ public class IntegerMatrix implements Serializable, Matrix<Integer> {
 		set(row, column, get(row, column) + increment);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null) {
-			return false;
-		}
-		if (o == this) {
-			return true;
-		}
-
-		IntegerMatrix that = (IntegerMatrix) o;
-
-		return this.size == that.size 
-			&& this.defaultValue == that.defaultValue
-			&& this.ids.containsAll(that.ids) 
-			&& that.ids.containsAll(this.ids)
-			&& Arrays.deepEquals(this.matrix, that.matrix);
-	}
-
 }
