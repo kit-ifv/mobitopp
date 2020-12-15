@@ -47,8 +47,8 @@ public class MultipleResults implements PersonResults {
   }
 
   @Override
-  public void writeSubourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
-    notifyAllListener(l -> l.writeSubourinfoToFile(person, tour, subtour, tourMode));
+  public void writeSubtourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
+    notifyAllListener(l -> l.writeSubtourinfoToFile(person, tour, subtour, tourMode));
   }
 
   @Override
