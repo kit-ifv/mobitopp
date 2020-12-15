@@ -1,7 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -61,11 +59,6 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 	}
 
 	@Override
-	public void writeSubourinfoToFile(final Person person, final Tour tour, final Subtour subtour,
-			final Mode tourMode) {
-	}
-
-	@Override
 	public void writeTourinfoToFile(final Person person, final Tour tour,
 			final Zone tourDestination, final Mode tourMode) {
 	}
@@ -77,11 +70,15 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 	@Override
 	public void notifyFinishSimulation() {
 		// write matrix is not performed at the end of the simulation anymore
-		//The DemandResultsListenerRegistry takes care of that now
+		// The DemandResultsListenerRegistry takes care of that now
 	}
 
 	public void writeMatrix() {
 		output.accept(matrix);
+	}
+
+	@Override
+	public void writeSubtourinfoToFile(Person person, Tour tour, Subtour subtour, Mode tourMode) {
 	}
 
 }

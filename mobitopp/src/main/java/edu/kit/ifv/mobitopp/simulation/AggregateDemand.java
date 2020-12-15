@@ -34,7 +34,6 @@ public class AggregateDemand implements PersonListener {
   
   @Override
   public void notifyStartTrip(Person person, StartedTrip trip) {
-	// TODO Move writing to Matrix from notifyEndTrip to notifyStartTrip
   }
   
   @Override
