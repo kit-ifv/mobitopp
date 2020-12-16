@@ -83,8 +83,7 @@ public class DemandResultListenerRegistryTest {
 
 		for (int hour = 0; hour < 24; hour++) {
 			verify(registerHook, VerificationModeFactory.times(choiceSet.size())).add(
-					eq(Time.start.plusHours(hour)), any(AggregateDemandOfStartedTrips.class),
-					eq(null));
+					eq(Time.start.plusHours(hour)), any(AggregateDemandOfStartedTrips.class));
 			verify(unregisterHook, VerificationModeFactory.times(choiceSet.size())).add(
 					eq(Time.start.plusHours(hour + 1)), any(AggregateDemandOfStartedTrips.class),
 					any(Runnable.class));
@@ -102,8 +101,7 @@ public class DemandResultListenerRegistryTest {
 		Times verificationMode = VerificationModeFactory.times(times);
 		
 		verify(registerHook, verificationMode).add(
-				eq(Time.start), any(AggregateDemandOfStartedTrips.class),
-				eq(null));
+				eq(Time.start), any(AggregateDemandOfStartedTrips.class));
 		
 		verify(unregisterHook, verificationMode).add(
 				eq(SimpleTime.ofDays(5).plusHours(1)), any(AggregateDemandOfStartedTrips.class),
