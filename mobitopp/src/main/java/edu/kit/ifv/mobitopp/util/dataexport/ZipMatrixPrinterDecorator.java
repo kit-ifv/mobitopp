@@ -78,7 +78,6 @@ public class ZipMatrixPrinterDecorator extends AbstractMatrixPrinter {
 
 		} catch (Exception e) {
 			log.warn(e.getMessage());
-			System.out.println(e);
 		}
 	}
 
