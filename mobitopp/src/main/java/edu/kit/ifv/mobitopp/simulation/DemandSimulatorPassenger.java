@@ -184,9 +184,9 @@ public class DemandSimulatorPassenger
 	}
 
 	private static void printCurrentTime(Time currentTime) {
-		LocalDateTime realTime = LocalDateTime.now();
 		String simulationTime = new DateFormat().asWeekdayTime(currentTime);
-		log.info(realTime + ": Aktuelle Simulationszeit: " + simulationTime);
+		log.info("Aktuelle Simulationszeit: " + simulationTime);
+		System.out.println("Aktuelle Simulationszeit: " + simulationTime);
 	}
 
 	public void startSimulation() {
