@@ -28,8 +28,6 @@ import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
 import lombok.extern.slf4j.Slf4j;
-import uk.org.lidalia.sysoutslf4j.context.LogLevel;
-import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
 @Slf4j
 public class ContextBuilder {
@@ -121,7 +119,6 @@ public class ContextBuilder {
 	private SimulationContext loadData() throws IOException {
 		startLoading();
 		validateConfiguration();
-		setUpLogging();
 		createPersonChanger();
 		createHouseholdFilter();
 		experimentalParameters();
@@ -135,19 +132,6 @@ public class ContextBuilder {
 		SimulationContext createContext = createContext();
 		printPerformance();
 		return createContext;
-	}
-
-	private void setUpLogging() {
-		LogLevel level = LogLevel.INFO;
-
-		try {
-			level = LogLevel.valueOf(configuration.getLogLevel());
-		} catch (IllegalArgumentException | NullPointerException e) {
-			log.warn("Could not parse log level '" + String.valueOf(configuration.getLogLevel())
-					+ "' given in the configuration.");
-		}
-
-		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(level, LogLevel.ERROR);
 	}
 
 	private void startLoading() {

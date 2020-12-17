@@ -41,8 +41,6 @@ import edu.kit.ifv.mobitopp.visum.VisumRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystem;
 import edu.kit.ifv.mobitopp.visum.reader.VisumNetworkReader;
 import lombok.extern.slf4j.Slf4j;
-import uk.org.lidalia.sysoutslf4j.context.LogLevel;
-import uk.org.lidalia.sysoutslf4j.context.SysOutOverSLF4J;
 
 @Slf4j
 public class ContextBuilder {
@@ -78,11 +76,6 @@ public class ContextBuilder {
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forPopulationSynthesis();
-		setUpLogging();
-	}
-	
-	private void setUpLogging() {
-		SysOutOverSLF4J.sendSystemOutAndErrToSLF4J(LogLevel.INFO, LogLevel.ERROR);
 	}
 	
 	public ContextBuilder(
