@@ -39,8 +39,8 @@ public class TripfileCategories {
 		header.add("tripBeginDay");
 		header.add("activityNumber");
 		header.add("tripBeginTime");
-		header.add("previousActivityType");
 		header.add("activityType");
+		header.add("previousActivityType");
 		header.add("legMode");
 		header.add("mainMode");
 		header.add("tripMode");
@@ -56,10 +56,10 @@ public class TripfileCategories {
 		header.add("activityDuration");
 		header.add("previousActivityZone");
 		header.add("nextActivityZone");
-    header.add("previousActivityStartTime");
-    header.add("previousActivityStartDay");
-    header.add("activityStartTime");
-    header.add("activityStartDay");
+		header.add("previousActivityStartTime");
+		header.add("previousActivityStartDay");
+		header.add("activityStartTime");
+		header.add("activityStartDay");
 		header.add("locationFrom");
 		header.add("locationTo");
 		header.add("sex");
@@ -167,11 +167,12 @@ public class TripfileCategories {
 		header.add("nextState");
 		return new Category("demandsimulationStateChange", header);
 	}
-	
+
 	private Category ptTimes() {
 		List<String> header = new ArrayList<>();
 		header.add("personOid");
 		Arrays.stream(Element.values()).map(Element::toString).forEach(header::add);
 		return new Category("ptTimes", header);
 	}
+
 }
