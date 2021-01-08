@@ -15,7 +15,9 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandRegionOdPairCreator implements DemandRegionOdPairSelector {
 
 	private final DemandRegionRelationsRepository relationsRepository;
@@ -44,11 +46,11 @@ public class DemandRegionOdPairCreator implements DemandRegionOdPairSelector {
 				.peek(zone -> filteredZones.remove(zone.getId()))
 				.map(d -> new OdPair(person.homeZone(), d))
 				.collect(toList());
-    if (odPairs.isEmpty())
-      System.out
-          .println(String
+    if (odPairs.isEmpty()) {
+    	log.warn(String
               .format("No destinations left for person %s. Filtered out the zones: %s",
                   person.getId(), filteredZones));
+    }
     return odPairs;
 	}
 
