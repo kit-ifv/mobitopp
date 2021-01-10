@@ -17,8 +17,11 @@ public class VisumTerritory
 	public final String name;
 
 	public final int surfaceId;
+	
+	private List<Integer> correspondingZoneIds;
 
 	protected	VisumSurface surface;
+
 
 	public VisumTerritory(
 		int id,
@@ -34,6 +37,20 @@ public class VisumTerritory
 		this.surface = surface;
 	}
 	
+
+	public VisumTerritory(
+			int id,
+			String code,
+			String name,
+			int surfaceId,
+			VisumSurface surface,
+			List<Integer> correspondingZoneIds
+		) {
+		this(id, code, name, surfaceId, surface);
+		
+		this.correspondingZoneIds = correspondingZoneIds;
+	}
+		
 
 	public List<Area> areas() {
 		return surface.areas();
@@ -80,5 +97,22 @@ public class VisumTerritory
   public String toString() {
     return "VisumTerritory(" + id + "," + code + "," + name + "," + surfaceId + "," + surface + ")";
   }
+
+
+public boolean isRelevantForZoneId(int visumZoneId) {
+	
+	if ( correspondingZoneIds != null) {
+
+		return correspondingZoneIds.contains(visumZoneId);
+		
+	} else {
+		
+		System.out.println("Attribute 'CorrespondingZone' not set - consider all zones in search for land use area");
+		return true;
+		
+		
+	}
+	
+}
 
 }

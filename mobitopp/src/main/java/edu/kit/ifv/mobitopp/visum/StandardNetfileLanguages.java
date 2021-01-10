@@ -187,7 +187,8 @@ public class StandardNetfileLanguages {
     
     // Territory
     language.add(StandardAttributes.item, "ITEM");
-    language.add(StandardAttributes.codeLc, "NAME");
+    language.add(StandardAttributes.codeLc, "CODE_LC");
+    language.add(StandardAttributes.correspondingZones, "CORRESPONDINGZONES");
 
     // Units
     language.add(Unit.velocity, "km/h");
@@ -368,6 +369,7 @@ public class StandardNetfileLanguages {
     // Territory
     language.add(StandardAttributes.item, "ITEM");
     language.add(StandardAttributes.codeLc, "CODE_LC");
+    language.add(StandardAttributes.correspondingZones, "CORRESPONDINGZONES");
     
     language.add(Unit.velocity, "km/h");
     language.add(Unit.distance, "km");

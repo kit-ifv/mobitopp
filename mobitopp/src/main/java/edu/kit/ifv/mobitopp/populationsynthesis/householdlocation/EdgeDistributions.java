@@ -39,6 +39,9 @@ public class EdgeDistributions {
 	private void createEdgeDistributionFor(Zone zone) {
 		Map<Integer, Edge> edges = zone.containedEdges(network);
 		Collection<Edge> filtered = filterEdges(edges.values());
+		
+		assert filtered.size() > 0 : "This zone does not have any edges, abort: " + zone.id();
+		
 		DiscreteRandomVariable<Edge> distribution = createCumulativeDistribution(filtered);
 		edgeDistributions.put(zone.id(), distribution);
 	}
