@@ -79,6 +79,9 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 	@Override
 	public void scale(DemandRegion origin, int numberOfCommuters) {
 		final Map<DemandRegion, Integer> destinations = commutingRelations.get(origin);
+		if(destinations.size() == 0) {
+			new IllegalArgumentException("No commuting relations found for origin: " + origin);
+		}
 		final int sum = destinations.values().stream().mapToInt(Integer::intValue).sum();
 		final double factor = (double) numberOfCommuters / sum;
 		double remainder = 0.0d;

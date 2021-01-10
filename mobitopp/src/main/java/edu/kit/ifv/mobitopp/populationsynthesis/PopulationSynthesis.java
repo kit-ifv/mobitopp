@@ -109,7 +109,7 @@ public abstract class PopulationSynthesis {
 		zones
 				.stream()
 				.filter(Zone::isDestination)
-				.peek(zone -> log.debug("zone " + zone.getId() + " is ready? " + zone.opportunities().locationsAvailable()))
+				.peek(zone -> log.debug("zone " + zone.getId() + " locations available? " + zone.opportunities().locationsAvailable())) // TODO: remove this line? 
 				.forEach(zone -> createLocationsForZone(opportunityLocationSelector, zone));
 	}
 
@@ -119,6 +119,8 @@ public abstract class PopulationSynthesis {
 		opportunities.createLocations(opportunityLocationSelector);
 
 		results().write(categories.demanddataOpportunities, opportunities.forLogging());
+		
+		log.debug("zone " + zone.getId() + " locations available now? " + zone.opportunities().locationsAvailable());		
 	}
 
 	protected void executeBeforeCreation() {
