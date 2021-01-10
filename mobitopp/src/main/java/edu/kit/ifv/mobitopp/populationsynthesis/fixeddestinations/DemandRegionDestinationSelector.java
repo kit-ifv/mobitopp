@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 import java.util.Collection;
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
@@ -12,7 +13,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemandRegionOdPairSelector;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.OdPair;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.PopulationSynthesisStep;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandRegionDestinationSelector implements PopulationSynthesisStep {
 
 	private final DemandRegionOdPairSelector odPairSelector;
@@ -20,9 +23,9 @@ public class DemandRegionDestinationSelector implements PopulationSynthesisStep 
 	private final Predicate<PersonBuilder> personFilter;
 	private final DoubleSupplier random;
 
-	public DemandRegionDestinationSelector(
-			final DemandRegionOdPairSelector odPairSelector, final ZoneSelector zoneSelector,
-			final Predicate<PersonBuilder> personFilter, final DoubleSupplier random) {
+	public DemandRegionDestinationSelector(final DemandRegionOdPairSelector odPairSelector,
+			final ZoneSelector zoneSelector, final Predicate<PersonBuilder> personFilter,
+			final DoubleSupplier random) {
 		super();
 		this.odPairSelector = odPairSelector;
 		this.zoneSelector = zoneSelector;
@@ -32,36 +35,32 @@ public class DemandRegionDestinationSelector implements PopulationSynthesisStep 
 
 	@Override
 	public void process(final DemandRegion region) {
-		int numberOfCommuters = Math
-				.toIntExact(region
-						.zones()
-						.map(DemandZone::getPopulation)
-						.flatMap(PopulationForSetup::households)
-						.flatMap(HouseholdForSetup::persons)
-						.filter(personFilter)
-						.count());
+		int numberOfCommuters = Math.toIntExact(getAgentsOf(region).count());
 		odPairSelector.scale(region, numberOfCommuters);
-		region
+		getAgentsOf(region).forEach(this::assignZone);
+	}
+
+	private Stream<PersonBuilder> getAgentsOf(final DemandRegion region) {
+		return region
 				.zones()
 				.map(DemandZone::getPopulation)
 				.flatMap(PopulationForSetup::households)
 				.flatMap(HouseholdForSetup::persons)
-				.filter(personFilter)
-				.forEach(this::assignZone);
+				.filter(personFilter);
 	}
 
-  private void assignZone(final PersonBuilder person) {
-    try {
-      final Collection<OdPair> relations = odPairSelector.select(person);
-      double randomNumber = random.getAsDouble();
-      zoneSelector.select(person, relations, randomNumber);
-    } catch (IllegalArgumentException exception) {
-      System.out
-          .println(String
-              .format("Could not assign a destination for person %s: %s", person.getId(),
-                  exception));
-      exception.printStackTrace();
-    }
+	private void assignZone(final PersonBuilder person) {
+		try {
+			final Collection<OdPair> relations = odPairSelector.select(person);
+			double randomNumber = random.getAsDouble();
+			zoneSelector.select(person, relations, randomNumber);
+		} catch (IllegalArgumentException exception) {
+			log
+					.error(String
+							.format("Could not assign a destination for person %s: %s",
+									person.getId(), exception));
+			exception.printStackTrace();
+		}
 	}
 
 }
