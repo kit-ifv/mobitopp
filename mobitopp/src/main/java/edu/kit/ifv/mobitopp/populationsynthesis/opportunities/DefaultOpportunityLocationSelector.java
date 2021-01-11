@@ -271,7 +271,7 @@ public class DefaultOpportunityLocationSelector implements OpportunityLocationSe
 		boolean empty = true;
 		double total = 0.0;
 
-		for (String landtype : landtypeWeights.keySet()) {
+		for (String landtype : areasByLanduse.keySet()) {
 
 			ZoneArea area = areasByLanduse.get(landtype);
 
