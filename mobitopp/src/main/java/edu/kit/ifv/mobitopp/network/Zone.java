@@ -141,10 +141,7 @@ public class Zone implements Serializable {
 				
 			if (area != null) {
 				areas.put(type, area);
-			} else {
-				log.warn("No area was found for land type '{}'", type);
-			}
-			
+			}			
 			
 		}
 
