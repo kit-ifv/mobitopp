@@ -138,10 +138,14 @@ public class Zone implements Serializable {
 
 		for (String type : landTypes) {
 			ZoneArea area = this.zoneAreasByLanduse.get(type);
-	
-			assert area != null;
-
-			areas.put(type, area);
+				
+			if (area != null) {
+				areas.put(type, area);
+			} else {
+				log.warn("No area was found for land type '{}'", type);
+			}
+			
+			
 		}
 
 		return areas;
