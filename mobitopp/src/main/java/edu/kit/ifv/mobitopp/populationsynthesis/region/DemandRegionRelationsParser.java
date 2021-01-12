@@ -13,7 +13,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandRegionRelationsParser {
 
 	private final DemandRegionRepository repository;
@@ -29,23 +31,26 @@ public class DemandRegionRelationsParser {
 
 	public DemandRegionRelationsRepository parse(File input) {
 		load(input).forEach(this::parse);
-		Map<DemandRegion, Map<DemandRegion, Integer>> unmodifiableRelations = Collections.unmodifiableMap(relations);
-    Collection<DemandRegion> regions = repository.getRegionsOf(level);
-    return new StandardDemandRegionRelationsRepository(unmodifiableRelations, regions);
+		Map<DemandRegion, Map<DemandRegion, Integer>> unmodifiableRelations = Collections
+			.unmodifiableMap(relations);
+		Collection<DemandRegion> regions = repository.getRegionsOf(level);
+		return new StandardDemandRegionRelationsRepository(unmodifiableRelations, regions);
 	}
 
 	Stream<Row> load(File input) {
 		return CsvFile.createFrom(input).stream();
 	}
-	
+
 	private void parse(Row row) {
 		String originId = row.get("origin");
 		String destinationId = row.get("destination");
-    Optional<DemandRegion> origin = repository.getRegionWith(level, originId);
-    Optional<DemandRegion> destination = repository.getRegionWith(level, destinationId);
+		Optional<DemandRegion> origin = repository.getRegionWith(level, originId);
+		Optional<DemandRegion> destination = repository.getRegionWith(level, destinationId);
 		if (origin.isEmpty() || destination.isEmpty()) {
-		  System.out.println(String.format("Could not find origin %s or destination %s to parse demand region relation.", originId, destinationId));
-		  return;
+			log
+				.warn("Could not find origin {} or destination {} to parse demand region relation.",
+					originId, destinationId);
+			return;
 		}
 		int commuters = row.valueAsInteger("commuters");
 		getMapping(origin.get()).put(destination.get(), commuters);
