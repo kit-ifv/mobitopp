@@ -6,6 +6,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import edu.kit.ifv.mobitopp.network.Slf4j;
+import edu.kit.ifv.mobitopp.network.Zone;
+
+@Slf4j
 public class VisumTerritory 
 	implements Serializable
 {
@@ -107,7 +111,7 @@ public boolean isRelevantForZoneId(int visumZoneId) {
 		
 	} else {
 		
-		System.out.println("Attribute 'CorrespondingZone' not set - consider all zones in search for land use area");
+		log.info("Attribute 'CorrespondingZone' not set in network file. Consider all zones in search for land use area (will be slow if many territories exist).");
 		return true;
 		
 		
