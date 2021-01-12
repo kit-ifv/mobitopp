@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import edu.kit.ifv.mobitopp.network.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import edu.kit.ifv.mobitopp.network.Zone;
 
 @Slf4j
