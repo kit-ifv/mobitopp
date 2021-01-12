@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
@@ -21,22 +22,29 @@ public class DemandRegionRelationsParser {
 	private final DemandRegionRepository repository;
 	private final Map<DemandRegion, Map<DemandRegion, Integer>> relations;
 	private final RegionalLevel level;
+	private final BiPredicate<DemandRegion, DemandRegion> predicate;
 
-	public DemandRegionRelationsParser(RegionalLevel level, DemandRegionRepository repository) {
+	public DemandRegionRelationsParser(final RegionalLevel level,
+		final DemandRegionRepository repository,
+		final BiPredicate<DemandRegion, DemandRegion> predicate) {
 		super();
 		this.level = level;
 		this.repository = repository;
+		this.predicate = predicate;
 		this.relations = new LinkedHashMap<>();
 	}
 
 	public DemandRegionRelationsRepository parse(File input) {
 		load(input).forEach(this::parse);
-		Map<DemandRegion, Map<DemandRegion, Integer>> unmodifiableRelations = Collections
-			.unmodifiableMap(relations);
 		Collection<DemandRegion> regions = repository.getRegionsOf(level);
-		return new StandardDemandRegionRelationsRepository(unmodifiableRelations, regions);
+		return new StandardDemandRegionRelationsRepository(getParsedRelations(), regions);
 	}
 
+	Map<DemandRegion, Map<DemandRegion, Integer>> getParsedRelations() {
+		return Collections
+			.unmodifiableMap(relations);
+	}
+	
 	Stream<Row> load(File input) {
 		return CsvFile.createFrom(input).stream();
 	}
@@ -52,8 +60,16 @@ public class DemandRegionRelationsParser {
 					originId, destinationId);
 			return;
 		}
-		int commuters = row.valueAsInteger("commuters");
+		int commuters = getCommuters(row, origin, destination);
 		getMapping(origin.get()).put(destination.get(), commuters);
+	}
+
+	private int getCommuters(Row row, Optional<DemandRegion> origin,
+		Optional<DemandRegion> destination) {
+		if (predicate.test(origin.get(), destination.get())) {
+			return row.valueAsInteger("commuters");
+		}
+		return 0;
 	}
 
 	private Map<DemandRegion, Integer> getMapping(DemandRegion origin) {
