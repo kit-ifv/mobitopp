@@ -17,16 +17,16 @@ import lombok.extern.slf4j.Slf4j;
 public class StandardDemandRegionRelationsRepository implements DemandRegionRelationsRepository {
 
 	private final Map<DemandRegion, Map<DemandRegion, Integer>> commutingRelations;
-  private final Collection<DemandRegion> regions;
+	private final Collection<DemandRegion> regions;
 
-  public StandardDemandRegionRelationsRepository(
-      final Map<DemandRegion, Map<DemandRegion, Integer>> regionToRegion,
-      final Collection<DemandRegion> regionRepository) {
-    this.commutingRelations = regionToRegion;
-    this.regions = regionRepository;
-  }
+	public StandardDemandRegionRelationsRepository(
+		final Map<DemandRegion, Map<DemandRegion, Integer>> regionToRegion,
+		final Collection<DemandRegion> regionRepository) {
+		this.commutingRelations = regionToRegion;
+		this.regions = regionRepository;
+	}
 
-  @Override
+	@Override
 	public Collection<DemandRegion> getRegions() {
 		return Collections.unmodifiableCollection(commutingRelations.keySet());
 	}
@@ -56,24 +56,28 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 	@Override
 	public Stream<DemandRegion> getCommutingRegionsFrom(ZoneId zoneId) {
 		final DemandRegion region = get(zoneId);
-		return commutingRelations.get(region).keySet().stream().filter(destination -> filter(destination, zoneId, region));
+		return commutingRelations
+			.get(region)
+			.keySet()
+			.stream()
+			.filter(destination -> filter(destination, zoneId, region));
 	}
-	
-  private boolean filter(DemandRegion destination, ZoneId zoneId, DemandRegion region) {
-    if (null == destination) {
-      log.warn(String
-              .format("Commuting relations for zone %s and region %s contains a reference to null.",
-                  zoneId, region));
-    }
-    return null != destination;
-  }
 
-  DemandRegion get(ZoneId id) {
+	private boolean filter(DemandRegion destination, ZoneId zoneId, DemandRegion region) {
+		if (null == destination) {
+			log
+				.warn("Commuting relations for zone {} and region {} contains a reference to null.",
+					zoneId, region);
+		}
+		return null != destination;
+	}
+
+	DemandRegion get(ZoneId id) {
 		return this.regions
-				.stream()
-				.filter(c -> c.contains(id))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("No community found for zone: " + id));
+			.stream()
+			.filter(c -> c.contains(id))
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("No community found for zone: " + id));
 	}
 
 	@Override
@@ -99,12 +103,12 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 			destinations.put(last.getKey(), last.getValue() + 1);
 		}
 		destinations
-				.entrySet()
-				.stream()
-				.filter(e -> 0 == e.getValue())
-				.map(Entry::getKey)
-				.collect(toList())
-				.forEach(d -> cleanUpRelation(origin, d));
+			.entrySet()
+			.stream()
+			.filter(e -> 0 == e.getValue())
+			.map(Entry::getKey)
+			.collect(toList())
+			.forEach(d -> cleanUpRelation(origin, d));
 	}
 
 }

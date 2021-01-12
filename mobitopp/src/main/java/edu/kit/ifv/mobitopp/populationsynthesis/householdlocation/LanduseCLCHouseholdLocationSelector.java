@@ -42,7 +42,7 @@ public abstract class LanduseCLCHouseholdLocationSelector extends RandomHousehol
 
 		boolean empty = true;
 		double total = 0.0;
-		for (String landtype : landtypeWeights.keySet()) {
+		for (String landtype : residential.keySet()) {
 			ZoneArea area = residential.get(landtype);
 			if (!area.isEmpty()) {
 				empty = false;

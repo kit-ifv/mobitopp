@@ -140,10 +140,11 @@ public class Zone implements Serializable {
 			if ( this.zoneAreasByLanduse.containsKey(type)) {
 				
 				ZoneArea area = this.zoneAreasByLanduse.get(type);
-				
-				assert area != null;
-				
-				areas.put(type, area);
+
+				if(area == null)
+					log.warn("Area is null! zone id=" + this.id() + ", land type=" + type);
+				else 
+					areas.put(type, area);
 				
 			}
 			
