@@ -34,6 +34,14 @@ public class DemandRegionRelationsParser {
 		this.relations = new LinkedHashMap<>();
 	}
 
+	public DemandRegionRelationsParser(final RegionalLevel level,
+		final DemandRegionRepository repository) {
+		this(
+			level,
+			repository,
+			(origin, destination) -> true);
+	}
+
 	public DemandRegionRelationsRepository parse(File input) {
 		load(input).forEach(this::parse);
 		Collection<DemandRegion> regions = repository.getRegionsOf(level);
@@ -41,10 +49,9 @@ public class DemandRegionRelationsParser {
 	}
 
 	Map<DemandRegion, Map<DemandRegion, Integer>> getParsedRelations() {
-		return Collections
-			.unmodifiableMap(relations);
+		return Collections.unmodifiableMap(relations);
 	}
-	
+
 	Stream<Row> load(File input) {
 		return CsvFile.createFrom(input).stream();
 	}
