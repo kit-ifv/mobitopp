@@ -141,10 +141,11 @@ public class Zone implements Serializable {
 				
 				ZoneArea area = this.zoneAreasByLanduse.get(type);
 
-				if(area == null)
+				if(area == null) {
 					log.warn("Area is null! zone id=" + this.id() + ", land type=" + type);
-				else 
+				} else {
 					areas.put(type, area);
+				}
 				
 			}
 			
@@ -166,7 +167,13 @@ public class Zone implements Serializable {
 			if ( territory.isRelevantForZoneId(vZone.id)) {
 
 				Area a = territory.intersect(this.surface.area());
-				areas.put(territory.code, a);
+				
+				if (areas.containsKey(territory.code)) {
+					areas.get(territory.code).add(a);
+					
+				} else {
+					areas.put(territory.code, a);
+				}			
 				
 			}
 			
