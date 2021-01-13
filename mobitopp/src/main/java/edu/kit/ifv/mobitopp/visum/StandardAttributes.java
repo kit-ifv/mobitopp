@@ -93,6 +93,7 @@ public enum StandardAttributes {
   numberOfVehicles,
   carsharingFlinkster,
   item,
-  codeLc;
+  codeLc,
+  correspondingZones;
 
 }

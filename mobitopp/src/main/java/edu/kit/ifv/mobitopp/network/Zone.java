@@ -109,11 +109,11 @@ public class Zone implements Serializable {
 
 		for (String type : residentialAreaTypes) {
 			if (!areasByLanduse.containsKey(type)) {
-				log.warn("Zone - Residential area type not available: " + type);
 				continue;
 			}
 			Area a = areasByLanduse.get(type);
 			area.add(a);
+			log.info("Used residential area type: " + type);
 		}
 
 		if (area.isEmpty() && !areasByLanduse.containsKey(industrialAreaType)) {
@@ -137,11 +137,16 @@ public class Zone implements Serializable {
 		Map<String,ZoneArea> areas = new LinkedHashMap<String,ZoneArea>();
 
 		for (String type : landTypes) {
-			ZoneArea area = this.zoneAreasByLanduse.get(type);
+			if ( this.zoneAreasByLanduse.containsKey(type)) {
 				
-			if (area != null) {
-				areas.put(type, area);
-			}			
+				ZoneArea area = this.zoneAreasByLanduse.get(type);
+
+				if(area == null)
+					log.warn("Area is null! zone id=" + this.id() + ", land type=" + type);
+				else 
+					areas.put(type, area);
+				
+			}
 			
 		}
 
@@ -151,12 +156,25 @@ public class Zone implements Serializable {
 	private Map<String,Area>  calculateAreasByLanduse(Map<Integer,VisumTerritory> territories) {
 
 		Map<String,Area> areas = new LinkedHashMap<String,Area>();
+		
+		int i = 0;
+		int totalSize = territories.size();
 
 		for(VisumTerritory territory : territories.values()) {
+			
+			
+			if ( territory.isRelevantForZoneId(vZone.id)) {
 
-			Area a = territory.intersect(this.surface.area());
+				Area a = territory.intersect(this.surface.area());
+				areas.put(territory.code, a);
+				
+			}
+			
+			i = i + 1;
+			if ( i % 10000 == 0) {
+				System.out.println("territory " + i + " of " + totalSize + " id=" + territory.id);
+			}
 
-			areas.put(territory.code, a);
 		}
 
 		return areas;
