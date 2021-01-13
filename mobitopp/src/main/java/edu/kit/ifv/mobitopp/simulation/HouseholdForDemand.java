@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
@@ -16,57 +17,43 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class HouseholdForDemand
-  implements Household, Serializable
-{
+public class HouseholdForDemand implements Household, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private static final byte UNDEFINED_BYTE = -1;
 
-  private final HouseholdId id;
+	private final HouseholdId id;
 
-  private final int domCode;
-  private final int type;
-  
-  private final Zone homeZone;
-  private final Location homeLocation;
+	private final int domCode;
+	private final int type;
 
-  private final byte numberOfCars;
-  private final byte numberOfMinors;
-  private final byte numberOfNotSimulatedChildren;
+	private final Zone homeZone;
+	private final Location homeLocation;
 
-  private final byte nominalSize;
+	private final byte numberOfCars;
+	private final byte numberOfMinors;
+	private final byte numberOfNotSimulatedChildren;
+
+	private final byte nominalSize;
 
 	private final int income;
 	private final int incomeClass;
 	private final EconomicalStatus economicalStatus;
 	private final boolean canChargePrivately;
-  
-  private Map<PersonId, Person> persons =  new LinkedHashMap<>();
 
-  private List<PrivateCar> availableCars = new ArrayList<PrivateCar>();
-  private List<PrivateCar> ownedCars = new ArrayList<PrivateCar>();
+	private Map<PersonId, Person> persons = new LinkedHashMap<>();
+
+	private List<PrivateCar> availableCars = new ArrayList<PrivateCar>();
+	private List<PrivateCar> ownedCars = new ArrayList<PrivateCar>();
 
 	protected static int id_counter = 1;
 
-
-  public HouseholdForDemand(
-		HouseholdId id_,
-		int nominalSize,
-		int domcode,
-		int type,
-		Zone zone,
-		Location location,
-		int numberOfMinors,
-		int numberOfNotSimulatedChildren,
-		int totalNumberOfCars,
-		int income,
-		int incomeClass,
-		EconomicalStatus economicalStatus,
-		boolean canChargePrivately
-	)
-  {
-		this.id = id_;
+	public HouseholdForDemand(final HouseholdId id, final int nominalSize, final int domcode,
+		final int type, final Zone zone, final Location location, final int numberOfMinors,
+		final int numberOfNotSimulatedChildren, final int totalNumberOfCars, final int income,
+		final int incomeClass, final EconomicalStatus economicalStatus,
+		final boolean canChargePrivately) {
+		this.id = id;
 		this.domCode = domcode;
 		this.type = type;
 		this.homeZone = zone;
@@ -79,7 +66,7 @@ public class HouseholdForDemand
 		this.incomeClass = incomeClass;
 		this.economicalStatus = economicalStatus;
 		this.canChargePrivately = canChargePrivately;
-  }
+	}
 
 	public int nominalNumberOfCars() {
 		return this.numberOfCars;
@@ -92,66 +79,64 @@ public class HouseholdForDemand
 	private int domCode() {
 		return domCode;
 	}
-	
+
 	public int type() {
-	  return type;
+		return type;
 	}
 
-  public int numberOfNotSimulatedChildren()
-  {
-		assert  this.numberOfNotSimulatedChildren != UNDEFINED_BYTE;
+	public int numberOfNotSimulatedChildren() {
+		assert this.numberOfNotSimulatedChildren != UNDEFINED_BYTE;
 
-    return this.numberOfNotSimulatedChildren;
-  }
+		return this.numberOfNotSimulatedChildren;
+	}
 
- 
-  public HouseholdId getId()
-  {
+	public HouseholdId getId() {
 		assert this.id != null;
 
-    return this.id;
-  }
+		return this.id;
+	}
 
-  public int getOid()
-  {
-    return this.id.getOid();
-  }
+	public int getOid() {
+		return this.id.getOid();
+	}
 
-	public Zone homeZone()
-	{
+	public Zone homeZone() {
 		return this.homeZone;
 	}
 
-  public void addPerson(Person person) {
-    assert person != null;
-    this.persons.put(person.getId(), person);
-  }
-  
-  public List<Person> getPersons()
-  {
-    return new ArrayList<>(this.persons.values());
-  }
-
-  @Override
-	public Person getPerson(PersonId id) {
-  	if (persons.containsKey(id)) {
-  		return persons.get(id);
-  	}
-  	throw new IllegalArgumentException("No person found for id: " + id);
+	public void addPerson(Person person) {
+		assert person != null;
+		this.persons.put(person.getId(), person);
 	}
 
-  public int getSize()
-  {
-    assert this.nominalSize ==  getPersons().size() + numberOfNotSimulatedChildren() :
-							(this.nominalSize + "," + getPersons().size() + "," + numberOfNotSimulatedChildren());
+	public List<Person> getPersons() {
+		return new ArrayList<>(this.persons.values());
+	}
 
-    return getPersons().size() + numberOfNotSimulatedChildren();
-  }
-  
-  @Override
-  public boolean canChargePrivately() {
-  	return canChargePrivately;
-  }
+	@Override
+	public Stream<Person> persons() {
+		return this.persons.values().stream();
+	}
+
+	@Override
+	public Person getPerson(PersonId id) {
+		if (persons.containsKey(id)) {
+			return persons.get(id);
+		}
+		throw new IllegalArgumentException("No person found for id: " + id);
+	}
+
+	public int getSize() {
+		assert this.nominalSize == getPersons().size() + numberOfNotSimulatedChildren()
+			: (this.nominalSize + "," + getPersons().size() + "," + numberOfNotSimulatedChildren());
+
+		return getPersons().size() + numberOfNotSimulatedChildren();
+	}
+
+	@Override
+	public boolean canChargePrivately() {
+		return canChargePrivately;
+	}
 
 	public void returnCar(PrivateCar car) {
 		this.availableCars.add(car);
@@ -167,7 +152,7 @@ public class HouseholdForDemand
 
 		assert this.numberOfCars == cars.size();
 
-		for (PrivateCar car: cars) {
+		for (PrivateCar car : cars) {
 			this.availableCars.add(car);
 			this.ownedCars.add(car);
 		}
@@ -184,7 +169,7 @@ public class HouseholdForDemand
 	public PrivateCar takeAvailableCar(Person person, float tourDistanceKm) {
 		assert !availableCars.isEmpty();
 
-		PrivateCar car =  nextAvailableCar(person, tourDistanceKm);
+		PrivateCar car = nextAvailableCar(person, tourDistanceKm);
 		availableCars.remove(car);
 
 		return car;
@@ -210,7 +195,8 @@ public class HouseholdForDemand
 		}
 
 		if (carsToChooseFrom.size() > 1) {
-			List<PrivateCar> carsWithSufficientRange = findCarsWithSufficientRange(carsToChooseFrom, tourDistanceKm);
+			List<PrivateCar> carsWithSufficientRange = findCarsWithSufficientRange(carsToChooseFrom,
+				tourDistanceKm);
 
 			if (!carsWithSufficientRange.isEmpty()) {
 				carsToChooseFrom = carsWithSufficientRange;
@@ -235,7 +221,7 @@ public class HouseholdForDemand
 				result.add(car);
 			}
 		}
-	
+
 		return result;
 	}
 
@@ -256,7 +242,7 @@ public class HouseholdForDemand
 	public int getTotalNumberOfCars() {
 		return this.numberOfCars;
 	}
-	
+
 	@Override
 	public int getNumberOfOwnedCars() {
 		return this.numberOfCars;
@@ -264,6 +250,11 @@ public class HouseholdForDemand
 
 	public Collection<PrivateCar> whichCars() {
 		return Collections.unmodifiableCollection(this.ownedCars);
+	}
+
+	@Override
+	public Stream<PrivateCar> cars() {
+		return this.ownedCars.stream();
 	}
 
 	public Location homeLocation() {
@@ -274,9 +265,9 @@ public class HouseholdForDemand
 
 		return this.income;
 	}
-	
+
 	public int incomeClass() {
-	  return this.incomeClass;
+		return this.incomeClass;
 	}
 
 	@Override
@@ -301,11 +292,12 @@ public class HouseholdForDemand
 		return buffer.toString();
 	}
 
-  @Override
-  public HouseholdAttributes attributes() {
-    return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), type(), homeZone(),
-        homeLocation(), numberOfMinors, numberOfNotSimulatedChildren(), getTotalNumberOfCars(), monthlyIncomeEur(),
-        incomeClass(), economicalStatus(), canChargePrivately());
+	@Override
+	public HouseholdAttributes attributes() {
+		return new HouseholdAttributes(getOid(), getId(), nominalSize(), domCode(), type(),
+			homeZone(), homeLocation(), numberOfMinors, numberOfNotSimulatedChildren(),
+			getTotalNumberOfCars(), monthlyIncomeEur(), incomeClass(), economicalStatus(),
+			canChargePrivately());
 	}
 
 }
