@@ -6,6 +6,10 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+import edu.kit.ifv.mobitopp.network.Zone;
+
+@Slf4j
 public class VisumTerritory 
 	implements Serializable
 {
@@ -17,8 +21,11 @@ public class VisumTerritory
 	public final String name;
 
 	public final int surfaceId;
+	
+	private List<Integer> correspondingZoneIds;
 
 	protected	VisumSurface surface;
+
 
 	public VisumTerritory(
 		int id,
@@ -34,6 +41,20 @@ public class VisumTerritory
 		this.surface = surface;
 	}
 	
+
+	public VisumTerritory(
+			int id,
+			String code,
+			String name,
+			int surfaceId,
+			VisumSurface surface,
+			List<Integer> correspondingZoneIds
+		) {
+		this(id, code, name, surfaceId, surface);
+		
+		this.correspondingZoneIds = correspondingZoneIds;
+	}
+		
 
 	public List<Area> areas() {
 		return surface.areas();
@@ -80,5 +101,22 @@ public class VisumTerritory
   public String toString() {
     return "VisumTerritory(" + id + "," + code + "," + name + "," + surfaceId + "," + surface + ")";
   }
+
+
+public boolean isRelevantForZoneId(int visumZoneId) {
+	
+	if ( correspondingZoneIds != null) {
+
+		return correspondingZoneIds.contains(visumZoneId);
+		
+	} else {
+		
+		log.info("Attribute 'CorrespondingZone' not set in network file. Consider all zones in search for land use area (will be slow if many territories exist).");
+		return true;
+		
+		
+	}
+	
+}
 
 }

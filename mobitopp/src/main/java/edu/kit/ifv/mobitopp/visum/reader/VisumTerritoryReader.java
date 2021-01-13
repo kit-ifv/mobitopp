@@ -2,7 +2,10 @@ package edu.kit.ifv.mobitopp.visum.reader;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.Function;
@@ -33,7 +36,22 @@ public class VisumTerritoryReader extends VisumBaseReader {
     String name = nameOf(row);
     int areaId = areaIdOf(row);
     VisumSurface area = polygons.get(areaId);
-    return new VisumTerritory(id, code, name, areaId, area);
+    
+    if ( row.containsAttribute(attribute(StandardAttributes.correspondingZones)) ) {
+    	List<Integer> correspondingZoneIds = new ArrayList<Integer>();
+    	
+        String[] correspondingZoneIdsString = row.get(attribute(StandardAttributes.correspondingZones)).split(",");
+        for(String correspondingZoneIdString : correspondingZoneIdsString) {
+        	if(!correspondingZoneIdString.equals("")) {
+        		correspondingZoneIds.add(Integer.parseInt(correspondingZoneIdString));
+        	}
+        }
+        return new VisumTerritory(id, code, name, areaId, area, correspondingZoneIds);
+    } else {
+    	
+    	return new VisumTerritory(id, code, name, areaId, area);
+    }
+    
   }
 
   private String code(Row row) {
