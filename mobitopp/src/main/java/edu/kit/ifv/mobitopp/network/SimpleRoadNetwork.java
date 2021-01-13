@@ -163,7 +163,10 @@ public class SimpleRoadNetwork
 			VisumZone zone = zones.get(id);
 
 			result.put(id, new Zone(this, visum, zone));
+
+			System.out.println("parsed zone " + zone.id);
 		}
+		
 
 		return result;
 	}
