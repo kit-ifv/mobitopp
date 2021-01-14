@@ -28,7 +28,8 @@ dependencies {
             libraries.rhino,
             libraries.rhino_engine,
             libraries.log4j,
-            libraries.slf4j
+            libraries.slf4j,
+            libraries.gson
     
     testAnnotationProcessor libraries.lombok
     

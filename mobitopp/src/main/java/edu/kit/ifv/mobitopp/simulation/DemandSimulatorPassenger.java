@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import edu.kit.ifv.mobitopp.communication.JsonResource;
+import edu.kit.ifv.mobitopp.communication.SimulationProgressData;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
@@ -90,6 +92,7 @@ public class DemandSimulatorPassenger
 		beforeTimeSlice = new Hooks();
 		afterTimeSlice = new Hooks();
 		registerStandardHooks();
+		registerProgressResource();
   }
   
   public DemandSimulatorPassenger(
@@ -187,6 +190,21 @@ public class DemandSimulatorPassenger
 		String simulationTime = new DateFormat().asWeekdayTime(currentTime);
 		log.info("Aktuelle Simulationszeit: " + simulationTime);
 		System.out.println("Aktuelle Simulationszeit: " + simulationTime);
+	}
+	
+	private void registerProgressResource() {
+		if (context.restServer() != null) {
+			SimulationProgressData data = new SimulationProgressData(0, simulationEnd().toSeconds());
+		
+			Hook update = time -> data.setSimulation_second(time.toSeconds());
+			addBeforeTimeSliceHook(update);
+		
+			JsonResource resource = new JsonResource(data, "/rest/simulation/progress");
+			context().restServer().registerResource(resource);
+		} else  {
+			System.err.println("Server is null");
+		}
+		
 	}
 
 	public void startSimulation() {
