@@ -69,7 +69,12 @@ public enum StandardAttribute implements AttributeType {
 		@Override
 		public Stream<Attribute> createAttributes(
 				final Demography demography, final RegionalContext context) {
-			return Stream.empty();
+			return demography
+                .employment()
+                .items()
+                .map(item -> new PersonAttribute(context, this, item.getTypeAsInt(),
+                    item.getTypeAsInt(), item.amount(), PersonOfPanelData::getEmploymentTypeAsInt));
+
 		}
 	},
 	distance("distance") {
