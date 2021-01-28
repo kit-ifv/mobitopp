@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import edu.kit.ifv.mobitopp.communication.RestServerResourceRegistry;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -35,6 +36,8 @@ public interface SimulationContext {
 	Results results();
 
 	PersonResults personResults();
+	
+	RestServerResourceRegistry restServer();
 
 	void beforeSimulation();
 

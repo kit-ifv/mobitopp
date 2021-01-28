@@ -27,6 +27,7 @@ public class WrittenConfigurationTest {
 		assertValue(WrittenConfiguration::getExperimental, copied, original);
 		assertValue(WrittenConfiguration::getLogLevel, copied, original);
 		assertValue(WrittenConfiguration::getThreadCount, copied, original);
+		assertValue(WrittenConfiguration::getPort, copied, original);
 		
 	}
 }
