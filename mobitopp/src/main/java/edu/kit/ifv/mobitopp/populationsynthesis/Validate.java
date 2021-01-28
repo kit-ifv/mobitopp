@@ -7,14 +7,17 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.FileValidator;
+import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 
 public class Validate implements Validation {
 
 	private WrittenConfiguration configuration;
+	private final TypeMapping modeToType;
 	private final List<File> files;
 
-	public Validate() {
+	public Validate(final TypeMapping modeToType) {
 		super();
+		this.modeToType = modeToType;
 		files = new ArrayList<>();
 	}
 
@@ -78,6 +81,6 @@ public class Validate implements Validation {
 	}
 
 	private void validateDataSource() throws IOException {
-		configuration.getDataSource().validate();
+		configuration.getDataSource().validate(modeToType);
 	}
 }

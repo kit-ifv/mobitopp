@@ -1,15 +1,16 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import lombok.ToString;
 
 @ToString
 public class EgressIntermodal implements Mode {
 
-	private final Mode main;
-	private final Mode egress;
+	private final StandardMode main;
+	private final StandardMode egress;
 
-	public EgressIntermodal(Mode mainMode, Mode egressMode) {
+	public EgressIntermodal(StandardMode mainMode, StandardMode egressMode) {
 		this.main = mainMode;
 		this.egress = egressMode;
 	}
@@ -35,12 +36,12 @@ public class EgressIntermodal implements Mode {
 	}
 
 	@Override
-	public Mode mainMode() {
+	public StandardMode mainMode() {
 		return main;
 	}
 	
 	@Override
-	public Mode legMode() {
+	public StandardMode legMode() {
 		return egress;
 	}
 

@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.data.local.configuration;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public interface MatrixConfiguration {
@@ -11,7 +12,7 @@ public interface MatrixConfiguration {
 
   CostMatrixId idOf(CostMatrixType matrixType, Time date);
 
-  TravelTimeMatrixId idOf(TravelTimeMatrixType matrixType, Time date);
+  TravelTimeMatrixId idOf(StandardMode mode, Time date);
 
   TaggedTravelTimeMatrix travelTimeMatrixFor(TravelTimeMatrixId id) throws IOException;
 

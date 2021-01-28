@@ -15,40 +15,48 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import edu.kit.ifv.mobitopp.data.local.DynamicTypeMapping;
 import edu.kit.ifv.mobitopp.data.local.MatrixParser;
+import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 import edu.kit.ifv.mobitopp.data.local.Valid;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class FileMatrixConfigurationTest {
 
 	private static final CostMatrixType matrixType = CostMatrixType.car;
 	private static final TravelTimeMatrixType travelTimeType = TravelTimeMatrixType.car;
+	private static final StandardMode travelTimeMode = StandardMode.CAR;
 	private static final Time weekday = Data.someTime();
 
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
-	
+
 	private MatrixParser parser;
 	private File baseFolder;
 	private File existingFile;
 	private MatrixConfiguration configuration;
+	private DynamicTypeMapping modeToTypeMapping;
 
 	@Before
 	public void initialise() throws IOException {
 		parser = mock(MatrixParser.class);
 		baseFolder = temporaryFolder.getRoot();
 		existingFile = temporaryFolder.newFile();
+		modeToTypeMapping = new DynamicTypeMapping();
+		modeToTypeMapping.add(travelTimeMode, travelTimeType);
 		configuration = configuration(storedMatrices());
 	}
 
 	private MatrixConfiguration configuration(StoredMatrices stored) {
-		return new FileMatrixConfiguration(stored, baseFolder) {
+		return new FileMatrixConfiguration(stored, baseFolder, modeToTypeMapping) {
 
 			@Override
 			MatrixParser parserFor(StoredMatrix storedMatrix) throws FileNotFoundException {
 				return parser;
 			}
+
 		};
 	}
 
@@ -82,28 +90,29 @@ public class FileMatrixConfigurationTest {
 
 	@Test
 	public void loadTravelTimeMatrix() throws IOException {
-		TravelTimeMatrixId matrixId = configuration.idOf(travelTimeType, weekday);
+		TravelTimeMatrixId matrixId = configuration.idOf(travelTimeMode, weekday);
 		configuration.travelTimeMatrixFor(matrixId);
 
 		verify(parser).parseTravelTimeMatrix();
 	}
-	
+
 	@Test
 	public void validateExistingMatrices() {
 		configuration.validate();
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void validateMissingBaseFolder() throws IOException {
-		MatrixConfiguration configuration = FileMatrixConfiguration.empty(missingFolder());
-		
+		MatrixConfiguration configuration = FileMatrixConfiguration
+			.empty(missingFolder(), modeToTypeMapping);
+
 		configuration.validate();
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void validateMissingCostMatrix() {
 		MatrixConfiguration configuration = configuration(missingCostMatrix());
-		
+
 		configuration.validate();
 	}
 

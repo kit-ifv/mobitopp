@@ -1,14 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 public class FullIntermodal implements Mode {
 
-	private final Mode mainMode;
-	private final Mode accessMode;
-	private final Mode egressMode;
+	private final StandardMode mainMode;
+	private final StandardMode accessMode;
+	private final StandardMode egressMode;
 
-	public FullIntermodal(Mode mainMode, Mode accessMode, Mode egressMode) {
+	public FullIntermodal(StandardMode mainMode, StandardMode accessMode, StandardMode egressMode) {
 		this.mainMode = mainMode;
 		this.accessMode = accessMode;
 		this.egressMode = egressMode;
@@ -35,13 +36,14 @@ public class FullIntermodal implements Mode {
 	}
 	
 	@Override
-	public Mode mainMode() {
+	public StandardMode mainMode() {
 		return mainMode;
 	}
 	
 	@Override
-	public Mode legMode() {
-		return this;
+	public StandardMode legMode() {
+		throw new UnsupportedOperationException(
+			String.format("Could not determine a leg mode for an intermodal mode: %s", this));
 	}
 
 	public Mode accessMode() {

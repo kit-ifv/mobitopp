@@ -76,12 +76,12 @@ public enum StandardMode implements Mode {
 	}
 	
 	@Override
-	public Mode mainMode() {
+	public StandardMode mainMode() {
 		return this;
 	}
 	
 	@Override
-	public Mode legMode() {
+	public StandardMode legMode() {
 		return this;
 	}
 

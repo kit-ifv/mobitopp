@@ -255,14 +255,14 @@ public class LocalFiles implements DataSource {
 	}
 
 	private Matrices matrices(TypeMapping modeToType) throws FileNotFoundException {
-		MatrixConfiguration matrixConfiguration = loadMatrixConfiguration();
-		return new MatrixRepository(matrixConfiguration, modeToType);
+		MatrixConfiguration matrixConfiguration = loadMatrixConfiguration(modeToType);
+		return new MatrixRepository(matrixConfiguration);
 	}
 
-	private MatrixConfiguration loadMatrixConfiguration() throws FileNotFoundException {
+	private MatrixConfiguration loadMatrixConfiguration(TypeMapping modeToType) throws FileNotFoundException {
 		File configFile = matrixConfigurationFile;
 		File matrixFolder = configFile.getParentFile();
-		return FileMatrixConfiguration.from(configFile, matrixFolder);
+		return FileMatrixConfiguration.from(configFile, matrixFolder, modeToType);
 	}
 
 	private DemographyRepository demographyRepository(DemographyData demographyData) {
@@ -393,9 +393,9 @@ public class LocalFiles implements DataSource {
 	}
 
 	@Override
-	public void validate() throws IOException {
+	public void validate(TypeMapping modeToType) throws IOException {
 		validateFiles();
-		validateMatrices();
+		validateMatrices(modeToType);
 	}
 
 	private void validateFiles() throws IOException {
@@ -412,9 +412,9 @@ public class LocalFiles implements DataSource {
 		CreateFolder.at(demandDataFolder).ifMissing();
 	}
 
-	private void validateMatrices() {
+	private void validateMatrices(TypeMapping modeToType) {
 		try {
-      loadMatrixConfiguration().validate();
+      loadMatrixConfiguration(modeToType).validate();
 		} catch (FileNotFoundException cause) {
 			throw new UncheckedIOException("Missing file check for matrix configuration.", cause);
 		}

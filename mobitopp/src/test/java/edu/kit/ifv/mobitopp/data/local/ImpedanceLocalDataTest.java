@@ -1,10 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
-import static com.github.npathai.hamcrestopt.OptionalMatchers.isEmpty;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,7 +20,6 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.PublicTransportRoute;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -36,7 +32,7 @@ public class ImpedanceLocalDataTest {
 	private static final Time date = Data.someTime();
 	private static final Location sourceLocation = null;
 	private static final Location targetLocation = null;
-	private static final Mode mode = StandardMode.CAR;
+	private static final StandardMode mode = StandardMode.CAR;
 	private static final float cost = 1.0f;
 	private static final float distance = 1.0f;
 	private static final float storedParkingCost = 1.0f;
@@ -97,7 +93,7 @@ public class ImpedanceLocalDataTest {
 	public void getTravelTime() {
 		float travelTime = impedance.getTravelTime(origin, destination, mode, date);
 		
-		assertThat(travelTime, is(equalTo(storedTravelTime)));
+		assertThat(travelTime).isEqualTo(storedTravelTime);
 
 		verify(matrices).travelTimeFor(mode, date);
 	}
@@ -107,7 +103,7 @@ public class ImpedanceLocalDataTest {
 		Optional<PublicTransportRoute> publicTransportRoute = impedance.getPublicTransportRoute(
 				sourceLocation, targetLocation, mode, date);
 
-		assertThat(publicTransportRoute, isEmpty());
+		assertThat(publicTransportRoute).isEmpty();
 	}
 	
 	@Test
@@ -116,16 +112,16 @@ public class ImpedanceLocalDataTest {
 		float passangerCost = impedance.getTravelCost(origin, destination, StandardMode.PASSENGER, date);
 		float pedestrianCost = impedance.getTravelCost(origin, destination, StandardMode.PEDESTRIAN, date);
 		
-		assertThat(bikeCost, is(equalTo(0.0f)));
-		assertThat(passangerCost, is(equalTo(0.0f)));
-		assertThat(pedestrianCost, is(equalTo(0.0f)));
+		assertThat(bikeCost).isEqualTo(0.0f);
+		assertThat(passangerCost).isEqualTo(0.0f);
+		assertThat(pedestrianCost).isEqualTo(0.0f);
 	}
 
 	@Test
 	public void getTravelCost() {
 		float travelCost = impedance.getTravelCost(origin, destination, mode, date);
 		
-		assertThat(travelCost, is(cost));
+		assertThat(travelCost).isEqualTo(cost);
 
 		verify(matrices).travelCostFor(mode, date);
 	}
@@ -134,7 +130,7 @@ public class ImpedanceLocalDataTest {
 	public void getDistance() {
 		float travelDistance = impedance.getDistance(origin, destination);
 		
-		assertThat(travelDistance, is(equalTo(distance)));
+		assertThat(travelDistance).isEqualTo(distance);
 
 		verify(matrices).distanceMatrix(date);
 	}
@@ -143,7 +139,7 @@ public class ImpedanceLocalDataTest {
 	public void getParkingCost() {
 		float parkingCost = impedance.getParkingCost(destination, date);
 		
-		assertThat(parkingCost, is(equalTo(storedParkingCost)));
+		assertThat(parkingCost).isEqualTo(storedParkingCost);
 
 		verify(matrices).parkingCostMatrix(date);
 	}
@@ -152,7 +148,7 @@ public class ImpedanceLocalDataTest {
 	public void getParkingStress() {
 		float parkingStress = impedance.getParkingStress(destination, date);
 		
-		assertThat(parkingStress, is(equalTo(storedParkingStress)));
+		assertThat(parkingStress).isEqualTo(storedParkingStress);
 
 		verify(matrices).parkingStressMatrix(date);
 	}
@@ -161,7 +157,7 @@ public class ImpedanceLocalDataTest {
 	public void getConstant() {
 		float constant = impedance.getConstant(origin, destination, date);
 
-		assertThat(constant, is(equalTo(storedConstant)));
+		assertThat(constant).isEqualTo(storedConstant);
 		
 		verify(matrices).constantMatrix(date);
 	}

@@ -11,7 +11,7 @@ import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixType;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class MatrixRepository implements Matrices {
@@ -20,15 +20,15 @@ public class MatrixRepository implements Matrices {
 	private final CostMatrixCache costCache;
 	private final FixedDistributionMatrixCache fixedDistributionCache;
 
-	public MatrixRepository(MatrixConfiguration configuration, TypeMapping modeToType) {
+	public MatrixRepository(MatrixConfiguration configuration) {
 		super();
 		costCache = new CostMatrixCache(configuration);
 		fixedDistributionCache = new FixedDistributionMatrixCache(configuration);
-		travelTimeCache = new TravelTimeMatrixCache(configuration, modeToType);
+		travelTimeCache = new TravelTimeMatrixCache(configuration);
 	}
 
 	@Override
-	public TravelTimeMatrix travelTimeFor(Mode mode, Time date) {
+	public TravelTimeMatrix travelTimeFor(StandardMode mode, Time date) {
 		return travelTimeCache.matrixFor(mode, date);
 	}
 	
@@ -38,8 +38,8 @@ public class MatrixRepository implements Matrices {
 	}
 
 	@Override
-	public CostMatrix travelCostFor(Mode mode, Time date) {
-		return costMatrix(costMatrixTypeOf(mode), date);
+	public CostMatrix travelCostFor(StandardMode mode, Time date) {
+		return costCache.matrixFor(mode, date);
 	}
 
 	@Override
@@ -68,10 +68,6 @@ public class MatrixRepository implements Matrices {
 
 	private CostMatrix costMatrixInternal(CostMatrixType matrixType, Time date) {
 		return costCache.matrixFor(matrixType, date);
-	}
-
-	private CostMatrixType costMatrixTypeOf(Mode mode) {
-		return costCache.typeOf(mode);
 	}
 
 }

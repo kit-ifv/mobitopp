@@ -1,15 +1,16 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import lombok.ToString;
 
 @ToString
 public class AccessIntermodal implements Mode {
 
-	private final Mode main;
-	private final Mode access;
+	private final StandardMode main;
+	private final StandardMode access;
 
-	public AccessIntermodal(Mode mainMode, Mode accessMode) {
+	public AccessIntermodal(StandardMode mainMode, StandardMode accessMode) {
 		this.main = mainMode;
 		this.access = accessMode;
 	}
@@ -35,12 +36,12 @@ public class AccessIntermodal implements Mode {
 	}
 
 	@Override
-	public Mode mainMode() {
+	public StandardMode mainMode() {
 		return main;
 	}
 
 	@Override
-	public Mode legMode() {
+	public StandardMode legMode() {
 		return access;
 	}
 

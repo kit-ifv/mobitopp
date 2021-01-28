@@ -40,7 +40,7 @@ public class ImpedanceLocalData implements ImpedanceIfc {
 
   @Override
   public float getTravelTime(ZoneId origin, ZoneId destination, Mode mode, Time date) {
-    return matrices.travelTimeFor(mode, date).get(origin, destination);
+    return matrices.travelTimeFor(mode.legMode(), date).get(origin, destination);
   }
 
   @Override
@@ -48,7 +48,7 @@ public class ImpedanceLocalData implements ImpedanceIfc {
     if(mode == StandardMode.BIKE || mode == StandardMode.PASSENGER || mode == StandardMode.PEDESTRIAN) {
     	return 0.0f;
     }
-    return matrices.travelCostFor(mode, date).get(origin, destination);
+    return matrices.travelCostFor(mode.legMode(), date).get(origin, destination);
   }
 
   @Override

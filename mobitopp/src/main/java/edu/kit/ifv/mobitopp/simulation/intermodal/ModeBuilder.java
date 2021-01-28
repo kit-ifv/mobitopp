@@ -1,24 +1,25 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 
 public class ModeBuilder {
 
-	private Mode mainMode;
-	private Mode accessMode;
-	private Mode egressMode;
+	private StandardMode mainMode;
+	private StandardMode accessMode;
+	private StandardMode egressMode;
 
-	public ModeBuilder addMainMode(Mode mainMode) {
+	public ModeBuilder addMainMode(StandardMode mainMode) {
 		this.mainMode = mainMode;
 		return this;
 	}
 
-	public ModeBuilder addAccessMode(Mode accessMode) {
+	public ModeBuilder addAccessMode(StandardMode accessMode) {
 		this.accessMode = accessMode;
 		return this;
 	}
 
-	public ModeBuilder addEgressMode(Mode egressMode) {
+	public ModeBuilder addEgressMode(StandardMode egressMode) {
 		this.egressMode = egressMode;
 		return this;
 	}

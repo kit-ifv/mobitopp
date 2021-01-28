@@ -10,8 +10,8 @@ public interface Mode {
 
 	public String forLogging();
 
-	public Mode mainMode();
+	public StandardMode mainMode();
 
-	public Mode legMode();
+	public StandardMode legMode();
 
 }
