@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import edu.kit.ifv.mobitopp.simulation.WrittenConfiguration;
 
-public class SimulationParser extends Parser {
+public class SimulationParser extends MergingParser {
 
 	public SimulationParser(Map<Class<?>, Tag> tags) {
 		super(tags);
