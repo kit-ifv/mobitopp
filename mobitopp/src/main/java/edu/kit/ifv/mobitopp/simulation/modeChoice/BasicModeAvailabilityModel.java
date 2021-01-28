@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.modeChoice;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -68,11 +67,12 @@ public class BasicModeAvailabilityModel
 			} 
 			else 
 			{
-				choiceSet = Collections.singleton(previousMode);
+				choiceSet.clear();
+				choiceSet.add(previousMode);
 			}
 		}
 
-		return Collections.unmodifiableSet(choiceSet);
+		return choiceSet;
 
 	}
 
@@ -88,8 +88,7 @@ public class BasicModeAvailabilityModel
 		final float DIVERSION_FACTOR = 1.5f;
 		final float RANGE_BUFFER_KM = 20.0f;
 
-		Set<Mode> choiceSet = new LinkedHashSet<>(
-				availableModes(person, origin, previousActivity, proposedChoiceSet));
+		Set<Mode> choiceSet = availableModes(person, origin, previousActivity, proposedChoiceSet);
 
 		if (choiceSet.contains(StandardMode.CAR)) {
 
@@ -184,6 +183,16 @@ public class BasicModeAvailabilityModel
 
 		return person.hasDrivingLicense()
 						&& theHousehold.getNumberOfAvailableCars() > 0;
+	}
+	
+	protected Set<Mode> singleChoice(Mode mode) {
+		LinkedHashSet<Mode> choiceSet = new LinkedHashSet<>();
+		choiceSet.add(mode);
+		return choiceSet;
+	}
+
+	protected boolean previousModeIsFixed(Set<Mode> filteredModes) {
+		return 1 == filteredModes.size();
 	}
 
 
