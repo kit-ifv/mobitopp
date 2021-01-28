@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.WrittenConfiguration;
 
-public class PopulationSynthesisParser extends Parser {
+public class PopulationSynthesisParser extends MergingParser {
 
 	public PopulationSynthesisParser(Map<Class<?>, Tag> tags) {
 		super(tags);
