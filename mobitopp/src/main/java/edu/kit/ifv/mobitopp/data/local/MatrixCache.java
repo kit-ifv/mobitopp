@@ -18,7 +18,7 @@ public abstract class MatrixCache<K, V> {
 		cache = new HashMap<>();
 	}
 
-	protected boolean contains(K id) {
+	private boolean contains(K id) {
 		return cache.containsKey(id);
 	}
 

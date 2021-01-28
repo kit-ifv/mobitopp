@@ -9,11 +9,8 @@ import static edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixType.parki
 import static edu.kit.ifv.mobitopp.data.local.configuration.CostMatrixType.publictransport;
 import static edu.kit.ifv.mobitopp.simulation.ActivityType.WORK;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,9 +31,7 @@ import edu.kit.ifv.mobitopp.data.local.configuration.TaggedFixedDistributionMatr
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedTravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TimeSpan;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixId;
-import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
-import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -70,15 +65,9 @@ public class MatrixRepositoryTest {
 		parkingCostId = new CostMatrixId(parking, weekdays, TimeSpan.between(0, 0));
 		parkingStressId = new CostMatrixId(parkingstress, weekdays, TimeSpan.between(0, 0));
 		constantId = new CostMatrixId(constant, weekdays, TimeSpan.between(0, 0));
-		carTimeId = new TravelTimeMatrixId(TravelTimeMatrixType.car, weekdays, TimeSpan.between(0, 0));
-		store = new MatrixRepository(configuration, modeToType());
+		carTimeId = new TravelTimeMatrixId(StandardMode.CAR, weekdays, TimeSpan.between(0, 0));
+		store = new MatrixRepository(configuration);
 	}
-
-  private TypeMapping modeToType() {
-    DynamicTypeMapping typeMapping = new DynamicTypeMapping();
-    typeMapping.add(StandardMode.CAR, TravelTimeMatrixType.car);
-    return typeMapping;
-  }
 
 	@Test
 	public void resolveTravelTimeMatrix() throws IOException {
@@ -89,21 +78,22 @@ public class MatrixRepositoryTest {
 
 		TravelTimeMatrix loadedMatrix = store.travelTimeFor(StandardMode.CAR, date);
 
-		assertThat(loadedMatrix, is(equalTo(travelTimeMatrix)));
-		verify(configuration).idOf(TravelTimeMatrixType.car, date);
+		assertThat(loadedMatrix).isEqualTo(travelTimeMatrix);
+		verify(configuration).idOf(StandardMode.CAR, date);
 		verify(configuration).travelTimeMatrixFor(id);
 	}
 
 	@Test
 	public void resolveFixedDistributionMatrix() throws IOException {
 		FixedDistributionMatrixId id = new FixedDistributionMatrixId(WORK);
-		TaggedFixedDistributionMatrix matrix = new TaggedFixedDistributionMatrix(id, fixedDistributionMatrix);
+		TaggedFixedDistributionMatrix matrix = new TaggedFixedDistributionMatrix(id,
+			fixedDistributionMatrix);
 		when(configuration.idOf(WORK)).thenReturn(id);
 		when(configuration.fixedDistributionMatrixFor(id)).thenReturn(matrix);
 
 		FixedDistributionMatrix loadedMatrix = store.fixedDistributionMatrixFor(WORK);
 
-		assertThat(loadedMatrix, is(equalTo(fixedDistributionMatrix)));
+		assertThat(loadedMatrix).isEqualTo(fixedDistributionMatrix);
 		verify(configuration).fixedDistributionMatrixFor(id);
 	}
 
@@ -113,7 +103,7 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = load(StandardMode.CAR);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(car);
 		verifyResolveMatrix(carId);
 	}
@@ -124,7 +114,7 @@ public class MatrixRepositoryTest {
 		when(configuration.costMatrixFor(id)).thenReturn(matrix);
 	}
 
-	private CostMatrix load(Mode mode) {
+	private CostMatrix load(StandardMode mode) {
 		return store.travelCostFor(mode, date);
 	}
 
@@ -142,7 +132,7 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = load(StandardMode.PUBLICTRANSPORT);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(publictransport);
 		verifyResolveMatrix(publicTransportId);
 	}
@@ -154,7 +144,7 @@ public class MatrixRepositoryTest {
 		load(StandardMode.CAR);
 		load(StandardMode.CAR);
 
-		verify(configuration, times(2)).idOf(car, date);
+		verify(configuration).idOf(car, date);
 		verifyResolveMatrix(carId);
 	}
 
@@ -164,7 +154,7 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = store.distanceMatrix(date);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(distance);
 		verifyResolveMatrix(distanceId);
 	}
@@ -175,7 +165,7 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = store.parkingCostMatrix(date);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(parking);
 		verifyResolveMatrix(parkingCostId);
 	}
@@ -186,7 +176,7 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = store.parkingStressMatrix(date);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(parkingstress);
 		verifyResolveMatrix(parkingStressId);
 	}
@@ -197,8 +187,9 @@ public class MatrixRepositoryTest {
 
 		CostMatrix loadedMatrix = store.constantMatrix(date);
 
-		assertThat(loadedMatrix, is(equalTo(costMatrix)));
+		assertThat(loadedMatrix).isEqualTo(costMatrix);
 		verifyResolveId(constant);
 		verifyResolveMatrix(constantId);
 	}
+
 }

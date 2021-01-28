@@ -60,7 +60,7 @@ public class TestSource implements DataSource {
 	}
 
 	@Override
-	public void validate() {
+	public void validate(TypeMapping modeToType) {
 		throw new RuntimeException("dummy implementation");
 	}
 

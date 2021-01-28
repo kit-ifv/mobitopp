@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,56 +21,57 @@ import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedTravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TimeSpan;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixId;
-import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 
 public class TravelTimeMatrixCacheTest {
 
-  private TravelTimeMatrix carMatrix;
-  private TravelTimeMatrix bikeMatrix;
-  private MatrixConfiguration configuration;
+	private TravelTimeMatrix carMatrix;
+	private TravelTimeMatrix bikeMatrix;
+	private MatrixConfiguration configuration;
 
-  @BeforeEach
-  public void initialise() {
-    carMatrix = new TravelTimeMatrix(emptyList());
-    bikeMatrix = new TravelTimeMatrix(emptyList());
-    configuration = mock(MatrixConfiguration.class);
-  }
+	@BeforeEach
+	public void initialise() {
+		carMatrix = new TravelTimeMatrix(emptyList());
+		bikeMatrix = new TravelTimeMatrix(emptyList());
+		configuration = mock(MatrixConfiguration.class);
+	}
 
-  @Test
-  void matrixForMode() throws Exception {
-    configureMatrix(TravelTimeMatrixType.car, carMatrix);
-    configureMatrix(TravelTimeMatrixType.bike, bikeMatrix);
-    TravelTimeMatrixCache cache = newCache();
+	@Test
+	void matrixForMode() throws Exception {
+		configureMatrix(StandardMode.CAR, carMatrix);
+		configureMatrix(StandardMode.BIKE, bikeMatrix);
+		TravelTimeMatrixCache cache = newCache();
 
-    TravelTimeMatrix cachedCarMatrix = cache.matrixFor(StandardMode.CAR, SimpleTime.start);
-    TravelTimeMatrix cachedBikeMatrix = cache.matrixFor(StandardMode.BIKE, SimpleTime.start);
+		TravelTimeMatrix cachedCarMatrix = cache.matrixFor(StandardMode.CAR, SimpleTime.start);
+		TravelTimeMatrix cachedBikeMatrix = cache.matrixFor(StandardMode.BIKE, SimpleTime.start);
 
-    assertAll(() -> assertThat(cachedCarMatrix, is(sameInstance(carMatrix))),
-        () -> assertThat(cachedBikeMatrix, is(sameInstance(bikeMatrix))));
-  }
+		assertAll(() -> assertThat(cachedCarMatrix, is(sameInstance(carMatrix))),
+			() -> assertThat(cachedBikeMatrix, is(sameInstance(bikeMatrix))));
+	}
 
-  @Test
-  void matrixForMissingMode() throws Exception {
-    TravelTimeMatrixCache cache = newCache();
+	@Test
+	void matrixForMissingMode() throws Exception {
+		when(configuration.travelTimeMatrixFor(any())).thenThrow(IOException.class);
+		TravelTimeMatrixCache cache = newCache();
 
-    assertThrows(IllegalArgumentException.class,
-        () -> cache.matrixFor(StandardMode.RIDE_HAILING, SimpleTime.start));
-  }
+		assertThrows(IllegalArgumentException.class,
+			() -> cache.matrixFor(StandardMode.RIDE_HAILING, SimpleTime.start));
+	}
 
-  private void configureMatrix(TravelTimeMatrixType matrixType, TravelTimeMatrix matrix)
-      throws IOException {
-    TravelTimeMatrixId id = new TravelTimeMatrixId(matrixType, DayType.weekdays,
-        TimeSpan.between(0, 1));
-    when(configuration.idOf(matrixType, SimpleTime.start)).thenReturn(id);
-    when(configuration.travelTimeMatrixFor(id)).thenReturn(new TaggedTravelTimeMatrix(id, matrix));
-  }
+	private void configureMatrix(StandardMode mode, TravelTimeMatrix matrix) throws IOException {
+		TravelTimeMatrixId id = createIdFor(mode);
+		when(configuration.idOf(mode, SimpleTime.start)).thenReturn(id);
+		when(configuration.travelTimeMatrixFor(id))
+			.thenReturn(new TaggedTravelTimeMatrix(id, matrix));
+	}
 
-  private TravelTimeMatrixCache newCache() {
-    DynamicTypeMapping types = new DynamicTypeMapping();
-    types.add(StandardMode.BIKE, TravelTimeMatrixType.bike);
-    types.add(StandardMode.CAR, TravelTimeMatrixType.car);
-    return new TravelTimeMatrixCache(configuration, types);
-  }
+	private TravelTimeMatrixId createIdFor(StandardMode mode) {
+		return new TravelTimeMatrixId(mode, DayType.weekdays, TimeSpan.between(0, 1));
+	}
+
+	private TravelTimeMatrixCache newCache() {
+		return new TravelTimeMatrixCache(configuration);
+	}
+
 }

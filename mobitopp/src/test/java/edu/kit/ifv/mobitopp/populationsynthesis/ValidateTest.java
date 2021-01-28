@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import edu.kit.ifv.mobitopp.data.DataSource;
+import edu.kit.ifv.mobitopp.data.local.DynamicTypeMapping;
 import edu.kit.ifv.mobitopp.data.local.TemporaryFiles;
 
 public class ValidateTest {
@@ -26,11 +27,15 @@ public class ValidateTest {
 	private File nonExistingFile;
 	private DataSource dataSource;
 
+	private DynamicTypeMapping modeToType;
+
 	@Before
 	public void initialise() throws IOException {
 		existingFile = baseFolder.newFile();
 		nonExistingFile = TemporaryFiles.newMissingFile(baseFolder);
 		dataSource = mock(DataSource.class);
+		modeToType = new DynamicTypeMapping();
+		
 
 		createValidConfiguration();
 	}
@@ -53,7 +58,7 @@ public class ValidateTest {
 	public void validateCorrectConfiguration() throws IOException {
 		validate();
 
-		verify(dataSource).validate();
+		verify(dataSource).validate(modeToType);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -122,7 +127,7 @@ public class ValidateTest {
 	}
 
 	private void validate() throws IOException {
-		new Validate().now(configuration);
+		new Validate(modeToType).now(configuration);
 	}
 
 }

@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -29,12 +30,12 @@ class ModeDecorator implements Mode {
 	}
 
 	@Override
-	public Mode mainMode() {
+	public StandardMode mainMode() {
 		return other.mainMode();
 	}
 
 	@Override
-	public Mode legMode() {
+	public StandardMode legMode() {
 		return other.legMode();
 	}
 

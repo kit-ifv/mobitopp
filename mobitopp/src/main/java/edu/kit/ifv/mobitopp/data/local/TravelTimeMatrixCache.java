@@ -7,40 +7,52 @@ import edu.kit.ifv.mobitopp.data.TravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
 import edu.kit.ifv.mobitopp.data.local.configuration.TaggedTravelTimeMatrix;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixId;
-import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
-import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
 
 public class TravelTimeMatrixCache extends MatrixCache<TravelTimeMatrixId, TaggedTravelTimeMatrix> {
 
-  private TypeMapping modeToType;
+	private int cachedHour;
+	private TravelTimeMatrix[] cachedMatrices;
 
-  public TravelTimeMatrixCache(
-      MatrixConfiguration configuration, TypeMapping modeToType) {
-    super(configuration);
-    this.modeToType = modeToType;
-  }
+	public TravelTimeMatrixCache(MatrixConfiguration configuration) {
+		super(configuration);
+		createEmptyCache();
+	}
 
-  public TravelTimeMatrixType typeOf(Mode mode) {
-    return modeToType.resolve(mode);
-  }
+	public TravelTimeMatrixId idOf(StandardMode mode, Time date) {
+		return configuration().idOf(mode, date);
+	}
 
-  public TravelTimeMatrixId idOf(TravelTimeMatrixType matrixType, Time date) {
-    return configuration().idOf(matrixType, date);
-  }
+	public TravelTimeMatrix matrixFor(StandardMode mode, Time date) {
+		if (this.cachedHour != date.getHour()) {
+			createEmptyCache();
+		}
+		if (null != cachedMatrices[mode.ordinal()]) {
+			return cachedMatrices[mode.ordinal()];
+		}
+		return updateCache(mode, date);
+	}
 
-  public TravelTimeMatrix matrixFor(Mode mode, Time date) {
-    TravelTimeMatrixId id = idOf(typeOf(mode), date);
-    return matrixFor(id).matrix();
-  }
+	private TravelTimeMatrix updateCache(StandardMode mode, Time date) {
+		TravelTimeMatrixId id = idOf(mode, date);
+		TravelTimeMatrix matrix = matrixFor(id).matrix();
+		cachedMatrices[mode.ordinal()] = matrix;
+		cachedHour = date.getHour();
+		return matrix;
+	}
 
-  protected TaggedTravelTimeMatrix loadMatrixBy(TravelTimeMatrixId id) throws IOException {
-    return configuration().travelTimeMatrixFor(id);
-  }
+	private void createEmptyCache() {
+		cachedMatrices = new TravelTimeMatrix[StandardMode.values().length];
+	}
 
-  @Override
-  protected Stream<TravelTimeMatrixId> split(TaggedTravelTimeMatrix taggedMatrix) {
-    return taggedMatrix.id().split();
-  }
+	protected TaggedTravelTimeMatrix loadMatrixBy(TravelTimeMatrixId id) throws IOException {
+		return configuration().travelTimeMatrixFor(id);
+	}
+
+	@Override
+	protected Stream<TravelTimeMatrixId> split(TaggedTravelTimeMatrix taggedMatrix) {
+		return taggedMatrix.id().split();
+	}
 
 }

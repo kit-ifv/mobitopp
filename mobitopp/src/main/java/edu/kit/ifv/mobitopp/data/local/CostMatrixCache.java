@@ -17,10 +17,13 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix> {
 
 	private final Map<Mode, CostMatrixType> modeToType;
+	private int cachedHour;
+	private CostMatrix[] cachedMatrices;
 
 	public CostMatrixCache(MatrixConfiguration configuration) {
 		super(configuration);
 		modeToType = modeToTypes();
+		createEmptyCache();
 	}
 
 	private static Map<Mode, CostMatrixType> modeToTypes() {
@@ -54,6 +57,28 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 	public CostMatrix matrixFor(CostMatrixType matrixType, Time date) {
 		CostMatrixId id = idOf(matrixType, date);
 		return matrixFor(id).matrix();
+	}
+
+	public CostMatrix matrixFor(StandardMode mode, Time date) {
+		if (this.cachedHour != date.getHour()) {
+			createEmptyCache();
+		}
+		if (null != cachedMatrices[mode.ordinal()]) {
+			return cachedMatrices[mode.ordinal()];
+		}
+		return updateCache(mode, date);
+	}
+
+	private CostMatrix updateCache(StandardMode mode, Time date) {
+		CostMatrixId id = idOf(typeOf(mode), date);
+		CostMatrix matrix = matrixFor(id).matrix();
+		cachedMatrices[mode.ordinal()] = matrix;
+		cachedHour = date.getHour();
+		return matrix;
+	}
+
+	private void createEmptyCache() {
+		cachedMatrices = new CostMatrix[StandardMode.values().length];
 	}
 
 	protected TaggedCostMatrix loadMatrixBy(CostMatrixId id) throws IOException {

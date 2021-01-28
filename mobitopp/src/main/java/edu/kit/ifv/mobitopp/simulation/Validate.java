@@ -3,13 +3,16 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.data.local.Convert;
+import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 
 public class Validate implements Validation {
 
+	private final TypeMapping modeToType;
 	private WrittenConfiguration configuration;
 
-	public Validate() {
+	public Validate(final TypeMapping modeToType) {
 		super();
+		this.modeToType = modeToType;
 	}
 
 	@Override
@@ -67,7 +70,7 @@ public class Validate implements Validation {
 	}
 
 	private void validateDataSource() throws IOException {
-		configuration.getDataSource().validate();
+		configuration.getDataSource().validate(modeToType);
 	}
 
 }

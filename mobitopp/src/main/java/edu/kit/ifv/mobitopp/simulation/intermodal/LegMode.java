@@ -1,20 +1,21 @@
 package edu.kit.ifv.mobitopp.simulation.intermodal;
 
 import edu.kit.ifv.mobitopp.simulation.Mode;
+import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import lombok.ToString;
 
 @ToString
 class LegMode extends ModeDecorator {
 
-	private final Mode leg;
+	private final StandardMode leg;
 
-	public LegMode(Mode complete, Mode leg) {
+	public LegMode(Mode complete, StandardMode leg) {
 		super(complete);
 		this.leg = leg;
 	}
 	
 	@Override
-	public Mode legMode() {
+	public StandardMode legMode() {
 		return leg;
 	}
 	

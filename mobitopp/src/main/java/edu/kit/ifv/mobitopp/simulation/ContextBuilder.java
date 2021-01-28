@@ -148,7 +148,7 @@ public class ContextBuilder {
 	}
 
 	private void validateConfiguration() throws IOException {
-		new Validate().now(configuration);
+		new Validate(modeToType).now(configuration);
 		log("Validate configuration");
 	}
 

@@ -38,6 +38,6 @@ public interface DataSource {
 			Predicate<HouseholdForSetup> householdFilter, PersonChanger personChanger,
 			Function<ImpedanceIfc, ImpedanceIfc> wrapImpedance) throws IOException;
 
-	void validate() throws IOException;
+	void validate(TypeMapping modeToType) throws IOException;
 
 }
