@@ -21,6 +21,7 @@ public class WrittenConfiguration {
 	static final int defaulThreadCount = Math.max(1,
 			Runtime.getRuntime().availableProcessors() / 2);
 	private static final String defaultLogLevel = "INFO";
+	public static final int defaultPort = 8080;
 
 	private float fractionOfPopulation;
 	private long seed;
@@ -35,6 +36,7 @@ public class WrittenConfiguration {
 	private int timeStepLength;
 	private int threadCount;
 	private String logLevel;
+	private int port;
 	private VisumToMobitopp visumToMobitopp;
 	private Map<String, String> experimental;
 
@@ -46,6 +48,7 @@ public class WrittenConfiguration {
 		timeStepLength = defaultTimeStepLength;
 		threadCount = defaulThreadCount;
 		logLevel = defaultLogLevel;
+		port = defaultPort;
 		destinationChoice = Collections.emptyMap();
 		modeChoice = Collections.emptyMap();
 		visumToMobitopp = new VisumToMobitopp();
@@ -66,6 +69,7 @@ public class WrittenConfiguration {
 		this.timeStepLength = other.timeStepLength;
 		this.threadCount = other.threadCount;
 		this.logLevel = other.logLevel;
+		this.port = other.port;
 		this.visumToMobitopp = other.visumToMobitopp;
 		this.experimental = other.experimental;
 	}

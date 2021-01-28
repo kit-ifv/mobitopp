@@ -1,7 +1,9 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
+import edu.kit.ifv.mobitopp.communication.RestServerResourceRegistry;
 import edu.kit.ifv.mobitopp.data.DataRepositoryForSimulation;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
@@ -21,13 +23,13 @@ public class SimpleSimulationContext implements SimulationContext {
 	private final DynamicParameters destinationChoiceParameters;
 	private final DynamicParameters modeChoiceParameters;
 	private final DynamicParameters experimentalParameters;
+	private final RestServerResourceRegistry restServer;
 
-  public SimpleSimulationContext(
-      WrittenConfiguration configuration, DynamicParameters experimentalParameters,
-      DataRepositoryForSimulation dataRepository, SimulationDays simulationDays,
-      SimulationParser format, ResultWriter resultWriter,
-      ElectricChargingWriter electricChargingWriter, PersonResults personResults,
-      DynamicParameters destinationChoiceParameters, DynamicParameters modeChoiceParameters) {
+	public SimpleSimulationContext(WrittenConfiguration configuration,
+		DynamicParameters experimentalParameters, DataRepositoryForSimulation dataRepository,
+		SimulationDays simulationDays, SimulationParser format, ResultWriter resultWriter,
+		ElectricChargingWriter electricChargingWriter, PersonResults personResults,
+		DynamicParameters destinationChoiceParameters, DynamicParameters modeChoiceParameters) {
 		this.configuration = configuration;
 		this.experimentalParameters = experimentalParameters;
 		this.dataRepository = dataRepository;
@@ -38,6 +40,8 @@ public class SimpleSimulationContext implements SimulationContext {
 		this.personResults = personResults;
 		this.destinationChoiceParameters = destinationChoiceParameters;
 		this.modeChoiceParameters = modeChoiceParameters;
+
+		this.restServer = RestServerResourceRegistry.create(configuration.getPort());
 	}
 
 	@Override
@@ -79,12 +83,12 @@ public class SimpleSimulationContext implements SimulationContext {
 	public PersonResults personResults() {
 		return personResults;
 	}
-	
+
 	@Override
 	public DynamicParameters destinationChoiceParameters() {
-	  return destinationChoiceParameters;
+		return destinationChoiceParameters;
 	}
-	
+
 	@Override
 	public DynamicParameters modeChoiceParameters() {
 		return modeChoiceParameters;
@@ -100,10 +104,20 @@ public class SimpleSimulationContext implements SimulationContext {
 		return experimentalParameters;
 	}
 
+	/**
+	 * This method should be called before the simulation
+	 * for set up:
+	 * i.e. starting the {@link RestServerResourceRegistry rest server},
+	 * and preparing {@link ElectricChargingWriter electric charging results}.
+	 */
 	@Override
 	public void beforeSimulation() {
 		printStartupInformationOn(System.out);
 		electricChargingWriter.clear();
+		
+		if (restServer != null) {
+			restServer.start();
+		}
 	}
 
 	private void printStartupInformationOn(PrintStream out) {
@@ -111,9 +125,18 @@ public class SimpleSimulationContext implements SimulationContext {
 		out.print(format.serialise(configuration));
 	}
 
+	/**
+	 * This method should be called after the simulation
+	 * for cleaning up:
+	 * i.e. stopping the {@link RestServerResourceRegistry rest server},
+	 * and finishing off the simulation results.
+	 */
 	@Override
 	public void afterSimulation() {
-	  personResults.notifyFinishSimulation();
+		if (restServer != null) {
+			restServer.stop();
+		}
+		personResults.notifyFinishSimulation();
 		electricChargingWriter.print();
 		resultWriter.close();
 	}
@@ -127,4 +150,10 @@ public class SimpleSimulationContext implements SimulationContext {
 	public float fractionOfPopulation() {
 		return configuration.getFractionOfPopulation();
 	}
+
+	@Override
+	public RestServerResourceRegistry restServer() {
+		return restServer;
+	}
+
 }
