@@ -26,6 +26,10 @@ public class ParserBuilder {
 	public SimulationParser forSimulation() {
 		return new SimulationParser(tags);
 	}
+	
+	public MergingParser forGenericMerging() {
+		return new MergingParser(tags);
+	}
 
 	private static Map<Class<?>, Tag> defaultTags() {
 		Map<Class<?>, Tag> mapping = new HashMap<>();
