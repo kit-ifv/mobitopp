@@ -4,14 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.nodes.Tag;
 
@@ -37,6 +36,20 @@ public class MergingParser extends Parser {
 		super(tags);
 	}
 
+	@SuppressWarnings("unchecked")
+	public Map<String,Object> parseMerged(File configurationFile) throws IOException {
+		Reader reader = this.readerFor(configurationFile);
+		return (Map<String, Object>) yaml().load(reader);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String,Object> parseUnmerged(File configurationFile) throws IOException {
+		Reader reader = super.readerFor(configurationFile);
+		Map<String, Object> map = (Map<String, Object>) yaml().load(reader);
+		map.remove(PARENT);
+		return map;
+	}
+	
 	/**
 	 * Returns a reader for the given file recursively merged with the referenced 'parent' configuration files.
 	 * The 'parent' parameter is removed after merging.
