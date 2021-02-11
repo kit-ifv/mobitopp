@@ -63,7 +63,7 @@ public class AggregateDemandFactory {
 			String suffix) {
 
 		return new AggregateDemandOfStartedTrips(ids, filterBy(mode, hour).and(weekdayFilter()),
-				createMatrixWriter(mode, hour, hour, suffix), scaleFactor());
+				createMatrixWriter(mode, hour, hour+1, suffix), scaleFactor());
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class AggregateDemandFactory {
 
 		return new AggregateDemandOfStartedTrips(ids,
 				filterBy(mode, hour).and(dayOfWeekFilter(dayOfWeek)),
-				createMatrixWriter(mode, hour, hour, dayOfWeek.name().toLowerCase()),
+				createMatrixWriter(mode, hour, hour+1, dayOfWeek.name().toLowerCase()),
 				scaleFactor());
 	}
 
