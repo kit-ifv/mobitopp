@@ -147,7 +147,7 @@ public final class StreamUtils {
 	 * This method logs a warning about the given default value being used for the
 	 * given property of the given object.
 	 * 
-	 * It can be used in #orElseGet(() -> warn(..., default, ...))
+	 * It can be used in #orElseGet(() - warn(..., default, ...))
 	 * 
 	 * The logger 'log' has to be passed so that the according class is logged.
 	 *
