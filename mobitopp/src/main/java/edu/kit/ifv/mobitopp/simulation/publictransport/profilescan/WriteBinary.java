@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,7 +9,9 @@ import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class WriteBinary implements ProfileWriter {
 
 	private final DataOutputStream output;
@@ -33,7 +37,7 @@ public class WriteBinary implements ProfileWriter {
 			output.writeInt(function.size());
 			function.forEach(this);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 
@@ -42,7 +46,7 @@ public class WriteBinary implements ProfileWriter {
 		try {
 			writeEntry(entry);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 

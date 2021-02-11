@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
@@ -67,7 +69,7 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 
 		if (distanceKm <= 0.0f) {
 
-			throw(new IllegalArgumentException("distance must be positive"));
+			throw warn(new IllegalArgumentException("distance must be positive"), log);
 		}
 
 		lastMode = Mode.BATTERY;

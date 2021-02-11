@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BikeSharingBike implements Bike {
 
 	private final int bikeNumber;
@@ -37,10 +41,10 @@ public class BikeSharingBike implements Bike {
 	@Override
 	public void release(Person person, Time time) {
 		if (!this.rider.equals(person)) {
-			throw new IllegalArgumentException(String
+			throw warn(new IllegalArgumentException(String
 					.format(
 							"Another person is not allowed to release the bike. Current user: %s person releasing the bike: %s",
-							this.rider, person));
+							this.rider, person)), log);
 		}
 	}
 

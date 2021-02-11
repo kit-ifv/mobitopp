@@ -82,7 +82,7 @@ public class ZonesReaderCsvBased implements ZonesReader {
 			VisumZone visumZone = visumNetwork.zones.get(zonePropertiesData.data().currentRegion());
 			zones.add(zoneFrom(visumZone));
 			
-			log.info(String.format("Processed zone %1d of %2d zones", visumZone.id, visumZones.size()));
+			log.info("Processed zone {} of {} zones", visumZone.id, visumZones.size());
 			
 			zonePropertiesData.data().next();
 		}

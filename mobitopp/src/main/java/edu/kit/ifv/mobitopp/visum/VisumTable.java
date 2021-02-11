@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +34,7 @@ public class VisumTable {
 			log.error("Attributes: " + attributes);
 			log.error("Values: " + values);
 
-			throw new IllegalArgumentException();
+			throw warn(new IllegalArgumentException(), log);
 		}
 
 		Map<String,String> row = new HashMap<String,String> ();

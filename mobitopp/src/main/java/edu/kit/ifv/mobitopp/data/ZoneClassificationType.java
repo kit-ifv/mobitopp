@@ -1,5 +1,10 @@
 package edu.kit.ifv.mobitopp.data;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum ZoneClassificationType {
 
 	studyArea("STUDYAREA"), extendedStudyArea("EXTENDEDSTUDYAREA"), outlyingArea("OUTLYINGAREA");
@@ -16,7 +21,7 @@ public enum ZoneClassificationType {
 				return type;
 			}
 		}
-		throw new IllegalArgumentException("No type found for string: " + typeAsString);
+		throw warn(new IllegalArgumentException("No type found for string: " + typeAsString), log);
 	}
 
 }

@@ -1,8 +1,12 @@
 package edu.kit.ifv.mobitopp.simulation.tour;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TourWithWalkAsSubtour extends DefaultTour 
 	implements Tour 
 {
@@ -50,7 +54,7 @@ public class TourWithWalkAsSubtour extends DefaultTour
 	public Subtour nthSubtour(int n) {
 		
 		if (n >= numberOfSubtours())  {
-			throw new IndexOutOfBoundsException();
+			throw warn(new IndexOutOfBoundsException(), log);
 		}
 		
 		

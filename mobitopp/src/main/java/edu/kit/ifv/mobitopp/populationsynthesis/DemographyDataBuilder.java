@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
@@ -11,7 +13,9 @@ import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemographyDataBuilder {
 
   static final String seperator = ":";
@@ -66,8 +70,8 @@ public class DemographyDataBuilder {
         .stream(StandardAttribute.values())
         .filter(type -> attributeName.equals(type.attributeName()))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException(
-            String.format("Can not find attribute with name: %s", attributeName)));
+        .orElseThrow(() -> warn(new IllegalArgumentException(
+            String.format("Can not find attribute with name: %s", attributeName)), log));
   }
 
   protected StructuralData createStructuralData(String filePath) {

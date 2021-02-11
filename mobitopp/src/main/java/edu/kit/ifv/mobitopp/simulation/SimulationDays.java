@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,7 +9,9 @@ import java.util.List;
 import edu.kit.ifv.mobitopp.data.InputSpecification;
 import edu.kit.ifv.mobitopp.time.SimpleTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimulationDays implements InputSpecification {
 
 	private static final SimpleTime simulationStart = new SimpleTime();
@@ -41,7 +45,7 @@ public class SimulationDays implements InputSpecification {
 
 	private static void verify(int days) {
 		if (0 >= days) {
-			throw new IllegalArgumentException("At least one simulation day is required, but was: " + days);
+			throw warn(new IllegalArgumentException("At least one simulation day is required, but was: " + days), log);
 		}
 	}
 

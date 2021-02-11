@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.NoJourney.noJourney;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.util.HashMap;
 import java.util.function.Function;
@@ -13,7 +14,9 @@ import edu.kit.ifv.mobitopp.publictransport.serializer.JourneyProvider;
 import edu.kit.ifv.mobitopp.publictransport.serializer.JourneySerializer;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ModifiableJourneys implements JourneyProvider {
 
 	private static final int minimumCapacity = 1;
@@ -39,7 +42,7 @@ public class ModifiableJourneys implements JourneyProvider {
 	}
 
 	public ModifiableJourney get(int journeyId) {
-		return journeys.getOrDefault(journeyId, noJourney);
+		return journeys.getOrDefault(journeyId, warn(journeyId, "modifiable journey", noJourney, log));
 	}
 
 	public void add(ModifiableJourney journey) {

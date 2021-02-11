@@ -1,9 +1,14 @@
 package edu.kit.ifv.mobitopp.util.parameter;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ParameterEvaluator {
 	
 	private static final String ENGINE_NAME = "rhino";
@@ -20,7 +25,7 @@ public class ParameterEvaluator {
 			}
 			return ((Long) engine.eval(parameter)).intValue();
 		} catch (ScriptException cause) {
-			throw new IllegalArgumentException("Cannot parse parameter: " + parameter);
+			throw warn(new IllegalArgumentException("Cannot parse parameter: " + parameter), log);
 		}
 	}
 
@@ -32,7 +37,7 @@ public class ParameterEvaluator {
 		try {
 			return ((Long) engine.eval(parameter)).intValue();
 		} catch (ScriptException cause) {
-			throw new IllegalArgumentException("Cannot parse parameter: " + parameter);
+			throw warn(new IllegalArgumentException("Cannot parse parameter: " + parameter), log);
 		}
 	}
 

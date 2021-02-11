@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.routing.util;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 /***** http://www.keithschwarz.com/interesting/ 
 
 The Archive of Interesting Code
@@ -77,12 +79,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A class representing a Fibonacci heap.
  *
  * @param T The type of elements to store in the heap.
  * @author Keith Schwarz (htiek@cs.stanford.edu)
  */
+@Slf4j
 public final class FibonacciHeap<T> {
     /* In order for all of the Fibonacci heap operations to complete in O(1),
      * clients need to have O(1) access to any element in the heap.  We make
@@ -188,7 +193,7 @@ public final class FibonacciHeap<T> {
      */
     public Entry<T> min() {
         if (isEmpty())
-            throw new NoSuchElementException("Heap is empty.");
+            throw warn(new NoSuchElementException("Heap is empty."), log);
         return mMin;
     }
 
@@ -254,7 +259,7 @@ public final class FibonacciHeap<T> {
     public Entry<T> dequeueMin() {
         /* Check for whether we're empty. */
         if (isEmpty())
-            throw new NoSuchElementException("Heap is empty.");
+            throw warn(new NoSuchElementException("Heap is empty."), log);
 
         /* Otherwise, we're about to lose an element, so decrement the number of
          * entries in this heap.
@@ -409,7 +414,7 @@ public final class FibonacciHeap<T> {
     public void decreaseKey(Entry<T> entry, double newPriority) {
         checkPriority(newPriority);
         if (newPriority > entry.mPriority)
-            throw new IllegalArgumentException("New priority exceeds old.");
+            throw warn(new IllegalArgumentException("New priority exceeds old."), log);
 
         /* Forward this to a helper function. */
         decreaseKeyUnchecked(entry, newPriority);
@@ -442,7 +447,7 @@ public final class FibonacciHeap<T> {
      */
     private void checkPriority(double priority) {
         if (Double.isNaN(priority))
-            throw new IllegalArgumentException(priority + " is invalid.");
+            throw warn(new IllegalArgumentException(priority + " is invalid."), log);
     }
 
     /**

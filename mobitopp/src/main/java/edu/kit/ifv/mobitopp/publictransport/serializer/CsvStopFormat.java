@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.awt.geom.Point2D;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,7 +9,9 @@ import java.util.regex.Pattern;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CsvStopFormat extends CsvFormat implements StopFormat {
 
 	static final String quotationMark = "\"";
@@ -60,7 +64,7 @@ public class CsvStopFormat extends CsvFormat implements StopFormat {
 			station.add(stop);
 			return stop;
 		}
-		throw new IllegalArgumentException("Stop is not correct serialized: " + serialized);
+		throw warn(new IllegalArgumentException("Stop is not correct serialized: " + serialized), log);
 	}
 
 	private Station stationOf(Matcher matcher, StationResolver stationResolver) {

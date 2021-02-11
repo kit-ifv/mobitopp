@@ -1,8 +1,13 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DynamicNetfileLanguage implements NetfileLanguage {
 
   private final Map<StandardAttributes, String> attributes;
@@ -21,8 +26,8 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
     if (attributes.containsKey(attribute)) {
       return attributes.get(attribute);
     }
-    throw new IllegalArgumentException(
-        String.format("Missing visum attribute name for mobitopp name: %s", attribute));
+    throw warn(new IllegalArgumentException(
+        String.format("Missing visum attribute name for mobitopp name: %s", attribute)), log);
   }
 
   public void add(StandardAttributes mobiTopp, String visum) {
@@ -34,8 +39,8 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
     if (tables.containsKey(table)) {
       return tables.get(table);
     }
-    throw new IllegalArgumentException(
-        String.format("Missing visum table name for mobitopp name: %s", table));
+    throw warn(new IllegalArgumentException(
+        String.format("Missing visum table name for mobitopp name: %s", table)), log);
   }
 
   public void add(Table mobiTopp, String visum) {
@@ -47,8 +52,8 @@ public class DynamicNetfileLanguage implements NetfileLanguage {
     if (units.containsKey(unit)) {
       return units.get(unit);
     }
-    throw new IllegalArgumentException(
-        String.format("Missing visum unit for mobitopp name: %s", unit));
+    throw warn(new IllegalArgumentException(
+        String.format("Missing visum unit for mobitopp name: %s", unit)), log);
   }
 
   public void add(Unit unit, String visum) {

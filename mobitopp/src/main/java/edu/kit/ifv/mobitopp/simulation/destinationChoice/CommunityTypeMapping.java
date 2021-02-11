@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CommunityTypeMapping {
 
 	private static final int defaultType = 4;
@@ -23,7 +27,7 @@ public class CommunityTypeMapping {
 	}
 
 	public int getCommunityTypeFor(AreaType areaType) {
-		return typeMapping.getOrDefault(areaType, defaultType);
+		return typeMapping.getOrDefault(areaType, warn(areaType, "community type", defaultType, log));
 	}
 
 }

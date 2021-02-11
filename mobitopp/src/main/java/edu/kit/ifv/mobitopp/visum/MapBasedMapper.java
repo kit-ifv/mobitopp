@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MapBasedMapper implements IdToOidMapper {
 
 	private final Map<String, Integer> mapping;
@@ -17,7 +21,7 @@ public class MapBasedMapper implements IdToOidMapper {
 		if (mapping.containsKey(id)) {
 			return mapping.get(id);
 		}
-		throw new IllegalArgumentException("Id is unknown: " + id);
+		throw warn(new IllegalArgumentException("Id is unknown: " + id), log);
 	}
 
 	@Override

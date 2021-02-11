@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +19,9 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.Route;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultVehicleFactory implements VehicleFactory {
 
 	private final VehicleTimesConverter vehicleTimes;
@@ -77,7 +81,7 @@ public class DefaultVehicleFactory implements VehicleFactory {
 
 	private void verifyExisting(Journey journey) {
 		if (journey.connections().asCollection().isEmpty()) {
-			throw new IllegalArgumentException("No connections are assigned to the vehicle: " + journey);
+			throw warn(new IllegalArgumentException("No connections are assigned to the vehicle: " + journey), log);
 		}
 	}
 

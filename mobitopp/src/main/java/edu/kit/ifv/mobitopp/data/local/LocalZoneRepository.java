@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 
@@ -21,7 +22,9 @@ import edu.kit.ifv.mobitopp.dataimport.ZonesReaderCsvBased;
 import edu.kit.ifv.mobitopp.network.SimpleRoadNetwork;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocalZoneRepository implements ZoneRepository {
 
 	private final Map<ZoneId, Zone> zones;
@@ -67,7 +70,7 @@ public class LocalZoneRepository implements ZoneRepository {
 		if (oidToZones.containsKey(id)) {
 			return oidToZones.get(id);
 		}
-		throw new IllegalArgumentException("No zone available for oid: " + id);
+		throw warn(new IllegalArgumentException("No zone available for oid: " + id), log);
 	}
 	
 	@Override
@@ -75,7 +78,7 @@ public class LocalZoneRepository implements ZoneRepository {
 	  if (zones.containsKey(id)) {
 	    return zones.get(id);
 	  }
-	  throw new IllegalArgumentException("No zone available for id: " + id);
+	  throw warn(new IllegalArgumentException("No zone available for id: " + id), log);
 	}
 	
 	@Override

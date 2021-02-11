@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -26,7 +27,9 @@ import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Population implements PopulationContext, Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -134,8 +137,8 @@ public class Population implements PopulationContext, Serializable {
       // return new PatternActivityWeek(activities);
       return TourBasedActivityPattern.fromExtendedPatternActivities(activities);
     }
-    throw new IllegalArgumentException(
-        "Could not find PatternActivityWeek for person with oid " + oid);
+    throw warn(new IllegalArgumentException(
+        "Could not find PatternActivityWeek for person with oid " + oid), log);
   }
 
   public void add(int personOid, ExtendedPatternActivity pattern) {
@@ -160,7 +163,9 @@ public class Population implements PopulationContext, Serializable {
     if (isCacheMissing()) {
       createDestinationsCache();
     }
-    return destinationsCache.getOrDefault(person, emptyList()).stream();
+    return destinationsCache
+    		.getOrDefault(person, warn(person, "fixed destination in destinations cache", emptyList(), log))
+    		.stream();
   }
 
   private boolean isCacheMissing() {

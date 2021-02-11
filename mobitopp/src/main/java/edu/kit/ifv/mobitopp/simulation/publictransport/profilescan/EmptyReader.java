@@ -1,7 +1,11 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
-import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
+import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 final class EmptyReader implements ProfileReader {
 
 	private static final ProfileReader instance = new EmptyReader();
@@ -21,12 +25,12 @@ final class EmptyReader implements ProfileReader {
 
 	@Override
 	public Stop readStop() {
-		throw new RuntimeException("Should not be called!");
+		throw warn(new RuntimeException("Should not be called!"), log);
 	}
 
 	@Override
 	public ArrivalTimeFunction readFunction() {
-		throw new RuntimeException("Should not be called!");
+		throw warn(new RuntimeException("Should not be called!"), log);
 	}
 
 	@Override

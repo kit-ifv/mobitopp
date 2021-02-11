@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -80,7 +82,7 @@ public class MatrixToCsv {
 				writer.write(csv);
 			}
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 

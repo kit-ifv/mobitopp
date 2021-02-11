@@ -1,9 +1,14 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.Locale;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Location implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -21,8 +26,8 @@ public class Location implements Serializable {
 
 	private void verifyRoadPosition(double roadPosition) {
 		if (0.0d > roadPosition || 1.0d < roadPosition) {
-			throw new IllegalArgumentException(
-					"Road position out of interval [0.0;1.0]: " + roadPosition);
+			throw warn(new IllegalArgumentException(
+					"Road position out of interval [0.0;1.0]: " + roadPosition), log);
 		}
 	}
 

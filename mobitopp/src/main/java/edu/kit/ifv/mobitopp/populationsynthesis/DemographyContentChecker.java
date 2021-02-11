@@ -1,12 +1,15 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemographyContentChecker {
 
   public void verify(DemographyData data) {
@@ -17,8 +20,8 @@ public class DemographyContentChecker {
 
   private void verify(List<AttributeType> missingTypes) {
     if (!missingTypes.isEmpty()) {
-      throw new IllegalArgumentException(
-          String.format("Attribute %s is missing in demography", missingTypes));
+      throw warn(new IllegalArgumentException(
+          String.format("Attribute %s is missing in demography", missingTypes)), log);
     }
   }
 

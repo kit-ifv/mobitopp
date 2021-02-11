@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,7 @@ import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -98,7 +101,7 @@ public abstract class BaseCar implements Car, Serializable {
   public void refuel(float aimedFuelLevel) {
 
     if (aimedFuelLevel < 0.0f || aimedFuelLevel > 1.0f) {
-      throw(new IllegalArgumentException("aimedFuelLevel must be between 0.0 and 1.0"));
+      throw warn(new IllegalArgumentException("aimedFuelLevel must be between 0.0 and 1.0"), log);
     }
 
     fuelLevel = aimedFuelLevel > fuelLevel ? Math.min(1.0f,aimedFuelLevel) : fuelLevel; 
@@ -106,7 +109,7 @@ public abstract class BaseCar implements Car, Serializable {
 
   public void driveDistance(float distanceKm) {
     if (distanceKm <= 0.0f) {
-      throw(new IllegalArgumentException("distance must be positive"));
+      throw warn(new IllegalArgumentException("distance must be positive"), log);
     }
 
     while (distanceKm > remainingRange() ) {

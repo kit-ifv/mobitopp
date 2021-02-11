@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -8,7 +9,9 @@ import java.io.IOException;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultStopDeserializer extends BaseDeserializer implements StopDeserializer {
 
 	private final File stopInput;
@@ -25,7 +28,8 @@ class DefaultStopDeserializer extends BaseDeserializer implements StopDeserializ
 	}
 
 	static DefaultStopDeserializer at(TimetableFiles timetableFiles) {
-		return new DefaultStopDeserializer(timetableFiles.stopFile(), timetableFiles.transferFile());
+		return new DefaultStopDeserializer(timetableFiles.stopFile(),
+				timetableFiles.transferFile());
 	}
 
 	StopFormat stopFormat() {
@@ -42,7 +46,7 @@ class DefaultStopDeserializer extends BaseDeserializer implements StopDeserializ
 		try {
 			return stopLines();
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 			return emptyList();
 		}
 	}
@@ -69,14 +73,13 @@ class DefaultStopDeserializer extends BaseDeserializer implements StopDeserializ
 		try {
 			return transferLines(stopResolver);
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 			return emptyList();
 		}
 	}
 
 	private List<StopTransfer> transferLines(StopResolver stopResolver) throws IOException {
-		return removeHeaderFrom(transferInput)
-				.map(line -> deserializeTransfer(line, stopResolver))
+		return removeHeaderFrom(transferInput).map(line -> deserializeTransfer(line, stopResolver))
 				.collect(toList());
 	}
 

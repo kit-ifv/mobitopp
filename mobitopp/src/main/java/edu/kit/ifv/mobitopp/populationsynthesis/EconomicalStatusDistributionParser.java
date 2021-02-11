@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -11,7 +13,9 @@ import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.dataimport.RangeItemParser;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EconomicalStatusDistributionParser {
 
 	private TreeMap<Double, RangeDistributionIfc> distributions;
@@ -51,7 +55,7 @@ public class EconomicalStatusDistributionParser {
 		try {
 			return CsvFile.createFrom(input);
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 

@@ -1,5 +1,10 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Load {
 
 	private final OdRelation odRelation;
@@ -24,7 +29,7 @@ public class Load {
 		if (odRelation.equals(other.odRelation())) {
 			return new Load(odRelation, load + other.load);
 		}
-		throw new IllegalArgumentException("Not matching OD relation");
+		throw warn(new IllegalArgumentException("Not matching OD relation"), log);
 	}
 
 }

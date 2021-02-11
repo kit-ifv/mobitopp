@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -8,7 +10,9 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EconomicalStatusCalculators {
 
 	public static class DefaultEconomicalStatusCalculator implements EconomicalStatusCalculator {
@@ -18,7 +22,8 @@ public class EconomicalStatusCalculators {
 		private static final double children = 0.3d;
 		private final TreeMap<Double, RangeDistributionIfc> distributions;
 
-		public DefaultEconomicalStatusCalculator(TreeMap<Double, RangeDistributionIfc> distributions) {
+		public DefaultEconomicalStatusCalculator(
+				TreeMap<Double, RangeDistributionIfc> distributions) {
 			this.distributions = distributions;
 		}
 
@@ -46,13 +51,15 @@ public class EconomicalStatusCalculators {
 			TreeMap<Double, RangeDistributionIfc> distributions = loadMid();
 			return new DefaultEconomicalStatusCalculator(distributions);
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 
 	static TreeMap<Double, RangeDistributionIfc> loadMid() throws IOException {
-		try (InputStream input = EconomicalStatusCalculators.class.getResourceAsStream(oecd2017File)) {
+		try (InputStream input = EconomicalStatusCalculators.class
+				.getResourceAsStream(oecd2017File)) {
 			return new EconomicalStatusDistributionParser().parse(input);
 		}
 	}
+
 }

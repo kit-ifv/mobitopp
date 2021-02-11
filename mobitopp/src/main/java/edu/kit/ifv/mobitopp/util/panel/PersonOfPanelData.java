@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Employment;
 import edu.kit.ifv.mobitopp.simulation.Gender;
@@ -10,11 +12,13 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@Slf4j
 public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 
 	@NonNull
@@ -101,25 +105,25 @@ public class PersonOfPanelData implements Comparable<PersonOfPanelData> {
 
   private void verifyGender(int genderType, PersonOfPanelDataId personId) {
     if (genderType != 1 && genderType != 2) {
-      throw new IllegalArgumentException(
-          String.format("%s is an invalid value for gender of %s.", genderType, personId));
+      throw warn(new IllegalArgumentException(
+          String.format("%s is an invalid value for gender of %s.", genderType, personId)), log);
     }
   }
 
 	private void verifyId(PersonOfPanelDataId personId) {
 		if (null == personId) {
-			throw new NullPointerException("personId is not allowed to be null.");
+			throw warn(new NullPointerException("personId is not allowed to be null."), log);
 		}
 	}
 
   private void verifyAge(int age, PersonOfPanelDataId personId) {
     if (age < 0) {
-      throw new IllegalArgumentException(
-          String.format("Age %s is lower than 0 for %s.", age, personId));
+      throw warn(new IllegalArgumentException(
+          String.format("Age %s is lower than 0 for %s.", age, personId)), log);
     }
     if (age > 120) {
-      throw new IllegalArgumentException(
-          String.format("Age %s is higher than 120 for %s.", age, personId));
+      throw warn(new IllegalArgumentException(
+          String.format("Age %s is higher than 120 for %s.", age, personId)), log);
     }
   }
 

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,7 +43,9 @@ import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimulationPersonPassenger extends PersonDecorator implements SimulationPerson {
 
 	private static final long serialVersionUID = 1L;
@@ -128,9 +132,9 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
       Zone zone = person().fixedZoneFor(activityType);
       return new ZoneAndLocation(zone, location);
     }
-    throw new IllegalStateException(String
+    throw warn(new IllegalStateException(String
         .format("Agent %s misses fixed destination for activity type %s", person().getOid(),
-            activityType));
+            activityType)), log);
   }
 
 	private void notifyStartActivity(Person person, ActivityIfc firstActivity) {
@@ -590,7 +594,7 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 	@Override
 	public void enterFirstStop(Time time) {
 		if (notPublicTransport(currentTrip())) {
-			throw new IllegalArgumentException("Trip does not use public transport: " + currentTrip());
+			throw warn(new IllegalArgumentException("Trip does not use public transport: " + currentTrip()), log);
 		}
 		currentPart().ifPresent(part -> publicTransportBehaviour.enterWaitingArea(this, part.start()));
 	}

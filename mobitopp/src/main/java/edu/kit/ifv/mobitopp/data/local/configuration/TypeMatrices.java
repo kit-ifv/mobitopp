@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DayType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TypeMatrices {
 
 	private static final DayType defaultType = DayType.weekdays;
@@ -35,8 +39,8 @@ public class TypeMatrices {
 		if (at.containsKey(defaultType)) {
 			return at.get(defaultType);
 		}
-		throw new IllegalStateException(
-				"No default matrices are available. Current default type is " + defaultType);
+		throw warn(new IllegalStateException(
+				"No default matrices are available. Current default type is " + defaultType), log);
 	}
 
 	public void add(DayType dayType, TimeSpan timeSpan, String path) {

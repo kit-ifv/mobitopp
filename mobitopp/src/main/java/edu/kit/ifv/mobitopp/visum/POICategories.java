@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
@@ -8,7 +9,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class POICategories {
 
   private final Map<String, Integer> codeToNumber;
@@ -45,9 +48,9 @@ public class POICategories {
     if (codeToNumber.containsKey(code)) {
       return codeToNumber.get(code);
     }
-    throw new IllegalArgumentException(String
+    throw warn(new IllegalArgumentException(String
         .format("Cannot resolve code %s to number. Available codes are: %s", code,
-            codeToNumber.keySet()));
+            codeToNumber.keySet())), log);
   }
 
   public boolean containsNumber(int number) {

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -14,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.car.CarPosition;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class should be used as a base class for all tours where the car is reserved for the driver
@@ -21,6 +24,7 @@ import edu.kit.ifv.mobitopp.time.Time;
  * 
  * @author lars.briem@kit.edu
  */
+@Slf4j
 public abstract class CarBasedTrip extends BaseTrip {
 
   private final Class<? extends Car> carType;
@@ -96,8 +100,8 @@ public abstract class CarBasedTrip extends BaseTrip {
     if (person().isCarDriver()) {
       return doFinish(currentDate, listener);
     }
-    throw new IllegalStateException(
-        String.format("Cannot finish %s trip without car: %s", carType.getName(), trip()));
+    throw warn(new IllegalStateException(
+        String.format("Cannot finish %s trip without car: %s", carType.getName(), trip())), log);
   }
 
   private FinishedTrip doFinish(Time currentDate, PersonListener listener) {

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum.reader;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.util.List;
@@ -15,7 +16,9 @@ import edu.kit.ifv.mobitopp.visum.VisumNode;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystemSet;
 import edu.kit.ifv.mobitopp.visum.VisumTransportSystems;
 import edu.kit.ifv.mobitopp.visum.VisumZone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VisumConnectorReader extends VisumBaseReader {
 
   private final Map<Integer, VisumNode> nodes;
@@ -63,8 +66,8 @@ public class VisumConnectorReader extends VisumBaseReader {
   	String fromOrigin = attribute(StandardAttributes.fromOrigin);
 		String toDestination = attribute(StandardAttributes.toDestination);
 		if (!direction.equals(fromOrigin) && !direction.equals(toDestination)) {
-			throw new IllegalArgumentException(String
-					.format("VisumConnector: direction does not match (%s|%s)", fromOrigin, toDestination));
+			throw warn(new IllegalArgumentException(String
+					.format("VisumConnector: direction does not match (%s|%s)", fromOrigin, toDestination)), log);
   	}
   	
   	return direction.equals(fromOrigin) ? Direction.ORIGIN : Direction.DESTINATION;

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local.serialiser;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +22,9 @@ import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.FreeFloatingCarSharingOrganization;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingCar;
 import edu.kit.ifv.mobitopp.simulation.carsharing.StationBasedCarSharingOrganization;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ZoneSerialiser implements Closeable {
 
 	private final ZoneRepository repository;
@@ -58,8 +62,9 @@ public class ZoneSerialiser implements Closeable {
 		try {
 			return new SerialiserBuilder(zoneRepositoryFolder, repository, factory, areaTypeRepository)
 					.build();
+			
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 

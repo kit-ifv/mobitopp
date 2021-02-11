@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.events;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.simulation.PersonListener;
@@ -8,7 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.activityschedule.OccupationIfc;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.time.DateFormat;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandSimulationEvent
 		implements DemandSimulationEventIfc, Comparable<DemandSimulationEvent> {
   
@@ -36,7 +40,7 @@ public class DemandSimulationEvent
 
 	private void verify(Time date) {
 		if (null == date) {
-  		throw new IllegalArgumentException("Simulation date is null");
+  		throw warn(new IllegalArgumentException("Simulation date is null"), log);
   	}
 	}
 

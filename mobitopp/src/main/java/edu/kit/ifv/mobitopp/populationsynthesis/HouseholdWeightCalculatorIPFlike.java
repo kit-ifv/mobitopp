@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -424,7 +426,7 @@ class HouseholdWeightCalculatorIPFlike
 	}
 	
 	private void throwIncorrectGenderFor(PersonOfPanelData pers) {
-		throw new IllegalArgumentException("Incorrect gender for person: " + pers);
+		throw warn(new IllegalArgumentException("Incorrect gender for person: " + pers), log);
 	}
 
 	private void addToHHList(

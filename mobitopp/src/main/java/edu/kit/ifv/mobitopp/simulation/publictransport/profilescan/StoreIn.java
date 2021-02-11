@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
 import static edu.kit.ifv.mobitopp.simulation.publictransport.profilescan.Validity.always;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +50,7 @@ public class StoreIn implements Store {
 		try (ProfileWriter stream = to(profile)) {
 			profile.saveTo(stream);
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 		}
 	}
 
@@ -87,7 +88,7 @@ public class StoreIn implements Store {
 		try (ProfileReader stream = from(target, time)) {
 			profile.loadFrom(stream);
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 		}
 		return profile;
 	}
@@ -102,7 +103,7 @@ public class StoreIn implements Store {
 			try {
 				return reader(file, timetable);
 			} catch (FileNotFoundException e) {
-				throw new RuntimeException("Should never happen.", e);
+				throw warn(new RuntimeException("Should never happen. ", e), log);
 			}
 		}
 		return ProfileReader.emptyReader();

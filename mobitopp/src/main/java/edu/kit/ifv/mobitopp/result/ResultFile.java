@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.result;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static java.nio.file.StandardOpenOption.WRITE;
@@ -12,6 +13,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ResultFile implements ResultOutput, Closeable {
 
 	static final String extension = ".csv";
@@ -30,7 +34,7 @@ public class ResultFile implements ResultOutput, Closeable {
 			writer.newLine();
 			writer.flush();
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 
@@ -47,7 +51,7 @@ public class ResultFile implements ResultOutput, Closeable {
 		try {
 			return Files.newBufferedWriter(path, TRUNCATE_EXISTING, WRITE, CREATE);
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 

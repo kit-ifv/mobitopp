@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum RegionalLevel implements Comparable<RegionalLevel> {
 
 	zone("zone"), district("district"), community("community"), county("county");
@@ -27,8 +31,8 @@ public enum RegionalLevel implements Comparable<RegionalLevel> {
 		if (values.containsKey(identifier)) {
 			return values.get(identifier);
 		}
-		throw new IllegalArgumentException(String
+		throw warn(new IllegalArgumentException(String
 				.format("Regional level of identifier '%s' is unknown. Available regional levels are: %s",
-						identifier, values.keySet()));
+						identifier, values.keySet())), log);
 	}
 }
