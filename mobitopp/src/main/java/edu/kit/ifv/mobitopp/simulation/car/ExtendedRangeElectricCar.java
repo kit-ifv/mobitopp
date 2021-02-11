@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 
 import edu.kit.ifv.mobitopp.populationsynthesis.carownership.CarType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.IdSequence;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ExtendedRangeElectricCar
 	extends AbstractElectricCar
   implements Car
@@ -96,7 +100,7 @@ public class ExtendedRangeElectricCar
 
 		if (distanceKm <= 0.0f) {
 
-			throw(new IllegalArgumentException("distance must be positive"));
+			throw warn(new IllegalArgumentException("distance must be positive"), log);
 		}
 			
 

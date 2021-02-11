@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +14,9 @@ import edu.kit.ifv.mobitopp.util.panel.ActivityOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultActivityScheduleCreator implements ActivityScheduleCreator {
 
 	private final Map<PersonOfPanelDataId, PatternActivityWeek> patternActivityWeeks;
@@ -69,8 +73,8 @@ public class DefaultActivityScheduleCreator implements ActivityScheduleCreator {
 
 	private void verifyAmountOfTokens(StringTokenizer tokenizer) {
 		if ((tokenizer.countTokens() % 4) != 0) {
-			throw new IllegalArgumentException(
-					"The amount of elements of the activity pattern must be dividable by 4");
+			throw warn(new IllegalArgumentException(
+					"The amount of elements of the activity pattern must be dividable by 4"), log);
 		}
 	}
 

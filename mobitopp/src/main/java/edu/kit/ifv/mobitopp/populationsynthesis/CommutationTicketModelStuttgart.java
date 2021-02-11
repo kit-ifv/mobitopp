@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Random;
 
 import edu.kit.ifv.mobitopp.data.Zone;
@@ -8,7 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.ParameterFileParser;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class CommutationTicketModelStuttgart
 	implements CommutationTicketModelIfc {
 
@@ -160,7 +164,7 @@ class CommutationTicketModelStuttgart
 
 	private static void verifyZoneId(String id) {
 		if (id.length() > 5) {
-			throw new IllegalArgumentException("zoneID out of range in 'CommutationTicketModel:getLandkreis'");
+			throw warn(new IllegalArgumentException("zoneID out of range in 'CommutationTicketModel:getLandkreis'"), log);
 		}
 	}
 

@@ -1,6 +1,8 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -130,6 +132,7 @@ public class ActiToppScheduleCreator implements ActivityScheduleCreator, Activit
         }
         catch (InvalidPatternException e)
         {
+          warn(e, log);
           globalretries++;
           
           //  System.err.println(e.getReason());

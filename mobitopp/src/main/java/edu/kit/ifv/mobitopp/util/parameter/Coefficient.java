@@ -1,5 +1,10 @@
 package edu.kit.ifv.mobitopp.util.parameter;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Coefficient {
 
 	final public String name;
@@ -17,7 +22,7 @@ public class Coefficient {
 	public double asDouble() {
 		double asDouble = new ParameterEvaluator().evaluateAsDouble(value);
 		if (Double.isInfinite(asDouble) || Double.isNaN(asDouble)) {
-			throw new IllegalArgumentException("Value is out of limits: " + name);
+			throw warn(new IllegalArgumentException("Value is out of limits: " + name), log);
 		}
 		return asDouble;
 	}

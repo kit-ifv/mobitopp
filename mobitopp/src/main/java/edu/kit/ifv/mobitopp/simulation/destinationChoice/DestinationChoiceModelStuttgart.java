@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -17,8 +19,9 @@ import edu.kit.ifv.mobitopp.simulation.TargetChoiceParameterCost;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class DestinationChoiceModelStuttgart
 	implements DestinationChoiceUtilityFunction
 {
@@ -171,7 +174,7 @@ public class DestinationChoiceModelStuttgart
 			return durationInMinutes/60 * costPerHour;
 		}
 
-		throw new IllegalArgumentException();
+		throw warn(new IllegalArgumentException(), log);
 	}
 
 	protected double getOpportunity(

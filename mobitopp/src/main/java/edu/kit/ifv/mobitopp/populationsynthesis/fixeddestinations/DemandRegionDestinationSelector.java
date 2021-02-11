@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.function.DoubleSupplier;
 import java.util.function.Predicate;
@@ -55,11 +57,9 @@ public class DemandRegionDestinationSelector implements PopulationSynthesisStep 
 			double randomNumber = random.getAsDouble();
 			zoneSelector.select(person, relations, randomNumber);
 		} catch (IllegalArgumentException exception) {
-			log
-					.error(String
-							.format("Could not assign a destination for person %s: %s",
-									person.getId(), exception));
-			exception.printStackTrace();
+			String message = String.format("Could not assign a destination for person %s:",
+					person.getId());
+			warn(exception, message, log);
 		}
 	}
 

@@ -1,10 +1,15 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class VisumTransportSystems implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -20,8 +25,8 @@ public class VisumTransportSystems implements Serializable {
 		if (systems.containsKey(code)) {
 			return systems.get(code);
 		}
-		throw new IllegalArgumentException(
-				"VisumTransportSystem: transport system with code=" + code + " does not exist");
+		throw warn(new IllegalArgumentException(
+				"VisumTransportSystem: transport system with code=" + code + " does not exist"), log);
 	}
 
 	public boolean isEmpty() {

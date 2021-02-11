@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,7 +9,9 @@ import java.util.HashMap;
 import edu.kit.ifv.mobitopp.publictransport.model.Neighbourhood;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultStopSerializer extends BaseSerializer implements StopSerializer {
 
 	private final BufferedWriter stopOutput;
@@ -35,7 +39,7 @@ class DefaultStopSerializer extends BaseSerializer implements StopSerializer {
 			write(stop, stopOutput);
 			writeFootpath(stop, footpathOutput);
 		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+			throw warn(new RuntimeException(exception), log);
 		}
 	}
 

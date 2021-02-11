@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +11,9 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ConfigurationConstructor extends Constructor {
 
 	public ConfigurationConstructor(Tag tag, Pattern timeSpanPattern) {
@@ -34,7 +39,7 @@ public class ConfigurationConstructor extends Constructor {
 				int to = asInt(matcher.group(2));
 				return TimeSpan.between(from, to);
 			}
-			throw new IllegalArgumentException("Cannot parse time span: " + value);
+			throw warn(new IllegalArgumentException("Cannot parse time span: " + value), log);
 		}
 
 		private int asInt(String value) {

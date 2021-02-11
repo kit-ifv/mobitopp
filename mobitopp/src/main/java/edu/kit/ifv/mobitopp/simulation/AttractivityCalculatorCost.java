@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,7 +16,9 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AttractivityCalculatorCost
 	implements AttractivityCalculatorIfc {
 
@@ -345,7 +349,7 @@ public class AttractivityCalculatorCost
 			return duration/60 * parkingCostPerMinute;
 		}
 
-		throw new IllegalArgumentException();
+		throw warn(new IllegalArgumentException(), log);
 	}
 
   protected float getDistance(ZoneId origin, ZoneId destination) {

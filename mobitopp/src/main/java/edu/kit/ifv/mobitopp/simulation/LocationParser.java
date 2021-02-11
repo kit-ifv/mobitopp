@@ -1,10 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.awt.geom.Point2D;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LocationParser {
 
 	static final String precise = "(%s,%s: %d, %s)";
@@ -32,7 +37,7 @@ public class LocationParser {
 			double roadPosition = roadPositionOf(matcher);
 			return new Location(coordinate, roadAccessEdgeId, roadPosition);
 		}
-		throw new IllegalArgumentException("Could not convert to Location: " + serialise);
+		throw warn(new IllegalArgumentException("Could not convert to Location: " + serialise), log);
 	}
 
 	private Point2D coordinateOf(Matcher matcher) {

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -25,7 +26,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.RegionalContext;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocalDemandZoneRepository implements DemandZoneRepository {
 
 	private static final String shouldGeneratePopulation = "generatePopulation";
@@ -69,10 +72,10 @@ public class LocalDemandZoneRepository implements DemandZoneRepository {
   public DemandZone getRegionBy(final RegionalContext context) {
     if (context.matches(RegionalLevel.zone)) {
       return zoneByExternalId(context.externalId())
-          .orElseThrow(() -> new IllegalArgumentException("Element not found: " + context.name()));
+          .orElseThrow(() -> warn(new IllegalArgumentException("Element not found: " + context.name()), log));
     }
-    throw new IllegalArgumentException(String
-        .format("Level of context must be %s but was %s.", RegionalLevel.zone, context.name()));
+    throw warn(new IllegalArgumentException(String
+        .format("Level of context must be %s but was %s.", RegionalLevel.zone, context.name())), log);
   }
 
 	@Override

@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.simulation.car;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AutonomousCar extends BaseCar {
 
   private static final long serialVersionUID = 1L;
@@ -16,7 +20,7 @@ public class AutonomousCar extends BaseCar {
 
   @Override
   public Person driver() {
-    throw new IllegalStateException("Should not call driver for non driver car. Call hasDriver before.");
+    throw warn(new IllegalStateException("Should not call driver for non driver car. Call hasDriver before."), log);
   }
 
   @Override

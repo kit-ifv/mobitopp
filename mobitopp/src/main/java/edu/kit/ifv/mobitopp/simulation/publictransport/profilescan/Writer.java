@@ -1,12 +1,16 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Writer implements ProfileWriter {
 
 	static final String endOfEntry = ";";
@@ -36,7 +40,7 @@ public class Writer implements ProfileWriter {
 			function.forEach(this);
 			output.newLine();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 
@@ -45,7 +49,7 @@ public class Writer implements ProfileWriter {
 		try {
 			writeEntry(entry);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 

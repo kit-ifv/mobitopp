@@ -23,7 +23,9 @@ import edu.kit.ifv.mobitopp.data.local.configuration.TimeSpan;
 import edu.kit.ifv.mobitopp.data.local.configuration.TravelTimeMatrixType;
 import edu.kit.ifv.mobitopp.data.local.configuration.TypeMatrices;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MatrixValidator {
 
 	private static final TimeSpan wholeDay = TimeSpan.between(0, 23);
@@ -85,7 +87,9 @@ public class MatrixValidator {
 		for (ActivityType type : fixedDistributionTypes()) {
 			try {
 				matrices.fixedDistributionMatrixFor(type);
+				
 			} catch (IllegalArgumentException cause) {
+				log.warn("Missing fixed duration matrix: " + type.name());
 				missingMatrices.add(type.name());
 			}
 		}
@@ -106,8 +110,9 @@ public class MatrixValidator {
 		if (missingMatrices.isEmpty()) {
 			return;
 		}
-		throw new IllegalArgumentException(
-				type + " matrices are not specified: " + missingMatrices);
+		String message = type + " matrices are not specified: " + missingMatrices;
+		log.error(message);
+		throw new IllegalArgumentException(message);
 	}
 
 	private List<String> missingCostMatrices() {

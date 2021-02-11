@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.FootJourney.footJourney;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.util.Optional;
 
@@ -10,7 +11,9 @@ import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Passenger;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class FootVehicle implements Vehicle {
 
 	@Override
@@ -47,7 +50,7 @@ public class FootVehicle implements Vehicle {
 
 	@Override
 	public Stop currentStop() {
-		throw new RuntimeException("Foot vehicle is not moving");
+		throw warn(new RuntimeException("Foot vehicle is not moving"), log);
 	}
 
 	@Override

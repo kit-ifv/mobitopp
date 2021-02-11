@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
@@ -74,10 +75,10 @@ public class StandardDemandRegionRelationsRepository implements DemandRegionRela
 
 	DemandRegion get(ZoneId id) {
 		return this.regions
-			.stream()
-			.filter(c -> c.contains(id))
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("No community found for zone: " + id));
+				.stream()
+				.filter(c -> c.contains(id))
+				.findFirst()
+				.orElseThrow(() -> warn(new IllegalArgumentException("No community found for zone: " + id), log) );
 	}
 
 	@Override

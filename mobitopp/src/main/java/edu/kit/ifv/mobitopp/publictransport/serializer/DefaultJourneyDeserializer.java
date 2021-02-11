@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -8,7 +9,9 @@ import java.io.IOException;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultJourneyDeserializer extends BaseDeserializer implements JourneyDeserializer {
 
 	private final File journeyInput;
@@ -36,7 +39,7 @@ class DefaultJourneyDeserializer extends BaseDeserializer implements JourneyDese
 		try {
 			return removeHeaderFrom(journeyInput).collect(toList());
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 			return emptyList();
 		}
 	}

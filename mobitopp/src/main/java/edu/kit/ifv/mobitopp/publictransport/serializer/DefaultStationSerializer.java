@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultStationSerializer extends BaseSerializer implements StationSerializer {
 
 	private final BufferedWriter stationWriter;
@@ -20,7 +24,7 @@ class DefaultStationSerializer extends BaseSerializer implements StationSerializ
 		try {
 			write(station);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 

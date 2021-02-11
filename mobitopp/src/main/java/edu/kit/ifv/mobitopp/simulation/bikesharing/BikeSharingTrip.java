@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.bikesharing;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.simulation.BaseTrip;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
@@ -9,7 +11,8 @@ import edu.kit.ifv.mobitopp.simulation.TripData;
 import edu.kit.ifv.mobitopp.simulation.person.FinishedTrip;
 import edu.kit.ifv.mobitopp.simulation.person.SimulationPerson;
 import edu.kit.ifv.mobitopp.time.Time;
-
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 public class BikeSharingTrip extends BaseTrip implements Trip {
 
 	private Zone origin;
@@ -37,7 +40,7 @@ public class BikeSharingTrip extends BaseTrip implements Trip {
 	private void bookBike(Time currentTime) {
 		BikeSharingDataForZone bikeSharing = origin.bikeSharing();
 		if (!bikeSharing.isBikeAvailableFor(person())) {
-			throw new IllegalStateException("No bike sharing bike is available for: " + person());
+			throw warn(new IllegalStateException("No bike sharing bike is available for: " + person()), log);
 		}
 		Bike bike = bikeSharing.bookBike(person());
 		person().useBike(bike, currentTime);

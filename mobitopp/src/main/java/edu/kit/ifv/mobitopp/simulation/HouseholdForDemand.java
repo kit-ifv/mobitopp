@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,10 +122,10 @@ public class HouseholdForDemand implements Household, Serializable {
 
 	@Override
 	public Person getPerson(PersonId id) {
-		if (persons.containsKey(id)) {
-			return persons.get(id);
-		}
-		throw new IllegalArgumentException("No person found for id: " + id);
+  	if (persons.containsKey(id)) {
+  		return persons.get(id);
+  	}
+  	throw warn(new IllegalArgumentException("No person found for id: " + id), log);
 	}
 
 	public int getSize() {

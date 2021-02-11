@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 
 import java.util.HashMap;
@@ -14,7 +15,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.ForeignKeySerialiserF
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PopulationContext;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.SerialiserFormat;
 import edu.kit.ifv.mobitopp.simulation.Car;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<PrivateCarForSetup> {
 
 	private final Map<CarType, SerialiserFormat<? extends Car>> formats;
@@ -105,7 +108,7 @@ public class DefaultPrivateCarFormat implements ForeignKeySerialiserFormat<Priva
 		return context
 				.getPersonBuilderByOid(oid)
 				.map(PersonBuilder::getId)
-				.orElseThrow(() -> new IllegalArgumentException("Main missing with id: " + oid));
+				.orElseThrow(() -> warn(new IllegalArgumentException("Main missing with id: " + oid), log));
 	}
 
 	private PersonId personalUserOf(List<String> data, PopulationContext context) {

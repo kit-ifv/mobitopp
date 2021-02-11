@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -14,7 +15,9 @@ import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingDataForZone;
 import edu.kit.ifv.mobitopp.visum.IdToOidMapper;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class BikeSharingPropertiesData implements BikeSharingDataRepository {
 
 	private static final String numberOfBikesAttribute = "number_of_bikes";
@@ -56,8 +59,8 @@ public class BikeSharingPropertiesData implements BikeSharingDataRepository {
 		if (attribute.contains(":")) {
 			return attribute.split(":")[1];
 		}
-		throw new IllegalArgumentException(
-				"Attribute or column name is missing company name: " + attribute);
+		throw warn(new IllegalArgumentException(
+				"Attribute or column name is missing company name: " + attribute), log);
 	}
 
 	private BikeSharingCompany createCompany(String companyName) {

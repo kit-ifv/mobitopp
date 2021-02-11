@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,6 +15,7 @@ import java.util.StringTokenizer;
 import edu.kit.ifv.mobitopp.data.areatype.AreaType;
 import edu.kit.ifv.mobitopp.data.areatype.AreaTypeRepository;
 import edu.kit.ifv.mobitopp.data.areatype.ZoneAreaType;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -42,15 +45,15 @@ public class TargetChoiceParameter {
 					parseParameterData(in);
 				}
 			} catch (FileNotFoundException e) {
-				log.error("TargetChoiceParameter: Datei wurde nicht gefunden : " + fileName);
+				warn(e, "TargetChoiceParameter: Datei wurde nicht gefunden : " + fileName, log);
 			} catch (IOException e) {
-				log.error(" Datei konnte nicht geöffnet werden :" + e);
+				warn(e, " Datei konnte nicht geöffnet werden :" + e, log);
 			}
 
 			printParameter(this.parameter);
 
 		} catch (Throwable t) {
-			t.printStackTrace();
+			log.error(t.getMessage(), t);
 			System.exit(2);
 		}
 
@@ -83,7 +86,7 @@ public class TargetChoiceParameter {
 			addTypeAndActivity(type, activity, map);
 
 		} catch (NumberFormatException nex) {
-			log.error("Probleme mit der Zeile " + line_ + "  " + nex);
+			StreamUtils.warn(nex, "Probleme mit der Zeile " + line_ + "  " + nex, log);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -19,7 +20,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DemographyData;
 import edu.kit.ifv.mobitopp.populationsynthesis.RegionalLevel;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.StandardAttribute;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemographyBuilder implements DemographyRepository {
 
   private static final AttributeType employment = StandardAttribute.employment;
@@ -60,7 +63,7 @@ public class DemographyBuilder implements DemographyRepository {
    */
   private static <T> BinaryOperator<T> uniqueDistributions() {
     return (type, v) -> {
-      throw new IllegalArgumentException(String.format("Duplicate attribute types: %s", type));
+      throw warn(new IllegalArgumentException(String.format("Duplicate attribute types: %s", type)), log);
     };
   }
 

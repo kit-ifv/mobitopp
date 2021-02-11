@@ -1,11 +1,16 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public abstract class AbstractDemandModelDistribution<T extends DemandModelDistributionItemIfc & Comparable<T>>
 		implements DemandModelDistributionIfc<T> {
 
@@ -24,7 +29,7 @@ public abstract class AbstractDemandModelDistribution<T extends DemandModelDistr
 
 	private void verify(T item) {
 		if (null == item) {
-			throw new IllegalArgumentException("Incorrect item: " + item);
+			throw warn(new IllegalArgumentException("Incorrect item: " + item), log);
 		}
 	}
 
@@ -34,7 +39,7 @@ public abstract class AbstractDemandModelDistribution<T extends DemandModelDistr
 		boolean addFlag = getItemsInternal().add(item);
 
 		if (!addFlag) {
-			throw new IllegalStateException("Could not add item to distribution: " + item);
+			throw warn(new IllegalStateException("Could not add item to distribution: " + item), log);
 		}
 	}
 	

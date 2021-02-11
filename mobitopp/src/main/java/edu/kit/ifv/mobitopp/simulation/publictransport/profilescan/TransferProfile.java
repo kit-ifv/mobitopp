@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -7,7 +9,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TransferProfile {
 
 	private final HashMap<Stop, TransferTimeFunction> functions;
@@ -18,7 +22,7 @@ public class TransferProfile {
 	}
 
 	public TransferTimeFunction from(Stop start) {
-		return functions.getOrDefault(start, new TransferTimeFunction());
+		return functions.getOrDefault(start, warn(start, "transfer time function", new TransferTimeFunction(), log));
 	}
 
 	public void updateTransfer(Connection connection, Time arrivalAtTarget) {

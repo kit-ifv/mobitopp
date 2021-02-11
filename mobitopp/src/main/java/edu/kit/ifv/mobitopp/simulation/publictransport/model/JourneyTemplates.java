@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRouteDirection;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JourneyTemplates {
 
 	private final Map<TimeProfileKey, JourneyTemplate> profiles;
@@ -28,7 +32,7 @@ public class JourneyTemplates {
 			return profiles.get(key);
 		}
 
-		throw new IllegalArgumentException("Time profile not found: " + key);
+		throw warn(new IllegalArgumentException("Time profile not found: " + key), log);
 	}
 
 	@Override

@@ -1,7 +1,12 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.NoSuchElementException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RangeDistribution
     extends AbstractDemandModelDistribution<RangeDistributionItem>
     implements RangeDistributionIfc {
@@ -25,7 +30,7 @@ public class RangeDistribution
   @Override
   public RangeDistributionItem getItem(int value) {
     if (0 > value) {
-      throw new IllegalArgumentException("Value must be above 0, but was: " + value);
+      throw warn(new IllegalArgumentException("Value must be above 0, but was: " + value), log);
     }
     
     if (!hasItem(value)) {
@@ -37,7 +42,7 @@ public class RangeDistribution
         .sequential()
         .filter(item -> item.matches(value))
         .findFirst()
-        .orElseThrow(() -> new NoSuchElementException("No element found for value: " + value));
+        .orElseThrow(() -> warn(new NoSuchElementException("No element found for value: " + value), log));
   }
 
   public int getTotalAmount() {
