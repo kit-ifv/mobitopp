@@ -12,6 +12,7 @@ import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.util.dataexport.ZipMatrixPrinterDecorator;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class ActiveListenersManagerBuilder is a fluent builder for
  * {@link ActiveListenersManager}.
@@ -119,7 +120,6 @@ public class ActiveListenersManagerBuilder {
 	 * @param context   the {@link SimulationContext}
 	 * @return this {@link ActiveListenersManagerBuilder}
 	 */
-
 	public ActiveListenersManagerBuilder addHourlyWeekdayListeners(List<ZoneId> zoneIds,
 		Set<Mode> choiceSet, SimulationContext context) {
 
@@ -155,9 +155,8 @@ public class ActiveListenersManagerBuilder {
 	 *
 	 * @param zoneIds   the zone ids for which the demand will be aggregated
 	 * @param choiceSet the set of modes for which listeners will be created
-	 * @param dayOfWeek the day of week on which demand will be aggregated
+	 * @param day the day of week on which demand will be aggregated
 	 * @param context   the simulation context
-	 * 
 	 * @return this {@link ActiveListenersManagerBuilder}
 	 */
 	public ActiveListenersManagerBuilder addHourlyDayListeners(List<ZoneId> zoneIds,
@@ -190,7 +189,7 @@ public class ActiveListenersManagerBuilder {
 	 * @param <V>   the value type
 	 * @param key   the key
 	 * @param value the value
-	 * @return the simple entry
+	 * @return a {@link SimpleEntry} containing the given pair of key and value
 	 */
 	private static <K, V> SimpleEntry<K, V> pair(K key, V value) {
 		return new SimpleEntry<K, V>(key, value);

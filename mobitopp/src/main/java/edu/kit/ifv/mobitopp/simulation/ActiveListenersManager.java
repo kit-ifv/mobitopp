@@ -84,7 +84,7 @@ public class ActiveListenersManager implements PersonListener {
 	 * Registers two {@link Hook hooks} at the given
 	 * {@link DemandSimulatorPassenger}. One before and one after each time slice.
 	 * Additionally registers this {@link ActiveListenersManager} as
-	 * {@link PersonListener} at the given smiulators {@link PersonResults}.
+	 * {@link PersonListener} at the given simulators {@link PersonResults}.
 	 *
 	 * @param simulator the simulator
 	 */
@@ -134,8 +134,8 @@ public class ActiveListenersManager implements PersonListener {
 	 * 
 	 * @param <T>    the generic type
 	 * @param map    the map
-	 * @param time   the time
-	 * @param object the object
+	 * @param time   the time to be used as key
+	 * @param object the object to be inserted
 	 */
 	private static <T> void addTo(Map<Time, Collection<T>> map, Time time, T object) {
 		if (map.keySet().contains(time)) {
