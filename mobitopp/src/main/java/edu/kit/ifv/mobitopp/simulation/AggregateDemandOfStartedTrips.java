@@ -33,7 +33,6 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 
 	@Override
 	public void notifyEndTrip(final Person person, final FinishedTrip trip) {
-		// Moved matrix increment to notifyStartTrip compared to AggregateDemand
 	}
 
 	@Override
@@ -69,8 +68,6 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 
 	@Override
 	public void notifyFinishSimulation() {
-		// write matrix is not performed at the end of the simulation anymore
-		// The DemandResultsListenerRegistry takes care of that now
 	}
 
 	public void writeMatrix() {
