@@ -1,12 +1,16 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicle;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Vehicles;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimulatedVehicles implements Vehicles {
 
 	private final Map<Journey, Vehicle> journeyToVehicle;
@@ -23,7 +27,7 @@ public class SimulatedVehicles implements Vehicles {
 		if (journeyToVehicle.containsKey(journey)) {
 			return journeyToVehicle.get(journey);
 		}
-		throw new IllegalArgumentException("No vehicle found for journey: " + journey);
+		throw warn(new IllegalArgumentException("No vehicle found for journey: " + journey), log);
 	}
 
 	@Override

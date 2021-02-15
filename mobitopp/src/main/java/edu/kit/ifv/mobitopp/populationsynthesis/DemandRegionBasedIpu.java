@@ -48,7 +48,7 @@ public class DemandRegionBasedIpu implements DemandDataForDemandRegionCalculator
 	}
 	
 	private Logger loggerFor(DemandRegion forZone) {
-		return message -> log.info(String.format("%s: %s", forZone.getExternalId(), message));
+		return message -> log.info("{}: {}", forZone.getExternalId(), message);
 	}
 
 	private void create(

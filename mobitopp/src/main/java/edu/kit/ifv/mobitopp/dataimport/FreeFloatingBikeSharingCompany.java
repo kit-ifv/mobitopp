@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toCollection;
 
@@ -13,7 +14,9 @@ import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.BikeSharingCompany;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ToString
 public class FreeFloatingBikeSharingCompany implements BikeSharingCompany {
 
@@ -52,7 +55,7 @@ public class FreeFloatingBikeSharingCompany implements BikeSharingCompany {
 	@Override
 	public Bike bookBikeFor(Person person, ZoneId zoneId) {
 		if (!isBikeAvailableFor(person, zoneId)) {
-			throw new IllegalStateException("There is no bike available for " + person);
+			throw warn(new IllegalStateException("There is no bike available for " + person), log);
 		}
 		ZoneId currentZone = zoneId;
 		return availableBikes.get(currentZone).removeFirst();
@@ -61,7 +64,7 @@ public class FreeFloatingBikeSharingCompany implements BikeSharingCompany {
 	@Override
 	public void returnBike(BikeSharingBike bike, ZoneId zone) {
 		if (!this.equals(bike.owner())) {
-			throw new IllegalArgumentException("Bike has another owner: " + bike.owner());
+			throw warn(new IllegalArgumentException("Bike has another owner: " + bike.owner()), log);
 		}
 		if (!availableBikes.containsKey(zone)) {
 			availableBikes.put(zone, new LinkedList<>());

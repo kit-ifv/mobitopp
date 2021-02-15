@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultJourneySerializer extends BaseSerializer implements JourneySerializer {
 
 	private final BufferedWriter journeyOutput;
@@ -16,7 +20,8 @@ class DefaultJourneySerializer extends BaseSerializer implements JourneySerializ
 		this.journeyFormat = journeyFormat;
 	}
 
-	static DefaultJourneySerializer at(TimetableFiles timetableFiles, JourneyFormat journeyFormat) throws IOException {
+	static DefaultJourneySerializer at(TimetableFiles timetableFiles, JourneyFormat journeyFormat)
+			throws IOException {
 		return new DefaultJourneySerializer(timetableFiles.journeyWriter(), journeyFormat);
 	}
 
@@ -25,7 +30,7 @@ class DefaultJourneySerializer extends BaseSerializer implements JourneySerializ
 		try {
 			write(journey);
 		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+			throw warn(new RuntimeException(exception), log);
 		}
 	}
 

@@ -1,12 +1,16 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.local.configuration.MatrixConfiguration;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class MatrixCache<K, V> {
 
 	private final Map<K, V> cache;
@@ -29,7 +33,7 @@ public abstract class MatrixCache<K, V> {
 		try {
 			return loadFrom(id);
 		} catch (IOException e) {
-			throw new IllegalArgumentException("Can not find matrix for: " + id);
+			throw warn(new IllegalArgumentException("Can not find matrix for: " + id), log);
 		}
 	}
 

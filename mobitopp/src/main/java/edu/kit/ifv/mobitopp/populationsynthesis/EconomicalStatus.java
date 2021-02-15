@@ -1,13 +1,17 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Slf4j
 public enum EconomicalStatus {
 
 	veryLow(1),
@@ -23,8 +27,8 @@ public enum EconomicalStatus {
 				.of(values())
 				.filter(s -> s.code == code)
 				.findAny()
-				.orElseThrow(() -> new IllegalArgumentException(
-						String.format("No economical status for code %s available.", code)));
+				.orElseThrow(() -> warn(new IllegalArgumentException(
+						String.format("No economical status for code %s available.", code)), log));
 	}
 
 }

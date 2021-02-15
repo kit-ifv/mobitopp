@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,9 @@ import java.util.function.Function;
 import edu.kit.ifv.mobitopp.data.Value;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StructuralData {
 
 	@Deprecated
@@ -55,9 +59,9 @@ public class StructuralData {
 
   private int rowOf(String id) {
     if (hasRow(id)) {
-      return idToRow.getOrDefault(id, defaultIndex);
+      return idToRow.getOrDefault(id, StreamUtils.warn(id, "row", defaultIndex, log));
     }
-    throw new IllegalArgumentException("Can not find values for region with id: " + id);
+    throw warn(new IllegalArgumentException("Can not find values for region with id: " + id), log);
   }
 
   public boolean hasValue(String id, String key) {

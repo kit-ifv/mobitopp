@@ -1,7 +1,12 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class RangeDistributionItem
     implements DemandModelDistributionItemIfc, Comparable<RangeDistributionItem> {
 
@@ -31,13 +36,13 @@ public class RangeDistributionItem
 
   private void verifyAmount(int amount) {
     if (0 > amount) {
-      throw new IllegalArgumentException("Amount is too low. Amount  must be greater than 0 but is " + amount);
+      throw warn(new IllegalArgumentException("Amount is too low. Amount must be greater than 0 but is " + amount), log);
     }
   }
 
   private void verifyBound(int bound) {
     if (0 > bound) {
-      throw new IllegalArgumentException("Bound is too low. Bound must be greater than 0 but is  " + bound);
+      throw warn(new IllegalArgumentException("Bound is too low. Bound must be greater than 0 but is  " + bound), log);
     }
   }
 

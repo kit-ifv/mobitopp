@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.vehicle;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -7,7 +9,9 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 
 	public BaseVehicleConverter() {
@@ -25,7 +29,7 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 
 	private void verify(Collection<Connection> connections) {
 		if (connections.isEmpty()) {
-			throw new IllegalArgumentException("Cannot create a route without connections.");
+			throw warn(new IllegalArgumentException("Cannot create a route without connections."), log);
 		}
 	}
 

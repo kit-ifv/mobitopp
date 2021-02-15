@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.panel;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +18,7 @@ import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
+import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -62,7 +65,7 @@ public class PaneldataReader {
 		 reader = readerFor(file);	
 		}
 		catch(IOException cause) {
-			throw new UncheckedIOException("Could not open file '" + file.getName() + "'", cause);
+			throw warn(new UncheckedIOException("Could not open file '" + file.getName() + "'", cause), log);
 		}
 
 		LineNumberReader lnReader = new LineNumberReader(reader);
@@ -87,7 +90,7 @@ public class PaneldataReader {
 				}
 			}
 		} catch (IOException cause) {
-			throw new UncheckedIOException("Could read file '" + file.getName() + "'", cause);
+			throw warn(new UncheckedIOException("Could read file '" + file.getName() + "'", cause), log);
 		}
 		printMissingColumns();
 		return data;

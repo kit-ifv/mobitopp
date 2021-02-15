@@ -178,7 +178,7 @@ public class VisumNetworkReader extends VisumBaseReader {
   }
 
   private void finishStep(String message) {
-    log.info(String.format("%s loaded", message));
+    log.info("{} loaded", message);
     stopWatch.measurePoint(message);
   }
 

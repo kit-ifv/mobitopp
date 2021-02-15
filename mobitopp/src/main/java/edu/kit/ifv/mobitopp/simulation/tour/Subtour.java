@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.simulation.tour;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Subtour 
 	extends DefaultTour
 	implements Tour 
@@ -70,7 +74,7 @@ public class Subtour
 	@Override
 	public Subtour nthSubtour(int n) {
 		
-		throw new UnsupportedOperationException();
+		throw warn(new UnsupportedOperationException(), log);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -36,9 +38,7 @@ public class MatrixPrinter extends AbstractMatrixPrinter {
 			fw.write(content.toString());
 			log.info("DONE.");
 		} catch (Exception e) {
-			log.error(e.getMessage());
-			log.error(e.getCause().toString());
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 

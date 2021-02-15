@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+import static edu.kit.ifv.mobitopp.visum.TableDescriptionReader.emptyDescription;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -11,7 +14,9 @@ import java.util.Map;
 
 import edu.kit.ifv.mobitopp.util.file.StreamContent;
 import edu.kit.ifv.mobitopp.visum.reader.VisumFileReader;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public final class CachedVisumReader extends VisumFileReader {
 
   private final Map<String, TableDescription> descriptions;
@@ -42,7 +47,7 @@ public final class CachedVisumReader extends VisumFileReader {
   protected TableDescription getTableDescription(File file, Charset charset, String tableName)
       throws IOException {
     buildUpDescriptionCache(file, charset);
-    return descriptions.getOrDefault(tableName, TableDescriptionReader.emptyDescription);
+    return descriptions.getOrDefault(tableName, warn(tableName, "table description", emptyDescription, log));
   }
 
   private void buildUpDescriptionCache(File file, Charset charset) throws IOException {

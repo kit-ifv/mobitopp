@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
 import static edu.kit.ifv.mobitopp.time.Time.future;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.comparing;
 
@@ -15,7 +16,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ProfileBuilder {
 
 	private final List<Connection> connections;
@@ -105,7 +108,8 @@ public class ProfileBuilder {
 	}
 
 	private Time arrivalViaTrip(HashMap<Journey, Time> trips, Connection connection) {
-		return trips.getOrDefault(connection.journey(), future);
+		Journey journey = connection.journey();
+		return trips.getOrDefault(journey, warn(journey, "arrival via trip time", future, log));
 	}
 
 	private Time arrivalByFoot(List<Stop> targets, Connection connection) {

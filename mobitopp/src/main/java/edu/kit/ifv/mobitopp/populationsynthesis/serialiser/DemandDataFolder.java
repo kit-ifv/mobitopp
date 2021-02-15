@@ -6,6 +6,7 @@ import static edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataInpu
 import static edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataInput.household;
 import static edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataInput.opportunity;
 import static edu.kit.ifv.mobitopp.populationsynthesis.serialiser.DemandDataInput.person;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +20,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.populationsynthesis.PrivateCarForSetup;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandDataFolder {
 
 	private final File demandDataFolder;
@@ -45,8 +48,8 @@ public class DemandDataFolder {
 
 	private static void initialiseDirectory(File folder) {
 		if (folder.isFile()) {
-			throw new IllegalArgumentException(
-					"Path does not point to a directory: " + folder.getAbsolutePath());
+			throw warn(new IllegalArgumentException(
+					"Path does not point to a directory: " + folder.getAbsolutePath()), log);
 		}
 		folder.mkdirs();
 	}

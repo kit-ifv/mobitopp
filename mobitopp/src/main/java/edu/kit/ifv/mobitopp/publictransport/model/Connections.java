@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.unmodifiableCollection;
 
 import java.util.ArrayList;
@@ -9,6 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Connections {
 
 	private final Map<ConnectionId, Connection> idToConnection;
@@ -67,10 +71,10 @@ public class Connections {
 				if (iterator.hasNext()) {
 					return iterator.next();
 				}
-				throw new IllegalArgumentException("There is no connection after: " + connection);
+				throw warn(new IllegalArgumentException("There is no connection after: " + connection), log);
 			}
 		}
-		throw new IllegalArgumentException("There is no matching connection to: " + connection);
+		throw warn(new IllegalArgumentException("There is no matching connection to: " + connection), log);
 	}
 
 	public int positionOf(Connection connection) {
@@ -79,7 +83,7 @@ public class Connections {
 				return index;
 			}
 		}
-		throw new IllegalArgumentException("Connection is not included: " + connection);
+		throw warn(new IllegalArgumentException("Connection is not included: " + connection), log);
 	}
 
 	@Override

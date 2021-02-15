@@ -1,9 +1,14 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class VisumLinkTypes implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -19,8 +24,8 @@ public class VisumLinkTypes implements Serializable {
 		if (types.containsKey(id)) {
 			return types.get(id);
 		}
-		throw new IllegalArgumentException(
-				"VisumLinkType: link type with id=" + id + " does not exist");
+		throw warn(new IllegalArgumentException(
+				"VisumLinkType: link type with id=" + id + " does not exist"), log);
 	}
 
   @Override

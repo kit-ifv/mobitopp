@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +11,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.publictransport.serializer.NeighbourhoodCoupler;
 import edu.kit.ifv.mobitopp.publictransport.serializer.StopResolver;
 import edu.kit.ifv.mobitopp.publictransport.serializer.StopSerializer;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StopPoints implements StopResolver, VisumStopResolver {
 
 	private final Map<Integer, Stop> points;
@@ -39,7 +43,7 @@ public class StopPoints implements StopResolver, VisumStopResolver {
 		if (points.containsKey(id)) {
 			return points.get(id);
 		}
-		throw new RuntimeException("Stop not available: " + id);
+		throw warn(new RuntimeException("Stop not available: " + id), log);
 	}
 
 	@Override

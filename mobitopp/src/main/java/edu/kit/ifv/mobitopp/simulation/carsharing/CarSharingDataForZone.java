@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -377,7 +379,7 @@ log.info("sb companies: " + deserializedStationBasedCarSharing.size());
 	}
 
 	public float carsharingcarDensity(String company) {
-		return carsharingCarDensities.getOrDefault(company, defaultDensity);
+		return carsharingCarDensities.getOrDefault(company, warn(company, "carsharing car density", defaultDensity, log));
 	}
 
 	public void clearCars() {

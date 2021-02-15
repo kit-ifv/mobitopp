@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.File;
@@ -313,8 +314,7 @@ public class LocalFiles implements DataSource {
 		try (DemandDataDeserialiser deserialiser = demandData.deserialiseFromCsv()) {
 			deserialiser.addOpportunitiesTo(zoneRepository);
 		} catch (Exception e) {
-			log.error("Could not load demand data.");
-			throw new IOException("Could not load demand data.", e);
+			throw warn(new IOException("Could not load demand data.", e), log);
 		}
 	}
 
@@ -377,7 +377,7 @@ public class LocalFiles implements DataSource {
 		try {
 			return loadFromLocalFolder(zoneRepository, numberOfZones, householdFilter, personChanger);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 
@@ -416,7 +416,7 @@ public class LocalFiles implements DataSource {
 		try {
       loadMatrixConfiguration(modeToType).validate();
 		} catch (FileNotFoundException cause) {
-			throw new UncheckedIOException("Missing file check for matrix configuration.", cause);
+			throw warn(new UncheckedIOException("Missing file check for matrix configuration.", cause), log);
 		}
 	}
 
@@ -428,4 +428,5 @@ public class LocalFiles implements DataSource {
 				+ ", carSharingstationsDataFile=" + carSharingStationsDataFile
 				+ ", charging=" + charging  + ", defaultChargingPower=" + defaultChargingPower + "]";
 	}
+
 }

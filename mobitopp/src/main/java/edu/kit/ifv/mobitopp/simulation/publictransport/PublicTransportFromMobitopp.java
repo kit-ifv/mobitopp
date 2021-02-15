@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,9 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.model.StationFinder;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.Stations;
 import edu.kit.ifv.mobitopp.simulation.publictransport.model.StopPoints;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PublicTransportFromMobitopp extends BasePublicTransportConverter {
 
 	private final SearchFootpath visumConverter;
@@ -38,6 +42,7 @@ public class PublicTransportFromMobitopp extends BasePublicTransportConverter {
 		try {
 			convertStopsTo(stopPoints::add, stations);
 		} catch (IOException e) {
+			warn(e, log);
 			e.printStackTrace();
 		}
 		stopPoints.initialiseNeighbourhood(footpaths(stopPoints));
@@ -69,7 +74,7 @@ public class PublicTransportFromMobitopp extends BasePublicTransportConverter {
 		try {
 			convertJourneysTo(journeys::add);
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 		}
 		return journeys;
 	}
@@ -91,7 +96,7 @@ public class PublicTransportFromMobitopp extends BasePublicTransportConverter {
 		try {
 			convertConnectionsTo(connections::add, stopPoints, journeys);
 		} catch (IOException e) {
-			throw new RuntimeException("Could not deserialize connections.");
+			throw warn(new RuntimeException("Could not deserialize connections."), log);
 		}
 		return connections;
 	}

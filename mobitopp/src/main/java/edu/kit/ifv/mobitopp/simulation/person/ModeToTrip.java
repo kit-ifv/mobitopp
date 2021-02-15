@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -8,7 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.TripData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ModeToTrip {
 
   private final Map<Mode, BiFunction<TripData, SimulationPerson, Trip>> modeToTrip;
@@ -35,7 +39,7 @@ public class ModeToTrip {
   }
 
   private BiFunction<TripData, SimulationPerson, Trip> get(Mode mode) {
-    return modeToTrip.getOrDefault(mode, defaultTrip);
+    return modeToTrip.getOrDefault(mode, warn(mode, "'mode to trip bi function'", defaultTrip, log));
   }
 
   public Trip create(Mode mode, TripData tripData, SimulationPerson person) {

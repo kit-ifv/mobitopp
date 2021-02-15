@@ -232,9 +232,8 @@ public class DemandSimulatorPassenger
 		}
 		catch(java.lang.AbstractMethodError e) {
 			log.error("ABSTRACT METHOD ERROR:");
-			log.error(e.getMessage());
+			log.error(e.getMessage(), e);
 			log.error(e.getCause().toString());
-			e.printStackTrace();
 		}
 	}
 

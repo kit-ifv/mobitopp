@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -7,6 +9,9 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StopWatch {
 
 	static final String overall = "overall";
@@ -27,7 +32,7 @@ public class StopWatch {
 
 	private void verifyStarted() {
 		if (null == start) {
-			throw new IllegalStateException("Stop watch has not been started!");
+			throw warn(new IllegalStateException("Stop watch has not been started!"), log);
 		}
 	}
 

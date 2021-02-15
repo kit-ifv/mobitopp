@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
@@ -7,7 +9,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.ConnectionId;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class VehicleLeg implements PublicTransportLeg {
 
 	private final Stop start;
@@ -30,7 +34,7 @@ public class VehicleLeg implements PublicTransportLeg {
 
 	private void verify(List<Connection> connections) {
 		if (connections.isEmpty()) {
-			throw new IllegalArgumentException("Leg must contain connections, but does not. Leg: " + this);
+			throw warn(new IllegalArgumentException("Leg must contain connections, but does not. Leg: " + this), log);
 		}
 	}
 

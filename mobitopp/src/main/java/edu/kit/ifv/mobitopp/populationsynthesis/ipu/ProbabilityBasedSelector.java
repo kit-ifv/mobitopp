@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.ipu;
 
 import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.toLinkedMap;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
@@ -10,7 +11,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
 
   private final DoubleSupplier random;
@@ -25,7 +28,7 @@ public class ProbabilityBasedSelector implements WeightedHouseholdSelector {
       return emptyList();
     }
     if (households.isEmpty()) {
-      throw new IllegalArgumentException("No households available to select from.");
+      throw warn(new IllegalArgumentException("No households available to select from."), log);
     }
     return doSelect(households, amount);
   }

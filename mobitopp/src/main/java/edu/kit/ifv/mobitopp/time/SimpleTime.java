@@ -1,9 +1,14 @@
 package edu.kit.ifv.mobitopp.time;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SimpleTime implements Time, Comparable<Time> {
 
   private final int seconds;
@@ -227,13 +232,13 @@ public class SimpleTime implements Time, Comparable<Time> {
 
   private void verify(int hours, int minutes, int seconds) {
     if (0 > hours || 28 <= hours) {
-      throw new IllegalArgumentException("Hours too high or low: " + hours);
+      throw warn(new IllegalArgumentException("Hours too high or low: " + hours), log);
     }
     if (0 > minutes || 60 <= minutes) {
-      throw new IllegalArgumentException("Minutes too high or low: " + minutes);
+      throw warn(new IllegalArgumentException("Minutes too high or low: " + minutes), log);
     }
     if (0 > seconds || 60 <= seconds) {
-      throw new IllegalArgumentException("Seconds too high or low: " + seconds);
+      throw warn(new IllegalArgumentException("Seconds too high or low: " + seconds), log);
     }
   }
 

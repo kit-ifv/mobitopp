@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,9 +28,9 @@ public class Row {
     if (containsAttribute(key)) {
       return values.get(key);
     }
-    throw new IllegalArgumentException(String
+    throw warn(new IllegalArgumentException(String
         .format("No attribute for key %s available. Available attributes are: %s", key,
-            values.keySet()));
+            values.keySet())), log);
   }
   
   public int valueAsInteger(String key) {

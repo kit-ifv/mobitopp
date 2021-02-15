@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.profilescan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 
 import java.util.ArrayList;
@@ -14,7 +15,9 @@ import edu.kit.ifv.mobitopp.publictransport.connectionscan.StopPaths;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ProfileConnectionScan implements RouteSearch {
 
 	private final Store store;
@@ -58,7 +61,7 @@ public class ProfileConnectionScan implements RouteSearch {
 		List<Connection> connections = new ArrayList<>();
 		while (!end.equals(next.end())) {
 			if (connections.contains(next)){
-				throw new RuntimeException("Duplicate connection on route");
+				throw warn(new RuntimeException("Duplicate connection on route"), log);
 			}
 			connections.add(next);
 			next = nextConnection(end, arrivalAtTarget, next);

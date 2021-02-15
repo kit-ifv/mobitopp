@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.connectionscan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Comparator.comparing;
 
 import java.util.ArrayList;
@@ -8,7 +9,9 @@ import java.util.Collection;
 import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TransitNetwork {
 
 	private final Collection<Stop> stops;
@@ -32,7 +35,7 @@ public class TransitNetwork {
 		for (int index = 0; index < internalStops.size(); index++) {
 			Stop stop = internalStops.get(index);
 			if (index != stop.id()) {
-				throw new IllegalArgumentException("Ids of stops must be consecutive starting at 0. Wrong id at stop: " + stop);
+				throw warn(new IllegalArgumentException("Ids of stops must be consecutive starting at 0. Wrong id at stop: " + stop), log);
 			}
 		}
 	}

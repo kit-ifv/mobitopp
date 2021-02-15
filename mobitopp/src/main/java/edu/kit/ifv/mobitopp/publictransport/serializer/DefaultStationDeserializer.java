@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -8,7 +9,9 @@ import java.io.IOException;
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultStationDeserializer extends BaseDeserializer implements StationDeserializer {
 
 	private final File stationInput;
@@ -38,7 +41,7 @@ class DefaultStationDeserializer extends BaseDeserializer implements StationDese
 		try {
 			return removeHeaderFrom(stationInput).collect(toList());
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 			return emptyList();
 		}
 	}
