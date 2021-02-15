@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.connectionscan;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Collections;
@@ -11,7 +12,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.publictransport.model.StopPath;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultStopPaths implements StopPaths {
 
 	private final List<StopPath> stopPaths;
@@ -49,7 +52,7 @@ public class DefaultStopPaths implements StopPaths {
 		if (stopToPath.containsKey(stop)) {
 			return stopToPath.get(stop);
 		}
-		throw new IllegalArgumentException("Stop is not known: " + stop);
+		throw warn(new IllegalArgumentException("Stop is not known: " + stop), log);
 	}
 
 	@Override

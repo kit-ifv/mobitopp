@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.visum;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 
 import java.io.BufferedReader;
@@ -10,6 +11,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TableDescriptionReader {
 
   private static final String tableNameSeparator = ":";
@@ -33,7 +37,7 @@ public class TableDescriptionReader {
   }
 
   public TableDescription readTable(String tableName, BufferedReader reader) throws IOException {
-    return readTables(reader).getOrDefault(tableName, emptyDescription);
+    return readTables(reader).getOrDefault(tableName, warn(tableName, "table description", emptyDescription, log));
   }
 
   public Map<String, TableDescription> readTables(BufferedReader reader) throws IOException {

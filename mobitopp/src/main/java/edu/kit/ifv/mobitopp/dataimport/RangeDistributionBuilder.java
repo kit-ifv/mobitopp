@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -7,7 +9,9 @@ import java.util.function.Supplier;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionIfc;
 import edu.kit.ifv.mobitopp.data.demand.RangeDistributionItem;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RangeDistributionBuilder {
 
   private final StructuralData structuralData;
@@ -49,9 +53,9 @@ public class RangeDistributionBuilder {
     int lastUpper = getStartOfDistribution(distribution);
     for (RangeDistributionItem item : distribution.getItems()) {
       if (lastUpper + 1 < item.lowerBound()) {
-        throw new IllegalArgumentException(String
+        throw warn(new IllegalArgumentException(String
             .format("Distribution for type %s is not continuous. Missing item between %s and %s",
-                attributeType.attributeName(), lastUpper, item.lowerBound()));
+                attributeType.attributeName(), lastUpper, item.lowerBound())), log);
       }
       lastUpper = item.upperBound();
     }

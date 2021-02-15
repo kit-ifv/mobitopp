@@ -1,12 +1,16 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.ConnectionConsumer;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultConnectionSerializer extends BaseSerializer implements ConnectionConsumer {
 
 	private final BufferedWriter connectionWriter;
@@ -30,7 +34,7 @@ class DefaultConnectionSerializer extends BaseSerializer implements ConnectionCo
 		try {
 			write(connection);
 		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+			throw warn(new RuntimeException(exception), log);
 		}
 	}
 
@@ -51,7 +55,8 @@ class DefaultConnectionSerializer extends BaseSerializer implements ConnectionCo
 
 	@Override
 	public void writeHeader() throws IOException {
-		connectionWriter.write("id;departure_stop;arrival_stop;departure_time;arrival_time;journey_id;points");
+		connectionWriter.write(
+				"id;departure_stop;arrival_stop;departure_time;arrival_time;journey_id;points");
 		connectionWriter.newLine();
 	}
 

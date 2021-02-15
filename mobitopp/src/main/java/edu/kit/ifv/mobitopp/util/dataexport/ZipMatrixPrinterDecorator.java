@@ -1,8 +1,9 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Files;
@@ -77,7 +78,7 @@ public class ZipMatrixPrinterDecorator extends AbstractMatrixPrinter {
 
 
 		} catch (Exception e) {
-			log.warn(e.getMessage());
+			warn(e, log);
 		}
 	}
 

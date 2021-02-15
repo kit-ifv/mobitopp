@@ -1,12 +1,16 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
 import edu.kit.ifv.mobitopp.dataimport.ZonesReader;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocalZoneLoader {
 
   private static final int allZones = Integer.MAX_VALUE;
@@ -23,8 +27,8 @@ public class LocalZoneLoader {
         break;
       }
       if (mapping.containsKey(zone.getId())) {
-        throw new IllegalArgumentException(
-            "Mapping already contains zone with id: " + zone.getId());
+        throw warn(new IllegalArgumentException(
+            "Mapping already contains zone with id: " + zone.getId()), log);
       }
       mapping.put(zone.getId(), zone);
     }

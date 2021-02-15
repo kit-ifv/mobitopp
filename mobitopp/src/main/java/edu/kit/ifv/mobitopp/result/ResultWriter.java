@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.result;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +9,9 @@ import java.io.UncheckedIOException;
 import java.util.function.Function;
 
 import edu.kit.ifv.mobitopp.time.DateFormat;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ResultWriter implements Results, Closeable {
 
 	private final ResultRepository files;
@@ -51,7 +55,7 @@ public class ResultWriter implements Results, Closeable {
 		try {
 			files.close();
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 

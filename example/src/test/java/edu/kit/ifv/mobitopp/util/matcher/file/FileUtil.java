@@ -16,34 +16,40 @@ import java.util.List;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class FileUtil {
 
 	static List<String> contentOf(File item) {
 		try {
 			return Files.readAllLines(item.toPath());
 		} catch (IOException exception) {
+			log.error(exception.getMessage(), exception);
 			throw new RuntimeException(exception);
 		}
 	}
-	
+
 	static List<String> contentOfCompressed(File item) {
 		ArrayList<String> content = new ArrayList<>();
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(uncompressBZip2From(new FileInputStream(item))))) {
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(uncompressBZip2From(new FileInputStream(item))))) {
 			String line = null;
-			while((line = reader.readLine()) != null) {
+			while ((line = reader.readLine()) != null) {
 				content.add(line);
 			}
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
+
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage(), e);
 		}
 		return content;
 	}
-	
+
 	/**
-	 * {@link BZip2CompressorInputStream} can not be directly put into {@link InputStreamReader}.
-	 * Therefore the content is uncompressed into memory.
+	 * {@link BZip2CompressorInputStream} can not be directly put into
+	 * {@link InputStreamReader}. Therefore the content is uncompressed into memory.
 	 */
 	private static InputStream uncompressBZip2From(FileInputStream fin) throws IOException {
 		BufferedInputStream in = new BufferedInputStream(fin);
@@ -52,10 +58,11 @@ public class FileUtil {
 		final byte[] buffer = new byte[1024];
 		int n = 0;
 		while (-1 != (n = bzIn.read(buffer))) {
-		    out.write(buffer, 0, n);
+			out.write(buffer, 0, n);
 		}
 		out.close();
 		bzIn.close();
 		return new ByteArrayInputStream(out.toByteArray());
 	}
+
 }

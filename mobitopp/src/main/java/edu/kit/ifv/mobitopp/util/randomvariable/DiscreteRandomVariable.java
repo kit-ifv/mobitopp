@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util.randomvariable;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -7,6 +9,9 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DiscreteRandomVariable<T> {
 
 	private final NavigableMap<Double,T> cumulativeDistribution;
@@ -24,7 +29,7 @@ public class DiscreteRandomVariable<T> {
 
 	protected NavigableMap<Double,T> cumulativeDistribution(Map<T,? extends Number> distribution) {
 		if (0 >= distribution.size()) {
-			throw new IllegalArgumentException("At least one element is required to select from.");
+			throw warn(new IllegalArgumentException("At least one element is required to select from."), log);
 		}
 
 		NavigableMap<Double,T> cumul = new TreeMap<Double,T>();

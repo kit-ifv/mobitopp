@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
@@ -7,7 +9,9 @@ import edu.kit.ifv.mobitopp.simulation.ChargingListener;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class NoChargingDataForZone implements ChargingDataForZone {
 
 	public static final NoChargingDataForZone noCharging = new NoChargingDataForZone();
@@ -51,12 +55,12 @@ public class NoChargingDataForZone implements ChargingDataForZone {
 	public void startCharging(
 			ElectricCar car, Household household, ActivityIfc activity, Time time,
 			float kwh) {
-		throw new IllegalStateException("Charging is not allowed here.");
+		throw warn(new IllegalStateException("Charging is not allowed here."), log);
 	}
 
 	@Override
 	public float stopCharging(ElectricCar car, Time currentTime) {
-		throw new IllegalStateException("Can not stop charging when charging is not allowed.");
+		throw warn(new IllegalStateException("Can not stop charging when charging is not allowed."), log);
 	}
 
 	@Override

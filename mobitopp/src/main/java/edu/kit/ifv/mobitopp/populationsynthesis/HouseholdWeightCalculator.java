@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +20,9 @@ import edu.kit.ifv.mobitopp.simulation.Gender;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.HouseholdOfPanelDataId;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class HouseholdWeightCalculator 
 	implements HouseholdWeightCalculatorIfc
 {
@@ -373,7 +377,7 @@ class HouseholdWeightCalculator
 	}
 
 	private void throwIncorrectGenderFor(PersonOfPanelData pers) {
-		throw new IllegalArgumentException("Incorrect gender for person: " + pers);
+		throw warn(new IllegalArgumentException("Incorrect gender for person: " + pers), log);
 	}
 
 	private void addToHHList(

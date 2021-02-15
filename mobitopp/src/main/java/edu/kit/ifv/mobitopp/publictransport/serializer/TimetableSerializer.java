@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
@@ -7,7 +9,9 @@ import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TimetableSerializer implements Serializer {
 
 	private final DefaultStationSerializer stationSerializer;
@@ -52,7 +56,7 @@ public class TimetableSerializer implements Serializer {
 		try {
 			write(connection);
 		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+			throw warn(new RuntimeException(exception), log);
 		}
 	}
 
@@ -73,7 +77,7 @@ public class TimetableSerializer implements Serializer {
 		try {
 			write(journey);
 		} catch (IOException exception) {
-			throw new RuntimeException(exception);
+			throw warn(new RuntimeException(exception), log);
 		}
 	}
 

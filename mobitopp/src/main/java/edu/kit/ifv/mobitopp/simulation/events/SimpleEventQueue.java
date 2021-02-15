@@ -1,9 +1,13 @@
 package edu.kit.ifv.mobitopp.simulation.events;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.TreeSet;
 
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimpleEventQueue implements EventQueue {
 
 	private final TreeSet<DemandSimulationEventIfc> events;
@@ -20,7 +24,7 @@ public class SimpleEventQueue implements EventQueue {
 
 	private void verifyDoesNotContain(DemandSimulationEventIfc event) {
 		if (events.contains(event)) {
-			throw new IllegalArgumentException("Event already in queue: " + event);
+			throw warn(new IllegalArgumentException("Event already in queue: " + event), log);
 		}
 	}
 

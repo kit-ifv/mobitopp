@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 
 import java.io.File;
@@ -17,7 +18,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class SimpleSynthesisContext implements SynthesisContext {
 
   private final WrittenConfiguration configuration;
@@ -108,7 +111,7 @@ public class SimpleSynthesisContext implements SynthesisContext {
 
   @Override
   public List<AttributeType> attributes(RegionalLevel level) {
-    return attributes.getOrDefault(level, emptyList());
+    return attributes.getOrDefault(level, warn(level, "attributes", emptyList(), log));
   }
 
   @Override

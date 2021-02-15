@@ -9,16 +9,19 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 abstract class BaseSearchRequest implements PreparedSearchRequest {
 
 	private static final int firstConnection = 0;
-	
+
 	private final ArrivalTimes times;
 	private final UsedConnections usedConnections;
 	private final UsedJourneys usedJourneys;
 
-	BaseSearchRequest(ArrivalTimes times, UsedConnections usedConnections, UsedJourneys usedJourneys) {
+	BaseSearchRequest(ArrivalTimes times, UsedConnections usedConnections,
+			UsedJourneys usedJourneys) {
 		super();
 		this.times = times;
 		this.usedConnections = usedConnections;
@@ -111,21 +114,24 @@ abstract class BaseSearchRequest implements PreparedSearchRequest {
 			Stop end = lastStopOf(connections);
 			return createRoute(start, end, time, connections);
 		} catch (StopNotReachable e) {
+			log.warn(e.getMessage(), e);
 			return empty();
 		}
 	}
 
-	protected abstract List<Connection> collectConnections(UsedConnections usedConnections, Time time) throws StopNotReachable;
+	protected abstract List<Connection> collectConnections(UsedConnections usedConnections,
+			Time time) throws StopNotReachable;
 
 	private Stop firstStopOf(List<Connection> connections) {
 		return connections.get(firstConnection).start();
 	}
-	
+
 	private Stop lastStopOf(List<Connection> connections) {
 		return connections.get(connections.size() - 1).end();
 	}
 
-	private Optional<PublicTransportRoute> createRoute(Stop start, Stop end, Time time, List<Connection> connections) {
+	private Optional<PublicTransportRoute> createRoute(Stop start, Stop end, Time time,
+			List<Connection> connections) {
 		Time arrivalTime = times.get(end);
 		return of(new ScannedRoute(start, end, time, arrivalTime, connections));
 	}

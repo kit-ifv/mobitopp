@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,8 +9,10 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.data.local.Convert;
 import edu.kit.ifv.mobitopp.data.local.FileValidator;
+import lombok.extern.slf4j.Slf4j;
 import edu.kit.ifv.mobitopp.data.local.TypeMapping;
 
+@Slf4j
 public class Validate implements Validation {
 
 	private WrittenConfiguration configuration;
@@ -37,9 +41,9 @@ public class Validate implements Validation {
 
 	private void validateNumberOfZones() {
 		if (1 > configuration.getNumberOfZones()) {
-			throw new IllegalArgumentException(
+			throw warn(new IllegalArgumentException(
 					"There must be at least one zone to process. Specified number of zones: "
-							+ configuration.getNumberOfZones());
+							+ configuration.getNumberOfZones()), log);
 		}
 	}
 

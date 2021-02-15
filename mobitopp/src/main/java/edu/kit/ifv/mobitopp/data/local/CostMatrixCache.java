@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,9 @@ import edu.kit.ifv.mobitopp.data.local.configuration.TaggedCostMatrix;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix> {
 
 	private final Map<Mode, CostMatrixType> modeToType;
@@ -47,7 +51,7 @@ public class CostMatrixCache extends MatrixCache<CostMatrixId, TaggedCostMatrix>
 		if (modeToType.containsKey(mode)) {
 			return modeToType.get(mode);
 		}
-		throw new IllegalArgumentException("No cost matrix type available for " + mode);
+		throw warn(new IllegalArgumentException("No cost matrix type available for " + mode), log);
 	}
 
 	public CostMatrixId idOf(CostMatrixType matrixType, Time date) {

@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.person;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Collections;
@@ -39,7 +41,9 @@ import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 import edu.kit.ifv.mobitopp.simulation.tour.TourFactory;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PersonForDemand implements Person, Serializable {
 
 	private static final long serialVersionUID = 2936969065679820132L;
@@ -262,8 +266,8 @@ public class PersonForDemand implements Person, Serializable {
 	@Override
 	public Bike parkBike(Zone zone, Location location, Time time) {
 		if (!isCycling()) {
-			throw new IllegalStateException(
-					"There is no bike to park available. The person first needs to use a bike: " + this);
+			throw warn(new IllegalStateException(
+					"There is no bike to park available. The person first needs to use a bike: " + this), log);
 		}
 		this.currentBikeUsage = BikeUsage.PARKED;
 		return this.bike;
@@ -272,8 +276,8 @@ public class PersonForDemand implements Person, Serializable {
 	@Override
 	public void takeBikeFromParking() {
 		if (!hasParkedBike()) {
-			throw new IllegalStateException(
-					"There is no parked bike available. The person first needs to park a bike: " + this);
+			throw warn(new IllegalStateException(
+					"There is no parked bike available. The person first needs to park a bike: " + this), log);
 		}
 		this.currentBikeUsage = BikeUsage.DRIVER;
 	}
@@ -281,8 +285,8 @@ public class PersonForDemand implements Person, Serializable {
 	@Override
 	public Bike releaseBike(Time time) {
 		if (!isCycling()) {
-			throw new IllegalStateException(
-					"There is no bike in use. The person first needs to use a bike: " + this);
+			throw warn(new IllegalStateException(
+					"There is no bike in use. The person first needs to use a bike: " + this), log);
 		}
 		Bike bike = this.bike;
 		this.bike = null;
@@ -293,7 +297,7 @@ public class PersonForDemand implements Person, Serializable {
 	
 	@Override
 	public boolean isMobilityProviderCustomer(String company) {
-		return mobilityProviderCustomership.getOrDefault(company, false);
+		return mobilityProviderCustomership.getOrDefault(company, warn(company, "'is mobility provider customer'", false, log));
 	}
 
 	public Map<String, Boolean> mobilityProviderCustomership() {
@@ -377,7 +381,7 @@ public class PersonForDemand implements Person, Serializable {
     return this.fixedDestinations
         .getDestination(activityType)
         .map(FixedDestination::location)
-        .orElseThrow(() -> missingDestination(activityType));
+        .orElseThrow(() -> warn(missingDestination(activityType),log));
 	}
 
 
@@ -385,7 +389,7 @@ public class PersonForDemand implements Person, Serializable {
 		return this.fixedDestinations
         .getDestination(activityType)
         .map(FixedDestination::zone)
-        .orElseThrow(() -> missingDestination(activityType));
+        .orElseThrow(() -> warn(missingDestination(activityType),log));
 	}
 
 	public boolean hasFixedZoneFor(ActivityType activityType) {
@@ -396,7 +400,7 @@ public class PersonForDemand implements Person, Serializable {
     return fixedDestinations
         .getFixedDestination()
         .map(FixedDestination::zone)
-        .orElseGet(() -> household().homeZone());
+        .orElseGet(() -> warn(this, "fixed activity zone", household().homeZone(), log));
 	}
 
 	public boolean hasFixedActivityZone() {

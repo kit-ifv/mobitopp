@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.dataexport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -104,7 +105,7 @@ public class DemandToVisumMatrices {
 			OdRelation odRelation = new OdRelation(source, target, departure);
 			return odRelation;
 		}
-		throw new RuntimeException("Can not parse input: " + line);
+		throw warn(new RuntimeException("Can not parse input: " + line), log);
 	}
 
 	private static List<String> zones() {

@@ -1,7 +1,11 @@
 package edu.kit.ifv.mobitopp.data.demand;
 
-import edu.kit.ifv.mobitopp.simulation.Employment;
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
+import edu.kit.ifv.mobitopp.simulation.Employment;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class EmploymentDistributionItem
 		implements DemandModelDistributionItemIfc, Comparable<EmploymentDistributionItem> {
 
@@ -20,13 +24,13 @@ public class EmploymentDistributionItem
 
   private void verifyAmount(int amount) {
   	if (0 > amount) {
-  		throw new IllegalArgumentException("Amount is not allowed to be less than 0, but was " + amount);
+  		throw warn(new IllegalArgumentException("Amount is not allowed to be less than 0, but was " + amount), log);
   	}
 	}
 
 	private void verify(Employment type) {
   	if (null == type) {
-  		throw new IllegalArgumentException("Type is not allowed to be null!");
+  		throw warn(new IllegalArgumentException("Type is not allowed to be null!"), log);
   	}
 	}
 

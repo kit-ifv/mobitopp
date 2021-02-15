@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.region;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -13,7 +14,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.PersonBuilder;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelData;
 import edu.kit.ifv.mobitopp.util.panel.PersonOfPanelDataId;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class PanelDistanceSelector implements DemandRegionOdPairSelector {
 
 	private static final int noRange = 0;
@@ -43,9 +46,9 @@ public class PanelDistanceSelector implements DemandRegionOdPairSelector {
 	public Collection<OdPair> select(PersonBuilder person) {
 		TreeMap<Integer, List<OdPair>> zones = collectZonesByDistance(person);
     if (zones.isEmpty()) {
-      throw new IllegalArgumentException(String
+      throw warn(new IllegalArgumentException(String
           .format("No zones to commute to are available for person %s living in %s ",
-              person.toString(), person.homeZone().getId()));
+              person.toString(), person.homeZone().getId())), log);
     }
 		Collection<OdPair> possibleDestinations = selectZonesInRange(zones);
 		if (possibleDestinations.isEmpty()) {

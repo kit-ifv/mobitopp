@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Comparator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TimeSpan implements Comparable<TimeSpan> {
 
   private static final Comparator<TimeSpan> comparator = Comparator
@@ -68,7 +72,7 @@ public class TimeSpan implements Comparable<TimeSpan> {
 		if (follows(other)) {
 			return TimeSpan.between(from, other.to);
 		}
-		throw new IllegalArgumentException("Time spans do not follow up.");
+		throw warn(new IllegalArgumentException("Time spans do not follow up."), log);
 	}
 
 	private boolean follows(TimeSpan other) {

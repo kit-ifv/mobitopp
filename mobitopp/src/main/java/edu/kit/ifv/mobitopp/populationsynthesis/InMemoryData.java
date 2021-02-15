@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 
@@ -12,7 +13,9 @@ import java.util.Map.Entry;
 
 import edu.kit.ifv.mobitopp.dataimport.StructuralData;
 import edu.kit.ifv.mobitopp.populationsynthesis.ipu.AttributeType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class InMemoryData implements DemographyData {
 
   private final Map<RegionalLevel, Map<AttributeType, StructuralData>> data;
@@ -25,8 +28,8 @@ public class InMemoryData implements DemographyData {
   @Override
 	public StructuralData get(RegionalLevel level, AttributeType key) {
 		if (!hasDataFor(level)) {
-			throw new IllegalArgumentException(
-					"No demography data is available for regional level: " + level);
+			throw warn(new IllegalArgumentException(
+					"No demography data is available for regional level: " + level), log);
 		}
 		return data.get(level).get(key);
 	}

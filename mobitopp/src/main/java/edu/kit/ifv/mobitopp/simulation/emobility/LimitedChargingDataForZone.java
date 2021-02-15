@@ -1,10 +1,14 @@
 package edu.kit.ifv.mobitopp.simulation.emobility;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.List;
 
 import edu.kit.ifv.mobitopp.dataimport.DefaultPower;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LimitedChargingDataForZone extends BaseChargingDataForZone {
 
 	private static final long serialVersionUID = 1L;
@@ -33,7 +37,7 @@ public class LimitedChargingDataForZone extends BaseChargingDataForZone {
 
 	@Override
 	protected ChargingFacility freshChargingPoint(Location location, DefaultPower defaultPower) {
-		throw new IllegalArgumentException("no free charging point found");
+		throw warn(new IllegalArgumentException("no free charging point found"), log);
 	}
 
 }

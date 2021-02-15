@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +17,9 @@ import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfile;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfileElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourneySection;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JourneyTemplate {
 
 	/** 500 seats + stance **/
@@ -63,10 +67,10 @@ public class JourneyTemplate {
 
 	private void verify(int index) {
 		if (arrivals.containsKey(index)) {
-			throw new RuntimeException("Should never happen");
+			throw warn(new RuntimeException("Should never happen"), log);
 		}
 		if (departures.containsKey(index)) {
-			throw new RuntimeException("Should never happen");
+			throw warn(new RuntimeException("Should never happen"), log);
 		}
 	}
 

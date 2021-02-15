@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Comparator.comparing;
 
 import java.util.Iterator;
@@ -7,7 +8,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DayTypeMatrices {
 
 	private Map<TimeSpan, String> paths;
@@ -31,7 +34,7 @@ public class DayTypeMatrices {
 				return timeSpan;
 			}
 		}
-		throw new IllegalArgumentException("Cannot match date to time span:" + date);
+		throw warn(new IllegalArgumentException("Cannot match date to time span:" + date), log);
 	}
 
 	public void add(TimeSpan timeSpan, String path) {
@@ -43,7 +46,7 @@ public class DayTypeMatrices {
 			TimeSpan storedSpan = stored(timeSpan);
 			return new StoredMatrix(storedSpan, paths.get(storedSpan));
 		}
-		throw new IllegalArgumentException("No matrix available for timespan: " + timeSpan);
+		throw warn(new IllegalArgumentException("No matrix available for timespan: " + timeSpan), log);
 	}
 
 	private TimeSpan stored(TimeSpan timeSpan) {

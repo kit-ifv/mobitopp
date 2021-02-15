@@ -1,5 +1,10 @@
 package edu.kit.ifv.mobitopp.data.areatype;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class BicRepository implements AreaTypeRepository {
 
 	@Override
@@ -10,7 +15,7 @@ public class BicRepository implements AreaTypeRepository {
 			}
 		}
 
-		throw new IllegalArgumentException("No type found for int: " + code);
+		throw warn(new IllegalArgumentException("No type found for int: " + code), log);
 	}
 
 	@Override
@@ -21,7 +26,7 @@ public class BicRepository implements AreaTypeRepository {
 			}
 		}
 
-		throw new IllegalArgumentException("No type found for String: " + name);
+		throw warn(new IllegalArgumentException("No type found for String: " + name), log);
 	}
 
 	@Override

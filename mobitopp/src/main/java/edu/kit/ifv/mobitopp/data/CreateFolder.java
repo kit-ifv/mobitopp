@@ -1,8 +1,13 @@
 package edu.kit.ifv.mobitopp.data;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CreateFolder {
 
 	private final File folder;
@@ -34,7 +39,7 @@ public class CreateFolder {
 
 	private void verify(boolean created) throws IOException {
 		if (!created || !folder.exists()) {
-			throw new IOException("Could not create folder at: " + folder.getAbsolutePath());
+			throw warn(new IOException("Could not create folder at: " + folder.getAbsolutePath()), log);
 		}
 	}
 

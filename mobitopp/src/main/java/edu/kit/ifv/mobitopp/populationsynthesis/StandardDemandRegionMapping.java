@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
@@ -10,8 +12,10 @@ import edu.kit.ifv.mobitopp.data.local.DemandRegionMapping;
 import edu.kit.ifv.mobitopp.util.dataimport.CsvFile;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class StandardDemandRegionMapping implements DemandRegionMapping {
 
 	private final SortedMap<RegionalLevel, RegionalLevel> levelMapping;
@@ -27,7 +31,7 @@ public class StandardDemandRegionMapping implements DemandRegionMapping {
 		if (content.containsKey(level)) {
 			return CsvFile.createFrom(content.get(level)).stream();
 		}
-		throw new IllegalArgumentException("Could not find a file for level: " + level);
+		throw warn(new IllegalArgumentException("Could not find a file for level: " + level), log);
 	}
 
 }

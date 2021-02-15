@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.util;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -53,9 +55,9 @@ public class ParameterFileParser {
 				}
 			}
 		} catch (FileNotFoundException e) {
-			log.error(" Datei wurde nicht gefunden : " + file.getName());
+			warn(e, " Datei wurde nicht gefunden : " + file.getName(), log);
 		} catch (IOException e) {
-			log.error(" Datei konnte nicht geoeffnet werden :" + e);
+			warn(e, " Datei konnte nicht ge�ffnet werden :", log);
 		}
 
 		findCoefficientsUsingReflection(coeffs, model);
@@ -120,12 +122,10 @@ public class ParameterFileParser {
 			}
 
 		} catch(NoSuchFieldException e) {
-			log.error("Field '" + name + "' not found!");
-			e.printStackTrace();
+			warn(e, "Field '" + name + "' not found!", log);
 			System.exit(-1);
 		} catch(IllegalAccessException e) {
-			log.error("Field '" + name + "' not accessible!");
-			e.printStackTrace();
+			warn(e, "Field '" + name + "' not accessible!", log);
 			System.exit(-1);
 		}
 	}

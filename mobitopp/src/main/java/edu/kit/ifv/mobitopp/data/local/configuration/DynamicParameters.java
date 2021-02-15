@@ -1,10 +1,13 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.local.Convert;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is a wrapper around a map which allows a simple conversion for values into primitive
@@ -12,6 +15,7 @@ import edu.kit.ifv.mobitopp.data.local.Convert;
  * 
  * @author bp1110
  */
+@Slf4j
 public class DynamicParameters {
 
   private final Map<String, String> parameters;
@@ -28,8 +32,8 @@ public class DynamicParameters {
 
   private void verifyExisting(String parameter) {
     if (!hasValue(parameter)) {
-      throw new IllegalArgumentException(
-          "Dynamic parameter missing: " + parameter + " containing: " + parameters.toString());
+      throw warn(new IllegalArgumentException(
+          "Dynamic parameter missing: " + parameter + " containing: " + parameters.toString()), log);
     }
   }
 

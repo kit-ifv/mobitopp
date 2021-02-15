@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -9,7 +10,9 @@ import java.util.List;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.time.Time;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 class DefaultConnectionDeserializer extends BaseDeserializer implements ConnectionDeserializer {
 	
 	private final File connectionInput;
@@ -40,7 +43,7 @@ class DefaultConnectionDeserializer extends BaseDeserializer implements Connecti
 		try {
 			return removeHeaderFrom(connectionInput).collect(toList());
 		} catch (IOException e) {
-			e.printStackTrace();
+			warn(e, log);
 			return emptyList();
 		}
 	}

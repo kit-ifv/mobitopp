@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.serialiser;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
@@ -16,7 +17,9 @@ import edu.kit.ifv.mobitopp.populationsynthesis.opportunities.OpportunityLocatio
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class LocationSelector implements OpportunityLocationSelector {
 
 	private Map<ZoneId, Map<ActivityType, Map<Location, Integer>>> mapping;
@@ -68,7 +71,7 @@ public class LocationSelector implements OpportunityLocationSelector {
 	 */
 	private static <T> BinaryOperator<T> uniqueLocations() {
 		return (location, v) -> {
-			throw new IllegalArgumentException(String.format("Several opportunities at same location: %s", location));
+			throw warn(new IllegalArgumentException(String.format("Several opportunities at same location: %s", location)), log);
 		};
 	}
 

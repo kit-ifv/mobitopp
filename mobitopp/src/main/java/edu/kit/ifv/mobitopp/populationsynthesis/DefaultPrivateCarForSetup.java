@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Objects;
 
 import edu.kit.ifv.mobitopp.data.person.HouseholdId;
@@ -8,7 +10,9 @@ import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.HouseholdForDemand;
 import edu.kit.ifv.mobitopp.simulation.car.DefaultPrivateCar;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultPrivateCarForSetup implements PrivateCarForSetup {
 
 	private final Car car;
@@ -63,9 +67,9 @@ public class DefaultPrivateCarForSetup implements PrivateCarForSetup {
 		if (owner.equals(household.getId())) {
 			return new DefaultPrivateCar(car, household, mainUser, personalUser);
 		}
-		throw new IllegalArgumentException(String
+		throw warn(new IllegalArgumentException(String
 				.format("Owner of car (%s) and given household (%s) must be equal", owner,
-						household.getId()));
+						household.getId())), log);
 	}
 
 }

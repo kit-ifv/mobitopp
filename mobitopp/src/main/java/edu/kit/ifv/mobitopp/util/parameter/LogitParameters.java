@@ -32,7 +32,7 @@ public class LogitParameters {
     if (parameters.containsKey(parameter)) {
       return parameters.get(parameter);
     }
-    log.warn(String.format("Logit parameter missing: %s using %s instead", parameter, defaultValue));
+    log.warn("Logit parameter missing: {} using {} instead", parameter, defaultValue);
     return defaultValue;
   }
 

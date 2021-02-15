@@ -1,10 +1,15 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class StaticTimeMatrices<T> {
 
 	private Map<T, String> matrices;
@@ -31,7 +36,7 @@ public class StaticTimeMatrices<T> {
 			String path = matrices.get(matrixType);
 			return new StoredMatrix(path);
 		}
-		throw new IllegalArgumentException("No matrix found for " + matrixType);
+		throw warn(new IllegalArgumentException("No matrix found for " + matrixType), log);
 	}
 
 	public Stream<StoredMatrix> matrices() {

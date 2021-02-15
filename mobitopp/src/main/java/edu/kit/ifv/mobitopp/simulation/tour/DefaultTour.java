@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.tour;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,7 +13,9 @@ import java.util.stream.Collectors;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Mode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DefaultTour 
 	implements Tour 
 {
@@ -335,7 +339,7 @@ public class DefaultTour
 	public Subtour nthSubtour(int n) {
 		
 		if (n >= numberOfSubtours())  {
-			throw new IndexOutOfBoundsException();
+			throw warn(new IndexOutOfBoundsException(), log);
 		}
 		
 		ActivityType purpose = purpose();
@@ -437,7 +441,7 @@ public class DefaultTour
 	public Optional<Subtour> correspondingSubtour(ActivityIfc activity) {
 		
 		if (!contains(activity)) {
-			throw new NoSuchElementException();
+			throw warn(new NoSuchElementException(), log);
 		}
 		
 		for(int i=0; i<numberOfSubtours();i++) {

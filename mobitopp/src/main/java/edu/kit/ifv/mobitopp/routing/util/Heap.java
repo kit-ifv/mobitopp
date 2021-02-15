@@ -1,8 +1,12 @@
 package edu.kit.ifv.mobitopp.routing.util;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -10,6 +14,7 @@ import java.util.Map;
  * continuous id is attachd to each object. Arrays and {@link Map}s are used to translate between
  * internal id and object.
  */
+@Slf4j
 public class Heap<T> 
 	implements PriorityQueue<T>
 {
@@ -102,7 +107,7 @@ public class Heap<T>
 		if (ids.containsKey(object)) {
 			return;
 		}
-		throw new IllegalArgumentException(object + ", " + System.lineSeparator() + mappingAsString());
+		throw warn(new IllegalArgumentException(object + ", " + System.lineSeparator() + mappingAsString()), log);
 	}
 
 	private String mappingAsString() {

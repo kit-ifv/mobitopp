@@ -1,11 +1,15 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.kit.ifv.mobitopp.data.DayType;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DynamicTimeMatrices<S> {
 
 	private final Map<S, TypeMatrices> matrices;
@@ -34,7 +38,7 @@ public class DynamicTimeMatrices<S> {
 		if (matrices.containsKey(matrixType)) {
 			return matrices.get(matrixType);
 		}
-		throw new IllegalArgumentException("No matrix found for " + matrixType);
+		throw warn(new IllegalArgumentException("No matrix found for " + matrixType), log);
 	}
 
 	@Override

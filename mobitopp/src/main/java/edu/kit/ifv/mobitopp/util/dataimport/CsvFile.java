@@ -1,5 +1,6 @@
 package edu.kit.ifv.mobitopp.util.dataimport;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 import static java.util.Arrays.asList;
 
 import java.io.File;
@@ -18,7 +19,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import au.com.bytecode.opencsv.CSVReader;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CsvFile {
 
 	private static final char defaultSeparator = ';';
@@ -45,9 +48,9 @@ public class CsvFile {
 		try (CSVReader reader = new CSVReader(createReader(file), separator)) {
 			init(reader);
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 

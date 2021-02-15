@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
@@ -166,7 +168,7 @@ public abstract class PopulationSynthesis {
 		try {
 			dataRepository().finishExecution();
 		} catch (IOException cause) {
-			throw new UncheckedIOException(cause);
+			throw warn(new UncheckedIOException(cause), log);
 		}
 	}
 
@@ -205,8 +207,7 @@ public abstract class PopulationSynthesis {
 	private void verify(
 			ActivityType activityType, Map<ActivityType, FixedDistributionMatrix> matrices) {
 		if (!matrices.containsKey(activityType)) {
-			log.error("Fixed distribution matrix missing for " + activityType);
-			throw new IllegalStateException("Fixed distribution matrix missing for " + activityType);
+			throw warn(new IllegalStateException("Fixed distribution matrix missing for " + activityType), log);
 		}
 	}
 }

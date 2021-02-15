@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.populationsynthesis.fixeddestinations;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -15,7 +17,9 @@ import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import edu.kit.ifv.mobitopp.util.randomvariable.DiscreteRandomVariable;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DemandRegionBasedZoneSelector implements ZoneSelector {
 
 	private final DemandRegionRelationsObserver observer;
@@ -33,7 +37,7 @@ public class DemandRegionBasedZoneSelector implements ZoneSelector {
 	public void select(PersonBuilder person, Collection<OdPair> relations, double randomNumber) {
 		Map<Zone, Integer> attractivities = collectPossibleZones(relations);
 		if (attractivities.isEmpty()) {
-			throw new IllegalArgumentException("Could not determine a location for " + person);
+			throw warn(new IllegalArgumentException("Could not determine a location for " + person), log);
 		}
 		Zone zone = selectZone(randomNumber, attractivities);
 		assignZone(person, zone);

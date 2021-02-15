@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.destinationChoice;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,15 +45,15 @@ class TargetChoiceRepetitionParameter2 {
 					parseParameterData(in);
 				}
 			} catch (FileNotFoundException e) {
-				log.error(" Datei wurde nicht gefunden : " + fileName);
+				warn(e, " Datei wurde nicht gefunden : " + fileName, log);
 			} catch (IOException e) {
-				log.error(" Datei konnte nicht geöffnet werden :" + e);
+				warn(e, " Datei konnte nicht geöffnet werden :" + e, log);
 			}
 
 			printParameter(this.parameter);
 
 		} catch (Throwable t) {
-			t.printStackTrace();
+			warn(t, log);
 			System.exit(2);
 		}
 
@@ -95,7 +97,7 @@ class TargetChoiceRepetitionParameter2 {
 			this.parameter.get(activityKey).get(previous).put(community_type,map);
 
 		} catch (NumberFormatException nex) {
-			log.error("Probleme mit der Zeile " + line_ + "  " + nex);
+			warn(nex, "Probleme mit der Zeile " + line_ + "  " + nex, log);
 		}
 	}
 
