@@ -76,9 +76,8 @@ public class ZipMatrixPrinterDecorator extends AbstractMatrixPrinter {
 			log.info("writing matrix file: " + outputFile.getAbsolutePath());
 			writer.write(content.toString());
 
-
 		} catch (Exception e) {
-			warn(e, log);
+			throw warn(new RuntimeException(e), log);
 		}
 	}
 
