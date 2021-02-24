@@ -20,12 +20,20 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class BasicModeAvailabilityModel
 	implements ModeAvailabilityModel
 {
+	private static final float METER_TO_KM = 1000.0f;
+	
 	protected final ImpedanceIfc impedance;
+	private float distanceToKmFactor;
 
 	public BasicModeAvailabilityModel(
-		ImpedanceIfc impedance
+		final ImpedanceIfc impedance, final float distanceToKmFactor
 	) {
 		this.impedance = impedance;
+		this.distanceToKmFactor = distanceToKmFactor;
+	}
+	
+	public BasicModeAvailabilityModel(final ImpedanceIfc impedance) {
+		this(impedance, METER_TO_KM);
 	}
 
 	public Set<Mode> availableModes(
@@ -102,7 +110,7 @@ public class BasicModeAvailabilityModel
 				float distance = this.impedance.getDistance(originId, destinationId)
 												+ this.impedance.getDistance(destinationId, nextPole)
 												+ this.impedance.getDistance(nextPole, homeZone);
-				float distanceKm = distance/1000.0f;
+				float distanceKm = distance/distanceToKmFactor;
 				
 				Car car = person.household().nextAvailableCar(person, distanceKm);
 
