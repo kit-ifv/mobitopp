@@ -7,30 +7,36 @@ import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.populationsynthesis.region.DemographicSelector;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
+/**
+ * Adapt the demand calculation process based on the given selector function.
+ * Use only those regions returned by the selector.
+ * 
+ * @author Lars Briem
+ *
+ */
 public class AdaptiveCalculator implements DemandDataForDemandRegionCalculator {
 
-  private final DemandDataForDemandRegionCalculator other;
-  private final Function<DemandRegion, Stream<DemandRegion>> demographicSelector;
+	private final DemandDataForDemandRegionCalculator other;
+	private final Function<DemandRegion, Stream<DemandRegion>> demographicSelector;
 
-  public AdaptiveCalculator(
-      DemandDataForDemandRegionCalculator other,
-      Function<DemandRegion, Stream<DemandRegion>> demographicSelector) {
-    super();
-    this.other = other;
-    this.demographicSelector = demographicSelector;
-  }
-  
-  public AdaptiveCalculator(DemandDataForDemandRegionCalculator other) {
-    this(other, new DemographicSelector()::select);
-  }
+	public AdaptiveCalculator(DemandDataForDemandRegionCalculator other,
+		Function<DemandRegion, Stream<DemandRegion>> demographicSelector) {
+		super();
+		this.other = other;
+		this.demographicSelector = demographicSelector;
+	}
 
-  @Override
-  public void calculateDemandData(DemandRegion region, ImpedanceIfc impedance) {
-    selectBasedOnDemography(region).forEach(part -> other.calculateDemandData(part, impedance));
-  }
+	public AdaptiveCalculator(DemandDataForDemandRegionCalculator other) {
+		this(other, new DemographicSelector()::select);
+	}
 
-  private Stream<DemandRegion> selectBasedOnDemography(DemandRegion region) {
-    return demographicSelector.apply(region);
-  }
+	@Override
+	public void calculateDemandData(DemandRegion region, ImpedanceIfc impedance) {
+		selectBasedOnDemography(region).forEach(part -> other.calculateDemandData(part, impedance));
+	}
+
+	private Stream<DemandRegion> selectBasedOnDemography(DemandRegion region) {
+		return demographicSelector.apply(region);
+	}
 
 }
