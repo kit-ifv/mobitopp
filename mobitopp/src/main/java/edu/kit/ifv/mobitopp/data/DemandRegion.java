@@ -18,8 +18,21 @@ public interface DemandRegion {
 		return new DefaultRegionalContext(regionalLevel(), getExternalId());
 	}
 
+	/**
+	 * Return all siblings of the {@link DemandRegion}. For nodes, all sublings are
+	 * returned. For leafs and empty {@link List} will be returned.
+	 * 
+	 * @return all siblings of this {@link DemandRegion}
+	 */
 	List<DemandRegion> parts();
 
+	/**
+	 * Return all zones of the {@link DemandRegion}. For hierarchical
+	 * {@link DemandRegion}s, all zones within the hierarchy are returned as
+	 * {@link Stream}.
+	 * 
+	 * @return all zones within this {@link DemandRegion}
+	 */
 	Stream<DemandZone> zones();
 
 	boolean contains(ZoneId id);

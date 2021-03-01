@@ -270,20 +270,21 @@ public class LocalFiles implements DataSource {
 		return new DemographyBuilder(demographyData);
 	}
 
-	private ZoneRepository loadZonesFromVisum(
-			VisumNetwork visumNetwork, SimpleRoadNetwork roadNetwork,
-			AreaTypeRepository areaTypeRepository, Matrices matrices) throws IOException {
-	  CostMatrix matrix = matrices.distanceMatrix(Time.start);
+	private ZoneRepository loadZonesFromVisum(VisumNetwork visumNetwork,
+		SimpleRoadNetwork roadNetwork, AreaTypeRepository areaTypeRepository, Matrices matrices)
+		throws IOException {
+		CostMatrix matrix = matrices.distanceMatrix(Time.start);
 		Map<String, Integer> map = matrix
-				.ids()
-				.stream()
-				.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
+			.ids()
+			.stream()
+			.collect(toMap(ZoneId::getExternalId, ZoneId::getMatrixColumn));
 		IdToOidMapper mapper = IdToOidMapper.createFrom(map);
 		ZoneRepository fromVisum = LocalZoneRepository
-				.from(visumNetwork, roadNetwork, charging, defaultPower(), getZonePropertiesDataAsFile(),
-						attractivityDataFile, parkingFacilitiesDataFile, carSharingPropertiesDataFile,
-						carSharingStationsDataFile, carSharingFreeFloatingDataFile, bikeSharingPropertiesDataFile,
-						areaTypeRepository, mapper);
+			.from(visumNetwork, roadNetwork, charging, defaultPower(),
+				getZonePropertiesDataAsFile(), attractivityDataFile, parkingFacilitiesDataFile,
+				carSharingPropertiesDataFile, carSharingStationsDataFile,
+				carSharingFreeFloatingDataFile, bikeSharingPropertiesDataFile, areaTypeRepository,
+				mapper);
 		ZoneRepositorySerialiser serialised = createSerialiser(areaTypeRepository);
 		serialised.serialise(fromVisum);
 		return fromVisum;

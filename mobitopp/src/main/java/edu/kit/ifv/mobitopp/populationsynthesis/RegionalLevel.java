@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public enum RegionalLevel implements Comparable<RegionalLevel> {
 
+	/**
+	 * The order of the enum values defines the hierarchy of demand regions from lowest to highest.
+	 */
 	zone("zone"), district("district"), community("community"), county("county");
 
 	private static final Map<String, RegionalLevel> values = Stream
