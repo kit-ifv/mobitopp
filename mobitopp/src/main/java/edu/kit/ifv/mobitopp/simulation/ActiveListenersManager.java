@@ -3,8 +3,10 @@ package edu.kit.ifv.mobitopp.simulation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +33,7 @@ public class ActiveListenersManager implements PersonListener {
 	private final ExecutorService executorService;
 	private final Hook activateHook;
 	private final Hook deactivateHook;
-	private final Collection<PersonListener> activeListeners;
+	private final Set<PersonListener> activeListeners;
 	private final Map<Time, Collection<PersonListener>> startTimes;
 	private final Map<Time, Collection<PersonListener>> stopTimes;
 	private final Map<Time, Collection<Runnable>> actionTimes;
@@ -70,7 +72,7 @@ public class ActiveListenersManager implements PersonListener {
 	public ActiveListenersManager(int threadCount, boolean actionsAtStart) {
 		this.startTimes = new LinkedHashMap<>();
 		this.stopTimes = new LinkedHashMap<>();
-		this.activeListeners = new ArrayList<>();
+		this.activeListeners = new LinkedHashSet<>();
 		
 		this.actionTimes = new LinkedHashMap<>();
 		this.actionsAtStart = actionsAtStart;
@@ -165,7 +167,7 @@ public class ActiveListenersManager implements PersonListener {
 	 * @param date the date
 	 */
 	private void processDeactivation(Time date) {
-		process(startTimes, date, activeListeners::remove);
+		process(stopTimes, date, activeListeners::remove);
 	}
 
 	/**
@@ -189,7 +191,7 @@ public class ActiveListenersManager implements PersonListener {
 	 */
 	private static <T> void process(Map<Time, Collection<T>> map, Time time, Consumer<T> action) {
 		if (map.containsKey(time)) {
-
+			
 			for (T object : map.get(time)) {
 				action.accept(object);
 			}
