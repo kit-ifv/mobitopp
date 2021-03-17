@@ -34,7 +34,7 @@ public class BevCarFormat implements SerialiserFormat<BatteryElectricCar> {
 		int capacity = electricCarFormat.capacityOf(data);
 		float initialMileage = electricCarFormat.initialMileageOf(data);
 		float batteryLevel = electricCarFormat.batteryLeveOf(data);
-		int electricRange = electricCarFormat.electricRangeOf(data);
+		float electricRange = electricCarFormat.electricRangeOf(data);
 		float batteryCapacity = electricCarFormat.batteryCapacityOf(data);
 		float minimumChargingLevel = electricCarFormat.minimumChargingLevelOf(data);
 		return Optional.of(new BatteryElectricCar(id, position, segment, capacity, initialMileage, batteryLevel,

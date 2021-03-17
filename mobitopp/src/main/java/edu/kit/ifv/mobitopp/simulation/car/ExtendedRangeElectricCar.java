@@ -24,7 +24,7 @@ public class ExtendedRangeElectricCar
 	public static enum Mode { ALLELECTRIC, FULLPOWER, DEGRADED};
 
 
-	protected final int fullPowerRange;
+	protected final float fullPowerRange;
 	protected final float consumptionRateElectricFullPower;
 	protected final float consumptionRateFuelFullPower;
 	protected final float consumptionRateFuelDegraded;
@@ -40,9 +40,9 @@ public class ExtendedRangeElectricCar
 		float intitialMileage,
 		float batteryLevel,
 		float fuelLevel,
-		int electricRange,
-		int conventionalRange,
-		int fullPowerRange,
+		float electricRange,
+		float conventionalRange,
+		float fullPowerRange,
 		float batteryCapacity,
 		float minimumChargingLevel
 	) {
@@ -63,9 +63,9 @@ public class ExtendedRangeElectricCar
 		CarPosition position,
 		Car.Segment carSegment,
 		float batteryLevel,
-		int electricRange,
-		int conventionalRange,
-		int fullPowerRange,
+		float electricRange,
+		float conventionalRange,
+		float fullPowerRange,
 		float batteryCapacity,
 		float minimumChargingLevel
 	) {
@@ -75,8 +75,8 @@ public class ExtendedRangeElectricCar
 
 	public ExtendedRangeElectricCar(
 			int id, CarPosition position, Segment segment, int capacity, float initialMileage,
-			float batteryLevel, float fuelLevel, int electricRange, int conventionalRange,
-			int fullPowerRange, float batteryCapacity, float minimumChargingLevel) {
+			float batteryLevel, float fuelLevel, float electricRange, float conventionalRange,
+			float fullPowerRange, float batteryCapacity, float minimumChargingLevel) {
 		super(id, position, segment, capacity, initialMileage, batteryLevel, fuelLevel,
 				electricRange, conventionalRange, batteryCapacity, minimumChargingLevel);
 
@@ -90,7 +90,7 @@ public class ExtendedRangeElectricCar
 		return CarType.erev.getName();
 	}
 
-	public int fullPowerRange() {
+	public float fullPowerRange() {
 		return fullPowerRange;
 	}
 
@@ -163,32 +163,24 @@ public class ExtendedRangeElectricCar
 		lastMode=Mode.DEGRADED;
 	}
 
-	public int remainingFullPowerRange() {
+	public float remainingFullPowerRange() {
 
-		return (int) Math.floor(batteryLevel*fullPowerRange);
+		return ((float) Math.floor(batteryLevel*fullPowerRange*1000.0f)) / 1000.0f;
 	}
 
 	@Override
-	public int remainingRange() {
+	public float remainingRange() {
 
  	 return remainingFullPowerRange();
 	}
 
-	protected int remainingElectricRange() {
-		return (int) Math.floor(batteryLevel*electricRange);
-	}
-
-	protected int remainingConventionalRange() {
-		return (int) Math.floor(fuelLevel*maxRange);
-	}
-
 	@Override
-	public Integer effectiveRange() {
-		return Integer.MAX_VALUE;
+	public float effectiveRange() {
+		return Float.MAX_VALUE;
 	}
 	
 	@Override
-	public int maxRange() {
+	public float maxRange() {
 		return maxRange + electricRange;
 	}
 

@@ -81,13 +81,13 @@ public abstract class ExampleSetup {
 	public static final int capacity = 2;
 	public static final float initialMileage = 3;
 	public static final float fuelLevel = 4;
-	public static final int maxRange = 5;
+	public static final float maxRange = 5;
 	public static final float batteryLevel = 6;
 	public static final float batteryCapacity = 7;
 	public static final float minimumChargingLevel = 8;
-	public static final int electricRange = 9;
-	public static final int conventionalRange = 10;
-	public static final int fullPowerRange = 11;
+	public static final float electricRange = 9;
+	public static final float conventionalRange = 10;
+	public static final float fullPowerRange = 11;
 	public static final float conventionalFuelLevel = 0;
 
 	public static Population population(Zone zone) {

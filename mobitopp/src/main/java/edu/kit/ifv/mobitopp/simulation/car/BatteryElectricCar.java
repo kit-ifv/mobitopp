@@ -27,7 +27,7 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 		int capacity,
 		float intitialMileage,
 		float batteryLevel,
-		int maxRange,
+		float maxRange,
 		float batteryCapacity,
 		float minimumChargingLevel
 	) {
@@ -40,7 +40,7 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 		CarPosition position,
 		Car.Segment carSegment,
 		float batteryLevel,
-		int maxRange,
+		float maxRange,
 		float batteryCapacity, 
 		float minimumChargingLevel
 	) {
@@ -50,7 +50,7 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 
 	public BatteryElectricCar(
 			int id, CarPosition position, Segment segment, int capacity, float initialMileage,
-			float batteryLevel, int electricRange, float batteryCapacity, float minimumChargingLevel) {
+			float batteryLevel, float electricRange, float batteryCapacity, float minimumChargingLevel) {
 		super(id, position, segment, capacity, initialMileage, batteryLevel, conventionalFuelLevel, electricRange, 0,
 				batteryCapacity, minimumChargingLevel);
 	}
@@ -105,18 +105,12 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 	}
 
 	@Override
-	public int remainingRange() {
-
- 	 return (int) Math.floor(batteryLevel*electricRange);
-	}
-
-	@Override
-	public Integer effectiveRange() {
+	public float effectiveRange() {
 		return remainingRange();
 	}
 
 	@Override
-	public int maxRange() {
+	public float maxRange() {
 
 		return electricRange;
 	}
@@ -138,6 +132,11 @@ public class BatteryElectricCar extends AbstractElectricCar implements Car, Seri
 	public Car copy(int id) {
 		return new BatteryElectricCar(id, position, carSegment, capacity, mileage, batteryLevel,
 				electricRange, batteryCapacity_kWh, minimumChargingLevel());
+	}
+
+	@Override
+	public float remainingRange() {
+		return remainingElectricRange();
 	}
 
 }

@@ -14,7 +14,7 @@ public class AutonomousCar extends BaseCar {
 
   public AutonomousCar(
       int id, CarPosition position, Segment segment, int capacity, float initialMileage,
-      float fuelLevel, int maxRange) {
+      float fuelLevel, float maxRange) {
     super(id, position, segment, capacity, initialMileage, fuelLevel, maxRange);
   }
 
