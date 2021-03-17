@@ -32,19 +32,19 @@ public interface Car {
 	 * 
 	 * @return remaining range in km
 	 */
-	int remainingRange();
+	float remainingRange();
 	
 	/**
 	 * 
 	 * @return maximum range in km
 	 */
-	int maxRange();
+	float maxRange();
 	
 	/**
 	 * 
 	 * @return effective range in km
 	 */
-	Integer effectiveRange();
+	float effectiveRange();
 
 	/**
 	 * Should throw an {@link IllegalArgumentException} when {@link #remainingRange()} is smaller than

@@ -83,11 +83,11 @@ public class CarRangeReachableZonesFilter
 		private Set<Zone> filterByRangeOfCar(Set<Zone> zones, Person person, Zone currentZone, Zone nextFixedZone,
 				final float DIVERSION_FACTOR, final float RANGE_BUFFER_KM) {
 			Car car = person.whichCar();
-			Integer range = car.effectiveRange();
+			float range = car.effectiveRange();
 
 			Zone homeZone = person.household().homeZone();
 
-			if (range == Integer.MAX_VALUE) {
+			if (range == Float.MAX_VALUE) {
 				return zones;
 			}
 

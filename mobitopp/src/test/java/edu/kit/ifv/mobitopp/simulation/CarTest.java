@@ -18,7 +18,7 @@ public class CarTest {
 
 	private final int initialMileage = 50;
 	private final float initialFuelLevel = 0.5f;
-	private final int maxRange = 200;
+	private final float maxRange = 200;
 
 	private final int drivingDistance = 50;
 
@@ -38,7 +38,7 @@ public class CarTest {
 	public void testCurrentConstructor() {
 		assertEquals("failure - initial mileage wrong", initialMileage, car.currentMileage(), 0.0001f);
 		assertEquals("failure - initial fuel level wrong", initialFuelLevel, car.currentFuelLevel(), 0.0001f);
-		assertEquals("failure - maxRange wrong", maxRange, car.maxRange());
+		assertEquals("failure - maxRange wrong", maxRange, car.maxRange(), 0.0001f);
 		assertEquals("failure - remainingRange wrong", maxRange*initialFuelLevel, car.remainingRange(), 0.0001f);
 	}
 
@@ -120,9 +120,9 @@ public class CarTest {
 
 	@Test
 	public void testRemainingRangeRounding() {
-		Car mycar = new ConventionalCar(new IdSequence(), position, null, 4, 0, 1.0f, 1000);
+		Car mycar = new ConventionalCar(new IdSequence(), position, null, 4, 0, 1.0f, 1000.0f);
 
-		assertEquals("failure - remainingRange wrong", 1000, mycar.remainingRange());
+		assertEquals("failure - remainingRange wrong", 1000.0f, mycar.remainingRange(), 0.0001f);
 	}
 
 }
