@@ -10,6 +10,7 @@ import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.SimulationContext;
 import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
@@ -26,6 +27,7 @@ public class DemandSimulatorTour
 		final DestinationChoiceModel destinationChoiceModel,
 		final TourBasedModeChoiceModel modeChoiceModel,
 		final ZoneBasedRouteChoice routeChoice,
+	final ActivityPeriodFixer activityPeriodFixer,
     final ActivityStartAndDurationRandomizer activityDurationRandomizer,
     final TripFactory tripFactory,
     final ReschedulingStrategy rescheduling,
@@ -33,7 +35,7 @@ public class DemandSimulatorTour
     final PersonState initialState, 
     final SimulationContext context
   ) {
-    super(destinationChoiceModel, modeChoiceModel, routeChoice, activityDurationRandomizer,
+    super(destinationChoiceModel, modeChoiceModel, routeChoice, activityPeriodFixer, activityDurationRandomizer,
         tripFactory, rescheduling, modesInSimulation, initialState, context);
   }
 	
@@ -41,6 +43,7 @@ public class DemandSimulatorTour
       final DestinationChoiceModel destinationChoiceModelForDemandSimulation_,
 			final TourBasedModeChoiceModel modeChoice,
 			final ZoneBasedRouteChoice routeChoice,
+			final ActivityPeriodFixer activityPeriodFixer,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
       final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
@@ -51,6 +54,7 @@ public class DemandSimulatorTour
 		this(destinationChoiceModelForDemandSimulation_,
 					modeChoice,
 					routeChoice,
+					activityPeriodFixer,
 					activityDurationRandomizer,
 					tripFactory, 
 					rescheduling,

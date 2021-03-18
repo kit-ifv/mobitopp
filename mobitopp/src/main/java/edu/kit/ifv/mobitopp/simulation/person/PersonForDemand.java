@@ -32,6 +32,7 @@ import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivitySchedule;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.DefaultActivitySchedule;
@@ -477,11 +478,11 @@ public class PersonForDemand implements Person, Serializable {
 	}
 
 	public void initSchedule(
-		TourFactory tourFactory,
+		TourFactory tourFactory, ActivityPeriodFixer fixer,
 		ActivityStartAndDurationRandomizer activityDurationRandomizer, 
 		List<Time> days
 	) {
-		this.activitySchedule = new DefaultActivitySchedule(tourFactory, 
+		this.activitySchedule = new DefaultActivitySchedule(tourFactory, fixer,
 //																												this.activityPattern, 
 				getPatternActivityWeek(),
 																												activityDurationRandomizer, days);

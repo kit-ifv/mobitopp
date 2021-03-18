@@ -7,6 +7,7 @@ import java.util.Optional;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
@@ -102,7 +103,7 @@ public interface Person extends BasePerson {
 	Trip currentTrip();
 	void currentTrip(Trip trip);
 
-	void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
+	void initSchedule(TourFactory tourFactory, ActivityPeriodFixer fixer, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days);
 
 	String forLogging(ImpedanceIfc impedance);
 	void startActivity(Time currentDate, ActivityIfc activity, Trip precedingTrip,
