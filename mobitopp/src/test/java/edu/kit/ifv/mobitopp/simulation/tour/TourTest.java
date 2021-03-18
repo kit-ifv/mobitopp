@@ -14,6 +14,7 @@ import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -45,7 +46,7 @@ public class TourTest {
 	@Before
 	public void setUp() {
 		
-		schedule = new ActivityPeriod(new DefaultTourFactory());
+		schedule = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		
 		homeActivityBefore = ActivitySequenceAsLinkedList.newActivity(0,0,hour0,ActivityType.HOME,7*60,30);
 		
@@ -60,7 +61,7 @@ public class TourTest {
 		schedule.addAsLastActivity(thirdActivity);
 		schedule.addAsLastActivity(fourthActivity);
 
-		scheduleWork = new ActivityPeriod(new DefaultTourFactory());
+		scheduleWork = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		
 		scheduleWork.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(5,0,hour0,ActivityType.HOME,6*60,1)
@@ -81,7 +82,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(10,3,hour22,ActivityType.HOME,4*60,30)
 		);
 		
-		scheduleEducation = new ActivityPeriod(new DefaultTourFactory());
+		scheduleEducation = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		scheduleEducation.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(11,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -98,7 +99,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(15,3,hour20,ActivityType.HOME,7*60,15)
 		);
 		
-		scheduleService = new ActivityPeriod(new DefaultTourFactory());
+		scheduleService = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		scheduleService.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(21,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -112,7 +113,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(24,3,hour20,ActivityType.HOME,6*60,15)
 		);
 		
-		scheduleShopping = new ActivityPeriod(new DefaultTourFactory());
+		scheduleShopping = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		scheduleShopping.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(31,0,hour0,ActivityType.HOME,6*60,1)
 		);
@@ -126,7 +127,7 @@ public class TourTest {
 				ActivitySequenceAsLinkedList.newActivity(34,3,hour20,ActivityType.HOME,8*60,15)
 		);
 		
-		scheduleLeisure = new ActivityPeriod(new DefaultTourFactory());
+		scheduleLeisure = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		scheduleLeisure.addAsLastActivity(
 				ActivitySequenceAsLinkedList.newActivity(41,0,hour0,ActivityType.HOME,6*60,1)
 		);

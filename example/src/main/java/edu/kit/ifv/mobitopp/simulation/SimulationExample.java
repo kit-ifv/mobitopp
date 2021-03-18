@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import edu.kit.ifv.mobitopp.data.IntegerMatrix;
 import edu.kit.ifv.mobitopp.data.OutputHandler;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.CarRangeReachableZonesFilter;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceForFlexibleActivity;
@@ -58,6 +59,7 @@ public class SimulationExample extends Simulation {
 		log.info("Initializing simulator...");
 		return new DemandSimulatorPassenger(targetSelector,
 				new TourBasedModeChoiceModelDummy(modeSelector), routeChoice,
+				new LeisureWalkActivityPeriodFixer(),
 				new DefaultActivityDurationRandomizer(context().seed()), tripFactory, rescheduling,
 				PersonStateSimple.UNINITIALIZED, context());
 	}

@@ -65,7 +65,7 @@ public class ActivityPeriodTest {
 	@BeforeEach
 	public void setUp() {
 
-		week = new ActivityPeriod(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), new PatternActivityWeek(),new ArrayList<Time>());
+		week = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer(), new ActivityDurationNoRandomizer(), new PatternActivityWeek(),new ArrayList<Time>());
 
 		firstDay = Data.someTime();
 		activity1 = makeActivity(1, firstDay, ActivityType.HOME, 1, 6*60, 1);

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.IntSupplier;
 
 import edu.kit.ifv.mobitopp.data.PatternActivity;
 import edu.kit.ifv.mobitopp.data.PatternActivityWeek;
@@ -27,99 +28,70 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ActivityPeriod extends ActivitySequenceAsLinkedList
-	implements Serializable
-	, ActivitySequence
-	, TourAwareActivitySchedule
+		implements Serializable, ActivitySequence, TourAwareActivitySchedule
 
 {
 	private static final long serialVersionUID = 3468272442319865155L;
-
-	
 	private static int occupationCounter = 1;
-
 	private final TourFactory tourFactory;
 	
-	
-	public ActivityPeriod(TourFactory tourFactory) {
+	private final ActivityPeriodFixer fixer;
+
+	public ActivityPeriod(TourFactory tourFactory, ActivityPeriodFixer fixer) {
 		super();
-		
 		this.tourFactory = tourFactory;
+		this.fixer = fixer;
 	}
-	
-	public ActivityPeriod(
-		TourFactory tourFactory,
-		ActivityStartAndDurationRandomizer durationRandomizer,
-		PatternActivityWeek patternWeek,
-		List<Time> dates
-	) {
-		this(tourFactory);
+
+	public ActivityPeriod(TourFactory tourFactory, ActivityPeriodFixer fixer, ActivityStartAndDurationRandomizer durationRandomizer,
+			PatternActivityWeek patternWeek, List<Time> dates) {
+		this(tourFactory, fixer);
 		init(durationRandomizer, patternWeek, dates);
 	}
-	
-	protected void init(
-			final ActivityStartAndDurationRandomizer durationRandomizer,
-			final PatternActivityWeek origPatternWeek,
-			final List<Time> dates
-		) {
-		
+
+	protected void init(final ActivityStartAndDurationRandomizer durationRandomizer,
+			final PatternActivityWeek origPatternWeek, final List<Time> dates) {
+
 		PatternActivityWeek patternWeek = durationRandomizer.randomizeStartAndDuration(origPatternWeek);
-		
+
 		assert patternWeek.getPatternActivities().size() == origPatternWeek.getPatternActivities().size();
-		
-			for (Time currentDay : dates) {
+
+		for (Time currentDay : dates) {
 			List<PatternActivity> patternActivities = patternWeek.getPatternActivities(currentDay);
 
 			for (int i = 0; i < patternActivities.size(); i++) {
-		      PatternActivity aPatternActivity = patternActivities.get(i);
-		      
-		      
-		      if (aPatternActivity.getActivityType() != ActivityType.LEISURE_WALK) {
-		      	createAndAddActivity(currentDay, aPatternActivity, i);
-		      } else {
-		      	
-		      	if (i == patternActivities.size()-1) {
-		      		createAndAddWalkActivityWithHomeActivity(currentDay, i, aPatternActivity);
-		      	} else {
-		      		PatternActivity nextPatternActivity = patternActivities.get(i+1);
-		      		
-		      		if (nextPatternActivity.getActivityType().isHomeActivity()) {
-		      			createAndAddActivity(currentDay, aPatternActivity, i);
-		      		} else {
-		      			createAndAddWalkActivityWithHomeActivity(currentDay, i, aPatternActivity);
-		      		}
-		      	}
-		      }
-					
-		    }
-			}
+				PatternActivity aPatternActivity = patternActivities.get(i);
 
-			if (!this.checkOrderInvariant()) {
-				this.fixStartTimeOfActivities();
-			}
+				if (fixer.requiresFixing(aPatternActivity, patternActivities, currentDay)) {
+					fixer.createAndAddFixedActivity(this, aPatternActivity, patternActivities, currentDay, idSupplier());
+				} else {
+					createAndAddActivity(currentDay, aPatternActivity, i);
+				}
 
-			if (!this.checkNonOverlappingInvariant()) {
-				this.fixStartTimeOfActivities();
 			}
+		}
 
-			assert this.checkOrderInvariant();
-			assert this.checkNonOverlappingInvariant();
+		if (!this.checkOrderInvariant()) {
+			this.fixStartTimeOfActivities();
+		}
+
+		if (!this.checkNonOverlappingInvariant()) {
+			this.fixStartTimeOfActivities();
+		}
+
+		assert this.checkOrderInvariant();
+		assert this.checkNonOverlappingInvariant();
 	}
-
-	protected void createAndAddWalkActivityWithHomeActivity(Time currentDay, int i,
-			PatternActivity aPatternActivity) {
-		List<ActivityIfc> acts = createWalkActivityWithHomeActivity(currentDay, aPatternActivity, i+1);
-		assert acts.size() == 2;
-		
-		this.addAsLastActivity(acts.get(0));
-		this.addAsLastActivity(acts.get(1));
+	
+	private IntSupplier idSupplier() {
+		return () -> (occupationCounter++);
 	}
+	
 
 	protected void createAndAddActivity(Time currentDay, PatternActivity aPatternActivity, int i) {
-		ActivityIfc activity = createActivity(currentDay, aPatternActivity, i+1);
+		ActivityIfc activity = createActivity(currentDay, aPatternActivity, i + 1);
 		this.addAsLastActivity(activity);
 	}
-
-
 
 	public List<ActivityIfc> getSucceedingActivitiesUntilDate(ActivityIfc occupation, Time endDate) {
 
@@ -139,7 +111,6 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		return l;
 	}
 
-
 	public void print() {
 		System.out.println(toString());
 	}
@@ -150,11 +121,11 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		String s = "";
 
-		while(tmp!=tail && next(tmp) != null) {
+		while (tmp != tail && next(tmp) != null) {
 
 			tmp = next(tmp);
 
-			s+= ((ActivityIfc) tmp).toString() + "\n";
+			s += ((ActivityIfc) tmp).toString() + "\n";
 		}
 
 		s += "\n";
@@ -162,24 +133,25 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		return s;
 	}
 
-
 	public boolean checkOrderInvariant() {
 
 		boolean ok = true;
 
-		if (isEmpty()) { return true; }
+		if (isEmpty()) {
+			return true;
+		}
 
 		LinkedListElement prev = nextActivity(head);
 		LinkedListElement curr = nextActivity(prev);
 
 		while (curr != tail) {
 
-			if (!((ActivityIfc)prev).startDate().isBefore(((ActivityIfc)curr).startDate())) {
-			
+			if (!((ActivityIfc) prev).startDate().isBefore(((ActivityIfc) curr).startDate())) {
+
 				ok = false;
 				break;
 			}
-		
+
 			prev = curr;
 			curr = nextActivity(curr);
 		}
@@ -191,20 +163,21 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		boolean ok = true;
 
-		if (isEmpty()) { return true; }
+		if (isEmpty()) {
+			return true;
+		}
 
 		LinkedListElement prev = nextActivity(head);
 		LinkedListElement curr = nextActivity(prev);
 
 		while (curr != tail) {
 
+			if (((ActivityIfc) prev).calculatePlannedEndDate().isAfter(((ActivityIfc) curr).startDate())) {
 
-			if (((ActivityIfc)prev).calculatePlannedEndDate().isAfter(((ActivityIfc)curr).startDate())) {
-			
 				ok = false;
 				break;
 			}
-		
+
 			prev = curr;
 			curr = nextActivity(curr);
 		}
@@ -212,24 +185,25 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		return ok;
 	}
 
-
 	public void fixStartTimeOfActivities() {
 
-		if (isEmpty()) { return; }
+		if (isEmpty()) {
+			return;
+		}
 
 		LinkedListElement prev = nextActivity(head);
 		LinkedListElement curr = nextActivity(prev);
 
 		while (curr != tail) {
 
-			ActivityIfc previousActivity = (ActivityIfc)prev;
-      ActivityIfc currentActivity = (ActivityIfc)curr;
-      if (!previousActivity.startDate().isBefore(currentActivity.startDate())
+			ActivityIfc previousActivity = (ActivityIfc) prev;
+			ActivityIfc currentActivity = (ActivityIfc) curr;
+			if (!previousActivity.startDate().isBefore(currentActivity.startDate())
 					|| previousActivity.calculatePlannedEndDate().isAfter(currentActivity.startDate())) {
 
-        int observedTripDuration = Math.max(0, currentActivity.observedTripDuration());
-        int increment = previousActivity.duration() + observedTripDuration;
-        Time fixedDate = previousActivity.startDate().plusMinutes(increment);
+				int observedTripDuration = Math.max(0, currentActivity.observedTripDuration());
+				int increment = previousActivity.duration() + observedTripDuration;
+				Time fixedDate = previousActivity.startDate().plusMinutes(increment);
 
 				currentActivity.setStartDate(fixedDate);
 			}
@@ -239,138 +213,81 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 		}
 	}
 
-
-	
-
-  protected static ActivityIfc instantiateLastActivity(
-  		ActivityStartAndDurationRandomizer durationRandomizer,
-			PatternActivityWeek patternWeek,
-			Time day
-	) {
+	protected static ActivityIfc instantiateLastActivity(ActivityStartAndDurationRandomizer durationRandomizer,
+			PatternActivityWeek patternWeek, Time day) {
 
 		List<PatternActivity> patternActivities = patternWeek.getPatternActivities();
-		PatternActivity patternActivity = patternActivities.get(patternActivities.size()-1);
+		PatternActivity patternActivity = patternActivities.get(patternActivities.size() - 1);
 
 		patternActivity = durationRandomizer.randomizeStartAndDuration(patternActivity);
-		
-    ActivityIfc activity = createActivity(day, patternActivity, 0);
 
-		return activity;
-	}
-  
- 
-
-  protected static ActivityIfc instantiateFirstActivity(
-  		ActivityStartAndDurationRandomizer durationRandomizer,
-			PatternActivityWeek patternWeek,
-			Time day
-	) {
-
-		PatternActivity patternActivity = getFirstPatternActivityOfDay(patternWeek, day.weekDay());
-
-		patternActivity = durationRandomizer.randomizeStartAndDuration(patternActivity);
-		
 		ActivityIfc activity = createActivity(day, patternActivity, 0);
 
 		return activity;
 	}
 
- 
+	protected static ActivityIfc instantiateFirstActivity(ActivityStartAndDurationRandomizer durationRandomizer,
+			PatternActivityWeek patternWeek, Time day) {
 
+		PatternActivity patternActivity = getFirstPatternActivityOfDay(patternWeek, day.weekDay());
 
+		patternActivity = durationRandomizer.randomizeStartAndDuration(patternActivity);
 
+		ActivityIfc activity = createActivity(day, patternActivity, 0);
 
-	private static PatternActivity getFirstPatternActivityOfDay(
-		PatternActivityWeek patternWeek,
-		DayOfWeek weekDay
-	) {
+		return activity;
+	}
 
-			for (PatternActivity act : 
-							patternWeek.getPatternActivities()) {
+	private static PatternActivity getFirstPatternActivityOfDay(PatternActivityWeek patternWeek, DayOfWeek weekDay) {
 
-				if (act.getWeekDayTypeAsInt() >= weekDay.getTypeAsInt()) {
+		for (PatternActivity act : patternWeek.getPatternActivities()) {
 
-					return act;
-				}
+			if (act.getWeekDayTypeAsInt() >= weekDay.getTypeAsInt()) {
+
+				return act;
 			}
+		}
 
 		return patternWeek.getPatternActivities().get(0);
 	}
 
-	private static ActivityIfc createActivity(
-			Time date,
-      PatternActivity patternActivity_,
-      int activityNumber
-  ) {
+	private static ActivityIfc createActivity(Time date, PatternActivity patternActivity_, int activityNumber) {
 
 		assert patternActivity_ != null;
 
-    int hour   = patternActivity_.startTime().getHour();
-    int minute = patternActivity_.startTime().getMinute();  
+		int hour = patternActivity_.startTime().getHour();
+		int minute = patternActivity_.startTime().getMinute();
 
 		Time startTime = date.newTime(hour, minute, 0);
-		
-		assert date.weekDay() == startTime.weekDay() : (date.weekDay() + " " + startTime.weekDay()
-				+ "\n" + date + " : " + startTime);
 
+		assert date.weekDay() == startTime.weekDay()
+				: (date.weekDay() + " " + startTime.weekDay() + "\n" + date + " : " + startTime);
 
-    ActivityType activityType = patternActivity_.getActivityType();
+		ActivityType activityType = patternActivity_.getActivityType();
 		int duration = patternActivity_.getDuration();
 		int tripDuration = patternActivity_.getObservedTripDuration();
-		
-		ActivityIfc activity = ActivitySequenceAsLinkedList.newActivity(occupationCounter++, activityNumber, 
-																																		startTime, activityType, duration, tripDuration);
 
-    return activity;
-  }
-	
-	private List<ActivityIfc> createWalkActivityWithHomeActivity(
-			Time currentDay,
-			PatternActivity patternActivity, 
-			int activityNumber
-	) {
-		
-		int hour   = patternActivity.startTime().getHour();
-    int minute = patternActivity.startTime().getMinute();  
+		ActivityIfc activity = ActivitySequenceAsLinkedList.newActivity(occupationCounter++, activityNumber, startTime,
+				activityType, duration, tripDuration);
 
-		Time startTimeWalk = currentDay.newTime(hour, minute, 0);
-		
-		assert currentDay.weekDay() == startTimeWalk.weekDay() : (currentDay.weekDay() + " : " + startTimeWalk.weekDay() );
-			
-		int durationHome = patternActivity.getDuration();
-		int durationWalk = patternActivity.getObservedTripDuration();
-		
-		Time startTimeHome = startTimeWalk.plusMinutes(durationWalk+1);
-		
-		List<ActivityIfc> activities = new ArrayList<ActivityIfc>();
-			
-		ActivityIfc walk = ActivitySequenceAsLinkedList.newActivity(occupationCounter++, activityNumber, 
-				startTimeWalk, ActivityType.LEISURE_WALK, durationWalk, 1);
-
-		ActivityIfc home = ActivitySequenceAsLinkedList.newActivity(occupationCounter++, activityNumber+1, 
-				startTimeHome, ActivityType.HOME, durationHome, 1);
-
-		activities.add(walk);
-		activities.add(home);
-			
-		return activities;
+		return activity;
 	}
 
 	@Override
 	public int numberOfTours() {
-			
+
 		ActivityIfc current = firstActivity();
-		
+
 		int cnt = current.activityType().isHomeActivity() ? 0 : 1;
-		
-		while(current != lastActivity()) {
-			
+
+		while (current != lastActivity()) {
+
 			if (current.activityType().isHomeActivity()) {
 				cnt++;
 			}
 			current = nextActivity(current);
 		}
-		
+
 		return cnt;
 	}
 
@@ -378,48 +295,46 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 	public boolean isStartOfTour(ActivityIfc activity) {
 
 		ActivityIfc prev = prevActivity(activity);
-			
+
 		return prev == null ? true : prev.activityType().isHomeActivity();
 	}
 
 	@Override
 	public Tour correspondingTour(ActivityIfc activity) {
-		
+
 		ActivityIfc endOfTour = activity;
 		ActivityIfc beginOfTour = activity;
-		
-		while(endOfTour != lastActivity()
-					&& !endOfTour.activityType().isHomeActivity()) {
+
+		while (endOfTour != lastActivity() && !endOfTour.activityType().isHomeActivity()) {
 			endOfTour = nextActivity(endOfTour);
 		}
-		
-		while(beginOfTour != firstActivity()
-						&& !isStartOfTour(beginOfTour)) {
+
+		while (beginOfTour != firstActivity() && !isStartOfTour(beginOfTour)) {
 			beginOfTour = prevActivity(beginOfTour);
 		}
-		
+
 		return this.tourFactory.createTour(beginOfTour, endOfTour, this);
 	}
-	
+
 	@Override
 	public Tour firstTour() {
-		
+
 		ActivityIfc beginOfTour = firstActivity();
-		
-		while(beginOfTour.activityType().isHomeActivity() &&  beginOfTour!= lastActivity()) {
+
+		while (beginOfTour.activityType().isHomeActivity() && beginOfTour != lastActivity()) {
 			beginOfTour = nextActivity(beginOfTour);
 		}
-		
+
 		return correspondingTour(beginOfTour);
 	}
 
 	@Override
 	public ActivityIfc startOfFirstTour() {
-	
+
 		ActivityIfc first = firstActivity();
-		
+
 		assert nextActivity(first) != null;
-		
+
 		return !first.activityType().isHomeActivity() ? first : nextActivity(first);
 	}
 
@@ -427,7 +342,7 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		return nextActivity(activity) != null;
 	}
-	
+
 	public boolean hasPrevActivity(ActivityIfc activity) {
 
 		return prevActivity(activity) != null;
@@ -441,11 +356,13 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		for (ActivityIfc act = firstActivity(); act != activity; act = nextActivity(act)) {
 
-			if ( act.activityType() == activityType && act.isLocationSet() )  { cnt++; }
-		
+			if (act.activityType() == activityType && act.isLocationSet()) {
+				cnt++;
+			}
+
 		}
 
-		return 1+cnt;
+		return 1 + cnt;
 	}
 
 	public Set<ZoneId> alreadyVisitedZonesByActivityType(ActivityIfc activity) {
@@ -454,10 +371,10 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 
 		for (ActivityIfc act = firstActivity(); act != activity; act = nextActivity(act)) {
 
-      if ( act.activityType() == activity.activityType() && act.isLocationSet() ) {
+			if (act.activityType() == activity.activityType() && act.isLocationSet()) {
 
-        zones.add(act.zone().getId());
-      }
+				zones.add(act.zone().getId());
+			}
 
 		}
 
@@ -465,44 +382,45 @@ public class ActivityPeriod extends ActivitySequenceAsLinkedList
 	}
 
 	public ActivityIfc nextHomeActivity(ActivityIfc currentActivity) {
-		
+
 		assert hasNextActivity(currentActivity) : ("\n" + this + "\ncurrent:" + currentActivity);
-		
+
 		ActivityIfc act = nextActivity(currentActivity);
-		if (act.activityType().isHomeActivity()) { return act; }
-		
-		while(hasNextActivity(act)) { 
-			act = nextActivity(act);
-			if (act.activityType().isHomeActivity()) { return act; }
+		if (act.activityType().isHomeActivity()) {
+			return act;
 		}
-		
-		log.info("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act
-												+ "\nisHomeActivity? " + act.activityType().isHomeActivity());
+
+		while (hasNextActivity(act)) {
+			act = nextActivity(act);
+			if (act.activityType().isHomeActivity()) {
+				return act;
+			}
+		}
+
+		log.info("\n" + this + "\ncurrent:" + currentActivity + "\nlasttested: " + act + "\nisHomeActivity? "
+				+ act.activityType().isHomeActivity());
 		throw new AssertionError();
 	}
 
 	@Override
 	public Map<Mode, Integer> alreadyUsedTourmodes(ActivityIfc activity) {
-		
-		LinkedHashMap<Mode,Integer> modes = new LinkedHashMap<Mode,Integer>();
+
+		LinkedHashMap<Mode, Integer> modes = new LinkedHashMap<Mode, Integer>();
 
 		for (ActivityIfc act = firstActivity(); act != activity; act = nextActivity(act)) {
 
-      if ( isStartOfTour(act) && act.isModeSet() ) {
-      	
-      	Mode mode = act.mode();
-      	
-      	if (!modes.containsKey(mode)) {
-      		modes.put(mode, 0);
-      	}
-      	modes.put(mode, 1+modes.get(mode));
-      }
+			if (isStartOfTour(act) && act.isModeSet()) {
+
+				Mode mode = act.mode();
+
+				if (!modes.containsKey(mode)) {
+					modes.put(mode, 0);
+				}
+				modes.put(mode, 1 + modes.get(mode));
+			}
 		}
 
 		return modes;
 	}
-	
 
-
- 
 }

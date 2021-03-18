@@ -33,7 +33,7 @@ public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 	public void setUp() {
 		PatternActivityWeek pattern = new ExamplePattern().startingAtHome();
 		List<Time> dates = new ExamplePattern().dates();
-		week = new ActivityPeriodWithExtendedFirstAndLastActivity(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), pattern, dates);
+		week = new ActivityPeriodWithExtendedFirstAndLastActivity(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer(), new ActivityDurationNoRandomizer(), pattern, dates);
 	}
 	
 	@Test
@@ -130,9 +130,10 @@ public class ActivityPeriodWithExtendedFirstAndLastActivityTest {
 
     List<Time> dates = asList(Time.start);
     TourFactory factory = new TourWithWalkAsSubtourFactory();
+    ActivityPeriodFixer fixer = new LeisureWalkActivityPeriodFixer();
     ActivityStartAndDurationRandomizer randomizer = w -> w;
     ActivityPeriodWithExtendedFirstAndLastActivity period = new ActivityPeriodWithExtendedFirstAndLastActivity(
-        factory, randomizer, patternActivityWeek, dates);
+        factory, fixer, randomizer, patternActivityWeek, dates);
 
     assertThat(period.lastActivity().duration(), is(994));
   }

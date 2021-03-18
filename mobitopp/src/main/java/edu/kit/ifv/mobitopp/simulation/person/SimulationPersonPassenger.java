@@ -75,7 +75,7 @@ public class SimulationPersonPassenger extends PersonDecorator implements Simula
 		super(person);
 		this.options = options;
 		this.random = new Random(person.getOid() + seed);
-		person.initSchedule(tourFactory, options.activityDurationRandomizer(), simulationDays);
+		person.initSchedule(tourFactory, options.activityPeriodFixer(), options.activityDurationRandomizer(), simulationDays);
 		this.tripFactory = tripFactory;
 
 		this.state = initialState;

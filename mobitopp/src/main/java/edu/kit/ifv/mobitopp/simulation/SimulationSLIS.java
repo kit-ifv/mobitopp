@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceSchaufenster;
 import edu.kit.ifv.mobitopp.simulation.destinationAndModeChoice.DestinationAndModeChoiceUtility;
@@ -45,6 +46,7 @@ public class SimulationSLIS extends Simulation {
 		log.info("Initializing simulator...");
 		return new DemandSimulatorPassenger(targetSelector, 
 				new TourBasedModeChoiceModelDummy(modeSelector), routeChoice,
+				new LeisureWalkActivityPeriodFixer(),
 				new DefaultActivityDurationRandomizer(context().seed()), tripFactory, rescheduling,
 				PersonStateSimple.UNINITIALIZED, context());
 	}
