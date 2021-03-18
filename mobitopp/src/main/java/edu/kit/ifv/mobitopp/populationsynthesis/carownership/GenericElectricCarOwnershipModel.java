@@ -27,39 +27,39 @@ public class GenericElectricCarOwnershipModel
 
 	ProbabilityForElectricCarOwnershipModel probabilityCalculator;
 
-	private final Integer SMALL_BEV_RANGE = null;
+	private final Double SMALL_BEV_RANGE = null;
 	private final Double  SMALL_BEV_BATTERY = null;
 	private final Double  SMALL_BEV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  SMALL_BEV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer MIDSIZE_BEV_RANGE = null;
+	private final Double MIDSIZE_BEV_RANGE = null;
 	private final Double  MIDSIZE_BEV_BATTERY = null;
 	private final Double  MIDSIZE_BEV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  MIDSIZE_BEV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer LARGE_BEV_RANGE = null;
+	private final Double LARGE_BEV_RANGE = null;
 	private final Double  LARGE_BEV_BATTERY = null;
 	private final Double  LARGE_BEV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  LARGE_BEV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer SMALL_EREV_RANGE = null;
+	private final Double SMALL_EREV_RANGE = null;
 	private final Double  SMALL_EREV_BATTERY = null;
 	private final Double  SMALL_EREV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  SMALL_EREV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer MIDSIZE_EREV_RANGE = null;
+	private final Double MIDSIZE_EREV_RANGE = null;
 	private final Double  MIDSIZE_EREV_BATTERY = null;
 	private final Double  MIDSIZE_EREV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  MIDSIZE_EREV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer LARGE_EREV_RANGE = null;
+	private final Double LARGE_EREV_RANGE = null;
 	private final Double  LARGE_EREV_BATTERY = null;
 	private final Double  LARGE_EREV_MINIMUM_CHARGING_LEVEL = null;
 	private final Double  LARGE_EREV_MINIMUM_BATTERY_LEVEL = null;
 
-	private final Integer SMALL_EREV_TOTAL_RANGE = null;
-	private final Integer MIDSIZE_EREV_TOTAL_RANGE = null;
-	private final Integer LARGE_EREV_TOTAL_RANGE = null;
+	private final Double SMALL_EREV_TOTAL_RANGE = null;
+	private final Double MIDSIZE_EREV_TOTAL_RANGE = null;
+	private final Double LARGE_EREV_TOTAL_RANGE = null;
 
 
 	public GenericElectricCarOwnershipModel(
@@ -131,7 +131,7 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new BatteryElectricCar(	idSequence, position, segment,
 																		batteryLevel(SMALL_BEV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																		SMALL_BEV_RANGE.intValue(),
+																		SMALL_BEV_RANGE.floatValue(),
 																		SMALL_BEV_BATTERY.floatValue(),
 																		SMALL_BEV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
@@ -150,7 +150,7 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new BatteryElectricCar(	idSequence, position, segment,
 																		batteryLevel(MIDSIZE_BEV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																		MIDSIZE_BEV_RANGE.intValue(),
+																		MIDSIZE_BEV_RANGE.floatValue(),
 																		MIDSIZE_BEV_BATTERY.floatValue(),
 																		MIDSIZE_BEV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
@@ -161,7 +161,7 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new BatteryElectricCar(	idSequence, position, segment,
 																		batteryLevel(LARGE_BEV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																		LARGE_BEV_RANGE.intValue(),
+																		LARGE_BEV_RANGE.floatValue(),
 																		LARGE_BEV_BATTERY.floatValue(),
 																		LARGE_BEV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
@@ -172,9 +172,9 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new ExtendedRangeElectricCar(idSequence, position, segment,
 																				batteryLevel(SMALL_EREV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																				SMALL_EREV_RANGE.intValue(),
-																				SMALL_EREV_TOTAL_RANGE.intValue()-SMALL_EREV_RANGE.intValue(),
-																				SMALL_EREV_TOTAL_RANGE.intValue(),
+																				SMALL_EREV_RANGE.floatValue(),
+																				SMALL_EREV_TOTAL_RANGE.floatValue()-SMALL_EREV_RANGE.floatValue(),
+																				SMALL_EREV_TOTAL_RANGE.floatValue(),
 																				SMALL_EREV_BATTERY.floatValue(),
 																				SMALL_EREV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
@@ -185,9 +185,9 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new ExtendedRangeElectricCar(idSequence, position, segment,
 																				batteryLevel(MIDSIZE_EREV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																				MIDSIZE_EREV_RANGE.intValue(),
-																				MIDSIZE_EREV_TOTAL_RANGE.intValue()-MIDSIZE_EREV_RANGE.intValue(),
-																				MIDSIZE_EREV_TOTAL_RANGE.intValue(),
+																				MIDSIZE_EREV_RANGE.floatValue(),
+																				MIDSIZE_EREV_TOTAL_RANGE.floatValue()-MIDSIZE_EREV_RANGE.floatValue(),
+																				MIDSIZE_EREV_TOTAL_RANGE.floatValue(),
 																				MIDSIZE_EREV_BATTERY.floatValue(),
 																				MIDSIZE_EREV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
@@ -198,9 +198,9 @@ public class GenericElectricCarOwnershipModel
 	) {
 		return new ExtendedRangeElectricCar(idSequence, position, segment,
 																				batteryLevel(LARGE_EREV_MINIMUM_BATTERY_LEVEL.floatValue()),
-																				LARGE_EREV_RANGE.intValue(),
-																				LARGE_EREV_TOTAL_RANGE.intValue()-LARGE_EREV_RANGE.intValue(),
-																				LARGE_EREV_TOTAL_RANGE.intValue(),
+																				LARGE_EREV_RANGE.floatValue(),
+																				LARGE_EREV_TOTAL_RANGE.floatValue()-LARGE_EREV_RANGE.floatValue(),
+																				LARGE_EREV_TOTAL_RANGE.floatValue(),
 																				LARGE_EREV_BATTERY.floatValue(),
 																				LARGE_EREV_MINIMUM_CHARGING_LEVEL.floatValue());
 	}
