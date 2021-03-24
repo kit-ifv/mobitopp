@@ -54,4 +54,9 @@ public class LocalPersonLoader implements PersonLoader {
 		return population.households();
 	}
 
+	@Override
+	public void clearInput() {
+		population.clearLongTermData();
+	}
+
 }
