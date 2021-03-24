@@ -61,6 +61,8 @@ public class PopulationTest {
 		when(otherPerson.getId()).thenReturn(otherPersonId);
 		when(household.getId()).thenReturn(aHouseholdId);
 		when(household.getPersons()).thenReturn(asList(aPerson, otherPerson));
+		when(aPerson.household()).thenReturn(household);
+		when(otherPerson.household()).thenReturn(household);
 
 		population = Population.empty();
 	}
