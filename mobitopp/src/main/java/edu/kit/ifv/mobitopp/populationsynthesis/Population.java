@@ -103,7 +103,12 @@ public class Population implements PopulationContext, Serializable {
 
 	public void removeHousehold(int oid) {
 		HouseholdForSetup household = householdsForSetup.remove(oid);
-		household.getPersons().forEach(person -> personBuilders.remove(person.getId().getOid()));
+		household.getPersons().forEach(person -> removePerson(person.getId().getOid()));
+	}
+
+	public void removePerson(int oid) {
+		PersonBuilder person = personBuilders.remove(oid);
+		person.household().removePerson(person);
 	}
 
 	public Collection<Integer> getPersonOids() {

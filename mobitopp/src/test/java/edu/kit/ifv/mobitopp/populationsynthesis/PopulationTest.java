@@ -135,6 +135,15 @@ public class PopulationTest {
 	}
 
 	@Test
+	public void removesPersons() {
+		addHousehold();
+
+		population.removePerson(aPersonOid);
+
+		assertThat(population.getPersonOids()).doesNotContain(aPersonOid);
+	}
+
+	@Test
 	public void manageUnknownActivityPatterns() {
 		population.add(aPersonOid, aPattern);
 
