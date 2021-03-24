@@ -1,5 +1,8 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+import static java.util.stream.Collectors.toList;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,18 +10,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganization 
 	implements CarSharingOrganization 
 	, Serializable
 {
 	public final static long serialVersionUID =  -8230694404457066663L;
 
-	public List<CarSharingCar> ownedCars = new ArrayList<CarSharingCar>();
+	public List<FreeFloatingCar> ownedCars = new ArrayList<FreeFloatingCar>();
 
 	protected Map<Zone, List<CarSharingCar>> availableCars = new HashMap<Zone, List<CarSharingCar>>();
 
@@ -29,7 +35,7 @@ public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganizati
 	}
 
 	public void ownCar(CarSharingCar car, Zone zone) {
-		ownedCars.add(car);
+		ownedCars.add(new FreeFloatingCar(zone, car));
 
 		if (!availableCars.containsKey(zone)) {
 			availableCars.put(zone, new ArrayList<CarSharingCar>());
@@ -38,7 +44,11 @@ public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganizati
 	}
 
 	public void ownCars(Collection<CarSharingCar> cars, Zone zone) {
-		ownedCars.addAll(cars);
+		ownedCars.addAll(
+				cars.stream()
+					.map(c -> new FreeFloatingCar(zone, c))
+					.collect(toList())
+		);
 
 		if (!availableCars.containsKey(zone)) {
 			availableCars.put(zone, new ArrayList<CarSharingCar>());
@@ -130,8 +140,12 @@ public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganizati
 		List<CarSharingCar> cars = availableCars.get(zone);
 
 		if (cars == null) { return; }
-
-		ownedCars.removeAll(cars);
+		
+		List<FreeFloatingCar> floatingCars = ownedCars.stream()
+													  .filter(floating -> cars.contains(floating.car))
+													  .collect(toList());
+		
+		ownedCars.removeAll(floatingCars);
 
 		availableCars.put(zone, new ArrayList<CarSharingCar>());
 	}
@@ -142,6 +156,22 @@ public class FreeFloatingCarSharingOrganization extends BaseCarSharingOrganizati
 	
 	private Stream<FreeFloatingCar> toSingleCars(Entry<Zone, List<CarSharingCar>> cars) {
 		return cars.getValue().stream().map(car -> new FreeFloatingCar(cars.getKey(), car));
+	}
+
+	@Override
+	public void returnCarToOrigin(CarSharingCar car) {
+		Optional<FreeFloatingCar> freeFloatingCar = ownedCars.stream()
+															 .filter(floating -> floating.car.equals(car))
+															 .findAny();
+		
+		if (freeFloatingCar.isEmpty()) {
+			throw warn(new IllegalArgumentException("Cannot return car " + car.id() + " as it is owned by" + this.toString()), log);
+		}
+		
+		Zone origin = freeFloatingCar.get().startZone;
+		
+		returnCar(car, origin);
+		
 	}
 
 }
