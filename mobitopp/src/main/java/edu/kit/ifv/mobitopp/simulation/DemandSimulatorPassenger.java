@@ -266,6 +266,7 @@ public class DemandSimulatorPassenger
 		Consumer<Person> createAgent = p -> createSimulatedPerson(queue, boarder, seed, p, listener,
 				modesInSimulation, initialState);
 		personLoader().households().flatMap(Household::persons).forEach(createAgent);
+		personLoader().clearInput();
 	}
 
 	protected PersonLoader personLoader() {
