@@ -11,8 +11,6 @@ import edu.kit.ifv.mobitopp.simulation.person.PersonForDemand;
 
 public interface PersonLoader {
 
-	Collection<Integer> getHouseholdOids();
-
 	Household getHouseholdByOid(int aHouseholdOid);
 
 	void removeHousehold(int oid);

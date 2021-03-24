@@ -70,7 +70,6 @@ public class PopulationTest {
 		addHousehold();
 
 		assertThat(population.householdsForSetup().collect(toList())).contains(household);
-		assertThat(population.householdOids()).contains(householdId);
 		assertThat(population.getHouseholdForSetupByOid(householdId)).hasValue(household);
 	}
 

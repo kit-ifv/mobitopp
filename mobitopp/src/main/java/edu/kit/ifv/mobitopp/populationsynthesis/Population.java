@@ -56,13 +56,6 @@ public class Population implements PopulationContext, Serializable {
 		return new Population();
 	}
 
-	public Collection<Integer> householdOids() {
-		if (householdsForSetup.isEmpty()) {
-			Collections.unmodifiableCollection(households.keySet());
-		}
-		return Collections.unmodifiableCollection(householdsForSetup.keySet());
-	}
-
 	public void add(HouseholdForSetup household) {
 		householdsForSetup.put(household.getId().getOid(), household);
 		for (PersonBuilder person : household.getPersons()) {
@@ -99,6 +92,13 @@ public class Population implements PopulationContext, Serializable {
 
 	public Stream<Household> households() {
 		return householdOids().stream().map(this::getHouseholdByOid).flatMap(StreamUtils::streamOf);
+	}
+
+	private Collection<Integer> householdOids() {
+		if (householdsForSetup.isEmpty()) {
+			Collections.unmodifiableCollection(households.keySet());
+		}
+		return Collections.unmodifiableCollection(householdsForSetup.keySet());
 	}
 
 	public void removeHousehold(int oid) {
