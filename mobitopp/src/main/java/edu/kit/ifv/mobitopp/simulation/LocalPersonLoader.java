@@ -21,11 +21,6 @@ public class LocalPersonLoader implements PersonLoader {
 	}
 
 	@Override
-	public Collection<Integer> getHouseholdOids() {
-		return population.householdOids();
-	}
-
-	@Override
 	public Household getHouseholdByOid(int householdOid) {
 		return population
 				.getHouseholdByOid(householdOid)

@@ -325,18 +325,11 @@ public class DemandSimulatorPassenger
 	}
 
   protected void writeRemainingChargingsToFile(Time time) {
-
-		for (int aHouseholdOid: personLoader().getHouseholdOids() ) {
-
-     	Household household = personLoader().getHouseholdByOid(aHouseholdOid);      
-
-			for (PrivateCar car :  household.whichCars()) {
-
-				if (car.isStopped()) {
-					car.start(time);
-				}
-			}
-		}
+		personLoader()
+			.households()
+			.flatMap(household -> household.whichCars().stream())
+			.filter(PrivateCar::isStopped)
+			.forEach(car -> car.start(time));
 	}
 
 	public void addBeforeTimeSliceHook(Hook beforeHour) {
