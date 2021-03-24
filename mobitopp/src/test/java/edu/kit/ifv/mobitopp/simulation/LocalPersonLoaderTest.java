@@ -87,6 +87,17 @@ public class LocalPersonLoaderTest {
 	}
 	
 	@Test
+	void removePerson() throws Exception {
+		Person existingPerson = configureExistingPerson();
+
+		LocalPersonLoader loader = new LocalPersonLoader(population);
+
+		loader.removePerson(existingPerson.getOid());
+
+		verify(population).removePerson(existingPerson.getOid());
+	}
+	
+	@Test
 	void clearInput() throws Exception {
 		LocalPersonLoader loader = new LocalPersonLoader(population);
 		

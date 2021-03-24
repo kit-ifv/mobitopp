@@ -12,6 +12,8 @@ public interface HouseholdForSetup extends BaseHousehold {
 
 	void addPerson(PersonBuilder person);
 
+	void removePerson(PersonBuilder person);
+	
 	List<PersonBuilder> getPersons();
 
 	Stream<PersonBuilder> persons();
@@ -29,5 +31,6 @@ public interface HouseholdForSetup extends BaseHousehold {
 	int numberOfMinors();
 
 	HouseholdAttributes attributes();
+
 
 }

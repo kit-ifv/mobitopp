@@ -36,6 +36,11 @@ public class LocalPersonLoader implements PersonLoader {
 	public void removeHousehold(int oid) {
 		population.removeHousehold(oid);
 	}
+	
+	@Override
+	public void removePerson(int oid) {
+		population.removePerson(oid);
+	}
 
 	@Override
 	public Collection<Integer> getPersonOids() {

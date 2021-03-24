@@ -63,6 +63,11 @@ public class DefaultHouseholdForSetup implements HouseholdForSetup {
 	public void addPerson(PersonBuilder person) {
 		persons.add(person);
 	}
+	
+	@Override
+	public void removePerson(PersonBuilder person) {
+		persons.remove(person);
+	}
 
 	@Override
 	public List<PersonBuilder> getPersons() {

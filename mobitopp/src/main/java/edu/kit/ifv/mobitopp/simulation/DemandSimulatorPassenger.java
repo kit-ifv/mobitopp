@@ -276,18 +276,20 @@ public class DemandSimulatorPassenger
 	protected SimulationPerson createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
-		return personFactory.create(p, 
-																					queue,
-																					simulationOptions(), 
-																					simulationDays(),
-																					modesInSimulation,
-																					tourFactory,
-																					tripFactory, 
-																					initialState,
-																					boarder,
-																					seed,
-																					listener
-																				);
+		SimulationPerson person = personFactory.create(p, 
+														queue,
+														simulationOptions(), 
+														simulationDays(),
+														modesInSimulation,
+														tourFactory,
+														tripFactory, 
+														initialState,
+														boarder,
+														seed,
+														listener
+													);
+		personLoader().removePerson(person.getOid());
+		return person;
 	}
 
 	protected SimulationOptions simulationOptions() {
