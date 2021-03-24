@@ -15,6 +15,8 @@ public interface CarSharingOrganization
 	public CarSharingCar bookCar(Zone zone);
 
 	public void returnCar(CarSharingCar car, Zone zone);
+	
+	public void returnCarToOrigin(CarSharingCar car);
 
 	public void clearCars(Zone zone);
 
