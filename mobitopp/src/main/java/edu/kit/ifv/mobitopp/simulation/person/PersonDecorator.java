@@ -23,6 +23,7 @@ import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.Trip;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityScheduleWithState;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
@@ -241,10 +242,10 @@ public class PersonDecorator implements Person, Serializable {
 
 	@Override
 	public void initSchedule(
-			TourFactory tourFactory, 
+			TourFactory tourFactory, ActivityPeriodFixer fixer,
 			ActivityStartAndDurationRandomizer activityDurationRandomizer,
 			List<Time> days) {
-		person().initSchedule(tourFactory, activityDurationRandomizer, days);
+		person().initSchedule(tourFactory, fixer, activityDurationRandomizer, days);
 		
 	}
 

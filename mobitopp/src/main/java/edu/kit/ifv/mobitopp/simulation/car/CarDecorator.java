@@ -31,9 +31,9 @@ public class CarDecorator implements Car, Serializable {
 	public float currentFuelLevel() { return car.currentFuelLevel(); }
 	public float currentBatteryLevel() { return car.currentBatteryLevel(); }
 
-	public int remainingRange() { return car.remainingRange(); }
-	public int maxRange() { return car.maxRange(); }
-	public Integer effectiveRange() { return car.effectiveRange(); }
+	public float remainingRange() { return car.remainingRange(); }
+	public float maxRange() { return car.maxRange(); }
+	public float effectiveRange() { return car.effectiveRange(); }
 
 	public void driveDistance(float distanceKm) throws IllegalArgumentException { car.driveDistance(distanceKm); }
 

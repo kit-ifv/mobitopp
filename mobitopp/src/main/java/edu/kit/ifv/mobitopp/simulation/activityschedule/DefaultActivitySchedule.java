@@ -29,12 +29,12 @@ public class DefaultActivitySchedule
 	private OccupationIfc currentOccupation;
 	
 	public DefaultActivitySchedule(	
-		TourFactory tourFactory,
+		TourFactory tourFactory, ActivityPeriodFixer fixer,
 		PatternActivityWeek activityPattern,
 		ActivityStartAndDurationRandomizer activityDurationRandomizer, 
 		List<Time> dates
 	) {
-		super(tourFactory, activityDurationRandomizer, activityPattern, dates);
+		super(tourFactory, fixer, activityDurationRandomizer, activityPattern, dates);
 		
 		this.startActivity(this.firstActivity());
 	}

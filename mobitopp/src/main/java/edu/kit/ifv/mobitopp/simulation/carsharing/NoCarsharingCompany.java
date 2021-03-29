@@ -37,5 +37,10 @@ public class NoCarsharingCompany
 	public void register(CarSharingListener listener) {
 	}
 
+	@Override
+	public void returnCarToOrigin(CarSharingCar car) {
+		throw new AssertionError();
+	}
+
 }
 

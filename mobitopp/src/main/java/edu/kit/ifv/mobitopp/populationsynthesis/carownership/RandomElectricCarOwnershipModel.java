@@ -48,7 +48,7 @@ public class RandomElectricCarOwnershipModel
 		if (rand > this.probabilityForElectric) {
 				car = new ConventionalCar(this.idSequence, position, segment);
 		} else { 
-				car = new BatteryElectricCar(this.idSequence, position, segment, fullBattery, 85, 16.0f, minimumChargingLevel);
+				car = new BatteryElectricCar(this.idSequence, position, segment, fullBattery, 85.0f, 16.0f, minimumChargingLevel);
 		}
 
 		HouseholdId householdId = person.household().getId();

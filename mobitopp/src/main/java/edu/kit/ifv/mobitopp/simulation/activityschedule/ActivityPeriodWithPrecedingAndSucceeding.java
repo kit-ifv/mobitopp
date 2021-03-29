@@ -27,12 +27,12 @@ public class ActivityPeriodWithPrecedingAndSucceeding
 
 
 	public ActivityPeriodWithPrecedingAndSucceeding(	
-		TourFactory tourFactory,
+		TourFactory tourFactory, ActivityPeriodFixer fixer,
 		ActivityStartAndDurationRandomizer durationRandomizer,
 		PatternActivityWeek activityPattern,
 		List<Time> dates
 	) {
-		super(tourFactory, durationRandomizer, activityPattern, dates);
+		super(tourFactory, fixer, durationRandomizer, activityPattern, dates);
 		
 		Time firstDay = dates.get(0);
 		Time lastDay = dates.get(dates.size()-1);

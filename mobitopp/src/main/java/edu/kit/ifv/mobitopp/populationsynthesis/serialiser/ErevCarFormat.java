@@ -44,9 +44,9 @@ public class ErevCarFormat implements SerialiserFormat<ExtendedRangeElectricCar>
 		float initialMileage = electricCarFormat.initialMileageOf(data);
 		float batteryLevel = electricCarFormat.batteryLeveOf(data);
 		float fuelLevel = electricCarFormat.fuelLevelOf(data);
-		int electricRange = electricCarFormat.electricRangeOf(data);
-		int conventionalRange = electricCarFormat.maxRangeOf(data) - electricRange;
-		int fullPowerRange = fullPowerRangeOf(data);
+		float electricRange = electricCarFormat.electricRangeOf(data);
+		float conventionalRange = electricCarFormat.maxRangeOf(data) - electricRange;
+		float fullPowerRange = fullPowerRangeOf(data);
 		float batteryCapacity = electricCarFormat.batteryCapacityOf(data);
 		float minimumChargingLevel = electricCarFormat.minimumChargingLevelOf(data);
 		return Optional.of(new ExtendedRangeElectricCar(id, positions, segment, capacity, initialMileage,
@@ -54,8 +54,8 @@ public class ErevCarFormat implements SerialiserFormat<ExtendedRangeElectricCar>
 				minimumChargingLevel));
 	}
 
-	private int fullPowerRangeOf(List<String> data) {
-		return Integer.parseInt(data.get(fullPowerRangeIndex));
+	private float fullPowerRangeOf(List<String> data) {
+		return Float.parseFloat(data.get(fullPowerRangeIndex));
 	}
 
 }

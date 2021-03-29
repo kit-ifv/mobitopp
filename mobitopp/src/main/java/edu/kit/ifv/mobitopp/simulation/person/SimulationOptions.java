@@ -4,6 +4,7 @@ import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 import edu.kit.ifv.mobitopp.simulation.ReschedulingStrategy;
 import edu.kit.ifv.mobitopp.simulation.RideSharingOffers;
 import edu.kit.ifv.mobitopp.simulation.ZoneBasedRouteChoice;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
 import edu.kit.ifv.mobitopp.simulation.tour.TourBasedModeChoiceModel;
@@ -21,5 +22,7 @@ public interface SimulationOptions {
 	public Time simulationStart();
 	public Time simulationEnd();
 	public ActivityStartAndDurationRandomizer activityDurationRandomizer();
+	
+	public ActivityPeriodFixer activityPeriodFixer();
 
 }

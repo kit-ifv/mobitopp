@@ -11,7 +11,6 @@ import edu.kit.ifv.mobitopp.result.CsvBuilder;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Person;
 import edu.kit.ifv.mobitopp.time.Time;
-import edu.kit.ifv.mobitopp.util.collections.StreamUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -21,7 +20,7 @@ public abstract class BaseCar implements Car, Serializable {
   
   protected final int id;
   protected final Car.Segment carSegment;
-  protected final int maxRange;
+  protected final float maxRange;
 
   protected final float consumptionRate;
 
@@ -40,7 +39,7 @@ public abstract class BaseCar implements Car, Serializable {
   
   public BaseCar(
       int id, CarPosition position, Segment segment, int capacity, float initialMileage,
-      float fuelLevel, int maxRange) {
+      float fuelLevel, float maxRange) {
     super();
     this.id = id;
     this.carSegment = segment;
@@ -75,17 +74,16 @@ public abstract class BaseCar implements Car, Serializable {
     return 0.0f;
   }
 
-  public int maxRange() {
+  public float maxRange() {
     return maxRange;
   }
 
-  public int remainingRange() {
-
-    return (int) Math.floor(fuelLevel*maxRange);
+  public float remainingRange() {
+    return ((float) Math.floor(fuelLevel*maxRange*1000.0f)) / 1000.0f;
   }
 
-  public Integer effectiveRange() {
-    return Integer.MAX_VALUE;
+  public float effectiveRange() {
+    return Float.MAX_VALUE;
   }
 
   @Override
@@ -230,7 +228,7 @@ public abstract class BaseCar implements Car, Serializable {
     double currentMileage   = Math.floor(10.0f*currentMileage())/10.0f;
     double fuelLevel        = Math.floor(100.0f*currentFuelLevel())/100.0f;
     double batteryLevel     = Math.floor(100.0f*currentBatteryLevel())/100.0f;
-    int remainingRange      = remainingRange();
+    float remainingRange      = remainingRange();
 
     CsvBuilder builder = new CsvBuilder();
     builder.append(cartype);

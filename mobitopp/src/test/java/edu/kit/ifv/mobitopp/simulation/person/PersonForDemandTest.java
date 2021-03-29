@@ -34,6 +34,8 @@ import edu.kit.ifv.mobitopp.simulation.Graduation;
 import edu.kit.ifv.mobitopp.simulation.Household;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.PersonAttributes;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
@@ -238,9 +240,10 @@ public class PersonForDemandTest {
     Optional<TourBasedActivityPattern> before = person.tourBasedActivityPattern();
     
     TourFactory factory = new DefaultTourFactory();
+    ActivityPeriodFixer fixer = new LeisureWalkActivityPeriodFixer();
     ActivityStartAndDurationRandomizer randomizer = a -> a;
     List<Time> days = singletonList(Time.start);
-    person.initSchedule(factory, randomizer, days);
+    person.initSchedule(factory, fixer, randomizer, days);
     
     Optional<TourBasedActivityPattern> after = person.tourBasedActivityPattern();
     

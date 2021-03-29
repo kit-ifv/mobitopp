@@ -13,6 +13,7 @@ import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.person.PersonId;
 import edu.kit.ifv.mobitopp.data.tourbasedactivitypattern.TourBasedActivityPattern;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.bikesharing.Bike;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
@@ -133,7 +134,7 @@ public class Person_Stub implements Person {
 	public PersonId getId() { return null; }
 
 	public ModifiableActivityScheduleWithState activitySchedule() { return null; }
-	public void initSchedule(TourFactory tourFactory, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days) {}
+	public void initSchedule(TourFactory tourFactory,  ActivityPeriodFixer fixer, ActivityStartAndDurationRandomizer activityDurationRandomizer, List<Time> days) {}
 
 	public Gender gender() { return null; }
 	public Employment employment() { return null; }

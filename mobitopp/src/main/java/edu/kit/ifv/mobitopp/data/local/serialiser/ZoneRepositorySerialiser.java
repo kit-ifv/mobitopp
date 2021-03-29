@@ -59,8 +59,8 @@ public class ZoneRepositorySerialiser {
 	private BikeSharingPropertiesData bikeSharingProperties;
 
 	public ZoneRepositorySerialiser(final File zoneRepositoryFolder,
-			final ChargingDataFactory factory, final File attractivitiesDataFile,
-			final File bikeSharingDataFile, final AreaTypeRepository areaTypeRepository) {
+		final ChargingDataFactory factory, final File attractivitiesDataFile,
+		final File bikeSharingDataFile, final AreaTypeRepository areaTypeRepository) {
 		super();
 		this.zoneRepositoryFolder = zoneRepositoryFolder;
 		this.factory = factory;
@@ -82,21 +82,21 @@ public class ZoneRepositorySerialiser {
 
 	private void deserialiseCarSharing(ZoneRepository zoneRepository) {
 		Collection<Car> cars = carsharingCars(zoneRepository);
+		List<StationBasedCarSharingOrganization> stationBasedOrganizations = stationBasedOrganizations();
+		List<FreeFloatingCarSharingOrganization> freeFloatingOrganizations = freeFloatingOrganizations();
+		Map<String, List<CarSharingStation>> carSharingStations = carSharingStations(
+			stationBasedOrganizations, zoneRepository);
+		loadStationBasedCars(stationBasedOrganizations, cars);
+		loadFreeFloatingCars(zoneRepository, freeFloatingOrganizations, cars);
+		Map<String, Float> carsharingCarDensities = freeFloatingDensities();
 		for (Zone zone : zoneRepository.getZones()) {
-			List<StationBasedCarSharingOrganization> stationBasedOrganizations = stationBasedOrganizations();
-			List<FreeFloatingCarSharingOrganization> freeFloatingOrganizations = freeFloatingOrganizations();
-			Map<String, List<CarSharingStation>> carSharingStations = carSharingStations(
-					stationBasedOrganizations, zoneRepository);
-			loadStationBasedCars(stationBasedOrganizations, cars);
-			loadFreeFloatingCars(zoneRepository, freeFloatingOrganizations, cars);
 			Map<String, Boolean> freeFloatingArea = freeFloatingArea(freeFloatingOrganizations,
-					zone);
+				zone);
 			Map<String, Integer> freeFloatingCars = freeFloatingCars(freeFloatingOrganizations,
-					zone);
-			Map<String, Float> carsharingCarDensities = freeFloatingDensities();
+				zone);
 			CarSharingDataForZone carSharingDataForZone = new CarSharingDataForZone(zone,
-					stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
-					freeFloatingArea, freeFloatingCars, carsharingCarDensities);
+				stationBasedOrganizations, carSharingStations, freeFloatingOrganizations,
+				freeFloatingArea, freeFloatingCars, carsharingCarDensities);
 			zone.setBikeSharing(createBikeSharing(zone.getId(), zoneRepository.idMapper()));
 			zone.setCarSharing(carSharingDataForZone);
 			zone.setMaas(MaasDataForZone.everywhereAvailable());
@@ -116,14 +116,17 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private void loadStationBasedCars(Collection<StationBasedCarSharingOrganization> owners,
-			Collection<Car> cars) {
-		Collection<CarSharingStation> stations = owners.stream()
-				.flatMap(StationBasedCarSharingOrganization::stations).collect(toList());
-		Map<String, StationBasedCarSharingOrganization> nameToOwner = owners.stream()
-				.collect(toMap(o -> o.name(), Function.identity()));
+		Collection<Car> cars) {
+		Collection<CarSharingStation> stations = owners
+			.stream()
+			.flatMap(StationBasedCarSharingOrganization::stations)
+			.collect(toList());
+		Map<String, StationBasedCarSharingOrganization> nameToOwner = owners
+			.stream()
+			.collect(toMap(o -> o.name(), Function.identity()));
 		StationBasedCarFormat format = new StationBasedCarFormat(owners, stations, cars);
 		try (CsvDeserialiser<StationBasedCarSharingCar> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.stationBasedCars), format)) {
+			readerFor(DemandDataInput.stationBasedCars), format)) {
 			List<StationBasedCarSharingCar> carSharingCars = deserialiser.deserialise();
 			for (StationBasedCarSharingCar car : carSharingCars) {
 				nameToOwner.get(car.owner().name()).ownCar(car, car.station.zone);
@@ -136,7 +139,7 @@ public class ZoneRepositorySerialiser {
 	private Collection<Car> carsharingCars(ZoneRepository zoneRepository) {
 		ConventionalCarFormat format = new ConventionalCarFormat(zoneRepository);
 		try (CsvDeserialiser<Car> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.carSharingCars), format)) {
+			readerFor(DemandDataInput.carSharingCars), format)) {
 			return deserialiser.deserialise();
 
 		} catch (IOException cause) {
@@ -149,16 +152,18 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private void loadFreeFloatingCars(ZoneRepository zoneRepository,
-			List<FreeFloatingCarSharingOrganization> owners, Collection<Car> cars) {
-		Map<String, FreeFloatingCarSharingOrganization> nameToOwner = owners.stream()
-				.collect(toMap(o -> o.name(), Function.identity()));
+		List<FreeFloatingCarSharingOrganization> owners, Collection<Car> cars) {
+		Map<String, FreeFloatingCarSharingOrganization> nameToOwner = owners
+			.stream()
+			.collect(toMap(o -> o.name(), Function.identity()));
 		FreeFloatingCarFormat format = new FreeFloatingCarFormat(zoneRepository, owners, cars);
 		try (CsvDeserialiser<FreeFloatingCar> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.freeFloatingCars), format)) {
+			readerFor(DemandDataInput.freeFloatingCars), format)) {
 			List<FreeFloatingCar> freeFloating = deserialiser.deserialise();
 			for (FreeFloatingCar freeFloatingCar : freeFloating) {
-				nameToOwner.get(freeFloatingCar.car.owner().name()).ownCar(freeFloatingCar.car,
-						freeFloatingCar.startZone);
+				nameToOwner
+					.get(freeFloatingCar.car.owner().name())
+					.ownCar(freeFloatingCar.car, freeFloatingCar.startZone);
 
 			}
 
@@ -168,22 +173,28 @@ public class ZoneRepositorySerialiser {
 	}
 
 	private Map<String, Boolean> freeFloatingArea(List<FreeFloatingCarSharingOrganization> owners,
-			Zone zone) {
-		return owners.stream().collect(StreamUtils.toLinkedMap(
-				FreeFloatingCarSharingOrganization::name, owner -> owner.isCarAvailable(zone)));
+		Zone zone) {
+		return owners
+			.stream()
+			.collect(StreamUtils
+				.toLinkedMap(FreeFloatingCarSharingOrganization::name,
+					owner -> owner.isCarAvailable(zone)));
 	}
 
 	private Map<String, Integer> freeFloatingCars(List<FreeFloatingCarSharingOrganization> owners,
-			Zone zone) {
-		return owners.stream().collect(StreamUtils.toLinkedMap(
-				FreeFloatingCarSharingOrganization::name, owner -> owner.availableCars(zone)));
+		Zone zone) {
+		return owners
+			.stream()
+			.collect(StreamUtils
+				.toLinkedMap(FreeFloatingCarSharingOrganization::name,
+					owner -> owner.availableCars(zone)));
 	}
 
 	private Map<String, List<CarSharingStation>> carSharingStations(
-			List<StationBasedCarSharingOrganization> organizations, ZoneRepository zoneRepository) {
+		List<StationBasedCarSharingOrganization> organizations, ZoneRepository zoneRepository) {
 		CarSharingStationFormat format = new CarSharingStationFormat(organizations, zoneRepository);
 		try (CsvDeserialiser<CarSharingStation> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.stations), format)) {
+			readerFor(DemandDataInput.stations), format)) {
 			return deserialiser.deserialise().stream().collect(groupingBy(this::owner));
 
 		} catch (IOException cause) {
@@ -197,7 +208,8 @@ public class ZoneRepositorySerialiser {
 
 	private List<StationBasedCarSharingOrganization> stationBasedOrganizations() {
 		StationBasedCarSharingOrganizationFormat format = new StationBasedCarSharingOrganizationFormat();
-		try (CsvDeserialiser<StationBasedCarSharingOrganization> deserialiser = new CsvDeserialiser<>(
+		try (
+			CsvDeserialiser<StationBasedCarSharingOrganization> deserialiser = new CsvDeserialiser<>(
 				readerFor(DemandDataInput.stationBased), format)) {
 			return deserialiser.deserialise();
 
@@ -208,10 +220,11 @@ public class ZoneRepositorySerialiser {
 
 	private List<FreeFloatingCarSharingOrganization> freeFloatingOrganizations() {
 		FreeFloatingCarSharingOrganizationFormat format = new FreeFloatingCarSharingOrganizationFormat();
-		try (CsvDeserialiser<FreeFloatingCarSharingOrganization> deserialiser = new CsvDeserialiser<>(
+		try (
+			CsvDeserialiser<FreeFloatingCarSharingOrganization> deserialiser = new CsvDeserialiser<>(
 				readerFor(DemandDataInput.freeFloating), format)) {
 			return deserialiser.deserialise();
-			
+
 		} catch (IOException cause) {
 			throw warn(new UncheckedIOException(cause), log);
 		}
@@ -221,12 +234,12 @@ public class ZoneRepositorySerialiser {
 		ChargingDataResolver charging = chargingFrom(chargingFacilities);
 		Map<Integer, Attractivities> attractivities = attractivities();
 		DefaultZoneFormat format = new DefaultZoneFormat(charging, attractivities,
-				areaTypeRepository);
+			areaTypeRepository);
 		try (CsvDeserialiser<Zone> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.zones), format)) {
+			readerFor(DemandDataInput.zones), format)) {
 			List<Zone> zones = deserialiser.deserialise();
 			return LocalZoneRepository.from(zones);
-			
+
 		} catch (IOException cause) {
 			throw warn(new UncheckedIOException(cause), log);
 		}
@@ -238,14 +251,15 @@ public class ZoneRepositorySerialiser {
 
 	private static AttractivitiesData attractivityDataFrom(File structuralDataFile) {
 		StructuralData data = new StructuralData(
-				CsvFile.createFrom(structuralDataFile.getAbsolutePath()));
+			CsvFile.createFrom(structuralDataFile.getAbsolutePath()));
 		return new AttractivitiesData(data);
 	}
 
 	private ChargingDataResolver chargingFrom(List<ZoneChargingFacility> chargingFacilities) {
-		Map<Integer, List<ChargingFacility>> perZone = chargingFacilities.stream()
-				.collect(groupingBy(ZoneChargingFacility::zoneId,
-						mapping(ZoneChargingFacility::facility, toList())));
+		Map<Integer, List<ChargingFacility>> perZone = chargingFacilities
+			.stream()
+			.collect(groupingBy(ZoneChargingFacility::zoneId,
+				mapping(ZoneChargingFacility::facility, toList())));
 		HashMap<Integer, ChargingDataForZone> mapping = new HashMap<>();
 		for (Entry<Integer, List<ChargingFacility>> entry : perZone.entrySet()) {
 			ChargingDataForZone charginData = factory.create(entry.getValue());
@@ -257,7 +271,7 @@ public class ZoneRepositorySerialiser {
 	private List<ZoneChargingFacility> deserialiseChargingFacilities() {
 		ChargingFacilityFormat format = new ChargingFacilityFormat();
 		try (CsvDeserialiser<ZoneChargingFacility> deserialiser = new CsvDeserialiser<>(
-				readerFor(DemandDataInput.chargingData), format)) {
+			readerFor(DemandDataInput.chargingData), format)) {
 			return deserialiser.deserialise();
 		} catch (IOException cause) {
 			throw warn(new UncheckedIOException(cause), log);
@@ -265,8 +279,8 @@ public class ZoneRepositorySerialiser {
 	}
 
 	public void serialise(ZoneRepository repository) throws IOException {
-		try (ZoneSerialiser serialiser = ZoneSerialiser.in(zoneRepositoryFolder, factory,
-				repository, areaTypeRepository)) {
+		try (ZoneSerialiser serialiser = ZoneSerialiser
+			.in(zoneRepositoryFolder, factory, repository, areaTypeRepository)) {
 			zoneRepositoryFolder.mkdirs();
 			serialiser.serialise();
 		}
