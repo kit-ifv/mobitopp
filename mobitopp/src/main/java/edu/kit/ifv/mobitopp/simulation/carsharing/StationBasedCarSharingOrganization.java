@@ -1,5 +1,7 @@
 package edu.kit.ifv.mobitopp.simulation.carsharing;
 
+import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +10,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.data.Zone;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class StationBasedCarSharingOrganization extends BaseCarSharingOrganization 
 	implements CarSharingOrganization 
 	, Serializable
@@ -141,6 +145,17 @@ public class StationBasedCarSharingOrganization extends BaseCarSharingOrganizati
 	
 	public Stream<StationBasedCarSharingCar> ownedCars() {
 		return ownedCars.stream();
+	}
+
+	@Override
+	public void returnCarToOrigin(CarSharingCar car) {
+		if (!ownedCars.contains(car)) {
+			throw warn(new IllegalArgumentException("Cannot return car " + car.id() + " as it is owned by" + this.toString()), log);
+		}
+		
+		Zone origin = ownedCars.get(ownedCars.indexOf(car)).station.zone;
+		
+		returnCar(car, origin);		
 	}
 	
 }

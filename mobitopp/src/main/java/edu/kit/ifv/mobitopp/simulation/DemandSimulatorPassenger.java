@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.communication.JsonResource;
 import edu.kit.ifv.mobitopp.communication.SimulationProgressData;
 import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.ActivityStartAndDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.car.PrivateCar;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceModel;
@@ -40,6 +41,7 @@ public class DemandSimulatorPassenger
 	private final SimulationContext context;
     private final DestinationChoiceModel destinationChoiceModel;
 	private final TourBasedModeChoiceModel modeChoice;
+	private final ActivityPeriodFixer activityPeriodFixer;
 	private final ActivityStartAndDurationRandomizer activityDurationRandomizer;
 	private final TripFactory tripFactory;
 	private final ReschedulingStrategy rescheduling;
@@ -62,6 +64,7 @@ public class DemandSimulatorPassenger
       final DestinationChoiceModel destinationChoiceModel,
 			final TourBasedModeChoiceModel modeChoiceModel,
 			final ZoneBasedRouteChoice routeChoice,
+			final ActivityPeriodFixer activityPeriodFixer,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
 			final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
@@ -76,6 +79,7 @@ public class DemandSimulatorPassenger
 		this.destinationChoiceModel = destinationChoiceModel;
 		this.modeChoice = modeChoiceModel;
 		this.routeChoice = routeChoice;
+		this.activityPeriodFixer = activityPeriodFixer;
 		this.activityDurationRandomizer = activityDurationRandomizer;
 		this.tripFactory = tripFactory;
 
@@ -98,6 +102,7 @@ public class DemandSimulatorPassenger
   		final DestinationChoiceModel destinationChoiceModel,
 			final TourBasedModeChoiceModel modeChoiceModel,
 			final ZoneBasedRouteChoice routeChoice,
+			final ActivityPeriodFixer activityPeriodFixer,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
 			final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
@@ -108,6 +113,7 @@ public class DemandSimulatorPassenger
 		this(destinationChoiceModel, 
 				modeChoiceModel, 
 				routeChoice, 
+				activityPeriodFixer,
 				activityDurationRandomizer,
 				tripFactory, 
 				rescheduling,
@@ -121,6 +127,7 @@ public class DemandSimulatorPassenger
       final DestinationChoiceModel destinationChoiceModelForDemandSimulation_,
 			final TourBasedModeChoiceModel modeSelector_,
 			final ZoneBasedRouteChoice routeChoice,
+			final ActivityPeriodFixer activityPeriodFixer,
 			final ActivityStartAndDurationRandomizer activityDurationRandomizer,
 			final TripFactory tripFactory,
       final ReschedulingStrategy rescheduling,
@@ -131,6 +138,7 @@ public class DemandSimulatorPassenger
 		this(destinationChoiceModelForDemandSimulation_,
 					modeSelector_,
 					routeChoice,
+					activityPeriodFixer,
 					activityDurationRandomizer,
 					tripFactory,
 					rescheduling,
@@ -258,6 +266,7 @@ public class DemandSimulatorPassenger
 		Consumer<Person> createAgent = p -> createSimulatedPerson(queue, boarder, seed, p, listener,
 				modesInSimulation, initialState);
 		personLoader().households().flatMap(Household::persons).forEach(createAgent);
+		personLoader().clearInput();
 	}
 
 	protected PersonLoader personLoader() {
@@ -267,18 +276,20 @@ public class DemandSimulatorPassenger
 	protected SimulationPerson createSimulatedPerson(
 			EventQueue queue, PublicTransportBehaviour boarder, long seed, Person p,
 			PersonListener listener, Set<Mode> modesInSimulation, PersonState initialState) {
-		return personFactory.create(p, 
-																					queue,
-																					simulationOptions(), 
-																					simulationDays(),
-																					modesInSimulation,
-																					tourFactory,
-																					tripFactory, 
-																					initialState,
-																					boarder,
-																					seed,
-																					listener
-																				);
+		SimulationPerson person = personFactory.create(p, 
+														queue,
+														simulationOptions(), 
+														simulationDays(),
+														modesInSimulation,
+														tourFactory,
+														tripFactory, 
+														initialState,
+														boarder,
+														seed,
+														listener
+													);
+		personLoader().removePerson(person.getOid());
+		return person;
 	}
 
 	protected SimulationOptions simulationOptions() {
@@ -314,18 +325,11 @@ public class DemandSimulatorPassenger
 	}
 
   protected void writeRemainingChargingsToFile(Time time) {
-
-		for (int aHouseholdOid: personLoader().getHouseholdOids() ) {
-
-     	Household household = personLoader().getHouseholdByOid(aHouseholdOid);      
-
-			for (PrivateCar car :  household.whichCars()) {
-
-				if (car.isStopped()) {
-					car.start(time);
-				}
-			}
-		}
+		personLoader()
+			.households()
+			.flatMap(household -> household.whichCars().stream())
+			.filter(PrivateCar::isStopped)
+			.forEach(car -> car.start(time));
 	}
 
 	public void addBeforeTimeSliceHook(Hook beforeHour) {
@@ -347,6 +351,11 @@ public class DemandSimulatorPassenger
 	@Override
 	public ActivityStartAndDurationRandomizer activityDurationRandomizer() {
 		return this.activityDurationRandomizer;
+	}
+
+	@Override
+	public ActivityPeriodFixer activityPeriodFixer() {
+		return this.activityPeriodFixer;
 	}
 
 }

@@ -46,8 +46,8 @@ public class AbstractElectricCarFormat {
 		return Float.parseFloat(data.get(batteryLevelIndex));
 	}
 
-	int electricRangeOf(List<String> data) {
-		return Integer.parseInt(data.get(electricRangeIndex));
+	float electricRangeOf(List<String> data) {
+		return Float.parseFloat(data.get(electricRangeIndex));
 	}
 
 	float batteryCapacityOf(List<String> data) {
@@ -78,7 +78,7 @@ public class AbstractElectricCarFormat {
 		return conventionalCarFormat.initialMileageOf(data);
 	}
 
-	int maxRangeOf(List<String> data) {
+	float maxRangeOf(List<String> data) {
 		return conventionalCarFormat.maxRangeOf(data);
 	}
 

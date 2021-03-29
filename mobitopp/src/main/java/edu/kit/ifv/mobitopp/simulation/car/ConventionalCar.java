@@ -16,13 +16,13 @@ public class ConventionalCar extends BaseCar implements Car, Serializable {
 
 	public ConventionalCar(
 			int id, CarPosition position, Segment segment, int capacity, float initialMileage,
-			float fuelLevel, int maxRange) {
+			float fuelLevel, float maxRange) {
 		super(id, position, segment, capacity, initialMileage, fuelLevel, maxRange);
 	}
 
 	public ConventionalCar(
 			IdSequence ids, CarPosition position, Car.Segment carSegment, int capacity,
-			float initialMileage, float fuelLevel, int maxRange) {
+			float initialMileage, float fuelLevel, float maxRange) {
 		this(ids.nextId(), position, carSegment, capacity, initialMileage, fuelLevel, maxRange);
 	}
 
@@ -31,7 +31,7 @@ public class ConventionalCar extends BaseCar implements Car, Serializable {
 		CarPosition position,
 		Car.Segment carSegment
 	) {
-		this(ids, position, carSegment, 4, 0.0f,1.0f,1000);
+		this(ids, position, carSegment, 4, 0.0f,1.0f,1000.0f);
 	}
 
 	public boolean isUsed() {

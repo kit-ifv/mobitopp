@@ -19,6 +19,7 @@ import edu.kit.ifv.mobitopp.simulation.StandardChoiceSet;
 import edu.kit.ifv.mobitopp.simulation.StandardMode;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriod;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.linkedlist.ActivitySequenceAsLinkedList;
 import edu.kit.ifv.mobitopp.time.Time;
 
@@ -51,7 +52,7 @@ public class SimpleTourBasedModeChoiceModelTest {
 		binaryChoiceSet.add(StandardMode.CAR);
 		binaryChoiceSet.add(StandardMode.PUBLICTRANSPORT);
 		
-		schedule = new ActivityPeriod(new DefaultTourFactory());
+		schedule = new ActivityPeriod(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer());
 		
 		firstActivity = ActivitySequenceAsLinkedList.newActivity(1,1,hour8,ActivityType.WORK,8*60,30);
 		secondActivity = ActivitySequenceAsLinkedList.newActivity(2,2,hour17,ActivityType.HOME,2*60,30);		

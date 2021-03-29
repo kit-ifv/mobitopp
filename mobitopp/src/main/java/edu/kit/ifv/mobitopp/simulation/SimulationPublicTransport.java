@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.CarRangeReachableZonesFilter;
 import edu.kit.ifv.mobitopp.simulation.destinationChoice.DestinationChoiceForFlexibleActivity;
@@ -64,13 +66,14 @@ public class SimulationPublicTransport extends Simulation {
 		ZoneBasedRouteChoice routeChoice = new NoRouteChoice();
 
 		ReschedulingStrategy rescheduling = new ReschedulingSkipTillHome(context().simulationDays());
+		ActivityPeriodFixer activityPeriodFixer = new LeisureWalkActivityPeriodFixer();
     DefaultActivityDurationRandomizer activityDurationRandomizer = new DefaultActivityDurationRandomizer(
         context().seed());
     TripFactory tripFactory = new DefaultTripFactory();
 		log.info("Initializing simulator...");
 
     DemandSimulatorPassenger simulator = new DemandSimulatorPassenger(targetSelector,
-        new TourBasedModeChoiceModelDummy(modeSelector), routeChoice, activityDurationRandomizer,
+        new TourBasedModeChoiceModelDummy(modeSelector), routeChoice, activityPeriodFixer, activityDurationRandomizer,
         tripFactory, rescheduling, initialState, context());
 		applyHooksTo(simulator);
 		return simulator;

@@ -27,12 +27,12 @@ public class ActivityPeriodWithExtendedFirstAndLastActivity
 
 
 	public ActivityPeriodWithExtendedFirstAndLastActivity(	
-		TourFactory tourFactory,
+		TourFactory tourFactory, ActivityPeriodFixer fixer,
 		ActivityStartAndDurationRandomizer durationRandomizer,
 		PatternActivityWeek activityPattern,
 		List<Time> dates
 	) {
-		super(tourFactory,durationRandomizer, activityPattern, dates);
+		super(tourFactory, fixer, durationRandomizer, activityPattern, dates);
 		
 		Time firstDay = dates.get(0);
 		assert firstDay.weekDay() == DayOfWeek.MONDAY;

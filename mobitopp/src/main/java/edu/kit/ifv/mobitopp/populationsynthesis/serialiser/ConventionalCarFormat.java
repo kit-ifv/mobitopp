@@ -65,7 +65,7 @@ public class ConventionalCarFormat implements SerialiserFormat<Car> {
 		int capacity = capacityOf(data);
 		float initialMileage = initialMileageOf(data);
 		float fuelLevel = fuelLevelOf(data);
-		int maxRange = maxRangeOf(data);
+		float maxRange = maxRangeOf(data);
 		return Optional
 				.of(new ConventionalCar(id, position, segment, capacity, initialMileage, fuelLevel,
 						maxRange));
@@ -98,7 +98,7 @@ public class ConventionalCarFormat implements SerialiserFormat<Car> {
 		return Float.parseFloat(data.get(fuelLevelIndex));
 	}
 
-	int maxRangeOf(List<String> data) {
-		return Integer.parseInt(data.get(maxRangeIndex));
+	float maxRangeOf(List<String> data) {
+		return Float.parseFloat(data.get(maxRangeIndex));
 	}
 }

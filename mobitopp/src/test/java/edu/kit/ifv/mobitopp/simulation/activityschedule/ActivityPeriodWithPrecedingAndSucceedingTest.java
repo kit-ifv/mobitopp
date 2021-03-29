@@ -26,7 +26,7 @@ public class ActivityPeriodWithPrecedingAndSucceedingTest {
 	public void setUp() {
 		PatternActivityWeek pattern = new ExamplePattern().startingAtWork();
 		List<Time> dates = new ExamplePattern().dates();
-		week = new ActivityPeriodWithPrecedingAndSucceeding(new DefaultTourFactory(), new ActivityDurationNoRandomizer(), pattern, dates);
+		week = new ActivityPeriodWithPrecedingAndSucceeding(new DefaultTourFactory(), new LeisureWalkActivityPeriodFixer(), new ActivityDurationNoRandomizer(), pattern, dates);
 	}
 	
 	public static PatternActivity makeActivity(ActivityType actType, DayOfWeek day, int minutesSinceStartOfDay, int duration) {

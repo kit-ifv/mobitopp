@@ -21,11 +21,6 @@ public class LocalPersonLoader implements PersonLoader {
 	}
 
 	@Override
-	public Collection<Integer> getHouseholdOids() {
-		return population.householdOids();
-	}
-
-	@Override
 	public Household getHouseholdByOid(int householdOid) {
 		return population
 				.getHouseholdByOid(householdOid)
@@ -35,6 +30,11 @@ public class LocalPersonLoader implements PersonLoader {
 	@Override
 	public void removeHousehold(int oid) {
 		population.removeHousehold(oid);
+	}
+	
+	@Override
+	public void removePerson(int oid) {
+		population.removePerson(oid);
 	}
 
 	@Override
@@ -52,6 +52,11 @@ public class LocalPersonLoader implements PersonLoader {
 	@Override
 	public Stream<Household> households() {
 		return population.households();
+	}
+
+	@Override
+	public void clearInput() {
+		population.clearLongTermData();
 	}
 
 }

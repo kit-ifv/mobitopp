@@ -207,7 +207,7 @@ public class SimulationPersonPassengerTest {
     assertThat(zoneAndLocation.zone()).isEqualTo(otherZone);
     
     verify(firstActivity).setLocation(any());
-    verify(person).initSchedule(any(), any(), any());
+    verify(person).initSchedule(any(), any(), any(), any());
     verify(household, times(0)).homeLocation();
     verify(household, times(0)).homeZone();
   }
@@ -229,7 +229,7 @@ public class SimulationPersonPassengerTest {
     assertThat(zoneAndLocation.zone()).isEqualTo(zone);
     
     verify(firstActivity).setLocation(any());
-    verify(person).initSchedule(any(), any(), any());
+    verify(person).initSchedule(any(), any(), any(), any());
     verify(household).homeLocation();
     verify(household).homeZone();
   }
@@ -246,7 +246,7 @@ public class SimulationPersonPassengerTest {
     
     assertThrows(IllegalStateException.class, () -> newPerson());
     
-    verify(person).initSchedule(any(), any(), any());
+    verify(person).initSchedule(any(), any(), any(), any());
     verify(person, times(0)).fixedDestinationFor(activityType);
     verify(person, times(0)).fixedZoneFor(activityType);
     verify(household, times(0)).homeLocation();

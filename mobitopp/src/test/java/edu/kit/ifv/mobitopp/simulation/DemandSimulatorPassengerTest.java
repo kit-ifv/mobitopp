@@ -28,6 +28,8 @@ import edu.kit.ifv.mobitopp.data.PersonLoader;
 import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
 import edu.kit.ifv.mobitopp.result.ResultsForTests;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityPeriodFixer;
+import edu.kit.ifv.mobitopp.simulation.activityschedule.LeisureWalkActivityPeriodFixer;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.randomizer.DefaultActivityDurationRandomizer;
 import edu.kit.ifv.mobitopp.simulation.events.EventQueue;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
@@ -52,6 +54,7 @@ public class DemandSimulatorPassengerTest {
 
 	private TripFactory tripFactory;
 
+	private ActivityPeriodFixer fixer;
 	private DefaultActivityDurationRandomizer randomizer;
 
 	@Before
@@ -72,8 +75,9 @@ public class DemandSimulatorPassengerTest {
 		PersonResults results = createResults(impedance);
 		when(context.personResults()).thenReturn(results);
 		tripFactory = mock(TripFactory.class);
+		fixer = new LeisureWalkActivityPeriodFixer();
 		randomizer = new DefaultActivityDurationRandomizer(1234);
-		simulator = new DemandSimulatorPassenger(null, null, null, randomizer, tripFactory, null, null,
+		simulator = new DemandSimulatorPassenger(null, null, null, fixer, randomizer, tripFactory, null, null,
 				context);
 		simulator.addBeforeTimeSliceHook(firstBeforeSlice);
 		simulator.addBeforeTimeSliceHook(secondBeforeSlice);
@@ -141,7 +145,7 @@ public class DemandSimulatorPassengerTest {
 				.create(any(), any(), any(), any(), any(), any(), any(), any(), any(), anyLong(), any()))
 						.thenReturn(mockedPerson);
 		when(context.personLoader()).thenReturn(personLoader);
-		simulator = new DemandSimulatorPassenger(null, null, null, randomizer, tripFactory, null,
+		simulator = new DemandSimulatorPassenger(null, null, null, fixer, randomizer, tripFactory, null,
 				emptySet(), null, context, personFactory);
 		EventQueue queue = mock(EventQueue.class);
 		PublicTransportBehaviour boarder = mock(PublicTransportBehaviour.class);

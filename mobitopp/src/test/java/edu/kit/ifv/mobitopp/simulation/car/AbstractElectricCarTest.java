@@ -37,8 +37,8 @@ public class AbstractElectricCarTest {
 	private int capacity;
 	private float initialMileage;
 	private float fuelLevel;
-	private int electricRange;
-	private int conventionalRange;
+	private float electricRange;
+	private float conventionalRange;
 	private float batteryCapacity;
 	private Zone zone;
 	private Location location;
@@ -121,12 +121,12 @@ public class AbstractElectricCarTest {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public int remainingRange() {
+			public float remainingRange() {
 				return 0;
 			}
 
 			@Override
-			public int maxRange() {
+			public float maxRange() {
 				return 0;
 			}
 
@@ -141,8 +141,8 @@ public class AbstractElectricCarTest {
 			}
 
 			@Override
-			public Integer effectiveRange() {
-				return null;
+			public float effectiveRange() {
+				return 0.0f;
 			}
 
 			@Override
