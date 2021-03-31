@@ -14,7 +14,8 @@ public class ArrayIpu {
 	private int lastIteration;
 	private int bestIteration;
 
-	public ArrayIpu(ArrayIteration iteration, int maxIterations, double maxGoodness, Logger logger) {
+	public ArrayIpu(ArrayIteration iteration, int maxIterations, double maxGoodness,
+		Logger logger) {
 		super();
 		this.iteration = iteration;
 		this.maxIterations = maxIterations;
@@ -41,9 +42,9 @@ public class ArrayIpu {
 
 	private void log(int lastIteration, int bestIteration, double bestGoodness) {
 		logger
-				.println(String
-						.format("iterations: %s best iteration: %s goodness of fit: %s", lastIteration,
-								bestIteration, bestGoodness));
+			.println(String
+				.format("iterations: %s best iteration: %s goodness of fit: %s", lastIteration,
+					bestIteration, bestGoodness));
 	}
 
 	private void initialise(WeightedHouseholds households) {
