@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 @ExtendWith(MockitoExtension.class)
-public class OnlyAllZonesCalculatorTest {
+public class FilteredDemandCalculatorTest {
 
   @Mock
   private DemandDataForDemandRegionCalculator other;
@@ -23,7 +23,7 @@ public class OnlyAllZonesCalculatorTest {
 
   @Test
   void executeIfAccepted() throws Exception {
-    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> true);
+    DemandDataForDemandRegionCalculator calculator = new FilteredDemandCalculator(other, region -> true);
     
     calculator.calculateDemandData(region, impedance);
     
@@ -32,7 +32,7 @@ public class OnlyAllZonesCalculatorTest {
   
   @Test
   void doNothingIfNotAccepted() throws Exception {
-    DemandDataForDemandRegionCalculator calculator = new OnlyAllZonesCalculator(other, region -> false);
+    DemandDataForDemandRegionCalculator calculator = new FilteredDemandCalculator(other, region -> false);
     
     calculator.calculateDemandData(region, impedance);
     
