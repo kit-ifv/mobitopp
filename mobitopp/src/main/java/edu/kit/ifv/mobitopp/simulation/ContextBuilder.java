@@ -110,7 +110,7 @@ public class ContextBuilder {
 		if (this.householdFilter == null) {
 			this.householdFilter = filter;
 		} else {
-			this.householdFilter = this.householdFilter.or(filter);
+			this.householdFilter = this.householdFilter.and(filter);
 		}
 		return this;
 	}
