@@ -105,6 +105,15 @@ public class ContextBuilder {
 		this.wrapImpedance = wrapImpedance;
 		return this;
 	}
+	
+	public ContextBuilder addHouseholdFilterCondition(Predicate<HouseholdForSetup> filter) {
+		if (this.householdFilter == null) {
+			this.householdFilter = filter;
+		} else {
+			this.householdFilter = this.householdFilter.or(filter);
+		}
+		return this;
+	}
 
 	public SimulationContext buildFrom(File configurationFile) throws IOException {
 		WrittenConfiguration configuration = format.parse(configurationFile);
@@ -157,7 +166,7 @@ public class ContextBuilder {
 	}
 
 	private void createHouseholdFilter() {
-		householdFilter = new FilterFractionOfHouseholds(configuration.getFractionOfPopulation());
+		this.addHouseholdFilterCondition(new FilterFractionOfHouseholds(configuration.getFractionOfPopulation()));
 	}
 
 	private void experimentalParameters() {
