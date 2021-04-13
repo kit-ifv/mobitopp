@@ -33,7 +33,7 @@ public abstract class MatrixCache<K, V> {
 		try {
 			return loadFrom(id);
 		} catch (IOException e) {
-			throw warn(new IllegalArgumentException("Can not find matrix for: " + id), log);
+			throw warn(new IllegalArgumentException("Can not find matrix for: " + id, e), log);
 		}
 	}
 
