@@ -3,7 +3,7 @@ package edu.kit.ifv.mobitopp.populationsynthesis;
 import java.util.function.Predicate;
 
 import edu.kit.ifv.mobitopp.data.DemandRegion;
-import edu.kit.ifv.mobitopp.populationsynthesis.region.ZoneBasedRegionPredicate;
+import edu.kit.ifv.mobitopp.populationsynthesis.region.ZonePredicates;
 import edu.kit.ifv.mobitopp.simulation.ImpedanceIfc;
 
 /**
@@ -34,7 +34,7 @@ public class FilteredDemandCalculator implements DemandDataForDemandRegionCalcul
 	 *              {@link Predicate} matches
 	 */
 	public FilteredDemandCalculator(DemandDataForDemandRegionCalculator other) {
-		this(other, new ZoneBasedRegionPredicate());
+		this(other, ZonePredicates.generatesAllZones());
 	}
 
 	@Override

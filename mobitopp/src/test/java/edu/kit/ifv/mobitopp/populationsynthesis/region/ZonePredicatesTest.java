@@ -15,7 +15,7 @@ import edu.kit.ifv.mobitopp.data.DemandRegion;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 
 @ExtendWith(MockitoExtension.class)
-public class ZoneBasedRegionPredicateTest {
+public class ZonePredicatesTest {
 
 	@Mock
 	private DemandRegion region;
@@ -26,28 +26,24 @@ public class ZoneBasedRegionPredicateTest {
 	
 	@BeforeEach
 	public void initialise() {
-		when(region.zones()).thenReturn(Stream.of(someZone, otherZone));
+		when(region.zones()).thenAnswer(invocation -> Stream.of(someZone, otherZone));
 	}
 
 	@Test
 	void selectsRegionWhenAllZonesShouldBeGenerated() throws Exception {
 		when(someZone.shouldGeneratePopulation()).thenReturn(true);
 		when(otherZone.shouldGeneratePopulation()).thenReturn(true);
-		ZoneBasedRegionPredicate predicate = new ZoneBasedRegionPredicate();
-		
-		boolean test = predicate.test(region);
-		
-		assertThat(test).isTrue();
+
+		assertThat(ZonePredicates.generatesAllZones().test(region)).isTrue();
+		assertThat(ZonePredicates.generatesAnyZone().test(region)).isTrue();
 	}
 
 	@Test
 	void filtersRegionWhenAllZonesShouldBeGenerated() throws Exception {
 		when(someZone.shouldGeneratePopulation()).thenReturn(true);
 		when(otherZone.shouldGeneratePopulation()).thenReturn(false);
-		ZoneBasedRegionPredicate predicate = new ZoneBasedRegionPredicate();
-		
-		boolean test = predicate.test(region);
-		
-		assertThat(test).isFalse();
+
+		assertThat(ZonePredicates.generatesAllZones().test(region)).isFalse();
+		assertThat(ZonePredicates.generatesAnyZone().test(region)).isTrue();
 	}
 }
