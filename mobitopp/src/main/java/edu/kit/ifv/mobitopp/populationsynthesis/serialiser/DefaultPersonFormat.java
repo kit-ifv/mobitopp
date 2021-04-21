@@ -22,71 +22,74 @@ import edu.kit.ifv.mobitopp.simulation.modeChoice.ModeChoicePreferences;
 public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBuilder> {
 
 	private final int normalLength;
-  private final ColumnMapping<PersonBuilder> defaultColumns;
-  private final ColumnMapping<EmobilityPersonBuilder> eMobilityColumns;
+	private final ColumnMapping<PersonBuilder> defaultColumns;
+	private final ColumnMapping<EmobilityPersonBuilder> eMobilityColumns;
 	private final PersonChanger change;
 
 	public DefaultPersonFormat(PersonChanger changer) {
 		super();
 		this.change = changer;
-    defaultColumns = new ColumnMapping<>();
-    defaultColumns.add("personId", e -> e.getId().getOid());
-    defaultColumns.add("personNumber", e -> e.getId().getPersonNumber());
-    defaultColumns.add("householdId", e -> e.household().getId().getOid());
-    defaultColumns.add("age", PersonBuilder::age);
-    defaultColumns.add("employment", PersonBuilder::employment);
-    defaultColumns.add("gender", PersonBuilder::gender);
-    defaultColumns.add("graduation", e -> e.graduation().getNumeric());
-    defaultColumns.add("income", PersonBuilder::getIncome);
-    defaultColumns.add("hasBike", PersonBuilder::hasBike);
-    defaultColumns.add("hasAccessToCar", PersonBuilder::hasAccessToCar);
-    defaultColumns.add("hasPersonalCar", PersonBuilder::hasPersonalCar);
-    defaultColumns.add("hasCommuterTicket", PersonBuilder::hasCommuterTicket);
-    defaultColumns.add("hasLicense", PersonBuilder::hasDrivingLicense);
-    defaultColumns
-        .add("preferencesSurvey", e -> e.getModeChoicePrefsSurvey().asCommaSeparatedString());
-    defaultColumns
-        .add("preferencesSimulation", e -> e.getModeChoicePreferences().asCommaSeparatedString());
-    normalLength = defaultColumns.header().size();
-    eMobilityColumns = new ColumnMapping<>(normalLength);
-    eMobilityColumns.add("eMobilityAcceptance", EmobilityPersonBuilder::getEmobilityAcceptance);
-    eMobilityColumns
-        .add("chargingInfluencesDestinationChoice",
-            EmobilityPersonBuilder::getChargingInfluencesDestinationChoice);
-    eMobilityColumns.add("mobilityProviderCustomership", e -> e.getMobilityProviderMembership().toString());
-  }
-	
+		defaultColumns = new ColumnMapping<>();
+		defaultColumns.add("personId", e -> e.getId().getOid());
+		defaultColumns.add("personNumber", e -> e.getId().getPersonNumber());
+		defaultColumns.add("householdId", e -> e.household().getId().getOid());
+		defaultColumns.add("age", PersonBuilder::age);
+		defaultColumns.add("employment", PersonBuilder::employment);
+		defaultColumns.add("gender", PersonBuilder::gender);
+		defaultColumns.add("graduation", e -> e.graduation().getNumeric());
+		defaultColumns.add("income", PersonBuilder::getIncome);
+		defaultColumns.add("hasBike", PersonBuilder::hasBike);
+		defaultColumns.add("hasAccessToCar", PersonBuilder::hasAccessToCar);
+		defaultColumns.add("hasPersonalCar", PersonBuilder::hasPersonalCar);
+		defaultColumns.add("hasCommuterTicket", PersonBuilder::hasCommuterTicket);
+		defaultColumns.add("hasLicense", PersonBuilder::hasDrivingLicense);
+		defaultColumns
+			.add("preferencesSurvey", e -> e.getModeChoicePrefsSurvey().asCommaSeparatedString());
+		defaultColumns
+			.add("preferencesSimulation",
+				e -> e.getModeChoicePreferences().asCommaSeparatedString());
+		normalLength = defaultColumns.header().size();
+		eMobilityColumns = new ColumnMapping<>(normalLength);
+		eMobilityColumns.add("eMobilityAcceptance", EmobilityPersonBuilder::getEmobilityAcceptance);
+		eMobilityColumns
+			.add("chargingInfluencesDestinationChoice",
+				EmobilityPersonBuilder::getChargingInfluencesDestinationChoice);
+		eMobilityColumns
+			.add("mobilityProviderCustomership", e -> e.getMobilityProviderMembership().toString());
+	}
+
 	@Override
 	public List<String> header() {
-	  ArrayList<String> columns = new ArrayList<>(defaultColumns.header());
-	  columns.addAll(eMobilityColumns.header());
-    return columns;
+		ArrayList<String> columns = new ArrayList<>(defaultColumns.header());
+		columns.addAll(eMobilityColumns.header());
+		return columns;
 	}
 
 	@Override
 	public List<String> prepare(PersonBuilder person) {
-			List<String> normalPerson = preparePersonForDemand(person);
+		List<String> normalPerson = preparePersonForDemand(person);
 		if (person instanceof EmobilityPersonBuilder) {
 			return prepareEmobilityPerson((EmobilityPersonBuilder) person, normalPerson);
 		}
 		return normalPerson;
 	}
 
-	private List<String> prepareEmobilityPerson(EmobilityPersonBuilder person, List<String> normalPerson) {
+	private List<String> prepareEmobilityPerson(EmobilityPersonBuilder person,
+		List<String> normalPerson) {
 		List<String> emobilityPerson = new ArrayList<>(normalPerson);
 		emobilityPerson.addAll(eMobilityColumns.prepare(person));
 		return emobilityPerson;
 	}
 
 	private List<String> preparePersonForDemand(PersonBuilder person) {
-	  return defaultColumns.prepare(person);
+		return defaultColumns.prepare(person);
 	}
 
 	@Override
 	public Optional<PersonBuilder> parse(List<String> data, PopulationContext context) {
 		Optional<PersonBuilder> personForDemand = personForDemand(data, context);
 		Optional<PersonBuilder> person = personForDemand.map(p -> wrapInEmobility(data, p));
-		person.ifPresent(p -> p.household().addPerson(p));
+		person.map(change::attributesOf).ifPresent(p -> p.household().addPerson(p));
 		return person;
 	}
 
@@ -106,31 +109,31 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		boolean hasPersonalCar = hasPersonalCarOf(data);
 		boolean hasCommuterTicket = hasCommuterTicketOf(data);
 		boolean hasLicense = hasLicense(data);
-    ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
-    ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
-		PersonBuilder person = new DefaultPersonForSetup(id, household, age, employment,
-				gender, graduation, income, modeChoicePrefsSurvey);
+		ModeChoicePreferences modeChoicePrefsSurvey = modeChoicePrefsSurveyOf(data);
+		ModeChoicePreferences modeChoicePreferences = modeChoicePreferencesOf(data);
+		PersonBuilder person = new DefaultPersonForSetup(id, household, age, employment, gender,
+			graduation, income, modeChoicePrefsSurvey);
 		person.setHasBike(hasBike);
-    person.setHasAccessToCar(hasAccessToCar);
-    person.setHasPersonalCar(hasPersonalCar);
-    person.setHasCommuterTicket(hasCommuterTicket);
-    person.setHasDrivingLicense(hasLicense);
-    person.setModeChoicePreferences(modeChoicePreferences);
-    return change.attributesOf(person);
+		person.setHasAccessToCar(hasAccessToCar);
+		person.setHasPersonalCar(hasPersonalCar);
+		person.setHasCommuterTicket(hasCommuterTicket);
+		person.setHasDrivingLicense(hasLicense);
+		person.setModeChoicePreferences(modeChoicePreferences);
+		return person;
 	}
 
 	private Graduation graduationOf(List<String> data) {
-	  return Graduation.getTypeFromNumeric(defaultColumns.get("graduation", data).asInt());
-  }
+		return Graduation.getTypeFromNumeric(defaultColumns.get("graduation", data).asInt());
+	}
 
-  private PersonBuilder wrapInEmobility(List<String> data, PersonBuilder person) {
+	private PersonBuilder wrapInEmobility(List<String> data, PersonBuilder person) {
 		if (normalLength == data.size()) {
 			return person;
 		}
 		EmobilityPersonBuilder emobilityPerson = new EmobilityPersonBuilder(person);
 		float eMobilityAcceptance = eMobilityAcceptanceOf(data);
 		PublicChargingInfluencesDestinationChoice chargingInfluencesDestinationChoice = destinationChoiceInfluenceOf(
-				data);
+			data);
 		Map<String, Boolean> mobilityProviderCustomership = mobilityProviderOf(data);
 		emobilityPerson.setEmobilityAcceptance(eMobilityAcceptance);
 		emobilityPerson.setChargingInfluencesDestinationChoice(chargingInfluencesDestinationChoice);
@@ -143,7 +146,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 	}
 
 	private PersonId personIdOf(List<String> data, HouseholdForSetup household) {
-	  int oid = personOidOf(data);
+		int oid = personOidOf(data);
 		int personNumber = defaultColumns.get("personNumber", data).asInt();
 		return new PersonId(oid, household.getId(), personNumber);
 	}
@@ -174,40 +177,44 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 	}
 
 	private boolean hasAccessToCarOf(List<String> data) {
-	  return defaultColumns.get("hasAccessToCar", data).asBoolean();
+		return defaultColumns.get("hasAccessToCar", data).asBoolean();
 	}
 
 	private boolean hasPersonalCarOf(List<String> data) {
-	  return defaultColumns.get("hasPersonalCar", data).asBoolean();
+		return defaultColumns.get("hasPersonalCar", data).asBoolean();
 	}
 
 	private boolean hasCommuterTicketOf(List<String> data) {
-	  return defaultColumns.get("hasCommuterTicket", data).asBoolean();
+		return defaultColumns.get("hasCommuterTicket", data).asBoolean();
 	}
 
 	private boolean hasLicense(List<String> data) {
-	  return defaultColumns.get("hasLicense", data).asBoolean();
+		return defaultColumns.get("hasLicense", data).asBoolean();
 	}
 
 	private float eMobilityAcceptanceOf(List<String> data) {
 		return eMobilityColumns.get("eMobilityAcceptance", data).asFloat();
 	}
 
-	private PublicChargingInfluencesDestinationChoice destinationChoiceInfluenceOf(List<String> data) {
-    return PublicChargingInfluencesDestinationChoice
-        .valueOf(eMobilityColumns.get("chargingInfluencesDestinationChoice", data).asString());
+	private PublicChargingInfluencesDestinationChoice destinationChoiceInfluenceOf(
+		List<String> data) {
+		return PublicChargingInfluencesDestinationChoice
+			.valueOf(eMobilityColumns.get("chargingInfluencesDestinationChoice", data).asString());
 	}
 
 	private Map<String, Boolean> mobilityProviderOf(List<String> data) {
-		String mobilityProviderCustomership = eMobilityColumns.get("mobilityProviderCustomership", data).asString();
-		String pureEntries = mobilityProviderCustomership.substring(1, mobilityProviderCustomership.length() - 1);
+		String mobilityProviderCustomership = eMobilityColumns
+			.get("mobilityProviderCustomership", data)
+			.asString();
+		String pureEntries = mobilityProviderCustomership
+			.substring(1, mobilityProviderCustomership.length() - 1);
 		return parseMobilityProviderEntries(pureEntries);
 	}
 
 	private Map<String, Boolean> parseMobilityProviderEntries(String pureEntries) {
 		TreeMap<String, Boolean> toCompanies = new TreeMap<>();
 		StringTokenizer entries = new StringTokenizer(pureEntries, ",");
-		while(entries.hasMoreTokens()) {
+		while (entries.hasMoreTokens()) {
 			String company = entries.nextToken();
 			add(company, toCompanies);
 		}
@@ -218,7 +225,7 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		String preferences = defaultColumns.get("preferencesSurvey", data).asString();
 		return ModeChoicePreferences.fromCommaSeparatedString(preferences);
 	}
-	
+
 	private ModeChoicePreferences modeChoicePreferencesOf(List<String> data) {
 		String preferences = defaultColumns.get("preferencesSimulation", data).asString();
 		return ModeChoicePreferences.fromCommaSeparatedString(preferences);
@@ -230,4 +237,5 @@ public class DefaultPersonFormat implements ForeignKeySerialiserFormat<PersonBui
 		Boolean customer = Boolean.parseBoolean(split[1].trim());
 		companies.put(company, customer);
 	}
+
 }
