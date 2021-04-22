@@ -106,12 +106,12 @@ abstract public class AbstractElectricCar
   public void stop(Time currentTime, CarPosition position){
 		super.stop(currentTime, position);
 
-		if (canCharge() && needsElectricity()) {
+		if (canCharge() && requiresCharging()) {
 			startCharging(currentTime);
 		}
 	}
 
-	private boolean needsElectricity() {
+	protected boolean requiresCharging() {
 		return currentBatteryLevel() < minimumChargingLevel;
 	}
 
