@@ -10,6 +10,7 @@ plugins {
     id "com.jfrog.bintray" version "1.8.5"
     id "com.jfrog.artifactory" version "4.15.2"
     id "maven-publish"
+	id 'signing'
 }
 
 configurations {
@@ -101,9 +102,48 @@ publishing {
             def snapshotVersion = project.version.replaceAll("\\.${buildNumber}", '') + '-SNAPSHOT'
             version snapshotVersion
         }
+		mavenJava(MavenPublication) {
+			from components.java
+			artifact sourcesJar
+			artifact javadocJar
+			groupId project.group
+			artifactId project.name
+			version project.version
+			pom {
+				name = 'mobiTopp'
+				description = 'mobiTopp (http://mobitopp.ifv.kit.edu/) is an agent-based travel demand model developed at the Institute for transport studies at the Karlsruhe Institute of Technology (http://www.ifv.kit.edu/english/index.php). Publications about mobiTopp can be found on the project site (http://mobitopp.ifv.kit.edu/28.php).'
+				url = 'https://github.com/kit-ifv/mobitopp'
+				licenses {
+					license {
+						name = 'GNU GENERAL PUBLIC LICENSE, Version 3'
+						url = 'https://www.gnu.org/licenses/gpl-3.0-standalone.html'
+					}
+				}
+				developers {
+					developer {
+						id = 'lb'
+						name = 'Lars Briem'
+						email = 'lars.briem@kit.edu'
+					}
+					developer {
+						id = 'jk'
+						name = 'Jelle Kuebler'
+						email = 'jelle.kuebler@kit.edu'
+					}
+				}
+				scm {
+					connection = 'scm:git:git:https://github.com/kit-ifv/mobitopp.git'
+					developerConnection = 'scm:git:ssh:git@github.com:kit-ifv/mobitopp.git'
+					url = 'https://github.com/kit-ifv/mobitopp'
+				}
+			}
+		
+		}
+
     }
     repositories {
         maven {
+			name = 'Internal'
             credentials {
                 username getPropertyOrDefault('repositoryUsername')
                 password getPropertyOrDefault('repositoryPassword')
@@ -113,47 +153,25 @@ publishing {
             def snapshotsRepoUrl = "${repositoryUrl}/repository/maven-snapshots"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
         }
+		maven {
+			name = 'External'
+			credentials {
+				username getPropertyOrDefault('user_oss')
+				password getPropertyOrDefault('pw_oss')
+			}
+
+			def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+			def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+		}
+
     }
 }
 
-artifactory {
-    contextUrl = 'http://oss.jfrog.org'
-    publish {
-        repository {
-            repoKey = 'oss-snapshot-local'
-            username = project.hasProperty('user') ? project.property('user') : 'user'
-            password = project.hasProperty('key') ? project.property('key') : 'key'
-        }
-        defaults {
-            publications('snapshot')
-            publishArtifacts = true
-            publishPom = true
-        }
-    }
-    resolve {
-        repoKey = 'jcenter'
-    }
-    def buildnumber = project.hasProperty('build.number') ? project.property('build.number') : '' 
-    clientConfig.info.setBuildNumber(buildnumber)
+signing {
+	sign publishing.publications.mavenJava
 }
 
-bintray {
-    user = project.hasProperty('user') ? project.property('user') : 'user'
-    key = project.hasProperty('key')? project.property('key') : 'key'
-    publications = ['release']
-    pkg {
-        repo = 'ifv-mobitopp'
-        name = project.name
-        userOrg = 'ifv-mobitopp'
-        licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/ifv-mobitopp/mobitopp'
-        version {
-          name = project.version
-          description = project.version
-          released = new Date()
-        }
-    }
-}
 
 def getPropertyOrDefault(key) {
     return project.hasProperty(key) ? project.property(key) : key
