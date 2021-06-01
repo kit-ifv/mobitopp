@@ -7,8 +7,6 @@ buildscript {
 }
 
 plugins {
-    id "com.jfrog.bintray" version "1.8.5"
-    id "com.jfrog.artifactory" version "4.15.2"
     id "maven-publish"
 	id 'signing'
 }
@@ -170,6 +168,23 @@ publishing {
 
 signing {
 	sign publishing.publications.mavenJava
+}
+
+task publishAndCheckRelease() {
+	dependsOn publishReleasePublicationToInternalRepository
+	
+	if (project.hasProperty('isRelease') && project.property('isRelease').toBoolean()) {
+		print('New Release')
+		dependsOn publishMavenJavaPublicationToExternalRepository
+	} else {
+		print('No Release')
+	}
+	
+}
+
+configure(publishAndCheckRelease) {
+	group = 'publishing'
+	description = 'Publish to internal repo. Also publish staging release to external repo if "isRelease" is set.'
 }
 
 
