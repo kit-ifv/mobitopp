@@ -27,7 +27,7 @@ test {
 
 task runPopulationSynthesisIpf(type: JavaExec) {
     args = ['config/leopoldshafen/population-synthesis-ipf.yaml']
-    main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisExample"
+    main = "edu.kit.ifv.mobitopp.populationsynthesis.PopulationSynthesisIpf"
 }
 
 task runSimulationIpf(type: JavaExec, dependsOn: compileJava) {
