@@ -84,6 +84,14 @@ public enum StandardAttribute implements AttributeType {
 				final Demography demography, final RegionalContext context) {
 			return createPersonAttributes(context, demography, person -> (int) person.getPoleDistance());
 		}
+	},
+	numberOfCars("number_of_cars") {
+
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final RegionalContext context) {
+			return createHouseholdAttributes(context, demography, HouseholdOfPanelData::numberOfCars);
+		}
 	};
 
 	private final String attributeName;
