@@ -13,7 +13,7 @@ import edu.kit.ifv.mobitopp.time.Time;
  *
  * @param <T> the generic type
  */
-public interface StartedTrip<T extends StartedTrip<T>> {
+public interface StartedTrip {
 	
 	/**
 	 * Gets the oid of the trip.
@@ -97,5 +97,5 @@ public interface StartedTrip<T extends StartedTrip<T>> {
 	 *
 	 * @param consumer the consumer to be applied to each Leg
 	 */
-	void forEachLeg(Consumer<T> consumer);
+	void forEachLeg(Consumer<StartedTrip> consumer);
 }
