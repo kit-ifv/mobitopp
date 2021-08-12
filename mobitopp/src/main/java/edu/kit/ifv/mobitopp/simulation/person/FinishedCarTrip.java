@@ -18,7 +18,7 @@ public class FinishedCarTrip extends FinishedTripDecorator implements FinishedTr
   }
   
   @Override
-  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+  public void forEachFinishedLeg(Consumer<FinishedTrip> consumer) {
   	consumer.accept(this);
   }
 

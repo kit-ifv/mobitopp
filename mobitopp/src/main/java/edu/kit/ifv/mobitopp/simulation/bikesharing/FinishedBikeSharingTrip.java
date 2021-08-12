@@ -21,7 +21,7 @@ public class FinishedBikeSharingTrip extends FinishedTripDecorator implements Fi
 	}
 
 	@Override
-	  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+	  public void forEachFinishedLeg(Consumer<FinishedTrip> consumer) {
 	  	consumer.accept(this);
 	  }
 

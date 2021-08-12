@@ -8,26 +8,19 @@ import edu.kit.ifv.mobitopp.simulation.ZoneAndLocation;
 import edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc;
 import edu.kit.ifv.mobitopp.time.Time;
 
-public class FinishedPublicTransport implements FinishedTrip {
+public class StartedTripDecorator implements StartedTrip {
 
-	private final PublicTransportTrip trip;
-	private final Time endDate;
-	private final Statistic statistic;
+	private final StartedTrip trip;
 
-	public FinishedPublicTransport(
-			PublicTransportTrip trip, Time endDate, Statistic statistic) {
-		super();
+	public StartedTripDecorator(StartedTrip trip) {
 		this.trip = trip;
-		this.endDate = endDate;
-		this.statistic = statistic;
 	}
-
 
 	@Override
 	public int getOid() {
 		return trip.getOid();
 	}
-	
+
 	@Override
 	public int getLegId() {
 		return trip.getLegId();
@@ -54,13 +47,8 @@ public class FinishedPublicTransport implements FinishedTrip {
 	}
 
 	@Override
-	public Time endDate() {
-		return endDate;
-	}
-
-	@Override
 	public Time plannedEndDate() {
-		return trip.calculatePlannedEndDate();
+		return trip.plannedEndDate();
 	}
 
 	@Override
@@ -79,22 +67,14 @@ public class FinishedPublicTransport implements FinishedTrip {
 	}
 
 	@Override
-	public Statistic statistic() {
-		return statistic;
-	}
-
-	@Override
 	public Optional<String> vehicleId() {
-	  return Optional.empty();
-	}
-		
-	@Override
-	public void forEachFinishedLeg(Consumer<FinishedTrip> consumer) {
-		consumer.accept(this);
+		return trip.vehicleId();
 	}
 
 	@Override
 	public void forEachLeg(Consumer<StartedTrip> consumer) {
-		consumer.accept(this);
+		trip.forEachLeg(consumer);
+
 	}
+
 }
