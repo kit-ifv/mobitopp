@@ -1,6 +1,5 @@
 package edu.kit.ifv.mobitopp.simulation;
 
-import java.io.IOException;
 import java.io.PrintStream;
 
 import edu.kit.ifv.mobitopp.communication.RestServerResourceRegistry;
@@ -23,7 +22,6 @@ public class SimpleSimulationContext implements SimulationContext {
 	private final DynamicParameters destinationChoiceParameters;
 	private final DynamicParameters modeChoiceParameters;
 	private final DynamicParameters experimentalParameters;
-	private final RestServerResourceRegistry restServer;
 
 	public SimpleSimulationContext(WrittenConfiguration configuration,
 		DynamicParameters experimentalParameters, DataRepositoryForSimulation dataRepository,
@@ -40,8 +38,6 @@ public class SimpleSimulationContext implements SimulationContext {
 		this.personResults = personResults;
 		this.destinationChoiceParameters = destinationChoiceParameters;
 		this.modeChoiceParameters = modeChoiceParameters;
-
-		this.restServer = RestServerResourceRegistry.create(configuration.getPort());
 	}
 
 	@Override
@@ -114,10 +110,6 @@ public class SimpleSimulationContext implements SimulationContext {
 	public void beforeSimulation() {
 		printStartupInformationOn(System.out);
 		electricChargingWriter.clear();
-		
-		if (restServer != null) {
-			restServer.start();
-		}
 	}
 
 	private void printStartupInformationOn(PrintStream out) {
@@ -133,9 +125,6 @@ public class SimpleSimulationContext implements SimulationContext {
 	 */
 	@Override
 	public void afterSimulation() {
-		if (restServer != null) {
-			restServer.stop();
-		}
 		personResults.notifyFinishSimulation();
 		electricChargingWriter.print();
 		resultWriter.close();
@@ -149,11 +138,6 @@ public class SimpleSimulationContext implements SimulationContext {
 	@Override
 	public float fractionOfPopulation() {
 		return configuration.getFractionOfPopulation();
-	}
-
-	@Override
-	public RestServerResourceRegistry restServer() {
-		return restServer;
 	}
 
 }

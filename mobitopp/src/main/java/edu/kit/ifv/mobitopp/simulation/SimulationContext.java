@@ -37,8 +37,6 @@ public interface SimulationContext {
 
 	PersonResults personResults();
 	
-	RestServerResourceRegistry restServer();
-
 	void beforeSimulation();
 
 	void afterSimulation();
