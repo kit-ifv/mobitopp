@@ -12,7 +12,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 /**
  * The class BaseStartedTrip is a base implementation of the StartedTrip interface.
  */
-public class BaseStartedTrip implements StartedTrip<BaseStartedTrip> {
+public class BaseStartedTrip implements StartedTrip {
 
 	/** The tripData of a StartedTrip describing a planned trip. */
 	private final TripData data;
@@ -101,7 +101,7 @@ public class BaseStartedTrip implements StartedTrip<BaseStartedTrip> {
 	}
 
 	@Override
-	public void forEachLeg(Consumer<BaseStartedTrip> consumer) {
+	public void forEachLeg(Consumer<StartedTrip> consumer) {
 		consumer.accept(this);
 	}
 }

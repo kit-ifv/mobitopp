@@ -43,7 +43,7 @@ public class TripLegListenerTest {
 	private static Stream<Arguments> delegatedMethods() {
 		Person person = mock(Person.class);
 		FinishedTrip trip = mock(FinishedTrip.class);
-		StartedTrip<?> startedTrip = mock(StartedTrip.class);
+		StartedTrip startedTrip = mock(StartedTrip.class);
 		Car car = mock(Car.class);
 		ActivityIfc activity = mock(ActivityIfc.class);
 		TripData tripData = mock(TripData.class);

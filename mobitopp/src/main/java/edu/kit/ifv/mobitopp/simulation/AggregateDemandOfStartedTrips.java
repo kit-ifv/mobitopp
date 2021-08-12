@@ -18,11 +18,11 @@ public class AggregateDemandOfStartedTrips implements PersonListener {
 
 	private final Consumer<IntegerMatrix> output;
 	private final IntegerMatrix matrix;
-	private final BiPredicate<Person, StartedTrip<?>> demandFilter;
+	private final BiPredicate<Person, StartedTrip> demandFilter;
 	private final int scaleFactor;
 
 	public AggregateDemandOfStartedTrips(final List<ZoneId> zones,
-			final BiPredicate<Person, StartedTrip<?>> demandFilter,
+			final BiPredicate<Person, StartedTrip> demandFilter,
 			final Consumer<IntegerMatrix> output, final int scaleFactor) {
 
 		this.matrix = new IntegerMatrix(zones);

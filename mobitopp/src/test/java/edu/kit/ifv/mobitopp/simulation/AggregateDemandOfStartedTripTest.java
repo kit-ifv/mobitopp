@@ -53,7 +53,7 @@ public class AggregateDemandOfStartedTripTest {
 
 	@Test
 	void aggregateNotFilteredTrips() {
-		BiPredicate<Person, StartedTrip<?>> filter = AggregateDemandFactory
+		BiPredicate<Person, StartedTrip> filter = AggregateDemandFactory
 				.dayOfWeekFilter(DayOfWeek.MONDAY);
 		AggregateDemandOfStartedTrips aggregateDemand = new AggregateDemandOfStartedTrips(oids,
 				filter, data::setMatrix, 1);
@@ -67,7 +67,7 @@ public class AggregateDemandOfStartedTripTest {
 	@Test
 	void aggregateFilteredTrips() {
 
-		BiPredicate<Person, StartedTrip<?>> filter = AggregateDemandFactory
+		BiPredicate<Person, StartedTrip> filter = AggregateDemandFactory
 				.dayOfWeekFilter(DayOfWeek.TUESDAY);
 		AggregateDemandOfStartedTrips aggregateDemand = new AggregateDemandOfStartedTrips(oids,
 				filter, data::setMatrix, 1);
@@ -81,7 +81,7 @@ public class AggregateDemandOfStartedTripTest {
 	@Test
 	void aggregateScaledTrips() {
 
-		BiPredicate<Person, StartedTrip<?>> filter = AggregateDemandFactory
+		BiPredicate<Person, StartedTrip> filter = AggregateDemandFactory
 				.dayOfWeekFilter(DayOfWeek.MONDAY);
 		AggregateDemandOfStartedTrips aggregateDemand = new AggregateDemandOfStartedTrips(oids,
 				filter, data::setMatrix, 42);
