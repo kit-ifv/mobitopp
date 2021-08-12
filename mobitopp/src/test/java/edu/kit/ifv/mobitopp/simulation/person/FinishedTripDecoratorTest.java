@@ -34,6 +34,7 @@ public class FinishedTripDecoratorTest {
         .of(FinishedTrip::getOid, FinishedTrip::origin, FinishedTrip::destination,
             FinishedTrip::mode, FinishedTrip::startDate, FinishedTrip::endDate,
             FinishedTrip::plannedEndDate, FinishedTrip::plannedDuration, FinishedTrip::nextActivity,
-            FinishedTrip::nextActivity, FinishedTrip::statistic, FinishedTrip::vehicleId);
+            FinishedTrip::previousActivity, FinishedTrip::statistic, FinishedTrip::vehicleId);
   }
+  
 }
