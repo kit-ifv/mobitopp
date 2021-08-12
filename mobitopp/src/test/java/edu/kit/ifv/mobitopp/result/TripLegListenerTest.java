@@ -54,7 +54,6 @@ public class TripLegListenerTest {
 		Zone tourDestination = mock(Zone.class);
 		StateChange stateChange = mock(StateChange.class);
 		return Stream.of(
-				Arguments.of("StartTrip", (Consumer<PersonListener>) listener -> listener.notifyStartTrip(person, startedTrip)),
 				Arguments.of("FinishCarTrip", (Consumer<PersonListener>) listener -> listener.notifyFinishCarTrip(person, car, trip, activity)),
 				Arguments.of("StartActivity", (Consumer<PersonListener>) listener -> listener.notifyStartActivity(person, activity)),
 				Arguments.of("SelectCarRoute", (Consumer<PersonListener>) listener -> listener.notifySelectCarRoute(person, car, tripData, route)),
@@ -72,6 +71,18 @@ public class TripLegListenerTest {
 		TripLegListener listener = new TripLegListener(other);
 
 		listener.notifyEndTrip(person, trip);
+		
+		verify(trip).forEachFinishedLeg(any());
+	}
+	
+	@Test
+	void notifyStartOfEachLeg() throws Exception {
+		Person person = mock(Person.class);
+		StartedTrip trip = mock(StartedTrip.class);
+		PersonListener other = mock(PersonListener.class);
+		TripLegListener listener = new TripLegListener(other);
+
+		listener.notifyStartTrip(person, trip);
 		
 		verify(trip).forEachLeg(any());
 	}
