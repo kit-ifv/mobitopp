@@ -35,7 +35,7 @@ public class TripLegListener implements PersonListener {
 
 	@Override
 	public void notifyStartTrip(Person person, StartedTrip trip) {
-		trip.forEachLeg(leg -> other.notifyStartTrip(person, leg));
+		trip.forEachStartedLeg(leg -> other.notifyStartTrip(person, leg));
 	}
 
 	@Override

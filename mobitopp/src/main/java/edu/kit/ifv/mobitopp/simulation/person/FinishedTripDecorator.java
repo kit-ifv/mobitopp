@@ -84,8 +84,8 @@ public class FinishedTripDecorator implements FinishedTrip {
   
 
 	@Override
-	public void forEachLeg(Consumer<StartedTrip> consumer) {
-		trip.forEachLeg(consumer);
+	public void forEachStartedLeg(Consumer<StartedTrip> consumer) {
+		trip.forEachStartedLeg(consumer);
 		
 	}
 	
