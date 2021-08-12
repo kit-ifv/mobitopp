@@ -84,7 +84,7 @@ public class TripLegListenerTest {
 
 		listener.notifyStartTrip(person, trip);
 		
-		verify(trip).forEachLeg(any());
+		verify(trip).forEachStartedLeg(any());
 	}
 
 }

@@ -94,7 +94,7 @@ public class FinishedPublicTransport implements FinishedTrip {
 	}
 
 	@Override
-	public void forEachLeg(Consumer<StartedTrip> consumer) {
+	public void forEachStartedLeg(Consumer<StartedTrip> consumer) {
 		consumer.accept(this);
 	}
 }

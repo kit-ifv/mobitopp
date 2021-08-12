@@ -101,7 +101,7 @@ public class BaseStartedTrip implements StartedTrip {
 	}
 
 	@Override
-	public void forEachLeg(Consumer<StartedTrip> consumer) {
+	public void forEachStartedLeg(Consumer<StartedTrip> consumer) {
 		consumer.accept(this);
 	}
 }

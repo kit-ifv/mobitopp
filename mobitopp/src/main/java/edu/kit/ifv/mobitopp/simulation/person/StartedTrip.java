@@ -97,5 +97,5 @@ public interface StartedTrip {
 	 *
 	 * @param consumer the consumer to be applied to each Leg
 	 */
-	void forEachLeg(Consumer<StartedTrip> consumer);
+	void forEachStartedLeg(Consumer<StartedTrip> consumer);
 }
