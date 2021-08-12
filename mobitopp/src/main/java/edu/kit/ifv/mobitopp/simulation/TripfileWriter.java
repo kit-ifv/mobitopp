@@ -46,7 +46,7 @@ public class TripfileWriter implements PersonListener {
 		assert prevActivity != null;
 
 		Consumer<FinishedTrip> tripWriter = finishedTrip -> writeTrip(person, finishedTrip);
-		trip.forEachLeg(tripWriter);
+		trip.forEachFinishedLeg(tripWriter);
 		CsvBuilder statistics = new CsvBuilder();
 		statistics.append(person.getOid());
 		trip.statistic().forAllElements(statistics::append);

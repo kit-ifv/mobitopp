@@ -94,8 +94,13 @@ public class BeamedTrip implements FinishedTrip {
   }
   
   @Override
-  public void forEachLeg(Consumer<FinishedTrip> consumer) {
+  public void forEachFinishedLeg(Consumer<FinishedTrip> consumer) {
 	consumer.accept(this);
   }
+
+@Override
+public void forEachLeg(Consumer<StartedTrip> consumer) {
+	consumer.accept(this);
+}
 
 }

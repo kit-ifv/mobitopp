@@ -125,7 +125,7 @@ public class AggregateDemandFactory {
 	 * @param hour the hour
 	 * @return the bi predicate
 	 */
-	private BiPredicate<Person, StartedTrip<?>> filterBy(Mode mode, int hour) {
+	private BiPredicate<Person, StartedTrip> filterBy(Mode mode, int hour) {
 		return modeFilter(mode).and(hourFilter(hour));
 	}
 
@@ -139,7 +139,7 @@ public class AggregateDemandFactory {
 	 * @param hourTo upper bound of the time slice (exclusive)
 	 * @return the bi predicate
 	 */
-	private BiPredicate<Person, StartedTrip<?>> filterBy(Mode mode, int hourFrom, int hourTo) {
+	private BiPredicate<Person, StartedTrip> filterBy(Mode mode, int hourFrom, int hourTo) {
 		return modeFilter(mode).and(hourFilter(hourFrom, hourTo));
 	}
 
@@ -185,7 +185,7 @@ public class AggregateDemandFactory {
 	 * @param dayType the {@link DayOfWeek day of the week} to be filtered
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> dayOfWeekFilter(DayOfWeek dayType) {
+	public static BiPredicate<Person, StartedTrip> dayOfWeekFilter(DayOfWeek dayType) {
 		return (person, trip) -> trip.startDate().weekDay().equals(dayType);
 	}
 
@@ -196,7 +196,7 @@ public class AggregateDemandFactory {
 	 * @param dayTypes the {@link DayOfWeek days of the week} to be filtered
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> dayOfWeekFilter(
+	public static BiPredicate<Person, StartedTrip> dayOfWeekFilter(
 		Collection<DayOfWeek> dayTypes) {
 		return (person, trip) -> dayTypes.contains(trip.startDate().weekDay());
 	}
@@ -206,7 +206,7 @@ public class AggregateDemandFactory {
 	 *
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> weekendFilter() {
+	public static BiPredicate<Person, StartedTrip> weekendFilter() {
 		return dayOfWeekFilter(DayOfWeek.SATURDAY).or(dayOfWeekFilter(DayOfWeek.SUNDAY));
 	}
 
@@ -216,7 +216,7 @@ public class AggregateDemandFactory {
 	 *
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> weekdayFilter() {
+	public static BiPredicate<Person, StartedTrip> weekdayFilter() {
 		return dayOfWeekFilter(DayOfWeek.MONDAY)
 			.or(dayOfWeekFilter(DayOfWeek.TUESDAY))
 			.or(dayOfWeekFilter(DayOfWeek.WEDNESDAY))
@@ -230,7 +230,7 @@ public class AggregateDemandFactory {
 	 * @param hour the hour to be filtered
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> hourFilter(int hour) {
+	public static BiPredicate<Person, StartedTrip> hourFilter(int hour) {
 		return (person, trip) -> trip.startDate().getHour() == hour;
 	}
 
@@ -241,7 +241,7 @@ public class AggregateDemandFactory {
 	 * @param hourTo the upper bound of the time slice (exclusive)
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> hourFilter(int hourFrom, int hourTo) {
+	public static BiPredicate<Person, StartedTrip> hourFilter(int hourFrom, int hourTo) {
 		return (person, trip) -> {
 			int hour = trip.startDate().getHour();
 			return hourFrom <= hour && hour < hourTo;
@@ -254,7 +254,7 @@ public class AggregateDemandFactory {
 	 * @param mode the mode to be filtered
 	 * @return the filter
 	 */
-	public static BiPredicate<Person, StartedTrip<?>> modeFilter(Mode mode) {
+	public static BiPredicate<Person, StartedTrip> modeFilter(Mode mode) {
 		return (person, trip) -> trip.mode().equals(mode);
 	}
 

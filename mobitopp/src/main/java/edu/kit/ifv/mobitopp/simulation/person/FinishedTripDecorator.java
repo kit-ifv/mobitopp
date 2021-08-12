@@ -82,9 +82,17 @@ public class FinishedTripDecorator implements FinishedTrip {
     return trip.vehicleId();
   }
   
-  @Override
-  public void forEachLeg(Consumer<FinishedTrip> consumer) {
-	trip.forEachLeg(consumer);
-  }
+
+	@Override
+	public void forEachLeg(Consumer<StartedTrip> consumer) {
+		trip.forEachLeg(consumer);
+		
+	}
+	
+	@Override
+	public void forEachFinishedLeg(Consumer<FinishedTrip> consumer) {
+		trip.forEachFinishedLeg(consumer);
+		
+	}
 
 }
