@@ -10,8 +10,6 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 /**
  * The Interface StartedTrip representing a planned trip.
- *
- * @param <T> the generic type
  */
 public interface StartedTrip {
 	
