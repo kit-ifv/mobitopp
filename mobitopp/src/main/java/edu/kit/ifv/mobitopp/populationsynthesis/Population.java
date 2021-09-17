@@ -96,7 +96,7 @@ public class Population implements PopulationContext, Serializable {
 
 	private Collection<Integer> householdOids() {
 		if (householdsForSetup.isEmpty()) {
-			Collections.unmodifiableCollection(households.keySet());
+			return Collections.unmodifiableCollection(households.keySet());
 		}
 		return Collections.unmodifiableCollection(householdsForSetup.keySet());
 	}
