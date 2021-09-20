@@ -50,7 +50,7 @@ public class SimulationContextWithRestServerTest {
 				SimulationContext::personResults);
 	}
 	
-	@Test
+	//@Test
 	public void beforeAfterSimulation() {
 		decorator.beforeSimulation();
 		
