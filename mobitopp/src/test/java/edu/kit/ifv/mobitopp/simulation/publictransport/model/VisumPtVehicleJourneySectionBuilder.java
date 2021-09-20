@@ -58,12 +58,12 @@ public class VisumPtVehicleJourneySectionBuilder {
 		return this;
 	}
 
-	public VisumPtVehicleJourneySectionBuilder withValidDays(DayOfWeek...valid) {
-		return withValidDays(EnumSet.copyOf(List.of(valid)));
+	public VisumPtVehicleJourneySectionBuilder withValidDays(DayOfWeek...validDays) {
+		return withValidDays(EnumSet.copyOf(List.of(validDays)));
 	}
 
-	public VisumPtVehicleJourneySectionBuilder withValidDays(EnumSet<DayOfWeek> valid) {
-		this.validDays = valid;
+	public VisumPtVehicleJourneySectionBuilder withValidDays(EnumSet<DayOfWeek> validDays) {
+		this.validDays = validDays;
 		return this;
 	}
 

@@ -147,6 +147,13 @@ public class StandardNetfileLanguages {
 		language.add(StandardAttributes.fromTimeProfileElementIndex, "FROMTPROFITEMINDEX");
 		language.add(StandardAttributes.toTimeProfileElementIndex, "TOTPROFITEMINDEX");
 		language.add(StandardAttributes.validDayNumber, "VALIDDAYSNO");
+		language.add(StandardAttributes.validMonday, "ISVALID(MO)");
+		language.add(StandardAttributes.validTuesday, "ISVALID(DI)");
+		language.add(StandardAttributes.validWednesday, "ISVALID(MI)");
+		language.add(StandardAttributes.validThursday, "ISVALID(DO)");
+		language.add(StandardAttributes.validFriday, "ISVALID(FR)");
+		language.add(StandardAttributes.validSaturday, "ISVALID(SA)");
+		language.add(StandardAttributes.validSunday, "ISVALID(SO)");
 
 		// Point
 		language.add(StandardAttributes.id, "ID");
@@ -328,6 +335,13 @@ public class StandardNetfileLanguages {
 		language.add(StandardAttributes.fromTimeProfileElementIndex, "VONFZPELEMINDEX");
 		language.add(StandardAttributes.toTimeProfileElementIndex, "NACHFZPELEMINDEX");
 		language.add(StandardAttributes.validDayNumber, "VTAGNR");
+		language.add(StandardAttributes.validMonday, "ISVALID(MO)");
+		language.add(StandardAttributes.validTuesday, "ISVALID(DI)");
+		language.add(StandardAttributes.validWednesday, "ISVALID(MI)");
+		language.add(StandardAttributes.validThursday, "ISVALID(DO)");
+		language.add(StandardAttributes.validFriday, "ISVALID(FR)");
+		language.add(StandardAttributes.validSaturday, "ISVALID(SA)");
+		language.add(StandardAttributes.validSunday, "ISVALID(SO)");
 
 		// Point
 		language.add(StandardAttributes.id, "ID");
