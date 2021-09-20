@@ -4,6 +4,7 @@ import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
@@ -74,11 +75,14 @@ public class JourneyTemplate {
 		}
 	}
 
-	ModifiableJourney createJourney(
+	Optional<ModifiableJourney> createJourney(
 			VisumPtVehicleJourney visumJourney, PublicTransportFactory factory, Time day) {
 		int capacity = capacityOf(visumJourney);
 		TransportSystem system = transportSystemOf(visumJourney);
 		ModifiableJourney created = factory.createJourney(visumJourney.id, day, capacity, system);
+		// TODO Read "valid (day)" of journeySections
+		// TODO Filter relevant journeySections Time##weekday
+		// TODO Create Journey only if relevant journeySections are available
 		for (int current = visumJourney.fromProfileIndex
 				+ 1; current <= visumJourney.toProfileIndex; current++) {
 			int previous = current - 1;
@@ -86,7 +90,7 @@ public class JourneyTemplate {
 					day);
 			created.add(connection);
 		}
-		return created;
+		return Optional.of(created);
 	}
 
 	private static TransportSystem transportSystemOf(VisumPtVehicleJourney visumJourney) {
