@@ -53,12 +53,15 @@ public class VisumPtVehicleJourneySectionReader extends VisumBaseReader {
 	private EnumSet<DayOfWeek> validDaysOf(Row row) {
 		EnumSet<DayOfWeek> validDays = EnumSet.noneOf(DayOfWeek.class);
 		for (Entry<StandardAttributes, DayOfWeek> entry : validDayMapping.entrySet()) {
-			boolean isValid = row.valueAsBoolean(attribute(entry.getKey()));
-			if (isValid) {
-				validDays.add(entry.getValue());
+			String key = attribute(entry.getKey());
+			if (row.containsAttribute(key)) {
+				boolean isValid = row.valueAsBoolean(key);
+				if (isValid) {
+					validDays.add(entry.getValue());
+				}
 			}
 		}
-		return validDays;
+		return validDays.isEmpty() ? EnumSet.allOf(DayOfWeek.class) : validDays;
 	}
 
 }

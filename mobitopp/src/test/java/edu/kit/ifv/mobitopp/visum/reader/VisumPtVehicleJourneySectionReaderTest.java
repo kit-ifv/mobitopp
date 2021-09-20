@@ -4,6 +4,7 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumVehicleCombination;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,23 +23,25 @@ import edu.kit.ifv.mobitopp.visum.VisumVehicleCombination;
 public class VisumPtVehicleJourneySectionReaderTest {
 
 	@Test
-	void ensureCorrectValidDays() {
+	void isValidOnAllDaysIfNoInformationIsGiven() {
 		VisumVehicleCombination combination = visumVehicleCombination().build();
 		Map<Integer, VisumVehicleCombination> vehicleCombinations = Map
 			.of(combination.id, combination);
 		VisumPtVehicleJourneySectionReader reader = new VisumPtVehicleJourneySectionReader(
 			language(), vehicleCombinations);
-
-		Map<Integer, List<VisumPtVehicleJourneySection>> sections = reader.readSections(content());
-
-		assertThat(sections.values()).contains(List.of(section()));
+		
+		Map<Integer, List<VisumPtVehicleJourneySection>> sections = reader.readSections(baseRow());
+		
+		VisumPtVehicleJourneySection section = visumJourneySection().withValidDays(EnumSet.allOf(DayOfWeek.class)).build();
+		assertThat(sections.values()).contains(List.of(section));
 	}
-
-	private VisumPtVehicleJourneySection section() {
-		return visumJourneySection().withValidDays(DayOfWeek.TUESDAY).build();
+	
+	private Stream<Row> baseRow() {
+		Row row = new Row(baseContent());
+		return Stream.of(row);
 	}
-
-	private Stream<Row> content() {
+	
+	private Map<String, String> baseContent() {
 		VisumPtVehicleJourneySection section = section();
 		Map<String, String> values = new LinkedHashMap<>();
 		values.put(language().resolve(StandardAttributes.number), String.valueOf(section.id));
@@ -47,6 +50,30 @@ public class VisumPtVehicleJourneySectionReaderTest {
 		values.put(language().resolve(StandardAttributes.toTimeProfileElementIndex), String.valueOf(section.toElementIndex));
 		values.put(language().resolve(StandardAttributes.validDayNumber), String.valueOf(section.day));
 		values.put(language().resolve(StandardAttributes.vehicleCombinationNumber), String.valueOf(section.vehicle.id));
+		return values;
+	}
+	
+	@Test
+	void ensureCorrectValidDays() {
+		VisumVehicleCombination combination = visumVehicleCombination().build();
+		Map<Integer, VisumVehicleCombination> vehicleCombinations = Map
+			.of(combination.id, combination);
+		VisumPtVehicleJourneySectionReader reader = new VisumPtVehicleJourneySectionReader(
+			language(), vehicleCombinations);
+
+		Map<Integer, List<VisumPtVehicleJourneySection>> sections = reader.readSections(validRow());
+
+		assertThat(sections.values()).contains(List.of(section()));
+	}
+	
+	
+	private VisumPtVehicleJourneySection section() {
+		return visumJourneySection().withValidDays(DayOfWeek.TUESDAY).build();
+	}
+
+	private Stream<Row> validRow() {
+		VisumPtVehicleJourneySection section = section();
+		Map<String, String> values = baseContent();
 		values.put(language().resolve(StandardAttributes.validMonday), String.valueOf(section.validDays.contains(DayOfWeek.MONDAY)));
 		values.put(language().resolve(StandardAttributes.validTuesday), String.valueOf(section.validDays.contains(DayOfWeek.TUESDAY)));
 		values.put(language().resolve(StandardAttributes.validWednesday), String.valueOf(section.validDays.contains(DayOfWeek.WEDNESDAY)));
