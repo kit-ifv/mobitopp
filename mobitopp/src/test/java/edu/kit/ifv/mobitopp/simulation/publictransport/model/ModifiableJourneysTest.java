@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class ModifiableJourneysTest {
 		PublicTransportFactory factory = mock(PublicTransportFactory.class);
 
 		when(timeProfiles.from(visum)).thenReturn(timeProfile);
-		when(timeProfile.createJourney(visum, factory, day)).thenReturn(journey);
+		when(timeProfile.createJourney(visum, factory, day)).thenReturn(Optional.of(journey));
 
 		journeys.add(visum, timeProfiles, factory, day);
 

@@ -8,6 +8,7 @@ import static edu.kit.ifv.mobitopp.publictransport.model.StopBuilder.stop;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.TransportSystemHelper.dummySet;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumJourney;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumLineRoute;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
@@ -24,6 +25,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -226,8 +228,10 @@ public class JourneyTemplateTest {
 		when(factory.connectionFrom(eq(stop2), eq(stop1), eq(anotherTime), eq(otherTime), eq(journey), any()))
 				.thenReturn(fromStop2ToStop1);
 
-		Journey createdJourney = profile.createJourney(visumJourney, factory, someDate);
+		Optional<ModifiableJourney> potentialJourney = profile.createJourney(visumJourney, factory, someDate);
 
+		assertThat(potentialJourney).isNotEmpty();
+		ModifiableJourney createdJourney = potentialJourney.get();
 		assertSame(journey, createdJourney);
 		verify(factory).createJourney(eq(journeyId), eq(someTime), anyInt(), any());
 		verify(journey).add(fromStop1ToStop2);
