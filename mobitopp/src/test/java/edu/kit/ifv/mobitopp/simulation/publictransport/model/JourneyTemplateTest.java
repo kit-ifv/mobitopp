@@ -7,6 +7,7 @@ import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.StopBuilder.stop;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.TransportSystemHelper.dummySet;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumJourney;
+import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumJourneySection;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumLineRoute;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -22,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 import java.awt.geom.Point2D;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
@@ -34,9 +35,9 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
-import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumPtLineRoute;
@@ -46,6 +47,7 @@ import edu.kit.ifv.mobitopp.visum.VisumPtStopPoint;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfile;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfileElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
+import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourneySection;
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class JourneyTemplateTest {
@@ -67,6 +69,7 @@ public class JourneyTemplateTest {
 		public Point2D coordinate() {
 			return somePoint;
 		}
+
 	}
 
 	private static final Time someDate = Data.someTime();
@@ -113,10 +116,10 @@ public class JourneyTemplateTest {
 		return elements;
 	}
 
-	private static VisumPtTimeProfileElement profileElement(
-			String name, int index, int arrival, int departure, VisumPtStopPoint stopPoint) {
+	private static VisumPtTimeProfileElement profileElement(String name, int index, int arrival,
+		int departure, VisumPtStopPoint stopPoint) {
 		return new VisumPtTimeProfileElement(null, "profileId", name, index, index,
-				lineRouteElement(index, stopPoint), false, false, arrival, departure);
+			lineRouteElement(index, stopPoint), false, false, arrival, departure);
 	}
 
 	private static VisumPtLineRouteElement lineRouteElement(int index, VisumPtStopPoint stopPoint) {
@@ -131,8 +134,9 @@ public class JourneyTemplateTest {
 	public void creationFromStopPointsAndRoutePoints() throws Exception {
 		resolve(someStop());
 		resolve(otherStop());
-		
-		JourneyTemplate timeProfile = JourneyTemplate.from(timeProfileWithRoutePoints(), stopResolver);
+
+		JourneyTemplate timeProfile = JourneyTemplate
+			.from(timeProfileWithRoutePoints(), stopResolver);
 
 		JourneyTemplate expectedProfile = new JourneyTemplate("name");
 		expectedProfile.add(someStop(), 1, someRelativeTime, someRelativeTime);
@@ -181,9 +185,9 @@ public class JourneyTemplateTest {
 	public void whenStopPointIsTwiceOnRoute() throws Exception {
 		resolve(someStop());
 		resolve(anotherStop());
-		
-		JourneyTemplate timeProfile = JourneyTemplate.from(timeProfileWithStopPointIsTwiceOnRoute(),
-				stopResolver);
+
+		JourneyTemplate timeProfile = JourneyTemplate
+			.from(timeProfileWithStopPointIsTwiceOnRoute(), stopResolver);
 
 		JourneyTemplate expectedProfile = new JourneyTemplate("name");
 		expectedProfile.add(someStop(), 1, someRelativeTime, someRelativeTime);
@@ -201,20 +205,45 @@ public class JourneyTemplateTest {
 		int arrivalAtSecondStop = twoMinutes.seconds();
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
-		elements.put(2,
+		elements
+			.put(2,
 				profileElement("2", 2, arrivalAtFirstStop, arrivalAtFirstStop, stopPoint(2, "2")));
-		elements.put(3,
-				profileElement("1", 3, arrivalAtSecondStop, arrivalAtSecondStop, stopPoint(1, "1")));
+		elements
+			.put(3, profileElement("1", 3, arrivalAtSecondStop, arrivalAtSecondStop,
+				stopPoint(1, "1")));
 		return new VisumPtTimeProfile("profileId", "name", null, elements);
+	}
+
+	private List<VisumPtVehicleJourneySection> sectionsWithStopPointIsTwiceOnRoute() {
+		VisumPtVehicleJourneySection firstSection = visumJourneySection()
+			.from(1)
+			.to(2)
+			.withValidDays(DayOfWeek.MONDAY)
+			.build();
+		VisumPtVehicleJourneySection secondSection = visumJourneySection()
+			.from(2)
+			.to(3)
+			.withValidDays(DayOfWeek.MONDAY)
+			.build();
+		return List.of(firstSection, secondSection);
 	}
 
 	@Test
 	public void createConnectionsWhenStopPointIsTwiceOnRoute() throws Exception {
 		int journeyId = 1;
-		VisumPtVehicleJourney visumJourney = new VisumPtVehicleJourney(journeyId, null, 0, lineRoute(),
-				timeProfileWithStopPointIsTwiceOnRoute(), 1, 3, Collections.emptyList());
+		VisumPtVehicleJourney visumJourney = visumJourney()
+			.withId(journeyId)
+			.departsAt(0)
+			.takes(lineRoute())
+			.takes(timeProfileWithStopPointIsTwiceOnRoute())
+			.startsAt(1)
+			.endsAt(3)
+			.sections(sectionsWithStopPointIsTwiceOnRoute())
+			.build();
+				
 		ModifiableJourney journey = mock(ModifiableJourney.class);
-		when(factory.createJourney(eq(journeyId), eq(someTime), anyInt(), any())).thenReturn(journey);
+		when(factory.createJourney(eq(journeyId), eq(someTime), anyInt(), any()))
+			.thenReturn(journey);
 		JourneyTemplate profile = new JourneyTemplate("name");
 		Stop stop1 = stop().withId(0).withExternalId(1).withName("1").build();
 		Stop stop2 = stop().withId(1).withExternalId(2).withName("2").build();
@@ -223,12 +252,15 @@ public class JourneyTemplateTest {
 		profile.add(stop1, 3, twoMinutes, twoMinutes);
 		Connection fromStop1ToStop2 = mock(Connection.class);
 		Connection fromStop2ToStop1 = mock(Connection.class);
-		when(factory.connectionFrom(eq(stop1), eq(stop2), eq(someTime), eq(anotherTime), eq(journey), any()))
-				.thenReturn(fromStop1ToStop2);
-		when(factory.connectionFrom(eq(stop2), eq(stop1), eq(anotherTime), eq(otherTime), eq(journey), any()))
-				.thenReturn(fromStop2ToStop1);
+		when(factory
+			.connectionFrom(eq(stop1), eq(stop2), eq(someTime), eq(anotherTime), eq(journey),
+				any())).thenReturn(fromStop1ToStop2);
+		when(factory
+			.connectionFrom(eq(stop2), eq(stop1), eq(anotherTime), eq(otherTime), eq(journey),
+				any())).thenReturn(fromStop2ToStop1);
 
-		Optional<ModifiableJourney> potentialJourney = profile.createJourney(visumJourney, factory, someDate);
+		Optional<ModifiableJourney> potentialJourney = profile
+			.createJourney(visumJourney, factory, someDate);
 
 		assertThat(potentialJourney).isNotEmpty();
 		ModifiableJourney createdJourney = potentialJourney.get();
@@ -236,9 +268,11 @@ public class JourneyTemplateTest {
 		verify(factory).createJourney(eq(journeyId), eq(someTime), anyInt(), any());
 		verify(journey).add(fromStop1ToStop2);
 		verify(journey).add(fromStop2ToStop1);
-		verify(factory).connectionFrom(eq(stop1), eq(stop2), eq(someTime), eq(anotherTime),
-				eq(createdJourney), any());
-		verify(factory).connectionFrom(eq(stop2), eq(stop1), eq(anotherTime), eq(otherTime),
+		verify(factory)
+			.connectionFrom(eq(stop1), eq(stop2), eq(someTime), eq(anotherTime), eq(createdJourney),
+				any());
+		verify(factory)
+			.connectionFrom(eq(stop2), eq(stop1), eq(anotherTime), eq(otherTime),
 				eq(createdJourney), any());
 	}
 
@@ -253,38 +287,44 @@ public class JourneyTemplateTest {
 	}
 
 	@Test
-	public void removesTimeFromStartToFirstStopWhenJourneyDoesNotStartAtFirstStop() throws Exception {
+	public void usesSectionsToCreateJourney() throws Exception {
 		int journeyId = 1;
 		int journeyDepartureMinutes = 0;
-		Time journeyDepartureTime = someDate.plusMinutes(journeyDepartureMinutes);
+		Time tuesday = someDate.plusDays(1);
+		Time journeyDepartureTime = tuesday.plusMinutes(journeyDepartureMinutes);
 		Time secondStop = journeyDepartureTime.plus(oneMinute);
-		int fromProfileIndex = 2;
+		int fromProfileIndex = 1;
 		int toProfileIndex = 3;
 		int journeyDeparture = (int) Duration.ofMinutes(journeyDepartureMinutes).getSeconds();
+		List<VisumPtVehicleJourneySection> sections = threeJourneySections();
 		VisumPtVehicleJourney visumJourney = visumJourney()
-				.withId(journeyId)
-				.departsAt(journeyDeparture)
-				.takes(lineRoute())
-				.takes(timeProfileWithThreeStops())
-				.startsAt(fromProfileIndex)
-				.endsAt(toProfileIndex)
-				.build();
+			.withId(journeyId)
+			.departsAt(journeyDeparture)
+			.takes(lineRoute())
+			.takes(timeProfileWithThreeStops())
+			.startsAt(fromProfileIndex)
+			.endsAt(toProfileIndex)
+			.sections(sections)
+			.build();
 		ModifiableJourney journey = mock(ModifiableJourney.class);
 		Connection connection = mock(Connection.class);
-		when(factory.connectionFrom(eq(anotherStop()), eq(otherStop()), eq(journeyDepartureTime),
+		when(factory
+			.connectionFrom(eq(anotherStop()), eq(otherStop()), eq(journeyDepartureTime),
 				eq(secondStop), eq(journey), any())).thenReturn(connection);
-		when(factory.createJourney(eq(journeyId), eq(someTime), anyInt(), any())).thenReturn(journey);
+		when(factory.createJourney(eq(journeyId), eq(tuesday), anyInt(), any()))
+			.thenReturn(journey);
 
 		JourneyTemplate profile = new JourneyTemplate("name");
-		profile.add(someStop(), 1, someRelativeTime, someRelativeTime);
-		profile.add(anotherStop(), fromProfileIndex, oneMinute, oneMinute);
+		profile.add(someStop(), fromProfileIndex, someRelativeTime, someRelativeTime);
+		profile.add(anotherStop(), 2, oneMinute, oneMinute);
 		profile.add(otherStop(), toProfileIndex, twoMinutes, twoMinutes);
 
-		profile.createJourney(visumJourney, factory, someDate);
+		profile.createJourney(visumJourney, factory, tuesday);
 
 		verify(journey).add(connection);
-		verify(factory).connectionFrom(eq(anotherStop()), eq(otherStop()), eq(journeyDepartureTime),
-				eq(secondStop), eq(journey), any());
+		verify(factory)
+		.connectionFrom(eq(anotherStop()), eq(otherStop()), eq(journeyDepartureTime),
+			eq(secondStop), eq(journey), any());
 	}
 
 	private VisumPtTimeProfile timeProfileWithThreeStops() {
@@ -292,21 +332,27 @@ public class JourneyTemplateTest {
 		int arrivalAtSecondStop = twoMinutes.seconds();
 		HashMap<Integer, VisumPtTimeProfileElement> elements = new HashMap<>();
 		elements.put(1, profileElement("1", 1, 0, 0, stopPoint(1, "1")));
-		elements.put(2,
+		elements
+			.put(2,
 				profileElement("2", 2, arrivalAtFirstStop, arrivalAtFirstStop, stopPoint(2, "2")));
-		elements.put(3,
-				profileElement("3", 3, arrivalAtSecondStop, arrivalAtSecondStop, stopPoint(3, "3")));
+		elements
+			.put(3, profileElement("3", 3, arrivalAtSecondStop, arrivalAtSecondStop,
+				stopPoint(3, "3")));
 		return new VisumPtTimeProfile("profileId", "name", null, elements);
 	}
 
-	@Test
-	public void equalsAndHashCode() throws Exception {
-		EqualsVerifier
-				.forClass(JourneyTemplate.class)
-				.withPrefabValues(Point2D.class, coordinate(0, 0), coordinate(1, 1))
-				.withPrefabValues(Stop.class, someStop(), anotherStop())
-				.usingGetClass()
-				.verify();
+	private List<VisumPtVehicleJourneySection> threeJourneySections() {
+		VisumPtVehicleJourneySection firstSection = visumJourneySection()
+			.from(1)
+			.to(2)
+			.withValidDays(DayOfWeek.MONDAY)
+			.build();
+		VisumPtVehicleJourneySection secondSection = visumJourneySection()
+			.from(2)
+			.to(3)
+			.withValidDays(DayOfWeek.TUESDAY)
+			.build();
+		return List.of(firstSection, secondSection);
 	}
 
 }

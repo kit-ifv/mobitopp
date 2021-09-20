@@ -2,10 +2,12 @@ package edu.kit.ifv.mobitopp.visum.reader;
 
 import static java.util.stream.Collectors.groupingBy;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.util.dataimport.Row;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardAttributes;
@@ -34,7 +36,8 @@ public class VisumPtVehicleJourneySectionReader extends VisumBaseReader {
     int day = row.valueAsInteger(attribute(StandardAttributes.validDayNumber));
     int vehicleCombinationId = vehicleCombinationOf(row);
     VisumVehicleCombination vehicleCombination = vehicleCombinations.get(vehicleCombinationId);
-    return new VisumPtVehicleJourneySection(number, journeyId, fromIndex, toIndex, day,
-        vehicleCombination);
+    EnumSet<DayOfWeek> validDays = EnumSet.of(DayOfWeek.MONDAY);
+	return new VisumPtVehicleJourneySection(number, journeyId, fromIndex, toIndex, day,
+        validDays, vehicleCombination);
   }
 }
