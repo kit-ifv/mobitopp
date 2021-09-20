@@ -1,7 +1,6 @@
 package edu.kit.ifv.mobitopp.simulation.publictransport.model;
 
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.anotherStop;
-import static edu.kit.ifv.mobitopp.publictransport.model.Data.coordinate;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.otherStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.Data.someStop;
 import static edu.kit.ifv.mobitopp.publictransport.model.StopBuilder.stop;
@@ -10,10 +9,7 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumJourneySection;
 import static edu.kit.ifv.mobitopp.simulation.publictransport.model.VisumBuilder.visumLineRoute;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -48,7 +44,6 @@ import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfile;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfileElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourneySection;
-import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class JourneyTemplateTest {
 
@@ -101,7 +96,7 @@ public class JourneyTemplateTest {
 		JourneyTemplate expectedProfile = new JourneyTemplate("name");
 		expectedProfile.add(someStop(), 1, someRelativeTime, someRelativeTime);
 		expectedProfile.add(anotherStop(), 2, oneMinute, oneMinute);
-		assertThat(timeProfile, is(equalTo(expectedProfile)));
+		assertThat(timeProfile).isEqualTo(expectedProfile);
 	}
 
 	private static VisumPtTimeProfile timeProfile() {
@@ -141,7 +136,7 @@ public class JourneyTemplateTest {
 		JourneyTemplate expectedProfile = new JourneyTemplate("name");
 		expectedProfile.add(someStop(), 1, someRelativeTime, someRelativeTime);
 		expectedProfile.add(otherStop(), 3, oneMinute, oneMinute);
-		assertThat(timeProfile, is(equalTo(expectedProfile)));
+		assertThat(timeProfile).isEqualTo(expectedProfile);
 	}
 
 	private static VisumPtTimeProfile timeProfileWithRoutePoints() {
@@ -166,7 +161,7 @@ public class JourneyTemplateTest {
 		Time atTime = threeMinutesLater;
 		Time departure = profile.departsFrom(stopIndex, atTime);
 
-		assertThat(departure, is(equalTo(fourMinutesLater)));
+		assertThat(departure).isEqualTo(fourMinutesLater);
 	}
 
 	@Test
@@ -178,7 +173,7 @@ public class JourneyTemplateTest {
 		Time atTime = threeMinutesLater;
 		Time arrival = profile.arrivesAt(stopIndex, atTime);
 
-		assertThat(arrival, is(equalTo(threeMinutesLater)));
+		assertThat(arrival).isEqualTo(threeMinutesLater);
 	}
 
 	@Test
@@ -193,7 +188,7 @@ public class JourneyTemplateTest {
 		expectedProfile.add(someStop(), 1, someRelativeTime, someRelativeTime);
 		expectedProfile.add(anotherStop(), 2, oneMinute, oneMinute);
 		expectedProfile.add(someStop(), 3, twoMinutes, twoMinutes);
-		assertThat(timeProfile, is(equalTo(expectedProfile)));
+		assertThat(timeProfile).isEqualTo(expectedProfile);
 	}
 
 	private void resolve(Stop stop) {
