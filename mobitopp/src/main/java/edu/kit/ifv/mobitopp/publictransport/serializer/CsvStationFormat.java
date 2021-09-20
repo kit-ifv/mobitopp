@@ -26,6 +26,9 @@ public class CsvStationFormat extends CsvFormat implements StationFormat {
 	}
 
 	private List<Node> nodesOf(String[] fields, NodeResolver nodeResolver) {
+		if (nodesIndex >= fields.length) {
+			return List.of();
+		}
 		String serialized = fields[nodesIndex];
 		StringTokenizer tokenizer = new StringTokenizer(serialized, nodeSeparator);
 		List<Node> nodes = new ArrayList<>();

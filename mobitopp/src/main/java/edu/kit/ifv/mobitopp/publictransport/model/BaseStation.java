@@ -42,7 +42,9 @@ public abstract class BaseStation implements Station {
 	@Override
 	public void forEachNode(Consumer<Node> consumer) {
 		for (Node node : nodes) {
-			consumer.accept(node);
+			if (null != node) {
+				consumer.accept(node);
+			}
 		}
 	}
 

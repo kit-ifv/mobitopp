@@ -11,6 +11,15 @@ class ConnectionComparator implements Comparator<Connection> {
 
 	@Override
 	public int compare(Connection first, Connection second) {
+		int firstToSecond = doCompare(first, second);
+		int secondToFirst = doCompare(second, first);
+		if (firstToSecond != -secondToFirst) {
+			throw new IllegalArgumentException("Bad comparison");
+		}
+		return firstToSecond;
+	}
+
+	private int doCompare(Connection first, Connection second) {
 		int departureDifference = first.departure().compareTo(second.departure());
 		if (departureDifference == 0) {
 			int arrivalDifference = first.arrival().compareTo(second.arrival());
@@ -23,12 +32,14 @@ class ConnectionComparator implements Comparator<Connection> {
 	}
 
 	private int endBeforeStart(Connection first, Connection second) {
-		if (first.end().equals(second.start())) {
+		boolean firstEndEqualsSecondStart = first.end().equals(second.start());
+		boolean firstStartEqualsSecondEnd = first.start().equals(second.end());
+		if (firstEndEqualsSecondStart && !firstStartEqualsSecondEnd) {
 			return firstIsLess;
 		}
-		if (first.start().equals(second.end())) {
+		if (firstStartEqualsSecondEnd && !firstEndEqualsSecondStart) {
 			return secondIsLess;
 		}
-		return orderIsNotRelevant;
+		return first.id().compareTo(second.id());
 	}
 }
