@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
 
 import edu.kit.ifv.mobitopp.network.Node;
@@ -147,8 +148,8 @@ public class PublicTransportFromVisum extends BasePublicTransportConverter imple
 		ModifiableJourneys journeys = journeys();
 		for (Time day : simulationDates()) {
 			for (VisumPtVehicleJourney visum : visumNetwork.ptVehicleJourneys) {
-				Journey journey = journeys.add(visum, timeProfiles, factory, day);
-				addToMapping(visum, journey);
+				Optional<? extends Journey> journey = journeys.add(visum, timeProfiles, factory, day);
+				journey.ifPresent(j -> addToMapping(visum, j));
 			}
 		}
 		return journeys;

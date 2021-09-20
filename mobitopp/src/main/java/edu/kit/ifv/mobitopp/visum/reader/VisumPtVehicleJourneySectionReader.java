@@ -31,7 +31,7 @@ public class VisumPtVehicleJourneySectionReader extends VisumBaseReader {
     int journeyId = row.valueAsInteger(attribute(StandardAttributes.vehicleJourneyNumber));
     int fromIndex = fromTimeProfileElementIndexOf(row);
     int toIndex = toTimeProfileElementIndexOf(row);
-    int day = row.valueAsInteger(attribute(StandardAttributes.vehicleDayNumber));
+    int day = row.valueAsInteger(attribute(StandardAttributes.validDayNumber));
     int vehicleCombinationId = vehicleCombinationOf(row);
     VisumVehicleCombination vehicleCombination = vehicleCombinations.get(vehicleCombinationId);
     return new VisumPtVehicleJourneySection(number, journeyId, fromIndex, toIndex, day,

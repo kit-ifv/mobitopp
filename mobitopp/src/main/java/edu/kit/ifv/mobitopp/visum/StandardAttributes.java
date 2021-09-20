@@ -63,7 +63,7 @@ public enum StandardAttributes {
   departure,
   timeProfileName,
   vehicleJourneyNumber,
-  vehicleDayNumber,
+  validDayNumber,
   toTimeProfileElementIndex,
   fromTimeProfileElementIndex,
   enclave,
