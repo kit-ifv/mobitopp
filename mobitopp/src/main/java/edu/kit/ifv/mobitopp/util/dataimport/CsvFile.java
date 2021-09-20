@@ -134,7 +134,12 @@ public class CsvFile {
 	}
 
 	public static CsvFile createFrom(File file) {
-		CsvFile csv = new CsvFile(defaultSeparator);
+		char separator = defaultSeparator;
+		return createFrom(file, separator);
+	}
+
+	public static CsvFile createFrom(File file, char separator) {
+		CsvFile csv = new CsvFile(separator);
 		csv.init(file);
 		return csv;
 	}

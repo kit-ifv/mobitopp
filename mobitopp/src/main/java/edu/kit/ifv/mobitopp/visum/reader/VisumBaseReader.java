@@ -18,8 +18,8 @@ public class VisumBaseReader {
     this.language = language;
   }
 
-  protected String attribute(StandardAttributes tabletransportsystems) {
-    return language.resolve(tabletransportsystems);
+  protected String attribute(StandardAttributes attribute) {
+    return language.resolve(attribute);
   }
 
   protected String table(Table table) {
