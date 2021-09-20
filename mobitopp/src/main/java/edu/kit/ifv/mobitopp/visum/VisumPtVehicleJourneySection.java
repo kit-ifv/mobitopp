@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.util.EnumSet;
 
 import edu.kit.ifv.mobitopp.time.DayOfWeek;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @SuppressWarnings("serial")
+@EqualsAndHashCode
 @RequiredArgsConstructor
 @ToString
 public class VisumPtVehicleJourneySection implements Serializable {
