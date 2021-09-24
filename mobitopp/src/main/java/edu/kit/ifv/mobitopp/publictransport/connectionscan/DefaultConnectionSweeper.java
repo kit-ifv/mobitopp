@@ -16,7 +16,7 @@ import edu.kit.ifv.mobitopp.time.Time;
 
 class DefaultConnectionSweeper implements ConnectionSweeper {
 
-	private static final int defaultDistance = 100;
+	private static final int defaultArrivalCheckInterval = 100;
 	private static final Function<Time, Boolean> alwaysTooLate = (time) -> true;
 	private final List<Connection> connections;
 	private final Function<Time, Integer> lookup;
@@ -34,7 +34,7 @@ class DefaultConnectionSweeper implements ConnectionSweeper {
 	}
 
 	static DefaultConnectionSweeper from(Connections connections) {
-		return from(connections, defaultDistance);
+		return from(connections, defaultArrivalCheckInterval);
 	}
 
 	static DefaultConnectionSweeper from(Connections connections, int intervalToCheckArrivalAtEnd) {
