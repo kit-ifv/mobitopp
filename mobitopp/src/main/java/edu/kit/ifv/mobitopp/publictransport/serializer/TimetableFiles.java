@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+import edu.kit.ifv.mobitopp.util.file.StreamContent;
+
 public class TimetableFiles {
 
 	private static final String stations = "stations.csv";
@@ -13,6 +15,7 @@ public class TimetableFiles {
 	private static final String transfers = "footpath.csv";
 	private static final String journeys = "journey.csv";
 	private static final String connections = "connection.csv";
+	
 	private final File baseFolder;
 
 	private TimetableFiles(File baseFolder) {
@@ -47,7 +50,17 @@ public class TimetableFiles {
 	}
 
 	private File fileFor(String fileName) {
-		return new File(baseFolder, fileName);
+		File uncompressedFile = new File(baseFolder, fileName);
+		File compressedFile = new File(baseFolder, fileName + "." + StreamContent.bzipExtension);
+		long lastUncompressedModification = uncompressedFile.lastModified();
+		long lastCompressedModification = compressedFile.lastModified();
+		if(compressedFile.exists()) {
+			if(uncompressedFile.exists()) {
+				return lastUncompressedModification < lastCompressedModification ? compressedFile : uncompressedFile;
+			}
+			return compressedFile;
+		}
+		return uncompressedFile;
 	}
 
 	public static TimetableFiles at(File timetable) {

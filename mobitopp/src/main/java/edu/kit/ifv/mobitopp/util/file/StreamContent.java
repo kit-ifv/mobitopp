@@ -13,7 +13,7 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
 public class StreamContent {
 
-	private static final String bzipExtension = "bz2";
+	public static final String bzipExtension = "bz2";
 
 	public static InputStream of(File file) throws IOException {
 		FileInputStream fileInput = new FileInputStream(file);

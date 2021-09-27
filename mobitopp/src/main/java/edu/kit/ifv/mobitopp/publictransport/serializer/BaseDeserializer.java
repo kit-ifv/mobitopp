@@ -1,10 +1,12 @@
 package edu.kit.ifv.mobitopp.publictransport.serializer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
 import java.util.stream.Stream;
+
+import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 abstract class BaseDeserializer {
 
@@ -15,7 +17,7 @@ abstract class BaseDeserializer {
 	}
 
 	protected Stream<String> removeHeaderFrom(File file) throws IOException {
-		return Files.lines(file.toPath(), StandardCharsets.UTF_8).skip(header);
+		return new BufferedReader(new InputStreamReader(StreamContent.of(file))).lines().skip(header);
 	}
 
 }
