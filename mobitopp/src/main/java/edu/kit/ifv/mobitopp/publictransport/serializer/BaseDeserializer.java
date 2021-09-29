@@ -17,7 +17,10 @@ abstract class BaseDeserializer {
 	}
 
 	protected Stream<String> removeHeaderFrom(File file) throws IOException {
-		return new BufferedReader(new InputStreamReader(StreamContent.of(file))).lines().skip(header);
+		return new BufferedReader(
+			new InputStreamReader(StreamContent.of(file), TimetableFiles.encoding))
+				.lines()
+				.skip(header);
 	}
 
 }
