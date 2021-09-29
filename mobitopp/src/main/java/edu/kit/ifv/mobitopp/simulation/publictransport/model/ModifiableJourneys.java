@@ -4,6 +4,7 @@ import static edu.kit.ifv.mobitopp.simulation.publictransport.model.NoJourney.no
 import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -28,12 +29,12 @@ public class ModifiableJourneys implements JourneyProvider {
 		journeys = new HashMap<>();
 	}
 
-	public ModifiableJourney add(
+	public Optional<? extends Journey> add(
 			VisumPtVehicleJourney visum, JourneyTemplates timeProfiles, PublicTransportFactory factory,
 			Time day) {
 		JourneyTemplate profile = timeProfiles.from(visum);
-		ModifiableJourney journey = profile.createJourney(visum, factory, day);
-		journeys.put(journey.id(), journey);
+		Optional<ModifiableJourney> journey = profile.createJourney(visum, factory, day);
+		journey.ifPresent(j -> journeys.put(j.id(), j));
 		return journey;
 	}
 	

@@ -14,54 +14,67 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
 public class RowTest {
 
-  private static final String missingAttribute = "missing-attribute";
-  private static final String attribute = "attribute";
+	private static final String missingAttribute = "missing-attribute";
+	private static final String attribute = "attribute";
 
-  @Test
-  void getValueAsNumber() throws Exception {
-    List<String> values = asList(String.valueOf(1));
-    List<String> attributes = asList(attribute);
-    Row row = Row.createRow(values, attributes);
-    
-    assertAll( 
-        () -> assertTrue(row.containsAttribute(attribute)),
-        () -> assertThat(row.valueAsInteger(attribute), is(equalTo(1))),
-        () -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))),
-        () -> assertThat(row.valueAsDouble(attribute), is(equalTo(1.0d))));
-  }
-  
-  @Test
+	@Test
+	void getValueAsNumber() throws Exception {
+		List<String> values = asList(String.valueOf(1));
+		List<String> attributes = asList(attribute);
+		Row row = Row.createRow(values, attributes);
+
+		assertAll(() -> assertTrue(row.containsAttribute(attribute)),
+			() -> assertThat(row.valueAsInteger(attribute), is(equalTo(1))),
+			() -> assertThat(row.valueAsFloat(attribute), is(equalTo(1.0f))),
+			() -> assertThat(row.valueAsDouble(attribute), is(equalTo(1.0d))));
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { true, false })
+	void getValueAsBoolean(boolean value) throws Exception {
+		List<String> values = asList(String.valueOf(value));
+		List<String> attributes = asList(attribute);
+		Row row = Row.createRow(values, attributes);
+
+		assertAll(() -> assertTrue(row.containsAttribute(attribute)),
+			() -> assertThat(row.valueAsBoolean(attribute)).isEqualTo(value));
+	}
+
+	@Test
 	void fillsUpEmptyValues() throws Exception {
 		Row row = Row.createRow(emptyList(), List.of(attribute));
-		
+
 		assertThat(row.get(attribute)).isEmpty();
 	}
 
-  @Test
+	@Test
 	void ignoresMoreValuesThanAttributes() throws Exception {
 		Row row = Row.createRow(List.of("1", "2"), List.of(attribute));
-		
+
 		assertThat(row.get(attribute)).isEqualTo("1");
 	}
-  
-  @Test
-  void failsForMissingValue() throws Exception {
-    int expectedValue = 1;
-    List<String> values = asList(String.valueOf(expectedValue));
-    List<String> attributes = asList(attribute);
-    Row row = Row.createRow(values, attributes);
 
-    assertAll(() -> assertFalse(row.containsAttribute(missingAttribute)),
-        () -> assertThrows(IllegalArgumentException.class, () -> row.get(missingAttribute)));
-  }
-  
-  @Test
-  public void equalsAndHashCode() {
-    EqualsVerifier.forClass(Row.class).usingGetClass().verify();
-  }
+	@Test
+	void failsForMissingValue() throws Exception {
+		int expectedValue = 1;
+		List<String> values = asList(String.valueOf(expectedValue));
+		List<String> attributes = asList(attribute);
+		Row row = Row.createRow(values, attributes);
+
+		assertAll(() -> assertFalse(row.containsAttribute(missingAttribute)),
+			() -> assertThrows(IllegalArgumentException.class, () -> row.get(missingAttribute)));
+	}
+
+	@Test
+	public void equalsAndHashCode() {
+		EqualsVerifier.forClass(Row.class).usingGetClass().verify();
+	}
+
 }

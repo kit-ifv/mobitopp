@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.After;
@@ -37,6 +38,7 @@ import org.junit.Test;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connections;
 import edu.kit.ifv.mobitopp.publictransport.model.Data;
+import edu.kit.ifv.mobitopp.publictransport.model.Journey;
 import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.Station;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
@@ -116,7 +118,8 @@ public class PublicTransportFromVisumTest {
 		
 		when(journeys.connections()).thenReturn(connections);
 		when(journeys.stream()).thenReturn(Stream.empty());
-		when(journeys.add(any(), any(), any(), any())).thenReturn(journey);
+		Optional<? extends Journey> returnedJourney = Optional.of(journey);
+		when(journeys.add(any(), any(), any(), any())).then(invocation -> returnedJourney);
 		when(journey.connections()).thenReturn(new Connections());
 	}
 

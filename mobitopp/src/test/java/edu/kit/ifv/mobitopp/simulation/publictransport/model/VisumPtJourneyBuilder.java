@@ -59,6 +59,12 @@ public class VisumPtJourneyBuilder {
 		return this;
 	}
 
+	public VisumPtJourneyBuilder sections(List<VisumPtVehicleJourneySection> sections) {
+		this.sections.clear();
+		this.sections.addAll(sections);
+		return this;
+	}
+
 	public VisumPtJourneyBuilder takes(VisumPtLineRoute route) {
 		this.route = route;
 		return this;

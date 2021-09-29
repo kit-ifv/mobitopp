@@ -44,6 +44,10 @@ public class Row {
   public double valueAsDouble(String key) {
     return Double.parseDouble(get(key));
   }
+  
+  public boolean valueAsBoolean(String key) {
+	  return Boolean.valueOf(get(key));
+  }
 
   public static Row createRow(List<String> values, List<String> attributes)
       throws IllegalArgumentException {

@@ -4,6 +4,10 @@ import static edu.kit.ifv.mobitopp.util.collections.StreamUtils.warn;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import edu.kit.ifv.mobitopp.publictransport.model.Connection;
 import edu.kit.ifv.mobitopp.publictransport.model.Journey;
@@ -11,21 +15,26 @@ import edu.kit.ifv.mobitopp.publictransport.model.ModifiableJourney;
 import edu.kit.ifv.mobitopp.publictransport.model.RoutePoints;
 import edu.kit.ifv.mobitopp.publictransport.model.Stop;
 import edu.kit.ifv.mobitopp.publictransport.model.TransportSystem;
+import edu.kit.ifv.mobitopp.time.DayOfWeek;
 import edu.kit.ifv.mobitopp.time.RelativeTime;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfile;
 import edu.kit.ifv.mobitopp.visum.VisumPtTimeProfileElement;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourney;
 import edu.kit.ifv.mobitopp.visum.VisumPtVehicleJourneySection;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@EqualsAndHashCode
+@ToString
 public class JourneyTemplate {
 
 	/** 500 seats + stance **/
 	private static final int regionalTrain = 1200;
 	private static final int defaultCapacity = 0;
-	
+
 	private final String name;
 	private final Map<Integer, Stop> stops;
 	private final Map<Integer, RelativeTime> arrivals;
@@ -74,19 +83,67 @@ public class JourneyTemplate {
 		}
 	}
 
-	ModifiableJourney createJourney(
-			VisumPtVehicleJourney visumJourney, PublicTransportFactory factory, Time day) {
+	/**
+	 * Create a journey from visum for the specified day. The day will be considered
+	 * as absolute anchor for relative travel times within the journey as well as to
+	 * filter the journey section for this {@link DayOfWeek}.
+	 * 
+	 * @param visumJourney journey from visum
+	 * @param factory      factory to create journey and connection objects
+	 * @param atDay        day were the journey is served
+	 * @return journey at the specified day
+	 */
+	Optional<ModifiableJourney> createJourney(VisumPtVehicleJourney visumJourney,
+		PublicTransportFactory factory, Time atDay) {
+		return streamSectionsOf(visumJourney, atDay)
+			.findFirst()
+			.map(firstSection -> createJourney(visumJourney, factory, atDay, firstSection));
+	}
+
+	private ModifiableJourney createJourney(VisumPtVehicleJourney visumJourney,
+		PublicTransportFactory factory, Time atDay, VisumPtVehicleJourneySection firstSection) {
 		int capacity = capacityOf(visumJourney);
 		TransportSystem system = transportSystemOf(visumJourney);
-		ModifiableJourney created = factory.createJourney(visumJourney.id, day, capacity, system);
-		for (int current = visumJourney.fromProfileIndex
-				+ 1; current <= visumJourney.toProfileIndex; current++) {
+		ModifiableJourney journey = factory.createJourney(visumJourney.id, atDay, capacity, system);
+		Time departureOfJourney = departureOf(visumJourney, firstSection, atDay);
+		Consumer<VisumPtVehicleJourneySection> consumer = section -> createConnectionFrom(section,
+			visumJourney, factory, departureOfJourney, journey, journey::add);
+		streamSectionsOf(visumJourney, atDay).forEach(consumer);
+		return journey;
+	}
+
+	/**
+	 * Stream sections served at the specified day
+	 * 
+	 * @param visumJourney
+	 * @param day
+	 * @return
+	 */
+	private Stream<VisumPtVehicleJourneySection> streamSectionsOf(
+		VisumPtVehicleJourney visumJourney, Time day) {
+		return visumJourney.sections.stream().filter(isValidAt(day));
+	}
+
+	/**
+	 * Check whether a section is served at the given day or not.
+	 * 
+	 * @param day
+	 * @return
+	 */
+	private Predicate<VisumPtVehicleJourneySection> isValidAt(Time day) {
+		return section -> section.validDays.contains(day.weekDay());
+	}
+
+	private void createConnectionFrom(VisumPtVehicleJourneySection section,
+		VisumPtVehicleJourney visumJourney, PublicTransportFactory factory, Time departureOfJourney,
+		Journey journey, Consumer<Connection> consumer) {
+		for (int current = section.fromElementIndex
+			+ 1; current <= section.toElementIndex; current++) {
 			int previous = current - 1;
-			Connection connection = connectionFrom(visumJourney, created, current, previous, factory,
-					day);
-			created.add(connection);
+			Connection connection = connectionFrom(visumJourney, journey, current, previous,
+				factory, departureOfJourney);
+			consumer.accept(connection);
 		}
-		return created;
 	}
 
 	private static TransportSystem transportSystemOf(VisumPtVehicleJourney visumJourney) {
@@ -108,10 +165,8 @@ public class JourneyTemplate {
 		return capacity == 0 ? regionalTrain : capacity;
 	}
 
-	private Connection connectionFrom(
-			VisumPtVehicleJourney visumJourney, Journey journey, int current, int previous,
-			PublicTransportFactory factory, Time date) {
-		Time departureOfJourney = departureOf(visumJourney, date);
+	private Connection connectionFrom(VisumPtVehicleJourney visumJourney, Journey journey,
+		int current, int previous, PublicTransportFactory factory, Time departureOfJourney) {
 		Time departure = departsFrom(previous, departureOfJourney);
 		Time arrival = arrivesAt(current, departureOfJourney);
 		Stop start = stops.get(previous);
@@ -120,9 +175,10 @@ public class JourneyTemplate {
 		return factory.connectionFrom(start, end, departure, arrival, journey, coordinates);
 	}
 
-	private Time departureOf(VisumPtVehicleJourney visumJourney, Time date) {
+	private Time departureOf(VisumPtVehicleJourney visumJourney,
+		VisumPtVehicleJourneySection section, Time date) {
 		Time visumDeparture = date.plusSeconds(visumJourney.departure);
-		RelativeTime relativeTime = departures.get(visumJourney.fromProfileIndex);
+		RelativeTime relativeTime = departures.get(section.fromElementIndex);
 		return visumDeparture.minus(relativeTime);
 	}
 
@@ -134,66 +190,6 @@ public class JourneyTemplate {
 	Time arrivesAt(Integer stopIndex, Time atTime) {
 		RelativeTime relativeTime = arrivals.get(stopIndex);
 		return atTime.plus(relativeTime);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((arrivals == null) ? 0 : arrivals.hashCode());
-		result = prime * result + ((departures == null) ? 0 : departures.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((stops == null) ? 0 : stops.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		JourneyTemplate other = (JourneyTemplate) obj;
-		if (arrivals == null) {
-			if (other.arrivals != null) {
-				return false;
-			}
-		} else if (!arrivals.equals(other.arrivals)) {
-			return false;
-		}
-		if (departures == null) {
-			if (other.departures != null) {
-				return false;
-			}
-		} else if (!departures.equals(other.departures)) {
-			return false;
-		}
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (stops == null) {
-			if (other.stops != null) {
-				return false;
-			}
-		} else if (!stops.equals(other.stops)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "TimeProfile [name=" + name + ", stops=" + stops + ", arrivals=" + arrivals
-				+ ", departures=" + departures + "]";
 	}
 
 }
