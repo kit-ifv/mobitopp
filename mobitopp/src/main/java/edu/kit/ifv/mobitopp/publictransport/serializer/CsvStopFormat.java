@@ -27,7 +27,7 @@ public class CsvStopFormat extends CsvFormat implements StopFormat {
 
 	@Override
 	public String header() {
-		return "id;change_time;longitude;latitude;name;visum_id;station_id";
+		return "id;change_time;coordinate;name;visum_id;station_id";
 	}
 
 	@Override
