@@ -3,6 +3,7 @@ package edu.kit.ifv.mobitopp.publictransport.serializer;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
@@ -10,12 +11,13 @@ import edu.kit.ifv.mobitopp.util.file.StreamContent;
 
 public class TimetableFiles {
 
+	public static final Charset encoding = StandardCharsets.UTF_8;
 	private static final String stations = "stations.csv";
 	private static final String stops = "stop.csv";
 	private static final String transfers = "footpath.csv";
 	private static final String journeys = "journey.csv";
 	private static final String connections = "connection.csv";
-	
+
 	private final File baseFolder;
 
 	private TimetableFiles(File baseFolder) {
@@ -46,7 +48,7 @@ public class TimetableFiles {
 		if (file.exists()) {
 			file.delete();
 		}
-		return Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8);
+		return Files.newBufferedWriter(file.toPath(), encoding);
 	}
 
 	private File fileFor(String fileName) {
@@ -54,9 +56,10 @@ public class TimetableFiles {
 		File compressedFile = new File(baseFolder, fileName + "." + StreamContent.bzipExtension);
 		long lastUncompressedModification = uncompressedFile.lastModified();
 		long lastCompressedModification = compressedFile.lastModified();
-		if(compressedFile.exists()) {
-			if(uncompressedFile.exists()) {
-				return lastUncompressedModification < lastCompressedModification ? compressedFile : uncompressedFile;
+		if (compressedFile.exists()) {
+			if (uncompressedFile.exists()) {
+				return lastUncompressedModification < lastCompressedModification ? compressedFile
+					: uncompressedFile;
 			}
 			return compressedFile;
 		}
@@ -90,7 +93,7 @@ public class TimetableFiles {
 
 	public boolean exist() {
 		return stopFile().exists() && transferFile().exists() && journeyFile().exists()
-				&& connectionFile().exists() && stationFile().exists();
+			&& connectionFile().exists() && stationFile().exists();
 	}
 
 }
