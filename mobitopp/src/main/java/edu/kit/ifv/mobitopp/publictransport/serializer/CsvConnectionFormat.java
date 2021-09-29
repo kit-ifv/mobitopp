@@ -96,9 +96,11 @@ class CsvConnectionFormat extends CsvFormat implements ConnectionFormat {
 
 	private RoutePoints pointsOf(String[] fields, Stop start, Stop end) {
 		List<Point2D> points = new ArrayList<>();
-		StringTokenizer tokenizer = new StringTokenizer(fields[pointsIndex], pointDelimiter);
-		while(tokenizer.hasMoreTokens()) {
-			points.add(pointOf(tokenizer.nextToken()));
+		if (fields.length > pointsIndex) {
+			StringTokenizer tokenizer = new StringTokenizer(fields[pointsIndex], pointDelimiter);
+			while (tokenizer.hasMoreTokens()) {
+				points.add(pointOf(tokenizer.nextToken()));
+			}
 		}
 		return RoutePoints.from(start, end, points);
 	}
