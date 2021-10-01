@@ -30,8 +30,10 @@ public class PublicTransportFromMobitopp extends BasePublicTransportConverter {
 	private final SearchFootpath visumConverter;
 	private final Deserializer deserializer;
 
-	public PublicTransportFromMobitopp(List<Time> simulationDates, Deserializer deserializer, SearchFootpath visumConverter) {
-		super(simulationDates);
+	public PublicTransportFromMobitopp(final List<Time> simulationDates,
+		final TimetableVerifier timetableVerifier, final Deserializer deserializer,
+		final SearchFootpath visumConverter) {
+		super(simulationDates, timetableVerifier);
 		this.deserializer = deserializer;
 		this.visumConverter = visumConverter;
 	}

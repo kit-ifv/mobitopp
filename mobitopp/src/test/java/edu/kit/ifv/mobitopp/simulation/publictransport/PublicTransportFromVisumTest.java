@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -264,7 +265,8 @@ public class PublicTransportFromVisumTest {
 	private Stations stationsFrom(Map<Integer, VisumPtStop> stations) {
 		VisumNetwork visumNetwork = mock(VisumNetwork.class);
 		PublicTransportFromVisum converter = new PublicTransportFromVisum(overSeveralDays,
-				visumNetwork) {
+			TimetableVerifier.none(), visumNetwork) {
+
 			@Override
 			Map<Integer, VisumPtStop> visumStations() {
 				return stations;
@@ -288,11 +290,11 @@ public class PublicTransportFromVisumTest {
 		return converter.convertStations();
 	}
 
-	private PublicTransportTimetable convert(VisumNetwork visumNetwork) {
+	private PublicTransportTimetable convert(VisumNetwork visumNetwork) throws IOException {
 		return convert(visumNetwork, someDate);
 	}
 
-	private PublicTransportTimetable convert(VisumNetwork visumNetwork, Time simulationStart) {
+	private PublicTransportTimetable convert(VisumNetwork visumNetwork, Time simulationStart) throws IOException {
 		VisumTransportSystem publicWalking = visumNetwork.getTransportSystem(walkingCode);
 		PublicTransportConverter network = converter(simulationStart, publicWalking, visumNetwork);
 		return network.convert();
@@ -316,7 +318,7 @@ public class PublicTransportFromVisumTest {
 	}
 
 	private PublicTransportTimetable convert(
-			VisumNetwork visumNetwork, List<Time> simulationDays) {
+			VisumNetwork visumNetwork, List<Time> simulationDays) throws IOException {
 		VisumTransportSystem publicWalking = visumNetwork.getTransportSystem(walkingCode);
 		PublicTransportConverter network = converter(publicWalking, simulationDays, visumNetwork);
 		return network.convert();
@@ -325,17 +327,19 @@ public class PublicTransportFromVisumTest {
 	private PublicTransportConverter converter(
 			VisumTransportSystem publicWalking, List<Time> simulationDays,
 			VisumNetwork visumNetwork) {
-		return new PublicTransportFromVisum(asList(publicWalking), simulationDays, visumNetwork) {
+		return new PublicTransportFromVisum(asList(publicWalking), simulationDays,
+			TimetableVerifier.none(), visumNetwork) {
 
 			@Override
 			ModifiableJourneys journeys() {
 				return journeys;
 			}
-			
+
 			@Override
 			Connections connections() {
 				return connections;
 			}
+
 		};
 	}
 

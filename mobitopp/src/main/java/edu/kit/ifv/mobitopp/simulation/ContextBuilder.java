@@ -20,6 +20,7 @@ import edu.kit.ifv.mobitopp.populationsynthesis.DefaultMappings;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.serialiser.PersonChanger;
 import edu.kit.ifv.mobitopp.result.ResultWriter;
+import edu.kit.ifv.mobitopp.simulation.publictransport.TimetableVerifier;
 import edu.kit.ifv.mobitopp.util.StopWatch;
 import edu.kit.ifv.mobitopp.visum.NetfileLanguage;
 import edu.kit.ifv.mobitopp.visum.StandardNetfileLanguages;
@@ -54,15 +55,17 @@ public class ContextBuilder {
 	private PersonResults personResults;
 	private DynamicParameters destinationChoiceParameters;
 	private DynamicParameters modeChoiceParameters;
+	private TimetableVerifier timetableVerifier;
 
 	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
-			LanguageFactory language, PersonChangerFactory personChangerFactory) {
+		LanguageFactory language, PersonChangerFactory personChangerFactory) {
 		super();
 		this.areaTypeRepository = areaTypeRepository;
 		this.modeToType = modeToType;
 		this.languageFactory = language;
 		this.personChangerFactory = personChangerFactory;
 		this.wrapImpedance = Function.identity();
+		this.timetableVerifier = TimetableVerifier.none();
 		performanceLogger = new StopWatch(LocalDateTime::now);
 		ParserBuilder parser = new ParserBuilder();
 		format = parser.forSimulation();
@@ -70,7 +73,7 @@ public class ContextBuilder {
 	}
 
 	public ContextBuilder(AreaTypeRepository areaTypeRepository, TypeMapping modeToType,
-			LanguageFactory language) {
+		LanguageFactory language) {
 		this(areaTypeRepository, modeToType, language, (c) -> PersonChanger.noChange());
 	}
 
@@ -105,7 +108,12 @@ public class ContextBuilder {
 		this.wrapImpedance = wrapImpedance;
 		return this;
 	}
-	
+
+	public ContextBuilder use(TimetableVerifier timetableVerifier) {
+		this.timetableVerifier = timetableVerifier;
+		return this;
+	}
+
 	public ContextBuilder addHouseholdFilterCondition(Predicate<HouseholdForSetup> filter) {
 		if (this.householdFilter == null) {
 			this.householdFilter = filter;
@@ -166,7 +174,9 @@ public class ContextBuilder {
 	}
 
 	private void createHouseholdFilter() {
-		this.addHouseholdFilterCondition(new FilterFractionOfHouseholds(configuration.getFractionOfPopulation()));
+		this
+			.addHouseholdFilterCondition(
+				new FilterFractionOfHouseholds(configuration.getFractionOfPopulation()));
 	}
 
 	private void experimentalParameters() {
@@ -204,13 +214,18 @@ public class ContextBuilder {
 
 	private NetfileLanguage buildLanguage() {
 		String carSystem = configuration.getVisumToMobitopp().getCarTransportSystemCode();
-		String individualWalkSystem = configuration.getVisumToMobitopp()
-				.getIndividualWalkTransportSystemCode();
-		String publicTransportWalkSystem = configuration.getVisumToMobitopp()
-				.getPtWalkTransportSystemCode();
-		StandardNetfileLanguages builder = StandardNetfileLanguages.builder().carSystem(carSystem)
-				.individualWalkSystem(individualWalkSystem)
-				.publicTransportWalkSystem(publicTransportWalkSystem).build();
+		String individualWalkSystem = configuration
+			.getVisumToMobitopp()
+			.getIndividualWalkTransportSystemCode();
+		String publicTransportWalkSystem = configuration
+			.getVisumToMobitopp()
+			.getPtWalkTransportSystemCode();
+		StandardNetfileLanguages builder = StandardNetfileLanguages
+			.builder()
+			.carSystem(carSystem)
+			.individualWalkSystem(individualWalkSystem)
+			.publicTransportWalkSystem(publicTransportWalkSystem)
+			.build();
 		return languageFactory.createFrom(builder);
 	}
 
@@ -243,19 +258,22 @@ public class ContextBuilder {
 		return new Network(network, roadNetwork);
 	}
 
-	private void publicTransport() {
+	private void publicTransport() throws IOException {
 		log.info("reading PT network");
-		publicTransport = configuration.getPublicTransport().loadData(this::network,
-				simulationDays);
+		publicTransport = configuration
+			.getPublicTransport()
+			.loadData(this::network, simulationDays, timetableVerifier);
 		log("Load public transport");
 	}
 
 	private void dataRepository() throws IOException {
 		log.info("Loading data repository");
 		int numberOfZones = configuration.getNumberOfZones();
-		dataRepository = configuration.getDataSource().forSimulation(this::network, numberOfZones,
-				simulationDays, publicTransport, resultWriter, electricChargingWriter,
-				areaTypeRepository, modeToType, householdFilter, personChanger, wrapImpedance);
+		dataRepository = configuration
+			.getDataSource()
+			.forSimulation(this::network, numberOfZones, simulationDays, publicTransport,
+				resultWriter, electricChargingWriter, areaTypeRepository, modeToType,
+				householdFilter, personChanger, wrapImpedance);
 		log("Load data repository");
 	}
 
@@ -273,9 +291,9 @@ public class ContextBuilder {
 
 	private SimulationContext createContext() {
 		SimpleSimulationContext context = new SimpleSimulationContext(configuration,
-				experimentalParameters, dataRepository, simulationDays, format, resultWriter,
-				electricChargingWriter, personResults, destinationChoiceParameters,
-				modeChoiceParameters);
+			experimentalParameters, dataRepository, simulationDays, format, resultWriter,
+			electricChargingWriter, personResults, destinationChoiceParameters,
+			modeChoiceParameters);
 		log("Create context");
 		return context;
 	}

@@ -37,7 +37,8 @@ public class ModifiableJourneys implements JourneyProvider {
 		journey.ifPresent(j -> journeys.put(j.id(), j));
 		return journey;
 	}
-	
+
+	@Override
 	public Stream<ModifiableJourney> stream() {
 		return journeys.values().stream();
 	}

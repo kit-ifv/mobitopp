@@ -1,6 +1,7 @@
 package edu.kit.ifv.mobitopp.data.local.configuration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -15,6 +16,7 @@ import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
 import edu.kit.ifv.mobitopp.simulation.person.PersonStatePublicTransport;
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportTimetable;
+import edu.kit.ifv.mobitopp.simulation.publictransport.TimetableVerifier;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 
@@ -60,9 +62,10 @@ public class UsePublicTransport extends BasePublicTransport implements PublicTra
 	}
 
 	@Override
-	public PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays) {
+	public PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays,
+		TimetableVerifier timetableVerifier) throws IOException {
 		VisumNetwork visumNetwork = network.get().visumNetwork;
-		PublicTransportTimetable timetable = loadTimetable(visumNetwork, simulationDays);
+		PublicTransportTimetable timetable = loadTimetable(visumNetwork, simulationDays, timetableVerifier);
 		RouteSearch finder = createFinder(timetable, simulationDays.startDate());
 		return new ExistingPublicTransportData(timetable, capacity, finder);
 	}

@@ -2,6 +2,7 @@ package edu.kit.ifv.mobitopp.simulation.publictransport;
 
 import static java.util.stream.Collectors.toList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,12 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 	static final String walkingCode = "F";
 	static final String walkingIndividual = "Fuss";
 	private final List<Time> simulationDates;
+	private final TimetableVerifier timetableVerifier;
 
-	protected BasePublicTransportConverter(List<Time> simulationDates) {
+	protected BasePublicTransportConverter(final List<Time> simulationDates,
+		final TimetableVerifier timetableVerifier) {
 		this.simulationDates = ensureAtBeginning(simulationDates);
+		this.timetableVerifier = timetableVerifier;
 	}
 
 	protected static List<VisumTransportSystem> defaultWalkingSystems(VisumRoadNetwork network) {
@@ -51,7 +55,7 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 	}
 	
 	@Override
-	public PublicTransportTimetable convert() {
+	public PublicTransportTimetable convert() throws IOException {
 		log.info("Start converting visum network to mobiTopp");
 		Stations stations = convertStations();
 		createFactory(stations);
@@ -60,8 +64,12 @@ public abstract class BasePublicTransportConverter implements PublicTransportCon
 		ModifiableJourneys journeys = convertJourneys(stopPoints);
 		Connections connections = convertConnections(stopPoints, journeys);
 		Vehicles vehicles = convertVehicles(journeys);
+		PublicTransportTimetable timetable = new PublicTransportTimetable(connections, stopPoints, journeys, finder, stations, vehicles);
 		log.info("Converting visum network to mobiTopp finished");
-		return new PublicTransportTimetable(connections, stopPoints, journeys, finder, stations, vehicles);
+		log.info("Start verifying timetable");
+		this.timetableVerifier.verify(timetable);
+		log.info("Verifying timetable finished");
+		return timetable;
 	}
 
 	public Vehicles convertVehicles(ModifiableJourneys journeys) {

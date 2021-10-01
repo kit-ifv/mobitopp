@@ -195,7 +195,7 @@ public class PublicTransportFromMobitoppTest {
 	}
 
 	private PublicTransportFromMobitopp converter() {
-		return new PublicTransportFromMobitopp(days(), deserializer, visumConverter);
+		return new PublicTransportFromMobitopp(days(), TimetableVerifier.none(), deserializer, visumConverter);
 	}
 
 	private static List<Time> days() {
