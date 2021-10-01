@@ -24,7 +24,7 @@ public class ConnectionsVerifier implements TimetableVerifier {
 				.stream()
 				.map(ModifiableJourney::id)
 				.map(String::valueOf)
-				.collect(joining(" ,"));
+				.collect(joining(", "));
 			throw new IOException(
 				"Connections are not consecutive for journeys: " + interruptedIds);
 		}
