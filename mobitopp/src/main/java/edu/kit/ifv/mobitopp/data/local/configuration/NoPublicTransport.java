@@ -9,6 +9,7 @@ import edu.kit.ifv.mobitopp.simulation.PublicTransport;
 import edu.kit.ifv.mobitopp.simulation.PublicTransportData;
 import edu.kit.ifv.mobitopp.simulation.SimulationDays;
 import edu.kit.ifv.mobitopp.simulation.person.PersonState;
+import edu.kit.ifv.mobitopp.simulation.publictransport.TimetableVerifier;
 
 public class NoPublicTransport implements PublicTransport {
 
@@ -35,7 +36,7 @@ public class NoPublicTransport implements PublicTransport {
 	}
 
 	@Override
-	public PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays) {
+	public PublicTransportData loadData(Supplier<Network> network, SimulationDays simulationDays, TimetableVerifier timetableVerifier) {
 		return PublicTransportData.noAssignement;
 	}
 

@@ -17,6 +17,7 @@ import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportFromMobito
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportFromVisum;
 import edu.kit.ifv.mobitopp.simulation.publictransport.PublicTransportTimetable;
 import edu.kit.ifv.mobitopp.simulation.publictransport.SearchFootpath;
+import edu.kit.ifv.mobitopp.simulation.publictransport.TimetableVerifier;
 import edu.kit.ifv.mobitopp.time.Time;
 import edu.kit.ifv.mobitopp.visum.VisumNetwork;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +30,13 @@ public abstract class BasePublicTransport {
 	}
 
 	protected PublicTransportTimetable loadTimetable(VisumNetwork network,
-			InputSpecification input) {
+			InputSpecification input, TimetableVerifier timetableVerifier) throws IOException {
 		TimetableFiles timetableFiles = timetableFiles();
-		PublicTransportFromVisum converter = converter(input, network);
+		PublicTransportFromVisum converter = converter(input, network, timetableVerifier);
 		Time startTime = input.startDate();
 		JourneyFactory factory = new DefaultJourneyFactory();
 		if (useSerialized() && timetableFiles.exist()) {
-			return loadSerialized(input, timetableFiles, converter, startTime, factory);
+			return loadSerialized(input, timetableFiles, converter, startTime, factory, timetableVerifier);
 		}
 		return loadVisum(timetableFiles, converter, startTime, factory);
 	}
@@ -45,7 +46,7 @@ public abstract class BasePublicTransport {
 	}
 
 	private PublicTransportTimetable loadVisum(TimetableFiles timetableFiles,
-			PublicTransportFromVisum converter, Time startTime, JourneyFactory factory) {
+			PublicTransportFromVisum converter, Time startTime, JourneyFactory factory) throws IOException {
 		PublicTransportTimetable timetable = converter.convert();
 		log.info("Start serializing mobiTopp timetable");
 		serialize(timetableFiles, startTime, factory, timetable);
@@ -66,9 +67,9 @@ public abstract class BasePublicTransport {
 
 	private PublicTransportTimetable loadSerialized(InputSpecification input,
 			TimetableFiles timetableFiles, PublicTransportFromVisum converter, Time startTime,
-			JourneyFactory factory) {
+			JourneyFactory factory, TimetableVerifier timetableVerifier) {
 		try {
-			return convertDeserialized(input, timetableFiles, converter, startTime, factory);
+			return convertDeserialized(input, timetableFiles, converter, startTime, factory, timetableVerifier);
 
 		} catch (IOException cause) {
 			throw warn(new UncheckedIOException(cause), log);
@@ -77,17 +78,18 @@ public abstract class BasePublicTransport {
 
 	protected abstract TimetableFiles timetableFiles();
 
-	protected PublicTransportFromVisum converter(InputSpecification input, VisumNetwork network) {
-		return new PublicTransportFromVisum(input.simulationDates(), network);
+	protected PublicTransportFromVisum converter(InputSpecification input, VisumNetwork network,
+		TimetableVerifier timetableVerifier) {
+		return new PublicTransportFromVisum(input.simulationDates(), timetableVerifier, network);
 	}
 
 	private PublicTransportTimetable convertDeserialized(InputSpecification input,
-			TimetableFiles timetableFiles, SearchFootpath converter, Time startTime,
-			JourneyFactory journeyFactory) throws IOException {
-		Deserializer deserializer = TimetableDeserializer.defaultDeserializer(timetableFiles,
-				startTime, journeyFactory);
+		TimetableFiles timetableFiles, SearchFootpath converter, Time startTime,
+		JourneyFactory journeyFactory, TimetableVerifier timetableVerifier) throws IOException {
+		Deserializer deserializer = TimetableDeserializer
+			.defaultDeserializer(timetableFiles, startTime, journeyFactory);
 		PublicTransportFromMobitopp fromMobiTopp = new PublicTransportFromMobitopp(
-				input.simulationDates(), deserializer, converter);
+			input.simulationDates(), timetableVerifier, deserializer, converter);
 		return fromMobiTopp.convert();
 	}
 

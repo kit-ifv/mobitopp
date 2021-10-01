@@ -63,18 +63,18 @@ public class PublicTransportFromVisum extends BasePublicTransportConverter imple
 
 	public PublicTransportFromVisum(
 			List<VisumTransportSystem> walking, Time date, VisumNetwork visumNetwork) {
-		this(walking, asList(date), visumNetwork);
+		this(walking, asList(date), TimetableVerifier.none(), visumNetwork);
 	}
 
-	public PublicTransportFromVisum(
-			List<Time> simulationDates, VisumNetwork visumNetwork) {
-		this(defaultWalkingSystems(visumNetwork), simulationDates, visumNetwork);
+	public PublicTransportFromVisum(final List<Time> simulationDates,
+		final TimetableVerifier timetableVerifier, final VisumNetwork visumNetwork) {
+		this(defaultWalkingSystems(visumNetwork), simulationDates, timetableVerifier, visumNetwork);
 	}
 
-	public PublicTransportFromVisum(
-			List<VisumTransportSystem> walking, List<Time> simulationDates,
-			VisumNetwork visumNetwork) {
-		super(simulationDates);
+	public PublicTransportFromVisum(final List<VisumTransportSystem> walking,
+		final List<Time> simulationDates, final TimetableVerifier timetableVerifier,
+		final VisumNetwork visumNetwork) {
+		super(simulationDates, timetableVerifier);
 		this.walking = walking;
 		this.visumNetwork = visumNetwork;
 		mapping = new HashMap<>();
