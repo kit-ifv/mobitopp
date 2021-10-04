@@ -73,6 +73,8 @@ public class TripfileCategories {
 		header.add("fromY");
 		header.add("toX");
 		header.add("toY");
+		header.add("tripBegin");
+		header.add("tripEnd");
 		return new Category("demandsimulationResult", header);
 	}
 

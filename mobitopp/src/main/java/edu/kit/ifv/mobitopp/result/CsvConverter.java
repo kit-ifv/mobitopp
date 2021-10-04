@@ -105,6 +105,8 @@ public class CsvConverter implements TripConverter {
 		String realEndTime = format.asTime(realEnd);
 		int tripId = finishedTrip.getOid();
 		int legId = finishedTrip.getLegId();
+		int tripBeginMinutes = begin.toMinutes();
+		int tripEndMinutes = end.toMinutes();
 
 		CsvBuilder message = new CsvBuilder();
 		message.append(tripId);
@@ -149,6 +151,8 @@ public class CsvConverter implements TripConverter {
 		message.append(location_from.coordinatesP().getY());
 		message.append(location_to.coordinatesP().getX());
 		message.append(location_to.coordinatesP().getY());
+		message.append(tripBeginMinutes);
+		message.append(tripEndMinutes);
 		return message.toString();
 	}
 
