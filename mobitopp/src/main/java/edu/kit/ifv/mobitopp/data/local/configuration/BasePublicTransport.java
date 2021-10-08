@@ -88,9 +88,15 @@ public abstract class BasePublicTransport {
 		JourneyFactory journeyFactory, TimetableVerifier timetableVerifier) throws IOException {
 		Deserializer deserializer = TimetableDeserializer
 			.defaultDeserializer(timetableFiles, startTime, journeyFactory);
-		PublicTransportFromMobitopp fromMobiTopp = new PublicTransportFromMobitopp(
-			input.simulationDates(), timetableVerifier, deserializer, converter);
+		PublicTransportFromMobitopp fromMobiTopp = createMobitoppTimetableReader(input, converter,
+			timetableVerifier, deserializer);
 		return fromMobiTopp.convert();
+	}
+
+	protected PublicTransportFromMobitopp createMobitoppTimetableReader(InputSpecification input,
+		SearchFootpath converter, TimetableVerifier timetableVerifier, Deserializer deserializer) {
+		return new PublicTransportFromMobitopp(
+			input.simulationDates(), timetableVerifier, deserializer, converter);
 	}
 
 }
