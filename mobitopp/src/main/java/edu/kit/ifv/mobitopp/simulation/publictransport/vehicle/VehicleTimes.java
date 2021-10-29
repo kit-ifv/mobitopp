@@ -9,14 +9,14 @@ import edu.kit.ifv.mobitopp.time.Time;
 public class VehicleTimes {
 
 	private final Iterator<WaitTime> waiting;
-	private final Iterator<TravelTime> driving;
+	private final TravelTimeCalculator driving;
 	private final Time firstDeparture;
 	private Optional<Time> nextDeparture;
 	private Optional<Time> nextArrival;
 	private Optional<ConnectionId> nextConnection;
 
 	public VehicleTimes(
-			Time firstDeparture, Iterator<TravelTime> driving, Iterator<WaitTime> waiting) {
+			Time firstDeparture, TravelTimeCalculator driving, Iterator<WaitTime> waiting) {
 		super();
 		this.waiting = waiting;
 		this.driving = driving;
@@ -26,7 +26,7 @@ public class VehicleTimes {
 
 	private void initialise() {
 		nextDeparture = Optional.of(firstDeparture);
-		assignArrival();
+		assignArrival(firstDeparture);
 	}
 
 	public Optional<Time> nextDeparture() {
@@ -51,7 +51,7 @@ public class VehicleTimes {
 
 	private void assignNext(Time current) {
 		assignDeparture(current);
-		assignArrival();
+		assignArrival(current);
 	}
 
 	private void assignDeparture(Time current) {
@@ -59,8 +59,8 @@ public class VehicleTimes {
 		this.nextDeparture = Optional.of(nextDeparture);
 	}
 
-	private void assignArrival() {
-		TravelTime nextVehicleLink = driving.next();
+	private void assignArrival(Time currentTime) {
+		TravelTime nextVehicleLink = driving.next(currentTime);
 		this.nextArrival = nextVehicleLink.nextArrival(nextDeparture);
 		this.nextConnection = Optional.of(nextVehicleLink.nextConnection());
 	}

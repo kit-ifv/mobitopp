@@ -22,7 +22,7 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 	public VehicleTimes convert(Collection<Connection> connections) {
 		verify(connections);
 		Iterator<WaitTime> waiting = waiting(connections);
-		Iterator<TravelTime> driving = driving(connections);
+		TravelTimeCalculator driving = driving(connections);
 		Time firstDeparture = connections.iterator().next().departure();
 		return new VehicleTimes(firstDeparture, driving, waiting);
 	}
@@ -45,11 +45,9 @@ public abstract class BaseVehicleConverter implements VehicleTimesConverter {
 		return waiting.iterator();
 	}
 
-	private Iterator<TravelTime> driving(Collection<Connection> connections) {
-		return connections.stream().map(this::travelTimeOf).iterator();
+	protected TravelTimeCalculator driving(Collection<Connection> connections) {
+		return OnTimeTravelTimeCalculator.of(connections);
 	}
-
-	protected abstract TravelTime travelTimeOf(Connection current);
 
 	protected abstract WaitTime waitingBetween(Connection previous, Connection current);
 
