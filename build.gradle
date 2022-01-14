@@ -45,7 +45,7 @@ subprojects {
         gson: 'com.google.code.gson:gson:2.8.6',
         
         slf4j: 'org.slf4j:slf4j-api:1.7.32',
-        log4j: 'org.apache.logging.log4j:log4j-slf4j-impl:2.15.0'
+        log4j: 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.1'
     ]
     
     configurations.all {
