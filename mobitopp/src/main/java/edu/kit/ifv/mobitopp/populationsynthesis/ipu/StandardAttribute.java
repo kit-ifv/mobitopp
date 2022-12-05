@@ -90,7 +90,7 @@ public enum StandardAttribute implements AttributeType {
 		@Override
 		public Stream<Attribute> createAttributes(
 				final Demography demography, final RegionalContext context) {
-			return createPersonAttributes(context, demography, person -> person.hasCommuterTicket() ? 0:1);
+			return createPersonAttributes(context, demography, person -> person.hasCommuterTicket() ? 1:0);
 		}
 	},
 	distance("distance") {
