@@ -77,6 +77,22 @@ public enum StandardAttribute implements AttributeType {
 
 		}
 	},
+	graduation("graduation") {
+
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final RegionalContext context) {
+			return createPersonAttributes(context, demography, person -> (int) person.getGenderTypeAsInt());
+		}
+	},
+	commuterTicket("commuter_ticket") {
+
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final RegionalContext context) {
+			return createPersonAttributes(context, demography, person -> person.hasCommuterTicket() ? 0:1);
+		}
+	},
 	distance("distance") {
 
 		@Override
