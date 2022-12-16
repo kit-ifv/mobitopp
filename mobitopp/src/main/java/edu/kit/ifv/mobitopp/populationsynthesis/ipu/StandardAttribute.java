@@ -64,6 +64,23 @@ public enum StandardAttribute implements AttributeType {
 					.map(item -> new MaleAge(context, this, item.lowerBound(), item.upperBound(), item.amount()));
 		}
 	},
+	age("age") {
+
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final RegionalContext context) {
+			return createPersonAttributes(context, demography, person -> person.age());
+		}
+	},
+	gender("gender") {
+
+		@Override
+		public Stream<Attribute> createAttributes(
+				final Demography demography, final RegionalContext context) {
+			return createPersonAttributes(context, demography, person -> person.gender().getTypeAsInt());
+
+		}
+	},
 	employment("job") {
 
 		@Override
