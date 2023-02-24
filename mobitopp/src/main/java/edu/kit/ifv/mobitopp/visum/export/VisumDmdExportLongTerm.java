@@ -39,7 +39,7 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
  * It writes activity codes, locations, activity-locations, households, persons, long-term choices and daily schedules. <br>
  * 
  * <br>Notes on how to apply:<br>
- * 1. Initialize export in LongTermModule constructor: 
+ * 1. Initialize export in LongTermModule constructor:
  * <pre>
  * public LongTermModule(SynthesisContext context) {
  * 	...
@@ -341,7 +341,7 @@ public class VisumDmdExportLongTerm {
 		String date = dtf.format(now);
 		
 		return "$VISION" + NEW_LINE
-			 + "* KIT Karlsruher Institut für Technologie Fakultät Bau, Geo + Umwelt Karlsruhe" + NEW_LINE
+			 + "* KIT Karlsruher Institut fï¿½r Technologie Fakultï¿½t Bau, Geo + Umwelt Karlsruhe" + NEW_LINE
 			 + "* " + date + NEW_LINE
 			 + "*" + NEW_LINE
 			 + "* Tabelle: Versionsblock" + NEW_LINE
@@ -372,7 +372,7 @@ public class VisumDmdExportLongTerm {
 	private String generateActivityTable() {
 		StringBuilder table = new StringBuilder();
 		table.append("*" + NEW_LINE);
-		table.append("* Tabelle: Aktivitäten" + NEW_LINE);
+		table.append("* Tabelle: Aktivitï¿½ten" + NEW_LINE);
 		table.append("*" + NEW_LINE);
 		table.append("$ACTIVITY:CODE;NAME;DEMANDMODELCODE;RANK;ISHOMEACTIVITY;STRUCTURALPROPCODES;CONSTRAINTDEST;CONSTRAINTDESTTYPE;CONSTRAINTMINFACTORDEST;CONSTRAINTMAXFACTORDEST" + NEW_LINE);
 
@@ -486,7 +486,7 @@ public class VisumDmdExportLongTerm {
 	 */
 	private String generateActivityLoactionHeader() {
 		return "*" + NEW_LINE
-				+ "* Tabelle: Aktivitätenstandorte" + NEW_LINE
+				+ "* Tabelle: Aktivitï¿½tenstandorte" + NEW_LINE
 				+ "*" + NEW_LINE
 				+ "$ACTIVITYLOCATION:ACTIVITYCODE;LOCATIONNO;ATTRACTIONPOTENTIAL" + NEW_LINE;
 	}
@@ -663,7 +663,7 @@ public class VisumDmdExportLongTerm {
 	 */
 	private String generateDailyScheduleHeader() {
 		return "*" + NEW_LINE
-				+ "* Tabelle: Tagespläne" + NEW_LINE
+				+ "* Tabelle: Tagesplï¿½ne" + NEW_LINE
 				+ "*" + NEW_LINE
 				+ "$SCHEDULE:PERSONNO;NO;DATE" + NEW_LINE;
 	}
