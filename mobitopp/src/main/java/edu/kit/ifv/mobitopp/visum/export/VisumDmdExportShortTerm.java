@@ -59,7 +59,7 @@ import edu.kit.ifv.mobitopp.time.Time;
  * </pre>
  * 3. In ShortTermModule save VisumDmdExportShortTerm before building the simulator:
  * <pre>
- * @Override
+ * {@literal @}Override
  * protected DemandSimulator simulator() {
  * 		SimulatorBuilder builder = new SimulatorBuilder(context());
  * 		this.export = builder.getExport();
@@ -68,7 +68,7 @@ import edu.kit.ifv.mobitopp.time.Time;
  * </pre>
  * 4. Finish export in ShortTermModule after the simulation finished:
  * <pre>
- * @Override
+ * {@literal @}Override
  * public void simulate() {
  * 		super.simulate();
  * 		export.finish();

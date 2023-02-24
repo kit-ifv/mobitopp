@@ -50,10 +50,10 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
  * </pre>
  * 2. Add export as synthesis step:
  * <pre>
- * 	@Override
+ * {@literal @}Override
  * protected DemandDataCalculator createCalculator(...) {
  * 	...
- * 	LinkedList<PopulationSynthesisStep> steps = new LinkedList<>();
+ * 	LinkedList{@literal <PopulationSynthesisStep>} steps = new LinkedList{@literal <>}();
  * 	...
  * 	steps.add(export.asSynthesisStep());
  * 	...
@@ -61,7 +61,7 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
  * </pre>
  * 3. Finish export after synthesis:
  * <pre>
- * @Override
+ * {@literal @}Override
  * protected void executeAfterCreation() {
  * 		export.finish();
  * }
