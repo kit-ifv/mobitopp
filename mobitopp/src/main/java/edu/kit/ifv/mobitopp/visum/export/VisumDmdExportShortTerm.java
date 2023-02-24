@@ -350,7 +350,7 @@ public class VisumDmdExportShortTerm implements PersonListener {
 	 */
 	private String generateActivityHeader() {
 		return "*" + NEW_LINE
-				+ "* Tabelle: Aktivitätsausübungen" + NEW_LINE
+				+ "* Tabelle: Aktivitï¿½tsausï¿½bungen" + NEW_LINE
 				+ "*" + NEW_LINE
 				+ "$ACTIVITYEXECUTION:PERSONNO;SCHEDULENO;INDEX;STARTTIME;DURATION;ACTIVITYCODE;LOCATIONNO;STARTDAY;STARTTIMEDAY" + NEW_LINE;
 	}
