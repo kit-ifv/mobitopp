@@ -44,7 +44,7 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
  * public LongTermModule(SynthesisContext context) {
  * 	...
  * 	export = new VisumDmdExportLongTerm(context);
- * 	export.init();
+ * 	export.init(context);
  * 	...
  * }
  * </pre>
@@ -56,6 +56,8 @@ import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
  * 	LinkedList{@literal <PopulationSynthesisStep>} steps = new LinkedList{@literal <>}();
  * 	...
  * 	steps.add(export.asSynthesisStep());
+ *  steps.add(storeData());
+ *  steps.add(cleanData());
  * 	...
  * }
  * </pre>
