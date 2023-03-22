@@ -3,9 +3,10 @@ package edu.kit.ifv.mobitopp.visum;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 
+import edu.kit.ifv.mobitopp.util.file.StreamContent;
 import edu.kit.ifv.mobitopp.visum.reader.VisumFileReader;
 
 public class StreamReader extends VisumFileReader {
@@ -20,7 +21,7 @@ public class StreamReader extends VisumFileReader {
 
   @Override
   protected BufferedReader createReader(File routesFile, Charset charset) throws IOException {
-    return Files.newBufferedReader(routesFile.toPath(), charset);
+	return new BufferedReader(new InputStreamReader(StreamContent.of(routesFile), charset));
   }
 
   @Override
