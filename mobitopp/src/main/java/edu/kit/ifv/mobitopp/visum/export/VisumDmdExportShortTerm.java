@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.routing.Path;
-import edu.kit.ifv.mobitopp.simulation.ActivityType;
 import edu.kit.ifv.mobitopp.simulation.Car;
 import edu.kit.ifv.mobitopp.simulation.Location;
 import edu.kit.ifv.mobitopp.simulation.Mode;
@@ -95,7 +94,7 @@ public class VisumDmdExportShortTerm implements PersonListener {
 		
 		try {
 			
-			if (trip.previousActivity().activityType().equals(ActivityType.HOME)) {
+			if (isTripFromHome(trip) || isFirstTripOf(person)) {
 				tourWriter.write(generateTourRow(person, trip));
 			}
 			
@@ -120,6 +119,14 @@ public class VisumDmdExportShortTerm implements PersonListener {
 		if (trip.plannedEndDate().isAfterOrEqualTo(Time.start.plusWeeks(1))) {
 			logActivityRow(person, generateActivityRow(person, trip.nextActivity()));
 		}
+	}
+	
+	private boolean isFirstTripOf(Person person) {
+		return !personTourIndex.containsKey(person.getOid());
+	}
+
+	private boolean isTripFromHome(FinishedTrip trip) {
+		return trip.previousActivity().activityType().isHomeActivity();
 	}
 
 	/**
