@@ -170,7 +170,7 @@ public class VisumDmdExportLongTerm {
 	 *
 	 * @param zone the zone to be logged
 	 */
-	private void logZone(Zone zone) {
+	public void logZone(Zone zone) {
 		try {
 			int id = locationIdOf(zone);
 			
@@ -212,7 +212,7 @@ public class VisumDmdExportLongTerm {
 	 *
 	 * @param opportunity the opportunity
 	 */
-	private void logOpportunity(Opportunity opportunity) {
+	public void logOpportunity(Opportunity opportunity) {
 		try {
 			int id = locationIdOf(opportunity);
 			
@@ -244,7 +244,7 @@ public class VisumDmdExportLongTerm {
 	 *
 	 * @param household the household to be logged
 	 */
-	private void logHousehold(HouseholdForSetup household) {
+	public void logHousehold(HouseholdForSetup household) {
 		try {
 			int id = locationIdOf(household);
 			
