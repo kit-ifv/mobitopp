@@ -21,6 +21,7 @@ import java.util.Map;
 import edu.kit.ifv.mobitopp.data.DemandZone;
 import edu.kit.ifv.mobitopp.data.Zone;
 import edu.kit.ifv.mobitopp.data.ZoneId;
+import edu.kit.ifv.mobitopp.data.ZoneRepository;
 import edu.kit.ifv.mobitopp.populationsynthesis.DemandRegionDemandCalculator;
 import edu.kit.ifv.mobitopp.populationsynthesis.HouseholdForSetup;
 import edu.kit.ifv.mobitopp.populationsynthesis.SynthesisContext;
@@ -31,6 +32,7 @@ import edu.kit.ifv.mobitopp.simulation.BaseHousehold;
 import edu.kit.ifv.mobitopp.simulation.BasePerson;
 import edu.kit.ifv.mobitopp.simulation.FixedDestination;
 import edu.kit.ifv.mobitopp.simulation.Location;
+import edu.kit.ifv.mobitopp.simulation.SimulationContext;
 import edu.kit.ifv.mobitopp.simulation.opportunities.Opportunity;
 
 /**
@@ -90,9 +92,14 @@ public class VisumDmdExportLongTerm {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public VisumDmdExportLongTerm(SynthesisContext context) throws IOException {
+		this( new File(context.configuration().getResultFolder()) );
+	}
+	
+	public VisumDmdExportLongTerm(SimulationContext context) throws IOException {
+		this( new File(context.configuration().getResultFolder()) );
+	}
 		
-		File folder = new File(context.configuration().getResultFolder());
-		
+	public VisumDmdExportLongTerm(File folder) throws IOException {
 		this.locationWriter = getWriter(new File(folder, "locations.dmd"));
 		this.activityLocationWriter = getWriter(new File(folder, "activityLocations.dmd"));
 		this.householdWriter = getWriter(new File(folder, "households.dmd"));
@@ -109,6 +116,14 @@ public class VisumDmdExportLongTerm {
 	 * @param context the synthesis context
 	 */
 	public void init(SynthesisContext context) {
+		this.init(context.zoneRepository().zoneRepository());
+	}
+	
+	public void init(SimulationContext context) {
+		this.init(context.zoneRepository());
+	}
+	
+	public void init(ZoneRepository zoneRepo) {
 		try {
 			locationWriter.write(generateVersionHeader());
 			locationWriter.write(NEW_LINE);
@@ -128,7 +143,7 @@ public class VisumDmdExportLongTerm {
 			System.err.println("Could not init .dmd files");
 		}
 		
-		context.zoneRepository().getZones().forEach(dz -> logZone(dz.zone()));
+		zoneRepo.getZones().forEach(z -> logZone(z));
 	}
 	
 	/**
