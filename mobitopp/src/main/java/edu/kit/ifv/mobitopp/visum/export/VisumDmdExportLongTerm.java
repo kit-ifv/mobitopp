@@ -196,6 +196,14 @@ public class VisumDmdExportLongTerm {
 				locationIds.put(id, new ArrayList<>(List.of(-1)));
 			}
 			
+			for (ActivityType type : ActivityType.values()) {
+				if (!locationIds.containsKey(type.getTypeAsInt())) {
+					activityLocationWriter.write(generateActivityLocationRow(zone.centroidLocation(), type, 0));
+					
+					locationIds.put(id, new ArrayList<>(List.of(type.getTypeAsInt())));
+				}
+			}
+			
 			zone.opportunities().forEach(this::logOpportunity);
 
 		} catch (IOException e) {
