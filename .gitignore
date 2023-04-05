@@ -1,0 +1,11 @@
+/.gradle/
+/bin/
+/results/
+*.visum_serialized
+*.serialized
+/build/
+/output/
+*.xmi
+**/gen/
+**/generated/
+/run/run-**
