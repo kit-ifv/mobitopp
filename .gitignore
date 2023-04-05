@@ -2,7 +2,6 @@
 /bin/
 /results/
 *.visum_serialized
-*.serialized
 /build/
 /output/
 *.xmi
