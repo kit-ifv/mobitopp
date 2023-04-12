@@ -34,22 +34,12 @@ unit-test-job: # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
 
-    - ./gradlew build jacocoTestReport
+    #- ./gradlew build jacocoTestReport
     - ./gradlew test
-    - echo $buildDir
-    - cd build/
-    - ls
-    - cd reports
-    - ls
-    - cd jacoco
-    - ls
-    - cd test
-    - ls
-    - cat jacocoTestReport.xml
-
   artifacts:
     paths:
-      - build/reports/jacoco/test/jacocoTestReport.xml
+      - build/reports/jacoco/test/*
+  coverage: "/- Line Coverage: (.*)/"
 # Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
 coverage-test:
   stage: visualize
