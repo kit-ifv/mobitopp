@@ -36,10 +36,10 @@ unit-test-job: # This job runs in the test stage.
 
     #- ./gradlew build jacocoTestReport
     - ./gradlew test
-    - cat build/reports/jacoco/test/jacocoTestReport.xml
   artifacts:
     paths:
       - build/reports/jacoco/test/*
+  coverage: "/- Line Coverage: (.*)/"
 # Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
 coverage-test:
   stage: visualize
