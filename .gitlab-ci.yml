@@ -36,6 +36,8 @@ unit-test-job: # This job runs in the test stage.
 
     #- ./gradlew build jacocoTestReport
     - ./gradlew test jacocoTestReport
+    - ./gradlew check
+    - ./gradlew cobertura check
   artifacts:
     paths:
       - build/reports/jacoco/test/jacocoTestReport.xml
