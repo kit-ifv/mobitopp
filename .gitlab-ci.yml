@@ -16,34 +16,62 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
-stages:          # List of stages for jobs, and their order of execution
-  - build
+image: amazoncorretto:17
+stages: # List of stages for jobs, and their order of execution
+  #- build
   - test
+  - visualize
   - deploy
 
-build-job:       # This job runs in the build stage, which runs first.
-  stage: build
-  script:
-    - echo "Compiling the code..."
-    - echo "Compile complete."
 
-unit-test-job:   # This job runs in the test stage.
+#build-job:       # This job runs in the build stage, which runs first.
+#  stage: build
+#  script:
+#    - echo "Compiling the code..."
+#    - echo "Compile complete."
+
+unit-test-job: # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
-    - echo "Running unit tests... This will take about 60 seconds."
-    - sleep 60
-    - echo "Code coverage is 90%"
 
-lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
+    - ./gradlew build jacocoTestReport
+    - ./gradlew test
+    - echo $buildDir
+    - cd build/
+    - ls
+    - cd reports
+    - ls
+    - cd jacoco
+    - ls
+    - cd test
+    - ls
+    - cat jacocoTestReport.xml
 
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
+  artifacts:
+    paths:
+      - build/reports/jacoco/test/jacocoTestReport.xml
+# Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
+coverage-test:
+  stage: visualize
+  image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
   script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - python /opt/cover2cover.py build/reports/jacoco/test/jacocoTestReport.xml $CI_PROJECT_DIR/src/main/java/ > build/cobertura.xml
+  needs: [ "unit-test-job" ]
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/cobertura.xml
+
+#lint-test-job:   # This job also runs in the test stage.
+#  stage: test    # It can run at the same time as unit-test-job (in parallel).
+#  script:
+#    - echo "Linting code... This will take about 10 seconds."
+#    - echo "No lint issues found."
+
+#deploy-job:      # This job runs in the deploy stage.
+#  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+#  environment: production
+#  script:
+#    - echo "Deploying application..."
+#    - echo "Application successfully deployed."
