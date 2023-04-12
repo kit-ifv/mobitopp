@@ -34,19 +34,8 @@ unit-test-job: # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
   script:
 
-    - ./gradlew build jacocoTestReport
-    - ./gradlew test
-    - echo $buildDir
-    - cd build/
-    - ls
-    - cd reports
-    - ls
-    - cd jacoco
-    - ls
-    - cd test
-    - ls
-    - cat jacocoTestReport.xml
-
+    #- ./gradlew build jacocoTestReport
+    - ./gradlew test jacocoTestReport
   artifacts:
     paths:
       - build/reports/jacoco/test/jacocoTestReport.xml
