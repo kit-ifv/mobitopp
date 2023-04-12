@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "1.8.0"
     jacoco
+    id("org.barfuin.gradle.jacocolog") version "1.2.4"
     application
 }
 
@@ -25,10 +26,6 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(true)
         csv.required.set(false)
-        println(layout)
-        println(layout.buildDirectory)
-
-        println(outputs.toString())
     }
 
 
