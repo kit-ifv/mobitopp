@@ -35,7 +35,7 @@ unit-test-job: # This job runs in the test stage.
   script:
 
     #- ./gradlew build jacocoTestReport
-    - ./gradlew test jacocoTestReport
+    - ./gradlew test jacocoTestReport --info
     - ./gradlew check
     - ./gradlew jacocoTestReport --info
   artifacts:
