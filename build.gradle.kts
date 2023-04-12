@@ -28,7 +28,10 @@ tasks.jacocoTestReport {
         println(layout)
         println(layout.buildDirectory)
 
+        println(outputs.toString())
     }
+
+
 }
 
 
