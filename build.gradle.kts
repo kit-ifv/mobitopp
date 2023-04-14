@@ -14,6 +14,7 @@ repositories {
 }
 
 detekt {
+    version = "1.0.0.RC6-4"
     defaultProfile {
         input = "$projectDir/src/main/kotlin"
         config = "$projectDir/default-detekt-config.yml" // Code style rules file.
