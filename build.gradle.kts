@@ -15,7 +15,7 @@ repositories {
 
 detekt {
     defaultProfile {
-        input = "$projectDir/subproject/src/main/kotlin"
+        input = "$projectDir/src/main/kotlin"
         config = "$projectDir/default-detekt-config.yml" // Code style rules file.
         filters = ".*/res/.*,.*build/.*"
     }
