@@ -53,6 +53,11 @@ coverage-test:
         coverage_format: cobertura
         path: build/cobertura.xml
 
+code-style:
+  stage: visualize
+  script:
+    - ./gradlew detektGenerateConfig
+    - ./gradlew detektCheck
 #lint-test-job:   # This job also runs in the test stage.
 #  stage: test    # It can run at the same time as unit-test-job (in parallel).
 #  script:
