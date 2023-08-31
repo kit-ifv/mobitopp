@@ -54,12 +54,12 @@ comments:
   CommentOverPrivateProperty:
     active: false
   DeprecatedBlockTag:
-    active: false
+    active: true
   EndOfSentenceFormat:
     active: false
     endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
   KDocReferencesNonPublicProperty:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
   OutdatedDocumentation:
     active: false
@@ -90,9 +90,9 @@ complexity:
     threshold: 15
   ComplexCondition:
     active: true
-    threshold : 3
+    threshold : 4
   ComplexInterface:
-    active: false
+    active: true
     threshold : 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
@@ -130,7 +130,7 @@ complexity:
     ignoreDataClasses: true
     ignoreAnnotatedParameter: []
   MethodOverloading:
-    active: false
+    active: true
     threshold: 6
   NamedArguments:
     threshold: 3
@@ -148,9 +148,9 @@ complexity:
       - 'kotlin.let'
       - 'kotlin.also'
   ReplaceSafeCallChainWithRun:
-    active: false
+    active: true
   StringLiteralDuplication:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     threshold: 2
     ignoreAnnotation: true
@@ -171,7 +171,7 @@ complexity:
 coroutines:
   active: true
   GlobalCoroutineUsage:
-    active: false
+    active: true
   InjectDispatcher:
     active: true
     dispatcherNames:
@@ -183,9 +183,9 @@ coroutines:
   SleepInsteadOfDelay:
     active: true
   SuspendFunSwallowedCancellation:
-    active: false
+    active: true
   SuspendFunWithCoroutineScopeReceiver:
-    active: false
+    active: true
   SuspendFunWithFlowReturnType:
     active: true
 
@@ -237,9 +237,9 @@ exceptions:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
   NotImplementedDeclaration:
-    active: false
+    active: true
   ObjectExtendsThrowable:
-    active: false
+    active: true
   PrintStackTrace:
     active: true
   RethrowCaughtException:
@@ -258,7 +258,7 @@ exceptions:
   ThrowingExceptionFromFinally:
     active: true
   ThrowingExceptionInMain:
-    active: false
+    active: true
   ThrowingExceptionsWithoutMessageOrCause:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
@@ -294,6 +294,12 @@ exceptions:
       - 'Exception'
       - 'RuntimeException'
       - 'Throwable'
+
+formatting:
+  active: false
+
+libraries:
+  active: false
 
 naming:
   active: true
