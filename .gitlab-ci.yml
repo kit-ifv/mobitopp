@@ -59,7 +59,7 @@ coverage-test:
         path: build/cobertura.xml
 
 code-style:
-  stage: visualize
+  stage: test
   image: amazoncorretto:17
   script:
     - ./gradlew detektGenerateConfig
