@@ -45,7 +45,8 @@ unit-test-job: # This job runs in the test stage.
 
 unit-test-windows:
   stage: test
-  tags: [windows]
+  tags:
+    - windows
   script:
     - ./gradlew test
 
