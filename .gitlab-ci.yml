@@ -16,7 +16,7 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
 
-image: amazoncorretto:17
+
 stages: # List of stages for jobs, and their order of execution
   #- build
   - test
@@ -31,7 +31,9 @@ stages: # List of stages for jobs, and their order of execution
 #    - echo "Compile complete."
 
 unit-test-job: # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
+  stage: test
+  # It only starts when the job in the build stage completes successfully.
+  image: amazoncorretto:17
   script:
 
     #- ./gradlew build jacocoTestReport
@@ -62,6 +64,7 @@ coverage-test:
 
 code-style:
   stage: visualize
+  image: amazoncorretto:17
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
