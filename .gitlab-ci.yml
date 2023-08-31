@@ -40,6 +40,13 @@ unit-test-job: # This job runs in the test stage.
     paths:
       - build/reports/jacoco/test/*
   coverage: "/- Line Coverage: (.*)/"
+
+unit-test-windows:
+  stage: test
+  image: mcr.microsoft.com/windows/servercore:ltsc2019
+  script:
+    - ./gradlew test
+
 # Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
 coverage-test:
   stage: visualize
