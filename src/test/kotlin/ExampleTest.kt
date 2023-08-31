@@ -5,7 +5,7 @@ import kotlin.test.assertNotEquals
 class ExampleTest {
     @Test
     fun creatorTest() {
-        assertEquals("Robiin", creator())
+        assertEquals("Robin", creator())
     }
 
     @Test
