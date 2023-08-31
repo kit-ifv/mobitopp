@@ -43,12 +43,7 @@ unit-test-job: # This job runs in the test stage.
       - build/reports/jacoco/test/*
   coverage: "/- Line Coverage: (.*)/"
 
-unit-test-windows:
-  stage: test
-  tags:
-    - windows
-  script:
-    - ./gradlew test
+
 
 # Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
 coverage-test:
