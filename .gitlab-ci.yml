@@ -57,7 +57,7 @@ code-style:
   stage: visualize
   script:
     - ./gradlew detektGenerateConfig
-    - ./gradlew detektCheck
+    - ./gradlew detekt
 #lint-test-job:   # This job also runs in the test stage.
 #  stage: test    # It can run at the same time as unit-test-job (in parallel).
 #  script:
