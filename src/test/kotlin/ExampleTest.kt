@@ -5,11 +5,11 @@ import kotlin.test.assertNotEquals
 class ExampleTest {
     @Test
     fun creatorTest() {
-        assertEquals("Robin", creator())
+        assertEquals("Robiin", creator())
     }
+
     @Test
     fun nonCreatorTest() {
         assertNotEquals("PETER", creator())
     }
-
 }
