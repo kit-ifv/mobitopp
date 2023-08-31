@@ -45,7 +45,7 @@ unit-test-job: # This job runs in the test stage.
 
 unit-test-windows:
   stage: test
-  image: mcr.microsoft.com/windows/servercore:ltsc2019
+  image: windows/servercore:ltsc2019
   script:
     - ./gradlew test
 
