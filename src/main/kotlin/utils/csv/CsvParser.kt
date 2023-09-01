@@ -2,42 +2,6 @@ package utils.csv
 
 import java.io.File
 
-interface Builder<E> {
-    fun build(): E
-}
-
-interface Row {
-    fun get(column: String): String
-}
-
-interface CsvReader {
-    companion object {
-        fun read(file: File) = DefaultCsvReader(file)
-    }
-    fun columns(): Collection<String>
-    fun rows(): Sequence<Row>
-}
-
-open class DefaultCsvReader(
-    protected val file: File
-): CsvReader {
-
-    private val columns: List<String>
-
-    init {
-        columns = listOf(file.path) //TODO
-    }
-
-    override fun columns(): Collection<String> {
-        TODO("Not yet implemented")
-    }
-
-    override fun rows(): Sequence<Row> {
-        TODO("Not yet implemented")
-    }
-
-}
-
 interface CsvParser<E> {
 
     fun parse(path: String): Sequence<E> {
@@ -105,9 +69,12 @@ open class MapMergeCsvParser<K, V>(
     protected val pairParser: CsvParser<Pair<K, V>>
 ) : MapCsvParser<K, List<V>> {
     override fun parseMap(csv: CsvReader): Map<K, List<V>> {
-        return parse(csv).groupBy( keySelector = { it.first }, valueTransform = { it.second })
+        return pairParser.parse(csv).groupBy( keySelector = { it.first }, valueTransform = { it.second })
     }
 
-    override fun parse(csv: CsvReader) = pairParser.parse(csv)
+    override fun parse(csv: CsvReader): Sequence<Pair<K, List<V>>> {
+        TODO("Not supported")
+    }
+
 
 }
