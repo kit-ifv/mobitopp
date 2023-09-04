@@ -1,6 +1,10 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import utils.units.DistanceUnit
+import utils.units.toDistance
 import kotlin.test.assertNotEquals
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class ExampleTest {
     @Test
@@ -11,5 +15,19 @@ class ExampleTest {
     @Test
     fun nonCreatorTest() {
         assertNotEquals("PETER", creator)
+    }
+    @Test
+    fun distanceInspector() {
+        val d = 5.0
+        val dist = d.toDistance(DistanceUnit.CENTIMETERS)
+        assertEquals(50, dist.inWholeMillimeters)
+        assertEquals(5, dist.inWholeCentimeters)
+        assertEquals(0, dist.inWholeMeters)
+        assertEquals(50.0, dist.toDouble(DistanceUnit.MILLIMETERS))
+        assertEquals(5.0, dist.toDouble(DistanceUnit.CENTIMETERS))
+        assertEquals(0.05, dist.toDouble(DistanceUnit.METERS))
+        assertEquals(0.00005, dist.toDouble(DistanceUnit.KILOMETERS))
+        val test = dist.toDouble(DistanceUnit.METERS)
+        println(dist)
     }
 }
