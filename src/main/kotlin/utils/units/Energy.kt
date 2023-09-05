@@ -1,3 +1,6 @@
 package utils.units
 
-class Energy()
+@JvmInline
+value class Energy(val l: Long){
+
+}

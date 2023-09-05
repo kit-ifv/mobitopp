@@ -44,6 +44,7 @@ class DistanceTest {
         val l = Long.MAX_VALUE
         val long_inf_dist = l.toDistance(DistanceUnit.METERS)
         val d2 = Distance.ofMeters(2)
+
         assertEquals(Distance.INFINITE, doubleInfDist - d2)
         assertEquals(Distance.INFINITE, long_inf_dist - d2)
         assertFails { long_inf_dist + doubleInfDist }
@@ -51,6 +52,7 @@ class DistanceTest {
 
 
     }
+
     @Test
     fun multiplicationTest() {
         val distance = (1).toDistance(DistanceUnit.atomic())
@@ -67,6 +69,7 @@ class DistanceTest {
 
         val result = (distance / 30) * 30
         assertEquals(distance, result)
+
 
     }
     @Test
