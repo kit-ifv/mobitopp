@@ -4,10 +4,8 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Distance (override val rawValue: Long): Helper<Distance, DistanceUnit> {
-    override fun create(value: Long): Distance {
-        return Distance(value)
-    }
+value class Distance (override val rawValue: Long): ScalarHelper<Distance, DistanceUnit> {
+
 
     val inWholeMillimeters: Long
         get() = toLong(DistanceUnit.MILLIMETERS)
@@ -30,6 +28,52 @@ value class Distance (override val rawValue: Long): Helper<Distance, DistanceUni
             return d.toDistance(DistanceUnit.KILOMETERS)
         }
 
+    }
+
+    override fun unaryMinus(): Distance {
+        return Distance(-rawValue)
+    }
+
+    override fun times(scalar: Int): Distance {
+        if (isInfinite()) {
+            return when {
+                scalar == 0 -> throw IllegalArgumentException("Multiplying infinity with 0 is an undefined operation")
+                scalar > 0 -> INFINITE
+                else -> Distance(-Long.MAX_VALUE)
+            }
+        }
+        if (scalar == 0) {
+            return Distance(0)
+        }
+        return Distance(scalar * rawValue)
+    }
+
+    override fun times(scalar: Double): Distance {
+        return Distance((scalar * rawValue).roundToLong())
+    }
+
+    override fun div(scalar: Int): Distance {
+        if(scalar == 0) {
+            return when {
+                rawValue > 0 -> INFINITE
+                rawValue < 0 -> Distance(-Long.MAX_VALUE)
+                else -> throw IllegalArgumentException("Dividing 0 by 0 is an undefined mathematical operation")
+            }
+        }
+        return Distance(rawValue / scalar)
+
+    }
+
+    override fun div(scalar: Double): Distance {
+        return Distance((rawValue / scalar).roundToLong())
+    }
+
+    override fun minus(other: Distance): Distance {
+        return this + (-other)
+    }
+
+    override fun plus(other: Distance): Distance {
+        return Distance(rawValue + other.rawValue)
     }
 }
 
@@ -78,6 +122,26 @@ fun Int.toDistance(unit: DistanceUnit): Distance {
     return toLong().toDistance(unit)
 }
 
-val Int.meters: Distance
+inline val Int.meters: Distance
     get() =  this.toDistance(DistanceUnit.METERS)
+
+inline val Int.kilometers: Distance
+    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+
+
+inline val Long.meters: Distance
+    get() =  this.toDistance(DistanceUnit.METERS)
+
+inline val Long.kilometers: Distance
+    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+
+
+inline val Double.meters: Distance
+    get() =  this.toDistance(DistanceUnit.METERS)
+
+inline val Double.kilometers: Distance
+    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+
+
+
 

@@ -41,59 +41,29 @@ internal interface Helper<E: Helper<E, F>, F: ConvertableUnit>: Comparable<Helpe
         return convertUnit(rawValue, 1L, unit.scale)
     }
     fun toInt(unit: F): Int {
-        val x = toLong(unit)
-        return x.coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
+        return toLong(unit).coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
     }
 
-    fun create(value: Long): E
+    operator fun plus(other: E): E
 
-    operator fun plus(other: E): E {
-        return create(rawValue + other.rawValue)
-    }
+    operator fun unaryMinus(): E
+    operator fun minus(other: E): E
 
-    operator fun unaryMinus(): E {
-        return create(-rawValue)
-    }
-    operator fun minus(other: E): E {
-        return create(rawValue + (-other.rawValue))
-    }
 
-    operator fun times(scalar: Int): Long {
-        if (isInfinite()) {
-            return when {
-                scalar == 0 -> throw IllegalArgumentException("Multiplying infinity with 0 is an undefined operation")
-                scalar > 0 -> infinity
-                else -> negInfinity
-            }
-        }
-        if (scalar == 0) {
-            return zero
-        }
-        return scalar * rawValue
-    }
-
-    operator fun times(scalar: Double): E {
-        return create((scalar * rawValue).roundToLong())
-    }
-
-    operator fun div(scalar: Int): E {
-        if(scalar == 0) {
-            return when {
-                rawValue > 0 -> create(infinity)
-                rawValue < 0 -> create(negInfinity)
-                else -> throw IllegalArgumentException("Dividing 0 by 0 is an undefined mathematical operation")
-            }
-        }
-        return create(rawValue / scalar)
-    }
-    operator fun div(scalar: Double) {
-        create((rawValue / scalar).roundToLong())
-    }
 
     override fun compareTo(other: Helper<E, F>): Int {
         return rawValue.compareTo(other.rawValue)
     }
 
+}
+
+internal interface ScalarHelper<E: ScalarHelper<E, F>, F: ConvertableUnit>: Helper<E, F> {
+    operator fun times(scalar: Int): E
+
+    operator fun times(scalar: Double): E
+
+    operator fun div(scalar: Int): E
+    operator fun div(scalar: Double): E
 }
 
 
