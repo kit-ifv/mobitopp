@@ -1,6 +1,7 @@
 package utils.csv
 
 import java.io.File
+import java.lang.NumberFormatException
 
 /**
  * The CsvParser interface defines methods for parsing a csv file and
@@ -142,7 +143,7 @@ enum class ParserErrorHandling { //TODO introduce interface? TODO maybe separate
             val value = row.get(column)
             entity?.also { parser(it, value) }
             entity
-        } catch (e: Exception) {
+        } catch (e: NumberFormatException) { //TODO add more exceptions, can we build this without exceptions?
             handleException(e, entity, message(entity, column, row))
         }
     }
@@ -277,8 +278,9 @@ open class MapMergeCsvParser<K, V>(
     }
 
     override fun parse(csv: CsvReader): Sequence<Pair<K, List<V>>> {
-        throw UnsupportedOperationException("MapMergeCsvParser#parse(CsvReader) is not supported and should not be called!")
+        throw UnsupportedOperationException(
+            "MapMergeCsvParser#parse(CsvReader) is not supported and should not be called!"
+        )
     }
-
 
 }

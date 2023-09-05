@@ -12,8 +12,8 @@ class ConsoleCaptor {
     }
 
     fun getText(): String {
-        if (!recording) {
-            throw IllegalStateException("ConsoleCaptor was already closed.")
+        require(recording){
+            "ConsoleCaptor was already closed."
         }
         recording = false
 

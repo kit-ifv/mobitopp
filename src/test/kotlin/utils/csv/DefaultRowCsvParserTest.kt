@@ -66,7 +66,9 @@ class DefaultRowCsvParserTest {
             .parse(file)
             .toList()
 
-        val expected = listOf("a", "Hello World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV" ,"fin")
+        val expected = listOf(
+            "a", "Hello World", "42", "exitProcess(1)", "test", "%&#)!?", "1+2*3", "mobiTopp", "IfV" ,"fin"
+        )
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.string)
@@ -186,7 +188,8 @@ class DefaultRowCsvParserTest {
             .parse(file)
             .toList()
 
-        val expected = listOf(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77).map { i -> i.toDuration(DurationUnit.MINUTES) }
+        val expected = listOf(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
+            .map { i -> i.toDuration(DurationUnit.MINUTES) }
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.duration)

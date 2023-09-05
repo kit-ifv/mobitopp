@@ -2,10 +2,9 @@ package utils.csv
 
 import org.junit.jupiter.api.Test
 
-import org.junit.jupiter.api.Assertions.*
 import java.io.File
 import kotlin.test.assertContains
-
+import kotlin.test.assertEquals
 
 
 class DefaultCsvReaderTest {

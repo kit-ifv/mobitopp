@@ -148,7 +148,8 @@ open class DefaultCsvReader(
     }
 
     private fun parseSafely(index: Int, line: String): Row? {
-        return parseRow(index, line) //TODO exception handling, line empty ... maybe generic version of ParserErrorHandling
+        return parseRow(index, line)
+        //TODO exception handling, line empty ... maybe generic version of ParserErrorHandling
     }
 
     private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, parseLine(line))
