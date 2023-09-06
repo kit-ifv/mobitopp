@@ -1,10 +1,15 @@
 package utils.units
 
 
-class Area(a: Distance, b: Distance) {
-    operator fun div(distance: Distance): Distance {
-        TODO()
+@JvmInline
+value class Area internal constructor(private val rawValue: Double) {
+    companion object {
+        fun of(a: Distance, b: Distance): Area {
+            return Area(a.toDouble(DistanceUnit.METERS) * b.toDouble(DistanceUnit.METERS))
+        }
     }
+}
 
+enum class AreaUnits {
 
 }

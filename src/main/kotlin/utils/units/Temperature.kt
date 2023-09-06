@@ -3,7 +3,7 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Temperature(override val rawValue: Long) : Helper<Temperature, TemperatureUnit>{
+value class Temperature(override val rawValue: Long) : AddableUnit<Temperature, TemperatureUnit>{
     override fun plus(other: Temperature): Temperature {
         return Temperature(rawValue + other.rawValue)
     }

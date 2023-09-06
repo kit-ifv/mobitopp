@@ -667,6 +667,8 @@ style:
     max: 2
     excludedFunctions:
       - 'equals'
+      - 'times'
+      - 'div'
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false

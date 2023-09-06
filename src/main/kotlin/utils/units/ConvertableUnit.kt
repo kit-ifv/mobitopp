@@ -1,7 +1,5 @@
 package utils.units
 
-import kotlin.math.roundToLong
-
 /**
  * Represents a property that can be expressed in different units (such as Length (m) == 1000 x (mm),
  * Time (HH) == 60 x (MM) or (€) = 1.194 ($)) where a minimal precision can be specified sufficiently by an
@@ -13,7 +11,23 @@ import kotlin.math.roundToLong
 interface ConvertableUnit {
     val scale: Long
 }
-internal interface Helper<E: Helper<E, F>, F: ConvertableUnit>: Comparable<Helper<E, F>> {
+
+/**
+ * Provides the basic functionality for arithmetic operations and primitive type conversions for a unit that can
+ * be represented by a long value. The designated inheritors of this interface should be units that do not require
+ * high precision but which can cause errors by conversion errors. (Such as assuming a raw Integer as seconds
+ * instead of minutes which is not inherently clear to other team members).
+ *
+ * Support translation (+ and -) operations
+ *
+ * @param E This self-referential Type is used to prevent arithmetic operations on arbitrary unit types.
+ * (such as 1 km + 20 seconds). Only identical units should support arithmetic.
+ *
+ * @param F A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
+ * the unit
+ */
+internal interface AddableUnit<E: AddableUnit<E, F>, F: ConvertableUnit>:
+    Comparable<AddableUnit<E, F>> {
     val rawValue: Long
     private val infinity: Long
         get() = Long.MAX_VALUE
@@ -51,13 +65,17 @@ internal interface Helper<E: Helper<E, F>, F: ConvertableUnit>: Comparable<Helpe
 
 
 
-    override fun compareTo(other: Helper<E, F>): Int {
+    override fun compareTo(other: AddableUnit<E, F>): Int {
         return rawValue.compareTo(other.rawValue)
     }
 
 }
 
-internal interface ScalarHelper<E: ScalarHelper<E, F>, F: ConvertableUnit>: Helper<E, F> {
+/**
+ *  Adds scaling to the set of operations on the underlying unit. *
+ */
+internal interface ScalarUnit<E: ScalarUnit<E, F>, F: ConvertableUnit>
+    : AddableUnit<E, F> {
     operator fun times(scalar: Int): E
 
     operator fun times(scalar: Double): E
@@ -65,7 +83,6 @@ internal interface ScalarHelper<E: ScalarHelper<E, F>, F: ConvertableUnit>: Help
     operator fun div(scalar: Int): E
     operator fun div(scalar: Double): E
 }
-
 
 
 

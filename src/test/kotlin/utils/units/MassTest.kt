@@ -1,7 +1,8 @@
 package utils.units
 
-import org.junit.jupiter.api.Assertions.*
+
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class MassTest {
     @Test
@@ -34,6 +35,7 @@ class MassTest {
     @Test
     fun additionTest() {
         val mass = (1000L).toMass(MassUnit.GRAM)
+        val target = mass + mass
         assertEquals(2.kilograms, mass + mass)
     }
     @Test
@@ -46,5 +48,11 @@ class MassTest {
     fun convenienceConstructors() {
         assertEquals(10.kilograms, (10).toMass(MassUnit.KILOGRAM))
         assertEquals(3.grams, (3).toMass(MassUnit.GRAM))
+    }
+    @Test
+    fun unaryMinus() {
+        val mass = (10).toMass(MassUnit.KILOGRAM)
+        val target = -mass
+        assertEquals((-10).kilograms, target)
     }
 }

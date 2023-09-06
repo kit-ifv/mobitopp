@@ -4,7 +4,7 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Distance (override val rawValue: Long): ScalarHelper<Distance, DistanceUnit> {
+value class Distance (override val rawValue: Long): ScalarUnit<Distance, DistanceUnit> {
 
 
     val inWholeMillimeters: Long
@@ -110,8 +110,8 @@ enum class DistanceUnit(override val scale: Long) : ConvertableUnit {
  * conversions to allow simple alteration
  */
 fun Double.toDistance(unit: DistanceUnit): Distance {
-    val millis = this.roundToLong()
-    return Distance(convertUnit(millis, unit.scale))
+    val millis = (this*unit.scale).roundToLong()
+    return Distance(convertUnit(millis, 1L))
 }
 
 fun Long.toDistance(unit: DistanceUnit): Distance {
