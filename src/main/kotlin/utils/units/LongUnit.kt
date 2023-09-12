@@ -1,16 +1,8 @@
 package utils.units
 
-/**
- * Represents a property that can be expressed in different units (such as Length (m) == 1000 x (mm),
- * Time (HH) == 60 x (MM) or (€) = 1.194 ($)) where a minimal precision can be specified sufficiently by an
- * Integer variable rather than a floating point number.
- *
- * @property scale The scaling factor in regard to the minimal precision. If (mm) is the minimum precision then a meter
- * would have a scale factor of 1000L
- */
-interface ConvertableUnit {
-    val scale: Long
-}
+import kotlin.math.abs
+
+
 
 /**
  * Provides the basic functionality for arithmetic operations and primitive type conversions for a unit that can
@@ -26,17 +18,14 @@ interface ConvertableUnit {
  * @param F A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
  * the unit
  */
-internal interface AddableUnit<E: AddableUnit<E, F>, F: ConvertableUnit>:
-    Comparable<AddableUnit<E, F>> {
+internal interface LongUnit<E: LongUnit<E, F>, F: UnitScale>:
+    Comparable<LongUnit<E, F>> {
     val rawValue: Long
     private val infinity: Long
         get() = Long.MAX_VALUE
 
     private val negInfinity: Long
         get() = -Long.MAX_VALUE
-
-    private val zero: Long
-        get() = 0
 
 
     fun isInfinite(): Boolean {
@@ -65,17 +54,35 @@ internal interface AddableUnit<E: AddableUnit<E, F>, F: ConvertableUnit>:
 
 
 
-    override fun compareTo(other: AddableUnit<E, F>): Int {
+    override fun compareTo(other: LongUnit<E, F>): Int {
         return rawValue.compareTo(other.rawValue)
+    }
+
+    fun fuzzyEquals(other: LongUnit<E, F>, precision: F): Boolean {
+        return abs(rawValue - other.rawValue) < precision.scale
     }
 
 }
 
 /**
+ * Represents a property that can be expressed in different units (such as Length (m) == 1000 x (mm),
+ * Time (HH) == 60 x (MM) or (€) = 1.194 ($)) where a minimal precision can be specified sufficiently by an
+ * Integer variable rather than a floating point number.
+ *
+ * @property scale The scaling factor in regard to the minimal precision. If (mm) is the minimum precision then a meter
+ * would have a scale factor of 1000L
+ */
+interface UnitScale {
+    val scale: Long
+
+}
+
+
+/**
  *  Adds scaling to the set of operations on the underlying unit. *
  */
-internal interface ScalarUnit<E: ScalarUnit<E, F>, F: ConvertableUnit>
-    : AddableUnit<E, F> {
+internal interface ScalarUnit<E: ScalarUnit<E, F>, F: UnitScale>
+    : LongUnit<E, F> {
     operator fun times(scalar: Int): E
 
     operator fun times(scalar: Double): E
@@ -87,22 +94,22 @@ internal interface ScalarUnit<E: ScalarUnit<E, F>, F: ConvertableUnit>
 
 
 
-
+@Suppress("ReturnCount")
 private fun convert(d: Long, dst: Long, src: Long): Long {
 
     if (src == dst)
-        return d;
+        return d
     else if (src < dst)
         return d / (dst / src)
 
     val r = src / dst
     val m = Long.MAX_VALUE / r
     if (d > m)
-        return Long.MAX_VALUE;
+        return Long.MAX_VALUE
     else if (d < -m)
-        return Long.MIN_VALUE;
+        return Long.MIN_VALUE
     else
-        return d * r;
+        return d * r
 }
 
 

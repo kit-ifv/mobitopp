@@ -77,7 +77,7 @@ value class Distance (override val rawValue: Long): ScalarUnit<Distance, Distanc
     }
 }
 
-enum class DistanceUnit(override val scale: Long) : ConvertableUnit {
+enum class DistanceUnit(override val scale: Long) : UnitScale {
     MICROMETERS(1L),
     MILLIMETERS(1000L),
     CENTIMETERS(10_000L),

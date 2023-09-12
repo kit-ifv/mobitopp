@@ -52,7 +52,7 @@ value class Mass(override val rawValue: Long) : ScalarUnit<Mass, MassUnit> {
     }
 
 }
-enum class MassUnit(override val scale: Long) : ConvertableUnit {
+enum class MassUnit(override val scale: Long) : UnitScale {
     MICROGRAM(1L),
     MILLIGRAM(1000L),
     GRAM(1_000_000L),

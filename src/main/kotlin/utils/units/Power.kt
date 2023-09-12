@@ -1,5 +1,20 @@
 package utils.units
 
-class Power {
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
+@JvmInline
+value class Power(override val rawValue: Double) : FloatUnit<PowerUnit> {
+    companion object {
+        fun of(energy: Energy, duration: Duration): Power {
+            return Power(energy.toDouble(EnergyUnits.JOULE) / duration.toDouble(DurationUnit.SECONDS))
+        }
+    }
+    operator fun times(duration: Duration) : Energy {
+        return Energy(this.rawValue * duration.toDouble(DurationUnit.SECONDS))
+    }
+}
+enum class PowerUnit(override val scale: Double): FloatUnitScale {
+    WATTS(1.0),
+    KILOWATTS(1000.0)
 }

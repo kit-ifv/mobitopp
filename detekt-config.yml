@@ -319,7 +319,7 @@ naming:
     maximumFunctionNameLength: 30
   FunctionMinLength:
     active: true
-    minimumFunctionNameLength: 3
+    minimumFunctionNameLength: 2
   FunctionNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
