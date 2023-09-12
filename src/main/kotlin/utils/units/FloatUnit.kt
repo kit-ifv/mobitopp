@@ -9,22 +9,33 @@ import kotlin.math.roundToLong
  * Some units are not reasonably representable with an Integer or Long variable, since floating point arithmetics
  * support calculations with infinities no special shenanigans are needed to handle overflows
  */
-interface FloatUnit<F: FloatUnitScale> {
+interface FloatUnit<F: FloatUnitScale>: NumericUnit<F> {
     val rawValue: Double
-    fun toDouble(unit: F): Double {
+
+    override fun toDouble(unit: F): Double {
         return rawValue / unit.scale
     }
 
-    fun toLong(unit: F): Long {
+    override fun toLong(unit: F): Long {
         return (rawValue / unit.scale).roundToLong()
     }
 
-    fun toInt(unit: F): Int {
+    override fun toInt(unit: F): Int {
         return (rawValue / unit.scale).roundToInt()
     }
 
+
+
 }
 
-interface FloatUnitScale {
-    val scale: Double
+interface NumericUnit<N: NumericUnitScale> {
+    fun toDouble(unit: N): Double
+    fun toLong(unit: N): Long
+    fun toInt(unit: N): Int
+}
+interface NumericUnitScale {
+    val scale: Number
+}
+interface FloatUnitScale: NumericUnitScale {
+    override val scale: Double
 }

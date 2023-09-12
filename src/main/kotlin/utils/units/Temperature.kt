@@ -31,7 +31,7 @@ value class Temperature(override val rawValue: Long) : LongUnit<Temperature, Tem
     }
 }
 
-enum class TemperatureUnit(override val scale: Long, val offset : Long): UnitScale {
+enum class TemperatureUnit(override val scale: Long, val offset : Long): LongUnitScale {
 
     KELVIN(1_000_000L, 0),
     FAHRENHEIT(555_556L, 255_372_222L),

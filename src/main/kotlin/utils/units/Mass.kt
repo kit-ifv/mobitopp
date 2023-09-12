@@ -52,7 +52,7 @@ value class Mass(override val rawValue: Long) : ScalarUnit<Mass, MassUnit> {
     }
 
 }
-enum class MassUnit(override val scale: Long) : UnitScale {
+enum class MassUnit(override val scale: Long) : LongUnitScale {
     MICROGRAM(1L),
     MILLIGRAM(1000L),
     GRAM(1_000_000L),
@@ -70,7 +70,8 @@ fun Long.toMass(unit: MassUnit): Mass {
     return Mass(convertUnit(this, unit.scale))
 }
 fun Double.toMass(unit: MassUnit): Mass {
-    return Mass(convertUnit(this.roundToLong(), unit.scale))
+    val x = (this*unit.scale).roundToLong()
+    return Mass(convertUnit(x, 1L))
 }
 
 operator fun Int.times(mass: Mass) : Mass{

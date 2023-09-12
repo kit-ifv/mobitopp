@@ -14,6 +14,21 @@ value class Power(override val rawValue: Double) : FloatUnit<PowerUnit> {
         return Energy(this.rawValue * duration.toDouble(DurationUnit.SECONDS))
     }
 }
+
+fun Int.toPower(units: PowerUnit): Power {
+    return Power(this * units.scale)
+}
+
+
+fun Long.toPower(units: PowerUnit): Power {
+    return Power(this * units.scale)
+}
+
+fun Double.toPower(units: PowerUnit): Power {
+    return Power(this * units.scale)
+}
+
+
 enum class PowerUnit(override val scale: Double): FloatUnitScale {
     WATTS(1.0),
     KILOWATTS(1000.0)

@@ -18,8 +18,8 @@ import kotlin.math.abs
  * @param F A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
  * the unit
  */
-internal interface LongUnit<E: LongUnit<E, F>, F: UnitScale>:
-    Comparable<LongUnit<E, F>> {
+internal interface LongUnit<E: LongUnit<E, F>, F: LongUnitScale>:
+    Comparable<LongUnit<E, F>>, NumericUnit<F> {
     val rawValue: Long
     private val infinity: Long
         get() = Long.MAX_VALUE
@@ -31,7 +31,7 @@ internal interface LongUnit<E: LongUnit<E, F>, F: UnitScale>:
     fun isInfinite(): Boolean {
         return rawValue == infinity || rawValue == negInfinity
     }
-    fun toDouble(unit: F): Double {
+    override fun toDouble(unit: F): Double {
         return when(rawValue) {
             infinity -> Double.POSITIVE_INFINITY
             negInfinity -> Double.NEGATIVE_INFINITY
@@ -40,10 +40,10 @@ internal interface LongUnit<E: LongUnit<E, F>, F: UnitScale>:
             }
         }
     }
-    fun toLong(unit: F): Long {
+    override fun toLong(unit: F): Long {
         return convertUnit(rawValue, 1L, unit.scale)
     }
-    fun toInt(unit: F): Int {
+    override fun toInt(unit: F): Int {
         return toLong(unit).coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
     }
 
@@ -72,8 +72,8 @@ internal interface LongUnit<E: LongUnit<E, F>, F: UnitScale>:
  * @property scale The scaling factor in regard to the minimal precision. If (mm) is the minimum precision then a meter
  * would have a scale factor of 1000L
  */
-interface UnitScale {
-    val scale: Long
+interface LongUnitScale: NumericUnitScale {
+    override val scale: Long
 
 }
 
@@ -81,7 +81,7 @@ interface UnitScale {
 /**
  *  Adds scaling to the set of operations on the underlying unit. *
  */
-internal interface ScalarUnit<E: ScalarUnit<E, F>, F: UnitScale>
+internal interface ScalarUnit<E: ScalarUnit<E, F>, F: LongUnitScale>
     : LongUnit<E, F> {
     operator fun times(scalar: Int): E
 
@@ -92,8 +92,11 @@ internal interface ScalarUnit<E: ScalarUnit<E, F>, F: UnitScale>
 }
 
 
-
-
+/**
+ * This method is directly stolen from the JVM Long conversion for Kotlin. The "ReturnCount" issue could be resolved
+ * by holding the return value in a variable, but I think the overhead of implementing this is not worth
+ * the effort as it does not increase readability.
+ */
 @Suppress("ReturnCount")
 private fun convert(d: Long, dst: Long, src: Long): Long {
 
@@ -104,12 +107,12 @@ private fun convert(d: Long, dst: Long, src: Long): Long {
 
     val r = src / dst
     val m = Long.MAX_VALUE / r
-    if (d > m)
-        return Long.MAX_VALUE
+    return if (d > m)
+        Long.MAX_VALUE
     else if (d < -m)
-        return Long.MIN_VALUE
+        Long.MIN_VALUE
     else
-        return d * r
+        d * r
 }
 
 

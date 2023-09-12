@@ -7,7 +7,7 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 
-class SpeedTest {
+class SpeedTest: GenericUnitTest<SpeedUnit, Speed>(SpeedUnit.values(), Int::toSpeed, Long::toSpeed, Double::toSpeed) {
 
     @Test
     fun conversion() {

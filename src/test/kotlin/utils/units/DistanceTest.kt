@@ -1,15 +1,15 @@
 package utils.units
 
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-import org.junit.jupiter.api.Assertions.*
-import java.lang.IllegalArgumentException
-import kotlin.math.abs
-import kotlin.math.absoluteValue
-import kotlin.math.min
-import kotlin.test.assertFails
-
-class DistanceTest {
+class DistanceTest : GenericUnitTest<DistanceUnit, Distance>(
+    DistanceUnit.values(),
+    Int::toDistance,
+    Long::toDistance,
+    Double::toDistance
+) {
 
     @Test
     fun compareTo() {
@@ -24,6 +24,7 @@ class DistanceTest {
         assertTrue(d1 < d3)
         assertTrue(d2 < d3)
     }
+
     @Test
     fun addition() {
         val d1 = Distance.ofMeters(1)
@@ -40,6 +41,7 @@ class DistanceTest {
         assertEquals(result.toLong(DistanceUnit.atomic()), 3)
         assertEquals(distance * 4.0, (4).toDistance(DistanceUnit.atomic()))
     }
+
     @Test
     fun divisionTest() {
         val distance = (1).toDistance(DistanceUnit.METERS)
@@ -47,36 +49,18 @@ class DistanceTest {
     }
 
     @Test
-    fun integerConversion() {
-        for (i in listOf(1, 2, 3, 42, -1337, 9001)) {
-            for(unit in DistanceUnit.values()) {
-                kotlin.test.assertEquals(i, i.toDistance(unit).toInt(unit))
-            }
-        }
-    }
-
-    @Test
-    fun longConversion() {
-        for (i in listOf(1L, 2L, 3L, 42L, -1337L, 9001L)) {
-            for(unit in DistanceUnit.values()) {
-                kotlin.test.assertEquals(i, i.toDistance(unit).toLong(unit))
-            }
-        }
-    }
-
-    @Test
-    fun doubleConversion() {
-        for (i in listOf(1.0, 2.0, 3.0, 42.2, -1337.1, 9001.1)) {
-            for(unit in DistanceUnit.values()) {
-                kotlin.test.assertEquals(i, i.toDistance(unit).toDouble(unit), 0.001)
-            }
-        }
-    }
-    @Test
-    fun fourtytwo() {
+    fun convertingCommaToHighUnit() {
         val test = 42.2.toDistance(DistanceUnit.KILOMETERS)
         val result = test.toDouble(DistanceUnit.KILOMETERS)
         println(result)
     }
 
+    @Test
+    fun convenienceConstructors() {
+        assertEquals(1L.kilometers, 1.0.kilometers)
+        assertEquals(1.kilometers, 1L.kilometers)
+        assertEquals(1.0.meters, 1L.meters)
+        assertEquals(1.meters, 1L.meters)
+        assertEquals(1.kilometers, Distance.ofKilometers(1))
+    }
 }

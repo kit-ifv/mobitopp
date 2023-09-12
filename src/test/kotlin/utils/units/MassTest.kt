@@ -4,7 +4,7 @@ package utils.units
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class MassTest {
+class MassTest : GenericUnitTest<MassUnit, Mass>(MassUnit.values(), Int::toMass, Long::toMass, Double::toMass) {
     @Test
     fun reasonableNumbers() {
         val massFromDouble = 10.0.toMass(MassUnit.GRAM)
@@ -35,7 +35,6 @@ class MassTest {
     @Test
     fun additionTest() {
         val mass = (1000L).toMass(MassUnit.GRAM)
-        val target = mass + mass
         assertEquals(2.kilograms, mass + mass)
     }
     @Test
