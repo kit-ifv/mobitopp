@@ -1,5 +1,5 @@
 package domain.agents
 
-class SimulationEvent: Event {
+//class SimulationEvent: Event {
 
-}
+//}
