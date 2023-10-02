@@ -1,0 +1,190 @@
+ProbabilityClass edu.kit.ifv.mobitopp.simulation.destinationchoice.generated.GeneratedDestinationChoiceModel
+
+Interface        edu.kit.ifv.mobitopp.simulation.destinationchoice.DestinationChoiceUtilityModel
+Signature        selectDestination(edu.kit.ifv.mobitopp.simulation.Person person >, 
+                 edu.kit.ifv.mobitopp.data.Zone origin >, 
+                 edu.kit.ifv.mobitopp.data.Zone destination >,
+                 edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc  previousActivity >,
+                 edu.kit.ifv.mobitopp.simulation.activityschedule.ActivityIfc nextActivity >,
+                 edu.kit.ifv.mobitopp.time.Time time >,
+                 double randomNumber >):edu.kit.ifv.mobitopp.data.Zone
+							
+UtilityClass     edu.kit.ifv.mobitopp.simulation.destinationchoice.generated.DestinationChoiceUtilityFunction
+HelperClass      edu.kit.ifv.mobitopp.simulation.destinationchoice.generated.DestinationChoiceHelper
+
+root: {}
+
+Destination: U_destination = 
+				(
+                    ( // b_attr
+                      b_attr 
+                      + shift_age_1_on_logsum_attr * [0 <= AGE <= 17]
+                      + shift_age_56_on_logsum_attr * [50 <= AGE <= 69]
+                      + shift_age_78_on_logsum_attr * [70 <= AGE <= 120]
+                      + shift_educ_on_logsum_attr * [(IS_EMPLOYMENT_STUDENT + IS_EMPLOYMENT_STUDENT_PRIMARY + IS_EMPLOYMENT_STUDENT_SECONDARY + IS_EMPLOYMENT_STUDENT_TERTIARY + IS_EMPLOYMENT_EDUCATION) > 0]
+                      + shift_home_on_logsum_attr * [(IS_EMPLOYMENT_HOMEKEEPER + IS_EMPLOYMENT_UNEMPLOYED) > 0]
+                      + shift_zk_on_logsum_attr * HAS_COMMUTER_TICKET
+                      + shift_carav_on_logsum_attr * [CARS_PER_ADULT>=1]
+                      + shift_high_inc_on_logsum_attr * [4 <= HOUSEHOLD_ECONOMICAL_STATUS <=5]
+					  //+ shift_uml_on_logsum_attr * IS_UMLAND
+					  + shift_b_0_1_on_logsum_attr * [0 < DISTANCE <=1]
+					  + shift_b_1_2_on_logsum_attr * [1< DISTANCE <=2]
+					  + shift_intrazonal_on_attr * IS_INTRAZONAL
+                    ) 
+                ) * log((ATTRACTIVITY > max_attractivity ) ? ( max_attractivity ) : ( ATTRACTIVITY ))
+                + b_0_1 * [0 < DISTANCE <=1]
+                + b_1_2 * [1 < DISTANCE <=2] 
+				+ b_intrazonal * IS_INTRAZONAL
+				+ (
+                    ( // b_logsum_pt
+                      b_logsum_pt_active
+					  + shift_purp_on_logsum_pt
+					  + shift_age_1_on_logsum_pt * [0 <= AGE <= 17]
+                      + shift_age_56_on_logsum_pt * [50 <= AGE <= 69]
+                      + shift_age_78_on_logsum_pt  * [70 <= AGE <= 120]
+                      + shift_educ_on_logsum_pt * [(IS_EMPLOYMENT_STUDENT + IS_EMPLOYMENT_STUDENT_PRIMARY + IS_EMPLOYMENT_STUDENT_SECONDARY + IS_EMPLOYMENT_STUDENT_TERTIARY + IS_EMPLOYMENT_EDUCATION) > 0]
+                      + shift_home_on_logsum_pt * [(IS_EMPLOYMENT_HOMEKEEPER + IS_EMPLOYMENT_UNEMPLOYED) > 0]
+                      + shift_zk_on_logsum_pt * HAS_COMMUTER_TICKET
+                      + shift_carav_on_logsum_pt * [CARS_PER_ADULT>=1]
+					  + shift_nocar_on_logsum_pt * [HOUSEHOLD_NUMBER_OF_OWNED_CARS==0]
+                      + shift_high_inc_on_logsum_pt * [4 <= HOUSEHOLD_ECONOMICAL_STATUS <=5]
+					  //+ shift_uml_on_logsum_pt * IS_UMLAND
+                    ) * 
+                    ( // LOGSUM_DEST_PT
+                       log( 
+                         exp( // utility_put
+                          asc_put 
+                          + b_tt_put * ( 1000 > TRAVEL_TIME_PUBLICTRANSPORT ) ? ( TRAVEL_TIME_PUBLICTRANSPORT) : ( 999 )
+                          + b_cost * ( 1000 > TRAVEL_COST_PUBLICTRANSPORT ) ? ( TRAVEL_COST_PUBLICTRANSPORT) : ( 999 )
+						  + b_tt_acc_put * ( 1000 > ACCESS_TIME_PUBLICTRANSPORT & 1000 > EGRESS_TIME_PUBLICTRANSPORT ) ? ( ACCESS_TIME_PUBLICTRANSPORT + EGRESS_TIME_PUBLICTRANSPORT ) : ( 999 )
+                          //+ b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT > (-50))?(LOGSUM_ACC_PUT):(-50))
+						  //+ b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT > (-50))?(LOGSUM_EGR_PUT):(-50))
+                        ) + 
+                         exp( // utility_ped
+                          asc_ped 
+                          + b_tt_ped * ( 1000 > TRAVEL_TIME_PEDESTRIAN) ? ( TRAVEL_TIME_PEDESTRIAN) : ( 999 )
+                        ) + 
+                         exp( // utility_bike
+                          asc_bike
+                          + b_tt_bike * ( 1000 > TRAVEL_TIME_BIKE) ? ( TRAVEL_TIME_BIKE) : ( 999 )
+                        ) //+
+                       // AVAIL_BS * exp( // utility_bike
+                       //   asc_bs
+                       //   + b_tt_bike * ( 1000 > TRAVEL_TIME_BIKE) ? ( TRAVEL_TIME_BIKE) : ( 999 )
+						//  + b_cost * ( 1000 > TRAVEL_COST_BIKESHARING) ? ( TRAVEL_COST_BIKESHARING) : ( 999 )
+                      //) 
+                    ) +  [ AVAIL_FUSS==0 & AVAIL_RAD==0 & AVAIL_OEV==0 ] * ( -50 )
+                  ) + (
+                    ( // b_logsum_drive
+                      b_logsum_drive 
+                      + shift_age_1_on_logsum_drive * [0 <= AGE <= 17]
+                      + shift_age_56_on_logsum_drive * [50 <= AGE <= 69]
+                      + shift_age_78_on_logsum_drive * [70 <= AGE <= 120]
+                      + shift_educ_on_logsum_drive * [(IS_EMPLOYMENT_STUDENT + IS_EMPLOYMENT_STUDENT_PRIMARY + IS_EMPLOYMENT_STUDENT_SECONDARY + IS_EMPLOYMENT_STUDENT_TERTIARY + IS_EMPLOYMENT_EDUCATION) > 0]
+                      + shift_arb_on_logsum_drive * [(IS_EMPLOYMENT_HOMEKEEPER + IS_EMPLOYMENT_UNEMPLOYED) > 0]
+                      + shift_zk_on_logsum_drive * HAS_COMMUTER_TICKET
+                      + shift_carav_on_logsum_drive * [CARS_PER_ADULT>=1]
+					  + shift_nocar_on_logsum_drive * [HOUSEHOLD_NUMBER_OF_OWNED_CARS==0]
+                      + shift_high_inc_on_logsum_drive * [4 <= HOUSEHOLD_ECONOMICAL_STATUS <=5]
+					 // + shift_uml_on_logsum_drive * IS_UMLAND
+                    ) * 
+                    ( // LOGSUM_DEST_DRIVE
+                       log(
+                          AVAIL_PKW * exp( // utility_car_d
+                          asc_car_d 
+                          + b_tt_car_d * ( 1000 > TRAVEL_TIME_CAR ) ? ( TRAVEL_TIME_CAR ) : ( 999 )
+                          + b_cost     * ( 1000 > TRAVEL_COST_CAR ) ? ( TRAVEL_COST_CAR ) : ( 999 )
+                        ) +
+                          exp( // utility_car_p
+                          asc_car_p 
+                          + b_tt_car_p * ( 1000 > TRAVEL_TIME_CAR ) ? ( TRAVEL_TIME_CAR + 3 ) : ( 999 )
+                        ) //+
+                        // AVAIL_CSSB * exp( // utility_cs_sb
+                        //  asc_cs_sb 
+                        //  + b_tt_cs * ( 1000 > TRAVEL_TIME_CAR ) ? ( TRAVEL_TIME_CAR + 3 ) : ( 999 )
+						//  + b_cost  * ( 1000 > TRAVEL_COST_CARSHARING_STATION ) ? ( TRAVEL_COST_CARSHARING_STATION ) : ( 999 )
+						//  + b_logsum_acc_cs * (LOGSUM_CS_SB > (-50))?(LOGSUM_CS_SB):(-50)
+						//) +
+                       //  AVAIL_CSFF * exp( // utility_cs_sb
+                        //  asc_cs_sb 
+                        //  + b_tt_cs * ( 1000 > TRAVEL_TIME_CAR ) ? ( TRAVEL_TIME_CAR + 3 ) : ( 999 )
+						//  + b_cost  * ( 1000 > TRAVEL_COST_CARSHARING_FREE ) ? ( TRAVEL_COST_CARSHARING_FREE ) : ( 999 )
+                       // )
+                      ) + [ AVAIL_PKW==0 & AVAIL_MF==0 ] * ( -50 )
+                    )
+                  ) + (
+                    ( // b_logsum_pt_fix
+                      b_logsum_pt_active
+					  + shift_purp_on_logsum_pt_fix
+					  + shift_age_1_on_logsum_pt_fix * [0 <= AGE <= 17]
+                      + shift_age_56_on_logsum_pt_fix * [50 <= AGE <= 69]
+                      + shift_age_78_on_logsum_pt_fix * [70 <= AGE <= 120]
+                      + shift_educ_on_logsum_pt_fix * [(IS_EMPLOYMENT_STUDENT + IS_EMPLOYMENT_STUDENT_PRIMARY + IS_EMPLOYMENT_STUDENT_SECONDARY + IS_EMPLOYMENT_STUDENT_TERTIARY + IS_EMPLOYMENT_EDUCATION) > 0]
+                      + shift_home_on_logsum_pt_fix * [(IS_EMPLOYMENT_HOMEKEEPER + IS_EMPLOYMENT_UNEMPLOYED) > 0]
+                      + shift_zk_on_logsum_pt_fix * HAS_COMMUTER_TICKET
+                      + shift_carav_on_logsum_pt_fix * [CARS_PER_ADULT>=1]
+					  + shift_nocar_on_logsum_pt_fix * [HOUSEHOLD_NUMBER_OF_OWNED_CARS==0]
+                      + shift_high_inc_on_logsum_pt_fix * [4 <= HOUSEHOLD_ECONOMICAL_STATUS <=5]
+					  //+ shift_uml_on_logsum_pt_fix * IS_UMLAND
+                    ) * 
+                    ( // LOGSUM_FIX_DEST_PT
+                       log( 
+                         exp( // utility_put
+                          asc_put 
+                          + b_tt_put * ( 1000 > TRAVEL_TIME_PUBLICTRANSPORT_FIX ) ? ( TRAVEL_TIME_PUBLICTRANSPORT_FIX ) : ( 999 )
+                          + b_cost * ( 1000 > TRAVEL_COST_PUBLICTRANSPORT_FIX ) ? ( TRAVEL_COST_PUBLICTRANSPORT_FIX ) : ( 999 )
+						  //+ b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_ACC_PUT_FIX > (-50))?(LOGSUM_ACC_PUT_FIX):(-50))
+						  //+ b_logsum_acc_put/2 * exp(elasticity_acc_put*(LOGSUM_EGR_PUT_FIX > (-50))?(LOGSUM_EGR_PUT_FIX):(-50))
+                        ) + 
+                        exp( // utility_ped
+                          asc_ped 
+                          + b_tt_ped * ( 1000 > TRAVEL_TIME_PEDESTRIAN_FIX ) ? ( TRAVEL_TIME_PEDESTRIAN_FIX ) : ( 999 )
+                        ) + 
+                         exp( // utility_bike
+                          asc_bike
+                          + b_tt_bike * ( 1000 > TRAVEL_TIME_BIKE_FIX ) ? ( TRAVEL_TIME_BIKE_FIX ) : ( 999 )
+                        ) +
+                        AVAIL_BS * exp( // utility_bike
+                          asc_bs
+                          + b_tt_bike * ( 1000 > TRAVEL_TIME_BIKE_FIX ) ? ( TRAVEL_TIME_BIKE_FIX ) : ( 999 )
+					    + b_cost * ( 1000 > TRAVEL_COST_BIKESHARING_FIX ) ? ( TRAVEL_COST_BIKESHARING_FIX ) : ( 999 )
+                      ) 
+                    ) + [ AVAIL_FUSS==0 & AVAIL_RAD==0 & AVAIL_OEV==0 ] * ( -50 )
+                  ) + (
+                    ( // b_logsum_drive_fix
+                      b_logsum_drive_fix 
+                      + shift_age_1_on_logsum_drive_fix * [0 <= AGE <= 17]
+                      + shift_age_56_on_logsum_drive_fix * [50 <= AGE <= 69]
+                      + shift_age_78_on_logsum_drive_fix * [70 <= AGE <= 120]
+                      + shift_educ_on_logsum_drive_fix * [(IS_EMPLOYMENT_STUDENT + IS_EMPLOYMENT_STUDENT_PRIMARY + IS_EMPLOYMENT_STUDENT_SECONDARY + IS_EMPLOYMENT_STUDENT_TERTIARY + IS_EMPLOYMENT_EDUCATION) > 0]
+                      + shift_home_on_logsum_drive_fix * [(IS_EMPLOYMENT_HOMEKEEPER + IS_EMPLOYMENT_UNEMPLOYED) > 0]
+                      + shift_zk_on_logsum_drive_fix * HAS_COMMUTER_TICKET
+                      + shift_carav_on_logsum_drive_fix * [CARS_PER_ADULT>=1]
+					  + shift_nocar_on_logsum_drive_fix * [HOUSEHOLD_NUMBER_OF_OWNED_CARS==0]
+                      + shift_high_inc_on_logsum_drive_fix * [4 <= HOUSEHOLD_ECONOMICAL_STATUS <=5]
+					  //+ shift_uml_on_logsum_drive_fix * IS_UMLAND
+                    ) * 
+                    ( // LOGSUM_FIX_DEST_DRIVE
+                       log(
+                         AVAIL_PKW * exp( // utility_car_d
+                          asc_car_d 
+                          + b_tt_car_d * ( 1000 > TRAVEL_TIME_CAR_FIX ) ? ( TRAVEL_TIME_CAR_FIX ) : ( 999 )
+                          + b_cost     * ( 1000 > TRAVEL_COST_CAR_FIX ) ? ( TRAVEL_COST_CAR_FIX ) : ( 999 )
+                        ) +
+                          exp( // utility_car_p
+                          asc_car_p 
+                          + b_tt_car_p * ( 1000 > TRAVEL_TIME_CAR_FIX ) ? ( TRAVEL_TIME_CAR_FIX + 3 ) : ( 999 )
+                        ) //+
+                       //  AVAIL_CSSB * exp( // utility_cs_sb
+                        //  asc_cs_sb 
+                        //  + b_tt_cs * ( 1000 > TRAVEL_TIME_CAR_FIX) ? ( TRAVEL_TIME_CAR_FIX + 3 ) : ( 999 )
+						//  + b_cost  * ( 1000 > TRAVEL_COST_CS_SB_FIX ) ? ( TRAVEL_COST_CS_SB_FIX ) : ( 999 )
+						//) +
+                        // AVAIL_CSFF * exp( // utility_cs_ff
+                        //  asc_cs_sb 
+                        //  + b_tt_cs * ( 1000 > TRAVEL_TIME_CAR_FIX ) ? ( TRAVEL_TIME_CAR_FIX + 3 ) : ( 999 )
+						//  + b_cost  * ( 1000 > TRAVEL_COST_CS_FF_FIX ) ? ( TRAVEL_COST_CS_FF_FIX ) : ( 999 )
+                       // )
+                      ) + [ AVAIL_PKW==0 & AVAIL_MF==0 ] * ( -50 )
+                    )
+                  )
