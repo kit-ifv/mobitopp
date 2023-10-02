@@ -1,10 +1,13 @@
 package utils.units
 
 
+import java.io.DataInput
 import kotlin.math.roundToLong
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 @JvmInline
-value class Distance (override val rawValue: Long): ScalarUnit<Distance, DistanceUnit> {
+value class Distance (override val rawValue: Long): LongUnit<Distance, DistanceUnit>, ScalarUnit<Distance, DistanceUnit> {
 
 
     val inWholeMillimeters: Long
@@ -74,6 +77,10 @@ value class Distance (override val rawValue: Long): ScalarUnit<Distance, Distanc
 
     override fun plus(other: Distance): Distance {
         return Distance(rawValue + other.rawValue)
+    }
+
+    operator fun div(t: Duration): Speed {
+        return (this.toDouble(DistanceUnit.METERS) / t.toDouble(DurationUnit.SECONDS)).toSpeed(SpeedUnit.METER_PER_SECOND)
     }
 }
 

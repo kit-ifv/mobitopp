@@ -28,14 +28,6 @@ interface FloatUnit<F: FloatUnitScale>: NumericUnit<F> {
 
 }
 
-interface NumericUnit<N: NumericUnitScale> {
-    fun toDouble(unit: N): Double
-    fun toLong(unit: N): Long
-    fun toInt(unit: N): Int
-}
-interface NumericUnitScale {
-    val scale: Number
-}
 interface FloatUnitScale: NumericUnitScale {
     override val scale: Double
 }

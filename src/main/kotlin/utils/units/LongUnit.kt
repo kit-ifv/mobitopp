@@ -81,8 +81,7 @@ interface LongUnitScale: NumericUnitScale {
 /**
  *  Adds scaling to the set of operations on the underlying unit. *
  */
-internal interface ScalarUnit<E: ScalarUnit<E, F>, F: LongUnitScale>
-    : LongUnit<E, F> {
+internal interface ScalarUnit<E: ScalarUnit<E, F>, F: NumericUnitScale> {
     operator fun times(scalar: Int): E
 
     operator fun times(scalar: Double): E
