@@ -31,5 +31,6 @@ fun Double.toEnergy(units: EnergyUnits): Energy {
 
 enum class EnergyUnits(override val scale: Double) : FloatUnitScale {
     JOULE(1.0),
-    KILOJOULE(1000.0)
+    KILOJOULE(1000.0),
+    KILOWATTHOUR(3_600_000.0)
 }

@@ -4,7 +4,10 @@ package utils.units
 @JvmInline
 value class Area internal constructor(override val rawValue: Double): FloatUnit<AreaUnits> {
     companion object {
-        fun of(a: Distance, b: Distance): Area {
+        /**
+         * Create the area defined by two distances spanning a rectangle
+         */
+        fun ofRectangle(a: Distance, b: Distance): Area {
             return Area(a.toDouble(DistanceUnit.METERS) * b.toDouble(DistanceUnit.METERS))
         }
     }
