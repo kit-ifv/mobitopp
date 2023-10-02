@@ -23,4 +23,10 @@ class SpeedTest: GenericUnitTest<SpeedUnit, Speed>(SpeedUnit.values(), Int::toSp
         assertTrue(distance.fuzzyEquals(other, precision = DistanceUnit.MILLIMETERS))
 
     }
+    @Test
+    fun fromDistanceDivision() {
+        val distance = 10.toDistance(DistanceUnit.METERS)
+        val speed = distance / 10.toDuration(DurationUnit.SECONDS)
+        assertEquals(speed, 1.toSpeed(SpeedUnit.METER_PER_SECOND))
+    }
 }
