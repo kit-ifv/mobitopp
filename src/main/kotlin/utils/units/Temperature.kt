@@ -3,7 +3,7 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit>{
+value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit> {
     override fun plus(other: LongUnit<TemperatureUnit>): Temperature {
         return Temperature(rawValue + other.rawValue.toLong())
     }
@@ -31,7 +31,7 @@ value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit>
     }
 }
 
-enum class TemperatureUnit(override val scale: Long, val offset : Long): LongUnitScale {
+enum class TemperatureUnit(override val scale: Long, val offset: Long) : LongUnitScale {
 
     KELVIN(1_000_000L, 0),
     FAHRENHEIT(555_556L, 255_372_222L),
@@ -39,12 +39,15 @@ enum class TemperatureUnit(override val scale: Long, val offset : Long): LongUni
 
 
 }
+
 fun Int.toTemperature(unit: TemperatureUnit): Temperature {
     return Temperature(convertUnit(toLong(), unit.scale) + unit.offset)
 }
+
 fun Long.toTemperature(unit: TemperatureUnit): Temperature {
     return Temperature(convertUnit(this, unit.scale) + unit.offset)
 }
+
 fun Double.toTemperature(unit: TemperatureUnit): Temperature {
     val roundToLong = (this * unit.scale).roundToLong()
     return Temperature(roundToLong + unit.offset)

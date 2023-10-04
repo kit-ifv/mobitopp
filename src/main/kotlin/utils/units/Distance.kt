@@ -1,13 +1,12 @@
 package utils.units
 
 
-import java.io.DataInput
 import kotlin.math.roundToLong
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 @JvmInline
-value class Distance (override val rawValue: Long): LongUnit<DistanceUnit>, ScalarUnit<DistanceUnit> {
+value class Distance(override val rawValue: Long) : LongUnit<DistanceUnit>, ScalarUnit<DistanceUnit> {
 
 
     val inWholeMillimeters: Long
@@ -24,9 +23,11 @@ value class Distance (override val rawValue: Long): LongUnit<DistanceUnit>, Scal
         fun ofMeters(i: Int): Distance {
             return i.toDistance(DistanceUnit.METERS)
         }
+
         fun ofKilometers(i: Int): Distance {
             return i.toDistance(DistanceUnit.KILOMETERS)
         }
+
         fun ofKilometers(d: Double): Distance {
             return d.toDistance(DistanceUnit.KILOMETERS)
         }
@@ -56,7 +57,7 @@ value class Distance (override val rawValue: Long): LongUnit<DistanceUnit>, Scal
     }
 
     override fun div(scalar: Int): Distance {
-        if(scalar == 0) {
+        if (scalar == 0) {
             return when {
                 rawValue > 0 -> INFINITE
                 rawValue < 0 -> Distance(-Long.MAX_VALUE)
@@ -109,7 +110,6 @@ enum class DistanceUnit(override val scale: Long) : LongUnitScale {
 }
 
 
-
 /**
  *
  * If the need for smaller representation than [DistanceUnit.MICROMETERS] ever arises and different range
@@ -117,7 +117,7 @@ enum class DistanceUnit(override val scale: Long) : LongUnitScale {
  * conversions to allow simple alteration
  */
 fun Double.toDistance(unit: DistanceUnit): Distance {
-    val millis = (this*unit.scale).roundToLong()
+    val millis = (this * unit.scale).roundToLong()
     return Distance(convertUnit(millis, 1L))
 }
 
@@ -130,24 +130,24 @@ fun Int.toDistance(unit: DistanceUnit): Distance {
 }
 
 inline val Int.meters: Distance
-    get() =  this.toDistance(DistanceUnit.METERS)
+    get() = this.toDistance(DistanceUnit.METERS)
 
 inline val Int.kilometers: Distance
-    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+    get() = this.toDistance(DistanceUnit.KILOMETERS)
 
 
 inline val Long.meters: Distance
-    get() =  this.toDistance(DistanceUnit.METERS)
+    get() = this.toDistance(DistanceUnit.METERS)
 
 inline val Long.kilometers: Distance
-    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+    get() = this.toDistance(DistanceUnit.KILOMETERS)
 
 
 inline val Double.meters: Distance
-    get() =  this.toDistance(DistanceUnit.METERS)
+    get() = this.toDistance(DistanceUnit.METERS)
 
 inline val Double.kilometers: Distance
-    get() =  this.toDistance(DistanceUnit.KILOMETERS)
+    get() = this.toDistance(DistanceUnit.KILOMETERS)
 
 
 

@@ -4,22 +4,24 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 @JvmInline
-value class Energy(override val rawValue: Double): FloatUnit<EnergyUnits>{
+value class Energy(override val rawValue: Double) : FloatUnit<EnergyUnits> {
     companion object {
         fun of(mass: Mass, distance: Distance, duration: Duration): Energy {
-            return Energy(mass.toDouble(MassUnit.KILOGRAM)
-                    * distance.toDouble(DistanceUnit.METERS)
-                    *distance.toDouble(DistanceUnit.METERS)
-                    / duration.toDouble(DurationUnit.SECONDS)
-                    / duration.toDouble(DurationUnit.SECONDS))
+            return Energy(
+                mass.toDouble(MassUnit.KILOGRAM)
+                        * distance.toDouble(DistanceUnit.METERS)
+                        * distance.toDouble(DistanceUnit.METERS)
+                        / duration.toDouble(DurationUnit.SECONDS)
+                        / duration.toDouble(DurationUnit.SECONDS)
+            )
         }
     }
 
-    override fun plus(other: FloatUnit<EnergyUnits>): Energy{
+    override fun plus(other: FloatUnit<EnergyUnits>): Energy {
         return Energy(this.rawValue + other.rawValue)
     }
 
-    override fun minus(other: FloatUnit<EnergyUnits>):Energy {
+    override fun minus(other: FloatUnit<EnergyUnits>): Energy {
         return this + (-other)
     }
 

@@ -10,7 +10,8 @@ value class Power(override val rawValue: Double) : FloatUnit<PowerUnit> {
             return Power(energy.toDouble(EnergyUnits.JOULE) / duration.toDouble(DurationUnit.SECONDS))
         }
     }
-    operator fun times(duration: Duration) : Energy {
+
+    operator fun times(duration: Duration): Energy {
         return Energy(this.rawValue * duration.toDouble(DurationUnit.SECONDS))
     }
 
@@ -41,7 +42,7 @@ fun Double.toPower(units: PowerUnit): Power {
 }
 
 
-enum class PowerUnit(override val scale: Double): FloatUnitScale {
+enum class PowerUnit(override val scale: Double) : FloatUnitScale {
     WATTS(1.0),
     KILOWATTS(1000.0)
 }

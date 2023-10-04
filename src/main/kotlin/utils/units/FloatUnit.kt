@@ -4,12 +4,11 @@ import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 
-
 /**
  * Some units are not reasonably representable with an Integer or Long variable, since floating point arithmetics
  * support calculations with infinities no special shenanigans are needed to handle overflows
  */
-interface FloatUnit<SCALE: FloatUnitScale>: NumericUnit<SCALE> {
+interface FloatUnit<SCALE : FloatUnitScale> : NumericUnit<SCALE> {
     override val rawValue: Double
 
     override fun toDouble(unit: SCALE): Double {
@@ -31,11 +30,8 @@ interface FloatUnit<SCALE: FloatUnitScale>: NumericUnit<SCALE> {
     override fun unaryMinus(): FloatUnit<SCALE>
 
 
-
-
-
 }
 
-interface FloatUnitScale: NumericUnitScale {
+interface FloatUnitScale : NumericUnitScale {
     override val scale: Double
 }

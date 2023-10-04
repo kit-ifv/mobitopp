@@ -22,9 +22,11 @@ value class Speed(override val rawValue: Double) : FloatUnit<SpeedUnit> {
     }
 
 }
+
 fun Int.toSpeed(units: SpeedUnit): Speed {
     return Speed(this * units.scale)
 }
+
 fun Long.toSpeed(units: SpeedUnit): Speed {
     return Speed(this * units.scale)
 }
@@ -32,6 +34,7 @@ fun Long.toSpeed(units: SpeedUnit): Speed {
 fun Double.toSpeed(units: SpeedUnit): Speed {
     return Speed(this * units.scale)
 }
+
 enum class SpeedUnit(override val scale: Double) : FloatUnitScale {
     METER_PER_SECOND(1.0),
     KILOMETER_PER_HOUR(0.277778),

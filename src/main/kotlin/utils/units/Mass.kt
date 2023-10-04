@@ -28,7 +28,7 @@ value class Mass(override val rawValue: Long) : LongUnit<MassUnit>, ScalarUnit<M
     }
 
     override fun div(scalar: Int): Mass {
-        if(scalar == 0) {
+        if (scalar == 0) {
             return when {
                 rawValue > 0 -> Mass(Long.MAX_VALUE)
                 rawValue < 0 -> Mass(-Long.MAX_VALUE)
@@ -52,6 +52,7 @@ value class Mass(override val rawValue: Long) : LongUnit<MassUnit>, ScalarUnit<M
     }
 
 }
+
 enum class MassUnit(override val scale: Long) : LongUnitScale {
     MICROGRAM(1L),
     MILLIGRAM(1000L),
@@ -59,6 +60,7 @@ enum class MassUnit(override val scale: Long) : LongUnitScale {
     KILOGRAM(1_000_000_000L),
     TON(1_000_000_000_000L);
 }
+
 /**
  * These extension functions provide basic functionality to convert to mass with a unit. Common use cases should be
  * implemented as convenience extension function in the setting below
@@ -66,15 +68,17 @@ enum class MassUnit(override val scale: Long) : LongUnitScale {
 fun Int.toMass(unit: MassUnit): Mass {
     return Mass(convertUnit(toLong(), unit.scale))
 }
+
 fun Long.toMass(unit: MassUnit): Mass {
     return Mass(convertUnit(this, unit.scale))
 }
+
 fun Double.toMass(unit: MassUnit): Mass {
-    val x = (this*unit.scale).roundToLong()
+    val x = (this * unit.scale).roundToLong()
     return Mass(convertUnit(x, 1L))
 }
 
-operator fun Int.times(mass: Mass) : Mass{
+operator fun Int.times(mass: Mass): Mass {
     return mass * this
 }
 
