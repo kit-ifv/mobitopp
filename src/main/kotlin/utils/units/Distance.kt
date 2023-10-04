@@ -81,7 +81,8 @@ value class Distance(override val rawValue: Long) : LongUnit<DistanceUnit>, Scal
     }
 
     operator fun div(t: Duration): Speed {
-        return (this.toDouble(DistanceUnit.METERS) / t.toDouble(DurationUnit.SECONDS)).toSpeed(SpeedUnit.METER_PER_SECOND)
+        return (this.toDouble(DistanceUnit.METERS)
+                / t.toDouble(DurationUnit.SECONDS)).toSpeed(SpeedUnit.METER_PER_SECOND)
     }
 }
 
