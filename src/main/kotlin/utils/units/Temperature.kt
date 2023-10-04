@@ -4,7 +4,7 @@ import kotlin.math.roundToLong
 
 @JvmInline
 value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit>{
-    override fun plus(other: NumericUnit<TemperatureUnit>): Temperature {
+    override fun plus(other: LongUnit<TemperatureUnit>): Temperature {
         return Temperature(rawValue + other.rawValue.toLong())
     }
 
@@ -12,7 +12,7 @@ value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit>
         return Temperature(-rawValue)
     }
 
-    override fun minus(other: NumericUnit<TemperatureUnit>): Temperature {
+    override fun minus(other: LongUnit<TemperatureUnit>): Temperature {
         return this + (-other)
     }
 

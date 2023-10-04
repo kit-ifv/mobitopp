@@ -24,6 +24,12 @@ interface FloatUnit<F: FloatUnitScale>: NumericUnit<F> {
         return (rawValue / unit.scale).roundToInt()
     }
 
+    operator fun plus(other: FloatUnit<F>): FloatUnit<F>
+
+    operator fun minus(other: FloatUnit<F>): FloatUnit<F>
+
+    override fun unaryMinus(): FloatUnit<F>
+
 
 
 

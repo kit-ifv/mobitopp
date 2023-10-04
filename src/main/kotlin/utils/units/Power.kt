@@ -14,11 +14,11 @@ value class Power(override val rawValue: Double) : FloatUnit<PowerUnit> {
         return Energy(this.rawValue * duration.toDouble(DurationUnit.SECONDS))
     }
 
-    override fun plus(other: NumericUnit<PowerUnit>): Power {
-        return Power(rawValue + other.rawValue.toLong())
+    override fun plus(other: FloatUnit<PowerUnit>): Power {
+        return Power(rawValue + other.rawValue)
     }
 
-    override fun minus(other: NumericUnit<PowerUnit>): Power {
+    override fun minus(other: FloatUnit<PowerUnit>): Power {
         return this + (-other)
     }
 

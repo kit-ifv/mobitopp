@@ -3,7 +3,6 @@ package utils.units
 import kotlin.math.abs
 
 
-
 /**
  * Provides the basic functionality for arithmetic operations and primitive type conversions for a unit that can
  * be represented by a long value. The designated inheritors of this interface should be units that do not require
@@ -16,9 +15,8 @@ import kotlin.math.abs
  * @param SCALE A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
  * the unit
  */
-internal interface LongUnit<SCALE> : NumericUnit<SCALE>,  Comparable<LongUnit<SCALE>>
-         where SCALE: LongUnitScale
- {
+interface LongUnit<SCALE> : NumericUnit<SCALE>, Comparable<LongUnit<SCALE>>
+        where SCALE : LongUnitScale {
     override val rawValue: Long
     private val infinity: Long
         get() = Long.MAX_VALUE
@@ -27,11 +25,18 @@ internal interface LongUnit<SCALE> : NumericUnit<SCALE>,  Comparable<LongUnit<SC
         get() = -Long.MAX_VALUE
 
 
+    operator fun plus(other: LongUnit<SCALE>): LongUnit<SCALE>
+
+    operator fun minus(other: LongUnit<SCALE>): LongUnit<SCALE>
+
+    override fun unaryMinus(): LongUnit<SCALE>
+
     fun isInfinite(): Boolean {
         return rawValue == infinity || rawValue == negInfinity
     }
+
     override fun toDouble(unit: SCALE): Double {
-        return when(rawValue) {
+        return when (rawValue) {
             infinity -> Double.POSITIVE_INFINITY
             negInfinity -> Double.NEGATIVE_INFINITY
             else -> {
@@ -39,9 +44,11 @@ internal interface LongUnit<SCALE> : NumericUnit<SCALE>,  Comparable<LongUnit<SC
             }
         }
     }
+
     override fun toLong(unit: SCALE): Long {
         return convertUnit(rawValue, 1L, unit.scale)
     }
+
     override fun toInt(unit: SCALE): Int {
         return toLong(unit).coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
     }
@@ -64,7 +71,7 @@ internal interface LongUnit<SCALE> : NumericUnit<SCALE>,  Comparable<LongUnit<SC
  * @property scale The scaling factor in regard to the minimal precision. If (mm) is the minimum precision then a meter
  * would have a scale factor of 1000L
  */
-interface LongUnitScale: NumericUnitScale {
+interface LongUnitScale : NumericUnitScale {
     override val scale: Long
 
 }
@@ -73,7 +80,7 @@ interface LongUnitScale: NumericUnitScale {
 /**
  *  Adds scaling to the set of operations on the underlying unit. *
  */
-internal interface ScalarUnit<F: NumericUnitScale> {
+internal interface ScalarUnit<F : NumericUnitScale> {
     operator fun times(scalar: Int): ScalarUnit<F>
 
     operator fun times(scalar: Double): ScalarUnit<F>
@@ -107,14 +114,13 @@ private fun convert(d: Long, dst: Long, src: Long): Long {
 }
 
 
-
-internal fun convertUnit(value: Long, sourceUnit: Long, targetUnit : Long = 1L): Long {
+internal fun convertUnit(value: Long, sourceUnit: Long, targetUnit: Long = 1L): Long {
     return convert(value, targetUnit, sourceUnit)
 }
 
 internal fun convertUnit(value: Double, sourceUnit: Long, targetUnit: Long): Double {
     val sInT = convert(1, targetUnit, sourceUnit)
-    if(sInT > 0) {
+    if (sInT > 0) {
         return value * sInT
     }
     val oInThis = convert(1, sourceUnit, targetUnit)

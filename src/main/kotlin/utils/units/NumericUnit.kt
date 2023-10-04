@@ -6,10 +6,6 @@ interface NumericUnit<N: NumericUnitScale> {
     fun toLong(unit: N): Long
     fun toInt(unit: N): Int
 
-    operator fun plus(other: NumericUnit<N>): NumericUnit<N>
-
-    operator fun minus(other: NumericUnit<N>): NumericUnit<N>
-
     operator fun unaryMinus(): NumericUnit<N>
 
 }
