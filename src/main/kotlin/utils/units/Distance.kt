@@ -43,7 +43,7 @@ value class Distance(override val rawValue: Long) : LongUnit<DistanceUnit>, Scal
             return when {
                 scalar == 0 -> throw IllegalArgumentException("Multiplying infinity with 0 is an undefined operation")
                 scalar > 0 -> INFINITE
-                else -> Distance(-Long.MAX_VALUE)
+                else -> -INFINITE
             }
         }
         if (scalar == 0) {
@@ -60,7 +60,7 @@ value class Distance(override val rawValue: Long) : LongUnit<DistanceUnit>, Scal
         if (scalar == 0) {
             return when {
                 rawValue > 0 -> INFINITE
-                rawValue < 0 -> Distance(-Long.MAX_VALUE)
+                rawValue < 0 -> -INFINITE
                 else -> throw IllegalArgumentException("Dividing 0 by 0 is an undefined mathematical operation")
             }
         }
