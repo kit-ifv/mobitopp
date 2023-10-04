@@ -4,9 +4,21 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 @JvmInline
-value class Speed(override val rawValue: Double) :FloatUnit<SpeedUnit> {
+value class Speed(override val rawValue: Double) : FloatUnit<SpeedUnit> {
     operator fun times(time: Duration): Distance {
         return (this.rawValue * time.toDouble(DurationUnit.SECONDS)).toDistance(DistanceUnit.METERS)
+    }
+
+    override fun plus(other: NumericUnit<SpeedUnit>): Speed {
+        return Speed(rawValue + other.rawValue.toDouble())
+    }
+
+    override fun minus(other: NumericUnit<SpeedUnit>): Speed {
+        return this + (-other)
+    }
+
+    override fun unaryMinus(): Speed {
+        return Speed(-rawValue)
     }
 
 }

@@ -7,7 +7,7 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
 @JvmInline
-value class Distance (override val rawValue: Long): LongUnit<Distance, DistanceUnit>, ScalarUnit<Distance, DistanceUnit> {
+value class Distance (override val rawValue: Long): LongUnit<DistanceUnit>, ScalarUnit<DistanceUnit> {
 
 
     val inWholeMillimeters: Long
@@ -71,12 +71,12 @@ value class Distance (override val rawValue: Long): LongUnit<Distance, DistanceU
         return Distance((rawValue / scalar).roundToLong())
     }
 
-    override fun minus(other: Distance): Distance {
-        return this + (-other)
+    override fun minus(other: NumericUnit<DistanceUnit>): Distance {
+        return Distance(rawValue + other.rawValue.toLong())
     }
 
-    override fun plus(other: Distance): Distance {
-        return Distance(rawValue + other.rawValue)
+    override fun plus(other: NumericUnit<DistanceUnit>): Distance {
+        return Distance(rawValue + other.rawValue.toLong())
     }
 
     operator fun div(t: Duration): Speed {

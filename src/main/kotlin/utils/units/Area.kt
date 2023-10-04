@@ -11,6 +11,18 @@ value class Area internal constructor(override val rawValue: Double): FloatUnit<
             return Area(a.toDouble(DistanceUnit.METERS) * b.toDouble(DistanceUnit.METERS))
         }
     }
+
+    override fun plus(other: NumericUnit<AreaUnits>): Area {
+        return Area(this.rawValue + other.rawValue.toDouble())
+    }
+
+    override fun minus(other: NumericUnit<AreaUnits>): Area {
+        return this + (-other)
+    }
+
+    override fun unaryMinus(): Area {
+        return Area(-this.rawValue)
+    }
 }
 
 fun Int.toArea(units: AreaUnits): Area {

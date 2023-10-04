@@ -14,6 +14,18 @@ value class Energy(override val rawValue: Double): FloatUnit<EnergyUnits>{
                     / duration.toDouble(DurationUnit.SECONDS))
         }
     }
+
+    override fun plus(other: NumericUnit<EnergyUnits>): Energy{
+        return Energy(this.rawValue + other.rawValue.toDouble())
+    }
+
+    override fun minus(other: NumericUnit<EnergyUnits>):Energy {
+        return this + (-other)
+    }
+
+    override fun unaryMinus(): Energy {
+        return Energy(-rawValue)
+    }
 }
 
 fun Int.toEnergy(units: EnergyUnits): Energy {

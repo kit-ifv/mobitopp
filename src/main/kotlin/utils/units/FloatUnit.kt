@@ -10,7 +10,7 @@ import kotlin.math.roundToLong
  * support calculations with infinities no special shenanigans are needed to handle overflows
  */
 interface FloatUnit<F: FloatUnitScale>: NumericUnit<F> {
-    val rawValue: Double
+    override val rawValue: Double
 
     override fun toDouble(unit: F): Double {
         return rawValue / unit.scale
@@ -23,6 +23,8 @@ interface FloatUnit<F: FloatUnitScale>: NumericUnit<F> {
     override fun toInt(unit: F): Int {
         return (rawValue / unit.scale).roundToInt()
     }
+
+
 
 
 

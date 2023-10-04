@@ -3,16 +3,16 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Temperature(override val rawValue: Long) : LongUnit<Temperature, TemperatureUnit>{
-    override fun plus(other: Temperature): Temperature {
-        return Temperature(rawValue + other.rawValue)
+value class Temperature(override val rawValue: Long) : LongUnit<TemperatureUnit>{
+    override fun plus(other: NumericUnit<TemperatureUnit>): Temperature {
+        return Temperature(rawValue + other.rawValue.toLong())
     }
 
     override fun unaryMinus(): Temperature {
         return Temperature(-rawValue)
     }
 
-    override fun minus(other: Temperature): Temperature {
+    override fun minus(other: NumericUnit<TemperatureUnit>): Temperature {
         return this + (-other)
     }
 

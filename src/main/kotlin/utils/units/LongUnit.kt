@@ -12,15 +12,14 @@ import kotlin.math.abs
  *
  * Support translation (+ and -) operations
  *
- * @param E This self-referential Type is used to prevent arithmetic operations on arbitrary unit types.
- * (such as 1 km + 20 seconds). Only identical units should support arithmetic.
  *
- * @param F A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
+ * @param SCALE A unit should be supplied specifying both the type and the scaling factor to determine the raw value of
  * the unit
  */
-internal interface LongUnit<E: LongUnit<E, F>, F: LongUnitScale>:
-    Comparable<LongUnit<E, F>>, NumericUnit<F> {
-    val rawValue: Long
+internal interface LongUnit<SCALE> : NumericUnit<SCALE>,  Comparable<LongUnit<SCALE>>
+         where SCALE: LongUnitScale
+ {
+    override val rawValue: Long
     private val infinity: Long
         get() = Long.MAX_VALUE
 
@@ -31,7 +30,7 @@ internal interface LongUnit<E: LongUnit<E, F>, F: LongUnitScale>:
     fun isInfinite(): Boolean {
         return rawValue == infinity || rawValue == negInfinity
     }
-    override fun toDouble(unit: F): Double {
+    override fun toDouble(unit: SCALE): Double {
         return when(rawValue) {
             infinity -> Double.POSITIVE_INFINITY
             negInfinity -> Double.NEGATIVE_INFINITY
@@ -40,25 +39,18 @@ internal interface LongUnit<E: LongUnit<E, F>, F: LongUnitScale>:
             }
         }
     }
-    override fun toLong(unit: F): Long {
+    override fun toLong(unit: SCALE): Long {
         return convertUnit(rawValue, 1L, unit.scale)
     }
-    override fun toInt(unit: F): Int {
+    override fun toInt(unit: SCALE): Int {
         return toLong(unit).coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong()).toInt()
     }
 
-    operator fun plus(other: E): E
-
-    operator fun unaryMinus(): E
-    operator fun minus(other: E): E
-
-
-
-    override fun compareTo(other: LongUnit<E, F>): Int {
+    override fun compareTo(other: LongUnit<SCALE>): Int {
         return rawValue.compareTo(other.rawValue)
     }
 
-    fun fuzzyEquals(other: LongUnit<E, F>, precision: F): Boolean {
+    fun fuzzyEquals(other: LongUnit<SCALE>, precision: SCALE): Boolean {
         return abs(rawValue - other.rawValue) < precision.scale
     }
 
@@ -81,13 +73,13 @@ interface LongUnitScale: NumericUnitScale {
 /**
  *  Adds scaling to the set of operations on the underlying unit. *
  */
-internal interface ScalarUnit<E: ScalarUnit<E, F>, F: NumericUnitScale> {
-    operator fun times(scalar: Int): E
+internal interface ScalarUnit<F: NumericUnitScale> {
+    operator fun times(scalar: Int): ScalarUnit<F>
 
-    operator fun times(scalar: Double): E
+    operator fun times(scalar: Double): ScalarUnit<F>
 
-    operator fun div(scalar: Int): E
-    operator fun div(scalar: Double): E
+    operator fun div(scalar: Int): ScalarUnit<F>
+    operator fun div(scalar: Double): ScalarUnit<F>
 }
 
 

@@ -3,7 +3,7 @@ package utils.units
 import kotlin.math.roundToLong
 
 @JvmInline
-value class Mass(override val rawValue: Long) : LongUnit<Mass, MassUnit>, ScalarUnit<Mass, MassUnit> {
+value class Mass(override val rawValue: Long) : LongUnit<MassUnit>, ScalarUnit<MassUnit> {
 
     override fun unaryMinus(): Mass {
         return Mass(-rawValue)
@@ -43,12 +43,12 @@ value class Mass(override val rawValue: Long) : LongUnit<Mass, MassUnit>, Scalar
         return Mass((rawValue / scalar).roundToLong())
     }
 
-    override fun minus(other: Mass): Mass {
+    override fun minus(other: NumericUnit<MassUnit>): Mass {
         return this + (-other)
     }
 
-    override fun plus(other: Mass): Mass {
-        return Mass(rawValue + other.rawValue)
+    override fun plus(other: NumericUnit<MassUnit>): Mass {
+        return Mass(rawValue + other.rawValue.toLong())
     }
 
 }
