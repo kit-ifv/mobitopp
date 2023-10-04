@@ -71,11 +71,11 @@ value class Distance (override val rawValue: Long): LongUnit<DistanceUnit>, Scal
         return Distance((rawValue / scalar).roundToLong())
     }
 
-    override fun minus(other: NumericUnit<DistanceUnit>): Distance {
+    override fun minus(other: LongUnit<DistanceUnit>): Distance {
         return Distance(rawValue + other.rawValue.toLong())
     }
 
-    override fun plus(other: NumericUnit<DistanceUnit>): Distance {
+    override fun plus(other: LongUnit<DistanceUnit>): Distance {
         return Distance(rawValue + other.rawValue.toLong())
     }
 

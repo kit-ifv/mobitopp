@@ -1,12 +1,12 @@
 package utils.units
 
-interface NumericUnit<N: NumericUnitScale> {
+interface NumericUnit<SCALE: NumericUnitScale> {
     val rawValue: Number
-    fun toDouble(unit: N): Double
-    fun toLong(unit: N): Long
-    fun toInt(unit: N): Int
+    fun toDouble(unit: SCALE): Double
+    fun toLong(unit: SCALE): Long
+    fun toInt(unit: SCALE): Int
 
-    operator fun unaryMinus(): NumericUnit<N>
+    operator fun unaryMinus(): NumericUnit<SCALE>
 
 }
 
