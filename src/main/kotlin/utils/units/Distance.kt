@@ -73,11 +73,11 @@ value class Distance(override val rawValue: Long) : LongUnit<DistanceUnit>, Scal
     }
 
     override fun minus(other: LongUnit<DistanceUnit>): Distance {
-        return Distance(rawValue + other.rawValue.toLong())
+        return Distance(rawValue + other.rawValue)
     }
 
     override fun plus(other: LongUnit<DistanceUnit>): Distance {
-        return Distance(rawValue + other.rawValue.toLong())
+        return Distance(rawValue + other.rawValue)
     }
 
     operator fun div(t: Duration): Speed {

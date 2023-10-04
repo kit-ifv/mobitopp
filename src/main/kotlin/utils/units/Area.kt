@@ -13,7 +13,7 @@ value class Area internal constructor(override val rawValue: Double) : FloatUnit
     }
 
     override fun plus(other: FloatUnit<AreaUnits>): Area {
-        return Area(this.rawValue + other.rawValue.toDouble())
+        return Area(this.rawValue + other.rawValue)
     }
 
     override fun minus(other: FloatUnit<AreaUnits>): Area {

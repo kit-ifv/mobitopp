@@ -48,7 +48,7 @@ value class Mass(override val rawValue: Long) : LongUnit<MassUnit>, ScalarUnit<M
     }
 
     override fun plus(other: LongUnit<MassUnit>): Mass {
-        return Mass(rawValue + other.rawValue.toLong())
+        return Mass(rawValue + other.rawValue)
     }
 
 }
