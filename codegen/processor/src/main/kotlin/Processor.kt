@@ -58,8 +58,5 @@ class Processor(private val codeGenerator: CodeGenerator, private val logger: KS
         override fun visitTypeArgument(typeArgument: KSTypeArgument, data: Unit) {
         }
 
-        override fun visitDeclaration(declaration: KSDeclaration, data: Unit) {
-            file += "DECL: ${declaration.simpleName} \n\n"
-        }
     }
 }
