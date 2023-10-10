@@ -1,7 +1,6 @@
 package utils.csv
 
 import java.io.File
-import java.lang.NumberFormatException
 
 /**
  * The CsvParser interface defines methods for parsing a csv file and
@@ -127,7 +126,7 @@ enum class ParserErrorHandling { //TODO introduce interface? TODO maybe separate
      * @param entity the entity for which the value is parsed
      * @param column the column of the value to be parsed
      * @param row the row containing the value to be parsed
-     * @param parser the parser to be applied to the value and entity
+     * @param runnable a function that applies the parsing and returns the entity or null
      * @param E the generic type of the entity to be processed
      * @return the (updated) entity, may be null if errors occurred and the
      *     error handling strategies drops the entity/row
@@ -136,13 +135,17 @@ enum class ParserErrorHandling { //TODO introduce interface? TODO maybe separate
         entity: E?,
         column: String,
         row: Row,
-        parser: (E, String) -> Unit
+        runnable: () -> E?
     ): E? { //TODO make parser class to add name attribute and description for error handling
 
         return try {
-            val value = row.get(column)
-            entity?.also { parser(it, value) }
-            entity
+            runnable() ?:
+            handleException( //on first null returned by any parser handle exception
+                RuntimeException("Parsing row ${row.index()} in column $column returned null."),
+                entity,
+                message(entity, column, row)
+            )
+
         } catch (e: NumberFormatException) { //TODO add more exceptions, can we build this without exceptions?
             handleException(e, entity, message(entity, column, row))
         }
@@ -186,7 +189,7 @@ enum class ParserErrorHandling { //TODO introduce interface? TODO maybe separate
  */
 open class DefaultRowCsvParser<E>(
     protected val entitySpawner: (Int) -> E,
-    protected val columParsers: Map<String, (E, String) -> Unit>,
+    protected val columParsers: Map<String, (E, String) -> E?>,
     protected val exceptionHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP
 ) : RowCsvParser<E>() {
     protected var idCount = 0
@@ -195,11 +198,48 @@ open class DefaultRowCsvParser<E>(
         var entity: E? = entitySpawner(idCount++)
 
         columParsers.forEach { (col, parser) ->
-            entity = exceptionHandling.handleParsing(entity, col, row, parser)
+            entity = exceptionHandling.handleParsing(entity, col, row) {
+                entity?.let{ parser(it, row.get(col)) }
+            }
         }
 
         return entity
     }
+}
+
+open class CsvValueParser<E> (
+    protected val valueColumn: String,
+    protected val exceptionHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP,
+    protected val parser: (String) -> E?,
+) : RowCsvParser<E>() {
+    override fun parse(row: Row): E? {
+
+        return exceptionHandling.handleParsing(null, valueColumn, row) {
+            parser(row.get(valueColumn))
+        }
+
+    }
+
+}
+
+open class CsvPairParser<K, V> (
+    protected val keyColumn: String,
+    protected val valueColumn: String,
+    protected val exceptionHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP,
+    protected val keyParser: (String) -> K?,
+    protected val valueParser: (String) -> V?,
+) : RowCsvParser<Pair<K, V>>() {
+    override fun parse(row: Row): Pair<K, V>? {
+
+        return exceptionHandling.handleParsing(null, valueColumn, row) {
+            val key = keyParser(row.get(keyColumn))
+            val value = valueParser(row.get(valueColumn))
+
+            key?.let { k -> value?.let { v -> k to v } }
+        }
+
+    }
+
 }
 
 /**

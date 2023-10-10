@@ -14,7 +14,7 @@ package utils.csv
 class CsvParserBuilder<E>(
     private val entitySpawner: (Int) -> E
 ) {
-    private val columnParsers: MutableMap<String, (E, String) -> Unit> = mutableMapOf()
+    private val columnParsers: MutableMap<String, (E, String) -> E?> = mutableMapOf()
     private var errorHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP
 
     /**
@@ -27,8 +27,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addStringColumn(column: String, setter: (E, String) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = setter
+    fun addStringPropertyColumn(column: String, setter: (E, String) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also{setter(e, s)} }
+        return this
+    }
+
+    /**
+     * Add string column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *     be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addStringColumn(column: String, transform: (E, String) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = transform
         return this
     }
 
@@ -42,8 +55,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addByteColumn(column: String, setter: (E, Byte) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toByte()) }
+    fun addBytePropertyColumn(column: String, setter: (E, Byte) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also{setter(e, s.toByte())} }
+        return this
+    }
+
+    /**
+     * Add byte column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *     be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addByteColumn(column: String, transform: (E, Byte) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toByte()) }
         return this
     }
 
@@ -57,8 +83,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addShortColumn(column: String, setter: (E, Short) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toShort()) }
+    fun addShortPropertyColumn(column: String, setter: (E, Short) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also{ setter(e, s.toShort()) } }
+        return this
+    }
+
+    /**
+     * Add short column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addShortColumn(column: String, transform: (E, Short) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toShort()) }
         return this
     }
 
@@ -72,8 +111,21 @@ class CsvParserBuilder<E>(
      *     value)
      * @return this builder
      */
-    fun addIntColumn(column: String, setter: (E, Int) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toInt()) }
+    fun addIntPropertyColumn(column: String, setter: (E, Int) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also{setter(e, s.toInt())} }
+        return this
+    }
+
+    /**
+     * Add int column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addIntColumn(column: String, transform: (E, Int) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toInt()) }
         return this
     }
 
@@ -87,8 +139,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addLongColumn(column: String, setter: (E, Long) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toLong()) }
+    fun addLongPropertyColumn(column: String, setter: (E, Long) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also { setter(e, s.toLong()) } }
+        return this
+    }
+
+    /**
+     * Add long column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addLongColumn(column: String, transform: (E, Long) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toLong()) }
         return this
     }
 
@@ -102,8 +167,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addFloatColumn(column: String, setter: (E, Float) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toFloat()) }
+    fun addFloatPropertyColumn(column: String, setter: (E, Float) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also{ setter(e, s.toFloat()) } }
+        return this
+    }
+
+    /**
+     * Add float column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addFloatColumn(column: String, transform: (E, Float) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toFloat()) }
         return this
     }
 
@@ -117,8 +195,21 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addDoubleColumn(column: String, setter: (E, Double) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toDouble()) }
+    fun addDoublePropertyColumn(column: String, setter: (E, Double) -> Unit): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also { setter(e, s.toDouble()) } }
+        return this
+    }
+
+    /**
+     * Add double column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addDoubleColumn(column: String, transform: (E, Double) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toDouble()) }
         return this
     }
 
@@ -132,9 +223,22 @@ class CsvParserBuilder<E>(
      *     parsed value)
      * @return this builder
      */
-    fun addBooleanColumn(column: String, setter: (E, Boolean) -> Unit): CsvParserBuilder<E> {
+    fun addBooleanPropertyColumn(column: String, setter: (E, Boolean) -> Unit): CsvParserBuilder<E> {
         columnParsers[column] =
-            { e, s -> setter(e, s.toBoolean()) } //TODO allow other encoding of true (currently "true")
+            { e, s -> e.also { setter(e, s.toBoolean()) } } //TODO allow other encoding of true (currently "true")
+        return this
+    }
+
+    /**
+     * Add boolean column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addBooleanColumn(column: String, transform: (E, Boolean) -> E): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, s.toBoolean()) }
         return this
     }
 
@@ -150,8 +254,26 @@ class CsvParserBuilder<E>(
      * @param T the generic type of the value to be parsed
      * @return this builder
      */
-    fun <T> addTypedColumn(column: String, convert: (String) -> T, setter: (E, T) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, convert(s)) }
+    fun <T> addTypedPropertyColumn(
+        column: String,
+        convert: (String) -> T, setter: (E, T) -> Unit
+    ): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> e.also { setter(e, convert(s)) } }
+        return this
+    }
+
+    /**
+     * Add a typed column using the given transform function.
+     *
+     * @param column the name of the column
+     * @param convert
+     * @param transform a function that takes the parsed value and the entity to
+     *      be processed, and returns the modified entity or an entirely new entity
+     * @param T the generic type of the value to be parsed
+     * @return this builder
+     */
+    fun <T> addTypedColumn(column: String, convert: (String) -> T, transform: (E, T) -> E?): CsvParserBuilder<E> {
+        columnParsers[column] = { e, s -> transform(e, convert(s)) }
         return this
     }
 
