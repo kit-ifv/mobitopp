@@ -23,11 +23,11 @@ interface MutableIdRepository<E>: MutableRepository<E>, IdRepository<E> where E:
     }
 }
 
-fun <R, B,E> R.finish(): IdRepository<E> where R: MutableIdRepository<B>, B: Builder<E>, E: Identifiable {
+fun <R, B, E> R.finish(): IdRepository<E> where R: MutableIdRepository<B>, B: Builder<E>, E: Identifiable {
     return MapRepository(getAll().map { it.build() })
 }
 
-fun <R, B,E> R.finish(): Repository<E> where R: MutableRepository<B>, B: Builder<E> {
+fun <R, B, E> R.finish(): Repository<E> where R: MutableRepository<B>, B: Builder<E> {
     return SimpleRepository(getAll().map { it.build() })
 }
 

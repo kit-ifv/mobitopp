@@ -31,6 +31,29 @@ class InitIdResourceStep<C, E>(
 
 }
 
+class FinalResourceStep<C, E>(
+    override val name: String,
+    protected val resource: Resource<E>,
+    protected val setter: (C, Repository<E>) -> Unit
+) : SynthesisStep<C> {
+    override fun execute(context: C) {
+        setter(context, Repository.from(resource))
+    }
+
+}
+
+class FinalIdResourceStep<C, E>(
+    override val name: String,
+    protected val resource: Resource<E>,
+    protected val setter: (C, IdRepository<E>) -> Unit
+) : SynthesisStep<C> where E: Identifiable {
+    override fun execute(context: C) {
+        setter(context, IdRepository.from(resource))
+    }
+
+}
+
+
 class UpdateStep<C, E>(
     override val name: String,
     protected val transformation: Transformation<E>,
@@ -72,12 +95,30 @@ class Synthesis<C> {
         return this
     }
 
+    fun <E> addFinalResource(
+        name: String,
+        resource: Resource<E>,
+        setter: (C, Repository<E>) -> Unit
+    ): Synthesis<C> {
+        steps.add(FinalResourceStep(name, resource, setter))
+        return this
+    }
+
     fun <E> addIdResource(
         name: String,
         resource: Resource<E>,
         setter: (C, MutableIdRepository<E>) -> Unit
     ): Synthesis<C> where E: Identifiable {
         steps.add(InitIdResourceStep(name, resource, setter))
+        return this
+    }
+
+    fun <E> addFinalIdResource(
+        name: String,
+        resource: Resource<E>,
+        setter: (C, IdRepository<E>) -> Unit
+    ): Synthesis<C> where E: Identifiable {
+        steps.add(FinalIdResourceStep(name, resource, setter))
         return this
     }
 
@@ -122,7 +163,7 @@ fun main() {
     Synthesis<ExampleContext>()
         .addResource("load strings", resource = { sequenceOf("hello", "world") }) {c,r -> c.strings=r}
         .addUpdate("_", transformation = { s -> s+"_" }) {c -> c.strings}
-        .addUpdate("illegal", transformation = {i -> i+1}){ c -> c.ints}
+        //.addUpdate("illegal", transformation = {i -> i+1}){ c -> c.ints}
         .execute(ctxt)
 
     println(ctxt.strings?.getAll())

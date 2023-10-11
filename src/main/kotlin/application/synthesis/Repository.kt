@@ -5,11 +5,10 @@ import Identifiable
 import IdentifiableBuilder
 
 
-typealias IdBuilder<E> = IdentifiableBuilder<E>
+internal typealias IdBuilder<E> = IdentifiableBuilder<E>
 
-typealias Resource<E> = () -> Sequence<E>
-typealias Transformation<E> = (E) -> E?
-
+internal typealias Resource<E> = () -> Sequence<E>
+internal typealias Transformation<E> = (E) -> E?
 
 
 interface Repository<E> {
@@ -30,7 +29,7 @@ interface IdRepository<E>: Repository<E> where E: Identifiable {
     }
     fun getById(id: ID): E? {
         println("Use list find first")
-        return getAll().find { id.equals(it.id()) }
+        return getAll().find { id.equals(it.id()) } // use equals in case type of ID changes
     }
 }
 
