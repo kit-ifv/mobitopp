@@ -23,6 +23,7 @@ interface MutableIdRepository<E>: MutableRepository<E>, IdRepository<E> where E:
     }
 }
 
+//TODO finish for non builders
 fun <R, B, E> R.finish(): IdRepository<E> where R: MutableIdRepository<B>, B: Builder<E>, E: Identifiable {
     return MapRepository(getAll().map { it.build() })
 }
@@ -50,22 +51,19 @@ class LazyIdRepository<E>(
 
 fun main() {
     class Entity(
-        private val id: ID,
+        override val id: ID,
         val name: String
     ): Identifiable {
-        override fun id() = id
-
         override fun toString() = "$name ($id)"
 
     }
 
     class EntityBuilder(
-        private val id: ID,
+        override val id: ID,
         var name: String = ""
     ): IdBuilder<Entity> {
 
         override fun build() = Entity(id, name)
-        override fun id() = id
         override fun toString() = "$name ($id)"
     }
 
@@ -75,7 +73,7 @@ fun main() {
     }
 
     val t0: Transformation<EntityBuilder> = {
-            e -> if (e.name.length <= 2) {null} else {e}
+            e -> if (e.name.length <= 2) { null } else {e}
     }
 
     val t1: Transformation<EntityBuilder> = {

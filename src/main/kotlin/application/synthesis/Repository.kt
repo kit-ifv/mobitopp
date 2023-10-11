@@ -21,6 +21,7 @@ interface Repository<E> {
     fun getAll(): Collection<E>
 
 }
+
 interface IdRepository<E>: Repository<E> where E: Identifiable {
 
     companion object {
@@ -29,7 +30,7 @@ interface IdRepository<E>: Repository<E> where E: Identifiable {
     }
     fun getById(id: ID): E? {
         println("Use list find first")
-        return getAll().find { id.equals(it.id()) } // use equals in case type of ID changes
+        return getAll().find { id.equals(it.id) } // use equals in case type of ID changes
     }
 }
 
@@ -43,7 +44,7 @@ class MapRepository<E>(
     entities: List<E>
 ): IdRepository<E> where E: Identifiable {
 
-    private val idMap: Map<ID, E> = entities.associateBy { it.id() }
+    private val idMap: Map<ID, E> = entities.associateBy { it.id }
 
     override fun getAll(): Collection<E> = idMap.values
 

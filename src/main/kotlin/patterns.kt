@@ -1,7 +1,7 @@
 typealias ID = Long
 
 interface Identifiable {
-    fun id(): ID
+    val id: ID
 }
 
 interface Builder<E> {

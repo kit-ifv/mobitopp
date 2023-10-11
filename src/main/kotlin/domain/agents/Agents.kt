@@ -1,26 +1,61 @@
 package domain.agents
 
-typealias EventList = List<Event<out Any, out Any, out Any, out Any>>
+import ID
+import Identifiable
 
-abstract class Agent<P, B, S, M>(
-    private val mutableState: M
-) where M: S {
-    abstract fun id(): Int
-    abstract fun properties(): P
-    abstract fun behavior(): B
-    fun state(): S = mutableState
+typealias EventList = List<Event<out Identifiable, out Any, out Any, out Any>>
 
-    fun accept(event: Event<P, B, S, M>): EventList {
-        return event.visit(properties(), behavior(), mutableState)
+interface Agent<P, B, S, M>: Identifiable where M: S, P: Identifiable {
+    val properties: P
+    val behavior: B
+    val state: S
+    var nextEvent: Event<P, B, S, M>?
+
+    fun nextEvent(): Event<P, B, S, M>? = nextEvent
+    fun setNextEvent(newEvent: Event<P, B, S, M>) {
+        nextEvent?.invalidate()
+        nextEvent = newEvent
+    }
+
+    override val id: ID
+        get() = properties.id
+
+    fun accept(event: Event<P, B, S, M>): EventList
+}
+
+interface MutableAgent<P, B, S, M>: Agent<P, B, S, M> where M: S, P: Identifiable {
+    val mutableState: M
+
+    override val state: S
+        get() = mutableState
+
+    override fun accept(event: Event<P, B, S, M>): EventList {
+        return event.visit(this).onEach {
+            updateNextEvent(it)
+        }
     }
 
 }
 
-interface Event<P, B, S, M> where M : S {
-    fun receiver(): Agent<P, B, S, M>
+internal fun <P, B, S, M> updateNextEvent(event: Event<P, B, S, M>) where P: Identifiable, M: S {
+    val agent: Agent<P, B, S, M> = event.receiver
+    agent.setNextEvent(event)
+}
+
+interface Event<P, B, S, M> where M: S, P: Identifiable {
+    val valid: Boolean
+    val receiver: Agent<P, B, S, M>
+    fun invalidate()
+
     fun execute(): EventList {
-        return receiver().accept(this)
+        return if (!valid) {
+            emptyList()
+        } else {
+            receiver.accept(this)
+        }
     }
-    fun visit(properties: P, behavior: B, mutableState: M): EventList
+
+    fun visit(mutableReceiver: MutableAgent<P, B, S, M>): EventList
 
 }
+

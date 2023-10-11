@@ -7,12 +7,10 @@ import java.awt.geom.Point2D
 
 
 interface ZoneData: Identifiable {
-    val id: ID
     val name: String
     val centroid: Point2D
     val relief: Double
 
-    override fun id() = id
 }
 
 class MutableZoneData: Builder<ZoneData>, ZoneData {

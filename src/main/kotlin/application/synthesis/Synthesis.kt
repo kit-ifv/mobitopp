@@ -163,7 +163,7 @@ fun main() {
     Synthesis<ExampleContext>()
         .addResource("load strings", resource = { sequenceOf("hello", "world") }) {c,r -> c.strings=r}
         .addUpdate("_", transformation = { s -> s+"_" }) {c -> c.strings}
-        //.addUpdate("illegal", transformation = {i -> i+1}){ c -> c.ints}
+        .addUpdate("illegal", transformation = {i -> i+1}){ c -> c.ints}
         .execute(ctxt)
 
     println(ctxt.strings?.getAll())
