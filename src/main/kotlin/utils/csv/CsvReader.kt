@@ -4,7 +4,11 @@ import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import kotlin.streams.asSequence
+import kotlin.system.exitProcess
 
+const val SEMICOLON = ";"
+const val COMMA = ","
+private const val QUOTE = "\""
 
 /** The interface row provides methods to obtain properties of csv rows. */
 interface Row {
@@ -54,14 +58,14 @@ open class DefaultRow(
 
     override fun get(column: String): String {
         require(column in columnIndex) {
-            "The given column '$column' is missing in $source." +
+            "The given column '$column' is missing in $source. " +
                     "Available columns: ${columnIndex.keys}"
         }
 
         val index = columnIndex[column]!!
 
         require(0 <= index && index < values.size) {
-            "The given column's index is out of range in row $rowNumber of $source." +
+            "The given column's index is out of range in row $rowNumber of $source. " +
                     "Column: $column, index: $index, row length: ${values.size}, values: $values."
         }
 
@@ -82,7 +86,7 @@ interface CsvReader {
          * @param file the csv [File] to be read
          * @return a [CsvReader] for the given file
          */
-        fun read(file: File) = DefaultCsvReader(file)
+        fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
     }
 
     /**
@@ -148,16 +152,61 @@ open class DefaultCsvReader(
     }
 
     private fun parseSafely(index: Int, line: String): Row? {
-        return parseRow(index, line)
+        try {
+            return parseRow(index, line)
+        } catch (e: IllegalArgumentException) {
+            println("Error parsing line '$line'")
+            e.printStackTrace()
+            exitProcess(1)
+        }
+
         //TODO exception handling, line empty ... maybe generic version of ParserErrorHandling
     }
 
     private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, parseLine(line))
 
-    private fun parseLine(line: String): List<String> {
-        //TODO parse values with enclosing "" even if separator is contained: e.g. "1";"a;b;c";"d" = 1, "a;b;c", "d"
-        return line.split(separator)
-            .map { it.trim('"') }
+    private fun parseLine(line: String): List<String> =
+        try {
+            when {
+                QUOTE !in line -> line.split(separator)
+                line.startsWith(QUOTE) -> consumeQuoted(line.trim())
+                else -> consumeUnquoted(line.trim())
+            }
+        } catch (exception: Exception) {
+            println("Error parsing line '$line'")
+            exception.printStackTrace()
+            exitProcess(1)
+        }
+
+    private fun consumeQuoted(line: String): List<String> {
+        require(line.startsWith(QUOTE))
+        val parts = line.split(QUOTE, limit=3)
+
+        return mutableListOf(parts[1]).also{
+            it.addAll(
+                consumeTail(parts[2])
+            )
+        }
     }
+
+    private fun consumeUnquoted(line: String): List<String> {
+        require(!line.startsWith(QUOTE))
+        val parts = line.split(separator, limit=2)
+
+        val res = mutableListOf(parts[0])
+
+        if (parts.size > 1) {
+            res.addAll(parseLine(parts[1]))
+        }
+
+        return res
+    }
+
+    private fun consumeTail(line: String): List<String> =
+        if (line.isEmpty()) { emptyList() }
+        else {
+            require(line.startsWith(separator)) {"line '$line' should start with '$separator'"}
+            parseLine(line.drop(separator.length))
+        }
 
 }

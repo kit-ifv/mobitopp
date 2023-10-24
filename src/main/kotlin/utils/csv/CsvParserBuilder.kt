@@ -298,6 +298,16 @@ class CsvParserBuilder<E>(
     }
 
     /**
+     * Use parsing error handling: drop rows with errors and print stack trace
+     *
+     * @return this builder
+     */
+    fun onParseErrorDropRowWithError(): CsvParserBuilder<E> {
+        this.errorHandling = ParserErrorHandling.ERROR_DROP
+        return this
+    }
+
+    /**
      * Use parsing error handling: keep rows with errors without printing any
      * warnings
      *
@@ -309,12 +319,22 @@ class CsvParserBuilder<E>(
     }
 
     /**
-     * Use parsing error handling: drop rows with errors silently
+     * Use parsing error handling: keeps rows with errors and prints warning
      *
      * @return
      */
     fun onParseErrorKeepRowWithWarning(): CsvParserBuilder<E> {
         this.errorHandling = ParserErrorHandling.WARN_KEEP
+        return this
+    }
+
+    /**
+     * Use parsing error handling: keeps rows with errors and prints stack trace
+     *
+     * @return
+     */
+    fun onParseErrorKeepRowWithError(): CsvParserBuilder<E> {
+        this.errorHandling = ParserErrorHandling.ERROR_KEEP
         return this
     }
 

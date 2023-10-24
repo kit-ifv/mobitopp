@@ -19,8 +19,8 @@ interface CsvParser<E> {
      * @param path the file path of the csv file to be parsed
      * @return a sequence of parsed entities
      */
-    fun parse(path: String): Sequence<E> {
-        return parse(File(path))
+    fun parse(path: String, separator: String = SEMICOLON): Sequence<E> {
+        return parse(File(path), separator)
     }
 
     /**
@@ -29,8 +29,8 @@ interface CsvParser<E> {
      * @param file the csv file to be parsed
      * @return a sequence of parsed entities
      */
-    fun parse(file: File): Sequence<E> {
-        val csv = CsvReader.read(file)
+    fun parse(file: File, separator: String = SEMICOLON): Sequence<E> {
+        val csv = CsvReader.of(file, separator)
         return parse(csv)
     }
 
@@ -96,14 +96,30 @@ enum class ParserErrorHandling { //TODO introduce interface? TODO maybe separate
     /** Upon parsing errors: Drop the entity/row and print a warning */
     WARN_DROP {
         override fun <E> handleException(e: Exception, entity: E, message: String): E? {
-            println("ERROR (dropping row): $message")
-            e.printStackTrace()
+            println("WARNING (dropping row): $message")
             return null
         }
     },
 
     /** Upon parsing errors: Keep the entity/row but print a warning */
     WARN_KEEP {
+        override fun <E> handleException(e: Exception, entity: E, message: String): E? {
+            println("WARNING (keeping row): $message")
+            return entity
+        }
+    },
+
+    /** Upon parsing errors: Drop the entity/row and print error and stack trace */
+    ERROR_DROP {
+        override fun <E> handleException(e: Exception, entity: E, message: String): E? {
+            println("ERROR (dropping row): $message")
+            e.printStackTrace()
+            return null
+        }
+    },
+
+    /** Upon parsing errors: Keep the entity/row but print error and stack trace */
+    ERROR_KEEP {
         override fun <E> handleException(e: Exception, entity: E, message: String): E? {
             println("ERROR (keeping row): $message")
             e.printStackTrace()
@@ -207,6 +223,17 @@ open class DefaultRowCsvParser<E>(
     }
 }
 
+/**
+ * A RowCsvParser for parsing values of a single column.
+ * This is for convenience, as no entity spawner has to be provided as in [DefaultRowCsvParser].
+ *
+ * @param E type of the values to be parsed
+ * @constructor create a row based csv parser for the given column
+ * @property valueColumn name of the column to be parsed
+ * @property parser parsing functions for given columns
+ * @property exceptionHandling the exception handling strategy to be used
+ *     when parsing errors occur
+ */
 open class CsvValueParser<E> (
     protected val valueColumn: String,
     protected val exceptionHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP,
@@ -219,9 +246,24 @@ open class CsvValueParser<E> (
         }
 
     }
-
 }
 
+/**
+ * A RowCsvParser for parsing key value pairs defined by two columns.
+ * The [DefaultRowCsvParser] is unhandy for pairs as they are immutable and cannot be modified.
+ * This implementation does not require a´n entity spawner.
+ * This parser can be transformed into a [MapCsvParser] or [MapMergeCsvParser].
+ *
+ * @param K type of the keys to be parsed
+ * @param V type of the values to be parsed
+ * @constructor create a row based csv parser for key value pairs
+ * @property keyColumn name of the key column to be parsed
+ * @property valueColumn name of the value column to be parsed
+ * @property keyParser parsing functions for the keys
+ * @property valueParser parsing functions for the values
+ * @property exceptionHandling the exception handling strategy to be used
+ *     when parsing errors occur
+ */
 open class CsvPairParser<K, V> (
     protected val keyColumn: String,
     protected val valueColumn: String,
@@ -240,6 +282,9 @@ open class CsvPairParser<K, V> (
 
     }
 
+    fun asMapParser(): MapCsvParser<K, V> = DefaultMapCsvParser(this)
+    fun asMergeMapParser(): MapMergeCsvParser<K, V> = MapMergeCsvParser(this)
+
 }
 
 /**
@@ -257,8 +302,8 @@ interface MapCsvParser<K, V> : CsvParser<Pair<K, V>> {
      * @param path the path of the csv file to be parsed
      * @return a map containing the parsed values by key
      */
-    fun parseMap(path: String): Map<K, V> {
-        return parseMap(File(path))
+    fun parseMap(path: String, separator: String = SEMICOLON): Map<K, V> {
+        return parseMap(File(path), separator)
     }
 
     /**
@@ -267,8 +312,8 @@ interface MapCsvParser<K, V> : CsvParser<Pair<K, V>> {
      * @param file the csv file to be parsed
      * @return a map containing the parsed values by key
      */
-    fun parseMap(file: File): Map<K, V> {
-        val csv = CsvReader.read(file)
+    fun parseMap(file: File, separator: String = SEMICOLON): Map<K, V> {
+        val csv = CsvReader.of(file, separator)
         return parseMap(csv)
     }
 

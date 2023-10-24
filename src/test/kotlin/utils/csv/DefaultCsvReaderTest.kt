@@ -13,7 +13,7 @@ class DefaultCsvReaderTest {
 
     @Test
     fun read() {
-        val otherReader = CsvReader.read(file)
+        val otherReader = CsvReader.of(file)
 
         val columns = reader.columns()
         val otherColumns = otherReader.columns()
@@ -45,7 +45,7 @@ class DefaultCsvReaderTest {
 
 class DefaultRowTest {
     private val file = File("src/test/resources/test_data.csv")
-    private val reader: DefaultCsvReader = CsvReader.read(file)
+    private val reader: DefaultCsvReader = CsvReader.of(file)
 
     @Test
     fun source() {
