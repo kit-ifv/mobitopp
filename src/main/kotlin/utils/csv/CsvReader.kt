@@ -86,6 +86,7 @@ interface CsvReader {
          * @param file the csv [File] to be read
          * @return a [CsvReader] for the given file
          */
+        @Suppress("FunctionMinLength")
         fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
     }
 
@@ -151,13 +152,14 @@ open class DefaultCsvReader(
 
     }
 
+    @Suppress("PrintStackTrace")
     private fun parseSafely(index: Int, line: String): Row? {
-        try {
-            return parseRow(index, line)
+        return try {
+            parseRow(index, line)
         } catch (e: IllegalArgumentException) {
-            println("Error parsing line '$line'")
+            println(warning(line))
             e.printStackTrace()
-            exitProcess(1)
+            null
         }
 
         //TODO exception handling, line empty ... maybe generic version of ParserErrorHandling
@@ -165,6 +167,7 @@ open class DefaultCsvReader(
 
     private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, parseLine(line))
 
+    @Suppress("PrintStackTrace", "TooGenericExceptionCaught")
     private fun parseLine(line: String): List<String> =
         try {
             when {
@@ -173,10 +176,12 @@ open class DefaultCsvReader(
                 else -> consumeUnquoted(line.trim())
             }
         } catch (exception: Exception) {
-            println("Error parsing line '$line'")
+            println(warning(line))
             exception.printStackTrace()
             exitProcess(1)
         }
+
+    private fun warning(line: String) = "Error parsing line '$line'"
 
     private fun consumeQuoted(line: String): List<String> {
         require(line.startsWith(QUOTE))

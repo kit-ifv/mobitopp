@@ -11,6 +11,7 @@ package utils.csv
  * @property entitySpawner a function to produce an empty entity, it
  *     receives the index of the parsed row
  */
+@Suppress("TooManyFunctions")
 class CsvParserBuilder<E>(
     private val entitySpawner: (Int) -> E
 ) {
