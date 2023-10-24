@@ -22,7 +22,7 @@ class ClassWithSeet(private val text: Set<String>)
 class ClassWithObject(private val o: ClassWithList)
 
 @Mutable
-class ClassWithObjectInCollection(private val t: Collection<ClassWithList>)
+class ClassiWithObjectInCollection(private val t: Collection<ClassWithList>)
 
 
 class Builder {
