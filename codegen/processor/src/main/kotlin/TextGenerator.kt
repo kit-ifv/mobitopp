@@ -13,8 +13,7 @@ class TextBuilder(private val sep: String = "\n") {
         result.add(this)
     }
     fun makeText(): String {
-        val pref =  sep.filterNewlines()
-        return result.joinToString(separator = "$sep", prefix = pref)
+        return result.joinToString(separator = "$sep", prefix = sep.filterNewlines())
     }
 }
 operator fun String.invoke(sep: String = "\n", s: TextBuilder.() -> Unit): String {
@@ -33,7 +32,7 @@ operator fun String.invoke(vararg x: String): String {
 fun String.inline(vararg x: String): String {
     val joinToString = x.joinToString(separator = ", ", prefix = "")
 
-    return "$this(${joinToString.replace("\n", "\n  ")})"
+    return "$this(${joinToString.replace("\n", "\n${INDENT}")})"
 }
 
 fun String.indent(): String {

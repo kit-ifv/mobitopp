@@ -132,4 +132,41 @@ class TextBuilderTest {
         assertEquals(expected, result)
     }
 
+    @Test
+    fun inlineWithInternalLineBreak() {
+        val result = "test".inline("A\nB")
+        val expected = "test(A\n${INDENT}B)"
+
+        print(result)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun bracesWithInternalLineBreak() {
+        val result = "test"("A\nB")
+        val expected = "test(\n${INDENT}A\n${INDENT}B\n)"
+
+        print(result)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun bracketsInternalLinebreak() {
+        val result = "test"{+"A\nB"}
+        val expected = "test {\n${INDENT}A\n${INDENT}B\n}"
+
+        print(result)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun bracketsInlineInternalLinebreak() {
+        val result = "test"(sep= " "){+"A\nB"}
+        val expected = "test {A\n${INDENT}B}"
+
+        print(result)
+        assertEquals(expected, result)
+    }
+
+
 }

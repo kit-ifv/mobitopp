@@ -41,6 +41,7 @@ class Processor(private val codeGenerator: CodeGenerator, private val logger: KS
                     it.simpleName.asString() + ": " + it.type.toString()}.joinToString(prefix = "    ", postfix = "\n", separator = ",\n    ")
 
             file += ") {\n"
+
             file += "    fun build(): $className {\n"
 
             file += "         return $className(${classDeclaration.getAllProperties().map { it.simpleName.asString() }.joinToString()})\n"
