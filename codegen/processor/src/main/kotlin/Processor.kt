@@ -4,17 +4,11 @@ import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
-val DEFAULT_VALUES = mapOf(
-    "Int" to " = 0",
-    "String" to " = \"\"",
-    "Byte" to " = 0",
-    "Float" to " = 0.0"
-)
 
 fun properType(property: KSPropertyDeclaration): String {
     val prefix = property.simpleName.asString()
     val text = property.type.toString()
-    val collection = listOf("List", "Map", "Set", "Collection").contains(text)
+    val collection = listOf("List", "Map", "Set").contains(text)
     val resolved = property.type.resolve()
     var generics = ""
     if (resolved.arguments.isNotEmpty()) {
@@ -24,10 +18,11 @@ fun properType(property: KSPropertyDeclaration): String {
             postfix = ">"
         ) { it.type.toString() }
     }
+    val nullable = if (collection) "" else "?"
     val announce = if (collection) "val" else "var"
     val pronounceMutability = if (collection) "Mutable" else ""
-    val default = if (collection) " = mutable${text}Of()" else DEFAULT_VALUES.getOrDefault(text, "")
-    return "$announce $prefix : $pronounceMutability$text$generics$default"
+    val default = if (collection) " = mutable${text}Of()" else ""
+    return "$announce $prefix : $pronounceMutability$text$generics$nullable$default"
 }
 
 
@@ -84,7 +79,7 @@ class Processor(
             file += "    fun build(): $className {\n"
 
             file += "         return $className(${
-                classDeclaration.getAllProperties().map { it.simpleName.asString() }.joinToString()
+                classDeclaration.getAllProperties().map { it.simpleName.asString() + "!!" }.joinToString()
             })\n"
 
             file += "    }\n"
