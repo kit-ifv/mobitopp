@@ -1,5 +1,7 @@
 package utils.csv
 
+import utils.ErrorHandling
+
 /**
  * A builder to create a [CsvParser] constructed from multiple column
  * parsing functions. The builder uses the fluent builder pattern for
@@ -16,7 +18,7 @@ class CsvParserBuilder<E>(
     private val entitySpawner: (Int) -> E
 ) {
     private val columnParsers: MutableMap<String, (E, String) -> E?> = mutableMapOf()
-    private var errorHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP
+    private var errorHandling: ErrorHandling = ErrorHandling.WARN_KEEP
 
     val boolean = this to { s: String -> s.toBoolean() } //TODO allow other encoding of true (currently "true")
     val byte = this to { s: String -> s.toByte() }
@@ -25,7 +27,6 @@ class CsvParserBuilder<E>(
     val long = this to { s: String -> s.toLong() }
     val float = this to { s: String -> s.toFloat() }
     val double = this to { s: String -> s.toDouble() }
-    val char = this to { s: String -> s.toCharArray()[0] }
     val string = this to { s: String -> s }
 
 
@@ -57,80 +58,14 @@ class CsvParserBuilder<E>(
         return this
     }
 
-    fun using(handling: ParserErrorHandling): CsvParserBuilder<E> {
+    /**
+     * On parsing error use the given [ErrorHandling] strategy.
+     *
+     * @param handling the error handling strategy
+     * @return this builder
+     */
+    fun onErrorUse(handling: ErrorHandling): CsvParserBuilder<E> {
         this.errorHandling = handling
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors silently
-     *
-     * @return this builder
-     */
-    fun onParseErrorDropRowSilently(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.SILENT_DROP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors and print warning
-     *
-     * @return this builder
-     */
-    fun onParseErrorDropRowWithWarning(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.WARN_DROP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors and print stack trace
-     *
-     * @return this builder
-     */
-    fun onParseErrorDropRowWithError(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.ERROR_DROP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: keep rows with errors without printing any
-     * warnings
-     *
-     * @return this builder
-     */
-    fun onParseErrorKeepRowSilently(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.SILENT_KEEP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: keeps rows with errors and prints warning
-     *
-     * @return
-     */
-    fun onParseErrorKeepRowWithWarning(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.WARN_KEEP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: keeps rows with errors and prints stack trace
-     *
-     * @return
-     */
-    fun onParseErrorKeepRowWithError(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.ERROR_KEEP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: throw exception when first parsing error
-     * occurs.
-     *
-     * @return this builder
-     */
-    fun onParseErrorThrowException(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.THROW
         return this
     }
 

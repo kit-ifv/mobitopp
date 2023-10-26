@@ -66,15 +66,15 @@ class DefaultRowTest {
         val rows = reader.rows().toList()
 
         rows.forEachIndexed{index, row ->
-            assertEquals((index+1).toString(), row.get(INDEX_COL))
+            assertEquals((index+1).toString(), row[INDEX_COL])
         }
 
         //true;1.11;6;@$§!?;42
-        assertEquals("true",    rows[5].get(BOOL_COL))
-        assertEquals("1.11",    rows[5].get(FLOAT_COL))
-        assertEquals("6",       rows[5].get(INDEX_COL))
-        assertEquals("%&#)!?",   rows[5].get(STR_COL))
-        assertEquals("42",      rows[5].get(INT_COL))
+        assertEquals("true",    rows[5][BOOL_COL])
+        assertEquals("1.11",    rows[5][FLOAT_COL])
+        assertEquals("6",       rows[5][INDEX_COL])
+        assertEquals("%&#)!?",   rows[5][STR_COL])
+        assertEquals("42",      rows[5][INT_COL])
 
     }
 

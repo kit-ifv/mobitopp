@@ -1,10 +1,10 @@
 package utils.csv
 
+import utils.ErrorHandling
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import kotlin.streams.asSequence
-import kotlin.system.exitProcess
 
 const val SEMICOLON = ";"
 const val COMMA = ","
@@ -32,7 +32,8 @@ interface Row {
      * @param column the column for which the [Row]'s value should be returned
      * @return this [Row]'s value at the given column
      */
-    fun get(column: String): String
+    operator fun get(column: String): String
+
 }
 
 /**
@@ -106,16 +107,18 @@ interface CsvReader {
 }
 
 /**
- * Default implementation of the [CsvReader] interface.
- * Reads the file header upon creation, all other rows are read lazily.
+ * Default implementation of the [CsvReader] interface. Reads the file
+ * header upon creation, all other rows are read lazily.
  *
- * @constructor create a [DefaultCsvReader] for the given [File] using the given separator
+ * @constructor create a [DefaultCsvReader] for the given [File] using the
+ *     given separator
  * @property file the file to be read
  * @property separator the separator to be used; defaults to ';'
  */
 open class DefaultCsvReader(
     protected val file: File,
-    protected val separator: String = ";"
+    protected val separator: String = ";",
+    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR_DROP
 ) : CsvReader {
     protected val columns: Map<String, Int>
     protected val name: String = file.name //TODO maybe use path instead?
@@ -152,42 +155,25 @@ open class DefaultCsvReader(
 
     }
 
-    @Suppress("PrintStackTrace")
-    private fun parseSafely(index: Int, line: String): Row? {
-        return try {
-            parseRow(index, line)
-        } catch (e: IllegalArgumentException) {
-            println(warning(line))
-            e.printStackTrace()
-            null
-        }
-
-        //TODO exception handling, line empty ... maybe generic version of ParserErrorHandling
-    }
+    private fun parseSafely(index: Int, line: String): Row? =
+        errorHandling.handleReadRow(line) { l -> parseRow(index, l) }
 
     private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, parseLine(line))
 
-    @Suppress("PrintStackTrace", "TooGenericExceptionCaught")
     private fun parseLine(line: String): List<String> =
-        try {
+        errorHandling.handleReadRow(line) { l ->
             when {
-                QUOTE !in line -> line.split(separator)
-                line.startsWith(QUOTE) -> consumeQuoted(line.trim())
-                else -> consumeUnquoted(line.trim())
+                QUOTE !in l -> l.split(separator)
+                l.startsWith(QUOTE) -> consumeQuoted(l.trim())
+                else -> consumeUnquoted(l.trim())
             }
-        } catch (exception: Exception) {
-            println(warning(line))
-            exception.printStackTrace()
-            exitProcess(1)
-        }
-
-    private fun warning(line: String) = "Error parsing line '$line'"
+        } ?: emptyList()
 
     private fun consumeQuoted(line: String): List<String> {
         require(line.startsWith(QUOTE))
-        val parts = line.split(QUOTE, limit=3)
+        val parts = line.split(QUOTE, limit = 3)
 
-        return mutableListOf(parts[1]).also{
+        return mutableListOf(parts[1]).also {
             it.addAll(
                 consumeTail(parts[2])
             )
@@ -196,7 +182,7 @@ open class DefaultCsvReader(
 
     private fun consumeUnquoted(line: String): List<String> {
         require(!line.startsWith(QUOTE))
-        val parts = line.split(separator, limit=2)
+        val parts = line.split(separator, limit = 2)
 
         val res = mutableListOf(parts[0])
 
@@ -208,10 +194,24 @@ open class DefaultCsvReader(
     }
 
     private fun consumeTail(line: String): List<String> =
-        if (line.isEmpty()) { emptyList() }
-        else {
-            require(line.startsWith(separator)) {"line '$line' should start with '$separator'"}
+        if (line.isEmpty()) {
+            emptyList()
+        } else {
+            require(line.startsWith(separator)) { "line '$line' should start with '$separator'" }
             parseLine(line.drop(separator.length))
         }
 
+}
+
+/**
+ * Handle reading csv line.
+ *
+ * @param line the line to be parsed
+ * @param reader the reader
+ * @param T the generic result type
+ * @return result of the reader opr null
+ * @receiver ErrorHandling
+ */
+fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? {
+    return this.handle(errorMessage = { "Error reading csv line $line" }) { reader(line) }
 }

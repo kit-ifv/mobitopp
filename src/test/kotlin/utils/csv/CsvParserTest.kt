@@ -3,6 +3,7 @@ package utils.csv
 import ConsoleCaptor
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import utils.ErrorHandling
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -41,7 +42,7 @@ class CsvParserTest {
 
     @Test
     fun parseValueColumn() {
-        val parser = CsvValueParser(STR_COL, ParserErrorHandling.SILENT_DROP) { it }
+        val parser = CsvValueParser(STR_COL, ErrorHandling.SILENT_DROP) { it }
 
         val values = parser.parse(path).toList()
 
@@ -60,7 +61,7 @@ class CsvParserTest {
         val parser = CsvPairParser(
             keyColumn = INDEX_COL,
             valueColumn = STR_COL,
-            ParserErrorHandling.SILENT_DROP,
+            ErrorHandling.SILENT_DROP,
             keyParser = { it.toInt() },
             valueParser = {it}
         )
@@ -85,7 +86,7 @@ class CsvParserTest {
         val parser = CsvPairParser(
             keyColumn = INDEX_COL,
             valueColumn = STR_COL,
-            ParserErrorHandling.SILENT_DROP,
+            ErrorHandling.SILENT_DROP,
             keyParser = { 0 },
             valueParser = {it}
         )
@@ -208,7 +209,7 @@ class CsvParserTest {
     fun parseByteProperty() {
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorDropRowSilently()
+            .onErrorUse(ErrorHandling.SILENT_DROP)
             .build()
             .parse(file)
             .toList()
@@ -224,7 +225,7 @@ class CsvParserTest {
     fun parseByte() {
         val entities = builder
             .byte.column(INT_COL) { e, b -> e.also{ e.byte = b } }
-            .onParseErrorDropRowSilently()
+            .onErrorUse(ErrorHandling.SILENT_DROP)
             .build()
             .parse(file)
             .toList()
@@ -481,7 +482,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorDropRowSilently()
+            .onErrorUse(ErrorHandling.SILENT_DROP)
             .build()
             .parse(file)
             .toList()
@@ -498,7 +499,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorKeepRowSilently()
+            .onErrorUse(ErrorHandling.SILENT_KEEP)
             .build()
             .parse(file)
             .toList()
@@ -517,7 +518,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorDropRowWithWarning()
+            .onErrorUse(ErrorHandling.WARN_DROP)
             .build()
             .parse(file)
             .toList()
@@ -533,7 +534,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorKeepRowWithWarning()
+            .onErrorUse(ErrorHandling.WARN_KEEP)
             .build()
             .parse(file)
             .toList()
@@ -551,7 +552,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorDropRowWithError()
+            .onErrorUse(ErrorHandling.ERROR_DROP)
             .build()
             .parse(file)
             .toList()
@@ -567,7 +568,7 @@ class CsvParserTest {
 
         val entities = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorKeepRowWithError()
+            .onErrorUse(ErrorHandling.ERROR_KEEP)
             .build()
             .parse(file)
             .toList()
@@ -632,7 +633,7 @@ class CsvParserTest {
     fun `parse byte with throws should throw exception`() {
         val parser = builder
             .byte.property(INT_COL) { e, b -> e.byte = b }
-            .onParseErrorThrowException()
+            .onErrorUse(ErrorHandling.THROW)
             .build()
 
         assertThrows<IllegalArgumentException> {
