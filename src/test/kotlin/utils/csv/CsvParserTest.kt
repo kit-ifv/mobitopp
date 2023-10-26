@@ -31,11 +31,12 @@ class CsvParserTest {
     private val builder: CsvParserBuilder<Entity> = CsvParserBuilder { index -> Entity(rowIndex = index) }
 
     private fun initBuilder(): CsvParserBuilder<Entity> {
-        return builder.addStringPropertyColumn(STR_COL) { e, s -> e.string = s }
-            .addBooleanPropertyColumn(BOOL_COL) { e, b -> e.bool = b }
-            .addIntPropertyColumn(INDEX_COL) { e, i -> e.csvIndex = i }
-            .addIntPropertyColumn(INT_COL) { e, i -> e.int = i }
-            .addFloatPropertyColumn(FLOAT_COL) { e, f -> e.float = f }
+        return builder
+            .string.property(STR_COL) { e, s -> e.string = s }
+            .boolean.property(BOOL_COL) { e, b -> e.bool = b }
+            .int.property(INDEX_COL) { e, i -> e.csvIndex = i }
+            .int.property(INT_COL) { e, i -> e.int = i }
+            .float.property(FLOAT_COL) { e, f -> e.float = f }
     }
 
     @Test
@@ -111,11 +112,11 @@ class CsvParserTest {
     @Test
     fun parseMap() {
         val mapParser = CsvParserBuilder { index -> index to Entity(rowIndex = index) }
-            .addStringPropertyColumn(STR_COL) { e, s -> e.second.string = s }
-            .addBooleanPropertyColumn(BOOL_COL) { e, b -> e.second.bool = b }
-            .addIntPropertyColumn(INDEX_COL) { e, i -> e.second.csvIndex = i }
-            .addIntPropertyColumn(INT_COL) { e, i -> e.second.int = i }
-            .addFloatPropertyColumn(FLOAT_COL) { e, f -> e.second.float = f }
+            .string.property(STR_COL) { e, s -> e.second.string = s }
+            .boolean.property(BOOL_COL) { e, b -> e.second.bool = b }
+            .int.property(INDEX_COL) { e, i -> e.second.csvIndex = i }
+            .int.property(INT_COL) { e, i -> e.second.int = i }
+            .float.property(FLOAT_COL) { e, f -> e.second.float = f }
             .buildMapParser()
 
         val map = mapParser.parseMap(path)
@@ -132,11 +133,11 @@ class CsvParserTest {
     @Test
     fun parseMergeMap() {
         val mapParser = CsvParserBuilder { index -> 0 to Entity(rowIndex = index) }
-            .addStringPropertyColumn(STR_COL) { e, s -> e.second.string = s }
-            .addBooleanPropertyColumn(BOOL_COL) { e, b -> e.second.bool = b }
-            .addIntPropertyColumn(INDEX_COL) { e, i -> e.second.csvIndex = i }
-            .addIntPropertyColumn(INT_COL) { e, i -> e.second.int = i }
-            .addFloatPropertyColumn(FLOAT_COL) { e, f -> e.second.float = f }
+            .string.property(STR_COL) { e, s -> e.second.string = s }
+            .boolean.property(BOOL_COL) { e, b -> e.second.bool = b }
+            .int.property(INDEX_COL) { e, i -> e.second.csvIndex = i }
+            .int.property(INT_COL) { e, i -> e.second.int = i }
+            .float.property(FLOAT_COL) { e, f -> e.second.float = f }
             .buildMergeMapParser()
 
         val map = mapParser.parseMap(path)
@@ -170,7 +171,7 @@ class CsvParserTest {
     @Test
     fun parseStringProperty() {
         val entities = builder
-            .addStringPropertyColumn(STR_COL) { e, s -> e.string = s }
+            .string.property(STR_COL) { e, s -> e.string = s }
             .build()
             .parse(file)
             .toList()
@@ -188,7 +189,7 @@ class CsvParserTest {
     @Test
     fun parseString() {
         val entities = builder
-            .addStringColumn(STR_COL) { e, s -> e.also{ e.string = s} }
+            .string.column(STR_COL) { e, s -> e.also{ e.string = s} }
             .build()
             .parse(file)
             .toList()
@@ -206,7 +207,7 @@ class CsvParserTest {
     @Test
     fun parseByteProperty() {
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorDropRowSilently()
             .build()
             .parse(file)
@@ -222,7 +223,7 @@ class CsvParserTest {
     @Test
     fun parseByte() {
         val entities = builder
-            .addByteColumn(INT_COL) { e, b -> e.also{ e.byte = b } }
+            .byte.column(INT_COL) { e, b -> e.also{ e.byte = b } }
             .onParseErrorDropRowSilently()
             .build()
             .parse(file)
@@ -238,7 +239,7 @@ class CsvParserTest {
     @Test
     fun parseShortProperty() {
         val entities = builder
-            .addShortPropertyColumn(INT_COL) { e, s -> e.short = s }
+            .short.property(INT_COL) { e, s -> e.short = s }
             .build()
             .parse(file)
             .toList()
@@ -255,7 +256,7 @@ class CsvParserTest {
     @Test
     fun parseShort() {
         val entities = builder
-            .addShortColumn(INT_COL) { e, s -> e.also{ e.short = s } }
+            .short.column(INT_COL) { e, s -> e.also{ e.short = s } }
             .build()
             .parse(file)
             .toList()
@@ -272,7 +273,7 @@ class CsvParserTest {
     @Test
     fun parseIntProperty() {
         val entities = builder
-            .addIntPropertyColumn(INT_COL) { e, i -> e.int = i }
+            .int.property(INT_COL) { e, i -> e.int = i }
             .build()
             .parse(file)
             .toList()
@@ -289,7 +290,7 @@ class CsvParserTest {
     @Test
     fun parseInt() {
         val entities = builder
-            .addIntColumn(INT_COL) { e, i -> e.also{ e.int = i } }
+            .int.column(INT_COL) { e, i -> e.also{ e.int = i } }
             .build()
             .parse(file)
             .toList()
@@ -306,7 +307,7 @@ class CsvParserTest {
     @Test
     fun parseLongProperty() {
         val entities = builder
-            .addLongPropertyColumn(INT_COL) { e, l -> e.long = l }
+            .long.property(INT_COL) { e, l -> e.long = l }
             .build()
             .parse(file)
             .toList()
@@ -322,7 +323,7 @@ class CsvParserTest {
     @Test
     fun parseLong() {
         val entities = builder
-            .addLongColumn(INT_COL) { e, l -> e.also{ e.long = l } }
+            .long.column(INT_COL) { e, l -> e.also{ e.long = l } }
             .build()
             .parse(file)
             .toList()
@@ -338,7 +339,7 @@ class CsvParserTest {
     @Test
     fun parseFloatProperty() {
         val entities = builder
-            .addFloatPropertyColumn(FLOAT_COL) { e, f -> e.float = f }
+            .float.property(FLOAT_COL) { e, f -> e.float = f }
             .build()
             .parse(file)
             .toList()
@@ -355,7 +356,7 @@ class CsvParserTest {
     @Test
     fun parseFloat() {
         val entities = builder
-            .addFloatColumn(FLOAT_COL) { e, f -> e.also{ e.float = f } }
+            .float.column(FLOAT_COL) { e, f -> e.also{ e.float = f } }
             .build()
             .parse(file)
             .toList()
@@ -371,7 +372,7 @@ class CsvParserTest {
     @Test
     fun parseDoubleProperty() {
         val entities = builder
-            .addDoublePropertyColumn(FLOAT_COL) { e, d -> e.double = d }
+            .double.property(FLOAT_COL) { e, d -> e.double = d }
             .build()
             .parse(file)
             .toList()
@@ -387,7 +388,7 @@ class CsvParserTest {
     @Test
     fun parseDouble() {
         val entities = builder
-            .addDoubleColumn(FLOAT_COL) { e, d -> e.also{ e.double = d } }
+            .double.column(FLOAT_COL) { e, d -> e.also{ e.double = d } }
             .build()
             .parse(file)
             .toList()
@@ -403,7 +404,7 @@ class CsvParserTest {
     @Test
     fun parseBoolProperty() {
         val entities = builder
-            .addBooleanPropertyColumn(BOOL_COL) { e, b -> e.bool = b }
+            .boolean.property(BOOL_COL) { e, b -> e.bool = b }
             .build()
             .parse(file)
             .toList()
@@ -419,7 +420,7 @@ class CsvParserTest {
     @Test
     fun parseBool() {
         val entities = builder
-            .addBooleanColumn(BOOL_COL) { e, b -> e.also{ e.bool = b } }
+            .boolean.column(BOOL_COL) { e, b -> e.also{ e.bool = b } }
             .build()
             .parse(file)
             .toList()
@@ -435,10 +436,9 @@ class CsvParserTest {
     @Test
     fun parseDurationProperty() {
         val entities = builder
-            .addTypedPropertyColumn(
+            .addProperty(
                 INT_COL,
-                convert = {s -> s.toInt().toDuration(DurationUnit.MINUTES)},
-                setter = {entity, d -> entity.duration = d  }
+                setter = {entity, s -> entity.duration = s.toInt().toDuration(DurationUnit.MINUTES) }
             )
             .build()
             .parse(file)
@@ -457,10 +457,9 @@ class CsvParserTest {
     @Test
     fun parseDuration() {
         val entities = builder
-            .addTypedColumn(
+            .addColumn(
                 INT_COL,
-                convert = {s -> s.toInt().toDuration(DurationUnit.MINUTES)},
-                transform = {entity, d -> entity.also{ entity.duration = d } }
+                transform = { entity, s -> entity.also{ entity.duration = s.toInt().toDuration(DurationUnit.MINUTES) } }
             )
             .build()
             .parse(file)
@@ -481,7 +480,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorDropRowSilently()
             .build()
             .parse(file)
@@ -498,7 +497,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorKeepRowSilently()
             .build()
             .parse(file)
@@ -517,7 +516,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorDropRowWithWarning()
             .build()
             .parse(file)
@@ -533,7 +532,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorKeepRowWithWarning()
             .build()
             .parse(file)
@@ -551,7 +550,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorDropRowWithError()
             .build()
             .parse(file)
@@ -567,7 +566,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorKeepRowWithError()
             .build()
             .parse(file)
@@ -632,7 +631,7 @@ class CsvParserTest {
     @Test
     fun `parse byte with throws should throw exception`() {
         val parser = builder
-            .addBytePropertyColumn(INT_COL) { e, b -> e.byte = b }
+            .byte.property(INT_COL) { e, b -> e.byte = b }
             .onParseErrorThrowException()
             .build()
 
