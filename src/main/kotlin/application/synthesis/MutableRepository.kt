@@ -1,7 +1,6 @@
 package application.synthesis
 
 import Builder
-import ID
 import Identifiable
 
 
@@ -49,47 +48,47 @@ class LazyIdRepository<E>(
 ): LazyRepository<E>(entities), MutableIdRepository<E> where E: Identifiable
 
 
-fun main() {
-    class Entity(
-        override val id: ID,
-        val name: String
-    ): Identifiable {
-        override fun toString() = "$name ($id)"
-
-    }
-
-    class EntityBuilder(
-        override val id: ID,
-        var name: String = ""
-    ): IdBuilder<Entity> {
-
-        override fun build() = Entity(id, name)
-        override fun toString() = "$name ($id)"
-    }
-
-    val resource: Resource<EntityBuilder> =  {
-        sequenceOf("hello", "world", "i", "am", "a", "test")
-            .mapIndexed { index, s -> EntityBuilder(index.toLong(), s) }
-    }
-
-    val t0: Transformation<EntityBuilder> = {
-            e -> if (e.name.length <= 2) { null } else {e}
-    }
-
-    val t1: Transformation<EntityBuilder> = {
-            e -> e.also { e.name += "_" }
-    }
-
-
-    val repo = MutableIdRepository.from(resource)
-
-    repo.apply(t0)
-    println(repo.getById(5L))
-    repo.apply(t1)
-    println(repo.getById(1L))
-
-    val finished = repo.finish()
-    println(finished.getById(1L))
-
-    println(finished.getAll())
-}
+//fun main() {
+//    class Entity(
+//        override val id: ID,
+//        val name: String
+//    ): Identifiable {
+//        override fun toString() = "$name ($id)"
+//
+//    }
+//
+//    class EntityBuilder(
+//        override val id: ID,
+//        var name: String = ""
+//    ): IdBuilder<Entity> {
+//
+//        override fun build() = Entity(id, name)
+//        override fun toString() = "$name ($id)"
+//    }
+//
+//    val resource: Resource<EntityBuilder> =  {
+//        sequenceOf("hello", "world", "i", "am", "a", "test")
+//            .mapIndexed { index, s -> EntityBuilder(index.toLong(), s) }
+//    }
+//
+//    val t0: Transformation<EntityBuilder> = {
+//            e -> if (e.name.length <= 2) { null } else {e}
+//    }
+//
+//    val t1: Transformation<EntityBuilder> = {
+//            e -> e.also { e.name += "_" }
+//    }
+//
+//
+//    val repo = MutableIdRepository.from(resource)
+//
+//    repo.apply(t0)
+//    println(repo.getById(5L))
+//    repo.apply(t1)
+//    println(repo.getById(1L))
+//
+//    val finished = repo.finish()
+//    println(finished.getById(1L))
+//
+//    println(finished.getAll())
+//}
