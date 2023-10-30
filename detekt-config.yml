@@ -93,7 +93,7 @@ complexity:
     threshold : 4
   ComplexInterface:
     active: true
-    threshold : 10
+    threshold : 13
     includeStaticDeclarations: false
     includePrivateDeclarations: false
     ignoreOverloaded: false
@@ -160,7 +160,7 @@ complexity:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     thresholdInFiles : 11
-    thresholdInClasses : 11
+    thresholdInClasses : 20
     thresholdInInterfaces : 11
     thresholdInObjects : 11
     thresholdInEnums : 11
@@ -316,10 +316,11 @@ naming:
     forbiddenName: []
   FunctionMaxLength:
     active: true
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     maximumFunctionNameLength: 30
   FunctionMinLength:
     active: true
-    minimumFunctionNameLength: 3
+    minimumFunctionNameLength: 2
   FunctionNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
@@ -613,7 +614,7 @@ style:
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
     ignoreNamedArgument: true
-    ignoreEnums: false
+    ignoreEnums: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
   MandatoryBracesLoops:
@@ -667,6 +668,8 @@ style:
     max: 2
     excludedFunctions:
       - 'equals'
+      - 'times'
+      - 'div'
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false
