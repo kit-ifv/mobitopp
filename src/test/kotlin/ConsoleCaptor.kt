@@ -5,10 +5,12 @@ class ConsoleCaptor {
 
     private val baos: ByteArrayOutputStream = ByteArrayOutputStream()
     private val oldOutputStream: PrintStream = System.out
+    private val oldErrorStream: PrintStream = System.err
     private var recording = true
 
     init {
         System.setOut(PrintStream(baos))
+        System.setErr(PrintStream(baos))
     }
 
     fun getText(): String {
@@ -19,6 +21,7 @@ class ConsoleCaptor {
 
         System.out.flush()
         System.setOut(oldOutputStream)
+        System.setErr(oldErrorStream)
         return baos.toString()
     }
 
