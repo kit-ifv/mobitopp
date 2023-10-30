@@ -4,27 +4,124 @@ import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
+class Props(property: KSPropertyDeclaration) {
+    enum class State {
+        PRIMITIVE {
+            override fun variability(): String {
+                return "var"
+            }
 
-fun properType(property: KSPropertyDeclaration): String {
-    val prefix = property.simpleName.asString()
-    val text = property.type.toString()
-    val collection = listOf("List", "Map", "Set").contains(text)
-    val resolved = property.type.resolve()
-    var generics = ""
-    if (resolved.arguments.isNotEmpty()) {
-        generics += resolved.arguments.joinToString(
-            separator = ", ",
-            prefix = "<",
-            postfix = ">"
-        ) { it.type.toString() }
+            override fun defaultValue(type: String): String {
+                return "null"
+            }
+
+
+        },
+        UNMODIFIABLE_COLLECTION {
+            override val nullable = ""
+            override fun variability(): String {
+                return "val"
+            }
+
+            override fun defaultValue(type: String): String {
+                return "mutable$type" + "Of()"
+
+            }
+
+            override fun type(type: String): String {
+                return "Mutable$type"
+            }
+
+            override fun reset(type: String): String {
+                return ".clear()"
+            }
+
+
+        },
+        MODIFIABLE_COLLECTION {
+            override val nullable = ""
+            override fun variability(): String {
+                return "val"
+            }
+
+            override fun defaultValue(type: String): String {
+                return type[0].lowercase() + type.substring(1) + "Of()"
+            }
+            override fun reset(type: String): String {
+                return ".clear()"
+            }
+        };
+
+        companion object {
+            fun parse(type: String): State {
+                return when (type) {
+                    "MutableList", "MutableMap", "MutableSet" -> MODIFIABLE_COLLECTION
+                    "List", "Map", "Set" -> UNMODIFIABLE_COLLECTION
+                    else -> PRIMITIVE
+                }
+            }
+        }
+        open val nullable = "?"
+        abstract fun variability(): String
+        abstract fun defaultValue(type: String): String
+
+        open fun type(type: String): String {
+            return type
+        }
+        open fun reset(type: String): String {
+            return " = null"
+        }
     }
-    val nullable = if (collection) "" else "?"
-    val announce = if (collection) "val" else "var"
-    val pronounceMutability = if (collection) "Mutable" else ""
-    val default = if (collection) " = mutable${text}Of()" else ""
-    return "$announce $prefix : $pronounceMutability$text$generics$nullable$default"
+
+    private val name = property.simpleName.asString()
+    private val type = property.type.toString()
+    private val state = State.parse(type)
+    private val generics = property.type.resolve().let {
+        if (it.arguments.isNotEmpty()) {
+            it.arguments.joinToString(
+                separator = ", ",
+                prefix = "<",
+                postfix = ">"
+            ) { inner -> inner.type.toString() }
+        } else {
+            ""
+        }
+    }
+
+    fun initialize(): String {
+        return "${state.variability()} $name : ${state.type(type)}$generics${state.nullable} = ${state.defaultValue(type)}"
+    }
+
+    fun reset(): String {
+        return "$name${state.reset(type)}"
+    }
+
+
 }
 
+fun properType(property: KSPropertyDeclaration): String {
+    val p = Props(property)
+    return p.initialize()
+}
+
+fun resetType(property: KSPropertyDeclaration): String {
+    val p = Props(property)
+    return p.reset()
+}
+
+fun stringify(text: KSTypeReference): String {
+    val t = text.toString()
+    return when (t) {
+        "List" -> ".toList()"
+        "Set" -> ".toSet()"
+        "Map" -> ".toMap()"
+        "MutableMap" -> ".toMutableMap()"
+        "MutableSet" -> ".toMutableSet()"
+        "MutableList" -> ".toMutableList()"
+        else -> "!!"
+    }
+
+}
 
 class Processor(
     private val codeGenerator: CodeGenerator,
@@ -68,22 +165,34 @@ class Processor(
                 return
             }
             val className = classDeclaration.simpleName.asString()
-            file += "class Mutable$className (\n"
-            classDeclaration.getAllProperties().map { it.accept(this, Unit) }
-            file += classDeclaration.getAllProperties().map {
-                properType(it)
-            }.joinToString(prefix = "    ", postfix = "\n", separator = ",\n    ")
+            val newClassName = "Mutable$className"
+            file += "class $newClassName()" {
+                +classDeclaration.getAllProperties().map {
+                    properType(it)
+                }.joinToString(separator = ",\n")
+                +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $className" {
+                    +"this.apply(lambda)"
+                    +"return build()"
+                }
+                + "fun build(lambda: $newClassName.() -> Unit) : $className" {
+                    + "val result = buildPreserving(lambda)"
+                    + "reset()"
+                    + "return result"
+                }
+                +"fun reset()" {
+                    +classDeclaration.getAllProperties().map {
+                        resetType(it)
+                    }.joinToString(separator = "\n")
 
-            file += ") {\n"
+                }
+                +"fun build(): $className" {
+                    +"return $className(${
+                        classDeclaration.getAllProperties().map { it.simpleName.asString() + stringify(it.type) }
+                            .joinToString()
+                    })"
+                }
 
-            file += "    fun build(): $className {\n"
-
-            file += "         return $className(${
-                classDeclaration.getAllProperties().map { it.simpleName.asString() + "!!" }.joinToString()
-            })\n"
-
-            file += "    }\n"
-            file += "}\n"
+            } + "\n"
 
 
         }

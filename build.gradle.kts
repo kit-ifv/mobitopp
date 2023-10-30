@@ -26,6 +26,7 @@ detekt {
 dependencies {
     testImplementation(kotlin("test"))
     implementation(project(":annotations"))
+    testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
 //    implementation(project(":test-processor"))
 //    ksp{project(":test-processor")}
