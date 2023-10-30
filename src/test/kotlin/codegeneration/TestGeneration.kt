@@ -17,7 +17,6 @@ class TestGeneration {
     fun properGeneration() {
         val p = Path("build/generated/ksp/test/kotlin/codegeneration/Builders.kt")
         val text = p.readText()
-        val e = p.exists()
         assertTrue(p.exists())
         assertEquals(TARGET, text)
     }
@@ -224,7 +223,8 @@ const val TARGET = "package codegeneration\n" +
         "}\n" +
         "class MutableClassWithObjectInCollection() {\n" +
         "    val t : MutableList<SomeComplexObject> = mutableListOf()\n" +
-        "    fun buildPreserving(lambda : MutableClassWithObjectInCollection.() -> Unit) : ClassWithObjectInCollection {\n" +
+        "    fun buildPreserving(lambda : MutableClassWithObjectInCollection.() -> Unit) : ClassWithObjectInCollection"+
+        "{\n" +
         "        this.apply(lambda)\n" +
         "        return build()\n" +
         "    }\n" +
