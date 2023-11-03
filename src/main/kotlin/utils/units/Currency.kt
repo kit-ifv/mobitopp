@@ -16,6 +16,20 @@ value class Currency(override val rawValue: Double) : FloatUnit<CurrencyUnits> {
 
 }
 
+fun Int.toCurrency(units: CurrencyUnits): Currency {
+    return Currency(this * units.scale)
+}
+
+
+fun Long.toCurrency(units: CurrencyUnits): Currency {
+    return Currency(this * units.scale)
+}
+
+fun Double.toCurrency(units: CurrencyUnits): Currency {
+    return Currency(this * units.scale)
+}
+
+
 
 enum class CurrencyUnits(override val scale: Double) : FloatUnitScale {
     EUROS(1.0)
