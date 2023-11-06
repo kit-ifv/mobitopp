@@ -33,6 +33,7 @@ class GPSPosition(private val latitudeRadians: Double, private val longitudeRadi
         }
     }
 }
+@Suppress("MagicNumber")
 fun Pair<Number, Number>.toCoordinate(): GPSPosition {
     return GPSPosition(this.first.toDouble() * PI / 180, this.second.toDouble() * PI / 180)
 }
