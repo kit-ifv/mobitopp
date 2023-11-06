@@ -4,7 +4,7 @@ import utils.units.Distance
 import utils.units.GPSPosition
 import utils.units.meters
 
-typealias Attractivity = Map<ActivityType, Double>
+typealias Attractivity = Map<LegacyActivityType, Double>
 
 /**
  * The data class for a zone in the simulation. Maybe this should be refactored into an interface to allow future
@@ -25,7 +25,9 @@ data class Zone(
     val attractivity: Attractivity = mapOf()
     ): Location {
     override fun distance(other: Location): Distance {
-        return location!!.distance(other.location!!)
+        return location?.distance(other.location?:
+        throw IllegalArgumentException("Location of other zone $other is unspecified"))
+            ?: throw IllegalArgumentException("Location of zone $this is unspecified")
     }
 }
 
