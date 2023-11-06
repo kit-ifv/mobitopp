@@ -48,7 +48,11 @@ enum class Gender(private val code: Int) :Encodable {
     override fun encode(): Int {
         return this.code
     }
-
+    companion object: Decodable<Gender> {
+        override fun decode(i: Int): Gender {
+            return Gender.values().first {it.code == i}
+        }
+    }
 
 }
 
@@ -74,6 +78,12 @@ enum class Employment(private val code: Int): Encodable {
 
     override fun encode(): Int {
         return this.code
+    }
+
+    companion object: Decodable<Employment> {
+        override fun decode(i: Int): Employment {
+            return Employment.values().first {it.code == i}
+        }
     }
 
 }

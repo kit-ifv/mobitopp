@@ -35,4 +35,11 @@ enum class StandardMode(private val code: Int): Mode {
         return this.code
     }
 
+    companion object: Decodable<StandardMode> {
+        override fun decode(i: Int): StandardMode {
+            return StandardMode.values().first {it.code == i}
+        }
+
+    }
+
 }
