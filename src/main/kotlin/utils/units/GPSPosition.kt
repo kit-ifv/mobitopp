@@ -1,11 +1,6 @@
 package utils.units
 
-import kotlin.math.sin
-import kotlin.math.pow
-import kotlin.math.cos
-import kotlin.math.sqrt
-import kotlin.math.asin
-import kotlin.math.PI
+import kotlin.math.*
 
 // Certain numbers such as the radius of the earth or the fact that the maximum latitude is 90 does not feel like magic
 @Suppress("MagicNumber")
@@ -31,4 +26,7 @@ class GPSPosition(private val latitudeRadians: Double, private val longitudeRadi
             return GPSPosition(PI / 180 * lat, PI / 180 * long)
         }
     }
+}
+fun Pair<Number, Number>.toCoordinate(): GPSPosition {
+    return GPSPosition(this.first.toDouble(), this.second.toDouble())
 }

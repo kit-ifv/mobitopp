@@ -7,8 +7,9 @@ class GPSPositionTest {
 
     @Test
     fun distance() {
-        val pos1 = GPSPosition.degrees(0.0, 0.0)
-        val pos2 = GPSPosition.degrees(1.0, 0.0)
+
+        val pos1 = Pair(0.0, 0.0).toCoordinate()
+        val pos2 = Pair(1.0, 0.0).toCoordinate()
         val d = pos1.distance(pos2)
 
 
@@ -17,8 +18,8 @@ class GPSPositionTest {
 
     @Test
     fun distance2() {
-        val pos1 = GPSPosition.degrees(50.0, 5.0)
-        val pos2 = GPSPosition.degrees(51.0, 6.0)
+        val pos1 = Pair(50, 5).toCoordinate()
+        val pos2 = Pair(51, 6).toCoordinate()
         val d = pos1.distance(pos2)
 
 

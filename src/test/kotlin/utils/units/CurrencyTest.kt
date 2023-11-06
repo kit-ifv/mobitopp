@@ -12,7 +12,7 @@ class CurrencyTest : GenericUnitTest<CurrencyUnits, Currency>(
 ) {
     @Test
     fun addingMoney() {
-        val money = 1.toCurrency(CurrencyUnits.EUROS)
-        assertEquals(2.toCurrency(CurrencyUnits.EUROS), money + money)
+        val money = 1.euros
+        assertEquals(2.euros, money + money)
     }
 }

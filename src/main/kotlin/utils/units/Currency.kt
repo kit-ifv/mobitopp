@@ -29,6 +29,8 @@ fun Double.toCurrency(units: CurrencyUnits): Currency {
     return Currency(this * units.scale)
 }
 
+inline val Int.euros: Currency
+    get() = this.toCurrency(CurrencyUnits.EUROS)
 
 
 enum class CurrencyUnits(override val scale: Double) : FloatUnitScale {
