@@ -1,13 +1,10 @@
 package data
 
-/**
- * A simple implementation demonstrating a decoder for Activity Types
- */
-val DEFAULT_ACTIVITY_PARSER = Decodable { i -> ActivityType.values().first {it.code == i} }
+
 /**
  * The default activity encoding from legacy MobiTopp
  */
-enum class ActivityType(val code: Int): Encodable {
+enum class LegacyActivityType(val code: Int): Encodable {
     WORK      (1),
     BUSINESS  (2),
     EDUCATION (3),
@@ -42,5 +39,11 @@ enum class ActivityType(val code: Int): Encodable {
 
     override fun encode(): Int {
         return this.code
+    }
+    companion object : Decodable<LegacyActivityType> {
+        override fun decode(i: Int): LegacyActivityType {
+            return  LegacyActivityType.values().first {it.code == i}
+        }
+
     }
 }
