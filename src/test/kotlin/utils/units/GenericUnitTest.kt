@@ -5,10 +5,10 @@ import kotlin.test.assertEquals
 
 abstract class GenericUnitTest<T : NumericUnitScale, S : NumericUnit<T>>
     (
-    val a: Array<T>,
-    val intConverter: (i: Int, unit: T) -> S,
-    val longConverter: (i: Long, unit: T) -> S,
-    val doubleConverter: (i: Double, unit: T) -> S
+    private val a: Array<T>,
+    private val intConverter: (i: Int, unit: T) -> S,
+    private val longConverter: (i: Long, unit: T) -> S,
+    private val doubleConverter: (i: Double, unit: T) -> S
 ) {
 
 
