@@ -1,6 +1,16 @@
+
 import com.google.devtools.ksp.isAbstract
-import com.google.devtools.ksp.processing.*
-import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
@@ -135,7 +145,7 @@ class Processor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
 
-        val symbols = resolver.getSymbolsWithAnnotation("Mutable").filterIsInstance<KSClassDeclaration>()
+        val symbols = resolver.getSymbolsWithAnnotation("Builder").filterIsInstance<KSClassDeclaration>()
         if (!symbols.iterator().hasNext()) return emptyList()
         val symbolList = symbols.toList()
 
