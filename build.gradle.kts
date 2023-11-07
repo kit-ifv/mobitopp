@@ -2,7 +2,8 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-    kotlin("jvm") version "1.8.0"
+    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
+    kotlin("jvm") version "1.9.10"
     jacoco
     id("org.barfuin.gradle.jacocolog") version "1.2.4" //This plugin is necessary because gradle eats the console output and gitlab demands to parse the console output for a coverage badge
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
@@ -24,6 +25,12 @@ detekt {
 }
 dependencies {
     testImplementation(kotlin("test"))
+    implementation(project(":annotations"))
+    testImplementation(project(":annotations"))
+    ksp(project(":processor")) // to make KSP work
+//    implementation(project(":test-processor"))
+//    ksp{project(":test-processor")}
+
 }
 
 tasks.test {
