@@ -4,7 +4,7 @@ import Identifiable
 
 typealias EventList = List<Event<out Any>>
 
-interface Agent<M>: Identifiable {
+interface Agent<M>: Identifiable<M> {
     var nextEvent: Event<M>?
 
     fun nextEvent(): Event<M>? = nextEvent

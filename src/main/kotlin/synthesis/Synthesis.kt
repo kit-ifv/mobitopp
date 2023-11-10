@@ -1,4 +1,4 @@
-package application.synthesis
+package synthesis
 
 import Builder
 import Identifiable
@@ -9,10 +9,34 @@ interface SynthesisStep<C> {
 
 }
 
-class InitResourceStep<C, E>(
+class TestResource<C, E, M>(
     override val name: String,
     protected val resource: Resource<E>,
-    protected val setter: (C, MutableRepository<E>) -> Unit
+    protected val cons: (Resource<E>) -> M,
+    protected val setter: (C, M) -> Unit,
+) : SynthesisStep<C> {
+    override fun execute(context: C) {
+        setter(context, cons(resource))
+    }
+
+} //TODO check if this approach could be used
+
+
+
+/**
+ * Init resource step adds a resource to the context
+ *
+ * @param C generic type of the context object
+ * @param E generic type of the elements provided by the resource
+ * @constructor Create empty Init resource step
+ * @property name
+ * @property resource
+ * @property setter
+ */
+class InitResource<C, E>(
+    override val name: String,
+    protected val resource: Resource<E>,
+    protected val setter: (C, MutableRepository<E>) -> Unit,
 ) : SynthesisStep<C> {
     override fun execute(context: C) {
         setter(context, MutableRepository.from(resource))
@@ -20,18 +44,18 @@ class InitResourceStep<C, E>(
 
 }
 
-class InitIdResourceStep<C, E>(
+class InitIdResource<C, E>(
     override val name: String,
     protected val resource: Resource<E>,
     protected val setter: (C, MutableIdRepository<E>) -> Unit
-) : SynthesisStep<C> where E: Identifiable {
+) : SynthesisStep<C> where E: Identifiable<E> {
     override fun execute(context: C) {
         setter(context, MutableIdRepository.from(resource))
     }
 
 }
 
-class FinalResourceStep<C, E>(
+class FinalResource<C, E>(
     override val name: String,
     protected val resource: Resource<E>,
     protected val setter: (C, Repository<E>) -> Unit
@@ -42,11 +66,11 @@ class FinalResourceStep<C, E>(
 
 }
 
-class FinalIdResourceStep<C, E>(
+class FinalIdResource<C, E>(
     override val name: String,
     protected val resource: Resource<E>,
     protected val setter: (C, IdRepository<E>) -> Unit
-) : SynthesisStep<C> where E: Identifiable {
+) : SynthesisStep<C> where E: Identifiable<E> {
     override fun execute(context: C) {
         setter(context, IdRepository.from(resource))
     }
@@ -54,36 +78,44 @@ class FinalIdResourceStep<C, E>(
 }
 
 
-class UpdateStep<C, E>(
+class Update<C, E>(
     override val name: String,
-    protected val transformation: Transformation<E>,
+    protected val transformation: (E) -> E?,
     protected val getter: (C) -> MutableRepository<E>
 ) : SynthesisStep<C> {
     override fun execute(context: C) {
-        getter(context).apply(transformation)
+        getter(context).execute(transformation)
     }
 
 }
 
-class FinishStep<C, B, E> (
+//TODO close for non builder repositories
+class BuildRepository<C, B, E> (
     override val name: String,
     protected val getter: (C) -> MutableRepository<B>,
     protected val setter: (C, Repository<E>) -> Unit
 ) : SynthesisStep<C> where B: Builder<E> {
     override fun execute(context: C) {
-        val finished = getter(context).finish()
+        val finished = getter(context).build()
         setter(context, finished)
     }
 
 }
 
 
-
-class Synthesis<C> {
+class Synthesis<C> where C: Context {
+    // Todo : think about executing steps immediately instead of collecting all steps and then executing them
+    // Todo : pro collect: validation could be performed before execution
     private val steps: MutableList<SynthesisStep<C>> = mutableListOf()
+
+    fun addStep(step: SynthesisStep<C>) = steps.add(step)
 
     fun execute(context: C) {
         steps.forEach{ s -> s.execute(context)}
+    }
+
+    operator fun invoke(lambda: Synthesis<C>.() -> Unit) {
+        this.apply { lambda() }
     }
 
     fun <E> addResource(
@@ -91,7 +123,7 @@ class Synthesis<C> {
         resource: Resource<E>,
         setter: (C, MutableRepository<E>) -> Unit
     ): Synthesis<C> {
-        steps.add(InitResourceStep(name, resource, setter))
+        steps.add(InitResource(name, resource, setter))
         return this
     }
 
@@ -100,7 +132,7 @@ class Synthesis<C> {
         resource: Resource<E>,
         setter: (C, Repository<E>) -> Unit
     ): Synthesis<C> {
-        steps.add(FinalResourceStep(name, resource, setter))
+        steps.add(FinalResource(name, resource, setter))
         return this
     }
 
@@ -108,8 +140,8 @@ class Synthesis<C> {
         name: String,
         resource: Resource<E>,
         setter: (C, MutableIdRepository<E>) -> Unit
-    ): Synthesis<C> where E: Identifiable {
-        steps.add(InitIdResourceStep(name, resource, setter))
+    ): Synthesis<C> where E: Identifiable<E> {
+        steps.add(InitIdResource(name, resource, setter))
         return this
     }
 
@@ -117,17 +149,17 @@ class Synthesis<C> {
         name: String,
         resource: Resource<E>,
         setter: (C, IdRepository<E>) -> Unit
-    ): Synthesis<C> where E: Identifiable {
-        steps.add(FinalIdResourceStep(name, resource, setter))
+    ): Synthesis<C> where E: Identifiable<E> {
+        steps.add(FinalIdResource(name, resource, setter))
         return this
     }
 
     fun <E> addUpdate(
         name: String,
-        transformation: Transformation<E>,
-        getter:  (C) -> MutableRepository<E>?
+        transformation: (E) -> E?,
+        getter: (C) -> MutableRepository<E>?
     ): Synthesis<C> {
-        steps.add(UpdateStep(name, transformation, wrapGetter(name, getter)))
+        steps.add(Update(name, transformation, wrapGetter(name, getter)))
         return this
     }
 
@@ -136,7 +168,7 @@ class Synthesis<C> {
         getter: (C) -> MutableRepository<B>?,
         setter: (C, Repository<E>) -> Unit
     ): Synthesis<C> where B: Builder<E> {
-        steps.add(FinishStep(name, wrapGetter(name, getter), setter))
+        steps.add(BuildRepository(name, wrapGetter(name, getter), setter))
         return this
     }
 
@@ -146,28 +178,17 @@ class Synthesis<C> {
     ): (C) -> R = {
         context ->
         requireNotNull(getter(context)) {
-            "Update step $step is not applicable since the required resource has not been initialized."
+            "Update step [$step] is not applicable since the required resource[$getter] has not been initialized."
         }
     }
 
 }
-
-class ExampleContext {
-    var strings: MutableRepository<String>? = null
-    var ints: MutableRepository<Int>? = null
+interface Context {
+    val name: String
 }
 
-fun main() {
-    val ctxt = ExampleContext()
+fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit) where C: Context {
 
-    Synthesis<ExampleContext>()
-        .addResource("load strings", resource = { sequenceOf("hello", "world") }) {c,r -> c.strings=r}
-        .addUpdate("_", transformation = { s -> s+"_" }) {c -> c.strings}
-        .addUpdate("illegal", transformation = {i -> i+1}){ c -> c.ints}
-        .execute(ctxt)
-
-    println(ctxt.strings?.getAll())
-    println(ctxt.ints?.getAll())
+    val synth = Synthesis<C>()
+    return synth.lambda()
 }
-
-

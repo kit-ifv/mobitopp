@@ -1,6 +1,6 @@
 package codegeneration
 
-import Builder
+import Buildable
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.test.Test
@@ -87,19 +87,19 @@ class TestGeneration {
 
     }
 }
-@Builder
+@Buildable
 data class Data(val i: Int)
-@Builder
+@Buildable
 class ClassWithList(val text: List<String>)
-@Builder
+@Buildable
 class ClassWithMap(val text: Map<String, String>)
-@Builder
+@Buildable
 class ClassWithSet(val text: Set<String>)
 
-@Builder
+@Buildable
 class ClassWithMutableSet(val text: Set<String>)
 
-@Builder
+@Buildable
 class ClassWithObject(val o: SomeComplexObject)
 
 class SomeComplexObject(var i: Int) {
@@ -107,7 +107,7 @@ class SomeComplexObject(var i: Int) {
         i = 9001
     }
 }
-@Builder
+@Buildable
 class ClassWithObjectInCollection(val t: List<SomeComplexObject>)
 
 

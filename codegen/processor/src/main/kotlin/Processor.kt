@@ -145,7 +145,7 @@ class Processor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
 
-        val symbols = resolver.getSymbolsWithAnnotation("Builder").filterIsInstance<KSClassDeclaration>()
+        val symbols = resolver.getSymbolsWithAnnotation("Buildable").filterIsInstance<KSClassDeclaration>()
         if (!symbols.iterator().hasNext()) return emptyList()
         val symbolList = symbols.toList()
 
@@ -160,6 +160,7 @@ class Processor(
             if (packageName.isNotEmpty()) {
                 file += "package $packageName\n"
             }
+            file += "import Builder\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
             file.close()
@@ -176,10 +177,10 @@ class Processor(
             }
             val className = classDeclaration.simpleName.asString()
             val newClassName = "Mutable$className"
-            file += "class $newClassName()" {
+            file += "class $newClassName() : Builder<$className>" {
                 +classDeclaration.getAllProperties().map {
                     properType(it)
-                }.joinToString(separator = ",\n")
+                }.joinToString(separator = "\n")
                 +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $className" {
                     +"this.apply(lambda)"
                     +"return build()"
@@ -195,7 +196,7 @@ class Processor(
                     }.joinToString(separator = "\n")
 
                 }
-                +"fun build(): $className" {
+                +"override fun build(): $className" {
                     +"return $className(${
                         classDeclaration.getAllProperties().map { it.simpleName.asString() + stringify(it.type) }
                             .joinToString()

@@ -1,22 +1,17 @@
 package domain.region
 
-import Builder
+import Buildable
 import ID
 import Identifiable
+import newId
 import java.awt.geom.Point2D
 
 
-interface ZoneData: Identifiable {
-    val name: String
-    val centroid: Point2D
+
+class Zone(
+    val name: String,
+    val centroid: Point2D,
     val relief: Double
-
-}
-
-class MutableZoneData: Builder<ZoneData>, ZoneData {
-    override var id: ID = -1
-    override var name: String = ""
-    override var centroid: Point2D = Point2D.Double(0.0,0.0)
-    override var relief: Double = 0.0
-    override fun build() = this
+): Identifiable<Zone> {
+    override val id: ID<Zone> = this.newId()
 }

@@ -1,6 +1,6 @@
 package domain.agents
 
-import ID
+import newId
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
@@ -18,7 +18,7 @@ class MutablePerson(
 
     override var age: Int,
 ): Person, MutableAgent<MutablePerson> {
-    override val id: ID = idCnt++
+    override val id = this.newId()
     override val children: MutableList<Person> = mutableListOf()
     override var nextEvent: Event<MutablePerson>? = null
     override val mutableEntity: MutablePerson
