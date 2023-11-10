@@ -1,5 +1,7 @@
 package utils.csv
 
+import utils.ErrorHandling
+
 /**
  * A builder to create a [CsvParser] constructed from multiple column
  * parsing functions. The builder uses the fluent builder pattern for
@@ -11,199 +13,59 @@ package utils.csv
  * @property entitySpawner a function to produce an empty entity, it
  *     receives the index of the parsed row
  */
+@Suppress("TooManyFunctions")
 class CsvParserBuilder<E>(
     private val entitySpawner: (Int) -> E
 ) {
-    private val columnParsers: MutableMap<String, (E, String) -> Unit> = mutableMapOf()
-    private var errorHandling: ParserErrorHandling = ParserErrorHandling.WARN_KEEP
+    private val columnParsers: MutableMap<String, (E, String) -> E?> = mutableMapOf()
+    private var errorHandling: ErrorHandling = ErrorHandling.WARN_KEEP
+
+    val boolean = this to { s: String -> s.toBoolean() } //TODO allow other encoding of true (currently "true")
+    val byte = this to { s: String -> s.toByte() }
+    val short = this to { s: String -> s.toShort() }
+    val int = this to { s: String -> s.toInt() }
+    val long = this to { s: String -> s.toLong() }
+    val float = this to { s: String -> s.toFloat() }
+    val double = this to { s: String -> s.toDouble() }
+    val string = this to { s: String -> s }
+
 
     /**
-     * Add string column using the given setter function.
+     * Add column using the given transform function.
      *
-     * @param column the name of the column
+     * @param name the name of the column
+     * @param transform a function that takes the parsed value and the entity to
+     *     be processed, and returns the modified entity or an entirely new entity
+     * @return this builder
+     */
+    fun addColumn(name: String, transform: (E, String) -> E?): CsvParserBuilder<E> {
+        columnParsers[name] = transform
+        return this
+    }
+
+    /**
+     * Add property column using the given setter function.
+     *
+     * @param name the name of the column
      * @param setter a function that takes the parsed value and the entity to
      *     be processed, it may further transform the string value and should
      *     then modify the entity accordingly (e.g. set a property to the
      *     parsed value)
      * @return this builder
      */
-    fun addStringColumn(column: String, setter: (E, String) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = setter
+    fun addProperty(name: String, setter: (E, String) -> Unit): CsvParserBuilder<E> {
+        columnParsers[name] = { e, s -> e.also { setter(e, s) } }
         return this
     }
 
     /**
-     * Add byte column using the given setter function.
+     * On parsing error use the given [ErrorHandling] strategy.
      *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the byte value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
+     * @param handling the error handling strategy
      * @return this builder
      */
-    fun addByteColumn(column: String, setter: (E, Byte) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toByte()) }
-        return this
-    }
-
-    /**
-     * Add short column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the short value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
-     * @return this builder
-     */
-    fun addShortColumn(column: String, setter: (E, Short) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toShort()) }
-        return this
-    }
-
-    /**
-     * Add int column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the int value and should then
-     *     modify the entity accordingly (e.g. set a property to the parsed
-     *     value)
-     * @return this builder
-     */
-    fun addIntColumn(column: String, setter: (E, Int) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toInt()) }
-        return this
-    }
-
-    /**
-     * Add long column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the long value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
-     * @return this builder
-     */
-    fun addLongColumn(column: String, setter: (E, Long) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toLong()) }
-        return this
-    }
-
-    /**
-     * Add float column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the float value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
-     * @return this builder
-     */
-    fun addFloatColumn(column: String, setter: (E, Float) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toFloat()) }
-        return this
-    }
-
-    /**
-     * Add double column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the double value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
-     * @return this builder
-     */
-    fun addDoubleColumn(column: String, setter: (E, Double) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, s.toDouble()) }
-        return this
-    }
-
-    /**
-     * Add boolean column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the boolean value and should
-     *     then modify the entity accordingly (e.g. set a property to the
-     *     parsed value)
-     * @return this builder
-     */
-    fun addBooleanColumn(column: String, setter: (E, Boolean) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] =
-            { e, s -> setter(e, s.toBoolean()) } //TODO allow other encoding of true (currently "true")
-        return this
-    }
-
-    /**
-     * Add a typed column using the given setter function.
-     *
-     * @param column the name of the column
-     * @param convert
-     * @param setter a function that takes the parsed value and the entity to
-     *     be processed, it may further transform the value (of type [T]) and
-     *     should then modify the entity accordingly (e.g. set a property to
-     *     the parsed value)
-     * @param T the generic type of the value to be parsed
-     * @return this builder
-     */
-    fun <T> addTypedColumn(column: String, convert: (String) -> T, setter: (E, T) -> Unit): CsvParserBuilder<E> {
-        columnParsers[column] = { e, s -> setter(e, convert(s)) }
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors silently
-     *
-     * @return this builder
-     */
-    fun onParseErrorDropRowSilently(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.SILENT_DROP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors and print warning
-     *
-     * @return this builder
-     */
-    fun onParseErrorDropRowWithWarning(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.WARN_DROP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: keep rows with errors without printing any
-     * warnings
-     *
-     * @return this builder
-     */
-    fun onParseErrorKeepRowSilently(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.SILENT_KEEP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: drop rows with errors silently
-     *
-     * @return
-     */
-    fun onParseErrorKeepRowWithWarning(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.WARN_KEEP
-        return this
-    }
-
-    /**
-     * Use parsing error handling: throw exception when first parsing error
-     * occurs.
-     *
-     * @return this builder
-     */
-    fun onParseErrorThrowException(): CsvParserBuilder<E> {
-        this.errorHandling = ParserErrorHandling.THROW
+    fun onErrorUse(handling: ErrorHandling): CsvParserBuilder<E> {
+        this.errorHandling = handling
         return this
     }
 
@@ -252,3 +114,17 @@ fun <B, K, V> B.buildMergeMapParser(
     val pairParser = this.build()
     return MapMergeCsvParser(pairParser)
 }
+
+
+fun <P, T, E> P.property(name: String, setter: (E, T) -> Unit )
+where P: Pair<CsvParserBuilder<E>, (String) -> T> =
+    this.first.addProperty(name) { e: E, s: String -> e.also { setter(e, this.second(s)) } }
+
+fun <P, T, E> P.column(name: String, transform: (E, T) -> E? )
+where P: Pair<CsvParserBuilder<E>, (String) -> T> =
+    this.first.addProperty(name) { e: E, s: String -> e.also { transform(e, this.second(s)) } }
+
+fun <P, E> P.value(name: String)
+        where P: Pair<CsvParserBuilder<E>, (String) -> E> =
+    this.first.addProperty(name) { e: E, s: String -> e.also { this.second(s) } }
+

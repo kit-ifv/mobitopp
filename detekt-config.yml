@@ -93,7 +93,7 @@ complexity:
     threshold : 4
   ComplexInterface:
     active: true
-    threshold : 10
+    threshold : 13
     includeStaticDeclarations: false
     includePrivateDeclarations: false
     ignoreOverloaded: false
@@ -320,7 +320,7 @@ naming:
     maximumFunctionNameLength: 30
   FunctionMinLength:
     active: true
-    minimumFunctionNameLength: 3
+    minimumFunctionNameLength: 2
   FunctionNaming:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
@@ -614,7 +614,7 @@ style:
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
     ignoreNamedArgument: true
-    ignoreEnums: false
+    ignoreEnums: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
   MandatoryBracesLoops:
@@ -668,6 +668,8 @@ style:
     max: 2
     excludedFunctions:
       - 'equals'
+      - 'times'
+      - 'div'
     excludeLabeled: false
     excludeReturnFromLambda: true
     excludeGuardClauses: false
