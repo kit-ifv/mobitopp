@@ -1,6 +1,6 @@
 bool;float;index;str;int
 true;24.7009;1;a;1234
-false;0.07;2;Hello World;432
+false;0.07;2;"Hello; World";432
 false;4.2;3;42;23
 true;3434.0;4;exitProcess(1);1337
 true;-4.5;5;test;3434
