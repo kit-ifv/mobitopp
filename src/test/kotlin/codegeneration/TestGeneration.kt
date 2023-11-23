@@ -1,6 +1,7 @@
 package codegeneration
 
 import Buildable
+import fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.test.Test
@@ -112,7 +113,10 @@ class ClassWithMutableSet(val text: Set<String>)
 
 @Buildable
 class ClassWithObject(val o: SomeComplexObject)
-
+@Buildable
+class ClassWithExternalRef(val o: FakeClass)
+@Buildable
+class ClassWithExternalR2ef(val o: FakeClass)
 @Buildable
 interface Interface {
     val inti: Int

@@ -33,6 +33,18 @@ class Props(private val name: String, private val type: KSTypeReference) {
 
 
         },
+        OBJECT {
+            override fun variability(): String {
+                return "var"
+            }
+            override fun type(type: String, fullRef: KSTypeReference): String {
+                return fullRef.resolve().declaration.qualifiedName?.asString() ?:""
+            }
+            override fun defaultValue(type: String): String {
+                return "null"
+            }
+
+        },
         UNMODIFIABLE_COLLECTION {
             override val nullable = ""
             override fun variability(): String {
@@ -44,7 +56,7 @@ class Props(private val name: String, private val type: KSTypeReference) {
 
             }
 
-            override fun type(type: String): String {
+            override fun type(type: String, fullRef: KSTypeReference): String {
                 return "Mutable$type"
             }
 
@@ -73,7 +85,8 @@ class Props(private val name: String, private val type: KSTypeReference) {
                 return when (type) {
                     "MutableList", "MutableMap", "MutableSet" -> MODIFIABLE_COLLECTION
                     "List", "Map", "Set" -> UNMODIFIABLE_COLLECTION
-                    else -> PRIMITIVE
+                    "Int", "Double", "String" -> PRIMITIVE
+                    else -> OBJECT
                 }
             }
         }
@@ -81,9 +94,13 @@ class Props(private val name: String, private val type: KSTypeReference) {
         abstract fun variability(): String
         abstract fun defaultValue(type: String): String
 
-        open fun type(type: String): String {
+
+
+        open fun type(type: String, fullRef: KSTypeReference): String {
             return type
         }
+
+
         open fun reset(type: String): String {
             return " = null"
         }
@@ -104,7 +121,7 @@ class Props(private val name: String, private val type: KSTypeReference) {
     }
 
     fun initialize(): String {
-        return "${state.variability()} $name : ${state.type(typeString)}$generics${state.nullable} = ${state.defaultValue(typeString)}"
+        return "${state.variability()} $name : ${state.type(typeString, type)}$generics${state.nullable} = ${state.defaultValue(typeString)}"
     }
 
     fun reset(): String {
