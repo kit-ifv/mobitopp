@@ -86,6 +86,17 @@ class TestGeneration {
         assertEquals(9001, d2.o.i)
 
     }
+    @Test
+    fun interfacesDoNotHoldSharedState() {
+        val b = MutableInterface()
+        b.apply { inti = 4 }
+        val t1 = b.buildPreserving {  }
+        assertEquals(4, t1.inti)
+        b.apply { inti = 5 }
+        val t2 = b.build()
+        assertEquals(4, t1.inti)
+        assertEquals(5, t2.inti)
+    }
 }
 @Buildable
 data class Data(val i: Int)
@@ -101,6 +112,23 @@ class ClassWithMutableSet(val text: Set<String>)
 
 @Buildable
 class ClassWithObject(val o: SomeComplexObject)
+
+@Buildable
+interface Interface {
+    val inti: Int
+}
+
+@Buildable
+abstract class AbstractClass(val text: String) {
+    val secondaryAttribute: String
+        get() = text.uppercase()
+
+    fun yell(): String {
+        return text
+    }
+    abstract fun abstractScream(): String;
+
+}
 
 class SomeComplexObject(var i: Int) {
     fun changeTheAttribute() {
