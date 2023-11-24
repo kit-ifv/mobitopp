@@ -121,7 +121,8 @@ class ClassWithExternalR2ef(val o: FakeClass)
 interface Interface {
     val inti: Int
 }
-
+@Buildable
+interface Child : Interface
 @Buildable
 interface InterfaceWithAbstractFunctions {
     val inti: Int

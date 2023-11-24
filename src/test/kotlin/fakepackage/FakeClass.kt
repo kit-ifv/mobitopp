@@ -1,4 +1,3 @@
 package fakepackage
 
-data class FakeClass(val i: Int) {
-}
+data class FakeClass(val i: Int)
