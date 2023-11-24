@@ -1,5 +1,6 @@
 package data
 
+import domain.data.LegacyActivityType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 class LegacyActivityTypeTest {

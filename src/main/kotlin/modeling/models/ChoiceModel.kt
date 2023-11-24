@@ -1,4 +1,4 @@
-package domain.models
+package modeling.models
 
 interface ChoiceModel<A, R> {
 

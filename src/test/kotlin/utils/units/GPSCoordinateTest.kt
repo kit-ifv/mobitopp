@@ -3,7 +3,7 @@ package utils.units
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class GPSPositionTest {
+class GPSCoordinateTest {
 
     @Test
     fun distance() {

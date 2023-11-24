@@ -1,4 +1,4 @@
-package synthesis
+package modeling.synthesis
 
 import ID
 import Identifiable
@@ -22,7 +22,7 @@ interface IdResource<E> : Resource<E> where E: Identifiable<E> {
 }
 
 fun <S, E> S.asResource(): Resource<E> where S: Sequence<E> {
-    return object:Resource<E> {
+    return object: Resource<E> {
         override val elements: Sequence<E>
             get() = this@asResource
     }

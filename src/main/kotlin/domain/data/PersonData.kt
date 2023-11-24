@@ -1,4 +1,11 @@
-package data
+package domain.data
+
+import Buildable
+import Decodable
+import Encodable
+import Identifiable
+import utils.units.Currency
+import utils.units.UnitIntervalValue
 
 /**
  * A person in for the simulation. Certain properties can be assumed to be known during the simulation
@@ -9,31 +16,35 @@ package data
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
-interface Person {
+@Buildable
+interface PersonData: Identifiable<PersonData> {
     // These values can reasonably be expected for any Person to be present in the simulation
+    val householdData: HouseholdData
     val age: Int
-    val gender: Gender
     val employment: Employment
-    val hasLicense: Boolean
+    val gender: Gender
+    val graduation: Graduation
+    val income: Currency
+    val hasBike: Boolean
     val hasCommuterTicket: Boolean
+    val hasLicense: Boolean
 
-//    fun household(): Household
+    val memberships: Map<String, Boolean>
+
 }
 
-data class DefaultPerson(
-    override val age: Int = 0,
-    override val gender: Gender = Gender.FEMALE,
-    override val employment: Employment = Employment.INFANT,
-    override val hasLicense: Boolean = false,
-    override val hasCommuterTicket: Boolean = false
-) : Person
+@Buildable
+interface EMobilityPersonData: PersonData {
+    val eMobilityAcceptance: UnitIntervalValue
+    val chargingInfluence: ChargingInfluence
+}
 
 
 /**
  * An enum for the gender of a person. As this class is only applicable to a person the enum resides in the same source
  * code file as the person. (Refactor Idea maybe make an inner class)
  */
-enum class Gender(private val code: Int) :Encodable {
+enum class Gender(private val code: Int) : Encodable {
     MALE(1),
     FEMALE(2);
 
@@ -81,15 +92,37 @@ enum class Employment(private val code: Int): Encodable {
     }
 
     companion object: Decodable<Employment> {
-        override fun decode(i: Int): Employment {
-            return Employment.values().first {it.code == i}
-        }
+        override fun decode(i: Int) = Employment.values().first {it.code == i}
     }
 
 }
 
 
+enum class Graduation(private val code: Int): Encodable { //TODO split into school and higher education
+    UNDEFINED(-1),
+    OTHER(0),
+    NOT_HIGH_SCHOOL(1),
+    HIGH_SCHOOL_GRADUATE(2),
+    SOME_COLLEGE_CREDIT_NO_DEGREE(3),
+    ASSOCIATE_TECHNICAL_SCHOOL_DEGREE(4),
+    BACHELOR_DEGREE(5),
+    MASTER_DEGREE(6);
 
+    override fun encode() = this.code
 
+    companion object: Decodable<Graduation> {
+        override fun decode(i: Int) = Graduation.values().first {it.code == i}
+    }
+}
 
+enum class ChargingInfluence(private val code: Int): Encodable {
+    ALWAYS(0),
+    ONLY_WHEN_BATTERY_LOW(1),
+    NEVER(2);
 
+    override fun encode() = this.code
+
+    companion object: Decodable<ChargingInfluence> {
+        override fun decode(i: Int) = ChargingInfluence.values().first {it.code == i}
+    }
+}

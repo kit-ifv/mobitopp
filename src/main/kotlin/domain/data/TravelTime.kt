@@ -1,4 +1,4 @@
-package data
+package domain.data
 
 import kotlin.time.Duration
 

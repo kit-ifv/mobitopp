@@ -1,8 +1,16 @@
-package synthesis
+package modeling.synthesis
 
 import Builder
 import Identifiable
-
+import domain.data.CarData
+import domain.data.HouseholdData
+import domain.data.OpportunityData
+import domain.data.PersonData
+import domain.data.ZoneData
+import usecases.loadZoneCsv
+import usecases.zoneParser
+import utils.units.DistanceUnit
+import java.io.File
 interface SynthesisStep<C> {
     val name: String
     fun execute(context: C)
@@ -191,4 +199,39 @@ fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit) where C: Context {
 
     val synth = Synthesis<C>()
     return synth.lambda()
+}
+
+
+interface BaseContext : Context {
+    var zones: IdRepository<ZoneData>?
+    var households: IdRepository<HouseholdData>?
+    var cars: IdRepository<CarData>?
+    var persons: IdRepository<PersonData>?
+    var opportunities: IdRepository<OpportunityData>?
+}
+
+class ExampleContext(override val name: String) : BaseContext {
+    override var zones: IdRepository<ZoneData>? = null
+    override var households: IdRepository<HouseholdData>? = null
+    override var cars: IdRepository<CarData>? = null
+    override var persons: IdRepository<PersonData>? = null
+    override var opportunities: IdRepository<OpportunityData>? = null
+
+}
+
+fun main() {
+    val context = ExampleContext("test").synthesis {
+        loadZoneCsv(
+            zoneParser(
+                reliefUnit = DistanceUnit.METERS
+            ),
+            File(
+                "\\\\ifv-fs\\Forschung\\Projekte_intern\\" +
+                        "mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt\\zone-repository\\zones.csv"
+            ),
+            delimiter = ";"
+        )
+
+    }
+
 }

@@ -1,5 +1,11 @@
 package domain.agents
 
+import modeling.agents.Agent
+import modeling.agents.Event
+import modeling.agents.EventList
+import modeling.agents.MutableAgent
+import modeling.agents.Simulator
+import modeling.agents.Time
 import newId
 import org.junit.jupiter.api.Test
 import kotlin.random.Random

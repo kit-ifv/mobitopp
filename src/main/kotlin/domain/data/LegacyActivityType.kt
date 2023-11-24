@@ -1,4 +1,7 @@
-package data
+package domain.data
+
+import Decodable
+import Encodable
 
 
 /**

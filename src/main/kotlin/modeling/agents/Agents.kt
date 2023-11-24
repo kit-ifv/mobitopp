@@ -1,4 +1,4 @@
-package domain.agents
+package modeling.agents
 
 import Identifiable
 

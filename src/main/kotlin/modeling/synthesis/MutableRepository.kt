@@ -1,4 +1,4 @@
-package synthesis
+package modeling.synthesis
 
 import Buildable
 import Builder
@@ -89,7 +89,7 @@ class Entity(
 fun main() {
 
 
-    val resource = object:Resource<MutableEntity> {
+    val resource = object: Resource<MutableEntity> {
         override val elements = sequenceOf("hello", "world", "i", "am", "a", "test")
             .mapIndexed { index, s -> MutableEntity().apply { id = index; name = s } }
     }
