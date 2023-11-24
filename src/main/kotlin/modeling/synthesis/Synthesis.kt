@@ -196,9 +196,10 @@ interface Context {
 }
 
 fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit) where C: Context {
-
     val synth = Synthesis<C>()
-    return synth.lambda()
+    synth.lambda()
+    synth.execute(this)
+
 }
 
 

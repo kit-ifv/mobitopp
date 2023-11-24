@@ -8,8 +8,10 @@ internal object GlobalIdCount {
 
 }
 
+
 @JvmInline
-value class ID<E> (
+public value class ID<E> (
+
     val id: ULong //TODO
 )
 

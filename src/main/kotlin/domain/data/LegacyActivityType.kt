@@ -44,9 +44,8 @@ enum class LegacyActivityType(val code: Int): Encodable {
         return this.code
     }
     companion object : Decodable<LegacyActivityType> {
-        override fun decode(i: Int): LegacyActivityType {
-            return  LegacyActivityType.values().first {it.code == i}
-        }
-
+        override fun decode(i: Int) = LegacyActivityType.values().first {it.code == i}
     }
+
 }
+

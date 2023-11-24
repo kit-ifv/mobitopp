@@ -1,4 +1,6 @@
 
+import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -180,6 +182,23 @@ enum class ClassType {
     }
 
 }
+fun typeInterpret(type: KSTypeReference): String {
+
+    val res = type.resolve()
+    val generics = type.resolve().let {
+        if (it.arguments.isNotEmpty()) {
+            it.arguments.joinToString(
+                separator = ", ",
+                prefix = "<",
+                postfix = ">"
+            ) { inner -> inner.type.toString() }
+        } else {
+            ""
+        }
+    }
+    return res.declaration.qualifiedName?.asString() + generics
+}
+
 class Processor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
@@ -208,6 +227,7 @@ class Processor(
                 file += "package $packageName\n"
             }
             file += "import Builder\n"
+            file += "import ID\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
             file.close()
@@ -230,10 +250,11 @@ class Processor(
 
                 ClassType.INTERFACE -> "override fun build(): $className" {
                     +"class Default$className(${
-                        classDeclaration.getAllProperties().map { "override val " + it.simpleName.asString() + ": " + it.type.toString() + " = this.${it.simpleName.asString() + stringify(it.type)}" }
-                            .joinToString(separator ="\n")
+                        classDeclaration.getAllProperties().filter {!it.hasBackingField || it.findOverridee() == null}
+                            .map { "override val " + it.simpleName.asString() + ": " + typeInterpret(it.type)+ " = this.${it.simpleName.asString() + stringify(it.type)}" }
+                            .joinToString(prefix = "\n", separator =",\n")
                     }) :$className" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {"override fun ${it.simpleName.asString()}(): ${it.returnType.toString()}"  {
+                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {"override fun ${it.simpleName.asString()}(${it.parameters.map { it.name?.asString() + ": " +  typeInterpret(it.type)}.joinToString(separator = ", ")}): ${typeInterpret(it.returnType!!)}"  {
                             +"throw NotImplementedError()"
                         }
                         }.joinToString(separator ="\n")
@@ -265,16 +286,25 @@ class Processor(
                 }
             }
             val resetFunction = when(classDeclaration.classKind) {
-                ClassKind.INTERFACE -> classDeclaration.getAllProperties().map {
+                ClassKind.INTERFACE -> classDeclaration.getAllProperties().filter {!it.hasBackingField|| it.findOverridee() == null}.map {
                     resetType(it)
                 }.joinToString(separator = "\n")
                 else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) } ?: "")
             }
 
             val parameterList = when(classDeclaration.classKind) {
-                ClassKind.INTERFACE -> classDeclaration.getAllProperties().map{properType(it)}.joinToString(separator = "\n")
+                ClassKind.INTERFACE -> classDeclaration.getAllProperties().filter {!it.hasBackingField|| it.findOverridee() == null}.map{properType(it)}.joinToString(separator = "\n")
                 else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) } ?: "")
             }
+            classDeclaration.superTypes.map {  }
+            logger.warn(className)
+            logger.warn(classDeclaration.superTypes.map { it.toString() }.joinToString(prefix="PArents: "))
+            logger.warn(classDeclaration.getDeclaredProperties().map{it.simpleName.asString()}.joinToString(prefix="WARA "))
+            logger.warn(classDeclaration.getAllProperties().map {
+                it.simpleName.asString() + " " + it.hasBackingField.toString() +
+                        " " + it.isDelegated() + " "+ it.findOverridee().toString() +
+                        " " + it.origin + " " + it.getter}.joinToString(separator = "\n"))
+
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList
 //                +classDeclaration.getAllProperties().map {
