@@ -231,9 +231,12 @@ class Processor(
                 ClassType.INTERFACE -> "override fun build(): $className" {
                     +"class Default$className(${
                         classDeclaration.getAllProperties().map { "override val " + it.simpleName.asString() + ": " + it.type.toString() + " = this.${it.simpleName.asString() + stringify(it.type)}" }
-                            .joinToString()
+                            .joinToString(separator ="\n")
                     }) :$className" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {it.declarations}.joinToString()
+                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {"override fun ${it.simpleName.asString()}(): ${it.returnType.toString()}"  {
+                            +"throw NotImplementedError()"
+                        }
+                        }.joinToString(separator ="\n")
                     }
                     +"return Default$className()"
                 }

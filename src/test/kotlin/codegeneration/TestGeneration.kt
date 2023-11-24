@@ -123,6 +123,13 @@ interface Interface {
 }
 
 @Buildable
+interface InterfaceWithAbstractFunctions {
+    val inti: Int
+    fun bruell(): String
+    fun zuchini(): Boolean
+}
+
+@Buildable
 abstract class AbstractClass(val text: String) {
     val secondaryAttribute: String
         get() = text.uppercase()
