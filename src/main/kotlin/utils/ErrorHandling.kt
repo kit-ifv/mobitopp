@@ -78,6 +78,7 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
      * @return the (updated) entity, may be null if errors occurred and the
      *     error handling strategies drops the entity/row
      */
+    @Suppress("TooGenericExceptionCaught")
     fun <E> handle(
         entity: E? = null,
         errorMessage: () -> String,
@@ -91,7 +92,7 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
                 errorMessage()
             )
 
-        } catch (e: NumberFormatException) { //TODO add more exceptions, can we build this without exceptions?
+        } catch (e: Exception) { //TODO add more exceptions, can we build this without exceptions?
             handleException(e, entity, errorMessage())
         }
     }

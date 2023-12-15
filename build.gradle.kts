@@ -65,7 +65,7 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 kotlin {
-    jvmToolchain(12)
+    jvmToolchain(17)
 }
 
 application {

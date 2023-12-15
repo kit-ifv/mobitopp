@@ -3,6 +3,10 @@ package modeling.synthesis
 import ID
 import Identifiable
 import IdentifiableBuilder
+import utils.csv.CsvParser
+import utils.csv.CsvReader
+import utils.csv.SEMICOLON
+import java.io.File
 
 
 internal typealias IdBuilder<E> = IdentifiableBuilder<E>
@@ -28,6 +32,21 @@ fun <S, E> S.asResource(): Resource<E> where S: Sequence<E> {
     }
 }
 
+class SeqResource<E>(override val elements: Sequence<E>): Resource<E>
+
+class CsvResource<E> (
+    val file: File,
+    val parser: CsvParser<E>,
+    val delimiter: String = SEMICOLON
+
+): Resource<E> {
+    override val elements: Sequence<E>
+        get() = parser.parse(CsvReader.of(file))
+
+}
+
+
+
 
 /**
  * A repository stores and provides access to elements.
@@ -37,6 +56,9 @@ fun <S, E> S.asResource(): Resource<E> where S: Sequence<E> {
  */
 interface Repository<E> {
     val elements : Collection<E>
+    val size: Int
+        get() = elements.size
+
     companion object {
         /**
          * Creates a repository from the given [Resource].

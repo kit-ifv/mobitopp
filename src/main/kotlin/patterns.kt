@@ -1,5 +1,3 @@
-
-
 internal object GlobalIdCount {
     //TODO check id overflow and raise exception if it occurs
     var next: ULong = 0u
@@ -24,6 +22,20 @@ interface Identifiable<E> {
 fun <E> E.newId(): ID<E> {
     return ID<E>(GlobalIdCount.next)
 }
+
+// Ideensammlung:
+//interface Identifiable2<K> {
+//    val id: K
+//}
+//class VisumZone(val name: String): Identifiable2<String> {
+//    override val id: String
+//        get() = name
+//}
+//
+//interface Entity<E>: Identifiable2<ID<E>> {
+//    override val id: ID<E>
+//        get() = TODO("Not yet implemented")
+//}
 
 
 
@@ -53,3 +65,5 @@ fun interface Encodable {
 fun interface Decodable<T: Encodable> {
     fun decode(i: Int): T
 }
+
+typealias CodePlan<R> = Decodable<R>

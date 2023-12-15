@@ -1,6 +1,5 @@
 package modeling.synthesis
 
-import Buildable
 import Builder
 import Identifiable
 
@@ -73,36 +72,3 @@ open class LazyRepository<E>(
 class LazyIdRepository<E>(
     entities: Sequence<E>
 ): LazyRepository<E>(entities), MutableIdRepository<E> where E: Identifiable<E>
-
-
-
-
-@Buildable
-class Entity(
-    val id: Int,
-    val name: String
-) {
-    override fun toString() = "$name ($id)"
-}
-
-
-fun main() {
-
-
-    val resource = object: Resource<MutableEntity> {
-        override val elements = sequenceOf("hello", "world", "i", "am", "a", "test")
-            .mapIndexed { index, s -> MutableEntity().apply { id = index; name = s } }
-    }
-
-    val repo = MutableRepository.from(resource)
-
-    repo.filter { it.name?.let{ i -> i.length > 2} ?: false }
-
-    repo.execute { e ->
-        e.also { e.name += "_" }
-    }
-
-    val finished = repo.build()
-
-    println(finished.elements)
-}

@@ -1,9 +1,12 @@
 package domain.data
 
 import Buildable
+import Builder
 import Decodable
 import Encodable
+import ID
 import Identifiable
+import newId
 import utils.units.Currency
 import utils.units.UnitIntervalValue
 
@@ -16,7 +19,6 @@ import utils.units.UnitIntervalValue
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
-@Buildable
 interface PersonData: Identifiable<PersonData> {
     // These values can reasonably be expected for any Person to be present in the simulation
     val householdData: HouseholdData
@@ -38,6 +40,47 @@ interface EMobilityPersonData: PersonData {
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 }
+
+class EMobilityPersonDataBuilder: Builder<PersonData>, Identifiable<EMobilityPersonDataBuilder> {
+    override val id: ID<EMobilityPersonDataBuilder>
+        get() = ID(0uL)
+
+    val eMobilityAcceptance: UnitIntervalValue? = null
+    val chargingInfluence: ChargingInfluence? = null
+    val householdData: HouseholdData? = null
+    val age: Int? = null
+    val employment: Employment? = null
+    val gender: Gender? = null
+    val graduation: Graduation? = null
+    val income: Currency? = null
+    val hasBike: Boolean? = null
+    val hasCommuterTicket: Boolean? = null
+    val hasLicense: Boolean? = null
+    val memberships: MutableMap<String, Boolean> = mutableMapOf()
+
+    override fun build(): PersonData {
+        return object:EMobilityPersonData {
+            override val eMobilityAcceptance = this@EMobilityPersonDataBuilder.eMobilityAcceptance!!
+            override val chargingInfluence = this@EMobilityPersonDataBuilder.chargingInfluence!!
+            override val householdData = this@EMobilityPersonDataBuilder.householdData!!
+            override val age = this@EMobilityPersonDataBuilder.age!!
+            override val employment = this@EMobilityPersonDataBuilder.employment!!
+            override val gender = this@EMobilityPersonDataBuilder.gender!!
+            override val graduation = this@EMobilityPersonDataBuilder.graduation!!
+            override val income = this@EMobilityPersonDataBuilder.income!!
+            override val hasBike = this@EMobilityPersonDataBuilder.hasBike!!
+            override val hasCommuterTicket = this@EMobilityPersonDataBuilder.hasCommuterTicket!!
+            override val hasLicense = this@EMobilityPersonDataBuilder.hasLicense!!
+            override val memberships: Map<String, Boolean> = this@EMobilityPersonDataBuilder.memberships
+            override val id: ID<PersonData> = this.newId()
+
+        }
+    }
+
+}
+
+
+
 
 
 /**
@@ -61,7 +104,7 @@ enum class Gender(private val code: Int) : Encodable {
     }
     companion object: Decodable<Gender> {
         override fun decode(i: Int): Gender {
-            return Gender.values().first {it.code == i}
+            return entries.first {it.code == i}
         }
     }
 
@@ -92,7 +135,7 @@ enum class Employment(private val code: Int): Encodable {
     }
 
     companion object: Decodable<Employment> {
-        override fun decode(i: Int) = Employment.values().first {it.code == i}
+        override fun decode(i: Int) = entries.first {it.code == i}
     }
 
 }
@@ -111,7 +154,7 @@ enum class Graduation(private val code: Int): Encodable { //TODO split into scho
     override fun encode() = this.code
 
     companion object: Decodable<Graduation> {
-        override fun decode(i: Int) = Graduation.values().first {it.code == i}
+        override fun decode(i: Int) = entries.first {it.code == i}
     }
 }
 
@@ -123,6 +166,6 @@ enum class ChargingInfluence(private val code: Int): Encodable {
     override fun encode() = this.code
 
     companion object: Decodable<ChargingInfluence> {
-        override fun decode(i: Int) = ChargingInfluence.values().first {it.code == i}
+        override fun decode(i: Int) = entries.first {it.code == i}
     }
 }

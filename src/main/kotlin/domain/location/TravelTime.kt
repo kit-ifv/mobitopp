@@ -1,5 +1,7 @@
-package domain.data
+package domain.location
 
+import domain.enums.Mode
+import domain.location.Location
 import kotlin.time.Duration
 
 /**

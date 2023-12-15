@@ -1,9 +1,13 @@
 package domain.data
 
-import Buildable
+import Builder
 import Decodable
 import Encodable
+import ID
 import Identifiable
+import domain.location.RoadPosition
+import domain.location.RoadPositionInZone
+import newId
 import utils.units.Currency
 
 /**
@@ -13,13 +17,48 @@ import utils.units.Currency
  *  @property economicStatus The economic status grouping (Might be derived from income)
  *
  */
-@Buildable
 interface HouseholdData: Identifiable<HouseholdData> {
-    val location: Location
+    val householdNumber: Long
+    val surveyYear: Int
+    val location: RoadPositionInZone
     val domCode: Int
     val type: Int
     val incomePerMonth: Currency
     val economicStatus: EconomicStatus
+}
+
+class HouseholdDataBuilder: Builder<HouseholdData>, Identifiable<HouseholdDataBuilder> {
+    override val id: ID<HouseholdDataBuilder>
+        get() = ID(this.householdNumber!!.toULong())
+
+    var householdNumber: Long? = null
+    var surveyYear: Int? = null
+    var homeZone: ZoneData? = null
+    var roadPosition: RoadPosition? = null
+    var domCode: Int? = null
+    var type: Int? = null
+    var incomePerMonth: Currency? = null
+    var economicStatus: EconomicStatus? = null
+
+    override fun build()= object:HouseholdData {
+        override val location: RoadPositionInZone = this@HouseholdDataBuilder.roadPosition!!.let {
+            RoadPositionInZone(
+                it.road,
+                it.roadAccess,
+                it.coordinate,
+                this@HouseholdDataBuilder.homeZone!!
+            )
+        }
+
+        override val domCode: Int = this@HouseholdDataBuilder.domCode!!
+        override val type: Int = this@HouseholdDataBuilder.type!!
+        override val incomePerMonth: Currency = this@HouseholdDataBuilder.incomePerMonth!!
+        override val economicStatus: EconomicStatus = this@HouseholdDataBuilder.economicStatus!!
+        override val id: ID<HouseholdData> = this.newId()
+        override val householdNumber: Long = this@HouseholdDataBuilder.householdNumber!!
+        override val surveyYear: Int = this@HouseholdDataBuilder.surveyYear!!
+    }
+
 }
 
 /**

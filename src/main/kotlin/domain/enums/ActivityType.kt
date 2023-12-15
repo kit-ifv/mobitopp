@@ -1,13 +1,16 @@
-package domain.data
+package domain.enums
 
 import Decodable
 import Encodable
 
+interface ActivityType: Encodable {
+    val description: String
+}
 
 /**
  * The default activity encoding from legacy MobiTopp
  */
-enum class LegacyActivityType(val code: Int): Encodable {
+enum class LegacyActivityType(val code: Int): ActivityType {
     WORK      (1),
     BUSINESS  (2),
     EDUCATION (3),
@@ -37,14 +40,17 @@ enum class LegacyActivityType(val code: Int): Encodable {
     EDUCATION_PRIMARY    (31),
     EDUCATION_SECONDARY  (32),
     EDUCATION_TERTIARY   (33),
-    EDUCATION_OCCUP 		 (34)
+    EDUCATION_OCCUP      (34)
     ;
+
+    override val description: String
+        get() = this.name
 
     override fun encode(): Int {
         return this.code
     }
-    companion object : Decodable<LegacyActivityType> {
-        override fun decode(i: Int) = LegacyActivityType.values().first {it.code == i}
+    companion object : Decodable<ActivityType> {
+        override fun decode(i: Int) = entries.first {it.code == i}
     }
 
 }

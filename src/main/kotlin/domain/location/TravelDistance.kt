@@ -1,8 +1,7 @@
-package domain.data
+package domain.location
 
+import domain.enums.Mode
 import utils.units.Distance
-import utils.units.DistanceUnit
-import utils.units.toDistance
 
 /**
  * The generic interface for determining travel distance. It might appear that requiring a mode seems obsolete. However,
@@ -12,7 +11,7 @@ import utils.units.toDistance
 fun interface TravelDistance<in Location>  {
     fun calculate(from: Location, to: Location, using: Mode): Distance
 }
-
+/*
 class DefaultTD: TravelDistance<Location> {
     override fun calculate(from: Location, to: Location, using: Mode): Distance {
         return from.distance(to)
@@ -24,3 +23,4 @@ class OtherTD: TravelDistance<Position> {
         return from.distance(to)
     }
 }
+*/

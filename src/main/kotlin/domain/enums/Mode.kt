@@ -1,6 +1,6 @@
-package domain.data
+package domain.enums
 
-import Decodable
+import CodePlan
 import Encodable
 
 
@@ -37,8 +37,8 @@ enum class StandardMode(private val code: Int): Mode {
         return this.code
     }
 
-    companion object: Decodable<StandardMode> {
-        override fun decode(i: Int) = StandardMode.values().first {it.code == i}
+    companion object: CodePlan<StandardMode> {
+        override fun decode(i: Int) = entries.first {it.code == i}
     }
 
 }

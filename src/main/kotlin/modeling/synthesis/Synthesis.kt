@@ -1,16 +1,22 @@
 package modeling.synthesis
 
 import Builder
+import CodePlan
 import Identifiable
-import domain.data.CarData
+import domain.data.EconomicStatus
 import domain.data.HouseholdData
-import domain.data.OpportunityData
-import domain.data.PersonData
+import domain.data.HouseholdDataBuilder
 import domain.data.ZoneData
+import domain.data.ZoneDataBuilder
+import domain.enums.AreaType
+import domain.enums.ZoneAreaType
+import usecases.householdParser
+import usecases.loadHouseholdCsv
 import usecases.loadZoneCsv
 import usecases.zoneParser
-import utils.units.DistanceUnit
+import utils.units.CurrencyUnits
 import java.io.File
+
 interface SynthesisStep<C> {
     val name: String
     fun execute(context: C)
@@ -111,7 +117,9 @@ class BuildRepository<C, B, E> (
 }
 
 
-class Synthesis<C> where C: Context {
+class Synthesis<C>(
+    val context: C
+) where C: Context {
     // Todo : think about executing steps immediately instead of collecting all steps and then executing them
     // Todo : pro collect: validation could be performed before execution
     private val steps: MutableList<SynthesisStep<C>> = mutableListOf()
@@ -195,44 +203,134 @@ interface Context {
     val name: String
 }
 
-fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit) where C: Context {
-    val synth = Synthesis<C>()
+fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit): C where C: Context {
+    val synth = Synthesis<C>(this)
     synth.lambda()
     synth.execute(this)
-
+    return this
 }
 
 
 interface BaseContext : Context {
-    var zones: IdRepository<ZoneData>?
-    var households: IdRepository<HouseholdData>?
-    var cars: IdRepository<CarData>?
-    var persons: IdRepository<PersonData>?
-    var opportunities: IdRepository<OpportunityData>?
+    val demandFolder: File
+    val areaTypCodes: CodePlan<AreaType>
+    val economicalStatusCodes: CodePlan<EconomicStatus>
+
+
+    val zones: IdRepository<ZoneData>
+    var zoneBuilders: MutableIdRepository<ZoneDataBuilder>?
+
+    val households: IdRepository<HouseholdData>
+    var householdBuilders: MutableIdRepository<HouseholdDataBuilder>?
+
+//    val persons: IdRepository<PersonData>
+//    var personBuilders: MutableIdRepository<EMobilityPersonDataBuilder>?
+
+//    var households: IdRepository<HouseholdData>
+//    var cars: IdRepository<CarData>
+//    var persons: IdRepository<PersonData>
+//    var opportunities: IdRepository<OpportunityData>
 }
 
-class ExampleContext(override val name: String) : BaseContext {
-    override var zones: IdRepository<ZoneData>? = null
-    override var households: IdRepository<HouseholdData>? = null
-    override var cars: IdRepository<CarData>? = null
-    override var persons: IdRepository<PersonData>? = null
-    override var opportunities: IdRepository<OpportunityData>? = null
+class ExampleContext(override val name: String,
+                     override val demandFolder: File,
+                     override val areaTypCodes: CodePlan<AreaType> = ZoneAreaType,
+                     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus
+) : BaseContext {
+    override val zones: IdRepository<ZoneData>
+        get() = finishedZones ?: (
+                checkNotNull(zoneBuilders) {"Zone data builders has not yet been initialized or was already finished!"}
+                    .build()
+                    .also {
+                        finishedZones = it
+                        zoneBuilders = null
+                    }
+                )
+    override var zoneBuilders: MutableIdRepository<ZoneDataBuilder>? = null
+        set(value)  {
+            require((finishedZones == null) and (zoneBuilders == null) or (value == null)) {
+                "Cannot initialize zoneBuilders again, since zone were already initialized or finished!"
+            }
+
+            field = value
+        }
+
+    var finishedZones: IdRepository<ZoneData>? = null
+
+
+    //TODO reduce boilerplate/redundancy by refactoring mutable repository maybe new buildable repository
+    override val households: IdRepository<HouseholdData>
+        get() = finishedHouseholds ?: (
+                checkNotNull(householdBuilders) {
+                    "Household data builders has not yet been initialized or was already finished!"
+                }
+                    .build()
+                    .also {
+                        finishedHouseholds = it
+                        householdBuilders = null
+                    }
+                )
+    override var householdBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
+        set(value)  {
+            require((finishedHouseholds == null) and (householdBuilders == null) or (value == null)) {
+                "Cannot initialize householdBuilders again, since zone were already initialized or finished!"
+            }
+
+            field = value
+        }
+
+    var finishedHouseholds: IdRepository<HouseholdData>? = null
+
+//
+//    //TODO reduce boilerplate/redundancy by refactoring mutable repository maybe new buildable repository
+//    override val person: IdRepository<EMobilityPersonData>
+//        get() = finishedPersons ?: (
+//                checkNotNull(personBuilders) {
+//                    "Person data builders has not yet been initialized or was already finished!"
+//                }
+//                    .build()
+//                    .also {
+//                        finishedPersons = it
+//                        personBuilders = null
+//                    }
+//                )
+//    override var personBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
+//        set(value)  {
+//            require((finishedHouseholds == null) and (householdBuilders == null) or (value == null)) {
+//                "Cannot initialize householdBuilders again, since zone were already initialized or finished!"
+//            }
+//
+//            field = value
+//        }
+//
+//    var finishedPersons: IdRepository<EMobilityPersonData>? = null
 
 }
 
 fun main() {
-    val context = ExampleContext("test").synthesis {
+    val context = ExampleContext(
+        name="test",
+        areaTypCodes = ZoneAreaType,
+        demandFolder = File(
+"\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt"
+        )
+    ).synthesis {
+
         loadZoneCsv(
             zoneParser(
-                reliefUnit = DistanceUnit.METERS
-            ),
-            File(
-                "\\\\ifv-fs\\Forschung\\Projekte_intern\\" +
-                        "mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt\\zone-repository\\zones.csv"
-            ),
-            delimiter = ";"
+                idColumn = "id"
+            )
+        )
+
+        loadHouseholdCsv(
+            householdParser(
+                incomeUnit = CurrencyUnits.EUROS
+            )
         )
 
     }
+
+    println(context.zones.size)
+    println(context.households.size)
 
 }
