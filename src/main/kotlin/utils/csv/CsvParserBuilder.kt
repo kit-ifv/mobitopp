@@ -18,7 +18,7 @@ class CsvParserBuilder<E>(
     private val entitySpawner: (Int) -> E
 ) {
     private val columnParsers: MutableMap<String, (E, String) -> E?> = mutableMapOf()
-    private var errorHandling: ErrorHandling = ErrorHandling.WARN_KEEP
+    private var errorHandling: ErrorHandling = ErrorHandling.WARN_DROP
 
     val boolean = this to { s: String -> s.toBoolean() } //TODO allow other encoding of true (currently "true")
     val byte = this to { s: String -> s.toByte() }
@@ -117,14 +117,13 @@ fun <B, K, V> B.buildMergeMapParser(
 
 
 fun <P, T, E> P.property(name: String, setter: (E, T) -> Unit )
-where P: Pair<CsvParserBuilder<E>, (String) -> T> =
+        where P: Pair<CsvParserBuilder<E>, (String) -> T> =
     this.first.addProperty(name) { e: E, s: String -> e.also { setter(e, this.second(s)) } }
 
 fun <P, T, E> P.column(name: String, transform: (E, T) -> E? )
-where P: Pair<CsvParserBuilder<E>, (String) -> T> =
-    this.first.addProperty(name) { e: E, s: String -> e.also { transform(e, this.second(s)) } }
+        where P: Pair<CsvParserBuilder<E>, (String) -> T> =
+    this.first.addColumn(name) { e: E, s: String -> transform(e, this.second(s)) }
 
 fun <P, E> P.value(name: String)
         where P: Pair<CsvParserBuilder<E>, (String) -> E> =
-    this.first.addProperty(name) { e: E, s: String -> e.also { this.second(s) } }
-
+    this.first.addColumn(name) { _: E, s: String -> this.second(s) }

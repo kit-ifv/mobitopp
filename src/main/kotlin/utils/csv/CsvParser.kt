@@ -50,7 +50,8 @@ interface CsvParser<E> {
  *
  * @param E the generic type of the entities to be parsed
  */
-abstract class RowCsvParser<E> : CsvParser<E> { //TODO add validation: check if all required columns are available
+abstract class RowCsvParser<E> : CsvParser<E> {
+    //TODO add validation: check if all required columns are available
 
     override fun parse(csv: CsvReader): Sequence<E> {
         return csv.rows().map { parse(it) }.filterNotNull()
@@ -75,35 +76,34 @@ abstract class RowCsvParser<E> : CsvParser<E> { //TODO add validation: check if 
  * @param E
  * @constructor create a row based csv parser with the given column parsing
  *     functions
- * @property entitySpawner a function to produce empty entity, receives the
- *     row index (starting at 0)
- * @property columParsers parsing functions for columns: each must receive
- *     a string value and the entity to be updated
  * @property exceptionHandling the exception handling strategy to be used
  *     when parsing errors occur
  */
 open class DefaultRowCsvParser<E>(
-    protected val entitySpawner: (Int) -> E,
-    protected val columParsers: Map<String, (E, String) -> E?>,
-    protected val exceptionHandling: ErrorHandling = ErrorHandling.WARN_KEEP
-) : RowCsvParser<E>() {
-    protected var idCount = 0
-
+    protected val mapping: (String) ->((String) -> E) -> E,
+    protected val exceptionHandling: ErrorHandling = ErrorHandling.WARN_DROP
+): RowCsvParser<E>() {
     override fun parse(row: Row): E? {
-        var entity: E? = entitySpawner(idCount++)
 
-        columParsers.forEach { (col, parser) ->
-            entity = exceptionHandling.handleTransforming(
-                entity,
-                col,
-                row,
-                parser
-            )
+        val t = row::convert
+
+        return exceptionHandling.handleParseRow(row) {
+            mapping(row::convert)
         }
-
-        return entity
     }
+
 }
+
+/*
+* parser = CsvParser {column ->
+*   Household(
+*       year = int.column("year", ),
+*       size = boolean.column("size")
+*       size =
+*   )
+* }
+*
+* */
 
 /**
  * A RowCsvParser for parsing values of a single column. This is
@@ -119,13 +119,11 @@ open class DefaultRowCsvParser<E>(
  */
 open class CsvValueParser<E>(
     protected val valueColumn: String,
-    protected val exceptionHandling: ErrorHandling = ErrorHandling.WARN_KEEP,
+    protected val exceptionHandling: ErrorHandling = ErrorHandling.WARN_DROP,
     protected val parser: (String) -> E?,
 ) : RowCsvParser<E>() {
     override fun parse(row: Row): E? {
-
-        return exceptionHandling.handleParsing(column = valueColumn, row = row, parser = parser)
-
+        return exceptionHandling.handleParseValue(row, valueColumn, parser)
     }
 }
 
@@ -139,24 +137,18 @@ open class CsvValueParser<E>(
  * @param K type of the keys to be parsed
  * @param V type of the values to be parsed
  * @constructor create a row based csv parser for key value pairs
- * @property keyColumn name of the key column to be parsed
- * @property valueColumn name of the value column to be parsed
  * @property keyParser parsing functions for the keys
  * @property valueParser parsing functions for the values
- * @property exceptionHandling the exception handling strategy to be used
  *     when parsing errors occur
  */
 open class CsvPairParser<K, V>(
-    protected val keyColumn: String,
-    protected val valueColumn: String,
-    protected val exceptionHandling: ErrorHandling = ErrorHandling.WARN_KEEP,
-    protected val keyParser: (String) -> K?,
-    protected val valueParser: (String) -> V?,
+    protected val keyParser: RowCsvParser<K>,
+    protected val valueParser: RowCsvParser<V>,
 ) : RowCsvParser<Pair<K, V>>() {
     override fun parse(row: Row): Pair<K, V>? {
 
-        val key: K? = exceptionHandling.handleParsing(column = keyColumn, row = row, parser = keyParser)
-        val value: V? = exceptionHandling.handleParsing(column = valueColumn, row = row, parser = valueParser)
+        val key: K? = keyParser.parse(row)
+        val value: V? = valueParser.parse(row)
 
         return key?.let { k -> value?.let { v -> k to v } }
     }
@@ -253,74 +245,48 @@ open class MapMergeCsvParser<K, V>(
 
 
 /**
- * Creates parse error message for the given column, row and entity
+ * Execute parsing and handle exceptions: obtain the given column value of
+ * the row then parse and parse it to an entity. In case of parsing errors:
+ * apply the specific error handling strategy.
  *
- * @param entity the parsed entity
- * @param column the parsed column
- * @param row the parsed row
- * @param E the generic type of the entity being parsed
- */
-fun <E> parseErrorMessage(entity: E, column: String, row: Row) =
-    "Could not parse column $column of row ${row.index()} in ${row.source()} for entity $entity. Value: ${row[column]}"
-
-/**
- * Execute parsing + entity transformation and handle exceptions: obtain
- * the given column value of the row then parse and set it in the given
- * entity. In case of parsing errors: apply the specific error handling
- * strategy.
- *
- * @param entity the entity being created
- * @param column the column to be parsed
  * @param row the row being parsed
- * @param parser transformation function
  * @param E the generic type of the entity being parsed
  * @return the (transformed) entity or null
  * @receiver ErrorHandling
  */
-fun <E> ErrorHandling.handleTransforming(
-    entity: E? = null,
-    column: String,
+fun <E> ErrorHandling.handleParseRow(
     row: Row,
-    parser: (E, String) -> E?
-): E? = handleGetValue(column, row)?.let { value ->
-    this.handle(entity, { parseErrorMessage(entity, column, row) }) {
-        entity?.let { parser(it, value) }
-    }
+    mapping: () -> E?,
+): E? = this.handle(mapping){
+    "Could not parse row ${row.index()} in ${row.source()}: $row"
 }
-
-/**
- * Obtain column value from row and handle exceptions: In case of parsing
- * errors: apply the specific error handling strategy.
- *
- * @param column the column to be parsed
- * @param row the row being parsed
- * @return the found error handling
- * @receiver ErrorHandling
- */
-private fun ErrorHandling.handleGetValue(column: String, row: Row) =
-    this.handle(errorMessage = { "Could not find column $column in row $row!" }) {
-        row[column]
-    }
 
 /**
  * Execute parsing and handle exceptions: obtain the given column value of
  * the row then parse and parse it to an entity. In case of parsing errors:
  * apply the specific error handling strategy.
  *
- * @param column the column to be parsed
  * @param row the row being parsed
- * @param parser transformation function
  * @param E the generic type of the entity being parsed
  * @return the (transformed) entity or null
  * @receiver ErrorHandling
  */
-fun <E> ErrorHandling.handleParsing(
-    column: String,
+fun <E> ErrorHandling.handleParseValue(
     row: Row,
-    parser: (String) -> E?
-): E? = this.handleGetValue(column, row)?.let { value ->
+    column: String,
+    parser: (String) -> E?,
+): E? = this.handle(runnable = {
 
-    this.handle(null, { parseErrorMessage(null, column, row) }) {
-        parser(value)
+    val cell = this.handle(runnable = {
+        row[column]
+    }) {
+        "Could not find column $column in row $row."
     }
+
+    cell?.let {
+        parser(cell)
+    }
+
+}) {
+    "Could not parse column $column of row ${row.index()} in ${row.source()}: $row"
 }
