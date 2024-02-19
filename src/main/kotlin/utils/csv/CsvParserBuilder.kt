@@ -122,9 +122,9 @@ where P: Pair<CsvParserBuilder<E>, (String) -> T> =
 
 fun <P, T, E> P.column(name: String, transform: (E, T) -> E? )
 where P: Pair<CsvParserBuilder<E>, (String) -> T> =
-    this.first.addProperty(name) { e: E, s: String -> e.also { transform(e, this.second(s)) } }
+    this.first.addColumn(name) { e: E, s: String -> transform(e, this.second(s)) }
 
 fun <P, E> P.value(name: String)
         where P: Pair<CsvParserBuilder<E>, (String) -> E> =
-    this.first.addProperty(name) { e: E, s: String -> e.also { this.second(s) } }
+    this.first.addColumn(name) { _: E, s: String -> this.second(s) }
 

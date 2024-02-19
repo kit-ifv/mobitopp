@@ -104,6 +104,8 @@ interface CsvReader {
      * @return a [Sequence] of [Row]s
      */
     fun rows(): Sequence<Row>
+
+    fun rowCount(): Int
 }
 
 /**
@@ -121,23 +123,23 @@ open class DefaultCsvReader(
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR_DROP
 ) : CsvReader {
     protected val columns: Map<String, Int>
+    protected val rowCount: Int
     protected val name: String = file.name //TODO maybe use path instead?
 
     init {
-        columns = readHeader(file)
-    }
-
-    private fun readHeader(file: File): Map<String, Int> { //TODO IO Error Handling
         val reader = BufferedReader(FileReader(file))
         val header = reader.readLine()
+        rowCount = 0 //reader.lineSequence().count() //TODO profile performance cost of counting
         reader.close()
 
-        return parseHeader(header)
+        columns = parseHeader(header)
     }
 
     private fun parseHeader(header: String): Map<String, Int> {
         return parseLine(header).mapIndexed { index, s -> s to index }.toMap()
     }
+
+    override fun rowCount() = rowCount
 
     override fun columns(): Set<String> {
         return columns.keys
@@ -147,11 +149,20 @@ open class DefaultCsvReader(
         val reader = BufferedReader(FileReader(file))
         var idCnt = 0
 
-        return reader.lines()
+        val sequence = reader.lines()
             .asSequence()
             .drop(1)
             .map { line -> parseSafely(idCnt++, line) }
-            .filterNotNull()
+
+
+//        val step = (rowCount / 10.0).toInt()
+//        print("$name: ")
+        return sequence/*.mapIndexed{ index, row ->
+            row.also {
+                if (index % step == 0) { print("*") }
+                if (index == rowCount-1) { println() }
+            }
+        }*/.filterNotNull()
 
     }
 
