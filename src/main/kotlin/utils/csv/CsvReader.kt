@@ -1,6 +1,7 @@
 package utils.csv
 
 import utils.ErrorHandling
+import utils.collections.toLazyList
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -34,6 +35,18 @@ interface Row {
      */
     operator fun get(column: String): String
 
+    /**
+     * Parse this [Row]'s value in the given column using the given parser.
+     *
+     * @param column the column of which the value should be parsed
+     * @param converter converts the csv string value to the desired type
+     * @param T the desired result type
+     * @return the parsed value of this [Row] in the given column
+     */
+    operator fun <T> invoke(column: String, converter: (String) -> T): T {
+        return converter(this[column])!!
+    }
+
 }
 
 /**
@@ -43,9 +56,7 @@ interface Row {
  * @property source string description of the source containing this row
  * @property rowNumber the number of this row (unique with respect to
  *     source)
- * @property columnIndex mapping of column names to value list index //TODO
- *     simplify: use string, value mapping instead of string -> index +
- *     value list
+ * @property columnIndex mapping of column names to value list index
  * @property values list of values of this row
  */
 open class DefaultRow(
@@ -65,13 +76,18 @@ open class DefaultRow(
 
         val index = columnIndex[column]!!
 
-        require(0 <= index && index < values.size) {
-            "The given column's index is out of range in row $rowNumber of $source. " +
-                    "Column: $column, index: $index, row length: ${values.size}, values: $values."
+        return try {
+            values[index]
+
+        } catch (i: IndexOutOfBoundsException) {
+            val message = "The given column's index is out of range in row $rowNumber of $source. " +
+                    "Column: $column, index: $index, values: $values."
+            throw IllegalArgumentException(message, i)
         }
 
-        return values[index]
     }
+
+    override fun toString() = "$source[$rowNumber]=$values"
 
 }
 
@@ -120,7 +136,7 @@ interface CsvReader {
 open class DefaultCsvReader(
     protected val file: File,
     protected val separator: String = ";",
-    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR_DROP
+    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
 ) : CsvReader {
     protected val columns: Map<String, Int>
     protected val rowCount: Int
@@ -136,7 +152,7 @@ open class DefaultCsvReader(
     }
 
     private fun parseHeader(header: String): Map<String, Int> {
-        return parseLine(header).mapIndexed { index, s -> s to index }.toMap()
+        return lineValues(header).mapIndexed { index, s -> s to index }.toMap()
     }
 
     override fun rowCount() = rowCount
@@ -154,75 +170,101 @@ open class DefaultCsvReader(
             .drop(1)
             .map { line -> parseSafely(idCnt++, line) }
 
-
-//        val step = (rowCount / 10.0).toInt()
-//        print("$name: ")
-        return sequence/*.mapIndexed{ index, row ->
-            row.also {
-                if (index % step == 0) { print("*") }
-                if (index == rowCount-1) { println() }
-            }
-        }*/.filterNotNull()
+        return sequence.filterNotNull()
 
     }
 
     private fun parseSafely(index: Int, line: String): Row? =
         errorHandling.handleReadRow(line) { l -> parseRow(index, l) }
 
-    private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, parseLine(line))
+    private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, lineValues(line).toLazyList())
 
-    private fun parseLine(line: String): List<String> =
-        errorHandling.handleReadRow(line) { l ->
-            when {
-                QUOTE !in l -> l.split(separator)
-                l.startsWith(QUOTE) -> consumeQuoted(l.trim())
-                else -> consumeUnquoted(l.trim())
-            }
-        } ?: emptyList()
-
-    private fun consumeQuoted(line: String): List<String> {
-        require(line.startsWith(QUOTE))
-        val parts = line.split(QUOTE, limit = 3)
-
-        return mutableListOf(parts[1]).also {
-            it.addAll(
-                consumeTail(parts[2])
-            )
+    private fun lineValues(line: String): Sequence<String> =
+        when {
+            line.isEmpty() -> emptySequence()
+            QUOTE !in line -> line.splitToSequence(separator)
+            else -> generateSequence(nextValue(line)) {
+                it.second?.let { rest -> nextValue(rest) } ?: (null to null)
+            }.map { it.first }.takeWhile { it != null }.map { it!! }
         }
+
+    private fun nextValue(line: String): Pair<String?, String?> {
+        val isQuoted = line.startsWith(QUOTE)
+        val delim = if (isQuoted) QUOTE else separator
+        val text = if (isQuoted) line.drop(QUOTE.length) else line
+
+        val parts = text.split(delim, limit = 2)
+
+        if (parts.size == 1) {
+            return parts[0] to null
+        }
+
+        val rest = if (isQuoted) parts[1].drop(separator.length) else parts[1]
+        return parts[0] to rest.ifBlank { null }
     }
-
-    private fun consumeUnquoted(line: String): List<String> {
-        require(!line.startsWith(QUOTE))
-        val parts = line.split(separator, limit = 2)
-
-        val res = mutableListOf(parts[0])
-
-        if (parts.size > 1) {
-            res.addAll(parseLine(parts[1]))
-        }
-
-        return res
-    }
-
-    private fun consumeTail(line: String): List<String> =
-        if (line.isEmpty()) {
-            emptyList()
-        } else {
-            require(line.startsWith(separator)) { "line '$line' should start with '$separator'" }
-            parseLine(line.drop(separator.length))
-        }
 
 }
+
 
 /**
  * Handle reading csv line.
  *
- * @param line the line to be parsed
+ * @param line the line to be read
  * @param reader the reader
  * @param T the generic result type
- * @return result of the reader opr null
+ * @return result of the reader or null
  * @receiver ErrorHandling
  */
 fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? {
-    return this.handle(errorMessage = { "Error reading csv line $line" }) { reader(line) }
+    return this.handle(runnable = { reader(line) }) { "Error reading csv line $line" }
+}
+
+
+/**
+ * Handle exceptions while operating on certain [Row]: In case of parsing
+ * errors: apply the specific error handling strategy and add row
+ * information to the error message.
+ *
+ * @param row the row being operated on
+ * @param runnable the operation to be executed
+ * @param E the generic result type
+ * @return result of the operation
+ * @receiver ErrorHandling
+ */
+fun <E> ErrorHandling.handleParseRow(
+    row: Row,
+    runnable: () -> E?,
+): E? = this.handle(runnable) {
+    "Could not parse row ${row.index()} in ${row.source()}: $row"
+}
+
+/**
+ * Execute parsing and handle exceptions: obtain the given column value
+ * of the row then parse and parse it to an entity. In case of parsing
+ * errors: apply the specific error handling strategy and add row/column
+ * information to the error message.
+ *
+ * @param row the row being parsed
+ * @param E the generic type of the entity being parsed
+ * @return the (transformed) entity or null
+ * @receiver ErrorHandling
+ */
+fun <E> ErrorHandling.handleParseValue(
+    row: Row,
+    column: String,
+    parser: (String) -> E?,
+): E? = this.handle(runnable = {
+
+    val cell = this.handle(runnable = {
+        row[column]
+    }) { //Error message if column does not exist
+        "Could not find column $column in row $row."
+    }
+
+    cell?.let {
+        parser(cell)
+    }
+
+}) { //Error message for parsing errors
+    "Could not parse column $column of row ${row.index()} in ${row.source()}: $row"
 }

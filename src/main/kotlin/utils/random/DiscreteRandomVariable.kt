@@ -91,11 +91,14 @@ private fun <T> verifySize(name: String, values: Collection<T>) {
  * Compute the cumulative distribution for the given values + weights.
  *
  * @param name name of the Histogram
- * @param distribution a set of values and their weights
+ * @param distribution a set of values and their non-negative weights
  * @return the cumulative probability distribution of the given values
  */
 private fun <T> cumulativeDistribution(name: String, distribution: Map<T, Number>): SortedMap<Double, T> {
     verifySize(name, distribution.keys)
+    require(distribution.values.all { it.toDouble() >= 0 }) {
+        "Cannot create a Histogram for a distribution with negative weights: $distribution"
+    }
 
     val sum = distribution.values.sumOf { it.toDouble() }
 
