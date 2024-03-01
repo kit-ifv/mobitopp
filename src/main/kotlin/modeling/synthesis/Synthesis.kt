@@ -1,300 +1,237 @@
 package modeling.synthesis
 
 import Builder
-import CodePlan
 import Identifiable
-import domain.data.EconomicStatus
-import domain.data.HouseholdData
-import domain.data.HouseholdDataBuilder
-import domain.data.ZoneData
-import domain.data.ZoneDataBuilder
-import domain.enums.AreaType
-import domain.enums.ZoneAreaType
-import usecases.householdParser
-import usecases.loadHouseholdCsv
-import usecases.loadZoneCsv
-import usecases.zoneParser
-import utils.units.CurrencyUnits
-import java.io.File
 
-interface SynthesisStep<C> {
+interface SynthesisStep {
     val name: String
-    fun execute(context: C)
+    fun execute()
+
+    fun validate(): ValidateStep
 
 }
 
-class TestResource<C, E, M>(
+
+open class NewResource<B, E>(
     override val name: String,
-    protected val resource: Resource<E>,
-    protected val cons: (Resource<E>) -> M,
-    protected val setter: (C, M) -> Unit,
-) : SynthesisStep<C> {
-    override fun execute(context: C) {
-        setter(context, cons(resource))
+    val resource: Resource<B>,
+    val repository: BuilderRepository<B, E>,
+) : SynthesisStep where E:Identifiable<E>, B: Builder<E> {
+
+    override fun execute() {
+        repository.initializeBuilders(resource)
     }
 
-} //TODO check if this approach could be used
+    override fun validate() = ValidateNewResource(this)
 
+}
 
-
-/**
- * Init resource step adds a resource to the context
- *
- * @param C generic type of the context object
- * @param E generic type of the elements provided by the resource
- * @constructor Create empty Init resource step
- * @property name
- * @property resource
- * @property setter
- */
-class InitResource<C, E>(
+class FinalResource<E>(
     override val name: String,
-    protected val resource: Resource<E>,
-    protected val setter: (C, MutableRepository<E>) -> Unit,
-) : SynthesisStep<C> {
-    override fun execute(context: C) {
-        setter(context, MutableRepository.from(resource))
+    val resource: Resource<E>,
+    val repository: LateInitRepository<E>
+) : SynthesisStep where E: Identifiable<E> {
+
+    override fun execute() {
+        repository.initialize(resource)
     }
 
+    override fun validate() = ValidateFinalResource(this)
 }
 
-class InitIdResource<C, E>(
+class UpdateStep<B, E>(
     override val name: String,
-    protected val resource: Resource<E>,
-    protected val setter: (C, MutableIdRepository<E>) -> Unit
-) : SynthesisStep<C> where E: Identifiable<E> {
-    override fun execute(context: C) {
-        setter(context, MutableIdRepository.from(resource))
+    val predicate: (B) -> Boolean,
+    val repository: BuilderRepository<B, E>,
+) : SynthesisStep where B: Builder<E>, E: Identifiable<E> {
+
+    override fun execute() {
+        repository.reduce(name, predicate)
     }
 
+    override fun validate() = SimpleValidate(this)
 }
 
-class FinalResource<C, E>(
+class FilterStep<B, E>(
     override val name: String,
-    protected val resource: Resource<E>,
-    protected val setter: (C, Repository<E>) -> Unit
-) : SynthesisStep<C> {
-    override fun execute(context: C) {
-        setter(context, Repository.from(resource))
+    protected val transformation: (B) -> B?,
+    protected val repository: BuilderRepository<B, E>,
+) : SynthesisStep where B: Builder<E>, E: Identifiable<E> {
+
+    override fun execute() {
+        repository.update(name, transformation)
     }
 
+    override fun validate() = SimpleValidate(this)
 }
 
-class FinalIdResource<C, E>(
+class BuildRepository<B, E> (
     override val name: String,
-    protected val resource: Resource<E>,
-    protected val setter: (C, IdRepository<E>) -> Unit
-) : SynthesisStep<C> where E: Identifiable<E> {
-    override fun execute(context: C) {
-        setter(context, IdRepository.from(resource))
+    val repository: BuilderRepository<B, E>,
+) : SynthesisStep where B: Builder<E>, E: Identifiable<E>{
+
+    override fun execute() {
+        repository.build()
     }
 
+    override fun validate() = ValidateBuild(this)
 }
 
 
-class Update<C, E>(
-    override val name: String,
-    protected val transformation: (E) -> E?,
-    protected val getter: (C) -> MutableRepository<E>
-) : SynthesisStep<C> {
-    override fun execute(context: C) {
-        getter(context).execute(transformation)
-    }
-
-}
-
-//TODO close for non builder repositories
-class BuildRepository<C, B, E> (
-    override val name: String,
-    protected val getter: (C) -> MutableRepository<B>,
-    protected val setter: (C, Repository<E>) -> Unit
-) : SynthesisStep<C> where B: Builder<E> {
-    override fun execute(context: C) {
-        val finished = getter(context).build()
-        setter(context, finished)
-    }
-
-}
-
-
-class Synthesis<C>(
-    val context: C
-) where C: Context {
-    // Todo : think about executing steps immediately instead of collecting all steps and then executing them
-    // Todo : pro collect: validation could be performed before execution
-    private val steps: MutableList<SynthesisStep<C>> = mutableListOf()
-
-    fun addStep(step: SynthesisStep<C>) = steps.add(step)
-
-    fun execute(context: C) {
-        steps.forEach{ s -> s.execute(context)}
-    }
-
-    operator fun invoke(lambda: Synthesis<C>.() -> Unit) {
-        this.apply { lambda() }
-    }
-
-    fun <E> addResource(
-        name: String,
-        resource: Resource<E>,
-        setter: (C, MutableRepository<E>) -> Unit
-    ): Synthesis<C> {
-        steps.add(InitResource(name, resource, setter))
-        return this
-    }
-
-    fun <E> addFinalResource(
-        name: String,
-        resource: Resource<E>,
-        setter: (C, Repository<E>) -> Unit
-    ): Synthesis<C> {
-        steps.add(FinalResource(name, resource, setter))
-        return this
-    }
-
-    fun <E> addIdResource(
-        name: String,
-        resource: Resource<E>,
-        setter: (C, MutableIdRepository<E>) -> Unit
-    ): Synthesis<C> where E: Identifiable<E> {
-        steps.add(InitIdResource(name, resource, setter))
-        return this
-    }
-
-    fun <E> addFinalIdResource(
-        name: String,
-        resource: Resource<E>,
-        setter: (C, IdRepository<E>) -> Unit
-    ): Synthesis<C> where E: Identifiable<E> {
-        steps.add(FinalIdResource(name, resource, setter))
-        return this
-    }
-
-    fun <E> addUpdate(
-        name: String,
-        transformation: (E) -> E?,
-        getter: (C) -> MutableRepository<E>?
-    ): Synthesis<C> {
-        steps.add(Update(name, transformation, wrapGetter(name, getter)))
-        return this
-    }
-
-    fun <B, E> addFinishStep(
-        name: String,
-        getter: (C) -> MutableRepository<B>?,
-        setter: (C, Repository<E>) -> Unit
-    ): Synthesis<C> where B: Builder<E> {
-        steps.add(BuildRepository(name, wrapGetter(name, getter), setter))
-        return this
-    }
-
-    private fun <R> wrapGetter(
-        step: String,
-        getter: (C) -> R?
-    ): (C) -> R = {
-        context ->
-        requireNotNull(getter(context)) {
-            "Update step [$step] is not applicable since the required resource[$getter] has not been initialized."
-        }
-    }
-
-}
-interface Context {
-    val name: String
-}
-
-fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit): C where C: Context {
-    val synth = Synthesis<C>(this)
-    synth.lambda()
-    synth.execute(this)
-    return this
-}
-
-
-interface BaseContext : Context {
-    val demandFolder: File
-    val areaTypCodes: CodePlan<AreaType>
-    val economicalStatusCodes: CodePlan<EconomicStatus>
-
-
-    val zones: IdRepository<ZoneData>
-    var zoneBuilders: MutableIdRepository<ZoneDataBuilder>?
-
-    val households: IdRepository<HouseholdData>
-    var householdBuilders: MutableIdRepository<HouseholdDataBuilder>?
-
-//    val persons: IdRepository<PersonData>
-//    var personBuilders: MutableIdRepository<EMobilityPersonDataBuilder>?
-
-//    var households: IdRepository<HouseholdData>
-//    var cars: IdRepository<CarData>
-//    var persons: IdRepository<PersonData>
-//    var opportunities: IdRepository<OpportunityData>
-}
-
-class ExampleContext(override val name: String,
-                     override val demandFolder: File,
-                     override val areaTypCodes: CodePlan<AreaType> = ZoneAreaType,
-                     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus
-) : BaseContext {
-    override val zones: IdRepository<ZoneData>
-        get() = finishedZones ?: (
-                checkNotNull(zoneBuilders) {"Zone data builders has not yet been initialized or was already finished!"}
-                    .build()
-                    .also {
-                        finishedZones = it
-                        zoneBuilders = null
-                    }
-                )
-    override var zoneBuilders: MutableIdRepository<ZoneDataBuilder>? = null
-        set(value)  {
-            require((finishedZones == null) and (zoneBuilders == null) or (value == null)) {
-                "Cannot initialize zoneBuilders again, since zone were already initialized or finished!"
-            }
-
-            field = value
-        }
-
-    var finishedZones: IdRepository<ZoneData>? = null
-
-
-    //TODO reduce boilerplate/redundancy by refactoring mutable repository maybe new buildable repository
-    override val households: IdRepository<HouseholdData>
-        get() = finishedHouseholds ?: (
-                checkNotNull(householdBuilders) {
-                    "Household data builders has not yet been initialized or was already finished!"
-                }
-                    .build()
-                    .also {
-                        finishedHouseholds = it
-                        householdBuilders = null
-                    }
-                )
-    override var householdBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
-        set(value)  {
-            require((finishedHouseholds == null) and (householdBuilders == null) or (value == null)) {
-                "Cannot initialize householdBuilders again, since zone were already initialized or finished!"
-            }
-
-            field = value
-        }
-
-    var finishedHouseholds: IdRepository<HouseholdData>? = null
-
+//class Synthesis<C>(
+//    val context: C
+//) where C: Context {
+//    // Todo : think about executing steps immediately instead of collecting all steps and then executing them
+//    // Todo : pro collect: validation could be performed before execution
+//    private val steps: MutableList<SynthesisStep> = mutableListOf()
+//
+//    fun addStep(step: SynthesisStep) = steps.add(step)
+//
+//    fun execute() {
+//        steps.forEach{ s -> s.execute()}
+//    }
+//
+//    operator fun invoke(lambda: Synthesis<C>.() -> Unit) {
+//        this.apply { lambda() }
+//    }
+//
+////    fun <E> addResource(
+////        name: String,
+////        resource: Resource<E>,
+////        setter: (C, MutableRepository<E>) -> Unit
+////    ): Synthesis<C> {
+////        steps.add(InitResource(name, resource, setter))
+////        return this
+////    }
+////
+////    fun <E> addFinalResource(
+////        name: String,
+////        resource: Resource<E>,
+////        setter: (C, Repository<E>) -> Unit
+////    ): Synthesis<C> {
+////        steps.add(FinalResource(name, resource, setter))
+////        return this
+////    }
+////
+////    fun <E> addIdResource(
+////        name: String,
+////        resource: Resource<E>,
+////        setter: (C, MutableIdRepository<E>) -> Unit
+////    ): Synthesis<C> where E: Identifiable<E> {
+////        steps.add(InitIdResource(name, resource, setter))
+////        return this
+////    }
+////
+////    fun <E> addFinalIdResource(
+////        name: String,
+////        resource: Resource<E>,
+////        setter: (C, IdRepository<E>) -> Unit
+////    ): Synthesis<C> where E: Identifiable<E> {
+////        steps.add(FinalIdResource(name, resource, setter))
+////        return this
+////    }
+////
+////    fun <E> addUpdate(
+////        name: String,
+////        transformation: (E) -> E?,
+////        getter: (C) -> MutableRepository<E>?
+////    ): Synthesis<C> {
+////        steps.add(Update(name, transformation, wrapGetter(name, getter)))
+////        return this
+////    }
+////
+////    fun <B, E> addFinishStep(
+////        name: String,
+////        getter: (C) -> MutableRepository<B>?,
+////        setter: (C, Repository<E>) -> Unit
+////    ): Synthesis<C> where B: Builder<E> {
+////        steps.add(BuildRepository(name, wrapGetter(name, getter), setter))
+////        return this
+////    }
+////
+////    private fun <R> wrapGetter(
+////        step: String,
+////        getter: (C) -> R?
+////    ): (C) -> R = {
+////        context ->
+////        requireNotNull(getter(context)) {
+////            "Update step [$step] is not applicable since the required resource[$getter] has not been initialized."
+////        }
+////    }
+//
+//}
+//interface Context {
+//    val name: String
+//}
+//
+//fun <C> C.synthesis(lambda: Synthesis<C>.() -> Unit): C where C: Context {
+//    val synth = Synthesis<C>(this)
+//    synth.lambda()
+//    synth.execute(this)
+//    return this
+//}
+//
+//
+//interface BaseContext : Context {
+//    val demandFolder: File
+//    val areaTypCodes: CodePlan<AreaType>
+//    val economicalStatusCodes: CodePlan<EconomicStatus>
+//
+//
+//    val zones: IdRepository<ZoneData>
+//    var zoneBuilders: MutableIdRepository<ZoneDataBuilder>?
+//
+//    val households: IdRepository<HouseholdData>
+//    var householdBuilders: MutableIdRepository<HouseholdDataBuilder>?
+//
+////    val persons: IdRepository<PersonData>
+////    var personBuilders: MutableIdRepository<EMobilityPersonDataBuilder>?
+//
+////    var households: IdRepository<HouseholdData>
+////    var cars: IdRepository<CarData>
+////    var persons: IdRepository<PersonData>
+////    var opportunities: IdRepository<OpportunityData>
+//}
+//
+//class ExampleContext(override val name: String,
+//                     override val demandFolder: File,
+//                     override val areaTypCodes: CodePlan<AreaType> = ZoneAreaType,
+//                     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus
+//) : BaseContext {
+//    override val zones: IdRepository<ZoneData>
+//        get() = finishedZones ?: (
+//                checkNotNull(zoneBuilders) {"Zone data builders has not yet been initialized or was already finished!"}
+//                    .build()
+//                    .also {
+//                        finishedZones = it
+//                        zoneBuilders = null
+//                    }
+//                )
+//    override var zoneBuilders: MutableIdRepository<ZoneDataBuilder>? = null
+//        set(value)  {
+//            require((finishedZones == null) and (zoneBuilders == null) or (value == null)) {
+//                "Cannot initialize zoneBuilders again, since zone were already initialized or finished!"
+//            }
+//
+//            field = value
+//        }
+//
+//    var finishedZones: IdRepository<ZoneData>? = null
+//
 //
 //    //TODO reduce boilerplate/redundancy by refactoring mutable repository maybe new buildable repository
-//    override val person: IdRepository<EMobilityPersonData>
-//        get() = finishedPersons ?: (
-//                checkNotNull(personBuilders) {
-//                    "Person data builders has not yet been initialized or was already finished!"
+//    override val households: IdRepository<HouseholdData>
+//        get() = finishedHouseholds ?: (
+//                checkNotNull(householdBuilders) {
+//                    "Household data builders has not yet been initialized or was already finished!"
 //                }
 //                    .build()
 //                    .also {
-//                        finishedPersons = it
-//                        personBuilders = null
+//                        finishedHouseholds = it
+//                        householdBuilders = null
 //                    }
 //                )
-//    override var personBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
+//    override var householdBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
 //        set(value)  {
 //            require((finishedHouseholds == null) and (householdBuilders == null) or (value == null)) {
 //                "Cannot initialize householdBuilders again, since zone were already initialized or finished!"
@@ -303,34 +240,58 @@ class ExampleContext(override val name: String,
 //            field = value
 //        }
 //
-//    var finishedPersons: IdRepository<EMobilityPersonData>? = null
-
-}
-
-fun main() {
-    val context = ExampleContext(
-        name="test",
-        areaTypCodes = ZoneAreaType,
-        demandFolder = File(
-"\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt"
-        )
-    ).synthesis {
-
-        loadZoneCsv(
-            zoneParser(
-                idColumn = "id"
-            )
-        )
-
-        loadHouseholdCsv(
-            householdParser(
-                incomeUnit = CurrencyUnits.EUROS
-            )
-        )
-
-    }
-
-    println(context.zones.size)
-    println(context.households.size)
-
-}
+//    var finishedHouseholds: IdRepository<HouseholdData>? = null
+//
+////
+////    //TODO reduce boilerplate/redundancy by refactoring mutable repository maybe new buildable repository
+////    override val person: IdRepository<EMobilityPersonData>
+////        get() = finishedPersons ?: (
+////                checkNotNull(personBuilders) {
+////                    "Person data builders has not yet been initialized or was already finished!"
+////                }
+////                    .build()
+////                    .also {
+////                        finishedPersons = it
+////                        personBuilders = null
+////                    }
+////                )
+////    override var personBuilders: MutableIdRepository<HouseholdDataBuilder>? = null
+////        set(value)  {
+////            require((finishedHouseholds == null) and (householdBuilders == null) or (value == null)) {
+////                "Cannot initialize householdBuilders again, since zone were already initialized or finished!"
+////            }
+////
+////            field = value
+////        }
+////
+////    var finishedPersons: IdRepository<EMobilityPersonData>? = null
+//
+//}
+//
+//fun main() {
+//    val context = ExampleContext(
+//        name="test",
+//        areaTypCodes = ZoneAreaType,
+//        demandFolder = File(
+//"\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt"
+//        )
+//    ).synthesis {
+//
+//        loadZoneCsv(
+//            zoneParser(
+//                idColumn = "id"
+//            )
+//        )
+//
+//        loadHouseholdCsv(
+//            householdParser(
+//                incomeUnit = CurrencyUnits.EUROS
+//            )
+//        )
+//
+//    }
+//
+//    println(context.zones.size)
+//    println(context.households.size)
+//
+//}

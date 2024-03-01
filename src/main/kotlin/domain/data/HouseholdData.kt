@@ -27,25 +27,26 @@ interface HouseholdData: Identifiable<HouseholdData> {
     val economicStatus: EconomicStatus
 }
 
-class HouseholdDataBuilder: Builder<HouseholdData>, Identifiable<HouseholdDataBuilder> {
+@Suppress("LongParameterList")
+class HouseholdDataBuilder(
+    var householdNumber: Long? = null,
+    var surveyYear: Int? = null,
+    var homeZone: ZoneData? = null,
+    var roadPosition: RoadPosition? = null,
+    var domCode: Int? = null,
+    var type: Int? = null,
+    var incomePerMonth: Currency? = null,
+    var economicStatus: EconomicStatus? = null
+): Builder<HouseholdData>, Identifiable<HouseholdDataBuilder> {
     override val id: ID<HouseholdDataBuilder>
         get() = ID(this.householdNumber!!.toULong())
 
-    var householdNumber: Long? = null
-    var surveyYear: Int? = null
-    var homeZone: ZoneData? = null
-    var roadPosition: RoadPosition? = null
-    var domCode: Int? = null
-    var type: Int? = null
-    var incomePerMonth: Currency? = null
-    var economicStatus: EconomicStatus? = null
+
 
     override fun build()= object:HouseholdData {
         override val location: RoadPositionInZone = this@HouseholdDataBuilder.roadPosition!!.let {
             RoadPositionInZone(
-                it.road,
-                it.roadAccess,
-                it.coordinate,
+                it,
                 this@HouseholdDataBuilder.homeZone!!
             )
         }

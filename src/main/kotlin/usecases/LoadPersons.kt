@@ -1,24 +1,5 @@
 package usecases
 
-import CodePlan
-import ID
-import domain.data.EMobilityPersonDataBuilder
-import domain.data.EconomicStatus
-import domain.data.HouseholdDataBuilder
-import domain.location.RoadPosition
-import domain.location.parseRoadPosition
-import modeling.synthesis.BaseContext
-import modeling.synthesis.CsvResource
-import modeling.synthesis.Synthesis
-import utils.ErrorHandling
-import utils.csv.CsvParser
-import utils.csv.CsvParserBuilder
-import utils.csv.SEMICOLON
-import utils.csv.property
-import utils.units.CurrencyUnits
-import utils.units.toCurrency
-import java.io.File
-
 
 //fun <S, C> S.loadPersonCsv(
 //    parser: (Synthesis<C>) -> CsvParser<EMobilityPersonDataBuilder>,
@@ -56,7 +37,13 @@ import java.io.File
 //    val zoneRepo = { synthesis.context.zones } //TODO access to zones mut be lazy
 //    val economicalStatusCodePlan = economicalStatusCodes ?: synthesis.context.economicalStatusCodes
 //
-//    CsvParserBuilder { HouseholdDataBuilder() }
+//    DefaultRowCsvParser{ row ->
+//        EMobilityPersonDataBuilder(
+//            house
+//        )
+//    }
+//
+//    CsvParserBuilder {  }
 //        .long.property(hhNumberColumn) { e, l -> e.householdNumber = l }
 //        .int.property(yearColumn) { e, i -> e.surveyYear = i }
 //        .long.property(zoneColumn) { e, l -> e.homeZone = zoneRepo().getById(ID(l.toULong())) }

@@ -9,10 +9,11 @@ package utils.collections
  * @property dataStream a lazy data stream to obtain list values
  */
 class LazyList<E>(
-    private val dataStream: Iterator<E>
+    private val dataStream: Iterator<E>,
+    expectedSize: Int = 10
 ) : List<E> {
 
-    private val elements: MutableList<E> = mutableListOf()
+    private val elements: MutableList<E> = ArrayList(expectedSize)
 
     override operator fun get(index: Int) = when {
         index < elements.size -> elements[index]
@@ -76,18 +77,7 @@ class LazyList<E>(
     }
 }
 
-/**
- * To lazy list
- *
- * @param I
- * @param E
- */
-fun <I, E> I.toLazyList() where I : Iterator<E> = LazyList(this)
 
-/**
- * To lazy list
- *
- * @param S
- * @param E
- */
-fun <S, E> S.toLazyList() where S : Sequence<E> = LazyList(this.iterator())
+fun <I, E> I.toLazyList(expectedSize: Int = 10) where I : Iterator<E> = LazyList(this, expectedSize)
+
+fun <S, E> S.toLazyList(expectedSize: Int = 10) where S : Sequence<E> = LazyList(this.iterator(), expectedSize)

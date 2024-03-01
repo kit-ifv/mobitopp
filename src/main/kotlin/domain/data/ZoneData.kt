@@ -41,19 +41,22 @@ interface ZoneData: Identifiable<ZoneData> {
 
 }
 
-class ZoneDataBuilder : Builder<ZoneData>, Identifiable<ZoneDataBuilder> {
+@SuppressWarnings("LongParameterList")
+class ZoneDataBuilder(
+    var visumId: Long? = null,
+    var name: String? = null,
+    var areaType: AreaType? = null,
+    var regionType: Int? = null,
+    var classification: ZoneClassification? = null,
+    var parkingPlaces: Int? = null,
+    var centroid: Location? = null,
+    var isDestination: Boolean? = null,
+    var relief: Distance? = null
+) : Builder<ZoneData>, Identifiable<ZoneDataBuilder> {
     override val id: ID<ZoneDataBuilder>
         get() = ID(visumId!!.toULong())
 
-    var visumId: Long? = null
-    var name: String? = null
-    var areaType: AreaType? = null
-    var regionType: Int? = null
-    var classification: ZoneClassification? = null
-    var parkingPlaces: Int? = null
-    var centroid: Location? = null
-    var isDestination: Boolean? = null
-    var relief: Distance? = null
+
 
     override fun build() = object:ZoneData{
         override val visumId: Long = this@ZoneDataBuilder.visumId!!

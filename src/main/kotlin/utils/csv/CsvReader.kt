@@ -177,7 +177,8 @@ open class DefaultCsvReader(
     private fun parseSafely(index: Int, line: String): Row? =
         errorHandling.handleReadRow(line) { l -> parseRow(index, l) }
 
-    private fun parseRow(index: Int, line: String) = DefaultRow(name, index, columns, lineValues(line).toLazyList())
+    private fun parseRow(index: Int, line: String) =
+        DefaultRow(name, index, columns, lineValues(line).toLazyList(columns.size))
 
     private fun lineValues(line: String): Sequence<String> =
         when {

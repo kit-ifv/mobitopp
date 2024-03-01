@@ -40,7 +40,7 @@ fun <E> E.newId(): ID<E> {
 
 
 
-interface Builder<E> {
+public interface Builder<E> {
     fun build(): E
 }
 
