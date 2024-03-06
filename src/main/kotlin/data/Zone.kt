@@ -1,8 +1,8 @@
 package data
 
-import utils.units.Distance
-import utils.units.GPSPosition
-import utils.units.meters
+import units.Distance
+import units.GPSCoordinate
+import units.meters
 
 typealias Attractivity = Map<LegacyActivityType, Double>
 
@@ -17,7 +17,7 @@ typealias Attractivity = Map<LegacyActivityType, Double>
  * @property attractivity a map of the attractivity of the zone
  */
 data class Zone(
-    override val location: GPSPosition? = GPSPosition(0.0 , 0.0),
+    override val location: GPSCoordinate? = GPSCoordinate(0.0 , 0.0),
     val name: String = "Unnamed Zone",
     val parkingPlaces: Int = 0,
     val isDestination: Boolean = false,
