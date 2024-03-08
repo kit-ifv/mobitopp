@@ -127,7 +127,7 @@ open class LateInitRepository<E>: Repository<E> where E: Identifiable<E> {
      * @param resource the resource of [Identifiable] elements to be added to this [Repository]
      */
     open fun initialize(resource: Resource<E>) {
-        internalState = internalState.finalized(resource)
+        internalState = internalState.finalize(resource)
         delegate = resource.asRepository()
     }
 
@@ -148,7 +148,7 @@ class BuilderRepository<B, E>(): LateInitRepository<E>() where B: Builder<E>, E:
     private var builders: Resource<B>? = null
 
     constructor(builders: Resource<B>): this() {
-        this.initializeBuilders(builders)
+        this.prepare(builders)
     }
 
     override val name: String
@@ -163,47 +163,27 @@ class BuilderRepository<B, E>(): LateInitRepository<E>() where B: Builder<E>, E:
             return delegate?.source ?: builders!!.source
         }
 
-    /** Build */
     fun build() {
         internalState = internalState.build()
         delegate = builders!!.build()
         builders = null
     }
 
-    /**
-     * Reduce
-     *
-     * @param operation
-     * @param predicate
-     * @receiver
-     */
     fun reduce(operation: String, predicate: (B) -> Boolean) {
         internalState.reduce(operation)
         builders = builders!!.filter(operation, predicate)
     }
 
-    /**
-     * Update
-     *
-     * @param operation
-     * @param mapping
-     * @receiver
-     *///TODO replace vs update
+    //TODO replace vs update
     fun update(operation: String, mapping: (B) -> B?) {
         internalState.update(operation)
         builders = builders!!.map(operation, mapping)
     }
 
-    /**
-     * Initialize builders
-     *
-     * @param builders
-     */
-    fun initializeBuilders(builders: Resource<B>) {
-        internalState = internalState.initialize(builders)
+    fun prepare(builders: Resource<B>) {
+        internalState = internalState.prepare(builders)
         this.builders = builders
     }
-
 
     override fun map(operation: String, mapping: (E) -> E?): Resource<E> =
         throw UnsupportedOperationException("map for target elements not supported")
@@ -224,30 +204,30 @@ enum class RepositoryState {
      * the elements of the repository have not been set.
      */
     UNINITIALIZED {
-        override fun finalized(resource: Resource<*>) = FINISHED
+        override fun finalize(resource: Resource<*>) = FINISHED
 
-        override fun initialize(resource: Resource<*>) = INITIALIZED
+        override fun prepare(resource: Resource<*>) = PREPARING
 
         override fun update(operation: String) =
-            error("Cannot apply mapping '$operation' to repository elements as it has not been initialized yet!")
+            error("Cannot apply mapping '$operation' to repository elements as it has not been prepared yet!")
 
         override fun reduce(operation: String) =
-            error("Cannot apply filter '$operation' to repository elements as it has not been initialized yet!")
+            error("Cannot apply filter '$operation' to repository elements as it has not been prepared yet!")
 
         override fun build() =
-            error("Cannot build repository elements as it has not been initialized yet!")
+            error("Cannot build repository elements as it has not been prepared yet!")
 
         override fun getElements() =
-            error("Cannot get elements of repository as it has not been initialized yet!")
+            error("Cannot get elements of repository as it has not been finished yet!")
 
         override fun getById() =
-            error("Cannot get element by id in repository as it has not been initialized yet!")
+            error("Cannot get element by id in repository as it has not been finished yet!")
 
         override fun getName() =
-            error("Cannot get name of repository as it has not been initialized yet!")
+            error("Cannot get name of repository as it has not been finished/prepared yet!")
 
         override fun getSource() =
-            error("Cannot get source of repository as it has not been initialized yet!")
+            error("Cannot get source of repository as it has not been finished/prepared yet!")
 
         override fun toString(repository: LateInitRepository<*>): String {
             check(repository.state == UNINITIALIZED)
@@ -259,31 +239,34 @@ enum class RepositoryState {
      * Initialized [RepositoryState]:
      * the element-builders of the repository have been set but the elements have not been built yet.
      */
-    INITIALIZED { //TODO rename to BUILDING -> requires rewriting all error messages and some tests :(
-        override fun finalized(resource: Resource<*>) =
-            error("Cannot finalize repository with final resource $resource as it has already been initialized!")
+    PREPARING {
+        override fun finalize(resource: Resource<*>) =
+            error(
+                "Cannot initialize repository with final resource " +
+                "'$resource' as preparation has already been started!"
+            )
 
-        override fun initialize(resource: Resource<*>) =
-            error("Cannot init repository with $resource as it has already been initialized!")
+        override fun prepare(resource: Resource<*>) =
+            error("Cannot prepare repository with '$resource' as preparation has already been started!")
 
-        override fun update(operation: String) = INITIALIZED
+        override fun update(operation: String) = PREPARING
 
-        override fun reduce(operation: String) = INITIALIZED
+        override fun reduce(operation: String) = PREPARING
 
         override fun build() = FINISHED
 
         override fun getElements() =
-            error("Cannot get elements of repository as it has not been finished yet!")
+            error("Cannot get elements of repository as it has not been built yet!")
 
         override fun getById() =
-            error("Cannot get element by id in repository as it has not been finished yet!")
+            error("Cannot get element by id in repository as it has not been built yet!")
 
-        override fun getName() = INITIALIZED
+        override fun getName() = PREPARING
 
-        override fun getSource() = INITIALIZED
+        override fun getSource() = PREPARING
 
         override fun toString(repository: LateInitRepository<*>): String {
-            check(repository.state == INITIALIZED)
+            check(repository.state == PREPARING)
             return "Initialized ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
@@ -292,12 +275,12 @@ enum class RepositoryState {
     /**
      * Finished [RepositoryState]: the elements of the repository have been set.
      */
-    FINISHED { //TODO rename to INITIALIZED
-        override fun finalized(resource: Resource<*>) =
-            error("Cannot finalize repository with final resource $resource as it has already been finished!")
+    FINISHED {
+        override fun finalize(resource: Resource<*>) =
+            error("Cannot finalize repository with final resource '$resource' as it has already been finished!")
 
-        override fun initialize(resource: Resource<*>) =
-            error("Cannot init repository with $resource as it has already been finished!")
+        override fun prepare(resource: Resource<*>) =
+            error("Cannot prepare repository with '$resource' as it has already been finished!")
 
         override fun update(operation: String) =
             error("Cannot apply finished '$operation' to repository elements as it has already been finished!")
@@ -323,79 +306,15 @@ enum class RepositoryState {
 
     };
 
-    /**
-     * Finalized
-     *
-     * @param resource
-     * @return
-     */
-    abstract fun finalized(resource: Resource<*>): RepositoryState
-
-    /**
-     * Initialize
-     *
-     * @param resource
-     * @return
-     */
-    abstract fun initialize(resource: Resource<*>): RepositoryState
-
-    /**
-     * Update
-     *
-     * @param operation
-     * @return
-     */
+    abstract fun finalize(resource: Resource<*>): RepositoryState
+    abstract fun prepare(resource: Resource<*>): RepositoryState
     abstract fun update(operation: String): RepositoryState
-
-    /**
-     * Reduce
-     *
-     * @param operation
-     * @return
-     */
     abstract fun reduce(operation: String): RepositoryState
-
-    /**
-     * Build
-     *
-     * @return
-     */
     abstract fun build(): RepositoryState
-
-    /**
-     * Get elements
-     *
-     * @return
-     */
     abstract fun getElements(): RepositoryState
-
-    /**
-     * Get by id
-     *
-     * @return
-     */
     abstract fun getById(): RepositoryState
-
-    /**
-     * Get name
-     *
-     * @return
-     */
     abstract fun getName(): RepositoryState
-
-    /**
-     * Get source
-     *
-     * @return
-     */
     abstract fun getSource(): RepositoryState
-
-    /**
-     * To string
-     *
-     * @param repository
-     * @return
-     */
     abstract fun toString(repository: LateInitRepository<*>): String
 
 }

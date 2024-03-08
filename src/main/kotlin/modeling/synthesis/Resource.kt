@@ -132,9 +132,9 @@ fun <S, E> S.asRepository(
  * @property delimiter
  */
 class CsvResource<E> (
-    private val file: File,
-    private val parser: CsvParser<E>,
-    private val delimiter: String = SEMICOLON
+    val file: File,
+    val parser: CsvParser<E>,
+    val delimiter: String = SEMICOLON
 
 ): Resource<E> {
     override val name: String

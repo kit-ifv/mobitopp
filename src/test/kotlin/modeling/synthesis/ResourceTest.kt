@@ -131,8 +131,8 @@ class CsvResourceTest: ResourceTest<TestBuilder>() {
         val file = File("src/test/resources/test_data.csv")
         val parser = DefaultRowCsvParser { row ->
             TestBuilder(
-                rowIndex = row.index(),
-                string = row["str"]
+                rowIndex = row.index,
+                string = row("str")
             )
         }
 

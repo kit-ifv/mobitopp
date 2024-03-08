@@ -25,6 +25,7 @@ detekt {
 }
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work

@@ -13,27 +13,11 @@ private const val QUOTE = "\""
 
 /** The interface row provides methods to obtain properties of csv rows. */
 interface Row {
-    /**
-     * Describes the source containing this [Row].
-     *
-     * @return string description of the source containing this [Row]
-     */
-    fun source(): String
+    /** The source containing this [Row]. */
+    val source: String
 
-    /**
-     * Returns the index of this [Row].
-     *
-     * @return the [Row]'s index
-     */
-    fun index(): Int
-
-    /**
-     * Gets the [Row]'s value of the given column.
-     *
-     * @param column the column for which the [Row]'s value should be returned
-     * @return this [Row]'s value at the given column
-     */
-    operator fun get(column: String): String
+    /** The index of this [Row]. */
+    val index: Int
 
     /**
      * Parse this [Row]'s value in the given column using the given parser.
@@ -43,51 +27,63 @@ interface Row {
      * @param T the desired result type
      * @return the parsed value of this [Row] in the given column
      */
-    operator fun <T> invoke(column: String, converter: (String) -> T): T {
-        return converter(this[column])!!
-    }
+    operator fun <T> invoke(column: String, converter: (String) -> T): T
+
+    /**
+     * Get this [Row]'s value in the given column.
+     *
+     * @param column the column of which the value should be parsed
+     * @return the raw value of this [Row] in the given column
+     * @receiver [Row]
+     */
+    operator fun invoke(column: String): String = invoke(column) { s -> s }
+
+    fun hasColumn(column: String): Boolean
 
 }
+
+
 
 /**
  * Default implementation of the [Row] interface
  *
  * @constructor create a row with the given values
  * @property source string description of the source containing this row
- * @property rowNumber the number of this row (unique with respect to
- *     source)
+ * @property index the index of this row (unique with respect to source)
  * @property columnIndex mapping of column names to value list index
  * @property values list of values of this row
  */
 open class DefaultRow(
-    protected val source: String,
-    protected val rowNumber: Int,
+    override val source: String,
+    override val index: Int,
     protected val columnIndex: Map<String, Int>,
     protected val values: List<String>
 ) : Row {
-    override fun source() = source
-    override fun index() = rowNumber
 
-    override fun get(column: String): String {
-        require(column in columnIndex) {
+
+    @Suppress("TooGenericExceptionCaught")
+    override operator fun <T> invoke(column: String, converter: (String) -> T): T {
+
+        val columnIndex = requireNotNull(columnIndex[column]) {
             "The given column '$column' is missing in $source. " +
-                    "Available columns: ${columnIndex.keys}"
+            "Available columns: ${columnIndex.keys}"
         }
 
-        val index = columnIndex[column]!!
-
-        return try {
-            values[index]
+        val string = try {
+            values[columnIndex]
 
         } catch (i: IndexOutOfBoundsException) {
-            val message = "The given column's index is out of range in row $rowNumber of $source. " +
-                    "Column: $column, index: $index, values: $values."
+            val message = "The given column's index is out of range in row ${this.index} of $source. " +
+                    "Column: $column, index: $columnIndex, values: $values."
             throw IllegalArgumentException(message, i)
         }
 
+        return converter(string)
     }
 
-    override fun toString() = "$source[$rowNumber]=$values"
+    override fun hasColumn(column: String) = columnIndex.containsKey(column)
+
+    override fun toString() = "$source[$index]=$values"
 
 }
 
@@ -107,12 +103,12 @@ interface CsvReader {
         fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
     }
 
-    /**
-     * Return the column names of the csv file.
-     *
-     * @return a set of column names
-     */
-    fun columns(): Set<String>
+    /** The column names of the csv file. */
+    val columns: Set<String>
+    /** The number of rows in the csv file. */
+    val rowCount: Int
+    /** The source (file path) of the csv file. */
+    val source: String
 
     /**
      * Returns a sequence of rows of the csv file.
@@ -121,7 +117,6 @@ interface CsvReader {
      */
     fun rows(): Sequence<Row>
 
-    fun rowCount(): Int
 }
 
 /**
@@ -138,27 +133,29 @@ open class DefaultCsvReader(
     protected val separator: String = ";",
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
 ) : CsvReader {
-    protected val columns: Map<String, Int>
-    protected val rowCount: Int
+
+
+    private val columnsIndex: Map<String, Int>
+    private val numberOfRows: Int
     protected val name: String = file.name //TODO maybe use path instead?
+
+    override val source: String = file.path
+    override val rowCount: Int
+        get() = numberOfRows
+    override val columns: Set<String>
+        get() = columnsIndex.keys
 
     init {
         val reader = BufferedReader(FileReader(file))
         val header = reader.readLine()
-        rowCount = 0 //reader.lineSequence().count() //TODO profile performance cost of counting
+        numberOfRows = reader.lineSequence().count() //TODO profile performance cost of counting
         reader.close()
 
-        columns = parseHeader(header)
+        columnsIndex = parseHeader(header)
     }
 
     private fun parseHeader(header: String): Map<String, Int> {
         return lineValues(header).mapIndexed { index, s -> s to index }.toMap()
-    }
-
-    override fun rowCount() = rowCount
-
-    override fun columns(): Set<String> {
-        return columns.keys
     }
 
     override fun rows(): Sequence<Row> {
@@ -178,7 +175,7 @@ open class DefaultCsvReader(
         errorHandling.handleReadRow(line) { l -> parseRow(index, l) }
 
     private fun parseRow(index: Int, line: String) =
-        DefaultRow(name, index, columns, lineValues(line).toLazyList(columns.size))
+        DefaultRow(name, index, columnsIndex, lineValues(line).toLazyList(columnsIndex.size))
 
     private fun lineValues(line: String): Sequence<String> =
         when {
@@ -236,7 +233,7 @@ fun <E> ErrorHandling.handleParseRow(
     row: Row,
     runnable: () -> E?,
 ): E? = this.handle(runnable) {
-    "Could not parse row ${row.index()} in ${row.source()}: $row"
+    "Could not parse row ${row.index} in '${row.source}': $row"
 }
 
 /**
@@ -256,16 +253,12 @@ fun <E> ErrorHandling.handleParseValue(
     parser: (String) -> E?,
 ): E? = this.handle(runnable = {
 
-    val cell = this.handle(runnable = {
-        row[column]
-    }) { //Error message if column does not exist
-        "Could not find column $column in row $row."
+    require(row.hasColumn(column)) { //Error message if column does not exist
+        "Could not find column '$column' in row: $row."
     }
 
-    cell?.let {
-        parser(cell)
-    }
+    row(column, parser)
 
 }) { //Error message for parsing errors
-    "Could not parse column $column of row ${row.index()} in ${row.source()}: $row"
+    "Could not parse column '$column' of row ${row.index} in '${row.source}': $row"
 }

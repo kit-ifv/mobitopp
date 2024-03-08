@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import utils.csv.TestBuilder
 import utils.csv.TestEntity
+import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 
 open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
@@ -40,22 +40,22 @@ open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
     )
 
     @Test
-    override fun name() = assertStateException { repository.name }
+    override fun name() = assertStateException("finished/prepared") { repository.name }
 
     @Test
-    override fun source() = assertStateException { repository.source }
+    override fun source() = assertStateException("finished/prepared") { repository.source }
 
     @Test
     open fun state() = assertEquals(RepositoryState.UNINITIALIZED, lazyRepo.state)
 
     @Test
-    override fun elements() = assertStateException { repository.elements }
+    override fun elements() = assertStateException("finished") { repository.elements }
 
     @Test
-    override fun size() = assertStateException { repository.size }
+    override fun size() = assertStateException("finished") { repository.size }
 
     @Test
-    override fun getById() = assertStateException { repository.getById(queryId()) }
+    override fun getById() = assertStateException("finished") { repository.getById(queryId()) }
 
     @Test
     open fun initialize() {
@@ -66,19 +66,20 @@ open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
     @Test
     override fun testToString() = assertEquals("Uninitialized LateInitRepository", lazyRepo.toString())
 
-    protected fun assertStateException(expectFinished:Boolean = false, already: Boolean = false, runnable: () -> Unit) {
+    protected fun assertStateException(
+        expectedState: String = "finished",
+        already: Boolean = false,
+        runnable: () -> Unit)
+    {
         val e = assertThrows<IllegalStateException> {
             runnable()
         }
 
-        val expectedState = if (expectFinished) "finished" else "initialized"
-
         if (already) {
-            assertTrue(e.message!!.contains("already been $expectedState!"))
+            assertContains(e.message!!, "already been $expectedState!")
         } else {
-            assertTrue(e.message!!.contains("has not been $expectedState yet!"))
+            assertContains(e.message!!, "has not been $expectedState yet!")
         }
-
     }
 
     //TODO map and filter?
@@ -121,7 +122,7 @@ class FinishedLateInitRepositoryTest: LateInitRepositoryTest() {
             lazyRepo.initialize(elementResource)
         }
 
-        assertTrue(e.message!!.contains("has already been finished!"))
+        assertContains(e.message!!, "has already been finished!")
     }
 
 }
@@ -148,14 +149,14 @@ open class BuilderRepositoryTest: LateInitRepositoryTest() {
     override fun testToString() = assertEquals("Uninitialized BuilderRepository", builderRepo.toString())
 
     @Test
-    open fun build() = assertStateException { builderRepo.build() }
+    open fun build() = assertStateException("prepared") { builderRepo.build() }
 
     @Test
-    open fun reduce() = assertStateException { builderRepo.reduce("reduce1"){ e -> e.rowIndex%2==0 } }
+    open fun reduce() = assertStateException("prepared") { builderRepo.reduce("reduce1"){ e -> e.rowIndex%2==0 } }
 
     @Test
     open fun update() =
-        assertStateException { builderRepo.update("update1"){ e -> e.also { e.int = e.string.length }} }
+        assertStateException("prepared") { builderRepo.update("update1"){ e -> e.also { e.int = e.string.length }} }
 
     @Test
     fun map() {
@@ -174,20 +175,20 @@ open class BuilderRepositoryTest: LateInitRepositoryTest() {
     }
 
     @Test
-    open fun initializeBuilders() {
-        builderRepo.initializeBuilders(builderResource())
-        assertEquals(RepositoryState.INITIALIZED, builderRepo.state)
+    open fun prepare() {
+        builderRepo.prepare(builderResource())
+        assertEquals(RepositoryState.PREPARING, builderRepo.state)
     }
 
 }
 
-open class InitializedBuilderRepositoryTest: BuilderRepositoryTest() {
+open class PreparedRepositoryTest: BuilderRepositoryTest() {
     private val name = "TestBuilderList"
-    private val source = "InitializedBuilderRepositoryTest#createRepo"
+    private val source = "PreparedRepositoryTest#createRepo"
 
 
     override fun createRepo(): BuilderRepository<TestBuilder, TestEntity> {
-        return super.createRepo().also { builderRepo.initializeBuilders(builderResource()) }
+        return super.createRepo().also { builderRepo.prepare(builderResource()) }
     }
     override fun expectedName() = name
     override fun expectedBaseSource() = source
@@ -200,16 +201,16 @@ open class InitializedBuilderRepositoryTest: BuilderRepositoryTest() {
     //TODO check STATE after every test?
 
     @Test
-    override fun state() = assertEquals(RepositoryState.INITIALIZED, builderRepo.state)
+    override fun state() = assertEquals(RepositoryState.PREPARING, builderRepo.state)
 
     @Test
-    override fun elements() = assertStateException(true) { builderRepo.elements }
+    override fun elements() = assertStateException("built") { builderRepo.elements }
 
     @Test
-    override fun getById() = assertStateException(true) { builderRepo.getById(queryId()) }
+    override fun getById() = assertStateException("built") { builderRepo.getById(queryId()) }
 
     @Test
-    override fun size() = assertStateException(true) { builderRepo.size }
+    override fun size() = assertStateException("built") { builderRepo.size }
 
     @Test
     override fun build() {
@@ -229,7 +230,7 @@ open class InitializedBuilderRepositoryTest: BuilderRepositoryTest() {
     @Test
     override fun reduce() {
         builderRepo.reduce("reduce1") { e -> e.rowIndex%2 == 0 }
-        assertEquals(RepositoryState.INITIALIZED, builderRepo.state)
+        assertEquals(RepositoryState.PREPARING, builderRepo.state)
 
         builderRepo.build()
         assertEquals(RepositoryState.FINISHED, builderRepo.state)
@@ -248,7 +249,7 @@ open class InitializedBuilderRepositoryTest: BuilderRepositoryTest() {
     @Test
     override fun update() {
         builderRepo.update("update1") { e -> e.also { e.int=e.string.length } }
-        assertEquals(RepositoryState.INITIALIZED, builderRepo.state)
+        assertEquals(RepositoryState.PREPARING, builderRepo.state)
 
         builderRepo.build()
         assertEquals(RepositoryState.FINISHED, builderRepo.state)
@@ -261,15 +262,16 @@ open class InitializedBuilderRepositoryTest: BuilderRepositoryTest() {
         assertEquals("Initialized BuilderRepository[$name] ($source)", builderRepo.toString())
 
     @Test
-    override fun initialize() = assertStateException(already=true) { builderRepo.initialize(elementResource) }
+    override fun initialize() =
+        assertStateException("started", already=true) { builderRepo.initialize(elementResource) }
 
     @Test
-    override fun initializeBuilders() =
-        assertStateException(already=true) { builderRepo.initializeBuilders(builderResource()) }
+    override fun prepare() =
+        assertStateException("started", already=true) { builderRepo.prepare(builderResource()) }
 
 }
 
-class ConstructorInitializedBuilderRepositoryTest: InitializedBuilderRepositoryTest() {
+class ConstructorPreparedRepositoryTest: PreparedRepositoryTest() {
     override fun createRepo(): BuilderRepository<TestBuilder, TestEntity> {
         return BuilderRepository(builderResource()).also { builderRepo=it }
     }
@@ -279,7 +281,7 @@ open class FinishedBuilderRepositoryTest: BuilderRepositoryTest() {
 
     override fun createRepo(): BuilderRepository<TestBuilder, TestEntity> {
         return super.createRepo().also {
-            it.initializeBuilders(builderResource())
+            it.prepare(builderResource())
             it.build()
         }
     }
@@ -303,28 +305,28 @@ open class FinishedBuilderRepositoryTest: BuilderRepositoryTest() {
     override fun size() = assertEquals(expectedSize(), builderRepo.size)
 
     @Test
-    override fun update() = assertStateException(expectFinished = true, already = true) {
+    override fun update() = assertStateException(already = true) {
         builderRepo.update("invalidUpdate") { e -> e }
     }
 
     @Test
-    override fun reduce() = assertStateException(expectFinished = true, already = true) {
+    override fun reduce() = assertStateException(already = true) {
         builderRepo.reduce("invalidUpdate") { _ -> true }
     }
 
     @Test
-    override fun build() = assertStateException(expectFinished = true, already = true) {
+    override fun build() = assertStateException(already = true) {
         builderRepo.build()
     }
 
     @Test
-    override fun initialize() = assertStateException(expectFinished = true, already = true) {
+    override fun initialize() = assertStateException(already = true) {
         builderRepo.initialize(elementResource)
     }
 
     @Test
-    override fun initializeBuilders() = assertStateException(expectFinished = true, already = true) {
-        builderRepo.initializeBuilders(builderResource())
+    override fun prepare() = assertStateException(already = true) {
+        builderRepo.prepare(builderResource())
     }
 
     @Test

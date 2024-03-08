@@ -1,16 +1,6 @@
 package utils.csv
 
-import CodePlan
-import Encodable
-import ID
 import utils.ErrorHandling
-import utils.units.CurrencyUnits
-import utils.units.DistanceUnit
-import utils.units.euros
-import utils.units.kilometers
-import utils.units.meters
-import utils.units.toCurrency
-import utils.units.toDistance
 import java.io.File
 
 /**
@@ -53,6 +43,12 @@ interface CsvParser<E> {
      */
     fun parse(csv: CsvReader): Sequence<E>
 
+    companion object {
+        operator fun <E> invoke(
+            errorHandling: ErrorHandling,
+            mapping: (Row) -> E
+        ) = DefaultRowCsvParser(mapping=mapping)
+    }
 }
 
 /**
@@ -64,7 +60,8 @@ abstract class RowCsvParser<E> : CsvParser<E> {
     //TODO add validation: check if all required columns are available
 
     override fun parse(csv: CsvReader): Sequence<E> {
-        return csv.rows().map { parse(it) }.filterNotNull()
+        val rows = csv.rows()
+        return rows.map { parse(it) }.filterNotNull()
     }
 
     /**
@@ -135,10 +132,6 @@ class ErrorHandlingRow(
     private val errorHandling: ErrorHandling
 ) : Row by row {
 
-    override fun get(column: String): String {
-        return errorHandling.handleParseValue(row, column) { s -> s }!!
-    }
-
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
         return errorHandling.handleParseValue(row, column, converter)!!
     }
@@ -164,60 +157,8 @@ class TypedRow<T>(
         }
     }
 
-    operator fun get(column: String): T {
+    operator fun invoke(column: String): T {
         return row(column, parser)
     }
-
-}
-
-fun Row.byte() = TypedRow(this, String::toByte)
-fun Row.short() = TypedRow(this, String::toShort)
-fun Row.int() = TypedRow(this, String::toInt)
-fun Row.long() = TypedRow(this, String::toLong)
-fun Row.float() = TypedRow(this, String::toFloat)
-fun Row.double() = TypedRow(this, String::toDouble)
-fun Row.boolean() = TypedRow(this, String::toBoolean)
-fun <E> Row.id() = TypedRow(this) { s -> ID<E>(s.toULong()) }
-
-fun <T: Encodable> Row.decode(codePLan: CodePlan<T>) = TypedRow(this) { s ->  codePLan.decode(s.toInt()) }
-
-
-fun <I> I.distance(unit: DistanceUnit) where I: TypedRow<Int> = this.wrap { it.toDistance(unit) }
-//fun <L> L.distance(unit: DistanceUnit) where L: TypedRow<Long> = this.wrap { it.toDistance(unit) }
-//fun <D> D.distance(unit: DistanceUnit) where D: TypedRow<Double> = this.wrap { it.toDistance(unit) }
-
-fun <I> I.meters() where I: TypedRow<Int> = this.wrap { it.meters }
-//fun <L> L.meters() where L: TypedRow<Long> = this.wrap { it.meters }
-//fun <D> D.meters() where D: TypedRow<Double> = this.wrap { it.meters }
-
-fun <I> I.kilometers() where I: TypedRow<Int> = this.wrap { it.kilometers }
-//fun <L> L.kilometers() where L: TypedRow<Long> = this.wrap { it.kilometers }
-//fun <D> D.kilometers() where D: TypedRow<Double> = this.wrap { it.kilometers }
-
-fun <I> I.currency(unit: CurrencyUnits) where I: TypedRow<Int> = this.wrap { it.toCurrency(unit) }
-//fun <L> L.currency(unit: CurrencyUnits) where L: TypedRow<Long> = this.wrap { it.toCurrency(unit) }
-//fun <D> D.currency(unit: CurrencyUnits) where D: TypedRow<Double> = this.wrap { it.toCurrency(unit) }
-
-fun <I> I.euros() where I: TypedRow<Int> = this.wrap { it.euros }
-class Target(val id: Int)
-fun main() {
-
-
-   val file =
-        "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input\\transmove\\mobitopp-population\\data\\population\\hamburg_base"
-
-        val parser = DefaultRowCsvParser{ row ->
-            Target(
-                id = row.int()["personId"]
-            )
-        }
-
-        val targets = parser.parse(File("$file/person.csv"))
-
-        println("Start")
-        val res = targets.toList()
-        println("Stop")
-        println(res.size)
-
 
 }

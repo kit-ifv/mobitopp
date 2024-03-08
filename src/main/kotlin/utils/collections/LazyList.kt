@@ -38,42 +38,42 @@ class LazyList<E>(
     }
 
     override val size: Int
-        get() = TODO("Not yet implemented")
+        get() = throw UnsupportedOperationException()
 
     override fun containsAll(elements: Collection<E>): Boolean {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun contains(element: E): Boolean {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun isEmpty(): Boolean {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun iterator(): Iterator<E> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun listIterator(): ListIterator<E> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun listIterator(index: Int): ListIterator<E> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): List<E> {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun lastIndexOf(element: E): Int {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 
     override fun indexOf(element: E): Int {
-        TODO("Not yet implemented")
+        throw UnsupportedOperationException()
     }
 }
 

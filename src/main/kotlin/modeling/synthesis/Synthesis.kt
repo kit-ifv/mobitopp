@@ -1,71 +1,89 @@
 package modeling.synthesis
 
 import Builder
+import CodePlan
 import Identifiable
+import domain.data.EconomicStatus
+import domain.enums.AreaType
+import java.io.File
 
 interface SynthesisStep {
     val name: String
     fun execute()
-
     fun validate(): ValidateStep
-
 }
 
 
-open class NewResource<B, E>(
+open class PrepareResourceStep<B, E>(
     override val name: String,
-    val resource: Resource<B>,
-    val repository: BuilderRepository<B, E>,
+    protected val resource: Resource<B>,
+    protected val repository: BuilderRepository<B, E>,
 ) : SynthesisStep where E:Identifiable<E>, B: Builder<E> {
 
     override fun execute() {
-        repository.initializeBuilders(resource)
+        repository.prepare(resource)
     }
 
-    override fun validate() = ValidateNewResource(this)
+    override fun validate() = ValidateRepositoryPreparation(this, repository, resource)
 
 }
 
-class FinalResource<E>(
+open class PrepareCsvStep<B, E>(
+    name: String,
+    protected val csv: CsvResource<B>,
+    repository: BuilderRepository<B, E>,
+): PrepareResourceStep<B, E>(name, csv, repository) where E:Identifiable<E>, B: Builder<E>{
+    override fun validate() = ValidateCsvPrepare(this, repository, csv)
+}
+
+open class InitializeResourceStep<E>(
     override val name: String,
-    val resource: Resource<E>,
-    val repository: LateInitRepository<E>
+    protected val resource: Resource<E>,
+    protected val repository: LateInitRepository<E>
 ) : SynthesisStep where E: Identifiable<E> {
 
     override fun execute() {
         repository.initialize(resource)
     }
 
-    override fun validate() = ValidateFinalResource(this)
+    override fun validate() = ValidateRepositoryInitialization(this, repository, resource)
 }
 
-class UpdateStep<B, E>(
+class InitializeCsvStep<E>(
+    name: String,
+    protected val csv: CsvResource<E>,
+    repository: LateInitRepository<E>
+): InitializeResourceStep<E>(name, csv, repository) where E: Identifiable<E> {
+    override fun validate() = ValidateCsvInitialize(this, repository, csv)
+}
+
+class FilterStep<B, E>(
     override val name: String,
-    val predicate: (B) -> Boolean,
     val repository: BuilderRepository<B, E>,
+    val predicate: (B) -> Boolean,
 ) : SynthesisStep where B: Builder<E>, E: Identifiable<E> {
 
     override fun execute() {
         repository.reduce(name, predicate)
     }
 
-    override fun validate() = SimpleValidate(this)
+    override fun validate() = ValidateRepositoryPreparation(this, repository)
 }
 
-class FilterStep<B, E>(
+class UpdateStep<B, E>(
     override val name: String,
-    protected val transformation: (B) -> B?,
     protected val repository: BuilderRepository<B, E>,
+    protected val transformation: (B) -> B?,
 ) : SynthesisStep where B: Builder<E>, E: Identifiable<E> {
 
     override fun execute() {
         repository.update(name, transformation)
     }
 
-    override fun validate() = SimpleValidate(this)
+    override fun validate() = ValidateRepositoryPreparation(this, repository)
 }
 
-class BuildRepository<B, E> (
+class BuildStep<B, E> (
     override val name: String,
     val repository: BuilderRepository<B, E>,
 ) : SynthesisStep where B: Builder<E>, E: Identifiable<E>{
@@ -74,9 +92,20 @@ class BuildRepository<B, E> (
         repository.build()
     }
 
-    override fun validate() = ValidateBuild(this)
+    override fun validate() = ValidateRepositoryInitialization(this, repository, repository)
 }
 
+
+interface Synthesis<C> {
+    val context: C
+}
+
+interface Context {
+    val demandFolder: File
+    val areaTypeCodes: CodePlan<AreaType>
+    val economicalStatusCodes: CodePlan<EconomicStatus>
+
+}
 
 //class Synthesis<C>(
 //    val context: C
@@ -109,7 +138,7 @@ class BuildRepository<B, E> (
 ////        resource: Resource<E>,
 ////        setter: (C, Repository<E>) -> Unit
 ////    ): Synthesis<C> {
-////        steps.add(FinalResource(name, resource, setter))
+////        steps.add(InitializeResourceStep(name, resource, setter))
 ////        return this
 ////    }
 ////
@@ -145,7 +174,7 @@ class BuildRepository<B, E> (
 ////        getter: (C) -> MutableRepository<B>?,
 ////        setter: (C, Repository<E>) -> Unit
 ////    ): Synthesis<C> where B: Builder<E> {
-////        steps.add(BuildRepository(name, wrapGetter(name, getter), setter))
+////        steps.add(BuildStep(name, wrapGetter(name, getter), setter))
 ////        return this
 ////    }
 ////
@@ -200,7 +229,7 @@ class BuildRepository<B, E> (
 //) : BaseContext {
 //    override val zones: IdRepository<ZoneData>
 //        get() = finishedZones ?: (
-//                checkNotNull(zoneBuilders) {"Zone data builders has not yet been initialized or was already finished!"}
+//               checkNotNull(zoneBuilders) {"Zone data builders has not yet been initialized or was already finished!"}
 //                    .build()
 //                    .also {
 //                        finishedZones = it
