@@ -7,7 +7,7 @@ import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.ZoneClassification
 import domain.location.Location
-import newId
+import utils.registerId
 import utils.units.Distance
 
 typealias Attractivity = Map<LegacyActivityType, Double> //TODO
@@ -28,6 +28,7 @@ typealias Attractivity = Map<LegacyActivityType, Double> //TODO
  */
 interface ZoneData: Identifiable<ZoneData> {
     val visumId: Long
+    val matrixColumn: Int //TODO: legacy property -> extract to sub interface
     val name: String
     val areaType: AreaType
     val regionType: Int
@@ -38,12 +39,12 @@ interface ZoneData: Identifiable<ZoneData> {
     val relief: Distance
 
     //val attractivity: Attractivity
-
 }
 
 @SuppressWarnings("LongParameterList")
 class ZoneDataBuilder(
     var visumId: Long? = null,
+    var matrixColumn: Int? = null,
     var name: String? = null,
     var areaType: AreaType? = null,
     var regionType: Int? = null,
@@ -52,14 +53,14 @@ class ZoneDataBuilder(
     var centroid: Location? = null,
     var isDestination: Boolean? = null,
     var relief: Distance? = null
-) : Builder<ZoneData>, Identifiable<ZoneDataBuilder> {
-    override val id: ID<ZoneDataBuilder>
-        get() = ID(visumId!!.toULong())
-
+) : Builder<ZoneData> { // , Identifiable<ZoneDataBuilder>
+//
+//    override val id: ID<ZoneDataBuilder> = ID(visumId!!.toULong())
 
 
     override fun build() = object:ZoneData{
         override val visumId: Long = this@ZoneDataBuilder.visumId!!
+        override val matrixColumn: Int = this@ZoneDataBuilder.matrixColumn!!
         override val name: String = this@ZoneDataBuilder.name!!
         override val areaType: AreaType = this@ZoneDataBuilder.areaType!!
         override val regionType: Int = this@ZoneDataBuilder.regionType!!
@@ -68,12 +69,21 @@ class ZoneDataBuilder(
         override val centroid: Location = this@ZoneDataBuilder.centroid!!
         override val isDestination: Boolean = this@ZoneDataBuilder.isDestination!!
         override val relief: Distance = this@ZoneDataBuilder.relief!!
-        override val id: ID<ZoneData> = this.newId()
+        override val id: ID<ZoneData> = registerId(visumId)
     }
 
-}
+    override fun toString(): String {
+        return "ZoneDataBuilder(" +
+                "visumId=$visumId, " +
+                "matrixColumn=$matrixColumn, " +
+                "name=$name, " +
+                "areaType=$areaType, " +
+                "regionType=$regionType, " +
+                "classification=$classification, " +
+                "parkingPlaces=$parkingPlaces, " +
+                "centroid=$centroid, " +
+                "isDestination=$isDestination, " +
+                "relief=$relief)"
+    }
 
-fun main() {
-
-    print("HELLO")
 }

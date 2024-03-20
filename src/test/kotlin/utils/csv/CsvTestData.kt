@@ -27,7 +27,7 @@ data class TestEntity(
     var duration: Duration? = null,
 ): Identifiable<TestEntity> {
     override val id: ID<TestEntity>
-        get() = ID(rowIndex.toULong())
+        get() = ID(rowIndex.toLong())
 }
 
 data class TestBuilder(

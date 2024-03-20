@@ -21,6 +21,7 @@ enum class ZoneAreaType(private val code: Int): AreaType {
 
     companion object: CodePlan<AreaType> {
         override fun decode(i: Int) = ZoneAreaType.entries.first { it.code == i }
+        override fun decode(s: String) = ZoneAreaType.valueOf(s)
     }
 }
 
@@ -70,5 +71,6 @@ enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
 
     companion object: CodePlan<AreaType> {
         override fun decode(i: Int) = Bbsr17.entries.first { it.code == i }
+        override fun decode(s: String) = Bbsr17.valueOf(s)
     }
 }

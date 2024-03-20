@@ -78,12 +78,12 @@ class SynthesisValidationTest {
     }
 
     private fun initPreparing() {
-        assertTrue(prepareStep.validate().validate())
+        assertTrue(prepareStep.validate())
         assertEquals(RepositoryState.PREPARING, repository.state)
     }
 
     private fun initFinished() {
-        assertTrue(initStep.validate().validate())
+        assertTrue(initStep.validate())
         assertEquals(RepositoryState.FINISHED, repository.state)
     }
 
@@ -180,8 +180,7 @@ class SynthesisValidationTest {
     @Test
     fun `invalid PrepareResourceStep in FINISHED state`(){
         initFinished()
-        val text = testStep(prepareStep, expectValid = false, RepositoryState.FINISHED)
-        checkFailedRepairMessage(text)
+        testStep(prepareStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
@@ -193,22 +192,19 @@ class SynthesisValidationTest {
     @Test
     fun `invalid PrepareCsvStep in FINISHED state`(){
         initFinished()
-        val text = testStep(prepareCsvStep, expectValid = false, expectedState = RepositoryState.FINISHED)
-        checkFailedRepairMessage(text)
+        testStep(prepareCsvStep, expectValid = false, expectedState = RepositoryState.PREPARING)
     }
 
     @Test
     fun `invalid UpdateStep in FINISHED state`(){
         initFinished()
-        val text = testStep(updateStep, expectValid = false, RepositoryState.FINISHED)
-        checkFailedRepairMessage(text)
+        testStep(updateStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
     fun `invalid FilterStep in FINISHED state`(){
         initFinished()
-        val text = testStep(filterStep, expectValid = false, RepositoryState.FINISHED)
-        checkFailedRepairMessage(text)
+        testStep(filterStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
@@ -231,13 +227,13 @@ class SynthesisValidationTest {
 
         assertEquals(
             expectValid,
-            step.validate().validate(),
+            step.validate(),
             errorMessage.also { text=console.getText() }.let { "$it:\n<$text>\n" }
         )
         assertEquals(expectedState, repository.state)
 
 
-        val message = "WARNING: ${step.javaClass.simpleName} '${step.name}' is invalid!"
+        val message = "WARNING: ${step::class.simpleName} '${step.name}' is invalid!"
         if (expectValid) {
             assertEmpty(text)
         } else {

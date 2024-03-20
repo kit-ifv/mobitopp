@@ -26,7 +26,7 @@ open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
 
     override fun createRepo() = LateInitRepository<TestEntity>().also { lazyRepo = it }
     override fun expectedSize() = 5
-    override fun queryId(): ID<TestEntity> = ID(3uL)
+    override fun queryId(): ID<TestEntity> = ID(3L)
     override fun expectedQueryResult() = TestEntity(rowIndex = 3, string = "exitProcess(1)")
     override fun expectedName() = "LateInitTestEntityList"
     override fun expectedBaseSource() = "LateInitRepositoryTest#finalized()"
@@ -57,6 +57,17 @@ open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
     @Test
     override fun getById() = assertStateException("finished") { repository.getById(queryId()) }
 
+
+    override fun mapping1() = { te: TestEntity -> te }
+
+    override fun expectedMapping1Results() = listOf<TestEntity>()
+
+    override fun filter1() = { _:TestEntity -> true }
+
+    override fun expectedFilter1Results() = listOf<TestEntity>()
+
+    override fun expectedFilter1Map1Results() = listOf<TestEntity>()
+
     @Test
     open fun initialize() {
         lazyRepo.initialize(elementResource)
@@ -82,7 +93,40 @@ open class LateInitRepositoryTest : RepositoryTest<TestEntity>() {
         }
     }
 
-    //TODO map and filter?
+    @Test
+    override fun map() {
+        assertThrows<UnsupportedOperationException> { lazyRepo.map("mapping") { e -> e } }
+    }
+
+    @Test
+    override fun filter() {
+        assertThrows<UnsupportedOperationException> { lazyRepo.filter("filter") { _ -> true } }
+    }
+
+    @Test
+    override fun filterThenMap() {
+        assertThrows<UnsupportedOperationException> {
+            lazyRepo.filter("f1") { _ ->true }
+                    .map("m2") { e -> e }
+        }
+    }
+
+    override fun expectedMergeResults() = mergeResource().elements.toList()
+    override fun isMergeWithEmpty() = true
+
+    @Test
+    override fun merge() {
+        super.merge()
+        assertEquals(RepositoryState.FINISHED, lazyRepo.state)
+    }
+
+    override fun mergeResource() = SequenceResource(
+        resourceName="csv merge resource",
+        description="description",
+        sequence = expectedElements().mapIndexed{ index, te ->
+            te.copy(rowIndex = index+expectedElements().size )
+        }.asSequence()
+    )
 
 }
 
@@ -125,6 +169,12 @@ class FinishedLateInitRepositoryTest: LateInitRepositoryTest() {
         assertContains(e.message!!, "has already been finished!")
     }
 
+    override fun expectedMergeResults(): List<TestEntity> = listOf(
+        expectedElements(),
+        mergeResource().elements.toList()
+    ).flatten()
+    override fun isMergeWithEmpty() = false
+
 }
 
 open class BuilderRepositoryTest: LateInitRepositoryTest() {
@@ -158,15 +208,7 @@ open class BuilderRepositoryTest: LateInitRepositoryTest() {
     open fun update() =
         assertStateException("prepared") { builderRepo.update("update1"){ e -> e.also { e.int = e.string.length }} }
 
-    @Test
-    fun map() {
-        assertThrows<UnsupportedOperationException> { builderRepo.map("mapping") { e -> e } }
-    }
 
-    @Test
-    fun filter() {
-        assertThrows<UnsupportedOperationException> { builderRepo.filter("mapping") { e -> true } }
-    }
 
     @Test
     override fun initialize() {
@@ -178,6 +220,18 @@ open class BuilderRepositoryTest: LateInitRepositoryTest() {
     open fun prepare() {
         builderRepo.prepare(builderResource())
         assertEquals(RepositoryState.PREPARING, builderRepo.state)
+    }
+
+    override fun expectedMergeResults() = mergeResource().elements.toList()
+    override fun isMergeWithEmpty() = true
+
+
+    @Test
+    open fun mergeBuilders() {
+        builderRepo.mergeBuilders(builderResource())
+        assertEquals(RepositoryState.PREPARING, builderRepo.state)
+        builderRepo.build()
+        assertContentEquals(expectedElements(), builderRepo.elements.toList())
     }
 
 }
@@ -269,11 +323,33 @@ open class PreparedRepositoryTest: BuilderRepositoryTest() {
     override fun prepare() =
         assertStateException("started", already=true) { builderRepo.prepare(builderResource()) }
 
+    @Test
+    override fun merge() =
+        assertStateException("built") { builderRepo.merge(elementResource) }
+
+    @Test
+    override fun mergeBuilders() {
+        builderRepo.mergeBuilders(builderResource().map("reindex"){
+            it.rowIndex += expectedSize()
+            it
+        })
+        assertEquals(RepositoryState.PREPARING, builderRepo.state)
+        builderRepo.build()
+        val expected = listOf(
+            expectedElements(),
+            expectedElements().map { it.copy(rowIndex=it.rowIndex+expectedSize()) }
+        ).flatten()
+        assertContentEquals(expected, builderRepo.elements.toList())
+    }
+
 }
 
 class ConstructorPreparedRepositoryTest: PreparedRepositoryTest() {
     override fun createRepo(): BuilderRepository<TestBuilder, TestEntity> {
-        return BuilderRepository(builderResource()).also { builderRepo=it }
+        return BuilderRepository(builderResource()).also {
+            builderRepo = it
+            lazyRepo = it
+        }
     }
 }
 
@@ -336,12 +412,26 @@ open class FinishedBuilderRepositoryTest: BuilderRepositoryTest() {
             builderRepo.toString()
         )
 
+    override fun expectedMergeResults() = listOf(
+        expectedElements(),
+        mergeResource().elements.toList()
+    ).flatten()
+    override fun isMergeWithEmpty() = false
+
+    override fun intermediateOperationsBeforeMerge() = arrayOf("build")
+
+    @Test
+    override fun mergeBuilders() = assertStateException(already = true) {
+        builderRepo.mergeBuilders(builderResource())
+    }
+
 }
 
 class FinalizedBuilderRepositoryTest: FinishedBuilderRepositoryTest() {
 
     override fun createRepo(): BuilderRepository<TestBuilder, TestEntity> {
         return BuilderRepository<TestBuilder, TestEntity>().also {
+            lazyRepo=it
             builderRepo=it
             builderRepo.initialize(elementResource)
         }
@@ -355,6 +445,8 @@ class FinalizedBuilderRepositoryTest: FinishedBuilderRepositoryTest() {
         "Finished BuilderRepository[${expectedName()}] (${expectedBaseSource()})",
         builderRepo.toString()
     )
+
+    override fun intermediateOperationsBeforeMerge() = emptyArray<String>()
 
 }
 

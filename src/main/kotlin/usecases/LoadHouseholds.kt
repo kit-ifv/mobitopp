@@ -1,68 +1,88 @@
-//package usecases
-//
-//import CodePlan
-//import domain.data.EconomicStatus
-//import domain.data.HouseholdDataBuilder
-//import domain.data.ZoneData
-//import domain.location.RoadPosition
-//import domain.location.parseRoadPosition
-//import modeling.synthesis.BaseContext
-//import modeling.synthesis.CsvResource
-//import modeling.synthesis.Synthesis
-//import utils.csv.CsvParser
-//import utils.csv.DefaultRowCsvParser
-//import utils.csv.SEMICOLON
-//import utils.csv.currency
-//import utils.csv.decode
-//import utils.csv.id
-//import utils.csv.int
-//import utils.csv.long
-//import utils.units.CurrencyUnits
-//import java.io.File
-//
-//
-//fun <S, C> S.loadHouseholdCsv(
-//    parser: (Synthesis<C>) -> CsvParser<HouseholdDataBuilder>,
-//    file: File? = null,
-//    delimiter: String = SEMICOLON
-//) where S: Synthesis<C>, C: BaseContext {
-//
-//    val householdFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
-//
-//    this.addIdResource(householdFile.name, CsvResource(householdFile, parser(this), delimiter)) {
-//            c, r -> c.householdBuilders = r
-//    }
-//}
-//
-//@Suppress("LongParameterList")
-//fun <C: BaseContext> householdParser(
-//    hhNumberColumn: String = "householdNumber",
-//    yearColumn: String = "year",
-//    zoneColumn: String = "homeZone",
-//    locationColumn: String = "homeLocation",
-//    roadPositionParser: (String) -> RoadPosition = String::parseRoadPosition,
-//    domCodeColumn: String = "domCode",
-//    typeColumn: String = "type",
-//    incomeColumn: String = "income", //TODO unit: currency over time
-//    incomeUnit: CurrencyUnits = CurrencyUnits.EUROS,
-//    economicalStatusColumn: String = "economicalStatus",
-//    economicalStatusCodes: CodePlan<EconomicStatus>? = null
-//) : (Synthesis<C>) -> CsvParser<HouseholdDataBuilder> = { synthesis ->
-//
-//    val zoneRepo = { synthesis.context.zones } //TODO access to zones must be lazy
-//    val economicalStatusCodePlan = economicalStatusCodes ?: synthesis.context.economicalStatusCodes
-//
-//    DefaultRowCsvParser { row ->
-//        HouseholdDataBuilder(
-//            householdNumber = row.long()[hhNumberColumn],
-//            surveyYear = row.int()[yearColumn],
-//            homeZone = zoneRepo().getById(row.id<ZoneData>()[zoneColumn]),
-//            roadPosition = row(locationColumn, roadPositionParser),
-//            domCode = row.int()[domCodeColumn],
-//            type = row.int()[typeColumn],
-//            incomePerMonth = row.int().currency(incomeUnit)[incomeColumn],
-//            economicStatus = row.decode(economicalStatusCodePlan)[economicalStatusColumn]
-//        )
-//    }
-//
-//}
+package usecases
+
+import CodePlan
+import domain.data.EconomicStatus
+import domain.data.HouseholdDataBuilder
+import domain.location.RoadPosition
+import domain.location.parseRoadPosition
+import modeling.synthesis.BuildStep
+import modeling.synthesis.Context
+import modeling.synthesis.CsvResource
+import modeling.synthesis.PrepareCsvStep
+import modeling.synthesis.Synthesis
+import utils.ErrorHandling
+import utils.csv.CsvParser
+import utils.csv.SEMICOLON
+import utils.csv.currency
+import utils.csv.decode
+import utils.csv.int
+import utils.csv.long
+import utils.units.CurrencyUnits
+import java.io.File
+
+@Suppress("LongParameterList")
+fun <S, C> S.prepareHouseholds(
+    file: File? = null,
+    delimiter: String = SEMICOLON,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    hhNumberColumn: String = "householdId",
+    yearColumn: String = "year",
+    zoneColumn: String = "homeZone",
+    locationColumn: String = "homeLocation",
+    roadPositionParser: (String) -> RoadPosition = String::parseRoadPosition,
+    domCodeColumn: String = "domCode",
+    typeColumn: String = "type",
+    incomeColumn: String = "income", //TODO unit: currency over time
+    incomeUnit: CurrencyUnits? = null,
+    economicalStatusColumn: String = "economicalStatus",
+    economicalStatusCodes: CodePlan<EconomicStatus>? = null
+) where S: Synthesis<C>, C: Context {
+
+    val currencyUnit = incomeUnit ?: this.context.currencyUnit
+    val zoneRepo = { context.zoneRepository }
+    val economicalStatusCodePlan = economicalStatusCodes ?: context.economicalStatusCodes
+
+    val parser = CsvParser(errorHandling) { row ->
+        HouseholdDataBuilder(
+            householdNumber = row.long(hhNumberColumn),
+            surveyYear = row.int(yearColumn),
+            homeZone = requireNotNull(
+                zoneRepo().elements.find { it.matrixColumn == row.int(zoneColumn) }
+            ), // legacy household.csv files reference column instead of visum id
+            roadPosition = row(locationColumn, roadPositionParser),
+            domCode = row.int(domCodeColumn),
+            type = row.int(typeColumn),
+            incomePerMonth = row.int().currency(incomeColumn, currencyUnit),
+            economicStatus = row.decode(economicalStatusColumn, economicalStatusCodePlan)
+        )
+    }
+
+    this.prepareHouseholdsFile(parser, file, delimiter)
+}
+
+fun <S, C> S.prepareHouseholdsFile(
+    parser: CsvParser<HouseholdDataBuilder>,
+    file: File? = null,
+    delimiter: String = SEMICOLON,
+) where S: Synthesis<C>, C: Context {
+    val householdFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
+
+    val resource = CsvResource(householdFile, parser, delimiter)
+
+    this.addStep(
+        PrepareCsvStep(
+            name = "load household csv",
+            csv=resource,
+            repository = context.householdRepository
+        )
+    )
+}
+
+fun <S, C> S.finishHouseholds() where S: Synthesis<C>, C: Context {
+    this.addStep(BuildStep("finish households", context.householdRepository))
+}
+
+fun <S, C> S.loadHouseholds() where S: Synthesis<C>, C: Context {
+    this.prepareHouseholds()
+    this.finishHouseholds()
+}

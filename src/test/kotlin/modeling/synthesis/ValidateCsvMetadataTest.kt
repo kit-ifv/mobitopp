@@ -35,14 +35,7 @@ class ValidateCsvMetadataTest {
 
         override fun execute() { /**/ }
 
-        override fun validate(): ValidateStep {
-            val step = this
-            return object:ValidateStep {
-                override val delegate: SynthesisStep
-                    get() = step
-
-            }
-        }
+        override fun validate() = true
 
     }
 

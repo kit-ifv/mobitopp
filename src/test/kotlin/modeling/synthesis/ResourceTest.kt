@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import utils.csv.DefaultRowCsvParser
 import utils.csv.TestBuilder
-import utils.csv.TestEntity
+import utils.csv.expectedBuildersMappedStringLength
 import java.io.File
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -43,10 +43,17 @@ abstract class ResourceMetadataTest<E> {
         assertEquals(expectedToString(), resource.toString())
     }
 
-    protected fun <T> validateMetadata(result: Resource<T>, vararg expectedSources: String) {
-        assertEquals(expectedName(), result.name)
+    protected fun <T> validateMetadata(
+        result: Resource<T>,
+        vararg expectedSources: String,
+        expectedName: String? = null,
+    ) {
+        val compareName = expectedName ?: expectedName()
+        assertEquals(compareName, result.name)
+
         val sourcePath = result.source.split("->")
-        assertEquals(expectedSources.size, sourcePath.size)
+        assertEquals(expectedSources.size, sourcePath.size,
+            "expected sources ${expectedSources.toList()} but got ${sourcePath.toList()}")
 
         expectedSources.zip(sourcePath).forEach { pair ->
             val expected = pair.first
@@ -66,8 +73,15 @@ abstract class ResourceTest<E>: ResourceMetadataTest<E>() {
 
     abstract fun expectedFilter1Map1Results(): List<E>
 
+    open fun expectedMergeResults(): List<E> = listOf(
+        expectedElements(),
+        mergeResource().elements.toList()
+    ).flatten()
+
+    open fun isMergeWithEmpty(): Boolean = false
+
     @Test
-    fun map() {
+    open fun map() {
         val operation = "mapping1"
         val result = resource.map(operation, mapping1())
         assertContentEquals(expectedMapping1Results(), result.elements.toList())
@@ -76,7 +90,7 @@ abstract class ResourceTest<E>: ResourceMetadataTest<E>() {
     }
 
     @Test
-    fun filter() {
+    open fun filter() {
         val operation = "filter1"
         val result = resource.filter(operation, filter1())
         assertContentEquals(expectedFilter1Results(), result.elements.toList())
@@ -85,7 +99,7 @@ abstract class ResourceTest<E>: ResourceMetadataTest<E>() {
     }
 
     @Test
-    fun filterThenMap() {
+    open fun filterThenMap() {
         val op1 = "filter1"
         val op2 = "mapping1"
         val result = resource.filter(op1, filter1())
@@ -93,6 +107,36 @@ abstract class ResourceTest<E>: ResourceMetadataTest<E>() {
 
         assertContentEquals(expectedFilter1Map1Results(), result.elements.toList())
         validateMetadata(result, expectedBaseSource(), "filter $op1", "map $op2")
+    }
+
+    abstract fun mergeResource(): Resource<E>
+
+    open fun intermediateOperationsBeforeMerge(): Array<String> = emptyArray()
+
+    @Test
+    open fun merge() {
+        val otherResource = mergeResource()
+        val description = otherResource.source
+        val otherName = otherResource.name
+        val result = resource.merge(otherResource)
+
+
+
+        val actual = result.elements.toList()
+        assertContentEquals(expectedMergeResults(), actual,
+            "expected \n${expectedMergeResults().joinToString(separator = "\n")}\n" +
+                    " but got \n${actual.joinToString(separator = "\n")}"
+        )
+
+        val intermed = intermediateOperationsBeforeMerge()
+        if (isMergeWithEmpty()) {
+            validateMetadata(result, *intermed, description, expectedName = otherName)
+        } else {
+            val expectName = "${expectedName()}, $otherName"
+            validateMetadata(result, expectedBaseSource(), *intermed,
+                "merge with $description", expectedName=expectName)
+        }
+
     }
 
 }
@@ -123,6 +167,10 @@ class SequenceResourceTest: ResourceTest<String>() {
 
     override fun expectedFilter1Map1Results() = listOf("e", "o", "h", "e")
 
+    override fun mergeResource() = resource
+
+    override fun expectedMergeResults() = listOf(elements, elements).flatten()
+
 }
 
 class CsvResourceTest: ResourceTest<TestBuilder>() {
@@ -147,35 +195,13 @@ class CsvResourceTest: ResourceTest<TestBuilder>() {
     override fun expectedBaseSource() = "src\\test\\resources\\test_data.csv"
     override fun expectedToString() = "CSV ${expectedName()} (${expectedBaseSource()})"
 
-    override fun expectedElements() = listOf(
-        TestBuilder(rowIndex = 0, string = "a"),
-        TestBuilder(rowIndex = 1, string = "Hello; World"),
-        TestBuilder(rowIndex = 2, string = "42"),
-        TestBuilder(rowIndex = 3, string = "exitProcess(1)"),
-        TestBuilder(rowIndex = 4, string = "test"),
-        TestBuilder(rowIndex = 5, string = "%&#)!?"),
-        TestBuilder(rowIndex = 6, string = "1+2*3"),
-        TestBuilder(rowIndex = 7, string = "mobiTopp"),
-        TestBuilder(rowIndex = 8, string = "IfV"),
-        TestBuilder(rowIndex = 9, string = "fin"),
-    )
+    override fun expectedElements() = utils.csv.expectedBuilders
 
     override fun mapping1(): (TestBuilder) -> TestBuilder? = {
         b -> b.also { b.int = b.string.length }
     }
 
-    override fun expectedMapping1Results() = listOf(
-        TestBuilder(rowIndex = 0, string = "a", int = 1),
-        TestBuilder(rowIndex = 1, string = "Hello; World", int = 12),
-        TestBuilder(rowIndex = 2, string = "42", int = 2),
-        TestBuilder(rowIndex = 3, string = "exitProcess(1)", int = 14),
-        TestBuilder(rowIndex = 4, string = "test", int = 4),
-        TestBuilder(rowIndex = 5, string = "%&#)!?", int = 6),
-        TestBuilder(rowIndex = 6, string = "1+2*3", int = 5),
-        TestBuilder(rowIndex = 7, string = "mobiTopp", int = 8),
-        TestBuilder(rowIndex = 8, string = "IfV", int = 3),
-        TestBuilder(rowIndex = 9, string = "fin", int = 3),
-    )
+    override fun expectedMapping1Results() = expectedBuildersMappedStringLength
 
     override fun filter1(): (TestBuilder) -> Boolean = {
         b -> (b.rowIndex % 2) == 0
@@ -202,18 +228,7 @@ class CsvResourceTest: ResourceTest<TestBuilder>() {
         assertEquals("CSV ${expectedName()} (${expectedBaseSource()})", resource.toString())
     }
 
-    private fun expectedBuildResults() = listOf(
-        TestEntity(rowIndex = 0, string = "a"),
-        TestEntity(rowIndex = 1, string = "Hello; World"),
-        TestEntity(rowIndex = 2, string = "42"),
-        TestEntity(rowIndex = 3, string = "exitProcess(1)"),
-        TestEntity(rowIndex = 4, string = "test"),
-        TestEntity(rowIndex = 5, string = "%&#)!?"),
-        TestEntity(rowIndex = 6, string = "1+2*3"),
-        TestEntity(rowIndex = 7, string = "mobiTopp"),
-        TestEntity(rowIndex = 8, string = "IfV"),
-        TestEntity(rowIndex = 9, string = "fin"),
-    )
+    private fun expectedBuildResults() = utils.csv.expectedElements
 
     @Test
     fun build() {
@@ -224,5 +239,13 @@ class CsvResourceTest: ResourceTest<TestBuilder>() {
         validateMetadata(result, expectedBaseSource(), "build")
         assertContentEquals(expectedBuildResults(), result.elements.toList())
     }
+
+    override fun mergeResource() = SequenceResource(
+        resourceName="csv merge resource",
+        description="csv merge resource",
+        sequence = expectedElements().mapIndexed{ index, te ->
+            te.copy(rowIndex = index+expectedElements().size )
+        }.asSequence()
+    )
 
 }

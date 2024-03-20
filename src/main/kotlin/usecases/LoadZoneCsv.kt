@@ -1,13 +1,12 @@
 package usecases
 
 import CodePlan
-import domain.data.ZoneData
 import domain.data.ZoneDataBuilder
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
-import modeling.synthesis.BuilderRepository
+import modeling.synthesis.BuildStep
 import modeling.synthesis.Context
 import modeling.synthesis.CsvResource
 import modeling.synthesis.PrepareCsvStep
@@ -18,31 +17,17 @@ import utils.csv.SEMICOLON
 import utils.csv.boolean
 import utils.csv.decode
 import utils.csv.distance
+import utils.csv.double
 import utils.csv.int
 import utils.csv.long
 import utils.units.DistanceUnit
 import java.io.File
 
-
-//fun <S, C> S.loadZoneCsv(
-//    parser: (Synthesis<C>) -> CsvParser<ZoneDataBuilder>,
-//    file: File? = null,
-//    delimiter: String = SEMICOLON
-//) where S: Synthesis<C>, C: BaseContext {
-//
-//    val zoneFile = file ?: File(this.context.demandFolder.path + "\\zone-repository\\zones.csv")
-//
-//    this.addIdResource(zoneFile.name, CsvResource(zoneFile, parser(this), delimiter)) {
-//            c, r -> c.zoneBuilders = r
-//    }
-//
-//}
 @Suppress("LongParameterList")
-fun <S, C> S.loadZones(
+fun <S, C> S.prepareZones(
     file: File? = null,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    parser: CsvParser<ZoneDataBuilder>? = null,
     idColumn: String = "id",
     nameColumn: String = "name",
     areaTypeColumn: String = "areaType",
@@ -59,9 +44,10 @@ fun <S, C> S.loadZones(
 
     val areaTypeCodePlan = areaTypeCodes ?: this.context.areaTypeCodes
 
-    val csvParser = parser ?: CsvParser(errorHandling) { row ->
+    val csvParser = CsvParser(errorHandling) { row ->
         ZoneDataBuilder(
             visumId = row.long(idColumn),
+            matrixColumn = row.index,
             name = row(nameColumn),
             areaType = row.decode(areaTypeColumn, areaTypeCodePlan),
             regionType = row.int(regionTypeColumn),
@@ -69,33 +55,39 @@ fun <S, C> S.loadZones(
             parkingPlaces = row.int(parkingPlacesColumn),
             centroid = row(centroidColumn, centroidParser),
             isDestination = row.boolean(isDestinationColumn),
-            relief = row.int().distance(reliefColumn, reliefUnit)
+            relief = row.double().distance(reliefColumn, reliefUnit)
         )
     }
 
-    this.parseZones(csvParser, file, delimiter)
+    this.prepareZoneFile(csvParser, file, delimiter)
 
 }
 
-fun <S, C> S.parseZones(
+fun <S, C> S.prepareZoneFile(
     parser: CsvParser<ZoneDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
 ) where S: Synthesis<C>, C: Context {
-    val zonesFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
+    val zonesFile = file ?: File(this.context.demandFolder.path + "\\zone-repository\\zones.csv")
 
-//    CsvResource<ZoneDataBuilder>(zonesFile, )
+    val resource = CsvResource(zonesFile, parser, delimiter)
+
+    this.addStep(
+        PrepareCsvStep(
+            name = "load zone csv",
+            csv=resource,
+            repository = context.zoneRepository
+        )
+    )
 }
 
-class LoadZoneCsv(
-    repository: BuilderRepository<ZoneDataBuilder, ZoneData>,
-    csv: CsvResource<ZoneDataBuilder>
-): PrepareCsvStep<ZoneDataBuilder, ZoneData>(
-    name="load legacy zone csv",
-    csv,
-    repository
-) {
+fun <S, C> S.finishZones() where S: Synthesis<C>, C: Context {
+    this.addStep(BuildStep("finish zones", context.zoneRepository))
+}
 
+fun <S, C> S.loadZones() where S: Synthesis<C>, C: Context {
+    this.prepareZones()
+    this.finishZones()
 }
 
 
@@ -103,5 +95,6 @@ fun String.toZoneClassification() = when (this) {
     "studyArea" -> ZoneClassification.STUDY_AREA
     "outlyingArea" -> ZoneClassification.OUTLYING_AREA
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA
-    else -> throw UnsupportedOperationException("Sorry this is not existing")
+    else -> throw UnsupportedOperationException("String '$this' cannot be parsed as a ZoneClassification! " +
+            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'")
 }

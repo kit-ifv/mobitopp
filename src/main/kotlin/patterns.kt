@@ -1,43 +1,9 @@
-internal object GlobalIdCount {
-    //TODO check id overflow and raise exception if it occurs
-    var next: ULong = 0u
-        get() = field++
-        private set
-
-}
-
-
 @JvmInline
-public value class ID<E> (
-
-    val id: ULong //TODO
-)
+value class ID<E> (val id: Long)
 
 interface Identifiable<E> {
-    // TODO think about this: if a subclass is identifiable, should its parent class also be identifiable
-    // TODO -> in this case this could be an abstract class and implement equals and hash
     val id: ID<E>
 }
-
-fun <E> E.newId(): ID<E> {
-    return ID<E>(GlobalIdCount.next)
-}
-
-// Ideensammlung:
-//interface Identifiable2<K> {
-//    val id: K
-//}
-//class VisumZone(val name: String): Identifiable2<String> {
-//    override val id: String
-//        get() = name
-//}
-//
-//interface Entity<E>: Identifiable2<ID<E>> {
-//    override val id: ID<E>
-//        get() = TODO("Not yet implemented")
-//}
-
-
 
 
 public interface Builder<E> {
@@ -62,8 +28,10 @@ fun interface Encodable {
  *
  * This could also be abstracted to generic decoding types if the need arises
  */
-fun interface Decodable<T: Encodable> {
+interface Decodable<T: Encodable> {
     fun decode(i: Int): T
+
+    fun decode(s: String): T
 }
 
 typealias CodePlan<R> = Decodable<R>

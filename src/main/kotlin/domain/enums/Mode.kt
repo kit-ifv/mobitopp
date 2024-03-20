@@ -39,6 +39,7 @@ enum class StandardMode(private val code: Int): Mode {
 
     companion object: CodePlan<StandardMode> {
         override fun decode(i: Int) = entries.first {it.code == i}
+        override fun decode(s: String) = valueOf(s)
     }
 
 }

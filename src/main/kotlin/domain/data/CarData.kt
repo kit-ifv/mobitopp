@@ -103,7 +103,8 @@ enum class CarSegment(private val code: Int): Encodable {
 
     override fun encode() = this.code
     companion object : Decodable<CarSegment> {
-        override fun decode(i: Int) = CarSegment.values().first { it.code == i }
+        override fun decode(i: Int) = entries.first { it.code == i }
+        override fun decode(s: String) = valueOf(s)
     }
 }
 
@@ -115,6 +116,7 @@ enum class EngineType(private val code: Int): Encodable {
     override fun encode() = this.code
 
     companion object: Decodable<EngineType> {
-        override fun decode(i: Int) = EngineType.values().first { it.code == i }
+        override fun decode(i: Int) = entries.first { it.code == i }
+        override fun decode(s: String) = valueOf(s)
     }
 }

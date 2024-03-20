@@ -75,11 +75,17 @@ class MapRepository<E>(
 
     override fun getById(id: ID<E>): E? = idMap[id]
 
-    override fun map(operation: String, mapping: (E) -> E?): Resource<E> =
+    override fun map(operation: String, mapping: (E) -> E?): Repository<E> =
         super.map(operation, mapping).let { MapRepository(it.elements.toList(), it.name, it.source) }
 
-    override fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> =
+    override fun filter(operation: String, predicate: (E) -> Boolean): Repository<E> =
         super.filter(operation, predicate).let { MapRepository(it.elements.toList(), it.name, it.source) }
+
+    override fun merge(other: Resource<E>): Repository<E> {
+        val merged = super.merge(other)
+
+        return MapRepository(merged.elements.toList(), merged.name, merged.source)
+    }
 
     override fun toString() = "MapRepository[$name] ($source)"
 }
@@ -131,6 +137,23 @@ open class LateInitRepository<E>: Repository<E> where E: Identifiable<E> {
         delegate = resource.asRepository()
     }
 
+    override fun map(operation: String, mapping: (E) -> E?): Repository<E> =
+        throw UnsupportedOperationException("map for target elements not supported")
+
+    override fun filter(operation: String, predicate: (E) -> Boolean): Repository<E> =
+        throw UnsupportedOperationException("filter for target elements not supported")
+
+    override fun merge(other: Resource<E>): Repository<E> {
+        internalState = internalState.merge(other)
+        delegate = (delegate?.merge(other) ?: other).let { MapRepository(it.elements.toList(), it.name, it.source) }
+        return delegate!!
+    }
+
+    open fun reset() {
+        internalState = internalState.reset()
+        delegate = null
+    }
+
     override fun toString() = state.toString(this)
 
 }
@@ -169,6 +192,12 @@ class BuilderRepository<B, E>(): LateInitRepository<E>() where B: Builder<E>, E:
         builders = null
     }
 
+    override fun reset() {
+        internalState = internalState.reset()
+        delegate = null
+        builders = null
+    }
+
     fun reduce(operation: String, predicate: (B) -> Boolean) {
         internalState.reduce(operation)
         builders = builders!!.filter(operation, predicate)
@@ -185,11 +214,16 @@ class BuilderRepository<B, E>(): LateInitRepository<E>() where B: Builder<E>, E:
         this.builders = builders
     }
 
-    override fun map(operation: String, mapping: (E) -> E?): Resource<E> =
-        throw UnsupportedOperationException("map for target elements not supported")
+//    override fun map(operation: String, mapping: (E) -> E?): Repository<E> =
+//        throw UnsupportedOperationException("map for target elements not supported")
+//
+//    override fun filter(operation: String, predicate: (E) -> Boolean): Repository<E> =
+//        throw UnsupportedOperationException("filter for target elements not supported")
 
-    override fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> =
-        throw UnsupportedOperationException("filter for target elements not supported")
+    fun mergeBuilders(otherBuilders: Resource<B>) {
+        internalState = internalState.mergeBuilders(otherBuilders)
+        builders = builders?.merge(otherBuilders) ?: otherBuilders
+    }
 
 }
 
@@ -198,6 +232,7 @@ class BuilderRepository<B, E>(): LateInitRepository<E>() where B: Builder<E>, E:
  *
  * @constructor Create empty Repository state
  */
+@Suppress("TooManyFunctions")
 enum class RepositoryState {
     /**
      * Uninitialized [RepositoryState]:
@@ -233,6 +268,10 @@ enum class RepositoryState {
             check(repository.state == UNINITIALIZED)
             return "Uninitialized ${repository.javaClass.simpleName}"
         }
+
+        override fun merge(resource: Resource<*>) = FINISHED
+
+        override fun mergeBuilders(resource: Resource<*>) = PREPARING
     },
 
     /**
@@ -270,6 +309,11 @@ enum class RepositoryState {
             return "Initialized ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
+        override fun merge(resource: Resource<*>) =
+            error("Cannot merge finished elements of resource $resource into repository as it has not been built yet!")
+
+        override fun mergeBuilders(resource: Resource<*>) = PREPARING
+
     },
 
     /**
@@ -304,9 +348,15 @@ enum class RepositoryState {
             return "Finished ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
+        override fun merge(resource: Resource<*>) = FINISHED
+
+        override fun mergeBuilders(resource: Resource<*>) =
+            error("Cannot merge Builders of resource $resource into repository as it has already been finished!")
+
     };
 
     abstract fun finalize(resource: Resource<*>): RepositoryState
+    fun reset() = UNINITIALIZED
     abstract fun prepare(resource: Resource<*>): RepositoryState
     abstract fun update(operation: String): RepositoryState
     abstract fun reduce(operation: String): RepositoryState
@@ -316,5 +366,7 @@ enum class RepositoryState {
     abstract fun getName(): RepositoryState
     abstract fun getSource(): RepositoryState
     abstract fun toString(repository: LateInitRepository<*>): String
+    abstract fun merge(resource: Resource<*>): RepositoryState
+    abstract fun mergeBuilders(resource: Resource<*>): RepositoryState
 
 }

@@ -51,6 +51,7 @@ enum class LegacyActivityType(val code: Int): ActivityType {
     }
     companion object : Decodable<ActivityType> {
         override fun decode(i: Int) = entries.first {it.code == i}
+        override fun decode(s: String) = valueOf(s)
     }
 
 }

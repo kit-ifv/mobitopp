@@ -7,7 +7,6 @@ import ID
 import Identifiable
 import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
-import newId
 import utils.units.Currency
 
 /**
@@ -37,28 +36,55 @@ class HouseholdDataBuilder(
     var type: Int? = null,
     var incomePerMonth: Currency? = null,
     var economicStatus: EconomicStatus? = null
-): Builder<HouseholdData>, Identifiable<HouseholdDataBuilder> {
-    override val id: ID<HouseholdDataBuilder>
-        get() = ID(this.householdNumber!!.toULong())
+): Builder<HouseholdData> {//, Identifiable<HouseholdDataBuilder> {
+//    override val id: ID<HouseholdDataBuilder>
+//        get() = ID(this.householdNumber!!.toULong())
 
 
 
-    override fun build()= object:HouseholdData {
-        override val location: RoadPositionInZone = this@HouseholdDataBuilder.roadPosition!!.let {
-            RoadPositionInZone(
-                it,
-                this@HouseholdDataBuilder.homeZone!!
-            )
-        }
+    override fun build() = object:HouseholdData {
+        override val location: RoadPositionInZone = RoadPositionInZone(
+            requireNotNull(this@HouseholdDataBuilder.roadPosition)
+                {"roadPosition is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"},
+            requireNotNull(this@HouseholdDataBuilder.homeZone)
+                {"homeZone is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"},
+        )
 
-        override val domCode: Int = this@HouseholdDataBuilder.domCode!!
-        override val type: Int = this@HouseholdDataBuilder.type!!
-        override val incomePerMonth: Currency = this@HouseholdDataBuilder.incomePerMonth!!
-        override val economicStatus: EconomicStatus = this@HouseholdDataBuilder.economicStatus!!
-        override val id: ID<HouseholdData> = this.newId()
-        override val householdNumber: Long = this@HouseholdDataBuilder.householdNumber!!
-        override val surveyYear: Int = this@HouseholdDataBuilder.surveyYear!!
+        override val domCode: Int = requireNotNull(this@HouseholdDataBuilder.domCode)
+            {"domCode is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+        override val type: Int = requireNotNull(this@HouseholdDataBuilder.type)
+            {"type is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+        override val incomePerMonth: Currency = requireNotNull(this@HouseholdDataBuilder.incomePerMonth)
+            {"incomePerMonth is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+        override val economicStatus: EconomicStatus = requireNotNull(this@HouseholdDataBuilder.economicStatus)
+            {"economicalStatus is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+        override val id: ID<HouseholdData> = ID(
+            requireNotNull(this@HouseholdDataBuilder.householdNumber)
+                {"id is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+        )
+
+        override val householdNumber: Long = requireNotNull(this@HouseholdDataBuilder.householdNumber)
+            {"householdNumber is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+        override val surveyYear: Int = requireNotNull(this@HouseholdDataBuilder.surveyYear)
+            {"surveyYear is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
     }
+
+    override fun toString(): String {
+        return "HouseholdDataBuilder(" +
+                "householdNumber=$householdNumber, " +
+                "surveyYear=$surveyYear, homeZone=$homeZone, " +
+                "roadPosition=$roadPosition, " +
+                "domCode=$domCode, " +
+                "type=$type, " +
+                "incomePerMonth=$incomePerMonth, " +
+                "economicStatus=$economicStatus)"
+    }
+
 
 }
 
@@ -75,7 +101,8 @@ enum class EconomicStatus(val code: Int): Encodable {
     override fun encode() = this.code
 
     companion object : Decodable<EconomicStatus> {
-        override fun decode(i: Int) = EconomicStatus.values().first {it.code == i}
+        override fun decode(i: Int) = entries.first {it.code == i}
+        override fun decode(s: String) = valueOf(s)
     }
 }
 
@@ -90,6 +117,7 @@ enum class HouseholdType(private val code: Int) : Encodable {
     override fun encode() = this.code
 
     companion object : Decodable<HouseholdType> {
-        override fun decode(i: Int) = HouseholdType.values().first {it.code == i}
+        override fun decode(i: Int) = entries.first {it.code == i}
+        override fun decode(s: String) = valueOf(s)
     }
 }

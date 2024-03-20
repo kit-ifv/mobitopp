@@ -44,6 +44,25 @@ interface Resource<E> {
     fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> =
         SequenceResource(name, "$source -> filter $operation", elements.filter(predicate) )
 
+    /**
+     * Create a [Resource] containing both the elements of this [Resource] and the given other [Resource].
+     * Also, the metadata are updated:
+     *   - the resource names are combined
+     *   - the source description is updated to log the applied merge
+     *
+     * @param other the other resource to be merged with this resource
+     * @return a [Resource] with filtered elements and updated metadata
+     */
+    fun merge(other: Resource<E>): Resource<E> {
+        val merged = sequenceOf(elements, other.elements).flatten()
+
+        return SequenceResource(
+            resourceName = "$name, ${other.name}",
+            description = "$source -> merge with ${other.source}",
+            merged
+        )
+    }
+
 }
 
 /**
@@ -56,10 +75,13 @@ interface Resource<E> {
  * @property sequence a sequence of elements
  */
 class SequenceResource<E>(
-    override val name: String,
+    private var resourceName: String,
     private var description: String,
     private var sequence: Sequence<E>
 ) : Resource<E> {
+
+    override val name: String
+        get() = resourceName
 
     override val source: String
         get() = description
@@ -77,6 +99,13 @@ class SequenceResource<E>(
     override fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> {
         sequence = sequence.filter(predicate)
         description += " -> filter $operation"
+        return this
+    }
+
+    override fun merge(other: Resource<E>): Resource<E> {
+        sequence = sequenceOf(sequence, other.elements).flatten()
+        resourceName = "$resourceName, ${other.name}"
+        description += " -> merge with ${other.source}"
         return this
     }
 
@@ -144,7 +173,13 @@ class CsvResource<E> (
         get() = file.path
 
     override val elements: Sequence<E>
-        get() = parser.parse(CsvReader.of(file, delimiter))
+        get() {
+            val list = mutableListOf<E>()
+            return storage?.asSequence() ?:
+                parser.parse(CsvReader.of(file, delimiter)).onEach { list.add(it) }.also { storage=list }
+        }
+
+    private var storage: List<E>? = null
 
     override fun toString() = "CSV $name ($source)"
 

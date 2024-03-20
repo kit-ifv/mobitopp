@@ -47,7 +47,7 @@ interface CsvParser<E> {
         operator fun <E> invoke(
             errorHandling: ErrorHandling,
             mapping: (Row) -> E
-        ) = DefaultRowCsvParser(mapping=mapping)
+        ) = DefaultRowCsvParser(exceptionHandling=errorHandling, mapping=mapping)
     }
 }
 
