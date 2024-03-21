@@ -9,13 +9,15 @@ import utils.csv.DefaultCsvReader
 import utils.csv.Row
 
 fun <E> dummyCopyOf(resource: Resource<E>, step: SynthesisStep): Resource<E> {
+        val dummy = dummyResource<E>(step)
+
         val name = ErrorHandling.WARNING.handle(runnable = { resource.name })
         { "Could not obtain name of resource in step '${step.name}'!" }
-            ?: "${step.javaClass.simpleName}-Dummy"
+            ?: dummy.name
 
         val source = ErrorHandling.WARNING.handle(runnable = { resource.source })
         { "Could not obtain source of resource in step '${step.name}'!" }
-            ?: "${step.javaClass.simpleName}.validate()"
+            ?: dummy.source
 
         return SequenceResource(name, source, emptySequence())
     }

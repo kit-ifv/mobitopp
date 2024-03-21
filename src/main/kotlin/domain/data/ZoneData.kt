@@ -28,7 +28,7 @@ typealias Attractivity = Map<LegacyActivityType, Double> //TODO
  */
 interface ZoneData: Identifiable<ZoneData> {
     val visumId: Long
-    val matrixColumn: Int //TODO: legacy property -> extract to sub interface
+    val matrixColumn: Int //TODO legacy property -> extract to sub interface
     val name: String
     val areaType: AreaType
     val regionType: Int

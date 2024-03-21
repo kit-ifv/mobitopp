@@ -243,14 +243,4 @@ class SynthesisValidationTest {
         return text
     }
 
-    private fun checkFailedRepairMessage(consoleText: String) {
-        assertContains(consoleText, "WARNING: Could not repair state")
-        assertContains(consoleText, "Subsequent validation errors")
-    }
-
-
-
-
-
-
 }
