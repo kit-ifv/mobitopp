@@ -69,6 +69,7 @@ open class DefaultRow(
     override fun source() = source
     override fun index() = rowNumber
 
+    @Suppress("TooGenericExceptionCaught")
     override fun get(column: String): String {
         require(column in columnIndex) {
             "The given column '$column' is missing in $source. " +
@@ -80,7 +81,7 @@ open class DefaultRow(
         return try {
             values[index]
 
-        } catch (i: IndexOutOfBoundsException) {
+        } catch (i: IndexOutOfBoundsException) { //Why is IndexOutOfBoundsException too generic?
             val message = "The given column's index is out of range in row $rowNumber of $source. " +
                     "Column: $column, index: $index, values: $values."
             throw IllegalArgumentException(message, i)
