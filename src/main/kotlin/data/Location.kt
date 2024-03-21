@@ -1,7 +1,7 @@
 package data
 
-import utils.units.Distance
-import utils.units.GPSPosition
+import units.Distance
+import units.GPSCoordinate
 
 /**
  * A location is the most generic representation for points of interest of the Simulation and should be representative
@@ -11,7 +11,7 @@ import utils.units.GPSPosition
  * necessarily be applicable for certain concepts such as zones to have a distance
  */
 interface Location {
-    val location: GPSPosition?
+    val location: GPSCoordinate?
 
     /**
      * Per default the distance between two locations should be calculated if both have a specified position. If either
@@ -24,7 +24,7 @@ interface Location {
 }
 
 object NOWHERE: Location {
-    override val location: GPSPosition?
+    override val location: GPSCoordinate?
         get() = null
 
 }

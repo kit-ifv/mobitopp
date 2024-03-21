@@ -1,5 +1,5 @@
-import utils.units.DistanceUnit
-import utils.units.toDistance
+import units.DistanceUnit
+import units.toDistance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

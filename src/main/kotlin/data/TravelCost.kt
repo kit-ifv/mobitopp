@@ -1,6 +1,6 @@
 package data
 
-import utils.units.Currency
+import units.Currency
 
 /**
  * The generic interface for determining travel cost. The cost is dependent on the mode.
