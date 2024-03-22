@@ -12,12 +12,12 @@ package utils.collections
 class LazyList<E>(
     private val dataStream: Iterator<E>,
     expectedSize: Int = 10
-): List<E> {
+) : List<E> {
     private val elements: MutableList<E> = ArrayList(expectedSize)
 
     override operator fun get(index: Int) = when {
         index < elements.size -> elements[index]
-        else ->  {
+        else -> {
             readValuesUntil(index)
             elements[index]
         }
@@ -61,7 +61,6 @@ class LazyList<E>(
         }
         return elements
     }
-
 }
 
 fun <I, E> I.toLazyList(expectedSize: Int = 10) where I : Iterator<E> = LazyList(this, expectedSize)

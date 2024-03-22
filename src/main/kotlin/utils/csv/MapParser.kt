@@ -98,7 +98,7 @@ fun <P, K, V> P.toMapMergeParser() where P : CsvParser<Pair<K, V>> = MapMergeCsv
 open class CsvPairParser<K, V>(
     protected val keyParser: RowCsvParser<K>,
     protected val valueParser: RowCsvParser<V>,
-) : RowCsvParser<Pair<K, V>>() {
+) : RowCsvParser<Pair<K, V>> {
     override fun parse(row: Row): Pair<K, V>? {
         val key: K? = keyParser.parse(row)
         val value: V? = valueParser.parse(row)

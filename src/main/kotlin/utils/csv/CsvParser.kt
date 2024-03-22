@@ -56,8 +56,7 @@ interface CsvParser<E> {
  *
  * @param E the generic type of the entities to be parsed
  */
-abstract class RowCsvParser<E> : CsvParser<E> {
-    // TODO add validation: check if all required columns are available
+interface RowCsvParser<E> : CsvParser<E> {
 
     override fun parse(csv: CsvReader): Sequence<E> {
         val rows = csv.rows()
@@ -72,7 +71,7 @@ abstract class RowCsvParser<E> : CsvParser<E> {
      * @param row the row to be parsed as entity
      * @return parsed entity, may be null if parsing produces errors
      */
-    abstract fun parse(row: Row): E?
+    fun parse(row: Row): E?
 }
 
 /**
@@ -87,7 +86,7 @@ abstract class RowCsvParser<E> : CsvParser<E> {
 open class DefaultRowCsvParser<E>(
     protected val exceptionHandling: ErrorHandling = ErrorHandling.WARNING,
     protected val mapping: (Row) -> E,
-) : RowCsvParser<E>() {
+) : RowCsvParser<E> {
 
     override fun parse(row: Row): E? {
         return exceptionHandling.handleParseRow(row) {
