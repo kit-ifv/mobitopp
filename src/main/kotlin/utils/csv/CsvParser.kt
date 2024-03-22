@@ -47,7 +47,7 @@ interface CsvParser<E> {
         operator fun <E> invoke(
             errorHandling: ErrorHandling = ErrorHandling.WARNING,
             mapping: (Row) -> E
-        ) = DefaultRowCsvParser(exceptionHandling = errorHandling, mapping = mapping)
+        ) = DefaultCsvParser(exceptionHandling = errorHandling, mapping = mapping)
     }
 }
 
@@ -83,7 +83,7 @@ interface RowCsvParser<E> : CsvParser<E> {
  *     when parsing errors occur
  * @property mapping the mapping applied to the row to generate an entity
  */
-open class DefaultRowCsvParser<E>(
+open class DefaultCsvParser<E>(
     protected val exceptionHandling: ErrorHandling = ErrorHandling.WARNING,
     protected val mapping: (Row) -> E,
 ) : RowCsvParser<E> {
@@ -98,17 +98,17 @@ open class DefaultRowCsvParser<E>(
 /**
  * A RowCsvParser for parsing values of a single column. This is
  * for convenience, as no entity spawner has to be provided as in
- * [DefaultRowCsvParser].
+ * [DefaultCsvParser].
  *
  * @param E type of the values to be parsed
  * @constructor create a row based csv parser for the given column, parser
  *     and [ErrorHandling] strategy
  */
-open class CsvValueParser<E>(
+open class SingleColumnParser<E>(
     valueColumn: String,
     exceptionHandling: ErrorHandling = ErrorHandling.WARNING,
     parser: (String) -> E,
-) : DefaultRowCsvParser<E>(
+) : DefaultCsvParser<E>(
     exceptionHandling,
     mapping = { row -> row(valueColumn, parser) },
 )

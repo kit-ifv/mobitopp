@@ -95,7 +95,7 @@ fun <P, K, V> P.toMapMergeParser() where P : CsvParser<Pair<K, V>> = MapMergeCsv
  * @property keyParser a [CsvParser] for the keys
  * @property valueParser a [CsvParser] for the values
  */
-open class CsvPairParser<K, V>(
+class TwoColumnParser<K, V>(
     protected val keyParser: RowCsvParser<K>,
     protected val valueParser: RowCsvParser<V>,
 ) : RowCsvParser<Pair<K, V>> {
