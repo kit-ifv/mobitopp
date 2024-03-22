@@ -12,7 +12,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-
 class CsvParserTest {
     private val path: String = "src/test/resources/test_data.csv"
     private val file: File = File(path)
@@ -93,7 +92,6 @@ class CsvParserTest {
         map[0]!!.forEachIndexed { index, value ->
             assertEquals(expected[index], value)
         }
-
     }
 
     @Test
@@ -189,7 +187,6 @@ class CsvParserTest {
             assertEquals(expected[index], entity.short)
             assertEquals(TestEntity(index, short = expected[index]), entity)
         }
-
     }
 
     @Test
@@ -204,7 +201,6 @@ class CsvParserTest {
             assertEquals(expected[index], entity.int)
             assertEquals(TestEntity(index, int = expected[index]), entity)
         }
-
     }
 
     @Test
@@ -279,7 +275,6 @@ class CsvParserTest {
             assertEquals(expected[index], entity.duration)
             assertEquals(TestEntity(index, duration = expected[index]), entity)
         }
-
     }
 
     @Test
@@ -374,5 +369,4 @@ class CsvParserTest {
             parser.parse(file).toList()
         }
     }
-
 }

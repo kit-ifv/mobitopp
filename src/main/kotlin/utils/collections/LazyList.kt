@@ -77,7 +77,6 @@ class LazyList<E>(
     }
 }
 
-
 fun <I, E> I.toLazyList(expectedSize: Int = 10) where I : Iterator<E> = LazyList(this, expectedSize)
 
 fun <S, E> S.toLazyList(expectedSize: Int = 10) where S : Sequence<E> = LazyList(this.iterator(), expectedSize)

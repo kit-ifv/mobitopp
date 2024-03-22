@@ -1,11 +1,9 @@
 package utils.csv
 
 import org.junit.jupiter.api.Test
-
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-
 
 class DefaultCsvReaderTest {
     private val file = File("src/test/resources/test_data.csv")
@@ -27,7 +25,7 @@ class DefaultCsvReaderTest {
 
     @Test
     fun columns() {
-        val columns =  reader.columns
+        val columns = reader.columns
 
         COLUMNS.forEach { column ->
             assertContains(columns, column)
@@ -40,7 +38,6 @@ class DefaultCsvReaderTest {
     fun rows() {
         assertEquals(10, reader.rows().count())
     }
-
 }
 
 class DefaultRowTest {
@@ -50,14 +47,16 @@ class DefaultRowTest {
     @Test
     fun source() {
         reader.rows().forEach {
-            row -> assertEquals("test_data.csv", row.source)
+                row ->
+            assertEquals("test_data.csv", row.source)
         }
     }
 
     @Test
     fun index() {
         reader.rows().forEachIndexed { index, row
-            ->  assertEquals(index, row.index)
+            ->
+            assertEquals(index, row.index)
         }
     }
 
@@ -65,17 +64,15 @@ class DefaultRowTest {
     fun get() {
         val rows = reader.rows().toList()
 
-        rows.forEachIndexed{index, row ->
-            assertEquals((index+1).toString(), row(INDEX_COL))
+        rows.forEachIndexed { index, row ->
+            assertEquals((index + 1).toString(), row(INDEX_COL))
         }
 
-        //true;1.11;6;@$§!?;42
-        assertEquals("true",    rows[5](BOOL_COL))
-        assertEquals("1.11",    rows[5](FLOAT_COL))
-        assertEquals("6",       rows[5](INDEX_COL))
-        assertEquals("%&#)!?",   rows[5](STR_COL))
-        assertEquals("42",      rows[5](INT_COL))
-
+        // true;1.11;6;@$§!?;42
+        assertEquals("true", rows[5](BOOL_COL))
+        assertEquals("1.11", rows[5](FLOAT_COL))
+        assertEquals("6", rows[5](INDEX_COL))
+        assertEquals("%&#)!?", rows[5](STR_COL))
+        assertEquals("42", rows[5](INT_COL))
     }
-
 }

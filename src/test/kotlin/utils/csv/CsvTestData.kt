@@ -25,7 +25,7 @@ data class TestEntity(
     var double: Double = 0.0,
     var bool: Boolean = false,
     var duration: Duration? = null,
-): Identifiable<TestEntity> {
+) : Identifiable<TestEntity> {
     override val id: ID<TestEntity>
         get() = ID(rowIndex.toLong())
 }
@@ -42,7 +42,7 @@ data class TestBuilder(
     var double: Double = 0.0,
     var bool: Boolean = false,
     var duration: Duration? = null,
-): Builder<TestEntity> {
+) : Builder<TestEntity> {
     override fun build() = TestEntity(
         rowIndex, csvIndex, string, byte, short, int, long, float, double, bool, duration
     )

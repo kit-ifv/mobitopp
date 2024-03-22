@@ -44,7 +44,6 @@ interface Distribution<T> {
      * @return a (weighted) random value from this distribution
      */
     fun drawValue(randomNum: Double): T
-
 }
 
 /**
@@ -60,7 +59,7 @@ interface Distribution<T> {
 class Histogram<T>(
     override val name: String,
     private val cumulativeDistribution: SortedMap<Double, T>
-): Distribution<T> {
+) : Distribution<T> {
 
     constructor(name: String, distribution: Map<T, Number>) : this(
         name,
@@ -72,12 +71,10 @@ class Histogram<T>(
         cumulativeUniformDistribution(name, values)
     )
 
-
     override fun drawValue(randomNum: Double): T {
         return cumulativeDistribution.higherEntry(randomNum)?.value
             ?: cumulativeDistribution.let { it[it.lastKey()]!! }
     }
-
 }
 
 /**
@@ -102,14 +99,14 @@ private fun <T> cumulativeDistribution(name: String, distribution: Map<T, Number
 
     val sum = distribution.values.sumOf { it.toDouble() }
 
-    //if any weight is infinite, remove finite weights, remaining have equal probability
+    // if any weight is infinite, remove finite weights, remaining have equal probability
     if (sum.isInfinite()) {
         val infiniteValues = distribution.filter { it.value.toDouble().isInfinite() }.keys
         return cumulativeUniformDistribution("$name (infinite weight sum)", infiniteValues)
     }
 
     var current = 0.0
-    return sequence{
+    return sequence {
         distribution.map {
             val increment = it.value.toDouble() / sum
 
@@ -119,7 +116,6 @@ private fun <T> cumulativeDistribution(name: String, distribution: Map<T, Number
             }
         }
     }.toMap().toSortedMap()
-
 }
 
 /**
@@ -132,9 +128,8 @@ private fun <T> cumulativeDistribution(name: String, distribution: Map<T, Number
 private fun <T> cumulativeUniformDistribution(name: String, values: Set<T>): SortedMap<Double, T> {
     verifySize(name, values)
     val share = 1.0 / values.size
-    return values.mapIndexed { index, value -> (1+index)*share to value }.toMap().toSortedMap()
+    return values.mapIndexed { index, value -> (1 + index) * share to value }.toMap().toSortedMap()
 }
-
 
 /**
  * Find the first entry in this sorted map, that has a key higher than the given key.
@@ -146,5 +141,5 @@ private fun <T> cumulativeUniformDistribution(name: String, values: Set<T>): Sor
  * @param V the generic value type
  * @return first entry a higher key or null
  */
-fun <S, K, V> S.higherEntry(key: K): Map.Entry<K, V>? where S: SortedMap<K, V>, K: Comparable<K> =
+fun <S, K, V> S.higherEntry(key: K): Map.Entry<K, V>? where S : SortedMap<K, V>, K : Comparable<K> =
     this.entries.find { it.key > key }

@@ -9,7 +9,8 @@ fun assertNotContains(
     message: String? = null
 ) {
     asserter.assertTrue(
-        { messagePrefix(message) +
+        {
+            messagePrefix(message) +
                 "Expected the char sequence not to contain the substring.\n" +
                 "CharSequence <$charSequence>, substring <$other>, ignoreCase <$ignoreCase>."
         },
@@ -19,7 +20,8 @@ fun assertNotContains(
 
 fun assertEmpty(charSequence: CharSequence, message: String? = null) {
     asserter.assertTrue(
-        { messagePrefix(message) +
+        {
+            messagePrefix(message) +
                 "Expected the char sequence to be empty.\n" +
                 "CharSequence <$charSequence>."
         },

@@ -58,7 +58,6 @@ open class DefaultMapCsvParser<K, V>(
     }
 
     override fun parse(csv: CsvReader) = pairParser.parse(csv)
-
 }
 
 fun <P, K, V> P.toMapParser() where P : CsvParser<Pair<K, V>> = DefaultMapCsvParser(this)
@@ -84,7 +83,6 @@ open class MapMergeCsvParser<K, V>(
             "MapMergeCsvParser#parse(CsvReader) is not supported and should not be called!"
         )
     }
-
 }
 
 fun <P, K, V> P.toMapMergeParser() where P : CsvParser<Pair<K, V>> = MapMergeCsvParser(this)
@@ -102,7 +100,6 @@ open class CsvPairParser<K, V>(
     protected val valueParser: RowCsvParser<V>,
 ) : RowCsvParser<Pair<K, V>>() {
     override fun parse(row: Row): Pair<K, V>? {
-
         val key: K? = keyParser.parse(row)
         val value: V? = valueParser.parse(row)
 
@@ -111,5 +108,4 @@ open class CsvPairParser<K, V>(
 
     fun asMapParser(): MapCsvParser<K, V> = DefaultMapCsvParser(this)
     fun asMergeMapParser(): MapMergeCsvParser<K, V> = MapMergeCsvParser(this)
-
 }

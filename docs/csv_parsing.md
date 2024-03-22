@@ -85,7 +85,7 @@ MapMergeCsvParser<Int, String>(
 
 
 
-# Reding csv files
+# Reading csv files
 
 ## The CsvReader interface
 A **CsvReader** must provide a set of column names, the number of lines in the file as well as a description of the datasource (e.g. the file path). This metadata is required to provide context information while debugging and to create meaningful error messages.
