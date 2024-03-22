@@ -6,11 +6,11 @@ import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
-import modeling.synthesis.BuildStep
-import modeling.synthesis.Context
-import modeling.synthesis.CsvResource
-import modeling.synthesis.PrepareCsvStep
-import modeling.synthesis.Synthesis
+import modeling.steps.BuildStep
+import modeling.steps.Context
+import modeling.steps.CsvResource
+import modeling.steps.PrepareCsvStep
+import modeling.steps.ModelExecution
 import units.DistanceUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -40,7 +40,7 @@ fun <S, C> S.prepareZones(
     isDestinationColumn: String = "isDestination",
     reliefColumn: String = "relief",
     reliefUnit: DistanceUnit = DistanceUnit.METERS
-) where S: Synthesis<C>, C: Context {
+) where S: ModelExecution<C>, C: Context {
 
     val areaTypeCodePlan = areaTypeCodes ?: this.context.areaTypeCodes
 
@@ -67,7 +67,7 @@ fun <S, C> S.prepareZoneFile(
     parser: CsvParser<ZoneDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: Synthesis<C>, C: Context {
+) where S: ModelExecution<C>, C: Context {
     val zonesFile = file ?: File(this.context.demandFolder.path + "\\zone-repository\\zones.csv")
 
     val resource = CsvResource(zonesFile, parser, delimiter)
@@ -81,11 +81,11 @@ fun <S, C> S.prepareZoneFile(
     )
 }
 
-fun <S, C> S.finishZones() where S: Synthesis<C>, C: Context {
+fun <S, C> S.finishZones() where S: ModelExecution<C>, C: Context {
     this.addStep(BuildStep("finish zones", context.zoneRepository))
 }
 
-fun <S, C> S.loadZones() where S: Synthesis<C>, C: Context {
+fun <S, C> S.loadZones() where S: ModelExecution<C>, C: Context {
     this.prepareZones()
     this.finishZones()
 }

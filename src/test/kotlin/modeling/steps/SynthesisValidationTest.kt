@@ -1,4 +1,4 @@
-package modeling.synthesis
+package modeling.steps
 
 import ConsoleCaptor
 import assertEmpty
@@ -215,7 +215,7 @@ class SynthesisValidationTest {
 
 
     private fun testStep(
-        step: SynthesisStep,
+        step: ModelStep,
         expectValid: Boolean,
         expectedState: RepositoryState
     ): String {

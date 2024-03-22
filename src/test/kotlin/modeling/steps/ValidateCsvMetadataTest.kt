@@ -1,4 +1,4 @@
-package modeling.synthesis
+package modeling.steps
 
 import ConsoleCaptor
 import assertNotContains
@@ -30,7 +30,7 @@ class ValidateCsvMetadataTest {
     private lateinit var complexInvalidResource: CsvResource<TestBuilder>
     private lateinit var complexValidResource: CsvResource<TestBuilder>
 
-    private val step = object:SynthesisStep {
+    private val step = object:ModelStep {
         override val name = "TestStep"
 
         override fun execute() { /**/ }

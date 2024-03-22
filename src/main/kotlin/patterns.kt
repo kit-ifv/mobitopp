@@ -1,16 +1,14 @@
 @JvmInline
-value class ID<E> (val id: Long)
+value class ID<in E> (val id: Long)
 
-interface Identifiable<E> {
+interface Identifiable<in E> {
     val id: ID<E>
 }
 
 
-public interface Builder<E> {
+public interface Builder<out E> {
     fun build(): E
 }
-
-interface IdentifiableBuilder<E> : Builder<E>, Identifiable<E> where E: Identifiable<E>
 
 /**
  * An object is encodable if it can provide an integer based on the attributes present. In the future this could be

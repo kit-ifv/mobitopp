@@ -54,4 +54,3 @@ fun registerId(clazz: KClass<*>, requestedId: Long): Long = GlobalIdCount.reques
 inline fun <reified E> E.registerId(requestedId: Long): ID<E> {
     return ID<E>(registerId(E::class, requestedId))
 }
-

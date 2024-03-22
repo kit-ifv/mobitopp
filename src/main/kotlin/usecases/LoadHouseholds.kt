@@ -5,11 +5,11 @@ import domain.data.EconomicStatus
 import domain.data.HouseholdDataBuilder
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
-import modeling.synthesis.BuildStep
-import modeling.synthesis.Context
-import modeling.synthesis.CsvResource
-import modeling.synthesis.PrepareCsvStep
-import modeling.synthesis.Synthesis
+import modeling.steps.BuildStep
+import modeling.steps.Context
+import modeling.steps.CsvResource
+import modeling.steps.PrepareCsvStep
+import modeling.steps.ModelExecution
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -36,7 +36,7 @@ fun <S, C> S.prepareHouseholds(
     incomeUnit: CurrencyUnit? = null,
     economicalStatusColumn: String = "economicalStatus",
     economicalStatusCodes: CodePlan<EconomicStatus>? = null
-) where S: Synthesis<C>, C: Context {
+) where S: ModelExecution<C>, C: Context {
 
     val currencyUnit = incomeUnit ?: this.context.currencyUnit
     val zoneRepo = { context.zoneRepository }
@@ -64,7 +64,7 @@ fun <S, C> S.prepareHouseholdsFile(
     parser: CsvParser<HouseholdDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: Synthesis<C>, C: Context {
+) where S: ModelExecution<C>, C: Context {
     val householdFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
 
     val resource = CsvResource(householdFile, parser, delimiter)
@@ -78,11 +78,11 @@ fun <S, C> S.prepareHouseholdsFile(
     )
 }
 
-fun <S, C> S.finishHouseholds() where S: Synthesis<C>, C: Context {
+fun <S, C> S.finishHouseholds() where S: ModelExecution<C>, C: Context {
     this.addStep(BuildStep("finish households", context.householdRepository))
 }
 
-fun <S, C> S.loadHouseholds() where S: Synthesis<C>, C: Context {
+fun <S, C> S.loadHouseholds() where S: ModelExecution<C>, C: Context {
     this.prepareHouseholds()
     this.finishHouseholds()
 }

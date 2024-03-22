@@ -1,4 +1,4 @@
-package modeling.synthesis
+package modeling.steps
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

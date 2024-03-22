@@ -1,5 +1,5 @@
 @file:Suppress("TooManyFunctions")
-package modeling.synthesis
+package modeling.steps
 
 import Builder
 import Identifiable
@@ -8,7 +8,7 @@ import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
 
-fun <E> dummyCopyOf(resource: Resource<E>, step: SynthesisStep): Resource<E> {
+fun <E> dummyCopyOf(resource: Resource<E>, step: ModelStep): Resource<E> {
         val dummy = dummyResource<E>(step)
 
         val name = ErrorHandling.WARNING.handle(runnable = { resource.name })
@@ -22,14 +22,14 @@ fun <E> dummyCopyOf(resource: Resource<E>, step: SynthesisStep): Resource<E> {
         return SequenceResource(name, source, emptySequence())
     }
 
-fun <E> dummyResource(step: SynthesisStep): Resource<E> {
+fun <E> dummyResource(step: ModelStep): Resource<E> {
     val name = "${step.javaClass.simpleName}-Dummy"
     val source = "${step.javaClass.simpleName}.validate()"
 
     return SequenceResource(name, source, emptySequence())
 }
 
-fun validateState(repository: LateInitRepository<*>, expectedState: RepositoryState, step: SynthesisStep): Boolean {
+fun validateState(repository: LateInitRepository<*>, expectedState: RepositoryState, step: ModelStep): Boolean {
         if (repository.state != expectedState) {
             println("Error: expected state after execution of step '${step.name}' " +
                     "is expected to be $expectedState but is ${repository.state}")
@@ -39,7 +39,7 @@ fun validateState(repository: LateInitRepository<*>, expectedState: RepositorySt
     }
 
 @Suppress("TooGenericExceptionCaught")
-fun validateScope(step: SynthesisStep, validation: () -> Boolean): Boolean =
+fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
     try {
         ErrorHandling.WARN_COLLECT.handle(runnable = {
             val isValid = validation()
@@ -56,7 +56,7 @@ fun validateScope(step: SynthesisStep, validation: () -> Boolean): Boolean =
 fun <E> repairInitState(
     repository: LateInitRepository<E>,
     resource: Resource<E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where E: Identifiable<E> = when(repository.state) {
     RepositoryState.UNINITIALIZED ->  {
         val dummy = dummyCopyOf(resource, step)
@@ -73,7 +73,7 @@ fun <E> repairInitState(
 fun <E, B> repairPreparingState(
     repository: BuilderRepository<B, E>,
     resource: Resource<B>,
-    step: SynthesisStep
+    step: ModelStep
 ): Unit where B: Builder<E>, E: Identifiable<E> = when(repository.state) {
     RepositoryState.UNINITIALIZED -> {
         repository.prepare(dummyCopyOf(resource, step))
@@ -91,7 +91,7 @@ fun <E, B> repairPreparingState(
 fun <B, E> validatePrepareResourceStep(
     builderRepository: BuilderRepository<B, E>,
     resource: Resource<B>,
-    step: SynthesisStep
+    step: ModelStep
 ) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
     repairPreparingState(builderRepository, resource, step)
@@ -102,7 +102,7 @@ fun <B, E> validatePrepareResourceStep(
 fun <B, E> validatePrepareCsvStep(
     repository: BuilderRepository<B, E>,
     csv: CsvResource<B>,
-    step: SynthesisStep
+    step: ModelStep
 ) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
                     ValidateCsvMetadata(step, csv).validate()
@@ -115,7 +115,7 @@ fun <B, E> validatePrepareCsvStep(
 fun <E> validateInitializeResourceStep(
     repository: LateInitRepository<E>,
     resource: Resource<E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step)
     repairInitState(repository, resource, step)
@@ -126,7 +126,7 @@ fun <E> validateInitializeResourceStep(
 fun <E> validateInitializeCsvStep(
     repository: LateInitRepository<E>,
     csv: CsvResource<E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
             ValidateCsvMetadata(step, csv).validate()
@@ -138,7 +138,7 @@ fun <E> validateInitializeCsvStep(
 
 fun <B, E> validateFilterStep(
     repository: BuilderRepository<B, E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
@@ -149,7 +149,7 @@ fun <B, E> validateFilterStep(
 
 fun <B, E> validateUpdateStep(
     repository: BuilderRepository<B, E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
     repairPreparingState(repository, dummyResource(step), step)
@@ -160,7 +160,7 @@ fun <B, E> validateUpdateStep(
 
 fun <B, E> validateBuildStep(
     repository: BuilderRepository<B, E>,
-    step: SynthesisStep
+    step: ModelStep
 ) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
@@ -171,7 +171,7 @@ fun <B, E> validateBuildStep(
 
 
 class ValidateCsvMetadata<E>(
-    private val step: SynthesisStep,
+    private val step: ModelStep,
     private val csv: CsvResource<E>
 ): Row, CsvReader {
     companion object {

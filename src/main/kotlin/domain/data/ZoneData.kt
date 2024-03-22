@@ -41,6 +41,11 @@ interface ZoneData: Identifiable<ZoneData> {
     //val attractivity: Attractivity
 }
 
+interface LegacyZoneData: ZoneData {
+    val legacyMatrixColumn: Int
+}
+
+
 @SuppressWarnings("LongParameterList")
 class ZoneDataBuilder(
     var visumId: Long? = null,
@@ -84,6 +89,37 @@ class ZoneDataBuilder(
                 "centroid=$centroid, " +
                 "isDestination=$isDestination, " +
                 "relief=$relief)"
+    }
+
+}
+
+@SuppressWarnings("LongParameterList")
+class LegacyZoneDataBuilder(
+    var visumId: Long? = null,
+    var matrixColumn: Int? = null,
+    var name: String? = null,
+    var areaType: AreaType? = null,
+    var regionType: Int? = null,
+    var classification: ZoneClassification? = null,
+    var parkingPlaces: Int? = null,
+    var centroid: Location? = null,
+    var isDestination: Boolean? = null,
+    var relief: Distance? = null
+): Builder<LegacyZoneData> {
+
+    override fun build() = object:LegacyZoneData{
+        override val visumId: Long = this@LegacyZoneDataBuilder.visumId!!
+        override val matrixColumn: Int = this@LegacyZoneDataBuilder.matrixColumn!!
+        override val name: String = this@LegacyZoneDataBuilder.name!!
+        override val areaType: AreaType = this@LegacyZoneDataBuilder.areaType!!
+        override val regionType: Int = this@LegacyZoneDataBuilder.regionType!!
+        override val classification: ZoneClassification = this@LegacyZoneDataBuilder.classification!!
+        override val parkingPlaces: Int = this@LegacyZoneDataBuilder.parkingPlaces!!
+        override val centroid: Location = this@LegacyZoneDataBuilder.centroid!!
+        override val isDestination: Boolean = this@LegacyZoneDataBuilder.isDestination!!
+        override val relief: Distance = this@LegacyZoneDataBuilder.relief!!
+        override val id: ID<ZoneData> = registerId(visumId)
+        override val legacyMatrixColumn = matrixColumn
     }
 
 }

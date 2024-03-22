@@ -6,11 +6,11 @@ import domain.data.EMobilityPersonDataBuilder
 import domain.data.Employment
 import domain.data.Graduation
 import domain.data.Sex
-import modeling.synthesis.BuildStep
-import modeling.synthesis.Context
-import modeling.synthesis.CsvResource
-import modeling.synthesis.PrepareCsvStep
-import modeling.synthesis.Synthesis
+import modeling.steps.BuildStep
+import modeling.steps.Context
+import modeling.steps.CsvResource
+import modeling.steps.PrepareCsvStep
+import modeling.steps.ModelExecution
 import units.CurrencyUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -46,7 +46,7 @@ fun <S, C> S.prepareEmobilityPersons(
     licenseColumn: String = "hasLicense",
     eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
     chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
-) where S: Synthesis<C>, C: Context  {
+) where S: ModelExecution<C>, C: Context  {
 
     val employmentCodePlan = employmentCode ?: this.context.employmentCodes
     val sexCodePlan = sexCode ?: this.context.sexCodes
@@ -83,7 +83,7 @@ fun <S, C> S.preparePersonsFile(
     parser: CsvParser<EMobilityPersonDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: Synthesis<C>, C: Context {
+) where S: ModelExecution<C>, C: Context {
     val personFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\person.csv")
 
     val resource = CsvResource(personFile, parser, delimiter)
@@ -97,11 +97,11 @@ fun <S, C> S.preparePersonsFile(
     )
 }
 
-fun <S, C> S.finishPersons() where S: Synthesis<C>, C: Context {
+fun <S, C> S.finishPersons() where S: ModelExecution<C>, C: Context {
     this.addStep(BuildStep("finish persons", context.personRepository))
 }
 
-fun <S, C> S.loadPersons() where S: Synthesis<C>, C: Context {
+fun <S, C> S.loadPersons() where S: ModelExecution<C>, C: Context {
     this.prepareEmobilityPersons()
     this.finishPersons()
 }
