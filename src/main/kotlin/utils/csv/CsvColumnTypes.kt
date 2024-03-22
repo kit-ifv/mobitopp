@@ -29,6 +29,15 @@ fun <T: Encodable> Row.decodeName(column: String, codePlan: CodePlan<T>) =
 
 fun Row.unitShare(column: String) = this.invoke(column) { s ->  s.toDouble().share() }
 
+fun Row.distance(column: String, unit: DistanceUnit) = this.invoke(column) { it.toDouble().toDistance(unit) }
+fun Row.meters(column: String) = this.invoke(column) { it.toDouble().toDistance(DistanceUnit.METERS) }
+fun Row.kilometers(column: String) = this.invoke(column) { it.toDouble().toDistance(DistanceUnit.KILOMETERS) }
+
+fun Row.currency(column: String, unit: CurrencyUnits) = this.invoke(column) { it.toDouble().toCurrency(unit) }
+fun Row.euros(column: String) = this.invoke(column) { it.toDouble().toCurrency(CurrencyUnits.EUROS) }
+
+
+
 
 fun Row.byte() = TypedRow(this, String::toByte)
 fun Row.short() = TypedRow(this, String::toShort)
@@ -43,6 +52,9 @@ fun <T: Encodable> Row.decode(codePlan: CodePlan<T>) =
 
 fun <T: Encodable> Row.decodeName(codePlan: CodePlan<T>) =
     TypedRow(this) { s ->  codePlan.decode(s) }
+
+
+
 
 
 fun <T> T.distance(unit: DistanceUnit) where T: TypedRow<Int> = this.wrap { it.toDistance(unit) }

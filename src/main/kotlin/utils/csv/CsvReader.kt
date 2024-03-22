@@ -130,7 +130,7 @@ interface CsvReader {
  */
 open class DefaultCsvReader(
     protected val file: File,
-    protected val separator: String = ";",
+    protected val separator: String = SEMICOLON,
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
 ) : CsvReader {
 
