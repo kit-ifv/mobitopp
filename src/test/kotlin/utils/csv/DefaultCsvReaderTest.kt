@@ -15,8 +15,8 @@ class DefaultCsvReaderTest {
     fun read() {
         val otherReader = CsvReader.of(file)
 
-        val columns = reader.columns()
-        val otherColumns = otherReader.columns()
+        val columns = reader.columns
+        val otherColumns = otherReader.columns
 
         columns.forEach { col -> assertContains(otherColumns, col) }
         otherColumns.forEach { col -> assertContains(columns, col) }
@@ -27,7 +27,7 @@ class DefaultCsvReaderTest {
 
     @Test
     fun columns() {
-        val columns =  reader.columns()
+        val columns =  reader.columns
 
         COLUMNS.forEach { column ->
             assertContains(columns, column)
@@ -50,14 +50,14 @@ class DefaultRowTest {
     @Test
     fun source() {
         reader.rows().forEach {
-            row -> assertEquals("test_data.csv", row.source())
+            row -> assertEquals("test_data.csv", row.source)
         }
     }
 
     @Test
     fun index() {
         reader.rows().forEachIndexed { index, row
-            ->  assertEquals(index, row.index())
+            ->  assertEquals(index, row.index)
         }
     }
 
@@ -66,15 +66,15 @@ class DefaultRowTest {
         val rows = reader.rows().toList()
 
         rows.forEachIndexed{index, row ->
-            assertEquals((index+1).toString(), row[INDEX_COL])
+            assertEquals((index+1).toString(), row(INDEX_COL))
         }
 
         //true;1.11;6;@$§!?;42
-        assertEquals("true",    rows[5][BOOL_COL])
-        assertEquals("1.11",    rows[5][FLOAT_COL])
-        assertEquals("6",       rows[5][INDEX_COL])
-        assertEquals("%&#)!?",   rows[5][STR_COL])
-        assertEquals("42",      rows[5][INT_COL])
+        assertEquals("true",    rows[5](BOOL_COL))
+        assertEquals("1.11",    rows[5](FLOAT_COL))
+        assertEquals("6",       rows[5](INDEX_COL))
+        assertEquals("%&#)!?",   rows[5](STR_COL))
+        assertEquals("42",      rows[5](INT_COL))
 
     }
 

@@ -1,6 +1,7 @@
 package codegeneration
 
-import Builder
+import Buildable
+import fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.test.Test
@@ -86,28 +87,67 @@ class TestGeneration {
         assertEquals(9001, d2.o.i)
 
     }
+    @Test
+    fun interfacesDoNotHoldSharedState() {
+        val b = MutableInterface()
+        b.apply { inti = 4 }
+        val t1 = b.buildPreserving {  }
+        assertEquals(4, t1.inti)
+        b.apply { inti = 5 }
+        val t2 = b.build()
+        assertEquals(4, t1.inti)
+        assertEquals(5, t2.inti)
+    }
 }
-@Builder
+@Buildable
 data class Data(val i: Int)
-@Builder
+@Buildable
 class ClassWithList(val text: List<String>)
-@Builder
+@Buildable
 class ClassWithMap(val text: Map<String, String>)
-@Builder
+@Buildable
 class ClassWithSet(val text: Set<String>)
 
-@Builder
+@Buildable
 class ClassWithMutableSet(val text: Set<String>)
 
-@Builder
+@Buildable
 class ClassWithObject(val o: SomeComplexObject)
+@Buildable
+class ClassWithExternalRef(val o: FakeClass)
+@Buildable
+class ClassWithExternalR2ef(val o: FakeClass)
+@Buildable
+interface Interface {
+    val inti: Int
+}
+@Buildable
+interface Child : Interface
+@Buildable
+interface InterfaceWithAbstractFunctions {
+    val inti: Int
+    fun bruell(): String
+    fun zuchini(): Boolean
+}
+
+@Buildable
+abstract class AbstractClass(val text: String) {
+    val secondaryAttribute: String
+        get() = text.uppercase()
+
+    fun yell(): String {
+        return text
+    }
+    abstract fun abstractScream(): String;
+
+}
 
 class SomeComplexObject(var i: Int) {
     fun changeTheAttribute() {
         i = 9001
     }
 }
-@Builder
+@Buildable
 class ClassWithObjectInCollection(val t: List<SomeComplexObject>)
 
 

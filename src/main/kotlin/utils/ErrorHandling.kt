@@ -34,7 +34,9 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
         override fun accumulating() = WARN_COLLECT
 
         override fun processException(e: Exception, message: String) {
-            println("WARNING (dropping row): $message")
+            if (!mute) {
+                println("WARNING: $message")
+            }
         }
     },
 
@@ -43,8 +45,10 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
         override fun accumulating() = WARN_COLLECT
 
         override fun processException(e: Exception, message: String) {
-            println("ERROR (dropping row): $message")
-            e.printStackTrace()
+            if (!mute) {
+                println("ERROR: $message")
+                e.printStackTrace()
+            }
         }
     },
 
@@ -66,6 +70,8 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
      */
     abstract fun accumulating(): ErrorHandling
 
+    fun <E> handle(runnable: () -> E?): E? = handle(runnable) { e -> e.message ?: "No Message Specified!" }
+
     /**
      * Execute the given runnable and handle exceptions by applying the
      * specific error handling strategy.
@@ -79,13 +85,13 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
     @Suppress("TooGenericExceptionCaught")
     fun <E> handle(
         runnable: () -> E?,
-        errorMessage: () -> String,
+        errorMessage: (Exception) -> String,
     ): E? {
 
         return try {
             runnable()
         } catch (e: Exception) { //TODO add more exceptions, can we build this without exceptions?
-            processException(e, errorMessage())
+            processException(e, errorMessage(e))
             return null
         }
     }
@@ -99,5 +105,21 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
      * @param message the error message
      */
     protected abstract fun processException(e: Exception, message: String)
+
+    companion object {
+        private var mute: Boolean = false
+
+        fun mute() {
+            mute = true
+        }
+
+        fun unmute() {
+            mute = false
+        }
+
+        fun toggleMute() {
+            mute = !mute
+        }
+    }
 
 }

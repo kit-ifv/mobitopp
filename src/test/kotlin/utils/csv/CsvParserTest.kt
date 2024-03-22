@@ -8,42 +8,28 @@ import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-data class Entity(
-    var rowIndex: Int,
-    var csvIndex: Int = -1,
-    var string: String = "",
-    var byte: Byte = 0,
-    var short: Short = 0,
-    var int: Int = 0,
-    var long: Long = 0,
-    var float: Float = 0.0f,
-    var double: Double = 0.0,
-    var bool: Boolean = false,
-    var duration: Duration? = null,
-)
 
 class CsvParserTest {
     private val path: String = "src/test/resources/test_data.csv"
     private val file: File = File(path)
-    val rowToEntity: (Row) -> Entity = { row ->
-        Entity(
-            rowIndex = row.index(),
-            string = row[STR_COL],
-            bool = row.boolean()[BOOL_COL],
-            csvIndex = row[INDEX_COL].toInt(),
-            int = row[INT_COL].toInt(),
-            float = row[FLOAT_COL].toFloat()
+    val rowToEntity: (Row) -> TestEntity = { row ->
+        TestEntity(
+            rowIndex = row.index,
+            string = row(STR_COL),
+            bool = row.boolean(BOOL_COL),
+            csvIndex = row(INDEX_COL).toInt(),
+            int = row(INT_COL).toInt(),
+            float = row(FLOAT_COL).toFloat()
         )
     }
 
     private val baseParser = DefaultRowCsvParser(mapping = rowToEntity)
     private val indexedParser = DefaultRowCsvParser { row ->
-        row.index() to rowToEntity(row)
+        row.index to rowToEntity(row)
     }
 
     @Test
@@ -147,7 +133,7 @@ class CsvParserTest {
             assertEquals(index, entity.rowIndex)
         }
 
-        val expectedEntity5 = Entity(
+        val expectedEntity5 = TestEntity(
             rowIndex = 5,
             csvIndex = 6,
             string = "%&#)!?",
@@ -161,7 +147,7 @@ class CsvParserTest {
     @Test
     fun parseString() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), string = row[STR_COL])
+            TestEntity(rowIndex = row.index, string = row(STR_COL))
         }.parse(file)
             .toList()
 
@@ -171,29 +157,29 @@ class CsvParserTest {
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.string)
-            assertEquals(Entity(index, string = expected[index]), entity)
+            assertEquals(TestEntity(index, string = expected[index]), entity)
         }
     }
 
     @Test
     fun parseByte() {
         val entities = DefaultRowCsvParser(ErrorHandling.SILENT) { row ->
-            Entity(rowIndex = row.index(), byte = row[INT_COL].toByte())
+            TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
         }
             .parse(file)
             .toList()
 
-        assertEquals(Entity(2, byte = 23), entities[0])
-        assertEquals(Entity(5, byte = 42), entities[1])
-        assertEquals(Entity(6, byte = 17), entities[2])
-        assertEquals(Entity(7, byte = 0), entities[3])
-        assertEquals(Entity(9, byte = -77), entities[4])
+        assertEquals(TestEntity(2, byte = 23), entities[0])
+        assertEquals(TestEntity(5, byte = 42), entities[1])
+        assertEquals(TestEntity(6, byte = 17), entities[2])
+        assertEquals(TestEntity(7, byte = 0), entities[3])
+        assertEquals(TestEntity(9, byte = -77), entities[4])
     }
 
     @Test
     fun parseShort() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), short = row[INT_COL].toShort())
+            TestEntity(rowIndex = row.index, short = row(INT_COL).toShort())
         }.parse(file)
             .toList()
 
@@ -201,7 +187,7 @@ class CsvParserTest {
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.short)
-            assertEquals(Entity(index, short = expected[index]), entity)
+            assertEquals(TestEntity(index, short = expected[index]), entity)
         }
 
     }
@@ -209,14 +195,14 @@ class CsvParserTest {
     @Test
     fun parseInt() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), int = row[INT_COL].toInt())
+            TestEntity(rowIndex = row.index, int = row(INT_COL).toInt())
         }.parse(file).toList()
 
         val expected = listOf(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.int)
-            assertEquals(Entity(index, int = expected[index]), entity)
+            assertEquals(TestEntity(index, int = expected[index]), entity)
         }
 
     }
@@ -224,65 +210,65 @@ class CsvParserTest {
     @Test
     fun parseLong() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), long = row[INT_COL].toLong())
+            TestEntity(rowIndex = row.index, long = row(INT_COL).toLong())
         }.parse(file).toList()
 
         val expected = listOf<Long>(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.long)
-            assertEquals(Entity(index, long = expected[index]), entity)
+            assertEquals(TestEntity(index, long = expected[index]), entity)
         }
     }
 
     @Test
     fun parseFloat() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), float = row[FLOAT_COL].toFloat())
+            TestEntity(rowIndex = row.index, float = row(FLOAT_COL).toFloat())
         }.parse(file).toList()
 
         val expected = listOf(24.7009f, 0.07f, 4.2f, 3434.0f, -4.5f, 1.11f, 456.67890f, 22.2f, -23.2f, 5.9f)
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.float)
-            assertEquals(Entity(index, float = expected[index]), entity)
+            assertEquals(TestEntity(index, float = expected[index]), entity)
         }
     }
 
     @Test
     fun parseDouble() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), double = row[FLOAT_COL].toDouble())
+            TestEntity(rowIndex = row.index, double = row(FLOAT_COL).toDouble())
         }.parse(file).toList()
 
         val expected = listOf(24.7009, 0.07, 4.2, 3434.0, -4.5, 1.11, 456.67890, 22.2, -23.2, 5.9)
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.double)
-            assertEquals(Entity(index, double = expected[index]), entity)
+            assertEquals(TestEntity(index, double = expected[index]), entity)
         }
     }
 
     @Test
     fun parseBool() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(rowIndex = row.index(), bool = row[BOOL_COL].toBoolean())
+            TestEntity(rowIndex = row.index, bool = row(BOOL_COL).toBoolean())
         }.parse(file).toList()
 
         val expected = listOf(true, false, false, true, true, true, false, true, false, false)
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.bool)
-            assertEquals(Entity(index, bool = expected[index]), entity)
+            assertEquals(TestEntity(index, bool = expected[index]), entity)
         }
     }
 
     @Test
     fun parseDuration() {
         val entities = DefaultRowCsvParser { row ->
-            Entity(
-                rowIndex = row.index(),
-                duration = row[INT_COL].toInt().minutes
+            TestEntity(
+                rowIndex = row.index,
+                duration = row(INT_COL).toInt().minutes
             )
         }.parse(file).toList()
 
@@ -291,7 +277,7 @@ class CsvParserTest {
 
         entities.forEachIndexed { index, entity ->
             assertEquals(expected[index], entity.duration)
-            assertEquals(Entity(index, duration = expected[index]), entity)
+            assertEquals(TestEntity(index, duration = expected[index]), entity)
         }
 
     }
@@ -301,7 +287,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = DefaultRowCsvParser(ErrorHandling.SILENT) { row ->
-            Entity(rowIndex = row.index(), byte = row[INT_COL].toByte())
+            TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
         }.parse(file).toList()
 
         val consoleText = console.getText()
@@ -315,7 +301,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = DefaultRowCsvParser(ErrorHandling.WARNING) { row ->
-            Entity(rowIndex = row.index(), byte = row[INT_COL].toByte())
+            TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
         }.parse(file).toList()
 
         val consoleText = console.getText()
@@ -328,7 +314,7 @@ class CsvParserTest {
         val console = ConsoleCaptor()
 
         val entities = DefaultRowCsvParser(ErrorHandling.ERROR) { row ->
-            Entity(rowIndex = row.index(), byte = row.byte()[INT_COL])
+            TestEntity(rowIndex = row.index, byte = row.byte(INT_COL))
         }.parse(file).toList()
 
         val consoleText = console.getText()
@@ -342,10 +328,13 @@ class CsvParserTest {
         } else {
             "WARNING"
         }
-        val prefix = "$type (dropping row):"
+        val prefix = "$type:"
 
         listOf(0, 1, 3, 4, 8).forEach { index ->
-            assertContains(consoleText, "$prefix Could not parse row $index in test_data.csv: test_data.csv[$index]=[")
+            assertContains(
+                consoleText,
+                "$prefix Could not parse row $index in 'test_data.csv': test_data.csv[$index]=["
+            )
         }
 
         if (error) {
@@ -378,7 +367,7 @@ class CsvParserTest {
     @Test
     fun `parse byte with throws should throw exception`() {
         val parser = DefaultRowCsvParser(ErrorHandling.THROW) { row ->
-            Entity(rowIndex = row.index(), byte = row[INT_COL].toByte())
+            TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
         }
 
         assertThrows<IllegalArgumentException> {

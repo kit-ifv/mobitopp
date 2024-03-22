@@ -43,6 +43,12 @@ interface CsvParser<E> {
      */
     fun parse(csv: CsvReader): Sequence<E>
 
+    companion object {
+        operator fun <E> invoke(
+            errorHandling: ErrorHandling = ErrorHandling.WARNING,
+            mapping: (Row) -> E
+        ) = DefaultRowCsvParser(exceptionHandling=errorHandling, mapping=mapping)
+    }
 }
 
 /**
@@ -54,7 +60,8 @@ abstract class RowCsvParser<E> : CsvParser<E> {
     //TODO add validation: check if all required columns are available
 
     override fun parse(csv: CsvReader): Sequence<E> {
-        return csv.rows().map { parse(it) }.filterNotNull()
+        val rows = csv.rows()
+        return rows.map { parse(it) }.filterNotNull()
     }
 
     /**
@@ -125,10 +132,6 @@ class ErrorHandlingRow(
     private val errorHandling: ErrorHandling
 ) : Row by row {
 
-    override fun get(column: String): String {
-        return errorHandling.handleParseValue(row, column) { s -> s }!!
-    }
-
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
         return errorHandling.handleParseValue(row, column, converter)!!
     }
@@ -144,19 +147,18 @@ class ErrorHandlingRow(
  * @property parser the parser to be applied when getting values
  */
 class TypedRow<T>(
-    private val row: Row,
-    private val parser: (String) -> T
+    val row: Row,
+    val parser: (String) -> T
 ) {
-    operator fun get(column: String): T {
+
+    fun <K> wrap(transformation: (T) -> K): TypedRow<K> {
+        return TypedRow(row) {
+            transformation(parser(it))
+        }
+    }
+
+    operator fun invoke(column: String): T {
         return row(column, parser)
     }
 
 }
-
-fun Row.byte() = TypedRow(this, String::toByte)
-fun Row.short() = TypedRow(this, String::toShort)
-fun Row.int() = TypedRow(this, String::toInt)
-fun Row.long() = TypedRow(this, String::toLong)
-fun Row.float() = TypedRow(this, String::toFloat)
-fun Row.double() = TypedRow(this, String::toDouble)
-fun Row.boolean() = TypedRow(this, String::toBoolean)

@@ -1,4 +1,5 @@
 package data
+import domain.data.EconomicStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

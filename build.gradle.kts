@@ -14,7 +14,17 @@ group = "org.example"
 version = "1.0-SNAPSHOT"
 
 repositories {
+
+    maven { url =uri("https://repo.osgeo.org/repository/release") }
+    maven { url =uri("https://repo.matsim.org/repository/matsim") }
+
+    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
+    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
+    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
+
     mavenCentral()
+    mavenLocal()
+
 }
 
 detekt {
@@ -25,6 +35,7 @@ detekt {
 }
 dependencies {
     testImplementation(kotlin("test"))
+    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.0.5")
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work

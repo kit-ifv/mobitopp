@@ -38,4 +38,3 @@ fun String.inline(vararg x: String): String {
 fun String.indent(): String {
     return this.replace("\n", "\n${INDENT}")
 }
-
