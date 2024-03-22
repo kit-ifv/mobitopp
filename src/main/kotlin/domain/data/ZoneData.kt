@@ -7,8 +7,8 @@ import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.ZoneClassification
 import domain.location.Location
+import units.Distance
 import utils.registerId
-import utils.units.Distance
 
 typealias Attractivity = Map<LegacyActivityType, Double> //TODO
 

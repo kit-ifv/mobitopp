@@ -6,9 +6,9 @@ import Decodable
 import Encodable
 import ID
 import Identifiable
+import units.Currency
 import utils.registerId
-import utils.units.Currency
-import utils.units.UnitIntervalValue
+import units.UnitIntervalValue
 
 /**
  * A person in for the simulation. Certain properties can be assumed to be known during the simulation

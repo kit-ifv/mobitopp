@@ -11,6 +11,7 @@ import modeling.synthesis.Context
 import modeling.synthesis.CsvResource
 import modeling.synthesis.PrepareCsvStep
 import modeling.synthesis.Synthesis
+import units.DistanceUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -20,7 +21,6 @@ import utils.csv.distance
 import utils.csv.double
 import utils.csv.int
 import utils.csv.long
-import utils.units.DistanceUnit
 import java.io.File
 
 @Suppress("LongParameterList")

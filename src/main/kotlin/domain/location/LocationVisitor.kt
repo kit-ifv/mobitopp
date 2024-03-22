@@ -1,7 +1,7 @@
 package domain.location
 
-import utils.units.Currency
-import utils.units.Distance
+import units.Currency
+import units.Distance
 import kotlin.time.Duration
 
 interface LocationVisitor<R> {

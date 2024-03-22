@@ -7,7 +7,7 @@ import ID
 import Identifiable
 import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
-import utils.units.Currency
+import units.Currency
 
 /**
  * The minimal viable information about a household in the simulation.

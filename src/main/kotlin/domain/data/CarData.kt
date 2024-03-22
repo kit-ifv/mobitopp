@@ -4,15 +4,15 @@ import Buildable
 import Decodable
 import Encodable
 import Identifiable
-import utils.units.Distance
-import utils.units.DistanceUnit
-import utils.units.Energy
-import utils.units.EnergyUnits
-import utils.units.toEnergy
+import units.Distance
+import units.DistanceUnit
+import units.Energy
+import units.EnergyUnit
+import units.toEnergy
 
 /**
  * The generic interface for a car.
- * @property segment Segment as desribed in [CarSegment]
+ * @property segment Segment as described in [CarSegment]
  * @property engine: The type of Engine
  * @property seats the amount of people that can travel inside the car including the driver
  */
@@ -24,7 +24,7 @@ interface CarData : Identifiable<CarData> {
     val energyCapacity: Energy
 
     val efficiency: Double //TODO energy over distance
-        get() = energyCapacity.toDouble(EnergyUnits.KILOWATTHOUR) / range.toDouble(DistanceUnit.KILOMETERS)
+        get() = energyCapacity.toDouble(EnergyUnit.KILOWATTHOUR) / range.toDouble(DistanceUnit.KILOMETERS)
 
 }
 
@@ -41,7 +41,7 @@ interface CombustionCarData: CarData {
     val kwhPerLiter: Double //TODO unit energy per volume
 
     override val energyCapacity: Energy
-        get() = (kwhPerLiter * fuelCapacity).toEnergy(EnergyUnits.KILOWATTHOUR)
+        get() = (kwhPerLiter * fuelCapacity).toEnergy(EnergyUnit.KILOWATTHOUR)
 
     override val engine: EngineType
         get() = EngineType.COMBUSTION
@@ -69,13 +69,13 @@ interface HybridCarData: CombustionCarData, ElectricCarData {
         get() = throw UnsupportedOperationException("General efficiency is not defined for hybrid cars.")
 
     val combustionCapacity: Energy
-        get() = (kwhPerLiter * fuelCapacity).toEnergy(EnergyUnits.KILOWATTHOUR)
+        get() = (kwhPerLiter * fuelCapacity).toEnergy(EnergyUnit.KILOWATTHOUR)
 
     val electricEfficiency: Double
-        get() = batteryCapacity.toDouble(EnergyUnits.KILOWATTHOUR) / electricRange.toDouble(DistanceUnit.KILOMETERS)
+        get() = batteryCapacity.toDouble(EnergyUnit.KILOWATTHOUR) / electricRange.toDouble(DistanceUnit.KILOMETERS)
 
     val combustionEfficiency: Double
-        get() = combustionCapacity.toDouble(EnergyUnits.KILOWATTHOUR) /
+        get() = combustionCapacity.toDouble(EnergyUnit.KILOWATTHOUR) /
                 combustionRange.toDouble(DistanceUnit.KILOMETERS)
 
     override val engine: EngineType

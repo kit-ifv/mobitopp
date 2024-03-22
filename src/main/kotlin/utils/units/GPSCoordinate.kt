@@ -1,5 +1,7 @@
 package utils.units
 
+import units.Distance
+import units.kilometers
 import kotlin.math.PI
 import kotlin.math.asin
 import kotlin.math.cos

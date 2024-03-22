@@ -15,12 +15,12 @@ import domain.data.ZoneData
 import domain.data.ZoneDataBuilder
 import domain.enums.AreaType
 import domain.enums.Bbsr17
+import units.CurrencyUnit
 import usecases.finishPersons
 import usecases.loadHouseholds
 import usecases.loadZones
 import usecases.prepareEmobilityPersons
 import utils.ErrorHandling
-import utils.units.CurrencyUnits
 import java.io.File
 
 interface SynthesisStep {
@@ -147,7 +147,7 @@ interface Context {
     val scenarioName: String
     val demandFolder: File
 
-    val currencyUnit: CurrencyUnits
+    val currencyUnit: CurrencyUnit
 
     val areaTypeCodes: CodePlan<AreaType>
     val economicalStatusCodes: CodePlan<EconomicStatus>
@@ -197,7 +197,7 @@ data class BaseContext(
     override val sexCodes: CodePlan<Sex> = Sex,
     override val graduationCodes: CodePlan<Graduation> = Graduation,
     override val employmentCodes: CodePlan<Employment> = Employment,
-    override val currencyUnit: CurrencyUnits = CurrencyUnits.EUROS,
+    override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
 ) : Context {
 
     override val zoneRepository: BuilderRepository<ZoneDataBuilder, ZoneData>

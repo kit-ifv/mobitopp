@@ -44,17 +44,6 @@ interface RoadPosition: Position {
     override fun <R> accept(visitor: LocationVisitor<R>) = visitor.visit(this)
 }
 
-//class RoadPositionInZone7(
-//    override val road: Long,
-//    override val roadAccess: UnitIntervalValue,
-//    override val coordinate: Coordinate,
-//    override val zone: ZoneData
-//): RoadPosition, ZoneLocation {
-//
-//    override fun <R> accept(visitor: LocationVisitor<R>) = visitor.visit(this)
-//
-//}
-
 class RoadPositionInZone(
     roadPosition: RoadPosition,
     override val zone: ZoneData

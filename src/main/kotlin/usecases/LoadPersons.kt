@@ -11,6 +11,7 @@ import modeling.synthesis.Context
 import modeling.synthesis.CsvResource
 import modeling.synthesis.PrepareCsvStep
 import modeling.synthesis.Synthesis
+import units.CurrencyUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -22,7 +23,6 @@ import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import utils.csv.unitShare
-import utils.units.CurrencyUnits
 import java.io.File
 
 @Suppress("LongParameterList")
@@ -39,7 +39,7 @@ fun <S, C> S.prepareEmobilityPersons(
     sexColumn: String = "gender",
     graduationCode: CodePlan<Graduation>? = null,
     graduationColumn: String = "graduation",
-    incomeUnit: CurrencyUnits? = null,
+    incomeUnit: CurrencyUnit? = null,
     incomeColumn: String = "income",
     bikeColumn: String = "hasBike",
     commuterTicketColumn: String = "hasCommuterTicket",

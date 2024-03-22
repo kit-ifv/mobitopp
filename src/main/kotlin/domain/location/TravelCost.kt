@@ -1,8 +1,7 @@
-package data
+package domain.location
 
-import units.Currency
 import domain.enums.Mode
-import domain.location.Location
+import units.Currency
 
 /**
  * The generic interface for determining travel cost. The cost is dependent on the mode.

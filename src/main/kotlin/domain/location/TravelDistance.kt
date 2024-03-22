@@ -1,7 +1,7 @@
 package domain.location
 
 import domain.enums.Mode
-import utils.units.Distance
+import units.Distance
 
 /**
  * The generic interface for determining travel distance. It might appear that requiring a mode seems obsolete. However,

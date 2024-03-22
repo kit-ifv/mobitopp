@@ -17,7 +17,7 @@ import utils.csv.currency
 import utils.csv.decode
 import utils.csv.int
 import utils.csv.long
-import utils.units.CurrencyUnits
+import units.CurrencyUnit
 import java.io.File
 
 @Suppress("LongParameterList")
@@ -33,7 +33,7 @@ fun <S, C> S.prepareHouseholds(
     domCodeColumn: String = "domCode",
     typeColumn: String = "type",
     incomeColumn: String = "income", //TODO unit: currency over time
-    incomeUnit: CurrencyUnits? = null,
+    incomeUnit: CurrencyUnit? = null,
     economicalStatusColumn: String = "economicalStatus",
     economicalStatusCodes: CodePlan<EconomicStatus>? = null
 ) where S: Synthesis<C>, C: Context {
@@ -52,7 +52,7 @@ fun <S, C> S.prepareHouseholds(
             roadPosition = row(locationColumn, roadPositionParser),
             domCode = row.int(domCodeColumn),
             type = row.int(typeColumn),
-            incomePerMonth = row.int().currency(incomeColumn, currencyUnit),
+            incomePerMonth = row.currency(incomeColumn, currencyUnit),
             economicStatus = row.decode(economicalStatusColumn, economicalStatusCodePlan)
         )
     }
