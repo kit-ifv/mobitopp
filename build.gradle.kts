@@ -31,7 +31,7 @@ detekt {
     version = "1.23.1"
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml" )
-
+    autoCorrect = true
 }
 dependencies {
     testImplementation(kotlin("test"))
@@ -39,6 +39,8 @@ dependencies {
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
+    detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
+    detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
 //    implementation(project(":test-processor"))
 //    ksp{project(":test-processor")}
 
