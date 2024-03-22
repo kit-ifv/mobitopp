@@ -5,5 +5,4 @@ val creator: String
 
 fun main(args: Array<String>) {
     println("Hello World!")
-
 }

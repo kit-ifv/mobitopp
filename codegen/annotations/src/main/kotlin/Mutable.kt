@@ -1,4 +1,4 @@
 
 @Target(AnnotationTarget.CLASS)
-annotation class Builder {
+annotation class Buildable {
 }

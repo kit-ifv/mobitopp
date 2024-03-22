@@ -1,4 +1,15 @@
-package data
+@JvmInline
+value class ID<E> (val id: Long)
+
+interface Identifiable<E> {
+    val id: ID<E>
+}
+
+public interface Builder<E> {
+    fun build(): E
+}
+
+interface IdentifiableBuilder<E> : Builder<E>, Identifiable<E> where E : Identifiable<E>
 
 /**
  * An object is encodable if it can provide an integer based on the attributes present. In the future this could be
@@ -16,6 +27,10 @@ fun interface Encodable {
  *
  * This could also be abstracted to generic decoding types if the need arises
  */
-fun interface Decodable<T: Encodable> {
+interface Decodable<T : Encodable> {
     fun decode(i: Int): T
+
+    fun decode(s: String): T
 }
+
+typealias CodePlan<R> = Decodable<R>
