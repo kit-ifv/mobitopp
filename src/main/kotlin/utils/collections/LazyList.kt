@@ -17,7 +17,10 @@ class LazyList<E>(
 
     override operator fun get(index: Int) = when {
         index < elements.size -> elements[index]
-        else -> readValuesUntil(index).let { elements[index] }
+        else ->  {
+            readValuesUntil(index)
+            elements[index]
+        }
     }
 
     override val size: Int
