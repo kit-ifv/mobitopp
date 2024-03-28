@@ -38,6 +38,30 @@ interface Row {
      */
     operator fun invoke(column: String): String = invoke(column) { s -> s }
 
+    /**
+     * Parse this [Row]'s value at the given index using the given parser.
+     *
+     * @param columnIndex the column index at which the value should be parsed
+     * @param converter converts the csv string value to the desired type
+     * @param T the desired result type
+     * @return the parsed value of this [Row] in the given index
+     */
+    fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T
+
+    /**
+     * Get this [Row]'s value at the given index.
+     *
+     * @param columnIndex the column index to look up the value
+     * @return the raw value of this [Row] in the given index
+     */
+    fun valueAt(columnIndex: Int): String = valueAt(columnIndex) { s -> s }
+
+    /**
+     * Check whether the row/source contains the given column.
+     *
+     * @param column the column to be checked
+     * @return true, if the given column exists in the [Row]/source
+     */
     fun hasColumn(column: String): Boolean
 }
 
@@ -47,35 +71,40 @@ interface Row {
  * @constructor create a row with the given values
  * @property source string description of the source containing this row
  * @property index the index of this row (unique with respect to source)
- * @property columnIndex mapping of column names to value list index
+ * @property columnIndexMap mapping of column names to value list index
  * @property values list of values of this row
  */
 open class DefaultRow(
     override val source: String,
     override val index: Int,
-    protected val columnIndex: Map<String, Int>,
+    protected val columnIndexMap: Map<String, Int>,
     protected val values: List<String>
 ) : Row {
 
-    @Suppress("TooGenericExceptionCaught")
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
-        val columnIndex = requireNotNull(columnIndex[column]) {
+        val columnIndex = requireNotNull(columnIndexMap[column]) {
             "The given column '$column' is missing in $source. " +
-                "Available columns: ${columnIndex.keys}"
+                "Available columns: ${columnIndexMap.keys}"
         }
 
-        val string = try {
-            values[columnIndex]
-        } catch (i: IndexOutOfBoundsException) { // Why is IndexOutOfBoundsException too generic?
-            val message = "The given column's index is out of range in row ${this.index} of $source. " +
-                "Column: $column, index: $columnIndex, values: $values."
-            throw IllegalArgumentException(message, i)
-        }
-
-        return converter(string)
+        return converter(getIndexValue(columnIndex, column))
     }
 
-    override fun hasColumn(column: String) = columnIndex.containsKey(column)
+    override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T {
+        return converter(getIndexValue(columnIndex))
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun getIndexValue(columnIndex: Int, column: String? = null): String = try {
+        values[columnIndex]
+    } catch (i: IndexOutOfBoundsException) { // Why is IndexOutOfBoundsException too generic?
+        val columnName = column ?: columnIndex.toString()
+        val message = "The given column's index is out of range in row ${this.index} of $source. " +
+            "Column: $columnName, index: $columnIndex, values: $values."
+        throw IllegalArgumentException(message, i)
+    }
+
+    override fun hasColumn(column: String) = columnIndexMap.containsKey(column)
 
     override fun toString() = "$source[$index]=$values"
 }

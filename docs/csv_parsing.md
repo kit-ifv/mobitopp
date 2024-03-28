@@ -93,10 +93,12 @@ A **CsvReader** must provide a set of column names, the number of lines in the f
 Most importantly CsvReaders provide a sequence of **Row**s, each containing the information of one line in the csv file.
 
 ## Rows
-The **Row** interface requires that each row has a description of its source (for debugging and meaningful error messages). Also **Row**s have an index within their source. They also allow to obtain values from the file/line they represent by specifying a column name. By default, values are read as Strings. Optionally, the value can be mapped to a desired type:
+The **Row** interface requires that each row has a description of its source (for debugging and meaningful error messages). Also **Row**s have an index within their source. They also allow to obtain values from the file/line they represent by specifying a column name or the column index. By default, values are read as Strings. Optionally, the value can be mapped to a desired type:
 ```kotlin
 val value: String = row("column_name")
 val other: Int = row("other_column", String::toInt)
+val foo: String1 = row.valueAt(3)
+val bar: Int = row.valueAt(4, String::toInt)
 ```
 The default implementation **DefaultRow** checks whether the requested column is available and the row contains a value for that column.
 
