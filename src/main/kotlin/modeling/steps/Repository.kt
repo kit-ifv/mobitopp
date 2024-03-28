@@ -41,10 +41,10 @@ class MapRepository<out E, I>(
 ) : Repository<E, I> where E : Identifiable<I> {
     private val idMap: Map<I, E> = elements.associateBy { it.id }
 
-    constructor(resource: Resource<E>): this(
-        elements=resource.elements.toList(),
-        name=resource.name,
-        source=resource.source
+    constructor(resource: Resource<E>) : this(
+        elements = resource.elements.toList(),
+        name = resource.name,
+        source = resource.source
     )
 
     override val size: Int
@@ -68,7 +68,7 @@ class MapRepository<out E, I>(
  */
 open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder<E>, E : Identifiable<I> {
     private var builders: Resource<B>? = null
-    private var elems : Repository<E, I>? = null
+    private var elems: Repository<E, I>? = null
     private var internalState: RepositoryState = RepositoryState.UNINITIALIZED
 
     /**

@@ -80,7 +80,6 @@ class SequenceResourceTest : ResourceTest<String>() {
 
     override fun expectedToString() = "${expectedName()} (${expectedBaseSource()})"
     override fun expectedElements() = elements
-
 }
 
 class CsvResourceTest : ResourceTest<TestBuilder>() {
@@ -122,5 +121,4 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
         validateMetadata(result, expectedBaseSource(), "build")
         assertContentEquals(expectedBuildResults(), result.elements.toList())
     }
-
 }

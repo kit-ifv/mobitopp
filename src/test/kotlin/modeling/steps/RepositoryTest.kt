@@ -62,5 +62,4 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
     override fun expectedBaseSource() = source
 
     override fun expectedToString() = "MapRepository[$name] ($source)"
-
 }

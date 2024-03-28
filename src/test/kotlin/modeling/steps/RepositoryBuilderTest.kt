@@ -111,7 +111,6 @@ open class RepositoryBuilderTest : RepositoryTest<TestEntity, TestId>() {
         }.asSequence()
     )
 
-
     protected fun builderResource() =
         SequenceResource(expectedName(), expectedBaseSource(), builders.asSequence())
 
@@ -124,7 +123,6 @@ open class RepositoryBuilderTest : RepositoryTest<TestEntity, TestId>() {
     @Test
     open fun update() =
         assertStateException("prepared") { repoBuilder.update("update1") { e -> e.also { e.int = e.string.length } } }
-
 
     @Test
     open fun prepare() {
@@ -225,14 +223,13 @@ open class PreparedRepositoryTest : RepositoryBuilderTest() {
     override fun prepare() =
         assertStateException("started", already = true) { repoBuilder.prepare(builderResource()) }
 
-
     @Test
     override fun mergeBuilders() {
         repoBuilder.mergeBuilders(
             builderResource().elements.map {
                 it.rowIndex += expectedSize()
                 it
-            }.asResource(name=builderResource().name, builderResource().source + " -> reindex")
+            }.asResource(name = builderResource().name, builderResource().source + " -> reindex")
         )
         assertEquals(RepositoryState.PREPARING, repoBuilder.state)
         repoBuilder.build()

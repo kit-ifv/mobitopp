@@ -35,8 +35,8 @@ class SynthesisValidationTest {
 
     private lateinit var buildStep: BuildStep<TestBuilder, TestEntity, TestId>
 
-    //TODO update all
-    //TODO merge step
+    // TODO update all
+    // TODO merge step
 
     @BeforeEach
     fun setUp() {
@@ -89,7 +89,7 @@ class SynthesisValidationTest {
         assertEquals(RepositoryState.FINISHED, repository.state)
     }
 
-     @Test
+    @Test
     fun `valid PrepareResourceStep in UNINITIALIZED state`() {
         testStep(prepareStep, expectValid = true, RepositoryState.PREPARING)
     }
@@ -114,7 +114,7 @@ class SynthesisValidationTest {
         testStep(buildStep, expectValid = false, RepositoryState.FINISHED)
     }
 
-     @Test
+    @Test
     fun `invalid PrepareResourceStep in PREPARING state`() {
         initPreparing()
         testStep(prepareStep, expectValid = false, RepositoryState.PREPARING)

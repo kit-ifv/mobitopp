@@ -74,16 +74,15 @@ class CsvResource<E> (
 
     private val rowSequence =
         parser.parse(CsvReader.of(file, delimiter))
-              .asResource(file.name, file.path)
-              .reusable()
+            .asResource(file.name, file.path)
+            .reusable()
 
     override fun toString() = "CSV $name ($source)"
 }
 
-
 class ReusableResource<E>(
     protected val delegate: Resource<E>
-): Resource<E> by delegate {
+) : Resource<E> by delegate {
     private var storage: List<E>? = null
 
     override val elements: Sequence<E>
@@ -94,4 +93,4 @@ class ReusableResource<E>(
         }
 }
 
-fun <R, E> R.reusable(): Resource<E> where R: Resource<E> = ReusableResource(this)
+fun <R, E> R.reusable(): Resource<E> where R : Resource<E> = ReusableResource(this)
