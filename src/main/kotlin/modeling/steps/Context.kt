@@ -1,77 +1,77 @@
 package modeling.steps
 
+import Builder
 import CodePlan
+import domain.data.CarId
+import domain.data.EMobilityPersonData
 import domain.data.EMobilityPersonDataBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.Graduation
 import domain.data.HouseholdData
 import domain.data.HouseholdDataBuilder
+import domain.data.HouseholdId
 import domain.data.LegacyZoneData
 import domain.data.LegacyZoneDataBuilder
 import domain.data.PersonData
+import domain.data.PersonId
+import domain.data.PrivateCarBuilder
+import domain.data.PrivateCarData
 import domain.data.Sex
 import domain.data.ZoneData
 import domain.data.ZoneDataBuilder
+import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.Bbsr17
 import units.CurrencyUnit
 import usecases.finishPersons
-import usecases.loadHouseholds
-import usecases.loadZones
+import usecases.legacyData.loadHouseholds
+import usecases.legacyData.loadZones
 import usecases.prepareEmobilityPersons
 import utils.ErrorHandling
 import java.io.File
 
+
 interface Context {
     val scenarioName: String
     val demandFolder: File
+    fun reset()
+}
 
-    val currencyUnit: CurrencyUnit
-    // other default units
 
-    val areaTypeCodes: CodePlan<AreaType>
+interface HouseholdContext {
+    val householdRepository: RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>
     val economicalStatusCodes: CodePlan<EconomicStatus>
+    val currencyUnit: CurrencyUnit
+}
+
+interface PersonContext<B, E> where B: Builder<E>, E: PersonData {
+    val personRepository: RepositoryBuilder<B, E, PersonId>
     val employmentCodes: CodePlan<Employment>
     val graduationCodes: CodePlan<Graduation>
     val sexCodes: CodePlan<Sex>
-
-    val zoneRepository: BuilderRepository<ZoneDataBuilder, ZoneData>
-    val householdRepository: BuilderRepository<HouseholdDataBuilder, HouseholdData>
-    val personRepository: BuilderRepository<EMobilityPersonDataBuilder, PersonData>
-
-    fun reset() {
-        zoneRepository.reset()
-        householdRepository.reset()
-        personRepository.reset()
-    }
 }
 
-interface LegacyZones {
-    val zoneRepository: BuilderRepository<LegacyZoneDataBuilder, LegacyZoneData>
+interface EMobilityPersonContext: PersonContext<EMobilityPersonDataBuilder, EMobilityPersonData>
+
+
+interface ZoneContext<B, E> where B: Builder<E>, E: ZoneData {
+    val zoneRepository: RepositoryBuilder<B, E, ZoneId>
+    val areaTypeCodes: CodePlan<AreaType>
 }
 
-class ModelExecution<C>(
-    val context: C
-) : MultiStep(context.scenarioName) where C : Context
+interface BaseZoneContext: ZoneContext<ZoneDataBuilder, ZoneData>
 
-fun <C> C.synthesis(lambda: ModelExecution<C>.() -> Unit): C where C : Context {
-    println("Validate before run!")
-    val dummy = ModelExecution(this)
-    dummy.lambda()
-    val isValid = dummy.validate()
-
-    if (isValid) {
-        println("Execute")
-        this.reset()
-        val synth = ModelExecution(this)
-        synth.lambda()
-        synth.execute()
-        return this
-    } else {
-        error("validation failed")
-    }
+interface LegacyZonesContext: ZoneContext<LegacyZoneDataBuilder, LegacyZoneData> {
+    val zoneColumnIndex: Map<Int, LegacyZoneData>
 }
+
+interface PrivateCarContext<B,E> where B: Builder<E>, E: PrivateCarData {
+    val carRepository: RepositoryBuilder<B, E, CarId>
+}
+
+interface BasePrivateCarContext: PrivateCarContext<PrivateCarBuilder, PrivateCarData>
+
 
 data class BaseContext(
     override val scenarioName: String,
@@ -82,20 +82,58 @@ data class BaseContext(
     override val graduationCodes: CodePlan<Graduation> = Graduation,
     override val employmentCodes: CodePlan<Employment> = Employment,
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
-) : Context {
+) : Context, BaseZoneContext, HouseholdContext, EMobilityPersonContext {
 
-    override val zoneRepository: BuilderRepository<ZoneDataBuilder, ZoneData> =
-        BuilderRepository()
+    override val zoneRepository = RepositoryBuilder<ZoneDataBuilder, ZoneData, ZoneId>()
+    override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
+    override val personRepository= RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
 
-    override val householdRepository: BuilderRepository<HouseholdDataBuilder, HouseholdData> =
-        BuilderRepository()
+    override fun reset() {
+        zoneRepository.reset()
+        householdRepository.reset()
+        personRepository.reset()
+    }
 
-    override val personRepository: BuilderRepository<EMobilityPersonDataBuilder, PersonData> =
-        BuilderRepository()
 }
 
+data class LegacyContext(
+    override val scenarioName: String,
+    override val demandFolder: File,
+    override val areaTypeCodes: CodePlan<AreaType> = Bbsr17,
+    override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus,
+    override val sexCodes: CodePlan<Sex> = Sex,
+    override val graduationCodes: CodePlan<Graduation> = Graduation,
+    override val employmentCodes: CodePlan<Employment> = Employment,
+    override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
+): Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext {
+
+    override val zoneRepository = RepositoryBuilder<LegacyZoneDataBuilder, LegacyZoneData, ZoneId>()
+    override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
+    override val personRepository= RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
+
+
+    private var index: Map<Int, LegacyZoneData>? = null
+    override val zoneColumnIndex: Map<Int, LegacyZoneData>
+        get() {
+            check(zoneRepository.state == RepositoryState.FINISHED) {
+                "Cannot access zoneColumnIndex as the zoneRepository has not been built yet!"
+            }
+
+            return index ?: zoneRepository.elements.associateBy { it.matrixColumn }.also { index = it }
+        }
+
+
+    override fun reset() {
+        zoneRepository.reset()
+        householdRepository.reset()
+        personRepository.reset()
+    }
+}
+
+
+
 fun main() {
-    val context = BaseContext(
+    val context = LegacyContext(
         scenarioName = "testSteps",
         areaTypeCodes = Bbsr17,
         demandFolder = File(

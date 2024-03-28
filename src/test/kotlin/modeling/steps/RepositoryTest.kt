@@ -1,7 +1,7 @@
 package modeling.steps
 
 import ID
-import Identifiable
+import utils.Identifiable
 import org.junit.jupiter.api.Test
 import utils.csv.TestEntity
 import kotlin.test.assertEquals

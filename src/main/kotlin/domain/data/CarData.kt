@@ -1,14 +1,19 @@
 package domain.data
 
 import Buildable
+import Builder
 import Decodable
 import Encodable
-import Identifiable
 import units.Distance
 import units.DistanceUnit
 import units.Energy
 import units.EnergyUnit
 import units.toEnergy
+import utils.ID
+import utils.Identifiable
+import utils.drawId
+
+typealias CarId = ID<CarData>
 
 /**
  * The generic interface for a car.
@@ -16,7 +21,7 @@ import units.toEnergy
  * @property engine: The type of Engine
  * @property seats the amount of people that can travel inside the car including the driver
  */
-interface CarData : Identifiable<CarData> {
+interface CarData : Identifiable<CarId> {
     val segment: CarSegment
     val engine: EngineType
     val seats: Int
@@ -31,7 +36,7 @@ interface CarData : Identifiable<CarData> {
 /**
  * A vehicle that is assigned to a specific household or user
  */
-interface PersonalCarData: CarData {
+interface PrivateCarData: CarData {
     val owner: HouseholdData
     val mainUser: PersonData
 }
@@ -83,13 +88,13 @@ interface HybridCarData: CombustionCarData, ElectricCarData {
 }
 
 @Buildable
-interface PersonalCombustionCarData: PersonalCarData, CombustionCarData
+interface PrivateCombustionCarData: PrivateCarData, CombustionCarData
 
 @Buildable
-interface PersonalElectricCarData: PersonalCarData, ElectricCarData
+interface PrivateElectricCarData: PrivateCarData, ElectricCarData
 
 @Buildable
-interface PersonalHybridCarData: PersonalCarData, HybridCarData
+interface PrivateHybridCarData: PrivateCarData, HybridCarData
 
 /**
  * Car segments are a classification seen in https://en.wikipedia.org/wiki/Euro_Car_Segment. If the need arises
@@ -119,4 +124,38 @@ enum class EngineType(private val code: Int): Encodable {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
+}
+
+
+@Suppress("LongParameterList")
+class PrivateCarBuilder(
+    var segment: CarSegment? = null,
+    var engine: EngineType? = null,
+    var seats: Int? = null,
+    var range: Distance? = null,
+    var owner: HouseholdData? = null,
+    var mainUser: PersonData? = null,
+    var fuelCapacity: Int? = null, //TODO unit volume
+    var kwhPerLiter: Double? = null, //TODO unit energy per volume
+    val electricRange: Distance? = null,
+    val combustionRange: Distance? = null,
+): Builder<PrivateCarData> {
+
+    override fun build() = when(engine!!) {
+        EngineType.COMBUSTION -> buildCombunstionCar()
+        EngineType.ELECTRIC -> TODO()
+        EngineType.HYBRID -> TODO()
+    }
+
+    private fun buildCombunstionCar() = object:PrivateCombustionCarData {
+        override val owner: HouseholdData = this@PrivateCarBuilder.owner!!
+        override val mainUser: PersonData = this@PrivateCarBuilder.mainUser!!
+        override val segment: CarSegment = this@PrivateCarBuilder.segment!!
+        override val seats: Int = this@PrivateCarBuilder.seats!!
+        override val range: Distance = this@PrivateCarBuilder.range!!
+        override val id: CarId = drawId()
+        override val fuelCapacity: Int = this@PrivateCarBuilder.fuelCapacity!!
+        override val kwhPerLiter: Double = this@PrivateCarBuilder.kwhPerLiter!!
+    }
+
 }

@@ -3,11 +3,14 @@ package domain.data
 import Builder
 import Decodable
 import Encodable
-import ID
-import Identifiable
 import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
 import units.Currency
+import utils.ID
+import utils.Identifiable
+import kotlin.random.Random
+
+typealias HouseholdId = ID<HouseholdData>
 
 /**
  * The minimal viable information about a household in the simulation.
@@ -16,7 +19,7 @@ import units.Currency
  *  @property economicStatus The economic status grouping (Might be derived from income)
  *
  */
-interface HouseholdData: Identifiable<HouseholdData> {
+interface HouseholdData: Identifiable<HouseholdId> {
     val householdNumber: Long
     val surveyYear: Int
     val location: RoadPositionInZone
@@ -24,6 +27,10 @@ interface HouseholdData: Identifiable<HouseholdData> {
     val type: Int
     val incomePerMonth: Currency
     val economicStatus: EconomicStatus
+
+    val members: Set<PersonData>
+    fun addMember(person: PersonData): Boolean
+    val random: Random
 }
 
 @Suppress("LongParameterList")
@@ -36,9 +43,7 @@ class HouseholdDataBuilder(
     var type: Int? = null,
     var incomePerMonth: Currency? = null,
     var economicStatus: EconomicStatus? = null
-): Builder<HouseholdData> {//, Identifiable<HouseholdDataBuilder> {
-//    override val id: ID<HouseholdDataBuilder>
-//        get() = ID(this.householdNumber!!.toULong())
+): Builder<HouseholdData> {
 
 
 
@@ -72,6 +77,16 @@ class HouseholdDataBuilder(
 
         override val surveyYear: Int = requireNotNull(this@HouseholdDataBuilder.surveyYear)
             {"surveyYear is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"}
+
+
+        private val hhMembers = mutableSetOf<PersonData>()
+        override fun addMember(person: PersonData) = hhMembers.add(person)
+
+        override val members: Set<PersonData>
+            get() = hhMembers
+
+        override val random: Random = Random(id.id)
+
     }
 
     override fun toString(): String {

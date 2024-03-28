@@ -1,4 +1,4 @@
-package usecases
+package usecases.legacyData
 
 import CodePlan
 import domain.data.EconomicStatus
@@ -8,8 +8,11 @@ import domain.location.parseRoadPosition
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.PrepareCsvStep
+import modeling.steps.HouseholdContext
+import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
+import modeling.steps.PrepareCsvStep
+import units.CurrencyUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -17,7 +20,6 @@ import utils.csv.currency
 import utils.csv.decode
 import utils.csv.int
 import utils.csv.long
-import units.CurrencyUnit
 import java.io.File
 
 @Suppress("LongParameterList")
@@ -36,10 +38,10 @@ fun <S, C> S.prepareHouseholds(
     incomeUnit: CurrencyUnit? = null,
     economicalStatusColumn: String = "economicalStatus",
     economicalStatusCodes: CodePlan<EconomicStatus>? = null
-) where S: ModelExecution<C>, C: Context {
+) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
 
     val currencyUnit = incomeUnit ?: this.context.currencyUnit
-    val zoneRepo = { context.zoneRepository }
+    val zoneIndex = { context.zoneColumnIndex }
     val economicalStatusCodePlan = economicalStatusCodes ?: context.economicalStatusCodes
 
     val parser = CsvParser(errorHandling) { row ->
@@ -47,7 +49,7 @@ fun <S, C> S.prepareHouseholds(
             householdNumber = row.long(hhNumberColumn),
             surveyYear = row.int(yearColumn),
             homeZone = requireNotNull(
-                zoneRepo().elements.find { it.matrixColumn == row.int(zoneColumn) }
+                zoneIndex()[row.int(zoneColumn)]
             ), // legacy household.csv files reference column instead of visum id
             roadPosition = row(locationColumn, roadPositionParser),
             domCode = row.int(domCodeColumn),
@@ -64,7 +66,7 @@ fun <S, C> S.prepareHouseholdsFile(
     parser: CsvParser<HouseholdDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: ModelExecution<C>, C: Context {
+) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
     val householdFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
 
     val resource = CsvResource(householdFile, parser, delimiter)
@@ -78,11 +80,11 @@ fun <S, C> S.prepareHouseholdsFile(
     )
 }
 
-fun <S, C> S.finishHouseholds() where S: ModelExecution<C>, C: Context {
+fun <S, C> S.finishHouseholds() where S: ModelExecution<C>, C: HouseholdContext {
     this.addStep(BuildStep("finish households", context.householdRepository))
 }
 
-fun <S, C> S.loadHouseholds() where S: ModelExecution<C>, C: Context {
+fun <S, C> S.loadHouseholds() where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
     this.prepareHouseholds()
     this.finishHouseholds()
 }

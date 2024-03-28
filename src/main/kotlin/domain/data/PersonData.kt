@@ -4,11 +4,13 @@ import Buildable
 import Builder
 import Decodable
 import Encodable
-import ID
-import Identifiable
 import units.Currency
-import utils.registerId
 import units.UnitIntervalValue
+import utils.ID
+import utils.Identifiable
+import utils.registerId
+
+typealias PersonId = ID<PersonData>
 
 /**
  * A person in for the simulation. Certain properties can be assumed to be known during the simulation
@@ -19,7 +21,7 @@ import units.UnitIntervalValue
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
-interface PersonData: Identifiable<PersonData> {
+interface PersonData: Identifiable<PersonId> {
     // These values can reasonably be expected for any Person to be present in the simulation
     val personId: Long
     val householdData: HouseholdData
@@ -33,6 +35,9 @@ interface PersonData: Identifiable<PersonData> {
     val hasLicense: Boolean
 
     val memberships: Map<String, Boolean>
+
+    val isAdult: Boolean
+        get() = (age >= 18)
 
 }
 
@@ -57,11 +62,7 @@ class EMobilityPersonDataBuilder(
     var hasCommuterTicket: Boolean? = null,
     var hasLicense: Boolean? = null,
     var memberships: MutableMap<String, Boolean> = mutableMapOf()
-): Builder<PersonData> {//, Identifiable<EMobilityPersonDataBuilder> {
-//    override val id: ID<EMobilityPersonDataBuilder>
-//        get() = ID(0uL)
-
-
+): Builder<EMobilityPersonData> {
 
     override fun build(): EMobilityPersonData {
         return object:EMobilityPersonData {
@@ -79,6 +80,10 @@ class EMobilityPersonDataBuilder(
             override val hasLicense = this@EMobilityPersonDataBuilder.hasLicense!!
             override val memberships: Map<String, Boolean> = this@EMobilityPersonDataBuilder.memberships
             override val id: ID<PersonData> = registerId(personId)
+
+            init {
+                this.householdData.addMember(this)
+            }
 
         }
     }

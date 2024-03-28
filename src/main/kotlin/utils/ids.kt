@@ -1,7 +1,14 @@
 package utils
 
-import ID
 import kotlin.reflect.KClass
+
+@JvmInline
+value class ID<out E> (val id: Long)
+interface Identifiable<I> {
+    val id: I
+}
+
+
 
 internal class IdCounter {
     private var counter: Long = 0

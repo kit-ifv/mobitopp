@@ -1,7 +1,7 @@
-package usecases
+package usecases.legacyData
 
 import CodePlan
-import domain.data.ZoneDataBuilder
+import domain.data.LegacyZoneDataBuilder
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.RoadPosition
@@ -9,8 +9,9 @@ import domain.location.parseRoadPosition
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.PrepareCsvStep
+import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
+import modeling.steps.PrepareCsvStep
 import units.DistanceUnit
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -40,12 +41,12 @@ fun <S, C> S.prepareZones(
     isDestinationColumn: String = "isDestination",
     reliefColumn: String = "relief",
     reliefUnit: DistanceUnit = DistanceUnit.METERS
-) where S: ModelExecution<C>, C: Context {
+) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
 
     val areaTypeCodePlan = areaTypeCodes ?: this.context.areaTypeCodes
 
     val csvParser = CsvParser(errorHandling) { row ->
-        ZoneDataBuilder(
+        LegacyZoneDataBuilder(
             visumId = row.long(idColumn),
             matrixColumn = row.index,
             name = row(nameColumn),
@@ -64,10 +65,10 @@ fun <S, C> S.prepareZones(
 }
 
 fun <S, C> S.prepareZoneFile(
-    parser: CsvParser<ZoneDataBuilder>,
+    parser: CsvParser<LegacyZoneDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: ModelExecution<C>, C: Context {
+) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
     val zonesFile = file ?: File(this.context.demandFolder.path + "\\zone-repository\\zones.csv")
 
     val resource = CsvResource(zonesFile, parser, delimiter)
@@ -81,11 +82,11 @@ fun <S, C> S.prepareZoneFile(
     )
 }
 
-fun <S, C> S.finishZones() where S: ModelExecution<C>, C: Context {
+fun <S, C> S.finishZones() where S: ModelExecution<C>, C: LegacyZonesContext {
     this.addStep(BuildStep("finish zones", context.zoneRepository))
 }
 
-fun <S, C> S.loadZones() where S: ModelExecution<C>, C: Context {
+fun <S, C> S.loadZones() where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
     this.prepareZones()
     this.finishZones()
 }

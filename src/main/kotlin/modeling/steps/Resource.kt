@@ -1,7 +1,5 @@
 package modeling.steps
 
-import Builder
-import Identifiable
 import utils.csv.CsvParser
 import utils.csv.CsvReader
 import utils.csv.SEMICOLON
@@ -13,55 +11,10 @@ import java.io.File
  *
  * @param E the generic type of the elements provided by the source
  */
-interface Resource<E> {
+interface Resource<out E> {
     val name: String
     val source: String
     val elements: Sequence<E>
-
-    /**
-     * Create a [Resource] with elements produced by applying the given mapping to this resource.
-     * Also, the metadata are updated:
-     *   - the resource name should be maintained
-     *   - the source description is updated to log the applied mapping
-     *
-     * @param operation name of the mapping operation to be applied
-     * @param mapping the operation to be applied
-     * @return a [Resource] with mapped elements and updated metadata
-     */
-    fun map(operation: String, mapping: (E) -> E?): Resource<E> =
-        SequenceResource(name, "$source -> map $operation", elements.map(mapping).filterNotNull() )
-
-    /**
-     * Create a [Resource] with filtered elements.
-     * Also, the metadata are updated:
-     *   - the resource name should be maintained
-     *   - the source description is updated to log the applied filter
-     *
-     * @param operation name of the filter operation to be applied
-     * @param predicate the filter predicate to be applied
-     * @return a [Resource] with filtered elements and updated metadata
-     */
-    fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> =
-        SequenceResource(name, "$source -> filter $operation", elements.filter(predicate) )
-
-    /**
-     * Create a [Resource] containing both the elements of this [Resource] and the given other [Resource].
-     * Also, the metadata are updated:
-     *   - the resource names are combined
-     *   - the source description is updated to log the applied merge
-     *
-     * @param other the other resource to be merged with this resource
-     * @return a [Resource] with filtered elements and updated metadata
-     */
-    fun merge(other: Resource<E>): Resource<E> {
-        val merged = sequenceOf(elements, other.elements).flatten()
-
-        return SequenceResource(
-            resourceName = "$name, ${other.name}",
-            description = "$source -> merge with ${other.source}",
-            merged
-        )
-    }
 
 }
 
@@ -71,99 +24,42 @@ interface Resource<E> {
  * @param E the generic type of elements
  * @constructor Create a [SequenceResource] with the given metadata and elements
  * @property name the resources name
- * @property description the resources description
+ * @property source the resources description
  * @property sequence a sequence of elements
  */
-class SequenceResource<E>(
-    private var resourceName: String,
-    private var description: String,
-    private var sequence: Sequence<E>
-) : Resource<E> {
-
-    override val name: String
-        get() = resourceName
-
-    override val source: String
-        get() = description
-
-
+data class SequenceResource<out E>(
+    override val name: String,
+    override val source: String,
     override val elements: Sequence<E>
-        get() = sequence
-
-    override fun map(operation: String, mapping: (E) -> E?): Resource<E> {
-        sequence = sequence.map(mapping).filterNotNull()
-        description += " -> map $operation"
-        return this
-    }
-
-    override fun filter(operation: String, predicate: (E) -> Boolean): Resource<E> {
-        sequence = sequence.filter(predicate)
-        description += " -> filter $operation"
-        return this
-    }
-
-    override fun merge(other: Resource<E>): Resource<E> {
-        sequence = sequenceOf(sequence, other.elements).flatten()
-        resourceName = "$resourceName, ${other.name}"
-        description += " -> merge with ${other.source}"
-        return this
-    }
-
-    override fun toString() = "$name ($source)"
-
-}
+) : Resource<E>
 
 /**
- * Build all [Builder] elements and create a [Repository].
- * The build step is logged in metadata of the [Repository].
- *
- * @param R generic type of the resource
- * @param B generic type of the builder
- * @param E generic type of the elements
- * @return a repository containing built elements and updated metadata of the resource
+ * Create a [Resource] containing the given elements and metadata.
  */
-fun <R, B, E> R.build(): Repository<E> where B:Builder<E>, R:Resource<B>, E:Identifiable<E> =
-    Repository.from(this.name, "$source -> build", this.elements.map { it.build() })
+fun <S, E> S.asResource(name: String, source: String): Resource<E> where S: Sequence<E> =
+    SequenceResource(name, source, this)
 
 /**
- * Create a [Repository] containing the elements and metadata of the given [Resource].
- *
- * @param R generic type of the resource
- * @param E generic type of the elements
- * @return a repository containing elements and metadata of the resource
+ * Create a [Resource] containing the given elements and metadata.
  */
-fun <R, E> R.asRepository(): Repository<E> where R: Resource<E>, E:Identifiable<E> =
-    Repository.from(this)
+fun <I, E> I.asResource(name: String, source: String): Resource<E> where I: Iterable<E> =
+    SequenceResource(name, source, this.asSequence())
 
 /**
- * Create a [Repository] containing the given elements and metadata.
+ * A resource providing data from a csv file.
+ * The file is only read and parsed once.
+ * The created entities are stored in the resource for future access.
  *
- * @param name the repository name
- * @param source
- * @param S
- * @param E
- * @return
- */
-fun <S, E> S.asRepository(
-    name: String,
-    source: String
-): Repository<E> where S: Sequence<E>, E:Identifiable<E> =
-    Repository.from(name, source, this)
-
-
-/**
- * Csv resource
- *
- * @param E
+ * @param E the generic type of entities created from the csv data
  * @constructor Create empty Csv resource
- * @property file
- * @property parser
- * @property delimiter
+ * @property file the csv file to be parsed
+ * @property parser th parser to be applied
+ * @property delimiter the csv delimiter, defaults to ';'
  */
 class CsvResource<E> (
     val file: File,
     val parser: CsvParser<E>,
-    val delimiter: String = SEMICOLON
+    private val delimiter: String = SEMICOLON
 
 ): Resource<E> {
     override val name: String

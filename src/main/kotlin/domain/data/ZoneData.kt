@@ -1,17 +1,15 @@
 package domain.data
 
 import Builder
-import ID
-import Identifiable
 import domain.enums.AreaType
-import domain.enums.LegacyActivityType
 import domain.enums.ZoneClassification
 import domain.location.Location
 import units.Distance
+import utils.ID
+import utils.Identifiable
 import utils.registerId
 
-typealias Attractivity = Map<LegacyActivityType, Double> //TODO
-
+typealias ZoneId = ID<ZoneData>
 
 /**
  * The data class for a zone in the simulation. Maybe this should be refactored into an interface to allow future
@@ -26,9 +24,8 @@ typealias Attractivity = Map<LegacyActivityType, Double> //TODO
  * @property isDestination whether the zone can be selected as a destination
  * @property relief height difference in the zone
  */
-interface ZoneData: Identifiable<ZoneData> {
+interface ZoneData: Identifiable<ZoneId> {
     val visumId: Long
-    val matrixColumn: Int //TODO legacy property -> extract to sub interface
     val name: String
     val areaType: AreaType
     val regionType: Int
@@ -37,12 +34,10 @@ interface ZoneData: Identifiable<ZoneData> {
     val centroid: Location //TODO type point
     val isDestination: Boolean
     val relief: Distance
-
-    //val attractivity: Attractivity
 }
 
 interface LegacyZoneData: ZoneData {
-    val legacyMatrixColumn: Int
+    val matrixColumn: Int
 }
 
 
@@ -58,14 +53,11 @@ class ZoneDataBuilder(
     var centroid: Location? = null,
     var isDestination: Boolean? = null,
     var relief: Distance? = null
-) : Builder<ZoneData> { // , Identifiable<ZoneDataBuilder>
-//
-//    override val id: ID<ZoneDataBuilder> = ID(visumId!!.toULong())
+) : Builder<ZoneData> {
 
 
     override fun build() = object:ZoneData{
         override val visumId: Long = this@ZoneDataBuilder.visumId!!
-        override val matrixColumn: Int = this@ZoneDataBuilder.matrixColumn!!
         override val name: String = this@ZoneDataBuilder.name!!
         override val areaType: AreaType = this@ZoneDataBuilder.areaType!!
         override val regionType: Int = this@ZoneDataBuilder.regionType!!
@@ -74,7 +66,7 @@ class ZoneDataBuilder(
         override val centroid: Location = this@ZoneDataBuilder.centroid!!
         override val isDestination: Boolean = this@ZoneDataBuilder.isDestination!!
         override val relief: Distance = this@ZoneDataBuilder.relief!!
-        override val id: ID<ZoneData> = registerId(visumId)
+        override val id: ZoneId = registerId(visumId)
     }
 
     override fun toString(): String {
@@ -118,8 +110,7 @@ class LegacyZoneDataBuilder(
         override val centroid: Location = this@LegacyZoneDataBuilder.centroid!!
         override val isDestination: Boolean = this@LegacyZoneDataBuilder.isDestination!!
         override val relief: Distance = this@LegacyZoneDataBuilder.relief!!
-        override val id: ID<ZoneData> = registerId(visumId)
-        override val legacyMatrixColumn = matrixColumn
+        override val id: ZoneId = registerId(visumId)
     }
 
 }

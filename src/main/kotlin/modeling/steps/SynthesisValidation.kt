@@ -2,8 +2,8 @@
 package modeling.steps
 
 import Builder
-import Identifiable
 import utils.ErrorHandling
+import utils.Identifiable
 import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
@@ -29,7 +29,7 @@ fun <E> dummyResource(step: ModelStep): Resource<E> {
     return SequenceResource(name, source, emptySequence())
 }
 
-fun validateState(repository: LateInitRepository<*>, expectedState: RepositoryState, step: ModelStep): Boolean {
+fun validateState(repository: RepositoryBuilder<*, *, *>, expectedState: RepositoryState, step: ModelStep): Boolean {
         if (repository.state != expectedState) {
             println("Error: expected state after execution of step '${step.name}' " +
                     "is expected to be $expectedState but is ${repository.state}")
@@ -53,46 +53,49 @@ fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
     }
 
 
-fun <E> repairInitState(
-    repository: LateInitRepository<E>,
-    resource: Resource<E>,
+fun repairInitState(
+    repository: RepositoryBuilder<*, *, *>,
     step: ModelStep
-) where E: Identifiable<E> = when(repository.state) {
+) = when(repository.state) {
+
     RepositoryState.UNINITIALIZED ->  {
-        val dummy = dummyCopyOf(resource, step)
-        repository.initialize(dummy)
+        repository.prepare(dummyResource(step))
+        repository.build()
     }
     RepositoryState.PREPARING -> {
-        (repository as BuilderRepository<*,*>).build()
+        repository.build()
     }
     RepositoryState.FINISHED -> {
          /* State is already FINISHED. */
     }
 }
 
-fun <E, B> repairPreparingState(
-    repository: BuilderRepository<B, E>,
+fun <B> repairPreparingState(
+    repository: RepositoryBuilder<B, *, *>,
     resource: Resource<B>,
     step: ModelStep
-): Unit where B: Builder<E>, E: Identifiable<E> = when(repository.state) {
+) where B: Builder<*> = when(repository.state) {
+
     RepositoryState.UNINITIALIZED -> {
         repository.prepare(dummyCopyOf(resource, step))
     }
+
     RepositoryState.PREPARING -> { /* State is already BUILDING */ }
+
     RepositoryState.FINISHED -> {
         repository.reset()
-        repairPreparingState(repository, resource, step)
+        repository.prepare(dummyCopyOf(resource, step))
     }
 }
 
 
 
 
-fun <B, E> validatePrepareResourceStep(
-    builderRepository: BuilderRepository<B, E>,
+fun <B, E, I> validatePrepareResourceStep(
+    builderRepository: RepositoryBuilder<B, E, I>,
     resource: Resource<B>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
+) where B: Builder<E>, E: Identifiable<I> = validateScope(step) {
     val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
     repairPreparingState(builderRepository, resource, step)
     check(validateState(builderRepository, RepositoryState.PREPARING, step))
@@ -100,10 +103,10 @@ fun <B, E> validatePrepareResourceStep(
 }
 
 fun <B, E> validatePrepareCsvStep(
-    repository: BuilderRepository<B, E>,
+    repository: RepositoryBuilder<B, E, *>,
     csv: CsvResource<B>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
+) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
                     ValidateCsvMetadata(step, csv).validate()
 
@@ -112,34 +115,10 @@ fun <B, E> validatePrepareCsvStep(
     isValid
 }
 
-fun <E> validateInitializeResourceStep(
-    repository: LateInitRepository<E>,
-    resource: Resource<E>,
-    step: ModelStep
-) where E: Identifiable<E> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step)
-    repairInitState(repository, resource, step)
-    check(validateState(repository, RepositoryState.FINISHED, step))
-    isValid
-}
-
-fun <E> validateInitializeCsvStep(
-    repository: LateInitRepository<E>,
-    csv: CsvResource<E>,
-    step: ModelStep
-) where E: Identifiable<E> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
-            ValidateCsvMetadata(step, csv).validate()
-
-    repairInitState(repository, csv, step)
-    check(validateState(repository, RepositoryState.FINISHED, step))
-    isValid
-}
-
 fun <B, E> validateFilterStep(
-    repository: BuilderRepository<B, E>,
+    repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
+) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
     repairPreparingState(repository, dummyResource(step), step)
@@ -148,9 +127,9 @@ fun <B, E> validateFilterStep(
 }
 
 fun <B, E> validateUpdateStep(
-    repository: BuilderRepository<B, E>,
+    repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
+) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
     repairPreparingState(repository, dummyResource(step), step)
     check(validateState(repository, RepositoryState.PREPARING, step))
@@ -159,13 +138,24 @@ fun <B, E> validateUpdateStep(
 
 
 fun <B, E> validateBuildStep(
-    repository: BuilderRepository<B, E>,
+    repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<E> = validateScope(step) {
+) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
-    repairInitState(repository, dummyResource(step), step)
+    repairInitState(repository, step)
     check(validateState(repository, RepositoryState.FINISHED, step))
+    isValid
+}
+
+fun <B, E, I> validateMergeStep(
+    builderRepository: RepositoryBuilder<B, E, I>,
+    resource: Resource<B>,
+    step: ModelStep
+) where B: Builder<E>, E: Identifiable<I> = validateScope(step) {
+    val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
+    repairPreparingState(builderRepository, resource, step)
+    check(validateState(builderRepository, RepositoryState.PREPARING, step))
     isValid
 }
 

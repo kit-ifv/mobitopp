@@ -3,7 +3,6 @@ package utils.csv
 
 import CodePlan
 import Encodable
-import ID
 import units.CurrencyUnit
 import units.DistanceUnit
 import units.euros
@@ -12,6 +11,7 @@ import units.meters
 import units.share
 import units.toCurrency
 import units.toDistance
+import utils.ID
 
 fun Row.byte(column: String) = this.invoke(column, String::toByte)
 fun Row.short(column: String) = this.invoke(column, String::toShort)

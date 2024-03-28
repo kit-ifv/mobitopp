@@ -2,7 +2,7 @@ package utils.csv
 
 import Builder
 import ID
-import Identifiable
+import utils.Identifiable
 import kotlin.time.Duration
 
 const val INDEX_COL = "index"

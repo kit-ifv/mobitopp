@@ -1,6 +1,6 @@
 package modeling.agents
 
-import Identifiable
+import utils.Identifiable
 
 typealias EventList = List<Event<out Any>>
 

@@ -1,7 +1,7 @@
 package domain.data
 
 import Buildable
-import Identifiable
+import utils.Identifiable
 import domain.enums.LegacyActivityType
 import domain.location.Location
 
