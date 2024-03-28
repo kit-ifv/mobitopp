@@ -1,6 +1,5 @@
 package usecases
 
-import CodePlan
 import domain.data.ChargingInfluence
 import domain.data.EMobilityPersonDataBuilder
 import domain.data.Employment
@@ -14,6 +13,7 @@ import modeling.steps.HouseholdContext
 import modeling.steps.ModelExecution
 import modeling.steps.PrepareCsvStep
 import units.CurrencyUnit
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -48,8 +48,7 @@ fun <S, C> S.prepareEmobilityPersons(
     licenseColumn: String = "hasLicense",
     eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
     chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
-) where S: ModelExecution<C>, C: Context, C: HouseholdContext, C: EMobilityPersonContext  {
-
+) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : EMobilityPersonContext {
     val employmentCodePlan = employmentCode ?: this.context.employmentCodes
     val sexCodePlan = sexCode ?: this.context.sexCodes
     val graduationCodePlan = graduationCode ?: this.context.graduationCodes
@@ -62,9 +61,10 @@ fun <S, C> S.prepareEmobilityPersons(
             personId = row.long(idColumn),
             householdData = requireNotNull(
                 householdRepo().getById(row.id(householdColumn))
-            ) {"Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
-                " ${householdRepo().elements.map { it.id }.toList()}"
-              },
+            ) {
+                "Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
+                    " ${householdRepo().elements.map { it.id }.toList()}"
+            },
             age = row.int(ageColumn),
             employment = row.decodeName(employmentColumn, employmentCodePlan),
             sex = row.decodeName(sexColumn, sexCodePlan),
@@ -85,7 +85,7 @@ fun <S, C> S.preparePersonsFile(
     parser: CsvParser<EMobilityPersonDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: ModelExecution<C>, C: Context, C: EMobilityPersonContext {
+) where S : ModelExecution<C>, C : Context, C : EMobilityPersonContext {
     val personFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\person.csv")
 
     val resource = CsvResource(personFile, parser, delimiter)
@@ -93,17 +93,17 @@ fun <S, C> S.preparePersonsFile(
     this.addStep(
         PrepareCsvStep(
             name = "load person csv",
-            csv=resource,
+            csv = resource,
             repository = context.personRepository
         )
     )
 }
 
-fun <S, C> S.finishPersons() where S: ModelExecution<C>, C: Context, C: EMobilityPersonContext {
+fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : Context, C : EMobilityPersonContext {
     this.addStep(BuildStep("finish persons", context.personRepository))
 }
 
-fun <S, C> S.loadPersons() where S: ModelExecution<C>, C: Context, C: HouseholdContext, C: EMobilityPersonContext {
+fun <S, C> S.loadPersons() where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : EMobilityPersonContext {
     this.prepareEmobilityPersons()
     this.finishPersons()
 }

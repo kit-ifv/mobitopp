@@ -12,20 +12,20 @@ private typealias Persons = MutableSet<PersonData>
 private typealias UnAssignedPersons = Pair<Persons, Persons>
 
 @Suppress("LongParameterList")
-fun <S, C> S.assignCarUsers(
-
-) where S: ModelExecution<C>, C: BasePrivateCarContext {
+fun <S, C> S.assignCarUsers() where S : ModelExecution<C>, C : BasePrivateCarContext {
     val hhMembers: MutableMap<HouseholdId, UnAssignedPersons> = mutableMapOf()
 
-    this.addStep(UpdateStep(
-        name="assign private car main user",
-        repository = context.carRepository,
-        transformation = { assign(it, hhMembers) }
-    ))
+    this.addStep(
+        UpdateStep(
+            name = "assign private car main user",
+            repository = context.carRepository,
+            transformation = { assign(it, hhMembers) }
+        )
+    )
 }
 
 private fun assign(car: PrivateCarBuilder, hhMembers: MutableMap<HouseholdId, UnAssignedPersons>): PrivateCarBuilder {
-    val owner = requireNotNull(car.owner) {"Cannot assign main user of cars, since owner has not been defined yet!"}
+    val owner = requireNotNull(car.owner) { "Cannot assign main user of cars, since owner has not been defined yet!" }
 
     val (unassigned, assigned) = hhMembers[owner.id] ?: initDrivers(owner, hhMembers)
 
@@ -55,10 +55,9 @@ private fun initDrivers(
 }
 
 private fun HouseholdData.getDrivers(): MutableSet<PersonData> {
-    require(members.isNotEmpty()) {"Cannot assign main user of cars if household members have not been defined!"}
+    require(members.isNotEmpty()) { "Cannot assign main user of cars if household members have not been defined!" }
 
     return members.filter { it.hasLicense }.toMutableSet().ifEmpty {
         members.filter { it.isAdult }.toMutableSet()
     }
-
 }

@@ -1,16 +1,18 @@
 package domain.data
 
 import Buildable
-import Builder
-import Decodable
-import Encodable
 import units.Currency
 import units.UnitIntervalValue
+import utils.Builder
+import utils.Decodable
+import utils.Encodable
 import utils.ID
 import utils.Identifiable
 import utils.registerId
 
 typealias PersonId = ID<PersonData>
+
+const val ADULT_AGE_GER = 18
 
 /**
  * A person in for the simulation. Certain properties can be assumed to be known during the simulation
@@ -21,7 +23,7 @@ typealias PersonId = ID<PersonData>
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
-interface PersonData: Identifiable<PersonId> {
+interface PersonData : Identifiable<PersonId> {
     // These values can reasonably be expected for any Person to be present in the simulation
     val personId: Long
     val householdData: HouseholdData
@@ -37,12 +39,11 @@ interface PersonData: Identifiable<PersonId> {
     val memberships: Map<String, Boolean>
 
     val isAdult: Boolean
-        get() = (age >= 18)
-
+        get() = (age >= ADULT_AGE_GER)
 }
 
 @Buildable
-interface EMobilityPersonData: PersonData {
+interface EMobilityPersonData : PersonData {
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 }
@@ -62,10 +63,10 @@ class EMobilityPersonDataBuilder(
     var hasCommuterTicket: Boolean? = null,
     var hasLicense: Boolean? = null,
     var memberships: MutableMap<String, Boolean> = mutableMapOf()
-): Builder<EMobilityPersonData> {
+) : Builder<EMobilityPersonData> {
 
     override fun build(): EMobilityPersonData {
-        return object:EMobilityPersonData {
+        return object : EMobilityPersonData {
             override val personId = this@EMobilityPersonDataBuilder.personId!!
             override val eMobilityAcceptance = this@EMobilityPersonDataBuilder.eMobilityAcceptance!!
             override val chargingInfluence = this@EMobilityPersonDataBuilder.chargingInfluence!!
@@ -84,15 +85,9 @@ class EMobilityPersonDataBuilder(
             init {
                 this.householdData.addMember(this)
             }
-
         }
     }
-
 }
-
-
-
-
 
 /**
  * An enum for the sex of a person. As this class is only applicable to a person the enum resides in the same source
@@ -113,18 +108,17 @@ enum class Sex(private val code: Int) : Encodable {
     override fun encode(): Int {
         return this.code
     }
-    companion object: Decodable<Sex> {
-        override fun decode(i: Int) = entries.first {it.code == i}
+    companion object : Decodable<Sex> {
+        override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
-
 }
 
 /**
  * An enum for the employment of a person. As this class is only applicable to a person the enum resides in the same
  * source code file as the person. (Refactor Idea maybe make an inner class)
  */
-enum class Employment(private val code: Int): Encodable {
+enum class Employment(private val code: Int) : Encodable {
     UNKNOWN(-1),
     FULLTIME(1),
     PARTTIME(2),
@@ -144,15 +138,13 @@ enum class Employment(private val code: Int): Encodable {
         return this.code
     }
 
-    companion object: Decodable<Employment> {
-        override fun decode(i: Int) = entries.first {it.code == i}
+    companion object : Decodable<Employment> {
+        override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
-
 }
 
-
-enum class Graduation(private val code: Int): Encodable { //TODO split into school and higher education
+enum class Graduation(private val code: Int) : Encodable { // TODO split into school and higher education
     UNDEFINED(-1),
     OTHER(0),
     NOT_HIGH_SCHOOL(1),
@@ -164,21 +156,21 @@ enum class Graduation(private val code: Int): Encodable { //TODO split into scho
 
     override fun encode() = this.code
 
-    companion object: Decodable<Graduation> {
-        override fun decode(i: Int) = entries.first {it.code == i}
+    companion object : Decodable<Graduation> {
+        override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
 }
 
-enum class ChargingInfluence(private val code: Int): Encodable {
+enum class ChargingInfluence(private val code: Int) : Encodable {
     ALWAYS(0),
     ONLY_WHEN_BATTERY_LOW(1),
     NEVER(2);
 
     override fun encode() = this.code
 
-    companion object: Decodable<ChargingInfluence> {
-        override fun decode(i: Int) = entries.first {it.code == i}
+    companion object : Decodable<ChargingInfluence> {
+        override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
 }

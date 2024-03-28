@@ -1,8 +1,7 @@
 package domain.enums
 
-import CodePlan
-import Encodable
-
+import utils.CodePlan
+import utils.Encodable
 
 /**
  * currently a placeholder interface, soon there will be additional methods
@@ -12,7 +11,7 @@ interface Mode : Encodable
 /**
  * The default mode encoding from legacy MobiTopp
  */
-enum class StandardMode(private val code: Int): Mode {
+enum class StandardMode(private val code: Int) : Mode {
     UNDEFINED(-2),
     UNKNOWN(-1),
     BIKE(0),
@@ -37,9 +36,8 @@ enum class StandardMode(private val code: Int): Mode {
         return this.code
     }
 
-    companion object: CodePlan<StandardMode> {
-        override fun decode(i: Int) = entries.first {it.code == i}
+    companion object : CodePlan<StandardMode> {
+        override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
     }
-
 }

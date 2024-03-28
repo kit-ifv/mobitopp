@@ -1,7 +1,6 @@
 package domain.location
 
 import domain.enums.Mode
-import domain.location.Location
 import kotlin.time.Duration
 
 /**
@@ -11,4 +10,3 @@ fun interface TravelTime {
 
     fun calculate(from: Location, to: Location, using: Mode): Duration
 }
-

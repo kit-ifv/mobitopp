@@ -6,6 +6,6 @@ import kotlin.test.assertEquals
 class LegacyActivityTypeTest {
     @Test
     fun codingActivityType() {
-        LegacyActivityType.entries.forEach { assertEquals(it, LegacyActivityType.decode(it.encode()))}
+        LegacyActivityType.entries.forEach { assertEquals(it, LegacyActivityType.decode(it.encode())) }
     }
 }

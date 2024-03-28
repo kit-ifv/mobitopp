@@ -20,7 +20,7 @@ interface Coordinate {
 class GPSCoordinate(
     override val latitudeRadians: Double,
     override val longitudeRadians: Double
-): Coordinate {
+) : Coordinate {
 
     override fun distance(other: Coordinate): Distance {
         val deltaLat = this.latitudeRadians - other.latitudeRadians
@@ -28,9 +28,9 @@ class GPSCoordinate(
 
         val haversine =
             sin(deltaLat / 2).pow(2) + cos(this.latitudeRadians) *
-                    cos(other.latitudeRadians) * sin(deltaLong / 2).pow(2)
+                cos(other.latitudeRadians) * sin(deltaLong / 2).pow(2)
 
-        val normalized = 2* asin(sqrt(haversine))
+        val normalized = 2 * asin(sqrt(haversine))
         val earthRadius = 6371.kilometers
         return earthRadius * normalized
     }
@@ -43,6 +43,7 @@ class GPSCoordinate(
         }
     }
 }
+
 @Suppress("MagicNumber")
 fun Pair<Number, Number>.toCoordinate(): GPSCoordinate {
     return GPSCoordinate(this.first.toDouble() * PI / 180, this.second.toDouble() * PI / 180)

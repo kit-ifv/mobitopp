@@ -8,7 +8,7 @@ import units.Distance
  * specific implementations might have different distances depending on the chosen mode. (Such as PT having a different
  * network than Car traffic).
  */
-fun interface TravelDistance<in Location>  {
+fun interface TravelDistance<in Location> {
     fun calculate(from: Location, to: Location, using: Mode): Distance
 }
 /*

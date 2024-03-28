@@ -10,7 +10,7 @@ package utils
  * - ERROR: drop the entity and print an error + stack trace
  * - THROW: throw an exception with detailed message
  */
-enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error handling for missing column
+enum class ErrorHandling { // TODO introduce interface? TODO maybe separate error handling for missing column
 
     /** Upon parsing errors: Drop the entity/row without warning. */
     SILENT {
@@ -57,7 +57,7 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
         override fun accumulating() = THROW
 
         override fun processException(e: Exception, message: String) {
-            throw IllegalArgumentException(message, e) //TODO which specific exception type should we use here?
+            throw IllegalArgumentException(message, e) // TODO which specific exception type should we use here?
         }
     };
 
@@ -87,10 +87,9 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
         runnable: () -> E?,
         errorMessage: (Exception) -> String,
     ): E? {
-
         return try {
             runnable()
-        } catch (e: Exception) { //TODO add more exceptions, can we build this without exceptions?
+        } catch (e: Exception) { // TODO add more exceptions, can we build this without exceptions?
             processException(e, errorMessage(e))
             return null
         }
@@ -121,5 +120,4 @@ enum class ErrorHandling { //TODO introduce interface? TODO maybe separate error
             mute = !mute
         }
     }
-
 }

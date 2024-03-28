@@ -14,7 +14,7 @@ class ConsoleCaptor {
     }
 
     fun getText(): String {
-        require(recording){
+        require(recording) {
             "ConsoleCaptor was already closed."
         }
         recording = false
@@ -24,5 +24,4 @@ class ConsoleCaptor {
         System.setErr(oldErrorStream)
         return baos.toString()
     }
-
 }

@@ -9,6 +9,8 @@ import java.io.File
 fun <S, C> S.preparePrivateCars(
     file: File? = null,
 
-) where S: ModelExecution<C>, C: Context, C: BasePrivateCarContext {
-
+) where S : ModelExecution<C>, C : Context, C : BasePrivateCarContext {
+    /**/
+    val s = file?.name
+    println(s)
 }

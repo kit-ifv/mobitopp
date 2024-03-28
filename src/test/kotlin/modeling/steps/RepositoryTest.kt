@@ -1,22 +1,23 @@
 package modeling.steps
 
-import ID
-import utils.Identifiable
 import org.junit.jupiter.api.Test
+import utils.ID
+import utils.Identifiable
 import utils.csv.TestEntity
+import utils.csv.TestId
 import kotlin.test.assertEquals
 
-abstract class RepositoryTest<E>: ResourceTest<E>() where E: Identifiable<E> {
-    protected lateinit var repository: Repository<E>
+abstract class RepositoryTest<E, I> : ResourceTest<E>() where E : Identifiable<I> {
+    protected lateinit var repository: Repository<E, I>
 
     override fun init(): Resource<E> {
         repository = createRepo()
         return repository
     }
 
-    abstract fun createRepo(): Repository<E>
+    abstract fun createRepo(): Repository<E, I>
     abstract fun expectedSize(): Int
-    abstract fun queryId(): ID<E>
+    abstract fun queryId(): I
     abstract fun expectedQueryResult(): E
 
     @Test
@@ -29,10 +30,9 @@ abstract class RepositoryTest<E>: ResourceTest<E>() where E: Identifiable<E> {
         val result = repository.getById(queryId())
         assertEquals(expectedQueryResult(), result)
     }
-
 }
 
-open class MapRepositoryTest: RepositoryTest<TestEntity>() {
+open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
     protected val name: String = "TestEntityList"
     protected val source: String = "MapRepositoryTest#createRepository()"
     override fun expectedElements() = listOf(
@@ -48,7 +48,7 @@ open class MapRepositoryTest: RepositoryTest<TestEntity>() {
         TestEntity(rowIndex = 9, string = "fin"),
     )
 
-    override fun createRepo(): Repository<TestEntity> =
+    override fun createRepo(): Repository<TestEntity, TestId> =
         MapRepository(expectedElements(), name, source)
 
     override fun expectedSize() = 10
@@ -63,54 +63,4 @@ open class MapRepositoryTest: RepositoryTest<TestEntity>() {
 
     override fun expectedToString() = "MapRepository[$name] ($source)"
 
-
-
-    override fun mapping1() = { te: TestEntity ->
-        te.copy(string="hi")
-    }
-
-    override fun expectedMapping1Results() = expectedElements().map { it.copy(string="hi") }
-
-    override fun filter1() = { te:TestEntity -> te.rowIndex%2 == 0 }
-
-    override fun expectedFilter1Results() = expectedElements().filter { it.rowIndex%2 == 0 }
-
-    override fun expectedFilter1Map1Results() =
-        expectedElements().map { it.copy(string="hi")}.filter { it.rowIndex%2 == 0 }
-
-    override fun expectedMergeResults() = listOf(
-        expectedElements(),
-        expectedElements().mapIndexed { index, te ->
-            te.copy(rowIndex=index+expectedSize())
-        }
-    ).flatten()
-
-    override fun mergeResource() = SequenceResource(
-        resourceName="csv merge resource",
-        description="csv merge resource",
-        sequence = expectedElements().mapIndexed{ index, te ->
-            te.copy(rowIndex = index+expectedElements().size )
-        }.asSequence()
-    )
-
-}
-
-open class MapRepositoryFromResourceTest: MapRepositoryTest() {
-    override fun createRepo(): Repository<TestEntity> =
-        Repository.from(SequenceResource(name, source, expectedElements().asSequence()))
-}
-
-open class MapRepositoryFromSequenceTest: MapRepositoryTest() {
-    override fun createRepo(): Repository<TestEntity> =
-        Repository.from(name, source, expectedElements().asSequence())
-}
-
-open class ResourceToMapRepositoryTest: MapRepositoryTest() {
-    override fun createRepo(): Repository<TestEntity> =
-        SequenceResource(name, source, expectedElements().asSequence()).asRepository()
-}
-
-open class SequenceToMapRepositoryTest: MapRepositoryTest() {
-    override fun createRepo(): Repository<TestEntity> =
-        expectedElements().asSequence().asRepository(name, source)
 }

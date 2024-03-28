@@ -15,7 +15,6 @@ value class UnitIntervalValue(private val share: Double) {
     }
 }
 
-
 fun Number.share(): UnitIntervalValue {
     val temp = this.toDouble()
     require(temp in 0.0..1.0)

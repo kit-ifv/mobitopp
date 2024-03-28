@@ -5,17 +5,17 @@ import assertNotContains
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.csv.DefaultRowCsvParser
+import utils.csv.CsvParser
 import utils.csv.INT_COL
 import utils.csv.STR_COL
 import utils.csv.TestBuilder
 import utils.csv.TestEntity
+import utils.csv.TestId
 import utils.csv.int
 import utils.csv.long
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertTrue
-
 
 /**
  * Test the validation of csv resources!
@@ -24,30 +24,28 @@ class ValidateCsvMetadataTest {
     private val invalidColumnName = "invalid_column_name"
     private val invalidTypecastColumnName = "invalid_typecast_column_name"
     private val file = File("src/test/resources/test_data.csv")
-    private lateinit var repository: BuilderRepository<TestBuilder, TestEntity>
+    private lateinit var repository: RepositoryBuilder<TestBuilder, TestEntity, TestId>
     private lateinit var csvResource: CsvResource<TestBuilder>
     private lateinit var invalidResource: CsvResource<TestBuilder>
     private lateinit var complexInvalidResource: CsvResource<TestBuilder>
     private lateinit var complexValidResource: CsvResource<TestBuilder>
 
-    private val step = object:ModelStep {
+    private val step = object : ModelStep {
         override val name = "TestStep"
 
         override fun execute() { /**/ }
 
         override fun validate() = true
-
     }
 
     /** Set up csv resources! */
     @BeforeEach
     fun setUp() {
-        repository = BuilderRepository()
-
+        repository = RepositoryBuilder()
 
         csvResource = CsvResource(
             file = file,
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestBuilder(
                     rowIndex = row.index,
                     string = row(STR_COL)
@@ -55,10 +53,9 @@ class ValidateCsvMetadataTest {
             }
         )
 
-
         invalidResource = CsvResource(
             file = file,
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestBuilder(
                     rowIndex = row.index,
                     string = row(invalidColumnName),
@@ -70,7 +67,7 @@ class ValidateCsvMetadataTest {
 
         complexInvalidResource = CsvResource(
             file = file,
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestBuilder(
                     rowIndex = row.index,
                     long = row.long(invalidTypecastColumnName),
@@ -83,7 +80,7 @@ class ValidateCsvMetadataTest {
 
         complexValidResource = CsvResource(
             file = file,
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestBuilder(
                     rowIndex = row.index,
                     long = row.long(INT_COL),
@@ -93,10 +90,7 @@ class ValidateCsvMetadataTest {
                 )
             }
         )
-
-
     }
-
 
     /** Validating a valid csv resource should produce no console output! */
     @Test
@@ -117,9 +111,9 @@ class ValidateCsvMetadataTest {
         val text = console.getText()
 
         assertFalse(res)
-        assertContains(text,"ERROR: Invalid column '$invalidColumnName'")
-        assertContains(text,"ERROR: Invalid column '$invalidTypecastColumnName'")
-        assertContains(text,"'${step.name}'")
+        assertContains(text, "ERROR: Invalid column '$invalidColumnName'")
+        assertContains(text, "ERROR: Invalid column '$invalidTypecastColumnName'")
+        assertContains(text, "'${step.name}'")
         assertContains(text, file.path)
 
         assertNotContains(text, "WARNING: ")
@@ -138,13 +132,14 @@ class ValidateCsvMetadataTest {
         val text = console.getText()
 
         assertFalse(res)
-        assertContains(text,"ERROR: Invalid column '$invalidTypecastColumnName'")
-        assertContains(text,"'${step.name}'")
+        assertContains(text, "ERROR: Invalid column '$invalidTypecastColumnName'")
+        assertContains(text, "'${step.name}'")
         assertContains(text, file.path)
 
-        assertNotContains(text,"ERROR: Invalid column '$invalidColumnName'")
+        assertNotContains(text, "ERROR: Invalid column '$invalidColumnName'")
 
-        assertContains(text,
+        assertContains(
+            text,
             "WARNING: Value of column '$STR_COL' of $complexInvalidResource could not be mocked for parsing!"
         )
         assertContains(text, "Validation of columns in step '${step.name}' may be incomplete!")
@@ -161,9 +156,10 @@ class ValidateCsvMetadataTest {
         val text = console.getText()
 
         assertFalse(res)
-        assertNotContains(text,"ERROR: Invalid column ")
+        assertNotContains(text, "ERROR: Invalid column ")
 
-        assertContains(text,
+        assertContains(
+            text,
             "WARNING: Value of column '$STR_COL' of $complexValidResource could not be mocked for parsing!"
         )
         assertContains(text, "Validation of columns in step '${step.name}' may be incomplete!")

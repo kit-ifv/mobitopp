@@ -1,6 +1,5 @@
 package usecases.legacyData
 
-import CodePlan
 import domain.data.LegacyZoneDataBuilder
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
@@ -13,6 +12,7 @@ import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
 import modeling.steps.PrepareCsvStep
 import units.DistanceUnit
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -41,8 +41,7 @@ fun <S, C> S.prepareZones(
     isDestinationColumn: String = "isDestination",
     reliefColumn: String = "relief",
     reliefUnit: DistanceUnit = DistanceUnit.METERS
-) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
-
+) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext {
     val areaTypeCodePlan = areaTypeCodes ?: this.context.areaTypeCodes
 
     val csvParser = CsvParser(errorHandling) { row ->
@@ -61,14 +60,13 @@ fun <S, C> S.prepareZones(
     }
 
     this.prepareZoneFile(csvParser, file, delimiter)
-
 }
 
 fun <S, C> S.prepareZoneFile(
     parser: CsvParser<LegacyZoneDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
+) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext {
     val zonesFile = file ?: File(this.context.demandFolder.path + "\\zone-repository\\zones.csv")
 
     val resource = CsvResource(zonesFile, parser, delimiter)
@@ -76,26 +74,27 @@ fun <S, C> S.prepareZoneFile(
     this.addStep(
         PrepareCsvStep(
             name = "load zone csv",
-            csv=resource,
+            csv = resource,
             repository = context.zoneRepository
         )
     )
 }
 
-fun <S, C> S.finishZones() where S: ModelExecution<C>, C: LegacyZonesContext {
+fun <S, C> S.finishZones() where S : ModelExecution<C>, C : LegacyZonesContext {
     this.addStep(BuildStep("finish zones", context.zoneRepository))
 }
 
-fun <S, C> S.loadZones() where S: ModelExecution<C>, C: Context, C: LegacyZonesContext {
+fun <S, C> S.loadZones() where S : ModelExecution<C>, C : Context, C : LegacyZonesContext {
     this.prepareZones()
     this.finishZones()
 }
-
 
 fun String.toZoneClassification() = when (this) {
     "studyArea" -> ZoneClassification.STUDY_AREA
     "outlyingArea" -> ZoneClassification.OUTLYING_AREA
     "extendedStudyArea" -> ZoneClassification.EXTENDED_STUDY_AREA
-    else -> throw UnsupportedOperationException("String '$this' cannot be parsed as a ZoneClassification! " +
-            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'")
+    else -> throw UnsupportedOperationException(
+        "String '$this' cannot be parsed as a ZoneClassification! " +
+            "Expected: 'studyArea', 'outlyingArea' or 'extendedStudyArea'"
+    )
 }

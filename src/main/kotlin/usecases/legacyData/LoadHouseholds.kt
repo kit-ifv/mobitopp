@@ -1,6 +1,5 @@
 package usecases.legacyData
 
-import CodePlan
 import domain.data.EconomicStatus
 import domain.data.HouseholdDataBuilder
 import domain.location.RoadPosition
@@ -13,6 +12,7 @@ import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
 import modeling.steps.PrepareCsvStep
 import units.CurrencyUnit
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
@@ -34,12 +34,11 @@ fun <S, C> S.prepareHouseholds(
     roadPositionParser: (String) -> RoadPosition = String::parseRoadPosition,
     domCodeColumn: String = "domCode",
     typeColumn: String = "type",
-    incomeColumn: String = "income", //TODO unit: currency over time
+    incomeColumn: String = "income", // TODO unit: currency over time
     incomeUnit: CurrencyUnit? = null,
     economicalStatusColumn: String = "economicalStatus",
     economicalStatusCodes: CodePlan<EconomicStatus>? = null
-) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
-
+) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : HouseholdContext {
     val currencyUnit = incomeUnit ?: this.context.currencyUnit
     val zoneIndex = { context.zoneColumnIndex }
     val economicalStatusCodePlan = economicalStatusCodes ?: context.economicalStatusCodes
@@ -66,7 +65,7 @@ fun <S, C> S.prepareHouseholdsFile(
     parser: CsvParser<HouseholdDataBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
+) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : HouseholdContext {
     val householdFile = file ?: File(this.context.demandFolder.path + "\\demand-data\\household.csv")
 
     val resource = CsvResource(householdFile, parser, delimiter)
@@ -74,17 +73,17 @@ fun <S, C> S.prepareHouseholdsFile(
     this.addStep(
         PrepareCsvStep(
             name = "load household csv",
-            csv=resource,
+            csv = resource,
             repository = context.householdRepository
         )
     )
 }
 
-fun <S, C> S.finishHouseholds() where S: ModelExecution<C>, C: HouseholdContext {
+fun <S, C> S.finishHouseholds() where S : ModelExecution<C>, C : HouseholdContext {
     this.addStep(BuildStep("finish households", context.householdRepository))
 }
 
-fun <S, C> S.loadHouseholds() where S: ModelExecution<C>, C: Context, C: LegacyZonesContext, C: HouseholdContext {
+fun <S, C> S.loadHouseholds() where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : HouseholdContext {
     this.prepareHouseholds()
     this.finishHouseholds()
 }

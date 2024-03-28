@@ -1,7 +1,8 @@
 @file:Suppress("TooManyFunctions")
+
 package modeling.steps
 
-import Builder
+import utils.Builder
 import utils.ErrorHandling
 import utils.Identifiable
 import utils.csv.CsvReader
@@ -9,18 +10,20 @@ import utils.csv.DefaultCsvReader
 import utils.csv.Row
 
 fun <E> dummyCopyOf(resource: Resource<E>, step: ModelStep): Resource<E> {
-        val dummy = dummyResource<E>(step)
+    val dummy = dummyResource<E>(step)
 
-        val name = ErrorHandling.WARNING.handle(runnable = { resource.name })
-        { "Could not obtain name of resource in step '${step.name}'!" }
-            ?: dummy.name
+    val name = ErrorHandling.WARNING.handle(runnable = {
+        resource.name
+    }) { "Could not obtain name of resource in step '${step.name}'!" }
+        ?: dummy.name
 
-        val source = ErrorHandling.WARNING.handle(runnable = { resource.source })
-        { "Could not obtain source of resource in step '${step.name}'!" }
-            ?: dummy.source
+    val source = ErrorHandling.WARNING.handle(runnable = {
+        resource.source
+    }) { "Could not obtain source of resource in step '${step.name}'!" }
+        ?: dummy.source
 
-        return SequenceResource(name, source, emptySequence())
-    }
+    return SequenceResource(name, source, emptySequence())
+}
 
 fun <E> dummyResource(step: ModelStep): Resource<E> {
     val name = "${step.javaClass.simpleName}-Dummy"
@@ -30,13 +33,15 @@ fun <E> dummyResource(step: ModelStep): Resource<E> {
 }
 
 fun validateState(repository: RepositoryBuilder<*, *, *>, expectedState: RepositoryState, step: ModelStep): Boolean {
-        if (repository.state != expectedState) {
-            println("Error: expected state after execution of step '${step.name}' " +
-                    "is expected to be $expectedState but is ${repository.state}")
-            return false
-        }
-        return true
+    if (repository.state != expectedState) {
+        println(
+            "Error: expected state after execution of step '${step.name}' " +
+                "is expected to be $expectedState but is ${repository.state}"
+        )
+        return false
     }
+    return true
+}
 
 @Suppress("TooGenericExceptionCaught")
 fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
@@ -45,20 +50,17 @@ fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
             val isValid = validation()
             require(isValid)
             true
-        }) {"${step::class.simpleName} '${step.name}' is invalid!"} ?: false
-
+        }) { "${step::class.simpleName} '${step.name}' is invalid!" } ?: false
     } catch (e: Exception) {
         println("   ${e.message}")
         false
     }
 
-
 fun repairInitState(
     repository: RepositoryBuilder<*, *, *>,
     step: ModelStep
-) = when(repository.state) {
-
-    RepositoryState.UNINITIALIZED ->  {
+) = when (repository.state) {
+    RepositoryState.UNINITIALIZED -> {
         repository.prepare(dummyResource(step))
         repository.build()
     }
@@ -66,7 +68,7 @@ fun repairInitState(
         repository.build()
     }
     RepositoryState.FINISHED -> {
-         /* State is already FINISHED. */
+        /* State is already FINISHED. */
     }
 }
 
@@ -74,8 +76,7 @@ fun <B> repairPreparingState(
     repository: RepositoryBuilder<B, *, *>,
     resource: Resource<B>,
     step: ModelStep
-) where B: Builder<*> = when(repository.state) {
-
+) where B : Builder<*> = when (repository.state) {
     RepositoryState.UNINITIALIZED -> {
         repository.prepare(dummyCopyOf(resource, step))
     }
@@ -88,14 +89,11 @@ fun <B> repairPreparingState(
     }
 }
 
-
-
-
 fun <B, E, I> validatePrepareResourceStep(
     builderRepository: RepositoryBuilder<B, E, I>,
     resource: Resource<B>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<I> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<I> = validateScope(step) {
     val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
     repairPreparingState(builderRepository, resource, step)
     check(validateState(builderRepository, RepositoryState.PREPARING, step))
@@ -106,9 +104,9 @@ fun <B, E> validatePrepareCsvStep(
     repository: RepositoryBuilder<B, E, *>,
     csv: CsvResource<B>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
-                    ValidateCsvMetadata(step, csv).validate()
+        ValidateCsvMetadata(step, csv).validate()
 
     repairPreparingState(repository, csv, step)
     check(validateState(repository, RepositoryState.PREPARING, step))
@@ -118,7 +116,7 @@ fun <B, E> validatePrepareCsvStep(
 fun <B, E> validateFilterStep(
     repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
     repairPreparingState(repository, dummyResource(step), step)
@@ -129,18 +127,17 @@ fun <B, E> validateFilterStep(
 fun <B, E> validateUpdateStep(
     repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
     repairPreparingState(repository, dummyResource(step), step)
     check(validateState(repository, RepositoryState.PREPARING, step))
     isValid
 }
 
-
 fun <B, E> validateBuildStep(
     repository: RepositoryBuilder<B, E, *>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<*> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.PREPARING, step)
 
     repairInitState(repository, step)
@@ -152,26 +149,24 @@ fun <B, E, I> validateMergeStep(
     builderRepository: RepositoryBuilder<B, E, I>,
     resource: Resource<B>,
     step: ModelStep
-) where B: Builder<E>, E: Identifiable<I> = validateScope(step) {
+) where B : Builder<E>, E : Identifiable<I> = validateScope(step) {
     val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
     repairPreparingState(builderRepository, resource, step)
     check(validateState(builderRepository, RepositoryState.PREPARING, step))
     isValid
 }
 
-
 class ValidateCsvMetadata<E>(
     private val step: ModelStep,
     private val csv: CsvResource<E>
-): Row, CsvReader {
+) : Row, CsvReader {
     companion object {
         private val testStrings = listOf("1", "1u", "1.0", "1.0f", "true", "", "(48.5, 8.6: 0, 0)")
     }
     private lateinit var reader: CsvReader
     private var isValid = true
 
-
-    //Row Attributes
+    // Row Attributes
     override val index = 0
 
     // CsvReader Attributes
@@ -180,9 +175,9 @@ class ValidateCsvMetadata<E>(
     override val rowCount = 1
     override val source
         get() = "ValidationRow for " + reader.source
-    override fun toString() = "${source}[1]:${columns}"
+    override fun toString() = "$source[1]:$columns"
     override fun hasColumn(column: String) = true
-    //Assume all columns exist external module try to access them to trigger error report in case of missing column
+    // Assume all columns exist external module try to access them to trigger error report in case of missing column
 
     fun validate(): Boolean {
         if (!csv.file.exists()) {
@@ -201,39 +196,58 @@ class ValidateCsvMetadata<E>(
             ErrorHandling.unmute()
         }
 
-
         return isValid
     }
-
 
     override fun rows(): Sequence<Row> {
         return sequenceOf(this)
     }
 
-    @Suppress("TooGenericExceptionCaught", "SwallowedException")
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
         validateColumnExists(column)
+        return mockResult(converter, column)
+    }
 
+    override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T {
+        validateColumnIndex(columnIndex)
+        return mockResult(converter, "index $columnIndex")
+    }
+
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    private fun <T> mockResult(converter: (String) -> T, column: String): T {
         for (test in testStrings) {
             try {
                 return converter(test)
-            } catch (e: Exception) { /**/ }
+            } catch (e: Exception) {
+                /**/
+            }
         }
 
-        isValid = false
-        println("WARNING: Value of column '$column' of $csv could not be mocked " +
-                "for parsing! Validation of columns in step '${step.name}' may be incomplete!")
+        isValid = false // TODO think about validity
+        println(
+            "WARNING: Value of column '$column' of $csv could not be mocked " +
+                "for parsing! Validation of columns in step '${step.name}' may be incomplete!"
+        )
         error("Could not mock column '$column'!")
-
     }
 
-    private fun validateColumnExists(column: String) {
-        if (!reader.columns.contains(column)) {
-            println("ERROR: Invalid column '$column' accessed in step '${step.name}' " +
-                    "does not exist in the source csv file: ${reader.source}!")
+    private fun validateColumnIndex(columnIndex: Int) {
+        if (reader.columns.size >= columnIndex) {
+            println(
+                "ERROR: Invalid column index '$columnIndex' accessed in step '${step.name}' " +
+                    "is higher than column number in source csv file: ${reader.source}!"
+            )
             isValid = false
         }
     }
 
-
+    private fun validateColumnExists(column: String) {
+        if (!reader.columns.contains(column)) {
+            println(
+                "ERROR: Invalid column '$column' accessed in step '${step.name}' " +
+                    "does not exist in the source csv file: ${reader.source}!"
+            )
+            isValid = false
+        }
+    }
 }

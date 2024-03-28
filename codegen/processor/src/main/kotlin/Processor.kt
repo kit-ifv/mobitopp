@@ -1,5 +1,4 @@
 
-import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -226,8 +225,8 @@ class Processor(
             if (packageName.isNotEmpty()) {
                 file += "package $packageName\n"
             }
-            file += "import Builder\n"
-            file += "import ID\n"
+            file += "import utils.Builder\n"
+            file += "import utils.ID\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
             file.close()

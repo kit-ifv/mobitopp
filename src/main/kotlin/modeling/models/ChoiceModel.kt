@@ -9,11 +9,9 @@ interface ChoiceModel<A, R> {
     fun doSelect(agent: A, choiceSet: Set<R>): R
 
     fun filter(agent: A, choiceSet: Set<R>): Set<R>
-
 }
 
-interface FixedChoiceSetModel<A, R>: ChoiceModel<A, R> {
+interface FixedChoiceSetModel<A, R> : ChoiceModel<A, R> {
     val choiceSet: Set<R>
     fun select(agent: A): R = select(agent, choiceSet)
-
 }

@@ -15,7 +15,6 @@ interface Resource<out E> {
     val name: String
     val source: String
     val elements: Sequence<E>
-
 }
 
 /**
@@ -31,18 +30,20 @@ data class SequenceResource<out E>(
     override val name: String,
     override val source: String,
     override val elements: Sequence<E>
-) : Resource<E>
+) : Resource<E> {
+    override fun toString() = "$name ($source)"
+}
 
 /**
  * Create a [Resource] containing the given elements and metadata.
  */
-fun <S, E> S.asResource(name: String, source: String): Resource<E> where S: Sequence<E> =
+fun <S, E> S.asResource(name: String, source: String): Resource<E> where S : Sequence<E> =
     SequenceResource(name, source, this)
 
 /**
  * Create a [Resource] containing the given elements and metadata.
  */
-fun <I, E> I.asResource(name: String, source: String): Resource<E> where I: Iterable<E> =
+fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Iterable<E> =
     SequenceResource(name, source, this.asSequence())
 
 /**
@@ -61,22 +62,36 @@ class CsvResource<E> (
     val parser: CsvParser<E>,
     private val delimiter: String = SEMICOLON
 
-): Resource<E> {
+) : Resource<E> {
     override val name: String
-        get() = file.name
+        get() = rowSequence.name
 
     override val source: String
-        get() = file.path
+        get() = rowSequence.source
+
+    override val elements: Sequence<E>
+        get() = rowSequence.elements
+
+    private val rowSequence =
+        parser.parse(CsvReader.of(file, delimiter))
+              .asResource(file.name, file.path)
+              .reusable()
+
+    override fun toString() = "CSV $name ($source)"
+}
+
+
+class ReusableResource<E>(
+    protected val delegate: Resource<E>
+): Resource<E> by delegate {
+    private var storage: List<E>? = null
 
     override val elements: Sequence<E>
         get() {
             val list = mutableListOf<E>()
-            return storage?.asSequence() ?:
-                parser.parse(CsvReader.of(file, delimiter)).onEach { list.add(it) }.also { storage=list }
+            return storage?.asSequence()
+                ?: delegate.elements.onEach { list.add(it) }.also { storage = list }
         }
-
-    private var storage: List<E>? = null
-
-    override fun toString() = "CSV $name ($source)"
-
 }
+
+fun <R, E> R.reusable(): Resource<E> where R: Resource<E> = ReusableResource(this)

@@ -5,10 +5,11 @@ import assertEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import utils.csv.DefaultRowCsvParser
+import utils.csv.CsvParser
 import utils.csv.STR_COL
 import utils.csv.TestBuilder
 import utils.csv.TestEntity
+import utils.csv.TestId
 import utils.csv.expectedBuilders
 import utils.csv.expectedElements
 import java.io.File
@@ -19,34 +20,34 @@ import kotlin.test.assertTrue
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SynthesisValidationTest {
 
-    private lateinit var repository: BuilderRepository<TestBuilder, TestEntity>
+    private lateinit var repository: RepositoryBuilder<TestBuilder, TestEntity, TestId>
 
     private lateinit var elementResource: Resource<TestEntity>
     private lateinit var builderResource: Resource<TestBuilder>
     private lateinit var csvResource: CsvResource<TestBuilder>
     private lateinit var finalCsvResource: CsvResource<TestEntity>
 
-    private lateinit var prepareStep: PrepareResourceStep<TestBuilder, TestEntity>
-    private lateinit var prepareCsvStep: PrepareCsvStep<TestBuilder, TestEntity>
+    private lateinit var prepareStep: PrepareResourceStep<TestBuilder, TestEntity, TestId>
+    private lateinit var prepareCsvStep: PrepareCsvStep<TestBuilder, TestEntity, TestId>
 
-    private lateinit var initStep: InitializeResourceStep<TestEntity>
-    private lateinit var initCsvStep: InitializeCsvStep<TestEntity>
+    private lateinit var updateStep: UpdateStep<TestBuilder, TestEntity, TestId>
+    private lateinit var filterStep: FilterStep<TestBuilder, TestEntity, TestId>
 
-    private lateinit var updateStep: UpdateStep<TestBuilder, TestEntity>
-    private lateinit var filterStep: FilterStep<TestBuilder, TestEntity>
+    private lateinit var buildStep: BuildStep<TestBuilder, TestEntity, TestId>
 
-    private lateinit var buildStep: BuildStep<TestBuilder, TestEntity>
+    //TODO update all
+    //TODO merge step
 
     @BeforeEach
     fun setUp() {
-        repository = BuilderRepository()
+        repository = RepositoryBuilder()
         elementResource =
             SequenceResource("ExpectedElements", "SynthesisValidation", expectedElements.asSequence())
         builderResource =
             SequenceResource("ExpectedBuilders", "SynthesisValidation", expectedBuilders.asSequence())
         csvResource = CsvResource(
             file = File("src/test/resources/test_data.csv"),
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestBuilder(
                     rowIndex = row.index,
                     string = row(STR_COL)
@@ -55,7 +56,7 @@ class SynthesisValidationTest {
         )
         finalCsvResource = CsvResource(
             file = File("src/test/resources/test_data.csv"),
-            parser = DefaultRowCsvParser { row ->
+            parser = CsvParser { row ->
                 TestEntity(
                     rowIndex = row.index,
                     string = row(STR_COL),
@@ -66,13 +67,13 @@ class SynthesisValidationTest {
 
         prepareStep = PrepareResourceStep("prepare sequence", builderResource, repository)
         prepareCsvStep = PrepareCsvStep("prepare csv", csvResource, repository)
-        initStep = InitializeResourceStep("init sequence", elementResource, repository)
-        initCsvStep = InitializeCsvStep("init csv", finalCsvResource, repository)
         updateStep = UpdateStep("map 'int' to length of 'str'", repository) {
-            e -> e.also { e.int = e.string.length }
+                e ->
+            e.also { e.int = e.string.length }
         }
         filterStep = FilterStep("filter elements with even rowIndex", repository) {
-            e -> e.rowIndex%2 == 0
+                e ->
+            e.rowIndex % 2 == 0
         }
         buildStep = BuildStep("build elements", repository)
     }
@@ -83,136 +84,95 @@ class SynthesisValidationTest {
     }
 
     private fun initFinished() {
-        assertTrue(initStep.validate())
+        assertTrue(prepareStep.validate())
+        assertTrue(buildStep.validate())
         assertEquals(RepositoryState.FINISHED, repository.state)
     }
 
-    @Test
-    fun `valid InitializeResourceStep in UNINITIALIZED state`(){
-        testStep(initStep, expectValid = true, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `valid PrepareResourceStep in UNINITIALIZED state`(){
+     @Test
+    fun `valid PrepareResourceStep in UNINITIALIZED state`() {
         testStep(prepareStep, expectValid = true, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `valid InitializeCsvStep in UNINITIALIZED state`(){
-        testStep(initCsvStep, expectValid = true, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `valid PrepareCsvStep in UNINITIALIZED state`(){
+    fun `valid PrepareCsvStep in UNINITIALIZED state`() {
         testStep(prepareCsvStep, expectValid = true, expectedState = RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid UpdateStep in UNINITIALIZED state`(){
+    fun `invalid UpdateStep in UNINITIALIZED state`() {
         testStep(updateStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid FilterStep in UNINITIALIZED state`(){
+    fun `invalid FilterStep in UNINITIALIZED state`() {
         testStep(filterStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid BuildStep in UNINITIALIZED state`(){
+    fun `invalid BuildStep in UNINITIALIZED state`() {
         testStep(buildStep, expectValid = false, RepositoryState.FINISHED)
     }
 
-
-
-
-
-    @Test
-    fun `invalid InitializeResourceStep in PREPARING state`(){
-        initPreparing()
-        testStep(initStep, expectValid = false, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `invalid PrepareResourceStep in PREPARING state`(){
+     @Test
+    fun `invalid PrepareResourceStep in PREPARING state`() {
         initPreparing()
         testStep(prepareStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid InitializeCsvStep in PREPARING state`(){
-        initPreparing()
-        testStep(initCsvStep, expectValid = false, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `invalid PrepareCsvStep in PREPARING state`(){
+    fun `invalid PrepareCsvStep in PREPARING state`() {
         initPreparing()
         testStep(prepareCsvStep, expectValid = false, expectedState = RepositoryState.PREPARING)
-
     }
 
     @Test
-    fun `valid UpdateStep in PREPARING state`(){
+    fun `valid UpdateStep in PREPARING state`() {
         initPreparing()
         testStep(updateStep, expectValid = true, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `valid FilterStep in PREPARING state`(){
+    fun `valid FilterStep in PREPARING state`() {
         initPreparing()
         testStep(filterStep, expectValid = true, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `valid BuildStep in PREPARING state`(){
+    fun `valid BuildStep in PREPARING state`() {
         initPreparing()
         testStep(buildStep, expectValid = true, RepositoryState.FINISHED)
     }
 
-
-
     @Test
-    fun `invalid InitializeResourceStep in FINISHED state`(){
-        initFinished()
-        testStep(initStep, expectValid = false, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `invalid PrepareResourceStep in FINISHED state`(){
+    fun `invalid PrepareResourceStep in FINISHED state`() {
         initFinished()
         testStep(prepareStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid InitializeCsvStep in FINISHED state`(){
-        initFinished()
-        testStep(initCsvStep, expectValid = false, RepositoryState.FINISHED)
-    }
-
-    @Test
-    fun `invalid PrepareCsvStep in FINISHED state`(){
+    fun `invalid PrepareCsvStep in FINISHED state`() {
         initFinished()
         testStep(prepareCsvStep, expectValid = false, expectedState = RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid UpdateStep in FINISHED state`(){
+    fun `invalid UpdateStep in FINISHED state`() {
         initFinished()
         testStep(updateStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid FilterStep in FINISHED state`(){
+    fun `invalid FilterStep in FINISHED state`() {
         initFinished()
         testStep(filterStep, expectValid = false, RepositoryState.PREPARING)
     }
 
     @Test
-    fun `invalid BuildStep in FINISHED state`(){
+    fun `invalid BuildStep in FINISHED state`() {
         initFinished()
         testStep(buildStep, expectValid = false, RepositoryState.FINISHED)
     }
-
 
     private fun testStep(
         step: ModelStep,
@@ -228,10 +188,9 @@ class SynthesisValidationTest {
         assertEquals(
             expectValid,
             step.validate(),
-            errorMessage.also { text=console.getText() }.let { "$it:\n<$text>\n" }
+            errorMessage.also { text = console.getText() }.let { "$it:\n<$text>\n" }
         )
         assertEquals(expectedState, repository.state)
-
 
         val message = "WARNING: ${step::class.simpleName} '${step.name}' is invalid!"
         if (expectValid) {
@@ -242,5 +201,4 @@ class SynthesisValidationTest {
 
         return text
     }
-
 }

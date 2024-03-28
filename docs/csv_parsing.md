@@ -11,7 +11,7 @@ parser.parse("test.csv")
 parser.parse(file)
 parser.parse(csvReader)
 ```
-The 'constructor' **CsvParser()** currently defaults to creating a **DefaultRowCsvParser**. 
+The 'constructor' **CsvParser()** currently defaults to creating a **DefaultCsvParser**. 
 
 ## Parsing rows
 A **RowCsvParser<E>** parses each row/line to a single entity of the target data type E.
@@ -56,13 +56,13 @@ CsvParser<Entity> {
 
 
 ## Parsing single columns
-When parsing only a single column, a **CsvValueParser** can be applied. This will privide more detailed error messages.
+When parsing only a single column, a **SingleColumnParser** can be applied. This will provide more detailed error messages.
 ```kotlin
-CsvValueParser<Int>(column="id", parser=String::toInt)
+SingleColumnParser<Int>(column="id", parser=String::toInt)
 ```
 
 ## Parsing pairs
-A **CsvPairParser** wraps two **RowCsvParsers**s, one key and one value parser.
+A **TwoColumnParser** wraps two **RowCsvParsers**s, one key and one value parser.
 If both parsers return non-null value for the row to be parsed, a key-value **Pair** is created.
 ```kotlin
 CsvPairParser<Int, String>(keyParser, valueParser)
@@ -85,7 +85,7 @@ MapMergeCsvParser<Int, String>(
 
 
 
-# Reding csv files
+# Reading csv files
 
 ## The CsvReader interface
 A **CsvReader** must provide a set of column names, the number of lines in the file as well as a description of the datasource (e.g. the file path). This metadata is required to provide context information while debugging and to create meaningful error messages.
@@ -93,10 +93,12 @@ A **CsvReader** must provide a set of column names, the number of lines in the f
 Most importantly CsvReaders provide a sequence of **Row**s, each containing the information of one line in the csv file.
 
 ## Rows
-The **Row** interface requires that each row has a description of its source (for debugging and meaningful error messages). Also **Row**s have an index within their source. They also allow to obtain values from the file/line they represent by specifying a column name. By default, values are read as Strings. Optionally, the value can be mapped to a desired type:
+The **Row** interface requires that each row has a description of its source (for debugging and meaningful error messages). Also **Row**s have an index within their source. They also allow to obtain values from the file/line they represent by specifying a column name or the column index. By default, values are read as Strings. Optionally, the value can be mapped to a desired type:
 ```kotlin
 val value: String = row("column_name")
 val other: Int = row("other_column", String::toInt)
+val foo: String1 = row.valueAt(3)
+val bar: Int = row.valueAt(4, String::toInt)
 ```
 The default implementation **DefaultRow** checks whether the requested column is available and the row contains a value for that column.
 

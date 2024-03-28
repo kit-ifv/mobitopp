@@ -1,10 +1,10 @@
 package domain.data
 
-import Builder
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.Location
 import units.Distance
+import utils.Builder
 import utils.ID
 import utils.Identifiable
 import utils.registerId
@@ -24,22 +24,21 @@ typealias ZoneId = ID<ZoneData>
  * @property isDestination whether the zone can be selected as a destination
  * @property relief height difference in the zone
  */
-interface ZoneData: Identifiable<ZoneId> {
+interface ZoneData : Identifiable<ZoneId> {
     val visumId: Long
     val name: String
     val areaType: AreaType
     val regionType: Int
     val classification: ZoneClassification
     val parkingPlaces: Int
-    val centroid: Location //TODO type point
+    val centroid: Location // TODO type point
     val isDestination: Boolean
     val relief: Distance
 }
 
-interface LegacyZoneData: ZoneData {
+interface LegacyZoneData : ZoneData {
     val matrixColumn: Int
 }
-
 
 @SuppressWarnings("LongParameterList")
 class ZoneDataBuilder(
@@ -55,8 +54,7 @@ class ZoneDataBuilder(
     var relief: Distance? = null
 ) : Builder<ZoneData> {
 
-
-    override fun build() = object:ZoneData{
+    override fun build() = object : ZoneData {
         override val visumId: Long = this@ZoneDataBuilder.visumId!!
         override val name: String = this@ZoneDataBuilder.name!!
         override val areaType: AreaType = this@ZoneDataBuilder.areaType!!
@@ -71,18 +69,17 @@ class ZoneDataBuilder(
 
     override fun toString(): String {
         return "ZoneDataBuilder(" +
-                "visumId=$visumId, " +
-                "matrixColumn=$matrixColumn, " +
-                "name=$name, " +
-                "areaType=$areaType, " +
-                "regionType=$regionType, " +
-                "classification=$classification, " +
-                "parkingPlaces=$parkingPlaces, " +
-                "centroid=$centroid, " +
-                "isDestination=$isDestination, " +
-                "relief=$relief)"
+            "visumId=$visumId, " +
+            "matrixColumn=$matrixColumn, " +
+            "name=$name, " +
+            "areaType=$areaType, " +
+            "regionType=$regionType, " +
+            "classification=$classification, " +
+            "parkingPlaces=$parkingPlaces, " +
+            "centroid=$centroid, " +
+            "isDestination=$isDestination, " +
+            "relief=$relief)"
     }
-
 }
 
 @SuppressWarnings("LongParameterList")
@@ -97,9 +94,9 @@ class LegacyZoneDataBuilder(
     var centroid: Location? = null,
     var isDestination: Boolean? = null,
     var relief: Distance? = null
-): Builder<LegacyZoneData> {
+) : Builder<LegacyZoneData> {
 
-    override fun build() = object:LegacyZoneData{
+    override fun build() = object : LegacyZoneData {
         override val visumId: Long = this@LegacyZoneDataBuilder.visumId!!
         override val matrixColumn: Int = this@LegacyZoneDataBuilder.matrixColumn!!
         override val name: String = this@LegacyZoneDataBuilder.name!!
@@ -112,5 +109,4 @@ class LegacyZoneDataBuilder(
         override val relief: Distance = this@LegacyZoneDataBuilder.relief!!
         override val id: ZoneId = registerId(visumId)
     }
-
 }

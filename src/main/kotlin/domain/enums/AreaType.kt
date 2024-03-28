@@ -1,13 +1,13 @@
 package domain.enums
 
-import CodePlan
-import Encodable
+import utils.CodePlan
+import utils.Encodable
 
-interface AreaType: Encodable {
+interface AreaType : Encodable {
     val description: String
 }
 
-enum class ZoneAreaType(private val code: Int): AreaType {
+enum class ZoneAreaType(private val code: Int) : AreaType {
     DEFAULT(0),
     RURAL(1),
     PROVINCIAL(2),
@@ -19,13 +19,13 @@ enum class ZoneAreaType(private val code: Int): AreaType {
     override val description: String
         get() = this.name
 
-    companion object: CodePlan<AreaType> {
+    companion object : CodePlan<AreaType> {
         override fun decode(i: Int) = ZoneAreaType.entries.first { it.code == i }
         override fun decode(s: String) = ZoneAreaType.valueOf(s)
     }
 }
 
-@Suppress("EnumNaming")
+@Suppress("EnumNaming", "EnumEntryNameCase")
 enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
     defaultType(0, "default"),
     largerCentralCitiesInAgglomerationAreas(1, "Larger central cities in agglomeration areas"),
@@ -69,7 +69,7 @@ enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
     override val description: String
         get() = this.text
 
-    companion object: CodePlan<AreaType> {
+    companion object : CodePlan<AreaType> {
         override fun decode(i: Int) = Bbsr17.entries.first { it.code == i }
         override fun decode(s: String) = Bbsr17.valueOf(s)
     }

@@ -9,4 +9,3 @@ import units.Currency
 fun interface TravelCost {
     fun calculate(from: Location, to: Location, using: Mode): Currency
 }
-

@@ -1,8 +1,7 @@
 package modeling.steps
 
-import Builder
+import utils.Builder
 import utils.Identifiable
-
 
 /**
  * A Repository is a [Resource] if [Identifiable] elements
@@ -11,7 +10,7 @@ import utils.Identifiable
  * @param E the generic type of [Identifiable] elements
  * @param I the generic id type
  */
-interface Repository<out E, I>: Resource<E> where E: Identifiable<I> {
+interface Repository<out E, I> : Resource<E> where E : Identifiable<I> {
 
     /** The repository size. */
     val size: Int
@@ -25,7 +24,6 @@ interface Repository<out E, I>: Resource<E> where E: Identifiable<I> {
      * @return the element with the given id or null
      */
     fun getById(id: I): E?
-
 }
 
 /**
@@ -40,8 +38,14 @@ class MapRepository<out E, I>(
     elements: Collection<E>,
     override val name: String,
     override val source: String,
-): Repository<E, I> where E: Identifiable<I> {
+) : Repository<E, I> where E : Identifiable<I> {
     private val idMap: Map<I, E> = elements.associateBy { it.id }
+
+    constructor(resource: Resource<E>): this(
+        elements=resource.elements.toList(),
+        name=resource.name,
+        source=resource.source
+    )
 
     override val size: Int
         get() = idMap.size
@@ -62,9 +66,9 @@ class MapRepository<out E, I>(
  * @param I the generic type of ids used by the built elements
  * @constructor Create an [RepositoryState.UNINITIALIZED] [RepositoryBuilder]
  */
-open class RepositoryBuilder<B, out E, I>(): Repository<E, I> where B: Builder<E>, E: Identifiable<I> {
+open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder<E>, E : Identifiable<I> {
     private var builders: Resource<B>? = null
-    private val elementMap: MutableMap<I, E> = mutableMapOf()
+    private var elems : Repository<E, I>? = null
     private var internalState: RepositoryState = RepositoryState.UNINITIALIZED
 
     /**
@@ -73,20 +77,20 @@ open class RepositoryBuilder<B, out E, I>(): Repository<E, I> where B: Builder<E
      * @param builders a resource of initial builders
      * @constructor Create a [RepositoryState.PREPARING] [RepositoryBuilder]
      */
-    constructor(builders: Resource<B>): this() {
+    constructor(builders: Resource<B>) : this() {
         this.prepare(builders)
     }
 
     override val name: String
         get() {
             internalState = internalState.getName()
-            return builders!!.name
+            return (elems ?: builders)!!.name
         }
 
     override val source: String
         get() {
             internalState = internalState.getSource()
-            return builders!!.source
+            return (elems ?: builders)!!.source
         }
 
     val state: RepositoryState
@@ -95,39 +99,37 @@ open class RepositoryBuilder<B, out E, I>(): Repository<E, I> where B: Builder<E
     override val elements: Sequence<E>
         get() {
             internalState = internalState.getElements()
-            return elementMap.values.asSequence()
+            return elems!!.elements
         }
 
     override fun getById(id: I): E? {
         internalState = internalState.getById()
-        return elementMap[id]
+        return elems!!.getById(id)
     }
-
 
     fun prepare(builders: Resource<B>) {
         internalState = internalState.prepare(builders)
         this.builders = builders
     }
 
-
     fun reduce(operation: String, predicate: (B) -> Boolean) {
         internalState.reduce(operation)
-        builders = builders!!.let{
+        builders = builders!!.let {
             it.elements.filter(predicate).asResource(it.name, "${it.source} -> filter $operation")
         }
     }
 
-    //TODO replace vs update
+    // TODO replace vs update
     fun update(operation: String, mapping: (B) -> B?) {
         internalState.update(operation)
-        builders = builders!!.let{
+        builders = builders!!.let {
             it.elements.map(mapping).filterNotNull().asResource(it.name, "${it.source} -> map $operation")
         }
     }
 
     fun updateAll(operation: String, mapping: (Sequence<B>) -> Sequence<B>) {
         internalState.update(operation)
-        builders = builders!!.let{
+        builders = builders!!.let {
             mapping(it.elements).asResource(it.name, "${it.source} -> map all $operation")
         }
     }
@@ -136,27 +138,25 @@ open class RepositoryBuilder<B, out E, I>(): Repository<E, I> where B: Builder<E
         internalState = internalState.mergeBuilders(other)
         builders = builders?.let {
             sequenceOf(it.elements, other.elements).flatten().asResource(
-                name="${it.name}, ${other.name}",
-                source="${it.source} -> merge with ${other.source}"
+                name = "${it.name}, ${other.name}",
+                source = "${it.source} -> merge with ${other.source}"
             )
         } ?: other
     }
 
     fun build() {
         internalState = internalState.build()
-        elementMap.clear()
-        builders!!.build().elements.forEach { elementMap[it.id] = it }
+        elems = MapRepository(builders!!.build().reusable())
         builders = null
     }
 
     fun reset() {
         internalState = internalState.reset()
-        elementMap.clear()
+        elems = null
         builders = null
     }
 
     override fun toString() = state.toString(this)
-
 }
 
 /**
@@ -195,7 +195,7 @@ enum class RepositoryState {
         override fun getSource() =
             error("Cannot get source of repository as it has not been finished/prepared yet!")
 
-        override fun toString(repository: RepositoryBuilder<*,*,*>): String {
+        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == UNINITIALIZED)
             return "Uninitialized ${repository.javaClass.simpleName}"
         }
@@ -228,13 +228,12 @@ enum class RepositoryState {
 
         override fun getSource() = PREPARING
 
-        override fun toString(repository: RepositoryBuilder<*,*,*>): String {
+        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == PREPARING)
             return "Initialized ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
         override fun mergeBuilders(resource: Resource<*>) = PREPARING
-
     },
 
     /**
@@ -262,14 +261,13 @@ enum class RepositoryState {
 
         override fun getSource() = FINISHED
 
-        override fun toString(repository: RepositoryBuilder<*,*,*>): String {
+        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == FINISHED)
             return "Finished ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
         override fun mergeBuilders(resource: Resource<*>) =
             error("Cannot merge Builders of resource $resource into repository as it has already been finished!")
-
     };
 
     abstract fun prepare(resource: Resource<*>): RepositoryState
@@ -283,13 +281,8 @@ enum class RepositoryState {
     abstract fun getById(): RepositoryState
     abstract fun getName(): RepositoryState
     abstract fun getSource(): RepositoryState
-    abstract fun toString(repository: RepositoryBuilder<*,*,*>): String
-
+    abstract fun toString(repository: RepositoryBuilder<*, *, *>): String
 }
-
-
-
-
 
 /**
  * Build all [Builder] elements and create a [Repository].
@@ -300,9 +293,8 @@ enum class RepositoryState {
  * @param E generic type of the elements
  * @return a repository containing built elements and updated metadata of the resource
  */
-fun <R, B, E> R.build(): Resource<E> where B:Builder<E>, R:Resource<B>, E: Identifiable<*> =
+fun <R, B, E> R.build(): Resource<E> where B : Builder<E>, R : Resource<B>, E : Identifiable<*> =
     this.elements.map { it.build() }.asResource(this.name, "$source -> build")
-
 
 /**
  * Create a [Repository] containing the elements and metadata of the given [Resource].
@@ -311,6 +303,5 @@ fun <R, B, E> R.build(): Resource<E> where B:Builder<E>, R:Resource<B>, E: Ident
  * @param E generic type of the elements
  * @return a repository containing elements and metadata of the resource
  */
-fun <R, E, I> R.asRepository(): Repository<E, I> where R: Resource<E>, E: Identifiable<I> =
+fun <R, E, I> R.asRepository(): Repository<E, I> where R : Resource<E>, E : Identifiable<I> =
     MapRepository(this.elements.toList(), this.name, this.source)
-

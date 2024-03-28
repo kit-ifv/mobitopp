@@ -1,3 +1,5 @@
+package utils
+
 public interface Builder<out E> {
     fun build(): E
 }
@@ -18,7 +20,7 @@ fun interface Encodable {
  *
  * This could also be abstracted to generic decoding types if the need arises
  */
-interface Decodable<out T: Encodable> {
+interface Decodable<out T : Encodable> {
     fun decode(i: Int): T
 
     fun decode(s: String): T

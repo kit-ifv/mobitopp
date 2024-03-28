@@ -1,11 +1,9 @@
 package utils.csv
 
 import org.junit.jupiter.api.Test
-
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-
 
 class DefaultCsvReaderTest {
     private val file = File("src/test/resources/test_data.csv")
@@ -27,7 +25,7 @@ class DefaultCsvReaderTest {
 
     @Test
     fun columns() {
-        val columns =  reader.columns
+        val columns = reader.columns
 
         COLUMNS.forEach { column ->
             assertContains(columns, column)
@@ -40,7 +38,6 @@ class DefaultCsvReaderTest {
     fun rows() {
         assertEquals(10, reader.rows().count())
     }
-
 }
 
 class DefaultRowTest {
@@ -50,32 +47,80 @@ class DefaultRowTest {
     @Test
     fun source() {
         reader.rows().forEach {
-            row -> assertEquals("test_data.csv", row.source)
+                row ->
+            assertEquals("test_data.csv", row.source)
         }
     }
 
     @Test
     fun index() {
         reader.rows().forEachIndexed { index, row
-            ->  assertEquals(index, row.index)
+            ->
+            assertEquals(index, row.index)
         }
     }
 
     @Test
-    fun get() {
+    fun invoke() {
         val rows = reader.rows().toList()
 
-        rows.forEachIndexed{index, row ->
-            assertEquals((index+1).toString(), row(INDEX_COL))
+        rows.forEachIndexed { index, row ->
+            assertEquals((index + 1).toString(), row(INDEX_COL))
         }
 
-        //true;1.11;6;@$§!?;42
-        assertEquals("true",    rows[5](BOOL_COL))
-        assertEquals("1.11",    rows[5](FLOAT_COL))
-        assertEquals("6",       rows[5](INDEX_COL))
-        assertEquals("%&#)!?",   rows[5](STR_COL))
-        assertEquals("42",      rows[5](INT_COL))
-
+        // true;1.11;6;@$§!?;42
+        assertEquals("true", rows[5](BOOL_COL))
+        assertEquals("1.11", rows[5](FLOAT_COL))
+        assertEquals("6", rows[5](INDEX_COL))
+        assertEquals("%&#)!?", rows[5](STR_COL))
+        assertEquals("42", rows[5](INT_COL))
     }
 
+    @Test
+    fun `invoke with converter`() {
+        val rows = reader.rows().toList()
+
+        rows.forEachIndexed { index, row ->
+            assertEquals(index + 1, row(INDEX_COL, String::toInt))
+        }
+
+        // true;1.11;6;@$§!?;42
+        assertEquals(true, rows[5](BOOL_COL, String::toBoolean))
+        assertEquals(1.11f, rows[5](FLOAT_COL, String::toFloat))
+        assertEquals(6, rows[5](INDEX_COL, String::toInt))
+        assertEquals("%&#)!?", rows[5](STR_COL))
+        assertEquals(42, rows[5](INT_COL, String::toInt))
+    }
+
+    @Test
+    fun valueAt() {
+        val rows = reader.rows().toList()
+
+        rows.forEachIndexed { index, row ->
+            assertEquals((index + 1).toString(), row.valueAt(2))
+        }
+
+        // true;1.11;6;@$§!?;42
+        assertEquals("true", rows[5].valueAt(0))
+        assertEquals("1.11", rows[5].valueAt(1))
+        assertEquals("6", rows[5].valueAt(2))
+        assertEquals("%&#)!?", rows[5].valueAt(3))
+        assertEquals("42", rows[5].valueAt(4))
+    }
+
+    @Test
+    fun `valueAt with converter`() {
+        val rows = reader.rows().toList()
+
+        rows.forEachIndexed { index, row ->
+            assertEquals(index + 1, row.valueAt(2, String::toInt))
+        }
+
+        // true;1.11;6;@$§!?;42
+        assertEquals(true, rows[5].valueAt(0, String::toBoolean))
+        assertEquals(1.11f, rows[5].valueAt(1, String::toFloat))
+        assertEquals(6, rows[5].valueAt(2, String::toInt))
+        assertEquals("%&#)!?", rows[5].valueAt(3))
+        assertEquals(42, rows[5].valueAt(4, String::toInt))
+    }
 }

@@ -38,11 +38,32 @@ interface Row {
      */
     operator fun invoke(column: String): String = invoke(column) { s -> s }
 
+    /**
+     * Parse this [Row]'s value at the given index using the given parser.
+     *
+     * @param columnIndex the column index at which the value should be parsed
+     * @param converter converts the csv string value to the desired type
+     * @param T the desired result type
+     * @return the parsed value of this [Row] in the given index
+     */
+    fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T
+
+    /**
+     * Get this [Row]'s value at the given index.
+     *
+     * @param columnIndex the column index to look up the value
+     * @return the raw value of this [Row] in the given index
+     */
+    fun valueAt(columnIndex: Int): String = valueAt(columnIndex) { s -> s }
+
+    /**
+     * Check whether the row/source contains the given column.
+     *
+     * @param column the column to be checked
+     * @return true, if the given column exists in the [Row]/source
+     */
     fun hasColumn(column: String): Boolean
-
 }
-
-
 
 /**
  * Default implementation of the [Row] interface
@@ -50,41 +71,42 @@ interface Row {
  * @constructor create a row with the given values
  * @property source string description of the source containing this row
  * @property index the index of this row (unique with respect to source)
- * @property columnIndex mapping of column names to value list index
+ * @property columnIndexMap mapping of column names to value list index
  * @property values list of values of this row
  */
 open class DefaultRow(
     override val source: String,
     override val index: Int,
-    protected val columnIndex: Map<String, Int>,
+    protected val columnIndexMap: Map<String, Int>,
     protected val values: List<String>
 ) : Row {
 
-
-    @Suppress("TooGenericExceptionCaught")
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
-
-        val columnIndex = requireNotNull(columnIndex[column]) {
+        val columnIndex = requireNotNull(columnIndexMap[column]) {
             "The given column '$column' is missing in $source. " +
-            "Available columns: ${columnIndex.keys}"
+                "Available columns: ${columnIndexMap.keys}"
         }
 
-        val string = try {
-            values[columnIndex]
-
-        } catch (i: IndexOutOfBoundsException) { //Why is IndexOutOfBoundsException too generic?
-            val message = "The given column's index is out of range in row ${this.index} of $source. " +
-                    "Column: $column, index: $columnIndex, values: $values."
-            throw IllegalArgumentException(message, i)
-        }
-
-        return converter(string)
+        return converter(getIndexValue(columnIndex, column))
     }
 
-    override fun hasColumn(column: String) = columnIndex.containsKey(column)
+    override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T {
+        return converter(getIndexValue(columnIndex))
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun getIndexValue(columnIndex: Int, column: String? = null): String = try {
+        values[columnIndex]
+    } catch (i: IndexOutOfBoundsException) { // Why is IndexOutOfBoundsException too generic?
+        val columnName = column ?: columnIndex.toString()
+        val message = "The given column's index is out of range in row ${this.index} of $source. " +
+            "Column: $columnName, index: $columnIndex, values: $values."
+        throw IllegalArgumentException(message, i)
+    }
+
+    override fun hasColumn(column: String) = columnIndexMap.containsKey(column)
 
     override fun toString() = "$source[$index]=$values"
-
 }
 
 /**
@@ -105,8 +127,10 @@ interface CsvReader {
 
     /** The column names of the csv file. */
     val columns: Set<String>
+
     /** The number of rows in the csv file. */
     val rowCount: Int
+
     /** The source (file path) of the csv file. */
     val source: String
 
@@ -116,7 +140,6 @@ interface CsvReader {
      * @return a [Sequence] of [Row]s
      */
     fun rows(): Sequence<Row>
-
 }
 
 /**
@@ -134,10 +157,9 @@ open class DefaultCsvReader(
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
 ) : CsvReader {
 
-
     private val columnsIndex: Map<String, Int>
     private val numberOfRows: Int
-    protected val name: String = file.name //TODO maybe use path instead?
+    protected val name: String = file.name // TODO maybe use path instead?
 
     override val source: String = file.path
     override val rowCount: Int
@@ -148,7 +170,7 @@ open class DefaultCsvReader(
     init {
         val reader = BufferedReader(FileReader(file))
         val header = reader.readLine()
-        numberOfRows = reader.lineSequence().count() //TODO profile performance cost of counting
+        numberOfRows = reader.lineSequence().count() // TODO profile performance cost of counting
         reader.close()
 
         columnsIndex = parseHeader(header)
@@ -168,7 +190,6 @@ open class DefaultCsvReader(
             .map { line -> parseSafely(idCnt++, line) }
 
         return sequence.filterNotNull()
-
     }
 
     private fun parseSafely(index: Int, line: String): Row? =
@@ -200,9 +221,7 @@ open class DefaultCsvReader(
         val rest = if (isQuoted) parts[1].drop(separator.length) else parts[1]
         return parts[0] to rest.ifBlank { null }
     }
-
 }
-
 
 /**
  * Handle reading csv line.
@@ -216,7 +235,6 @@ open class DefaultCsvReader(
 fun <T> ErrorHandling.handleReadRow(line: String, reader: (String) -> T?): T? {
     return this.handle(runnable = { reader(line) }) { "Error reading csv line $line" }
 }
-
 
 /**
  * Handle exceptions while operating on certain [Row]: In case of parsing
@@ -252,13 +270,11 @@ fun <E> ErrorHandling.handleParseValue(
     column: String,
     parser: (String) -> E?,
 ): E? = this.handle(runnable = {
-
-    require(row.hasColumn(column)) { //Error message if column does not exist
+    require(row.hasColumn(column)) { // Error message if column does not exist
         "Could not find column '$column' in row: $row."
     }
 
     row(column, parser)
-
-}) { //Error message for parsing errors
+}) { // Error message for parsing errors
     "Could not parse column '$column' of row ${row.index} in '${row.source}': $row"
 }

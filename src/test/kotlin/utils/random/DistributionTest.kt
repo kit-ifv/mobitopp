@@ -5,7 +5,6 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-
 const val FIRST = 1
 const val SECOND = 2
 const val THIRD = 3
@@ -28,8 +27,6 @@ class DistributionTest {
     }
 
     var randomVariable: Histogram<Int> = Histogram<Int>("test hist", data)
-
-
 
     @Test
     fun testRealization() {
@@ -74,5 +71,4 @@ class DistributionTest {
         assertEquals(THIRD, rv.drawValue(0.5))
         assertEquals(THIRD, rv.drawValue(0.9))
     }
-
 }
