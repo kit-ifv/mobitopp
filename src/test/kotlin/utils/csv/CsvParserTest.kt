@@ -1,13 +1,13 @@
 package utils.csv
 
 import ConsoleCaptor
+import assertEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import utils.ErrorHandling
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -287,7 +287,7 @@ class CsvParserTest {
 
         val consoleText = console.getText()
         assertEquals(5, entities.size)
-        assertTrue { consoleText.isEmpty() }
+        assertEmpty(consoleText)
         assertNoWarnings(consoleText)
     }
 
