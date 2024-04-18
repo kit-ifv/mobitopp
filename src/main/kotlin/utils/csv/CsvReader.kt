@@ -1,6 +1,8 @@
 package utils.csv
 
 import utils.ErrorHandling
+import utils.collections.FancyProgressbar
+import utils.collections.ProgressBarFactory
 import utils.collections.toLazyList
 import java.io.BufferedReader
 import java.io.File
@@ -123,6 +125,7 @@ interface CsvReader {
          */
         @Suppress("FunctionMinLength")
         fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
+
     }
 
     /** The column names of the csv file. */
@@ -140,6 +143,8 @@ interface CsvReader {
      * @return a [Sequence] of [Row]s
      */
     fun rows(): Sequence<Row>
+
+    val name: String
 }
 
 /**
@@ -154,12 +159,13 @@ interface CsvReader {
 open class DefaultCsvReader(
     protected val file: File,
     protected val separator: String = SEMICOLON,
-    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
+    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR,
+    protected val progressbar: ProgressBarFactory = FancyProgressbar()
 ) : CsvReader {
 
     private val columnsIndex: Map<String, Int>
     private val numberOfRows: Int
-    protected val name: String = file.name // TODO maybe use path instead?
+    override val name: String = file.name // TODO maybe use path instead?
 
     override val source: String = file.path
     override val rowCount: Int
@@ -188,8 +194,9 @@ open class DefaultCsvReader(
             .asSequence()
             .drop(1)
             .map { line -> parseSafely(idCnt++, line) }
+            .filterNotNull()
 
-        return sequence.filterNotNull()
+        return progressbar.createProgressBar(sequence.iterator(), "read $name", rowCount.toLong()).asSequence()
     }
 
     private fun parseSafely(index: Int, line: String): Row? =

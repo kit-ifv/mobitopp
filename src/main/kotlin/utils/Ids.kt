@@ -42,7 +42,7 @@ internal object GlobalIdCount {
     fun drawId(clazz: KClass<*>): Long = getCounter(clazz).next
 
     fun requestId(clazz: KClass<*>, requestedId: Long): Long =
-        getTracker(clazz).register(requestedId, clazz.simpleName!!)
+        getTracker(clazz).register(requestedId, clazz.simpleName ?: "UndefinedClass")
 }
 
 fun drawId(clazz: KClass<*>): Long = GlobalIdCount.drawId(clazz)

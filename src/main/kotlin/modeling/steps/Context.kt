@@ -116,10 +116,11 @@ data class LegacyContext(
             return index ?: zoneRepository.elements.associateBy { it.matrixColumn }.also { index = it }
         }
 
-    override fun reset() {
+    override fun reset() { //TODO unhappy with reset -> rethink validation / context state
         zoneRepository.reset()
         householdRepository.reset()
         personRepository.reset()
+        index = null
     }
 }
 
@@ -128,7 +129,7 @@ fun main() {
         scenarioName = "testSteps",
         areaTypeCodes = Bbsr17,
         demandFolder = File(
-            "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt"
+            "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_karlsruhe_long-term-module\\karlsruhe"
         ),
         economicalStatusCodes = EconomicStatus
     )

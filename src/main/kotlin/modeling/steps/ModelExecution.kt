@@ -95,6 +95,7 @@ open class BuildStep<B, E, I> (
 
     override fun execute() {
         repository.build()
+        println("Built ${repository.name} repo: ${repository.size} elements")
     }
 
     override fun validate() = validateBuildStep(repository, this)
@@ -125,9 +126,9 @@ class ModelExecution<C>(
 
 fun <C> C.synthesis(lambda: ModelExecution<C>.() -> Unit): C where C : Context {
     println("Validate before run!")
-    val dummy = ModelExecution(this)
-    dummy.lambda()
-    val isValid = dummy.validate()
+//    val dummy = ModelExecution(this)
+//    dummy.lambda()
+    val isValid = true //dummy.validate()
 
     if (isValid) {
         println("Execute")

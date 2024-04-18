@@ -2,6 +2,7 @@ package usecases.legacyData
 
 import domain.data.EconomicStatus
 import domain.data.HouseholdDataBuilder
+import domain.data.LegacyZoneData
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
 import modeling.steps.BuildStep
@@ -47,9 +48,8 @@ fun <S, C> S.prepareHouseholds(
         HouseholdDataBuilder(
             householdNumber = row.long(hhNumberColumn),
             surveyYear = row.int(yearColumn),
-            homeZone = requireNotNull(
-                zoneIndex()[row.int(zoneColumn)]
-            ), // legacy household.csv files reference column instead of visum id
+            homeZone = getLegacyZone(zoneIndex, row.int(zoneColumn)),
+            // legacy household.csv files reference column instead of visum id
             roadPosition = row(locationColumn, roadPositionParser),
             domCode = row.int(domCodeColumn),
             type = row.int(typeColumn),
@@ -60,6 +60,17 @@ fun <S, C> S.prepareHouseholds(
 
     this.prepareHouseholdsFile(parser, file, delimiter)
 }
+
+private fun getLegacyZone(
+    zoneIndex: () -> Map<Int, LegacyZoneData>,
+    matrixColumn: Int
+) = requireNotNull(
+    zoneIndex()[matrixColumn]
+) {
+    "Could not find zone with matrix column $matrixColumn " +
+    "in index: ${zoneIndex()}"
+}
+
 
 fun <S, C> S.prepareHouseholdsFile(
     parser: CsvParser<HouseholdDataBuilder>,
@@ -84,6 +95,6 @@ fun <S, C> S.finishHouseholds() where S : ModelExecution<C>, C : HouseholdContex
 }
 
 fun <S, C> S.loadHouseholds() where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : HouseholdContext {
-    this.prepareHouseholds()
+    this.prepareHouseholds(errorHandling = ErrorHandling.THROW)
     this.finishHouseholds()
 }

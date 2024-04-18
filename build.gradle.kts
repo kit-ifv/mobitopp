@@ -41,6 +41,8 @@ dependencies {
     ksp(project(":processor")) // to make KSP work
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
+
+    implementation("me.tongfei:progressbar:0.10.1")
 //    implementation(project(":test-processor"))
 //    ksp{project(":test-processor")}
 

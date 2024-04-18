@@ -169,6 +169,9 @@ class ValidateCsvMetadata<E>(
     // Row Attributes
     override val index = 0
 
+    override val name: String
+        get() = reader.name
+
     // CsvReader Attributes
     override val columns
         get() = reader.columns
