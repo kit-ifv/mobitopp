@@ -4,6 +4,8 @@ import domain.data.ChargingInfluence
 import domain.data.EMobilityPersonDataBuilder
 import domain.data.Employment
 import domain.data.Graduation
+import domain.data.HouseholdData
+import domain.data.HouseholdId
 import domain.data.Sex
 import modeling.steps.BuildStep
 import modeling.steps.Context
@@ -12,10 +14,12 @@ import modeling.steps.EMobilityPersonContext
 import modeling.steps.HouseholdContext
 import modeling.steps.ModelExecution
 import modeling.steps.PrepareCsvStep
+import modeling.steps.Repository
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
+import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.boolean
 import utils.csv.currency
@@ -59,12 +63,7 @@ fun <S, C> S.prepareEmobilityPersons(
     val csvParser = CsvParser(errorHandling) { row ->
         EMobilityPersonDataBuilder(
             personId = row.long(idColumn),
-            householdData = requireNotNull(
-                householdRepo().getById(row.id(householdColumn))
-            ) {
-                "Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
-                    " ${householdRepo().elements.map { it.id }.toList()}"
-            },
+            householdData = getHousehold(householdRepo, row, householdColumn),
             age = row.int(ageColumn),
             employment = row.decodeName(employmentColumn, employmentCodePlan),
             sex = row.decodeName(sexColumn, sexCodePlan),
@@ -106,4 +105,15 @@ fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : Context, C : EMobi
 fun <S, C> S.loadPersons() where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : EMobilityPersonContext {
     this.prepareEmobilityPersons()
     this.finishPersons()
+}
+
+internal fun getHousehold(
+    householdRepo: () -> Repository<HouseholdData, HouseholdId>,
+    row: Row,
+    householdColumn: String
+) = requireNotNull(
+    householdRepo().getById(row.id(householdColumn))
+) {
+    "Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
+        " ${householdRepo().elements.map { it.id }.toList()}"
 }

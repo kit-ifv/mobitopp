@@ -128,7 +128,7 @@ fun <C> C.synthesis(lambda: ModelExecution<C>.() -> Unit): C where C : Context {
     println("Validate before run!")
 //    val dummy = ModelExecution(this)
 //    dummy.lambda()
-    val isValid = true //dummy.validate()
+    val isValid = true // dummy.validate()
 
     if (isValid) {
         println("Execute")

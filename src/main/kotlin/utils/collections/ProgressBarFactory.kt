@@ -6,18 +6,18 @@ import me.tongfei.progressbar.ProgressBarStyle
 
 interface ProgressBarFactory {
 
-    fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long) : Iterator<T>
-
+    fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long): Iterator<T>
 }
 
-class NullProgressbar: ProgressBarFactory {
+class NullProgressbar : ProgressBarFactory {
     override fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long): Iterator<T> = it
-
 }
 
-class FancyProgressbar: ProgressBarFactory {
+@Suppress("MagicNumber")
+class FancyProgressbar : ProgressBarFactory {
 
     private val pbb = ProgressBarBuilder()
+
     init {
         pbb.setUpdateIntervalMillis(250)
             .setMaxRenderedLength(120)
@@ -28,5 +28,4 @@ class FancyProgressbar: ProgressBarFactory {
             .setInitialMax(expectedCount)
         return ProgressBar.wrap(it, pbb)
     }
-
 }

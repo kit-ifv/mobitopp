@@ -16,7 +16,7 @@ private const val QUOTE = "\""
 /** The interface row provides methods to obtain properties of csv rows. */
 interface Row {
     /** The source containing this [Row]. */
-    val source: String
+    val source: String //TODO source should reference CsvReader which holds detailed information on source file
 
     /** The index of this [Row]. */
     val index: Int
@@ -125,7 +125,6 @@ interface CsvReader {
          */
         @Suppress("FunctionMinLength")
         fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
-
     }
 
     /** The column names of the csv file. */

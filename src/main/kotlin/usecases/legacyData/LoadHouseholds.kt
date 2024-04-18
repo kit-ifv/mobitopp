@@ -68,9 +68,8 @@ private fun getLegacyZone(
     zoneIndex()[matrixColumn]
 ) {
     "Could not find zone with matrix column $matrixColumn " +
-    "in index: ${zoneIndex()}"
+        "in index: ${zoneIndex()}"
 }
-
 
 fun <S, C> S.prepareHouseholdsFile(
     parser: CsvParser<HouseholdDataBuilder>,

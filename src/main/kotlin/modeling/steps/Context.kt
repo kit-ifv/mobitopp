@@ -1,10 +1,12 @@
 package modeling.steps
 
 import domain.data.CarId
+import domain.data.CarSegment
 import domain.data.EMobilityPersonData
 import domain.data.EMobilityPersonDataBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
+import domain.data.EngineType
 import domain.data.Graduation
 import domain.data.HouseholdData
 import domain.data.HouseholdDataBuilder
@@ -22,13 +24,14 @@ import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.Bbsr17
 import units.CurrencyUnit
-import usecases.finishPersons
+import usecases.assignCarUsers
+import usecases.legacyData.finishPrivateCars
 import usecases.legacyData.loadHouseholds
 import usecases.legacyData.loadZones
-import usecases.prepareEmobilityPersons
+import usecases.legacyData.preparePrivateCars
+import usecases.loadPersons
 import utils.Builder
 import utils.CodePlan
-import utils.ErrorHandling
 import java.io.File
 
 interface Context {
@@ -64,6 +67,8 @@ interface LegacyZonesContext : ZoneContext<LegacyZoneDataBuilder, LegacyZoneData
 }
 
 interface PrivateCarContext<B, E> where B : Builder<E>, E : PrivateCarData {
+    val engineCodes: CodePlan<EngineType>
+    val carSegmentCodes: CodePlan<CarSegment>
     val carRepository: RepositoryBuilder<B, E, CarId>
 }
 
@@ -100,11 +105,14 @@ data class LegacyContext(
     override val graduationCodes: CodePlan<Graduation> = Graduation,
     override val employmentCodes: CodePlan<Employment> = Employment,
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
-) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext {
+    override val engineCodes: CodePlan<EngineType> = EngineType,
+    override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
+) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext, BasePrivateCarContext {
 
     override val zoneRepository = RepositoryBuilder<LegacyZoneDataBuilder, LegacyZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
     override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
+    override val carRepository = RepositoryBuilder<PrivateCarBuilder, PrivateCarData, CarId>()
 
     private var index: Map<Int, LegacyZoneData>? = null
     override val zoneColumnIndex: Map<Int, LegacyZoneData>
@@ -116,10 +124,11 @@ data class LegacyContext(
             return index ?: zoneRepository.elements.associateBy { it.matrixColumn }.also { index = it }
         }
 
-    override fun reset() { //TODO unhappy with reset -> rethink validation / context state
+    override fun reset() { // TODO unhappy with reset -> rethink validation / context state
         zoneRepository.reset()
         householdRepository.reset()
         personRepository.reset()
+        carRepository.reset()
         index = null
     }
 }
@@ -137,8 +146,10 @@ fun main() {
     context.synthesis {
         loadZones()
         loadHouseholds()
-        prepareEmobilityPersons(errorHandling = ErrorHandling.THROW)
-        finishPersons()
+        loadPersons()
+        preparePrivateCars()
+        assignCarUsers()
+        finishPrivateCars()
     }
 
     println(
