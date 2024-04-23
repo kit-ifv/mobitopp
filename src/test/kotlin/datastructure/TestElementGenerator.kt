@@ -44,3 +44,20 @@ class ContainerBuilder {
         return TreeSet(int.map { C(it) })
     }
 }
+
+
+class ScheduleBuilder {
+    val schedule = Schedule()
+
+
+
+    operator fun Activity.unaryPlus() {
+        schedule.add(this)
+    }
+
+    operator fun Leg.unaryPlus() {
+        schedule.add(this)
+    }
+
+}
+

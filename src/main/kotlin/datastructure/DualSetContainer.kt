@@ -21,7 +21,6 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
         require(isConsistent())
     }
 
-
     /**
      * Checks if both the left and right sets are empty.
      *
@@ -39,7 +38,7 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
     /**
      * Copies all entries from the target container to this container, ensuring consistency.
      *
-     * @param other The container to fuse with.
+     * @param other The container with the fuse data (It will be fused into "this")
      * @throws IllegalArgumentException if the fusion causes an inconsistent state.
      */
     fun fuse(other: DualSetContainer<T, L, R>) {
@@ -50,7 +49,6 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
             "Merging $this with $other caused an inconsistent state"
         }
     }
-
 
     /**
      * Tries to add an element to the left sorted set. Returns whether the element was successfully inserted
@@ -71,6 +69,29 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
     fun addRight(element: R) = right.add(element)
 
     /**
+     * Replaces all elements with the target elements. Does not verify whether external block constraints are met
+     */
+    fun replaceAllLeft(elements: SortedSet<L>) {
+        require(elements.isNotEmpty())
+        require(right.firstOrNull()?.let { it >= elements.first() }?:true)
+        {"The first element of the right block is smaller than the last element of the new insertees, this cannot work"}
+        left.clear()
+        left.addAll(elements)
+    }
+
+
+    /**
+     * Replaces all elements with the target elements. Does not verify whether external block constraints are met
+     */
+    fun replaceAllRight(elements: SortedSet<R>) {
+        require(elements.isNotEmpty())
+        require(left.lastOrNull()?.let { it <= elements.first() }?:true)
+        {"The last element of the left block is larger than the first element of the new insertees, this cannot work"}
+        right.clear()
+        right.addAll(elements)
+    }
+
+    /**
      * Determines whether a target element would fit in the container.
      *
      * Returns -1 if all elements of the container are smaller than the target element, +1 if all elements are
@@ -85,8 +106,9 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
      * is within the bounds of the elements of this container.
      */
     fun accepts(other: T): Int {
-        val completeSet = left + right
-        return (completeSet.first().compareTo(other) + completeSet.last().compareTo(other)) / 2
+        val mini = left.firstOrNull() ?: right.first()
+        val maxi = right.lastOrNull() ?: left.last()
+        return (mini.compareTo(other) + maxi.compareTo(other)) / 2
     }
 
     /**
@@ -106,7 +128,6 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
      * @return `true` if the element should be accepted, `false` otherwise.
      */
     fun acceptRight(element: R) = left.lastOrNull()?.let { it < element } ?: true
-
 
     /**
      * Removes the specified element from the left set.
@@ -163,6 +184,13 @@ class DualSetContainer<T : Comparable<T>, L : T, R : T>(
         val test = pivotElement?.let { TreeSet(right.tailSet(it, true)) } ?: TreeSet()
         right.removeAll(test)
         return test
+    }
+
+    fun clearLeft() {
+        left.clear()
+    }
+    fun clearRight() {
+        right.clear()
     }
 
     companion object {

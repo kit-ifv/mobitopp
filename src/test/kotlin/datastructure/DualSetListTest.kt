@@ -8,7 +8,7 @@ import utils.collections.permutations
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-typealias LabeledRunnable = Pair<String, DualSetList<A, B, C>.() -> Unit>
+typealias LabeledRunnable<T> = Pair<String, T.() -> Unit>
 
 open class A(protected val int: Int) : Comparable<A> {
 
@@ -84,7 +84,7 @@ class DualSetListTest {
 
     @TestFactory
     fun everyCombinationOfSixAdditionsAndOneIrrelevantRemoval(): List<DynamicTest> {
-        val actions: List<LabeledRunnable> = listOf(
+        val actions: List<LabeledRunnable<DualSetList<A, B, C>>> = listOf(
             "+B1" to { addLeft(B(1)) },
             "+B3" to { addLeft(B(3)) },
             "+B5" to { addLeft(B(5)) },
@@ -117,7 +117,7 @@ class DualSetListTest {
 
     @TestFactory
     fun everyCombinationOfAddingAndRemovingFourElements(): List<DynamicTest> {
-        val actions: List<Pair<LabeledRunnable, LabeledRunnable>> = listOf(
+        val actions: List<Pair<LabeledRunnable<DualSetList<A, B, C>>, LabeledRunnable<DualSetList<A, B, C>>>> = listOf(
             Pair("+B1" to { addLeft(B(1)) }, "-B1" to { removeLeft(B(1)) }),
             Pair("+B3" to { addLeft(B(3)) }, "-B3" to { removeLeft(B(3)) }),
             Pair("+C2" to { addRight(C(2)) }, "-C2" to { removeRight(C(2)) }),
@@ -139,7 +139,7 @@ class DualSetListTest {
 
     @TestFactory
     fun everyCombinationOfImpactfulAddRemovePairs(): List<DynamicTest> {
-        val actions: List<Pair<LabeledRunnable, LabeledRunnable>> = listOf(
+        val actions: List<Pair<LabeledRunnable<DualSetList<A, B, C>>, LabeledRunnable<DualSetList<A, B, C>>>> = listOf(
             Pair("+B4" to { addLeft(B(4)) }, "-B4" to { removeLeft(B(4)) }),
             Pair("+C2" to { addRight(C(2)) }, "-C2" to { removeRight(C(2)) }),
             Pair("+C5" to { addRight(C(5)) }, "-C5" to { removeRight(C(5)) }),
@@ -162,7 +162,7 @@ class DualSetListTest {
 
     @TestFactory
     fun everyCombinationOfSomeDoubleAddedElements(): List<DynamicTest> {
-        val actions: List<Pair<LabeledRunnable, LabeledRunnable>> = listOf(
+        val actions: List<Pair<LabeledRunnable<DualSetList<A, B, C>>, LabeledRunnable<DualSetList<A, B, C>>>> = listOf(
             Pair("+B1" to { addLeft(B(1)) }, "+C5" to { addRight(C(5)) }),
             Pair("+B4" to { addLeft(B(4)) }, "-B4" to { removeLeft(B(4)) }),
             Pair("+C2" to { addRight(C(2)) }, "-C2" to { removeRight(C(2)) }),

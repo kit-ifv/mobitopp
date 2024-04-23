@@ -1,10 +1,8 @@
 package datastructure
 
-import utils.collections.add
 import utils.collections.nextOrNull
 import utils.collections.previousOrNull
 import java.util.*
-import kotlin.properties.Delegates
 
 fun interface EntryListener<T : Comparable<T>, F : T, S : T> {
 
@@ -13,14 +11,43 @@ fun interface EntryListener<T : Comparable<T>, F : T, S : T> {
 
 class DualSetList<T : Comparable<T>, L : T, R : T> {
     val persistentSet = TreeSet<T>()
-    var entries: List<DualSetContainer<T, L, R>> by Delegates.observable(emptyList()) { _, _, new ->
-        listeners.forEach {
-            it.update(new)
-        }
-    }
+    val entries = observableListOf<DualSetContainer<T, L, R>>()
     val listeners: MutableList<EntryListener<T, L, R>> = mutableListOf()
     override fun toString(): String {
         return entries.toString()
+    }
+
+    fun getRightSet(): NavigableSet<R> {
+        return TreeSet(entries.flatMap { it.right })
+    }
+
+    fun getLeftSet(): NavigableSet<L> {
+        return TreeSet(entries.flatMap { it.left })
+    }
+
+    fun clearLeft(entry: DualSetContainer<T, L, R>) {
+        val index = entries.indexOf(entry)
+        entry.clearLeft()
+        val previous = entries.getOrNull(index - 1)
+        previous?.let { fuseAndDelete(entry, it) }
+
+    }
+
+    fun clearRight(entry: DualSetContainer<T, L, R>) {
+        val index = entries.indexOf(entry)
+        entry.clearLeft()
+        val next = entries.getOrNull(index + 1)
+        next?.let { fuseAndDelete(entry, it) }
+    }
+    fun first(predicate: (T) -> Boolean): T {
+        return persistentSet.first(predicate)
+    }
+    fun last(predicate: (T) -> Boolean): T {
+        return persistentSet.last(predicate)
+    }
+
+    fun firstLeft(predicate: (L) -> Boolean): L {
+        return getLeftSet().first(predicate)
     }
 
     fun isConsistent(): Boolean {
@@ -41,11 +68,12 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         val block = entries[index]
         val isSemiEmpty = block.removeLeft(t)
         if (isSemiEmpty) {
-            fuse(block, entries.previousOrNull(index))
+            fuseAndDelete(block, entries.previousOrNull(index))
         }
 
         return true
     }
+
 
     fun removeRight(t: R): Boolean {
         val index = getRemovalIndex(t)
@@ -53,7 +81,7 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         val block = entries[index]
         val isSemiEmpty = block.removeRight(t)
         if (isSemiEmpty) {
-            fuse(block, entries.nextOrNull(index))
+            fuseAndDelete(block, entries.nextOrNull(index))
         }
 
         return true
@@ -72,7 +100,7 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         return position(t)
     }
 
-    private fun fuse(
+    private fun fuseAndDelete(
         dualSetContainer: DualSetContainer<T, L, R>,
         targetDualSetContainer: DualSetContainer<T, L, R>?
     ) {
@@ -81,7 +109,8 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
             true
         } ?: false
         if (hasFused || dualSetContainer.isEmpty()) {
-            entries = entries - dualSetContainer
+            entries.remove(dualSetContainer)
+//            entries = entries - dualSetContainer
         }
     }
 
@@ -89,14 +118,15 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         if (persistentSet.contains(t)) return false
         persistentSet.add(t)
         if (entries.isEmpty()) {
-            entries = entries.add(0, DualSetContainer.singleLeftElement(t))
+            entries.add(DualSetContainer.singleLeftElement(t))
+//            entries = entries.add(0, DualSetContainer.singleLeftElement(t))
             return true
         }
         val (index, correspondingBlock) = correspondingBlock(t, false)
         if (correspondingBlock.acceptLeft(t)) return correspondingBlock.addLeft(t)
         val largerElements = correspondingBlock.cutOffRight(t)
-
-        entries = entries.add(index + 1, DualSetContainer(left = sortedSetOf(t), right = largerElements))
+        entries.add(index + 1, DualSetContainer(left = sortedSetOf(t), right = largerElements))
+//        entries = entries.add(index + 1, DualSetContainer(left = sortedSetOf(t), right = largerElements))
         return true
     }
 
@@ -104,14 +134,16 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         if (persistentSet.contains(t)) return false
         persistentSet.add(t)
         if (entries.isEmpty()) {
-            entries = entries.add(0, DualSetContainer.singleRightElement(t))
+            entries.add(DualSetContainer.singleRightElement(t))
+//            entries = entries.add(0, DualSetContainer.singleRightElement(t))
             return true
         }
         val (index, correspondingBlock) = correspondingBlock(t, true)
         if (correspondingBlock.acceptRight(t)) return correspondingBlock.addRight(t)
 
         val smallerElements = correspondingBlock.cutOffLeft(t)
-        entries = entries.add(index, DualSetContainer(left = smallerElements, right = sortedSetOf(t)))
+        entries.add(index, DualSetContainer(left = smallerElements, right = sortedSetOf(t)))
+//        entries = entries.add(index, DualSetContainer(left = smallerElements, right = sortedSetOf(t)))
         return true
     }
 
@@ -122,9 +154,16 @@ class DualSetList<T : Comparable<T>, L : T, R : T> {
         val index = position(element)
         val offset = if (selectSucceedingBlock) -2 else -1
         var correspondingIndex = if (index >= 0) index else (-index + offset)
-        correspondingIndex = correspondingIndex.coerceIn(entries.indices)
+        correspondingIndex = correspondingIndex.coerceIn(0, entries.size - 1)
 
         val correspondingBlock = entries[correspondingIndex]
         return IndexedValue(correspondingIndex, correspondingBlock)
+    }
+    fun replaceAllLeft(set: NavigableSet<L>) {
+
+    }
+    override fun equals(other: Any?): Boolean {
+        if(other !is DualSetList<*, *, *>) return false
+        return persistentSet == other.persistentSet && entries == other.entries
     }
 }
