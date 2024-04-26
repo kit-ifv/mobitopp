@@ -9,7 +9,7 @@ abstract class ActionBlock<T : Action> {
     internal abstract val item: NavigableSet<T>
     abstract val next: ActionBlock<*>?
     abstract val previous: ActionBlock<*>?
-
+    abstract val dispatcher: Dispatcher?
     /**
      * Adds an activity to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
@@ -63,9 +63,9 @@ abstract class ActionBlock<T : Action> {
 //    }
 }
 
-class ActivityBlock(override val item: NavigableSet<Activity>) :
+class ActivityBlock(override val item: NavigableSet<Activity>, override var dispatcher: Dispatcher?) :
     ActionBlock<Activity>(),  Iterable<ActivityBlock> {
-    constructor(activity: Activity) : this(sortedSetOf(activity))
+    constructor(activity: Activity, dispatcher: Dispatcher?) : this(sortedSetOf(activity), dispatcher)
 
     override var next: LegBlock? = null
     override var previous: LegBlock? = null
@@ -95,8 +95,8 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
         val a = item.find { it.startTime >= leg.startTime }
         val targets = if (a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
 
-        val newLegBlock = LegBlock(leg)
-        val newActivityBlock = ActivityBlock(targets)
+        val newLegBlock = LegBlock(leg, dispatcher)
+        val newActivityBlock = ActivityBlock(targets, dispatcher)
 
         val succ = next
 
@@ -122,8 +122,12 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
         nextActivity.previous = prevLeg
 
         //Removing other links for GC support
+
+        dispatcher = null
         next = null
         previous = null
+
+        nextLeg.dispatcher = null
         nextLeg.previous = this
         nextLeg.next = this
 
@@ -138,17 +142,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
         }
         return false
     }
-    fun blockIterator(): Iterable<ActivityBlock> {
-        return object : Iterable<ActivityBlock> {
-            /**
-             * Returns an iterator over the elements of this object.
-             */
-            override fun iterator(): Iterator<ActivityBlock> {
-                TODO("Not yet implemented")
-            }
 
-        }
-    }
     override fun rejects(action: Activity): Boolean {
         return next?.item?.firstOrNull()?.startTime?.let { it < action.endTime } ?: false
     }
@@ -229,8 +223,8 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
 
 }
 
-class LegBlock(override val item: NavigableSet<Leg>): ActionBlock<Leg>(), Iterable<LegBlock>{
-    constructor(leg: Leg) : this(sortedSetOf(leg))
+class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Dispatcher?): ActionBlock<Leg>(), Iterable<LegBlock>{
+    constructor(leg: Leg, dispatcher: Dispatcher?) : this(sortedSetOf(leg), dispatcher)
 
     override lateinit var next: ActivityBlock
     override lateinit var previous: ActivityBlock
@@ -273,8 +267,8 @@ class LegBlock(override val item: NavigableSet<Leg>): ActionBlock<Leg>(), Iterab
         val targets = TreeSet(item.tailSet(l, true))
 
 
-        val newLegBlock = LegBlock(targets )
-        val newActivityBlock = ActivityBlock(activity)
+        val newLegBlock = LegBlock(targets, dispatcher)
+        val newActivityBlock = ActivityBlock(activity, dispatcher)
 
         val succ = next
 
@@ -344,10 +338,16 @@ class LegBlock(override val item: NavigableSet<Leg>): ActionBlock<Leg>(), Iterab
         previous.next = overNext
         overNext?.previous = previous
         //TODO find solution to point next and previous to something else, or drop invariant tha previous and next exist
+
+        dispatcher = null
         this.next = next
         this.previous = next
+
+        next.dispatcher = null
         next.next = null
         next.previous = null
+
+
 
 
     }
@@ -384,11 +384,12 @@ class LegBlock(override val item: NavigableSet<Leg>): ActionBlock<Leg>(), Iterab
     }
 }
 
+@Deprecated("Remove")
 class NewSchedule(initial: Activity) {
     internal val actions: NavigableSet<Action> = sortedSetOf(initial)
 
 
-    internal var initial: ActivityBlock = ActivityBlock(initial)
+    internal var initial: ActivityBlock = ActivityBlock(initial, null)
 
     val trips get() = legBlockIterator().map { NewTrip(it) }
 
@@ -474,13 +475,6 @@ class NewSchedule(initial: Activity) {
         add(this)
     }
 
-//    operator fun Leg.unaryMinus() {
-//        remove(this)
-//    }
-//
-//    operator fun Activity.unaryMinus() {
-//        remove(this)
-//    }
 
     fun add(activity: Activity) {
         if (actions.contains(activity)) return

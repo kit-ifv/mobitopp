@@ -85,7 +85,7 @@ class ActionModel(val dispatcher: Dispatcher) : PlanModel {
         actions.addAll(to)
     }
 
-    //TODO Debate whether a view for a model should be nested or standalone
+    //TODO Debate whether the view class for a model should be nested or standalone
     fun view() = ActionView(this)
     class ActionView(private val model: ActionModel) : PlanView {
         override val dispatcher: Dispatcher = model.dispatcher
@@ -98,7 +98,7 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
     init {
         dispatcher.register(this)
     }
-    val activityBlocks = ActivityBlock(sortedSetOf())
+    val activityBlocks = ActivityBlock(sortedSetOf(), dispatcher)
     val legBlocks get() = activityBlocks.next
     override fun add(leg: Leg) {
         val test = tempIterator().first { !it.rejects(leg) }
@@ -169,12 +169,12 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
     class TripView(private val model: BlockModel) : PlanView {
         override val dispatcher: Dispatcher = model.dispatcher
         fun trips(): List<Trip> {
-            return model.legBlocks?.map { Trip(it, dispatcher) } ?: emptyList()
+            return model.legBlocks?.map { Trip(it) } ?: emptyList()
         }
     }
 }
 //TODO find a way so that when the trip object "floats", as in, no longer in the blocklist that changes do not propagate
-class Trip(private val legBlock: LegBlock, private val dispatcher: Dispatcher) {
+class Trip(private val legBlock: LegBlock) {
     val legs: SortedSet<out MovingAction> get() = legBlock.item
 
     fun overwrite(lambda: EditableTrip.() -> Unit): Boolean {
@@ -185,7 +185,7 @@ class Trip(private val legBlock: LegBlock, private val dispatcher: Dispatcher) {
         e.lambda()
         val actions = listOf(start) + e.new + end
         if (e.new.isConsistent()) {
-            dispatcher.replaceLegs(legBlock.item, e.new)
+            legBlock.dispatcher?.replaceLegs(legBlock.item, e.new)
             return true
         }
         println("Sorry: ${e.new} is not consistent. Try again")

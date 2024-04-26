@@ -126,11 +126,11 @@ class ScheduleTest {
     @Test
     fun builderIsProper() {
         val newSchedule = NewSchedule(activity1)
-
-        val legBlock1 = LegBlock(sortedSetOf(leg1, leg1b))
-        val activityBlock2 = ActivityBlock(sortedSetOf(activity2, activity2b))
-        val legBlock2 = LegBlock(sortedSetOf(leg2, leg2b))
-        val activityBlock3 = ActivityBlock(activity3)
+        val d = Dispatcher()
+        val legBlock1 = LegBlock(sortedSetOf(leg1, leg1b), d)
+        val activityBlock2 = ActivityBlock(sortedSetOf(activity2, activity2b), d)
+        val legBlock2 = LegBlock(sortedSetOf(leg2, leg2b), d)
+        val activityBlock3 = ActivityBlock(activity3, d)
 
         newSchedule.actions.addAll(listOf(leg1, leg1b, leg2, leg2b, activity2, activity2b, activity3))
         newSchedule.initial.next = legBlock1

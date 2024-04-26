@@ -65,6 +65,12 @@ class DispatcherTest {
 
 
     }
+
+    /**
+     * A trip holds a reference to a leg block in the block-model. If the block is unlinked by external views via
+     * removal of all legs within the leg block the trip should "float" and changes should no longer influence separate
+     * views.
+     */
     @Test
     fun floatingTrip() {
         val dispatcher = Dispatcher()
@@ -76,14 +82,19 @@ class DispatcherTest {
 
 
         legs.forEach { actionView.add(it) }
-        activityGenerator.drop(3).take(1).forEach { actionView.add(it) }
+        val take = activityGenerator.drop(3).take(1)
+        take.forEach { actionView.add(it) }
         val trip = blockView.trips().first()
+
         legs.forEach { actionView.remove(it) }
+        take.forEach { actionView.remove(it) }
         assertTrue(blockView.trips().isEmpty())
 
         trip.overwrite {
             +legs.subList(2, 6)
         }
+
+
         assertTrue(actionView.actions().isEmpty())
         assertTrue(blockView.trips().isEmpty())
     }
