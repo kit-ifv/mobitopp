@@ -14,12 +14,12 @@ abstract class ActionBlock<T : Action> {
      * Adds an activity to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(activity: Activity): Boolean
+    abstract fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>?
     /**
      * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(leg: Leg): Boolean
+    abstract fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>?
 
 
 
@@ -73,24 +73,18 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
     override fun toString(): String {
         return item.joinToString { it.toString() }
     }
-    //Required Overwrite to prevent name shadowing from NavigableSet<Activity>
-//    override fun add(element: Activity) = super.add(element)
-//    override fun addAll(elements: Collection<Activity>) = super.addAll(elements)
-//    override fun pollFirst() = super.pollFirst()
-//
-//    override fun pollLast() = super.pollLast()
 
 
-    override fun insert(activity: Activity): Boolean {
+    override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
         item.add(activity)
 
-        return false
+        return null
     }
     fun replaceAll(target: SortedSet<Activity>) {
         item.clear()
         item.addAll(target)
     }
-    override fun insert(leg: Leg): Boolean {
+    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
 
         val a = item.find { it.startTime >= leg.startTime }
         val targets = if (a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
@@ -108,7 +102,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
         newActivityBlock.previous = newLegBlock
         newActivityBlock.next = succ
         succ?.previous = newActivityBlock
-        return true
+        return newLegBlock to newActivityBlock
     }
 
     private fun unlink() {
@@ -160,31 +154,6 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
     }
 
 
-//    override fun clear() {
-//        item.clear()
-//        unlink()
-//    }
-//
-//    override fun retainAll(elements: Collection<Activity>): Boolean {
-//        if (elements.isEmpty()) {
-//            clear()
-//            return true
-//        }
-//        val diff = item - elements.toSet()
-//        val b = item.retainAll(elements.toSet())
-//        return b
-//    }
-//
-//
-//    override fun removeAll(elements: Collection<Activity>): Boolean {
-//        val b = item.removeAll(elements.toSet())
-//        if (isEmpty()) {
-//            clear()
-//        }
-//        return b
-//    }
-
-
     override fun equals(other: Any?): Boolean {
         if (other !is ActivityBlock) return false
         return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
@@ -223,7 +192,8 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
 
 }
 
-class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Dispatcher?): ActionBlock<Leg>(), Iterable<LegBlock>{
+class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Dispatcher?):
+    ActionBlock<Leg>(), Iterable<LegBlock>{
     constructor(leg: Leg, dispatcher: Dispatcher?) : this(sortedSetOf(leg), dispatcher)
 
     override lateinit var next: ActivityBlock
@@ -255,12 +225,8 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
 
         }
     }
-//    override fun add(element: Leg) = super.add(element)
-//    override fun addAll(elements: Collection<Leg>) = super.addAll(elements)
-//    override fun pollFirst() = super.pollFirst()
-//
-//    override fun pollLast() = super.pollLast()
-    override fun insert(activity: Activity): Boolean {
+
+    override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
 
 
         val l = item.find { it.startTime >= activity.startTime } ?: item.last()
@@ -280,7 +246,7 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
         newActivityBlock.previous = this
         newActivityBlock.next = newLegBlock
         succ.previous = newLegBlock
-        return true
+        return newLegBlock to newActivityBlock
     }
 
     override fun rejects(action: Activity): Boolean {
@@ -295,37 +261,10 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
         return item.joinToString { it.toString() }
     }
 
-    override fun insert(leg: Leg): Boolean {
+    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
         item.add(leg)
-        return false
+        return null
     }
-
-
-//    override fun clear() {
-//        item.clear()
-//        unlink()
-//    }
-//
-//    override fun retainAll(elements: Collection<Leg>): Boolean {
-//        if (elements.isEmpty()) {
-//            clear()
-//            return true
-//        }
-//        val diff = item - elements.toSet()
-//        val b = item.retainAll(elements.toSet())
-//        return b
-//    }
-//
-//
-//    override fun removeAll(elements: Collection<Leg>): Boolean {
-//        val b = item.removeAll(elements.toSet())
-//        if (isEmpty()) {
-//            clear()
-//        }
-//        return b
-//    }
-
-
 
 
 
@@ -354,8 +293,12 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
 
     fun replaceAll(elements: Collection<Leg>) {
         require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
-        item.clear()
-        item.addAll(elements)
+
+        dispatcher?.replaceLegs(item, elements.toSortedSet()) ?: run {
+            item.clear()
+            item.addAll(elements)
+        }
+
 
     }
 

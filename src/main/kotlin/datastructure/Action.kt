@@ -21,13 +21,6 @@ sealed interface Action : Comparable<Action> {
         return 0
     }
 
-    fun initiateAction() {
-
-    }
-
-    fun finalizeAction() {
-
-    }
 }
 
 fun Iterable<Action>.isConsistent(): Boolean {

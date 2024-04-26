@@ -32,7 +32,10 @@ fun <T: Comparable<T>> Iterable<T>.isStrictlySorted(): Boolean {
     return zipWithNext { a, b -> a < b }.all{it}
 }
 
-fun <T> Iterable<T>.one(predicate: (T)-> Boolean): T? {
+/**
+ * Returns the element of an iterable if the size is exactly one, null otherwise
+ */
+fun <T> Iterable<T>.exactlyOneOrNull(predicate: (T)-> Boolean): T? {
     val target = filter(predicate)
     return if(target.size == 1) target.first() else null
 }

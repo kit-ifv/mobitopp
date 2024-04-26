@@ -1,6 +1,6 @@
 package datastructure
 
-import utils.collections.one
+import utils.collections.exactlyOneOrNull
 import java.util.*
 import kotlin.time.Duration
 
@@ -28,7 +28,7 @@ interface PlanView {
 }
 
 
-class Dispatcher(val mutableCollection: MutableCollection<PlanModel> = mutableSetOf()) {
+class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = mutableSetOf()) {
     fun register(model: PlanModel) {
         mutableCollection.add(model)
     }
@@ -49,8 +49,11 @@ class Dispatcher(val mutableCollection: MutableCollection<PlanModel> = mutableSe
         modifyModels { replaceLegs(target, to) }
 }
 
-class ActionModel(val dispatcher: Dispatcher) : PlanModel {
-    private val actions = sortedSetOf<Action>()
+class ActionModel(private val dispatcher: Dispatcher) : PlanModel {
+
+    constructor() : this(Dispatcher())
+
+    internal val actions = sortedSetOf<Action>()
 
     init {
         dispatcher.register(this)
@@ -87,7 +90,7 @@ class ActionModel(val dispatcher: Dispatcher) : PlanModel {
 
     //TODO Debate whether the view class for a model should be nested or standalone
     fun view() = ActionView(this)
-    class ActionView(private val model: ActionModel) : PlanView {
+    class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
         override val dispatcher: Dispatcher = model.dispatcher
         fun actions() = model.actions.toList()
     }
@@ -95,14 +98,21 @@ class ActionModel(val dispatcher: Dispatcher) : PlanModel {
 }
 
 class BlockModel(val dispatcher: Dispatcher) : PlanModel {
+
+    val legBlockList: MutableList<Trip> = mutableListOf()
+    constructor() : this(Dispatcher())
+
     init {
         dispatcher.register(this)
     }
+
     val activityBlocks = ActivityBlock(sortedSetOf(), dispatcher)
     val legBlocks get() = activityBlocks.next
     override fun add(leg: Leg) {
         val test = tempIterator().first { !it.rejects(leg) }
-        test.insert(leg)
+        val newBlocks = test.insert(leg)
+        newBlocks?.let { legBlockList.add(Trip(it.first)) }
+
     }
 
     override fun add(activity: Activity) {
@@ -111,7 +121,13 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun remove(leg: Leg) {
-        legBlocks?.first { block -> block.contains(leg) }?.remove(leg)
+        val changedBlock = legBlocks?.first { block -> block.contains(leg) }
+        changedBlock?.let {
+            val b = it.remove(leg)
+            if(b) {
+                legBlockList.remove(Trip(changedBlock))
+            }
+        }
     }
 
     override fun remove(activity: Activity) {
@@ -119,8 +135,8 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun replaceActivities(target: SortedSet<Activity>, to: SortedSet<Activity>) {
-        val targetBlock = activityBlocks.one { it.bounds(target) }
-        //Either the replacement strategy works, or we have to manually run everything
+        val targetBlock = activityBlocks.exactlyOneOrNull { it.bounds(target) }
+        //If the replacement strategy did not work we have to replace and insert every element on its own
         targetBlock?.replaceAll(to) ?: run {
             target.forEach { remove(it) }
             to.forEach { add(it) }
@@ -128,13 +144,14 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) {
-        val targetBlock = legBlocks?.one { it.bounds(target) }
+        val targetBlock = legBlocks?.exactlyOneOrNull { it.bounds(target) }
         //Either the replacement strategy works, or we have to manually run everything
         targetBlock?.replaceAll(to) ?: run {
             target.forEach { remove(it) }
             to.forEach { add(it) }
         }
     }
+
     fun actions() = tempIterator().flatMap { it.item }
     fun tempIterator(): Iterable<ActionBlock<*>> {
         return Iterable {
@@ -163,16 +180,18 @@ class BlockModel(val dispatcher: Dispatcher) : PlanModel {
         }
 
     }
+
     fun view(): TripView {
         return TripView(this)
     }
-    class TripView(private val model: BlockModel) : PlanView {
-        override val dispatcher: Dispatcher = model.dispatcher
+
+    class TripView(private val model: BlockModel) : List<Trip> by model.legBlockList {
         fun trips(): List<Trip> {
             return model.legBlocks?.map { Trip(it) } ?: emptyList()
         }
     }
 }
+
 //TODO find a way so that when the trip object "floats", as in, no longer in the blocklist that changes do not propagate
 class Trip(private val legBlock: LegBlock) {
     val legs: SortedSet<out MovingAction> get() = legBlock.item
@@ -185,7 +204,7 @@ class Trip(private val legBlock: LegBlock) {
         e.lambda()
         val actions = listOf(start) + e.new + end
         if (e.new.isConsistent()) {
-            legBlock.dispatcher?.replaceLegs(legBlock.item, e.new)
+            legBlock.replaceAll(e.new)
             return true
         }
         println("Sorry: ${e.new} is not consistent. Try again")
@@ -209,9 +228,11 @@ class Trip(private val legBlock: LegBlock) {
             next.startLocation,
             originals
         )
+
         operator fun Leg.unaryPlus() {
             new.add(this)
         }
+
         operator fun Collection<Leg>.unaryPlus() {
             new.addAll(this)
         }
