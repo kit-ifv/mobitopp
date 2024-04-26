@@ -1,5 +1,7 @@
 package utils.collections
 
+import java.util.*
+
 /**
  * Generates a sequence of all permutations of the underlying Iterables.
  *

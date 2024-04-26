@@ -3,109 +3,100 @@ package datastructure
 import utils.collections.isStrictlySorted
 import java.util.*
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 
 
-interface SharedBlocks<T: Action>: NavigableSet<T> {
-    val item: NavigableSet<T>
-    val actions: NavigableSet<Action>
-    fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>?
-    fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>?
+abstract class ActionBlock<T : Action> {
+    internal abstract val item: NavigableSet<T>
+    abstract val next: ActionBlock<*>?
+    abstract val previous: ActionBlock<*>?
 
-    fun remove(activity: Activity): Boolean
-    fun remove(leg: Leg): Boolean
+    /**
+     * Adds an activity to the action block. Returns true if the structure of the block list changes and the relevant
+     * views should be updated. Returns false if no update is required
+     */
+    abstract fun insert(activity: Activity): Boolean
+    /**
+     * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
+     * views should be updated. Returns false if no update is required
+     */
+    abstract fun insert(leg: Leg): Boolean
 
-    fun rejects(action: Activity): Boolean
-    fun rejects(action: Leg): Boolean
 
-    fun next(): SharedBlocks<*>?
 
-    fun isConsistent(): Boolean
+    abstract fun rejects(action: Activity): Boolean
+    abstract fun rejects(action: Leg): Boolean
 
-    fun contains1(action: Action): Boolean
 
-    override fun add(element: T): Boolean {
-        actions.add(element)
-        return item.add(element)
+    abstract fun isConsistent(): Boolean
+
+    fun contains(element: T): Boolean = item.contains(element)
+    fun bounds(elements: Collection<Action>): Boolean {
+
+        val sortedSet = elements.toSortedSet()
+
+        return sortedSet.first() >= first() && sortedSet.last() <= last()
     }
 
-
-
-    override fun addAll(elements: Collection<T>): Boolean {
-        actions.addAll(elements)
-        return item.addAll(elements)
-    }
-
-
-
-    override fun pollFirst(): T? {
-        val poll = item.pollFirst()
-        poll?.let{
-            actions.remove(it)
-        }
-        return poll
-    }
-
-    override fun pollLast(): T? {
-        val poll = item.pollLast()
-        poll?.let {
-            actions.remove(it)
-        }
-        return poll
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    fun first(): T = item.first()
+    fun last(): T = item.last()
+//
+//    override fun add(element: T): Boolean {
+//        return item.add(element)
+//    }
+//
+//
+//    override fun addAll(elements: Collection<T>): Boolean {
+//        return item.addAll(elements)
+//    }
+//
+//
+//    override fun pollFirst(): T? {
+//        val poll = item.pollFirst()
+//
+//        return poll
+//    }
+//
+//    override fun pollLast(): T? {
+//        val poll = item.pollLast()
+//
+//        return poll
+//    }
 }
 
-class ActivityBlock(override val item: NavigableSet<Activity>, override val actions: NavigableSet<Action> ): SharedBlocks<Activity>, NavigableSet<Activity> by item{
-    constructor(activity: Activity, actions: NavigableSet<Action>): this(sortedSetOf(activity), actions)
-    var next: LegBlock? = null
-    var previous: LegBlock? = null
+class ActivityBlock(override val item: NavigableSet<Activity>) :
+    ActionBlock<Activity>(),  Iterable<ActivityBlock> {
+    constructor(activity: Activity) : this(sortedSetOf(activity))
+
+    override var next: LegBlock? = null
+    override var previous: LegBlock? = null
 
     override fun toString(): String {
         return item.joinToString { it.toString() }
     }
+    //Required Overwrite to prevent name shadowing from NavigableSet<Activity>
+//    override fun add(element: Activity) = super.add(element)
+//    override fun addAll(elements: Collection<Activity>) = super.addAll(elements)
+//    override fun pollFirst() = super.pollFirst()
+//
+//    override fun pollLast() = super.pollLast()
 
-    override fun add(element: Activity) = super.add(element)
-    override fun addAll(elements: Collection<Activity>) = super.addAll(elements)
-    override fun pollFirst() = super.pollFirst()
 
-    override fun pollLast() =  super.pollLast()
-
-
-
-    override fun insert(activity: Activity) : Pair<LegBlock, ActivityBlock>? {
+    override fun insert(activity: Activity): Boolean {
         item.add(activity)
-        actions.add(activity)
-        return null
+
+        return false
     }
+    fun replaceAll(target: SortedSet<Activity>) {
+        item.clear()
+        item.addAll(target)
+    }
+    override fun insert(leg: Leg): Boolean {
 
-    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock> {
-        actions.add(leg)
         val a = item.find { it.startTime >= leg.startTime }
-        val targets = if(a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
+        val targets = if (a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
 
-        val newLegBlock = LegBlock(leg, actions)
-        val newActivityBlock = ActivityBlock(targets, actions)
+        val newLegBlock = LegBlock(leg)
+        val newActivityBlock = ActivityBlock(targets)
 
         val succ = next
 
@@ -117,7 +108,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override val acti
         newActivityBlock.previous = newLegBlock
         newActivityBlock.next = succ
         succ?.previous = newActivityBlock
-        return newLegBlock to newActivityBlock
+        return true
     }
 
     private fun unlink() {
@@ -125,7 +116,6 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override val acti
         val nextLeg = next!!
 
         val nextActivity = nextLeg.next
-
         prevLeg.item.addAll(nextLeg.item)
 
         prevLeg.next = nextActivity
@@ -138,25 +128,29 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override val acti
         nextLeg.next = this
 
 
-
     }
 
-    override fun remove(activity: Activity): Boolean {
+     fun remove(activity: Activity): Boolean {
         item.remove(activity)
-        actions.remove(activity)
-        if(item.isEmpty() && previous != null && next != null) {
+        if (item.isEmpty() && previous != null && next != null) {
             unlink()
+            return true
+        }
+        return false
+    }
+    fun blockIterator(): Iterable<ActivityBlock> {
+        return object : Iterable<ActivityBlock> {
+            /**
+             * Returns an iterator over the elements of this object.
+             */
+            override fun iterator(): Iterator<ActivityBlock> {
+                TODO("Not yet implemented")
+            }
 
         }
-        return true
     }
-
-    override fun remove(leg: Leg): Boolean {
-        throw NoSuchElementException("Removing a leg from an activity block should never happen")
-    }
-
     override fun rejects(action: Activity): Boolean {
-        return next?.item?.firstOrNull()?.startTime?.let{it < action.endTime} ?: false
+        return next?.item?.firstOrNull()?.startTime?.let { it < action.endTime } ?: false
     }
 
     override fun rejects(action: Leg): Boolean {
@@ -164,81 +158,123 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override val acti
     }
 
 
-
-    /**
-     * Returns the next element in the iteration.
-     */
-    override fun next(): SharedBlocks<*>? {
-        return next
-    }
-
     override fun isConsistent(): Boolean {
-        val previousLeg = previous?.item?.lastOrNull()
-        val nextLeg = next?.item?.firstOrNull()
+        val previousLeg = previous?.last()
+        val nextLeg = next?.first()
         val actions = (listOf(previousLeg) + item.toList() + nextLeg).filterNotNull()
         return actions.isStrictlySorted()
     }
 
-    override fun contains1(action: Action): Boolean {
-        return item.contains(action)
-    }
 
-    override fun clear() {
-        actions.removeAll(item)
-        item.clear()
-        unlink()
-    }
-
-    override fun retainAll(elements: Collection<Activity>): Boolean {
-        if (elements.isEmpty()) {
-            clear()
-            return true
-        }
-        val diff = item - elements.toSet()
-        val b = item.retainAll(elements.toSet())
-        actions.removeAll(diff)
-        return b
-    }
-
-
-
-    override fun removeAll(elements: Collection<Activity>): Boolean {
-        val b = item.removeAll(elements.toSet())
-        actions.removeAll(elements.toSet())
-        if(isEmpty()){
-            clear()
-        }
-        return b
-    }
+//    override fun clear() {
+//        item.clear()
+//        unlink()
+//    }
+//
+//    override fun retainAll(elements: Collection<Activity>): Boolean {
+//        if (elements.isEmpty()) {
+//            clear()
+//            return true
+//        }
+//        val diff = item - elements.toSet()
+//        val b = item.retainAll(elements.toSet())
+//        return b
+//    }
+//
+//
+//    override fun removeAll(elements: Collection<Activity>): Boolean {
+//        val b = item.removeAll(elements.toSet())
+//        if (isEmpty()) {
+//            clear()
+//        }
+//        return b
+//    }
 
 
     override fun equals(other: Any?): Boolean {
-        if(other !is ActivityBlock) return false
-        return next == other.next  && item.zip(other.item).all {(a, b) -> a == b}
+        if (other !is ActivityBlock) return false
+        return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
     }
+
+    override fun hashCode(): Int {
+        return item.hashCode()
+    }
+
+    /**
+     * Returns an iterator over the elements of this object.
+     */
+    override fun iterator(): Iterator<ActivityBlock> {
+        return object: Iterator<ActivityBlock>{
+            var current: ActivityBlock? = null
+            var nextIteratorElement: ActivityBlock? = this@ActivityBlock
+            /**
+             * Returns `true` if the iteration has more elements.
+             */
+            override fun hasNext(): Boolean {
+                return current?.let { nextIteratorElement != null } ?: true
+            }
+
+            /**
+             * Returns the next element in the iteration.
+             */
+            override fun next(): ActivityBlock {
+                current = nextIteratorElement
+                nextIteratorElement = current?.next?.next
+                return current ?: throw NoSuchElementException()
+            }
+
+        }
+    }
+
 
 }
 
-class LegBlock(override val item: NavigableSet<Leg>, override val actions: NavigableSet<Action>): SharedBlocks<Leg>, NavigableSet<Leg> by item {
-    constructor(leg: Leg, actions: NavigableSet<Action>): this(sortedSetOf(leg), actions)
-    lateinit var next: ActivityBlock
-    lateinit var previous: ActivityBlock
+class LegBlock(override val item: NavigableSet<Leg>): ActionBlock<Leg>(), Iterable<LegBlock>{
+    constructor(leg: Leg) : this(sortedSetOf(leg))
+
+    override lateinit var next: ActivityBlock
+    override lateinit var previous: ActivityBlock
+
+    /**
+     * Returns an iterator over the elements of this object.
+     */
+    override fun iterator(): Iterator<LegBlock> {
+        return object: Iterator<LegBlock> {
+            var current: LegBlock? = null
+            var nextIteratorElement: LegBlock? = this@LegBlock
+            /**
+             * Returns `true` if the iteration has more elements.
+             */
+            override fun hasNext(): Boolean {
+                return current?.let { nextIteratorElement != null } ?: true
+            }
+
+            /**
+             * Returns the next element in the iteration.
+             */
+            override fun next(): LegBlock {
+                current = nextIteratorElement
+                nextIteratorElement = current?.next?.next
+                return current ?: throw NoSuchElementException()
+            }
 
 
-    override fun add(element: Leg) = super.add(element)
-    override fun addAll(elements: Collection<Leg>) = super.addAll(elements)
-    override fun pollFirst() = super.pollFirst()
+        }
+    }
+//    override fun add(element: Leg) = super.add(element)
+//    override fun addAll(elements: Collection<Leg>) = super.addAll(elements)
+//    override fun pollFirst() = super.pollFirst()
+//
+//    override fun pollLast() = super.pollLast()
+    override fun insert(activity: Activity): Boolean {
 
-    override fun pollLast() =  super.pollLast()
-    override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock> {
 
-        actions.add(activity)
-        val l = item.find {it.startTime >= activity.startTime}?: item.last()
+        val l = item.find { it.startTime >= activity.startTime } ?: item.last()
         val targets = TreeSet(item.tailSet(l, true))
 
 
-        val newLegBlock = LegBlock(targets, actions)
-        val newActivityBlock = ActivityBlock(activity, actions)
+        val newLegBlock = LegBlock(targets )
+        val newActivityBlock = ActivityBlock(activity)
 
         val succ = next
 
@@ -250,7 +286,7 @@ class LegBlock(override val item: NavigableSet<Leg>, override val actions: Navig
         newActivityBlock.previous = this
         newActivityBlock.next = newLegBlock
         succ.previous = newLegBlock
-        return newLegBlock to newActivityBlock
+        return true
     }
 
     override fun rejects(action: Activity): Boolean {
@@ -258,54 +294,48 @@ class LegBlock(override val item: NavigableSet<Leg>, override val actions: Navig
     }
 
     override fun rejects(action: Leg): Boolean {
-        return  next.item.firstOrNull()?.startTime?.let{it < action.endTime} ?: false
+        return next.item.firstOrNull()?.startTime?.let { it < action.endTime } ?: false
     }
+
     override fun toString(): String {
         return item.joinToString { it.toString() }
     }
 
-    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
+    override fun insert(leg: Leg): Boolean {
         item.add(leg)
-        actions.add(leg)
-        return null
-    }
-    override fun contains1(action: Action): Boolean {
-        return item.contains(action)
-    }
-
-    override fun clear() {
-        actions.removeAll(item)
-        item.clear()
-        unlink()
-    }
-
-    override fun retainAll(elements: Collection<Leg>): Boolean {
-        if (elements.isEmpty()) {
-            clear()
-            return true
-        }
-        val diff = item - elements.toSet()
-        val b = item.retainAll(elements.toSet())
-        actions.removeAll(diff)
-        return b
+        return false
     }
 
 
+//    override fun clear() {
+//        item.clear()
+//        unlink()
+//    }
+//
+//    override fun retainAll(elements: Collection<Leg>): Boolean {
+//        if (elements.isEmpty()) {
+//            clear()
+//            return true
+//        }
+//        val diff = item - elements.toSet()
+//        val b = item.retainAll(elements.toSet())
+//        return b
+//    }
+//
+//
+//    override fun removeAll(elements: Collection<Leg>): Boolean {
+//        val b = item.removeAll(elements.toSet())
+//        if (isEmpty()) {
+//            clear()
+//        }
+//        return b
+//    }
 
-    override fun removeAll(elements: Collection<Leg>): Boolean {
-        val b = item.removeAll(elements.toSet())
-        actions.removeAll(elements.toSet())
-        if(isEmpty()){
-            clear()
-        }
-        return b
-    }
 
 
-    override fun remove(activity: Activity): Boolean {
-        throw NoSuchElementException("Removing an activity in a leg block should never happen")
-    }
-    private fun unlink()  {
+
+
+    private fun unlink() {
         val previous = previous
         val next = next
         val overNext = next.next
@@ -313,7 +343,7 @@ class LegBlock(override val item: NavigableSet<Leg>, override val actions: Navig
 
         previous.next = overNext
         overNext?.previous = previous
-
+        //TODO find solution to point next and previous to something else, or drop invariant tha previous and next exist
         this.next = next
         this.previous = next
         next.next = null
@@ -323,32 +353,28 @@ class LegBlock(override val item: NavigableSet<Leg>, override val actions: Navig
     }
 
     fun replaceAll(elements: Collection<Leg>) {
-        require(elements.isNotEmpty()) {"Doesn't make sense to replace with nothing "}
-        actions.removeAll(item)
+        require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
         item.clear()
-        addAll(elements)
+        item.addAll(elements)
 
     }
-    override fun remove(element: Leg): Boolean {
+
+    fun remove(element: Leg): Boolean {
         item.remove(element)
-        actions.remove(element)
-        if(item.isEmpty()) {
+        if (item.isEmpty()) {
             unlink()
+            return true
         }
-        return true
+        return false
     }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is LegBlock) return false
-        return next == other.next && item.zip(other.item).all {(a, b) -> a == b}
+        if (other !is LegBlock) return false
+        return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
     }
 
-    /**
-     * Returns the next element in the iteration.
-     */
-    override fun next(): SharedBlocks<*> {
-        return next
-    }
+
+
 
     override fun isConsistent(): Boolean {
         val previousActivity = previous.item.lastOrNull()
@@ -356,66 +382,90 @@ class LegBlock(override val item: NavigableSet<Leg>, override val actions: Navig
         val actions = (listOf(previousActivity) + item.toList() + nextActivity).filterNotNull()
         return actions.isStrictlySorted()
     }
-
 }
 
 class NewSchedule(initial: Activity) {
-    val actions: NavigableSet<Action> = sortedSetOf(initial) //This should be only viewable, the proper maintenance
+    internal val actions: NavigableSet<Action> = sortedSetOf(initial)
 
 
-    var initial: ActivityBlock = ActivityBlock(initial, actions)
-    var current = actions.iterator()
+    internal var initial: ActivityBlock = ActivityBlock(initial)
 
-    fun doNext() {
-        if(!current.hasNext()) {
-            return
-        }
-        val internal = current.next()
-        internal.initiateAction()
+    val trips get() = legBlockIterator().map { NewTrip(it) }
+
+    fun toList(): List<ActionBlock<*>> {
+        return tempIterator().map { it }
     }
 
-
-    fun toList(): List<SharedBlocks<*>> {
-        return iterator().map { it }
-    }
     override fun equals(other: Any?): Boolean {
         if (other !is NewSchedule) return false
         val b = actions.zip(other.actions).all { (a, b) -> a == b }
         val b1 = initial == other.initial
         return b && b1
     }
+
     override fun toString(): String {
         return actions.toString()
     }
-    fun isConsistent() : Boolean {
-        return iterator().all { it.isConsistent() }
+
+    fun isConsistent(): Boolean {
+        return tempIterator().all { it.isConsistent() }
     }
-    fun iterator(): Iterable<SharedBlocks<*>> {
+
+    fun tempIterator(): Iterable<ActionBlock<*>> {
         return Iterable {
-            object: Iterator<SharedBlocks<*>> {
-                var current: SharedBlocks<*>? = null
-                var next: SharedBlocks<*>? = initial
+            object : Iterator<ActionBlock<*>> {
+                var current: ActionBlock<*>? = null
+                var next: ActionBlock<*>? = initial
+
                 /**
                  * Returns `true` if the iteration has more elements.
                  */
                 override fun hasNext(): Boolean {
-                    return current?.let{next != null}?:true
+                    return current?.let { next != null } ?: true
 
                 }
 
                 /**
                  * Returns the next element in the iteration.
                  */
-                override fun next(): SharedBlocks<*> {
+                override fun next(): ActionBlock<*> {
                     current = next
-                    next = current?.next()
-                    return current?: throw NoSuchElementException()
+                    next = current?.next
+                    return current ?: throw NoSuchElementException()
                 }
 
             }
         }
 
     }
+
+    fun legBlockIterator(): Iterable<LegBlock> {
+        return Iterable {
+            object : Iterator<LegBlock> {
+                var current: LegBlock? = null
+                var nextinternal: LegBlock? = initial.next
+
+                /**
+                 * Returns `true` if the iteration has more elements.
+                 */
+                override fun hasNext(): Boolean {
+                    return nextinternal != null
+
+                }
+
+                /**
+                 * Returns the next element in the iteration.
+                 */
+                override fun next(): LegBlock {
+                    current = nextinternal
+                    nextinternal = current?.next?.next
+                    return current ?: throw NoSuchElementException()
+                }
+
+            }
+        }
+    }
+
     operator fun Activity.unaryPlus() {
         add(this)
     }
@@ -423,122 +473,86 @@ class NewSchedule(initial: Activity) {
     operator fun Leg.unaryPlus() {
         add(this)
     }
-    operator fun Leg.unaryMinus() {
-        remove(this)
-    }
 
-    operator fun Activity.unaryMinus() {
-        remove(this)
-    }
+//    operator fun Leg.unaryMinus() {
+//        remove(this)
+//    }
+//
+//    operator fun Activity.unaryMinus() {
+//        remove(this)
+//    }
+
     fun add(activity: Activity) {
         if (actions.contains(activity)) return
-//        actions.add(activity)
+        val test = tempIterator().first { !it.rejects(activity) }
 
-        val test = iterator().first{!it.rejects(activity)}
-
-        val newBlocks = test.insert(activity)
+        test.insert(activity)
     }
 
-    fun remove(leg: Leg) {
-//        actions.remove(leg)
-        val target = iterator().first{it.contains1(leg)}
-        target.remove(leg)
-    }
-    fun remove(activity:Activity) {
-//        actions.remove(activity)
-        val target = iterator().first{it.contains1(activity)}
-        target.remove(activity)
-    }
-    fun print() {
-        println(iterator().map { it.toString() })
-
-    }
     fun add(leg: Leg) {
         if (actions.contains(leg)) return
-//        actions.add(leg)
-        val test = iterator().first{!it.rejects(leg)}
-        val newBlocks = test.insert(leg)
+        val test = tempIterator().first { !it.rejects(leg) }
+        test.insert(leg)
     }
 
+//    fun remove(leg: Leg) {
+//        val target = tempIterator().first { it.contains1(leg) }
+//        target.remove(leg)
+//    }
+//
+//
+//    fun remove(activity: Activity) {
+//        val target = tempIterator().first { it.contains1(activity) }
+//        target.remove(activity)
+//    }
+
 }
+
 object START : Location
-object OTHER: Location
-object THIRD: Location
-object FOURTH: Location
+object OTHER : Location
+object THIRD : Location
+object FOURTH : Location
 
-class NewTrip(val legBlock: LegBlock) {
+class NewTrip(private val legBlock: LegBlock) {
 
-    fun overwrite(elements: SortedSet<Leg>): Boolean {
+    val legs: SortedSet<out MovingAction> get() = legBlock.item
+
+    fun overwrite(lambda: EditableTrip.() -> Unit): Boolean {
+
         val start = legBlock.previous.last()
         val end = legBlock.next.first()
-        val actions = listOf(start) + elements + end
-        if(actions.isConsistent()) {
-            legBlock.replaceAll(elements)
+        val e = EditableTrip(start, end, legBlock.item)
+         e.lambda()
+        val actions = listOf(start) + e.new + end
+        if (actions.isConsistent()) {
+            legBlock.replaceAll(e.new)
             return true
         }
-
+        println("Sorry: ${e.new} is not consistent. Try again")
         return false
 
     }
 
-}
-class LimitedLeg(private val original: Leg, val actions: NavigableSet<Action>): Leg {
-    val previous: Action? get() = actions.lower(original)
-    val next: Action? get() = actions.higher(original)
-    override fun equals(other: Any?): Boolean {
-        TODO("Not yet implemented")
+    class EditableTrip(
+        val previousEndTime: Duration,
+        val previousEndLocation: Location,
+        val nextStartTime: Duration,
+        val nextStartLocation: Location,
+        val originals: Collection<MovingAction>
+    ) {
+        val new: SortedSet<Leg> = sortedSetOf()
+        constructor(previous: Activity, next: Activity, originals: Collection<MovingAction>) : this(
+            previous.endTime,
+            previous.endLocation,
+            next.startTime,
+            next.startLocation,
+            originals
+        )
+        operator fun Leg.unaryPlus() {
+            new.add(this)
+        }
+        operator fun Collection<Leg>.unaryPlus() {
+            new.addAll(this)
+        }
     }
-
-    override var startTime: Duration
-        get() = original.startTime
-        set(value) {
-            val fitsPrevious = previous?.endTime?.let{it <= value} ?: true
-            val fitsNext = next?.startTime?.let{it >= value + duration}?:true
-            if(fitsPrevious && fitsNext) {
-                original.startTime = value
-            }
-        }
-    override var duration: Duration
-        get() = original.duration
-        set(value) {
-            val fitsNext = next?.startTime?.let{it >= startTime + value} ?: true
-            if(fitsNext) {
-                original.duration = value
-            }
-        }
-    override var startLocation: Location
-        get() = original.startLocation
-        set(value) {
-            original.startLocation = value
-        }
-    override var endLocation: Location
-        get() = original.endLocation
-        set(value) {
-            original.endLocation = value
-        }
-
-}
-
-fun main() {
-
-    val target = (0..1).map { generatePlan() }
-    val testPlan = target.last()
-    val trip = NewTrip(testPlan.initial.next!!)
-    val t = trip.legBlock.first()
-    trip.legBlock.remove(t)
-    println(testPlan)
-
-}
-
-private fun generatePlan(): NewSchedule {
-    val s = NewSchedule(RawActivity(START, 0.hours, 7.hours))
-    (0..7).forEach {
-        s.add(RawLeg(it.days + 7.hours, 0.5.hours, START, OTHER))
-        s.add(RawActivity(OTHER, it.days + 8.hours, 8.hours))
-        s.add(RawLeg(it.days + 16.hours, 0.5.hours, OTHER, THIRD))
-        s.add(RawActivity(THIRD, it.days + 17.hours, 0.5.hours))
-        s.add(RawLeg(it.days + 20.hours, 0.5.hours, THIRD, START))
-        s.add(RawActivity(START, it.days + 21.hours, 10.hours))
-    }
-    return s
 }

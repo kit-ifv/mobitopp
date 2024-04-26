@@ -46,18 +46,18 @@ class ContainerBuilder {
 }
 
 
-class ScheduleBuilder {
-    val schedule = Schedule()
-
-
-
-    operator fun Activity.unaryPlus() {
-        schedule.add(this)
-    }
-
-    operator fun Leg.unaryPlus() {
-        schedule.add(this)
-    }
-
-}
+//class ScheduleBuilder {
+//    val schedule = DeprecatedSchedule()
+//
+//
+//
+//    operator fun Activity.unaryPlus() {
+//        schedule.add(this)
+//    }
+//
+//    operator fun Leg.unaryPlus() {
+//        schedule.add(this)
+//    }
+//
+//}
 
