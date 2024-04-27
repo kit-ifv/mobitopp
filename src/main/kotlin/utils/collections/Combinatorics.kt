@@ -102,3 +102,51 @@ fun generatePairings(items: IntArray, start: Int, itemcount: Int = items.size): 
         }
     }
 }
+
+fun Int.toBinaryRepresentation(size: Int): List<Boolean> {
+    return Integer.toBinaryString(this).padStart(size, '0').map{it == '1'}
+}
+
+/** Slow but no conversion errors. In the future someone may want to turn this into a reasonably useful function
+ *
+ */
+fun Int.pow(exponent: Int): Int {
+    var result = 1
+    repeat(exponent) {
+        result *= this
+    }
+    return result
+}
+
+fun <T> Collection<T>.subsets(): List<Set<T>> {
+    return (0..<2.pow(size)).map { num ->
+        num.toBinaryRepresentation(size).zip(this).filter { it.first }.map{it.second}.toSet()
+    }
+
+}
+
+fun <S, T> Collection<S>.cartesianProduct(other: Collection<T>): List<Pair<S, T>>{
+    return flatMap {a ->
+            other.map { b->
+                a to b
+            }
+
+    }
+}
+
+fun <S, T, O> Collection<S>.cartesianProduct(other: Collection<T>, thrid: Collection<O>): List<Triple<S, T, O>>{
+    return flatMap {a ->
+        other.flatMap { b->
+            thrid.map { c->
+                Triple(a, b, c)
+
+            }
+        }
+
+    }
+}
+
+fun main(){
+    val test = setOf(1, 2, 3)
+    println(test.cartesianProduct(test).toList())
+}

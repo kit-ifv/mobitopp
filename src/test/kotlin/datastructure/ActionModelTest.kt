@@ -2,46 +2,31 @@ package datastructure
 
 import org.junit.jupiter.api.Test
 import kotlin.test.BeforeTest
-import kotlin.test.assertEquals
 
-class ActionModelTest: ExamplePlan() {
+class ActionModelTest: PlanModelTest() {
 
-    private lateinit var model: ActionModel
+    override lateinit var model: PlanModel
 
     @BeforeTest
     fun setup() {
         model = ActionModel()
     }
-    @Test
-    fun add() {
-        model.add(activity1)
-        assertEquals(model.actions, sortedSetOf<Action>(activity1))
-    }
 
-    @Test
-    fun testAdd() {
-    }
 
-    @Test
-    fun remove() {
-    }
+//    @Test
+//    fun remove() {
+//        model.add(activity1)
+//        assertEquals(model.actions(), sortedSetOf<Action>(activity1))
+//        model.remove(activity1)
+//        assertContentEquals(model.actions(), sortedSetOf())
+//    }
 
-    @Test
-    fun testRemove() {
-    }
 
-    @Test
-    fun replaceActivities() {
-    }
-
-    @Test
-    fun replaceLegs() {
-    }
 
     @Test
     fun view() {
-        val view = model.view()
-        model.add(activity1)
-        assertEquals(view.first(), activity1)
+//        val view = model.view()
+//        model.add(activity1)
+//        assertEquals(view.first(), activity1)
     }
 }

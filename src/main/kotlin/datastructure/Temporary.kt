@@ -5,7 +5,7 @@ import java.util.*
 import kotlin.time.Duration
 
 
-abstract class ActionBlock<T : Action> {
+abstract class ActionBlock<T : Action>: Comparable<ActionBlock<*>>{
     internal abstract val item: NavigableSet<T>
     abstract val next: ActionBlock<*>?
     abstract val previous: ActionBlock<*>?
@@ -26,41 +26,26 @@ abstract class ActionBlock<T : Action> {
     abstract fun rejects(action: Activity): Boolean
     abstract fun rejects(action: Leg): Boolean
 
-
+    fun isEmpty() = item.isEmpty()
+    fun removeFirst(): T? = item.pollFirst()
     abstract fun isConsistent(): Boolean
 
     fun contains(element: T): Boolean = item.contains(element)
     fun bounds(elements: Collection<Action>): Boolean {
 
         val sortedSet = elements.toSortedSet()
-
+        if(sortedSet.isEmpty()) return false
         return sortedSet.first() >= first() && sortedSet.last() <= last()
     }
 
     fun first(): T = item.first()
     fun last(): T = item.last()
-//
-//    override fun add(element: T): Boolean {
-//        return item.add(element)
-//    }
-//
-//
-//    override fun addAll(elements: Collection<T>): Boolean {
-//        return item.addAll(elements)
-//    }
-//
-//
-//    override fun pollFirst(): T? {
-//        val poll = item.pollFirst()
-//
-//        return poll
-//    }
-//
-//    override fun pollLast(): T? {
-//        val poll = item.pollLast()
-//
-//        return poll
-//    }
+
+    override fun compareTo(other: ActionBlock<*>): Int {
+        return last().compareTo(other.first())
+    }
+
+    abstract fun clear()
 }
 
 class ActivityBlock(override val item: NavigableSet<Activity>, override var dispatcher: Dispatcher?) :
@@ -74,14 +59,18 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
         return item.joinToString { it.toString() }
     }
 
+    override fun clear() {
+        item.clear()
+        unlink()
+    }
 
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
         item.add(activity)
 
         return null
     }
-    fun replaceAll(target: SortedSet<Activity>) {
-        item.clear()
+    fun replaceAll(delete: Set<Activity>, target: SortedSet<Activity>) {
+        item.removeAll(delete)
         item.addAll(target)
     }
     override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
@@ -142,7 +131,11 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
     }
 
     override fun rejects(action: Leg): Boolean {
-        return next != null && (item.size < 2 || item.first() >= action || item.last() <= action)
+
+//        val b = next != null && item.lastOrNull()?.let { it <=  action }?: false
+        val b = next != null && item.lastOrNull()?.let { it <=  action }?: true
+//        val b = action < item.last() ||(next != null && (item.size < 2 || item.first() >= action || item.last() <= action))
+        return  b
     }
 
 
@@ -226,6 +219,11 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
         }
     }
 
+    override fun clear() {
+        item.clear()
+        unlink()
+    }
+
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
 
 
@@ -291,14 +289,11 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
 
     }
 
-    fun replaceAll(elements: Collection<Leg>) {
+    fun replaceAll(target: Collection<Leg>, elements: Collection<Leg>) {
         require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
 
-        dispatcher?.replaceLegs(item, elements.toSortedSet()) ?: run {
-            item.clear()
-            item.addAll(elements)
-        }
-
+        item.removeAll(target)
+        item.addAll(elements)
 
     }
 
@@ -462,7 +457,7 @@ class NewTrip(private val legBlock: LegBlock) {
          e.lambda()
         val actions = listOf(start) + e.new + end
         if (actions.isConsistent()) {
-            legBlock.replaceAll(e.new)
+            legBlock.dispatcher?.replaceLegs(legBlock.item, e.new)
             return true
         }
         println("Sorry: ${e.new} is not consistent. Try again")

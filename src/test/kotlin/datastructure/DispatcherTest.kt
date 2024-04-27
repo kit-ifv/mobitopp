@@ -47,7 +47,7 @@ class DispatcherTest {
         val take = activityGenerator.take(10000).toList()
         take.forEach { actionView.add(it) }
 
-        assertEquals(actionView.actions(), blocks.actions())
+        assertEquals(actionView, blocks.actions())
     }
     @Test
     fun properTripView() {
@@ -95,7 +95,7 @@ class DispatcherTest {
         }
 
 
-        assertTrue(actionView.actions().isEmpty())
+        assertTrue(actionView.isEmpty())
         assertTrue(blockView.trips().isEmpty())
     }
 }

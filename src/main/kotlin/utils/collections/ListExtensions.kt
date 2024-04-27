@@ -15,6 +15,14 @@ fun <T> List<T>.nextOrNull(index: Int): T? {
     return getOrNull(index + 1)
 }
 
+fun <T: Comparable<T>> MutableList<T>.addByOrder(element: T): Boolean {
+    val position = binarySearch { it.compareTo(element) }
+    if(position < 0) {
+        add((-position - 1), element)
+        return true
+    }
+    return false
+}
 fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
     val target = zipWithNext { a: T, b: T -> comparator.compare(a, b) <= 0}
     return target.all { it }
