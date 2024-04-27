@@ -2,20 +2,15 @@ package datastructure
 
 import java.util.*
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 
-class Household(val members: MutableList<Person> = mutableListOf(), val car: Car = Car(START)) {
-
+/**
+ * TODO
+ * Stub class for Events remove once integrated into the event system of jellorius
+ */
+fun interface Event {
+    fun happen()
 }
 
-class Car(var position: Location) {
-    var driver: Person? = null
-}
-class Person(var position: Location, val household: Household) {
-    fun getCar(): Car {
-        return household.car
-    }
-}
 
 /**
  * A solution to prevent already executed actions to cal onBegin / on End
@@ -34,53 +29,6 @@ class CurrentAction(original: Action): Action by original {
     override fun onBegin() {
         println("Cannot call onBegin on started action")
     }
-}
-class TeleportLeg(val person: Person, private val original: Leg): Leg by original {
-    override fun onBegin() {
-        person.position = original.startLocation
-    }
-
-    override fun onEnd() {
-        person.position = original.endLocation
-    }
-}
-class CarLeg(private val person: Person, private val original: Leg): Leg by original {
-
-    private lateinit var car: Car
-    override fun onBegin() {
-        person.position = original.startLocation
-        car = person.getCar()
-        car.driver = person
-
-    }
-
-    override fun onEnd() {
-        person.position = original.endLocation
-        car.position = original.endLocation
-        car.driver = null
-    }
-
-}
-
-fun interface Event {
-    fun happen()
-}
-
-fun main() {
-    val household = Household()
-    val car = household.car
-    val person = Person(START, household)
-
-    val t = ScheduleMaintainer(ActionModel(), {Event {it.onBegin()}} , {Event {it.onEnd()}})
-    t.add(CarLeg(person, Leg.fromDuration(0.hours, 1.hours, START, OTHER)))
-    println("${person.position} ${car.position} ${car.driver}")
-    t.handleEvent()
-    t.handleEvent()
-    println("${person.position} ${car.position} ${car.driver}")
-    t.handleEvent()
-    val ee = t.getHistory()
-    println("${person.position} ${car.position} ${car.driver}")
-
 }
 class ScheduleMaintainer(
     private val model: PlanModel,

@@ -1,5 +1,8 @@
 package datastructure
 
+import OTHER
+import START
+import THIRD
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -37,18 +40,7 @@ class DispatcherTest {
         }
 
     }
-    @Test
-    fun start(){
-//        val dispatcher = Dispatcher()
-//        val actions = ActionModel(dispatcher)
-//        val actionView = actions.view()
-//        val blocks = BlockModel(dispatcher)
-//
-//        val take = activityGenerator.take(1000).toList()
-//        take.forEach { actionView.add(it) }
-//
-//        assertEquals(actionView, blocks.actions())
-    }
+
     @Test
     fun properTripView() {
         val dispatcher = Dispatcher()

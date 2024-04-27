@@ -131,11 +131,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>, override var disp
     }
 
     override fun rejects(action: Leg): Boolean {
-
-//        val b = next != null && item.lastOrNull()?.let { it <=  action }?: false
-        val b = next != null && item.lastOrNull()?.let { it <=  action }?: true
-//        val b = action < item.last() ||(next != null && (item.size < 2 || item.first() >= action || item.last() <= action))
-        return  b
+        return next != null && item.lastOrNull()?.let { it <=  action }?: true
     }
 
 
@@ -322,128 +318,6 @@ class LegBlock(override val item: NavigableSet<Leg>, override var dispatcher: Di
     }
 }
 
-@Deprecated("Remove")
-class NewSchedule(initial: Activity) {
-    internal val actions: NavigableSet<Action> = sortedSetOf(initial)
-
-
-    internal var initial: ActivityBlock = ActivityBlock(initial, null)
-
-    val trips get() = legBlockIterator().map { NewTrip(it) }
-
-    fun toList(): List<ActionBlock<*>> {
-        return tempIterator().map { it }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is NewSchedule) return false
-        val b = actions.zip(other.actions).all { (a, b) -> a == b }
-        val b1 = initial == other.initial
-        return b && b1
-    }
-
-    override fun toString(): String {
-        return actions.toString()
-    }
-
-    fun isConsistent(): Boolean {
-        return tempIterator().all { it.isConsistent() }
-    }
-
-    fun tempIterator(): Iterable<ActionBlock<*>> {
-        return Iterable {
-            object : Iterator<ActionBlock<*>> {
-                var current: ActionBlock<*>? = null
-                var next: ActionBlock<*>? = initial
-
-                /**
-                 * Returns `true` if the iteration has more elements.
-                 */
-                override fun hasNext(): Boolean {
-                    return current?.let { next != null } ?: true
-
-                }
-
-                /**
-                 * Returns the next element in the iteration.
-                 */
-                override fun next(): ActionBlock<*> {
-                    current = next
-                    next = current?.next
-                    return current ?: throw NoSuchElementException()
-                }
-
-            }
-        }
-
-    }
-
-    fun legBlockIterator(): Iterable<LegBlock> {
-        return Iterable {
-            object : Iterator<LegBlock> {
-                var current: LegBlock? = null
-                var nextinternal: LegBlock? = initial.next
-
-                /**
-                 * Returns `true` if the iteration has more elements.
-                 */
-                override fun hasNext(): Boolean {
-                    return nextinternal != null
-
-                }
-
-                /**
-                 * Returns the next element in the iteration.
-                 */
-                override fun next(): LegBlock {
-                    current = nextinternal
-                    nextinternal = current?.next?.next
-                    return current ?: throw NoSuchElementException()
-                }
-
-            }
-        }
-    }
-
-    operator fun Activity.unaryPlus() {
-        add(this)
-    }
-
-    operator fun Leg.unaryPlus() {
-        add(this)
-    }
-
-
-    fun add(activity: Activity) {
-        if (actions.contains(activity)) return
-        val test = tempIterator().first { !it.rejects(activity) }
-
-        test.insert(activity)
-    }
-
-    fun add(leg: Leg) {
-        if (actions.contains(leg)) return
-        val test = tempIterator().first { !it.rejects(leg) }
-        test.insert(leg)
-    }
-
-//    fun remove(leg: Leg) {
-//        val target = tempIterator().first { it.contains1(leg) }
-//        target.remove(leg)
-//    }
-//
-//
-//    fun remove(activity: Activity) {
-//        val target = tempIterator().first { it.contains1(activity) }
-//        target.remove(activity)
-//    }
-
-}
-
-object START : Location
-object OTHER : Location
-object THIRD : Location
-object FOURTH : Location
 
 class NewTrip(private val legBlock: LegBlock) {
 

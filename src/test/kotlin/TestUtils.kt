@@ -1,5 +1,14 @@
+import datastructure.Location
 import kotlin.test.asserter
 
+
+/**
+ * Four example locations for testing
+ */
+object START : Location
+object OTHER : Location
+object THIRD : Location
+object FOURTH : Location
 internal fun messagePrefix(message: String?) = if (message == null) "" else "$message. "
 
 fun assertNotContains(
