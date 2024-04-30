@@ -20,7 +20,6 @@ class BlockModelTest : PlanModelTest() {
         model = bModel
     }
 
-
 //
     @Test
     fun noInconsistencies() {

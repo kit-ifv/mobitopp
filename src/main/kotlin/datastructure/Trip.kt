@@ -80,4 +80,3 @@ class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatche
 
     fun matches(other: LegBlock) = legBlock === other
 }
-

@@ -88,8 +88,8 @@ abstract class PlanModelTest {
 
     private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String {
         return first.joinToString { it.decodeToShorthand() } + "|" +
-                second.joinToString { it.decodeToShorthand() } + "|" +
-                third.joinToString { it.decodeToShorthand() }
+            second.joinToString { it.decodeToShorthand() } + "|" +
+            third.joinToString { it.decodeToShorthand() }
     }
 
     private fun Pair<Collection<Action>, Collection<Action>>.decode(): String {
@@ -272,9 +272,9 @@ abstract class PlanModelTest {
      * Regardless of insertion order the first element of (A1, L1, L1b, A2) should always be A1
      */
     @TestFactory
-    fun firstElementShouldBeA1(): List<DynamicTest>  {
+    fun firstElementShouldBeA1(): List<DynamicTest> {
         val actions = listOf("+A1", "+L1", "+L1b", "+A2").map { fromString(it) }
-        return actions.permutations().map {test ->
+        return actions.permutations().map { test ->
             DynamicTest.dynamicTest(test.map { it.name }.toString()) {
                 model.clear()
                 test.forEach { model.apply(it.executable) }

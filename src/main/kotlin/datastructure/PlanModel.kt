@@ -189,12 +189,16 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         if (test == null) return
         val newBlocks = test.insert(leg)
         newBlocks?.let {
-            if (legBlockList.isNotEmpty()) legBlockList.addByOrder(
-                LinkTrip(
-                    it.first,
-                    dispatcher
+            if (legBlockList.isNotEmpty()) {
+                legBlockList.addByOrder(
+                    LinkTrip(
+                        it.first,
+                        dispatcher
+                    )
                 )
-            ) else legBlockList.add(LinkTrip(it.first, dispatcher))
+            } else {
+                legBlockList.add(LinkTrip(it.first, dispatcher))
+            }
         }
     }
 
@@ -261,6 +265,3 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         override val dispatcher: Dispatcher = model.dispatcher
     }
 }
-
-
-
