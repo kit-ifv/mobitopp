@@ -1,78 +1,72 @@
 package datastructure
 
 import java.util.*
-import kotlin.time.Duration
 
-
-interface Triip {
+interface Trip {
     val legs: List<MovingAction>
+    val size get() = legs.size
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
-    fun alternate(lambda: Trip.() -> SortedSet<Leg>)
+    fun alternate(lambda: TripBuilder.() -> Unit)
+
+    fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
+class RawTrip(
+    override val legs: MutableList<Leg>,
+    override val previousAction: Activity?,
+    override val nextAction: Activity?
+) : Trip {
+    override fun alternate(lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(previousAction, nextAction, legs)
+        builder.lambda()
+        val target = builder.output()
+        legs.clear()
+        legs.addAll(target)
+    }
+}
 
-class Trip(internal val legBlock: LegBlock) : Comparable<Trip> {
-    val size get() = legBlock.item.size
-    val legs: SortedSet<out MovingAction> get() = legBlock.item
-    fun overwrite(lambda: EditableTrip.() -> Unit): Boolean {
-        val start = legBlock.previous.lastElementOrNull()
-        val end = legBlock.next.firstElementOrNull()
-        val editableTrip = EditableTrip(start, end, legBlock.item.toList())
-        editableTrip.lambda()
-        val actions = listOf(start) + editableTrip.legs + end
-        if (actions.filterNotNull().isConsistent()) {
-            legBlock.replaceAll(legBlock.item, editableTrip.legs)
-            return true
-        }
-        println("Sorry: ${editableTrip.legs} is not consistent. Try again")
-        return false
+class TripBuilder(
+    val previousAction: StationaryAction?,
+    val nextAction: StationaryAction?,
+    val originals: List<MovingAction>
+) {
+    private val legs = sortedSetOf<Leg>()
+    operator fun Leg.unaryPlus() {
+        legs.add(this)
     }
 
-    fun example(lambda: EditableTrip.() -> Unit): Pair<SortedSet<out MovingAction>, SortedSet<out MovingAction>> {
-        val start = legBlock.previous.lastElementOrNull()
-        val end = legBlock.next.firstElementOrNull()
-        val editableTrip = EditableTrip(start, end, legBlock.item.toList())
-        editableTrip.lambda()
-        val actions = listOf(start) + editableTrip.legs + end
-        if (actions.filterNotNull().isConsistent()) {
-//            legBlock.replaceAll(legBlock.item, editableTrip.legs)
-            return legBlock.item to editableTrip.legs
-        }
-        println("Sorry: ${editableTrip.legs} is not consistent. Try again")
-        return legBlock.item to legBlock.item
+    operator fun Collection<Leg>.unaryPlus() {
+        legs.addAll(this)
     }
 
-    fun matches(target: LegBlock): Boolean {
-        return legBlock === target
+    fun output(): SortedSet<Leg> = legs
+}
+
+/**
+ * A [LinkTrip] is created from a [LegBlock] in the [BlockModel] plan. It holds a reference to the model dispatcher,
+ * which is set to null if the trip is removed from [BlockModel.legBlockList], so that even when a reference to the
+ * link trip object is held someplace else, the changes only propagate into the models if the trip is actually a part
+ * of the models.
+ */
+class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatcher?) : Trip, Comparable<LinkTrip> {
+
+    override val legs: List<MovingAction>
+        get() = legBlock.item.toList()
+    override val previousAction: StationaryAction?
+        get() = legBlock.previous.lastElementOrNull()
+    override val nextAction: StationaryAction?
+        get() = legBlock.next.firstElementOrNull()
+
+    override fun alternate(lambda: TripBuilder.() -> Unit) {
+        val builder = TripBuilder(previousAction, nextAction, legs)
+        builder.lambda()
+        val target = builder.output()
+        dispatcher?.replaceLegs(legs.toSortedSet(), target)
     }
 
-    inner class EditableTrip(
-        val previousEndTime: Duration,
-        val previousEndLocation: Location?,
-        val nextStartTime: Duration,
-        val nextStartLocation: Location?,
-        val originals: List<MovingAction>
-    ) {
-        val legs: SortedSet<Leg> = sortedSetOf()
-
-        // TODO restore assertion that a schedule always has a start activity, and that a trip can only exist between
-        // two real existing activity blocks
-        constructor(previous: Activity?, next: Activity?, originals: List<MovingAction>) : this(
-            previous?.endTime ?: -Duration.INFINITE,
-            previous?.endLocation,
-            next?.startTime ?: Duration.INFINITE,
-            next?.startLocation,
-            originals
-        )
-
-        operator fun Leg.unaryPlus() {
-            legs.add(this)
-        }
-
-        operator fun Collection<Leg>.unaryPlus() {
-            legs.addAll(this)
-        }
+    fun unlink() {
+        dispatcher = null
     }
 
     /**
@@ -80,28 +74,10 @@ class Trip(internal val legBlock: LegBlock) : Comparable<Trip> {
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    override fun compareTo(other: Trip): Int {
+    override fun compareTo(other: LinkTrip): Int {
         return legBlock.compareTo(other.legBlock)
     }
+
+    fun matches(other: LegBlock) = legBlock === other
 }
 
-class LinkedTrip(private val original: Trip, private val dispatcher: Dispatcher) : Comparable<LinkedTrip> {
-    val size get() = original.size
-
-    /**
-     * Compares this object with the specified object for order. Returns zero if this object is equal
-     * to the specified [other] object, a negative number if it's less than [other], or a positive number
-     * if it's greater than [other].
-     */
-    override fun compareTo(other: LinkedTrip): Int {
-        return original.compareTo(other.original)
-    }
-
-    fun matches(legBlock: LegBlock): Boolean {
-        return original.matches(legBlock)
-    }
-    fun overwrite(lambda: Trip.EditableTrip.() -> Unit) {
-        val target = original.example(lambda)
-        dispatcher.replaceLegs(target.first, target.second)
-    }
-}

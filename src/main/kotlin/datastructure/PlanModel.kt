@@ -141,7 +141,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         dispatcher.register(this)
     }
 
-    private val legBlockList: MutableList<LinkedTrip> = mutableListOf()
+    private val legBlockList: MutableList<LinkTrip> = mutableListOf()
 
     val activityBlocks = ActivityBlock(sortedSetOf())
 
@@ -181,11 +181,11 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         val newBlocks = test.insert(leg)
         newBlocks?.let {
             if (legBlockList.isNotEmpty()) legBlockList.addByOrder(
-                LinkedTrip(
-                    Trip(it.first),
+                LinkTrip(
+                    it.first,
                     dispatcher
                 )
-            ) else legBlockList.add(LinkedTrip(Trip(it.first), dispatcher))
+            ) else legBlockList.add(LinkTrip(it.first, dispatcher))
         }
     }
 
@@ -201,7 +201,10 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
             val b = legBlock.remove(leg)
             if (b) {
                 val targetTrip = legBlockList.find { trip -> trip.matches(legBlock) }
-                targetTrip?.let { legBlockList.remove(it) }
+                targetTrip?.let {
+                    it.unlink()
+                    legBlockList.remove(it)
+                }
             }
         }
     }
@@ -245,7 +248,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         return TripView(this)
     }
 
-    class TripView(private val model: BlockModel) : List<LinkedTrip> by model.legBlockList, PlanView {
+    class TripView(private val model: BlockModel) : List<LinkTrip> by model.legBlockList, PlanView {
         override val dispatcher: Dispatcher = model.dispatcher
     }
 }

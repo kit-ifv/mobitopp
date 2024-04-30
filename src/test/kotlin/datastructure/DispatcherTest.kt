@@ -79,7 +79,7 @@ class DispatcherTest {
         take.forEach { actionView.remove(it) }
         assertTrue(blockView.isEmpty())
 
-        trip.overwrite {
+        trip.alternate {
             +legs.subList(2, 6)
         }
 
@@ -97,16 +97,18 @@ class DispatcherTest {
         val actionView = actions.view()
         val blocks = BlockModel(dispatcher)
         val blockView = blocks.view()
-        val legs = legGenerator.take(6).toList()
-        legs.forEach { actionView.add(it) }
+        val legList = legGenerator.take(6).toList()
+        legList.forEach { actionView.add(it) }
         val take = activityGenerator.drop(3).take(1)
         take.forEach { actionView.add(it) }
         val trip = blockView.first()
-        trip.overwrite {
+        trip.alternate {
+            val set = sortedSetOf<Leg>()
             val first = originals.first()
             val last = originals.last()
-            +Leg.fromDuration(first.startTime, first.duration, first.startLocation, FOURTH)
-            +Leg.fromDuration(last.startTime, last.duration, FOURTH, last.endLocation)
+            set.add(Leg.fromDuration(first.startTime, first.duration, first.startLocation, FOURTH))
+            set.add(Leg.fromDuration(last.startTime, last.duration, FOURTH, last.endLocation))
+            set
         }
 
         assertContentEquals(blocks.actions(), actions.actions())
