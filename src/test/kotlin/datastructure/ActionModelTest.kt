@@ -3,7 +3,11 @@ package datastructure
 import org.junit.jupiter.api.Test
 import kotlin.test.BeforeTest
 
-class ActionModelTest: PlanModelTest() {
+/**
+ * The [ActionModel] provides a basic implementation of a [PlanModel] using a sorted set. Tests can use this model as
+ * a baseline i.e. tests should usually work with this reasonably simple model.
+ */
+class ActionModelTest : PlanModelTest() {
 
     override lateinit var model: PlanModel
 
@@ -12,7 +16,6 @@ class ActionModelTest: PlanModelTest() {
         model = ActionModel()
     }
 
-
 //    @Test
 //    fun remove() {
 //        model.add(activity1)
@@ -20,8 +23,6 @@ class ActionModelTest: PlanModelTest() {
 //        model.remove(activity1)
 //        assertContentEquals(model.actions(), sortedSetOf())
 //    }
-
-
 
     @Test
     fun view() {

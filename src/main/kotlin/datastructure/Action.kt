@@ -32,10 +32,11 @@ sealed interface Action : Comparable<Action> {
 
      As in x <= y && x >= y => x == y is violated by intervals. We only have a partial order but Comparable induces
      total ordering */
-    @Suppress("ReturnCount") /* The speed benefit of early returns clearly outweighs the fact that there are
-    3 (the horror) return statements rather than 2. I think that this method may be simple enough that a foreign reader
-    will understand what exactly is happening
-    */
+    @Suppress("ReturnCount")
+    /* The speed benefit of early returns clearly outweighs the fact that there are
+     3 (the horror) return statements rather than 2. I think that this method may be simple enough that a foreign
+     reader will understand what exactly is happening
+     */
     override fun compareTo(other: Action): Int {
         if (endTime <= other.startTime) return -1
         if (other.endTime <= startTime) return 1
@@ -47,16 +48,14 @@ sealed interface Action : Comparable<Action> {
      * for the event system. This method will trigger when an Action is supposed to start.
      */
     fun onBegin() {
-
     }
+
     /**
      * The [onEnd] function provides implementing classes with the ability to define their individual behaviour
      * for the event system. This method will trigger when an Action is supposed to end.
      */
     fun onEnd() {
-
     }
-
 }
 
 /**
@@ -103,7 +102,6 @@ interface Activity : StationaryAction {
     override var location: Location
     override var startTime: Duration
     override var endTime: Duration
-
 
     /**
      * A default implementation to spawn a leg spanning from one activity to another.

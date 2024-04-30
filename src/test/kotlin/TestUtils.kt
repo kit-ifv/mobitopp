@@ -1,7 +1,6 @@
 import datastructure.Location
 import kotlin.test.asserter
 
-
 /**
  * Four example locations for testing
  */

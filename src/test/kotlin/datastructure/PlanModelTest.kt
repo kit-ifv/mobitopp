@@ -4,7 +4,6 @@ import FOURTH
 import OTHER
 import START
 import THIRD
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import utils.collections.cartesianProduct
@@ -14,9 +13,9 @@ import utils.collections.permutations
 import utils.collections.subsets
 import java.util.*
 import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
-
 
 abstract class PlanModelTest {
     protected val activity1: Activity = Activity.fromDuration(START, 0.hours, 7.hours)
@@ -30,6 +29,9 @@ abstract class PlanModelTest {
 
     abstract var model: PlanModel
 
+    /* Start of the helper block, here are utilities that are used for encoding and decoding actions or legs defined
+    which help readability in the test printout or by allowing easier execution of add/remove actions.
+     */
     inner class Helper(
         val name: String,
         val executable: PlanModel.() -> Unit,
@@ -37,13 +39,11 @@ abstract class PlanModelTest {
     )
 
     private fun fromString(text: String): Helper {
-
         return when {
             text.contains("L") -> decodeLeg(text)
             text.contains("A") -> decodeActivity(text)
             else -> throw NoSuchElementException("Still no element")
         }
-
     }
 
     private fun decodeLeg(text: String): Helper {
@@ -78,31 +78,71 @@ abstract class PlanModelTest {
         }
     }
 
+    private fun invalidLeg(action: Action): Leg {
+        return Leg.fromDuration(action.startTime, action.duration, action.startLocation, action.endLocation)
+    }
+
+    private fun invalidActivity(action: Action): Activity {
+        return Activity.fromDuration(action.startLocation, action.startTime, action.duration)
+    }
+
+    private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String {
+        return first.joinToString { it.decodeToShorthand() } + "|" +
+                second.joinToString { it.decodeToShorthand() } + "|" +
+                third.joinToString { it.decodeToShorthand() }
+    }
+
+    private fun Pair<Collection<Action>, Collection<Action>>.decode(): String {
+        return first.joinToString { it.decodeToShorthand() } + "|" + second.joinToString { it.decodeToShorthand() }
+    }
+
+    private fun Action.decodeToShorthand(): String {
+        return when {
+            compareTo(activity1) == 0 -> "A1"
+            compareTo(activity2) == 0 -> "A2"
+            compareTo(activity2b) == 0 -> "A2b"
+            compareTo(activity3) == 0 -> "A3"
+            compareTo(leg1) == 0 -> "L1"
+            compareTo(leg1b) == 0 -> "L1b"
+            compareTo(leg2) == 0 -> "L2"
+            compareTo(leg2b) == 0 -> "L2b"
+            else -> "UNKNOWN"
+        }
+    }
+
+    /**
+     * Attempts to insert the activities (A1, A2, A2b and A3) as well as the legs (L1, L1b, L2) into the plan model.
+     * as the actions do not overlap it can be expected that every element will be present in the model. This test
+     * attempts to insert the elements in every possible permutation. Note that since Leg 2b is missing the plan is
+     * not consistent. Therefore, only strict sorting can be tested.
+     */
     @TestFactory
     fun add(): List<DynamicTest> {
-
         val actions =
             listOf("+A1", "+L1", "+L1b", "+A2", "+A2b", "+L2", "+A3").map { fromString(it) }
-
 
         val t = actions.permutations().map { testActions ->
             DynamicTest.dynamicTest(testActions.map { it.name }.toString()) {
                 model.clear()
                 val expected = sortedSetOf<Action>()
+                // Required test as forgetting to reset the model can cause overspill from previous tests.
                 assertContentEquals(model.actions(), expected)
                 testActions.forEach {
-
                     model.apply(it.executable)
                     expected.apply(it.expected)
                     assertTrue(model.actions().isStrictlySorted())
+
                     assertContentEquals(model.actions(), expected)
                 }
-                assertEquals(expected.size, 7)
             }
         }
         return t.toList()
     }
 
+    /**
+     * Attempts to perform adding and later removing the activities A1, A2 and the legs L1, L1b. Generates all
+     * permutations where the insertion action of an element X occurs before the removal of element X.
+     */
     @TestFactory
     fun remove(): List<DynamicTest> {
         val actions =
@@ -125,11 +165,14 @@ abstract class PlanModelTest {
                     assertContentEquals(model.actions(), expected)
                 }
             }
-
         }.toList()
-
     }
 
+    /**
+     * Tests whether the replacements of a collection of activities are producing proper models. Generates two distinct
+     * subsets of A1, A2, A2b & A3 and tests all subsets of replacing and inserting from this original set. In addition,
+     * tests where each subset of leg 1b, 2 and 2b is present from the start.
+     */
     @TestFactory
     fun replaceActivities(): List<DynamicTest> {
         val activities = setOf(activity1, activity2, activity2b, activity3)
@@ -139,7 +182,7 @@ abstract class PlanModelTest {
         return original.cartesianProduct(new, legsets).map { test ->
             DynamicTest.dynamicTest(test.toString()) {
                 model.clear()
-                test.third.forEach {model.add(it)}
+                test.third.forEach { model.add(it) }
                 activities.forEach { model.add(it) }
                 model.replaceActivities(test.first, test.second)
                 val expected = TreeSet<Action>(activities)
@@ -151,19 +194,24 @@ abstract class PlanModelTest {
         }.toList()
     }
 
+    /**
+     * Tests whether the replacements of leg collections is producing a proper model output. Similar to the
+     * [replaceActivities] test, every combination of original / new subsets from the legs is tested with the additional
+     * test for different activities present in the model.
+     */
     @TestFactory
     fun replaceLegs(): List<DynamicTest> {
-        val activities = setOf(activity1, activity2, activity3).subsets()
-        val legsets = setOf(leg1, leg1b, leg2, leg2b)
-        val original = legsets.subsets()
-        val new = legsets.subsets()
-        return original.cartesianProduct(new, activities).map { test ->
-            DynamicTest.dynamicTest(test.toString()) {
+        val activitiesSets = setOf(activity1, activity2, activity3).subsets()
+        val legs = setOf(leg1, leg1b, leg2, leg2b)
+        val original = legs.subsets()
+        val new = legs.subsets()
+        return original.cartesianProduct(new, activitiesSets).map { test ->
+            DynamicTest.dynamicTest(test.decode()) {
                 model.clear()
-                legsets.forEach {model.add(it)}
+                legs.forEach { model.add(it) }
                 test.third.forEach { model.add(it) }
                 model.replaceLegs(test.first, test.second)
-                val expected = TreeSet<Action>(legsets)
+                val expected = TreeSet<Action>(legs)
                 expected.addAll(test.third)
                 expected.removeAll(test.first)
                 expected.addAll(test.second)
@@ -172,5 +220,69 @@ abstract class PlanModelTest {
         }.toList()
     }
 
+    /**
+     * In the default [PlanModel] representation of either [BlockModel] or [ActionModel] an element with overlap to an
+     * existing element should not be inserted in the collection. This test generates all combinations of activities
+     * and legs from A1, A2, A2b and L1, L1b and a fake leg overlapping any of these.
+     */
+    @TestFactory
+    open fun invalidInsertsOfLegDontWork(): List<DynamicTest> {
+        val activitySets = setOf(activity1, activity2, activity2b).subsets()
+        val legSubsets = setOf(leg1, leg1b).subsets()
 
+        return activitySets.cartesianProduct(legSubsets).flatMap { test ->
+            (test.first + test.second).map { badAction ->
+
+                val invalid = invalidLeg(badAction)
+                DynamicTest.dynamicTest(test.decode() + " # " + invalid.decodeToShorthand()) {
+                    model.clear()
+                    test.first.forEach { model.add(it) }
+                    test.second.forEach { model.add(it) }
+                    model.add(invalid)
+                    assertContentEquals(model.actions(), TreeSet(test.first + test.second))
+                }
+            }
+        }
+    }
+
+    /**
+     * Similar to [invalidInsertsOfLegDontWork] this test creates a fake activity with overlap and attempts to insert.
+     */
+    @TestFactory
+    open fun invalidInsertsOfActivitiesDontWork(): List<DynamicTest> {
+        val activitySets = setOf(activity1, activity2, activity2b).subsets()
+        val legSubsets = setOf(leg1, leg1b).subsets()
+
+        return activitySets.cartesianProduct(legSubsets).flatMap { test ->
+            (test.first + test.second).map { badAction ->
+
+                val invalid = invalidActivity(badAction)
+                DynamicTest.dynamicTest(test.decode() + " # " + invalid.decodeToShorthand()) {
+                    model.clear()
+                    test.first.forEach { model.add(it) }
+                    test.second.forEach { model.add(it) }
+                    model.add(invalid)
+                    assertContentEquals(model.actions(), TreeSet(test.first + test.second))
+                }
+            }
+        }
+    }
+
+    /**
+     * Regardless of insertion order the first element of (A1, L1, L1b, A2) should always be A1
+     */
+    @TestFactory
+    fun firstElementShouldBeA1(): List<DynamicTest>  {
+        val actions = listOf("+A1", "+L1", "+L1b", "+A2").map { fromString(it) }
+        return actions.permutations().map {test ->
+            DynamicTest.dynamicTest(test.map { it.name }.toString()) {
+                model.clear()
+                test.forEach { model.apply(it.executable) }
+
+                assertEquals(activity1, model.first())
+                assertEquals(activity1, model.removeFirst())
+                assertEquals(leg1, model.first())
+            }
+        }.toList()
+    }
 }

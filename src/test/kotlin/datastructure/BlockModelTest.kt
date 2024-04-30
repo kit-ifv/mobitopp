@@ -1,46 +1,38 @@
 package datastructure
 
-
+import OTHER
+import START
+import utils.collections.isStrictlySorted
+import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
-class BlockModelTest: PlanModelTest() {
-    override var model: PlanModel = BlockModel()
-    @Test
-    fun view() {
-//        val model =  BlockModel()
-//        val actionModel =  ActionModel(model)
-//        val trips = model.view()
-//        trips[0].overwrite {
-//
-//        }
-//        assertEquals(trips.size, 0)
-//
-//        trips.add(leg1)
-//        assertEquals(trips.size, 1)
-//        assertEquals(actionModel.actions(), setOf(leg1))
+class BlockModelTest : PlanModelTest() {
+    private lateinit var bModel: BlockModel
+    override lateinit var model: PlanModel
+
+    @BeforeTest
+    fun setup() {
+        bModel = BlockModel()
+        model = bModel
     }
+
+
 //
-//    @Test
-//    fun viewOnTripFirst() {
-//        val model =  BlockModel()
-//        val view = model.view()
-//
-//        model.add(leg2)
-//        assertEquals(view.size, 1)
-//        view[0].overwrite {
-//
-//        }
-//        model.add(leg1)
-//        assertEquals(view.size, 2)
-//
-//        model.add(activity1)
-//        model.add(activity2)
-//        model.add(activity3)
-//        view[0].overwrite {
-//
-//        }
-//        assertTrue(view.isStrictlySorted())
-//
-//        assertEquals(view.size, 1)
-//    }
+    @Test
+    fun noInconsistencies() {
+        model.add(activity1)
+        model.add(Leg.fromDuration(activity1.endTime - 1.minutes, duration = 1.hours, START, OTHER))
+        assertContentEquals(model.actions(), setOf(activity1))
+        model.add(activity2)
+        model.add(activity3)
+        // Cannot assert consistency, the locations don't match
+        assertTrue(model.actions().isStrictlySorted())
+
+        model.add(leg1)
+        assertContentEquals(model.actions(), sortedSetOf(activity1, activity2, activity3, leg1))
+    }
 }

@@ -11,11 +11,10 @@ fun interface Event {
     fun happen()
 }
 
-
 /**
  * A solution to prevent already executed actions to cal onBegin / on End
  */
-class ArchivedAction(original: Action): Action by original  {
+class ArchivedAction(original: Action) : Action by original {
     override fun onBegin() {
         println("Cannot call onBegin on arcvhived action")
     }
@@ -23,9 +22,8 @@ class ArchivedAction(original: Action): Action by original  {
     override fun onEnd() {
         println("Cannot call onEnd on archived action")
     }
-
 }
-class CurrentAction(original: Action): Action by original {
+class CurrentAction(original: Action) : Action by original {
     override fun onBegin() {
         println("Cannot call onBegin on started action")
     }
@@ -40,7 +38,6 @@ class ScheduleMaintainer(
     init {
         dispatcher.register(model)
     }
-
 
     private var currentTime: Duration = -Duration.INFINITE
     private val history: MutableList<ArchivedAction> = mutableListOf()
@@ -57,11 +54,9 @@ class ScheduleMaintainer(
             currentTime = it.endTime
             history.add(ArchivedAction(it))
             current = null
-
-        } ?: run  {
+        } ?: run {
             val target = pollFirst()
-            target?.setNewAction()?: { println("No Actions found, do you know what you are doing?") }
-
+            target?.setNewAction() ?: { println("No Actions remaining in the plan") }
         }
     }
 
@@ -72,7 +67,7 @@ class ScheduleMaintainer(
     }
     fun replaceCurrent(action: Action) {
         require(listOfNotNull(action, model.first()).isConsistent())
-        current?.let{
+        current?.let {
             current = CurrentAction(action)
             nextEvent = convertToEndEvent(action)
         }
@@ -87,7 +82,7 @@ class ScheduleMaintainer(
         super.add(activity)
     }
     override fun remove(leg: Leg) {
-        //This is fine, if a leg has been handled it is already removed
+        // This is fine, if a leg has been handled it is already removed
         super.remove(leg)
     }
 
@@ -96,18 +91,16 @@ class ScheduleMaintainer(
     }
 
     override fun replaceActivities(target: SortedSet<Activity>, to: SortedSet<Activity>) {
-        require(to.minOf{it.startTime > currentTime})
+        require(to.minOf { it.startTime > currentTime })
         super.replaceActivities(target, to)
     }
 
     override fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) {
-        require(to.minOf{it.startTime > currentTime})
+        require(to.minOf { it.startTime > currentTime })
         super.replaceLegs(target, to)
     }
 
     override fun pollFirst(): Action? {
         return super.pollFirst()
     }
-
-
 }

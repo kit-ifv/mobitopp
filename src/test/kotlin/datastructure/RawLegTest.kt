@@ -14,6 +14,5 @@ class RawLegTest {
         assertEquals(leg.duration, 2.hours)
         leg.startTime = 1.hours
         assertEquals(leg.duration, 1.hours)
-
     }
 }
