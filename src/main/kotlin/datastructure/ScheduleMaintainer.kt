@@ -4,8 +4,7 @@ import java.util.*
 import kotlin.time.Duration
 
 /**
- * TODO
- * Stub class for Events remove once integrated into the event system of jellorius
+ * TODO Stub class for Events remove once integrated into the event system of jellorius
  */
 fun interface Event {
     fun happen()

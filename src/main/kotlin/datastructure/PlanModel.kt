@@ -19,10 +19,19 @@ interface PlanModel {
     fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
     fun replaceLegs(target: Set<MovingAction>, to: Set<MovingAction>)
 
+    /**
+     * Return the actions present in the model. TODO make sorted Set instead of collection?
+     */
     fun actions(): Collection<Action>
 
+    /**
+     * Return the first [Action] in the model. Or null if none is present
+     */
     fun first(): Action?
 
+    /**
+     * Delete all actions from the model.
+     */
     fun clear()
 }
 
@@ -145,7 +154,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
 
     val activityBlocks = ActivityBlock(sortedSetOf())
 
-    val legBlocks get() = activityBlocks.next
+    private val legBlocks get() = activityBlocks.next
 
     private val actionBlocks = Iterable {
         object : Iterator<ActionBlock<*>> {
