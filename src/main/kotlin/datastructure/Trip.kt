@@ -8,12 +8,12 @@ interface Triip {
     val legs: List<MovingAction>
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
-    fun alternate(lambda: Trip.()-> SortedSet<Leg>)
+    fun alternate(lambda: Trip.() -> SortedSet<Leg>)
 }
 
 
-
 class Trip(internal val legBlock: LegBlock) : Comparable<Trip> {
+    val size get() = legBlock.item.size
     val legs: SortedSet<out MovingAction> get() = legBlock.item
     fun overwrite(lambda: EditableTrip.() -> Unit): Boolean {
         val start = legBlock.previous.lastElementOrNull()
@@ -29,7 +29,7 @@ class Trip(internal val legBlock: LegBlock) : Comparable<Trip> {
         return false
     }
 
-    fun example(lambda: EditableTrip.() -> Unit): Pair<SortedSet<Leg>, SortedSet<Leg>> {
+    fun example(lambda: EditableTrip.() -> Unit): Pair<SortedSet<out MovingAction>, SortedSet<out MovingAction>> {
         val start = legBlock.previous.lastElementOrNull()
         val end = legBlock.next.firstElementOrNull()
         val editableTrip = EditableTrip(start, end, legBlock.item.toList())
@@ -85,7 +85,9 @@ class Trip(internal val legBlock: LegBlock) : Comparable<Trip> {
     }
 }
 
-class LinkedTrip(private val original: Trip, private val dispatcher: Dispatcher): Comparable<LinkedTrip>{
+class LinkedTrip(private val original: Trip, private val dispatcher: Dispatcher) : Comparable<LinkedTrip> {
+    val size get() = original.size
+
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
@@ -98,5 +100,8 @@ class LinkedTrip(private val original: Trip, private val dispatcher: Dispatcher)
     fun matches(legBlock: LegBlock): Boolean {
         return original.matches(legBlock)
     }
-
+    fun overwrite(lambda: Trip.EditableTrip.() -> Unit) {
+        val target = original.example(lambda)
+        dispatcher.replaceLegs(target.first, target.second)
+    }
 }

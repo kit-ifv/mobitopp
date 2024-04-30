@@ -12,12 +12,12 @@ interface PlanModel {
     val dispatcher: Dispatcher
 
     fun removeFirst(): Action?
-    fun add(leg: Leg)
-    fun remove(leg: Leg)
+    fun add(leg: MovingAction)
+    fun remove(leg: MovingAction)
     fun add(activity: Activity)
     fun remove(activity: Activity)
     fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
-    fun replaceLegs(target: Set<Leg>, to: Set<Leg>)
+    fun replaceLegs(target: Set<MovingAction>, to: Set<MovingAction>)
 
     fun actions(): Collection<Action>
 
@@ -57,7 +57,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         replaceActivities(target, to)
     }
 
-    fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) =
+    fun replaceLegs(target: SortedSet<out MovingAction>, to: SortedSet<out MovingAction>) =
         modifyModels { replaceLegs(target, to) }
 
     fun pollFirst(): Action? {
@@ -96,7 +96,7 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         return target
     }
 
-    override fun add(leg: Leg) {
+    override fun add(leg: MovingAction) {
         actions.add(leg)
     }
 
@@ -104,7 +104,7 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         actions.add(activity)
     }
 
-    override fun remove(leg: Leg) {
+    override fun remove(leg: MovingAction) {
         actions.remove(leg)
     }
 
@@ -116,7 +116,7 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         replaceActions(target, to)
     }
 
-    override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
+    override fun replaceLegs(target: Set<MovingAction>, to: Set<MovingAction>) {
         replaceActions(target, to)
     }
 
@@ -175,7 +175,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         return target
     }
 
-    override fun add(leg: Leg) {
+    override fun add(leg: MovingAction) {
         val test = actionBlocks.takeWhile { !it.containsAction(leg) }.firstOrNull { it.accepts(leg) }
         if (test == null) return
         val newBlocks = test.insert(leg)
@@ -195,7 +195,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         test.insert(activity)
     }
 
-    override fun remove(leg: Leg) {
+    override fun remove(leg: MovingAction) {
         val changedBlock = legBlocks?.first { block -> block.contains(leg) }
         changedBlock?.let { legBlock ->
             val b = legBlock.remove(leg)
@@ -220,7 +220,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
         }
     }
 
-    override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
+    override fun replaceLegs(target: Set<MovingAction>, to: Set<MovingAction>) {
         val targetBlock =
             legBlocks?.exactlyOneOrNull { it.bounds(target.toSortedSet()) && it.bounds(to.toSortedSet()) }
         // Either the replacement strategy works, or we have to manually run everything
