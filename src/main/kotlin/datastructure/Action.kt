@@ -93,6 +93,8 @@ sealed interface MovingAction : Action {
     override val endTime: Duration
     override val startLocation: Location
     override val endLocation: Location
+
+    // TODO insert Transport mode here
 }
 
 /**

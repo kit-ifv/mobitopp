@@ -108,7 +108,6 @@ class DispatcherTest {
             val last = originals.last()
             set.add(Leg.fromDuration(first.startTime, first.duration, first.startLocation, FOURTH))
             set.add(Leg.fromDuration(last.startTime, last.duration, FOURTH, last.endLocation))
-            set
         }
 
         assertContentEquals(blocks.actions(), actions.actions())
