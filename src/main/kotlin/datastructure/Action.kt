@@ -29,7 +29,6 @@ sealed interface Action : Comparable<Action> {
     val earliestStartTime: Duration?
     val latestEndTime: Duration?
 
-
     /*Intervals do not form a well defined order, we require a more idiomatic way of representing this fact
 
     maybe use a separate comparator?
@@ -111,7 +110,6 @@ interface Activity : StationaryAction {
     override var earliestStartTime: Duration?
     override var latestEndTime: Duration?
 
-
     /**
      * A default implementation to spawn a leg spanning from one activity to another.
      */
@@ -157,6 +155,13 @@ data class RawActivity(
 
 ) : Activity {
     override val duration get() = endTime - startTime
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is StationaryAction) return false
+        return startTime == other.startTime &&
+                location == other.location &&
+                endTime == other.endTime
+    }
 }
 
 /**
@@ -217,6 +222,14 @@ data class RawLeg(
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is MovingAction) return false
+        return startTime == other.startTime &&
+            startLocation == other.startLocation &&
+            endLocation == other.endLocation &&
+            endTime == other.endTime
+    }
 }
 
 /**

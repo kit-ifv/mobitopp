@@ -4,8 +4,8 @@ import kotlin.time.Duration
 
 interface LinkedAction : Action {
     val original: Action
-    val next: () -> LinkedAction?
-    val previous: () -> LinkedAction?
+    val next: (LinkedAction) -> LinkedAction?
+    val previous: (LinkedAction) -> LinkedAction?
 
     override var startLocation: Location
     override var endLocation: Location
@@ -16,21 +16,22 @@ interface LinkedAction : Action {
 
     fun lowerBound(): Duration {
         return max(
-            previous()?.endTime ?: -Duration.INFINITE,
+            previous(this)?.endTime ?: -Duration.INFINITE,
             original.earliestStartTime ?: -Duration.INFINITE
         )
     }
 
     fun upperBound(): Duration {
-        return min(next()?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
+        return min(next(this)?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
     }
 
 }
 
 
-class LinkedActivity(override val original: Activity,
-                     override val next: () -> LinkedAction?,
-                     override val previous: () -> LinkedAction?
+class LinkedActivity(
+    override val original: Activity,
+    override val next: (LinkedAction) -> LinkedAction?,
+    override val previous: (LinkedAction) -> LinkedAction?
 ) : LinkedAction, StationaryAction {
 
     override val location: Location
@@ -40,8 +41,8 @@ class LinkedActivity(override val original: Activity,
         set(value) {
             if (value != startLocation) {
                 original.location = startLocation
-                next()?.startLocation = value
-                previous()?.endLocation = value
+                next(this)?.startLocation = value
+                previous(this)?.endLocation = value
             }
         }
     override var endLocation: Location
@@ -49,8 +50,8 @@ class LinkedActivity(override val original: Activity,
         set(value) {
             if (value != endLocation) {
                 original.location = startLocation
-                next()?.startLocation = value
-                previous()?.endLocation = value
+                next(this)?.startLocation = value
+                previous(this)?.endLocation = value
             }
         }
     override var startTime: Duration
@@ -77,19 +78,24 @@ class LinkedActivity(override val original: Activity,
         set(value) {
             original.latestEndTime = value
         }
+
+    override fun equals(other: Any?): Boolean {
+        return original == other
+    }
 }
 
-class LinkedLeg(override val original: Leg,
-                override val next: () -> LinkedAction?,
-                override val previous: () -> LinkedAction?
-): LinkedAction, MovingAction {
+class LinkedLeg(
+    override val original: Leg,
+    override val next: (LinkedAction) -> LinkedAction?,
+    override val previous: (LinkedAction) -> LinkedAction?
+) : LinkedAction, MovingAction {
 
     override var startLocation: Location
         get() = original.startLocation
         set(value) {
             if (value != startLocation) {
                 original.startLocation = startLocation
-                previous()?.endLocation = value
+                previous(this)?.endLocation = value
             }
         }
     override var endLocation: Location
@@ -97,7 +103,7 @@ class LinkedLeg(override val original: Leg,
         set(value) {
             if (value != endLocation) {
                 original.endLocation = startLocation
-                next()?.startLocation = value
+                next(this)?.startLocation = value
             }
         }
     override var startTime: Duration
@@ -124,6 +130,10 @@ class LinkedLeg(override val original: Leg,
         set(value) {
             original.latestEndTime = value
         }
+
+    override fun equals(other: Any?): Boolean {
+        return original == other
+    }
 }
 
 

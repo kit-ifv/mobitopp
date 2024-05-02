@@ -24,6 +24,8 @@ interface PlanModel {
      */
     fun actions(): Collection<Action>
 
+
+    fun linkedActions(): Collection<LinkedAction>
     /**
      * Return the first [Action] in the model. Or null if none is present
      */
@@ -77,9 +79,8 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
 }
 
 
-
 class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
-    internal val actions = sortedSetOf<Action>()
+    internal val actions = sortedSetOf<LinkedAction>()
 
     constructor() : this(Dispatcher())
     constructor(other: PlanModel) : this(other.dispatcher)
@@ -89,6 +90,11 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun actions(): Collection<Action> {
+        return actions.toSet()
+    }
+
+    override fun linkedActions(): Collection<LinkedAction> {
+
         return actions.toSet()
     }
 
@@ -108,31 +114,36 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun add(leg: Leg) {
-        actions.add(leg)
+        actions.add(LinkedLeg(leg, { actions.floor(it) }, { actions.ceiling(it) }))
     }
 
     override fun add(activity: Activity) {
-        actions.add(activity)
+        actions.add(LinkedActivity(activity, { actions.floor(it) }, { actions.ceiling(it) }))
     }
 
     override fun remove(leg: Leg) {
-        actions.remove(leg)
+        actions.remove(LinkedLeg(leg, { actions.floor(it) }, { actions.ceiling(it) }))
     }
 
     override fun remove(activity: Activity) {
-        actions.remove(activity)
+        actions.remove(LinkedActivity(activity, { actions.floor(it) }, { actions.ceiling(it) }))
     }
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
-        replaceActions(target, to)
+        replaceActions(
+            target.map { LinkedActivity(it, { actions.floor(it) }, { actions.ceiling(it) }) },
+            to.map { LinkedActivity(it, { actions.floor(it) }, { actions.ceiling(it) }) })
     }
 
     override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
-        replaceActions(target, to)
+        replaceActions(
+            target.map { LinkedLeg(it, { actions.floor(it) }, { actions.ceiling(it) }) },
+            to.map { LinkedLeg(it, { actions.floor(it) }, { actions.ceiling(it) }) })
     }
 
-    private fun replaceActions(target: Collection<Action>, to: Collection<Action>) {
-        actions.removeAll(target.toSet())
+    private fun replaceActions(target: Collection<Action>, to: Collection<LinkedAction>) {
+
+        actions.removeAll(actions.filter { it.original in target }.toSet())
         actions.addAll(to)
     }
 
@@ -249,6 +260,10 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun actions() = actionBlocks.flatMap { it.item }
+    override fun linkedActions(): Collection<LinkedAction> {
+        TODO("Not yet implemented")
+    }
+
     override fun first(): Action {
         return actionBlocks.first { !it.item.isEmpty() }.firstElement()
     }
