@@ -38,6 +38,9 @@ interface PersonData : Identifiable<PersonId> {
 
     val memberships: Map<String, Boolean>
 
+    val plannedActivities: List<ActivityData>
+    fun addActivity(activity: ActivityData)
+
     val isAdult: Boolean
         get() = (age >= ADULT_AGE_GER)
 }
@@ -82,9 +85,19 @@ class EMobilityPersonDataBuilder(
             override val memberships: Map<String, Boolean> = this@EMobilityPersonDataBuilder.memberships
             override val id: ID<PersonData> = registerId(personId)
 
+            override val plannedActivities: List<ActivityData>
+                get() = activities
+
+            private val activities = mutableListOf<ActivityData>()
+
+            override fun addActivity(activity: ActivityData) {
+                activities.add(activity)
+            }
+
             init {
                 this.householdData.addMember(this)
             }
+
         }
     }
 }

@@ -1,6 +1,6 @@
 package modeling.steps
 
-import ConsoleCaptor
+import utils.ConsoleCaptor
 import assertNotContains
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach

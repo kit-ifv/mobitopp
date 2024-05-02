@@ -1,6 +1,6 @@
 package utils.csv
 
-import ConsoleCaptor
+import utils.ConsoleCaptor
 import assertEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

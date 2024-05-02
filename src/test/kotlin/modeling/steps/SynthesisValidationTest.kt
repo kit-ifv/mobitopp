@@ -1,6 +1,6 @@
 package modeling.steps
 
-import ConsoleCaptor
+import utils.ConsoleCaptor
 import assertEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

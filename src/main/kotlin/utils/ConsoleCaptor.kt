@@ -1,3 +1,5 @@
+package utils
+
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 
@@ -15,7 +17,7 @@ class ConsoleCaptor {
 
     fun getText(): String {
         require(recording) {
-            "ConsoleCaptor was already closed."
+            "utils.ConsoleCaptor was already closed."
         }
         recording = false
 
