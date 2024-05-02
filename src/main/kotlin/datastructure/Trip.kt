@@ -51,7 +51,7 @@ class TripBuilder(
  */
 class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatcher?) : Trip, Comparable<LinkTrip> {
 
-    override val legs: List<MovingAction>
+    override val legs: List<Leg>
         get() = legBlock.item.toList()
     override val previousAction: StationaryAction?
         get() = legBlock.previous.lastElementOrNull()

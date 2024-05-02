@@ -21,7 +21,7 @@ abstract class ActionBlock<T : Action> : Comparable<ActionBlock<*>> {
      * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(leg: MovingAction): Pair<LegBlock, ActivityBlock>?
+    abstract fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>?
 
     abstract fun accepts(action: StationaryAction): Boolean
     abstract fun accepts(action: MovingAction): Boolean
@@ -87,7 +87,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
         item.removeAll(delete)
         item.addAll(target)
     }
-    override fun insert(leg: MovingAction): Pair<LegBlock, ActivityBlock>? {
+    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
         val a = item.find { it.startTime >= leg.startTime }
         val targets = if (a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
 
@@ -184,9 +184,9 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
     }
 }
 
-class LegBlock(override val item: NavigableSet<MovingAction>) :
-    ActionBlock<MovingAction>(), Iterable<LegBlock> {
-    constructor(leg: MovingAction) : this(sortedSetOf(leg))
+class LegBlock(override val item: NavigableSet<Leg>) :
+    ActionBlock<Leg>(), Iterable<LegBlock> {
+    constructor(leg: Leg) : this(sortedSetOf(leg))
 
     override lateinit var next: ActivityBlock
     override lateinit var previous: ActivityBlock
@@ -265,7 +265,7 @@ class LegBlock(override val item: NavigableSet<MovingAction>) :
         return item.joinToString { it.toString() }
     }
 
-    override fun insert(leg: MovingAction): Pair<LegBlock, ActivityBlock>? {
+    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
         item.add(leg)
         return null
     }
@@ -289,7 +289,7 @@ class LegBlock(override val item: NavigableSet<MovingAction>) :
         next.previous = null
     }
 
-    internal fun replaceAll(target: Collection<MovingAction>, elements: Collection<MovingAction>) {
+    internal fun replaceAll(target: Collection<Leg>, elements: Collection<Leg>) {
         require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
 
         item.removeAll(target.toSet())
