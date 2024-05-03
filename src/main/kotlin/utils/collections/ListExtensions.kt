@@ -23,7 +23,7 @@ fun <T : Comparable<T>> MutableList<T>.addByOrder(element: T): Boolean {
     return false
 }
 fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
-    val target = zipWithNext { a, b-> comparator.compare(a, b) <= 0 }
+    val target = zipWithNext { a, b -> comparator.compare(a, b) <= 0 }
     return target.all { it }
 }
 

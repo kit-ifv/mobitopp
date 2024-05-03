@@ -69,7 +69,6 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     }
 
     abstract fun clear()
-
 }
 
 class ActivityBlock(
@@ -79,7 +78,7 @@ class ActivityBlock(
 ) :
     ActionBlock<LinkedActivity>(), Iterable<ActivityBlock> {
 
-        override val item: NavigableSet<LinkedActivity> = sortedSetOf()
+    override val item: NavigableSet<LinkedActivity> = sortedSetOf()
     init {
 
         item.addAll(start.map { LinkedActivity(it.original, ::lower, ::higher) })
@@ -95,7 +94,6 @@ class ActivityBlock(
         item.clear()
         unlink()
     }
-
 
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
         val a = LinkedActivity(
@@ -226,10 +224,9 @@ class ActivityBlock(
 class LegBlock(start: NavigableSet<LinkedLeg>) :
     ActionBlock<LinkedLeg>(), Iterable<LegBlock> {
     override val item: NavigableSet<LinkedLeg> = sortedSetOf()
-        init {
-            item.addAll(start.map{ LinkedLeg(it.original, ::lower, ::higher) })
-
-        }
+    init {
+        item.addAll(start.map { LinkedLeg(it.original, ::lower, ::higher) })
+    }
     constructor() : this(sortedSetOf())
     constructor(leg: LinkedLeg) : this(sortedSetOf(leg))
 

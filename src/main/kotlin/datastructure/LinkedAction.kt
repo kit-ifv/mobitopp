@@ -2,6 +2,14 @@ package datastructure
 
 import kotlin.time.Duration
 
+const val LINK_PREFIX = "[Linked]"
+
+fun LinkedAction.startTimeMessage(value: Duration) =
+    "Cannot change startTime to $value, not in bounds [lowerBound=${lowerBound()}, endTime=$endTime"
+
+fun LinkedAction.endTimeMessage(value: Duration) =
+    "Cannot change endTime to $value, not in bounds [startTime=$startTime, upperBound=${upperBound()}"
+
 interface LinkedAction : Action {
     val original: Action
     val next: (LinkedAction) -> LinkedAction?
@@ -21,11 +29,13 @@ interface LinkedAction : Action {
             original.earliestStartTime ?: -Duration.INFINITE
         )
     }
+
     fun shift(duration: Duration)
     fun upperBound(): Duration {
         return min(next(this)?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
     }
 }
+
 class LinkedActivity(
     override val original: Activity,
     override val previous: (LinkedAction) -> LinkedAction?,
@@ -35,7 +45,7 @@ class LinkedActivity(
     override var location: Location
         get() = original.location
         set(value) {
-            if(value != location) {
+            if (value != location) {
                 original.location = value
                 next(this)?.startLocation = value
                 previous(this)?.endLocation = value
@@ -65,6 +75,7 @@ class LinkedActivity(
             if (value in lowerBound()..endTime) {
                 original.startTime = value
             }
+            error(startTimeMessage(value))
         }
     override var endTime: Duration
         get() = original.endTime
@@ -72,7 +83,7 @@ class LinkedActivity(
             if (value in startTime..upperBound()) {
                 original.endTime = value
             } else {
-                error("NOPE NOT GOOD")
+                error(endTimeMessage(value))
             }
         }
     override var earliestStartTime: Duration?
@@ -100,7 +111,7 @@ class LinkedActivity(
     }
 
     override fun toString(): String {
-        return "[Linked] $original"
+        return LINK_PREFIX + original
     }
 }
 
@@ -132,7 +143,7 @@ class LinkedLeg(
             if (value in lowerBound()..endTime) {
                 original.startTime = value
             } else {
-                error("NOPE, IT NOT YOU BAD BOI")
+                error(startTimeMessage(value))
             }
         }
     override var endTime: Duration
@@ -141,7 +152,8 @@ class LinkedLeg(
             if (value in startTime..upperBound()) {
                 original.endTime = value
             } else {
-                error("NOPE NOT GOOD")
+
+                error(endTimeMessage(value))
             }
         }
     override var earliestStartTime: Duration?
@@ -169,9 +181,10 @@ class LinkedLeg(
     }
 
     override fun toString(): String {
-        return "[Linked] $original"
+        return LINK_PREFIX + original
     }
 }
+
 fun max(first: Duration, second: Duration): Duration {
     return if (first >= second) first else second
 }

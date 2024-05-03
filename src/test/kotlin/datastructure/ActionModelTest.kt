@@ -89,7 +89,7 @@ class ActionModelTest : PlanModelTest() {
                 activity(6.5, 1.0),
                 activity(7.5, 1.0),
                 activity(8.5, 1.0),
-                activity(10,1)
+                activity(10, 1)
             )
         )
     }
@@ -116,6 +116,7 @@ class ActionModelTest : PlanModelTest() {
             )
         )
     }
+
     @Test
     fun forcesSqueezeWithBlockage() {
         model.clear()
@@ -137,7 +138,7 @@ class ActionModelTest : PlanModelTest() {
                 activity(6.5, 1.0, earliestStartTime = 4.hours, latestEndTime = 7.hours),
                 activity(7.5, 1.0),
                 activity(8.5, 1.0),
-                activity(10,1)
+                activity(10, 1)
             )
         )
     }
@@ -161,7 +162,7 @@ class ActionModelTest : PlanModelTest() {
                 activity(6, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours),
                 activity(8, 1),
                 activity(10, 1),
-                activity(12,1)
+                activity(12, 1)
             )
         )
     }

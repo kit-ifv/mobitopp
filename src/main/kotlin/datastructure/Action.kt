@@ -159,8 +159,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-                location == other.location &&
-                endTime == other.endTime
+            location == other.location &&
+            endTime == other.endTime
     }
 }
 
