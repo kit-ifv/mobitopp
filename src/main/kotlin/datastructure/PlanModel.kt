@@ -3,6 +3,7 @@ package datastructure
 import utils.collections.addByOrder
 import utils.collections.exactlyOneOrNull
 import java.util.*
+import kotlin.time.Duration
 
 /**
  * A plan model should maintain the state of the Action plan
@@ -19,13 +20,10 @@ interface PlanModel {
     fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
     fun replaceLegs(target: Set<Leg>, to: Set<Leg>)
 
-    /**
-     * Return the actions present in the model. TODO make sorted Set instead of collection?
-     */
     fun actions(): Collection<Action>
 
-
     fun linkedActions(): Collection<LinkedAction>
+
     /**
      * Return the first [Action] in the model. Or null if none is present
      */
@@ -35,6 +33,52 @@ interface PlanModel {
      * Delete all actions from the model.
      */
     fun clear()
+}
+
+fun PlanModel.squeeze(action: Action, force: Boolean = false) {
+    val afterAction = linkedActions().dropWhile { it < action }
+    var counter = action.endTime
+    val requiredShift = afterAction.map {
+        val offset = counter - it.startTime
+        counter += it.duration
+        offset
+    }
+    val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
+    val valid = targets.all { (action, shift) ->
+        (action.latestEndTime ?: Duration.INFINITE) >= action.endTime + shift &&
+            (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
+    }
+    if (valid || force) {
+        targets.reversed().forEach { (action, shift) ->
+            action.shift(shift)
+        }
+    } else {
+        error(
+            "Some actions in the plan cannot support the requested squeeze ${
+                targets.filter { (action, shift) ->
+                    (action.latestEndTime ?: Duration.INFINITE) < action.endTime + shift ||
+                        (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
+                }.map {(action, dur) ->
+                    "${action.original} necessaryShift=$dur"
+                }
+            } \nrun with force=true IF and only IF you know what you are doing."
+        )
+    }
+}
+
+fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
+    val targets = linkedActions().dropWhile { it.endTime <= from }
+    if (targets.all {
+            it.startTime + block >= (it.earliestStartTime ?: -Duration.INFINITE) &&
+                it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
+        } || force
+    ) {
+        targets.forEach {
+            it.shift(block)
+        }
+    } else {
+        error("The schedule does not support the shift requested.")
+    }
 }
 
 interface PlanView {
@@ -78,7 +122,6 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
     }
 }
 
-
 class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     internal val actions = sortedSetOf<LinkedAction>()
 
@@ -94,7 +137,6 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun linkedActions(): Collection<LinkedAction> {
-
         return actions.toSet()
     }
 
@@ -114,35 +156,36 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun add(leg: Leg) {
-        actions.add(LinkedLeg(leg, { actions.floor(it) }, { actions.ceiling(it) }))
+        actions.add(LinkedLeg(leg, { actions.lower(it) }, { actions.higher(it) }))
     }
 
     override fun add(activity: Activity) {
-        actions.add(LinkedActivity(activity, { actions.floor(it) }, { actions.ceiling(it) }))
+        actions.add(LinkedActivity(activity, { actions.lower(it) }, { actions.higher(it) }))
     }
 
     override fun remove(leg: Leg) {
-        actions.remove(LinkedLeg(leg, { actions.floor(it) }, { actions.ceiling(it) }))
+        actions.remove(LinkedLeg(leg, { actions.lower(it) }, { actions.higher(it) }))
     }
 
     override fun remove(activity: Activity) {
-        actions.remove(LinkedActivity(activity, { actions.floor(it) }, { actions.ceiling(it) }))
+        actions.remove(LinkedActivity(activity, { actions.lower(it) }, { actions.higher(it) }))
     }
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
         replaceActions(
-            target.map { LinkedActivity(it, { actions.floor(it) }, { actions.ceiling(it) }) },
-            to.map { LinkedActivity(it, { actions.floor(it) }, { actions.ceiling(it) }) })
+            target.map { LinkedActivity(it, { actions.lower(it) }, { actions.higher(it) }) },
+            to.map { LinkedActivity(it, { actions.lower(it) }, { actions.higher(it) }) }
+        )
     }
 
     override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
         replaceActions(
-            target.map { LinkedLeg(it, { actions.floor(it) }, { actions.ceiling(it) }) },
-            to.map { LinkedLeg(it, { actions.floor(it) }, { actions.ceiling(it) }) })
+            target.map { LinkedLeg(it, { actions.lower(it) }, { actions.higher(it) }) },
+            to.map { LinkedLeg(it, { actions.lower(it) }, { actions.higher(it) }) }
+        )
     }
 
     private fun replaceActions(target: Collection<Action>, to: Collection<LinkedAction>) {
-
         actions.removeAll(actions.filter { it.original in target }.toSet())
         actions.addAll(to)
     }
@@ -222,7 +265,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun remove(leg: Leg) {
-        val changedBlock = legBlocks?.first { block -> block.contains(leg) }
+        val changedBlock = legBlocks?.first { block -> block.containsAction(leg) }
         changedBlock?.let { legBlock ->
             val b = legBlock.remove(leg)
             if (b) {
@@ -236,7 +279,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun remove(activity: Activity) {
-        activityBlocks.first { it.contains(activity) }.remove(activity)
+        activityBlocks.first { it.containsAction(activity) }.remove(activity)
     }
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
@@ -258,10 +301,10 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
             to.forEach { add(it) }
         }
     }
+    override fun actions(): Collection<Action> = actionBlocks.flatMap { it.item }
 
-    override fun actions() = actionBlocks.flatMap { it.item }
     override fun linkedActions(): Collection<LinkedAction> {
-        TODO("Not yet implemented")
+        return actionBlocks.flatMap { it.item }
     }
 
     override fun first(): Action {

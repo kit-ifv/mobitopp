@@ -11,6 +11,7 @@ interface LinkedAction : Action {
     override var endLocation: Location
     override var startTime: Duration
     override var endTime: Duration
+
     override var earliestStartTime: Duration?
     override var latestEndTime: Duration?
 
@@ -20,27 +21,31 @@ interface LinkedAction : Action {
             original.earliestStartTime ?: -Duration.INFINITE
         )
     }
-
+    fun shift(duration: Duration)
     fun upperBound(): Duration {
         return min(next(this)?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
     }
-
 }
-
-
 class LinkedActivity(
     override val original: Activity,
+    override val previous: (LinkedAction) -> LinkedAction?,
     override val next: (LinkedAction) -> LinkedAction?,
-    override val previous: (LinkedAction) -> LinkedAction?
-) : LinkedAction, StationaryAction {
+) : LinkedAction, Activity {
 
-    override val location: Location
+    override var location: Location
         get() = original.location
+        set(value) {
+            if(value != location) {
+                original.location = value
+                next(this)?.startLocation = value
+                previous(this)?.endLocation = value
+            }
+        }
     override var startLocation: Location
         get() = original.location
         set(value) {
             if (value != startLocation) {
-                original.location = startLocation
+                original.location = value
                 next(this)?.startLocation = value
                 previous(this)?.endLocation = value
             }
@@ -49,7 +54,7 @@ class LinkedActivity(
         get() = original.location
         set(value) {
             if (value != endLocation) {
-                original.location = startLocation
+                original.location = value
                 next(this)?.startLocation = value
                 previous(this)?.endLocation = value
             }
@@ -57,15 +62,17 @@ class LinkedActivity(
     override var startTime: Duration
         get() = original.startTime
         set(value) {
-            if (lowerBound() <= value) {
+            if (value in lowerBound()..endTime) {
                 original.startTime = value
             }
         }
     override var endTime: Duration
         get() = original.endTime
         set(value) {
-            if (upperBound() >= value) {
+            if (value in startTime..upperBound()) {
                 original.endTime = value
+            } else {
+                error("NOPE NOT GOOD")
             }
         }
     override var earliestStartTime: Duration?
@@ -79,22 +86,35 @@ class LinkedActivity(
             original.latestEndTime = value
         }
 
+    override fun shift(duration: Duration) {
+        original.startTime += duration
+        original.endTime += duration
+    }
+
     override fun equals(other: Any?): Boolean {
         return original == other
+    }
+
+    override fun hashCode(): Int {
+        return original.hashCode()
+    }
+
+    override fun toString(): String {
+        return "[Linked] $original"
     }
 }
 
 class LinkedLeg(
     override val original: Leg,
+    override val previous: (LinkedAction) -> LinkedAction?,
     override val next: (LinkedAction) -> LinkedAction?,
-    override val previous: (LinkedAction) -> LinkedAction?
-) : LinkedAction, MovingAction {
+) : LinkedAction, Leg {
 
     override var startLocation: Location
         get() = original.startLocation
         set(value) {
             if (value != startLocation) {
-                original.startLocation = startLocation
+                original.startLocation = value
                 previous(this)?.endLocation = value
             }
         }
@@ -102,22 +122,26 @@ class LinkedLeg(
         get() = original.endLocation
         set(value) {
             if (value != endLocation) {
-                original.endLocation = startLocation
+                original.endLocation = value
                 next(this)?.startLocation = value
             }
         }
     override var startTime: Duration
         get() = original.startTime
         set(value) {
-            if (lowerBound() <= value) {
+            if (value in lowerBound()..endTime) {
                 original.startTime = value
+            } else {
+                error("NOPE, IT NOT YOU BAD BOI")
             }
         }
     override var endTime: Duration
         get() = original.endTime
         set(value) {
-            if (upperBound() >= value) {
+            if (value in startTime..upperBound()) {
                 original.endTime = value
+            } else {
+                error("NOPE NOT GOOD")
             }
         }
     override var earliestStartTime: Duration?
@@ -131,12 +155,23 @@ class LinkedLeg(
             original.latestEndTime = value
         }
 
+    override fun shift(duration: Duration) {
+        original.startTime += duration
+        original.endTime += duration
+    }
+
     override fun equals(other: Any?): Boolean {
         return original == other
     }
+
+    override fun hashCode(): Int {
+        return original.hashCode()
+    }
+
+    override fun toString(): String {
+        return "[Linked] $original"
+    }
 }
-
-
 fun max(first: Duration, second: Duration): Duration {
     return if (first >= second) first else second
 }

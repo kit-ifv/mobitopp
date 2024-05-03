@@ -112,4 +112,49 @@ class DispatcherTest {
 
         assertContentEquals(blocks.actions(), actions.actions())
     }
+
+    /**
+     * Since shifting and squeezing operations modify the original element directly the views themselves should
+     * automatically receive updates, even when shift/squeeze is called on a different model directly.
+     */
+    @Test
+    fun squeezeAdaptsOtherView() {
+        val dispatcher = Dispatcher()
+        val actions = ActionModel(dispatcher)
+        val blocks = BlockModel(dispatcher)
+        val actionView = actions.view()
+        val activities = activityGenerator.take(6).toList()
+        activities.forEach { actionView.add(it) }
+
+        assertContentEquals(actions.actions(), activities)
+        assertContentEquals(blocks.actions(), activities)
+        actions.shift(0.hours, 1.hours)
+        assertContentEquals(blocks.actions(), actions.actions())
+        assertContentEquals(blocks.linkedActions(), actions.linkedActions())
+    }
+
+    /**
+     * The links of each of the models should generate the correct references to previous / next
+     */
+    @Test
+    fun properLinking() {
+        val dispatcher = Dispatcher()
+        val actions = ActionModel(dispatcher)
+        val blocks = BlockModel(dispatcher)
+        val actionView = actions.view()
+        val activities = activityGenerator.take(6)
+        val legs = legGenerator.take(12)
+        activities.forEach { actionView.add(it) }
+        legs.forEach { actionView.add(it) }
+        val t = blocks.linkedActions().drop(3).first()
+        t.previous(t)
+        blocks.linkedActions().forEach {
+            it.previous(it)
+        }
+        actions.linkedActions().zip(blocks.linkedActions()).forEach { (a, b) ->
+            assertEquals(a.previous(a), b.previous(b))
+            assertEquals(a.next(a), b.next(b))
+            assertEquals(a, b)
+        }
+    }
 }

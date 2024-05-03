@@ -23,7 +23,7 @@ fun <T : Comparable<T>> MutableList<T>.addByOrder(element: T): Boolean {
     return false
 }
 fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
-    val target = zipWithNext { a: T, b: T -> comparator.compare(a, b) <= 0 }
+    val target = zipWithNext { a, b-> comparator.compare(a, b) <= 0 }
     return target.all { it }
 }
 
@@ -45,4 +45,13 @@ fun <T : Comparable<T>> Iterable<T>.isStrictlySorted(): Boolean {
 fun <T> Iterable<T>.exactlyOneOrNull(predicate: (T) -> Boolean): T? {
     val target = filter(predicate)
     return if (target.size == 1) target.first() else null
+}
+
+fun <T> List<T>.cumulativeSum(plusOperator: (T, T) -> T): List<T> {
+    if (isEmpty()) return emptyList()
+    var first = first()
+    return listOf(first) + drop(1).map {
+        first = plusOperator(first, it)
+        first
+    }
 }

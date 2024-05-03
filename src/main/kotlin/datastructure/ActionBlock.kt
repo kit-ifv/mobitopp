@@ -6,7 +6,7 @@ import java.util.*
  * An [ActionBlock] contains a navigable set of items of type [T]. Unlike the specific implementations the action block
  * does not know the type of the [previous] and [next] block.
  */
-abstract class ActionBlock<T : Action> : Comparable<ActionBlock<*>> {
+abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     internal abstract val item: NavigableSet<T>
     abstract val next: ActionBlock<*>?
     abstract val previous: ActionBlock<*>?
@@ -59,15 +59,33 @@ abstract class ActionBlock<T : Action> : Comparable<ActionBlock<*>> {
     fun containsAction(action: Action): Boolean {
         return item.any { it.compareTo(action) == 0 }
     }
+
+    fun lower(other: LinkedAction): LinkedAction? {
+        return item.lower(item.find { it == other }) ?: previous?.lastElementOrNull()
+    }
+
+    fun higher(other: LinkedAction): LinkedAction? {
+        return item.higher(item.find { it == other }) ?: next?.firstElementOrNull()
+    }
+
     abstract fun clear()
+
 }
 
-class ActivityBlock(override val item: NavigableSet<Activity>) :
-    ActionBlock<Activity>(), Iterable<ActivityBlock> {
-    constructor(activity: Activity) : this(sortedSetOf(activity),)
-
-    override var next: LegBlock? = null
+class ActivityBlock(
+    start: NavigableSet<LinkedActivity>,
+    override var next: LegBlock? = null,
     override var previous: LegBlock? = null
+) :
+    ActionBlock<LinkedActivity>(), Iterable<ActivityBlock> {
+
+        override val item: NavigableSet<LinkedActivity> = sortedSetOf()
+    init {
+
+        item.addAll(start.map { LinkedActivity(it.original, ::lower, ::higher) })
+    }
+    constructor() : this(sortedSetOf())
+    constructor(activity: LinkedActivity) : this(sortedSetOf(activity))
 
     override fun toString(): String {
         return item.joinToString { it.toString() }
@@ -78,20 +96,41 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
         unlink()
     }
 
+
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
-        item.add(activity)
+        val a = LinkedActivity(
+            activity,
+            ::lower,
+            ::higher
+        )
+        item.add(a)
 
         return null
     }
+
     fun replaceAll(delete: Set<Activity>, target: SortedSet<Activity>) {
-        item.removeAll(delete)
-        item.addAll(target)
+        item.removeAll(item.filter { it.original in delete }.toSet())
+        item.addAll(
+            target.map {
+                LinkedActivity(
+                    it,
+                    ::lower,
+                    ::higher
+                )
+            }
+        )
     }
+
     override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
         val a = item.find { it.startTime >= leg.startTime }
-        val targets = if (a == null) sortedSetOf<Activity>() else TreeSet(item.tailSet(a, true))
-
-        val newLegBlock = LegBlock(leg)
+        val targets = if (a == null) sortedSetOf<LinkedActivity>() else TreeSet(item.tailSet(a, true))
+        val newLegBlock = LegBlock()
+        val leeeg = LinkedLeg(
+            leg,
+            newLegBlock::lower,
+            newLegBlock::higher
+        )
+        newLegBlock.insert(leeeg)
         val newActivityBlock = ActivityBlock(targets)
 
         val successor = next
@@ -129,7 +168,7 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
     }
 
     fun remove(activity: Activity): Boolean {
-        item.remove(activity)
+        item.remove(item.find { it.original == activity })
         if (item.isEmpty() && previous != null && next != null) {
             unlink()
             return true
@@ -184,9 +223,15 @@ class ActivityBlock(override val item: NavigableSet<Activity>) :
     }
 }
 
-class LegBlock(override val item: NavigableSet<Leg>) :
-    ActionBlock<Leg>(), Iterable<LegBlock> {
-    constructor(leg: Leg) : this(sortedSetOf(leg))
+class LegBlock(start: NavigableSet<LinkedLeg>) :
+    ActionBlock<LinkedLeg>(), Iterable<LegBlock> {
+    override val item: NavigableSet<LinkedLeg> = sortedSetOf()
+        init {
+            item.addAll(start.map{ LinkedLeg(it.original, ::lower, ::higher) })
+
+        }
+    constructor() : this(sortedSetOf())
+    constructor(leg: LinkedLeg) : this(sortedSetOf(leg))
 
     override lateinit var next: ActivityBlock
     override lateinit var previous: ActivityBlock
@@ -238,7 +283,13 @@ class LegBlock(override val item: NavigableSet<Leg>) :
         val targets = TreeSet(item.tailSet(l, true))
 
         val newLegBlock = LegBlock(targets)
-        val newActivityBlock = ActivityBlock(activity)
+        val newActivityBlock = ActivityBlock()
+        val linkA = LinkedActivity(
+            activity,
+            newActivityBlock::lower,
+            newActivityBlock::higher
+        )
+        newActivityBlock.insert(linkA)
 
         val successor = next
 
@@ -266,7 +317,13 @@ class LegBlock(override val item: NavigableSet<Leg>) :
     }
 
     override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
-        item.add(leg)
+        item.add(
+            LinkedLeg(
+                leg,
+                ::lower,
+                ::higher
+            )
+        )
         return null
     }
 
@@ -292,8 +349,16 @@ class LegBlock(override val item: NavigableSet<Leg>) :
     internal fun replaceAll(target: Collection<Leg>, elements: Collection<Leg>) {
         require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
 
-        item.removeAll(target.toSet())
-        item.addAll(elements)
+        item.removeAll(item.filter { it.original in target }.toSet())
+        item.addAll(
+            elements.map {
+                LinkedLeg(
+                    it,
+                    ::lower,
+                    ::higher
+                )
+            }
+        )
     }
 
     fun remove(element: MovingAction): Boolean {
