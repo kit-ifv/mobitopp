@@ -118,23 +118,15 @@ open class RepositoryBuilderTest : RepositoryTest<TestEntity, TestId>() {
     open fun build() = assertStateException("prepared") { repoBuilder.build() }
 
     @Test
-    open fun reduce() = assertStateException("prepared") { repoBuilder.reduce("reduce1") { e -> e.rowIndex % 2 == 0 } }
+    open fun filter() = assertStateException("prepared") { repoBuilder.filter("reduce1") { e -> e.rowIndex % 2 == 0 } }
 
     @Test
     open fun update() =
         assertStateException("prepared") { repoBuilder.update("update1") { e -> e.also { e.int = e.string.length } } }
 
     @Test
-    open fun prepare() {
-        repoBuilder.prepare(builderResource())
-        assertEquals(RepositoryState.PREPARING, repoBuilder.state)
-        repoBuilder.build()
-        assertContentEquals(expectedElements(), repoBuilder.elements.toList())
-    }
-
-    @Test
-    open fun mergeBuilders() {
-        repoBuilder.mergeBuilders(builderResource())
+    open fun addBuilders() {
+        repoBuilder.addBuilders(builderResource())
         assertEquals(RepositoryState.PREPARING, repoBuilder.state)
         repoBuilder.build()
         assertContentEquals(expectedElements(), repoBuilder.elements.toList())
@@ -146,7 +138,7 @@ open class PreparedRepositoryTest : RepositoryBuilderTest() {
     private val source = "PreparedRepositoryTest#createRepo"
 
     override fun createRepo(): RepositoryBuilder<TestBuilder, TestEntity, TestId> {
-        return super.createRepo().also { repoBuilder.prepare(builderResource()) }
+        return super.createRepo().also { repoBuilder.addBuilders(builderResource()) }
     }
     override fun expectedName() = name
     override fun expectedBaseSource() = source
@@ -186,8 +178,8 @@ open class PreparedRepositoryTest : RepositoryBuilderTest() {
     )
 
     @Test
-    override fun reduce() {
-        repoBuilder.reduce("reduce1") { e -> e.rowIndex % 2 == 0 }
+    override fun filter() {
+        repoBuilder.filter("reduce1") { e -> e.rowIndex % 2 == 0 }
         assertEquals(RepositoryState.PREPARING, repoBuilder.state)
 
         repoBuilder.build()
@@ -220,12 +212,8 @@ open class PreparedRepositoryTest : RepositoryBuilderTest() {
         assertEquals("Initialized RepositoryBuilder[$name] ($source)", repoBuilder.toString())
 
     @Test
-    override fun prepare() =
-        assertStateException("started", already = true) { repoBuilder.prepare(builderResource()) }
-
-    @Test
-    override fun mergeBuilders() {
-        repoBuilder.mergeBuilders(
+    override fun addBuilders() {
+        repoBuilder.addBuilders(
             builderResource().elements.map {
                 it.rowIndex += expectedSize()
                 it
@@ -253,7 +241,7 @@ open class FinishedBuilderRepositoryTest : RepositoryBuilderTest() {
 
     override fun createRepo(): RepositoryBuilder<TestBuilder, TestEntity, TestId> {
         return super.createRepo().also {
-            it.prepare(builderResource())
+            it.addBuilders(builderResource())
             it.build()
         }
     }
@@ -282,18 +270,13 @@ open class FinishedBuilderRepositoryTest : RepositoryBuilderTest() {
     }
 
     @Test
-    override fun reduce() = assertStateException(already = true) {
-        repoBuilder.reduce("invalidUpdate") { _ -> true }
+    override fun filter() = assertStateException(already = true) {
+        repoBuilder.filter("invalidUpdate") { _ -> true }
     }
 
     @Test
     override fun build() = assertStateException(already = true) {
         repoBuilder.build()
-    }
-
-    @Test
-    override fun prepare() = assertStateException(already = true) {
-        repoBuilder.prepare(builderResource())
     }
 
     @Test
@@ -310,7 +293,7 @@ open class FinishedBuilderRepositoryTest : RepositoryBuilderTest() {
     override fun isMergeWithEmpty() = false
 
     @Test
-    override fun mergeBuilders() = assertStateException(already = true) {
-        repoBuilder.mergeBuilders(builderResource())
+    override fun addBuilders() = assertStateException(already = true) {
+        repoBuilder.addBuilders(builderResource())
     }
 }

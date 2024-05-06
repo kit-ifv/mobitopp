@@ -23,6 +23,7 @@ const val ADULT_AGE_GER = 18
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
+@Suppress("ComplexInterface")
 interface PersonData : Identifiable<PersonId> {
     // These values can reasonably be expected for any Person to be present in the simulation
     val personId: Long
@@ -97,7 +98,6 @@ class EMobilityPersonDataBuilder(
             init {
                 this.householdData.addMember(this)
             }
-
         }
     }
 }

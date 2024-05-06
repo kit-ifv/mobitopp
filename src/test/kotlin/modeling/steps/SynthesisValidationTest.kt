@@ -1,10 +1,10 @@
 package modeling.steps
 
-import utils.ConsoleCaptor
 import assertEmpty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import utils.ConsoleCaptor
 import utils.csv.CsvParser
 import utils.csv.STR_COL
 import utils.csv.TestBuilder
@@ -27,8 +27,8 @@ class SynthesisValidationTest {
     private lateinit var csvResource: CsvResource<TestBuilder>
     private lateinit var finalCsvResource: CsvResource<TestEntity>
 
-    private lateinit var prepareStep: PrepareResourceStep<TestBuilder, TestEntity, TestId>
-    private lateinit var prepareCsvStep: PrepareCsvStep<TestBuilder, TestEntity, TestId>
+    private lateinit var prepareStep: AddResourceStep<TestBuilder, TestEntity, TestId>
+    private lateinit var prepareCsvStep: AddCsvStep<TestBuilder, TestEntity, TestId>
 
     private lateinit var updateStep: UpdateStep<TestBuilder, TestEntity, TestId>
     private lateinit var filterStep: FilterStep<TestBuilder, TestEntity, TestId>
@@ -65,8 +65,8 @@ class SynthesisValidationTest {
             }
         )
 
-        prepareStep = PrepareResourceStep("prepare sequence", builderResource, repository)
-        prepareCsvStep = PrepareCsvStep("prepare csv", csvResource, repository)
+        prepareStep = AddResourceStep("prepare sequence", builderResource, repository)
+        prepareCsvStep = AddCsvStep("prepare csv", csvResource, repository)
         updateStep = UpdateStep("map 'int' to length of 'str'", repository) {
                 e ->
             e.also { e.int = e.string.length }

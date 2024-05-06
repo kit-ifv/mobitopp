@@ -1,17 +1,8 @@
 
 import domain.data.EconomicStatus
-import domain.data.HouseholdId
 import domain.enums.Bbsr17
-import modeling.steps.Context
-import modeling.steps.CsvResource
-import modeling.steps.LegacyContext
-import modeling.steps.PrepareCsvStep
-import modeling.steps.RepositoryBuilder
-import modeling.steps.synthesis
-import units.Area
-import units.AreaUnit
-import units.Currency
-import units.CurrencyUnit
+import modeling.steps.Run
+import usecases.LegacyContext
 import usecases.assignCarUsers
 import usecases.finishActivities
 import usecases.legacyData.finishPrivateCars
@@ -20,63 +11,55 @@ import usecases.legacyData.loadZones
 import usecases.legacyData.preparePrivateCars
 import usecases.loadPersons
 import usecases.prepareActivities
-import utils.Builder
 import utils.ErrorHandling
-import utils.ID
-import utils.Identifiable
-import utils.csv.CsvParser
-import utils.csv.SEMICOLON
-import utils.csv.currency
-import utils.csv.id
-import utils.csv.int
-import utils.drawId
 import java.io.File
 
 fun main() {
-
-    val context = LegacyContext(
-        scenarioName = "testSteps",
-        areaTypeCodes = Bbsr17,
-        demandFolder = File("\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_karlsruhe_long-term-module\\karlsruhe"
-            //"\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_rastatt_long-term-module\\rastatt"
-            //"D:\\gitlab\\logiktram\\output\\rastatt"
-        ),
-        economicalStatusCodes = EconomicStatus
-    )
-
-    context.synthesis {
+    Run {
+        LegacyContext(
+            scenarioName = "testSteps",
+            areaTypeCodes = Bbsr17,
+            demandFolder = File(
+                // "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output" +
+                // "\\logiktram_karlsruhe_long-term-module\\karlsruhe"
+                "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\" +
+                    "logiktram_rastatt_long-term-module\\rastatt"
+                // "D:\\gitlab\\logiktram\\output\\rastatt"
+            ),
+            economicalStatusCodes = EconomicStatus
+        )
+    }.steps {
         loadZones()
         loadHouseholds()
         loadPersons()
-        preparePrivateCars()//file = File("example/car.csv"))
+        preparePrivateCars() // file = File("example/car.csv"))
         assignCarUsers()
         finishPrivateCars()
         prepareActivities(errorHandling = ErrorHandling.WARNING)
         finishActivities()
     }
-
 }
 
+/*
 typealias HouseholdId = ID<Household>
-typealias PersonId= ID<Person>
+typealias PersonId = ID<Person>
 
-interface Household: Identifiable<HouseholdId> {
+interface Household : Identifiable<HouseholdId> {
     val garden: Area
     val members: List<Person>
 
     fun addMember(member: Person)
 }
 
-interface Person: Identifiable<PersonId> {
+interface Person : Identifiable<PersonId> {
     val household: Household
     val income: Currency
     val age: Int
 }
 
-interface Tourist: Person {
+interface Tourist : Person {
     val overNight: Boolean
 }
-
 
 interface HouseholdManager {
     val householdRepo: RepositoryBuilder<HouseholdBuilder, Household, HouseholdId>
@@ -88,15 +71,14 @@ interface PersonManager {
     val defaultCurrencyUnit: CurrencyUnit
 }
 
-interface TouristManager: PersonManager {
+interface TouristManager : PersonManager {
     val touristRepo: RepositoryBuilder<TouristBuilder, Tourist, PersonId>
 }
-
 
 data class HouseholdBuilder(
     var id: Long? = null,
     var garden: Area? = null,
-): Builder<Household> {
+) : Builder<Household> {
 
     override fun build() = object : Household {
         override val garden = this@HouseholdBuilder.garden!!
@@ -110,16 +92,14 @@ data class HouseholdBuilder(
             check(member.household == this)
             internalMembers.add(member)
         }
-
     }
-
 }
 
 data class PersonBuilder(
     var household: Household? = null,
     var income: Currency? = null,
     var age: Int? = null,
-): Builder<Person> {
+) : Builder<Person> {
 
     override fun build() = object : Person {
         override val age = this@PersonBuilder.age!!
@@ -130,7 +110,6 @@ data class PersonBuilder(
             this.household.addMember(this)
         }
     }
-
 }
 
 data class TouristBuilder(
@@ -138,7 +117,7 @@ data class TouristBuilder(
     var income: Currency? = null,
     var age: Int? = null,
     var overNight: Boolean? = null,
-): Builder<Tourist> {
+) : Builder<Tourist> {
     override fun build() = object : Tourist {
         override val age = this@TouristBuilder.age!!
         override val income = this@TouristBuilder.income!!
@@ -149,10 +128,8 @@ data class TouristBuilder(
         init {
             this.household.addMember(this)
         }
-
     }
 }
-
 
 @Suppress("LongParameterList")
 fun <C> C.parsePerson(
@@ -163,8 +140,7 @@ fun <C> C.parsePerson(
     incomeColumn: String = "income",
     householdColumn: String = "householdId",
     currencyUnit: CurrencyUnit?,
-) where C: HouseholdManager, C: PersonManager {
-
+) where C : HouseholdManager, C : PersonManager {
     val currency = currencyUnit ?: this.defaultCurrencyUnit
 
     val parser = CsvParser<PersonBuilder>(errorHandling) { row ->
@@ -183,22 +159,20 @@ fun <C> C.parsePerson(
         delimiter = delimiter
     )
 
-    PrepareCsvStep(
+    AddCsvStep(
         name = "read person csv",
         csv = resource,
         repository = this.personRepo
     )
-    //...
+    // ...
 }
-
-
 
 data class ProjectContext(
     override val scenarioName: String,
     override val demandFolder: File,
     override val defaultAreaUnit: AreaUnit,
     override val defaultCurrencyUnit: CurrencyUnit,
-): Context, HouseholdManager, PersonManager {
+) : Context, HouseholdManager, PersonManager {
 
     override val householdRepo = RepositoryBuilder<HouseholdBuilder, Household, HouseholdId>()
     override val personRepo = RepositoryBuilder<PersonBuilder, Person, PersonId>()
@@ -208,7 +182,4 @@ data class ProjectContext(
         personRepo.reset()
     }
 }
-
-
-
-
+*/

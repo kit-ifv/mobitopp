@@ -8,15 +8,15 @@ import domain.data.HouseholdId
 import domain.data.PersonData
 import domain.data.PersonId
 import domain.data.PrivateCarBuilder
-import modeling.steps.BasePrivateCarContext
+import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.HouseholdContext
 import modeling.steps.ModelExecution
-import modeling.steps.PersonContext
-import modeling.steps.PrepareCsvStep
 import modeling.steps.Repository
+import usecases.BasePrivateCarContext
+import usecases.HouseholdContext
+import usecases.PersonContext
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -67,7 +67,7 @@ fun <S, C> S.preparePrivateCarsFile(
     val resource = CsvResource(carFile, parser, delimiter)
 
     this.addStep(
-        PrepareCsvStep(
+        AddCsvStep(
             name = "load car csv",
             csv = resource,
             repository = context.carRepository

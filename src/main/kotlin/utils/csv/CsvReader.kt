@@ -18,7 +18,7 @@ private const val QUOTE = "\""
 /** The interface row provides methods to obtain properties of csv rows. */
 interface Row {
     /** The source containing this [Row]. */
-    val source: String //TODO source should reference CsvReader which holds detailed information on source file
+    val source: String // TODO source should reference CsvReader which holds detailed information on source file
 
     /** The index of this [Row]. */
     val index: Int
@@ -288,20 +288,23 @@ fun <E> ErrorHandling.handleParseValue(
     "Could not parse column '$column' of row ${row.index} in '${row.source}': $row"
 }
 
-fun estimateRowCount(file: File): Int {
-    val sampleSize = 10000
+fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): Int {
     var rows = 0
 
     val reader = BufferedReader(FileReader(file))
-    val sample = reader.lineSequence().drop(1).take(sampleSize).onEach { rows++ }.joinToString().toByteArray().size
+    val sample = reader.lineSequence()
+        .drop(1)
+        .take(sampleSize)
+        .onEach { rows++ }
+        .joinToString().toByteArray().size
     reader.close()
 
-    if (rows <= sampleSize) {
+    if (rows < sampleSize) {
         return rows
     }
 
     val bytePerRow = sample.toDouble() / rows.toDouble()
     val fileSize = file.toPath().fileSize()
 
-    return floor(fileSize.toDouble() * 0.9 / bytePerRow).toInt()
+    return floor(fileSize.toDouble() * scale / bytePerRow).toInt().also { println("expect $it") }
 }

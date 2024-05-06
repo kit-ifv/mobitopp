@@ -44,5 +44,4 @@ class ActivityDataBuilder(
             person.addActivity(this)
         }
     }
-
 }

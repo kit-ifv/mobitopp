@@ -7,13 +7,11 @@ import domain.data.Graduation
 import domain.data.HouseholdData
 import domain.data.HouseholdId
 import domain.data.Sex
+import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.EMobilityPersonContext
-import modeling.steps.HouseholdContext
 import modeling.steps.ModelExecution
-import modeling.steps.PrepareCsvStep
 import modeling.steps.Repository
 import units.CurrencyUnit
 import utils.CodePlan
@@ -90,7 +88,7 @@ fun <S, C> S.preparePersonsFile(
     val resource = CsvResource(personFile, parser, delimiter)
 
     this.addStep(
-        PrepareCsvStep(
+        AddCsvStep(
             name = "load person csv",
             csv = resource,
             repository = context.personRepository

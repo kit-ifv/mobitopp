@@ -124,12 +124,21 @@ open class SingleColumnParser<E>(
  */
 class ErrorHandlingRow(
     private val row: Row,
-    private val errorHandling: ErrorHandling
+    private val errorHandling: ErrorHandling,
+    private val onError: (Exception) -> Unit = {}
 ) : Row by row {
 
+    @Suppress("TooGenericExceptionCaught")
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
-        return errorHandling.handleParseValue(row, column, converter)!!
+        try {
+            return errorHandling.handleParseValue(row, column, converter)!!
+        } catch (e: Exception) {
+            onError(e)
+            throw e
+        }
     }
+
+    override fun toString() = row.toString()
 }
 
 /**

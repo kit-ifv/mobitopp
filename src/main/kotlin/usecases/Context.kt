@@ -1,4 +1,4 @@
-package modeling.steps
+package usecases
 
 import domain.data.ActivityData
 import domain.data.ActivityDataBuilder
@@ -28,17 +28,14 @@ import domain.enums.ActivityType
 import domain.enums.AreaType
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
+import modeling.steps.Context
+import modeling.steps.RepositoryBuilder
+import modeling.steps.RepositoryState
 import units.CurrencyUnit
 import utils.Builder
 import utils.CodePlan
 import java.io.File
 import kotlin.time.DurationUnit
-
-interface Context {
-    val scenarioName: String
-    val demandFolder: File
-    fun reset()
-}
 
 interface HouseholdContext {
     val householdRepository: RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>
@@ -105,7 +102,6 @@ data class BaseContext(
         personRepository.reset()
         activityRepository.reset()
     }
-
 }
 
 data class LegacyContext(
@@ -121,14 +117,13 @@ data class LegacyContext(
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
     override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
-) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext, BasePrivateCarContext , ActivityContext {
+) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext, BasePrivateCarContext, ActivityContext {
 
     override val zoneRepository = RepositoryBuilder<LegacyZoneDataBuilder, LegacyZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
     override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
     override val carRepository = RepositoryBuilder<PrivateCarBuilder, PrivateCarData, CarId>()
     override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
-
 
     private var index: Map<Int, LegacyZoneData>? = null
     override val zoneColumnIndex: Map<Int, LegacyZoneData>
@@ -149,4 +144,3 @@ data class LegacyContext(
         index = null
     }
 }
-

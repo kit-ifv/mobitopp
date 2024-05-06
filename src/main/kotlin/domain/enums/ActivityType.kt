@@ -3,12 +3,17 @@ package domain.enums
 import utils.Decodable
 import utils.Encodable
 
+/**
+ * An activity type describes which kind of activity is executed by a person.
+ * There is no general definition of activity types:
+ * hence each project can provide a custom definition of activity types.
+ */
 interface ActivityType : Encodable {
     val description: String
 }
 
 /**
- * The default activity encoding from legacy MobiTopp
+ * The default activity encoding from legacy mobiTopp
  */
 enum class LegacyActivityType(val code: Int) : ActivityType {
     WORK(1),

@@ -2,13 +2,11 @@ package usecases
 
 import domain.data.ActivityDataBuilder
 import domain.enums.ActivityType
-import modeling.steps.ActivityContext
+import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
 import modeling.steps.ModelExecution
-import modeling.steps.PersonContext
-import modeling.steps.PrepareCsvStep
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -32,12 +30,10 @@ fun <S, C> S.prepareActivities(
     startColumn: String = "startTime",
     durationColumn: String = "duration",
     durationUnit: DurationUnit? = null
-) where S : ModelExecution<C>, C : Context, C: ActivityContext, C : PersonContext<*,*> {
-
+) where S : ModelExecution<C>, C : Context, C : ActivityContext, C : PersonContext<*, *> {
     val timeUnit = durationUnit ?: context.timeUnit
     val personRepo = { context.personRepository }
     val activityTpeCodePlan = activityTypeCodes ?: context.activityTypeCodes
-
 
     val parser = CsvParser(errorHandling) { row ->
         ActivityDataBuilder(
@@ -63,7 +59,7 @@ fun <S, C> S.prepareActivitiesFile(
     val resource = CsvResource(activityFile, parser, delimiter)
 
     this.addStep(
-        PrepareCsvStep(
+        AddCsvStep(
             name = "load activity csv",
             csv = resource,
             repository = context.activityRepository
@@ -75,7 +71,7 @@ fun <S, C> S.finishActivities() where S : ModelExecution<C>, C : ActivityContext
     this.addStep(BuildStep("finish activities", context.activityRepository))
 }
 
-fun <S, C> S.loadActivities() where S : ModelExecution<C>, C : Context, C : PersonContext<*,*>, C : ActivityContext {
+fun <S, C> S.loadActivities() where S : ModelExecution<C>, C : Context, C : PersonContext<*, *>, C : ActivityContext {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
 }

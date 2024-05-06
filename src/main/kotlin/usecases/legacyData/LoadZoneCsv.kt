@@ -5,13 +5,13 @@ import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
+import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
-import modeling.steps.PrepareCsvStep
 import units.DistanceUnit
+import usecases.LegacyZonesContext
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -72,7 +72,7 @@ fun <S, C> S.prepareZoneFile(
     val resource = CsvResource(zonesFile, parser, delimiter)
 
     this.addStep(
-        PrepareCsvStep(
+        AddCsvStep(
             name = "load zone csv",
             csv = resource,
             repository = context.zoneRepository
