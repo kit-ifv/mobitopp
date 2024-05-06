@@ -29,6 +29,7 @@ class LinkedActivityTest {
         fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours, 1.hours), { thirdActivity }, { fifthLeg })
         fifthLeg = LinkedLeg(Leg.fromDuration(7.hours, 1.hours, OTHER, START), { fourthActivity }, { null })
     }
+
     @TestFactory
     fun changingValues(): List<DynamicTest> {
         val actions: List<(Location) -> Unit> = listOf(

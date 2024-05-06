@@ -279,10 +279,27 @@ abstract class PlanModelTest {
                 model.clear()
                 test.forEach { model.apply(it.executable) }
 
-                assertEquals(activity1, model.first())
-                assertEquals(activity1, model.removeFirst())
-                assertEquals(leg1, model.first())
+                assertEquals(activity1 as Action?, model.first())
+                assertEquals(activity1 as Action, model.removeFirst())
+                assertEquals(leg1 as Action?, model.first())
             }
         }.toList()
+    }
+    @TestFactory
+    fun droppingToActivityShouldWork(): List<DynamicTest> {
+        val activities = setOf(activity1, activity2, activity2b, activity3)
+        val legs = setOf(leg1, leg1b, leg2, leg2b)
+        return activities.map { test ->
+            DynamicTest.dynamicTest(test.toString()) {
+                model.clear()
+                activities.forEach { model.add(it) }
+                legs.forEach { model.add(it) }
+
+                model.dropUntil(test)
+                val target = (activities.filter { it >= test } + legs.filter { it >= test }).toSortedSet()
+                assertContentEquals(model.actions(), target)
+            }
+        }
+
     }
 }

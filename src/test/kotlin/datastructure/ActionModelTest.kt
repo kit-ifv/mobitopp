@@ -59,7 +59,7 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(0, 3))
         assertContentEquals(
             model.actions(),
-            setOf(
+            setOf<Action>(
                 activity(0, 3),
                 activity(3, 1),
                 activity(4, 1),
@@ -82,7 +82,7 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(1.5, 4.0))
         assertContentEquals(
             model.actions(),
-            setOf(
+            setOf<Action>(
                 activity(0, 1),
                 activity(1.5, 4.0),
                 activity(5.5, 1.0),
@@ -108,7 +108,7 @@ class ActionModelTest : PlanModelTest() {
         assertContains(target.message!!, "latestEndTime=7h")
         assertContentEquals(
             model.actions(),
-            setOf(
+            setOf<Action>(
                 activity(0, 1),
                 activity(2, 1),
                 activity(4, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours),
@@ -131,7 +131,7 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(1.5, 4.0))
         assertContentEquals(
             model.actions(),
-            setOf(
+            setOf<Action>(
                 activity(0, 1),
                 activity(1.5, 4.0),
                 activity(5.5, 1.0),
@@ -155,7 +155,7 @@ class ActionModelTest : PlanModelTest() {
 
         assertContentEquals(
             model.actions(),
-            setOf(
+            setOf<Action>(
                 activity(0, 1),
 
                 activity(2, 1),

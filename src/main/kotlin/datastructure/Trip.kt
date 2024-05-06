@@ -65,7 +65,7 @@ class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatche
         dispatcher?.replaceLegs(legs.toSortedSet(), target)
     }
 
-    fun unlink() {
+    fun removeDispatcher() {
         dispatcher = null
     }
 

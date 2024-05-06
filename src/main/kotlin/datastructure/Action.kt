@@ -29,7 +29,7 @@ sealed interface Action : Comparable<Action> {
     val earliestStartTime: Duration?
     val latestEndTime: Duration?
 
-    /*Intervals do not form a well defined order, we require a more idiomatic way of representing this fact
+    /*Intervals do not form a well-defined order, we require a more idiomatic way of representing this fact
 
     maybe use a separate comparator?
 
@@ -72,6 +72,13 @@ fun Iterable<Action>.isConsistent(): Boolean {
     return t.all { it }
 }
 
+enum class ActivityType  {
+    HOME,
+    UNKNOWN
+}
+
+
+
 /**
  * A [StationaryAction] is an [Action] that takes place at one and only one [Location]. The [startLocation] and [endLocation]
  * can therefore be delegated to the central [location] property. This is a read-only view and does not allow alteration
@@ -79,6 +86,7 @@ fun Iterable<Action>.isConsistent(): Boolean {
  */
 sealed interface StationaryAction : Action {
     val location: Location
+    val type: ActivityType
     override val startLocation: Location
         get() = location
     override val endLocation: Location
@@ -109,7 +117,7 @@ interface Activity : StationaryAction {
     override var endTime: Duration
     override var earliestStartTime: Duration?
     override var latestEndTime: Duration?
-
+    override var type: ActivityType
     /**
      * A default implementation to spawn a leg spanning from one activity to another.
      */
@@ -151,11 +159,11 @@ data class RawActivity(
     override var startTime: Duration,
     override var endTime: Duration,
     override var earliestStartTime: Duration? = null,
-    override var latestEndTime: Duration? = null
+    override var latestEndTime: Duration? = null,
+    override var type: ActivityType = ActivityType.UNKNOWN
 
 ) : Activity {
     override val duration get() = endTime - startTime
-
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&

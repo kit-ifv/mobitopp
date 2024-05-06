@@ -126,11 +126,11 @@ class DispatcherTest {
         val activities = activityGenerator.take(6).toList()
         activities.forEach { actionView.add(it) }
 
-        assertContentEquals(actions.actions(), activities)
-        assertContentEquals(blocks.actions(), activities)
+        assertContentEquals(actions.actions(), activities as Collection<Action>)
+        assertContentEquals(blocks.actions(), activities as Collection<Action>)
         actions.shift(0.hours, 1.hours)
         assertContentEquals(blocks.actions(), actions.actions())
-        assertContentEquals(blocks.linkedActions(), actions.linkedActions())
+        assertContentEquals(blocks.actions(), actions.actions())
     }
 
     /**
@@ -146,12 +146,12 @@ class DispatcherTest {
         val legs = legGenerator.take(12)
         activities.forEach { actionView.add(it) }
         legs.forEach { actionView.add(it) }
-        val t = blocks.linkedActions().drop(3).first()
+        val t = blocks.actions().drop(3).first()
         t.previous(t)
-        blocks.linkedActions().forEach {
+        blocks.actions().forEach {
             it.previous(it)
         }
-        actions.linkedActions().zip(blocks.linkedActions()).forEach { (a, b) ->
+        actions.actions().zip(blocks.actions()).forEach { (a, b) ->
             assertEquals(a.previous(a), b.previous(b))
             assertEquals(a.next(a), b.next(b))
             assertEquals(a, b)

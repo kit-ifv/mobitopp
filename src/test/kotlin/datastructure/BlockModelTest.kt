@@ -25,7 +25,7 @@ class BlockModelTest : PlanModelTest() {
     fun noInconsistencies() {
         model.add(activity1)
         model.add(Leg.fromDuration(activity1.endTime - 1.minutes, duration = 1.hours, START, OTHER))
-        assertContentEquals(model.actions(), setOf(activity1))
+        assertContentEquals(model.actions(), setOf<Action>(activity1))
         model.add(activity2)
         model.add(activity3)
         // Cannot assert consistency, the locations don't match

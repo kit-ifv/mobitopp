@@ -5,38 +5,50 @@ import utils.collections.exactlyOneOrNull
 import java.util.*
 import kotlin.time.Duration
 
-/**
- * A plan model should maintain the state of the Action plan
- */
-interface PlanModel {
-
-    val dispatcher: Dispatcher
-
-    fun removeFirst(): Action?
+interface LegTracker {
     fun add(leg: Leg)
     fun remove(leg: Leg)
+    fun replaceLegs(target: Set<Leg>, to: Set<Leg>)
+}
+
+interface ActivityTracker {
     fun add(activity: Activity)
     fun remove(activity: Activity)
     fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
-    fun replaceLegs(target: Set<Leg>, to: Set<Leg>)
+}
 
-    fun actions(): Collection<Action>
+/**
+ * A plan model should maintain the state of the Action plan
+ */
+interface PlanModel : LegTracker, ActivityTracker {
 
-    fun linkedActions(): Collection<LinkedAction>
+    val dispatcher: Dispatcher
+
+    // Remove first does not require a linked Action, once removed it can be free-floating again
+    fun removeFirst(): Action?
+
+    fun actions(): Collection<LinkedAction>
 
     /**
      * Return the first [Action] in the model. Or null if none is present
      */
-    fun first(): Action?
+    fun first(): LinkedAction?
 
     /**
      * Delete all actions from the model.
      */
     fun clear()
+
+    fun dropUntil(activity: Activity)
+}
+
+interface SeparablePlanModel : PlanModel {
+    fun activities(): Collection<LinkedActivity>
+    fun legs(): Collection<LinkedLeg>
 }
 
 fun PlanModel.squeeze(action: Action, force: Boolean = false) {
-    val afterAction = linkedActions().dropWhile { it < action }
+    val afterAction = actions().dropWhile { it < action }
     var counter = action.endTime
     val requiredShift = afterAction.map {
         val offset = counter - it.startTime
@@ -46,7 +58,7 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
         (action.latestEndTime ?: Duration.INFINITE) >= action.endTime + shift &&
-            (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
+                (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
@@ -57,8 +69,8 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
             "Some actions in the plan cannot support the requested squeeze ${
                 targets.filter { (action, shift) ->
                     (action.latestEndTime ?: Duration.INFINITE) < action.endTime + shift ||
-                        (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
-                }.map {(action, dur) ->
+                            (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
+                }.map { (action, dur) ->
                     "${action.original} necessaryShift=$dur"
                 }
             } \nrun with force=true IF and only IF you know what you are doing."
@@ -67,10 +79,10 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
 }
 
 fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
-    val targets = linkedActions().dropWhile { it.endTime <= from }
+    val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
             it.startTime + block >= (it.earliestStartTime ?: -Duration.INFINITE) &&
-                it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
+                    it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
         } || force
     ) {
         targets.forEach {
@@ -89,6 +101,8 @@ interface PlanView {
     fun remove(activity: Activity) = dispatcher.remove(activity)
     fun replaceActivities(target: SortedSet<Activity>, to: SortedSet<Activity>) =
         dispatcher.replaceActivities(target, to)
+
+    fun dropUntil(activity: Activity) = dispatcher.dropUntil(activity)
 
     fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) = dispatcher.replaceLegs(target, to)
 
@@ -120,6 +134,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         target?.let { modifyModels { removeFirst() } }
         return target
     }
+    fun dropUntil(activity: Activity) = modifyModels { dropUntil(activity) }
 }
 
 class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
@@ -132,20 +147,20 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         dispatcher.register(this)
     }
 
-    override fun actions(): Collection<Action> {
+    override fun actions(): Collection<LinkedAction> {
         return actions.toSet()
     }
 
-    override fun linkedActions(): Collection<LinkedAction> {
-        return actions.toSet()
-    }
-
-    override fun first(): Action? {
+    override fun first(): LinkedAction? {
         return actions.firstOrNull()
     }
 
     override fun clear() {
         actions.clear()
+    }
+
+    override fun dropUntil(activity: Activity) {
+        actions.removeAll(actions.filter { it < activity }.toSet())
     }
 
     override fun removeFirst(): Action {
@@ -190,14 +205,13 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         actions.addAll(to)
     }
 
-    // TODO Debate whether the view class for a model should be nested or standalone
     fun view() = ActionView(this)
     class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
         override val dispatcher: Dispatcher = model.dispatcher
     }
 }
 
-class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
+class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
 
     constructor() : this(Dispatcher())
     constructor(other: PlanModel) : this(other.dispatcher)
@@ -208,7 +222,8 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
 
     private val legBlockList: MutableList<LinkTrip> = mutableListOf()
 
-    val activityBlocks = ActivityBlock(sortedSetOf())
+    var activityBlocks = ActivityBlock(sortedSetOf())
+        private set
 
     private val legBlocks get() = activityBlocks.next
 
@@ -233,6 +248,28 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
                 return current ?: throw NoSuchElementException()
             }
         }
+    }
+
+    override fun activities(): Collection<LinkedActivity> {
+        return activityBlocks.flatMap { it.item }
+    }
+
+    override fun legs(): Collection<LinkedLeg> {
+        return legBlocks?.flatMap { it.item } ?: emptySet()
+    }
+    override fun dropUntil(activity: Activity) {
+        val previousBlocks = activityBlocks.takeWhile { !it.containsAction(activity) }
+        val newStart = activityBlocks.first { it.containsAction(activity) }
+        val legBlocks = previousBlocks.mapNotNull { it.next }
+
+        legBlockList.removeAll(legBlockList.filter { trip -> legBlocks.any { trip.matches(it) } })
+        // not going through the clear method, but rather clearing items directly to avoid pointer issues
+        previousBlocks.forEach { it.item.clear() }
+        legBlocks.forEach { it.item.clear() }
+        newStart.item.removeAll(newStart.item.filter { it < activity }.toSet())
+        activityBlocks = newStart
+        // Set previous to null and let GC handle the cleanup of all the previous blocks
+        activityBlocks.previous = null
     }
 
     override fun removeFirst(): Action? {
@@ -271,7 +308,7 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
             if (b) {
                 val targetTrip = legBlockList.find { trip -> trip.matches(legBlock) }
                 targetTrip?.let {
-                    it.unlink()
+                    it.removeDispatcher()
                     legBlockList.remove(it)
                 }
             }
@@ -301,13 +338,12 @@ class BlockModel(override val dispatcher: Dispatcher) : PlanModel {
             to.forEach { add(it) }
         }
     }
-    override fun actions(): Collection<Action> = actionBlocks.flatMap { it.item }
 
-    override fun linkedActions(): Collection<LinkedAction> {
+    override fun actions(): Collection<LinkedAction> {
         return actionBlocks.flatMap { it.item }
     }
 
-    override fun first(): Action {
+    override fun first(): LinkedAction? {
         return actionBlocks.first { !it.item.isEmpty() }.firstElement()
     }
 

@@ -96,7 +96,11 @@ class LinkedActivity(
         set(value) {
             original.latestEndTime = value
         }
-
+    override var type: ActivityType
+        get() = original.type
+        set(value) {
+            original.type = value
+        }
     override fun shift(duration: Duration) {
         original.startTime += duration
         original.endTime += duration
