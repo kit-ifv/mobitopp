@@ -21,7 +21,7 @@ detekt {
     version = "1.23.1"
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml" )
-
+    autoCorrect = true
 }
 dependencies {
     testImplementation(kotlin("test"))
