@@ -188,14 +188,14 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
         replaceActions(
-            target.map { LinkedActivity(it, { actions.lower(it) }, { actions.higher(it) }) },
+            target,
             to.map { LinkedActivity(it, { actions.lower(it) }, { actions.higher(it) }) }
         )
     }
 
     override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
         replaceActions(
-            target.map { LinkedLeg(it, { actions.lower(it) }, { actions.higher(it) }) },
+            target,
             to.map { LinkedLeg(it, { actions.lower(it) }, { actions.higher(it) }) }
         )
     }
