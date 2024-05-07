@@ -49,7 +49,6 @@ abstract class ResourceTest<E> {
             resource.toString(),
             "Expected '${expectedToString()}' but got '$resource'!"
         )
-
     }
 
     protected fun <T> validateMetadata(
@@ -110,7 +109,7 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
     }
 
     override fun expectedName() = "test_data.csv"
-    override fun expectedBaseSource() = Path("src","test","resources", "test_data.csv").toString()
+    override fun expectedBaseSource() = Path("src", "test", "resources", "test_data.csv").toString()
     override fun expectedToString() = "CSV ${expectedName()} (${expectedBaseSource()})"
 
     override fun expectedElements() = utils.csv.expectedBuilders
