@@ -29,12 +29,13 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun source() {
+        System.err.println("Expected '${expectedBaseSource()}' but got '${resource.source}'!")
+
         assertEquals(
             expectedBaseSource(),
             resource.source,
             "Expected '${expectedBaseSource()}' but got '${resource.source}'!"
         )
-        println("Expected '${expectedBaseSource()}' but got '${resource.source}'!")
     }
 
     @Test
@@ -44,12 +45,13 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun testToString() {
+        System.err.println("Expected '${expectedToString()}' but got '$resource'!")
         assertEquals(
             expectedToString(),
             resource.toString(),
             "Expected '${expectedToString()}' but got '$resource'!"
         )
-        println("Expected '${expectedToString()}' but got '$resource'!")
+
     }
 
     protected fun <T> validateMetadata(
@@ -127,8 +129,8 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
         val result = resource.build().reusable()
 
         assertEquals(10, result.elements.count())
+        System.err.println("Expected '${expectedName()}' but got '${result.name}'!")
         assertEquals(expectedName(), result.name, "Expected '${expectedName()}' but got '${result.name}'!")
-        println("Expected '${expectedName()}' but got '${result.name}'!")
 
         validateMetadata(result, expectedBaseSource(), "build")
         assertContentEquals(expectedBuildResults(), result.elements.toList())
