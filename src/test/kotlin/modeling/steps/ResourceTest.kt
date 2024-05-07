@@ -2,7 +2,6 @@ package modeling.steps
 
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import utils.collections.FancyProgressbar
 import utils.csv.CsvParser
 import utils.csv.TestBuilder
 import java.io.File
@@ -30,12 +29,6 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun source() {
-        FancyProgressbar().createProgressBar(
-            listOf(1, 2, 3).iterator(),
-            "Expected '${expectedBaseSource()}' but got '${resource.source}'!",
-            3
-        ).asSequence().count()
-
         assertEquals(
             expectedBaseSource(),
             resource.source,
@@ -50,12 +43,6 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun testToString() {
-        FancyProgressbar().createProgressBar(
-            listOf(1, 2, 3).iterator(),
-            "Expected '${expectedToString()}' but got '$resource'!",
-            3
-        ).asSequence().count()
-
         assertEquals(
             expectedToString(),
             resource.toString(),
@@ -139,13 +126,6 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
         val result = resource.build().reusable()
 
         assertEquals(10, result.elements.count())
-
-        FancyProgressbar().createProgressBar(
-            listOf(1, 2, 3).iterator(),
-            "Expected '${expectedName()}' but got '${result.name}'!",
-            3
-        ).asSequence().count()
-
         assertEquals(expectedName(), result.name, "Expected '${expectedName()}' but got '${result.name}'!")
 
         validateMetadata(result, expectedBaseSource(), "build")
