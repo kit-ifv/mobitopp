@@ -29,7 +29,11 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun source() {
-        assertEquals(expectedBaseSource(), resource.source)
+        assertEquals(
+            expectedBaseSource(),
+            resource.source,
+            "Expected '${expectedBaseSource()}' but got '${resource.source}'!"
+        )
     }
 
     @Test
@@ -39,7 +43,11 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun testToString() {
-        assertEquals(expectedToString(), resource.toString())
+        assertEquals(
+            expectedToString(),
+            resource.toString(),
+            "Expected '${expectedToString()}' but got '$resource'!"
+        )
     }
 
     protected fun <T> validateMetadata(
