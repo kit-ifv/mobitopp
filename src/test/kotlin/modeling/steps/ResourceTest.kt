@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import utils.csv.CsvParser
 import utils.csv.TestBuilder
 import java.io.File
+import kotlin.io.path.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
@@ -109,7 +110,7 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
     }
 
     override fun expectedName() = "test_data.csv"
-    override fun expectedBaseSource() = "src\\test\\resources\\test_data.csv"
+    override fun expectedBaseSource() = Path("src","test","resources", "test_data.csv").toString()
     override fun expectedToString() = "CSV ${expectedName()} (${expectedBaseSource()})"
 
     override fun expectedElements() = utils.csv.expectedBuilders
