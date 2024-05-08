@@ -9,8 +9,9 @@ import java.nio.file.Path
  * Represents a matrix of values parsed from a Visum file.
  *
  * @param path The path to the Visum file.
+ * @param converter Function to convert Double to generic type T.
  */
-class VisumMatrix(path: Path) : Matrix<ZoneId, Double>() {
+class VisumMatrix<T>(path: Path, private val converter: (Double) -> T): Matrix<ZoneId, T>() {
     private lateinit var matrix: Array<Double>
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
@@ -49,7 +50,7 @@ class VisumMatrix(path: Path) : Matrix<ZoneId, Double>() {
      * @return The value at the specified row and column.
      * @throws IllegalArgumentException if the row or column key is not found in the index lookup.
      */
-    override fun get(row: ZoneId, column: ZoneId): Double {
+    override fun get(row: ZoneId, column: ZoneId): T {
         val rowIndex = getIndexLookup()[row] ?: throw IllegalArgumentException("Row $row not found in index lookup")
         val columnIndex = getIndexLookup()[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
         val matrix = getMatrix()
@@ -57,6 +58,6 @@ class VisumMatrix(path: Path) : Matrix<ZoneId, Double>() {
         // Calculate the index in the one-dimensional matrix
         val index = rowIndex * getIndexLookup().size + columnIndex
 
-        return matrix[index]
+        return converter(matrix[index])
     }
 }
