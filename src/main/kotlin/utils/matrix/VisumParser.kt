@@ -1,4 +1,4 @@
-@file:Suppress("MaximumLineLength", "TooGenericExceptionCaught")
+@file:Suppress("MaximumLineLength", "TooGenericExceptionCaught", "StringLiteralDuplication")
 
 package utils.matrix
 
@@ -221,8 +221,8 @@ class VisumParser(path: Path) {
                 } catch (error: IndexOutOfBoundsException) {
                     throw VisumParseError(
                         "The file contains more values than declared. " +
-                                "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
-                                "Error occurred while parsing line $lineNumber: \n\"$line\"",
+                            "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
+                            "Error occurred while parsing line $lineNumber: \n\"$line\"",
                         error
                     )
                 }
@@ -243,20 +243,18 @@ class VisumParser(path: Path) {
                         if (parser.rowIndex == parser.numberOfNetworkObjects) {
                             throw VisumParseError(
                                 "The file contains more values than declared. " +
-                                        "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
-                                        "Error occurred while parsing line $lineNumber: \n\"$line\"",
+                                    "Expected ${parser.numberOfNetworkObjects} Rows but got at least ${parser.numberOfNetworkObjects + 1}. " +
+                                    "Error occurred while parsing line $lineNumber: \n\"$line\"",
                                 error
                             )
                         } else {
                             throw VisumParseError(
                                 "The file contains more values than declared. " +
-                                        "Expected ${parser.numberOfNetworkObjects} in this Row (Index: ${parser.rowIndex}, ZoneId: ${parser.zoneIds[parser.rowIndex]}). " +
-                                        "Error occurred at element no. $elementNumber while parsing line $lineNumber: \n\"$line\"",
+                                    "Expected ${parser.numberOfNetworkObjects} in this Row (Index: ${parser.rowIndex}, ZoneId: ${parser.zoneIds[parser.rowIndex]}). " +
+                                    "Error occurred at element no. $elementNumber while parsing line $lineNumber: \n\"$line\"",
                                 error
                             )
                         }
-
-
                     } catch (error: NumberFormatException) {
                         throw VisumParseError(
                             "Line $lineNumber contains a value \"$number\" that could not be parsed as a Double. " +
@@ -332,7 +330,7 @@ class VisumParser(path: Path) {
     }
 
     private fun parseStep() {
-        if (!lines.hasNext()){
+        if (!lines.hasNext()) {
             throw VisumParseError("Unexpected End of File")
         }
         val indexedLine = lines.next()
@@ -344,8 +342,10 @@ class VisumParser(path: Path) {
             throw VisumParseError("Got NaN as a value for a matrix element")
         }
 
-        if (columnIndex == numberOfNetworkObjects || rowIndex == numberOfNetworkObjects) {
-            throw IndexOutOfBoundsException()
+        if (columnIndex >= numberOfNetworkObjects) {
+            throw IndexOutOfBoundsException("ColumnIndex is $columnIndex but len is $numberOfNetworkObjects")
+        } else if (rowIndex >= numberOfNetworkObjects) {
+            throw IndexOutOfBoundsException("RowIndex is $rowIndex but len is $numberOfNetworkObjects")
         }
 
         val arrayIndex = rowIndex * numberOfNetworkObjects + columnIndex
