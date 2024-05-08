@@ -47,9 +47,10 @@ interface SeparablePlanModel : PlanModel {
     fun legs(): Collection<LinkedLeg>
 }
 
-fun PlanModel.squeeze(action: Action, force: Boolean = false) {
-    val afterAction = actions().dropWhile { it < action }
-    var counter = action.endTime
+
+fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
+    val afterAction = actions().dropWhile { it.endTime <= from }
+    var counter = to
     val requiredShift = afterAction.map {
         val offset = counter - it.startTime
         counter += it.duration
@@ -76,6 +77,9 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
             } \nrun with force=true IF and only IF you know what you are doing."
         )
     }
+}
+fun PlanModel.squeeze(action: Action, force: Boolean = false) {
+    return this.squeeze(action.startTime, action.endTime, force)
 }
 
 fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
@@ -339,7 +343,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         }
     }
 
-    override fun actions(): Collection<LinkedAction> {
+    override fun actions(): List<LinkedAction> {
         return actionBlocks.flatMap { it.item }
     }
 

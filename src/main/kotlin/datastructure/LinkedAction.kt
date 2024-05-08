@@ -20,8 +20,8 @@ interface LinkedAction : Action {
     override var startTime: Duration
     override var endTime: Duration
 
-    override var earliestStartTime: Duration?
-    override var latestEndTime: Duration?
+    override var earliestStartTime: Duration
+    override var latestEndTime: Duration
 
     fun lowerBound(): Duration {
         return max(
@@ -30,10 +30,12 @@ interface LinkedAction : Action {
         )
     }
 
-    fun shift(duration: Duration)
+    fun shift(duration: Duration): Duration
     fun upperBound(): Duration {
         return min(next(this)?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
     }
+
+    fun forceNewEndTime(new: Duration)
 }
 
 class LinkedActivity(
@@ -74,8 +76,10 @@ class LinkedActivity(
         set(value) {
             if (value in lowerBound()..endTime) {
                 original.startTime = value
+            } else {
+                error(startTimeMessage(value))
             }
-            error(startTimeMessage(value))
+
         }
     override var endTime: Duration
         get() = original.endTime
@@ -86,12 +90,12 @@ class LinkedActivity(
                 error(endTimeMessage(value))
             }
         }
-    override var earliestStartTime: Duration?
+    override var earliestStartTime: Duration
         get() = original.earliestStartTime
         set(value) {
             original.earliestStartTime = value
         }
-    override var latestEndTime: Duration?
+    override var latestEndTime: Duration
         get() = original.latestEndTime
         set(value) {
             original.latestEndTime = value
@@ -101,9 +105,25 @@ class LinkedActivity(
         set(value) {
             original.type = value
         }
-    override fun shift(duration: Duration) {
+
+    override fun shift(duration: Duration): Duration {
+        val neext = next(this)
         original.startTime += duration
         original.endTime += duration
+
+        return max(neext?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
+    }
+
+    override fun forceNewEndTime(new: Duration) {
+        original.endTime = new
+        var offset = next(this)?.startTime?.let { new - it } ?: Duration.ZERO
+        var element: LinkedAction? = next(this)
+        while (offset > Duration.ZERO && element != null) {
+            offset = element.shift(offset)
+
+            element = element.next(element)
+        }
+
     }
 
     override fun equals(other: Any?): Boolean {
@@ -117,6 +137,8 @@ class LinkedActivity(
     override fun toString(): String {
         return LINK_PREFIX + original
     }
+
+
 }
 
 class LinkedLeg(
@@ -160,20 +182,23 @@ class LinkedLeg(
                 error(endTimeMessage(value))
             }
         }
-    override var earliestStartTime: Duration?
+    override var earliestStartTime: Duration
         get() = original.earliestStartTime
         set(value) {
             original.earliestStartTime = value
         }
-    override var latestEndTime: Duration?
+    override var latestEndTime: Duration
         get() = original.latestEndTime
         set(value) {
             original.latestEndTime = value
         }
 
-    override fun shift(duration: Duration) {
+    override fun shift(duration: Duration): Duration {
+        val neext = next(this)
         original.startTime += duration
         original.endTime += duration
+
+        return max(neext?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -186,6 +211,18 @@ class LinkedLeg(
 
     override fun toString(): String {
         return LINK_PREFIX + original
+    }
+
+    override fun forceNewEndTime(new: Duration) {
+        original.endTime = new
+        var offset = next(this)?.startTime?.let { new - it } ?: Duration.ZERO
+        var element: LinkedAction? = next(this)
+        while (offset > Duration.ZERO && element != null) {
+            offset = element.shift(offset)
+
+            element = element.next(element)
+        }
+
     }
 }
 

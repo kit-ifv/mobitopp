@@ -21,8 +21,8 @@ class ActionModelTest : PlanModelTest() {
     private fun activity(
         start: Int,
         duration: Int,
-        earliestStartTime: Duration? = null,
-        latestEndTime: Duration? = null
+        earliestStartTime: Duration = -Duration.INFINITE,
+        latestEndTime: Duration = Duration.INFINITE
     ): Activity {
         return activity(start.toDouble(), duration.toDouble(), earliestStartTime, latestEndTime)
     }
@@ -30,8 +30,8 @@ class ActionModelTest : PlanModelTest() {
     private fun activity(
         start: Double,
         duration: Double,
-        earliestStartTime: Duration? = null,
-        latestEndTime: Duration? = null
+        earliestStartTime: Duration = -Duration.INFINITE,
+        latestEndTime: Duration = Duration.INFINITE
     ): Activity {
         return Activity.fromDuration(
             START,

@@ -26,8 +26,8 @@ sealed interface Action : Comparable<Action> {
     val startLocation: Location
     val endLocation: Location
 
-    val earliestStartTime: Duration?
-    val latestEndTime: Duration?
+    val earliestStartTime: Duration
+    val latestEndTime: Duration
 
     /*Intervals do not form a well-defined order, we require a more idiomatic way of representing this fact
 
@@ -72,11 +72,14 @@ fun Iterable<Action>.isConsistent(): Boolean {
     return t.all { it }
 }
 
-enum class ActivityType  {
+fun Iterable<Action>.hasExceedings(): Boolean {
+    return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
+}
+
+enum class ActivityType {
     HOME,
     UNKNOWN
 }
-
 
 
 /**
@@ -115,9 +118,10 @@ interface Activity : StationaryAction {
     override var location: Location
     override var startTime: Duration
     override var endTime: Duration
-    override var earliestStartTime: Duration?
-    override var latestEndTime: Duration?
+    override var earliestStartTime: Duration
+    override var latestEndTime: Duration
     override var type: ActivityType
+
     /**
      * A default implementation to spawn a leg spanning from one activity to another.
      */
@@ -140,8 +144,27 @@ interface Activity : StationaryAction {
          * @param duration The duration of the activity.
          * @return The generated Activity.
          */
-        fun fromDuration(location: Location, startTime: Duration, duration: Duration): Activity {
-            return RawActivity(location = location, startTime = startTime, endTime = startTime + duration)
+        fun fromDuration(
+            location: Location,
+            startTime: Duration,
+            duration: Duration,
+            earliestStartTime: Duration,
+            latestEndTime: Duration
+        ): Activity {
+            return RawActivity(
+                location = location,
+                startTime = startTime,
+                endTime = startTime + duration,
+                earliestStartTime = earliestStartTime,
+                latestEndTime = latestEndTime
+            )
+        }
+        fun fromDuration(
+            location: Location,
+            startTime: Duration,
+            duration: Duration,
+        ): Activity {
+            return fromDuration(location, startTime, duration, -Duration.INFINITE, Duration.INFINITE)
         }
     }
 }
@@ -158,8 +181,8 @@ data class RawActivity(
     override var location: Location,
     override var startTime: Duration,
     override var endTime: Duration,
-    override var earliestStartTime: Duration? = null,
-    override var latestEndTime: Duration? = null,
+    override var earliestStartTime: Duration = -Duration.INFINITE,
+    override var latestEndTime: Duration = Duration.INFINITE,
     override var type: ActivityType = ActivityType.UNKNOWN
 
 ) : Activity {
@@ -167,8 +190,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-            location == other.location &&
-            endTime == other.endTime
+                location == other.location &&
+                endTime == other.endTime
     }
 }
 
@@ -182,8 +205,8 @@ interface Leg : MovingAction {
     override var startLocation: Location
     override var endLocation: Location
 
-    override var earliestStartTime: Duration?
-    override var latestEndTime: Duration?
+    override var earliestStartTime: Duration
+    override var latestEndTime: Duration
 
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
@@ -225,8 +248,8 @@ data class RawLeg(
     override var startLocation: Location,
     override var endLocation: Location,
     override var endTime: Duration,
-    override var earliestStartTime: Duration? = null,
-    override var latestEndTime: Duration? = null
+    override var earliestStartTime: Duration = -Duration.INFINITE,
+    override var latestEndTime: Duration = Duration.INFINITE
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
@@ -234,9 +257,9 @@ data class RawLeg(
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
-            startLocation == other.startLocation &&
-            endLocation == other.endLocation &&
-            endTime == other.endTime
+                startLocation == other.startLocation &&
+                endLocation == other.endLocation &&
+                endTime == other.endTime
     }
 }
 

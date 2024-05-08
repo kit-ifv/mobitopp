@@ -129,7 +129,7 @@ class ActivityBlock(
             newLegBlock::lower,
             newLegBlock::higher
         )
-        newLegBlock.insert(leeeg)
+        newLegBlock.insert(leg)
         val newActivityBlock = ActivityBlock(targets)
 
         val successor = next

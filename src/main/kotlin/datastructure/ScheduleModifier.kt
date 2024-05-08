@@ -8,11 +8,15 @@ fun interface ScheduleModifier {
 
 class Person(var location: Location)
 
-class SkipToNextHomeActivity(val person: Person) : ScheduleModifier {
+class SkipToNextHomeActivity() : ScheduleModifier {
     override fun modify(plan: SeparablePlanModel, currentTime: Duration) {
+        if(plan.actions().hasExceedings()) {
+            require(plan.actions().isConsistent())
+            val nextHomeActivity = plan.activities().dropWhile { it.endTime < currentTime }.first { it.type == ActivityType.HOME }
+            plan.dropUntil(nextHomeActivity)
+            nextHomeActivity.startTime = currentTime
+        }
 
-        val nextHomeActivity = plan.activities().first { it.type == ActivityType.HOME }
-        plan.dropUntil(nextHomeActivity)
-        nextHomeActivity.startTime = currentTime
+
     }
 }

@@ -300,6 +300,5 @@ abstract class PlanModelTest {
                 assertContentEquals(model.actions(), target)
             }
         }
-
     }
 }
