@@ -1,3 +1,5 @@
+@file:Suppress("MaximumLineLength")
+
 package utils.matrix
 
 import data.ZoneId

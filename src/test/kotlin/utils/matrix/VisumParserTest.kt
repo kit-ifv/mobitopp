@@ -1,3 +1,5 @@
+@file:Suppress("MaximumLineLength")
+
 package utils.matrix
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
@@ -21,8 +23,7 @@ class VisumParserTest {
             10101, 10301, 10302, 10601, 10701, 10702, 11001, 11002, 11003, 11101,
             11102, 11103, 11104, 11201, 11202, 11203
         )
-        assertArrayEquals(expectedZoneIds, zoneIds.map { it.zone_id }.toTypedArray())
-
+        assertArrayEquals(expectedZoneIds, zoneIds.map { it.zoneId }.toTypedArray())
 
         val array = parser.getArray()
 
@@ -72,10 +73,13 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"natural number\"", exception.message?.contains("natural number") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"natural number\"",
+            exception.message?.contains("natural number") ?: false
+        )
         assertTrue("Message did not contain the line number \"10\"", exception.message?.contains("10") ?: false)
         assertTrue("Message did not contain the malformed double \"-16\"", exception.message?.contains("-16") ?: false)
     }
@@ -86,12 +90,18 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Expected \\\"* Netzobjekt-Nummern\\\"\"", exception.message?.contains("Expected \"* Netzobjekt-Nummern\"") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Expected \\\"* Netzobjekt-Nummern\\\"\"",
+            exception.message?.contains("Expected \"* Netzobjekt-Nummern\"") ?: false
+        )
         assertTrue("Message did not contain the line number \"11\"", exception.message?.contains("11") ?: false)
-        assertTrue("Message did not contain the actual line content \"* Netz-Objekt-Nummern\"", exception.message?.contains("* Netz-Objekt-Nummern") ?: false)
+        assertTrue(
+            "Message did not contain the actual line content \"* Netz-Objekt-Nummern\"",
+            exception.message?.contains("* Netz-Objekt-Nummern") ?: false
+        )
     }
 
     @Test
@@ -100,13 +110,22 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Number of ZoneIds\"", exception.message?.contains("Number of ZoneIds") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Number of ZoneIds\"",
+            exception.message?.contains("Number of ZoneIds") ?: false
+        )
         assertTrue("Message did not contain the line number \"14\"", exception.message?.contains("14") ?: false)
-        assertTrue("Message did not contain the actual number of ZoneIds \"12\"", exception.message?.contains("12") ?: false)
-        assertTrue("Message did not contain the expected number of network objects \"16\"", exception.message?.contains("16") ?: false)
+        assertTrue(
+            "Message did not contain the actual number of ZoneIds \"12\"",
+            exception.message?.contains("12") ?: false
+        )
+        assertTrue(
+            "Message did not contain the expected number of network objects \"16\"",
+            exception.message?.contains("16") ?: false
+        )
     }
 
     @Test
@@ -115,13 +134,18 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"could not be parsed to an ZoneId\"", exception.message?.contains("could not be parsed to an ZoneId") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"could not be parsed to an ZoneId\"",
+            exception.message?.contains("could not be parsed to an ZoneId") ?: false
+        )
         assertTrue("Message did not contain the line number \"13\"", exception.message?.contains("13") ?: false)
-        assertTrue("Message did not contain the line content \"     11102      11103      11104      11201      11202      112a03\"",
-            exception.message?.contains("     11102      11103      11104      11201      11202      112a03") ?: false)
+        assertTrue(
+            "Message did not contain the line content \"     11102      11103      11104      11201      11202      112a03\"",
+            exception.message?.contains("     11102      11103      11104      11201      11202      112a03") ?: false
+        )
     }
 
     @Test
@@ -130,12 +154,18 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Number of ZoneIds\"", exception.message?.contains("Number of ZoneIds") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Number of ZoneIds\"",
+            exception.message?.contains("Number of ZoneIds") ?: false
+        )
         assertTrue("Message did not contain the line number \"13\"", exception.message?.contains("13") ?: false)
-        assertTrue("Message did not contain the expected number of network objects \"16\"", exception.message?.contains("16") ?: false)
+        assertTrue(
+            "Message did not contain the expected number of network objects \"16\"",
+            exception.message?.contains("16") ?: false
+        )
     }
 
     @Test
@@ -144,12 +174,18 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"* Netzobjektnamen\"", exception.message?.contains("* Netzobjektnamen") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"* Netzobjektnamen\"",
+            exception.message?.contains("* Netzobjektnamen") ?: false
+        )
         assertTrue("Message did not contain the line number \"63\"", exception.message?.contains("63") ?: false)
-        assertTrue("Message did not contain the actual line content \"* Netz-Objektnamen\"", exception.message?.contains("* Netz-Objektnamen") ?: false)
+        assertTrue(
+            "Message did not contain the actual line content \"* Netz-Objektnamen\"",
+            exception.message?.contains("* Netz-Objektnamen") ?: false
+        )
     }
 
     @Test
@@ -158,12 +194,18 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>\"", exception.message?.contains("* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>\"",
+            exception.message?.contains("* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>") ?: false
+        )
         assertTrue("Message did not contain the line number \"30\"", exception.message?.contains("30") ?: false)
-        assertTrue("Message did not contain the actual line content \"* Obj 10702 Summe == 184.458\"", exception.message?.contains("* Obj 10702 Summe == 184.458") ?: false)
+        assertTrue(
+            "Message did not contain the actual line content \"* Obj 10702 Summe == 184.458\"",
+            exception.message?.contains("* Obj 10702 Summe == 184.458") ?: false
+        )
     }
 
     @Test
@@ -172,14 +214,22 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"could not be parsed to ZoneId\"", exception.message?.contains("could not be parsed to ZoneId") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"could not be parsed to ZoneId\"",
+            exception.message?.contains("could not be parsed to ZoneId") ?: false
+        )
         assertTrue("Message did not contain the line number \"30\"", exception.message?.contains("30") ?: false)
-        assertTrue("Message did not contain the actual number \"10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416\"",
-            exception.message?.contains("10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416") ?: false)
-        assertTrue("Message did not contain the actual line content \"* Obj 10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416 Summe = 184.458\"", exception.message?.contains("* Obj 10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416 Summe = 184.458") ?: false)
+        assertTrue(
+            "Message did not contain the actual number \"10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416\"",
+            exception.message?.contains("10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual line content \"* Obj 10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416 Summe = 184.458\"",
+            exception.message?.contains("* Obj 10702165468576845645649846541321564896746543216534655846531316534654563132165468456132135416 Summe = 184.458") ?: false
+        )
     }
 
     @Test
@@ -188,14 +238,19 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
         println(exception)
-        assertTrue("Message did not contain the hint \"contains more values than declared\"", exception.message?.contains("contains more values than declared") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"contains more values than declared\"",
+            exception.message?.contains("contains more values than declared") ?: false
+        )
         assertTrue("Message did not contain the line number \"32\"", exception.message?.contains("32") ?: false)
         assertTrue("Message did not contain the element number \"7\"", exception.message?.contains("7") ?: false)
-        assertTrue("Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  0.118  0.117\"",
-            exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  0.118  0.117") ?: false)
+        assertTrue(
+            "Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  0.118  0.117\"",
+            exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  0.118  0.117") ?: false
+        )
     }
 
     @Test
@@ -204,14 +259,23 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"could not be parsed as a Double\"", exception.message?.contains("could not be parsed as a Double") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"could not be parsed as a Double\"",
+            exception.message?.contains("could not be parsed as a Double") ?: false
+        )
         assertTrue("Message did not contain the line number \"17\"", exception.message?.contains("17") ?: false)
         assertTrue("Message did not contain the element number \"6\"", exception.message?.contains("6") ?: false)
-        assertTrue("Message did not contain the actual value \"0.11a8\"", exception.message?.contains("0.11a8") ?: false)
-        assertTrue("Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  0.11a8\"", exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  0.11a8") ?: false)
+        assertTrue(
+            "Message did not contain the actual value \"0.11a8\"",
+            exception.message?.contains("0.11a8") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  0.11a8\"",
+            exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  0.11a8") ?: false
+        )
     }
 
     @Test
@@ -220,14 +284,20 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"could not be added to the matrix row\"", exception.message?.contains("could not be added to the matrix row") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"could not be added to the matrix row\"",
+            exception.message?.contains("could not be added to the matrix row") ?: false
+        )
         assertTrue("Message did not contain the line number \"17\"", exception.message?.contains("17") ?: false)
         assertTrue("Message did not contain the element number \"6\"", exception.message?.contains("6") ?: false)
         assertTrue("Message did not contain the actual element \"NaN\"", exception.message?.contains("NaN") ?: false)
-        assertTrue("Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  NaN\"", exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  NaN") ?: false)
+        assertTrue(
+            "Message did not contain the actual line content \" 0.232  0.387  0.525  0.103  0.122  NaN\"",
+            exception.message?.contains(" 0.232  0.387  0.525  0.103  0.122  NaN") ?: false
+        )
     }
 
     @Test
@@ -236,10 +306,13 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Got NaN as a value for a matrix element\"", exception.message?.contains("Got NaN as a value for a matrix element") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Got NaN as a value for a matrix element\"",
+            exception.message?.contains("Got NaN as a value for a matrix element") ?: false
+        )
     }
 
     @Test
@@ -248,13 +321,19 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"contains more values than declared\"", exception.message?.contains("contains more values than declared") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"contains more values than declared\"",
+            exception.message?.contains("contains more values than declared") ?: false
+        )
         assertTrue("Message did not contain the actual row index \"5\"", exception.message?.contains("5") ?: false)
         assertTrue("Message did not contain the actual zone \"10702\"", exception.message?.contains("10702") ?: false)
-        assertTrue("Message did not contain the actual number of elements \"16\"", exception.message?.contains("16") ?: false)
+        assertTrue(
+            "Message did not contain the actual number of elements \"16\"",
+            exception.message?.contains("16") ?: false
+        )
     }
 
     @Test
@@ -263,14 +342,23 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"has too few elements\"", exception.message?.contains("has too few elements") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"has too few elements\"",
+            exception.message?.contains("has too few elements") ?: false
+        )
         assertTrue("Message did not contain the actual row index \"5\"", exception.message?.contains("5") ?: false)
         assertTrue("Message did not contain the actual zone \"10702\"", exception.message?.contains("10702") ?: false)
-        assertTrue("Message did not contain the actual number of elements \"15\"", exception.message?.contains("15") ?: false)
-        assertTrue("Message did not contain the expected number of elements \"16\"", exception.message?.contains("16") ?: false)
+        assertTrue(
+            "Message did not contain the actual number of elements \"15\"",
+            exception.message?.contains("15") ?: false
+        )
+        assertTrue(
+            "Message did not contain the expected number of elements \"16\"",
+            exception.message?.contains("16") ?: false
+        )
     }
 
     @Test
@@ -279,12 +367,21 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"expected the row for\"", exception.message?.contains("expected the row for") ?: false)
-        assertTrue("Message did not contain the actual expected zone ID \"10702\"", exception.message?.contains("10702") ?: false)
-        assertTrue("Message did not contain the actual received zone ID \"11001\"", exception.message?.contains("11001") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"expected the row for\"",
+            exception.message?.contains("expected the row for") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual expected zone ID \"10702\"",
+            exception.message?.contains("10702") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual received zone ID \"11001\"",
+            exception.message?.contains("11001") ?: false
+        )
     }
 
     @Test
@@ -293,12 +390,21 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"contains more values than declared\"", exception.message?.contains("contains more values than declared") ?: false)
-        assertTrue("Message did not contain the actual expected number of rows \"16\"", exception.message?.contains("16") ?: false)
-        assertTrue("Message did not contain the actual number of rows \"17\"", exception.message?.contains("17") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"contains more values than declared\"",
+            exception.message?.contains("contains more values than declared") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual expected number of rows \"16\"",
+            exception.message?.contains("16") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual number of rows \"17\"",
+            exception.message?.contains("17") ?: false
+        )
     }
 
     @Test
@@ -307,11 +413,17 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Duplicate ZoneIds found\"", exception.message?.contains("Duplicate ZoneIds found") ?: false)
-        assertTrue("Message did not contain the actual duplicate zone IDs \"11202\"", exception.message?.contains("11202") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Duplicate ZoneIds found\"",
+            exception.message?.contains("Duplicate ZoneIds found") ?: false
+        )
+        assertTrue(
+            "Message did not contain the actual duplicate zone IDs \"11202\"",
+            exception.message?.contains("11202") ?: false
+        )
     }
 
     @Test
@@ -320,9 +432,12 @@ class VisumParserTest {
         val parser = VisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
-            val array = parser.getArray()
+            parser.getArray()
         }
 
-        assertTrue("Message did not contain the hint \"Unexpected End of File\"", exception.message?.contains("Unexpected End of File") ?: false)
+        assertTrue(
+            "Message did not contain the hint \"Unexpected End of File\"",
+            exception.message?.contains("Unexpected End of File") ?: false
+        )
     }
 }

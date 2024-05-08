@@ -15,5 +15,5 @@ abstract class Matrix<I, O> {
      * @param column The index of the column.
      * @return The element at the specified row and column.
      */
-    public abstract fun get(row: I, column: I): O;
+    abstract fun get(row: I, column: I): O
 }
