@@ -11,7 +11,7 @@ import java.nio.file.Path
  * @param path The path to the Visum file.
  * @param converter Function to convert Double to generic type T.
  */
-class VisumMatrix<T>(path: Path, private val converter: (Double) -> T): Matrix<ZoneId, T>() {
+class VisumMatrix<T>(path: Path, private val converter: (Double) -> T) : Matrix<ZoneId, T>() {
     private lateinit var matrix: Array<Double>
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
