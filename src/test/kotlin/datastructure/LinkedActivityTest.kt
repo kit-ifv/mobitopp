@@ -6,10 +6,13 @@ import START
 import THIRD
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
-import org.junit.jupiter.api.assertThrows
+import utils.collections.cartesianProduct
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 class LinkedActivityTest {
@@ -71,32 +74,36 @@ class LinkedActivityTest {
         }
     }
 
+    @TestFactory
+    fun wildShuffle(): List<DynamicTest> {
+        val newDurations = listOf((-10).days, 0.hours, 10.days)
+        val actions: List<(Duration) -> Unit> = listOf(
+            { firstLeg.startTime = it },
+            { firstLeg.endTime = it },
+            { secondLeg.startTime = it },
+            { secondLeg.endTime = it },
+            { thirdActivity.startTime = it },
+            { thirdActivity.endTime = it },
+            { fourthActivity.startTime = it },
+            { fourthActivity.endTime = it },
+            { fifthLeg.startTime = it },
+            { fifthLeg.endTime = it },
+        )
+        return newDurations.cartesianProduct(actions).map {
+            DynamicTest.dynamicTest(it.toString()) {
+                setup()
+                it.second(it.first)
+                assertTrue(listOf(firstLeg, secondLeg, thirdActivity, fourthActivity, fifthLeg).isConsistent())
+            }
+        }
+    }
+
     @Test
     fun badChanges() {
-        assertThrows<IllegalStateException> { secondLeg.startTime = 0.5.hours }
-        assertEquals(firstLeg.endTime, 1.hours)
-        assertEquals(secondLeg.startTime, 1.hours)
-    }
-
-    @Test
-    fun badChanges2() {
-        assertThrows<IllegalStateException> { secondLeg.endTime = 3.5.hours }
-        assertEquals(thirdActivity.startTime, 3.hours)
-        assertEquals(secondLeg.endTime, 2.hours)
-    }
-
-    @Test
-    fun badChanges3() {
-        assertThrows<IllegalStateException> { thirdActivity.startTime = 1.5.hours }
-        assertEquals(thirdActivity.startTime, 3.hours)
-        assertEquals(secondLeg.endTime, 2.hours)
-    }
-
-    @Test
-    fun badChanges4() {
-        assertThrows<IllegalStateException> { thirdActivity.endTime = 5.5.hours }
-        assertEquals(thirdActivity.endTime, 4.hours)
-        assertEquals(fourthActivity.startTime, 5.hours)
+        secondLeg.startTime = 0.5.hours
+        assertEquals(firstLeg.startTime, (-0.5).hours)
+        assertEquals(firstLeg.endTime, 0.5.hours)
+        assertEquals(secondLeg.startTime, 0.5.hours)
     }
 
     @Test
@@ -104,10 +111,5 @@ class LinkedActivityTest {
         secondLeg.endTime = 2.5.hours
         assertEquals(secondLeg.endTime, 2.5.hours)
         assertEquals(thirdActivity.startTime, 3.hours)
-    }
-
-    @Test
-    fun badChanges5() {
-        assertThrows<IllegalStateException> { secondLeg.endTime = 0.9.hours }
     }
 }

@@ -4,12 +4,6 @@ import kotlin.time.Duration
 
 const val LINK_PREFIX = "[Linked]"
 
-fun LinkedAction.startTimeMessage(value: Duration) =
-    "Cannot change startTime to $value, not in bounds [lowerBound=${lowerBound()}, endTime=$endTime"
-
-fun LinkedAction.endTimeMessage(value: Duration) =
-    "Cannot change endTime to $value, not in bounds [startTime=$startTime, upperBound=${upperBound()}"
-
 abstract class LinkedAction : Action {
     abstract val original: Action
     internal abstract var previous: LinkedAction?
@@ -23,12 +17,7 @@ abstract class LinkedAction : Action {
     abstract override var earliestStartTime: Duration
     abstract override var latestEndTime: Duration
 
-    fun lowerBound(): Duration {
-        return max(
-            previous?.endTime ?: -Duration.INFINITE,
-            original.earliestStartTime ?: -Duration.INFINITE
-        )
-    }
+
 
     fun unlink() {
         next?.previous = previous
@@ -38,12 +27,17 @@ abstract class LinkedAction : Action {
         next = null
     }
 
-    abstract fun shift(duration: Duration): Duration
-    fun upperBound(): Duration {
-        return min(next?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
-    }
 
-    abstract fun forceNewEndTime(new: Duration)
+
+    abstract fun shift(duration: Duration): Duration
+
+    fun requiresPushback(target: Duration) = endTime > target
+
+    fun requiresPullForward(target: Duration) = startTime < target
+
+    override fun toString(): String {
+        return LINK_PREFIX + original.toString()
+    }
 }
 
 class LinkedActivity(
@@ -83,21 +77,26 @@ class LinkedActivity(
     override var startTime: Duration
         get() = original.startTime
         set(value) {
-            if (value in lowerBound()..endTime) {
-                original.startTime = value
-            } else {
-                error(startTimeMessage(value))
+            previous?.let {
+                if (it.requiresPushback(value)) {
+                    val difference = it.endTime - value
+                    it.startTime -= difference
+                    it.endTime -= difference
+                }
             }
-
+            original.startTime = value
         }
     override var endTime: Duration
         get() = original.endTime
         set(value) {
-            if (value in startTime..upperBound()) {
-                original.endTime = value
-            } else {
-                error(endTimeMessage(value))
+            next?.let {
+                if (it.requiresPullForward(value)) {
+                    val difference = value - it.startTime
+                    it.startTime += difference
+                    it.endTime += difference
+                }
             }
+            original.endTime = value
         }
     override var earliestStartTime: Duration
         get() = original.earliestStartTime
@@ -123,28 +122,12 @@ class LinkedActivity(
         return max(neext?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
     }
 
-    override fun forceNewEndTime(new: Duration) {
-        original.endTime = new
-        var offset = next?.startTime?.let { new - it } ?: Duration.ZERO
-        var element: LinkedAction? = next
-        while (offset > Duration.ZERO && element != null) {
-            offset = element.shift(offset)
-
-            element = element.next
-        }
-
-    }
-
     override fun equals(other: Any?): Boolean {
         return original == other
     }
 
     override fun hashCode(): Int {
         return original.hashCode()
-    }
-
-    override fun toString(): String {
-        return LINK_PREFIX + original
     }
 
 
@@ -177,21 +160,26 @@ class LinkedLeg(
     override var startTime: Duration
         get() = original.startTime
         set(value) {
-            if (value in lowerBound()..endTime) {
-                original.startTime = value
-            } else {
-                error(startTimeMessage(value))
+            previous?.let {
+                if (it.requiresPushback(value)) {
+                    val difference = it.endTime - value
+                    it.startTime -= difference
+                    it.endTime -= difference
+                }
             }
+            original.startTime = value
         }
     override var endTime: Duration
         get() = original.endTime
         set(value) {
-            if (value in startTime..upperBound()) {
-                original.endTime = value
-            } else {
-
-                error(endTimeMessage(value))
+            next?.let {
+                if (it.requiresPullForward(value)) {
+                    val difference = value - it.startTime
+                    it.startTime += difference
+                    it.endTime += difference
+                }
             }
+            original.endTime = value
         }
     override var earliestStartTime: Duration
         get() = original.earliestStartTime
@@ -218,22 +206,6 @@ class LinkedLeg(
 
     override fun hashCode(): Int {
         return original.hashCode()
-    }
-
-    override fun toString(): String {
-        return LINK_PREFIX + original
-    }
-
-    override fun forceNewEndTime(new: Duration) {
-        original.endTime = new
-        var offset = next?.startTime?.let { new - it } ?: Duration.ZERO
-        var element: LinkedAction? = next
-        while (offset > Duration.ZERO && element != null) {
-            offset = element.shift(offset)
-
-            element = element.next
-        }
-
     }
 }
 
