@@ -1,11 +1,9 @@
 package utils.collections
 
-import java.util.*
-
 /**
  * Generates a sequence of all permutations of the underlying Iterables.
  *
- * Taken from [Reddit] (https://www.reddit.com/r/Kotlin/comments/isg16h/what_is_the_fastest_way_combination_in_kotlin/)
+ * Taken from Reddit (https://www.reddit.com/r/Kotlin/comments/isg16h/what_is_the_fastest_way_combination_in_kotlin/)
  */
 @Suppress("CognitiveComplexMethod")
 fun <T> Iterable<T>.permutations(length: Int? = null): Sequence<List<T>> =

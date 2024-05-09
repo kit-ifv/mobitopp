@@ -57,8 +57,8 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     }
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
-        (action.latestEndTime ?: Duration.INFINITE) >= action.endTime + shift &&
-            (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
+        (action.latestEndTime) >= action.endTime + shift &&
+            (action.earliestStartTime ) <= action.startTime + shift
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
@@ -68,8 +68,8 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
         error(
             "Some actions in the plan cannot support the requested squeeze ${
                 targets.filter { (action, shift) ->
-                    (action.latestEndTime ?: Duration.INFINITE) < action.endTime + shift ||
-                        (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
+                    (action.latestEndTime) < action.endTime + shift ||
+                        (action.earliestStartTime) > action.startTime + shift
                 }.map { (action, dur) ->
                     "${action.original} necessaryShift=$dur"
                 }
@@ -85,8 +85,8 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
 fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
-            it.startTime + block >= (it.earliestStartTime ?: -Duration.INFINITE) &&
-                it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
+            it.startTime + block >= (it.earliestStartTime) &&
+                it.endTime + block <= (it.latestEndTime )
         } || force
     ) {
         targets.forEach {
@@ -371,7 +371,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         return actionBlocks.flatMap { it.item }
     }
 
-    override fun first(): LinkedAction? {
+    override fun first(): LinkedAction {
         return actionBlocks.first { !it.item.isEmpty() }.firstElement()
     }
 

@@ -136,7 +136,7 @@ class ActivityBlock(
         target.forEach { insert(it) }
     }
 
-    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
+    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock> {
         val a = item.find { it.startTime >= leg.startTime }
         val targets = if (a == null) sortedSetOf<LinkedActivity>() else TreeSet(item.tailSet(a, true))
         val newActivityBlock = ActivityBlock(targets)

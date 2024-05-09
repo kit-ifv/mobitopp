@@ -5,7 +5,7 @@ interface Identifiable<E> {
     val id: ID<E>
 }
 
-public interface Builder<E> {
+interface Builder<E> {
     fun build(): E
 }
 

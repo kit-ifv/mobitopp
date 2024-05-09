@@ -13,7 +13,7 @@ class TextBuilder(private val sep: String = "\n") {
         result.add(this)
     }
     fun makeText(): String {
-        return result.joinToString(separator = "$sep", prefix = sep.filterNewlines())
+        return result.joinToString(separator = sep, prefix = sep.filterNewlines())
     }
 }
 operator fun String.invoke(sep: String = "\n", s: TextBuilder.() -> Unit): String {

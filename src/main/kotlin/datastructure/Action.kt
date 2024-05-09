@@ -192,6 +192,18 @@ data class RawActivity(
             location == other.location &&
             endTime == other.endTime
     }
+
+    override fun hashCode(): Int {
+        var result = location.hashCode()
+        result = 31 * result + startTime.hashCode()
+        result = 31 * result + endTime.hashCode()
+        result = 31 * result + earliestStartTime.hashCode()
+        result = 31 * result + latestEndTime.hashCode()
+        result = 31 * result + type.hashCode()
+        return result
+    }
+
+
 }
 
 /**
@@ -259,6 +271,16 @@ data class RawLeg(
             startLocation == other.startLocation &&
             endLocation == other.endLocation &&
             endTime == other.endTime
+    }
+
+    override fun hashCode(): Int {
+        var result = startTime.hashCode()
+        result = 31 * result + startLocation.hashCode()
+        result = 31 * result + endLocation.hashCode()
+        result = 31 * result + endTime.hashCode()
+        result = 31 * result + earliestStartTime.hashCode()
+        result = 31 * result + latestEndTime.hashCode()
+        return result
     }
 }
 
