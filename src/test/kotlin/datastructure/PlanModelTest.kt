@@ -285,6 +285,7 @@ abstract class PlanModelTest {
             }
         }.toList()
     }
+
     @TestFactory
     fun droppingToActivityShouldWork(): List<DynamicTest> {
         val activities = setOf(activity1, activity2, activity2b, activity3)

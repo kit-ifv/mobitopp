@@ -29,16 +29,16 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     fun isEmpty() = item.isEmpty()
     fun removeFirst(): T? = item.pollFirst()
     fun isConsistent(): Boolean {
-        val prev = previous?.item?.lastOrNull()
-        val succ = next?.item?.firstOrNull()
-        return (listOf(prev) + item + succ).filterNotNull().isConsistent()
+        val previous = previous?.item?.lastOrNull()
+        val next = next?.item?.firstOrNull()
+        return (listOf(previous) + item + next).filterNotNull().isConsistent()
     }
 
     fun contains(element: T): Boolean = item.contains(element)
     fun bounds(elements: Collection<Action>): Boolean {
         val sortedSet = elements.toSortedSet()
         if (sortedSet.isEmpty()) return false
-        return sortedSet.first() >= firstElement() && sortedSet.last() <= lastElement()
+        return sortedSet.first() >= firstElement() && sortedSet.last() <= item.last()
     }
 
     /**
@@ -47,13 +47,12 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
      * between iteration targets.
      */
     fun firstElement(): T = item.first()
-    fun lastElement(): T = item.last()
 
     fun firstElementOrNull(): T? = item.firstOrNull()
     fun lastElementOrNull(): T? = item.lastOrNull()
 
     override fun compareTo(other: ActionBlock<*>): Int {
-        return lastElement().compareTo(other.firstElement())
+        return item.last().compareTo(other.firstElement())
     }
 
     fun containsAction(action: Action): Boolean {
@@ -61,11 +60,11 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     }
 
     fun lower(other: Action): LinkedAction? {
-        return item.lastOrNull {it.original < other }?: previous?.lastElementOrNull()
+        return item.lastOrNull { it.original < other } ?: previous?.lastElementOrNull()
     }
 
     fun higher(other: Action): LinkedAction? {
-        return item.firstOrNull {it.original > other }?: next?.firstElementOrNull()
+        return item.firstOrNull { it.original > other } ?: next?.firstElementOrNull()
     }
 
     abstract fun clear()
@@ -88,7 +87,6 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         return act
     }
 }
-
 
 class ActivityBlock(
     start: NavigableSet<LinkedActivity>,
@@ -118,7 +116,6 @@ class ActivityBlock(
     }
 
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
-
         item.add(link(activity))
 
         return null
@@ -136,7 +133,6 @@ class ActivityBlock(
             removeLinked(it)
         }
         target.forEach { insert(it) }
-
     }
 
     override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
@@ -145,10 +141,7 @@ class ActivityBlock(
         val newActivityBlock = ActivityBlock(targets)
         val newLegBlock = LegBlock(this, newActivityBlock)
 
-
         val successor = next
-
-
 
         next = newLegBlock
         newLegBlock.previous = this
@@ -156,7 +149,7 @@ class ActivityBlock(
         newActivityBlock.previous = newLegBlock
         newActivityBlock.next = successor
         successor?.previous = newActivityBlock
-        //This order is relevant
+        // This order is relevant
         item.removeAll(targets)
         newLegBlock.insert(leg)
         return newLegBlock to newActivityBlock
@@ -184,7 +177,6 @@ class ActivityBlock(
     }
 
     fun remove(activity: Activity): Boolean {
-
         val target = item.find { it.original == activity }
         target?.let { removeLinked(it) }
         if (item.isEmpty() && previous != null && next != null) {
@@ -251,10 +243,8 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         }
     }
 
-    constructor(previous: ActivityBlock,next: ActivityBlock) : this(sortedSetOf(),previous, next)
-    constructor(leg: LinkedLeg,previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(leg),previous, next)
-
-
+    constructor(previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(), previous, next)
+    constructor(leg: LinkedLeg, previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(leg), previous, next)
 
     /**
      * Returns an iterator over the elements of this object.
@@ -303,9 +293,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         val targets = TreeSet(item.tailSet(l, true))
 
         val newActivityBlock = ActivityBlock()
-        val newLegBlock = LegBlock(targets , newActivityBlock, next)
-
-
+        val newLegBlock = LegBlock(targets, newActivityBlock, next)
 
         val successor = next
 

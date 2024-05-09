@@ -81,7 +81,6 @@ enum class ActivityType {
     UNKNOWN
 }
 
-
 /**
  * A [StationaryAction] is an [Action] that takes place at one and only one [Location]. The [startLocation] and [endLocation]
  * can therefore be delegated to the central [location] property. This is a read-only view and does not allow alteration
@@ -190,8 +189,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-                location == other.location &&
-                endTime == other.endTime
+            location == other.location &&
+            endTime == other.endTime
     }
 }
 
@@ -257,9 +256,9 @@ data class RawLeg(
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
-                startLocation == other.startLocation &&
-                endLocation == other.endLocation &&
-                endTime == other.endTime
+            startLocation == other.startLocation &&
+            endLocation == other.endLocation &&
+            endTime == other.endTime
     }
 }
 

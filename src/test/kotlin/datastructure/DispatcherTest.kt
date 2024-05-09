@@ -151,7 +151,6 @@ class DispatcherTest {
             assertEquals(a, b)
             assertEquals(a.previous, b.previous)
             assertEquals(a.next, b.next)
-
         }
     }
 }

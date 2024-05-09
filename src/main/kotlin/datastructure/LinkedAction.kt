@@ -17,8 +17,6 @@ abstract class LinkedAction : Action {
     abstract override var earliestStartTime: Duration
     abstract override var latestEndTime: Duration
 
-
-
     fun unlink() {
         next?.previous = previous
         previous?.next = next
@@ -26,8 +24,6 @@ abstract class LinkedAction : Action {
         previous = null
         next = null
     }
-
-
 
     abstract fun shift(duration: Duration): Duration
 
@@ -45,7 +41,6 @@ class LinkedActivity(
     override var previous: LinkedAction? = null,
     override var next: LinkedAction? = null
 ) : LinkedAction(), Activity by original {
-
 
     override var location: Location
         get() = original.location
@@ -115,11 +110,11 @@ class LinkedActivity(
         }
 
     override fun shift(duration: Duration): Duration {
-        val neext = next
+        val nectAction = next
         original.startTime += duration
         original.endTime += duration
 
-        return max(neext?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
+        return max(nectAction?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -129,8 +124,6 @@ class LinkedActivity(
     override fun hashCode(): Int {
         return original.hashCode()
     }
-
-
 }
 
 class LinkedLeg(
@@ -139,7 +132,6 @@ class LinkedLeg(
 
     override var next: LinkedAction? = null
 ) : LinkedAction(), Leg by original {
-
 
     override var startLocation: Location
         get() = original.startLocation

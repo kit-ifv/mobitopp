@@ -29,7 +29,7 @@ class LegBlockTest {
     fun setup() {
         prevActivityBlock = ActivityBlock(sortedSetOf())
         succActivityBlock = ActivityBlock(sortedSetOf())
-        legBlock = LegBlock(sortedSetOf(),prevActivityBlock, succActivityBlock)
+        legBlock = LegBlock(sortedSetOf(), prevActivityBlock, succActivityBlock)
         legBlock.previous = prevActivityBlock
         legBlock.next = succActivityBlock
 

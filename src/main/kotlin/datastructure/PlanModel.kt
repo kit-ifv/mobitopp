@@ -47,7 +47,6 @@ interface SeparablePlanModel : PlanModel {
     fun legs(): Collection<LinkedLeg>
 }
 
-
 fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     val afterAction = actions().dropWhile { it.endTime <= from }
     var counter = to
@@ -59,7 +58,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
         (action.latestEndTime ?: Duration.INFINITE) >= action.endTime + shift &&
-                (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
+            (action.earliestStartTime ?: -Duration.INFINITE) <= action.startTime + shift
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
@@ -70,7 +69,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
             "Some actions in the plan cannot support the requested squeeze ${
                 targets.filter { (action, shift) ->
                     (action.latestEndTime ?: Duration.INFINITE) < action.endTime + shift ||
-                            (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
+                        (action.earliestStartTime ?: -Duration.INFINITE) > action.startTime + shift
                 }.map { (action, dur) ->
                     "${action.original} necessaryShift=$dur"
                 }
@@ -87,7 +86,7 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
             it.startTime + block >= (it.earliestStartTime ?: -Duration.INFINITE) &&
-                    it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
+                it.endTime + block <= (it.latestEndTime ?: Duration.INFINITE)
         } || force
     ) {
         targets.forEach {
@@ -177,7 +176,6 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun add(leg: Leg) {
-
         val linkedLeg = LinkedLeg(leg)
         if (actions.contains(linkedLeg)) return
         linkedLeg.previous = actions.lower(linkedLeg)
@@ -201,13 +199,11 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     override fun remove(leg: Leg) {
         val target = actions.find { it.original == leg }
         target?.let { remove(it) }
-
     }
 
     override fun remove(activity: Activity) {
         val target = actions.find { it.original == activity }
         target?.let { remove(it) }
-
     }
 
     private fun remove(linkedAction: LinkedAction) {
@@ -225,9 +221,7 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         val targetSet = target.mapNotNull { act -> actions.find { it.original == act } }
         targetSet.forEach { remove(it) }
         to.forEach { add(it) }
-
     }
-
 
     fun view() = ActionView(this)
     class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
