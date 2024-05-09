@@ -58,7 +58,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
         (action.latestEndTime) >= action.endTime + shift &&
-            (action.earliestStartTime ) <= action.startTime + shift
+            (action.earliestStartTime) <= action.startTime + shift
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
@@ -86,7 +86,7 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
             it.startTime + block >= (it.earliestStartTime) &&
-                it.endTime + block <= (it.latestEndTime )
+                it.endTime + block <= (it.latestEndTime)
         } || force
     ) {
         targets.forEach {

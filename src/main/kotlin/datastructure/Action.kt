@@ -202,8 +202,6 @@ data class RawActivity(
         result = 31 * result + type.hashCode()
         return result
     }
-
-
 }
 
 /**
