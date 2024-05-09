@@ -10,47 +10,56 @@ fun LinkedAction.startTimeMessage(value: Duration) =
 fun LinkedAction.endTimeMessage(value: Duration) =
     "Cannot change endTime to $value, not in bounds [startTime=$startTime, upperBound=${upperBound()}"
 
-interface LinkedAction : Action {
-    val original: Action
-    val next: (LinkedAction) -> LinkedAction?
-    val previous: (LinkedAction) -> LinkedAction?
+abstract class LinkedAction : Action {
+    abstract val original: Action
+    internal abstract var previous: LinkedAction?
+    internal abstract var next: LinkedAction?
 
-    override var startLocation: Location
-    override var endLocation: Location
-    override var startTime: Duration
-    override var endTime: Duration
+    abstract override var startLocation: Location
+    abstract override var endLocation: Location
+    abstract override var startTime: Duration
+    abstract override var endTime: Duration
 
-    override var earliestStartTime: Duration
-    override var latestEndTime: Duration
+    abstract override var earliestStartTime: Duration
+    abstract override var latestEndTime: Duration
 
     fun lowerBound(): Duration {
         return max(
-            previous(this)?.endTime ?: -Duration.INFINITE,
+            previous?.endTime ?: -Duration.INFINITE,
             original.earliestStartTime ?: -Duration.INFINITE
         )
     }
 
-    fun shift(duration: Duration): Duration
-    fun upperBound(): Duration {
-        return min(next(this)?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
+    fun unlink() {
+        next?.previous = previous
+        previous?.next = next
+
+        previous = null
+        next = null
     }
 
-    fun forceNewEndTime(new: Duration)
+    abstract fun shift(duration: Duration): Duration
+    fun upperBound(): Duration {
+        return min(next?.startTime ?: Duration.INFINITE, original.latestEndTime ?: Duration.INFINITE)
+    }
+
+    abstract fun forceNewEndTime(new: Duration)
 }
 
 class LinkedActivity(
     override val original: Activity,
-    override val previous: (LinkedAction) -> LinkedAction?,
-    override val next: (LinkedAction) -> LinkedAction?,
-) : LinkedAction, Activity {
+    override var previous: LinkedAction? = null,
+    override var next: LinkedAction? = null
+) : LinkedAction(), Activity by original {
+
 
     override var location: Location
         get() = original.location
         set(value) {
             if (value != location) {
                 original.location = value
-                next(this)?.startLocation = value
-                previous(this)?.endLocation = value
+                next?.startLocation = value
+                previous?.endLocation = value
             }
         }
     override var startLocation: Location
@@ -58,8 +67,8 @@ class LinkedActivity(
         set(value) {
             if (value != startLocation) {
                 original.location = value
-                next(this)?.startLocation = value
-                previous(this)?.endLocation = value
+                next?.startLocation = value
+                previous?.endLocation = value
             }
         }
     override var endLocation: Location
@@ -67,8 +76,8 @@ class LinkedActivity(
         set(value) {
             if (value != endLocation) {
                 original.location = value
-                next(this)?.startLocation = value
-                previous(this)?.endLocation = value
+                next?.startLocation = value
+                previous?.endLocation = value
             }
         }
     override var startTime: Duration
@@ -107,7 +116,7 @@ class LinkedActivity(
         }
 
     override fun shift(duration: Duration): Duration {
-        val neext = next(this)
+        val neext = next
         original.startTime += duration
         original.endTime += duration
 
@@ -116,12 +125,12 @@ class LinkedActivity(
 
     override fun forceNewEndTime(new: Duration) {
         original.endTime = new
-        var offset = next(this)?.startTime?.let { new - it } ?: Duration.ZERO
-        var element: LinkedAction? = next(this)
+        var offset = next?.startTime?.let { new - it } ?: Duration.ZERO
+        var element: LinkedAction? = next
         while (offset > Duration.ZERO && element != null) {
             offset = element.shift(offset)
 
-            element = element.next(element)
+            element = element.next
         }
 
     }
@@ -143,16 +152,18 @@ class LinkedActivity(
 
 class LinkedLeg(
     override val original: Leg,
-    override val previous: (LinkedAction) -> LinkedAction?,
-    override val next: (LinkedAction) -> LinkedAction?,
-) : LinkedAction, Leg {
+    override var previous: LinkedAction? = null,
+
+    override var next: LinkedAction? = null
+) : LinkedAction(), Leg by original {
+
 
     override var startLocation: Location
         get() = original.startLocation
         set(value) {
             if (value != startLocation) {
                 original.startLocation = value
-                previous(this)?.endLocation = value
+                previous?.endLocation = value
             }
         }
     override var endLocation: Location
@@ -160,7 +171,7 @@ class LinkedLeg(
         set(value) {
             if (value != endLocation) {
                 original.endLocation = value
-                next(this)?.startLocation = value
+                next?.startLocation = value
             }
         }
     override var startTime: Duration
@@ -194,7 +205,7 @@ class LinkedLeg(
         }
 
     override fun shift(duration: Duration): Duration {
-        val neext = next(this)
+        val neext = next
         original.startTime += duration
         original.endTime += duration
 
@@ -215,12 +226,12 @@ class LinkedLeg(
 
     override fun forceNewEndTime(new: Duration) {
         original.endTime = new
-        var offset = next(this)?.startTime?.let { new - it } ?: Duration.ZERO
-        var element: LinkedAction? = next(this)
+        var offset = next?.startTime?.let { new - it } ?: Duration.ZERO
+        var element: LinkedAction? = next
         while (offset > Duration.ZERO && element != null) {
             offset = element.shift(offset)
 
-            element = element.next(element)
+            element = element.next
         }
 
     }

@@ -22,12 +22,21 @@ class LinkedActivityTest {
 
     @BeforeTest
     fun setup() {
-        firstLeg = LinkedLeg(Leg.fromDuration(0.hours, 1.hours, START, THIRD), { null }, { secondLeg })
-        secondLeg = LinkedLeg(Leg.fromDuration(1.hours, 1.hours, THIRD, OTHER), { firstLeg }, { thirdActivity })
+        firstLeg = LinkedLeg(Leg.fromDuration(0.hours, 1.hours, START, THIRD))
+        secondLeg = LinkedLeg(Leg.fromDuration(1.hours, 1.hours, THIRD, OTHER))
         thirdActivity =
-            LinkedActivity(Activity.fromDuration(OTHER, 3.hours, 1.hours), { secondLeg }, { fourthActivity })
-        fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours, 1.hours), { thirdActivity }, { fifthLeg })
-        fifthLeg = LinkedLeg(Leg.fromDuration(7.hours, 1.hours, OTHER, START), { fourthActivity }, { null })
+            LinkedActivity(Activity.fromDuration(OTHER, 3.hours, 1.hours))
+        fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours, 1.hours))
+        fifthLeg = LinkedLeg(Leg.fromDuration(7.hours, 1.hours, OTHER, START))
+
+        firstLeg.next = secondLeg
+        secondLeg.previous = firstLeg
+        secondLeg.next = thirdActivity
+        thirdActivity.previous = secondLeg
+        thirdActivity.next = fourthActivity
+        fourthActivity.previous = thirdActivity
+        fourthActivity.next = fifthLeg
+        fifthLeg.previous = fourthActivity
     }
 
     @TestFactory

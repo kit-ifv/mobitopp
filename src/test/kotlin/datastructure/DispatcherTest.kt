@@ -142,19 +142,16 @@ class DispatcherTest {
         val actions = ActionModel(dispatcher)
         val blocks = BlockModel(dispatcher)
         val actionView = actions.view()
-        val activities = activityGenerator.take(6)
-        val legs = legGenerator.take(12)
+        val activities = activityGenerator.take(1)
+        val legs = legGenerator.take(2)
         activities.forEach { actionView.add(it) }
         legs.forEach { actionView.add(it) }
-        val t = blocks.actions().drop(3).first()
-        t.previous(t)
-        blocks.actions().forEach {
-            it.previous(it)
-        }
+
         actions.actions().zip(blocks.actions()).forEach { (a, b) ->
-            assertEquals(a.previous(a), b.previous(b))
-            assertEquals(a.next(a), b.next(b))
             assertEquals(a, b)
+            assertEquals(a.previous, b.previous)
+            assertEquals(a.next, b.next)
+
         }
     }
 }

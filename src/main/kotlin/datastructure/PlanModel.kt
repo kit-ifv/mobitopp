@@ -78,6 +78,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
         )
     }
 }
+
 fun PlanModel.squeeze(action: Action, force: Boolean = false) {
     return this.squeeze(action.startTime, action.endTime, force)
 }
@@ -138,6 +139,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         target?.let { modifyModels { removeFirst() } }
         return target
     }
+
     fun dropUntil(activity: Activity) = modifyModels { dropUntil(activity) }
 }
 
@@ -175,39 +177,57 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun add(leg: Leg) {
-        actions.add(LinkedLeg(leg, { actions.lower(it) }, { actions.higher(it) }))
+
+        val linkedLeg = LinkedLeg(leg)
+        if (actions.contains(linkedLeg)) return
+        linkedLeg.previous = actions.lower(linkedLeg)
+        linkedLeg.next = actions.higher(linkedLeg)
+        linkedLeg.previous?.next = linkedLeg
+        linkedLeg.next?.previous = linkedLeg
+        actions.add(linkedLeg)
     }
 
     override fun add(activity: Activity) {
-        actions.add(LinkedActivity(activity, { actions.lower(it) }, { actions.higher(it) }))
+        val linkedActivity = LinkedActivity(activity)
+        if (actions.contains(linkedActivity)) return
+        linkedActivity.previous = actions.lower(linkedActivity)
+        linkedActivity.next = actions.higher(linkedActivity)
+
+        linkedActivity.previous?.next = linkedActivity
+        linkedActivity.next?.previous = linkedActivity
+        actions.add(linkedActivity)
     }
 
     override fun remove(leg: Leg) {
-        actions.remove(LinkedLeg(leg, { actions.lower(it) }, { actions.higher(it) }))
+        val target = actions.find { it.original == leg }
+        target?.let { remove(it) }
+
     }
 
     override fun remove(activity: Activity) {
-        actions.remove(LinkedActivity(activity, { actions.lower(it) }, { actions.higher(it) }))
+        val target = actions.find { it.original == activity }
+        target?.let { remove(it) }
+
+    }
+
+    private fun remove(linkedAction: LinkedAction) {
+        linkedAction.unlink()
+        actions.remove(linkedAction)
     }
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
-        replaceActions(
-            target,
-            to.map { LinkedActivity(it, { actions.lower(it) }, { actions.higher(it) }) }
-        )
+        val targetSet = target.mapNotNull { act -> actions.find { it.original == act } }
+        targetSet.forEach { remove(it) }
+        to.forEach { add(it) }
     }
 
     override fun replaceLegs(target: Set<Leg>, to: Set<Leg>) {
-        replaceActions(
-            target,
-            to.map { LinkedLeg(it, { actions.lower(it) }, { actions.higher(it) }) }
-        )
+        val targetSet = target.mapNotNull { act -> actions.find { it.original == act } }
+        targetSet.forEach { remove(it) }
+        to.forEach { add(it) }
+
     }
 
-    private fun replaceActions(target: Collection<Action>, to: Collection<LinkedAction>) {
-        actions.removeAll(actions.filter { it.original in target }.toSet())
-        actions.addAll(to)
-    }
 
     fun view() = ActionView(this)
     class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
@@ -261,6 +281,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     override fun legs(): Collection<LinkedLeg> {
         return legBlocks?.flatMap { it.item } ?: emptySet()
     }
+
     override fun dropUntil(activity: Activity) {
         val previousBlocks = activityBlocks.takeWhile { !it.containsAction(activity) }
         val newStart = activityBlocks.first { it.containsAction(activity) }
