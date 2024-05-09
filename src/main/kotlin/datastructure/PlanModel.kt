@@ -161,6 +161,7 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun clear() {
+        actions.forEach { it.unlink() }
         actions.clear()
     }
 
@@ -283,8 +284,16 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
 
         legBlockList.removeAll(legBlockList.filter { trip -> legBlocks.any { trip.matches(it) } })
         // not going through the clear method, but rather clearing items directly to avoid pointer issues
-        previousBlocks.forEach { it.item.clear() }
-        legBlocks.forEach { it.item.clear() }
+        previousBlocks.forEach {
+            val targets = it.item
+            targets.forEach { it.unlink() }
+            targets.clear()
+        }
+        legBlocks.forEach {
+            val targets = it.item
+            targets.forEach { it.unlink() }
+            targets.clear()
+        }
         newStart.item.removeAll(newStart.item.filter { it < activity }.toSet())
         activityBlocks = newStart
         // Set previous to null and let GC handle the cleanup of all the previous blocks

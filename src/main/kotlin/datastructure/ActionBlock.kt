@@ -111,6 +111,7 @@ class ActivityBlock(
     }
 
     override fun clear() {
+        item.forEach { it.unlink() }
         item.clear()
         unlink()
     }
@@ -273,6 +274,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
     }
 
     override fun clear() {
+        item.forEach { it.unlink() }
         item.clear()
         unlink()
     }
@@ -334,13 +336,10 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
 
         previous.next = overNext
         overNext?.previous = previous
-        // TODO find solution to point next and previous to something else, or drop existence invariant
 
-//        dispatcher = null
         this.next = next
         this.previous = next
 
-//        next.dispatcher = null
         next.next = null
         next.previous = null
     }

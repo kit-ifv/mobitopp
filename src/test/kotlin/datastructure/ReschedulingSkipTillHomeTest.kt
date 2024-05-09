@@ -5,6 +5,8 @@ import START
 import THIRD
 import org.junit.jupiter.api.Test
 import kotlin.test.BeforeTest
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
@@ -47,14 +49,14 @@ class ReschedulingSkipTillHomeTest {
 
     @Test
     fun reschedulingShouldWork() {
-//        // Some external force causes the second leg to take forever
-//        val plan = model.actions()
-//        val leg2inPlan = plan[3] as LinkedLeg
-//        leg2inPlan.forceNewEndTime(23.5.hours)
-//
-//        SkipToNextHomeActivity().modify(model, 23.5.hours)
-//
-//
-//        assertFalse(model.actions().isConsistent())
+        // Some external force causes the second leg to take forever
+        val plan = model.actions()
+        val leg2inPlan = plan[3] as LinkedLeg
+        leg2inPlan.endTime = 23.5.hours
+
+        SkipToNextHomeActivity().modify(model, 23.5.hours)
+
+        assertTrue(model.actions().isConsistent())
+        assertEquals(plan.size, 6)
     }
 }
