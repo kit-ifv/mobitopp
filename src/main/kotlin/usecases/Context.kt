@@ -1,5 +1,8 @@
-package modeling.steps
+package usecases
 
+import domain.data.ActivityData
+import domain.data.ActivityDataBuilder
+import domain.data.ActivityId
 import domain.data.CarId
 import domain.data.CarSegment
 import domain.data.EMobilityPersonData
@@ -21,24 +24,18 @@ import domain.data.Sex
 import domain.data.ZoneData
 import domain.data.ZoneDataBuilder
 import domain.data.ZoneId
+import domain.enums.ActivityType
 import domain.enums.AreaType
 import domain.enums.Bbsr17
+import domain.enums.LegacyActivityType
+import modeling.steps.Context
+import modeling.steps.RepositoryBuilder
+import modeling.steps.RepositoryState
 import units.CurrencyUnit
-import usecases.assignCarUsers
-import usecases.legacyData.finishPrivateCars
-import usecases.legacyData.loadHouseholds
-import usecases.legacyData.loadZones
-import usecases.legacyData.preparePrivateCars
-import usecases.loadPersons
 import utils.Builder
 import utils.CodePlan
 import java.io.File
-
-interface Context {
-    val scenarioName: String
-    val demandFolder: File
-    fun reset()
-}
+import kotlin.time.DurationUnit
 
 interface HouseholdContext {
     val householdRepository: RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>
@@ -74,6 +71,13 @@ interface PrivateCarContext<B, E> where B : Builder<E>, E : PrivateCarData {
 
 interface BasePrivateCarContext : PrivateCarContext<PrivateCarBuilder, PrivateCarData>
 
+interface ActivityContext {
+    val timeUnit: DurationUnit
+    val activityTypeCodes: CodePlan<ActivityType>
+
+    val activityRepository: RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>
+}
+
 data class BaseContext(
     override val scenarioName: String,
     override val demandFolder: File,
@@ -83,16 +87,20 @@ data class BaseContext(
     override val graduationCodes: CodePlan<Graduation> = Graduation,
     override val employmentCodes: CodePlan<Employment> = Employment,
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
-) : Context, BaseZoneContext, HouseholdContext, EMobilityPersonContext {
+    override val timeUnit: DurationUnit = DurationUnit.MINUTES,
+    override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
+) : Context, BaseZoneContext, HouseholdContext, EMobilityPersonContext, ActivityContext {
 
     override val zoneRepository = RepositoryBuilder<ZoneDataBuilder, ZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
     override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
+    override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
 
     override fun reset() {
         zoneRepository.reset()
         householdRepository.reset()
         personRepository.reset()
+        activityRepository.reset()
     }
 }
 
@@ -107,12 +115,15 @@ data class LegacyContext(
     override val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val engineCodes: CodePlan<EngineType> = EngineType,
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
-) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext, BasePrivateCarContext {
+    override val timeUnit: DurationUnit = DurationUnit.MINUTES,
+    override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
+) : Context, LegacyZonesContext, HouseholdContext, EMobilityPersonContext, BasePrivateCarContext, ActivityContext {
 
     override val zoneRepository = RepositoryBuilder<LegacyZoneDataBuilder, LegacyZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
     override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
     override val carRepository = RepositoryBuilder<PrivateCarBuilder, PrivateCarData, CarId>()
+    override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
 
     private var index: Map<Int, LegacyZoneData>? = null
     override val zoneColumnIndex: Map<Int, LegacyZoneData>
@@ -129,41 +140,7 @@ data class LegacyContext(
         householdRepository.reset()
         personRepository.reset()
         carRepository.reset()
+        activityRepository.reset()
         index = null
     }
-}
-
-fun main() {
-    val context = LegacyContext(
-        scenarioName = "testSteps",
-        areaTypeCodes = Bbsr17,
-        demandFolder = File(
-            "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\logiktram_karlsruhe_long-term-module\\karlsruhe"
-        ),
-        economicalStatusCodes = EconomicStatus
-    )
-
-    context.synthesis {
-        loadZones()
-        loadHouseholds()
-        loadPersons()
-        preparePrivateCars()
-        assignCarUsers()
-        finishPrivateCars()
-    }
-
-    println(
-        "zones: " +
-            context.zoneRepository.elements.count()
-    )
-
-    println(
-        "households: " +
-            context.householdRepository.elements.count()
-    )
-
-    println(
-        "persons: " +
-            context.personRepository.elements.count()
-    )
 }

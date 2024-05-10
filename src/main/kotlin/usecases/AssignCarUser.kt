@@ -4,7 +4,6 @@ import domain.data.HouseholdData
 import domain.data.HouseholdId
 import domain.data.PersonData
 import domain.data.PrivateCarBuilder
-import modeling.steps.BasePrivateCarContext
 import modeling.steps.ModelExecution
 import modeling.steps.UpdateStep
 

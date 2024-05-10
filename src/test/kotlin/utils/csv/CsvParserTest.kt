@@ -1,9 +1,9 @@
 package utils.csv
 
-import ConsoleCaptor
 import assertEmpty
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import utils.ConsoleCaptor
 import utils.ErrorHandling
 import java.io.File
 import kotlin.test.assertContains

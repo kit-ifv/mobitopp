@@ -4,12 +4,15 @@ import utils.CodePlan
 import utils.Encodable
 
 /**
- * currently a placeholder interface, soon there will be additional methods
+ * A mode describes the type of transportation a person uses to travel.
+ * Each project can provide a custom definition of which mode of transportation are available.
  */
 interface Mode : Encodable
 
 /**
  * The default mode encoding from legacy MobiTopp
+ *
+ * @property code integer code of the mode
  */
 enum class StandardMode(private val code: Int) : Mode {
     UNDEFINED(-2),

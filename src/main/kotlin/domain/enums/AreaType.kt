@@ -3,10 +3,20 @@ package domain.enums
 import utils.CodePlan
 import utils.Encodable
 
+/**
+ * Area types can distinguish areas of different purpose: e.g. residential vs. industrial.
+ * There are multiple definitions of area types:
+ * hence each project can select which area type should be used.
+ */
 interface AreaType : Encodable {
     val description: String
 }
 
+/**
+ * ZoneAreaType is a AreaType encoding from legacy mobiTopp
+ *
+ * @property code integer encoding of the zone area type
+ */
 enum class ZoneAreaType(private val code: Int) : AreaType {
     DEFAULT(0),
     RURAL(1),
@@ -25,6 +35,13 @@ enum class ZoneAreaType(private val code: Int) : AreaType {
     }
 }
 
+/**
+ * AreaType based on RegioStaR 17 defined by:
+ * https://bmdv.bund.de/SharedDocs/DE/Artikel/G/regionalstatistische-raumtypologie.html
+ *
+ * @property code integer code of Bbsr17 area type
+ * @property text description of Bbsr17 area type
+ */
 @Suppress("EnumNaming", "EnumEntryNameCase")
 enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
     defaultType(0, "default"),

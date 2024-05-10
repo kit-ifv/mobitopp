@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import utils.csv.CsvParser
 import utils.csv.TestBuilder
 import java.io.File
+import kotlin.io.path.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
@@ -29,7 +30,11 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun source() {
-        assertEquals(expectedBaseSource(), resource.source)
+        assertEquals(
+            expectedBaseSource(),
+            resource.source,
+            "Expected '${expectedBaseSource()}' but got '${resource.source}'!"
+        )
     }
 
     @Test
@@ -39,7 +44,11 @@ abstract class ResourceTest<E> {
 
     @Test
     open fun testToString() {
-        assertEquals(expectedToString(), resource.toString())
+        assertEquals(
+            expectedToString(),
+            resource.toString(),
+            "Expected '${expectedToString()}' but got '$resource'!"
+        )
     }
 
     protected fun <T> validateMetadata(
@@ -100,7 +109,7 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
     }
 
     override fun expectedName() = "test_data.csv"
-    override fun expectedBaseSource() = "src\\test\\resources\\test_data.csv"
+    override fun expectedBaseSource() = Path("src", "test", "resources", "test_data.csv").toString()
     override fun expectedToString() = "CSV ${expectedName()} (${expectedBaseSource()})"
 
     override fun expectedElements() = utils.csv.expectedBuilders
@@ -117,7 +126,8 @@ class CsvResourceTest : ResourceTest<TestBuilder>() {
         val result = resource.build().reusable()
 
         assertEquals(10, result.elements.count())
-        assertEquals(expectedName(), result.name)
+        assertEquals(expectedName(), result.name, "Expected '${expectedName()}' but got '${result.name}'!")
+
         validateMetadata(result, expectedBaseSource(), "build")
         assertContentEquals(expectedBuildResults(), result.elements.toList())
     }

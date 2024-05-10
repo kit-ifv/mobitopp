@@ -22,9 +22,10 @@ interface Resource<out E> {
  *
  * @param E the generic type of elements
  * @constructor Create a [SequenceResource] with the given metadata and elements
+ *
  * @property name the resources name
  * @property source the resources description
- * @property sequence a sequence of elements
+ * @property elements a sequence of elements
  */
 data class SequenceResource<out E>(
     override val name: String,
@@ -35,13 +36,13 @@ data class SequenceResource<out E>(
 }
 
 /**
- * Create a [Resource] containing the given elements and metadata.
+ * Create a [Resource] containing the elements of the sequence and the given metadata.
  */
 fun <S, E> S.asResource(name: String, source: String): Resource<E> where S : Sequence<E> =
     SequenceResource(name, source, this)
 
 /**
- * Create a [Resource] containing the given elements and metadata.
+ * Create a [Resource] containing the elements of the iterator and the given metadata.
  */
 fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Iterable<E> =
     SequenceResource(name, source, this.asSequence())
@@ -80,6 +81,15 @@ class CsvResource<E> (
     override fun toString() = "CSV $name ($source)"
 }
 
+/**
+ * A ReusableResource is a [Resource] decorator that stores the elements
+ * of the provided sequence when it is computed for the first time (lazy).
+ * This might close the sequence and prevent a second use of the elements.
+ * Thi decorator provides the stored elements as a new sequence unlimited times.
+ *
+ * @param E the generic type of provided entities
+ * @property delegate the resource that should be made reusable
+ */
 class ReusableResource<E>(
     protected val delegate: Resource<E>
 ) : Resource<E> by delegate {

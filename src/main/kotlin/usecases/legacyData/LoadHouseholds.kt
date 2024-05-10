@@ -5,14 +5,14 @@ import domain.data.HouseholdDataBuilder
 import domain.data.LegacyZoneData
 import domain.location.RoadPosition
 import domain.location.parseRoadPosition
+import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
-import modeling.steps.HouseholdContext
-import modeling.steps.LegacyZonesContext
 import modeling.steps.ModelExecution
-import modeling.steps.PrepareCsvStep
 import units.CurrencyUnit
+import usecases.HouseholdContext
+import usecases.LegacyZonesContext
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -81,7 +81,7 @@ fun <S, C> S.prepareHouseholdsFile(
     val resource = CsvResource(householdFile, parser, delimiter)
 
     this.addStep(
-        PrepareCsvStep(
+        AddCsvStep(
             name = "load household csv",
             csv = resource,
             repository = context.householdRepository

@@ -23,6 +23,7 @@ const val ADULT_AGE_GER = 18
  * types become interesting)
  * @property hasCommuterTicket whether a PT ticket is present
  */
+@Suppress("ComplexInterface")
 interface PersonData : Identifiable<PersonId> {
     // These values can reasonably be expected for any Person to be present in the simulation
     val personId: Long
@@ -37,6 +38,9 @@ interface PersonData : Identifiable<PersonId> {
     val hasLicense: Boolean
 
     val memberships: Map<String, Boolean>
+
+    val plannedActivities: List<ActivityData>
+    fun addActivity(activity: ActivityData)
 
     val isAdult: Boolean
         get() = (age >= ADULT_AGE_GER)
@@ -81,6 +85,15 @@ class EMobilityPersonDataBuilder(
             override val hasLicense = this@EMobilityPersonDataBuilder.hasLicense!!
             override val memberships: Map<String, Boolean> = this@EMobilityPersonDataBuilder.memberships
             override val id: ID<PersonData> = registerId(personId)
+
+            override val plannedActivities: List<ActivityData>
+                get() = activities
+
+            private val activities = mutableListOf<ActivityData>()
+
+            override fun addActivity(activity: ActivityData) {
+                activities.add(activity)
+            }
 
             init {
                 this.householdData.addMember(this)

@@ -74,7 +74,7 @@ class HouseholdDataBuilder(
         override val id: ID<HouseholdData> = ID(
             requireNotNull(this@HouseholdDataBuilder.householdNumber) {
                 "id is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"
-            }
+            } // TODO check register
         )
 
         override val householdNumber: Long = requireNotNull(this@HouseholdDataBuilder.householdNumber) {

@@ -1,5 +1,4 @@
 
-import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -296,13 +295,6 @@ class Processor(
                 else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) } ?: "")
             }
             classDeclaration.superTypes.map {  }
-            logger.warn(className)
-            logger.warn(classDeclaration.superTypes.map { it.toString() }.joinToString(prefix="PArents: "))
-            logger.warn(classDeclaration.getDeclaredProperties().map{it.simpleName.asString()}.joinToString(prefix="WARA "))
-            logger.warn(classDeclaration.getAllProperties().map {
-                it.simpleName.asString() + " " + it.hasBackingField.toString() +
-                        " " + it.isDelegated() + " "+ it.findOverridee().toString() +
-                        " " + it.origin + " " + it.getter}.joinToString(separator = "\n"))
 
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList

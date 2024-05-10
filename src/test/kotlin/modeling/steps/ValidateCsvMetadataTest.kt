@@ -1,10 +1,10 @@
 package modeling.steps
 
-import ConsoleCaptor
 import assertNotContains
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import utils.ConsoleCaptor
 import utils.csv.CsvParser
 import utils.csv.INT_COL
 import utils.csv.STR_COL
@@ -155,7 +155,7 @@ class ValidateCsvMetadataTest {
         val res = ValidateCsvMetadata(step, complexValidResource).validate()
         val text = console.getText()
 
-        assertFalse(res)
+        assertTrue(res)
         assertNotContains(text, "ERROR: Invalid column ")
 
         assertContains(

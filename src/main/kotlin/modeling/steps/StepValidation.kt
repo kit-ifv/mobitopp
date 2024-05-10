@@ -7,6 +7,7 @@ import utils.ErrorHandling
 import utils.Identifiable
 import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
+import utils.csv.ErrorHandlingRow
 import utils.csv.Row
 
 fun <E> dummyCopyOf(resource: Resource<E>, step: ModelStep): Resource<E> {
@@ -61,7 +62,7 @@ fun repairInitState(
     step: ModelStep
 ) = when (repository.state) {
     RepositoryState.UNINITIALIZED -> {
-        repository.prepare(dummyResource(step))
+        repository.addBuilders(dummyResource(step))
         repository.build()
     }
     RepositoryState.PREPARING -> {
@@ -78,14 +79,14 @@ fun <B> repairPreparingState(
     step: ModelStep
 ) where B : Builder<*> = when (repository.state) {
     RepositoryState.UNINITIALIZED -> {
-        repository.prepare(dummyCopyOf(resource, step))
+        repository.addBuilders(dummyCopyOf(resource, step))
     }
 
     RepositoryState.PREPARING -> { /* State is already BUILDING */ }
 
     RepositoryState.FINISHED -> {
         repository.reset()
-        repository.prepare(dummyCopyOf(resource, step))
+        repository.addBuilders(dummyCopyOf(resource, step))
     }
 }
 
@@ -107,6 +108,7 @@ fun <B, E> validatePrepareCsvStep(
 ) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
     val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
         ValidateCsvMetadata(step, csv).validate()
+    // and ValidateCsvSample(step, csv).validate()
 
     repairPreparingState(repository, csv, step)
     check(validateState(repository, RepositoryState.PREPARING, step))
@@ -226,7 +228,7 @@ class ValidateCsvMetadata<E>(
             }
         }
 
-        isValid = false // TODO think about validity
+        // isValid = false // TODO think about validity
         println(
             "WARNING: Value of column '$column' of $csv could not be mocked " +
                 "for parsing! Validation of columns in step '${step.name}' may be incomplete!"
@@ -252,5 +254,43 @@ class ValidateCsvMetadata<E>(
             )
             isValid = false
         }
+    }
+}
+
+class ValidateCsvSample<E>(
+    private val step: ModelStep,
+    private val csv: CsvResource<E>,
+    private val sampleSize: Int = 2000,
+    private val reader: CsvReader = DefaultCsvReader(csv.file)
+) : CsvReader by reader {
+
+    private var messages = ""
+    private var valid = true
+
+    fun validate(): Boolean {
+        csv.parser.parse(this).count()
+
+        if (!valid) {
+            println("Parsing first $sampleSize csv rows in step ${step.name} produced errors:")
+            println(messages)
+        }
+
+        return valid
+    }
+
+    override val rowCount: Int = sampleSize
+    override fun rows(): Sequence<Row> =
+        reader.rows().take(sampleSize).map {
+            ErrorHandlingRow(it, ErrorHandling.THROW) { e ->
+                messages += (e.message ?: "") + "\n"
+                valid = false
+            }
+        }
+}
+
+class ValidationRepositoryBuilder<B, E, I> : RepositoryBuilder<B, E, I>() where B : Builder<E>, E : Identifiable<I> {
+
+    override fun getById(id: I): E? {
+        return super.getById(id)
     }
 }
