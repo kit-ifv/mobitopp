@@ -25,7 +25,7 @@ interface PlanModel : LegTracker, ActivityTracker {
     val dispatcher: Dispatcher
 
     // Remove first does not require a linked Action, once removed it can be free-floating again
-    fun removeFirst(): Action?
+    fun removeFirst(): LinkedAction?
 
     fun actions(): Collection<LinkedAction>
 
@@ -133,7 +133,7 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
     fun replaceLegs(target: SortedSet<Leg>, to: SortedSet<Leg>) =
         modifyModels { replaceLegs(target, to) }
 
-    fun pollFirst(): Action? {
+    fun pollFirst(): LinkedAction? {
         val target = mutableCollection.first().first()
         target?.let { modifyModels { removeFirst() } }
         return target
@@ -169,9 +169,8 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
         actions.removeAll(actions.filter { it < activity }.toSet())
     }
 
-    override fun removeFirst(): Action {
+    override fun removeFirst(): LinkedAction {
         val target = actions.first()
-
         actions.remove(target)
         return target
     }
@@ -300,7 +299,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         activityBlocks.previous = null
     }
 
-    override fun removeFirst(): Action? {
+    override fun removeFirst(): LinkedAction? {
         val target = actionBlocks.first { !it.isEmpty() }.removeFirst()
         return target
     }

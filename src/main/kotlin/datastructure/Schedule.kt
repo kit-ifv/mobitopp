@@ -3,34 +3,29 @@ package datastructure
 import java.util.*
 import kotlin.time.Duration
 
-/**
- * TODO Stub class for Events remove once integrated into the event system of jellorius
- */
-fun interface Event {
-    fun happen()
-}
+class CurrentAction(private val linkedAction: LinkedAction): Action by linkedAction {
 
-/**
- * A solution to prevent already executed actions to cal onBegin / on End
- */
-class ArchivedAction(original: Action) : Action by original {
-    override fun onBegin() {
-        println("Cannot call onBegin on arcvhived action")
-    }
+    override var endTime: Duration
+        get() = linkedAction.endTime
+        set(value) {
+            linkedAction.endTime = value
+        }
+    override var endLocation: Location
+        get() = linkedAction.endLocation
+        set(value) {
+            linkedAction.endLocation = value
+        }
+    override var latestEndTime: Duration
+        get() = linkedAction.latestEndTime
+        set(value) {
+            linkedAction.latestEndTime = value
+        }
 
-    override fun onEnd() {
-        println("Cannot call onEnd on archived action")
-    }
+
 }
-class CurrentAction(original: Action) : Action by original {
-    override fun onBegin() {
-        println("Cannot call onBegin on started action")
-    }
-}
-class ScheduleMaintainer(
+class Schedule(
     private val model: PlanModel,
-    val convertToBeginEvent: (Action) -> Event,
-    val convertToEndEvent: (Action) -> Event
+
 ) : PlanView {
 
     override val dispatcher: Dispatcher = Dispatcher()
@@ -39,19 +34,19 @@ class ScheduleMaintainer(
     }
 
     private var currentTime: Duration = -Duration.INFINITE
-    private val history: MutableList<ArchivedAction> = mutableListOf()
+    private val history: MutableList<Action> = mutableListOf()
+
 
     private var current: CurrentAction? = null
 
-    private var nextEvent: Event? = null
 
-    fun getHistory(): List<ArchivedAction> = history
+
+    fun getHistory(): List<Action> = history
     fun handleEvent() {
-        nextEvent?.happen()
         current?.let {
-            nextEvent = convertToEndEvent(it)
+
             currentTime = it.endTime
-            history.add(ArchivedAction(it))
+            history.add(it)
             current = null
         } ?: run {
             val target = pollFirst()
@@ -59,17 +54,9 @@ class ScheduleMaintainer(
         }
     }
 
-    private fun Action.setNewAction() {
+    private fun LinkedAction.setNewAction() {
         currentTime = this.startTime
         current = CurrentAction(this)
-        nextEvent = convertToBeginEvent(this)
-    }
-    fun replaceCurrent(action: Action) {
-        require(listOfNotNull(action, model.first()).isConsistent())
-        current?.let {
-            current = CurrentAction(action)
-            nextEvent = convertToEndEvent(action)
-        }
     }
     override fun add(leg: Leg) {
         require(leg.startTime >= currentTime)
@@ -99,7 +86,4 @@ class ScheduleMaintainer(
         super.replaceLegs(target, to)
     }
 
-    override fun pollFirst(): Action? {
-        return super.pollFirst()
-    }
 }

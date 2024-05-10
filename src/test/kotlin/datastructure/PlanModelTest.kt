@@ -279,9 +279,9 @@ abstract class PlanModelTest {
                 model.clear()
                 test.forEach { model.apply(it.executable) }
 
-                assertEquals(activity1 as Action?, model.first())
-                assertEquals(activity1 as Action, model.removeFirst())
-                assertEquals(leg1 as Action?, model.first())
+                assertEquals(activity1, model.first()?.original)
+                assertEquals(activity1, model.removeFirst()?.original)
+                assertEquals(leg1, model.first()?.original)
             }
         }.toList()
     }
