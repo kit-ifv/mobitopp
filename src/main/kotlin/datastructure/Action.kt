@@ -72,7 +72,7 @@ fun Iterable<Action>.isConsistent(): Boolean {
     return t.all { it }
 }
 
-fun Iterable<Action>.hasExceedings(): Boolean {
+fun Iterable<Action>.hasTimeBoundViolations(): Boolean {
     return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
 }
 

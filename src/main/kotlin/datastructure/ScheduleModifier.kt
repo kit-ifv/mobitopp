@@ -10,7 +10,7 @@ class Person(var location: Location)
 
 class SkipToNextHomeActivity : ScheduleModifier {
     override fun modify(planView: SeparablePlanModel, currentTime: Duration) {
-        if (planView.actions().hasExceedings()) {
+        if (planView.actions().hasTimeBoundViolations()) {
             require(planView.actions().isConsistent())
             val nextHomeActivity =
                 planView.activities().dropWhile { it.endTime < currentTime }.first { it.type == ActivityType.HOME }
