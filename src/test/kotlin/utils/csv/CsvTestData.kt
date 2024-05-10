@@ -1,8 +1,8 @@
 package utils.csv
 
-import Builder
-import ID
-import Identifiable
+import utils.Builder
+import utils.ID
+import utils.Identifiable
 import kotlin.time.Duration
 
 const val INDEX_COL = "index"
@@ -12,6 +12,8 @@ const val FLOAT_COL = "float"
 const val STR_COL = "str"
 
 val COLUMNS = listOf(INDEX_COL, BOOL_COL, INT_COL, FLOAT_COL, STR_COL)
+
+typealias TestId = ID<TestEntity>
 
 data class TestEntity(
     var rowIndex: Int,
@@ -25,7 +27,7 @@ data class TestEntity(
     var double: Double = 0.0,
     var bool: Boolean = false,
     var duration: Duration? = null,
-) : Identifiable<TestEntity> {
+) : Identifiable<TestId> {
     override val id: ID<TestEntity>
         get() = ID(rowIndex.toLong())
 }

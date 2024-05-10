@@ -1,3 +1,4 @@
+
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -18,8 +19,8 @@ import java.io.OutputStream
 
 class Props(private val name: String, private val type: KSTypeReference) {
 
-    constructor(property: KSPropertyDeclaration) : this(property.simpleName.asString(), property.type)
-    constructor(property: KSValueParameter) : this(property.name?.asString()!!, property.type)
+    constructor(property: KSPropertyDeclaration): this(property.simpleName.asString(), property.type)
+    constructor(property: KSValueParameter): this(property.name?.asString()!!, property.type)
 
     enum class State {
         PRIMITIVE {
@@ -31,16 +32,15 @@ class Props(private val name: String, private val type: KSTypeReference) {
                 return "null"
             }
 
+
         },
         OBJECT {
             override fun variability(): String {
                 return "var"
             }
-
             override fun type(type: String, fullRef: KSTypeReference): String {
-                return fullRef.resolve().declaration.qualifiedName?.asString() ?: ""
+                return fullRef.resolve().declaration.qualifiedName?.asString() ?:""
             }
-
             override fun defaultValue(type: String): String {
                 return "null"
             }
@@ -76,7 +76,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
             override fun defaultValue(type: String): String {
                 return type[0].lowercase() + type.substring(1) + "Of()"
             }
-
             override fun reset(type: String): String {
                 return ".clear()"
             }
@@ -92,10 +91,10 @@ class Props(private val name: String, private val type: KSTypeReference) {
                 }
             }
         }
-
         open val nullable = "?"
         abstract fun variability(): String
         abstract fun defaultValue(type: String): String
+
 
 
         open fun type(type: String, fullRef: KSTypeReference): String {
@@ -123,12 +122,7 @@ class Props(private val name: String, private val type: KSTypeReference) {
     }
 
     fun initialize(): String {
-        return "${state.variability()} $name : ${
-            state.type(
-                typeString,
-                type
-            )
-        }$generics${state.nullable} = ${state.defaultValue(typeString)}"
+        return "${state.variability()} $name : ${state.type(typeString, type)}$generics${state.nullable} = ${state.defaultValue(typeString)}"
     }
 
     fun reset(): String {
@@ -171,15 +165,13 @@ fun stringify(text: KSTypeReference): String {
     }
 
 }
-
 enum class ClassType {
     INTERFACE,
     ABSTRACT,
     CLASS;
-
     companion object {
         fun fromDeclaration(decl: KSClassDeclaration): ClassType {
-            return when (decl.classKind to decl.isAbstract()) {
+            return when(decl.classKind to decl.isAbstract()) {
                 ClassKind.INTERFACE to true -> INTERFACE
                 ClassKind.INTERFACE to false -> INTERFACE
                 ClassKind.CLASS to true -> ABSTRACT
@@ -189,7 +181,6 @@ enum class ClassType {
     }
 
 }
-
 fun typeInterpret(type: KSTypeReference): String {
 
     val res = type.resolve()
@@ -234,8 +225,8 @@ class Processor(
             if (packageName.isNotEmpty()) {
                 file += "package $packageName\n"
             }
-            file += "import Builder\n"
-            file += "import ID\n"
+            file += "import utils.Builder\n"
+            file += "import utils.ID\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
             file.close()
@@ -254,53 +245,35 @@ class Processor(
 
             val cType = ClassType.fromDeclaration(classDeclaration)
 
-            val createBuildFunction = when (cType) {
+            val createBuildFunction = when(cType) {
 
                 ClassType.INTERFACE -> "override fun build(): $className" {
                     +"class Default$className(${
-                        classDeclaration.getAllProperties().filter { !it.hasBackingField || it.findOverridee() == null }
-                            .map {
-                                "override val " + it.simpleName.asString() + ": " + typeInterpret(it.type) + " = this.${
-                                    it.simpleName.asString() + stringify(
-                                        it.type
-                                    )
-                                }"
-                            }
-                            .joinToString(prefix = "\n", separator = ",\n")
+                        classDeclaration.getAllProperties().filter {!it.hasBackingField || it.findOverridee() == null}
+                            .map { "override val " + it.simpleName.asString() + ": " + typeInterpret(it.type)+ " = this.${it.simpleName.asString() + stringify(it.type)}" }
+                            .joinToString(prefix = "\n", separator =",\n")
                     }) :$className" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {
-                            "override fun ${it.simpleName.asString()}(${
-                                it.parameters.map {
-                                    it.name?.asString() + ": " + typeInterpret(
-                                        it.type
-                                    )
-                                }.joinToString(separator = ", ")
-                            }): ${typeInterpret(it.returnType!!)}" {
-                                +"throw NotImplementedError()"
-                            }
-                        }.joinToString(separator = "\n")
+                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {"override fun ${it.simpleName.asString()}(${it.parameters.map { it.name?.asString() + ": " +  typeInterpret(it.type)}.joinToString(separator = ", ")}): ${typeInterpret(it.returnType!!)}"  {
+                            +"throw NotImplementedError()"
+                        }
+                        }.joinToString(separator ="\n")
                     }
                     +"return Default$className()"
                 }
-
                 ClassType.ABSTRACT -> "override fun build(): $className" {
-                    +"class Default$className :$className(${
-                        classDeclaration.primaryConstructor?.parameters?.joinToString {
-                            it.name?.asString() + stringify(
-                                it.type
-                            )
-                        } ?: ""
-                    })" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {
-                            "override fun ${it.simpleName.asString()}(): ${it.returnType.toString()}" {
-                                +"throw NotImplementedError()"
-                            }
+                    +"class Default$className :$className(${classDeclaration.primaryConstructor?.parameters?.joinToString {
+                        it.name?.asString() + stringify(
+                            it.type
+                        )
+                    } ?: ""})" {
+                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {"override fun ${it.simpleName.asString()}(): ${it.returnType.toString()}"  {
+                            +"throw NotImplementedError()"
+                        }
                         }.joinToString()
                     }
                     +"return Default$className()"
                 }
-
-                ClassType.CLASS -> "override fun build(): $className" {
+                ClassType.CLASS ->"override fun build(): $className" {
                     +"return $className(${
                         (classDeclaration.primaryConstructor?.parameters?.joinToString {
                             it.name?.asString() + stringify(
@@ -311,34 +284,25 @@ class Processor(
 
                 }
             }
-            val resetFunction = when (classDeclaration.classKind) {
-                ClassKind.INTERFACE -> classDeclaration.getAllProperties()
-                    .filter { !it.hasBackingField || it.findOverridee() == null }.map {
+            val resetFunction = when(classDeclaration.classKind) {
+                ClassKind.INTERFACE -> classDeclaration.getAllProperties().filter {!it.hasBackingField|| it.findOverridee() == null}.map {
                     resetType(it)
                 }.joinToString(separator = "\n")
-
-                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) }
-                    ?: "")
+                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) } ?: "")
             }
 
-            val parameterList = when (classDeclaration.classKind) {
-                ClassKind.INTERFACE -> classDeclaration.getAllProperties()
-                    .filter { !it.hasBackingField || it.findOverridee() == null }.map { properType(it) }
-                    .joinToString(separator = "\n")
-
-                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) }
-                    ?: "")
+            val parameterList = when(classDeclaration.classKind) {
+                ClassKind.INTERFACE -> classDeclaration.getAllProperties().filter {!it.hasBackingField|| it.findOverridee() == null}.map{properType(it)}.joinToString(separator = "\n")
+                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) } ?: "")
             }
-            classDeclaration.superTypes.map { }
+            classDeclaration.superTypes.map {  }
             logger.warn(className)
-            logger.warn(classDeclaration.superTypes.map { it.toString() }.joinToString(prefix = "PArents: "))
-            logger.warn(classDeclaration.getDeclaredProperties().map { it.simpleName.asString() }
-                .joinToString(prefix = "WARA "))
+            logger.warn(classDeclaration.superTypes.map { it.toString() }.joinToString(prefix="PArents: "))
+            logger.warn(classDeclaration.getDeclaredProperties().map{it.simpleName.asString()}.joinToString(prefix="WARA "))
             logger.warn(classDeclaration.getAllProperties().map {
                 it.simpleName.asString() + " " + it.hasBackingField.toString() +
-                        " " + it.isDelegated() + " " + it.findOverridee().toString() +
-                        " " + it.origin + " " + it.getter
-            }.joinToString(separator = "\n"))
+                        " " + it.isDelegated() + " "+ it.findOverridee().toString() +
+                        " " + it.origin + " " + it.getter}.joinToString(separator = "\n"))
 
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList
@@ -349,16 +313,16 @@ class Processor(
                     +"this.apply(lambda)"
                     +"return build()"
                 }
-                +"fun build(lambda: $newClassName.() -> Unit) : $className" {
-                    +"val result = buildPreserving(lambda)"
-                    +"reset()"
-                    +"return result"
+                + "fun build(lambda: $newClassName.() -> Unit) : $className" {
+                    + "val result = buildPreserving(lambda)"
+                    + "reset()"
+                    + "return result"
                 }
                 +"fun reset()" {
                     +resetFunction
 
                 }
-                +createBuildFunction
+                + createBuildFunction
 
             } + "\n"
 

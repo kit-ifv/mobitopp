@@ -1,7 +1,12 @@
 package utils
 
-import ID
 import kotlin.reflect.KClass
+
+@JvmInline
+value class ID<out E> (val id: Long)
+interface Identifiable<I> {
+    val id: I
+}
 
 internal class IdCounter {
     private var counter: Long = 0
@@ -37,7 +42,7 @@ internal object GlobalIdCount {
     fun drawId(clazz: KClass<*>): Long = getCounter(clazz).next
 
     fun requestId(clazz: KClass<*>, requestedId: Long): Long =
-        getTracker(clazz).register(requestedId, clazz.simpleName!!)
+        getTracker(clazz).register(requestedId, clazz.simpleName ?: "UndefinedClass")
 }
 
 fun drawId(clazz: KClass<*>): Long = GlobalIdCount.drawId(clazz)
