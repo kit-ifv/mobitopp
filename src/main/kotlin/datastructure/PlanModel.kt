@@ -88,6 +88,15 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
     return this.squeeze(action.startTime, action.endTime, force)
 }
 
+/**
+ * This function is designed to shift all activities so that the Time Interval [from, block] is freed. All Actions
+ * should be shifted the same amount, so breaks in the activity plan should remain the same breaks. No squeezing.
+ *
+ * @param from the start of the time Interval
+ * @param to the end of the time interval to be freed
+ *
+ * @param force Overwrites the actions regardless of their earliest start or latest end time
+ */
 fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
@@ -95,12 +104,11 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
                 it.endTime + block <= (it.latestEndTime)
         } || force
     ) {
-        // TODO show debugger here later maybe
         targets.reversed().forEach {
             it.shiftByDelta(block)
         }
     } else {
-        error("The schedule does not support the shift requested.")
+        error("The schedule does not support the shift requested. ${this.actions()}")
     }
 }
 
