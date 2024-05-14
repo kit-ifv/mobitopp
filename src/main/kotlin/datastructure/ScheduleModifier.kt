@@ -35,7 +35,4 @@ object SkipToNextHomeActivity : ScheduleModifier {
 //            }
         }
     }
-    private fun redirectCurrentLeg(to: Location) {
-
-    }
 }

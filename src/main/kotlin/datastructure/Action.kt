@@ -15,6 +15,7 @@ import kotlin.time.Duration
 sealed interface Action : Comparable<Action> {
     val startTime: Duration
     val actionType: ActionType
+
     /**
      * [duration] is a derived property of an action by the difference of [endTime] and [startTime]. If you see
      * that your code is relying heavily on this property it might be prudent to implement your own Action with

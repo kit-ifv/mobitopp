@@ -6,6 +6,7 @@ import java.util.*
  * An [ActionBlock] contains a navigable set of items of type [T]. Unlike the specific implementations the action block
  * does not know the type of the [previous] and [next] block.
  */
+@Suppress("TooManyFunctions") // I have no good idea what to refactor out
 abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     internal abstract val item: NavigableSet<T>
     abstract val next: ActionBlock<*>?

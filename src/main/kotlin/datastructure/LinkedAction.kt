@@ -36,7 +36,6 @@ abstract class LinkedAction : Action {
         val duration = duration
         startTime = timePoint
         endTime = startTime + duration
-
     }
 
     fun requiresPushback(target: Duration) = endTime > target
@@ -185,7 +184,6 @@ class LinkedLeg(
         set(value) {
             original.latestEndTime = value
         }
-
 
     override fun equals(other: Any?): Boolean {
         return original == other

@@ -16,14 +16,16 @@ fun <T> List<T>.nextOrNull(index: Int): T? {
 
 fun <T> T?.iterate(followup: Iterable<T>): Iterable<T> {
     return if (this != null) {
-        object: Iterable<T> {
+        object : Iterable<T> {
             /**
              * Returns an iterator over the elements of this object.
              */
             override fun iterator(): Iterator<T> {
-                return object :Iterator<T> {
+                @Suppress("IteratorNotThrowingNoSuchElementException") // The iterator will throw the exception
+                return object : Iterator<T> {
                     var elementWasReturned = false
                     val originalIterator = followup.iterator()
+
                     /**
                      * Returns `true` if the iteration has more elements.
                      */
@@ -35,25 +37,20 @@ fun <T> T?.iterate(followup: Iterable<T>): Iterable<T> {
                      * Returns the next element in the iteration.
                      */
                     override fun next(): T {
-                        return if(!elementWasReturned) {
+                        return if (!elementWasReturned) {
                             elementWasReturned = true
                             this@iterate
-                        }
-                        else {
+                        } else {
                             originalIterator.next()
                         }
                     }
-
                 }
             }
-
         }
-    }
-    else {
+    } else {
         followup
     }
 }
-
 
 fun <T : Comparable<T>> MutableList<T>.addByOrder(element: T): Boolean {
     val position = binarySearch { it.compareTo(element) }

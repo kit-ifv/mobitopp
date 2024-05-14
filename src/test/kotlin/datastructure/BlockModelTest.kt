@@ -21,10 +21,9 @@ class BlockModelTest : PlanModelTest() {
         model = bModel
     }
 
-//
+    //
     @Test
     fun noInconsistencies() {
-
         model.add(activity1)
         model.add(Leg.fromDuration(activity1.endTime - 1.minutes, duration = 1.hours, START, OTHER))
         assertContentEquals(model.actions(), setOf<Action>(activity1))
@@ -48,7 +47,5 @@ class BlockModelTest : PlanModelTest() {
         bModel.dropUntil(activity3)
         val targets = bModel.activities()
         targets.forEach { assertNotNull(it.previous) }
-
     }
-
 }
