@@ -49,6 +49,8 @@ interface PlanModel : LegTracker, ActivityTracker {
 interface SeparablePlanModel : PlanModel {
     fun activities(): Collection<LinkedActivity>
     fun legs(): Collection<LinkedLeg>
+
+    fun view(): BlockModel.TripView
 }
 
 fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
@@ -118,6 +120,13 @@ interface PlanView {
     fun pollFirst() = dispatcher.pollFirst()
 }
 
+fun PlanView.addAll(vararg elements: Activity) {
+    elements.forEach { add(it) }
+}
+
+fun PlanView.addAll(vararg elements: Leg) {
+    elements.forEach { add(it) }
+}
 class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = mutableSetOf()) {
     fun register(model: PlanModel) {
         mutableCollection.add(model)
@@ -318,7 +327,11 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     }
 
     override fun removeFirst(): LinkedAction? {
-        val target = actionBlocks.first { !it.isEmpty() }.removeFirst()
+        val targetBlock = actionBlocks.first { !it.isEmpty() }
+        val target = targetBlock.removeFirst()
+        if (targetBlock.isEmpty() && targetBlock is LegBlock) {
+            legBlockList.removeFirst()
+        }
         return target
     }
 
@@ -398,7 +411,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         activityBlocks.item.clear()
     }
 
-    fun view(): TripView {
+    override fun view(): TripView {
         return TripView(this)
     }
 

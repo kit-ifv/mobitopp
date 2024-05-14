@@ -5,6 +5,8 @@ import kotlin.time.Duration
 
 class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAction {
 
+    val original: Action = linkedAction.original
+
     val type: ActionType = linkedAction.actionType
     override var endTime: Duration
         get() = linkedAction.endTime
@@ -41,13 +43,17 @@ class Schedule(
     var present: CurrentAction? = null
         private set
 
-    val future = model.actions().toList()
+    val future get() = model.actions().toList()
+
+    fun actions(): List<LinkedAction> = model.actions().toList()
+
+    fun tripView() = model.view()
     fun lastAction(): Action = present ?: past.last()
     fun activities() = model.activities()
-    fun handleEvent() {
+    fun step() {
         present?.let {
             currentTime = it.endTime
-            alterableHistory.add(it)
+            alterableHistory.add(it.original)
             present = null
         } ?: run {
             val target = pollFirst()
