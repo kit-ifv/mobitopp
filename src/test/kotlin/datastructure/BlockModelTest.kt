@@ -44,6 +44,7 @@ class BlockModelTest : PlanModelTest() {
         bModel.add(activity2)
         bModel.add(activity2b)
         bModel.add(activity3)
+        bModel.removeFirst()
         bModel.dropUntil(activity3)
         val targets = bModel.activities()
         targets.forEach { assertNotNull(it.previous) }

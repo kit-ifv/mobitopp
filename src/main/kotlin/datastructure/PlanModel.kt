@@ -24,7 +24,11 @@ interface PlanModel : LegTracker, ActivityTracker {
 
     val dispatcher: Dispatcher
 
-    // Remove first does not require a linked Action, once removed it can be free-floating again
+    /**
+     * Removes the first Action from the plan. Note that this element remains a [LinkedAction] and thus has access to
+     * the [LinkedAction.previous] and [LinkedAction.next] fields. The source that called this function should also
+     * perform the unlinking process if the element is not immediately discarded.
+     */
     fun removeFirst(): LinkedAction?
 
     fun actions(): Collection<LinkedAction>
@@ -59,7 +63,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     val targets = afterAction.zip(requiredShift).filter { it.second > Duration.ZERO }
     val valid = targets.all { (action, shift) ->
         (action.latestEndTime) >= action.endTime + shift &&
-            (action.earliestStartTime) <= action.startTime + shift
+                (action.earliestStartTime) <= action.startTime + shift
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
@@ -70,7 +74,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
             "Some actions in the plan cannot support the requested squeeze ${
                 targets.filter { (action, shift) ->
                     (action.latestEndTime) < action.endTime + shift ||
-                        (action.earliestStartTime) > action.startTime + shift
+                            (action.earliestStartTime) > action.startTime + shift
                 }.map { (action, dur) ->
                     "${action.original} necessaryShift=$dur"
                 }
@@ -87,9 +91,10 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
             it.startTime + block >= (it.earliestStartTime) &&
-                it.endTime + block <= (it.latestEndTime)
+                    it.endTime + block <= (it.latestEndTime)
         } || force
     ) {
+        // TODO show debugger here later maybe
         targets.reversed().forEach {
             it.shiftByDelta(block)
         }
@@ -167,7 +172,12 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
     }
 
     override fun dropUntil(activity: Activity) {
+        val external = first()?.previous
         actions.removeAll(actions.filter { it < activity }.toSet())
+        val new = first()
+        new?.previous = external
+        external?.next = new
+
     }
 
     override fun removeFirst(): LinkedAction {
@@ -278,8 +288,10 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     }
 
     override fun dropUntil(activity: Activity) {
-        val previousBlocks = activityBlocks.takeWhile { !it.containsAction(activity) }
-        val newStart = activityBlocks.first { it.containsAction(activity) }
+        val previousElement = first()?.previous
+
+        val previousBlocks = activityBlocks.takeWhile { it.compareTo(activity) == -1 }.filter { !it.isEmpty() }
+        val newStart = activityBlocks.firstOrNull { it.containsAction(activity) }
         val legBlocks = previousBlocks.mapNotNull { it.next }
 
         legBlockList.removeAll(legBlockList.filter { trip -> legBlocks.any { trip.matches(it) } })
@@ -295,12 +307,16 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
             targets.clear()
         }
 
-        val badElements = newStart.item.filter {it < activity}
+        val badElements = newStart?.item?.filter { it < activity }
 
-        badElements.forEach { remove(it) }
-        activityBlocks = newStart
+        badElements?.forEach { remove(it) }
+        activityBlocks = newStart ?: activityBlocks
         // Set previous to null and let GC handle the cleanup of all the previous blocks
         activityBlocks.previous = null
+
+        val start = first()
+        start?.previous = previousElement
+        previousElement?.next = start
     }
 
     override fun removeFirst(): LinkedAction? {
@@ -374,8 +390,8 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         return actionBlocks.flatMap { it.item }
     }
 
-    override fun first(): LinkedAction {
-        return actionBlocks.first { !it.item.isEmpty() }.firstElement()
+    override fun first(): LinkedAction? {
+        return actionBlocks.firstOrNull { !it.item.isEmpty() }?.firstElement()
     }
 
     override fun clear() {

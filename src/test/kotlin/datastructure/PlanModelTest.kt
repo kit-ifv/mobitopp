@@ -88,8 +88,8 @@ abstract class PlanModelTest {
 
     private fun Triple<Collection<Action>, Collection<Action>, Collection<Action>>.decode(): String {
         return first.joinToString { it.decodeToShorthand() } + "|" +
-            second.joinToString { it.decodeToShorthand() } + "|" +
-            third.joinToString { it.decodeToShorthand() }
+                second.joinToString { it.decodeToShorthand() } + "|" +
+                third.joinToString { it.decodeToShorthand() }
     }
 
     private fun Pair<Collection<Action>, Collection<Action>>.decode(): String {
@@ -280,7 +280,10 @@ abstract class PlanModelTest {
                 test.forEach { model.apply(it.executable) }
 
                 assertEquals(activity1, model.first()?.original)
-                assertEquals(activity1, model.removeFirst()?.original)
+                val target = model.removeFirst()
+                assertEquals(target?.next, model.first())
+                assertEquals(target, model.first()?.previous)
+                assertEquals(activity1, target?.original)
                 assertEquals(leg1, model.first()?.original)
             }
         }.toList()
@@ -298,6 +301,31 @@ abstract class PlanModelTest {
 
                 model.dropUntil(test)
                 val target = (activities.filter { it >= test } + legs.filter { it >= test }).toSortedSet()
+
+                assertContentEquals(model.actions(), target)
+            }
+        }
+    }
+
+    @TestFactory
+    fun poppingAnElementShouldMaintainALink(): List<DynamicTest> {
+        val activities = setOf(activity1, activity2, activity2b, activity3)
+        val legs = setOf(leg1, leg1b, leg2, leg2b)
+        return activities.map { test ->
+            DynamicTest.dynamicTest(test.toString()) {
+                model.clear()
+                activities.forEach { model.add(it) }
+                legs.forEach { model.add(it) }
+                val removedElement = model.removeFirst()
+                model.dropUntil(test)
+                val firstElement = model.first()
+                assertEquals(removedElement?.next, firstElement)
+                assertEquals(removedElement, firstElement?.previous)
+                val target = (setOf(
+                    activity2,
+                    activity2b,
+                    activity3
+                ).filter { it >= test } + legs.filter { it > test }).toSortedSet()
                 assertContentEquals(model.actions(), target)
             }
         }
