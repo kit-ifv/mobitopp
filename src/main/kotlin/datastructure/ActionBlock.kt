@@ -59,14 +59,13 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         return item.any { it.compareTo(action) == 0 }
     }
 
-    fun lower(other: Action): LinkedAction? {
+    private fun lower(other: Action): LinkedAction? {
         return item.lastOrNull { it.original < other } ?: previous?.lastElementOrNull()
     }
 
-    fun higher(other: Action): LinkedAction? {
+    private fun higher(other: Action): LinkedAction? {
         return item.firstOrNull { it.original > other } ?: next?.firstElementOrNull()
     }
-
     abstract fun clear()
 
     fun link(activity: Activity): LinkedActivity {

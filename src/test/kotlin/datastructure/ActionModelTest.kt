@@ -151,7 +151,7 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(6, 1))
         model.add(activity(8, 1))
         model.add(activity(10, 1))
-        model.shift(4.5.hours, 2.hours)
+        model.shift(4.5.hours, 2.hours, force = true)
 
         assertContentEquals(
             model.actions(),

@@ -45,6 +45,7 @@ interface PlanModel : LegTracker, ActivityTracker {
 interface SeparablePlanModel : PlanModel {
     fun activities(): Collection<LinkedActivity>
     fun legs(): Collection<LinkedLeg>
+
 }
 
 fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
@@ -62,7 +63,7 @@ fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
     }
     if (valid || force) {
         targets.reversed().forEach { (action, shift) ->
-            action.shift(shift)
+            action.shiftByDelta(shift)
         }
     } else {
         error(
@@ -89,8 +90,8 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
                 it.endTime + block <= (it.latestEndTime)
         } || force
     ) {
-        targets.forEach {
-            it.shift(block)
+        targets.reversed().forEach {
+            it.shiftByDelta(block)
         }
     } else {
         error("The schedule does not support the shift requested.")
@@ -283,17 +284,20 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
 
         legBlockList.removeAll(legBlockList.filter { trip -> legBlocks.any { trip.matches(it) } })
         // not going through the clear method, but rather clearing items directly to avoid pointer issues
-        previousBlocks.forEach {
-            val targets = it.item
+        previousBlocks.forEach { activityBlock ->
+            val targets = activityBlock.item
             targets.forEach { it.unlink() }
             targets.clear()
         }
-        legBlocks.forEach {
-            val targets = it.item
+        legBlocks.forEach { legBlock ->
+            val targets = legBlock.item
             targets.forEach { it.unlink() }
             targets.clear()
         }
-        newStart.item.removeAll(newStart.item.filter { it < activity }.toSet())
+
+        val badElements = newStart.item.filter {it < activity}
+
+        badElements.forEach { remove(it) }
         activityBlocks = newStart
         // Set previous to null and let GC handle the cleanup of all the previous blocks
         activityBlocks.previous = null

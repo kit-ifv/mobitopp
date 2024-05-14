@@ -25,7 +25,19 @@ abstract class LinkedAction : Action {
         next = null
     }
 
-    abstract fun shift(duration: Duration): Duration
+    fun shiftByDelta(duration: Duration): Duration {
+        startTime += duration
+        endTime += duration
+        return max(next?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
+    }
+
+    fun shiftStartTo(timePoint: Duration) {
+        // Keeping the original duration as changing the start or end would influence the value
+        val duration = duration
+        startTime = timePoint
+        endTime = startTime + duration
+
+    }
 
     fun requiresPushback(target: Duration) = endTime > target
 
@@ -41,7 +53,6 @@ class LinkedActivity(
     override var previous: LinkedAction? = null,
     override var next: LinkedAction? = null
 ) : LinkedAction(), Activity by original {
-
     override var location: Location
         get() = original.location
         set(value) {
@@ -109,14 +120,6 @@ class LinkedActivity(
             original.type = value
         }
 
-    override fun shift(duration: Duration): Duration {
-        val nectAction = next
-        original.startTime += duration
-        original.endTime += duration
-
-        return max(nectAction?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
-    }
-
     override fun equals(other: Any?): Boolean {
         return original == other
     }
@@ -132,7 +135,6 @@ class LinkedLeg(
 
     override var next: LinkedAction? = null
 ) : LinkedAction(), Leg by original {
-
     override var startLocation: Location
         get() = original.startLocation
         set(value) {
@@ -184,13 +186,6 @@ class LinkedLeg(
             original.latestEndTime = value
         }
 
-    override fun shift(duration: Duration): Duration {
-        val neext = next
-        original.startTime += duration
-        original.endTime += duration
-
-        return max(neext?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
-    }
 
     override fun equals(other: Any?): Boolean {
         return original == other

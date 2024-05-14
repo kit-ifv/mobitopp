@@ -3,8 +3,9 @@ package datastructure
 import java.util.*
 import kotlin.time.Duration
 
-class CurrentAction(private val linkedAction: LinkedAction): Action by linkedAction {
+class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAction {
 
+    val type: ActionType = linkedAction.actionType
     override var endTime: Duration
         get() = linkedAction.endTime
         set(value) {
@@ -20,11 +21,9 @@ class CurrentAction(private val linkedAction: LinkedAction): Action by linkedAct
         set(value) {
             linkedAction.latestEndTime = value
         }
-
-
 }
 class Schedule(
-    private val model: PlanModel,
+    private val model: SeparablePlanModel,
 
 ) : PlanView {
 
@@ -34,20 +33,22 @@ class Schedule(
     }
 
     private var currentTime: Duration = -Duration.INFINITE
-    private val history: MutableList<Action> = mutableListOf()
+    private val alterableHistory: MutableList<Action> = mutableListOf()
 
+    val past: List<Action>
+        get() = alterableHistory
 
-    private var current: CurrentAction? = null
+    var present: CurrentAction? = null
+        private set
 
-
-
-    fun getHistory(): List<Action> = history
+    val future = model.actions().toList()
+    fun lastAction(): Action = present ?: past.last()
+    fun activities() = model.activities()
     fun handleEvent() {
-        current?.let {
-
+        present?.let {
             currentTime = it.endTime
-            history.add(it)
-            current = null
+            alterableHistory.add(it)
+            present = null
         } ?: run {
             val target = pollFirst()
             target?.setNewAction() ?: { println("No Actions remaining in the plan") }
@@ -56,7 +57,7 @@ class Schedule(
 
     private fun LinkedAction.setNewAction() {
         currentTime = this.startTime
-        current = CurrentAction(this)
+        present = CurrentAction(this)
     }
     override fun add(leg: Leg) {
         require(leg.startTime >= currentTime)
@@ -85,5 +86,4 @@ class Schedule(
         require(to.minOf { it.startTime > currentTime })
         super.replaceLegs(target, to)
     }
-
 }

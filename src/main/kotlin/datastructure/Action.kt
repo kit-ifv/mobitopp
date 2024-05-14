@@ -14,7 +14,7 @@ import kotlin.time.Duration
  */
 sealed interface Action : Comparable<Action> {
     val startTime: Duration
-
+    val actionType: ActionType
     /**
      * [duration] is a derived property of an action by the difference of [endTime] and [startTime]. If you see
      * that your code is relying heavily on this property it might be prudent to implement your own Action with
@@ -89,6 +89,8 @@ enum class ActivityType {
 sealed interface StationaryAction : Action {
     val location: Location
     val type: ActivityType
+    override val actionType: ActionType
+        get() = ActionType.ACTIVITY
     override val startLocation: Location
         get() = location
     override val endLocation: Location
@@ -106,7 +108,8 @@ sealed interface MovingAction : Action {
     override val endTime: Duration
     override val startLocation: Location
     override val endLocation: Location
-
+    override val actionType: ActionType
+        get() = ActionType.LEG
     // TODO insert Transport mode here
 }
 
@@ -240,6 +243,26 @@ interface Leg : MovingAction {
                 endLocation = endLocation
             )
         }
+
+        /**
+         * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [endTime].
+         * The [endTime] parameter may be more intuitive in the context of activities rather than the end time.
+         * The end time is calculated in accordance.
+         *
+         * @param startLocation The start location of the leg.
+         * @param endLocation The end location of the leg.
+         * @param startTime The start time of the leg.
+         * @param endTime The duration of the leg.
+         * @return The generated leg.
+         */
+        fun fromEndTime(startTime: Duration, endTime: Duration, startLocation: Location, endLocation: Location): Leg {
+            return RawLeg(
+                startTime = startTime,
+                endTime = endTime,
+                startLocation = startLocation,
+                endLocation = endLocation
+            )
+        }
     }
 }
 
@@ -286,3 +309,8 @@ data class RawLeg(
  * Default location interface, TODO should be refactored at some point, right now it could also be [Any]
  */
 interface Location
+
+enum class ActionType {
+    ACTIVITY,
+    LEG
+}
