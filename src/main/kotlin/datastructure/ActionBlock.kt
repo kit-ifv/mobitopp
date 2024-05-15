@@ -1,5 +1,6 @@
 package datastructure
 
+import utils.collections.iterate
 import java.util.*
 
 /**
@@ -24,15 +25,26 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
      */
     abstract fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>?
 
+    /**
+     * Determines whether the block should accept an insertion of the target action.
+     */
     abstract fun accepts(action: StationaryAction): Boolean
+
+    /**
+     * Determines whether the block should accept an insertion of the target action.
+     */
     abstract fun accepts(action: MovingAction): Boolean
 
     fun isEmpty() = item.isEmpty()
     fun removeFirst(): T? = item.pollFirst()
+
+    /**
+     * Checks whether the block itself is consistent
+     */
     fun isConsistent(): Boolean {
         val previous = previous?.item?.lastOrNull()
         val next = next?.item?.firstOrNull()
-        return (listOf(previous) + item + next).filterNotNull().isConsistent()
+        return (previous.iterate(item) + next).filterNotNull().isConsistent()
     }
 
     fun contains(element: T): Boolean = item.contains(element)
@@ -289,7 +301,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
     /**
      * Inserts an activity into this leg block. As a leg block cannot maintain activities two additional Blocks are
      * spawned <OriginalBlock> -> (NewActivityBlock) -> <NewLegBlock>. The [activity] is inserted into the newly created
-     * block. All legs from the original set that are
+     * block. All legs from the original set that are too large are moved to the new block
      */
     override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock> {
         require(

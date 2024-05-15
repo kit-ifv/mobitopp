@@ -18,6 +18,9 @@ interface Trip {
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
 }
 
+/**
+ * A Default implementation for a trip
+ */
 class RawTrip(
     override val legs: MutableList<Leg>,
     override val previousAction: Activity?,

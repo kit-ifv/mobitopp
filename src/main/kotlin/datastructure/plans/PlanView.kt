@@ -5,6 +5,9 @@ import datastructure.Leg
 import datastructure.LinkedAction
 import java.util.*
 
+/**
+ * A Planview provides functions to modify all models registered at the same dispatcher.
+ */
 interface PlanView {
     val dispatcher: Dispatcher
     fun add(leg: Leg) = dispatcher.add(leg)
@@ -29,6 +32,9 @@ fun PlanView.addAll(vararg elements: Leg) {
     elements.forEach { add(it) }
 }
 
+/**
+ * A dispatcher holds a collection of [PlanModel] and calls the requested modifications on the registered models.
+ */
 class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = mutableSetOf()) {
     fun register(model: PlanModel) {
         mutableCollection.add(model)
