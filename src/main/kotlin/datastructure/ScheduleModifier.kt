@@ -4,10 +4,14 @@ import utils.collections.iterate
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
+// This is future work for rescheduling
 fun interface ScheduleModifier {
     fun applyTo(schedule: Schedule, currentTime: Duration)
 }
 
+fun Schedule.applyAt(currentTime: Duration, functor: ScheduleModifier) {
+    functor.applyTo(this, currentTime)
+}
 object SkipToNextHomeActivity : ScheduleModifier {
     override fun applyTo(schedule: Schedule, currentTime: Duration) {
         if (schedule.present.iterate(schedule.future).hasTimeBoundViolations()) {

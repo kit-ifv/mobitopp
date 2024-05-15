@@ -1,6 +1,10 @@
 package datastructure
 
 import START
+import datastructure.plans.ActionModel
+import datastructure.plans.PlanModel
+import datastructure.plans.shift
+import datastructure.plans.squeeze
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.BeforeTest
@@ -157,7 +161,6 @@ class ActionModelTest : PlanModelTest() {
             model.actions(),
             setOf<Action>(
                 activity(0, 1),
-
                 activity(2, 1),
                 activity(6, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours),
                 activity(8, 1),

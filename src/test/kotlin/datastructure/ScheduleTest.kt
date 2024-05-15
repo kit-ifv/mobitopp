@@ -3,6 +3,8 @@ package datastructure
 import OTHER
 import START
 import THIRD
+import datastructure.plans.BlockModel
+import datastructure.plans.addAll
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -48,6 +50,6 @@ class ScheduleTest {
         repeat(7) { schedule.step() }
         schedule.present?.endTime = 24.5.hours
         assertTrue(schedule.actions().hasTimeBoundViolations())
-        SkipToNextHomeActivity.applyTo(schedule, 24.5.hours)
+        schedule.applyAt(24.5.hours, SkipToNextHomeActivity)
     }
 }

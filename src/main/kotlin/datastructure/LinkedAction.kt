@@ -2,8 +2,6 @@ package datastructure
 
 import kotlin.time.Duration
 
-const val LINK_PREFIX = "[Linked]"
-
 abstract class LinkedAction : Action {
     abstract val original: Action
     internal abstract var previous: LinkedAction?
@@ -43,7 +41,7 @@ abstract class LinkedAction : Action {
     fun requiresPullForward(target: Duration) = startTime < target
 
     override fun toString(): String {
-        return LINK_PREFIX + original.toString()
+        return "[Linked] $original"
     }
 }
 

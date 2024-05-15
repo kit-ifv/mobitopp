@@ -1,7 +1,13 @@
 package datastructure
 
+import datastructure.plans.Dispatcher
 import java.util.*
+import kotlin.time.Duration
 
+/**
+ * A trip consists of a list of [legs] as well as a [previousAction] and a [nextAction]. All references in this class
+ * are readonly properties that do not allow alterations of the underlying actions. If
+ */
 interface Trip {
     val legs: List<MovingAction>
     val size get() = legs.size
@@ -18,7 +24,7 @@ class RawTrip(
     override val nextAction: Activity?
 ) : Trip {
     override fun alternate(lambda: TripBuilder.() -> Unit) {
-        val builder = TripBuilder(previousAction, nextAction, legs)
+        val builder = TripBuilder(this)
         builder.lambda()
         val target = builder.output()
         legs.clear()
@@ -26,11 +32,30 @@ class RawTrip(
     }
 }
 
+/**
+ * The trip builder allows the creation of a new trip based on an original trip or otherwise specified input data.
+ *
+ */
 class TripBuilder(
-    val previousAction: StationaryAction?,
+    private val previousAction: StationaryAction?,
     val nextAction: StationaryAction?,
     val originals: List<MovingAction>
 ) {
+
+    constructor(trip: Trip) : this(trip.previousAction, trip.nextAction, trip.legs)
+
+    // The previous action could be null, however the assumption that a previous location exists still holds, so I can
+    // request the promise that this value will be set eventually.
+    private lateinit var currentLocation: Location
+    private var currentTime: Duration = -Duration.INFINITE
+
+    init {
+        if (previousAction != null) {
+            currentLocation = previousAction.location
+            currentTime = previousAction.endTime
+        }
+    }
+
     private val legs = sortedSetOf<Leg>()
     operator fun Leg.unaryPlus() {
         legs.add(this)
@@ -40,7 +65,23 @@ class TripBuilder(
         legs.addAll(this)
     }
 
+    operator fun Step.unaryPlus() {
+        require(duration > Duration.ZERO) {
+            "Negative Duration is not supported. currentTime=$currentTime duration=$duration"
+        }
+
+        legs.add(Leg.fromDuration(currentTime, duration = duration, currentLocation, location))
+        currentTime += duration
+        currentLocation = location
+    }
+
+    operator fun Pause.unaryPlus() {
+        currentTime += idleTime
+    }
+
     fun output(): SortedSet<Leg> = legs
+    inner class Step(val location: Location, val duration: Duration)
+    inner class Pause(val idleTime: Duration)
 }
 
 /**

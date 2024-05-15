@@ -94,6 +94,9 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     }
 }
 
+/** An [ActivityBlock] is an instantiation of an [ActionBlock] holding a set of [Activity]. It also holds a reference
+ * to the preceding and succeeding [LegBlock], if they exist.
+ */
 class ActivityBlock(
     start: NavigableSet<LinkedActivity>,
     override var next: LegBlock? = null,
@@ -174,11 +177,9 @@ class ActivityBlock(
 
         // Removing other links for GC support
 
-//        dispatcher = null
         next = null
         previous = null
 
-//        nextLeg.dispatcher = null
         nextLeg.previous = this
         nextLeg.next = this
     }
