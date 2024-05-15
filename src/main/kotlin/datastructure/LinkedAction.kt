@@ -51,6 +51,7 @@ abstract class LinkedAction : Action {
         return "[Linked] $original"
     }
 }
+
 /**
  * Represents a linked activity, which is a linked action associated with an activity.
  * @param original The original activity.
@@ -137,6 +138,7 @@ class LinkedActivity(
         return original.hashCode()
     }
 }
+
 /**
  * Represents a linked leg, which is a linked action associated with a leg.
  * @param original The original leg.
@@ -208,5 +210,3 @@ class LinkedLeg(
         return original.hashCode()
     }
 }
-
-

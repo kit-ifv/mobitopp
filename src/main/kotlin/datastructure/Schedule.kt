@@ -33,7 +33,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
 }
 
 /**
- * A [Schedule] maintains the state of a plan as defined in [PlanModel] when being executed. It holds the attributes
+ * A [Schedule] maintains the state of a plan as defined in the model when being executed. It holds the attributes
  * [past],  [present] and [future] to represent the actions that took place, the activity that may be performed now and
  * planned actions. This class is a [PlanView] and thus can alter the model. Note that alterations need to be later
  * than the ast executed element to maintain consistency.
@@ -46,7 +46,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
 class Schedule(
     private val model: SeparablePlanModel,
 
-    ) : PlanView {
+) : PlanView {
 
     override val dispatcher: Dispatcher = Dispatcher()
 

@@ -115,5 +115,3 @@ fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
         error("The schedule does not support the shift requested. ${this.actions()}")
     }
 }
-
-

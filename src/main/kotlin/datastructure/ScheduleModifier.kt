@@ -25,7 +25,7 @@ object SkipToNextHomeActivity : ScheduleModifier {
             schedule.present?.let {
                 if (it.actionType == ActionType.LEG) {
                     it.endLocation = nextHomeActivity.location
-                    it.endTime = complexRecalculationPlsImplement(currentTime)
+                    it.endTime = complexCalPlsImplement(currentTime)
 
                     nextHomeActivity.shiftStartTo(it.endTime)
                     return
@@ -53,7 +53,7 @@ object SkipToNextHomeActivity : ScheduleModifier {
 
     // I currently have no info on how to calculate the duration from an unknown location to the destination, also I
     // have no information about the mode.
-    private fun complexRecalculationPlsImplement(currentTime: Duration): Duration {
+    private fun complexCalPlsImplement(currentTime: Duration): Duration {
         return currentTime + 10.minutes
     }
 }
