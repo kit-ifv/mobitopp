@@ -1,7 +1,13 @@
 package datastructure
 
+import utils.units.max
 import kotlin.time.Duration
 
+/**
+ * Represents an action that is inserted into an action plan with a known position. Modifying attributes of a linked
+ * action can propagate changes to neighboring actions. Note that altering the order within the plan should be handled
+ * at a higher level of abstraction.
+ */
 abstract class LinkedAction : Action {
     abstract val original: Action
     internal abstract var previous: LinkedAction?
@@ -15,12 +21,13 @@ abstract class LinkedAction : Action {
     abstract override var earliestStartTime: Duration
     abstract override var latestEndTime: Duration
 
-    fun unlink() {
+    fun unlink(): Action {
         next?.previous = previous
         previous?.next = next
 
         previous = null
         next = null
+        return original
     }
 
     fun shiftByDelta(duration: Duration): Duration {
@@ -30,7 +37,7 @@ abstract class LinkedAction : Action {
     }
 
     fun shiftStartTo(timePoint: Duration) {
-        // Keeping the original duration as changing the start or end would influence the value
+        // Keeping the original duration since changing the start or end would influence the value calculation
         val duration = duration
         startTime = timePoint
         endTime = startTime + duration
@@ -44,7 +51,12 @@ abstract class LinkedAction : Action {
         return "[Linked] $original"
     }
 }
-
+/**
+ * Represents a linked activity, which is a linked action associated with an activity.
+ * @param original The original activity.
+ * @param previous The previous linked action in the sequence.
+ * @param next The next linked action in the sequence.
+ */
 class LinkedActivity(
     override val original: Activity,
     override var previous: LinkedAction? = null,
@@ -125,7 +137,12 @@ class LinkedActivity(
         return original.hashCode()
     }
 }
-
+/**
+ * Represents a linked leg, which is a linked action associated with a leg.
+ * @param original The original leg.
+ * @param previous The previous linked action in the sequence.
+ * @param next The next linked action in the sequence.
+ */
 class LinkedLeg(
     override val original: Leg,
     override var previous: LinkedAction? = null,
@@ -192,10 +209,4 @@ class LinkedLeg(
     }
 }
 
-fun max(first: Duration, second: Duration): Duration {
-    return if (first >= second) first else second
-}
 
-fun min(first: Duration, second: Duration): Duration {
-    return if (first <= second) first else second
-}
