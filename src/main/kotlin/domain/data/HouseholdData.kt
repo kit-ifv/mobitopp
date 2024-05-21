@@ -17,7 +17,12 @@ typealias HouseholdId = ID<HouseholdData>
  *  @property location A household will have a fixed location somewhere in the simulation world.
  *  @property incomePerMonth The household income as required by some utility functions
  *  @property economicStatus The economic status grouping (Might be derived from income)
- *
+ *  @property householdNumber id of household in survey
+ *  @property surveyYear year the survey was conducted
+ *  @property domCode domestic code (legacy mobiTopp)
+ *  @property type household type (legacy mobiTopp)
+ *  @property members a set of household members
+ *  @property random a random value provider for decisions carried out by this agent
  */
 interface HouseholdData : Identifiable<HouseholdId> {
     val householdNumber: Long
@@ -30,7 +35,6 @@ interface HouseholdData : Identifiable<HouseholdId> {
     val random: Random
     val members: Set<PersonData>
     fun addMember(person: PersonData): Boolean
-
 }
 
 @Suppress("LongParameterList")
