@@ -1,10 +1,14 @@
 package utils.csv
 
 import utils.ErrorHandling
+import utils.collections.FancyProgressbar
+import utils.collections.ProgressBarFactory
 import utils.collections.toLazyList
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import kotlin.io.path.fileSize
+import kotlin.math.floor
 import kotlin.streams.asSequence
 
 const val SEMICOLON = ";"
@@ -14,7 +18,7 @@ private const val QUOTE = "\""
 /** The interface row provides methods to obtain properties of csv rows. */
 interface Row {
     /** The source containing this [Row]. */
-    val source: String
+    val source: String // TODO source should reference CsvReader which holds detailed information on source file
 
     /** The index of this [Row]. */
     val index: Int
@@ -140,6 +144,8 @@ interface CsvReader {
      * @return a [Sequence] of [Row]s
      */
     fun rows(): Sequence<Row>
+
+    val name: String
 }
 
 /**
@@ -154,12 +160,13 @@ interface CsvReader {
 open class DefaultCsvReader(
     protected val file: File,
     protected val separator: String = SEMICOLON,
-    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR
+    protected val errorHandling: ErrorHandling = ErrorHandling.ERROR,
+    protected val progressbar: ProgressBarFactory = FancyProgressbar()
 ) : CsvReader {
 
     private val columnsIndex: Map<String, Int>
     private val numberOfRows: Int
-    protected val name: String = file.name // TODO maybe use path instead?
+    override val name: String = file.name // TODO maybe use path instead?
 
     override val source: String = file.path
     override val rowCount: Int
@@ -168,9 +175,10 @@ open class DefaultCsvReader(
         get() = columnsIndex.keys
 
     init {
+        numberOfRows = estimateRowCount(file)
+
         val reader = BufferedReader(FileReader(file))
         val header = reader.readLine()
-        numberOfRows = reader.lineSequence().count() // TODO profile performance cost of counting
         reader.close()
 
         columnsIndex = parseHeader(header)
@@ -188,8 +196,9 @@ open class DefaultCsvReader(
             .asSequence()
             .drop(1)
             .map { line -> parseSafely(idCnt++, line) }
+            .filterNotNull()
 
-        return sequence.filterNotNull()
+        return progressbar.createProgressBar(sequence.iterator(), "read $name", rowCount.toLong()).asSequence()
     }
 
     private fun parseSafely(index: Int, line: String): Row? =
@@ -277,4 +286,25 @@ fun <E> ErrorHandling.handleParseValue(
     row(column, parser)
 }) { // Error message for parsing errors
     "Could not parse column '$column' of row ${row.index} in '${row.source}': $row"
+}
+
+fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): Int {
+    var rows = 0
+
+    val reader = BufferedReader(FileReader(file))
+    val sample = reader.lineSequence()
+        .drop(1)
+        .take(sampleSize)
+        .onEach { rows++ }
+        .joinToString().toByteArray().size
+    reader.close()
+
+    if (rows < sampleSize) {
+        return rows
+    }
+
+    val bytePerRow = sample.toDouble() / rows.toDouble()
+    val fileSize = file.toPath().fileSize()
+
+    return floor(fileSize.toDouble() * scale / bytePerRow).toInt().also { println("expect $it") }
 }
