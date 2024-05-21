@@ -43,7 +43,12 @@ open class AddResourceStep<B, E, I>(
         repository.addBuilders(resource)
     }
 
-    override fun validate() = validatePrepareResourceStep(repository, resource, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this)
+        repairPreparingState(repository, resource, this)
+        check(validateState(repository, RepositoryState.PREPARING, this))
+        isValid
+    }
 }
 
 /**
@@ -67,7 +72,14 @@ open class AddCsvStep<B, E, I>(
     repository = repository
 ) where E : Identifiable<I>, B : Builder<E> {
 
-    override fun validate() = validatePrepareCsvStep(repository, csv, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this) and
+                ValidateCsvMetadata(this, csv).validate()
+
+        repairPreparingState(repository, csv, this)
+        check(validateState(repository, RepositoryState.PREPARING, this))
+        isValid
+    }
 }
 
 /**
@@ -92,7 +104,13 @@ open class FilterStep<B, E, I>(
         repository.filter(name, predicate)
     }
 
-    override fun validate() = validateFilterStep(repository, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.PREPARING, this)
+
+        repairPreparingState(repository, dummyResource(this), this)
+        check(validateState(repository, RepositoryState.PREPARING, this))
+        isValid
+    }
 }
 
 /**
@@ -117,7 +135,12 @@ open class UpdateStep<B, E, I>(
         repository.update(name, transformation)
     }
 
-    override fun validate() = validateUpdateStep(repository, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.PREPARING, this)
+        repairPreparingState(repository, dummyResource(this), this)
+        check(validateState(repository, RepositoryState.PREPARING, this))
+        isValid
+    }
 }
 
 /**
@@ -141,7 +164,12 @@ open class UpdateAllStep<B, E, I>(
         repository.updateAll(name, transformation)
     }
 
-    override fun validate() = validateUpdateStep(repository, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.PREPARING, this)
+        repairPreparingState(repository, dummyResource(this), this)
+        check(validateState(repository, RepositoryState.PREPARING, this))
+        isValid
+    }
 }
 
 /**
@@ -153,7 +181,7 @@ open class UpdateAllStep<B, E, I>(
  * @property name th name of the build step
  * @property repository the repository to be built
  */
-open class BuildStep<B, E, I> (
+open class BuildStep<B, E, I>(
     override val name: String,
     protected val repository: RepositoryBuilder<B, E, I>,
 ) : ModelStep where B : Builder<E>, E : Identifiable<I> {
@@ -163,7 +191,12 @@ open class BuildStep<B, E, I> (
         println("Built ${repository.name} repo: ${repository.size} elements")
     }
 
-    override fun validate() = validateBuildStep(repository, this)
+    override fun validate() = validateScope(this) {
+        val isValid = validateState(repository, RepositoryState.PREPARING, this)
+        repairPreparingState(repository, this)
+        check(validateState(repository, RepositoryState.FINISHED, this))
+        isValid
+    }
 }
 
 /**

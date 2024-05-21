@@ -1,12 +1,12 @@
 package domain.data
 
 import units.Distance
-import units.DistanceUnit
+import units.Efficiency
 import units.Energy
-import units.EnergyUnit
+import units.Volume
 import units.kilometers
 import units.kilowatthours
-import units.toEnergy
+import units.liters
 import utils.Builder
 import utils.Decodable
 import utils.Encodable
@@ -42,12 +42,14 @@ interface CarEngine {
     val range: Distance
 }
 
-interface CombustionEngine : CarEngine { // TODO refactor combustion car with liters as unit of energy
-    val fuelCapacity: Int // TODO unit volume
-    val fuelEfficiency: Double // TODO unit volume over distance
+interface CombustionEngine : CarEngine {
+    val fuelCapacity: Volume
+    val fuelConsumption100Km: Volume
+    val fuelEfficiency: Efficiency
+        get() = fuelConsumption100Km.benzene.div(100.kilometers)
 
     val combustionRange: Distance
-        get() = (fuelCapacity * fuelEfficiency).kilometers // TODO
+        get() = fuelCapacity.benzene.div(fuelEfficiency)
 
     override val range: Distance
         get() = combustionRange
@@ -60,8 +62,8 @@ interface ElectricEngine : CarEngine {
     val electricRange: Distance
     val batteryCapacity: Energy
 
-    val batteryEfficiency: Double // TODO energy over distance
-        get() = batteryCapacity.toDouble(EnergyUnit.KILOWATTHOUR) / range.toDouble(DistanceUnit.KILOMETERS)
+    val batteryEfficiency: Efficiency
+        get() = batteryCapacity.div(electricRange)
 
     override val range: Distance
         get() = electricRange
@@ -89,33 +91,33 @@ interface HybridEngine : CombustionEngine, ElectricEngine {
  */
 data class CarEngineStatistics(
     val smallBatteryCarRange: Distance = 250.kilometers,
-    val smallBatteryCarCapacity: Energy = 30.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val smallBatteryCarCapacity: Energy = 30.kilowatthours,
 
     val midsizeBatteryCarRange: Distance = 350.kilometers,
-    val midsizeBatteryCarCapacity: Energy = 60.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val midsizeBatteryCarCapacity: Energy = 60.kilowatthours,
 
     val largeBatteryCarRange: Distance = 550.kilometers,
-    val largeBatteryCarCapacity: Energy = 125.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val largeBatteryCarCapacity: Energy = 125.kilowatthours,
 
     val smallHybridCarBatteryRange: Distance = 50.kilometers,
     val smallHybridCarTotalRange: Distance = 300.kilometers,
-    val smallHybridCarBatteryCapacity: Energy = 9.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val smallHybridCarBatteryCapacity: Energy = 9.kilowatthours,
 
     val midsizeHybridCarBatteryRange: Distance = 90.kilometers,
     val midsizeHybridCarTotalRange: Distance = 300.kilometers,
-    val midsizeHybridCarBatteryCapacity: Energy = 19.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val midsizeHybridCarBatteryCapacity: Energy = 19.kilowatthours,
 
     val largeHybridCarBatteryRange: Distance = 90.kilometers,
     val largeHybridCarTotalRange: Distance = 300.kilometers,
-    val largeHybridCarBatteryCapacity: Energy = 19.toEnergy(EnergyUnit.KILOWATTHOUR),
+    val largeHybridCarBatteryCapacity: Energy = 19.kilowatthours,
 
-    val smallCombustionCarFuelCapacity: Int = 50,
-    val midsizeCombustionCarFuelCapacity: Int = 60,
-    val largeCombustionCarFuelCapacity: Int = 70,
+    val smallCombustionCarFuelCapacity: Volume = 50.liters,
+    val midsizeCombustionCarFuelCapacity: Volume = 60.liters,
+    val largeCombustionCarFuelCapacity: Volume = 70.liters,
 
-    val smallCombustionCarFuelEfficiency: Double = 6.0,
-    val midsizeCombustionCarFuelEfficiency: Double = 7.0,
-    val largeCombustionCarFuelEfficiency: Double = 8.0,
+    val smallCombustionCarFuelConsumption100km: Volume = 6.liters,
+    val midsizeCombustionCarFuelConsumption100km: Volume = 7.liters,
+    val largeCombustionCarFuelConsumption100km: Volume = 8.liters,
 ) {
 
     fun batteryCapacityOf(segment: CarSegment, engine: EngineType): Energy =
@@ -124,17 +126,17 @@ data class CarEngineStatistics(
     fun batteryRangeOf(segment: CarSegment, engine: EngineType): Distance =
         engine.batteryRangeOf(segment, this)
 
-    fun fuelCapacityOf(segment: CarSegment, engine: EngineType): Int =
+    fun fuelCapacityOf(segment: CarSegment, engine: EngineType): Volume =
         engine.fuelCapacityOf(segment, this)
 
-    fun fuelEfficiencyOf(segment: CarSegment): Double =
-        segment.fuelEfficiency(this)
+    fun fuelConsumption100kmOf(segment: CarSegment): Volume =
+        segment.fuelConsumption100km(this)
 }
 
-fun CarSegment.fuelEfficiency(data: CarEngineStatistics): Double = when (this) {
-    CarSegment.SMALL -> data.smallCombustionCarFuelEfficiency
-    CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelEfficiency
-    CarSegment.LARGE -> data.largeCombustionCarFuelEfficiency
+fun CarSegment.fuelConsumption100km(data: CarEngineStatistics): Volume = when (this) {
+    CarSegment.SMALL -> data.smallCombustionCarFuelConsumption100km
+    CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelConsumption100km
+    CarSegment.LARGE -> data.largeCombustionCarFuelConsumption100km
 }
 
 fun EngineType.batteryCapacityOf(segment: CarSegment, data: CarEngineStatistics): Energy = when (this) {
@@ -168,9 +170,9 @@ fun EngineType.batteryRangeOf(segment: CarSegment, data: CarEngineStatistics): D
 }
 
 fun EngineType.totalRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when (this) {
-    EngineType.COMBUSTION -> (
-        this.fuelCapacityOf(segment, data) * segment.fuelEfficiency(data)
-        ).kilometers
+    EngineType.COMBUSTION -> 100.kilometers *
+        this.fuelCapacityOf(segment, data).div(segment.fuelConsumption100km(data))
+
 
     EngineType.ELECTRIC -> batteryRangeOf(segment, data)
 
@@ -181,18 +183,16 @@ fun EngineType.totalRangeOf(segment: CarSegment, data: CarEngineStatistics): Dis
     }
 }
 
-fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): Int = when (this) {
-    EngineType.ELECTRIC -> 0
+fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): Volume = when (this) {
+    EngineType.ELECTRIC -> 0.liters
 
     EngineType.COMBUSTION -> when (segment) {
         CarSegment.SMALL -> data.smallCombustionCarFuelCapacity
         CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelCapacity
         CarSegment.LARGE -> data.largeCombustionCarFuelCapacity
     }
-    EngineType.HYBRID -> (
-        (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).rawValue
-            * segment.fuelEfficiency(data)
-        ).roundToInt()
+    EngineType.HYBRID -> segment.fuelConsumption100km(data) *
+        (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).div(100.kilometers)
 }
 
 /**
@@ -250,7 +250,7 @@ class PrivateCarBuilder(
         return when (val engine = this.engine!!) {
             EngineType.COMBUSTION -> object : CombustionEngine {
                 override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
-                override val fuelEfficiency = stats.fuelEfficiencyOf(segment)
+                override val fuelConsumption100Km: Volume = stats.fuelConsumption100kmOf(segment)
             }
             EngineType.ELECTRIC -> object : ElectricEngine {
                 override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
@@ -258,7 +258,7 @@ class PrivateCarBuilder(
             }
             EngineType.HYBRID -> object : HybridEngine {
                 override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
-                override val fuelEfficiency = stats.fuelEfficiencyOf(segment)
+                override val fuelConsumption100Km = stats.fuelConsumption100kmOf(segment)
                 override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
                 override val electricRange = stats.batteryRangeOf(segment, engine)
             }

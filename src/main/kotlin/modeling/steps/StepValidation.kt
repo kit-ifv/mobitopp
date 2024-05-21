@@ -10,29 +10,25 @@ import utils.csv.DefaultCsvReader
 import utils.csv.ErrorHandlingRow
 import utils.csv.Row
 
-fun <E> dummyCopyOf(resource: Resource<E>, step: ModelStep): Resource<E> {
-    val dummy = dummyResource<E>(step)
+/** Create an empty copy of the given resource but holding the same metadata. */
+fun <E> dummyCopyOf(resource: Resource<E>): Resource<E> {
 
-    val name = ErrorHandling.WARNING.handle(runnable = {
-        resource.name
-    }) { "Could not obtain name of resource in step '${step.name}'!" }
-        ?: dummy.name
-
-    val source = ErrorHandling.WARNING.handle(runnable = {
-        resource.source
-    }) { "Could not obtain source of resource in step '${step.name}'!" }
-        ?: dummy.source
+    val name = resource.name
+    val source = resource.source
 
     return SequenceResource(name, source, emptySequence())
 }
 
+/** Create an empty dummy resource referencing the given  [ModelStep] in its metadata. */
 fun <E> dummyResource(step: ModelStep): Resource<E> {
-    val name = "${step.javaClass.simpleName}-Dummy"
-    val source = "${step.javaClass.simpleName}.validate()"
+    val name = "${step::class.simpleName}-Dummy"
+    val source = "${step::class.simpleName}.validate()"
 
     return SequenceResource(name, source, emptySequence())
 }
 
+
+/** Check whether the given repository has the expected state. */
 fun validateState(repository: RepositoryBuilder<*, *, *>, expectedState: RepositoryState, step: ModelStep): Boolean {
     if (repository.state != expectedState) {
         println(
@@ -44,6 +40,10 @@ fun validateState(repository: RepositoryBuilder<*, *, *>, expectedState: Reposit
     return true
 }
 
+/**
+ * Validate the given lambda function, catch exceptions (return false if caught) and print warnings.
+ * Otherwise, return result of lambda function.
+ */
 @Suppress("TooGenericExceptionCaught")
 fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
     try {
@@ -57,7 +57,8 @@ fun validateScope(step: ModelStep, validation: () -> Boolean): Boolean =
         false
     }
 
-fun repairInitState(
+/** Mock the finished state in the given [RepositoryBuilder] to validate subsequent states.*/
+fun repairPreparingState(
     repository: RepositoryBuilder<*, *, *>,
     step: ModelStep
 ) = when (repository.state) {
@@ -73,91 +74,34 @@ fun repairInitState(
     }
 }
 
+/** Mock the preparing state in the given [RepositoryBuilder] to validate subsequent states.*/
 fun <B> repairPreparingState(
     repository: RepositoryBuilder<B, *, *>,
     resource: Resource<B>,
     step: ModelStep
 ) where B : Builder<*> = when (repository.state) {
     RepositoryState.UNINITIALIZED -> {
-        repository.addBuilders(dummyCopyOf(resource, step))
+        repository.addBuilders(dummyCopyOf(resource))
     }
 
-    RepositoryState.PREPARING -> { /* State is already BUILDING */ }
+    RepositoryState.PREPARING -> { /* State is already PREPARING */ }
 
     RepositoryState.FINISHED -> {
         repository.reset()
-        repository.addBuilders(dummyCopyOf(resource, step))
+        repository.addBuilders(dummyCopyOf(resource))
     }
 }
 
-fun <B, E, I> validatePrepareResourceStep(
-    builderRepository: RepositoryBuilder<B, E, I>,
-    resource: Resource<B>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<I> = validateScope(step) {
-    val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
-    repairPreparingState(builderRepository, resource, step)
-    check(validateState(builderRepository, RepositoryState.PREPARING, step))
-    isValid
-}
-
-fun <B, E> validatePrepareCsvStep(
-    repository: RepositoryBuilder<B, E, *>,
-    csv: CsvResource<B>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.UNINITIALIZED, step) and
-        ValidateCsvMetadata(step, csv).validate()
-    // and ValidateCsvSample(step, csv).validate()
-
-    repairPreparingState(repository, csv, step)
-    check(validateState(repository, RepositoryState.PREPARING, step))
-    isValid
-}
-
-fun <B, E> validateFilterStep(
-    repository: RepositoryBuilder<B, E, *>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.PREPARING, step)
-
-    repairPreparingState(repository, dummyResource(step), step)
-    check(validateState(repository, RepositoryState.PREPARING, step))
-    isValid
-}
-
-fun <B, E> validateUpdateStep(
-    repository: RepositoryBuilder<B, E, *>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.PREPARING, step)
-    repairPreparingState(repository, dummyResource(step), step)
-    check(validateState(repository, RepositoryState.PREPARING, step))
-    isValid
-}
-
-fun <B, E> validateBuildStep(
-    repository: RepositoryBuilder<B, E, *>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<*> = validateScope(step) {
-    val isValid = validateState(repository, RepositoryState.PREPARING, step)
-
-    repairInitState(repository, step)
-    check(validateState(repository, RepositoryState.FINISHED, step))
-    isValid
-}
-
-fun <B, E, I> validateMergeStep(
-    builderRepository: RepositoryBuilder<B, E, I>,
-    resource: Resource<B>,
-    step: ModelStep
-) where B : Builder<E>, E : Identifiable<I> = validateScope(step) {
-    val isValid = validateState(builderRepository, RepositoryState.UNINITIALIZED, step)
-    repairPreparingState(builderRepository, resource, step)
-    check(validateState(builderRepository, RepositoryState.PREPARING, step))
-    isValid
-}
-
+/**
+ * This validation has some is fuzzy logic: if a csv value cannot be mocked for the parser,
+ * validation is suspended for this parser. We don't know if the csv parser step is valid:
+ * the columns after the unmockable one might be invalid. We also don't know if the step is invalid,
+ * all columns might be valid but no test string is given. Hence, a warning is printed to the console.
+ * In case of 'don't know' we return true, otherwise validation would always fail,
+ * if validity of any csv column cannot be decided.
+ *
+ * Validate if csv file exists and can be read, then validate existence of columns required by the csv parser.
+ */
 class ValidateCsvMetadata<E>(
     private val step: ModelStep,
     private val csv: CsvResource<E>
@@ -228,7 +172,6 @@ class ValidateCsvMetadata<E>(
             }
         }
 
-        // isValid = false // TODO think about validity
         println(
             "WARNING: Value of column '$column' of $csv could not be mocked " +
                 "for parsing! Validation of columns in step '${step.name}' may be incomplete!"
@@ -254,43 +197,5 @@ class ValidateCsvMetadata<E>(
             )
             isValid = false
         }
-    }
-}
-
-class ValidateCsvSample<E>(
-    private val step: ModelStep,
-    private val csv: CsvResource<E>,
-    private val sampleSize: Int = 2000,
-    private val reader: CsvReader = DefaultCsvReader(csv.file)
-) : CsvReader by reader {
-
-    private var messages = ""
-    private var valid = true
-
-    fun validate(): Boolean {
-        csv.parser.parse(this).count()
-
-        if (!valid) {
-            println("Parsing first $sampleSize csv rows in step ${step.name} produced errors:")
-            println(messages)
-        }
-
-        return valid
-    }
-
-    override val rowCount: Int = sampleSize
-    override fun rows(): Sequence<Row> =
-        reader.rows().take(sampleSize).map {
-            ErrorHandlingRow(it, ErrorHandling.THROW) { e ->
-                messages += (e.message ?: "") + "\n"
-                valid = false
-            }
-        }
-}
-
-class ValidationRepositoryBuilder<B, E, I> : RepositoryBuilder<B, E, I>() where B : Builder<E>, E : Identifiable<I> {
-
-    override fun getById(id: I): E? {
-        return super.getById(id)
     }
 }

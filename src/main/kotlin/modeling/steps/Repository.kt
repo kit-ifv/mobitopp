@@ -65,6 +65,19 @@ class MapRepository<out E, I>(
  * @param E the generic type of the [Identifiable] elements
  * @param I the generic type of ids used by the built elements
  * @constructor Create an [RepositoryState.UNINITIALIZED] [RepositoryBuilder]
+ *
+ *
+ * Resources are named containers for generic element.
+ * They provide these elements as a sequence and hold metadata: a name and the source of these elements.
+ * Resources can provide lazy access to elements.
+ *
+ * [Repository]s are [Resource]s where the elements are [Identifiable].
+ * Repositories provide access to single elements through their ID. (The default implementation is a [MapRepository]).
+ *
+ * A [RepositoryBuilder] allows late initialization of the contained elements through element [Builder]s.
+ * A [RepositoryBuilder] has one of three states: uninitialized (no elements / builders in the repository),
+ * preparing (builders can be added, filtered, modified), finished (builders were built to final elements).
+ *
  */
 open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder<E>, E : Identifiable<I> {
     private var builders: Resource<B>? = null
@@ -83,13 +96,13 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
 
     override val name: String
         get() {
-            internalState = internalState.getName()
+            internalState = internalState.performGetName()
             return (elems ?: builders)!!.name
         }
 
     override val source: String
         get() {
-            internalState = internalState.getSource()
+            internalState = internalState.performGetSource()
             return (elems ?: builders)!!.source
         }
 
@@ -102,25 +115,14 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
 
     override val elements: Sequence<E>
         get() {
-            internalState = internalState.getElements()
+            internalState = internalState.performGetElements()
             return elems!!.elements
         }
 
     override fun getById(id: I): E? {
-        internalState = internalState.getById()
+        internalState = internalState.performGetById()
         return elems!!.getById(id)
     }
-
-//    /**
-//     * Prepare the repository by adding the [Builder]s from the given [Resource].
-//     * The prepare step is logged in the metadata of the [Repository].
-//     *
-//     * @param builders the builders to be added to the [RepositoryBuilder]
-//     *///TODO duplicate to merge builders
-//    fun prepare(builders: Resource<B>) {
-//        internalState = internalState.prepare(builders)
-//        this.builders = builders
-//    }
 
     /**
      * Filter the set of [Builder]s using the given filter condition.
@@ -130,7 +132,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
      * @param predicate the filter condition
      */
     fun filter(operation: String, predicate: (B) -> Boolean) {
-        internalState.filter(operation)
+        internalState.performFilter(operation)
         builders = builders!!.let {
             it.elements.filter(predicate).asResource(it.name, "${it.source} -> filter $operation")
         }
@@ -144,7 +146,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
      * @param mapping the mapping operation to be applied
      */
     fun update(operation: String, mapping: (B) -> B?) {
-        internalState.update(operation)
+        internalState.performUpdate(operation)
         builders = builders!!.let {
             it.elements.map(mapping).filterNotNull().asResource(it.name, "${it.source} -> map $operation")
         }
@@ -158,7 +160,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
      * @param mapping the mapping operation to be applied
      */
     fun updateAll(operation: String, mapping: (Sequence<B>) -> Sequence<B>) {
-        internalState.update(operation)
+        internalState.performUpdate(operation)
         builders = builders!!.let {
             mapping(it.elements).asResource(it.name, "${it.source} -> map all $operation")
         }
@@ -172,7 +174,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
      * @param other a resource of builders to be added to the [RepositoryBuilder]
      */
     fun addBuilders(other: Resource<B>) {
-        internalState = internalState.addBuilders(other)
+        internalState = internalState.performAddBuilders(other)
         builders = builders?.let {
             sequenceOf(it.elements, other.elements).flatten().asResource(
                 name = "${it.name}, ${other.name}",
@@ -183,19 +185,20 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
 
     /** Finish the Repository by building all [Builder]s to create the final entities.  */
     fun build() {
-        internalState = internalState.build()
+        internalState = internalState.performBuild()
         elems = MapRepository(builders!!.build().reusable())
         builders = null
     }
 
-    /** Reset the [RepositoryBuilder] to the uninitialized state. */
+    /** Resets the repository removing all builders or entities */
     fun reset() {
-        internalState = internalState.reset()
-        elems = null
+        internalState = RepositoryState.UNINITIALIZED
         builders = null
+        elems = null
     }
 
-    override fun toString() = state.toString(this)
+
+    override fun toString() = state.performToString(this)
 }
 
 /**
@@ -204,7 +207,9 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
  * - uninitialized: no [Builder]s were added yet; update/reduce/build and access to [Resource] metadata is not supported
  * - preparing: some [Builder]s were added; access to final elements is not supported
  * - finished: [Builder]s were transformed to elements: adding [Builder]s is not supported
- * @constructor Create empty Repository state
+ *
+ * This holds the state transitions of a state machine. Each operation returns the repository state after performing an operation.
+ * If an operation is invalid in some state, an error message is thrown.
  */
 @Suppress("TooManyFunctions")
 enum class RepositoryState {
@@ -214,33 +219,33 @@ enum class RepositoryState {
      */
     UNINITIALIZED {
 
-        override fun update(operation: String) =
+        override fun performUpdate(operation: String) =
             error("Cannot apply mapping '$operation' to repository elements as it has not been prepared yet!")
 
-        override fun filter(operation: String) =
+        override fun performFilter(operation: String) =
             error("Cannot apply filter '$operation' to repository elements as it has not been prepared yet!")
 
-        override fun build() =
+        override fun performBuild() =
             error("Cannot build repository elements as it has not been prepared yet!")
 
-        override fun getElements() =
+        override fun performGetElements() =
             error("Cannot get elements of repository as it has not been finished yet!")
 
-        override fun getById() =
+        override fun performGetById() =
             error("Cannot get element by id in repository as it has not been finished yet!")
 
-        override fun getName() =
+        override fun performGetName() =
             error("Cannot get name of repository as it has not been finished/prepared yet!")
 
-        override fun getSource() =
+        override fun performGetSource() =
             error("Cannot get source of repository as it has not been finished/prepared yet!")
 
-        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
+        override fun performToString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == UNINITIALIZED)
             return "Uninitialized ${repository.javaClass.simpleName}"
         }
 
-        override fun addBuilders(resource: Resource<*>) = PREPARING
+        override fun performAddBuilders(resource: Resource<*>) = PREPARING
     },
 
     /**
@@ -249,28 +254,28 @@ enum class RepositoryState {
      */
     PREPARING {
 
-        override fun update(operation: String) = PREPARING
+        override fun performUpdate(operation: String) = PREPARING
 
-        override fun filter(operation: String) = PREPARING
+        override fun performFilter(operation: String) = PREPARING
 
-        override fun build() = FINISHED
+        override fun performBuild() = FINISHED
 
-        override fun getElements() =
+        override fun performGetElements() =
             error("Cannot get elements of repository as it has not been built yet!")
 
-        override fun getById() =
+        override fun performGetById() =
             error("Cannot get element by id in repository as it has not been built yet!")
 
-        override fun getName() = PREPARING
+        override fun performGetName() = PREPARING
 
-        override fun getSource() = PREPARING
+        override fun performGetSource() = PREPARING
 
-        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
+        override fun performToString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == PREPARING)
             return "Initialized ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
-        override fun addBuilders(resource: Resource<*>) = PREPARING
+        override fun performAddBuilders(resource: Resource<*>) = PREPARING
     },
 
     /**
@@ -278,43 +283,41 @@ enum class RepositoryState {
      */
     FINISHED {
 
-        override fun update(operation: String) =
+        override fun performUpdate(operation: String) =
             error("Cannot apply finished '$operation' to repository elements as it has already been finished!")
 
-        override fun filter(operation: String) =
+        override fun performFilter(operation: String) =
             error("Cannot apply finished '$operation' to repository elements  it has already been finished!")
 
-        override fun build() =
+        override fun performBuild() =
             error("Cannot build repository as it has already been finished!")
 
-        override fun getElements() = FINISHED
+        override fun performGetElements() = FINISHED
 
-        override fun getById() = FINISHED
+        override fun performGetById() = FINISHED
 
-        override fun getName() = FINISHED
+        override fun performGetName() = FINISHED
 
-        override fun getSource() = FINISHED
+        override fun performGetSource() = FINISHED
 
-        override fun toString(repository: RepositoryBuilder<*, *, *>): String {
+        override fun performToString(repository: RepositoryBuilder<*, *, *>): String {
             check(repository.state == FINISHED)
             return "Finished ${repository.javaClass.simpleName}[${repository.name}] (${repository.source})"
         }
 
-        override fun addBuilders(resource: Resource<*>) =
+        override fun performAddBuilders(resource: Resource<*>) =
             error("Cannot merge Builders of resource $resource into repository as it has already been finished!")
     };
 
-    abstract fun update(operation: String): RepositoryState
-    abstract fun filter(operation: String): RepositoryState
-    abstract fun addBuilders(resource: Resource<*>): RepositoryState
-    abstract fun build(): RepositoryState
-    fun reset() = UNINITIALIZED
-
-    abstract fun getElements(): RepositoryState
-    abstract fun getById(): RepositoryState
-    abstract fun getName(): RepositoryState
-    abstract fun getSource(): RepositoryState
-    abstract fun toString(repository: RepositoryBuilder<*, *, *>): String
+    abstract fun performUpdate(operation: String): RepositoryState
+    abstract fun performFilter(operation: String): RepositoryState
+    abstract fun performAddBuilders(resource: Resource<*>): RepositoryState
+    abstract fun performBuild(): RepositoryState
+    abstract fun performGetElements(): RepositoryState
+    abstract fun performGetById(): RepositoryState
+    abstract fun performGetName(): RepositoryState
+    abstract fun performGetSource(): RepositoryState
+    abstract fun performToString(repository: RepositoryBuilder<*, *, *>): String
 }
 
 /**

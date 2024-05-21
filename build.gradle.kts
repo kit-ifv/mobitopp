@@ -35,7 +35,7 @@ detekt {
 }
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.0")
+    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
