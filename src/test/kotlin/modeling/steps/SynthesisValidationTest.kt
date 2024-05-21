@@ -35,9 +35,6 @@ class SynthesisValidationTest {
 
     private lateinit var buildStep: BuildStep<TestBuilder, TestEntity, TestId>
 
-    // TODO update all
-    // TODO merge step
-
     @BeforeEach
     fun setUp() {
         repository = RepositoryBuilder()

@@ -29,7 +29,7 @@ interface ModelStep {
  * @param B the generic type of builders
  * @param E the generic type of entities to be built
  * @param I the generic entity id type
- * @property name the name of the mode step //TODO could be derived
+ * @property name the name of the mode step
  * @property resource the [Resource] of builders to be added
  * @property repository the [RepositoryBuilder] into which the [Builder]s are added
  */

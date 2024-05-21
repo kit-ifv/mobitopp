@@ -148,7 +148,6 @@ open class PreparedRepositoryTest : RepositoryBuilderTest() {
 
     @Test
     override fun source() = assertEquals(expectedBaseSource(), repoBuilder.source)
-    // TODO check STATE after every test?
 
     @Test
     override fun state() = assertEquals(RepositoryState.PREPARING, repoBuilder.state)
