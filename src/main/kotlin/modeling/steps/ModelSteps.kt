@@ -47,13 +47,13 @@ open class AddResourceStep<B, E, I>(
 }
 
 /**
- * Add csv step
+ * A [ModelStep] adding [Builder]s created from csv data.
  *
- * @param B
- * @param E
- * @param I
- * @param name
- * @param repository
+ * @param B the generic [Builder] type
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @param name the name of this add csv step
+ * @param repository the repository to which the builders should be added to
  * @constructor
  * @property csv
  */
@@ -71,15 +71,16 @@ open class AddCsvStep<B, E, I>(
 }
 
 /**
- * Filter step
+ * A FilterStep is a [ModelStep] that filters the builders of a given [RepositoryBuilder]
+ * using a given predicate.
+ * This removes [Builder]s from the repository if applying the predicates evaluates to false.
  *
- * @param B
- * @param E
- * @param I
- * @constructor Create empty Filter step
- * @property name
- * @property repository
- * @property predicate
+ * @param B the generic [Builder] type
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property name the name of the filter step
+ * @property repository the repository to be filtered
+ * @property predicate the predicate used to filter the repository
  */
 open class FilterStep<B, E, I>(
     override val name: String,
@@ -95,15 +96,16 @@ open class FilterStep<B, E, I>(
 }
 
 /**
- * Update step
+ * An UpdateStep is a [ModelStep] used to modify / update [Builder]s in a given repository
+ * by applying a transformation (mapping) to each [Builder] in the repository.
+ * The transformation might evaluate to null, which removes the [Builder] from the repository.
  *
- * @param B
- * @param E
- * @param I
- * @constructor Create empty Update step
- * @property name
- * @property repository
- * @property transformation
+ * @param B the generic [Builder] type
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property name the name of the update step
+ * @property repository the repository in which [Builder]s are updated
+ * @property transformation a mapping to update a single [Builder]
  */
 open class UpdateStep<B, E, I>(
     override val name: String,
@@ -119,15 +121,15 @@ open class UpdateStep<B, E, I>(
 }
 
 /**
- * Update all step
+ * UpdateAllStep is a [ModelStep] that replaces all [Builder]s of a repository by new / derived builders.
  *
- * @param B
- * @param E
- * @param I
- * @constructor Create empty Update all step
- * @property name
- * @property repository
- * @property transformation
+ *
+ * @param B the generic [Builder] type
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property name the name of the update all step
+ * @property repository the repository in which all [Builder]s should be updated
+ * @property transformation a mapping to be applied to all [Builder]s of the repository
  */
 open class UpdateAllStep<B, E, I>(
     override val name: String,
@@ -143,14 +145,13 @@ open class UpdateAllStep<B, E, I>(
 }
 
 /**
- * Build step
+ * A BuildStep is a [ModelStep] that builds all [Builder]s in a given repository.
  *
- * @param B
- * @param E
- * @param I
- * @constructor Create empty Build step
- * @property name
- * @property repository
+ * @param B the generic [Builder] type
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property name th name of the build step
+ * @property repository the repository to be built
  */
 open class BuildStep<B, E, I> (
     override val name: String,
@@ -166,11 +167,10 @@ open class BuildStep<B, E, I> (
 }
 
 /**
- * Multi step
+ * A MultiStep is a [ModelStep] that executes multiple steps sequentially.
  *
- * @param steps
- * @constructor
- * @property name
+ * @param steps the steps to be executed (in order of execution)
+ * @property name the name of the multi step
  */
 open class MultiStep(
     override val name: String,
@@ -179,9 +179,9 @@ open class MultiStep(
     private val steps = steps.toMutableList()
 
     /**
-     * Add step
+     * Add the given step as new last step of the execution order.
      *
-     * @param step
+     * @param step the step to added to this [MultiStep]
      */
     fun addStep(step: ModelStep) {
         steps.add(step)
@@ -197,31 +197,32 @@ open class MultiStep(
 }
 
 /**
- * Model execution
+ * ModelExecution is a [MultiStep] holding a context object.
+ * This can be used e.g. to define the steps of a simulation.
  *
- * @param C
- * @constructor Create empty Model execution
- * @property context
+ * @param C the generic context type
+ * @property context the context object for
  */
 class ModelExecution<C>(
     val context: C,
 ) : MultiStep(context.scenarioName) where C : Context
 
 /**
- * Run
+ * Run allows to specify a simulation configuration in readable kotlin dsl.
+ * Users can define a context object and model steps.
+ * When executed, all specified [ModelStep]s are validated first.
  *
- * @param C
- * @constructor Create empty Run
- * @property contextFactory
+ * @param C the generic context type
+ * @property contextFactory a factory to create new context objects
  */
 class Run<C>(private val contextFactory: () -> C) where C : Context {
 
     /**
      * Steps
      *
-     * @param lambda
-     * @return
-     * @receiver
+     * @param lambda a function executed on the model
+     *      execution object which defines / adds the steps to the [ModelExecution]
+     * @return the context
      */
     fun steps(lambda: ModelExecution<C>.() -> Unit): C {
         println("Validate before run!")
@@ -243,14 +244,11 @@ class Run<C>(private val contextFactory: () -> C) where C : Context {
 }
 
 /**
- * Context
- *
- * @constructor Create empty Context
+ * A Context holds all data required when executing mobiTopp.
+ * This is the minimum interface that all project contexts must implement.
+ * Think carefully about what you put in here!
  */
 interface Context {
     val scenarioName: String
     val demandFolder: File
-
-    /** Reset */
-    fun reset()
 }

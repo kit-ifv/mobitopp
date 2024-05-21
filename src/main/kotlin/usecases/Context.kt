@@ -95,13 +95,6 @@ data class BaseContext(
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
     override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
     override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
-
-    override fun reset() {
-        zoneRepository.reset()
-        householdRepository.reset()
-        personRepository.reset()
-        activityRepository.reset()
-    }
 }
 
 data class LegacyContext(
@@ -134,13 +127,4 @@ data class LegacyContext(
 
             return index ?: zoneRepository.elements.associateBy { it.matrixColumn }.also { index = it }
         }
-
-    override fun reset() { // TODO unhappy with reset -> rethink validation / context state
-        zoneRepository.reset()
-        householdRepository.reset()
-        personRepository.reset()
-        carRepository.reset()
-        activityRepository.reset()
-        index = null
-    }
 }
