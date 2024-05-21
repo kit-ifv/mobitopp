@@ -198,8 +198,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-                location == other.location &&
-                endTime == other.endTime
+            location == other.location &&
+            endTime == other.endTime
     }
 
     override fun hashCode(): Int {
@@ -227,7 +227,6 @@ interface Leg : MovingAction {
     override var latestEndTime: Duration
 
     override var transportType: Mode
-
 
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
@@ -313,9 +312,9 @@ data class RawLeg(
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
-                startLocation == other.startLocation &&
-                endLocation == other.endLocation &&
-                endTime == other.endTime
+            startLocation == other.startLocation &&
+            endLocation == other.endLocation &&
+            endTime == other.endTime
     }
 
     override fun hashCode(): Int {
