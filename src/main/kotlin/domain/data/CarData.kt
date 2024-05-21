@@ -1,6 +1,12 @@
 package domain.data
 
-import units.*
+import units.Distance
+import units.DistanceUnit
+import units.Energy
+import units.EnergyUnit
+import units.kilometers
+import units.kilowatthours
+import units.toEnergy
 import utils.Builder
 import utils.Decodable
 import utils.Encodable
@@ -81,7 +87,7 @@ interface HybridEngine : CombustionEngine, ElectricEngine {
  *
  * The values are defined for the three car segments: small, midsize and large.
  */
-data class CarEngineStatistics (
+data class CarEngineStatistics(
     val smallBatteryCarRange: Distance = 250.kilometers,
     val smallBatteryCarCapacity: Energy = 30.toEnergy(EnergyUnit.KILOWATTHOUR),
 
@@ -125,66 +131,66 @@ data class CarEngineStatistics (
         segment.fuelEfficiency(this)
 }
 
-fun CarSegment.fuelEfficiency(data: CarEngineStatistics): Double = when(this) {
+fun CarSegment.fuelEfficiency(data: CarEngineStatistics): Double = when (this) {
     CarSegment.SMALL -> data.smallCombustionCarFuelEfficiency
     CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelEfficiency
     CarSegment.LARGE -> data.largeCombustionCarFuelEfficiency
 }
 
-fun EngineType.batteryCapacityOf(segment: CarSegment, data: CarEngineStatistics): Energy = when(this) {
+fun EngineType.batteryCapacityOf(segment: CarSegment, data: CarEngineStatistics): Energy = when (this) {
     EngineType.COMBUSTION -> 0.kilowatthours
 
-    EngineType.ELECTRIC -> when(segment) {
+    EngineType.ELECTRIC -> when (segment) {
         CarSegment.SMALL -> data.smallBatteryCarCapacity
         CarSegment.MIDSIZE -> data.midsizeBatteryCarCapacity
         CarSegment.LARGE -> data.largeBatteryCarCapacity
     }
-    EngineType.HYBRID -> when(segment) {
+    EngineType.HYBRID -> when (segment) {
         CarSegment.SMALL -> data.smallHybridCarBatteryCapacity
         CarSegment.MIDSIZE -> data.midsizeHybridCarBatteryCapacity
         CarSegment.LARGE -> data.largeHybridCarBatteryCapacity
     }
 }
 
-fun EngineType.batteryRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when(this) {
+fun EngineType.batteryRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when (this) {
     EngineType.COMBUSTION -> 0.kilometers
 
-    EngineType.ELECTRIC -> when(segment) {
+    EngineType.ELECTRIC -> when (segment) {
         CarSegment.SMALL -> data.smallBatteryCarRange
         CarSegment.MIDSIZE -> data.midsizeBatteryCarRange
         CarSegment.LARGE -> data.largeBatteryCarRange
     }
-    EngineType.HYBRID -> when(segment) {
+    EngineType.HYBRID -> when (segment) {
         CarSegment.SMALL -> data.smallHybridCarBatteryRange
         CarSegment.MIDSIZE -> data.midsizeHybridCarBatteryRange
         CarSegment.LARGE -> data.largeHybridCarBatteryRange
     }
 }
 
-fun EngineType.totalRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when(this) {
+fun EngineType.totalRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when (this) {
     EngineType.COMBUSTION -> (
-            this.fuelCapacityOf(segment, data) * segment.fuelEfficiency(data)
+        this.fuelCapacityOf(segment, data) * segment.fuelEfficiency(data)
         ).kilometers
 
     EngineType.ELECTRIC -> batteryRangeOf(segment, data)
 
-    EngineType.HYBRID -> when(segment) {
+    EngineType.HYBRID -> when (segment) {
         CarSegment.SMALL -> data.smallHybridCarTotalRange
         CarSegment.MIDSIZE -> data.midsizeHybridCarTotalRange
         CarSegment.LARGE -> data.largeHybridCarTotalRange
     }
 }
 
-fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): Int = when(this) {
+fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): Int = when (this) {
     EngineType.ELECTRIC -> 0
 
-    EngineType.COMBUSTION -> when(segment) {
+    EngineType.COMBUSTION -> when (segment) {
         CarSegment.SMALL -> data.smallCombustionCarFuelCapacity
         CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelCapacity
         CarSegment.LARGE -> data.largeCombustionCarFuelCapacity
     }
     EngineType.HYBRID -> (
-            (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).rawValue
+        (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).rawValue
             * segment.fuelEfficiency(data)
         ).roundToInt()
 }
@@ -219,7 +225,6 @@ enum class EngineType(private val code: Int) : Encodable {
     }
 }
 
-@Suppress("LongParameterList")
 class PrivateCarBuilder(
     var segment: CarSegment? = null,
     var engine: EngineType? = null,
