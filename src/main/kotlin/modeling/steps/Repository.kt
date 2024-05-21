@@ -197,7 +197,6 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
         elems = null
     }
 
-
     override fun toString() = state.performToString(this)
 }
 
@@ -208,7 +207,8 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
  * - preparing: some [Builder]s were added; access to final elements is not supported
  * - finished: [Builder]s were transformed to elements: adding [Builder]s is not supported
  *
- * This holds the state transitions of a state machine. Each operation returns the repository state after performing an operation.
+ * This holds the state transitions of a state machine.
+ * Each operation returns the repository state after performing an operation.
  * If an operation is invalid in some state, an error message is thrown.
  */
 @Suppress("TooManyFunctions")

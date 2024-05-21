@@ -13,7 +13,6 @@ import utils.Encodable
 import utils.ID
 import utils.Identifiable
 import utils.drawId
-import kotlin.math.roundToInt
 
 typealias CarId = ID<CarData>
 
@@ -170,9 +169,9 @@ fun EngineType.batteryRangeOf(segment: CarSegment, data: CarEngineStatistics): D
 }
 
 fun EngineType.totalRangeOf(segment: CarSegment, data: CarEngineStatistics): Distance = when (this) {
-    EngineType.COMBUSTION -> 100.kilometers *
-        this.fuelCapacityOf(segment, data).div(segment.fuelConsumption100km(data))
-
+    EngineType.COMBUSTION ->
+        100.kilometers *
+            this.fuelCapacityOf(segment, data).div(segment.fuelConsumption100km(data))
 
     EngineType.ELECTRIC -> batteryRangeOf(segment, data)
 

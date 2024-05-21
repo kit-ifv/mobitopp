@@ -45,7 +45,7 @@ open class AddResourceStep<B, E, I>(
 
     override fun validate() = validateScope(this) {
         val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this)
-        repairPreparingState(repository, resource, this)
+        repairPreparingState(repository, resource)
         check(validateState(repository, RepositoryState.PREPARING, this))
         isValid
     }
@@ -74,9 +74,9 @@ open class AddCsvStep<B, E, I>(
 
     override fun validate() = validateScope(this) {
         val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this) and
-                ValidateCsvMetadata(this, csv).validate()
+            ValidateCsvMetadata(this, csv).validate()
 
-        repairPreparingState(repository, csv, this)
+        repairPreparingState(repository, csv)
         check(validateState(repository, RepositoryState.PREPARING, this))
         isValid
     }
@@ -107,7 +107,7 @@ open class FilterStep<B, E, I>(
     override fun validate() = validateScope(this) {
         val isValid = validateState(repository, RepositoryState.PREPARING, this)
 
-        repairPreparingState(repository, dummyResource(this), this)
+        repairPreparingState(repository, dummyResource(this))
         check(validateState(repository, RepositoryState.PREPARING, this))
         isValid
     }
@@ -137,7 +137,7 @@ open class UpdateStep<B, E, I>(
 
     override fun validate() = validateScope(this) {
         val isValid = validateState(repository, RepositoryState.PREPARING, this)
-        repairPreparingState(repository, dummyResource(this), this)
+        repairPreparingState(repository, dummyResource(this))
         check(validateState(repository, RepositoryState.PREPARING, this))
         isValid
     }
@@ -166,7 +166,7 @@ open class UpdateAllStep<B, E, I>(
 
     override fun validate() = validateScope(this) {
         val isValid = validateState(repository, RepositoryState.PREPARING, this)
-        repairPreparingState(repository, dummyResource(this), this)
+        repairPreparingState(repository, dummyResource(this))
         check(validateState(repository, RepositoryState.PREPARING, this))
         isValid
     }

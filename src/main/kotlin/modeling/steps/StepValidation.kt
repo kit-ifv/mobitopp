@@ -4,15 +4,12 @@ package modeling.steps
 
 import utils.Builder
 import utils.ErrorHandling
-import utils.Identifiable
 import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
-import utils.csv.ErrorHandlingRow
 import utils.csv.Row
 
 /** Create an empty copy of the given resource but holding the same metadata. */
 fun <E> dummyCopyOf(resource: Resource<E>): Resource<E> {
-
     val name = resource.name
     val source = resource.source
 
@@ -26,7 +23,6 @@ fun <E> dummyResource(step: ModelStep): Resource<E> {
 
     return SequenceResource(name, source, emptySequence())
 }
-
 
 /** Check whether the given repository has the expected state. */
 fun validateState(repository: RepositoryBuilder<*, *, *>, expectedState: RepositoryState, step: ModelStep): Boolean {
@@ -77,8 +73,7 @@ fun repairPreparingState(
 /** Mock the preparing state in the given [RepositoryBuilder] to validate subsequent states.*/
 fun <B> repairPreparingState(
     repository: RepositoryBuilder<B, *, *>,
-    resource: Resource<B>,
-    step: ModelStep
+    resource: Resource<B>
 ) where B : Builder<*> = when (repository.state) {
     RepositoryState.UNINITIALIZED -> {
         repository.addBuilders(dummyCopyOf(resource))
