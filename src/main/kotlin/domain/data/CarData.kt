@@ -78,6 +78,14 @@ interface HybridEngine : CombustionEngine, ElectricEngine {
         get() = EngineType.HYBRID
 }
 
+/**
+ * Properties for different car engine types imported from legacy mobiTopp.
+ * For bev (battery electric car) we define range and battery capacity.
+ * For erev (hybrid car) we define battery capacity and differentiate the range by battery and total (combined).
+ * For combustion cars we define fuel capacity and fuel efficiency.
+ *
+ * The values are defined for the three car segments: small, midsize and large.
+ */
 data class CarEngineStatistics(
     val smallBevRange: Distance = 250.kilometers,
     val smallBevBattery: Energy = 30.toEnergy(EnergyUnit.KILOWATTHOUR),
