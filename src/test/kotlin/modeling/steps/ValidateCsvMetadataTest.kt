@@ -1,10 +1,13 @@
 package modeling.steps
 
 import assertNotContains
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import utils.ConsoleCaptor
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 import utils.csv.CsvParser
 import utils.csv.INT_COL
 import utils.csv.STR_COL
@@ -36,6 +39,16 @@ class ValidateCsvMetadataTest {
         override fun execute() { /**/ }
 
         override fun validate() = true
+    }
+
+    @BeforeEach
+    fun muteProgress() {
+        muteProgressBars()
+    }
+
+    @AfterEach
+    fun unmuteProgress() {
+        unmuteProgressBars()
     }
 
     /** Set up csv resources! */

@@ -1,8 +1,7 @@
 package utils.csv
 
 import utils.ErrorHandling
-import utils.collections.FancyProgressbar
-import utils.collections.ProgressBarFactory
+import utils.collections.addProgressBar
 import utils.collections.toLazyList
 import java.io.BufferedReader
 import java.io.File
@@ -161,7 +160,7 @@ open class DefaultCsvReader(
     protected val file: File,
     protected val separator: String = SEMICOLON,
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR,
-    protected val progressbar: ProgressBarFactory = FancyProgressbar()
+    protected val showProgressBar: Boolean = true
 ) : CsvReader {
 
     private val columnsIndex: Map<String, Int>
@@ -198,7 +197,11 @@ open class DefaultCsvReader(
             .map { line -> parseSafely(idCnt++, line) }
             .filterNotNull()
 
-        return progressbar.createProgressBar(sequence.iterator(), "read $name", rowCount.toLong()).asSequence()
+        return sequence.iterator().addProgressBar(
+            label = "read $name",
+            expectedCount = rowCount.toLong(),
+            visible = showProgressBar
+        ).asSequence()
     }
 
     private fun parseSafely(index: Int, line: String): Row? =

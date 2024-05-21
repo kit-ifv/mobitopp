@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SynthesisValidationTest {
+class StepValidationTest {
 
     private lateinit var repository: RepositoryBuilder<TestBuilder, TestEntity, TestId>
 

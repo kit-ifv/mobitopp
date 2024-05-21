@@ -4,6 +4,8 @@ package modeling.steps
 
 import utils.Builder
 import utils.ErrorHandling
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
@@ -136,7 +138,9 @@ class ValidateCsvMetadata<E>(
 
         ErrorHandling.ERROR.handle {
             ErrorHandling.mute()
+            muteProgressBars()
             csv.parser.parse(this).toList()
+            unmuteProgressBars()
             ErrorHandling.unmute()
         }
 

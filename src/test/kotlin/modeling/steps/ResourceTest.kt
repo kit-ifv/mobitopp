@@ -1,7 +1,10 @@
 package modeling.steps
 
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 import utils.csv.CsvParser
 import utils.csv.TestBuilder
 import java.io.File
@@ -15,6 +18,16 @@ abstract class ResourceTest<E> {
     @BeforeEach
     fun setUp() {
         resource = init()
+    }
+
+    @BeforeEach
+    fun muteProgress() {
+        muteProgressBars()
+    }
+
+    @AfterEach
+    fun unmuteProgress() {
+        unmuteProgressBars()
     }
 
     abstract fun init(): Resource<E>
