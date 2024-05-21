@@ -1,6 +1,10 @@
 package utils.csv
 
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -8,6 +12,16 @@ import kotlin.test.assertEquals
 class DefaultCsvReaderTest {
     private val file = File("src/test/resources/test_data.csv")
     private val reader: DefaultCsvReader = DefaultCsvReader(file)
+
+    @BeforeEach
+    fun muteProgress() {
+        muteProgressBars()
+    }
+
+    @AfterEach
+    fun unmuteProgress() {
+        unmuteProgressBars()
+    }
 
     @Test
     fun read() {

@@ -85,13 +85,13 @@ class CsvResource<E> (
  * A ReusableResource is a [Resource] decorator that stores the elements
  * of the provided sequence when it is computed for the first time (lazy).
  * This might close the sequence and prevent a second use of the elements.
- * Thi decorator provides the stored elements as a new sequence unlimited times.
+ * This decorator provides the stored elements as a new sequence unlimited times.
  *
  * @param E the generic type of provided entities
  * @property delegate the resource that should be made reusable
  */
 class ReusableResource<E>(
-    protected val delegate: Resource<E>
+    private val delegate: Resource<E>
 ) : Resource<E> by delegate {
     private var storage: List<E>? = null
 

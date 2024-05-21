@@ -17,7 +17,12 @@ typealias HouseholdId = ID<HouseholdData>
  *  @property location A household will have a fixed location somewhere in the simulation world.
  *  @property incomePerMonth The household income as required by some utility functions
  *  @property economicStatus The economic status grouping (Might be derived from income)
- *
+ *  @property householdNumber id of household in survey
+ *  @property surveyYear year the survey was conducted
+ *  @property domCode domestic code (legacy mobiTopp)
+ *  @property type household type (legacy mobiTopp)
+ *  @property members a set of household members
+ *  @property random a random value provider for decisions carried out by this agent
  */
 interface HouseholdData : Identifiable<HouseholdId> {
     val householdNumber: Long
@@ -27,10 +32,9 @@ interface HouseholdData : Identifiable<HouseholdId> {
     val type: Int
     val incomePerMonth: Currency
     val economicStatus: EconomicStatus
-
+    val random: Random
     val members: Set<PersonData>
     fun addMember(person: PersonData): Boolean
-    val random: Random
 }
 
 @Suppress("LongParameterList")
@@ -74,7 +78,7 @@ class HouseholdDataBuilder(
         override val id: ID<HouseholdData> = ID(
             requireNotNull(this@HouseholdDataBuilder.householdNumber) {
                 "id is not initialized in HouseholdDataBuilder: ${this@HouseholdDataBuilder}"
-            } // TODO check register
+            }
         )
 
         override val householdNumber: Long = requireNotNull(this@HouseholdDataBuilder.householdNumber) {

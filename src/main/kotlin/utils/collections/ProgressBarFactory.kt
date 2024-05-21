@@ -4,28 +4,33 @@ import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 
-interface ProgressBarFactory {
+internal var MUTE_PROGRESSBAR = false
 
-    fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long): Iterator<T>
+fun muteProgressBars() {
+    MUTE_PROGRESSBAR = true
 }
 
-class NullProgressbar : ProgressBarFactory {
-    override fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long): Iterator<T> = it
+fun unmuteProgressBars() {
+    MUTE_PROGRESSBAR = false
 }
 
+/** Add a progress bar logging the progress of the given iterator on the console.
+ * @param label label of the progressbar
+ * @param expectedCount expected number of elements in the iterator
+ * @param visible whether the progressbar should be shown on the console
+ */
 @Suppress("MagicNumber")
-class FancyProgressbar : ProgressBarFactory {
-
-    private val pbb = ProgressBarBuilder()
-
-    init {
-        pbb.setUpdateIntervalMillis(250)
+fun <I, T> I.addProgressBar(label: String, expectedCount: Long, visible: Boolean): Iterator<T> where I : Iterator<T> {
+    return if (!MUTE_PROGRESSBAR and visible) {
+        val pbb = ProgressBarBuilder()
+            .setUpdateIntervalMillis(250)
             .setMaxRenderedLength(120)
             .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-    }
-    override fun <T> createProgressBar(it: Iterator<T>, taskName: String, expectedCount: Long): Iterator<T> {
-        pbb.setTaskName(taskName)
+            .setTaskName(label)
             .setInitialMax(expectedCount)
-        return ProgressBar.wrap(it, pbb)
+
+        ProgressBar.wrap(this, pbb)
+    } else {
+        this
     }
 }

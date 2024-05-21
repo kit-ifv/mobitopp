@@ -35,7 +35,7 @@ fun <S, C> S.prepareHouseholds(
     roadPositionParser: (String) -> RoadPosition = String::parseRoadPosition,
     domCodeColumn: String = "domCode",
     typeColumn: String = "type",
-    incomeColumn: String = "income", // TODO unit: currency over time
+    incomeColumn: String = "income",
     incomeUnit: CurrencyUnit? = null,
     economicalStatusColumn: String = "economicalStatus",
     economicalStatusCodes: CodePlan<EconomicStatus>? = null

@@ -57,7 +57,8 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
         override fun accumulating() = THROW
 
         override fun processException(e: Exception, message: String) {
-            throw IllegalArgumentException(message, e) // TODO which specific exception type should we use here?
+            throw IllegalArgumentException(message, e)
+            // TODO which specific exception type should we use here?
         }
     };
 

@@ -1,10 +1,14 @@
 package utils.csv
 
 import assertEmpty
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import utils.ConsoleCaptor
 import utils.ErrorHandling
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -13,6 +17,16 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class CsvParserTest {
+    @BeforeEach
+    fun muteProgress() {
+        muteProgressBars()
+    }
+
+    @AfterEach
+    fun unmuteProgress() {
+        unmuteProgressBars()
+    }
+
     private val path: String = "src/test/resources/test_data.csv"
     private val file: File = File(path)
     val rowToEntity: (Row) -> TestEntity = { row ->
