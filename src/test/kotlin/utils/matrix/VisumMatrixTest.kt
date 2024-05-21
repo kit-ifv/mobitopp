@@ -59,7 +59,7 @@ class VisumMatrixTest {
             for (j in zoneIds.indices) {
                 val destinationZoneId = toZoneId(zoneIds[j])
                 val expectedValue = expectedMatrix[i * zoneIds.size + j]
-                val actualValue = matrix.get(originZoneId, destinationZoneId)
+                val actualValue = matrix[originZoneId, destinationZoneId]
                 assertEquals(expectedValue, actualValue, 0.001) // Adjust delta as needed
             }
         }
