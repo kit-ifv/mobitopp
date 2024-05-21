@@ -27,10 +27,10 @@ interface HouseholdData : Identifiable<HouseholdId> {
     val type: Int
     val incomePerMonth: Currency
     val economicStatus: EconomicStatus
-
+    val random: Random
     val members: Set<PersonData>
     fun addMember(person: PersonData): Boolean
-    val random: Random
+
 }
 
 @Suppress("LongParameterList")
