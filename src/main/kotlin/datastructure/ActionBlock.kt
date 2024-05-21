@@ -171,7 +171,7 @@ class ActivityBlock(
         newActivityBlock.previous = newLegBlock
         newActivityBlock.next = successor
         successor?.previous = newActivityBlock
-        // This order is relevant
+        // This order is relevant (targets should only be removed after the re-linking because otherwise sorting breaks)
         item.removeAll(targets)
         newLegBlock.insert(leg)
         return newLegBlock to newActivityBlock

@@ -1,5 +1,7 @@
 package datastructure
 
+import domain.enums.Mode
+import domain.enums.StandardMode
 import kotlin.time.Duration
 
 /**
@@ -112,6 +114,8 @@ sealed interface MovingAction : Action {
     override val actionType: ActionType
         get() = ActionType.LEG
     // TODO insert Transport mode here
+
+    val transportType: Mode
 }
 
 /**
@@ -128,8 +132,8 @@ interface Activity : StationaryAction {
     /**
      * A default implementation to spawn a leg spanning from one activity to another.
      */
-    fun createLegTo(other: Activity): Leg {
-        return Leg.fromDuration(endTime, other.startTime - endTime, endLocation, other.startLocation)
+    fun createLegTo(other: Activity, mode: Mode): Leg {
+        return Leg.fromDuration(endTime, other.startTime - endTime, endLocation, other.startLocation, mode)
     }
 
     override fun equals(other: Any?): Boolean
@@ -162,6 +166,7 @@ interface Activity : StationaryAction {
                 latestEndTime = latestEndTime
             )
         }
+
         fun fromDuration(
             location: Location,
             startTime: Duration,
@@ -193,8 +198,8 @@ data class RawActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is StationaryAction) return false
         return startTime == other.startTime &&
-            location == other.location &&
-            endTime == other.endTime
+                location == other.location &&
+                endTime == other.endTime
     }
 
     override fun hashCode(): Int {
@@ -221,6 +226,9 @@ interface Leg : MovingAction {
     override var earliestStartTime: Duration
     override var latestEndTime: Duration
 
+    override var transportType: Mode
+
+
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 
@@ -236,12 +244,19 @@ interface Leg : MovingAction {
          * @param duration The duration of the leg.
          * @return The generated leg.
          */
-        fun fromDuration(startTime: Duration, duration: Duration, startLocation: Location, endLocation: Location): Leg {
+        fun fromDuration(
+            startTime: Duration,
+            duration: Duration,
+            startLocation: Location,
+            endLocation: Location,
+            mode: Mode = StandardMode.UNDEFINED
+        ): Leg {
             return RawLeg(
                 startTime = startTime,
                 endTime = startTime + duration,
                 startLocation = startLocation,
-                endLocation = endLocation
+                endLocation = endLocation,
+                transportType = mode
             )
         }
 
@@ -256,12 +271,19 @@ interface Leg : MovingAction {
          * @param endTime The duration of the leg.
          * @return The generated leg.
          */
-        fun fromEndTime(startTime: Duration, endTime: Duration, startLocation: Location, endLocation: Location): Leg {
+        fun fromEndTime(
+            startTime: Duration,
+            endTime: Duration,
+            startLocation: Location,
+            endLocation: Location,
+            mode: Mode = StandardMode.UNDEFINED
+        ): Leg {
             return RawLeg(
                 startTime = startTime,
                 endTime = endTime,
                 startLocation = startLocation,
-                endLocation = endLocation
+                endLocation = endLocation,
+                transportType = mode
             )
         }
     }
@@ -282,7 +304,8 @@ data class RawLeg(
     override var endLocation: Location,
     override var endTime: Duration,
     override var earliestStartTime: Duration = -Duration.INFINITE,
-    override var latestEndTime: Duration = Duration.INFINITE
+    override var latestEndTime: Duration = Duration.INFINITE,
+    override var transportType: Mode
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
@@ -290,9 +313,9 @@ data class RawLeg(
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
-            startLocation == other.startLocation &&
-            endLocation == other.endLocation &&
-            endTime == other.endTime
+                startLocation == other.startLocation &&
+                endLocation == other.endLocation &&
+                endTime == other.endTime
     }
 
     override fun hashCode(): Int {
