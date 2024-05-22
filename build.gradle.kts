@@ -39,6 +39,7 @@ dependencies {
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
 

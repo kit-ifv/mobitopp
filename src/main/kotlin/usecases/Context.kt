@@ -5,8 +5,8 @@ import domain.data.ActivityDataBuilder
 import domain.data.ActivityId
 import domain.data.CarId
 import domain.data.CarSegment
+import domain.data.EEMobiltiyBuilder
 import domain.data.EMobilityPersonData
-import domain.data.EMobilityPersonDataBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.EngineType
@@ -50,7 +50,7 @@ interface PersonContext<B, E> where B : Builder<E>, E : PersonData {
     val sexCodes: CodePlan<Sex>
 }
 
-interface EMobilityPersonContext : PersonContext<EMobilityPersonDataBuilder, EMobilityPersonData>
+interface EMobilityPersonContext : PersonContext<EEMobiltiyBuilder, EMobilityPersonData>
 
 interface ZoneContext<B, E> where B : Builder<E>, E : ZoneData {
     val zoneRepository: RepositoryBuilder<B, E, ZoneId>
@@ -93,7 +93,7 @@ data class BaseContext(
 
     override val zoneRepository = RepositoryBuilder<ZoneDataBuilder, ZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
-    override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
+    override val personRepository = RepositoryBuilder<EEMobiltiyBuilder, EMobilityPersonData, PersonId>()
     override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
 }
 
@@ -114,7 +114,7 @@ data class LegacyContext(
 
     override val zoneRepository = RepositoryBuilder<LegacyZoneDataBuilder, LegacyZoneData, ZoneId>()
     override val householdRepository = RepositoryBuilder<HouseholdDataBuilder, HouseholdData, HouseholdId>()
-    override val personRepository = RepositoryBuilder<EMobilityPersonDataBuilder, EMobilityPersonData, PersonId>()
+    override val personRepository = RepositoryBuilder<EEMobiltiyBuilder, EMobilityPersonData, PersonId>()
     override val carRepository = RepositoryBuilder<PrivateCarBuilder, PrivateCarData, CarId>()
     override val activityRepository = RepositoryBuilder<ActivityDataBuilder, ActivityData, ActivityId>()
 

@@ -1,6 +1,9 @@
 package codegeneration
 
 import Buildable
+import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.SourceFile
+import com.tschuchort.compiletesting.symbolProcessorProviders
 import fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -19,7 +22,7 @@ class TestGeneration {
 
     @Test
     fun building() {
-        val b = MutableData()
+        val b = DataBuilder()
         val d = b.build {
             i = 10
         }
@@ -32,7 +35,7 @@ class TestGeneration {
 
     @Test
     fun collectionsAreCopies() {
-        val b = MutableClassWithList()
+        val b = ClassWithListBuilder()
         val d = b.build {
             text.add("A")
         }
@@ -46,13 +49,13 @@ class TestGeneration {
     @Test
     fun missingAttributesCausesError() {
         assertFailsWith<NullPointerException> {
-            MutableData().build()
+            DataBuilder().build()
         }
     }
 
     @Test
     fun complexObjectsAreReferenced() {
-        val b = MutableClassWithObjectInCollection()
+        val b = ClassWithObjectInCollectionBuilder()
         val d = b.buildPreserving {
             t.add(SomeComplexObject(1))
         }
@@ -70,7 +73,7 @@ class TestGeneration {
 
     @Test
     fun directObjectsAreNotReferenced() {
-        val b = MutableClassWithObject()
+        val b = ClassWithObjectBuilder()
         val d = b.buildPreserving {
             o = SomeComplexObject(1)
         }
@@ -88,7 +91,7 @@ class TestGeneration {
 
     @Test
     fun interfacesDoNotHoldSharedState() {
-        val b = MutableInterface()
+        val b = InterfaceBuilder()
         b.apply { inti = 4 }
         val t1 = b.buildPreserving { }
         assertEquals(4, t1.inti)
@@ -97,7 +100,42 @@ class TestGeneration {
         assertEquals(4, t1.inti)
         assertEquals(5, t2.inti)
     }
+
+    @Test
+    fun `test simple compilation`() {
+        val source = SourceFile.kotlin(
+            "Hello.kt",
+            """
+            @Buildable
+data class IHaveADefault(val i: Int = 0)
+        """
+        )
+
+        val result = KotlinCompilation().apply {
+            sources = listOf(source)
+            symbolProcessorProviders = listOf(ProcessorProvider())
+            inheritClassPath = true
+            messageOutputStream = System.out // See compiler messages in the console
+        }.compile()
+
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+    }
 }
+
+data class TonsOfDefaults(
+    val a: Int = 0,
+    val b: Int = 0,
+    val c: Int = 0,
+    val d: Int = 0,
+    val e: Int = 0,
+    val f: Int = 0,
+    val g: Int = 0,
+    val h: Int = 0,
+    val i: Int = 0,
+)
+
+@Buildable
+data class IHaveADefault(val i: Int = 0)
 
 @Buildable
 data class Data(val i: Int)

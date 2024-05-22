@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
@@ -238,9 +239,8 @@ class Processor(
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
             // Currently this disables mutable annotation for abstract classes and interfaces
 
-
             val className = classDeclaration.simpleName.asString()
-            val newClassName = "Mutable$className"
+            val newClassName = "${className}Builder"
 
             val cType = ClassType.fromDeclaration(classDeclaration)
 
@@ -325,6 +325,14 @@ class Processor(
         }
 
         override fun visitTypeArgument(typeArgument: KSTypeArgument, data: Unit) {
+        }
+
+        override fun visitValueArgument(valueArgument: KSValueArgument, data: Unit) {
+            file += "//vVA ${valueArgument.value} has been visited \n"
+        }
+
+        override fun visitValueParameter(valueParameter: KSValueParameter, data: Unit) {
+            file += "//vVP ${valueParameter} has been visited \n"
         }
 
     }

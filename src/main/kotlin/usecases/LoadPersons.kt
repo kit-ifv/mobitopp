@@ -1,7 +1,7 @@
 package usecases
 
 import domain.data.ChargingInfluence
-import domain.data.EMobilityPersonDataBuilder
+import domain.data.EEMobiltiyBuilder
 import domain.data.Employment
 import domain.data.Graduation
 import domain.data.HouseholdData
@@ -59,7 +59,7 @@ fun <S, C> S.prepareEmobilityPersons(
     val householdRepo = { context.householdRepository }
 
     val csvParser = CsvParser(errorHandling) { row ->
-        EMobilityPersonDataBuilder(
+        EEMobiltiyBuilder(
             personId = row.long(idColumn),
             householdData = getHousehold(householdRepo, row, householdColumn),
             age = row.int(ageColumn),
@@ -79,7 +79,7 @@ fun <S, C> S.prepareEmobilityPersons(
 }
 
 fun <S, C> S.preparePersonsFile(
-    parser: CsvParser<EMobilityPersonDataBuilder>,
+    parser: CsvParser<EEMobiltiyBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
 ) where S : ModelExecution<C>, C : Context, C : EMobilityPersonContext {
