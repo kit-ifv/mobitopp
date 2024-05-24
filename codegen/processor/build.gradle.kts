@@ -12,4 +12,6 @@ dependencies {
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     implementation("com.google.devtools.ksp:symbol-processing-api:1.6.20-1.0.5")
     testImplementation(kotlin("test"))
+    testImplementation(kotlin("reflect"))
+    implementation(kotlin("reflect"))
 }
