@@ -1,5 +1,3 @@
-
-
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspSourcesDir
@@ -28,11 +26,13 @@ class CompileTest {
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
 
         val klazzz = result.classLoader.loadClass("TempBuilder")
+        val test = klazzz.declaredMethods
         val constructor = Temp::class.primaryConstructor
 
 
     }
 }
+
 const val TEST1 = """
 @Buildable
 data class Temp(
@@ -43,9 +43,19 @@ data class Temp(
     constructor(string: String): this()
 }
 """
+interface Teemp {
+    val i
+        get() = 0
+}
 @Buildable
 data class Temp(
-    val i: Int = 0,
+    val i: Int? = 0,
     val j: Int = 0,
-    val k: Int = 0,
-)
+    val k: String = "0",
+) {
+
+    fun temp() {
+        val tm = mapOf("i" to i, "j" to j, "k" to k).filter {
+            (_, v) -> v == null }.keys.toList()
+    }
+}

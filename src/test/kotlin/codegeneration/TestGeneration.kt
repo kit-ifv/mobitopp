@@ -5,6 +5,7 @@ import fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
@@ -45,9 +46,11 @@ class TestGeneration {
 
     @Test
     fun missingAttributesCausesError() {
-        assertFailsWith<NullPointerException> {
+        val exception = assertFailsWith<IllegalArgumentException> {
             DataBuilder().build()
         }
+        assertContains(exception.message!!, "i")
+        assertContains(exception.message!!, "The following attributes")
     }
 
     @Test
@@ -97,7 +100,6 @@ class TestGeneration {
         assertEquals(4, t1.inti)
         assertEquals(5, t2.inti)
     }
-
 }
 
 data class TonsOfDefaults(

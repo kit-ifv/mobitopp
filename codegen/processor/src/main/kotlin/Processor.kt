@@ -11,7 +11,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.google.devtools.ksp.validate
@@ -174,6 +173,21 @@ fun stringify(text: KSTypeReference): String {
 
 }
 
+fun typify(text: KSValueParameter): String {
+
+    val t = text.type.toString()
+    return when (t) {
+        "List" -> ".toList()"
+        "Set" -> ".toSet()"
+        "Map" -> ".toMap()"
+        "MutableMap" -> ".toMutableMap()"
+        "MutableSet" -> ".toMutableSet()"
+        "MutableList" -> ".toMutableList()"
+        else -> ""
+    }
+
+}
+
 enum class ClassType {
     INTERFACE,
     ABSTRACT,
@@ -238,6 +252,7 @@ class Processor(
             }
             file += "import utils.Builder\n"
             file += "import utils.ID\n"
+            file += "import kotlin.reflect.full.primaryConstructor\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
             file.close()
@@ -302,13 +317,27 @@ class Processor(
                 }
 
                 ClassType.CLASS -> "override fun build(): $className" {
-                    +"return $className(${
-                        (classDeclaration.primaryConstructor?.parameters?.joinToString {
-                            it.name?.asString() + stringify(
-                                it.type
-                            )
-                        } ?: "")
-                    })"
+//                    val klazz = IHaveADefault::class.primaryConstructor?: throw NoSuchElementException()
+//                    val oe = klazz.parameters.filter{!it.isOptional}
+//                    require(oe.all { defaultables[it.name] != null }) {
+//                        "The following attributes are not set and required ${oe.filter { defaultables[it.name] == null }}"
+//                    }
+//                    val t  = klazz.parameters.map { it to defaultables[it.name] }.filter { it.second != null }.toMap()
+//                    return klazz.callBy(t)
+                    +"val targetConstructor = $className::class.primaryConstructor ?: throw NoSuchElementException(\"A primary constructor is required for the Buildable to work\")"
+                    +"val requiredParameters = targetConstructor.parameters.filter{!it.isOptional}"
+                    +"require(requiredParameters.all { defaultables[it.name]?.invoke() != null })" {
+                        +"\"The following attributes are not set and required \${requiredParameters.filter { defaultables[it.name]?.invoke() == null }.map{it.name}}\""
+                    }
+                    +"val paramMap = targetConstructor.parameters.map { it to defaultables[it.name]?.invoke() }.filter { it.second != null }.toMap()"
+                    +"return targetConstructor.callBy(paramMap)"
+//                    +"return $className(${
+//                        (classDeclaration.primaryConstructor?.parameters?.joinToString {
+//                            it.name?.asString() + stringify(
+//                                it.type
+//                            )
+//                        } ?: "")
+//                    })"
 
                 }
             }
@@ -330,10 +359,12 @@ class Processor(
                 else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) }
                     ?: "")
             }
-            classDeclaration.superTypes.map { }
+
+            val defaultableParameters = classDeclaration.primaryConstructor?.parameters ?: emptyList()
 
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList
+                +"private val defaultables : Map<String, () -> Any?> = ${defaultableParameters.joinToString(prefix = "mapOf(", postfix = ")", separator = ",") {"\"$it\" to {$it${typify(it)}}"}}"
 //                +classDeclaration.getAllProperties().map {
 //                    properType(it)
 //                }.joinToString(separator = "\n")
@@ -362,14 +393,5 @@ class Processor(
 
         override fun visitTypeArgument(typeArgument: KSTypeArgument, data: Unit) {
         }
-
-        override fun visitValueArgument(valueArgument: KSValueArgument, data: Unit) {
-            file += "//vVA ${valueArgument.value} has been visited \n"
-        }
-
-        override fun visitValueParameter(valueParameter: KSValueParameter, data: Unit) {
-            file += "//vVP ${valueParameter} has been visited \n"
-        }
-
     }
 }
