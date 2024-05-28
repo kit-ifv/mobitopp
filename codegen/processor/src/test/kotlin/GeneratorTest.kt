@@ -46,7 +46,7 @@ class CompileTest {
 
 const val TEST1 = """
 @Buildable
-data class Temp(
+data class Temp<T>(
     val i: Int = 0,
     val j: Int = 0,
     val k: Int = 0,
@@ -55,10 +55,9 @@ data class Temp(
 }
 """
 
-
 const val TEST2 = """
 @Buildable
-interface IHaveDefault { 
+interface IHaveDefault<T: Number> { 
     val int: Int
         get() = 0
 }

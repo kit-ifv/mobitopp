@@ -145,11 +145,12 @@ data class IHaveADefault(val i: Int = 0)
 
 @Buildable
 data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
-//@Buildable
-//class Generic<T>(
-//    val t: T,
-//    val id: Int = 0,
-//)
+@Buildable
+class Generic<T : Number, S : CharSequence>(
+    val t: T,
+    val mapp: Map<T, S>,
+    val id: Int = 0,
+)
 
 @Buildable
 data class Data(val i: Int)

@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeArgument
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
@@ -16,7 +17,7 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
-class Props(private val name: String, private val type: KSTypeReference, private val hasDefault: Boolean = false) {
+class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean = false) {
 
     constructor(property: KSPropertyDeclaration) : this(property.simpleName.asString(), property.type)
     constructor(property: KSValueParameter) : this(property.name?.asString()!!, property.type, property.hasDefault)
@@ -89,7 +90,15 @@ class Props(private val name: String, private val type: KSTypeReference, private
 
         companion object {
             fun parse(type: String, hasDefault: Boolean): State {
-                if(hasDefault && type in listOf("List", "Map", "Set", "MutableList", "MutableMap", "MutableSet")) return COLLECTION_WITH_DEFAULT
+                if (hasDefault && type in listOf(
+                        "List",
+                        "Map",
+                        "Set",
+                        "MutableList",
+                        "MutableMap",
+                        "MutableSet"
+                    )
+                ) return COLLECTION_WITH_DEFAULT
                 return when (type) {
                     "MutableList", "MutableMap", "MutableSet" -> MODIFIABLE_COLLECTION
                     "List", "Map", "Set" -> UNMODIFIABLE_COLLECTION
@@ -100,6 +109,8 @@ class Props(private val name: String, private val type: KSTypeReference, private
         }
 
         open val nullable = "?"
+
+
         abstract fun variability(): String
         abstract fun defaultValue(type: String): String
 
@@ -114,6 +125,8 @@ class Props(private val name: String, private val type: KSTypeReference, private
 
     private val typeString = type.toString()
     private val state = State.parse(typeString, hasDefault)
+
+    fun isNullable() = state.nullable == "?"
     private val generics = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
@@ -173,6 +186,10 @@ fun stringify(text: KSTypeReference): String {
     }
 }
 
+fun stringify(props: Props): String {
+    return stringify(props.type)
+}
+
 enum class ClassType {
     INTERFACE,
     ABSTRACT,
@@ -204,6 +221,35 @@ fun typeInterpret(type: KSTypeReference): String {
         }
     }
     return res.declaration.qualifiedName?.asString() + generics
+}
+fun typeInterpret(type: KSTypeParameter): String {
+    return type.bounds.joinToString(separator = ", ") { it.toString() }
+}
+fun typeInterpret(classDeclaration: KSClassDeclaration): String {
+    if (classDeclaration.typeParameters.isEmpty()) {
+
+        return ""
+    }
+
+    return classDeclaration.typeParameters.joinToString(
+        separator = ", ",
+        prefix = "<",
+        postfix = ">"
+    ) {
+        it.name.asString() + ": " + typeInterpret(it)
+    }
+
+}
+
+fun typeNames(classDeclaration: KSClassDeclaration): String {
+    if(classDeclaration.typeParameters.isEmpty()) return ""
+    return classDeclaration.typeParameters.joinToString(
+        separator = ", ",
+        prefix = "<",
+        postfix = ">"
+    ) {
+        it.name.asString()
+    }
 }
 
 class Processor(
@@ -246,7 +292,11 @@ class Processor(
     inner class Visitor(private val file: OutputStream) : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
             val className = classDeclaration.simpleName.asString()
-            val newClassName = "${className}Builder"
+            val typeInterpret = typeInterpret(classDeclaration)
+            val typeList = typeNames(classDeclaration)
+            val classNameTyped = className + typeList
+            val newClassName = "${className}Builder$typeList"
+            val newClassNameTyped = "${className}Builder$typeInterpret"
 
             val cType = ClassType.fromDeclaration(classDeclaration)
 
@@ -296,21 +346,21 @@ class Processor(
                     +"return Default$className()"
                 }
 
-                ClassType.CLASS -> "override fun build(): $className" {
+                ClassType.CLASS -> "override fun build(): $classNameTyped" {
                     val defaultables = classDeclaration.primaryConstructor?.parameters?.filter {
                         it.hasDefault
-                    } ?: emptyList()
+                    }?.map { Props(it) } ?: emptyList()
                     val nonDefaultables = classDeclaration.primaryConstructor?.parameters?.filter {
                         !it.hasDefault
-                    } ?: emptyList()
+                    }?.map { Props(it) } ?: emptyList()
                     if (defaultables.isNotEmpty()) {
                         +"val target = listOf(${
-                            defaultables.joinToString(separator = ", ") { "${it.name?.asString()} != null" }
+                            defaultables.joinToString(separator = ", ") { "${it.name} != null" }
                         })"
                         val map = nonDefaultables.joinToString(
                             prefix = "listOf(",
                             postfix = ").toMap()"
-                        ) { "${it.name?.asString()} to (${it.name?.asString()} != null)" }
+                        ) { "${it.name} to (${it.name} != null)" }
 
                         if (nonDefaultables.isNotEmpty()) {
                             +"val map = $map"
@@ -325,13 +375,13 @@ class Processor(
                                 val zip = i.toBinaryRepresentation(defaultables.size).zip(defaultables)
                                 val targets = zip.filter { it.first }.map { it.second }
                                 val prin =
-                                    targets.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }
+                                    targets.joinToString(separator = ", ") { "${it.name} = ${it.name}!!" }
                                 val otter =
-                                    nonDefaultables.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }
+                                    nonDefaultables.joinToString(separator = ", ") { "${it.name} = ${it.name}!!" }
                                 val tolo = mutableListOf<String>()
                                 if (targets.isNotEmpty()) tolo.add(prin)
                                 if (nonDefaultables.isNotEmpty()) tolo.add(otter)
-                                +"listOf(${zip.map { it.first }.joinToString(", ")}) -> $className(${
+                                +"listOf(${zip.map { it.first }.joinToString(", ")}) -> $classNameTyped(${
                                     tolo.joinToString(
                                         separator = ", "
                                     )
@@ -341,16 +391,28 @@ class Processor(
                             +"else -> throw IllegalArgumentException()"
                         }
                     } else {
-                        val map = nonDefaultables.joinToString(
-                            prefix = "listOf(",
-                            postfix = ").toMap()"
-                        ) { "${it.name?.asString()} to (${it.name?.asString()} != null)" }
-                        +"val map = $map"
-                        +"val control = map.filter{it.value == false}.keys"
-                        +"require(control.isEmpty())" {
-                            +"\"The following attributes need to be set \${control}\""
+                        val filter = nonDefaultables.filter { it.isNullable() }
+                        if (filter.isNotEmpty()) {
+                            val map = filter.joinToString(
+                                prefix = "listOf(",
+                                postfix = ").toMap()"
+                            ) { "${it.name} to (${it.name} != null)" }
+                            +"val map = $map"
+                            +"val control = map.filter{it.value == false}.keys"
+                            +"require(control.isEmpty())" {
+                                +"\"The following attributes need to be set \${control}\""
+                            }
                         }
-                        +"return $className(${nonDefaultables.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }})"
+
+                        +"return $classNameTyped(${
+                            nonDefaultables.joinToString(separator = ", ") {
+                                "${it.name} = ${
+                                    it.name + stringify(
+                                        it
+                                    )
+                                }"
+                            }
+                        })"
                     }
                 }
             }
@@ -376,18 +438,18 @@ class Processor(
                             ?: ""
                         )
             }
-            file += "class $newClassName() : Builder<$className>" {
+            file += "class $newClassNameTyped() : Builder<$classNameTyped>" {
                 +parameterList
-                +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $className" {
+                +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $classNameTyped" {
                     +"this.apply(lambda)"
                     +"return build()"
                 }
-                +"fun build(lambda: $newClassName.() -> Unit) : $className" {
+                +"fun build(lambda: $newClassName.() -> Unit) : $classNameTyped" {
                     +"val result = buildPreserving(lambda)"
                     +"reset()"
                     +"return result"
                 }
-                +"fun reset()" {
+                +"override fun reset()" {
                     +resetFunction
                 }
                 +createBuildFunction
