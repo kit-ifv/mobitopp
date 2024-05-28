@@ -17,10 +17,10 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
-class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean = false) {
+class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean = false, val genericLabels: List<String> = emptyList()) {
 
     constructor(property: KSPropertyDeclaration) : this(property.simpleName.asString(), property.type)
-    constructor(property: KSValueParameter) : this(property.name?.asString()!!, property.type, property.hasDefault)
+    constructor(property: KSValueParameter, genericLabels: List<String> = emptyList()) : this(property.name?.asString()!!, property.type, property.hasDefault, genericLabels)
 
     enum class State {
         PRIMITIVE {
@@ -89,7 +89,7 @@ class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean
         ;
 
         companion object {
-            fun parse(type: String, hasDefault: Boolean): State {
+            fun parse(type: String, hasDefault: Boolean, genericLabels: List<String> = emptyList()): State {
                 if (hasDefault && type in listOf(
                         "List",
                         "Map",
@@ -103,6 +103,7 @@ class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean
                     "MutableList", "MutableMap", "MutableSet" -> MODIFIABLE_COLLECTION
                     "List", "Map", "Set" -> UNMODIFIABLE_COLLECTION
                     "Int", "Double", "String" -> PRIMITIVE
+                    in genericLabels -> PRIMITIVE
                     else -> OBJECT
                 }
             }
@@ -124,7 +125,7 @@ class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean
     }
 
     private val typeString = type.toString()
-    private val state = State.parse(typeString, hasDefault)
+    private val state = State.parse(typeString, hasDefault, genericLabels)
 
     fun isNullable() = state.nullable == "?"
     private val generics = type.resolve().let {
@@ -163,8 +164,8 @@ fun resetType(property: KSPropertyDeclaration): String {
     return p.reset()
 }
 
-fun properType(property: KSValueParameter): String {
-    val p = Props(property)
+fun properType(property: KSValueParameter, templates: List<String> = emptyList()): String {
+    val p = Props(property, genericLabels = templates)
     return p.initialize()
 }
 
@@ -297,7 +298,7 @@ class Processor(
             val classNameTyped = className + typeList
             val newClassName = "${className}Builder$typeList"
             val newClassNameTyped = "${className}Builder$typeInterpret"
-
+            val labls  = classDeclaration.typeParameters.map{it.name.asString()}
             val cType = ClassType.fromDeclaration(classDeclaration)
 
             val createBuildFunction = when (cType) {
@@ -434,7 +435,7 @@ class Processor(
                     .joinToString(separator = "\n")
 
                 else -> (
-                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) }
+                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it, labls) }
                             ?: ""
                         )
             }

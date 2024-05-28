@@ -14,7 +14,7 @@ class CompileTest {
 
     @Test
     fun `test simple compilation`() {
-        val source = SourceFile.kotlin("Hello.kt", TEST2)
+        val source = SourceFile.kotlin("Hello.kt", TEST1)
         lateinit var output: File
         val result = KotlinCompilation().apply {
             sources = listOf(source)
@@ -47,6 +47,7 @@ class CompileTest {
 const val TEST1 = """
 @Buildable
 data class Temp<T>(
+    val t: T,
     val i: Int = 0,
     val j: Int = 0,
     val k: Int = 0,
@@ -57,11 +58,10 @@ data class Temp<T>(
 
 const val TEST2 = """
 @Buildable
-interface IHaveDefault<T: Number> { 
+interface IHaveDefault<T: Number> {
     val int: Int
         get() = 0
-}
-"""
+}"""
 interface Teemp {
     val i
         get() = 0
