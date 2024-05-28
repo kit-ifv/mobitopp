@@ -34,6 +34,7 @@ detekt {
     autoCorrect = true
 }
 dependencies {
+    implementation(project(":processor"))
     testImplementation(kotlin("test"))
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
     implementation(project(":annotations"))

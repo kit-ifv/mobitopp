@@ -173,19 +173,6 @@ fun stringify(text: KSTypeReference): String {
     }
 }
 
-fun typify(text: KSValueParameter): String {
-    val t = text.type.toString()
-    return when (t) {
-        "List" -> ".toList()"
-        "Set" -> ".toSet()"
-        "Map" -> ".toMap()"
-        "MutableMap" -> ".toMutableMap()"
-        "MutableSet" -> ".toMutableSet()"
-        "MutableList" -> ".toMutableList()"
-        else -> ""
-    }
-}
-
 enum class ClassType {
     INTERFACE,
     ABSTRACT,
@@ -389,9 +376,6 @@ class Processor(
                             ?: ""
                         )
             }
-
-            val defaultableParameters = classDeclaration.primaryConstructor?.parameters ?: emptyList()
-
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList
                 +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $className" {
