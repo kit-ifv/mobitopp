@@ -9,6 +9,7 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 
 class TestGeneration {
 
@@ -100,6 +101,30 @@ class TestGeneration {
         assertEquals(4, t1.inti)
         assertEquals(5, t2.inti)
     }
+    @Test
+    fun interfaceIsDefaultable() {
+
+
+        val test = listOf(true, true, true)
+
+        val xe = when(test) {
+            listOf(true, true, true) -> 1
+            listOf(false, true, true) -> 2
+            listOf(true, false, true) -> 3
+            listOf(true, true, false) -> 4
+            listOf(false, false, true) -> 5
+            listOf(false, true, false) -> 6
+            listOf(true, false, false) -> 7
+            listOf(false, false, false) -> 8
+            else -> -1
+
+        }
+        println(xe)
+        val b = InterfaceWithDefaultBuilder()
+        b.build {
+
+        }
+    }
 }
 
 data class TonsOfDefaults(
@@ -117,6 +142,15 @@ data class TonsOfDefaults(
 @Buildable
 data class IHaveADefault(val i: Int = 0)
 
+
+@Buildable
+data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
+//@Buildable
+//class Generic<T>(
+//    val t: T,
+//    val id: Int = 0,
+//)
+
 @Buildable
 data class Data(val i: Int)
 
@@ -130,7 +164,7 @@ class ClassWithMap(val text: Map<String, String>)
 class ClassWithSet(val text: Set<String>)
 
 @Buildable
-class ClassWithMutableSet(val text: Set<String>)
+class ClassWithMutableSet(val text: Set<String> = setOf("Nope"))
 
 @Buildable
 class ClassWithObject(val o: SomeComplexObject)
@@ -155,7 +189,11 @@ interface InterfaceWithAbstractFunctions {
     fun bruell(): String
     fun zuchini(): Boolean
 }
-
+@Buildable
+interface InterfaceWithDefault {
+    val int: Int
+        get() = 0
+}
 @Buildable
 abstract class AbstractClass(val text: String) {
     val secondaryAttribute: String
@@ -175,3 +213,38 @@ class SomeComplexObject(var i: Int) {
 
 @Buildable
 class ClassWithObjectInCollection(val t: List<SomeComplexObject>)
+
+@Buildable
+data class AllPrimitives(
+    val byte: Byte,
+    val short: Short,
+    val i: Int,
+    val l: Long,
+
+    val f: Float,
+    val d: Double,
+
+    val ub: UByte,
+    val us: UShort,
+    val ui: UInt,
+    val ul: ULong,
+
+    val bool: Boolean,
+    val c: Char,
+    val str: String,
+
+    val array: Array<SomeComplexObject>,
+    val intArray: IntArray,
+    val byteArray: ByteArray,
+    val booleanArray: BooleanArray,
+    val charArray: CharArray,
+    val doubleArray: DoubleArray,
+    val floatArray: FloatArray,
+    val longArray: LongArray,
+    val shortArray: ShortArray
+)
+
+@Buildable
+class ValueHolder(
+    val duration: Duration
+)

@@ -1,4 +1,3 @@
-
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -13,13 +12,14 @@ import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
-class Props(private val name: String, private val type: KSTypeReference) {
+class Props(private val name: String, private val type: KSTypeReference, private val hasDefault: Boolean = false) {
 
     constructor(property: KSPropertyDeclaration) : this(property.simpleName.asString(), property.type)
-    constructor(property: KSValueParameter) : this(property.name?.asString()!!, property.type)
+    constructor(property: KSValueParameter) : this(property.name?.asString()!!, property.type, property.hasDefault)
 
     enum class State {
         PRIMITIVE {
@@ -30,8 +30,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
             override fun defaultValue(type: String): String {
                 return "null"
             }
-
-
         },
         OBJECT {
             override fun variability(): String {
@@ -45,7 +43,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
             override fun defaultValue(type: String): String {
                 return "null"
             }
-
         },
         UNMODIFIABLE_COLLECTION {
             override val nullable = ""
@@ -55,7 +52,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
 
             override fun defaultValue(type: String): String {
                 return "mutable$type" + "Of()"
-
             }
 
             override fun type(type: String, fullRef: KSTypeReference): String {
@@ -65,8 +61,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
             override fun reset(type: String): String {
                 return ".clear()"
             }
-
-
         },
         MODIFIABLE_COLLECTION {
             override val nullable = ""
@@ -81,10 +75,21 @@ class Props(private val name: String, private val type: KSTypeReference) {
             override fun reset(type: String): String {
                 return ".clear()"
             }
-        };
+        },
+        COLLECTION_WITH_DEFAULT {
+            override fun variability(): String {
+                return "var"
+            }
+
+            override fun defaultValue(type: String): String {
+                return "null"
+            }
+        }
+        ;
 
         companion object {
-            fun parse(type: String): State {
+            fun parse(type: String, hasDefault: Boolean): State {
+                if(hasDefault && type in listOf("List", "Map", "Set", "MutableList", "MutableMap", "MutableSet")) return COLLECTION_WITH_DEFAULT
                 return when (type) {
                     "MutableList", "MutableMap", "MutableSet" -> MODIFIABLE_COLLECTION
                     "List", "Map", "Set" -> UNMODIFIABLE_COLLECTION
@@ -98,11 +103,9 @@ class Props(private val name: String, private val type: KSTypeReference) {
         abstract fun variability(): String
         abstract fun defaultValue(type: String): String
 
-
         open fun type(type: String, fullRef: KSTypeReference): String {
             return type
         }
-
 
         open fun reset(type: String): String {
             return " = null"
@@ -110,7 +113,7 @@ class Props(private val name: String, private val type: KSTypeReference) {
     }
 
     private val typeString = type.toString()
-    private val state = State.parse(typeString)
+    private val state = State.parse(typeString, hasDefault)
     private val generics = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
@@ -135,8 +138,6 @@ class Props(private val name: String, private val type: KSTypeReference) {
     fun reset(): String {
         return "$name${state.reset(typeString)}"
     }
-
-
 }
 
 fun properType(property: KSPropertyDeclaration): String {
@@ -170,11 +171,9 @@ fun stringify(text: KSTypeReference): String {
         "MutableList" -> ".toMutableList()"
         else -> "!!"
     }
-
 }
 
 fun typify(text: KSValueParameter): String {
-
     val t = text.type.toString()
     return when (t) {
         "List" -> ".toList()"
@@ -185,7 +184,6 @@ fun typify(text: KSValueParameter): String {
         "MutableList" -> ".toMutableList()"
         else -> ""
     }
-
 }
 
 enum class ClassType {
@@ -203,11 +201,9 @@ enum class ClassType {
             }
         }
     }
-
 }
 
 fun typeInterpret(type: KSTypeReference): String {
-
     val res = type.resolve()
     val generics = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
@@ -234,7 +230,6 @@ class Processor(
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-
         val symbols = resolver.getSymbolsWithAnnotation("Buildable").filterIsInstance<KSClassDeclaration>()
         if (!symbols.iterator().hasNext()) return emptyList()
         val symbolList = symbols.toList()
@@ -263,23 +258,21 @@ class Processor(
 
     inner class Visitor(private val file: OutputStream) : KSVisitorVoid() {
         override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-            // Currently this disables mutable annotation for abstract classes and interfaces
-
             val className = classDeclaration.simpleName.asString()
             val newClassName = "${className}Builder"
 
             val cType = ClassType.fromDeclaration(classDeclaration)
 
             val createBuildFunction = when (cType) {
-
                 ClassType.INTERFACE -> "override fun build(): $className" {
                     +"class Default$className(${
-                        classDeclaration.getAllProperties().filter { !it.hasBackingField || it.findOverridee() == null }
+                        // !it.hasBackingField || it.findOverridee() == null
+                        //
+                        classDeclaration.getAllProperties()
+                            .filter { it.getter?.modifiers?.contains(Modifier.ABSTRACT) ?: false }
                             .map {
                                 "override val " + it.simpleName.asString() + ": " + typeInterpret(it.type) + " = this.${
-                                    it.simpleName.asString() + stringify(
-                                        it.type
-                                    )
+                                    it.simpleName.asString() + "?: throw IllegalArgumentException(\"Required parameter [${it.simpleName.asString()}] is null\")"
                                 }"
                             }
                             .joinToString(prefix = "\n", separator = ",\n")
@@ -308,7 +301,7 @@ class Processor(
                         } ?: ""
                     })" {
                         +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {
-                            "override fun ${it.simpleName.asString()}(): ${it.returnType.toString()}" {
+                            "override fun ${it.simpleName.asString()}(): ${it.returnType}" {
                                 +"throw NotImplementedError()"
                             }
                         }.joinToString()
@@ -317,38 +310,73 @@ class Processor(
                 }
 
                 ClassType.CLASS -> "override fun build(): $className" {
-//                    val klazz = IHaveADefault::class.primaryConstructor?: throw NoSuchElementException()
-//                    val oe = klazz.parameters.filter{!it.isOptional}
-//                    require(oe.all { defaultables[it.name] != null }) {
-//                        "The following attributes are not set and required ${oe.filter { defaultables[it.name] == null }}"
-//                    }
-//                    val t  = klazz.parameters.map { it to defaultables[it.name] }.filter { it.second != null }.toMap()
-//                    return klazz.callBy(t)
-                    +"val targetConstructor = $className::class.primaryConstructor ?: throw NoSuchElementException(\"A primary constructor is required for the Buildable to work\")"
-                    +"val requiredParameters = targetConstructor.parameters.filter{!it.isOptional}"
-                    +"require(requiredParameters.all { defaultables[it.name]?.invoke() != null })" {
-                        +"\"The following attributes are not set and required \${requiredParameters.filter { defaultables[it.name]?.invoke() == null }.map{it.name}}\""
-                    }
-                    +"val paramMap = targetConstructor.parameters.map { it to defaultables[it.name]?.invoke() }.filter { it.second != null }.toMap()"
-                    +"return targetConstructor.callBy(paramMap)"
-//                    +"return $className(${
-//                        (classDeclaration.primaryConstructor?.parameters?.joinToString {
-//                            it.name?.asString() + stringify(
-//                                it.type
-//                            )
-//                        } ?: "")
-//                    })"
+                    val defaultables = classDeclaration.primaryConstructor?.parameters?.filter {
+                        it.hasDefault
+                    } ?: emptyList()
+                    val nonDefaultables = classDeclaration.primaryConstructor?.parameters?.filter {
+                        !it.hasDefault
+                    } ?: emptyList()
+                    if (defaultables.isNotEmpty()) {
+                        +"val target = listOf(${
+                            defaultables.joinToString(separator = ", ") { "${it.name?.asString()} != null" }
+                        })"
+                        val map = nonDefaultables.joinToString(
+                            prefix = "listOf(",
+                            postfix = ").toMap()"
+                        ) { "${it.name?.asString()} to (${it.name?.asString()} != null)" }
 
+                        if (nonDefaultables.isNotEmpty()) {
+                            +"val map = $map"
+                            +"val control = map.filter{it.value == false}.keys"
+                            +"require(control.isEmpty())" {
+                                +"\"The following attributes need to be set \${control}\""
+                            }
+                        }
+
+                        +"return when(target)" {
+                            for (i in 0..<2.pow(defaultables.size)) {
+                                val zip = i.toBinaryRepresentation(defaultables.size).zip(defaultables)
+                                val targets = zip.filter { it.first }.map { it.second }
+                                val prin =
+                                    targets.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }
+                                val otter =
+                                    nonDefaultables.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }
+                                val tolo = mutableListOf<String>()
+                                if (targets.isNotEmpty()) tolo.add(prin)
+                                if (nonDefaultables.isNotEmpty()) tolo.add(otter)
+                                +"listOf(${zip.map { it.first }.joinToString(", ")}) -> $className(${
+                                    tolo.joinToString(
+                                        separator = ", "
+                                    )
+                                })"
+
+                            }
+                            +"else -> throw IllegalArgumentException()"
+                        }
+                    } else {
+                        val map = nonDefaultables.joinToString(
+                            prefix = "listOf(",
+                            postfix = ").toMap()"
+                        ) { "${it.name?.asString()} to (${it.name?.asString()} != null)" }
+                        +"val map = $map"
+                        +"val control = map.filter{it.value == false}.keys"
+                        +"require(control.isEmpty())" {
+                            +"\"The following attributes need to be set \${control}\""
+                        }
+                        +"return $className(${nonDefaultables.joinToString(separator = ", ") { "${it.name?.asString()} = ${it.name?.asString()}!!" }})"
+                    }
                 }
             }
             val resetFunction = when (classDeclaration.classKind) {
                 ClassKind.INTERFACE -> classDeclaration.getAllProperties()
-                    .filter { !it.hasBackingField || it.findOverridee() == null }.map {
-                    resetType(it)
-                }.joinToString(separator = "\n")
+                    .filter { it.getter?.modifiers?.contains(Modifier.ABSTRACT) ?: false }.map {
+                        resetType(it)
+                    }.joinToString(separator = "\n")
 
-                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) }
-                    ?: "")
+                else -> (
+                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) }
+                            ?: ""
+                        )
             }
 
             val parameterList = when (classDeclaration.classKind) {
@@ -356,18 +384,16 @@ class Processor(
                     .filter { !it.hasBackingField || it.findOverridee() == null }.map { properType(it) }
                     .joinToString(separator = "\n")
 
-                else -> (classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) }
-                    ?: "")
+                else -> (
+                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it) }
+                            ?: ""
+                        )
             }
 
             val defaultableParameters = classDeclaration.primaryConstructor?.parameters ?: emptyList()
 
             file += "class $newClassName() : Builder<$className>" {
                 +parameterList
-                +"private val defaultables : Map<String, () -> Any?> = ${defaultableParameters.joinToString(prefix = "mapOf(", postfix = ")", separator = ",") {"\"$it\" to {$it${typify(it)}}"}}"
-//                +classDeclaration.getAllProperties().map {
-//                    properType(it)
-//                }.joinToString(separator = "\n")
                 +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $className" {
                     +"this.apply(lambda)"
                     +"return build()"
@@ -379,13 +405,9 @@ class Processor(
                 }
                 +"fun reset()" {
                     +resetFunction
-
                 }
                 +createBuildFunction
-
             } + "\n"
-
-
         }
 
         override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
@@ -394,4 +416,19 @@ class Processor(
         override fun visitTypeArgument(typeArgument: KSTypeArgument, data: Unit) {
         }
     }
+}
+
+private fun Int.toBinaryRepresentation(size: Int): List<Boolean> {
+    return Integer.toBinaryString(this).padStart(size, '0').map { it == '1' }
+}
+
+/** Slow but no conversion errors. In the future someone may want to turn this into a reasonably useful function
+ *
+ */
+private fun Int.pow(exponent: Int): Int {
+    var result = 1
+    repeat(exponent) {
+        result *= this
+    }
+    return result
 }
