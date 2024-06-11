@@ -1,5 +1,6 @@
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 
 class Parameter(
@@ -11,7 +12,18 @@ class Parameter(
     val hasExternalDefault = externalDefaultValue != null
     val hasInternalDefault = original.hasDefault
 
-    val state = PotentialStates.parse(original.type.toString())
+    val state = PotentialStates.parse(original.type)
+    private val generics = original.type.resolve().let {
+        if (it.arguments.isNotEmpty()) {
+            it.arguments.joinToString(
+                separator = ", ",
+                prefix = "<",
+                postfix = ">"
+            ) { inner -> inner.type.toString() }
+        } else {
+            ""
+        }
+    }
 
     /**
      * If an external default value is defined the variable is never nullable otherwise it is nullable if either the
@@ -26,7 +38,9 @@ class Parameter(
      */
     fun toAttribute(mutable: Boolean = true): String {
         val keyword = if (mutable) "var" else "val"
-        return "$keyword $name : ${original.type} = ${externalDefaultValue ?: "null"}"
+        val nullableString = if (isNullable()) "?" else ""
+        val typeString = state.typeOverride ?: original.type
+        return "$keyword $name : ${typeString}$generics$nullableString = ${externalDefaultValue ?: state.startValue}"
     }
 
     /**
@@ -47,43 +61,84 @@ class Parameter(
     }
 }
 
+val PRIMITIVETYPES = listOf(
+    "Byte",
+    "Short",
+    "Int",
+    "Long",
+    "Float",
+    "Double",
+    "UByte",
+    "UShort",
+    "UInt",
+    "ULong",
+    "Boolean",
+    "Char",
+    "String",
+    "Array<SomeComplexObject>",
+    "IntArray",
+    "ByteArray",
+    "BooleanArray",
+    "CharArray",
+    "DoubleArray",
+    "FloatArray",
+    "LongArray",
+    "ShortArray"
+)
+
 enum class PotentialStates {
 
     PRIMITIVE {
-        override val nullable: Boolean
-            get() = true
+        override val nullable: Boolean = true
+    },
+    OBJECT {
+        override val nullable: Boolean = true
+        override fun KSTypeReference.name(): String {
+            return resolve().declaration.qualifiedName?.asString() ?: ""
+        }
     },
     MUTABLE_SET {
-        override fun reset(mutable: Boolean, externalDefaultValue: String?): String {
-            return super.reset(mutable, externalDefaultValue)
-        }
 
+        override val startValue = "mutableSetOf()"
         override fun instantiate(): String = ".toMutableSet()"
     },
     MUTABLE_LIST {
         override fun instantiate(): String {
             return ".toMutableList()"
         }
+
+        override val startValue = "mutableListOf()"
     },
     UNMODIFIABLE_LIST {
         override fun instantiate(): String {
             return ".toList()"
         }
+
+        override val startValue = "mutableListOf()"
+        override val typeOverride: String = "MutableList"
     },
     MUTABLE_MAP {
         override fun instantiate(): String {
             return ".toMutableMap()"
         }
+
+        override val startValue = "mutableMapOf()"
     },
     UNMODIFIABLE_MAP {
         override fun instantiate(): String {
             return ".toMap()"
         }
+
+        override val startValue = "mutableMapOf()"
+        override val typeOverride: String = "MutableMap"
     },
     UNMODIFIABLE_SET {
         override fun instantiate(): String {
             return ".toSet()"
         }
+
+        override val startValue = "mutableSetOf()"
+        override val typeOverride: String = "MutableSet"
     }
     ;
 
@@ -98,10 +153,18 @@ enum class PotentialStates {
     open fun power(): String = ""
 
     open val nullable = false
+    open val startValue = "null"
     open val variable = true
+    open val typeOverride: String? = null
+
+    open fun KSTypeReference.name(): String {
+        return toString()
+    }
 
     companion object {
-        fun parse(s: String): PotentialStates {
+        fun parse(type: KSTypeReference): PotentialStates {
+            val s = type.toString()
+            val full = type.resolve().declaration.qualifiedName?.asString() ?: ""
             return when (s) {
                 "List" -> UNMODIFIABLE_LIST
                 "Map" -> UNMODIFIABLE_MAP
@@ -109,7 +172,8 @@ enum class PotentialStates {
                 "Set" -> UNMODIFIABLE_SET
                 "MutableList" -> MUTABLE_LIST
                 "MutableMap" -> MUTABLE_MAP
-                else -> PRIMITIVE
+                in PRIMITIVETYPES -> PRIMITIVE
+                else -> OBJECT
             }
         }
     }

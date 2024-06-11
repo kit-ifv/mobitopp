@@ -356,15 +356,20 @@ class Processor(
                     .filter { !it.hasBackingField || it.findOverridee() == null }.map { properType(it) }
                     .joinToString(separator = "\n")
 
-                else -> (
-                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") {
-                            properType(
-                                it,
-                                labls
-                            )
-                        }
-                            ?: ""
-                        )
+                else ->
+                {
+                    val h = Holder(classDeclaration)
+                    h.allParameters.joinToString("\n") { it.toAttribute() }
+                }
+
+//                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") {
+//                            properType(
+//                                it,
+//                                labls
+//                            )
+//                        }
+//                            ?: ""
+
             }
             file += "class $newClassNameTyped() : Builder<$classNameTyped>" {
                 +parameterList
