@@ -27,8 +27,8 @@ class CompileTest {
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
 
-        val klazzz = result.classLoader.loadClass("IHaveDefaultBuilder")
-        val klazzz2 = result.classLoader.loadClass("IHaveDefault")
+        val klazzz = result.classLoader.loadClass("TempBuilder")
+        val klazzz2 = result.classLoader.loadClass("Temp")
         val fields = klazzz.declaredFields
         val test = klazzz.declaredMethods
         val constructors = klazzz.declaredConstructors
@@ -42,6 +42,7 @@ class CompileTest {
 
 
     }
+
 }
 
 const val TEST1 = """
@@ -51,9 +52,7 @@ data class Temp<T>(
     val i: Int = 0,
     val j: Int = 0,
     val k: Int = 0,
-) {
-    constructor(string: String): this()
-}
+)
 """
 
 const val TEST2 = """

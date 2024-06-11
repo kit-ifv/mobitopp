@@ -1,3 +1,4 @@
+
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -8,7 +9,6 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
@@ -17,10 +17,18 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 import java.io.OutputStream
 
-class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean = false, val genericLabels: List<String> = emptyList()) {
+class Props(
+    val name: String,
+    val type: KSTypeReference,
+    private val hasDefault: Boolean = false,
+    private val genericLabels: List<String> = emptyList()
+) {
 
     constructor(property: KSPropertyDeclaration) : this(property.simpleName.asString(), property.type)
-    constructor(property: KSValueParameter, genericLabels: List<String> = emptyList()) : this(property.name?.asString()!!, property.type, property.hasDefault, genericLabels)
+    constructor(
+        property: KSValueParameter,
+        genericLabels: List<String> = emptyList()
+    ) : this(property.name?.asString()!!, property.type, property.hasDefault, genericLabels)
 
     enum class State {
         PRIMITIVE {
@@ -125,7 +133,7 @@ class Props(val name: String, val type: KSTypeReference, val hasDefault: Boolean
     }
 
     private val typeString = type.toString()
-    private val state = State.parse(typeString, hasDefault, genericLabels)
+    val state = State.parse(typeString, hasDefault, genericLabels)
 
     fun isNullable() = state.nullable == "?"
     private val generics = type.resolve().let {
@@ -188,6 +196,7 @@ fun stringify(text: KSTypeReference): String {
 }
 
 fun stringify(props: Props): String {
+    if (props.state == Props.State.COLLECTION_WITH_DEFAULT) return "!!${stringify(props.type)}"
     return stringify(props.type)
 }
 
@@ -223,8 +232,26 @@ fun typeInterpret(type: KSTypeReference): String {
     }
     return res.declaration.qualifiedName?.asString() + generics
 }
+
 fun typeInterpret(type: KSTypeParameter): String {
     return type.bounds.joinToString(separator = ", ") { it.toString() }
+}
+
+/**
+ * Get the keyword translation for default values from the passed argument by splitting along "," and then along "="
+ */
+fun splitDefaults(default: String): Map<String, String> {
+    val targets = default.split(",").map { it.trim() }
+    return targets.associate { it.splitOnce("=") }
+}
+
+fun String.splitOnce(delimiter: String): Pair<String, String> {
+    val index = this.indexOf(delimiter)
+    return if (index == -1) {
+        Pair(this, "")
+    } else {
+        Pair(this.substring(0, index), this.substring(index + delimiter.length))
+    }
 }
 fun typeInterpret(classDeclaration: KSClassDeclaration): String {
     if (classDeclaration.typeParameters.isEmpty()) {
@@ -237,13 +264,14 @@ fun typeInterpret(classDeclaration: KSClassDeclaration): String {
         prefix = "<",
         postfix = ">"
     ) {
-        it.name.asString() + ": " + typeInterpret(it)
+        val type = typeInterpret(it)
+        it.name.asString() + if (type != "") ": $type" else ""
     }
 
 }
 
 fun typeNames(classDeclaration: KSClassDeclaration): String {
-    if(classDeclaration.typeParameters.isEmpty()) return ""
+    if (classDeclaration.typeParameters.isEmpty()) return ""
     return classDeclaration.typeParameters.joinToString(
         separator = ", ",
         prefix = "<",
@@ -281,6 +309,7 @@ class Processor(
             }
             file += "import utils.Builder\n"
             file += "import utils.ID\n"
+            // TODO only add reflection if too many default parameters in one of the builders in the package
             file += "import kotlin.reflect.full.primaryConstructor\n"
 
             it.value.forEach { x -> x.accept(Visitor(file), Unit) }
@@ -298,125 +327,18 @@ class Processor(
             val classNameTyped = className + typeList
             val newClassName = "${className}Builder$typeList"
             val newClassNameTyped = "${className}Builder$typeInterpret"
-            val labls  = classDeclaration.typeParameters.map{it.name.asString()}
+            val labls = classDeclaration.typeParameters.map { it.name.asString() }
             val cType = ClassType.fromDeclaration(classDeclaration)
+            val buildableAnnotation = classDeclaration.annotations
+                .firstOrNull { it.shortName.asString() == "Buildable" }
+            val tempeee = mutableListOf(1)
+            val defaults = buildableAnnotation?.arguments
+                ?.firstOrNull { it.name?.asString() == "defaults" }
+                ?.value as? String ?: ""
+            val defaultMap = splitDefaults(defaults)
+            val potentialParameters = classDeclaration.primaryConstructor?.parameters ?: emptyList()
 
-            val createBuildFunction = when (cType) {
-                ClassType.INTERFACE -> "override fun build(): $className" {
-                    +"class Default$className(${
-                        // !it.hasBackingField || it.findOverridee() == null
-                        //
-                        classDeclaration.getAllProperties()
-                            .filter { it.getter?.modifiers?.contains(Modifier.ABSTRACT) ?: false }
-                            .map {
-                                "override val " + it.simpleName.asString() + ": " + typeInterpret(it.type) + " = this.${
-                                    it.simpleName.asString() + "?: throw IllegalArgumentException(\"Required parameter [${it.simpleName.asString()}] is null\")"
-                                }"
-                            }
-                            .joinToString(prefix = "\n", separator = ",\n")
-                    }) :$className" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {
-                            "override fun ${it.simpleName.asString()}(${
-                                it.parameters.map {
-                                    it.name?.asString() + ": " + typeInterpret(
-                                        it.type
-                                    )
-                                }.joinToString(separator = ", ")
-                            }): ${typeInterpret(it.returnType!!)}" {
-                                +"throw NotImplementedError()"
-                            }
-                        }.joinToString(separator = "\n")
-                    }
-                    +"return Default$className()"
-                }
-
-                ClassType.ABSTRACT -> "override fun build(): $className" {
-                    +"class Default$className :$className(${
-                        classDeclaration.primaryConstructor?.parameters?.joinToString {
-                            it.name?.asString() + stringify(
-                                it.type
-                            )
-                        } ?: ""
-                    })" {
-                        +classDeclaration.getAllFunctions().filter { it.isAbstract }.map {
-                            "override fun ${it.simpleName.asString()}(): ${it.returnType}" {
-                                +"throw NotImplementedError()"
-                            }
-                        }.joinToString()
-                    }
-                    +"return Default$className()"
-                }
-
-                ClassType.CLASS -> "override fun build(): $classNameTyped" {
-                    val defaultables = classDeclaration.primaryConstructor?.parameters?.filter {
-                        it.hasDefault
-                    }?.map { Props(it) } ?: emptyList()
-                    val nonDefaultables = classDeclaration.primaryConstructor?.parameters?.filter {
-                        !it.hasDefault
-                    }?.map { Props(it) } ?: emptyList()
-                    if (defaultables.isNotEmpty()) {
-                        +"val target = listOf(${
-                            defaultables.joinToString(separator = ", ") { "${it.name} != null" }
-                        })"
-                        val map = nonDefaultables.joinToString(
-                            prefix = "listOf(",
-                            postfix = ").toMap()"
-                        ) { "${it.name} to (${it.name} != null)" }
-
-                        if (nonDefaultables.isNotEmpty()) {
-                            +"val map = $map"
-                            +"val control = map.filter{it.value == false}.keys"
-                            +"require(control.isEmpty())" {
-                                +"\"The following attributes need to be set \${control}\""
-                            }
-                        }
-
-                        +"return when(target)" {
-                            for (i in 0..<2.pow(defaultables.size)) {
-                                val zip = i.toBinaryRepresentation(defaultables.size).zip(defaultables)
-                                val targets = zip.filter { it.first }.map { it.second }
-                                val prin =
-                                    targets.joinToString(separator = ", ") { "${it.name} = ${it.name}!!" }
-                                val otter =
-                                    nonDefaultables.joinToString(separator = ", ") { "${it.name} = ${it.name}!!" }
-                                val tolo = mutableListOf<String>()
-                                if (targets.isNotEmpty()) tolo.add(prin)
-                                if (nonDefaultables.isNotEmpty()) tolo.add(otter)
-                                +"listOf(${zip.map { it.first }.joinToString(", ")}) -> $classNameTyped(${
-                                    tolo.joinToString(
-                                        separator = ", "
-                                    )
-                                })"
-
-                            }
-                            +"else -> throw IllegalArgumentException()"
-                        }
-                    } else {
-                        val filter = nonDefaultables.filter { it.isNullable() }
-                        if (filter.isNotEmpty()) {
-                            val map = filter.joinToString(
-                                prefix = "listOf(",
-                                postfix = ").toMap()"
-                            ) { "${it.name} to (${it.name} != null)" }
-                            +"val map = $map"
-                            +"val control = map.filter{it.value == false}.keys"
-                            +"require(control.isEmpty())" {
-                                +"\"The following attributes need to be set \${control}\""
-                            }
-                        }
-
-                        +"return $classNameTyped(${
-                            nonDefaultables.joinToString(separator = ", ") {
-                                "${it.name} = ${
-                                    it.name + stringify(
-                                        it
-                                    )
-                                }"
-                            }
-                        })"
-                    }
-                }
-            }
+            val createBuildFunction = createBuildFunction(classDeclaration)
             val resetFunction = when (classDeclaration.classKind) {
                 ClassKind.INTERFACE -> classDeclaration.getAllProperties()
                     .filter { it.getter?.modifiers?.contains(Modifier.ABSTRACT) ?: false }.map {
@@ -435,7 +357,12 @@ class Processor(
                     .joinToString(separator = "\n")
 
                 else -> (
-                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { properType(it, labls) }
+                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") {
+                            properType(
+                                it,
+                                labls
+                            )
+                        }
                             ?: ""
                         )
             }
@@ -455,12 +382,6 @@ class Processor(
                 }
                 +createBuildFunction
             } + "\n"
-        }
-
-        override fun visitPropertyDeclaration(property: KSPropertyDeclaration, data: Unit) {
-        }
-
-        override fun visitTypeArgument(typeArgument: KSTypeArgument, data: Unit) {
         }
     }
 }

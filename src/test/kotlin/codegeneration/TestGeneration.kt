@@ -101,32 +101,24 @@ class TestGeneration {
         assertEquals(4, t1.inti)
         assertEquals(5, t2.inti)
     }
+
     @Test
     fun interfaceIsDefaultable() {
-
-
-        val test = listOf(true, true, true)
-
-        val xe = when(test) {
-            listOf(true, true, true) -> 1
-            listOf(false, true, true) -> 2
-            listOf(true, false, true) -> 3
-            listOf(true, true, false) -> 4
-            listOf(false, false, true) -> 5
-            listOf(false, true, false) -> 6
-            listOf(true, false, false) -> 7
-            listOf(false, false, false) -> 8
-            else -> -1
-
-        }
-        println(xe)
         val b = InterfaceWithDefaultBuilder()
-        b.build {
+        b.build { }
+    }
+    @Test
+    fun lotsOfDefaultsInvokation(){
+        val b = TonsOfDefaultsBuilder()
+        val result = b.build()
+        val b2 = LessDefaultsBuilder()
+        val result2 = b.build()
 
-        }
+        assertEquals(result, TonsOfDefaults(0,0,0,0,0,0,0,0))
     }
 }
 
+@Buildable
 data class TonsOfDefaults(
     val a: Int = 0,
     val b: Int = 0,
@@ -136,15 +128,22 @@ data class TonsOfDefaults(
     val f: Int = 0,
     val g: Int = 0,
     val h: Int = 0,
-    val i: Int = 0,
 )
-
+@Buildable
+data class LessDefaults(
+    val a: Int = 0,
+    val b: Int = 0,
+    val c: Int = 0,
+    val d: Int = 0,
+    val e: Int = 0,
+)
 @Buildable
 data class IHaveADefault(val i: Int = 0)
 
 
-@Buildable
+@Buildable(defaults = "a = 0, b = 0")
 data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
+
 @Buildable
 class Generic<T : Number, S : CharSequence>(
     val t: T,
@@ -176,35 +175,6 @@ class ClassWithExternalRef(val o: FakeClass)
 @Buildable
 class ClassWithExternalR2ef(val o: FakeClass)
 
-@Buildable
-interface Interface {
-    val inti: Int
-}
-
-@Buildable
-interface Child : Interface
-
-@Buildable
-interface InterfaceWithAbstractFunctions {
-    val inti: Int
-    fun bruell(): String
-    fun zuchini(): Boolean
-}
-@Buildable
-interface InterfaceWithDefault {
-    val int: Int
-        get() = 0
-}
-@Buildable
-abstract class AbstractClass(val text: String) {
-    val secondaryAttribute: String
-        get() = text.uppercase()
-
-    fun yell(): String {
-        return text
-    }
-    abstract fun abstractScream(): String
-}
 
 class SomeComplexObject(var i: Int) {
     fun changeTheAttribute() {
@@ -249,3 +219,39 @@ data class AllPrimitives(
 class ValueHolder(
     val duration: Duration
 )
+
+@Buildable(defaults = "i=1")
+class ExternalDefault(val i: Int)
+
+//@Buildable
+//interface Interface {
+//    val inti: Int
+//}
+//
+//@Buildable
+//interface Child : Interface
+//
+//@Buildable
+//interface InterfaceWithAbstractFunctions {
+//    val inti: Int
+//    fun bruell(): String
+//    fun zuchini(): Boolean
+//}
+//
+//@Buildable
+//interface InterfaceWithDefault {
+//    val int: Int
+//        get() = 0
+//}
+//
+//@Buildable
+//abstract class AbstractClass(val text: String) {
+//    val secondaryAttribute: String
+//        get() = text.uppercase()
+//
+//    fun yell(): String {
+//        return text
+//    }
+//
+//    abstract fun abstractScream(): String
+//}

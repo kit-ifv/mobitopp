@@ -1,2 +1,4 @@
 @Target(AnnotationTarget.CLASS)
-annotation class Buildable
+annotation class Buildable(
+    val defaults: String = ""
+)
