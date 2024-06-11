@@ -1,6 +1,5 @@
 package domain.data
 
-import Buildable
 import units.Currency
 import units.UnitIntervalValue
 import utils.Builder
@@ -46,7 +45,7 @@ interface PersonData : Identifiable<PersonId> {
         get() = (age >= ADULT_AGE_GER)
 }
 
-@Buildable
+//TODO Removed annotation cause testing process stops after here, we should not allow interfaces though @Buildable
 interface EMobilityPersonData : PersonData {
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
