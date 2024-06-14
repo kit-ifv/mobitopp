@@ -107,14 +107,15 @@ class TestGeneration {
         val b = InterfaceWithDefaultBuilder()
         b.build { }
     }
+
     @Test
-    fun lotsOfDefaultsInvokation(){
+    fun lotsOfDefaultsInvokation() {
         val b = TonsOfDefaultsBuilder()
         val result = b.build()
-        val b2 = LessDefaultsBuilder()
-        val result2 = b.build()
+//        val b2 = LessDefaultsBuilder()
+//        val result2 = b.build()
 
-        assertEquals(result, TonsOfDefaults(0,0,0,0,0,0,0,0))
+        assertEquals(result, TonsOfDefaults(0, 0, 0, 0, 0, 0, 0, 0))
     }
 }
 
@@ -129,6 +130,7 @@ data class TonsOfDefaults(
     val g: Int = 0,
     val h: Int = 0,
 )
+
 @Buildable
 data class LessDefaults(
     val a: Int = 0,
@@ -137,9 +139,9 @@ data class LessDefaults(
     val d: Int = 0,
     val e: Int = 0,
 )
+
 @Buildable
 data class IHaveADefault(val i: Int = 0)
-
 
 @Buildable(defaults = "a = 0, b = 0")
 data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
@@ -153,7 +155,8 @@ class Generic<T : Number, S : CharSequence>(
 
 @Buildable
 data class Data(val i: Int)
-
+@Buildable
+data class NullableData(val i: Int?)
 @Buildable
 class ClassWithList(val text: List<String>)
 
@@ -174,7 +177,6 @@ class ClassWithExternalRef(val o: FakeClass)
 
 @Buildable
 class ClassWithExternalR2ef(val o: FakeClass)
-
 
 class SomeComplexObject(var i: Int) {
     fun changeTheAttribute() {
@@ -223,29 +225,29 @@ class ValueHolder(
 @Buildable(defaults = "i=1")
 class ExternalDefault(val i: Int)
 
-//@Buildable
-//interface Interface {
+// @Buildable
+// interface Interface {
 //    val inti: Int
-//}
+// }
 //
-//@Buildable
-//interface Child : Interface
+// @Buildable
+// interface Child : Interface
 //
-//@Buildable
-//interface InterfaceWithAbstractFunctions {
+// @Buildable
+// interface InterfaceWithAbstractFunctions {
 //    val inti: Int
 //    fun bruell(): String
 //    fun zuchini(): Boolean
-//}
+// }
 //
-//@Buildable
-//interface InterfaceWithDefault {
+// @Buildable
+// interface InterfaceWithDefault {
 //    val int: Int
 //        get() = 0
-//}
+// }
 //
-//@Buildable
-//abstract class AbstractClass(val text: String) {
+// @Buildable
+// abstract class AbstractClass(val text: String) {
 //    val secondaryAttribute: String
 //        get() = text.uppercase()
 //
@@ -254,4 +256,4 @@ class ExternalDefault(val i: Int)
 //    }
 //
 //    abstract fun abstractScream(): String
-//}
+// }

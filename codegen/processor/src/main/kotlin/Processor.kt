@@ -337,7 +337,7 @@ class Processor(
                 ?.value as? String ?: ""
             val defaultMap = splitDefaults(defaults)
             val potentialParameters = classDeclaration.primaryConstructor?.parameters ?: emptyList()
-
+            val h = Holder(classDeclaration)
             val createBuildFunction = createBuildFunction(classDeclaration)
             val resetFunction = when (classDeclaration.classKind) {
                 ClassKind.INTERFACE -> classDeclaration.getAllProperties()
@@ -346,8 +346,7 @@ class Processor(
                     }.joinToString(separator = "\n")
 
                 else -> (
-                        classDeclaration.primaryConstructor?.parameters?.joinToString(separator = "\n") { resetType(it) }
-                            ?: ""
+                        h.allParameters.joinToString(separator = "\n") {it.reset()}
                         )
             }
 
@@ -358,7 +357,6 @@ class Processor(
 
                 else ->
                 {
-                    val h = Holder(classDeclaration)
                     h.allParameters.joinToString("\n") { it.toAttribute() }
                 }
 
@@ -371,13 +369,13 @@ class Processor(
 //                            ?: ""
 
             }
-            file += "class $newClassNameTyped() : Builder<$classNameTyped>" {
+            file += "class ${classDeclaration.builderNameWithResolvedGenerics}() : Builder<${classDeclaration.nameWithGenerics}>" {
                 +parameterList
-                +"fun buildPreserving(lambda : $newClassName.() -> Unit) : $classNameTyped" {
+                +"fun buildPreserving(lambda : ${classDeclaration.builderWithGenerics}.() -> Unit) : ${classDeclaration.nameWithGenerics}" {
                     +"this.apply(lambda)"
                     +"return build()"
                 }
-                +"fun build(lambda: $newClassName.() -> Unit) : $classNameTyped" {
+                +"fun build(lambda: ${classDeclaration.builderWithGenerics}.() -> Unit) : ${classDeclaration.nameWithGenerics}" {
                     +"val result = buildPreserving(lambda)"
                     +"reset()"
                     +"return result"

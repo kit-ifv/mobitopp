@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":annotations"))
+    testImplementation(project(":annotations"))
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     implementation("com.google.devtools.ksp:symbol-processing-api:1.6.20-1.0.5")
 
@@ -26,9 +27,9 @@ sourceSets {
     }
 }
 
-// Apply KSP plugin for both main and test source sets
-ksp {
-    // Configure any arguments if necessary
-    arg("optionName", "optionValue")
-}
+//// Apply KSP plugin for both main and test source sets
+//ksp {
+//    // Configure any arguments if necessary
+//    arg("optionName", "optionValue")
+//}
 

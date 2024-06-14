@@ -5,14 +5,15 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 
 class Parameter(
     val original: KSValueParameter,
-    externalDefaultValues: Map<String, String>
+    externalDefaultValues: Map<String, String>,
+    templateParameters: List<String>
 ) {
     val name = original.name?.asString() ?: ""
     val externalDefaultValue = externalDefaultValues[name]
     val hasExternalDefault = externalDefaultValue != null
     val hasInternalDefault = original.hasDefault
-
-    val state = PotentialStates.parse(original.type)
+    val originalIsNullable = original.type.resolve().isMarkedNullable
+    val state = Wrapper.parse(original.type, templateParameters)
     private val generics = original.type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
@@ -40,7 +41,10 @@ class Parameter(
         val keyword = if (mutable) "var" else "val"
         val nullableString = if (isNullable()) "?" else ""
         val typeString = state.typeOverride ?: original.type
-        return "$keyword $name : ${typeString}$generics$nullableString = ${externalDefaultValue ?: state.startValue}"
+        // If the parameter is nullable because a default value exists, the start value should be null regardless of
+        // what the type specifies as start value
+        val startValue = if (isNullable()) "null" else state.startValue
+        return "$keyword $name : ${typeString}$generics$nullableString = ${externalDefaultValue ?: startValue}"
     }
 
     /**
@@ -48,12 +52,17 @@ class Parameter(
      * class references the correct value to the correct attribute of the target class.
      */
     fun evaluate(): String {
-        val enforceNoNull = if (isNullable()) "!!" else ""
+        val enforceNoNull = if (isNullable() && !originalIsNullable) "!!" else ""
         return "$name = $name$enforceNoNull${state.instantiate()}"
     }
 
+    /**
+     * Creates the call function to reset the builder attribute to the start value. i.e. "i = null" if i would be
+     * nullable or "list = emptyList()" if the value were a list.
+     */
     fun reset(): String {
-        return "$name${state.reset(externalDefaultValue = externalDefaultValue)}"
+        val resetTarget = if (isNullable()) " = null" else state.reset(externalDefaultValue = externalDefaultValue)
+        return "$name$resetTarget"
     }
 
     fun debug(): String {
@@ -86,15 +95,23 @@ val PRIMITIVETYPES = listOf(
     "ShortArray"
 )
 
-enum class PotentialStates {
+enum class PotentialStates : Temp {
 
     PRIMITIVE {
         override val nullable: Boolean = true
+
+        override fun reset(externalDefaultValue: String?): String {
+            return " = ${externalDefaultValue ?: "null"}"
+        }
     },
     OBJECT {
         override val nullable: Boolean = true
         override fun KSTypeReference.name(): String {
             return resolve().declaration.qualifiedName?.asString() ?: ""
+        }
+
+        override fun reset(externalDefaultValue: String?): String {
+            return " = ${externalDefaultValue ?: "null"}"
         }
     },
     MUTABLE_SET {
@@ -137,34 +154,31 @@ enum class PotentialStates {
             return ".toSet()"
         }
 
+        override fun reset(externalDefaultValue: String?): String = ".clear()"
+
         override val startValue = "mutableSetOf()"
         override val typeOverride: String = "MutableSet"
     }
     ;
 
-    open fun reset(mutable: Boolean = true, externalDefaultValue: String? = null): String {
-        require(mutable) {
-            "Cannot reset this state $this, as it is not mutable"
-        }
-        return " = ${externalDefaultValue ?: "null"}"
-    }
+    override fun reset(externalDefaultValue: String?): String = ".clear()"
 
-    open fun instantiate(): String = ""
-    open fun power(): String = ""
+    override fun instantiate(): String = ""
+    override fun power(): String = ""
 
-    open val nullable = false
-    open val startValue = "null"
-    open val variable = true
-    open val typeOverride: String? = null
+    override val nullable = false
+    override val startValue = "null"
+    override val variable = true
+    override val typeOverride: String? = null
 
-    open fun KSTypeReference.name(): String {
+    override fun KSTypeReference.name(): String {
         return toString()
     }
 
     companion object {
-        fun parse(type: KSTypeReference): PotentialStates {
+        fun parse(type: KSTypeReference, templateParameters: List<String> = emptyList()): PotentialStates {
             val s = type.toString()
-            val full = type.resolve().declaration.qualifiedName?.asString() ?: ""
+
             return when (s) {
                 "List" -> UNMODIFIABLE_LIST
                 "Map" -> UNMODIFIABLE_MAP
@@ -173,9 +187,51 @@ enum class PotentialStates {
                 "MutableList" -> MUTABLE_LIST
                 "MutableMap" -> MUTABLE_MAP
                 in PRIMITIVETYPES -> PRIMITIVE
+                in templateParameters -> PRIMITIVE // Template behaves like a primitive
                 else -> OBJECT
             }
         }
+    }
+}
+
+class Wrapper(private val enum: PotentialStates, val startString: String, private val stopString: String?) :
+    Temp by enum {
+
+    val name get() = enum.name
+    override val typeOverride: String? = stopString ?: enum.typeOverride
+    override fun reset(externalDefaultValue: String?): String {
+        return if (externalDefaultValue != null) {
+            " = $externalDefaultValue"
+        } else {
+            enum.reset(null)
+        }
+    }
+
+    companion object {
+        fun parse(type: KSTypeReference, templateParameters: List<String>): Wrapper {
+            val s = type.toString()
+            val full = type.resolve().declaration.qualifiedName?.asString() ?: ""
+            val enum = PotentialStates.parse(type, templateParameters)
+            return Wrapper(enum, s, if (enum == PotentialStates.OBJECT) full else null)
+        }
+    }
+}
+
+interface Temp {
+    fun reset(externalDefaultValue: String? = null): String {
+        return " = ${externalDefaultValue ?: "null"}"
+    }
+
+    fun instantiate(): String = ""
+    fun power(): String = ""
+
+    val nullable: Boolean
+    val startValue: String
+    val variable: Boolean
+    val typeOverride: String?
+
+    fun KSTypeReference.name(): String {
+        return toString()
     }
 }
 
@@ -195,6 +251,11 @@ fun KSClassDeclaration.generics(resolve: KSTypeParameter.() -> String = { nameWi
     }
 }
 
+val KSClassDeclaration.genericNames: List<String> get() = typeParameters.map{it.name.asString()}
+val KSClassDeclaration.builderNameWithResolvedGenerics: String get() = "${name}Builder$resolvedGenerics"
+val KSClassDeclaration.nameWithGenerics: String get() = "${name}$simpleGenerics"
+val KSClassDeclaration.builderWithGenerics: String get() = "${name}Builder$simpleGenerics"
+
 /**
  * Resolves the potential generics of the class with upper bounds. So if the class has a generic parameter, the bounds
  * are added to the string, if they exist. Examples:
@@ -213,14 +274,14 @@ val KSClassDeclaration.resolvedGenerics: String get() = generics { nameWithUpper
 val KSClassDeclaration.simpleGenerics: String get() = generics { name.asString() }
 
 fun KSClassDeclaration.defaultableParameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
-    primaryConstructor?.parameters?.filter { it.hasDefault }?.map { Parameter(it, externalDefaultValues) }
+    primaryConstructor?.parameters?.filter { it.hasDefault }?.map { Parameter(it, externalDefaultValues,genericNames ) }
         ?: emptyList()
 
 fun KSClassDeclaration.parameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
-    primaryConstructor?.parameters?.map { Parameter(it, externalDefaultValues) } ?: emptyList()
+    primaryConstructor?.parameters?.map { Parameter(it, externalDefaultValues, genericNames) } ?: emptyList()
 
 fun KSClassDeclaration.nonDefaultableParameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
-    primaryConstructor?.parameters?.filter { !it.hasDefault }?.map { Parameter(it, externalDefaultValues) }
+    primaryConstructor?.parameters?.filter { !it.hasDefault }?.map { Parameter(it, externalDefaultValues, genericNames) }
         ?: emptyList()
 
 /**
@@ -245,5 +306,5 @@ val KSTypeParameter.nameWithUpperBounds: String
         if (bounds.none()) {
             return simpleName.asString()
         }
-        return simpleName.asString() + bounds.joinToString(separator = ", ", prefix = " ") { it.toString() }
+        return simpleName.asString() + ": " + bounds.joinToString(separator = ", ", prefix = "") { it.toString() }
     }
