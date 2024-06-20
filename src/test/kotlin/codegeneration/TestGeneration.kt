@@ -143,6 +143,9 @@ data class LessDefaults(
 @Buildable(defaults = "i=2")
 data class IHaveADefault(val i: Int = 0)
 
+@Buildable(defaults = "i=2")
+data class IHaveADefaultAndOneNot(val i: Int = 0, val j: Int = 1)
+
 @Buildable(defaults = "a = 0, b = 0")
 data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
 
@@ -155,8 +158,10 @@ class Generic<T : Number, S : CharSequence>(
 
 @Buildable
 data class Data(val i: Int)
+
 @Buildable
 data class NullableData(val i: Int?)
+
 @Buildable
 class ClassWithList(val text: List<String>)
 
@@ -225,31 +230,32 @@ class ValueHolder(
 @Buildable
 class ExternalDefault(val i: Int)
 
- @Buildable
- interface Interface {
+@Buildable
+interface Interface {
     val inti: Int
- }
+}
 
- @Buildable
- interface Child : Interface
+@Buildable
+interface Child : Interface
 
- @Buildable
- interface InterfaceWithAbstractFunctions {
+@Buildable
+interface InterfaceWithAbstractFunctions {
     val inti: Int
     fun bruell(): String
     fun zuchini(): Boolean
- }
+}
 
- @Buildable
- interface InterfaceWithDefault {
+@Buildable
+interface InterfaceWithDefault {
     val int: Int
         get() = 0
- }
+}
+
 @Buildable
 abstract class NullableAbstractClass(val text: String?)
 
- @Buildable
- abstract class AbstractClass(val text: String) {
+@Buildable
+abstract class AbstractClass(val text: String) {
     val secondaryAttribute: String
         get() = text.uppercase()
 
@@ -258,4 +264,4 @@ abstract class NullableAbstractClass(val text: String?)
     }
 
     abstract fun abstractScream(): String
- }
+}

@@ -34,6 +34,14 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
      */
     open val allParameters = classDeclaration.parameters()
 
+    /**
+     * All parameters that need to be specified in a constructor call, either because they are required "nondefaultable"
+     * or an overwritten default parameter
+     */
+    val specifiedParameters get() = overwrittenDefaultables + nonDefaultableParameters
+
+    val overwrittenDefaultables get() = defaultableParameters.filter { it.hasExternalDefault }
+    val requiredDefaultables get() = defaultableParameters.filter { !it.hasExternalDefault }
 
     /**
      * The signature of the class Declaration of the Builder.
@@ -53,7 +61,6 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
      */
 
     open fun builderParameters(): String = allParameters.joinToString(separator = "\n") { it.toAttribute() }
-
 
     /**
      * A function to create a text block representing the call to instantiate the target Class. Should output valid
@@ -101,7 +108,7 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
                 }
             }
             +"return $constructorInvocation(${
-                nonDefaultableParameters.joinToString(separator = ", ") {
+                specifiedParameters.joinToString(separator = ", ") {
                     it.parameterEvaluation()
                 }
             })"
@@ -151,7 +158,8 @@ open class ClassBuilder(classDeclaration: KSClassDeclaration) : BuildFunction(cl
      */
     override fun createBuildFunction(): String {
         return "override fun build(): ${classDeclaration.name}${classDeclaration.simpleGenerics}" {
-            if (defaultableParameters.isEmpty()) {
+            // If either no defaultable parameter exists, or all are overwritten via external values, the standard construction should be used
+            if (defaultableParameters.all { it.hasExternalDefault }) {
                 // If no parameters have either intrinsic default values or default values specified by the annotation, we can simply generate a standard builder pattern.
                 +buildWithoutDefaults()
             } else {
@@ -193,23 +201,23 @@ open class ClassBuilder(classDeclaration: KSClassDeclaration) : BuildFunction(cl
     private fun buildWithListConstruction(): String {
         return TextBuilder().apply {
             +"val autoGenTargetParameters = listOf(${
-                defaultableParameters.joinToString(separator = ", ") { "${it.name} != null" }
+                requiredDefaultables.joinToString(separator = ", ") { "${it.name} != null" }
             })"
             +"return when(autoGenTargetParameters)" {
-                for (i in 0..<2.pow(defaultableParameters.size)) {
-                    val zip = i.toBinaryRepresentation(defaultableParameters.size).zip(defaultableParameters)
+                for (i in 0..<2.pow(requiredDefaultables.size)) {
+                    val zip = i.toBinaryRepresentation(requiredDefaultables.size).zip(requiredDefaultables)
                     val targets = zip.filter { it.first }.map { it.second }
-                    val prin =
+                    val output =
                         targets.joinToString(separator = ", ") { it.evaluate() }
-                    val otter =
-                        nonDefaultableParameters.joinToString(separator = ", ") {
+                    val remainingParameters =
+                        specifiedParameters.joinToString(separator = ", ") {
                             it.evaluate()
                         }
-                    val tolo = mutableListOf<String>()
-                    if (targets.isNotEmpty()) tolo.add(prin)
-                    if (nonDefaultableParameters.isNotEmpty()) tolo.add(otter)
+                    val parameterCollector = mutableListOf<String>()
+                    if (targets.isNotEmpty()) parameterCollector.add(output)
+                    if (specifiedParameters.isNotEmpty()) parameterCollector.add(remainingParameters)
                     +"listOf(${zip.map { it.first }.joinToString(", ")}) -> ${classDeclaration.name}(${
-                        tolo.joinToString(
+                        parameterCollector.joinToString(
                             separator = ", "
                         )
                     })"
@@ -336,7 +344,6 @@ class InterfaceBuilder(classDeclaration: KSClassDeclaration) : AbstractBuilder(c
                 ) { it.type.toString() }
             }) -> ${classDeclaration.nameWithGenerics} = {$helperVars -> $defaultClassName($helperVars)}) : Builder<${classDeclaration.nameWithGenerics}>"
         }.makeText()
-
     }
 }
 

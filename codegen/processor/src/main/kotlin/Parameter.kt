@@ -48,7 +48,7 @@ class Parameter(
     /**
      * Whether an externally specified default value is present
      */
-    private val hasExternalDefault = externalDefaultValue != null
+    val hasExternalDefault = externalDefaultValue != null
 
     /**
      * Whether the original value is nullable
