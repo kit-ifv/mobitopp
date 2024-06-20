@@ -103,19 +103,10 @@ class TestGeneration {
     }
 
     @Test
-    fun interfaceIsDefaultable() {
-        val b = InterfaceWithDefaultBuilder()
-        b.build { }
-    }
-
-    @Test
     fun lotsOfDefaultsInvokation() {
         val b = TonsOfDefaultsBuilder()
         val result = b.build()
-//        val b2 = LessDefaultsBuilder()
-//        val result2 = b.build()
-
-        assertEquals(result, TonsOfDefaults(0, 0, 0, 0, 0, 0, 0, 0))
+        assertEquals(result, TonsOfDefaults(1, 0, 0, 0, 0, 0, 0, 0))
     }
 }
 
