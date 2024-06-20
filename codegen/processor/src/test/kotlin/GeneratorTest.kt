@@ -24,9 +24,7 @@ class CompileTest {
         }.compile()
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
-
     }
-
 }
 
 const val TEST1 = """
