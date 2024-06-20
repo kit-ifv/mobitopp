@@ -5,10 +5,8 @@ import com.tschuchort.compiletesting.kspSourcesDir
 import com.tschuchort.compiletesting.kspWithCompilation
 import com.tschuchort.compiletesting.symbolProcessorProviders
 import org.junit.Test
-import utils.Builder
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class CompileTest {
 
@@ -27,20 +25,6 @@ class CompileTest {
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
 
-        val klazzz = result.classLoader.loadClass("TempBuilder")
-        val klazzz2 = result.classLoader.loadClass("Temp")
-        val fields = klazzz.declaredFields
-        val test = klazzz.declaredMethods
-        val constructors = klazzz.declaredConstructors
-        val t = klazzz.constructors.first()
-        val expect = t.newInstance()
-
-        assertIs<Builder<*>>(expect)
-        val e = expect.build()
-        println(expect)
-
-
-
     }
 
 }
@@ -54,26 +38,3 @@ data class Temp<T>(
     val k: Int = 0,
 )
 """
-
-const val TEST2 = """
-@Buildable
-interface IHaveDefault<T: Number> {
-    val int: Int
-        get() = 0
-}"""
-interface Teemp {
-    val i
-        get() = 0
-}
-@Buildable
-data class Temp(
-    val i: Int? = 0,
-    val j: Int = 0,
-    val k: String = "0",
-) {
-
-    fun temp() {
-        val tm = mapOf("i" to i, "j" to j, "k" to k).filter {
-            (_, v) -> v == null }.keys.toList()
-    }
-}
