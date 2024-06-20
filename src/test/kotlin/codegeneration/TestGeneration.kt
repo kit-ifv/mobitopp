@@ -119,7 +119,7 @@ class TestGeneration {
     }
 }
 
-@Buildable
+@Buildable(defaults = "a=1")
 data class TonsOfDefaults(
     val a: Int = 0,
     val b: Int = 0,
@@ -140,7 +140,7 @@ data class LessDefaults(
     val e: Int = 0,
 )
 
-@Buildable
+@Buildable(defaults = "i=2")
 data class IHaveADefault(val i: Int = 0)
 
 @Buildable(defaults = "a = 0, b = 0")
@@ -166,7 +166,7 @@ class ClassWithMap(val text: Map<String, String>)
 @Buildable
 class ClassWithSet(val text: Set<String>)
 
-@Buildable
+@Buildable(defaults = "text=setOf(\"Wololo\")")
 class ClassWithMutableSet(val text: Set<String> = setOf("Nope"))
 
 @Buildable
@@ -222,38 +222,40 @@ class ValueHolder(
     val duration: Duration
 )
 
-@Buildable(defaults = "i=1")
+@Buildable
 class ExternalDefault(val i: Int)
 
-// @Buildable
-// interface Interface {
-//    val inti: Int
-// }
-//
-// @Buildable
-// interface Child : Interface
-//
-// @Buildable
-// interface InterfaceWithAbstractFunctions {
-//    val inti: Int
-//    fun bruell(): String
-//    fun zuchini(): Boolean
-// }
-//
-// @Buildable
-// interface InterfaceWithDefault {
-//    val int: Int
-//        get() = 0
-// }
-//
-// @Buildable
-// abstract class AbstractClass(val text: String) {
-//    val secondaryAttribute: String
-//        get() = text.uppercase()
-//
-//    fun yell(): String {
-//        return text
-//    }
-//
-//    abstract fun abstractScream(): String
-// }
+ @Buildable
+ interface Interface {
+    val inti: Int
+ }
+
+ @Buildable
+ interface Child : Interface
+
+ @Buildable
+ interface InterfaceWithAbstractFunctions {
+    val inti: Int
+    fun bruell(): String
+    fun zuchini(): Boolean
+ }
+
+ @Buildable
+ interface InterfaceWithDefault {
+    val int: Int
+        get() = 0
+ }
+@Buildable
+abstract class NullableAbstractClass(val text: String?)
+
+ @Buildable
+ abstract class AbstractClass(val text: String) {
+    val secondaryAttribute: String
+        get() = text.uppercase()
+
+    fun yell(): String {
+        return text
+    }
+
+    abstract fun abstractScream(): String
+ }

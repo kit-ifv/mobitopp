@@ -1,20 +1,65 @@
+
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 
+/**
+ * An adapter class, altering a [KSValueParameter] or [KSPropertyDeclaration] to a unified type.
+ * @param name the name of the original parameter
+ * @param type the type of the original parameter
+ * @param hasDefault whether the original parameter has a default value
+ * @param originalIsVar whether the original is mutable
+ */
 class Parameter(
-    val original: KSValueParameter,
+    val name: String,
+    val type: KSTypeReference,
+    val hasDefault: Boolean,
+    val originalIsVar: Boolean,
     externalDefaultValues: Map<String, String>,
     templateParameters: List<String>
 ) {
-    val name = original.name?.asString() ?: ""
-    val externalDefaultValue = externalDefaultValues[name]
-    val hasExternalDefault = externalDefaultValue != null
-    val hasInternalDefault = original.hasDefault
-    val originalIsNullable = original.type.resolve().isMarkedNullable
-    val state = Wrapper.parse(original.type, templateParameters)
-    private val generics = original.type.resolve().let {
+    constructor(ksValueParameter: KSValueParameter, externalDefaultValues: Map<String, String>, templateParameters: List<String>) :
+            this(
+                ksValueParameter.name?.asString() ?: "",
+                ksValueParameter.type,
+                ksValueParameter.hasDefault,
+                ksValueParameter.isVar,
+                externalDefaultValues,
+                templateParameters
+            )
+
+    constructor(
+        prop: KSPropertyDeclaration,
+        externalDefaultValues: Map<String, String>,
+        templateParameters: List<String>
+    ) : this(
+        prop.simpleName.asString(), prop.type, false, prop.isMutable, externalDefaultValues, templateParameters
+    )
+
+    /**
+     * If a default value is externally specified in the [Buildable] annotation. via @Buildable(default="...")
+     * it is set here.
+     */
+    private val externalDefaultValue = externalDefaultValues[name]
+
+    /**
+     * Whether an externally specified default value is present
+     */
+    private val hasExternalDefault = externalDefaultValue != null
+
+    /**
+     * Whether the original value is nullable
+     */
+    val originalIsNullable = type.resolve().isMarkedNullable
+
+    /**
+     * The internal State of the parameter.
+     */
+    val state = StateWithQualifiedName.parse(type, templateParameters)
+    private val generics = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
                 separator = ", ",
@@ -26,25 +71,30 @@ class Parameter(
         }
     }
 
+    private val externalInstantiation = externalDefaultValue?.let { it + state.reverseInstantiate() }
     /**
      * If an external default value is defined the variable is never nullable otherwise it is nullable if either the
      * state or the internal default make it nullable to represent absence of a value
      */
-    fun isNullable() = !hasExternalDefault && (state.nullable || hasInternalDefault)
-
-    fun isVariable() = state.variable || hasExternalDefault
+    fun isNullable() = !hasExternalDefault && (state.nullable || hasDefault)
 
     /**
-     * Creates a string represenation of the attribute for the builder.
+     * Creates a string represenation of the attribute for the builder. Is used in the instantiation
+     * """Builder.... {
+     *    var param: Type = *
+     * }
      */
-    fun toAttribute(mutable: Boolean = true): String {
-        val keyword = if (mutable) "var" else "val"
+    fun toAttribute(): String {
+        val keyword = "var"
         val nullableString = if (isNullable()) "?" else ""
-        val typeString = state.typeOverride ?: original.type
+        // The state can override the type. This is mostly necessary for collections.
+        val typeString = state.typeOverride ?: type
         // If the parameter is nullable because a default value exists, the start value should be null regardless of
         // what the type specifies as start value
-        val startValue = if (isNullable()) "null" else state.startValue
-        return "$keyword $name : ${typeString}$generics$nullableString = ${externalDefaultValue ?: startValue}"
+        val startValue = if (isNullable()) "null" else state.initialValue
+        // The external type may not match the internal type if collections are used and must be transformed
+
+        return "$keyword $name : ${typeString}$generics$nullableString = ${externalInstantiation ?: startValue}"
     }
 
     /**
@@ -57,19 +107,48 @@ class Parameter(
     }
 
     /**
+     * Does not specify name = ... rather just ... Is used in interface instantiation.
+     *
+     * builder(a!!, b.toList(), c)
+     */
+    fun evaluateSimple(): String {
+        val enforceNoNull = if (isNullable() && !originalIsNullable) "!!" else ""
+        return "$name$enforceNoNull${state.instantiate()}"
+    }
+
+    /**
+     * Generates a "param: type" String. Used in abstract class instantiation where only a reference call is needed in
+     * the dummy class. The parameters should be the values of the primary constructor here.
+     *          ↓          ↓ - this is generated.
+     * DefaultX(param: Type) : AbstractClass(param)
+     */
+    fun toReferenceInstantiation(): String {
+        val setNullable = if (originalIsNullable) "?" else ""
+        return "$name: $type$setNullable"
+    }
+
+    /**
+     * Generates an instantiation "override var param: X" needed for the dummy class for an interface.
+     */
+    fun toOverrideInstantiation(): String {
+        val temp = if (originalIsVar) "var" else "val"
+        return "override $temp $name: $type"
+    }
+
+    /**
      * Creates the call function to reset the builder attribute to the start value. i.e. "i = null" if i would be
      * nullable or "list = emptyList()" if the value were a list.
      */
     fun reset(): String {
-        val resetTarget = if (isNullable()) " = null" else state.reset(externalDefaultValue = externalDefaultValue)
+        val resetTarget = if (isNullable()) " = null" else state.reset(externalDefaultValue = externalInstantiation)
         return "$name$resetTarget"
     }
 
-    fun debug(): String {
-        return "name=$name ext.Def=$externalDefaultValue int.Def=$hasInternalDefault state=${state.name}"
-    }
 }
 
+/**
+ * A list of all primitive types in Kotlin
+ */
 val PRIMITIVETYPES = listOf(
     "Byte",
     "Short",
@@ -95,8 +174,13 @@ val PRIMITIVETYPES = listOf(
     "ShortArray"
 )
 
-enum class PotentialStates : Temp {
-
+/**
+ * A collection of potential Classes that may be parsed.
+ */
+enum class PotentialStates : ParameterInfos {
+    /**
+     * If the type is in the list of primitives it should be treated as a primitive.
+     */
     PRIMITIVE {
         override val nullable: Boolean = true
 
@@ -115,8 +199,11 @@ enum class PotentialStates : Temp {
         }
     },
     MUTABLE_SET {
+        override fun reverseInstantiate(): String {
+            return ".toMutableSet()"
+        }
 
-        override val startValue = "mutableSetOf()"
+        override val initialValue = "mutableSetOf()"
         override fun instantiate(): String = ".toMutableSet()"
     },
     MUTABLE_LIST {
@@ -124,50 +211,74 @@ enum class PotentialStates : Temp {
             return ".toMutableList()"
         }
 
-        override val startValue = "mutableListOf()"
+        override fun reverseInstantiate(): String {
+            return ".toMutableList()"
+        }
+
+        override val initialValue = "mutableListOf()"
     },
     UNMODIFIABLE_LIST {
         override fun instantiate(): String {
             return ".toList()"
         }
-
-        override val startValue = "mutableListOf()"
+        override fun reverseInstantiate(): String {
+            return ".toMutableList()"
+        }
+        override val initialValue = "mutableListOf()"
         override val typeOverride: String = "MutableList"
     },
     MUTABLE_MAP {
         override fun instantiate(): String {
             return ".toMutableMap()"
         }
-
-        override val startValue = "mutableMapOf()"
+        override fun reverseInstantiate(): String {
+            return ".toMutableMap()"
+        }
+        override val initialValue = "mutableMapOf()"
     },
     UNMODIFIABLE_MAP {
         override fun instantiate(): String {
             return ".toMap()"
         }
 
-        override val startValue = "mutableMapOf()"
+        override fun reverseInstantiate(): String {
+            return ".toMutableMap()"
+        }
+        override val initialValue = "mutableMapOf()"
         override val typeOverride: String = "MutableMap"
     },
     UNMODIFIABLE_SET {
         override fun instantiate(): String {
             return ".toSet()"
         }
-
+        override fun reverseInstantiate(): String {
+            return ".toMutableSet()"
+        }
         override fun reset(externalDefaultValue: String?): String = ".clear()"
 
-        override val startValue = "mutableSetOf()"
+        override val initialValue = "mutableSetOf()"
         override val typeOverride: String = "MutableSet"
     }
     ;
 
+    /**
+     * The reset function determines how a certain object is reset to the standard. For Example, collections can be
+     * cleared. But an object may be set to o = null
+     */
     override fun reset(externalDefaultValue: String?): String = ".clear()"
 
+    /**
+     * Determines how an object is instantiated. Relevant for lists where a copy should be used rather than a reference.
+     */
     override fun instantiate(): String = ""
-    override fun power(): String = ""
+
+    /**
+     * Inverse the instantiation in a collection to be the type actually used in the builder
+     */
+
 
     override val nullable = false
-    override val startValue = "null"
+    override val initialValue = "null"
     override val variable = true
     override val typeOverride: String? = null
 
@@ -194,11 +305,19 @@ enum class PotentialStates : Temp {
     }
 }
 
-class Wrapper(private val enum: PotentialStates, val startString: String, private val stopString: String?) :
-    Temp by enum {
+/**
+ * Wraps around the [PotentialStates] class and overwrites the typeOverride to be the qualified name, if one is set
+ */
+class StateWithQualifiedName(private val enum: PotentialStates, qualifiedName: String?) :
+    ParameterInfos by enum {
 
     val name get() = enum.name
-    override val typeOverride: String? = stopString ?: enum.typeOverride
+
+    /**
+     * Since the type of a complex object may reside anywhere, and not necessarily the same package we need the
+     * fully qualified name.
+     */
+    override val typeOverride: String? = qualifiedName ?: enum.typeOverride
     override fun reset(externalDefaultValue: String?): String {
         return if (externalDefaultValue != null) {
             " = $externalDefaultValue"
@@ -208,25 +327,31 @@ class Wrapper(private val enum: PotentialStates, val startString: String, privat
     }
 
     companion object {
-        fun parse(type: KSTypeReference, templateParameters: List<String>): Wrapper {
-            val s = type.toString()
+        /**
+         * Determines the object state via parsing and checking against the list of primitives.
+         */
+        fun parse(type: KSTypeReference, templateParameters: List<String>): StateWithQualifiedName {
             val full = type.resolve().declaration.qualifiedName?.asString() ?: ""
             val enum = PotentialStates.parse(type, templateParameters)
-            return Wrapper(enum, s, if (enum == PotentialStates.OBJECT) full else null)
+            // Sets the qualified name if the target state is an object
+            return StateWithQualifiedName(enum, if (enum == PotentialStates.OBJECT) full else null)
         }
     }
 }
 
-interface Temp {
+/**
+ * A wrapper interface so that [StateWithQualifiedName] can delegate to the enum. Does not work with the enum directly
+ */
+interface ParameterInfos {
     fun reset(externalDefaultValue: String? = null): String {
         return " = ${externalDefaultValue ?: "null"}"
     }
 
     fun instantiate(): String = ""
-    fun power(): String = ""
+    fun reverseInstantiate(): String = ""
 
     val nullable: Boolean
-    val startValue: String
+    val initialValue: String
     val variable: Boolean
     val typeOverride: String?
 
@@ -234,7 +359,7 @@ interface Temp {
         return toString()
     }
 }
-
+// KSP Extension functions below.
 val KSClassDeclaration.name: String
     get() = this.simpleName.asString()
 
@@ -251,7 +376,7 @@ fun KSClassDeclaration.generics(resolve: KSTypeParameter.() -> String = { nameWi
     }
 }
 
-val KSClassDeclaration.genericNames: List<String> get() = typeParameters.map{it.name.asString()}
+val KSClassDeclaration.genericNames: List<String> get() = typeParameters.map { it.name.asString() }
 val KSClassDeclaration.builderNameWithResolvedGenerics: String get() = "${name}Builder$resolvedGenerics"
 val KSClassDeclaration.nameWithGenerics: String get() = "${name}$simpleGenerics"
 val KSClassDeclaration.builderWithGenerics: String get() = "${name}Builder$simpleGenerics"
@@ -274,15 +399,19 @@ val KSClassDeclaration.resolvedGenerics: String get() = generics { nameWithUpper
 val KSClassDeclaration.simpleGenerics: String get() = generics { name.asString() }
 
 fun KSClassDeclaration.defaultableParameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
-    primaryConstructor?.parameters?.filter { it.hasDefault }?.map { Parameter(it, externalDefaultValues,genericNames ) }
+    primaryConstructor?.parameters?.filter { it.hasDefault }?.map { Parameter(it, externalDefaultValues, genericNames) }
         ?: emptyList()
 
 fun KSClassDeclaration.parameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
     primaryConstructor?.parameters?.map { Parameter(it, externalDefaultValues, genericNames) } ?: emptyList()
 
 fun KSClassDeclaration.nonDefaultableParameters(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
-    primaryConstructor?.parameters?.filter { !it.hasDefault }?.map { Parameter(it, externalDefaultValues, genericNames) }
+    primaryConstructor?.parameters?.filter { !it.hasDefault }
+        ?.map { Parameter(it, externalDefaultValues, genericNames) }
         ?: emptyList()
+
+fun KSClassDeclaration.allProperties(externalDefaultValues: Map<String, String> = this.externalDefaultValues) =
+    getAllProperties().map { Parameter(it, externalDefaultValues, genericNames) }.toList()
 
 /**
  * Parses the default values transmitted in the [Buildable] annotation via the [Buildable.defaults] parameter.
@@ -307,4 +436,11 @@ val KSTypeParameter.nameWithUpperBounds: String
             return simpleName.asString()
         }
         return simpleName.asString() + ": " + bounds.joinToString(separator = ", ", prefix = "") { it.toString() }
+    }
+
+val KSFunctionDeclaration.mimic: String
+    get() {
+        return "fun ${toString()}(" +
+            parameters.joinToString { it.name?.asString() ?: "" } +
+        ")" + ": ${returnType.toString()}"
     }
