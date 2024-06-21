@@ -18,18 +18,3 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-sourceSets {
-    main {
-        java.srcDirs("src/main/kotlin")
-    }
-    test {
-        java.srcDirs("src/test/kotlin")
-    }
-}
-
-//// Apply KSP plugin for both main and test source sets
-//ksp {
-//    // Configure any arguments if necessary
-//    arg("optionName", "optionValue")
-//}
-

@@ -24,7 +24,7 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
      * A list of [Parameter] which do not have a default parameter. Example:
      * Buildable
      * class X(val b: List<String>)
-     * "b" would be a defaultable Parameter
+     * "b" would be a non defaultable Parameter
      *
      */
     open val nonDefaultableParameters = classDeclaration.nonDefaultableParameters()
