@@ -1,6 +1,5 @@
 package domain.data
 
-import Buildable
 import units.Currency
 import units.UnitIntervalValue
 import utils.Builder
@@ -46,14 +45,14 @@ interface PersonData : Identifiable<PersonId> {
         get() = (age >= ADULT_AGE_GER)
 }
 
-@Buildable
+// TODO Removed annotation cause testing process stops after here, we should not allow interfaces though @Buildable
 interface EMobilityPersonData : PersonData {
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
 }
 
 @Suppress("LongParameterList")
-class EMobilityPersonDataBuilder(
+class EEMobiltiyBuilder(
     var personId: Long? = null,
     var eMobilityAcceptance: UnitIntervalValue? = null,
     var chargingInfluence: ChargingInfluence? = null,
@@ -71,19 +70,19 @@ class EMobilityPersonDataBuilder(
 
     override fun build(): EMobilityPersonData {
         return object : EMobilityPersonData {
-            override val personId = this@EMobilityPersonDataBuilder.personId!!
-            override val eMobilityAcceptance = this@EMobilityPersonDataBuilder.eMobilityAcceptance!!
-            override val chargingInfluence = this@EMobilityPersonDataBuilder.chargingInfluence!!
-            override val householdData = this@EMobilityPersonDataBuilder.householdData!!
-            override val age = this@EMobilityPersonDataBuilder.age!!
-            override val employment = this@EMobilityPersonDataBuilder.employment!!
-            override val sex = this@EMobilityPersonDataBuilder.sex!!
-            override val graduation = this@EMobilityPersonDataBuilder.graduation!!
-            override val income = this@EMobilityPersonDataBuilder.income!!
-            override val hasBike = this@EMobilityPersonDataBuilder.hasBike!!
-            override val hasCommuterTicket = this@EMobilityPersonDataBuilder.hasCommuterTicket!!
-            override val hasLicense = this@EMobilityPersonDataBuilder.hasLicense!!
-            override val memberships: Map<String, Boolean> = this@EMobilityPersonDataBuilder.memberships
+            override val personId = this@EEMobiltiyBuilder.personId!!
+            override val eMobilityAcceptance = this@EEMobiltiyBuilder.eMobilityAcceptance!!
+            override val chargingInfluence = this@EEMobiltiyBuilder.chargingInfluence!!
+            override val householdData = this@EEMobiltiyBuilder.householdData!!
+            override val age = this@EEMobiltiyBuilder.age!!
+            override val employment = this@EEMobiltiyBuilder.employment!!
+            override val sex = this@EEMobiltiyBuilder.sex!!
+            override val graduation = this@EEMobiltiyBuilder.graduation!!
+            override val income = this@EEMobiltiyBuilder.income!!
+            override val hasBike = this@EEMobiltiyBuilder.hasBike!!
+            override val hasCommuterTicket = this@EEMobiltiyBuilder.hasCommuterTicket!!
+            override val hasLicense = this@EEMobiltiyBuilder.hasLicense!!
+            override val memberships: Map<String, Boolean> = this@EEMobiltiyBuilder.memberships
             override val id: ID<PersonData> = registerId(personId)
 
             override val plannedActivities: List<ActivityData>

@@ -34,15 +34,19 @@ detekt {
     autoCorrect = true
 }
 dependencies {
+    implementation(project(":processor"))
+    testImplementation(project(":processor"))
     testImplementation(kotlin("test"))
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
 
     implementation("me.tongfei:progressbar:0.10.1")
+    implementation(kotlin("reflect"))
 //    implementation(project(":test-processor"))
 //    ksp{project(":test-processor")}
 

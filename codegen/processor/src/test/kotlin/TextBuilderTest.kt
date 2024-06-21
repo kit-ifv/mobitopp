@@ -48,7 +48,6 @@ class TextBuilderTest {
     }
     @Test
     fun curlyNested() {
-
         val result = "test" {
             + "A" {
                 +"B"
@@ -167,6 +166,4 @@ class TextBuilderTest {
         print(result)
         assertEquals(expected, result)
     }
-
-
 }

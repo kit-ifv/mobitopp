@@ -5,9 +5,11 @@ import fakepackage.FakeClass
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 
 class TestGeneration {
 
@@ -19,7 +21,7 @@ class TestGeneration {
 
     @Test
     fun building() {
-        val b = MutableData()
+        val b = DataBuilder()
         val d = b.build {
             i = 10
         }
@@ -32,7 +34,7 @@ class TestGeneration {
 
     @Test
     fun collectionsAreCopies() {
-        val b = MutableClassWithList()
+        val b = ClassWithListBuilder()
         val d = b.build {
             text.add("A")
         }
@@ -45,14 +47,16 @@ class TestGeneration {
 
     @Test
     fun missingAttributesCausesError() {
-        assertFailsWith<NullPointerException> {
-            MutableData().build()
+        val exception = assertFailsWith<IllegalArgumentException> {
+            DataBuilder().build()
         }
+        assertContains(exception.message!!, "i")
+        assertContains(exception.message!!, "The following attributes")
     }
 
     @Test
     fun complexObjectsAreReferenced() {
-        val b = MutableClassWithObjectInCollection()
+        val b = ClassWithObjectInCollectionBuilder()
         val d = b.buildPreserving {
             t.add(SomeComplexObject(1))
         }
@@ -70,7 +74,7 @@ class TestGeneration {
 
     @Test
     fun directObjectsAreNotReferenced() {
-        val b = MutableClassWithObject()
+        val b = ClassWithObjectBuilder()
         val d = b.buildPreserving {
             o = SomeComplexObject(1)
         }
@@ -88,7 +92,7 @@ class TestGeneration {
 
     @Test
     fun interfacesDoNotHoldSharedState() {
-        val b = MutableInterface()
+        val b = InterfaceBuilder()
         b.apply { inti = 4 }
         val t1 = b.buildPreserving { }
         assertEquals(4, t1.inti)
@@ -97,10 +101,57 @@ class TestGeneration {
         assertEquals(4, t1.inti)
         assertEquals(5, t2.inti)
     }
+
+    @Test
+    fun lotsOfDefaultsInvokation() {
+        val b = TonsOfDefaultsBuilder()
+        val result = b.build()
+        assertEquals(result, TonsOfDefaults(1, 0, 0, 0, 0, 0, 0, 0))
+    }
 }
+
+@Buildable(defaults = "a=1")
+data class TonsOfDefaults(
+    val a: Int = 0,
+    val b: Int = 0,
+    val c: Int = 0,
+    val d: Int = 0,
+    val e: Int = 0,
+    val f: Int = 0,
+    val g: Int = 0,
+    val h: Int = 0,
+)
+
+@Buildable
+data class LessDefaults(
+    val a: Int = 0,
+    val b: Int = 0,
+    val c: Int = 0,
+    val d: Int = 0,
+    val e: Int = 0,
+)
+
+@Buildable(defaults = "i=2")
+data class IHaveADefault(val i: Int = 0)
+
+@Buildable(defaults = "i=2")
+data class IHaveADefaultAndOneNot(val i: Int = 0, val j: Int = 1)
+
+@Buildable(defaults = "a = 0, b = 0")
+data class IHaveDefaultAndNotDefault(val i: Int = 0, val j: Int)
+
+@Buildable
+class Generic<T : Number, S : CharSequence>(
+    val t: T,
+    val mapp: Map<T, S>,
+    val id: Int = 0,
+)
 
 @Buildable
 data class Data(val i: Int)
+
+@Buildable
+data class NullableData(val i: Int?)
 
 @Buildable
 class ClassWithList(val text: List<String>)
@@ -111,8 +162,8 @@ class ClassWithMap(val text: Map<String, String>)
 @Buildable
 class ClassWithSet(val text: Set<String>)
 
-@Buildable
-class ClassWithMutableSet(val text: Set<String>)
+@Buildable(defaults = "text=setOf(\"Wololo\")")
+class ClassWithMutableSet(val text: Set<String> = setOf("Nope"))
 
 @Buildable
 class ClassWithObject(val o: SomeComplexObject)
@@ -122,6 +173,53 @@ class ClassWithExternalRef(val o: FakeClass)
 
 @Buildable
 class ClassWithExternalR2ef(val o: FakeClass)
+
+class SomeComplexObject(var i: Int) {
+    fun changeTheAttribute() {
+        i = 9001
+    }
+}
+
+@Buildable
+class ClassWithObjectInCollection(val t: List<SomeComplexObject>)
+
+@Buildable
+data class AllPrimitives(
+    val byte: Byte,
+    val short: Short,
+    val i: Int,
+    val l: Long,
+
+    val f: Float,
+    val d: Double,
+
+    val ub: UByte,
+    val us: UShort,
+    val ui: UInt,
+    val ul: ULong,
+
+    val bool: Boolean,
+    val c: Char,
+    val str: String,
+
+    val array: Array<SomeComplexObject>,
+    val intArray: IntArray,
+    val byteArray: ByteArray,
+    val booleanArray: BooleanArray,
+    val charArray: CharArray,
+    val doubleArray: DoubleArray,
+    val floatArray: FloatArray,
+    val longArray: LongArray,
+    val shortArray: ShortArray
+)
+
+@Buildable
+class ValueHolder(
+    val duration: Duration
+)
+
+@Buildable
+class ExternalDefault(val i: Int)
 
 @Buildable
 interface Interface {
@@ -139,6 +237,15 @@ interface InterfaceWithAbstractFunctions {
 }
 
 @Buildable
+interface InterfaceWithDefault {
+    val int: Int
+        get() = 0
+}
+
+@Buildable
+abstract class NullableAbstractClass(val text: String?)
+
+@Buildable
 abstract class AbstractClass(val text: String) {
     val secondaryAttribute: String
         get() = text.uppercase()
@@ -146,14 +253,6 @@ abstract class AbstractClass(val text: String) {
     fun yell(): String {
         return text
     }
+
     abstract fun abstractScream(): String
 }
-
-class SomeComplexObject(var i: Int) {
-    fun changeTheAttribute() {
-        i = 9001
-    }
-}
-
-@Buildable
-class ClassWithObjectInCollection(val t: List<SomeComplexObject>)
