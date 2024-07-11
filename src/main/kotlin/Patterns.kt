@@ -27,10 +27,10 @@ fun interface Encodable {
  *
  * This could also be abstracted to generic decoding types if the need arises
  */
-interface Decodable<T : Encodable> {
+interface CodePlan<T : Encodable> : Decodable<T> {
     fun decode(i: Int): T
-
-    fun decode(s: String): T
 }
 
-typealias CodePlan<R> = Decodable<R>
+interface Decodable<T> {
+    fun decode(s: String): T
+}
