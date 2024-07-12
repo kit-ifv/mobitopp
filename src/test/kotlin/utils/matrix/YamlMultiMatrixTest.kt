@@ -6,7 +6,7 @@ import utils.Decodable
 import utils.Encodable
 import kotlin.io.path.Path
 
-class EncodableString(val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
+class EncodableString(private val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
     override fun encode(): Int {
         error("Not implemented")
     }
