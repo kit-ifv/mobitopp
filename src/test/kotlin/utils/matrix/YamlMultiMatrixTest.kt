@@ -33,7 +33,7 @@ class YamlMultiMatrixTest {
         }
 
         // Create an instance of YamlMultiMatrix
-        val yamlMultiMatrix = YamlMultiMatrix<EncodableString, String, Double>(yamlFilePath, parser, modeDecoder)
+        YamlMultiMatrix<EncodableString, String, Double>(yamlFilePath, parser, modeDecoder)
 
         // Test if parsing the YAML file completes without errors
         // If no exceptions are thrown during initialization, the test passes

@@ -1,3 +1,5 @@
+@file: Suppress("MagicNumber")
+
 package utils.matrix
 
 import utils.CodePlan
