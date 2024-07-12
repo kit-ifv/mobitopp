@@ -6,7 +6,7 @@ package utils.matrix
  * @param I The type of index used for rows and columns.
  * @param O The type of elements stored in the matrix.
  */
-abstract class Matrix<I, O> {
+interface Matrix<I, O> {
 
     /**
      * Retrieves the element at the specified row and column.
@@ -15,5 +15,9 @@ abstract class Matrix<I, O> {
      * @param column The index of the column.
      * @return The element at the specified row and column.
      */
-    abstract operator fun get(row: I, column: I): O
+    operator fun get(row: I, column: I): O
+}
+
+interface IntoMatrix<I, O> {
+    fun into()
 }
