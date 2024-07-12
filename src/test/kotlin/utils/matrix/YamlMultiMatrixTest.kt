@@ -16,13 +16,13 @@ class YamlMultiMatrixTest {
 
         // Mocked mode decoder
         val modeDecoder = object : Decodable<String> {
-            override fun decode(value: String): String {
-                return value
+            override fun decode(s: String): String {
+                return s
             }
         }
 
         // Create an instance of YamlMultiMatrix
-        val yamlMultiMatrix = YamlMultiMatrix<String, String, Double>(yamlFilePath, parser, modeDecoder)
+        YamlMultiMatrix<String, String, Double>(yamlFilePath, parser, modeDecoder)
 
         // Test if parsing the YAML file completes without errors
         // If no exceptions are thrown during initialization, the test passes
