@@ -44,6 +44,7 @@ dependencies {
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
+    implementation("org.yaml:snakeyaml:2.2") // SnakeYAML dependency
 
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))

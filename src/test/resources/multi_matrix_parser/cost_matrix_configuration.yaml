@@ -1,0 +1,43 @@
+bikesharing:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_0.mtx
+    monday:
+      0:00 to 12:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx
+    saturday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_2.mtx
+  week 0,1:
+    weekday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_3.mtx
+  week 1:
+    sunday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_4.mtx
+car:
+  all weeks:
+    everyday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_0.mtx
+    sunday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx
+carsharing_free_floating:
+  all weeks:
+    weekday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_0.mtx
+    monday:
+      0:00 to 12:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_1.mtx
+      12:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_2.mtx
+    saturday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_3.mtx
+    sunday:
+      0:00 to 24:00:
+        visum_matrix: src/test/resources/multi_matrix_parser/good_case_matrix_4.mtx
