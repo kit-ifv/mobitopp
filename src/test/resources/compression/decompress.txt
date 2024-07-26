@@ -1,0 +1,5 @@
+Hello mobiTopp!
+If you can read this, 
+decompression was successful!
+
+Yay!

@@ -1,185 +1,120 @@
+@file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
+import domain.enums.LegacyActivityType
 import modeling.steps.Run
-import usecases.LegacyContext
-import usecases.assignCarUsers
-import usecases.finishActivities
-import usecases.legacyData.finishPrivateCars
-import usecases.legacyData.loadHouseholds
-import usecases.legacyData.loadZones
-import usecases.legacyData.preparePrivateCars
-import usecases.loadPersons
-import usecases.prepareActivities
+import units.share
+import usecases.steps.LegacyContext
+import usecases.steps.assignCarUsers
+import usecases.steps.assignFixedDestinations
+import usecases.steps.assignHomeLocations
+import usecases.steps.finishActivities
+import usecases.steps.legacyData.finishHouseholds
+import usecases.steps.legacyData.finishPrivateCars
+import usecases.steps.legacyData.loadZones
+import usecases.steps.legacyData.prepareHouseholds
+import usecases.steps.legacyData.preparePrivateCars
+import usecases.steps.loadAttractivities
+import usecases.steps.loadChoiceModels
+import usecases.steps.loadImpedance
+import usecases.steps.loadPersons
+import usecases.steps.prepareActivities
+import usecases.steps.scaleFilter
+import usecases.steps.simulate
 import utils.ErrorHandling
+import utils.csv.Row
 import java.io.File
+
+private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
+
+private val rootRastatt = File("$ROOT_FS\\logiktram_rastatt_long-term-module\\rastatt")
+
+private val rootKarlsruhe = File("$ROOT_FS\\logiktram_karlsruhe_long-term-module\\karlsruhe")
+
+private val rootHamburg = File("$ROOT_FS\\transmove-synthesis-city-bs\\last-stable")
+
+private val attractivenessTypes = setOf(
+    LegacyActivityType.BUSINESS,
+    LegacyActivityType.LEISURE_INDOOR,
+    LegacyActivityType.LEISURE_OUTDOOR,
+    LegacyActivityType.PRIVATE_BUSINESS,
+    LegacyActivityType.PRIVATE_VISIT,
+    LegacyActivityType.SERVICE,
+    LegacyActivityType.SHOPPING_DAILY,
+    LegacyActivityType.SHOPPING_OTHER,
+    LegacyActivityType.SHOPPING,
+    LegacyActivityType.EDUCATION_PRIMARY,
+    LegacyActivityType.EDUCATION_SECONDARY,
+    LegacyActivityType.EDUCATION_TERTIARY,
+    // TODO Sightseeing?
+)
+
+private const val ROOT_TRANSMOVE_ENV =
+    "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input" +
+        "\\transmove\\mobitopp-env\\data\\zone-repository"
 
 fun main() {
     Run {
         LegacyContext(
             scenarioName = "testSteps",
             areaTypeCodes = Bbsr17,
-            demandFolder = File(
-                // "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output" +
-                // "\\logiktram_karlsruhe_long-term-module\\karlsruhe"
-                "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output\\" +
-                    "logiktram_rastatt_long-term-module\\rastatt"
-                // "D:\\gitlab\\logiktram\\output\\rastatt"
-            ),
-            economicalStatusCodes = EconomicStatus
+            demandFolder = rootRastatt,
+            economicalStatusCodes = EconomicStatus,
+            simulationSeed = 42,
         )
     }.steps {
         loadZones()
-        loadHouseholds()
+//        prepareSharingStations(
+//            errorHandling = ErrorHandling.THROW,
+//            file = File(
+//        "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
+//                "$ROOT_FS\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
+//            ),
+//            providerName = "StadtMobil",
+//            mode = StandardMode.BIKESHARING,
+//            vehicleCountColumn = "bikes",
+//        )
+//        finishSharingStations()
+//        loadTestSet()
+
+        ErrorHandling.mute()
+        val filter = scaleFilter<Row>(0.1.share())
+        prepareHouseholds(
+            filter = { filter(it) }
+        )
+
+//        scalePopulation(0.1.share())
+
+        finishHouseholds()
+
         loadPersons()
         preparePrivateCars() // file = File("example/car.csv"))
         assignCarUsers()
         finishPrivateCars()
         prepareActivities(errorHandling = ErrorHandling.WARNING)
         finishActivities()
-    }
-}
 
-/*
-typealias HouseholdId = ID<Household>
-typealias PersonId = ID<Person>
-
-interface Household : Identifiable<HouseholdId> {
-    val garden: Area
-    val members: List<Person>
-
-    fun addMember(member: Person)
-}
-
-interface Person : Identifiable<PersonId> {
-    val household: Household
-    val income: Currency
-    val age: Int
-}
-
-interface Tourist : Person {
-    val overNight: Boolean
-}
-
-interface HouseholdManager {
-    val householdRepo: RepositoryBuilder<HouseholdBuilder, Household, HouseholdId>
-    val defaultAreaUnit: AreaUnit
-}
-
-interface PersonManager {
-    val personRepo: RepositoryBuilder<PersonBuilder, Person, PersonId>
-    val defaultCurrencyUnit: CurrencyUnit
-}
-
-interface TouristManager : PersonManager {
-    val touristRepo: RepositoryBuilder<TouristBuilder, Tourist, PersonId>
-}
-
-data class HouseholdBuilder(
-    var id: Long? = null,
-    var garden: Area? = null,
-) : Builder<Household> {
-
-    override fun build() = object : Household {
-        override val garden = this@HouseholdBuilder.garden!!
-        override val id = HouseholdId(this@HouseholdBuilder.id!!)
-        override val members: List<Person>
-            get() = internalMembers
-
-        private val internalMembers = mutableListOf<Person>()
-
-        override fun addMember(member: Person) {
-            check(member.household == this)
-            internalMembers.add(member)
-        }
-    }
-}
-
-data class PersonBuilder(
-    var household: Household? = null,
-    var income: Currency? = null,
-    var age: Int? = null,
-) : Builder<Person> {
-
-    override fun build() = object : Person {
-        override val age = this@PersonBuilder.age!!
-        override val income = this@PersonBuilder.income!!
-        override val household = this@PersonBuilder.household!!
-        override val id = drawId()
-        init {
-            this.household.addMember(this)
-        }
-    }
-}
-
-data class TouristBuilder(
-    var household: Household? = null,
-    var income: Currency? = null,
-    var age: Int? = null,
-    var overNight: Boolean? = null,
-) : Builder<Tourist> {
-    override fun build() = object : Tourist {
-        override val age = this@TouristBuilder.age!!
-        override val income = this@TouristBuilder.income!!
-        override val household = this@TouristBuilder.household!!
-        override val overNight = this@TouristBuilder.overNight!!
-
-        override val id = drawId()
-        init {
-            this.household.addMember(this)
-        }
-    }
-}
-
-@Suppress("LongParameterList")
-fun <C> C.parsePerson(
-    file: File?,
-    delimiter: String = SEMICOLON,
-    errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    ageColumn: String = "age",
-    incomeColumn: String = "income",
-    householdColumn: String = "householdId",
-    currencyUnit: CurrencyUnit?,
-) where C : HouseholdManager, C : PersonManager {
-    val currency = currencyUnit ?: this.defaultCurrencyUnit
-
-    val parser = CsvParser<PersonBuilder>(errorHandling) { row ->
-        PersonBuilder(
-            age = row.int(ageColumn),
-            income = row.currency(incomeColumn, currency),
-            household = householdRepo.getById(row.id(householdColumn))
+        loadAttractivities(
+            file = File("$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
+            activityTypes = attractivenessTypes
         )
-    }
 
-    val csvPath = file ?: File("some/default/path/person.csv")
+        loadImpedance(
+            costMatrixConfig = File(
+                "$ROOT_MTX\\cost-matrix-configuration_transmove_turbo.yaml"
+            ),
+            durationMatrixConfig = File(
+                "$ROOT_MTX\\time-matrix-configuration_transmove_turbo.yaml"
+            ),
+            distanceMatrix = File(
+                "$ROOT_MTX\\DIS_Car.mtx.bz2"
+            )
+        )
 
-    val resource = CsvResource(
-        file = csvPath,
-        parser = parser,
-        delimiter = delimiter
-    )
-
-    AddCsvStep(
-        name = "read person csv",
-        csv = resource,
-        repository = this.personRepo
-    )
-    // ...
-}
-
-data class ProjectContext(
-    override val scenarioName: String,
-    override val demandFolder: File,
-    override val defaultAreaUnit: AreaUnit,
-    override val defaultCurrencyUnit: CurrencyUnit,
-) : Context, HouseholdManager, PersonManager {
-
-    override val householdRepo = RepositoryBuilder<HouseholdBuilder, Household, HouseholdId>()
-    override val personRepo = RepositoryBuilder<PersonBuilder, Person, PersonId>()
-
-    override fun reset() {
-        householdRepo.reset()
-        personRepo.reset()
+        loadChoiceModels()
+        assignHomeLocations()
+        assignFixedDestinations()
+        simulate()
     }
 }
-*/

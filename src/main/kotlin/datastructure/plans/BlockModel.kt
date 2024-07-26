@@ -4,16 +4,53 @@ import datastructure.ActionBlock
 import datastructure.Activity
 import datastructure.ActivityBlock
 import datastructure.Leg
-import datastructure.LegBlock
 import datastructure.LinkTrip
 import datastructure.LinkedAction
 import datastructure.LinkedActivity
 import datastructure.LinkedLeg
+import datastructure.LinkedTrip
 import utils.collections.addByOrder
 import utils.collections.exactlyOneOrNull
-import java.util.NoSuchElementException
+import java.util.*
 
-class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
+class InternalIterator(activityBlock: ActivityBlock) : Iterator<ActionBlock<*>> {
+    private var current: ActionBlock<*>? = null
+    private var next: ActionBlock<*>? = activityBlock
+
+    /**
+     * Returns `true` if the iteration has more elements.
+     */
+    override fun hasNext(): Boolean {
+        return current?.let { next != null } ?: true
+    }
+
+    /**
+     * Returns the next element in the iteration.
+     */
+    override fun next(): ActionBlock<*> {
+        current = next
+        next = current?.next
+        return current ?: throw NoSuchElementException()
+    }
+
+    fun reset(target: ActivityBlock) {
+        current = null
+        next = target
+    }
+}
+
+class InternalIterable(val activityBlock: () -> ActivityBlock) : Iterable<ActionBlock<*>> {
+    private val internalIterator = InternalIterator(activityBlock())
+
+    /**
+     * Returns an iterator over the elements of this object.
+     */
+    override fun iterator(): Iterator<ActionBlock<*>> {
+        internalIterator.reset(activityBlock())
+        return internalIterator
+    }
+}
+class BlockModel(override val dispatcher: IDispatcher) : SeparablePlanModel {
 
     constructor() : this(Dispatcher())
     constructor(other: PlanModel) : this(other.dispatcher)
@@ -22,38 +59,25 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         dispatcher.register(this)
     }
 
-    private val legBlockList: MutableList<LinkTrip> = mutableListOf()
+    @Suppress("MagicNumber") // 3 legs per trip is the assumed standard
+    private val legBlockList: MutableList<LinkTrip> by lazy {
+        ArrayList(3)
+    }
 
     var activityBlocks = ActivityBlock(sortedSetOf())
         private set
 
-    private val legBlocks get() = activityBlocks.next
-
-    private val actionBlocks = Iterable {
-        object : Iterator<ActionBlock<*>> {
-            var current: ActionBlock<*>? = null
-            var next: ActionBlock<*>? = activityBlocks
-
-            /**
-             * Returns `true` if the iteration has more elements.
-             */
-            override fun hasNext(): Boolean {
-                return current?.let { next != null } ?: true
-            }
-
-            /**
-             * Returns the next element in the iteration.
-             */
-            override fun next(): ActionBlock<*> {
-                current = next
-                next = current?.next
-                return current ?: throw NoSuchElementException()
-            }
-        }
+    private val activitySortedSet: SortedSet<LinkedActivity> by lazy {
+        sortedSetOf()
     }
 
+    private val legBlocks get() = activityBlocks.next
+
+    private val actionBlocks = InternalIterable { activityBlocks }
+
+    override fun nextBlock(): ActionBlock<*>? = actionBlocks.firstOrNull { !it.isEmpty() }
     override fun activities(): Collection<LinkedActivity> {
-        return activityBlocks.flatMap { it.item }
+        return activitySortedSet
     }
 
     override fun legs(): Collection<LinkedLeg> {
@@ -65,7 +89,8 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
 
         val previousBlocks = activityBlocks.takeWhile { it.compareTo(activity) == -1 }.filter { !it.isEmpty() }
         val newStart = activityBlocks.firstOrNull { it.containsAction(activity) }
-        val legBlocks = previousBlocks.mapNotNull { it.next }
+
+        val legBlocks = legBlocks?.filter { it.compareTo(activity) == -1 } ?: emptyList()
 
         legBlockList.removeAll(legBlockList.filter { trip -> legBlocks.any { trip.matches(it) } })
         // not going through the clear method, but rather clearing items directly to avoid pointer issues
@@ -95,16 +120,30 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     override fun removeFirst(): LinkedAction? {
         val targetBlock = actionBlocks.first { !it.isEmpty() }
         val target = targetBlock.removeFirst()
-        if (targetBlock.isEmpty() && targetBlock is LegBlock) {
+        if (targetBlock.isEmpty() && targetBlock is LinkedTrip) {
             legBlockList.removeFirst()
+        }
+        if (target == activitySortedSet.first()) {
+            activitySortedSet.remove(activitySortedSet.first())
         }
         return target
     }
 
     override fun add(leg: Leg) {
-        val test = actionBlocks.takeWhile { !it.containsAction(leg) }.firstOrNull { it.accepts(leg) }
-        if (test == null) return
-        val newBlocks = test.insert(leg)
+        var result: ActionBlock<*>? = null
+        // Looping in an own loop to avoid iterating twice
+        @Suppress("LoopWithTooManyJumpStatements") // TODO refactor
+        for (block in actionBlocks) {
+            if (block.containsAction(leg)) {
+                break
+            }
+            if (block.accepts(leg)) {
+                result = block
+                break
+            }
+        }
+        if (result == null) return
+        val newBlocks = result.insert(leg)
         newBlocks?.let {
             if (legBlockList.isNotEmpty()) {
                 legBlockList.addByOrder(
@@ -120,11 +159,21 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     }
 
     override fun add(activity: Activity) {
-        val test = actionBlocks.takeWhile { !it.containsAction(activity) }.firstOrNull { it.accepts(activity) }
-        if (test == null) return
-        test.insert(activity)
+        var result: ActionBlock<*>? = null
+        // Looping in an own loop to avoid iterating twice
+        @Suppress("LoopWithTooManyJumpStatements") // TODO refactor
+        for (block in actionBlocks) {
+            if (block.containsAction(activity)) {
+                break
+            }
+            if (block.accepts(activity)) {
+                result = block
+                break
+            }
+        }
+        if (result == null) return
+        result.insert(activity, activitySortedSet)
     }
-
     override fun remove(leg: Leg) {
         val changedBlock = legBlocks?.first { block -> block.containsAction(leg) }
         changedBlock?.let { legBlock ->
@@ -141,6 +190,7 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
 
     override fun remove(activity: Activity) {
         activityBlocks.first { it.containsAction(activity) }.remove(activity)
+        activitySortedSet.removeIf { it.original == activity }
     }
 
     override fun replaceActivities(target: Set<Activity>, to: Set<Activity>) {
@@ -157,7 +207,10 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         val targetBlock =
             legBlocks?.exactlyOneOrNull { it.bounds(target.toSortedSet()) && it.bounds(to.toSortedSet()) }
         // Either the replacement strategy works, or we have to manually run everything
-        targetBlock?.replaceAll(target, to) ?: run {
+        targetBlock?.let {
+            it.replaceAll(target, to)
+            legBlockList
+        } ?: run {
             target.forEach { remove(it) }
             to.forEach { add(it) }
         }
@@ -171,6 +224,10 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
         return actionBlocks.firstOrNull { !it.item.isEmpty() }?.firstElement()
     }
 
+    override fun lastActivity(): LinkedActivity {
+        throw UnsupportedOperationException("BlockModel.lastActivity() should not be called!")
+    }
+
     override fun clear() {
         legBlockList.clear()
         activityBlocks.next = null
@@ -182,6 +239,6 @@ class BlockModel(override val dispatcher: Dispatcher) : SeparablePlanModel {
     }
 
     class TripView(private val model: BlockModel) : List<LinkTrip> by model.legBlockList, PlanView {
-        override val dispatcher: Dispatcher = model.dispatcher
+        override val dispatcher: IDispatcher = model.dispatcher
     }
 }

@@ -7,7 +7,7 @@ import datastructure.LinkedAction
 import datastructure.LinkedActivity
 import datastructure.LinkedLeg
 
-class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
+class ActionModel(override val dispatcher: IDispatcher) : PlanModel {
     internal val actions = sortedSetOf<LinkedAction>()
 
     constructor() : this(Dispatcher())
@@ -94,6 +94,6 @@ class ActionModel(override val dispatcher: Dispatcher) : PlanModel {
 
     fun view() = ActionView(this)
     class ActionView(private val model: ActionModel) : PlanView, Set<Action> by model.actions {
-        override val dispatcher: Dispatcher = model.dispatcher
+        override val dispatcher: IDispatcher = model.dispatcher
     }
 }

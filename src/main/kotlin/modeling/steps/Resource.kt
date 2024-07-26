@@ -76,7 +76,7 @@ class CsvResource<E> (
     private val rowSequence =
         parser.parse(CsvReader.of(file, delimiter))
             .asResource(file.name, file.path)
-            .reusable()
+//            .reusable()
 
     override fun toString() = "CSV $name ($source)"
 }

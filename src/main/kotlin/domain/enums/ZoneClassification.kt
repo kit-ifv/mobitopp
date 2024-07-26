@@ -23,5 +23,6 @@ enum class ZoneClassification(private val code: Int) : Encodable {
     companion object : CodePlan<ZoneClassification> {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
+        override fun values(): Set<ZoneClassification> = ZoneClassification.entries.toSet()
     }
 }

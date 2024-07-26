@@ -10,17 +10,17 @@ plugins {
     application
 }
 
-group = "org.example"
+group = "edu.kit.ifv"
 version = "1.0-SNAPSHOT"
 
 repositories {
 
-    maven { url =uri("https://repo.osgeo.org/repository/release") }
-    maven { url =uri("https://repo.matsim.org/repository/matsim") }
+    maven { url = uri("https://repo.osgeo.org/repository/release") }
+    maven { url = uri("https://repo.matsim.org/repository/matsim") }
 
-    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
-    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
-    maven { url =uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
+    maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
+    maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
+    maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
 
     mavenCentral()
     mavenLocal()
@@ -30,12 +30,12 @@ repositories {
 detekt {
     version = "1.23.1"
     buildUponDefaultConfig = true
-    config.setFrom("$projectDir/detekt-config.yml" )
+    config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
 }
 dependencies {
-    implementation(project(":processor"))
-    testImplementation(project(":processor"))
+    api(project(":processor"))
+//    testImplementation(project(":processor"))
     testImplementation(kotlin("test"))
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
     implementation(project(":annotations"))
@@ -45,6 +45,8 @@ dependencies {
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
     implementation("org.yaml:snakeyaml:2.2") // SnakeYAML dependency
+    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.tukaani:xz:1.9")
 
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))
@@ -90,4 +92,13 @@ kotlin {
 
 application {
     mainClass.set("MainKt")
+}
+
+tasks.withType<JavaExec>().configureEach {
+    maxHeapSize = "60G"
+    jvmArgs = listOf(
+        "-XX:+HeapDumpOnOutOfMemoryError",        // Enable heap dump on OutOfMemoryError
+        "-XX:HeapDumpPath=./heapdumps",           // Specify the directory for heap dumps
+        "-Xmx60G"                                 // Example: Set max heap size to 6G
+    )
 }

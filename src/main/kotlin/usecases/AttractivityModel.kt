@@ -1,0 +1,55 @@
+package usecases
+
+import domain.data.ZoneId
+import domain.enums.ActivityType
+import utils.ErrorHandling
+import utils.csv.CsvParser
+import utils.csv.DefaultMapCsvParser
+import utils.csv.Row
+import utils.csv.commaDouble
+import utils.csv.long
+import java.io.File
+// Can be "fun" when implementing only one function
+fun interface AttractivenessModel {
+    fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double
+}
+
+class AttractivenessFromCsv(
+    private val file: File,
+    delimiter: String = ";",
+    zoneColumn: String = "zoneId",
+    activityTypes: Set<ActivityType>,
+) : AttractivenessModel {
+
+    private val attractivenessMap: Map<ZoneId, Map<ActivityType, Double>>
+
+    init {
+
+        val parser = DefaultMapCsvParser(
+            CsvParser(errorHandling = ErrorHandling.THROW) { row ->
+                ZoneId(row.long(zoneColumn)) to
+                    activityMapOf(row, activityTypes)
+            }
+        )
+
+        attractivenessMap = parser.parseMap(file, separator = delimiter)
+    }
+
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double =
+        attractivenessMap[zone]?.let { it[activityType] } ?: 1.0.also {
+            println(
+                "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
+                    "(Source $file)! Using 1.0 instead!"
+            )
+        }
+}
+
+private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =
+    activityTypes.associateWith { act ->
+        row.commaDouble("Attractivity:${act.description.capitalizeWithUnderscores()}")
+    }
+
+private fun String.capitalizeWithUnderscores() =
+    this.split("_").joinToString("_") { part ->
+        part.lowercase().replaceFirstChar { it.uppercase() }
+    }

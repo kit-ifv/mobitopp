@@ -1,7 +1,10 @@
 package datastructure
 
+import domain.enums.ActivityType
 import domain.enums.Mode
 import domain.enums.StandardMode
+import domain.location.Location
+import utils.units.AbsoluteTime
 import kotlin.time.Duration
 
 /**
@@ -11,11 +14,10 @@ import kotlin.time.Duration
  * when modelling future problems to break your domain down to this level.
  *
  * Note that an action only holds location and time information, your implementation must provide additional details
- * should you require them. The [onBegin] and [onEnd] methods are designed to integrate operational logic in the
- * event system.
+ * should you require them.
  */
 sealed interface Action : Comparable<Action> {
-    val startTime: Duration
+    val startTime: AbsoluteTime
     val actionType: ActionType
 
     /**
@@ -24,13 +26,13 @@ sealed interface Action : Comparable<Action> {
      * a backing field rather than a derived property
      */
     val duration: Duration get() = endTime - startTime
-    val endTime: Duration
+    val endTime: AbsoluteTime
 
     val startLocation: Location
     val endLocation: Location
 
-    val earliestStartTime: Duration
-    val latestEndTime: Duration
+    val earliestStartTime: AbsoluteTime
+    val latestEndTime: AbsoluteTime
 
     /*Intervals do not form a well-defined order, we require a more idiomatic way of representing this fact
 
@@ -49,18 +51,11 @@ sealed interface Action : Comparable<Action> {
         return 0
     }
 
-    /**
-     * The [onBegin] function provides implementing classes with the ability to define their individual behaviour
-     * for the event system. This method will trigger when an Action is supposed to start.
-     */
-    fun onBegin() {
-    }
-
-    /**
-     * The [onEnd] function provides implementing classes with the ability to define their individual behaviour
-     * for the event system. This method will trigger when an Action is supposed to end.
-     */
-    fun onEnd() {
+    fun <T> accept(actionVisitor: ActionVisitor<T>): T
+    operator fun compareTo(time: AbsoluteTime): Int {
+        if (endTime < time) return -1
+        if (startTime > time) return 1
+        return 0
     }
 }
 
@@ -79,9 +74,8 @@ fun Iterable<Action>.hasTimeBoundViolations(): Boolean {
     return any { it.startTime < it.earliestStartTime || it.endTime > it.latestEndTime }
 }
 
-enum class ActivityType {
-    HOME,
-    UNKNOWN
+operator fun Iterable<Action>.contains(action: Action): Boolean {
+    return any { it.compareTo(action) == 0 }
 }
 
 /**
@@ -107,13 +101,12 @@ sealed interface StationaryAction : Action {
  */
 
 sealed interface MovingAction : Action {
-    override val startTime: Duration
-    override val endTime: Duration
+    override val startTime: AbsoluteTime
+    override val endTime: AbsoluteTime
     override val startLocation: Location
     override val endLocation: Location
     override val actionType: ActionType
         get() = ActionType.LEG
-    // TODO insert Transport mode here
 
     val transportType: Mode
 }
@@ -123,23 +116,39 @@ sealed interface MovingAction : Action {
  */
 interface Activity : StationaryAction {
     override var location: Location
-    override var startTime: Duration
-    override var endTime: Duration
-    override var earliestStartTime: Duration
-    override var latestEndTime: Duration
+    override var startTime: AbsoluteTime
+    override var endTime: AbsoluteTime
+    override var earliestStartTime: AbsoluteTime
+    override var latestEndTime: AbsoluteTime
     override var type: ActivityType
 
     /**
      * A default implementation to spawn a leg spanning from one activity to another.
      */
     fun createLegTo(other: Activity, mode: Mode): Leg {
-        return Leg.fromDuration(endTime, other.startTime - endTime, endLocation, other.startLocation, mode)
+        val duration = other.startTime - endTime
+        require(!duration.isNegative()) {
+            "Cannot create Leg with negative duration $this -> $other"
+        }
+        return Leg.fromDuration(endTime, duration, endLocation, other.startLocation, mode)
     }
 
     override fun equals(other: Any?): Boolean
 
     override fun hashCode(): Int
 
+    override fun <T> accept(actionVisitor: ActionVisitor<T>): T {
+        return actionVisitor.visitActivity(this)
+    }
+
+    fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedActivity {
+        val act = LinkedActivity(this)
+        act.previous = lower
+        act.next = higher
+        act.previous?.next = act
+        act.next?.previous = act
+        return act
+    }
     companion object {
         /**
          * Generates an Activity with the provided [location], [startTime], and [duration].
@@ -151,35 +160,39 @@ interface Activity : StationaryAction {
          * @param duration The duration of the activity.
          * @return The generated Activity.
          */
+        @Suppress("LongParameterList") // Maybe in the future split into time info and location/type info?
         fun fromDuration(
             location: Location,
-            startTime: Duration,
+            startTime: AbsoluteTime,
             duration: Duration,
-            earliestStartTime: Duration,
-            latestEndTime: Duration
+            earliestStartTime: AbsoluteTime,
+            latestEndTime: AbsoluteTime,
+            activityType: ActivityType = ActivityType.UNKNOWN
         ): Activity {
             return RawActivity(
                 location = location,
                 startTime = startTime,
                 endTime = startTime + duration,
                 earliestStartTime = earliestStartTime,
-                latestEndTime = latestEndTime
+                latestEndTime = latestEndTime,
+                type = activityType
             )
         }
 
         fun fromDuration(
             location: Location,
-            startTime: Duration,
+            startTime: AbsoluteTime,
             duration: Duration,
+            type: ActivityType = ActivityType.UNKNOWN,
         ): Activity {
-            return fromDuration(location, startTime, duration, -Duration.INFINITE, Duration.INFINITE)
+            return fromDuration(location, startTime, duration, AbsoluteTime.MINUS_INFINITY, AbsoluteTime.INFINITY, type)
         }
     }
 }
 
 /**
  * [RawActivity] provides a default implementation of the [Activity] interface.
- * It is primarily intended for debugging and testing purposes, with no additional logic, such as [onBegin] or [onEnd]
+ * It is primarily intended for debugging and testing purposes.
  *
  * @property location The location of the activity.
  * @property startTime The start time of the activity.
@@ -187,10 +200,10 @@ interface Activity : StationaryAction {
  */
 data class RawActivity(
     override var location: Location,
-    override var startTime: Duration,
-    override var endTime: Duration,
-    override var earliestStartTime: Duration = -Duration.INFINITE,
-    override var latestEndTime: Duration = Duration.INFINITE,
+    override var startTime: AbsoluteTime,
+    override var endTime: AbsoluteTime,
+    override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
+    override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var type: ActivityType = ActivityType.UNKNOWN
 
 ) : Activity {
@@ -218,19 +231,31 @@ data class RawActivity(
  * representing movement.
  */
 interface Leg : MovingAction {
-    override var startTime: Duration
-    override var endTime: Duration
+    override var startTime: AbsoluteTime
+    override var endTime: AbsoluteTime
     override var startLocation: Location
     override var endLocation: Location
 
-    override var earliestStartTime: Duration
-    override var latestEndTime: Duration
+    override var earliestStartTime: AbsoluteTime
+    override var latestEndTime: AbsoluteTime
 
     override var transportType: Mode
 
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 
+    override fun <T> accept(actionVisitor: ActionVisitor<T>): T {
+        return actionVisitor.visitLeg(this)
+    }
+
+    fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedLeg {
+        val act = LinkedLeg(this)
+        act.previous = lower
+        act.next = higher
+        act.previous?.next = act
+        act.next?.previous = act
+        return act
+    }
     companion object {
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [duration].
@@ -244,7 +269,7 @@ interface Leg : MovingAction {
          * @return The generated leg.
          */
         fun fromDuration(
-            startTime: Duration,
+            startTime: AbsoluteTime,
             duration: Duration,
             startLocation: Location,
             endLocation: Location,
@@ -271,8 +296,8 @@ interface Leg : MovingAction {
          * @return The generated leg.
          */
         fun fromEndTime(
-            startTime: Duration,
-            endTime: Duration,
+            startTime: AbsoluteTime,
+            endTime: AbsoluteTime,
             startLocation: Location,
             endLocation: Location,
             mode: Mode = StandardMode.UNDEFINED
@@ -290,7 +315,7 @@ interface Leg : MovingAction {
 
 /**
  * [RawLeg] provides a default implementation of the [Leg] interface.
- * It is primarily intended for debugging and testing purposes, with no additional logic, such as [onBegin] or [onEnd]
+ * It is primarily intended for debugging and testing purposes.
  *
  * @property startLocation The start location of the leg.
  * @property endLocation The end location of the leg.
@@ -298,12 +323,12 @@ interface Leg : MovingAction {
  * @property endTime The end time of the leg.
  */
 data class RawLeg(
-    override var startTime: Duration,
+    override var startTime: AbsoluteTime,
     override var startLocation: Location,
     override var endLocation: Location,
-    override var endTime: Duration,
-    override var earliestStartTime: Duration = -Duration.INFINITE,
-    override var latestEndTime: Duration = Duration.INFINITE,
+    override var endTime: AbsoluteTime,
+    override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
+    override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     override var transportType: Mode
 
 ) : Leg {
@@ -327,11 +352,6 @@ data class RawLeg(
         return result
     }
 }
-
-/**
- * Default location interface, TODO should be refactored at some point, right now it could also be [Any]
- */
-interface Location
 
 enum class ActionType {
     ACTIVITY,

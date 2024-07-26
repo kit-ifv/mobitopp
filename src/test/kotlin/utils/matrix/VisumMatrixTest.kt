@@ -1,6 +1,7 @@
 package utils.matrix
 
-import data.ZoneId
+import datastructure.matrix.VisumMatrix
+import domain.data.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
@@ -15,7 +16,7 @@ class VisumMatrixTest {
             10101, 10301, 10302, 10601, 10701, 10702, 11001, 11002, 11003, 11101,
             11102, 11103, 11104, 11201, 11202, 11203
         )
-        val toZoneId = { id: Int -> ZoneId(id) }
+        val toZoneId = { id: Int -> ZoneId(id.toLong()) }
 
         // Assertion for matrix content
         val expectedMatrix = arrayOf(

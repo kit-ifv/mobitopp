@@ -12,6 +12,7 @@ import utils.collections.isStrictlySorted
 import utils.collections.orderedPermutations
 import utils.collections.permutations
 import utils.collections.subsets
+import utils.units.sinceStart
 import java.util.*
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -19,14 +20,14 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 
 abstract class PlanModelTest {
-    protected val activity1: Activity = Activity.fromDuration(START, 0.hours, 7.hours)
-    protected val leg1: Leg = Leg.fromDuration(7.hours, 0.5.hours, START, FOURTH)
-    protected val leg1b: Leg = Leg.fromDuration(7.5.hours, 0.5.hours, FOURTH, OTHER)
-    protected val activity2: Activity = Activity.fromDuration(OTHER, 8.hours, 4.hours)
-    protected val activity2b: Activity = Activity.fromDuration(OTHER, 12.hours, 4.hours)
-    protected val leg2: Leg = Leg.fromDuration(16.hours, 0.5.hours, OTHER, FOURTH)
-    protected val leg2b: Leg = Leg.fromDuration(16.5.hours, 3.5.hours, FOURTH, THIRD)
-    protected val activity3: Activity = Activity.fromDuration(THIRD, 20.hours, 10.hours)
+    protected val activity1: Activity = Activity.fromDuration(START, 0.hours.sinceStart, 7.hours)
+    protected val leg1: Leg = Leg.fromDuration(7.hours.sinceStart, 0.5.hours, START, FOURTH)
+    protected val leg1b: Leg = Leg.fromDuration(7.5.hours.sinceStart, 0.5.hours, FOURTH, OTHER)
+    protected val activity2: Activity = Activity.fromDuration(OTHER, 8.hours.sinceStart, 4.hours)
+    protected val activity2b: Activity = Activity.fromDuration(OTHER, 12.hours.sinceStart, 4.hours)
+    protected val leg2: Leg = Leg.fromDuration(16.hours.sinceStart, 0.5.hours, OTHER, FOURTH)
+    protected val leg2b: Leg = Leg.fromDuration(16.5.hours.sinceStart, 3.5.hours, FOURTH, THIRD)
+    protected val activity3: Activity = Activity.fromDuration(THIRD, 20.hours.sinceStart, 10.hours)
 
     abstract var model: PlanModel
 
@@ -315,6 +316,7 @@ abstract class PlanModelTest {
         return activities.map { test ->
             DynamicTest.dynamicTest(test.toString()) {
                 model.clear()
+                assertContentEquals(model.actions(), emptyList())
                 activities.forEach { model.add(it) }
                 legs.forEach { model.add(it) }
                 val removedElement = model.removeFirst()

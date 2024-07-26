@@ -1,55 +1,34 @@
 package domain.location
 
-import domain.data.ZoneData
-import units.Currency
-import units.Distance
-import utils.units.Coordinate
-import utils.units.GPSCoordinate
-import utils.units.UnitIntervalValue
-import utils.units.share
-import kotlin.time.Duration
+import domain.data.Zone
+import units.Coordinate
+import units.GPSCoordinate
+import units.UnitIntervalValue
+import units.share
 
 /**
  * Location is a generic representation of placement/whereabouts of entities.
+ * It provides a method to evaluate a [LocationMetric] between two arbitrary [Location]s.
+ *
+ * Here the double-dispatch pattern is used, since there are four different specific types of locations.
+ *  - [Position]
+ *  - [ZoneLocation]
+ *  - [RoadPosition]
+ *  - [RoadPositionInZone]
+ *
+ * [LocationMetric]s can evaluate any combination of two specific location types.
+ * To call the correct evaluation method of the [LocationMetric], first [Location.evaluate] knows the specific
+ * [Location] type of the callee  and passes it to the corresponding version of [Location.evaluateFrom].
+ * [Location.evaluateFrom] is called on the destination [Location], hence theis secend callee now nws the specific
+ * [Location] type of the destination (itself) and the origin [Location] (the first callee which is given as parameter).
  */
 interface Location {
 
-    /**
-     * Compute the distance from this location to the given other location
-     * by using the given [DistanceMetric].
-     *
-     * @param other the [Location] to which the distance is computed
-     * @param metric the [DistanceMetric] to be used to compute the distance
-     */
-    fun distance(other: Location, metric: (Location) -> DistanceMetric): Distance = metric(this).visit(other)
-
-    /**
-     * Compute the travel duration from this location to the given other location
-     * by using the given [DurationMetric].
-     *
-     * @param other the [Location] to which the duration is computed
-     * @param metric the [DurationMetric] to be used to compute the distance
-     */
-    fun duration(other: Location, metric: (Location) -> DurationMetric): Duration = metric(this).visit(other)
-    // Current time and mode of transportation could be encoded in metric / visitor?
-
-    /**
-     * Compute the cost of traveling from this location to the given other location
-     * by using the given [CostMetric].
-     *
-     * @param other the [Location] to which the cost is computed
-     * @param metric the [CostMetric] to be used to compute the distance
-     */
-    fun cost(other: Location, metric: (Location) -> CostMetric): Currency = metric(this).visit(other)
-
-    /**
-     * Accept the given [LocationVisitor] by letting it visit this [Location].
-     *
-     * @param visitor the visitor to be accepted
-     * @param R the generic result type of the [LocationVisitor]
-     * @return the result of the visitor visiting this [Location]
-     */
-    fun <R> accept(visitor: LocationVisitor<R>): R
+    fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R
+    fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R
+    fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R
+    fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R
+    fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R
 }
 
 /**
@@ -60,14 +39,20 @@ interface Location {
 interface Position : Location {
     val coordinate: Coordinate
 
-    /**
-     * Accept the given [LocationVisitor] by letting it visit this [Position].
-     *
-     * @param visitor the visitor to be accepted
-     * @param R the generic result type of the [LocationVisitor]
-     * @return the result of the visitor visiting this [Position]
-     */
-    override fun <R> accept(visitor: LocationVisitor<R>): R = visitor.visit(this)
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
+        destination.evaluateFrom(this, metric)
+
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -76,18 +61,25 @@ interface Position : Location {
  * @property zone the zone containing the location
  */
 interface ZoneLocation : Position {
-    val zone: ZoneData
+    val zone: Zone
     // TODO this is linked to domain description which might change in the future
     //  -> rethink this part (imported from  legacy mobitopp)
-    // TODO maybe extract minimum interface for zones
-    /**
-     * Accept the given [LocationVisitor] by letting it visit this [ZoneLocation].
-     *
-     * @param visitor the visitor to be accepted
-     * @param R the generic result type of the [LocationVisitor]
-     * @return the result of the visitor visiting this [ZoneLocation]
-     */
-    override fun <R> accept(visitor: LocationVisitor<R>): R = visitor.visit(this)
+    // TODO maybe extract minimum interface for zones or refencece only zone id
+
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
+        destination.evaluateFrom(this, metric)
+
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -100,35 +92,47 @@ interface RoadPosition : Position {
     val road: Long // TODO replace by link id
     val roadAccess: UnitIntervalValue
 
-    /**
-     * Accept the given [LocationVisitor] by letting it visit this [RoadPosition].
-     *
-     * @param visitor the visitor to be accepted
-     * @param R the generic result type of the [LocationVisitor]
-     * @return the result of the visitor visiting this [RoadPosition]
-     */
-    override fun <R> accept(visitor: LocationVisitor<R>): R = visitor.visit(this)
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
+        destination.evaluateFrom(this, metric)
+
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
- * A RoadPositionINZone is a [RoadPosition] with additional [ZoneLocation] information.
+ * A RoadPositionInZone is a [RoadPosition] with additional [ZoneLocation] information.
  *
  * @param roadPosition the [RoadPosition] contained by the given zone
  * @property zone the zone containing the location
  */
 class RoadPositionInZone(
     roadPosition: RoadPosition,
-    override val zone: ZoneData
+    override val zone: Zone
 ) : RoadPosition by roadPosition, ZoneLocation {
 
-    /**
-     * Accept the given [LocationVisitor] by letting it visit this [RoadPositionInZone].
-     *
-     * @param visitor the visitor to be accepted
-     * @param R the generic result type of the [LocationVisitor]
-     * @return the result of the visitor visiting this [RoadPositionInZone]
-     */
-    override fun <R> accept(visitor: LocationVisitor<R>): R = visitor.visit(this)
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
+        destination.evaluateFrom(this, metric)
+
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -144,6 +148,21 @@ fun String.parseRoadPosition(): RoadPosition {
     return object : RoadPosition {
         override val road = res[2].toLong()
         override val roadAccess = res[3].toDouble().share()
-        override val coordinate = GPSCoordinate.degrees(res[1].toDouble(), res[0].toDouble())
+        override val coordinate = GPSCoordinate.decimalDegree(res[1].toDouble(), res[0].toDouble())
     }
 }
+
+object LOCATIONUNKNOWN : Location {
+    private const val message = "Distance, cost and duration should never be called on LOCATIONUNKNOWN!"
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R = error(message)
+
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R = error(message)
+
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R = error(message)
+
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R = error(message)
+
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R = error(message)
+}
+
+data class ZoneLocationImpl(override val coordinate: Coordinate, override val zone: Zone) : ZoneLocation

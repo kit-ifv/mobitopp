@@ -1,9 +1,12 @@
 package utils.matrix
 
+import datastructure.matrix.YamlMultiMatrix
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.Decodable
 import utils.Encodable
+import utils.units.AbsoluteTime
+import utils.units.weeks
 import kotlin.io.path.Path
 
 class EncodableString(private val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
@@ -30,10 +33,20 @@ class YamlMultiMatrixTest {
             override fun decode(s: String): EncodableString {
                 return EncodableString(s)
             }
+
+            override fun values(): Set<EncodableString> {
+                error("Not implemented")
+            }
         }
 
         // Create an instance of YamlMultiMatrix
-        YamlMultiMatrix<EncodableString, String, Double>(yamlFilePath, parser, modeDecoder)
+        YamlMultiMatrix<EncodableString, String, Double>(
+            yamlFilePath,
+            parser,
+            modeDecoder,
+            AbsoluteTime.START,
+            AbsoluteTime.START + 4.weeks
+        )
 
         // Test if parsing the YAML file completes without errors
         // If no exceptions are thrown during initialization, the test passes

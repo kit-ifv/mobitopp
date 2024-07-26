@@ -10,6 +10,17 @@ import utils.Encodable
  */
 interface ActivityType : Encodable {
     val description: String
+
+    companion object {
+        val UNKNOWN = object : ActivityType {
+            override val description: String = "Unknown"
+
+            @Suppress("MagicNumber")
+            override fun encode(): Int {
+                return -2
+            }
+        }
+    }
 }
 
 /**
@@ -54,8 +65,10 @@ enum class LegacyActivityType(val code: Int) : ActivityType {
     override fun encode(): Int {
         return this.code
     }
+
     companion object : Decodable<ActivityType> {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
+        override fun values(): Set<LegacyActivityType> = LegacyActivityType.entries.toSet()
     }
 }

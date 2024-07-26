@@ -136,6 +136,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
         builders = builders!!.let {
             it.elements.filter(predicate).asResource(it.name, "${it.source} -> filter $operation")
         }
+        println("Finished Filtering")
     }
 
     /**
@@ -186,7 +187,7 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
     /** Finish the Repository by building all [Builder]s to create the final entities.  */
     fun build() {
         internalState = internalState.performBuild()
-        elems = MapRepository(builders!!.build().reusable())
+        elems = MapRepository(builders!!.build())
         builders = null
     }
 
@@ -329,8 +330,10 @@ enum class RepositoryState {
  * @param E generic type of the elements
  * @return a repository containing built elements and updated metadata of the resource
  */
-fun <R, B, E> R.build(): Resource<E> where B : Builder<E>, R : Resource<B>, E : Identifiable<*> =
-    this.elements.map { it.build() }.asResource(this.name, "$source -> build")
+fun <R, B, E> R.build(): Resource<E> where B : Builder<E>, R : Resource<B>, E : Identifiable<*> {
+    val target = this.elements.map { it.build() }.asResource(this.name, "$source -> build")
+    return target
+}
 
 /**
  * Create a [Repository] containing the elements and metadata of the given [Resource].
