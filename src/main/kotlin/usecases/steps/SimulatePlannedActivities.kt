@@ -1,6 +1,7 @@
 package usecases.steps
 
 import domain.events.InitPersonEvent
+import modeling.events.ParallelSimulator
 import modeling.events.Simulator
 import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
@@ -11,7 +12,7 @@ fun <S, C> S.simulate() where S : ModelExecution<C>, C : PersonContext, C : Simu
         name = "simulate planned activities",
         validation = { true }
     ) {
-        val sim = Simulator(timeStep = context.timeStep)
+        val sim = ParallelSimulator(timeStep = context.timeStep)
 
         sim.addAgents(context.personRepository) { person ->
             InitPersonEvent(person, context.behavior.value)
