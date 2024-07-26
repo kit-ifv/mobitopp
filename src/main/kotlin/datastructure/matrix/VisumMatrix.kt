@@ -16,13 +16,10 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     private fun getMatrix(): Array<Double> {
-
         synchronized(this) {
-
             if (!this::matrix.isInitialized) {
                 matrix = parser.getArray()
             }
-
         }
 
         return matrix
@@ -32,9 +29,7 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     private fun getIndexLookup(): HashMap<ZoneId, Int> {
-
         synchronized(this) {
-
             if (!this::indexLookup.isInitialized) {
                 val zoneIds = parser.getZoneIds()
                 indexLookup = HashMap()
@@ -42,7 +37,6 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
                     indexLookup[zoneId] = index
                 }
             }
-
         }
 
         return indexLookup

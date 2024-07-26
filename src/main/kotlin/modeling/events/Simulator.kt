@@ -32,15 +32,12 @@ abstract class Simulator(
     }
 
     fun run(start: AbsoluteTime, end: AbsoluteTime) {
-
         for (time in progressClock(start, timeStep, end)) {
             queue.addAll(getFutureEvents(time))
         }
-
     }
 
     protected abstract fun getFutureEvents(now: Time): Collection<Event<*>>
-
 
     private fun progressClock(start: AbsoluteTime, timeStep: Duration, end: AbsoluteTime): Sequence<AbsoluteTime> {
         val seq = clock(start, timeStep, end)
@@ -66,8 +63,7 @@ class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
     timeStep: Duration = 1.minutes
-): Simulator(initEvents, queue, timeStep) {
-
+) : Simulator(initEvents, queue, timeStep) {
 
     override fun getFutureEvents(now: Time): Collection<Event<*>> {
         val currentEvents = queue.popEventsUntil(now)
@@ -77,9 +73,7 @@ class ParallelSimulator(
 
         runBlocking {
             while (present.isNotEmpty()) {
-
                 coroutineScope {
-
                     val deferredNewEvents = present.map {
                         async(Dispatchers.Default) { it.execute() }
                     }
@@ -91,13 +85,10 @@ class ParallelSimulator(
                     present.clear()
                     present.addAll(newInstantEvents)
                     future.addAll(newFutureEvents)
-
                 }
-
             }
         }
 
         return future
     }
-
 }
