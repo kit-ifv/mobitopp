@@ -1,11 +1,13 @@
 package datastructure.plans
 
 import datastructure.Action
+import datastructure.ActionBlock
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedAction
 import datastructure.LinkedActivity
 import datastructure.LinkedLeg
+import utils.units.AbsoluteTime
 import java.util.*
 import kotlin.time.Duration
 
@@ -26,7 +28,7 @@ interface ActivityTracker {
  */
 interface PlanModel : LegTracker, ActivityTracker {
 
-    val dispatcher: Dispatcher
+    val dispatcher: IDispatcher
 
     /**
      * Removes the first Action from the plan. Note that this element remains a [LinkedAction] and thus has access to
@@ -52,12 +54,16 @@ interface PlanModel : LegTracker, ActivityTracker {
 
 interface SeparablePlanModel : PlanModel {
     fun activities(): Collection<LinkedActivity>
+
+    fun lastActivity(): LinkedActivity
     fun legs(): Collection<LinkedLeg>
 
     fun view(): BlockModel.TripView
+
+    fun nextBlock(): ActionBlock<*>?
 }
 
-fun PlanModel.squeeze(from: Duration, to: Duration, force: Boolean = false) {
+fun PlanModel.squeeze(from: AbsoluteTime, to: AbsoluteTime, force: Boolean = false) {
     val afterAction = actions().dropWhile { it.endTime <= from }
     var counter = to
     val requiredShift = afterAction.map {
@@ -101,7 +107,7 @@ fun PlanModel.squeeze(action: Action, force: Boolean = false) {
  *
  * @param force Overwrites the actions regardless of their earliest start or latest end time
  */
-fun PlanModel.shift(from: Duration, block: Duration, force: Boolean = false) {
+fun PlanModel.shift(from: AbsoluteTime, block: Duration, force: Boolean = false) {
     val targets = actions().dropWhile { it.endTime <= from }
     if (targets.all {
             it.startTime + block >= (it.earliestStartTime) &&

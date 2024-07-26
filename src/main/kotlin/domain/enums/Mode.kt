@@ -1,13 +1,32 @@
 package domain.enums
 
+import domain.location.Location
+import units.Currency
+import units.euros
 import utils.CodePlan
 import utils.Encodable
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 /**
  * A mode describes the type of transportation a person uses to travel.
  * Each project can provide a custom definition of which mode of transportation are available.
  */
-interface Mode : Encodable
+interface Mode : Encodable {
+    fun travelTime(from: Location, to: Location): Duration = 42.days
+
+    fun travelCost(from: Location, to: Location): Currency = 0.euros
+
+    fun getAccessTime(from: Location, to: Location): Duration = 0.minutes
+    fun getEgressTime(from: Location, to: Location): Duration = 0.minutes
+}
+
+object MODEUNKOWN : Mode {
+    override fun encode(): Int {
+        throw UnsupportedOperationException("MODE UNKNOWN should never be encoded!")
+    }
+}
 
 /**
  * The default mode encoding from legacy MobiTopp
@@ -42,5 +61,6 @@ enum class StandardMode(private val code: Int) : Mode {
     companion object : CodePlan<StandardMode> {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
+        override fun values(): Set<StandardMode> = StandardMode.entries.toSet()
     }
 }

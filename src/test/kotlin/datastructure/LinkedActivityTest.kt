@@ -4,14 +4,16 @@ import FOURTH
 import OTHER
 import START
 import THIRD
+import domain.location.Location
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import utils.collections.cartesianProduct
+import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
@@ -25,12 +27,12 @@ class LinkedActivityTest {
 
     @BeforeTest
     fun setup() {
-        firstLeg = LinkedLeg(Leg.fromDuration(0.hours, 1.hours, START, THIRD))
-        secondLeg = LinkedLeg(Leg.fromDuration(1.hours, 1.hours, THIRD, OTHER))
+        firstLeg = LinkedLeg(Leg.fromDuration(0.hours.sinceStart, 1.hours, START, THIRD))
+        secondLeg = LinkedLeg(Leg.fromDuration(1.hours.sinceStart, 1.hours, THIRD, OTHER))
         thirdActivity =
-            LinkedActivity(Activity.fromDuration(OTHER, 3.hours, 1.hours))
-        fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours, 1.hours))
-        fifthLeg = LinkedLeg(Leg.fromDuration(7.hours, 1.hours, OTHER, START))
+            LinkedActivity(Activity.fromDuration(OTHER, 3.hours.sinceStart, 1.hours))
+        fourthActivity = LinkedActivity(Activity.fromDuration(OTHER, 5.hours.sinceStart, 1.hours))
+        fifthLeg = LinkedLeg(Leg.fromDuration(7.hours.sinceStart, 1.hours, OTHER, START))
 
         firstLeg.next = secondLeg
         secondLeg.previous = firstLeg
@@ -77,7 +79,7 @@ class LinkedActivityTest {
     @TestFactory
     fun wildShuffle(): List<DynamicTest> {
         val newDurations = listOf((-10).days, 0.hours, 10.days)
-        val actions: List<(Duration) -> Unit> = listOf(
+        val actions: List<(AbsoluteTime) -> Unit> = listOf(
             { firstLeg.startTime = it },
             { firstLeg.endTime = it },
             { secondLeg.startTime = it },
@@ -92,7 +94,7 @@ class LinkedActivityTest {
         return newDurations.cartesianProduct(actions).map {
             DynamicTest.dynamicTest(it.toString()) {
                 setup()
-                it.second(it.first)
+                it.second(it.first.sinceStart)
                 assertTrue(listOf(firstLeg, secondLeg, thirdActivity, fourthActivity, fifthLeg).isConsistent())
             }
         }
@@ -100,16 +102,16 @@ class LinkedActivityTest {
 
     @Test
     fun badChanges() {
-        secondLeg.startTime = 0.5.hours
-        assertEquals(firstLeg.startTime, (-0.5).hours)
-        assertEquals(firstLeg.endTime, 0.5.hours)
-        assertEquals(secondLeg.startTime, 0.5.hours)
+        secondLeg.startTime = 0.5.hours.sinceStart
+        assertEquals(firstLeg.startTime, (-0.5).hours.sinceStart)
+        assertEquals(firstLeg.endTime, 0.5.hours.sinceStart)
+        assertEquals(secondLeg.startTime, 0.5.hours.sinceStart)
     }
 
     @Test
     fun validChange() {
-        secondLeg.endTime = 2.5.hours
-        assertEquals(secondLeg.endTime, 2.5.hours)
-        assertEquals(thirdActivity.startTime, 3.hours)
+        secondLeg.endTime = 2.5.hours.sinceStart
+        assertEquals(secondLeg.endTime, 2.5.hours.sinceStart)
+        assertEquals(thirdActivity.startTime, 3.hours.sinceStart)
     }
 }

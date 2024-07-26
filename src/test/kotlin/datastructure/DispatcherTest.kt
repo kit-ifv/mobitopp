@@ -8,6 +8,7 @@ import datastructure.plans.ActionModel
 import datastructure.plans.BlockModel
 import datastructure.plans.Dispatcher
 import datastructure.plans.shift
+import utils.units.sinceStart
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -21,25 +22,25 @@ class DispatcherTest {
     private val activityGenerator: Sequence<Activity> = sequence {
         var timer = Duration.ZERO
         while (true) {
-            yield(Activity.fromDuration(START, timer, 1.hours))
+            yield(Activity.fromDuration(START, timer.sinceStart, 1.hours))
             timer += 2.hours
 
-            yield(Activity.fromDuration(OTHER, timer, 1.hours))
+            yield(Activity.fromDuration(OTHER, timer.sinceStart, 1.hours))
             timer += 2.hours
         }
     }
     private val legGenerator: Sequence<Leg> = sequence {
         var timer = 1.hours
         while (true) {
-            yield(Leg.fromDuration(timer, 30.minutes, START, THIRD))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, START, THIRD))
             timer += 30.minutes
-            yield(Leg.fromDuration(timer, 30.minutes, THIRD, OTHER))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, THIRD, OTHER))
             timer += 30.minutes
             timer += 1.hours
 
-            yield(Leg.fromDuration(timer, 30.minutes, OTHER, THIRD))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, OTHER, THIRD))
             timer += 30.minutes
-            yield(Leg.fromDuration(timer, 30.minutes, THIRD, START))
+            yield(Leg.fromDuration(timer.sinceStart, 30.minutes, THIRD, START))
             timer += 30.minutes
             timer += 1.hours
         }
@@ -132,7 +133,7 @@ class DispatcherTest {
 
         assertContentEquals(actions.actions(), activities as Collection<Action>)
         assertContentEquals(blocks.actions(), activities as Collection<Action>)
-        actions.shift(0.hours, 1.hours)
+        actions.shift(0.hours.sinceStart, 1.hours)
         assertContentEquals(blocks.actions(), actions.actions())
         assertContentEquals(blocks.actions(), actions.actions())
     }

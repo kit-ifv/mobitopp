@@ -22,10 +22,19 @@ fun Row.int(column: String) = this.invoke(column, String::toInt)
 fun Row.int(index: Int) = this.valueAt(index, String::toInt)
 fun Row.long(column: String) = this.invoke(column, String::toLong)
 fun Row.long(index: Int) = this.valueAt(index, String::toLong)
+
 fun Row.float(column: String) = this.invoke(column, String::toFloat)
 fun Row.float(index: Int) = this.valueAt(index, String::toFloat)
+
+fun Row.commaFloat(column: String) = this.invoke(column).replace(",", ".").toFloat()
+fun Row.commaFloat(index: Int) = this.valueAt(index).replace(",", ".").toFloat()
+
 fun Row.double(column: String) = this.invoke(column, String::toDouble)
 fun Row.double(index: Int) = this.valueAt(index, String::toDouble)
+
+fun Row.commaDouble(column: String) = this.invoke(column).replace(",", ".").toDouble()
+fun Row.commaDouble(index: Int) = this.valueAt(index).replace(",", ".").toDouble()
+
 fun Row.boolean(column: String) = this.invoke(column, String::toBoolean)
 fun Row.boolean(index: Int) = this.valueAt(index, String::toBoolean)
 fun <E> Row.id(column: String) = this.invoke(column) { s -> ID<E>(s.toLong()) }

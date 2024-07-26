@@ -1,6 +1,8 @@
 package datastructure
 
-import datastructure.plans.Dispatcher
+import datastructure.plans.IDispatcher
+import domain.location.Location
+import utils.units.AbsoluteTime
 import java.util.*
 import kotlin.time.Duration
 
@@ -9,10 +11,11 @@ import kotlin.time.Duration
  * are readonly properties that do not allow alterations of the underlying actions. If
  */
 interface Trip {
-    val legs: List<MovingAction>
-    val size get() = legs.size
+    // Rename convenience
+    val legs: List<Leg>
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
+
     fun alternate(lambda: TripBuilder.() -> Unit)
 
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
@@ -26,6 +29,7 @@ class RawTrip(
     override val previousAction: Activity?,
     override val nextAction: Activity?
 ) : Trip {
+
     override fun alternate(lambda: TripBuilder.() -> Unit) {
         val builder = TripBuilder(this)
         builder.lambda()
@@ -40,7 +44,7 @@ class RawTrip(
  *
  */
 class TripBuilder(
-    private val previousAction: StationaryAction?,
+    val previousAction: StationaryAction?,
     val nextAction: StationaryAction?,
     val originals: List<MovingAction>
 ) {
@@ -50,7 +54,7 @@ class TripBuilder(
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
     private lateinit var currentLocation: Location
-    private var currentTime: Duration = -Duration.INFINITE
+    private var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
 
     init {
         if (previousAction != null) {
@@ -88,20 +92,36 @@ class TripBuilder(
 }
 
 /**
- * A [LinkTrip] is created from a [LegBlock] in the [BlockModel] plan. It holds a reference to the model dispatcher,
+ * A [LinkTrip] is created from a [LinkedTrip] in the [BlockModel] plan. It holds a reference to the model dispatcher,
  * which is set to null if the trip is removed from [BlockModel.legBlockList], so that even when a reference to the
  * link trip object is held someplace else, the changes only propagate into the models if the trip is actually a part
  * of the models.
  */
-class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatcher?) : Trip, Comparable<LinkTrip> {
+class LinkTrip(
+    private val legBlock: LinkedTrip,
+    private var dispatcher: IDispatcher?,
+    schedule: Schedule? = null,
+) : Trip, Comparable<LinkTrip>, Representative<LinkedLeg> {
+    override val previousAction: StationaryAction? =
+        schedule?.pastActivities()?.last() ?: legBlock.previous.lastElementOrNull()
+    override val elements: List<LinkedLeg>
+        get() = legBlock.item.toList()
+
+    override fun <X> accept(actionBlockVisitor: ActionBlockVisitor<X>): X {
+        return actionBlockVisitor.visitTrip(this)
+    }
 
     override val legs: List<Leg>
         get() = legBlock.item.toList()
-    override val previousAction: StationaryAction?
-        get() = legBlock.previous.lastElementOrNull()
+
+//    override val previousAction: StationaryAction?
+//        get() = legBlock.previous.lastElementOrNull()
     override val nextAction: StationaryAction?
         get() = legBlock.next.firstElementOrNull()
-
+    val previousTrip: List<Leg>?
+        get() = legBlock.previous.previous?.item?.toList()
+    val nextTrip: List<Leg>?
+        get() = legBlock.next.next?.item?.toList()
     override fun alternate(lambda: TripBuilder.() -> Unit) {
         val builder = TripBuilder(previousAction, nextAction, legs)
         builder.lambda()
@@ -109,7 +129,7 @@ class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatche
         dispatcher?.replaceLegs(legs.toSortedSet(), target)
     }
 
-    fun removeDispatcher() {
+    internal fun removeDispatcher() {
         dispatcher = null
     }
 
@@ -122,5 +142,5 @@ class LinkTrip(private val legBlock: LegBlock, private var dispatcher: Dispatche
         return legBlock.compareTo(other.legBlock)
     }
 
-    fun matches(other: LegBlock) = legBlock === other
+    fun matches(other: LinkedTrip) = legBlock === other
 }

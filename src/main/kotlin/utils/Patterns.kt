@@ -20,6 +20,8 @@ interface Decodable<out T : Encodable> {
     fun decode(i: Int): T
 
     fun decode(s: String): T
+
+    fun values(): Set<T>
 }
 
 typealias CodePlan<R> = Decodable<R>

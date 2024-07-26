@@ -7,6 +7,8 @@ import datastructure.plans.shift
 import datastructure.plans.squeeze
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
@@ -25,8 +27,8 @@ class ActionModelTest : PlanModelTest() {
     private fun activity(
         start: Int,
         duration: Int,
-        earliestStartTime: Duration = -Duration.INFINITE,
-        latestEndTime: Duration = Duration.INFINITE
+        earliestStartTime: AbsoluteTime = (-Duration.INFINITE).sinceStart,
+        latestEndTime: AbsoluteTime = Duration.INFINITE.sinceStart,
     ): Activity {
         return activity(start.toDouble(), duration.toDouble(), earliestStartTime, latestEndTime)
     }
@@ -34,12 +36,12 @@ class ActionModelTest : PlanModelTest() {
     private fun activity(
         start: Double,
         duration: Double,
-        earliestStartTime: Duration = -Duration.INFINITE,
-        latestEndTime: Duration = Duration.INFINITE
+        earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
+        latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
     ): Activity {
         return Activity.fromDuration(
             START,
-            start.toDuration(DurationUnit.HOURS),
+            AbsoluteTime.START + start.toDuration(DurationUnit.HOURS),
             duration.toDuration(DurationUnit.HOURS)
         ).apply {
             this.earliestStartTime = earliestStartTime
@@ -104,18 +106,18 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(0, 1))
         model.add(activity(2, 1))
         // This action does not support the squeeze, as the actions before it stack up too much time difference
-        model.add(activity(4, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours))
+        model.add(activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart))
         model.add(activity(6, 1))
         val target = assertThrows<IllegalStateException> { model.squeeze(activity(1.5, 4.0)) }
-        assertContains(target.message!!, "endTime=5h")
+        assertContains(target.message!!, "endTime=${5.hours}")
         assertContains(target.message!!, "necessaryShift=2h 30m")
-        assertContains(target.message!!, "latestEndTime=7h")
+        assertContains(target.message!!, "latestEndTime=${7.hours}")
         assertContentEquals(
             model.actions(),
             setOf<Action>(
                 activity(0, 1),
                 activity(2, 1),
-                activity(4, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours),
+                activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
                 activity(6, 1)
             )
         )
@@ -126,7 +128,7 @@ class ActionModelTest : PlanModelTest() {
         model.clear()
         model.add(activity(0, 1))
         model.add(activity(2, 1))
-        model.add(activity(4, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours))
+        model.add(activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart))
         model.add(activity(6, 1))
         model.add(activity(8, 1))
         model.add(activity(10, 1))
@@ -139,7 +141,7 @@ class ActionModelTest : PlanModelTest() {
                 activity(0, 1),
                 activity(1.5, 4.0),
                 activity(5.5, 1.0),
-                activity(6.5, 1.0, earliestStartTime = 4.hours, latestEndTime = 7.hours),
+                activity(6.5, 1.0, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
                 activity(7.5, 1.0),
                 activity(8.5, 1.0),
                 activity(10, 1)
@@ -151,18 +153,18 @@ class ActionModelTest : PlanModelTest() {
     fun shiftWithForce() {
         model.add(activity(0, 1))
         model.add(activity(2, 1))
-        model.add(activity(4, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours))
+        model.add(activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart))
         model.add(activity(6, 1))
         model.add(activity(8, 1))
         model.add(activity(10, 1))
-        model.shift(4.5.hours, 2.hours, force = true)
+        model.shift(4.5.hours.sinceStart, 2.hours, force = true)
 
         assertContentEquals(
             model.actions(),
             setOf<Action>(
                 activity(0, 1),
                 activity(2, 1),
-                activity(6, 1, earliestStartTime = 4.hours, latestEndTime = 7.hours),
+                activity(6, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart),
                 activity(8, 1),
                 activity(10, 1),
                 activity(12, 1)

@@ -75,6 +75,12 @@ interface RowCsvParser<E> : CsvParser<E> {
 }
 
 /**
+ * Creates a row parser with a preceding filter to allow the removal of certain elements without having to fully evaluate
+ * the object before filtering.
+ */
+fun <E> RowCsvParser<E>.withFilter(filter: (Row) -> Boolean): FilterRowCsvParser<E> = FilterRowCsvParser(this, filter)
+
+/**
  * A default implementation of RowCsvParser.
  *
  * @param E the generic type of entities to be produced by the parser
@@ -162,5 +168,24 @@ class TypedRow<T>(
 
     operator fun invoke(column: String): T {
         return row(column, parser)
+    }
+}
+
+class FilterRowCsvParser<E>(
+    private val original: RowCsvParser<E>,
+    private val filter: (Row) -> Boolean
+) : RowCsvParser<E> {
+
+    /**
+     * Parse the given Row as entity of generic type E.
+     *
+     * May return null, if an error occurs while parsing the row.
+     *
+     * @param row the row to be parsed as entity
+     * @return parsed entity, may be null if parsing produces errors
+     */
+    override fun parse(row: Row): E? {
+        if (filter(row)) return original.parse(row)
+        return null
     }
 }

@@ -1,4 +1,8 @@
+@file:Suppress("TooManyFunctions")
+
 package utils.collections
+
+import java.util.*
 
 /**
  * returns the previous element or null in the list regarding a target index.
@@ -92,4 +96,14 @@ fun <T> List<T>.cumulativeSum(plusOperator: (T, T) -> T): List<T> {
         first = plusOperator(first, it)
         first
     }
+}
+
+/**
+ * Filter a list by the position of the indicies using a bit set.
+ */
+fun <T> List<T>.filterBy(bitSet: BitSet): List<T> {
+    require(bitSet.size() >= size)
+    return withIndex().filter {
+        bitSet[it.index]
+    }.map { it.value }
 }

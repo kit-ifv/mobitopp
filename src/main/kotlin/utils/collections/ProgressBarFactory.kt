@@ -19,18 +19,28 @@ fun unmuteProgressBars() {
  * @param expectedCount expected number of elements in the iterator
  * @param visible whether the progressbar should be shown on the console
  */
-@Suppress("MagicNumber")
-fun <I, T> I.addProgressBar(label: String, expectedCount: Long, visible: Boolean): Iterator<T> where I : Iterator<T> {
+fun <I, T> I.addProgressBar(
+    label: String,
+    expectedCount: Long,
+    visible: Boolean = true
+): Iterator<T> where I : Iterator<T> {
     return if (!MUTE_PROGRESSBAR and visible) {
-        val pbb = ProgressBarBuilder()
-            .setUpdateIntervalMillis(250)
-            .setMaxRenderedLength(120)
-            .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
-            .setTaskName(label)
-            .setInitialMax(expectedCount)
-
+        val pbb = defaultProgressBarBuilder(label, expectedCount)
         ProgressBar.wrap(this, pbb)
     } else {
         this
     }
 }
+
+@Suppress("MagicNumber")
+fun defaultProgressBarBuilder(
+    label: String,
+    expectedCount: Long
+): ProgressBarBuilder = ProgressBarBuilder()
+    .setUpdateIntervalMillis(250)
+    .setMaxRenderedLength(120)
+    .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
+    .setTaskName(label)
+    .setInitialMax(expectedCount)
+
+fun ProgressBar.stepBy(n: Int) = stepBy(n.toLong())

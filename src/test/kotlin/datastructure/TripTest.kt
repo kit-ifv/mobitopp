@@ -3,6 +3,7 @@ package datastructure
 import OTHER
 import START
 import THIRD
+import utils.units.sinceStart
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertTrue
@@ -11,8 +12,8 @@ import kotlin.time.Duration.Companion.minutes
 
 class TripTest {
 
-    private val firstActivity = Activity.fromDuration(START, 0.hours, 8.hours)
-    private val secondActivity = Activity.fromDuration(OTHER, 9.hours, 1.hours)
+    private val firstActivity = Activity.fromDuration(START, 0.hours.sinceStart, 8.hours)
+    private val secondActivity = Activity.fromDuration(OTHER, 9.hours.sinceStart, 1.hours)
 
     @Test
     fun runBuilder() {
