@@ -1,5 +1,6 @@
 package datastructure
 
+import datastructure.plans.IDispatcher
 import utils.collections.iterate
 import java.util.*
 
@@ -13,17 +14,22 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     abstract val next: ActionBlock<*>?
     abstract val previous: ActionBlock<*>?
 
+    val size get() = item.size
+
     /**
      * Adds an activity to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>?
+    abstract fun insert(
+        activity: Activity,
+        callback: SortedSet<LinkedActivity>? = null
+    ): Pair<LinkedTrip, ActivityBlock>?
 
     /**
      * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
      * views should be updated. Returns false if no update is required
      */
-    abstract fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>?
+    abstract fun insert(leg: Leg): Pair<LinkedTrip, ActivityBlock>?
 
     /**
      * Determines whether the block should accept an insertion of the target action.
@@ -36,7 +42,13 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     abstract fun accepts(action: MovingAction): Boolean
 
     fun isEmpty() = item.isEmpty()
-    fun removeFirst(): T? = item.pollFirst()
+    fun removeFirst(): T? {
+        val result = item.pollFirst()
+        if (isEmpty() && previous != null) {
+            unlink()
+        }
+        return result
+    }
 
     /**
      * Checks whether the block itself is consistent
@@ -51,6 +63,9 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     fun bounds(elements: Collection<Action>): Boolean {
         val sortedSet = elements.toSortedSet()
         if (sortedSet.isEmpty()) return false
+        if (this.isEmpty()) {
+            return false
+        }
         return sortedSet.first() >= firstElement() && sortedSet.last() <= item.last()
     }
 
@@ -73,7 +88,11 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         return (firstElement().compareTo(action) + item.last().compareTo(action)) / 2
     }
 
+    @Suppress("ReturnCount") // For speed purposes this method contains multiple returns.
     fun containsAction(action: Action): Boolean {
+        if (item.size == 0) return false
+        if (item.first() > action) return false
+        if (item.last() < action) return false
         return item.any { it.compareTo(action) == 0 }
     }
 
@@ -87,32 +106,29 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
 
     abstract fun clear()
 
+    abstract fun unlink()
     fun link(activity: Activity): LinkedActivity {
-        val act = LinkedActivity(activity)
-        act.previous = lower(act)
-        act.next = higher(act)
-        act.previous?.next = act
-        act.next?.previous = act
-        return act
+        return activity.link(lower(activity), higher(activity))
     }
 
     fun link(leg: Leg): LinkedLeg {
-        val act = LinkedLeg(leg)
-        act.previous = lower(act)
-        act.next = higher(act)
-        act.previous?.next = act
-        act.next?.previous = act
-        return act
+        return leg.link(lower(leg), higher(leg))
     }
+
+    /**
+     * Generates a readonly view of the target action block. A schedule can be passed if the view is required to be
+     * built with knowledge of the past (handled actions)
+     */
+    abstract fun representative(dispatcher: IDispatcher? = null, schedule: Schedule? = null): Representative<T>
 }
 
 /** An [ActivityBlock] is an instantiation of an [ActionBlock] holding a set of [Activity]. It also holds a reference
- * to the preceding and succeeding [LegBlock], if they exist.
+ * to the preceding and succeeding [LinkedTrip], if they exist.
  */
 class ActivityBlock(
     start: NavigableSet<LinkedActivity>,
-    override var next: LegBlock? = null,
-    override var previous: LegBlock? = null
+    override var next: LinkedTrip? = null,
+    override var previous: LinkedTrip? = null
 ) :
     ActionBlock<LinkedActivity>(), Iterable<ActivityBlock> {
 
@@ -136,9 +152,17 @@ class ActivityBlock(
         item.clear()
         unlink()
     }
+    override fun representative(
+        dispatcher: IDispatcher?,
+        schedule: Schedule?
+    ): Representative<LinkedActivity> = RawAgenda(
+        this
+    )
 
-    override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock>? {
-        item.add(link(activity))
+    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): Pair<LinkedTrip, ActivityBlock>? {
+        val element = link(activity)
+        item.add(element)
+        callback?.add(element)
 
         return null
     }
@@ -157,11 +181,11 @@ class ActivityBlock(
         target.forEach { insert(it) }
     }
 
-    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock> {
+    override fun insert(leg: Leg): Pair<LinkedTrip, ActivityBlock> {
         val a = item.find { it.startTime >= leg.startTime }
         val targets = if (a == null) sortedSetOf<LinkedActivity>() else TreeSet(item.tailSet(a, true))
         val newActivityBlock = ActivityBlock(targets)
-        val newLegBlock = LegBlock(this, newActivityBlock)
+        val newLegBlock = LinkedTrip(this, newActivityBlock)
 
         val successor = next
 
@@ -177,7 +201,7 @@ class ActivityBlock(
         return newLegBlock to newActivityBlock
     }
 
-    private fun unlink() {
+    override fun unlink() {
         val prevLeg = previous!!
         val nextLeg = next!!
 
@@ -253,9 +277,13 @@ class ActivityBlock(
     }
 }
 
-class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBlock, override var next: ActivityBlock) :
-    ActionBlock<LinkedLeg>(), Iterable<LegBlock> {
-    override val item: NavigableSet<LinkedLeg> = sortedSetOf()
+class LinkedTrip(
+    start: Collection<LinkedLeg>,
+    override var previous: ActivityBlock,
+    override var next: ActivityBlock
+) :
+    ActionBlock<LinkedLeg>(), Iterable<LinkedTrip> {
+    override var item: NavigableSet<LinkedLeg> = sortedSetOf()
 
     init {
         start.forEach {
@@ -263,16 +291,16 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         }
     }
 
-    constructor(previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(), previous, next)
+    constructor(previous: ActivityBlock, next: ActivityBlock) : this(emptyList(), previous, next)
     constructor(leg: LinkedLeg, previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(leg), previous, next)
 
     /**
      * Returns an iterator over the elements of this object.
      */
-    override fun iterator(): Iterator<LegBlock> {
-        return object : Iterator<LegBlock> {
-            var current: LegBlock? = null
-            var nextIteratorElement: LegBlock? = this@LegBlock
+    override fun iterator(): Iterator<LinkedTrip> {
+        return object : Iterator<LinkedTrip> {
+            var current: LinkedTrip? = null
+            var nextIteratorElement: LinkedTrip? = this@LinkedTrip
 
             /**
              * Returns `true` if the iteration has more elements.
@@ -284,7 +312,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
             /**
              * Returns the next element in the iteration.
              */
-            override fun next(): LegBlock {
+            override fun next(): LinkedTrip {
                 current = nextIteratorElement
                 nextIteratorElement = current?.next?.next
                 return current ?: throw NoSuchElementException()
@@ -298,12 +326,18 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         unlink()
     }
 
+    override fun representative(dispatcher: IDispatcher?, schedule: Schedule?): LinkTrip = LinkTrip(
+        this,
+        dispatcher,
+        schedule
+    )
+
     /**
      * Inserts an activity into this leg block. As a leg block cannot maintain activities two additional Blocks are
      * spawned <OriginalBlock> -> (NewActivityBlock) -> <NewLegBlock>. The [activity] is inserted into the newly created
      * block. All legs from the original set that are too large are moved to the new block
      */
-    override fun insert(activity: Activity): Pair<LegBlock, ActivityBlock> {
+    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): Pair<LinkedTrip, ActivityBlock>? {
         require(
             item.none {
                 it.compareTo(activity) == 0
@@ -314,7 +348,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         val targets = TreeSet(item.tailSet(l, true))
 
         val newActivityBlock = ActivityBlock()
-        val newLegBlock = LegBlock(targets, newActivityBlock, next)
+        val newLegBlock = LinkedTrip(targets, newActivityBlock, next)
 
         val successor = next
 
@@ -326,7 +360,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         newActivityBlock.previous = this
         newActivityBlock.next = newLegBlock
         successor.previous = newLegBlock
-        newActivityBlock.insert(activity)
+        newActivityBlock.insert(activity, callback)
         return newLegBlock to newActivityBlock
     }
 
@@ -342,12 +376,12 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         return item.joinToString { it.toString() }
     }
 
-    override fun insert(leg: Leg): Pair<LegBlock, ActivityBlock>? {
+    override fun insert(leg: Leg): Pair<LinkedTrip, ActivityBlock>? {
         item.add(link(leg))
         return null
     }
 
-    private fun unlink() {
+    override fun unlink() {
         val previous = previous
         val next = next
         val overNext = next.next
@@ -363,13 +397,27 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
         next.previous = null
     }
 
+    /**
+     * If the replacement happens within a leg block only, the replacement can be done internally, instead of inserting
+     * each element on its own a bulk operation can be performed.
+     */
     internal fun replaceAll(target: Collection<Leg>, elements: Collection<Leg>) {
         require(elements.isNotEmpty()) { "Doesn't make sense to replace with nothing " }
+        val previous = item.first().previous
         target.mapNotNull { act -> item.find { it.original == act } }.forEach {
             removeLinked(it)
         }
-
-        elements.forEach { insert(it) }
+        val retainElements = item.filter { it !in target }
+        val links = (elements.map { LinkedLeg(it) } + retainElements).sorted()
+        links.zipWithNext { a, b ->
+            a.next = b
+            b.previous = a
+        }
+        previous?.next = links.first()
+        links.first().previous = previous
+        links.last().next = next.firstElementOrNull()
+        next.firstElementOrNull()?.previous = links.last()
+        item = TreeSet(links)
     }
 
     private fun removeLinked(linkedLeg: LinkedLeg) {
@@ -389,7 +437,7 @@ class LegBlock(start: NavigableSet<LinkedLeg>, override var previous: ActivityBl
     }
 
     override fun equals(other: Any?): Boolean {
-        if (other !is LegBlock) return false
+        if (other !is LinkedTrip) return false
         return next == other.next && item.zip(other.item).all { (a, b) -> a == b }
     }
 

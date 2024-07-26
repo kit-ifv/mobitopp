@@ -1,0 +1,135 @@
+package usecases.steps
+
+import domain.data.SharingProvider
+import domain.data.SharingStation
+import domain.data.SharingVehicle
+import domain.data.SharingVehicleId
+import domain.data.Zone
+import domain.data.ZoneId
+import domain.data.weakerBuilder
+import domain.enums.Mode
+import domain.location.ZoneLocationImpl
+import modeling.steps.AddCsvStep
+import modeling.steps.BuildStep
+import modeling.steps.Context
+import modeling.steps.CsvResource
+import modeling.steps.ModelExecution
+import units.Coordinate
+import utils.Builder
+import utils.ErrorHandling
+import utils.csv.CsvParser
+import utils.csv.Row
+import utils.csv.SEMICOLON
+import utils.csv.int
+import utils.csv.long
+import utils.units.toCoordinate
+import java.io.File
+
+fun String.parseCoordinate(): Coordinate =
+    this.split(",")
+        .takeIf { it.size == 2 }
+        ?.let { it[0].toDouble() to it[1].toDouble() }
+        ?.toCoordinate()
+        ?: error(
+            "Malformed Coordinate: could not parse coordinate string '$this'." +
+                "Expected format: '<NUMBER>,<NUMBER>'!"
+        )
+
+@Suppress("LongParameterList")
+fun <S, C> S.prepareSharingStations(
+    file: File? = null,
+    delimiter: String = SEMICOLON,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+
+    providerName: String,
+    mode: Mode,
+
+    uidColumn: String = "uid",
+    nameColumn: String = "name",
+    coordinatesColumn: String = "coordinates",
+    coordinateParser: (String) -> Coordinate = String::parseCoordinate,
+    vehicleCountColumn: String = "vehicles",
+    zoneColumn: String = "zone",
+    zonesByFootColumn: String = "zone_avail",
+) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : SharingStationsContext {
+    val sharingProvider = SharingProvider(providerName)
+
+    val csvParser = CsvParser(errorHandling) { row ->
+        SharingStation(
+            owner = sharingProvider,
+            uid = row(uidColumn),
+            name = row(nameColumn),
+            zonesByFoot = context.prepareZonesByFoot(row, zonesByFootColumn),
+            location = ZoneLocationImpl(
+                zone = context.getZone(row.long(zoneColumn)),
+                coordinate = coordinateParser(row(coordinatesColumn)),
+            ),
+            initialVehicles = prepareVehicles(
+                count = row.int(vehicleCountColumn),
+                mode,
+                sharingProvider
+            )
+        ).also { it.vehicles.forEach { v -> v.returnTo(it) } }.weakerBuilder()
+    }
+
+    this.prepareStationsFile(csvParser, file, delimiter)
+}
+
+private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : ZoneContext<*, *> {
+    return row(column).split(",").map { id ->
+
+        id.toLongOrNull()?.let {
+            getZone(it)
+        } ?: error(
+            "Could not parse ZoneId $id (expected value of type Long) " +
+                "in column $column row${row.index} of ${row.source}: ${row(column)}!"
+        )
+    }.toSet()
+}
+
+private fun prepareVehicles(count: Int, mode: Mode, owner: SharingProvider): Set<SharingVehicle> =
+    (0 until count).map {
+        SharingVehicle(
+            id = SharingVehicleId(it.toLong()),
+            mode = mode,
+            owner = owner,
+        )
+    }.toSet()
+
+fun <S, C> S.prepareStationsFile(
+    parser: CsvParser<Builder<SharingStation>>,
+    file: File? = null,
+    delimiter: String = SEMICOLON,
+) where S : ModelExecution<C>, C : Context, C : SharingStationsContext {
+    val path = this.context.demandFolder.path + "\\zone-repository\\sharing-stations.csv"
+    val personFile = file ?: File(path)
+
+    val resource = CsvResource(personFile, parser, delimiter)
+
+    this.addStep(
+        AddCsvStep(
+            name = "load sharing stations csv",
+            csv = resource,
+            repository = context.sharingStationsRepository
+        )
+    )
+}
+
+fun <S, C> S.finishSharingStations() where S : ModelExecution<C>, C : Context, C : SharingStationsContext {
+    this.addStep(BuildStep("finish sharing stations", context.sharingStationsRepository))
+}
+
+fun <S, C> S.loadSharingStations(
+    providerName: String,
+    mode: Mode,
+) where S : ModelExecution<C>, C : Context, C : SharingStationsContext, C : LegacyZonesContext {
+    this.prepareSharingStations(providerName = providerName, mode = mode)
+    this.finishSharingStations()
+}
+
+internal fun <C> C.getZone(id: Long) where C : ZoneContext<*, *> = requireNotNull(
+    zoneRepository.getById(ZoneId(id))
+) {
+    "Referenced ZoneId $id could not be found in zoneRepo:" +
+        " ${zoneRepository.elements.map { it.id }.toList()}"
+}

@@ -50,6 +50,31 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
         "class ${classDeclaration.builderNameWithResolvedGenerics}() : Builder<${classDeclaration.nameWithGenerics}>"
 
     /**
+     * Additional builder extension on the class since Jelle had something like this in his code, and I will not touch
+     * his code. I think this extension is rather useless, as the Builder<X> interface provides nothing of convenience
+     */
+    fun asWeakBuilderExtension(): String {
+        val floatingParameters = allParameters.filter {it.isFreeFloating}.map{it.nameWithOverrideableType(false)}
+        val floatingParameterNames = allParameters.filter { it.isFreeFloating }.map {it.name}
+        return "\nfun${classDeclaration.resolvedGenerics} ${classDeclaration.nameWithGenerics}.weakBuilder(${floatingParameters.joinToString(", ") { it }}):" +
+                " Builder<${classDeclaration.nameWithGenerics}> = this.asBuilder(${floatingParameterNames.joinToString(", ") { it }})\n\n"
+
+    }
+
+    /**
+     * Convenience asBuilder call, actually returning the builder instance, so the attributes can be changed.
+     */
+    fun asBuilderExtension(): String {
+        val floatingParameters = allParameters.filter {it.isFreeFloating}.map{it.nameWithOverrideableType(false)}
+        return "\nfun${classDeclaration.resolvedGenerics} ${classDeclaration.nameWithGenerics}.asBuilder(${floatingParameters.joinToString(", ") { it }}) " +
+                "= ${classDeclaration.builderWithGenerics}().also"{
+                    +allParameters.joinToString(separator = "\n") { "it.${it.name} = ${it.name + it.state.reverseInstantiate()}" }
+                } +"\n\n"
+
+
+    }
+
+    /**
      * A function to create a text block generating all parameters that will be present in the Builder class. Should
      * output valid Kotlin code. Note that the parameters of the builder can be slightly different from the target parameter
      * Main differences include nullability or mutability. A detailed explanation can be found in [Parameter].
@@ -95,6 +120,20 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
     ): String {
         return TextBuilder().apply {
             +"// Created by build Without Defaults"
+            +requiredParameterGuard()
+            +"return $constructorInvocation(${
+                specifiedParameters.joinToString(separator = ", ") {
+                    it.parameterEvaluation()
+                }
+            })"
+        }.makeText()
+    }
+
+    /**
+     * Adds a text clause to the builder verifying that all attributes that need to be set are set.
+     */
+    protected fun requiredParameterGuard(): String {
+        return TextBuilder().apply {
             val nullableParameters = nonDefaultableParameters.filter { it.isNullable() && !it.originalIsNullable }
             if (nullableParameters.isNotEmpty()) {
                 val map = nullableParameters.joinToString(
@@ -107,12 +146,8 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
                     +"\"The following attributes need to be set \${autoGenControl}\""
                 }
             }
-            +"return $constructorInvocation(${
-                specifiedParameters.joinToString(separator = ", ") {
-                    it.parameterEvaluation()
-                }
-            })"
         }.makeText()
+
     }
 
     companion object {
@@ -203,6 +238,7 @@ open class ClassBuilder(classDeclaration: KSClassDeclaration) : BuildFunction(cl
             +"val autoGenTargetParameters = listOf(${
                 requiredDefaultables.joinToString(separator = ", ") { "${it.name} != null" }
             })"
+            +requiredParameterGuard()
             +"return when(autoGenTargetParameters)" {
                 for (i in 0..<2.pow(requiredDefaultables.size)) {
                     val zip = i.toBinaryRepresentation(requiredDefaultables.size).zip(requiredDefaultables)
@@ -235,9 +271,9 @@ open class ClassBuilder(classDeclaration: KSClassDeclaration) : BuildFunction(cl
 abstract class AbstractBuilder(classDeclaration: KSClassDeclaration) : ClassBuilder(classDeclaration) {
     /**
      * The name of the new dummy class. Note that there may be name clashes if the class exists already somewhere else.
-     * So attempt to avoid building Default-X classes when using the [Buildable] annotation on X
+     * So attempt to avoid building Dummy-X classes when using the [Buildable] annotation on X
      */
-    val defaultClassName = "Default" + classDeclaration.nameWithGenerics
+    val defaultClassName = "Dummy" + classDeclaration.nameWithGenerics
 
     /**
      * Determines how the dummy class is constructed. Separated because Interface instantiations do not use a constructor
@@ -320,7 +356,7 @@ class InterfaceBuilder(classDeclaration: KSClassDeclaration) : AbstractBuilder(c
      * The class instantiation would be along the lines of Default-X(override val param1: P1) : X
      */
     override val defaultClassInstantiation: String =
-        "$defaultClassName(${allParameters.joinToString(",") { it.toOverrideInstantiation() }}) : ${classDeclaration.nameWithGenerics}"
+        "$defaultClassName(${allParameters.joinToString(", ") { it.toOverrideInstantiation(false) }}) : ${classDeclaration.nameWithGenerics}"
 
     /**
      * The instantiation of the buildable target object is evalated with the "builder" call. Per default this maps to
@@ -341,7 +377,7 @@ class InterfaceBuilder(classDeclaration: KSClassDeclaration) : AbstractBuilder(c
             +"class ${classDeclaration.builderNameWithResolvedGenerics}(val builder: (${
                 allParameters.joinToString(
                     separator = ", "
-                ) { it.type.toString() }
+                ) { it.overrideableTypeWithGenerics(false) }
             }) -> ${classDeclaration.nameWithGenerics} = {$helperVars -> $defaultClassName($helperVars)}) : Builder<${classDeclaration.nameWithGenerics}>"
         }.makeText()
     }

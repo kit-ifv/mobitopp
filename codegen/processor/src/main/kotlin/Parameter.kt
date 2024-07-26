@@ -12,12 +12,14 @@ import com.google.devtools.ksp.symbol.KSValueParameter
  * @param type the type of the original parameter
  * @param hasDefault whether the original parameter has a default value
  * @param originalIsVar whether the original is mutable
+ * @param isFreeFloating if the variable in the constructor is just a reference that is not held later on.
  */
 class Parameter(
     val name: String,
     val type: KSTypeReference,
     val hasDefault: Boolean,
     val originalIsVar: Boolean,
+    val isFreeFloating: Boolean,
     externalDefaultValues: Map<String, String>,
     templateParameters: List<String>
 ) {
@@ -27,6 +29,7 @@ class Parameter(
                 ksValueParameter.type,
                 ksValueParameter.hasDefault,
                 ksValueParameter.isVar,
+                !ksValueParameter.isVar && !ksValueParameter.isVal,
                 externalDefaultValues,
                 templateParameters
             )
@@ -36,7 +39,7 @@ class Parameter(
         externalDefaultValues: Map<String, String>,
         templateParameters: List<String>
     ) : this(
-        prop.simpleName.asString(), prop.type, false, prop.isMutable, externalDefaultValues, templateParameters
+        prop.simpleName.asString(), prop.type, false, prop.isMutable, false, externalDefaultValues, templateParameters
     )
 
     /**
@@ -59,7 +62,12 @@ class Parameter(
      * The internal State of the parameter.
      */
     val state = StateWithQualifiedName.parse(type, templateParameters)
-    private val generics = type.resolve().let {
+
+    /**
+     * If the Parameter has generics, this attribute will return a string represenation similar to the instantiation of
+     * the bracket part <X>. As in Set<Person> -> <Person>
+     */
+    val generics = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
                 separator = ", ",
@@ -88,13 +96,35 @@ class Parameter(
         val keyword = "var"
         val nullableString = if (isNullable()) "?" else ""
         // The state can override the type. This is mostly necessary for collections.
-        val typeString = state.typeOverride ?: type
+        val typeString = overrideableType()
         // If the parameter is nullable because a default value exists, the start value should be null regardless of
         // what the type specifies as start value
         val startValue = if (isNullable()) "null" else state.initialValue
         // The external type may not match the internal type if collections are used and must be transformed
 
-        return "$keyword $name : ${typeString}$generics$nullableString = ${externalInstantiation ?: startValue}"
+        return "$keyword ${nameWithOverrideableType()}$nullableString = ${externalInstantiation ?: startValue}"
+    }
+
+    /**
+     * Returns the parameter name with the generics, separated by ":"
+     * example myMap : Map<Int, String>
+     */
+    fun nameWithOverrideableType(override: Boolean = true) = "$name : ${overrideableTypeWithGenerics(override)}"
+
+    /**
+     * Returns the type with generics
+     * Map<Int, String>
+     */
+    fun overrideableTypeWithGenerics(override: Boolean = true) = "${overrideableType(override)}$generics"
+
+    /**
+     *
+     * Returns the type string. Override enables the specification of a different type if required. This is used for
+     * Map -> Mutable Map primarily
+     */
+    fun overrideableType(override: Boolean = true): String {
+        if(!override && state.name != "OBJECT") return type.toString()
+        return state.typeOverride ?: type.toString()
     }
 
     /**
@@ -124,15 +154,15 @@ class Parameter(
      */
     fun toReferenceInstantiation(): String {
         val setNullable = if (originalIsNullable) "?" else ""
-        return "$name: $type$setNullable"
+        return "$name: $type$setNullable$generics"
     }
 
     /**
      * Generates an instantiation "override var param: X" needed for the dummy class for an interface.
      */
-    fun toOverrideInstantiation(): String {
+    fun toOverrideInstantiation(override: Boolean): String {
         val temp = if (originalIsVar) "var" else "val"
-        return "override $temp $name: $type"
+        return "override $temp ${nameWithOverrideableType(override)}"
     }
 
     /**
@@ -441,6 +471,9 @@ val KSTypeParameter.nameWithUpperBounds: String
 val KSFunctionDeclaration.mimic: String
     get() {
         return "fun ${toString()}(" +
-            parameters.joinToString { it.name?.asString() ?: "" } +
+            parameters.joinToString {
+                val p = Parameter(it, emptyMap(), emptyList())
+                p.nameWithOverrideableType()
+            } +
         ")" + ": ${returnType.toString()}"
     }

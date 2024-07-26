@@ -1,0 +1,2 @@
+householdId;year;householdNumber;nominalSize;domCode;type;homeZone;homeLocation;homeX;homeY;numberOfMinors;numberOfNotSimulatedChildren;totalNumberOfCars;income;incomeClass;economicalStatus;canChargePrivately
+1;2017;92619491;1;1;0;9;(566206.0551778253,5933762.86165587: -736897556, 0.7840327843412376);5.662.060.551.778.250;593.376.286.165.587;0;0;0;1000;3;2;true
