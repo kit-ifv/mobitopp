@@ -74,7 +74,8 @@ class LegacyModeChoiceModel(
         GeneratedHcUtilityFunction(attractivenessModel, logitParameters, modes, helper)
 
     /**
-     * Instantiates a GeneratedHcModeChoice with the given LogitParameters, HcModeChoiceHelper, IntermodalModeChoiceModelLogger
+     * Instantiates a GeneratedHcModeChoice with the given LogitParameters,
+     * HcModeChoiceHelper, IntermodalModeChoiceModelLogger
      */
     init {
         this.lambda_miv = logitParameters.lambda_miv
