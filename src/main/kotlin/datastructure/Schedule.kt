@@ -1,10 +1,13 @@
 package datastructure
 
-import datastructure.plans.Dispatcher
 import datastructure.plans.PlanView
 import datastructure.plans.SeparablePlanModel
+import datastructure.plans.SingularDispatcher
+import datastructure.plans.TrackableModel
+import domain.enums.MODEUNKOWN
+import domain.location.Location
+import utils.units.AbsoluteTime
 import java.util.*
-import kotlin.time.Duration
 
 /**
  * Current Action is a wrapper class that only allows modification of [LinkedAction] attributes which are in the future:
@@ -15,7 +18,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
     val original: Action = linkedAction.original
 
     val type: ActionType = linkedAction.actionType
-    override var endTime: Duration
+    override var endTime: AbsoluteTime
         get() = linkedAction.endTime
         set(value) {
             linkedAction.endTime = value
@@ -25,7 +28,7 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
         set(value) {
             linkedAction.endLocation = value
         }
-    override var latestEndTime: Duration
+    override var latestEndTime: AbsoluteTime
         get() = linkedAction.latestEndTime
         set(value) {
             linkedAction.latestEndTime = value
@@ -44,20 +47,22 @@ class CurrentAction(private val linkedAction: LinkedAction) : Action by linkedAc
  *
  */
 class Schedule(
-    private val model: SeparablePlanModel,
+    private val model: TrackableModel,
 
 ) : PlanView {
-
-    override val dispatcher: Dispatcher = Dispatcher()
+    constructor(separablePlanModel: SeparablePlanModel) : this(TrackableModel(separablePlanModel))
+    override val dispatcher: SingularDispatcher = SingularDispatcher()
 
     init {
         dispatcher.register(model)
     }
 
-    private var currentTime: Duration = -Duration.INFINITE
+    private var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
 
     // The past should not be altered by external code, so to protect this attribute we have the [past] access
-    private val alterableHistory: MutableList<Action> = mutableListOf()
+    private val alterableHistory: MutableList<Action> by lazy {
+        mutableListOf()
+    }
 
     val past: List<Action>
         get() = alterableHistory
@@ -70,15 +75,34 @@ class Schedule(
     fun actions(): List<LinkedAction> = model.actions().toList()
 
     fun tripView() = model.view()
-    fun lastAction(): Action = present ?: past.last()
+    fun lastStartedAction(): Action = present ?: past.last()
+
+    fun nextAction(): Action? = present ?: model.first()
     fun activities() = model.activities()
+
+    fun pastActivities() = model.pastActivities()
+
+    fun nextBlock() = model.nextBlock()?.representative(dispatcher = dispatcher, this)
+
+    fun legs() = model.legs()
+
+    fun pastLegs() = model.pastLegs()
+
+    fun lastAction(): Action? = alterableHistory.lastOrNull()
+
+    /**
+     * Either ends the current action if one is present, or sets the first future action to be the next present action
+     * in a sense, it steps through the points of the schedule. Note that the time is updated based on the end time, so
+     * no actions later than the step can be added to the plan.
+     */
     fun step() {
         present?.let {
             currentTime = it.endTime
             alterableHistory.add(it.original)
             present = null
+            pollFirst()
         } ?: run {
-            val target = pollFirst()
+            val target = firstAction()
             target?.setNewAction() ?: { println("No Actions remaining in the plan") }
         }
     }
@@ -95,6 +119,26 @@ class Schedule(
 
     override fun add(activity: Activity) {
         require(activity.startTime >= currentTime)
+        super.add(activity)
+    }
+
+    fun addWithPrecedingLeg(activity: Activity) {
+        require(activity.startTime >= currentTime)
+        // If the last action is larger than the activity there is something wrong and inserting with a leg cannot be
+        // done trivially
+        if (actions().lastOrNull()?.let { it >= activity } == true) {
+            // System.err.println("Warning: Activity $activity is not the last action, inserting without additional leg")
+            add(activity)
+            return
+        }
+
+        val last = model.activities().lastOrNull()
+
+        last?.let {
+            super.add(
+                it.createLegTo(activity, MODEUNKOWN)
+            )
+        }
         super.add(activity)
     }
 

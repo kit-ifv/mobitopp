@@ -57,6 +57,8 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
         override fun accumulating() = THROW
 
         override fun processException(e: Exception, message: String) {
+            println("CRITICAL ERROR: $message")
+            println("    ${e.message}")
             throw IllegalArgumentException(message, e)
             // TODO which specific exception type should we use here?
         }
@@ -77,8 +79,7 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
      * Execute the given runnable and handle exceptions by applying the
      * specific error handling strategy.
      *
-     * @param runnable a function that applies the parsing and returns the
-     *     entity or null
+     * @param runnable a function that returns the entity or null
      * @param E the generic type of the entity to be processed
      * @return the result of the given runnable or null/exception in case of
      *     errors
@@ -122,3 +123,16 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
         }
     }
 }
+
+fun <R> errorScope(errorHandling: ErrorHandling = ErrorHandling.WARNING, message: String, runnable: () -> R): R? {
+    return errorHandling.handle(runnable) { e -> "$message:\n    ${e.message}" }
+}
+
+fun test(value: Boolean, lazyMessage: () -> String): Boolean =
+    errorScope(
+        errorHandling = ErrorHandling.WARNING,
+        message = if (value) "" else lazyMessage()
+    ) {
+        check(value)
+        true
+    } ?: false

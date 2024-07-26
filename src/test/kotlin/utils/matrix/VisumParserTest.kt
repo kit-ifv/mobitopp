@@ -2,6 +2,8 @@
 
 package utils.matrix
 
+import datastructure.matrix.VisumParseError
+import datastructure.matrix.VisumParser
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -23,7 +25,7 @@ class VisumParserTest {
             10101, 10301, 10302, 10601, 10701, 10702, 11001, 11002, 11003, 11101,
             11102, 11103, 11104, 11201, 11202, 11203
         )
-        assertArrayEquals(expectedZoneIds, zoneIds.map { it.zoneId }.toTypedArray())
+        assertArrayEquals(expectedZoneIds, zoneIds.map { it.id.toInt() }.toTypedArray())
 
         val array = parser.getArray()
 
@@ -198,8 +200,8 @@ class VisumParserTest {
         }
 
         assertTrue(
-            "Message did not contain the hint \"* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>\"",
-            exception.message?.contains("* Obj <NUMBER> Summe = <NUMBER>.<NUMBER>") ?: false
+            "Message did not contain the hint \"* Obj <NUMBER> Summe = <NUMBER>(.<NUMBER>)?\"",
+            exception.message?.contains("* Obj <NUMBER> Summe = <NUMBER>(.<NUMBER>)?") ?: false
         )
         assertTrue("Message did not contain the line number \"30\"", exception.message?.contains("30") ?: false)
         assertTrue(

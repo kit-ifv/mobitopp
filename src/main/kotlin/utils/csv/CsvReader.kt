@@ -3,9 +3,8 @@ package utils.csv
 import utils.ErrorHandling
 import utils.collections.addProgressBar
 import utils.collections.toLazyList
-import java.io.BufferedReader
+import utils.files.decompressedBufferedReader
 import java.io.File
-import java.io.FileReader
 import kotlin.io.path.fileSize
 import kotlin.math.floor
 import kotlin.streams.asSequence
@@ -176,7 +175,7 @@ open class DefaultCsvReader(
     init {
         numberOfRows = estimateRowCount(file)
 
-        val reader = BufferedReader(FileReader(file))
+        val reader = file.decompressedBufferedReader()
         val header = reader.readLine()
         reader.close()
 
@@ -188,7 +187,7 @@ open class DefaultCsvReader(
     }
 
     override fun rows(): Sequence<Row> {
-        val reader = BufferedReader(FileReader(file))
+        val reader = file.decompressedBufferedReader()
         var idCnt = 0
 
         val sequence = reader.lines()
@@ -294,7 +293,7 @@ fun <E> ErrorHandling.handleParseValue(
 fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): Int {
     var rows = 0
 
-    val reader = BufferedReader(FileReader(file))
+    val reader = file.decompressedBufferedReader()
     val sample = reader.lineSequence()
         .drop(1)
         .take(sampleSize)
@@ -309,5 +308,5 @@ fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): 
     val bytePerRow = sample.toDouble() / rows.toDouble()
     val fileSize = file.toPath().fileSize()
 
-    return floor(fileSize.toDouble() * scale / bytePerRow).toInt().also { println("expect $it") }
+    return floor(fileSize.toDouble() * scale / bytePerRow).toInt()
 }

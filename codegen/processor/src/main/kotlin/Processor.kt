@@ -82,7 +82,7 @@ class Processor(
                     +resetFunction
                 }
                 +createBuildFunction
-            } + "\n"
+            } + "\n" + metaBuilder.asBuilderExtension() + metaBuilder.asWeakBuilderExtension()
         }
     }
 }

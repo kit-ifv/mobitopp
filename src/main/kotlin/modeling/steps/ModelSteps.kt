@@ -2,7 +2,8 @@ package modeling.steps
 
 import utils.Builder
 import utils.Identifiable
-import java.io.File
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
 
 /**
  * A ModelStep represents an operation performed during the model execution.
@@ -21,6 +22,16 @@ interface ModelStep {
      * @return true, if the validation was successful
      */
     fun validate(): Boolean
+}
+
+class CustomStep(
+    override val name: String,
+    val validation: () -> Boolean = { true },
+    val exec: () -> Unit,
+) : ModelStep {
+    override fun execute() = exec()
+
+    override fun validate(): Boolean = validation()
 }
 
 /**
@@ -220,13 +231,17 @@ open class MultiStep(
         steps.add(step)
     }
 
-    override fun execute() = steps.forEach { it.execute() }
-
-    override fun validate() = steps.all { step ->
-        step.validate().also {
-            println("Step ${step.name} is " + (if (it) "valid" else "invalid") + "!")
-        }
+    override fun execute() = steps.forEach {
+        println("Run ${it.name}")
+        it.execute()
     }
+
+    override fun validate() = steps.map { step ->
+        println("Validate step: ${step.name}:")
+        step.validate().also {
+            println("    Step ${step.name} is " + (if (it) "valid" else "invalid") + "!")
+        }
+    }.all { it }
 }
 
 /**
@@ -260,12 +275,14 @@ class Run<C>(private val contextFactory: () -> C) where C : Context {
     fun steps(lambda: ModelExecution<C>.() -> Unit): C {
         println("Validate before run!")
 
+        muteProgressBars()
         val validation = ModelExecution(context = contextFactory())
         validation.lambda()
         val isValid = validation.validate()
+        unmuteProgressBars()
 
         if (isValid) {
-            println("Execute")
+            println("\nExecute")
             val simulation = ModelExecution(context = contextFactory())
             simulation.lambda()
             simulation.execute()
@@ -274,14 +291,4 @@ class Run<C>(private val contextFactory: () -> C) where C : Context {
             error("validation failed")
         }
     }
-}
-
-/**
- * A Context holds all data required when executing mobiTopp.
- * This is the minimum interface that all project contexts must implement.
- * Think carefully about what you put in here!
- */
-interface Context {
-    val scenarioName: String
-    val demandFolder: File
 }

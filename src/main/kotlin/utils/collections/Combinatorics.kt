@@ -105,19 +105,8 @@ fun Int.toBinaryRepresentation(size: Int): List<Boolean> {
     return Integer.toBinaryString(this).padStart(size, '0').map { it == '1' }
 }
 
-/** Slow but no conversion errors. In the future someone may want to turn this into a reasonably useful function
- *
- */
-fun Int.pow(exponent: Int): Int {
-    var result = 1
-    repeat(exponent) {
-        result *= this
-    }
-    return result
-}
-
 fun <T> Collection<T>.subsets(): List<Set<T>> {
-    return (0..<2.pow(size)).map { num ->
+    return (0..<(1 shl size)).map { num ->
         num.toBinaryRepresentation(size).zip(this).filter { it.first }.map { it.second }.toSet()
     }
 }

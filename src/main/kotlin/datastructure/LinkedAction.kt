@@ -1,5 +1,8 @@
 package datastructure
 
+import domain.enums.ActivityType
+import domain.location.Location
+import utils.units.AbsoluteTime
 import utils.units.max
 import kotlin.time.Duration
 
@@ -15,11 +18,11 @@ abstract class LinkedAction : Action {
 
     abstract override var startLocation: Location
     abstract override var endLocation: Location
-    abstract override var startTime: Duration
-    abstract override var endTime: Duration
+    abstract override var startTime: AbsoluteTime
+    abstract override var endTime: AbsoluteTime
 
-    abstract override var earliestStartTime: Duration
-    abstract override var latestEndTime: Duration
+    abstract override var earliestStartTime: AbsoluteTime
+    abstract override var latestEndTime: AbsoluteTime
 
     fun unlink(): Action {
         next?.previous = previous
@@ -36,16 +39,16 @@ abstract class LinkedAction : Action {
         return max(next?.startTime?.let { original.endTime - it } ?: Duration.ZERO, Duration.ZERO)
     }
 
-    fun shiftStartTo(timePoint: Duration) {
+    fun shiftStartTo(timePoint: AbsoluteTime) {
         // Keeping the original duration since changing the start or end would influence the value calculation
         val duration = duration
         startTime = timePoint
         endTime = startTime + duration
     }
 
-    fun requiresPushback(target: Duration) = endTime > target
+    fun requiresPushback(target: AbsoluteTime) = endTime > target
 
-    fun requiresPullForward(target: Duration) = startTime < target
+    fun requiresPullForward(target: AbsoluteTime) = startTime < target
 
     override fun toString(): String {
         return "[Linked] $original"
@@ -63,6 +66,10 @@ class LinkedActivity(
     override var previous: LinkedAction? = null,
     override var next: LinkedAction? = null
 ) : LinkedAction(), Activity by original {
+
+    init {
+        require(original !is LinkedActivity)
+    }
     override var location: Location
         get() = original.location
         set(value) {
@@ -90,7 +97,7 @@ class LinkedActivity(
                 previous?.endLocation = value
             }
         }
-    override var startTime: Duration
+    override var startTime: AbsoluteTime
         get() = original.startTime
         set(value) {
             previous?.let {
@@ -102,7 +109,7 @@ class LinkedActivity(
             }
             original.startTime = value
         }
-    override var endTime: Duration
+    override var endTime: AbsoluteTime
         get() = original.endTime
         set(value) {
             next?.let {
@@ -114,12 +121,12 @@ class LinkedActivity(
             }
             original.endTime = value
         }
-    override var earliestStartTime: Duration
+    override var earliestStartTime: AbsoluteTime
         get() = original.earliestStartTime
         set(value) {
             original.earliestStartTime = value
         }
-    override var latestEndTime: Duration
+    override var latestEndTime: AbsoluteTime
         get() = original.latestEndTime
         set(value) {
             original.latestEndTime = value
@@ -136,6 +143,10 @@ class LinkedActivity(
 
     override fun hashCode(): Int {
         return original.hashCode()
+    }
+
+    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedActivity {
+        return this
     }
 }
 
@@ -167,7 +178,7 @@ class LinkedLeg(
                 next?.startLocation = value
             }
         }
-    override var startTime: Duration
+    override var startTime: AbsoluteTime
         get() = original.startTime
         set(value) {
             previous?.let {
@@ -179,7 +190,7 @@ class LinkedLeg(
             }
             original.startTime = value
         }
-    override var endTime: Duration
+    override var endTime: AbsoluteTime
         get() = original.endTime
         set(value) {
             next?.let {
@@ -191,12 +202,12 @@ class LinkedLeg(
             }
             original.endTime = value
         }
-    override var earliestStartTime: Duration
+    override var earliestStartTime: AbsoluteTime
         get() = original.earliestStartTime
         set(value) {
             original.earliestStartTime = value
         }
-    override var latestEndTime: Duration
+    override var latestEndTime: AbsoluteTime
         get() = original.latestEndTime
         set(value) {
             original.latestEndTime = value
@@ -208,5 +219,9 @@ class LinkedLeg(
 
     override fun hashCode(): Int {
         return original.hashCode()
+    }
+
+    override fun link(lower: LinkedAction?, higher: LinkedAction?): LinkedLeg {
+        return this
     }
 }
