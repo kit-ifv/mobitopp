@@ -2,7 +2,6 @@ package usecases.steps
 
 import domain.events.InitPersonEvent
 import modeling.events.ParallelSimulator
-import modeling.events.Simulator
 import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
 import modeling.steps.SimulationContext
