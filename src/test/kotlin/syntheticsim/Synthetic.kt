@@ -22,7 +22,7 @@ import domain.location.RoadPosition
 import domain.location.ZoneLevelMetric
 import domain.location.ZoneLocation
 import generatePersons
-import modeling.events.Simulator
+import modeling.events.ParallelSimulator
 import modeling.steps.AddResourceStep
 import modeling.steps.BuildStep
 import modeling.steps.CustomStep
@@ -92,7 +92,7 @@ fun <S> S.loadSynthetic(persons: List<Person>) where S : ModelExecution<LegacyCo
                 +Triple(LegacyActivityType.HOME, 10, 1)
             }
         }
-        val sim = Simulator(timeStep = context.timeStep)
+        val sim = ParallelSimulator(timeStep = context.timeStep)
 
         val t = persons.asSequence().asResource("nwoaiernh", "aouhin")
         val e = MapRepository(t)

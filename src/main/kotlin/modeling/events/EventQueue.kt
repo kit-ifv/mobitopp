@@ -38,6 +38,7 @@ class MapEventQueue : EventQueue {
             require(
                 v.all { (it !in temp) }
             )
+            v.addAll(temp)
         }
         this.events.putAll(targets)
     }
