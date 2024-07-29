@@ -64,15 +64,22 @@ class VisumParser(val path: Path) : IVisumParser {
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     // TODO use by lazy { } instead of lateinit
     override fun getArray(): Array<Double> {
-        if (!(this::array.isInitialized && (rowIndex + 1) == numberOfNetworkObjects && columnIndex == numberOfNetworkObjects)) {
-            while (!(this::array.isInitialized && (rowIndex + 1) == numberOfNetworkObjects && columnIndex == numberOfNetworkObjects)) {
+        if (isNotFinished()) {
+            while (isNotFinished()) {
                 parseStep()
             }
             // test that there are no more lines of matrix data at the end of the mtx file
             parseStep()
         }
+
         return array
     }
+
+    private fun isNotFinished() = !(
+        this::array.isInitialized &&
+            (rowIndex + 1) == numberOfNetworkObjects &&
+            columnIndex == numberOfNetworkObjects
+        )
 
     /**
      * Enumeration representing the different states of the matrix parsing process.

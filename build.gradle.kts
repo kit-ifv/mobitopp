@@ -17,7 +17,7 @@ repositories {
 
     maven { url = uri("https://repo.osgeo.org/repository/release") }
     maven { url = uri("https://repo.matsim.org/repository/matsim") }
-
+    maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
@@ -47,6 +47,12 @@ dependencies {
     implementation("org.yaml:snakeyaml:2.2") // SnakeYAML dependency
     implementation("org.apache.commons:commons-compress:1.26.2")
     implementation("org.tukaani:xz:1.9")
+    implementation("org.jetbrains.kotlinx:kandy-lets-plot:0.6.0")
+    implementation("org.jetbrains.kotlinx:kotlin-statistics-jvm:0.2.1")
+    runtimeOnly("org.jetbrains.kotlinx:kandy-util:0.6.0")
+    implementation("org.jetbrains.kotlinx:kandy-api:0.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
 
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))

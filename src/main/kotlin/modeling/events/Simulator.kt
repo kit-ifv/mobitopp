@@ -1,5 +1,10 @@
 package modeling.events
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import modeling.steps.Repository
 import utils.Identifiable
 import utils.collections.addProgressBar
@@ -8,9 +13,9 @@ import utils.units.Time
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-class Simulator(
+abstract class Simulator(
     initEvents: Collection<Event<*>> = emptyList(),
-    private val queue: MapEventQueue = MapEventQueue(),
+    protected val queue: MapEventQueue = MapEventQueue(),
     val timeStep: Duration = 1.minutes
 ) {
 
@@ -28,24 +33,11 @@ class Simulator(
 
     fun run(start: AbsoluteTime, end: AbsoluteTime) {
         for (time in progressClock(start, timeStep, end)) {
-            val currentEvents = queue.popEventsUntil(time)
-
-            val newEvents = processInstantEvents(currentEvents, time)
-//            println("${time.inWholeMinutes} ${currentEvents.size} current events -> ${newEvents.size} new events")
-            queue.addAll(newEvents)
+            queue.addAll(getFutureEvents(time))
         }
     }
 
-    private fun processInstantEvents(events: Collection<Event<*>>, now: Time): Collection<Event<*>> {
-        val instant = events.filter { it.time <= now }
-        val latent = events.filter { it.time > now }.toMutableList()
-
-        latent.addAll(
-            instant.flatMap { processInstantEvents(it.execute(), now) }
-        )
-
-        return latent
-    }
+    protected abstract fun getFutureEvents(now: Time): Collection<Event<*>>
 
     private fun progressClock(start: AbsoluteTime, timeStep: Duration, end: AbsoluteTime): Sequence<AbsoluteTime> {
         val seq = clock(start, timeStep, end)
@@ -64,5 +56,39 @@ class Simulator(
         return generateSequence {
             step.also { step += timeStep }.takeIf { it < end }
         }
+    }
+}
+
+class ParallelSimulator(
+    initEvents: Collection<Event<*>> = emptyList(),
+    queue: MapEventQueue = MapEventQueue(),
+    timeStep: Duration = 1.minutes
+) : Simulator(initEvents, queue, timeStep) {
+
+    override fun getFutureEvents(now: Time): Collection<Event<*>> {
+        val currentEvents = queue.popEventsUntil(now)
+        val (present, future) = currentEvents.partition { it.time <= now }.let {
+            it.first.toMutableList() to it.second.toMutableList()
+        }
+
+        runBlocking {
+            while (present.isNotEmpty()) {
+                coroutineScope {
+                    val deferredNewEvents = present.map {
+                        async(Dispatchers.Default) { it.execute() }
+                    }
+
+                    val newEvents = deferredNewEvents.awaitAll().flatten()
+
+                    val (newInstantEvents, newFutureEvents) = newEvents.partition { it.time <= now }
+
+                    present.clear()
+                    present.addAll(newInstantEvents)
+                    future.addAll(newFutureEvents)
+                }
+            }
+        }
+
+        return future
     }
 }
