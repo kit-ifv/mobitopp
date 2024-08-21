@@ -301,31 +301,30 @@ class VisumParser(val path: Path) : IVisumParser {
                 lineNumber: Int,
                 parser: VisumParser,
             ): MatrixParseState {
-                val headerMsg: String
+                val savedHeaderError: VisumParseError
                 try {
                     return tryParseRowHeader(line, lineNumber, parser)
                 } catch (headerError: VisumParseError) {
-                    // TODO calculating the header message takes 90% of the parse time, perhaps optimize the
-                    // logic or don't step through every potential line combo and assume a valid file format?
-//                    headerMsg = "Header Error" // Robin: I attempted to test the performance by quickly disabling the calculation, Jan, you should take a look at this.
-                    headerMsg = headerError.stackTraceToString().prependIndent("\t")
+                    savedHeaderError = headerError
                 }
 
-                val contentMsg: String
+                val savedContentError: VisumParseError
                 try {
                     return tryParseRowContent(line, lineNumber, parser)
                 } catch (contentError: VisumParseError) {
-//                    contentMsg = "Content Message Error"
-                    contentMsg = contentError.stackTraceToString().prependIndent("\t")
+                    savedContentError = contentError
                 }
 
-                val endMsg: String
+                val savedEndError: VisumParseError
                 try {
                     return tryParseRowEnd(line, lineNumber, parser)
                 } catch (endError: VisumParseError) {
-                    endMsg = endError.stackTraceToString().prependIndent("\t")
+                    savedEndError = endError
                 }
 
+                val headerMsg = savedHeaderError.stackTraceToString().prependIndent("\t")
+                val contentMsg = savedContentError.stackTraceToString().prependIndent("\t")
+                val endMsg = savedEndError.stackTraceToString().prependIndent("\t")
                 throw VisumParseError(
                     "Could not Parse Line because it was neither a Header because: \n$headerMsg\n" +
                         "Nor could it be parsed as a data line because: \n$contentMsg\n" +
