@@ -8,6 +8,7 @@ import datastructure.plans.BlockModel
 import datastructure.plans.TrackableModel
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
+import domain.location.Location
 import modeling.events.Agent
 import modeling.events.Event
 import units.Currency
@@ -52,6 +53,7 @@ data class Person(
     override val id: PersonId,
     override val random: Random,
 ) : Identifiable<PersonId>, Agent<Person>, StochasticActor { // TODO merge Agent and Stochastic Actor
+    override var location: Location = household.location
 
     init {
         this.household.addMember(this)
@@ -59,7 +61,6 @@ data class Person(
 
     override var nextEvent: Event<Person>? = null
     override val entity: Person = this
-
     val schedule: Schedule = Schedule(TrackableModel(BlockModel()))
 
     private val plannedActivityList: MutableList<PlannedActivity> = mutableListOf()
@@ -82,8 +83,20 @@ data class Person(
     val isAdult: Boolean
         get() = (age >= ADULT_AGE_GER)
 }
+
 fun Person.lastTransportMode(action: Action): Mode? {
     return schedule.pastLegs().lastOrNull { it < action }?.transportType
+}
+
+fun Schedule.location(): Location? {
+    return present?.startLocation ?: past.lastOrNull()?.endLocation
+}
+
+fun Person.locationBySchedule() = schedule.location() ?: household.location
+
+fun Person.getBestCar(): PrivateCar? {
+    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && it.location == locationBySchedule() }
+        .maxByOrNull { if (it.mainUser == this) 1 else 0 }
 }
 
 /**
@@ -105,6 +118,7 @@ enum class Sex(private val code: Int) : Encodable {
     override fun encode(): Int {
         return this.code
     }
+
     companion object : Decodable<Sex> {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)

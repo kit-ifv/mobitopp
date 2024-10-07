@@ -80,7 +80,7 @@ fun <S, C> S.preparePersons(
 
 data class PersonColumns(
     val idColumn: String = "personId",
-    val personIdColumn: String = idColumn,
+    val personIdColumn: String = "personNumber",
     val householdColumn: String = "householdId",
     val ageColumn: String = "age",
     val employmentColumn: String = "employment",

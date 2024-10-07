@@ -1,56 +1,44 @@
-
 import datastructure.Activity
+import datastructure.RawActivity
+import domain.data.CarSegment
 import domain.data.ChargingInfluence
 import domain.data.DefaultHouseholdBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
+import domain.data.EngineType
 import domain.data.Graduation
 import domain.data.Household
 import domain.data.LegacyZone
 import domain.data.Person
 import domain.data.PersonBuilder
 import domain.data.PersonId
+import domain.data.PrivateCar
+import domain.data.PrivateCarBuilder
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
+import domain.enums.ActivityType
 import domain.enums.AreaType
-import domain.enums.Mode
+import domain.enums.LegacyActivityType
 import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
-import domain.location.CostMetric
-import domain.location.DistanceMetric
-import domain.location.DurationMetric
-import domain.location.Location
-import domain.location.Metrics
 import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
 import domain.location.ZoneLocation
 import domain.location.ZoneLocationImpl
 import units.Coordinate
-import units.Currency
-import units.CurrencyUnit
 import units.Distance
 import units.GPSCoordinate
 import units.euros
 import units.meters
 import units.share
-import units.toCurrency
 import utils.units.AbsoluteTime
-import utils.units.Time
 import kotlin.random.Random
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
-val BIELEFELD_HBF = GPSCoordinate.decimalDegree(52.029287, 8.532729)
 val TEST_ZONE = TestZone()
-val TEST_ACTIVITY = Activity.Companion.fromDuration(
-    TEST_ZONE.point(BIELEFELD),
-    AbsoluteTime.START + 4.hours,
-    4.hours
-)
 
 @Buildable
 @Suppress("LongParameterList")
@@ -58,7 +46,7 @@ class TestZone(
     point: GPSCoordinate = BIELEFELD,
     override var visumId: Long = 1L,
     override var matrixColumn: Int = 0,
-    override var name: String = "HomeZone",
+    override var name: String = "TestZone",
     override var areaType: AreaType = ZoneAreaType.DEFAULT,
     override var regionType: Int = 0,
     override var classification: ZoneClassification = ZoneClassification.STUDY_AREA,
@@ -70,11 +58,14 @@ class TestZone(
     override var centroid: ZoneLocation = point(point)
 }
 
-val OTHER_TEST_ZONE = TestZone(BIELEFELD_HBF, id = ZoneId(2L))
+fun generateZones(numElements: Int): List<TestZone> {
+    return (0..<numElements).map { TestZone(BIELEFELD, id = ZoneId(it.toLong())) }
+}
 
 fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
     return ZoneLocationImpl(gpsCoordinate, this)
 }
+
 fun Long.toRoadPosition(): RoadPosition {
     return object : RoadPosition {
         override val road: Long = this@toRoadPosition
@@ -82,60 +73,75 @@ fun Long.toRoadPosition(): RoadPosition {
         override val coordinate: Coordinate = BIELEFELD
     }
 }
+
 fun Long.toRoadPositionInZone(zone: Zone): RoadPositionInZone {
     return RoadPositionInZone(this.toRoadPosition(), zone)
 }
-class DebugImpedance : Metrics {
-    val map: MutableMap<Triple<Mode, Location, Location>, Duration> = mutableMapOf()
 
-    override fun duration(from: Location, to: Location, mode: Mode, time: Time): Duration {
-        return map[Triple(mode, from, to)] ?: 0.minutes
-    }
-
-    override fun costMetric(mode: Mode, time: Time): CostMetric {
-        error("Not implemented")
-    }
-
-    override fun distanceMetric(mode: Mode): DistanceMetric {
-        error("Not implemented")
-    }
-
-    override fun durationMetric(mode: Mode, time: Time): DurationMetric {
-        error("Not implemented")
-    }
-
-    override fun cost(from: Location, to: Location, mode: Mode, time: Time): Currency {
-        return map[Triple(mode, from, to)]?.toDouble(DurationUnit.MINUTES)?.toCurrency(CurrencyUnit.EUROS) ?: 0.euros
-    }
-
-    override fun distance(from: Location, to: Location, mode: Mode): Distance {
-        return map[Triple(mode, from, to)]?.toDouble(DurationUnit.MINUTES)?.meters ?: 0.meters
-    }
-
-    operator fun set(mode: Mode, from: Location, to: Location, duration: Duration) {
-        map[Triple(mode, from, to)] = duration
-    }
-}
 val testHousehold = TEST_ZONE.generateHousehold {
     householdNumber = 1
 }
 
-class SpawnLimits {
-    val age = 0..100
-    val employment: Collection<Employment> = Employment.entries
-    val sex: Collection<Sex> = Sex.entries
-    val graduation: Collection<Graduation> = Graduation.entries
+data class PersonSpawnLimits(
+    val age: IntRange = 0..100,
+    val employment: Collection<Employment> = Employment.entries,
+    val sex: Collection<Sex> = Sex.entries,
+    val graduation: Collection<Graduation> = Graduation.entries,
+    val income: IntRange = 0..10000,
+    val hasBike: List<Boolean> = listOf(true, false),
+    val hasCommuterTicket: List<Boolean> = listOf(true, false),
+    val hasLicense: List<Boolean> = listOf(true, false),
+)
 
-    // TODO make Units rangeable and units comparable
-    val income = 0..10000
-    val hasBike = listOf(true, false)
-    val hasCommuterTicket = listOf(true, false)
-    val hasLicense = listOf(true, false)
+val spawnDrivers = PersonSpawnLimits(
+    hasLicense = listOf(true),
+    age = 18..100
+)
+
+class HouseholdSpawnLimits(
+    val numCars: IntRange = 0..5,
+    val numPersons: IntRange = 0..5,
+    val economicStatus: Collection<EconomicStatus> = EconomicStatus.entries
+
+)
+
+fun Zone.generateHouseholds(
+    num: Int,
+    random: Random = Random(1),
+    spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
+    personLimits: PersonSpawnLimits = PersonSpawnLimits()
+): List<Household> {
+    return (0..<num).map {
+        val h = generateHousehold {
+            incomePerMonth = 0.euros
+            economicStatus = spawnLimits.economicStatus.random(random)
+            householdNumber = -1
+        }
+        repeat(spawnLimits.numCars.random(random)) {
+            h.spawnCar()
+        }
+
+        h.generatePersons(spawnLimits.numPersons.random(random), random, personLimits)
+        h
+    }
 }
 
-fun generatePersons(num: Int, random: Random = Random(1), spawnLimits: SpawnLimits = SpawnLimits()): List<Person> {
+fun Collection<Zone>.generateHouseholds(
+    num: Int,
+    random: Random = Random(1),
+    spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
+    personLimits: PersonSpawnLimits = PersonSpawnLimits()
+): List<Household> {
+    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits) }
+}
+
+fun Household.generatePersons(
+    num: Int,
+    random: Random = Random(1),
+    spawnLimits: PersonSpawnLimits = PersonSpawnLimits()
+): List<Person> {
     return (0..<num).map {
-        testHousehold.buildPerson {
+        buildPerson {
             personId = it.toLong()
             id = PersonId(it.toLong())
             age = spawnLimits.age.random(random)
@@ -149,25 +155,57 @@ fun generatePersons(num: Int, random: Random = Random(1), spawnLimits: SpawnLimi
         }
     }
 }
+
+class ActivitySpawnLimits(
+    val startTime: IntRange = 0..20,
+    val endTime: IntRange = 0..20,
+    val types: Collection<ActivityType> = LegacyActivityType.entries
+)
+
+fun Collection<LegacyZone>.generateActivities(
+    num: Int,
+    random: Random = Random(1),
+    spawnLimits: ActivitySpawnLimits = ActivitySpawnLimits()
+): List<Activity> {
+    return (0..<num).map {
+        RawActivity(
+            this.random(random).point(BIELEFELD),
+            spawnLimits.startTime.random(random).toAbsoluteTime(),
+            spawnLimits.endTime.random(random).toAbsoluteTime(),
+            type = spawnLimits.types.random(random)
+
+        )
+    }
+}
+
+fun Int.toAbsoluteTime(): AbsoluteTime {
+    return AbsoluteTime(toDuration(DurationUnit.HOURS))
+}
+
+fun Household.spawnCar(lambda: PrivateCarBuilder.() -> Unit = {}): PrivateCar {
+    return PrivateCarBuilder().apply {
+        owner = this@spawnCar
+        segment = CarSegment.MIDSIZE
+        seats = 4
+        engine = EngineType.COMBUSTION
+    }.apply(lambda).build()
+}
+
 val testPerson = testHousehold.buildPerson {
     personId = 1L
     id = PersonId(1L)
 }
-val otherTestPerson = testHousehold.buildPerson {
-    personId = 2L
-    id = PersonId(2L)
-    sex = Sex.FEMALE
+
+fun Household.buildPerson(builder: PersonBuilder): Person {
+    builder.apply {
+        builder.household = this@buildPerson
+        personId = members.size + 1L
+        id = PersonId(members.size + 1L)
+    }
+    val person = builder.build()
+    addMember(person)
+    return person
 }
-val testHousehold1 = DefaultHouseholdBuilder().apply {
-    location = 1L.toRoadPositionInZone(TestZone())
-    householdNumber = 1
-    surveyYear = 2024
-    domCode = 1
-    type = 1
-    incomePerMonth = 0.euros
-    economicStatus = EconomicStatus.MIDDLE
-    random = Random(1)
-}.build()
 
 fun Household.buildPerson(lambda: PersonBuilder.() -> Unit): Person {
     val builder = PersonBuilder()
@@ -185,11 +223,19 @@ fun Household.buildPerson(lambda: PersonBuilder.() -> Unit): Person {
         hasBike = false
         hasCommuterTicket = false
         hasLicense = false
+
+        personId = members.size + 1L
+        id = PersonId(members.size + 1L)
     }
     builder.household = this
     val person = builder.build(lambda)
     addMember(person)
     return person
+}
+
+fun Zone.build(builder: DefaultHouseholdBuilder, roadIndex: Long = -1L): Household {
+    builder.apply { location = roadIndex.toRoadPositionInZone(this@build) }
+    return builder.build()
 }
 
 fun Zone.generateHouseholdBuilder(

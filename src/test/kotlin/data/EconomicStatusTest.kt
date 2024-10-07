@@ -6,6 +6,6 @@ import kotlin.test.assertEquals
 class EconomicStatusTest {
     @Test
     fun codeEconomicStatus() {
-        EconomicStatus.values().forEach { assertEquals(it, EconomicStatus.decode(it.encode())) }
+        EconomicStatus.entries.forEach { assertEquals(it, EconomicStatus.decode(it.encode())) }
     }
 }

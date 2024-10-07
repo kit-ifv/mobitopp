@@ -64,7 +64,7 @@ class YamlMatrixLookupMetrics(
         println("\nFinished init travel cost matrices: ${travelCostMatrixConfig.name}")
     }
 
-    private val distances: Matrix<ZoneId, Distance> = VisumMatrix<Distance>(
+    private val distances: Matrix<ZoneId, Distance> = VisumMatrix(
         path = distanceMatrix.toPath(),
         converter = { it.toDistance(distanceUnit) }
 

@@ -1,4 +1,3 @@
-
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
@@ -39,6 +38,7 @@ private val attractivenessTypes = setOf(
     LegacyActivityType.EDUCATION_TERTIARY,
     // TODO Sightseeing?
 )
+
 fun main() {
     Run {
         LegacyContext(

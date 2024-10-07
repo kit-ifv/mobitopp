@@ -17,6 +17,7 @@ fun <K> Map<K, Double>.select(random: Double): K {
     val choice = target[ins.toIndex()].second
     return choice
 }
+
 fun <K> Map<K, Double>.normalize(): Map<K, Double> {
     val sum = values.sum()
     val copy = this.toMutableMap()

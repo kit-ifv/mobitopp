@@ -102,6 +102,7 @@ data class HouseholdColumns(
     val incomeColumn: String = "income",
     val economicalStatusColumn: String = "economicalStatus",
 )
+
 private fun getLegacyZone(
     zoneIndex: () -> Map<Int, LegacyZone>,
     matrixColumn: Int

@@ -82,6 +82,7 @@ interface ZoneLevelMetric<R> : LocationMetric<R> {
 
     override fun visit(origin: Position, destination: RoadPosition): R =
         evaluate(mapPosition(origin), mapRoadPosition(destination))
+
     override fun visit(origin: Position, destination: RoadPositionInZone): R =
         evaluate(mapPosition(origin), destination)
 
@@ -147,6 +148,7 @@ interface RoadPositionLevelMetric<R> : LocationMetric<R> {
 
     override fun visit(origin: ZoneLocation, destination: ZoneLocation): R =
         evaluate(mapZoneLocation(origin), mapZoneLocation(destination))
+
     override fun visit(origin: ZoneLocation, destination: RoadPosition): R =
         evaluate(mapZoneLocation(origin), destination)
 

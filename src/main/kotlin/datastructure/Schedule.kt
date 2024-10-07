@@ -51,6 +51,7 @@ class Schedule(
 
 ) : PlanView {
     constructor(separablePlanModel: SeparablePlanModel) : this(TrackableModel(separablePlanModel))
+
     override val dispatcher: SingularDispatcher = SingularDispatcher()
 
     init {
@@ -71,7 +72,6 @@ class Schedule(
         private set
 
     val future get() = model.actions().toList()
-
     fun actions(): List<LinkedAction> = model.actions().toList()
 
     fun tripView() = model.view()
@@ -117,19 +117,19 @@ class Schedule(
         super.add(leg)
     }
 
-    override fun add(activity: Activity) {
+    override fun add(activity: Activity): LinkedActivity? {
         require(activity.startTime >= currentTime)
-        super.add(activity)
+        return super.add(activity)
     }
 
-    fun addWithPrecedingLeg(activity: Activity) {
+    fun addWithPrecedingLeg(activity: Activity): LinkedActivity? {
         require(activity.startTime >= currentTime)
         // If the last action is larger than the activity there is something wrong and inserting with a leg cannot be
         // done trivially
         if (actions().lastOrNull()?.let { it >= activity } == true) {
             // System.err.println("Warning: Activity $activity is not the last action, inserting without additional leg")
-            add(activity)
-            return
+            val linkedActivity = add(activity)
+            return linkedActivity
         }
 
         val last = model.activities().lastOrNull()
@@ -139,16 +139,7 @@ class Schedule(
                 it.createLegTo(activity, MODEUNKOWN)
             )
         }
-        super.add(activity)
-    }
-
-    override fun remove(leg: Leg) {
-        // This is fine, if a leg has been handled it is already removed
-        super.remove(leg)
-    }
-
-    override fun remove(activity: Activity) {
-        super.remove(activity)
+        return super.add(activity)
     }
 
     override fun replaceActivities(target: SortedSet<Activity>, to: SortedSet<Activity>) {
