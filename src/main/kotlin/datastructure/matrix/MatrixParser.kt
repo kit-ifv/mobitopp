@@ -11,6 +11,7 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.file.Path
+
 // Detekt complained, so I extracted the number line pattern into its own variable
 const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
 
@@ -27,7 +28,9 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
     private lateinit var values: List<MutableList<Double>>
     private val mutableList: MutableList<ZoneId> = ArrayList()
     private var index = -1
+
     constructor(file: Path) : this({ properBufferedReader(file.toFile()) })
+
     init {
         val reader = thoth.invoke()
         reader.forEachLine {

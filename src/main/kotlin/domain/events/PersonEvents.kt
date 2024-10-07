@@ -137,6 +137,7 @@ class StartTripEvent(
     person: Person,
     time: Time,
     behavior: PersonBehavior,
+    private val scopeSelector: ModeScopeSelector = CarSelector,
 ) : ActionBlockEvent(
     person = person,
     priority = 1,
@@ -163,7 +164,7 @@ class StartTripEvent(
         // Alternates the leg block to a monomodal trip
         leg.alternate {
             +Leg.fromDuration(
-                previousAction?.endTime ?: person.schedule.lastAction()?.endTime?: AbsoluteTime.START,
+                previousAction?.endTime ?: person.schedule.lastAction()?.endTime ?: AbsoluteTime.START,
                 duration = duration,
                 startLocation = originals.first().startLocation,
                 endLocation = originals.last().endLocation,
@@ -171,13 +172,12 @@ class StartTripEvent(
             )
         }
 
-        return listOf(
-            StartLegEvent(
-                person = person,
-                leg = leg.elements[0],
-                behavior
-            )
+        val startLegEvent = StartLegEvent(
+            person = person,
+            leg = leg.elements[0],
+            behavior
         )
+        return scopeSelector.pickScope(startLegEvent, mode, person, leg)
     }
 
     override fun visitActivityBlock(activity: Agenda): List<Event<*>> {

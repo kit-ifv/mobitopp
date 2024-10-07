@@ -3,6 +3,7 @@ package datastructure.plans
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedAction
+import datastructure.LinkedActivity
 import java.util.*
 
 /**
@@ -11,7 +12,7 @@ import java.util.*
 interface PlanView {
     val dispatcher: IDispatcher
     fun add(leg: Leg) = dispatcher.add(leg)
-    fun add(activity: Activity) = dispatcher.add(activity)
+    fun add(activity: Activity): LinkedActivity? = dispatcher.add(activity)
     fun remove(leg: Leg) = dispatcher.remove(leg)
     fun remove(activity: Activity) = dispatcher.remove(activity)
     fun replaceActivities(target: SortedSet<Activity>, to: SortedSet<Activity>) =
@@ -36,7 +37,7 @@ fun PlanView.addAll(vararg elements: Leg) {
 
 interface IDispatcher {
     fun register(model: PlanModel)
-    fun add(activity: Activity)
+    fun add(activity: Activity): LinkedActivity?
     fun add(leg: Leg)
     fun remove(leg: Leg)
     fun remove(activity: Activity)
@@ -55,8 +56,11 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
         mutableCollection.add(model)
     }
 
-    private inline fun modifyModels(action: PlanModel.() -> Unit) {
-        mutableCollection.forEach { it.action() }
+    private inline fun <T> modifyModels(action: PlanModel.() -> T): T {
+        require(!mutableCollection.isEmpty()) {
+            "Modify models should never be called on an empty dispatcher"
+        }
+        return mutableCollection.map { it.action() }.first()
     }
 
     override fun add(activity: Activity) = modifyModels { add(activity) }
@@ -82,14 +86,15 @@ class Dispatcher(private val mutableCollection: MutableCollection<PlanModel> = m
 
     override fun dropUntil(activity: Activity) = modifyModels { dropUntil(activity) }
 }
+
 class SingularDispatcher : IDispatcher {
     lateinit var model: PlanModel
     override fun register(model: PlanModel) {
         this.model = model
     }
 
-    override fun add(activity: Activity) {
-        model.add(activity)
+    override fun add(activity: Activity): LinkedActivity? {
+        return model.add(activity)
     }
 
     override fun add(leg: Leg) {

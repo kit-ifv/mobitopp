@@ -64,6 +64,7 @@ fun <T : Comparable<T>> MutableList<T>.addByOrder(element: T): Boolean {
     }
     return false
 }
+
 fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
     val target = zipWithNext { a, b -> comparator.compare(a, b) <= 0 }
     return target.all { it }
@@ -72,6 +73,7 @@ fun <T : Any> Iterable<T>.isSorted(comparator: Comparator<T>): Boolean {
 fun <T : Comparable<T>> Iterable<T>.isSorted(): Boolean {
     return zipWithNext { a, b -> a <= b }.all { it }
 }
+
 fun <T : Any> Iterable<T>.isStrictlySorted(comparator: Comparator<T>): Boolean {
     val target = zipWithNext { a: T, b: T -> comparator.compare(a, b) == -1 }
     return target.all { it }

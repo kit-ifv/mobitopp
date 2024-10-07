@@ -23,7 +23,7 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
     abstract fun insert(
         activity: Activity,
         callback: SortedSet<LinkedActivity>? = null
-    ): Pair<LinkedTrip, ActivityBlock>?
+    ): LinkedActivity?
 
     /**
      * Adds a leg to the action block. Returns true if the structure of the block list changes and the relevant
@@ -141,7 +141,6 @@ class ActivityBlock(
     }
 
     constructor() : this(sortedSetOf())
-    constructor(activity: LinkedActivity) : this(sortedSetOf(activity))
 
     override fun toString(): String {
         return item.joinToString { it.toString() }
@@ -152,6 +151,7 @@ class ActivityBlock(
         item.clear()
         unlink()
     }
+
     override fun representative(
         dispatcher: IDispatcher?,
         schedule: Schedule?
@@ -159,12 +159,12 @@ class ActivityBlock(
         this
     )
 
-    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): Pair<LinkedTrip, ActivityBlock>? {
+    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): LinkedActivity? {
         val element = link(activity)
-        item.add(element)
+        val inserted = item.add(element)
         callback?.add(element)
 
-        return null
+        return if (inserted) element else null
     }
 
     private fun removeLinked(linkedActivity: LinkedActivity) {
@@ -292,7 +292,6 @@ class LinkedTrip(
     }
 
     constructor(previous: ActivityBlock, next: ActivityBlock) : this(emptyList(), previous, next)
-    constructor(leg: LinkedLeg, previous: ActivityBlock, next: ActivityBlock) : this(sortedSetOf(leg), previous, next)
 
     /**
      * Returns an iterator over the elements of this object.
@@ -337,7 +336,7 @@ class LinkedTrip(
      * spawned <OriginalBlock> -> (NewActivityBlock) -> <NewLegBlock>. The [activity] is inserted into the newly created
      * block. All legs from the original set that are too large are moved to the new block
      */
-    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): Pair<LinkedTrip, ActivityBlock>? {
+    override fun insert(activity: Activity, callback: SortedSet<LinkedActivity>?): LinkedActivity? {
         require(
             item.none {
                 it.compareTo(activity) == 0
@@ -360,8 +359,7 @@ class LinkedTrip(
         newActivityBlock.previous = this
         newActivityBlock.next = newLegBlock
         successor.previous = newLegBlock
-        newActivityBlock.insert(activity, callback)
-        return newLegBlock to newActivityBlock
+        return newActivityBlock.insert(activity, callback)
     }
 
     override fun accepts(action: StationaryAction): Boolean {

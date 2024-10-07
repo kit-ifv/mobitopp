@@ -37,7 +37,9 @@ dependencies {
     api(project(":processor"))
 //    testImplementation(project(":processor"))
     testImplementation(kotlin("test"))
-    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
+
+    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
     ksp(project(":processor")) // to make KSP work

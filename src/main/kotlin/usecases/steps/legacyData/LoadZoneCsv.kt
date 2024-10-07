@@ -1,6 +1,7 @@
 package usecases.steps.legacyData
 
 import domain.data.LegacyZoneBuilder
+import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.RoadPosition
@@ -57,6 +58,7 @@ fun <S, C> S.prepareZones(
             centroid = row(centroidColumn, centroidParser)
             isDestination = row.boolean(isDestinationColumn)
             relief = row.double().distance(reliefColumn, reliefUnit)
+            id = ZoneId(row.long(idColumn))
         }
     }
 

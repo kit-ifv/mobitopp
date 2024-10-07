@@ -63,6 +63,7 @@ class SharingStation(
         vehicle.returnTo(this)
     }
 }
+
 fun SharingStation.weakerBuilder(): Builder<SharingStation> {
     val build = SharingStationBuilder()
     build.uid = uid
@@ -75,6 +76,7 @@ fun SharingStation.weakerBuilder(): Builder<SharingStation> {
 }
 
 typealias SharingVehicleId = ID<SharingVehicle>
+
 class SharingVehicle(
     override val id: SharingVehicleId,
     val mode: Mode,
