@@ -1,5 +1,6 @@
 package domain.data
 
+import domain.location.Location
 import units.Distance
 import units.Efficiency
 import units.Energy
@@ -25,6 +26,29 @@ interface Car : Identifiable<CarId> {
     val segment: CarSegment
     val engine: CarEngine
     val seats: Int
+
+    // TODO Debate with Jelle whether CAR should hold information and state or be separated.
+    var location: Location
+
+    var driver: Person?
+
+    var passengers: MutableSet<Person>
+
+    fun addDriver(person: Person) {
+        driver = person
+    }
+
+    fun removeDriver() {
+        driver = null
+    }
+
+    fun addPassenger(person: Person) {
+        passengers.add(person)
+    }
+
+    fun removePassenger(person: Person) {
+        passengers.remove(person)
+    }
 }
 
 /**
@@ -33,6 +57,12 @@ interface Car : Identifiable<CarId> {
 interface PrivateCar : Car {
     val owner: Household
     val mainUser: Person?
+
+    var state: CarState
+
+    enum class CarState {
+        PARKED, IN_USE
+    }
 }
 
 interface CarEngine {
@@ -51,6 +81,7 @@ enum class CarSegment(private val code: Int) : Encodable {
     LARGE(3);
 
     override fun encode() = this.code
+
     companion object : Decodable<CarSegment> {
         override fun decode(i: Int) = entries.first { it.code == i }
         override fun decode(s: String) = valueOf(s)
@@ -177,6 +208,7 @@ fun EngineType.batteryCapacityOf(segment: CarSegment, data: CarEngineStatistics)
         CarSegment.MIDSIZE -> data.midsizeBatteryCarCapacity
         CarSegment.LARGE -> data.largeBatteryCarCapacity
     }
+
     EngineType.HYBRID -> when (segment) {
         CarSegment.SMALL -> data.smallHybridCarBatteryCapacity
         CarSegment.MIDSIZE -> data.midsizeHybridCarBatteryCapacity
@@ -192,6 +224,7 @@ fun EngineType.batteryRangeOf(segment: CarSegment, data: CarEngineStatistics): D
         CarSegment.MIDSIZE -> data.midsizeBatteryCarRange
         CarSegment.LARGE -> data.largeBatteryCarRange
     }
+
     EngineType.HYBRID -> when (segment) {
         CarSegment.SMALL -> data.smallHybridCarBatteryRange
         CarSegment.MIDSIZE -> data.midsizeHybridCarBatteryRange
@@ -221,6 +254,7 @@ fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): V
         CarSegment.MIDSIZE -> data.midsizeCombustionCarFuelCapacity
         CarSegment.LARGE -> data.largeCombustionCarFuelCapacity
     }
+
     EngineType.HYBRID -> segment.fuelConsumption100km(data) *
         (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).div(100.kilometers)
 }
@@ -242,8 +276,14 @@ class PrivateCarBuilder(
         override val mainUser: Person? = this@PrivateCarBuilder.mainUser
         override val segment: CarSegment = this@PrivateCarBuilder.segment!!
         override val seats: Int = this@PrivateCarBuilder.seats!!
-        override val id: CarId = ID(domain.data.PrivateCarBuilder.Companion.idCount++)
+        override val id: CarId = ID(idCount++)
         override val engine: CarEngine = buildEngine()
+        override var location: Location = owner.location
+
+        override var driver: Person? = null
+        override var passengers: MutableSet<Person> = mutableSetOf()
+        override var state = PrivateCar.CarState.PARKED
+
         init {
             owner.addCar(this)
         }
@@ -258,10 +298,12 @@ class PrivateCarBuilder(
                 override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
                 override val fuelConsumption100Km: Volume = stats.fuelConsumption100kmOf(segment)
             }
+
             EngineType.ELECTRIC -> object : ElectricEngine {
                 override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
                 override val electricRange = stats.batteryRangeOf(segment, engine)
             }
+
             EngineType.HYBRID -> object : HybridEngine {
                 override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
                 override val fuelConsumption100Km = stats.fuelConsumption100kmOf(segment)

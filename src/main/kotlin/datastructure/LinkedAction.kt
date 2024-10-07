@@ -70,6 +70,7 @@ class LinkedActivity(
     init {
         require(original !is LinkedActivity)
     }
+
     override var location: Location
         get() = original.location
         set(value) {

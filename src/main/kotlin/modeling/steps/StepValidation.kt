@@ -64,9 +64,11 @@ fun repairPreparingState(
         repository.addBuilders(dummyResource(step))
         repository.build()
     }
+
     RepositoryState.PREPARING -> {
         repository.build()
     }
+
     RepositoryState.FINISHED -> {
         /* State is already FINISHED. */
     }
@@ -81,7 +83,9 @@ fun <B> repairPreparingState(
         repository.addBuilders(dummyCopyOf(resource))
     }
 
-    RepositoryState.PREPARING -> { /* State is already PREPARING */ }
+    RepositoryState.PREPARING -> {
+        /* State is already PREPARING */
+    }
 
     RepositoryState.FINISHED -> {
         repository.reset()
@@ -106,6 +110,7 @@ class ValidateCsvMetadata<E>(
     companion object {
         private val testStrings = listOf("1", "1u", "1.0", "1.0f", "true", "", "(48.5, 8.6: 0, 0)")
     }
+
     private lateinit var reader: CsvReader
     private var isValid = true
 
@@ -121,6 +126,7 @@ class ValidateCsvMetadata<E>(
     override val rowCount = 1
     override val source
         get() = "ValidationRow for " + reader.source
+
     override fun toString() = "$source[1]:$columns"
     override fun hasColumn(column: String) = true
     // Assume all columns exist external module try to access them to trigger error report in case of missing column

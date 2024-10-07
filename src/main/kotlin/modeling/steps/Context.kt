@@ -40,6 +40,7 @@ interface SimulationContext : Context {
 
     val behavior: LateInit<PersonBehavior>
 }
+
 class LateInit<T>(
     val name: String,
 ) {

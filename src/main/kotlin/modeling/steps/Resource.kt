@@ -58,7 +58,7 @@ fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Ite
  * @property parser th parser to be applied
  * @property delimiter the csv delimiter, defaults to ';'
  */
-class CsvResource<E> (
+class CsvResource<E>(
     val file: File,
     val parser: CsvParser<E>,
     private val delimiter: String = SEMICOLON

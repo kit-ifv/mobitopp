@@ -35,6 +35,7 @@ fun <S> S.assignFixedDestinations(
     }
     prepareFixedDestinationsFile(csvParser, file)
 }
+
 data class FixedDestinationColumns(
     val personOid: String = "personOid",
     val activityType: String = "activityType",

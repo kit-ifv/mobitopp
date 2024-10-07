@@ -18,7 +18,7 @@ interface LegTracker {
 }
 
 interface ActivityTracker {
-    fun add(activity: Activity)
+    fun add(activity: Activity): LinkedActivity?
     fun remove(activity: Activity)
     fun replaceActivities(target: Set<Activity>, to: Set<Activity>)
 }
@@ -53,6 +53,7 @@ interface PlanModel : LegTracker, ActivityTracker {
 }
 
 interface SeparablePlanModel : PlanModel {
+
     fun activities(): Collection<LinkedActivity>
 
     fun lastActivity(): LinkedActivity

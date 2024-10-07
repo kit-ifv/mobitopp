@@ -1,7 +1,7 @@
 package utils
 
 @JvmInline
-value class ID<out E> (val id: Long) : Comparable<ID<*>> {
+value class ID<out E>(val id: Long) : Comparable<ID<*>> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
@@ -11,6 +11,7 @@ value class ID<out E> (val id: Long) : Comparable<ID<*>> {
         return id.compareTo(other.id)
     }
 }
+
 interface Identifiable<I> {
     val id: I
 }

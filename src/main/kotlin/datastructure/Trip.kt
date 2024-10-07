@@ -114,7 +114,7 @@ class LinkTrip(
     override val legs: List<Leg>
         get() = legBlock.item.toList()
 
-//    override val previousAction: StationaryAction?
+    //    override val previousAction: StationaryAction?
 //        get() = legBlock.previous.lastElementOrNull()
     override val nextAction: StationaryAction?
         get() = legBlock.next.firstElementOrNull()
@@ -122,6 +122,7 @@ class LinkTrip(
         get() = legBlock.previous.previous?.item?.toList()
     val nextTrip: List<Leg>?
         get() = legBlock.next.next?.item?.toList()
+
     override fun alternate(lambda: TripBuilder.() -> Unit) {
         val builder = TripBuilder(previousAction, nextAction, legs)
         builder.lambda()
