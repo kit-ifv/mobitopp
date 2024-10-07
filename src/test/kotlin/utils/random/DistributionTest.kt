@@ -64,7 +64,7 @@ class DistributionTest {
         myData[FIRST] = 0.5
         myData[SECOND] = 0.0
         myData[THIRD] = 0.5
-        val rv: Histogram<Int> = Histogram<Int>("my data", myData)
+        val rv: Histogram<Int> = Histogram("my data", myData)
         assertEquals(FIRST, rv.drawValue(0.1))
         assertEquals(FIRST, rv.drawValue(0.49))
         assertEquals(FIRST, rv.drawValue(0.5 - Math.ulp(0.5)))

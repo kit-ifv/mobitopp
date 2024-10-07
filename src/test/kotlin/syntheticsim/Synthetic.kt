@@ -1,53 +1,52 @@
 package syntheticsim
 
-import OTHER_TEST_ZONE
-import TEST_ZONE
+import BIELEFELD
+import TestZone
+import benchmark.ControllableAttractiveness
+import datastructure.Activity
 import domain.data.ActivityId
-import domain.data.EconomicStatus
-import domain.data.LegacyZone
+import domain.data.Household
 import domain.data.Person
 import domain.data.PlannedActivity
-import domain.data.asBuilder
+import domain.data.ZoneId
+import domain.data.getBestCar
+import domain.data.locationBySchedule
 import domain.enums.ActivityType
-import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
-import domain.enums.Mode
+import domain.enums.StandardMode
+import domain.enums.ZoneClassification
+import domain.events.EndActivityEvent
+import domain.events.EndLegEvent
+import domain.events.EventWithScope
 import domain.events.InitPersonEvent
-import domain.location.CostMetric
-import domain.location.DistanceMetric
-import domain.location.DurationMetric
-import domain.location.Metrics
-import domain.location.Position
-import domain.location.RoadPosition
-import domain.location.ZoneLevelMetric
+import domain.events.PersonBehavior
+import domain.events.StartActivityEvent
+import domain.events.StartLegEvent
+import domain.events.StartTripEvent
 import domain.location.ZoneLocation
+import generateHousehold
 import generatePersons
-import modeling.events.ParallelSimulator
-import modeling.steps.AddResourceStep
-import modeling.steps.BuildStep
-import modeling.steps.CustomStep
-import modeling.steps.MapRepository
-import modeling.steps.ModelExecution
-import modeling.steps.Run
-import modeling.steps.SimulationContext
-import modeling.steps.asResource
+import generateZones
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
-import testPerson
-import units.Currency
-import units.Distance
-import units.euros
-import units.kilometers
+import point
+import spawnCar
+import spawnDrivers
 import usecases.AttractivenessModel
-import usecases.steps.LegacyContext
-import usecases.steps.LegacyZonesContext
-import usecases.steps.loadChoiceModels
+import usecases.choicemodels.FakePlan
+import usecases.choicemodels.GeneratedHcUtilityFunction
+import usecases.choicemodels.LegacyDestinationChoice
+import usecases.choicemodels.LegacyModeChoiceModel
+import usecases.choicemodels.MakeUtilities
 import utils.units.AbsoluteTime
-import utils.units.Time
-import java.io.File
-import kotlin.math.exp
-import kotlin.math.ln
-import kotlin.math.pow
-import kotlin.time.Duration
+import utils.units.sinceStart
+import java.util.*
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -56,13 +55,13 @@ fun Person.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     PlanLoader(this).lambda()
 }
 
-class PlanLoader(val person: Person) {
+class PlanLoader(private val person: Person) {
     operator fun Triple<ActivityType, Number, Number>.unaryPlus(): PlannedActivity {
         return PlannedActivity(
             ActivityId(-1L),
             person,
             first,
-            -1.minutes,
+            (-1).minutes,
             AbsoluteTime(
                 second.toDouble().toDuration(DurationUnit.HOURS),
 
@@ -71,169 +70,181 @@ class PlanLoader(val person: Person) {
             person.random
         )
     }
-}
 
-fun <S> S.loadSynthetic(persons: List<Person>) where S : ModelExecution<LegacyContext> {
-    val simStep = CustomStep(
-        name = "simulate planned activities",
-        validation = { true }
-    ) {
-        val person: Person = testPerson
-        person.loadActivityPlan {
-            +Triple(LegacyActivityType.HOME, 0, 4)
-            +Triple(LegacyActivityType.WORK, 8, 1)
-            +Triple(LegacyActivityType.HOME, 10, 1)
-        }
-
-        persons.forEach {
-            it.loadActivityPlan {
-                +Triple(LegacyActivityType.HOME, 0, 4)
-                +Triple(LegacyActivityType.WORK, 8, 1)
-                +Triple(LegacyActivityType.HOME, 10, 1)
-            }
-        }
-        val sim = ParallelSimulator(timeStep = context.timeStep)
-
-        val t = persons.asSequence().asResource("nwoaiernh", "aouhin")
-        val e = MapRepository(t)
-
-        sim.addAgents(e) {
-            InitPersonEvent(it, context.behavior.value)
-        }
-        sim.run(context.simulationStart, context.simulationEnd)
+    var start = AbsoluteTime.START
+    operator fun ActivityType.unaryPlus(): PlannedActivity {
+        return PlannedActivity(
+            ActivityId(-1L),
+            person,
+            this,
+            (-1).minutes,
+            start,
+            4.hours,
+            person.random
+        ).also { start += 8.hours }
     }
-
-    this.addStep(simStep)
 }
-fun <S : ModelExecution<C>, C : LegacyZonesContext> S.loadSyntheticZones() {
-    val zones = sequenceOf<LegacyZone>(TEST_ZONE, OTHER_TEST_ZONE)
-    val resource = zones.map { it.asBuilder() }.asResource("nope", "nope")
 
-    this.addStep(
-        AddResourceStep(
-            name = "load zone csv",
-            resource = resource,
-            repository = context.zoneRepository
+fun Person.hasAccessToCar(): Boolean {
+    return getBestCar() != null
+}
+
+abstract class Scenario(
+    val zones: List<TestZone>,
+    val impedance: ControllableImpedance = ControllableImpedance(),
+    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h ->
+        GeneratedHcUtilityFunction(
+            a,
+            l,
+            m,
+            h
+        )
+    }
+) {
+    val currentAttractivenessModel: ControllableAttractiveness = ControllableAttractiveness(zones)
+
+    abstract val households: List<Household>
+    abstract val persons: List<Person>
+
+    // When testing choice models with overridden utility calculation they still require activities for the signature.
+    val fakeActivity =
+        Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (-1).hours, ActivityType.UNKNOWN)
+
+    val destinationChoice: OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
+        LegacyDestinationChoice(
+            impedance,
+            currentAttractivenessModel,
+            umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+            zones.toSet(),
+            modes = FakePlan,
         )
     )
-    context.attractivenessModel.value = AttractivenessModel { i, d ->
-        1.0
-    }
-    this.addStep(BuildStep("finish zones", context.zoneRepository))
-}
-// fun <S: ModelExecution<C>, C: PersonContext> S.loadSyntheticPerson() {
-//    context.personRepository.addBuilders(sequenceOf())
-//    addStep(BuildStep(
-//        "finish people",
-//        context.personRepository
-//    ))
-// }
+    val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
+        LegacyModeChoiceModel(
+            attractivenessModel = currentAttractivenessModel,
+            modes = FakePlan,
+            impedance = impedance,
+            utilitiesGenerator = utilGenerator
+        )
+    )
 
-fun <S : ModelExecution<C>, C : SimulationContext> S.loadSyntheticImpedance() {
-    context.impedance.value = ControllableImpedance()
-}
+    private val behavior = PersonBehavior(
+        destinationChoice = destinationChoice,
+        modeChoice = modeChoice,
+        impedance
+    )
 
-@Suppress("NotImplementedDeclaration") // For test stubs this is not an issue
-class ControllableImpedance : Metrics {
-    val mep: Map<Mode, CostMetric> = emptyMap()
-    val t: ZoneLevelMetric<Currency> = object : ZoneLevelMetric<Currency> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Currency {
-            return 1.euros
-        }
-
-        override fun mapPosition(position: Position): ZoneLocation {
-            TODO("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            TODO("Not yet implemented")
-        }
+    fun Person.stepper(): EventStepper {
+        return EventStepper(InitPersonEvent(this, behavior = behavior), destinationChoice, modeChoice)
     }
 
-    val time: DurationMetric = object : ZoneLevelMetric<Duration> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Duration {
-            return 10.minutes
-        }
-
-        override fun mapPosition(position: Position): ZoneLocation {
-            TODO("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            TODO("Not yet implemented")
-        }
-    }
-    val dis: DistanceMetric = object : ZoneLevelMetric<Distance> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Distance {
-            return 1.kilometers
-        }
-
-        override fun mapPosition(position: Position): ZoneLocation {
-            TODO("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            TODO("Not yet implemented")
-        }
-    }
-    override fun costMetric(mode: Mode, time: Time): CostMetric {
-        return mep[mode] ?: t
-    }
-
-    override fun distanceMetric(mode: Mode): DistanceMetric {
-        return dis
-    }
-
-    override fun durationMetric(mode: Mode, time: Time): DurationMetric {
-        return this.time
+    fun EventStepper.stepOverFirstActivity() {
+        take(3) // Handle Init, Start and End Activity.
     }
 }
+
+val testAttractivenessModel = AttractivenessModel { i, _ ->
+    when (i) {
+        ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
+        ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
+        ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
+        else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
+    }
+}
+
+class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
+
+    override val households: List<Household> = listOf(
+        zones[0].generateHousehold {
+            householdNumber = 1
+        }
+    )
+    val household = households[0]
+    val car = household.spawnCar()
+    override val persons: List<Person> = household.generatePersons(2, spawnLimits = spawnDrivers)
+    val first = persons[0]
+    val second = persons[1]
+
+//    controllableImpedance.apply {
+//        difficultAccess(zones[0], zones[0])
+//        easyAccess(zones[0], zones[1])
+//        difficultAccess(zones[0], zones[2])
+//        difficultAccess(zones[1], zones[0])
+//        difficultAccess(zones[1], zones[1])
+//        difficultAccess(zones[1], zones[2])
+//        difficultAccess(zones[2], zones[0])
+//        difficultAccess(zones[2], zones[1])
+//        difficultAccess(zones[2], zones[2])
+//
+//    }
+}
+
 class Synthetic {
-    private val root = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
+    private val scenario = OneHouseholdTwoPersons()
 
-    private val rootRastatt = File("$root\\logiktram_rastatt_long-term-module\\rastatt")
-
+    /**
+     * This test checks for car availability within a designated household. The first person will take the car.
+     * Thus, the car should not be available for the second person. However, the car should be available as soon as
+     * the first person returns home.
+     */
     @Test
-    fun run() {
-        val persons = generatePersons(100)
-        Run {
-            LegacyContext(
-                scenarioName = "testSteps",
-                areaTypeCodes = Bbsr17,
-                demandFolder = rootRastatt,
-                economicalStatusCodes = EconomicStatus,
-                simulationSeed = 42,
-            )
-        }.steps {
-            loadSyntheticZones()
-            addStep(
-                CustomStep(name = "Print Text", validation = { true }, exec = {
-                    val e = context.zoneRepository.elements.toList()
-                    println(e)
-                })
-            )
+    fun oneHouseholdOneCar() {
+        scenario.run {
+            first.loadActivityPlan {
+                +Triple(LegacyActivityType.HOME, 0, 4)
+                +Triple(LegacyActivityType.WORK, 8, 4)
+                +Triple(LegacyActivityType.HOME, 16, 4)
+            }
+            second.loadActivityPlan {
+                +Triple(LegacyActivityType.HOME, 0, 5)
+                +Triple(LegacyActivityType.WORK, 8, 4)
+            }
+            val firstPerson = first.stepper()
+            val secondPerson = second.stepper()
 
-            loadSyntheticImpedance()
-            loadChoiceModels()
-            loadSynthetic(persons)
+            firstPerson.nextStep(1) {
+                assertIs<InitPersonEvent>(it)
+            }
+            secondPerson.nextStep(1) { assertIs<InitPersonEvent>(it) }
+
+            assertNull(first.schedule.present)
+            assertNull(second.schedule.present)
+
+            secondPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+
+            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+            assertTrue(first.hasAccessToCar())
+            assertTrue(second.hasAccessToCar())
+            assertEquals(first.locationBySchedule(), household.location)
+            assertEquals(second.locationBySchedule(), household.location)
+            assertNotNull(first.schedule.present)
+            assertNotNull(second.schedule.present)
+            secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+
+            firstPerson.nextStep(1, zones[2].point(BIELEFELD), StandardMode.CAR) { assertIs<StartTripEvent>(it) }
+            assertEquals(car.location, household.location)
+            assertEquals(car.driver, first)
+            assertFalse(second.hasAccessToCar())
+            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
+            assertEquals(first.locationBySchedule(), household.location)
+            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
+            assertEquals(first.locationBySchedule(), zones[2].point(BIELEFELD))
+            assertEquals(car.driver, null)
+            assertEquals(car.location, first.locationBySchedule())
+            assertTrue(first.hasAccessToCar())
+            assertFalse(second.hasAccessToCar())
+
+            assertFalse(StandardMode.CAR in modeChoice.filter(second, 5.hours.sinceStart))
+            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+            firstPerson.nextStep(1, household.location, StandardMode.CAR) { assertIs<StartTripEvent>(it) }
+            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
+            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
+            assertTrue(first.hasAccessToCar())
+            assertTrue(StandardMode.CAR in modeChoice.filter(second, 5.hours.sinceStart))
+            secondPerson.nextStep(1)
+            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
         }
-
-        val target = testPerson
-        println(target)
-    }
-
-    @Test
-    fun estimateUtils() {
-        println(1 shl 10)
-        val ues = listOf(0, 1, 2)
-        println(ues.map { exp(it.toDouble()) })
-        val sumOf = ues.sumOf { exp(it.toDouble()) }
-        val ln2 = 1 / ln(2.0)
-        println(sumOf)
-        println(ues.map { exp(it.toDouble()) / sumOf })
-        val alteredUs = ues.map { it * ln2 }
-        val alteredSum = alteredUs.sumOf { 2.0.pow(it) }
-        println(alteredSum)
-        println(alteredUs.map { 2.0.pow(it) / alteredSum })
     }
 }

@@ -54,15 +54,20 @@ class ActionModel(override val dispatcher: IDispatcher) : PlanModel {
         actions.add(linkedLeg)
     }
 
-    override fun add(activity: Activity) {
+    override fun add(activity: Activity): LinkedActivity? {
         val linkedActivity = LinkedActivity(activity)
-        if (actions.contains(linkedActivity)) return
+        /* In the action set we cannot feasibly test whether the activity is contained because it overlaps with a leg
+        or an activity, as the sole purpose of this class is to drop this separation, as such we cannot return an element
+
+         */
+        if (actions.contains(linkedActivity)) return null
         linkedActivity.previous = actions.lower(linkedActivity)
         linkedActivity.next = actions.higher(linkedActivity)
 
         linkedActivity.previous?.next = linkedActivity
         linkedActivity.next?.previous = linkedActivity
         actions.add(linkedActivity)
+        return linkedActivity
     }
 
     override fun remove(leg: Leg) {

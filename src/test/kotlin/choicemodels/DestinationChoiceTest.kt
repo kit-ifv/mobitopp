@@ -1,55 +1,54 @@
 package choicemodels
 
-import DebugImpedance
-import OTHER_TEST_ZONE
-import TEST_ACTIVITY
-import TEST_ZONE
-import domain.enums.StandardMode
-import domain.location.Location
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
-import testPerson
-import usecases.AttractivenessModel
+import domain.enums.LegacyActivityType
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.assertThrows
+import syntheticsim.OneHouseholdTwoPersons
+import syntheticsim.loadActivityPlan
 import usecases.choicemodels.LegacyDestinationChoice
-import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 
 class DestinationChoiceTest {
-    val targetZones: Set<ZoneLocation> = listOf(TEST_ZONE, OTHER_TEST_ZONE).map {
-        ZoneLocationImpl(
-            it.centroid.coordinate,
-            it
-        )
-    }.toSet()
+
+    private lateinit var scenario: OneHouseholdTwoPersons
+    private lateinit var original: LegacyDestinationChoice
+
+    @BeforeEach
+    fun setup() {
+        scenario = OneHouseholdTwoPersons()
+        original = scenario.destinationChoice.original
+    }
+
+    /**
+     * The scenario where a person has no activity plans, but still calls destination choice should not occur,
+     * but it might be interesting to see what happens
+     */
+    @Test
+    fun personWithoutAnyActivities() {
+        val exception = assertThrows<NoSuchElementException> { original.choose(scenario.first, 0.hours.sinceStart) }
+        assertContains(exception.message!!, scenario.first.personId.toString())
+    }
 
     @Test
-    fun chooseDestination() {
-        val impedance = DebugImpedance()
-        val attractivities = AttractivenessModel { _, _ -> 1.0 }
+    fun personWithNoFollowupActivity() {
+        val exception = assertThrows<NoSuchElementException> {
+            scenario.run {
+                first.loadActivityPlan {
+                    +Triple(LegacyActivityType.HOME, 0, 4)
+                }
+                val stepper = first.stepper()
+                assertTrue(first.schedule.pastActivities().isEmpty())
+                stepper.take(3)
+                assertFalse(first.schedule.pastActivities().isEmpty())
 
-        val umlands: (Location) -> Boolean = { true }
-        val testZones = setOf(TEST_ZONE, OTHER_TEST_ZONE)
-        val d = LegacyDestinationChoice(impedance, attractivities, umlands, testZones, StandardMode)
-
-        d.run {
-            targetZones.selectDestination(
-                testPerson,
-                TEST_ACTIVITY,
-                TEST_ACTIVITY,
-                StandardMode.entries.toSet(),
-                0.5
-            )
+                original.choose(first, 0.hours.sinceStart)
+            }
         }
-        d.calculateU_destination(
-            OTHER_TEST_ZONE.centroid,
-            testPerson,
-            TEST_ZONE.centroid,
-            OTHER_TEST_ZONE.centroid,
-            TEST_ACTIVITY,
-            AbsoluteTime.START + 4.hours,
-            StandardMode.entries.toSet(),
-            0.5
-        )
+        assertContains(exception.message!!, scenario.first.personId.toString())
     }
 }

@@ -1,5 +1,6 @@
 package datastructure.plans
 
+import datastructure.Action
 import datastructure.ActionBlock
 import datastructure.Activity
 import datastructure.ActivityBlock
@@ -50,10 +51,10 @@ class InternalIterable(val activityBlock: () -> ActivityBlock) : Iterable<Action
         return internalIterator
     }
 }
+
 class BlockModel(override val dispatcher: IDispatcher) : SeparablePlanModel {
 
     constructor() : this(Dispatcher())
-    constructor(other: PlanModel) : this(other.dispatcher)
 
     init {
         dispatcher.register(this)
@@ -130,20 +131,11 @@ class BlockModel(override val dispatcher: IDispatcher) : SeparablePlanModel {
     }
 
     override fun add(leg: Leg) {
-        var result: ActionBlock<*>? = null
-        // Looping in an own loop to avoid iterating twice
-        @Suppress("LoopWithTooManyJumpStatements") // TODO refactor
-        for (block in actionBlocks) {
-            if (block.containsAction(leg)) {
-                break
-            }
-            if (block.accepts(leg)) {
-                result = block
-                break
-            }
+        val correspondence = getCorrespondingBlock(leg) {
+            accepts(leg)
         }
-        if (result == null) return
-        val newBlocks = result.insert(leg)
+
+        val newBlocks = correspondence?.insert(leg)
         newBlocks?.let {
             if (legBlockList.isNotEmpty()) {
                 legBlockList.addByOrder(
@@ -158,22 +150,29 @@ class BlockModel(override val dispatcher: IDispatcher) : SeparablePlanModel {
         }
     }
 
-    override fun add(activity: Activity) {
-        var result: ActionBlock<*>? = null
-        // Looping in an own loop to avoid iterating twice
-        @Suppress("LoopWithTooManyJumpStatements") // TODO refactor
+    private fun <T : Action> getCorrespondingBlock(
+        element: T,
+        acceptor: ActionBlock<*>.(T) -> Boolean
+    ): ActionBlock<*>? {
         for (block in actionBlocks) {
-            if (block.containsAction(activity)) {
-                break
+            if (block.containsAction(element)) {
+                return null
             }
-            if (block.accepts(activity)) {
-                result = block
-                break
+            if (block.acceptor(element)) {
+                return block
             }
         }
-        if (result == null) return
-        result.insert(activity, activitySortedSet)
+        return null
     }
+
+    override fun add(activity: Activity): LinkedActivity? {
+        val correspondence = getCorrespondingBlock(activity) {
+            accepts(activity)
+        }
+
+        return correspondence?.insert(activity, activitySortedSet)
+    }
+
     override fun remove(leg: Leg) {
         val changedBlock = legBlocks?.first { block -> block.containsAction(leg) }
         changedBlock?.let { legBlock ->

@@ -79,6 +79,7 @@ data class ActivitiesColumns(
     val startColumn: String = "startTime",
     val durationColumn: String = "duration",
 )
+
 fun <S, C> S.prepareActivitiesFile(
     parser: CsvParser<PlannedActivityBuilder>,
     file: File? = null,

@@ -54,7 +54,8 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
      */
     override fun get(row: ZoneId, column: ZoneId): O {
         val rowIndex = getIndexLookup()[row] ?: throw IllegalArgumentException("Row $row not found in index lookup")
-        val columnIndex = getIndexLookup()[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
+        val columnIndex =
+            getIndexLookup()[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
         val matrix = getMatrix()
 
         // Calculate the index in the one-dimensional matrix

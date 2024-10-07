@@ -149,6 +149,7 @@ interface Activity : StationaryAction {
         act.next?.previous = act
         return act
     }
+
     companion object {
         /**
          * Generates an Activity with the provided [location], [startTime], and [duration].
@@ -256,6 +257,7 @@ interface Leg : MovingAction {
         act.next?.previous = act
         return act
     }
+
     companion object {
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [duration].
