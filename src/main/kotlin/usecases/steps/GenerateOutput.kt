@@ -5,12 +5,18 @@ import domain.location.ZoneLocation
 import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
 import modeling.steps.RepositoryState
+import modeling.steps.repairFinishedState
+import modeling.steps.validateState
 
 fun <S, C> S.output() where S : ModelExecution<C>, C : PersonContext {
     addStep(
         CustomStep(
             name = "Write Output",
-            validation = { context.personRepository.state == RepositoryState.FINISHED },
+            validation = {
+                validateState(context.personRepository, RepositoryState.FINISHED, this).also {
+                    repairFinishedState(context.personRepository, this)
+                }
+            },
             exec = {
                 val result = context.personRepository.elements.map { person ->
                     val legs = person.schedule.pastLegs()

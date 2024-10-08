@@ -4,7 +4,7 @@ import utils.ErrorHandling
 import utils.errorScope
 import java.io.File
 
-fun validateFileReadAccess(
+fun requireFileReadAccess(
     file: File,
     errorLevel: ErrorHandling = ErrorHandling.WARNING,
     messagePrefix: String = "",

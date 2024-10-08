@@ -4,7 +4,7 @@ import me.tongfei.progressbar.ProgressBar
 import me.tongfei.progressbar.ProgressBarBuilder
 import me.tongfei.progressbar.ProgressBarStyle
 
-internal var MUTE_PROGRESSBAR = false
+private var MUTE_PROGRESSBAR = false
 
 fun muteProgressBars() {
     MUTE_PROGRESSBAR = true

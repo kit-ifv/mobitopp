@@ -96,7 +96,7 @@ class Parameter(
         val keyword = "var"
         val nullableString = if (isNullable()) "?" else ""
         // The state can override the type. This is mostly necessary for collections.
-        val typeString = overrideableType()
+        //val typeString = overrideableType() //TODO type string is never used?
         // If the parameter is nullable because a default value exists, the start value should be null regardless of
         // what the type specifies as start value
         val startValue = if (isNullable()) "null" else state.initialValue

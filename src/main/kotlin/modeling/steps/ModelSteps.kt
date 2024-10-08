@@ -1,9 +1,13 @@
 package modeling.steps
 
+import modeling.validation.Warning
+import modeling.validation.validateScope
 import utils.Builder
+import utils.ConsoleCaptor
 import utils.Identifiable
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
+import utils.units.logTime
 
 /**
  * A ModelStep represents an operation performed during the model execution.
@@ -19,19 +23,26 @@ interface ModelStep {
     /**
      * Validate this [ModelStep]
      *
-     * @return true, if the validation was successful
+     * @return a warning, if the validation discovered warnings or errors
      */
-    fun validate(): Boolean
+    fun validate(): Warning?
+
+    /**
+     * Check if this [ModelStep] is valid.
+     * If [validate] returns no warning or if the returned warning contains no errors, the step is considered valid.
+     */
+    val isValid: Boolean
+        get() = validate()?.containsError()?.let { !it } ?: true
 }
 
 class CustomStep(
     override val name: String,
-    val validation: () -> Boolean = { true },
+    val validation: () -> Warning? = { null },
     val exec: () -> Unit,
 ) : ModelStep {
     override fun execute() = exec()
 
-    override fun validate(): Boolean = validation()
+    override fun validate(): Warning? = validation()
 }
 
 /**
@@ -54,11 +65,11 @@ open class AddResourceStep<B, E, I>(
         repository.addBuilders(resource)
     }
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this)
+    override fun validate() = validateScope(
+        "Validate $name: adding resource ${resource.name} to repo ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.UNINITIALIZED, this@AddResourceStep)
         repairPreparingState(repository, resource)
-        check(validateState(repository, RepositoryState.PREPARING, this))
-        isValid
     }
 }
 
@@ -83,13 +94,15 @@ open class AddCsvStep<B, E, I>(
     repository = repository
 ) where E : Identifiable<I>, B : Builder<E> {
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.UNINITIALIZED, this) and
-            ValidateCsvMetadata(this, csv).validate()
+    override fun validate() = validateScope(
+        "Validate $name: adding csv ${csv.name} to repo ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.UNINITIALIZED, this@AddCsvStep)
+        ValidateCsvMetadata(this@AddCsvStep, csv).validate()?.also {
+            this.addChild(it)
+        }
 
-        repairPreparingState(repository, csv)
-        check(validateState(repository, RepositoryState.PREPARING, this))
-        isValid
+        repairPreparingState(repository, resource)
     }
 }
 
@@ -115,12 +128,11 @@ open class FilterStep<B, E, I>(
         repository.filter(name, predicate)
     }
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.PREPARING, this)
-
-        repairPreparingState(repository, dummyResource(this))
-        check(validateState(repository, RepositoryState.PREPARING, this))
-        isValid
+    override fun validate() = validateScope(
+        "Validate $name: filtering ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.PREPARING, this@FilterStep)
+        repairPreparingState(repository, dummyResource(this@FilterStep))
     }
 }
 
@@ -146,11 +158,11 @@ open class UpdateStep<B, E, I>(
         repository.update(name, transformation)
     }
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.PREPARING, this)
-        repairPreparingState(repository, dummyResource(this))
-        check(validateState(repository, RepositoryState.PREPARING, this))
-        isValid
+    override fun validate() = validateScope(
+        "Validate $name: updating ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.PREPARING, this@UpdateStep)
+        repairPreparingState(repository, dummyResource(this@UpdateStep))
     }
 }
 
@@ -175,11 +187,11 @@ open class UpdateAllStep<B, E, I>(
         repository.updateAll(name, transformation)
     }
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.PREPARING, this)
-        repairPreparingState(repository, dummyResource(this))
-        check(validateState(repository, RepositoryState.PREPARING, this))
-        isValid
+    override fun validate() = validateScope(
+        "Validate $name: updating all elements of ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.PREPARING, this@UpdateAllStep)
+        repairPreparingState(repository, dummyResource(this@UpdateAllStep))
     }
 }
 
@@ -202,11 +214,11 @@ open class BuildStep<B, E, I>(
         println("Built ${repository.name} repo: ${repository.size} elements")
     }
 
-    override fun validate() = validateScope(this) {
-        val isValid = validateState(repository, RepositoryState.PREPARING, this)
-        repairPreparingState(repository, this)
-        check(validateState(repository, RepositoryState.FINISHED, this))
-        isValid
+    override fun validate() = validateScope(
+        "Validate $name: building ${repository.name} produced warnings:"
+    ) {
+        subValidateState(repository, RepositoryState.PREPARING, this@BuildStep)
+        repairFinishedState(repository, this@BuildStep)
     }
 }
 
@@ -232,16 +244,30 @@ open class MultiStep(
     }
 
     override fun execute() = steps.forEach {
-        println("Run ${it.name}")
-        it.execute()
+        println("\nRun ${it.name}")
+        logTime("    ${it.name}") {
+            it.execute()
+        }
     }
 
-    override fun validate() = steps.map { step ->
-        println("Validate step: ${step.name}:")
-        step.validate().also {
-            println("    Step ${step.name} is " + (if (it) "valid" else "invalid") + "!")
+    override fun validate() = validateScope(
+        "Validate multiple ModelSteps:"
+    ) {
+        val captor = ConsoleCaptor()
+
+        steps.forEach {
+            it.validate()?.also { warning ->
+                if (warning.containsError()) {
+                    warning.addChild("${it::class.simpleName} '${it.name}' is invalid!", true)
+                }
+                this.addChild(warning)
+            }
         }
-    }.all { it }
+
+        captor.getText()
+    }?.also {
+        it.printTree()
+    }
 }
 
 /**
@@ -275,20 +301,27 @@ class Run<C>(private val contextFactory: () -> C) where C : Context {
     fun steps(lambda: ModelExecution<C>.() -> Unit): C {
         println("Validate before run!")
 
-        muteProgressBars()
-        val validation = ModelExecution(context = contextFactory())
-        validation.lambda()
-        val isValid = validation.validate()
-        unmuteProgressBars()
-
-        if (isValid) {
+        if (validate(lambda)) {
             println("\nExecute")
+
             val simulation = ModelExecution(context = contextFactory())
-            simulation.lambda()
-            simulation.execute()
+            logTime("    Execution") {
+                simulation.lambda()
+                simulation.execute()
+            }
+
             return simulation.context
         } else {
             error("validation failed")
         }
     }
+
+    private fun validate(lambda: ModelExecution<C>.() -> Unit) = logTime("    Validation") {
+        muteProgressBars()
+        val validation = ModelExecution(context = contextFactory())
+        validation.lambda()
+        validation.validate().also {
+            unmuteProgressBars()
+        }
+    }?.containsError()?.let { !it } ?: true
 }
