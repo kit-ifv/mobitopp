@@ -96,8 +96,8 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
 
     override val name: String
         get() {
-            internalState = internalState.performGetName()
-            return (elems ?: builders)!!.name
+            // internalState = internalState.performGetName()
+            return (elems ?: builders)?.name ?: "Empty Repository"
         }
 
     override val source: String

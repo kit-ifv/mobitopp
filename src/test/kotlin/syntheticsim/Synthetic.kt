@@ -64,7 +64,6 @@ class PlanLoader(private val person: Person) {
             (-1).minutes,
             AbsoluteTime(
                 second.toDouble().toDuration(DurationUnit.HOURS),
-
             ),
             third.toDouble().toDuration(DurationUnit.HOURS),
             person.random
@@ -127,6 +126,14 @@ abstract class Scenario(
             utilitiesGenerator = utilGenerator
         )
     )
+
+    // fun <S: ModelExecution<C>, C: PersonContext> S.loadSyntheticPerson() {
+    //    context.personRepository.addBuilders(sequenceOf())
+    //    addStep(BuildStep(
+    //        "finish people",
+    //        context.personRepository
+    //    ))
+    // }
 
     private val behavior = PersonBehavior(
         destinationChoice = destinationChoice,

@@ -1,5 +1,7 @@
 package utils
 
+private const val DEFAULT_MESSAGE = "No Message Specified!"
+
 /**
  * Error handling strategies.
  *
@@ -14,48 +16,26 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
 
     /** Upon parsing errors: Drop the entity/row without warning. */
     SILENT {
-        override fun accumulating() = SILENT
-
         override fun processException(e: Exception, message: String) = Unit
-    },
-
-    /** Upon parsing errors: print a warning and re-throw the exception */
-    WARN_COLLECT {
-        override fun accumulating() = WARN_COLLECT
-
-        override fun processException(e: Exception, message: String) {
-            WARNING.processException(e, message)
-            throw e
-        }
     },
 
     /** Upon parsing errors: Drop the entity/row and print a warning */
     WARNING {
-        override fun accumulating() = WARN_COLLECT
-
         override fun processException(e: Exception, message: String) {
-            if (!mute) {
-                println("WARNING: $message")
-            }
+            println("WARNING: $message: ${e.message}")
         }
     },
 
     /** Upon parsing errors: Drop the entity/row and print error and stack trace */
     ERROR {
-        override fun accumulating() = WARN_COLLECT
-
         override fun processException(e: Exception, message: String) {
-            if (!mute) {
-                println("ERROR: $message")
-                e.printStackTrace()
-            }
+            println("ERROR: $message")
+            e.printStackTrace()
         }
     },
 
     /** Upon parsing errors: throw an exception with detailed message. */
     THROW {
-        override fun accumulating() = THROW
-
         override fun processException(e: Exception, message: String) {
             println("CRITICAL ERROR: $message")
             println("    ${e.message}")
@@ -64,16 +44,8 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
         }
     };
 
-    /**
-     * Returns the [ErrorHandling] strategy to be used when errors should be
-     * accumulated in a compact way. The returned strategy produces less or
-     * equal console output than this level.
-     *
-     * @return the associated accumulating error handling strategy
-     */
-    abstract fun accumulating(): ErrorHandling
-
-    fun <E> handle(runnable: () -> E?): E? = handle(runnable) { e -> e.message ?: "No Message Specified!" }
+    fun <E> handle(runnable: () -> E?): E? =
+        this.handle(runnable) { e -> e.message ?: DEFAULT_MESSAGE }
 
     /**
      * Execute the given runnable and handle exceptions by applying the
@@ -106,23 +78,9 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
      * @param message the error message
      */
     protected abstract fun processException(e: Exception, message: String)
-
-    companion object {
-        private var mute: Boolean = false
-
-        fun mute() {
-            mute = true
-        }
-
-        fun unmute() {
-            mute = false
-        }
-
-        fun toggleMute() {
-            mute = !mute
-        }
-    }
 }
+
+data class ValidationMessage(val message: String, val stepIsInvalid: Boolean, val cause: Throwable?)
 
 fun <R> errorScope(errorHandling: ErrorHandling = ErrorHandling.WARNING, message: String, runnable: () -> R): R? {
     return errorHandling.handle(runnable) { e -> "$message:\n    ${e.message}" }

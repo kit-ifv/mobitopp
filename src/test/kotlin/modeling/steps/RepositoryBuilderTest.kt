@@ -49,7 +49,11 @@ open class RepositoryBuilderTest : RepositoryTest<TestEntity, TestId>() {
     )
 
     @Test
-    override fun name() = assertStateException("finished/prepared") { repository.name }
+    override fun name() {
+        val name = repoBuilder.name
+        assertEquals("Empty Repository", name)
+        assertEquals(RepositoryState.UNINITIALIZED, repoBuilder.state)
+    }
 
     @Test
     override fun source() = assertStateException("finished/prepared") { repository.source }

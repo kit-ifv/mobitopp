@@ -10,13 +10,14 @@ import modeling.steps.Context
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.SimulationContext
+import modeling.validation.subValidateFileReadAccess
+import modeling.validation.subWarning
+import modeling.validation.validateScope
 import units.CurrencyUnit
 import units.DistanceUnit
 import units.euros
 import units.kilometers
 import usecases.YamlMatrixLookupMetrics
-import utils.files.validateFileReadAccess
-import utils.test
 import utils.units.Time
 import java.io.File
 import kotlin.time.Duration.Companion.minutes
@@ -72,43 +73,38 @@ private class LoadImpedanceStep(
         context.impedance.value = (impedance)
     }
 
-    override fun validate(): Boolean {
-        var valid = validateFileReadAccess(costMatrixConfig, messagePrefix = "${this.name} - cost matrix config:")
-
-        validateFileReadAccess(
-            durationMatrixConfig,
-            messagePrefix = "${this.name} - travel time matrix config:"
-        ).also {
-            valid = valid && it
-        }
-
-        validateFileReadAccess(distanceMatrix, messagePrefix = "${this.name} - distance matrix:").also {
-            valid = valid && it
-        }
+    override fun validate() = validateScope(
+        "Validate $name produced warnings:"
+    ) {
+        subValidateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:")
+        subValidateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:")
+        subValidateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
 
         context.impedance.value = dummyImpedance
 
-        if (valid) {
+        if (subWarnings.isEmpty()) {
             val costConfig = costMatrixConfig.readText()
             val durationConfig = durationMatrixConfig.readText()
-            context.modes.values().forEach { mode ->
 
+            context.modes.values().forEach { mode ->
+                val modeLabel = "$mode:"
                 val errorMessage = { file: File ->
                     "Matrix config ${file.name} does not specify mode $mode"
                 }
 
-                val modeLabel = "$mode:"
-                test(modeLabel in costConfig) {
-                    errorMessage(costMatrixConfig)
-                }.also { valid = valid && it }
+                subWarning {
+                    require(modeLabel in costConfig) {
+                        errorMessage(costMatrixConfig)
+                    }
+                }
 
-                test(modeLabel in durationConfig) {
-                    errorMessage(durationMatrixConfig)
-                }.also { valid = valid && it }
+                subWarning {
+                    require(modeLabel in durationConfig) {
+                        errorMessage(durationMatrixConfig)
+                    }
+                }
             }
         }
-
-        return valid
     }
 }
 

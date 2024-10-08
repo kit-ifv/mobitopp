@@ -78,7 +78,6 @@ fun main() {
 //        finishSharingStations()
 //        loadTestSet()
 
-        ErrorHandling.mute()
         val filter = scaleFilter<Row>(0.1.share())
         prepareHouseholds(
             filter = { filter(it) }

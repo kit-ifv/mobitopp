@@ -22,6 +22,7 @@ import utils.csv.boolean
 import utils.csv.decode
 import utils.csv.distance
 import utils.csv.double
+import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import java.io.File
@@ -48,6 +49,7 @@ fun <S, C> S.prepareZones(
 
     val csvParser = CsvParser(errorHandling) { row ->
         LegacyZoneBuilder().apply {
+            id = row.id(idColumn)
             visumId = row.long(idColumn)
             matrixColumn = row.index
             name = row(nameColumn)

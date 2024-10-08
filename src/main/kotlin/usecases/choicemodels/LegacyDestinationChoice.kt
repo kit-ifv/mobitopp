@@ -130,8 +130,7 @@ class LegacyDestinationChoice(
                 return zonesWithAttractivity.toSet()
             }
         }
-        val result = build.select(person, zonesWithAttractivity.toSet(), endTime)
-        return result
+        return build.select(person, zonesWithAttractivity.toSet(), endTime)
     }
 
     override fun calculateU_destination(

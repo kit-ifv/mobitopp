@@ -104,6 +104,7 @@ class LinkTrip(
 ) : Trip, Comparable<LinkTrip>, Representative<LinkedLeg> {
     override val previousAction: StationaryAction? =
         schedule?.pastActivities()?.last() ?: legBlock.previous.lastElementOrNull()
+
     override val elements: List<LinkedLeg>
         get() = legBlock.item.toList()
 
