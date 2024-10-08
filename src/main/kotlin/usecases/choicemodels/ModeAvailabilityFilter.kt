@@ -84,13 +84,12 @@ class ModeAvailabilityFilter(override val modes: CodePlan<Mode>) : ModeFilter<Mo
 
     private fun determineAvailability(mode: Mode, params: Person): Boolean {
         return when (mode) {
-            StandardMode.CAR -> checkCar(params)
-            StandardMode.BIKE -> checkBike(params)
-
-            StandardMode.PUBLICTRANSPORT -> checkPut(params)
-            StandardMode.RIDE_POOLING -> checkRidepooling(params)
-            StandardMode.PEDESTRIAN, StandardMode.PASSENGER -> true
-
+            modeMap[CAR_KEY]!! -> checkCar(params)
+            modeMap[BIKE_KEY]!! -> checkBike(params)
+            modeMap[RIDE_POOLING_KEY]!! -> checkRidepooling(params)
+            modeMap[PUBLICTRANSPORT_KEY]!! -> checkPut(params)
+            modeMap[PEDESTRIAN_KEY]!! -> true
+            modeMap[PASSENGER_KEY]!! -> true // TODO is passenger always available?
             else -> false
         }
     }

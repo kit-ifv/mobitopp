@@ -9,9 +9,12 @@ import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.RepositoryState
 import modeling.steps.SimulationContext
+import modeling.steps.subValidateState
+import modeling.validation.subWarning
+import modeling.validation.validateScope
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.LegacyModeChoiceModel
-import utils.errorScope
+import usecases.models.VehicleTakeAlongModeChoice
 
 fun <S, C> S.loadChoiceModels()
     where S : ModelExecution<C>, C : Context, C : SimulationContext, C : LegacyZonesContext {
@@ -38,10 +41,12 @@ private class LoadChoiceModelsStep<C>(
                 modes = context.modes,
             ),
 
-            modeChoice = LegacyModeChoiceModel(
-                attractivenessModel = context.attractivenessModel.value,
-                modes = context.modes,
-                impedance = context.impedance.value,
+            modeChoice = VehicleTakeAlongModeChoice(
+                LegacyModeChoiceModel(
+                    attractivenessModel = context.attractivenessModel.value,
+                    modes = context.modes,
+                    impedance = context.impedance.value,
+                )
             ),
 
             context.impedance.value
@@ -50,31 +55,23 @@ private class LoadChoiceModelsStep<C>(
         context.behavior.value = behavior
     }
 
-    override fun validate(): Boolean {
-        val message = "Cannot load legacy destination choice mode, as zones have not been loaded yet."
+    override fun validate() = validateScope(
+        "Validate $name produced warnings:"
+    ) {
+        subValidateState(context.zoneRepository, RepositoryState.FINISHED, this@LoadChoiceModelsStep)
 
-        var valid = errorScope(message = message) {
-            require(context.zoneRepository.state == RepositoryState.FINISHED) {
-                "Zones in ${context.zoneRepository} are not yet finished: " +
-                    "expected state ${RepositoryState.FINISHED} but was ${context.zoneRepository.state}!"
+        subWarning {
+            require(context.impedance.isSet) {
+                "Cannot access impedance, as it has not been loaded yet!"
             }
-            true
-        } ?: false
+        }
 
-        val (impedance, impedanceIsSet) = errorScope(
-            message = "Cannot access impedance, as it has not been loaded yet!"
-        ) {
-            (context.impedance.value to true)
-        } ?: (dummyImpedance to false)
-
-        valid = valid && impedanceIsSet
+        val impedance = if (context.impedance.isSet) { context.impedance.value } else { dummyImpedance }
 
         context.behavior.value = PersonBehavior(
             destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
             modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
             impedance = impedance,
         )
-
-        return valid
     }
 }

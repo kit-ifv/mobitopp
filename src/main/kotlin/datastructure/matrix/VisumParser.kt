@@ -3,6 +3,7 @@
 package datastructure.matrix
 
 import domain.data.ZoneId
+import utils.files.decompressedBufferedReader
 import java.nio.file.Path
 
 /**
@@ -353,7 +354,7 @@ class VisumParser(val path: Path) : IVisumParser {
 
     init {
         val file = path.toFile()
-        val reader = properBufferedReader(file)
+        val reader = file.decompressedBufferedReader() // properBufferedReader(file) // TODO check
 //        val reader = file.decompressedBufferedReader()
         lines = reader.lineSequence().withIndex().iterator() // TODO maybe? .filter { it.isNotEmpty() }
     }

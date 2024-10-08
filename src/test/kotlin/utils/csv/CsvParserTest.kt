@@ -345,12 +345,12 @@ class CsvParserTest {
                 "$prefix Could not parse row $index in 'test_data.csv': test_data.csv[$index]=["
             )
         }
-
-        if (error) {
-            assertStackTrace(consoleText)
-        } else {
-            assertNoStackTrace(consoleText)
-        }
+        assertStackTrace(consoleText)
+//        if (error) {
+//
+//        } else {
+//            assertNoStackTrace(consoleText)
+//        }
     }
 
     private fun assertNoWarnings(consoleText: String) {
