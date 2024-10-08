@@ -40,10 +40,8 @@ fun <S, C> S.prepareSharingStations(
     file: File? = null,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-
     providerName: String,
     mode: Mode,
-
     uidColumn: String = "uid",
     nameColumn: String = "name",
     coordinatesColumn: String = "coordinates",
@@ -75,7 +73,7 @@ fun <S, C> S.prepareSharingStations(
     this.prepareStationsFile(csvParser, file, delimiter)
 }
 
-private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : ZoneContext<*, *> {
+private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : LegacyZonesContext {
     return row(column).split(",").map { id ->
 
         id.toLongOrNull()?.let {
@@ -127,8 +125,8 @@ fun <S, C> S.loadSharingStations(
     this.finishSharingStations()
 }
 
-internal fun <C> C.getZone(id: Long) where C : ZoneContext<*, *> = requireNotNull(
-    zoneRepository.getById(ZoneId(id))
+private fun <C> C.getZone(id: Long) where C : LegacyZonesContext = requireNotNull(
+    zoneRepository.getById(ZoneId(id)) ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +
         " ${zoneRepository.elements.map { it.id }.toList()}"

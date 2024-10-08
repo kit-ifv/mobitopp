@@ -55,4 +55,7 @@ class LateInit<T>(
             }
             this._value = value
         }
+
+    val isSet: Boolean
+        get() = _value != null
 }

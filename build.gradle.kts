@@ -55,7 +55,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kandy-api:0.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
-
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))
 //    implementation(project(":test-processor"))
@@ -100,6 +99,14 @@ kotlin {
 
 application {
     mainClass.set("MainKt")
+}
+
+tasks.compileJava {
+    options.encoding = "UTF-8"
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
 
 tasks.withType<JavaExec>().configureEach {

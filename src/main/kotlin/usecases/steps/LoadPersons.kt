@@ -17,6 +17,9 @@ import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
 import modeling.steps.Repository
 import modeling.steps.RepositoryState
+import modeling.steps.repairFinishedState
+import modeling.steps.subValidateState
+import modeling.validation.validateScope
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
@@ -72,6 +75,12 @@ fun <S, C> S.preparePersons(
             eMobilityAcceptance = row.unitShare(personColumns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(personColumns.chargingInfluenceColumn, ChargingInfluence)
             random = Random(seed = personId!! + context.simulationSeed)
+            memberships = row("mobilityProviderCustomership").replace("{", "")
+                .replace("}", "").split(", ").associate { membership ->
+                    membership.split("=").let {
+                        it[0]!! to it[1]!!.toBoolean()
+                    }
+                }.toMutableMap()
         }
     }
     val internalFilter = { row: Row -> personColumns.filter(row) }
@@ -130,16 +139,19 @@ fun <S, C> S.loadPersons(
 fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : Context, C : LegacyContext, C : ActivityContext {
     this.addStep(
         CustomStep(
-            "assign HOME to Household",
+            "assign HOME location to Household and update schedules",
             validation = {
-                context.personRepository.state == RepositoryState.FINISHED &&
-                    context.plannedActivityRepository.state == RepositoryState.FINISHED
+                validateScope(
+                    "Validate assign HOME location to household and update schedules produced warnings:"
+                ) {
+                    subValidateState(context.personRepository, RepositoryState.FINISHED, this@assignHomeLocations)
+                    repairFinishedState(context.personRepository, this@assignHomeLocations)
+                }
             },
             exec = {
                 context.personRepository.elements.forEach {
                     it.schedule.activities().filter { act -> act.type == LegacyActivityType.HOME }
                         .forEach { home -> home.location = it.household.location }
-                    println(it)
                 }
             }
         )
