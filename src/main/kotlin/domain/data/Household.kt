@@ -27,6 +27,7 @@ typealias HouseholdId = ID<Household>
 interface Household : Identifiable<HouseholdId> {
     val householdNumber: Long
     val surveyYear: Int
+    //TODO is a household really always a RoadPositionInZone and not a location?
     val location: RoadPositionInZone
     val domCode: Int
     val type: Int
