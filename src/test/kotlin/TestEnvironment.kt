@@ -158,8 +158,10 @@ val otherTestPerson = testHousehold.buildPerson {
     id = PersonId(2L)
     sex = Sex.FEMALE
 }
+
+val FAKE_ROAD_POSITION = 1L.toRoadPositionInZone(TestZone())
 val testHousehold1 = DefaultHouseholdBuilder().apply {
-    location = 1L.toRoadPositionInZone(TestZone())
+    location = FAKE_ROAD_POSITION
     householdNumber = 1
     surveyYear = 2024
     domCode = 1
