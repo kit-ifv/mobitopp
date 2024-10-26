@@ -2,21 +2,26 @@ package usecases.choicemodels.destinationchoice
 
 import datastructure.StationaryAction
 import domain.data.Person
+import domain.data.Zone
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.Metrics
 import domain.location.ZoneLocation
+import domain.location.ZoneLocationImpl
+import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit
-import units.euros
 import usecases.AttractivenessModel
+import usecases.choicemodels.ChoiceFilter
+import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.ILegacyDestinationChoice
+import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.parameters.BusinessParameters
 import usecases.choicemodels.destinationchoice.parameters.DefaultDestinationParameters
+import usecases.choicemodels.destinationchoice.parameters.IDefaultDestinationParameters
 import usecases.choicemodels.destinationchoice.parameters.LeisureParameters
 import usecases.choicemodels.destinationchoice.parameters.ServiceParameters
 import usecases.choicemodels.destinationchoice.parameters.ShoppingParameters
@@ -28,17 +33,30 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
-
+@Suppress("LongParameterList")
 class ModernizedDestinationChoice(
     val impedance: Metrics,
     val attractivenessModel: AttractivenessModel,
-    val parkstress: (Location) -> Double = { 0.0 },
+
     val umlands: (
         Location
-    ) -> Boolean = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA }
-) :
+    ) -> Boolean = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+    zones: Set<Zone>,
+    val modes: ChoiceModelModes,
+    val filter: ChoiceFilter<Mode, Person> = NoFilter,
+    val parkstress: (Location) -> Double = { 0.0 },
+    private val parameterObject: ParameterObject = ParameterObject()
+) : ChoiceModel<Person, ZoneLocation>,
     ILegacyDestinationChoice {
-
+    private val _choices: Set<ZoneLocation> = zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+    private val car = modes.car
+    private val publicTransport = modes.publicTransport
+    private val pedestrian = modes.pedestrian
+    private val bike = modes.bike
+    private val passenger = modes.passenger
+    override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+        return _choices
+    }
     override fun Collection<ZoneLocation>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
@@ -46,7 +64,7 @@ class ModernizedDestinationChoice(
         modes: Collection<Mode>,
         randomNumber: Double
     ): ZoneLocation {
-        val target = change(nextActivity.type)
+        val target = parameterObject.change(nextActivity.type)
         val scope = PersonScope(
             person.age,
             person.employment,
@@ -92,7 +110,7 @@ class ModernizedDestinationChoice(
         availableModes: Collection<Mode>,
         randomNumber: Double
     ): Double {
-        val target = change(nextActivity.type)
+        val target = parameterObject.change(nextActivity.type)
         val scope = PersonScope(
             person.age,
             person.employment,
@@ -120,7 +138,7 @@ class ModernizedDestinationChoice(
         val zone = ZoneScope(
             parkstress(destination),
             umlands(destination),
-            impedance.distance(origin, destination, StandardMode.CAR)
+            impedance.distance(origin, destination, car)
         )
         val constant = target.constant.evaluate(person, zone)
         val attractivenessFactor = target.attractiveness.evaluate(person, zone)
@@ -139,51 +157,32 @@ class ModernizedDestinationChoice(
         return constant +
             attractivenessFactor * attractiveness +
             carFactor * carLogsumVal +
-            (scope.nextFixedActivityLocation).let {
-                carFixFactor * carLogsum.evaluate(scope, zone, destination, it)
-            } +
             ptFactor * ptValue +
             (scope.nextFixedActivityLocation).let {
-                ptFixFactor * ptLogsum.evaluate(scope, zone, destination, it)
+                carFixFactor * carLogsum.evaluate(scope, zone, destination, it) +
+                    ptFixFactor * ptLogsum.evaluate(scope, zone, destination, it)
             }
-    }
-
-    private fun change(type: ActivityType): DestinationRequirements {
-        return when (type) {
-            LegacyActivityType.BUSINESS,
-            LegacyActivityType.BUSINESS_TRAVEL,
-            LegacyActivityType.BUSINESS_OUT,
-            LegacyActivityType.BUSINESS_TO_WORK -> BusinessParameters
-
-            LegacyActivityType.SHOPPING,
-            LegacyActivityType.PRIVATE_BUSINESS,
-            LegacyActivityType.SHOPPING_OTHER,
-            LegacyActivityType.SHOPPING_DAILY -> ShoppingParameters
-
-            LegacyActivityType.SERVICE -> ServiceParameters
-            else -> LeisureParameters
-        }
     }
 
     @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
     private val carLogsum = LogsumCalculation().apply {
-        register(StandardMode.CAR) { scope, _, origin, destination ->
-            DefaultDestinationParameters.run {
+        register(car) { scope, _, origin, destination ->
+            parameterObject.shared.run {
                 val travelTime = impedance.duration(
                     origin,
                     destination,
-                    StandardMode.CAR,
+                    car,
                     scope.time
                 ) // TODO pass proper time
-                    .coerceAtMost(1000.minutes).toDouble(
+                    .toDouble(
                         DurationUnit.MINUTES
-                    )
+                    ).coerceAtMost(1000.0)
                 val travelCost = impedance.cost(
                     origin,
                     destination,
-                    StandardMode.CAR,
+                    car,
                     scope.time
-                ).coerceAtMost(1000.euros).toDouble(CurrencyUnit.EUROS)
+                ).toDouble(CurrencyUnit.EUROS).coerceAtMost(1000.0)
                 asc_pkw + b_tt_pkw * travelTime + b_cost_pkw * travelCost +
                     when (scope.nextActivityType) {
                         LegacyActivityType.WORK -> b_arb_on_pkw
@@ -201,18 +200,18 @@ class ModernizedDestinationChoice(
                     }
             }
         }
-        register(StandardMode.PASSENGER) { scope, _, origin, destination ->
-            DefaultDestinationParameters.run {
+        register(passenger) { scope, _, origin, destination ->
+            parameterObject.shared.run {
                 asc_mf + b_tt_mf_taxi * (
                     impedance.duration(
                         origin,
                         destination,
-                        StandardMode.CAR,
+                        car,
                         scope.time
                     ) + 3.minutes
-                    ).coerceAtMost(1000.minutes).toDouble(
+                    ).toDouble(
                     DurationUnit.MINUTES
-                ) +
+                ).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
                         LegacyActivityType.WORK -> b_arb_on_mf
                         LegacyActivityType.BUSINESS -> b_dienst_on_mf
@@ -226,20 +225,20 @@ class ModernizedDestinationChoice(
 
     @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
     private val ptLogsum = LogsumCalculation().apply {
-        register(StandardMode.PUBLICTRANSPORT) { scope, zoneScope, origin, destination ->
-            DefaultDestinationParameters.run {
+        register(publicTransport) { scope, zoneScope, origin, destination ->
+            parameterObject.shared.run {
                 asc_oev + b_tt_oev * impedance.duration(
                     origin,
                     destination,
-                    StandardMode.PUBLICTRANSPORT,
+                    publicTransport,
                     scope.time
-                ).coerceAtMost(1000.minutes).toDouble(DurationUnit.MINUTES) +
+                ).toDouble(DurationUnit.MINUTES).coerceAtMost(1000.0) +
                     b_cost_oev * impedance.cost(
                         origin,
                         destination,
-                        StandardMode.PUBLICTRANSPORT,
+                        publicTransport,
                         scope.time
-                    ).coerceAtMost(1000.euros).toDouble(CurrencyUnit.EUROS) +
+                    ).toDouble(CurrencyUnit.EUROS).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
                         LegacyActivityType.WORK -> b_arb_on_oev
                         LegacyActivityType.BUSINESS -> b_dienst_on_oev
@@ -264,15 +263,15 @@ class ModernizedDestinationChoice(
                         )
             }
         }
-        register(StandardMode.PEDESTRIAN) { scope, _, origin, destination ->
-            DefaultDestinationParameters.run {
+        register(pedestrian) { scope, _, origin, destination ->
+            parameterObject.shared.run {
                 asc_fuss +
                     b_tt_fuss * impedance.duration(
                         origin,
                         destination,
-                        StandardMode.PEDESTRIAN,
+                        pedestrian,
                         scope.time
-                    ).coerceAtMost(1000.minutes).toDouble(DurationUnit.MINUTES) +
+                    ).toDouble(DurationUnit.MINUTES).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
                         LegacyActivityType.WORK -> b_arb_on_fuss
                         LegacyActivityType.BUSINESS -> b_dienst_on_fuss
@@ -289,14 +288,14 @@ class ModernizedDestinationChoice(
                     }
             }
         }
-        register(StandardMode.BIKE) { scope, _, origin, destination ->
-            DefaultDestinationParameters.run {
+        register(bike) { scope, _, origin, destination ->
+            parameterObject.shared.run {
                 asc_rad + b_tt_rad * impedance.duration(
                     origin,
                     destination,
-                    StandardMode.BIKE,
+                    bike,
                     scope.time
-                ).coerceAtMost(1000.minutes).toDouble(DurationUnit.MINUTES) +
+                ).toDouble(DurationUnit.MINUTES).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
                         LegacyActivityType.WORK -> b_arb_on_rad
                         LegacyActivityType.BUSINESS -> b_dienst_on_rad
@@ -313,6 +312,16 @@ class ModernizedDestinationChoice(
                     }
             }
         }
+    }
+    override val name: String = "Modernized Destination Choice"
+
+    override fun select(agent: Person, choices: Set<ZoneLocation>, time: Time): ZoneLocation {
+        val prevActivity = agent.schedule.pastActivities().lastOrNull { it <= time }
+            ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has no past activities.")
+        val nextActivity = agent.schedule.activities().firstOrNull { it > time }
+            ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has future planned activity.")
+        val modeOptions = filter.filter(modes.options, agent)
+        return choices.selectDestination(agent, prevActivity, nextActivity, modeOptions, agent.random.nextDouble())
     }
 }
 
@@ -346,5 +355,30 @@ class LogsumCalculation {
                 )
             }
         )
+    }
+}
+
+data class ParameterObject(
+    val shared: IDefaultDestinationParameters = DefaultDestinationParameters,
+    val leisure: DestinationRequirements = LeisureParameters,
+    val business: DestinationRequirements = BusinessParameters,
+    val service: DestinationRequirements = ServiceParameters,
+    val shopping: DestinationRequirements = ShoppingParameters
+) {
+    fun change(type: ActivityType): DestinationRequirements {
+        return when (type) {
+            LegacyActivityType.BUSINESS,
+            LegacyActivityType.BUSINESS_TRAVEL,
+            LegacyActivityType.BUSINESS_OUT,
+            LegacyActivityType.BUSINESS_TO_WORK -> BusinessParameters
+
+            LegacyActivityType.SHOPPING,
+            LegacyActivityType.PRIVATE_BUSINESS,
+            LegacyActivityType.SHOPPING_OTHER,
+            LegacyActivityType.SHOPPING_DAILY -> ShoppingParameters
+
+            LegacyActivityType.SERVICE -> ServiceParameters
+            else -> LeisureParameters
+        }
     }
 }

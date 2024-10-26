@@ -16,7 +16,7 @@ import usecases.choicemodels.destinationchoice.SurplusCars
  * Implements the [DestinationRequirements] for Service activity types.
  */
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object ServiceParameters : DestinationRequirements {
+internal object ServiceParameters : DestinationRequirements {
     override val constant: CombinedDestinationParameters = object :
         CombinedDestinationParameters,
         StandardDestinationDistance,

@@ -21,7 +21,7 @@ import usecases.choicemodels.modechoice.WithCost
 import utils.units.AbsoluteTime
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object TaxiParameters : WithCost {
+internal object TaxiParameters : WithCost {
     override val alpha: Alpha = object :
         Alpha,
         StandardCars,

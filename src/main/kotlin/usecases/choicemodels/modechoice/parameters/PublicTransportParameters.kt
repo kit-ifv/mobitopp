@@ -2,7 +2,7 @@ package usecases.choicemodels.modechoice.parameters
 
 import domain.data.EconomicStatus
 import domain.enums.LegacyActivityType
-import domain.enums.StandardMode
+import domain.enums.Mode
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomEconomicStatus
 import usecases.choicemodels.modechoice.CustomNextActivity
@@ -22,7 +22,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object PublicTransportParameters : WithCost {
+internal class PublicTransportParameters(publicTransport: Mode) : WithCost {
     override val alpha: Alpha =
         object :
             Alpha,
@@ -35,6 +35,8 @@ object PublicTransportParameters : WithCost {
             StandardDrivingLicence,
             StandardGender,
             StandardParkingPressure {
+            override val mode: Mode = publicTransport
+
             override val female: Double = 0.140430498472284
             override val commuterTicket: Double = 1.40430480389687
             override val numberOfCars: Double = -1.07827861934364
@@ -58,7 +60,7 @@ object PublicTransportParameters : WithCost {
 
             override fun evaluatePreviousMode(person: ModePersonScope): Double {
                 // TODO parameter defined in function, should be moved elsewhere
-                return if (person.previousMode == StandardMode.PUBLICTRANSPORT) 1.84784910323771 else 0.0
+                return if (person.previousMode == mode) 1.84784910323771 else 0.0
             }
         }
     override val travelTimeBeta: TravelTimeBeta = object :

@@ -1,7 +1,7 @@
 package usecases.choicemodels.modechoice.parameters
 
 import domain.data.EconomicStatus
-import domain.enums.StandardMode
+import domain.enums.Mode
 import units.kilometers
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomDistance
@@ -18,7 +18,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object CarParameters : WithCost {
+internal class CarParameters(car: Mode) : WithCost {
     override val alpha: Alpha =
         object :
             Alpha,
@@ -28,28 +28,30 @@ object CarParameters : WithCost {
             StandardActivities,
             StandardHasCommuterTicket,
             StandardGender {
+            override val mode: Mode = car
+
             override val work: Double = -0.9
             override val education: Double = -2.0
             override val business: Double = 0.0
             override val leisure: Double = -0.135539830154819 - 0.3
             override val service: Double = 0.9
             override val shopping: Double = 0.484848310471716 - 0.3
+
             val accessEgress = -0.0886209594184093
-            override val female: Double = -0.0530617111718515
 
             // TODO move access egress out of constant
             override val constant: Double = -4.69347301935537 + 1.7 + 0.1 + 0.1 + (accessEgress * 3)
 
+            override val female: Double = -0.0530617111718515
             override val commuterTicket = -0.42095211929704
+            override val economicStatus = -0.0925723881400436 - 0.1
 
             val closeDistance: Double = -1.0
 
             val previousMode = 2.39983908693686
 
-            override val economicStatus = -0.0925723881400436 - 0.1
-
             override fun evaluatePreviousMode(person: ModePersonScope): Double {
-                return if (person.previousMode == StandardMode.CAR) previousMode else 0.0
+                return if (person.previousMode == mode) previousMode else 0.0
             }
 
             override fun evaluateDistance(scope: ModeZoneScope): Double {

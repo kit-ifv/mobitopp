@@ -1,11 +1,9 @@
 package syntheticsim
 
-import domain.data.Person
 import domain.enums.Mode
 import modeling.models.ChoiceModel
-import usecases.choicemodels.BasicModesModel
 import usecases.choicemodels.LegacyModeChoiceModel
-import utils.CodePlan
+import usecases.choicemodels.TripChoiceSituation
 import utils.units.Time
 
 /**
@@ -13,25 +11,25 @@ import utils.units.Time
  * model if and only if it is not null.
  */
 class OverridableModeChoiceModel(val original: LegacyModeChoiceModel) :
-    ChoiceModel<Person, Mode>,
-    BasicModesModel {
+    ChoiceModel<TripChoiceSituation, Mode> {
     var overrideMode: Mode? = null
 
-    override fun select(agent: Person, choices: Set<Mode>, time: Time): Mode {
-        return overrideMode ?: original.select(agent, choices, time)
+    override fun select(agent: TripChoiceSituation, choices: Set<Mode>, time: Time): Mode {
+        return overrideMode ?: original.select(
+            agent,
+            choices,
+            time
+        )
     }
 
     override val name: String
         get() = original.name
 
-    override fun choices(agent: Person, time: Time): Set<Mode> {
+    override fun choices(agent: TripChoiceSituation, time: Time): Set<Mode> {
         return original.choices(agent, time)
     }
 
-    override fun filter(agent: Person, time: Time): Collection<Mode> {
+    override fun filter(agent: TripChoiceSituation, time: Time): Collection<Mode> {
         return original.filter(agent, time)
     }
-
-    override val modes: CodePlan<Mode>
-        get() = original.modes
 }

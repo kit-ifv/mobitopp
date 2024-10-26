@@ -9,6 +9,7 @@ import utils.Encodable
 import utils.collections.defaultProgressBarBuilder
 import utils.collections.stepBy
 import utils.units.AbsoluteTime
+import java.io.File
 import java.nio.file.Path
 import java.time.DayOfWeek
 import java.util.*
@@ -88,6 +89,7 @@ class YamlMultiMatrix<M, I, O>(
     modeDecoder: Decodable<M>,
     simulationStartInclusive: AbsoluteTime,
     simulationEndExclusive: AbsoluteTime,
+    betterFormatFolder: File? = null
 ) : MultiMatrix<M, I, O> where M : Encodable {
 
     // a map from Mode to a list of matrices
@@ -99,22 +101,46 @@ class YamlMultiMatrix<M, I, O>(
             parser,
             modeDecoder,
             simulationStartInclusive,
-            simulationEndExclusive
+            simulationEndExclusive,
+            betterFormatFolder
         ).getMatrix()
 
     override operator fun get(mode: M, time: AbsoluteTime): Matrix<I, O> {
-        val matrixList = requireNotNull(matrixMap[mode]?.toMutableList()) {
-            "${path.fileName} does not specify matrices for mode: $mode"
-        }
-        var index = 0
+        return cache.evaluate(mode, time)
+    }
 
-        // Increase index as long as the next entry has already started
-        while (matrixList.size > index + 1 && matrixList[index + 1].first < time) {
-            index += 1
+    private val cache = MatrixCache()
+
+    private inner class MatrixCache {
+        private val rangeList: Map<M, Map<OpenEndRange<AbsoluteTime>, Matrix<I, O>>> = matrixMap.map { (k, v) ->
+            k to v.zipWithNext { a, b ->
+                val (start, matrix) = a
+                val (secondStart, secondMatrix) = b
+                Pair(start..<secondStart, matrix)
+            }.associate { it.first to it.second }
+        }.associate { it.first to it.second }
+
+        private val cache: MutableMap<M, Triple<AbsoluteTime, AbsoluteTime, Matrix<I, O>>> = mutableMapOf()
+
+        fun evaluate(mode: M, time: AbsoluteTime): Matrix<I, O> {
+            val currentMatrix = cache[mode]?.takeIf { it.second > time }?.third ?: update(mode, time)
+
+            return currentMatrix
         }
 
-        // Now return the matrix that started last
-        return matrixList[index].second
+        fun update(mode: M, time: AbsoluteTime): Matrix<I, O> {
+            val allMatricesForMode = requireNotNull(rangeList[mode]) {
+                "The mode $mode has no matrices"
+            }
+            val last = matrixMap[mode]?.last()?.let { it.first..<AbsoluteTime.INFINITY to it.second }
+                ?: throw NoSuchElementException("There should be a last matrix")
+            val matrixTemp = allMatricesForMode.entries.firstOrNull { time in it.key }?.toPair() ?: last
+//            val matrix = allMatricesForMode.findLast {
+//                it.first < time
+//            } ?: allMatricesForMode.last()
+            cache[mode] = Triple(matrixTemp.first.start, matrixTemp.first.endExclusive, matrixTemp.second)
+            return matrixTemp.second
+        }
     }
 }
 
@@ -131,9 +157,10 @@ private class YamlMultiMatrixParser<M, I, O>(
     private val modeDecoder: Decodable<M>,
     private val simulationStartInclusive: AbsoluteTime,
     private val simulationEndExclusive: AbsoluteTime,
+    private val betterFormatFolder: File? = null
 ) where M : Encodable {
     private val entryList = mutableListOf<Pair<TransportType, Entry>>()
-
+    val matrixMapFunny = HashMap<Pair<String, MatrixImpl>, Matrix<I, O>>()
     fun getMatrix(): Map<M, List<Pair<AbsoluteTime, Matrix<I, O>>>> {
         createEntries()
         val entriesMap = entryList.groupBy({ it.first }, { it.second })
@@ -213,6 +240,7 @@ private class YamlMultiMatrixParser<M, I, O>(
             createEntries(transportType, days, weeks, level, timeMap)
         }
     }
+
     private fun createEntries(
         transportType: TransportType,
         days: List<DayOfWeek>,
@@ -269,7 +297,7 @@ private class YamlMultiMatrixParser<M, I, O>(
 
     // Here the individual entries describing related time periods are converted into a list of matrices converted
     @Suppress("CyclomaticComplexMethod", "CognitiveComplexMethod")
-    private fun <O> processEntries(
+    private fun processEntries(
         entries: List<Entry>,
         mode: M,
         converter: (Double) -> O
@@ -294,7 +322,6 @@ private class YamlMultiMatrixParser<M, I, O>(
             futureEntries.add(EntryWrapper(entry) { it.includedStartTime })
         }
 
-        val matrixMap = HashMap<Pair<String, MatrixImpl>, Matrix<I, O>>()
         val matrixList = ArrayList<Pair<AbsoluteTime, Matrix<I, O>>>()
 
         var currentTime = simulationStartInclusive
@@ -319,8 +346,8 @@ private class YamlMultiMatrixParser<M, I, O>(
             val entry = currentActiveEntry.entry
             val path = entry.path
             val parser = entry.parser
-            val matrix = matrixMap.getOrPut(path to parser) {
-                parser.getMatrix(Path.of(path), converter)
+            val matrix = matrixMapFunny.getOrPut(path to parser) {
+                parser.getMatrix(Path.of(path), converter, betterFormatFolder)
             }
 
             if (matrixList.isEmpty() || matrixList.last().second != matrix) {
@@ -385,6 +412,7 @@ private enum class DayIdentifier {
                 DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY
             )
+
             Everyday -> DayOfWeek.entries
         }
 
@@ -417,9 +445,22 @@ private enum class DayIdentifier {
 
 private enum class MatrixImpl {
     VisumMatrix,
-    ConstMatrix;
+    ConstMatrix,
+    FloatMatrixInternal;
 
-    fun <I, O> getMatrix(path: Path, converter: (Double) -> O): Matrix<I, O> {
+    fun <I, O> getMatrix(path: Path, converter: (Double) -> O, betterFormatFolder: File? = null): Matrix<I, O> {
+        if (path.nameCount >= 2) {
+            val filename = path.subpath(2, path.nameCount).toString().replace(".bz2", ".bin")
+            betterFormatFolder?.let {
+                val file = File(it, filename)
+                if (file.exists()) {
+                    @Suppress("UNCHECKED_CAST")
+                    return (FloatMatrix.fromPath(file.toPath(), converter) as? Matrix<I, O>)
+                        ?: throw YamlMultiMatrixError("Bad Matrix", path)
+                }
+            }
+        }
+
         return when (this) {
             VisumMatrix -> {
                 VisumMatrix(path, converter)
@@ -428,6 +469,10 @@ private enum class MatrixImpl {
             ConstMatrix -> {
                 val constant: O = converter(path.toString().toDouble())
                 ConstantMatrix(constant)
+            }
+
+            FloatMatrixInternal -> {
+                FloatMatrix.fromPath(path, converter)
             }
         }.let {
             // The following suppresses the unchecked cast warning because we are unable to verify it at compile time due to the dynamic nature of this cast.
@@ -442,6 +487,7 @@ private enum class MatrixImpl {
             return when (value.lowercase(Locale.getDefault())) {
                 "visum_matrix" -> VisumMatrix
                 "constant_matrix" -> ConstMatrix
+                "float_matrix" -> FloatMatrixInternal
                 else -> throw YamlMultiMatrixError("Unknown parser: $value", Path.of(path))
             }
         }

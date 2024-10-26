@@ -13,16 +13,18 @@ import domain.data.getBestCar
 import domain.data.locationBySchedule
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
-import domain.enums.StandardMode
 import domain.enums.ZoneClassification
+import domain.events.CarSelector
 import domain.events.EndActivityEvent
 import domain.events.EndLegEvent
 import domain.events.EventWithScope
 import domain.events.InitPersonEvent
+import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
 import domain.events.StartActivityEvent
 import domain.events.StartLegEvent
 import domain.events.StartTripEvent
+import domain.location.LOCATIONUNKNOWN
 import domain.location.ZoneLocation
 import generateHousehold
 import generatePersons
@@ -33,11 +35,13 @@ import point
 import spawnCar
 import spawnDrivers
 import usecases.AttractivenessModel
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
 import usecases.choicemodels.GeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.MakeUtilities
+import usecases.choicemodels.TripChoiceSituation
+import usecases.legacyChoiceModelModes
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.util.*
@@ -52,35 +56,42 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 fun Person.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
-    PlanLoader(this).lambda()
+    val plan = PlanLoader(this)
+    plan.apply(lambda)
+    plan.plannedActivities.forEach { addActivity(it) }
 }
 
 class PlanLoader(private val person: Person) {
-    operator fun Triple<ActivityType, Number, Number>.unaryPlus(): PlannedActivity {
-        return PlannedActivity(
-            ActivityId(-1L),
-            person,
-            first,
-            (-1).minutes,
-            AbsoluteTime(
-                second.toDouble().toDuration(DurationUnit.HOURS),
-            ),
-            third.toDouble().toDuration(DurationUnit.HOURS),
-            person.random
+    val plannedActivities = mutableListOf<PlannedActivity>()
+    operator fun Triple<ActivityType, Number, Number>.unaryPlus() {
+        plannedActivities.add(
+            PlannedActivity(
+                ActivityId(-1L),
+                person,
+                first,
+                (-1).minutes,
+                AbsoluteTime(
+                    second.toDouble().toDuration(DurationUnit.HOURS),
+                ),
+                third.toDouble().toDuration(DurationUnit.HOURS),
+                person.random
+            )
         )
     }
 
     var start = AbsoluteTime.START
-    operator fun ActivityType.unaryPlus(): PlannedActivity {
-        return PlannedActivity(
-            ActivityId(-1L),
-            person,
-            this,
-            (-1).minutes,
-            start,
-            4.hours,
-            person.random
-        ).also { start += 8.hours }
+    operator fun ActivityType.unaryPlus() {
+        plannedActivities.add(
+            PlannedActivity(
+                ActivityId(-1L),
+                person,
+                this,
+                (-1).minutes,
+                start,
+                4.hours,
+                person.random
+            ).also { start += 8.hours }
+        )
     }
 }
 
@@ -91,7 +102,7 @@ fun Person.hasAccessToCar(): Boolean {
 abstract class Scenario(
     val zones: List<TestZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
-    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h ->
+    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, p ->
         GeneratedHcUtilityFunction(
             a,
             l,
@@ -115,13 +126,13 @@ abstract class Scenario(
             currentAttractivenessModel,
             umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
-            modes = FakePlan,
+            modes = legacyChoiceModelModes,
         )
     )
     val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
         LegacyModeChoiceModel(
             attractivenessModel = currentAttractivenessModel,
-            modes = FakePlan,
+            modes = legacyChoiceModelModes,
             impedance = impedance,
             utilitiesGenerator = utilGenerator
         )
@@ -138,7 +149,8 @@ abstract class Scenario(
     private val behavior = PersonBehavior(
         destinationChoice = destinationChoice,
         modeChoice = modeChoice,
-        impedance
+        impedance,
+        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) }))
     )
 
     fun Person.stepper(): EventStepper {
@@ -168,7 +180,11 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     )
     val household = households[0]
     val car = household.spawnCar()
-    override val persons: List<Person> = household.generatePersons(2, spawnLimits = spawnDrivers)
+    override val persons: List<Person> = household.generatePersons(
+        2,
+        spawnLimits = spawnDrivers,
+        membershipsMap = mutableMapOf()
+    )
     val first = persons[0]
     val second = persons[1]
 
@@ -195,6 +211,7 @@ class Synthetic {
      * the first person returns home.
      */
     @Test
+    @Suppress("LongMethod")
     fun oneHouseholdOneCar() {
         scenario.run {
             first.loadActivityPlan {
@@ -229,7 +246,7 @@ class Synthetic {
             secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
 
-            firstPerson.nextStep(1, zones[2].point(BIELEFELD), StandardMode.CAR) { assertIs<StartTripEvent>(it) }
+            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
             assertEquals(car.location, household.location)
             assertEquals(car.driver, first)
             assertFalse(second.hasAccessToCar())
@@ -242,14 +259,24 @@ class Synthetic {
             assertTrue(first.hasAccessToCar())
             assertFalse(second.hasAccessToCar())
 
-            assertFalse(StandardMode.CAR in modeChoice.filter(second, 5.hours.sinceStart))
+            assertFalse(
+                LegacyMode.CAR in modeChoice.filter(
+                    TripChoiceSituation(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
+                    5.hours.sinceStart
+                )
+            )
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-            firstPerson.nextStep(1, household.location, StandardMode.CAR) { assertIs<StartTripEvent>(it) }
+            firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
             firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
             assertTrue(first.hasAccessToCar())
-            assertTrue(StandardMode.CAR in modeChoice.filter(second, 5.hours.sinceStart))
+            assertTrue(
+                LegacyMode.CAR in modeChoice.filter(
+                    TripChoiceSituation(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
+                    5.hours.sinceStart
+                )
+            )
             secondPerson.nextStep(1)
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
         }

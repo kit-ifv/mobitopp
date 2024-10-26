@@ -37,7 +37,10 @@ private fun String.splitByWhitespaceBlock(): List<String> {
  */
 class VisumParser(val path: Path) : IVisumParser {
     private var state: MatrixParseState = MatrixParseState.INIT
-    private val lines: Iterator<IndexedValue<String>>
+    private var lines: Iterator<IndexedValue<String>>? =
+        path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()
+
+//    private val generateLines = {path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()}
     private var numberOfNetworkObjects: Int = 0
         get() {
             while (field == 0) {
@@ -49,6 +52,13 @@ class VisumParser(val path: Path) : IVisumParser {
     private lateinit var zoneIds: Array<ZoneId>
     private var zoneIdIndex: Int = 0
 
+    init {
+//        val file = path.toFile()
+//        val reader = file.decompressedBufferedReader() // properBufferedReader(file) // TODO check
+//        val reader = file.decompressedBufferedReader()
+//        lines = reader.lineSequence().withIndex().iterator() // TODO maybe? .filter { it.isNotEmpty() }
+    }
+
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     override fun getZoneIds(): Array<ZoneId> {
         while (!(this::zoneIds.isInitialized && zoneIdIndex == numberOfNetworkObjects)) {
@@ -58,13 +68,13 @@ class VisumParser(val path: Path) : IVisumParser {
         return zoneIds
     }
 
-    private lateinit var array: Array<Double>
+    private lateinit var array: DoubleArray
     private var columnIndex: Int = 0
     private var rowIndex: Int = -1
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     // TODO use by lazy { } instead of lateinit
-    override fun getArray(): Array<Double> {
+    override fun getArray(): DoubleArray {
         if (isNotFinished()) {
             while (isNotFinished()) {
                 parseStep()
@@ -107,7 +117,7 @@ class VisumParser(val path: Path) : IVisumParser {
             ): MatrixParseState {
                 try {
                     parser.numberOfNetworkObjects = line.toUInt().toInt()
-                    parser.array = Array(parser.numberOfNetworkObjects * parser.numberOfNetworkObjects) { Double.NaN }
+                    parser.array = DoubleArray(parser.numberOfNetworkObjects * parser.numberOfNetworkObjects) { Double.NaN }
                     parser.zoneIds = Array(parser.numberOfNetworkObjects) { ZoneId(-1) }
                 } catch (error: Exception) {
                     throw VisumParseError(
@@ -341,6 +351,7 @@ class VisumParser(val path: Path) : IVisumParser {
                 lineNumber: Int,
                 parser: VisumParser,
             ): MatrixParseState {
+                parser.lines = null
                 return END
             }
         };
@@ -352,19 +363,12 @@ class VisumParser(val path: Path) : IVisumParser {
         ): MatrixParseState
     }
 
-    init {
-        val file = path.toFile()
-        val reader = file.decompressedBufferedReader() // properBufferedReader(file) // TODO check
-//        val reader = file.decompressedBufferedReader()
-        lines = reader.lineSequence().withIndex().iterator() // TODO maybe? .filter { it.isNotEmpty() }
-    }
-
     private fun parseStep() {
         // TODO the lines.hasNext() call takes >50% of the method execution time.
-        if (!lines.hasNext()) {
+        if (!lines!!.hasNext()) {
             throw VisumParseError("Unexpected End of File at: $path", path)
         }
-        val indexedLine = lines.next()
+        val indexedLine = lines!!.next()
         state = state.nextState(indexedLine.value, indexedLine.index + 1, this)
     }
 

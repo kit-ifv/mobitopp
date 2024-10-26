@@ -2,13 +2,10 @@ package domain.data
 
 import Buildable
 import datastructure.Action
-import datastructure.Activity
 import datastructure.Schedule
-import datastructure.plans.BlockModel
-import datastructure.plans.TrackableModel
 import domain.enums.Mode
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import domain.resources.Subscribable
 import modeling.events.Agent
 import modeling.events.Event
 import units.Currency
@@ -47,7 +44,7 @@ data class Person(
     val hasBike: Boolean,
     val hasCommuterTicket: Boolean,
     val hasLicense: Boolean,
-    val memberships: Map<String, Boolean>,
+    val memberships: Map<Subscribable<Person>, Boolean>,
     val eMobilityAcceptance: UnitIntervalValue,
     val chargingInfluence: ChargingInfluence,
     override val id: PersonId,
@@ -61,7 +58,7 @@ data class Person(
 
     override var nextEvent: Event<Person>? = null
     override val entity: Person = this
-    val schedule: Schedule = Schedule(TrackableModel(BlockModel()))
+    lateinit var schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
 
     private val plannedActivityList: MutableList<PlannedActivity> = mutableListOf()
     val plannedActivities: List<PlannedActivity>
@@ -71,17 +68,16 @@ data class Person(
         plannedActivityList.add(plannedActivity)
 
         schedule.addWithPrecedingLeg(
-            Activity.fromDuration(
-                location = LOCATIONUNKNOWN,
-                startTime = plannedActivity.startTime,
-                duration = plannedActivity.duration,
-                type = plannedActivity.activityType
-            )
+            plannedActivity.toActivity()
         )
     }
 
     val isAdult: Boolean
         get() = (age >= ADULT_AGE_GER)
+
+    var inTransit: Boolean = false
+
+    fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
 }
 
 fun Person.lastTransportMode(action: Action): Mode? {
@@ -95,7 +91,7 @@ fun Schedule.location(): Location? {
 fun Person.locationBySchedule() = schedule.location() ?: household.location
 
 fun Person.getBestCar(): PrivateCar? {
-    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && it.location == locationBySchedule() }
+    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && it.location.matches(location) }
         .maxByOrNull { if (it.mainUser == this) 1 else 0 }
 }
 

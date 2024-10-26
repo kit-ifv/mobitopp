@@ -8,6 +8,7 @@ import domain.enums.MODEUNKOWN
 import domain.location.Location
 import utils.units.AbsoluteTime
 import java.util.*
+import kotlin.NoSuchElementException
 
 /**
  * Current Action is a wrapper class that only allows modification of [LinkedAction] attributes which are in the future:
@@ -95,15 +96,17 @@ class Schedule(
      * in a sense, it steps through the points of the schedule. Note that the time is updated based on the end time, so
      * no actions later than the step can be added to the plan.
      */
-    fun step() {
-        present?.let {
+    fun step(): Location {
+        return present?.let {
             currentTime = it.endTime
             alterableHistory.add(it.original)
             present = null
             pollFirst()
+            it.endLocation
         } ?: run {
             val target = firstAction()
             target?.setNewAction() ?: { println("No Actions remaining in the plan") }
+            target?.startLocation ?: throw NoSuchElementException("No Location can be found")
         }
     }
 

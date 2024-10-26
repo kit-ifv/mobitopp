@@ -15,9 +15,11 @@ import modeling.validation.validateScope
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.CsvReader
+import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.id
 import utils.csv.long
+import utils.csv.withFilter
 import java.io.File
 
 // "personOid";"personNumber";"householdOid";"householdYear";"householdNumber";"activityType";"zoneId";"location";"locationX";"locationY"
@@ -26,7 +28,8 @@ import java.io.File
 fun <S, C> S.assignFixedDestinations(
     file: File? = null,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    columns: FixedDestinationColumns = FixedDestinationColumns()
+    columns: FixedDestinationColumns = FixedDestinationColumns(),
+    filter: FixedDestinationColumns.(Row, C) -> Boolean = { _, _ -> true }
 
 ) where S : ModelExecution<C>, C : Context, C : PersonContext, C : LegacyZonesContext, C : ActivityContext {
     val csvParser = CsvParser(errorHandling) { row ->
@@ -41,7 +44,8 @@ fun <S, C> S.assignFixedDestinations(
             acts.forEach { it.location = location }
         }
     }
-    prepareFixedDestinationsFile(csvParser, file)
+    val filterWrap: (Row) -> Boolean = { columns.filter(it, context) }
+    prepareFixedDestinationsFile(csvParser.withFilter(filterWrap), file)
 }
 data class FixedDestinationColumns(
     val personOid: String = "personOid",

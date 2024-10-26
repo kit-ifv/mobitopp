@@ -1,5 +1,8 @@
 package utils
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 @JvmInline
 value class ID<out E>(val id: Long) : Comparable<ID<*>> {
     /**

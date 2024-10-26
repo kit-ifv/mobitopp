@@ -6,7 +6,6 @@ import domain.data.Person
 import domain.data.point
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Metrics
 import domain.location.ZoneLocation
 import org.junit.jupiter.api.DynamicTest
@@ -17,12 +16,12 @@ import syntheticsim.ControllableImpedance
 import syntheticsim.OneHouseholdTwoPersons
 import syntheticsim.loadActivityPlan
 import syntheticsim.testAttractivenessModel
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
+import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.IGeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.speedupMap
-import utils.CodePlan
-import utils.collections.subsets
+import usecases.choicemodels.TripChoiceSituation
+import usecases.legacyChoiceModelModes
 import utils.units.sinceStart
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours
@@ -40,8 +39,12 @@ class ModeChoiceTest {
             }
             first.stepper().stepOverFirstActivity()
             first.schedule.activities().first().location = zones[1].point(BIELEFELD)
+
+            original.choose(
+                TripChoiceSituation(scenario.first, zones[1].point(BIELEFELD), zones[1].point(BIELEFELD)),
+                0.hours.sinceStart
+            )
         }
-        original.choose(scenario.first, 0.hours.sinceStart)
     }
 
     @TestFactory
@@ -51,7 +54,7 @@ class ModeChoiceTest {
                 +LegacyActivityType.HOME
                 +LegacyActivityType.WORK
             }
-            return speedupMap.values.subsets().filter { it.isNotEmpty() }.map {
+            return LegacyMode.entries.map { setOf(it, LegacyMode.PEDESTRIAN) }.map {
                 DynamicTest.dynamicTest(it.toString()) {
                     assertDoesNotThrow {
                         original.selectMode(
@@ -87,7 +90,7 @@ class ModeChoiceTest {
                     zones[1].point(BIELEFELD),
                     first.schedule.activities().first(),
                     first.schedule.activities().take(1).first(),
-                    setOf(StandardMode.PUBLICTRANSPORT),
+                    setOf(LegacyMode.PUBLICTRANSPORT),
                     impedance,
                     0.5
                 )
@@ -103,7 +106,7 @@ class ModeChoiceTest {
      * @return
      */
     private fun LegacyModeChoiceModel.calculate(
-        potentialModes: Set<Mode> = speedupMap.values.toSet(),
+        potentialModes: Set<Mode> = LegacyMode.entries.toSet(),
         random: Double
     ): Mode {
         return scenario.run {
@@ -128,18 +131,31 @@ class ModeChoiceTest {
      */
     @TestFactory
     fun modechoiceFunction(): List<DynamicTest> {
-        return speedupMap.values.map { mode ->
+        // TODO Robin remove this
+        // TODO Robin add definition of choice model which provides the entire set of potential modes(alternatives)
+        //  s.t. no calls to StandardMode and bad filtering need to be done
+        val badModes = setOf(
+            LegacyMode.UNKNOWN,
+            LegacyMode.UNDEFINED,
+            LegacyMode.TRUCK,
+            LegacyMode.PARK_AND_RIDE,
+            LegacyMode.PEDELEC,
+            LegacyMode.RIDE_HAILING,
+            LegacyMode.PREMIUM_RIDE_HAILING
+        )
+
+        return (LegacyMode.entries - badModes).map { mode ->
             DynamicTest.dynamicTest(mode.toString()) {
-                val controllableUtilityFunction = ControllableUtilityFunction(FakePlan)
+                val controllableUtilityFunction = ControllableUtilityFunction(legacyChoiceModelModes)
                 val choiceModel = LegacyModeChoiceModel(
                     testAttractivenessModel,
-                    modes = FakePlan,
+                    modes = legacyChoiceModelModes,
                     impedance = ControllableImpedance(),
-                    utilitiesGenerator = { _, _, _, _ -> controllableUtilityFunction }
+                    utilitiesGenerator = { _, _, _, _, _ -> controllableUtilityFunction }
                 )
                 controllableUtilityFunction[mode] = 9000.0
                 assertEquals(controllableUtilityFunction[mode], 9000.0)
-                (speedupMap.values - mode).forEach {
+                (LegacyMode.entries - mode).forEach {
                     assertEquals(controllableUtilityFunction[it], 0.0)
                 }
                 // Mode should always be the one with U = 9000 regardless of random number.
@@ -152,12 +168,12 @@ class ModeChoiceTest {
 
     @Test
     fun equalSelectionProbability() {
-        val controllableUtilityFunction = ControllableUtilityFunction(FakePlan)
+        val controllableUtilityFunction = ControllableUtilityFunction(legacyChoiceModelModes)
         val choiceModel = LegacyModeChoiceModel(
             testAttractivenessModel,
-            modes = FakePlan,
+            modes = legacyChoiceModelModes,
             impedance = ControllableImpedance(),
-            utilitiesGenerator = { _, _, _, _ -> controllableUtilityFunction }
+            utilitiesGenerator = { _, _, _, _, _ -> controllableUtilityFunction }
         )
         scenario.run {
             choiceModel.selectMode(
@@ -166,7 +182,7 @@ class ModeChoiceTest {
                 zones[1].point(BIELEFELD),
                 fakeActivity,
                 fakeActivity,
-                speedupMap.values.toSet(),
+                LegacyMode.entries.toSet(),
                 impedance,
                 0.5
 
@@ -175,7 +191,7 @@ class ModeChoiceTest {
     }
 }
 
-class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGeneratedHcUtilityFunction {
+class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGeneratedHcUtilityFunction {
 
     private val map: MutableMap<Mode, Double> = mutableMapOf()
     operator fun set(mode: Mode, value: Double) {
@@ -196,7 +212,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.PEDESTRIAN]
+        return this[modes.pedestrian]
     }
 
     override fun calculateU_rad(
@@ -209,7 +225,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.BIKE]
+        return this[modes.bike]
     }
 
     override fun calculateU_pkw(
@@ -222,7 +238,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.CAR]
+        return this[modes.car]
     }
 
     override fun calculateU_mf(
@@ -235,7 +251,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.PASSENGER]
+        return this[modes.passenger]
     }
 
     override fun calculateU_oev(
@@ -248,7 +264,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.PUBLICTRANSPORT]
+        return this[modes.publicTransport]
     }
 
     override fun calculateU_bs(
@@ -261,7 +277,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.BIKESHARING]
+        return this[modes.bikeSharing]
     }
 
     override fun calculateU_moia(
@@ -274,7 +290,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.RIDE_POOLING]
+        return this[modes.ridePooling]
     }
 
     override fun calculateU_escooter(
@@ -287,7 +303,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.E_SCOOTER]
+        return this[modes.eScooter]
     }
 
     override fun calculateU_cs_ff(
@@ -300,7 +316,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.CARSHARING_FREE]
+        return this[modes.carSharingFree]
     }
 
     override fun calculateU_cs_sb(
@@ -313,7 +329,7 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.CARSHARING_STATION]
+        return this[modes.carSharingStation]
     }
 
     override fun calculateU_taxi(
@@ -326,6 +342,6 @@ class ControllableUtilityFunction(override val modes: CodePlan<Mode>) : IGenerat
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return this[StandardMode.TAXI]
+        return this[modes.taxi]
     }
 }

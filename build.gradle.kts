@@ -7,6 +7,7 @@ plugins {
     jacoco
     id("org.barfuin.gradle.jacocolog") version "1.2.4" //This plugin is necessary because gradle eats the console output and gitlab demands to parse the console output for a coverage badge
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    kotlin("plugin.serialization") version "1.9.10"
     application
 }
 
@@ -57,6 +58,9 @@ dependencies {
 
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
 //    implementation(project(":test-processor"))
 //    ksp{project(":test-processor")}
 
@@ -114,6 +118,6 @@ tasks.withType<JavaExec>().configureEach {
     jvmArgs = listOf(
         "-XX:+HeapDumpOnOutOfMemoryError",        // Enable heap dump on OutOfMemoryError
         "-XX:HeapDumpPath=./heapdumps",           // Specify the directory for heap dumps
-        "-Xmx60G"                                 // Example: Set max heap size to 6G
+        "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
 }

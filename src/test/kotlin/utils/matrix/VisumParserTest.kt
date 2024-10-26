@@ -66,7 +66,7 @@ class VisumParserTest {
             0.010, 0.012, 0.013, 0.001, 0.001, 46.766
         )
 
-        assertArrayEquals(expectedMatrix.toDoubleArray(), array.toDoubleArray(), 0.001)
+        assertArrayEquals(expectedMatrix.toDoubleArray(), array, 0.001)
     }
 
     @Test
