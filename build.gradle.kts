@@ -9,10 +9,10 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
     kotlin("plugin.serialization") version "1.9.10"
     application
+    id("maven-publish")
 }
 
 group = "edu.kit.ifv"
-version = "1.0-SNAPSHOT"
 
 repositories {
 
@@ -35,15 +35,19 @@ detekt {
     autoCorrect = true
 }
 dependencies {
-    api(project(":processor"))
+    api("edu.kit.ifv:processor:1.0.0")
+//    api(project(":processor"))
 //    testImplementation(project(":processor"))
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
-    implementation(project(":annotations"))
-    testImplementation(project(":annotations"))
-    ksp(project(":processor")) // to make KSP work
+//    implementation(project(":annotations"))
+    implementation("edu.kit.ifv:annotations:1.0.0")
+    testImplementation("edu.kit.ifv:annotations:1.0.0")
+//    testImplementation(project(":annotations"))
+//    ksp(project(":processor")) // to make KSP work
+    ksp("edu.kit.ifv:processor:1.0.0") // to make KSP work
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
@@ -100,7 +104,23 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 kotlin {
     jvmToolchain(17)
 }
-
+version = "0.9.11"
+publishing {
+    publications {
+        register("mavenData", MavenPublication::class) {
+            from(components["kotlin"])
+        }
+        repositories {
+            maven {
+                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
+                credentials {
+                    username = project.findProperty("nexusUsername") as String?
+                    password = project.findProperty("nexusPassword") as String?
+                }
+            }
+        }
+    }
+}
 application {
     mainClass.set("MainKt")
 }
@@ -121,3 +141,4 @@ tasks.withType<JavaExec>().configureEach {
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
 }
+
