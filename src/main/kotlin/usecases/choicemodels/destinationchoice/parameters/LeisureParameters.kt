@@ -13,7 +13,7 @@ import usecases.choicemodels.destinationchoice.StandardDestinationParkstress
 import usecases.choicemodels.destinationchoice.SurplusCars
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object LeisureParameters : DestinationRequirements {
+internal object LeisureParameters : DestinationRequirements {
     override val constant: CombinedDestinationParameters = object :
         CombinedDestinationParameters,
         StandardDestinationDistance,

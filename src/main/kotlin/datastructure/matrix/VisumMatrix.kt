@@ -4,6 +4,7 @@ package datastructure.matrix
 
 import domain.data.ZoneId
 import java.nio.file.Path
+import kotlin.time.measureTime
 
 /**
  * Represents a matrix of values parsed from a Visum file.
@@ -12,11 +13,25 @@ import java.nio.file.Path
  * @param converter Function to convert Double to generic type O.
  */
 class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<ZoneId, O> {
-    private val matrix by lazy { parser.getArray() }
 
-    private val indexLookup by lazy { parser.getZoneIds().withIndex().associate { (index, zoneId) -> zoneId to index } }
+    private val data by lazy {
+        println("Starting parsing of $path")
+        lateinit var matrixData: DoubleArray
+        lateinit var indexData: Array<ZoneId>
+        val duration = measureTime {
+            val parser = MatrixParser(path)
+            matrixData = parser.getArray()
+            indexData = parser.getZoneIds()
+        }
+        println("Parsing of $path took $duration")
+        matrixData to indexData.withIndex().associate { (index, zoneId) -> zoneId to index }
+    }
+    private val matrix get() = data.first
 
-    private val parser: IVisumParser = VisumParser(path)
+    private val indexLookup get() = data.second
+
+//    private val parser: () ->  IVisumParser =  {MatrixParser(path)}
+//    private val parser: IVisumParser = VisumParser(path)
 
     /**
      * Get the value at the specified row and column in the matrix.
@@ -31,9 +46,12 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
         val columnIndex =
             indexLookup[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
 
-        // Calculate the index in the one-dimensional matrix
+//         Calculate the index in the one-dimensional matrix
         val index = rowIndex * indexLookup.size + columnIndex
-
         return converter(matrix[index])
+    }
+
+    fun toFloatMatrix(): FloatMatrix<O> {
+        return FloatMatrix(indexLookup.size, indexLookup, matrix.map { it.toFloat() }.toFloatArray(), converter)
     }
 }

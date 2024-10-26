@@ -26,7 +26,9 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
         file.decompressedBufferedReader()
         // properBufferedReader(file.toFile())
     })
+
     init {
+
         val reader = thoth.invoke()
         reader.forEachLine {
             state = state.nextState(it)
@@ -152,8 +154,8 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
         return mutableList.toTypedArray()
     }
 
-    override fun getArray(): Array<Double> {
-        return values.flatten().toTypedArray()
+    override fun getArray(): DoubleArray {
+        return values.flatten().toDoubleArray()
     }
 }
 

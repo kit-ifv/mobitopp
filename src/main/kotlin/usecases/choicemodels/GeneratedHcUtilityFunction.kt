@@ -6,7 +6,6 @@ import domain.enums.Mode
 import domain.location.Metrics
 import domain.location.ZoneLocation
 import usecases.AttractivenessModel
-import utils.CodePlan
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -22,7 +21,7 @@ import kotlin.math.pow
 class GeneratedHcUtilityFunction(
     attractivities: AttractivenessModel,
     logitParameters: ModeChoiceParameters = ModeChoiceParameters(),
-    override val modes: CodePlan<Mode>,
+    override val modes: ChoiceModelModes,
     helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivities, modes),
 ) : IGeneratedHcUtilityFunction {
     private val asc_bs = logitParameters.asc_bs
@@ -1335,8 +1334,8 @@ class GeneratedHcUtilityFunction(
     "FunctionNaming",
     "TooManyFunctions"
 ) // I agree with detekt on this one, good thing we are reengineering and perhaps moving away from this
-interface IGeneratedHcUtilityFunction : BasicModesModel {
-    override val modes: CodePlan<Mode>
+interface IGeneratedHcUtilityFunction {
+    val modes: ChoiceModelModes
     fun calculateU_fuss(
         person: Person,
         origin: ZoneLocation,

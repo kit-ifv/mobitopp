@@ -2,6 +2,8 @@ package domain.data
 
 import Buildable
 import domain.location.RoadPositionInZone
+import domain.resources.Resource
+import domain.resources.Subscribable
 import units.Currency
 import utils.Decodable
 import utils.Encodable
@@ -24,7 +26,8 @@ typealias HouseholdId = ID<Household>
  *  @property random a random value provider for decisions carried out by this agent
  */
 @Buildable
-interface Household : Identifiable<HouseholdId> {
+@Suppress("ComplexInterface")
+interface Household : Identifiable<HouseholdId>, Subscribable<Person>, Resource<Person> {
     val householdNumber: Long
     val surveyYear: Int
     val location: RoadPositionInZone
@@ -37,6 +40,13 @@ interface Household : Identifiable<HouseholdId> {
     val cars: Set<PrivateCar>
     fun addMember(person: Person): Boolean
     fun addCar(privateCar: PrivateCar): Boolean
+
+    override fun isAvailableFor(agent: Person): Boolean {
+        return location.matches(agent.location) && !agent.inTransit
+    }
+
+    override val resources: Set<Resource<Person>>
+        get() = setOf(this)
 }
 
 @Buildable
@@ -50,7 +60,8 @@ class DefaultHousehold(
     override val incomePerMonth: Currency,
     override val economicStatus: EconomicStatus,
     override val random: Random,
-    override val id: HouseholdId = ID(householdNumber)
+    override val id: HouseholdId = ID(householdNumber),
+    override val name: String = "Household: $id"
 
 ) : Household {
     override val members: MutableSet<Person> = mutableSetOf()

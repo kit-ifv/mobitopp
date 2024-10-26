@@ -52,25 +52,30 @@ class InternalIterable(val activityBlock: () -> ActivityBlock) : Iterable<Action
     }
 }
 
-class BlockModel(override val dispatcher: IDispatcher) : SeparablePlanModel {
+class BlockModel(
+    override val dispatcher: IDispatcher,
+    private val legBlockList: MutableList<LinkTrip> = mutableListOf(),
+    private var activityBlocks: ActivityBlock = ActivityBlock(sortedSetOf()),
+    private val activitySortedSet: SortedSet<LinkedActivity> = sortedSetOf()
+) : SeparablePlanModel {
 
+    constructor(dispatcher: IDispatcher) : this(dispatcher, mutableListOf())
     constructor() : this(Dispatcher())
 
     init {
         dispatcher.register(this)
     }
 
-    @Suppress("MagicNumber") // 3 legs per trip is the assumed standard
-    private val legBlockList: MutableList<LinkTrip> by lazy {
-        ArrayList(3)
-    }
+//    @Suppress("MagicNumber") // 3 legs per trip is the assumed standard
+//    private val legBlockList: MutableList<LinkTrip> by lazy {
+//        ArrayList(3)
+//    }
 
-    var activityBlocks = ActivityBlock(sortedSetOf())
-        private set
+//    private var activityBlocks = ActivityBlock(sortedSetOf())
 
-    private val activitySortedSet: SortedSet<LinkedActivity> by lazy {
-        sortedSetOf()
-    }
+//    private val activitySortedSet: SortedSet<LinkedActivity> by lazy {
+//        sortedSetOf()
+//    }
 
     private val legBlocks get() = activityBlocks.next
 

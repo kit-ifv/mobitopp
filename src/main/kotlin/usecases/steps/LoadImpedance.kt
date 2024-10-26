@@ -31,6 +31,7 @@ fun <S, C> S.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
+    betterFormatRoot: File? = null
 ) where S : ModelExecution<C>, C : Context, C : SimulationContext {
     addStep(
         LoadImpedanceStep(
@@ -40,7 +41,8 @@ fun <S, C> S.loadImpedance(
             distanceUnit,
             currencyUnit,
             durationUnit,
-            context
+            context,
+            betterFormatRoot
         )
     )
 }
@@ -54,6 +56,7 @@ private class LoadImpedanceStep(
     private val currencyUnit: CurrencyUnit? = null,
     private val durationUnit: DurationUnit? = null,
     private val context: SimulationContext,
+    private val betterFormatRoot: File?
 ) : ModelStep {
     override val name: String = "Load matrix impedance from yaml"
 
@@ -68,6 +71,7 @@ private class LoadImpedanceStep(
             modeCodes = context.modes,
             simulationStart = context.simulationStart,
             simulationEnd = context.simulationEnd,
+            betterFormat = betterFormatRoot
         )
 
         context.impedance.value = (impedance)

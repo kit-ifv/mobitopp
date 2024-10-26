@@ -40,6 +40,7 @@ class YamlMatrixLookupMetrics(
     modeCodes: CodePlan<Mode>,
     simulationStart: AbsoluteTime,
     simulationEnd: AbsoluteTime,
+    betterFormat: File? = null
 ) : Metrics {
 
     private val travelTimes: MultiMatrix<Mode, ZoneId, Duration> = YamlMultiMatrix<Mode, ZoneId, Duration>(
@@ -48,10 +49,9 @@ class YamlMatrixLookupMetrics(
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
         simulationEndExclusive = simulationEnd,
+        betterFormat
 
-    ).also {
-        println("\nFinished init travel time matrices: ${travelTimeMatrixConfig.name}")
-    }
+    )
 
     private val travelCosts: MultiMatrix<Mode, ZoneId, Currency> = YamlMultiMatrix<Mode, ZoneId, Currency>(
         path = travelCostMatrixConfig.toPath(),
@@ -59,19 +59,15 @@ class YamlMatrixLookupMetrics(
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
         simulationEndExclusive = simulationEnd,
+        betterFormat
 
-    ).also {
-        println("\nFinished init travel cost matrices: ${travelCostMatrixConfig.name}")
-    }
+    )
 
     private val distances: Matrix<ZoneId, Distance> = VisumMatrix(
         path = distanceMatrix.toPath(),
         converter = { it.toDistance(distanceUnit) }
 
-    ).also {
-        println("Finished init travel distance matrix: ${distanceMatrix.name}")
-    }
-
+    )
     override fun costMetric(mode: Mode, time: Time): CostMetric = travelCosts.matrixAt(mode, time).asMetric()
 
     override fun distanceMetric(mode: Mode): DistanceMetric = distances.asMetric()

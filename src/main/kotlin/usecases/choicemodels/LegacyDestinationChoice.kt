@@ -23,7 +23,6 @@ import domain.data.Zone
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Location
 import domain.location.Metrics
 import domain.location.ZoneLocation
@@ -37,7 +36,6 @@ import usecases.choicemodels.parameters.LegacyBusinessParameters
 import usecases.choicemodels.parameters.LegacyLeisureParameters
 import usecases.choicemodels.parameters.LegacyServiceParameters
 import usecases.choicemodels.parameters.LegacyShoppingParameters
-import utils.CodePlan
 import utils.units.AbsoluteTime
 import utils.units.Time
 import kotlin.math.exp
@@ -71,11 +69,18 @@ class LegacyDestinationChoice(
     attractivenessModel: AttractivenessModel,
     umlands: (Location) -> Boolean, // TODO ask Lucas
     zones: Set<Zone>,
-    override val modes: CodePlan<Mode>,
-    val filter: ModeFilter<Mode, Person> = ModeAvailabilityFilter(modes),
-) : ChoiceModel<Person, ZoneLocation>, BasicModesModel, ILegacyDestinationChoice {
+    val modes: ChoiceModelModes,
+    val filter: ChoiceFilter<Mode, Person> = NoFilter,
+) : ChoiceModel<Person, ZoneLocation>, ILegacyDestinationChoice {
 
-    override val name: String = "LegacyDestinationChoiceModel"
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikeSharing = modes.bikeSharing
+
+    override val name: String = "HamburgLegacyDestinationChoiceModel"
 
     private val _choices: Set<ZoneLocation> = zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
 
@@ -89,14 +94,14 @@ class LegacyDestinationChoice(
             ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has no past activities.")
         val nextActivity = agent.schedule.activities().firstOrNull { it > time }
             ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has future planned activity.")
-        val modeOptions = filter.filter(modes.values().toList(), agent)
+        val modeOptions = filter.filter(modes.options, agent)
         return choices.selectDestination(agent, prevActivity, nextActivity, modeOptions, agent.random.nextDouble())
     }
 
     /**
      * Taken from DestinationChoiceModelLoader.java Transmove line:55-80
      */
-    private fun getParams(type: ActivityType): IDestinationParameters {
+    private fun getParams(type: ActivityType): IDestinationParameters { // TODO independence of legacy activity type
         return when (type) {
             LegacyActivityType.BUSINESS, LegacyActivityType.BUSINESS_TRAVEL, LegacyActivityType.BUSINESS_OUT, LegacyActivityType.BUSINESS_TO_WORK -> LegacyBusinessParameters
             LegacyActivityType.SHOPPING, LegacyActivityType.PRIVATE_BUSINESS, LegacyActivityType.SHOPPING_OTHER, LegacyActivityType.SHOPPING_DAILY -> LegacyShoppingParameters
@@ -116,6 +121,7 @@ class LegacyDestinationChoice(
     ): ZoneLocation {
         val origin = prevActivity.location as ZoneLocation
         val endTime = prevActivity.endTime
+
         //             helper.getATTRACTIVITY(category, person, origin, destination, nextActivity, time, randomNumber)
         val zonesWithAttractivity =
             filter { helper.getATTRACTIVITY(it, person, origin, it, nextActivity, endTime, randomNumber) > 0.0 }
@@ -221,14 +227,11 @@ class LegacyDestinationChoice(
         val PARKDRUCK_value: Double =
             helper.getPARKDRUCK(category, person, origin, destination, nextActivity, time, randomNumber)
 
-        val AVAIL_FUSS_value: Double =
-            (modeMap[PEDESTRIAN_KEY]!! in availableModes).D
+        val AVAIL_FUSS_value: Double = (pedestrian in availableModes).D
 
-        val AVAIL_RAD_value: Double =
-            (modeMap[BIKE_KEY]!! in availableModes).D
+        val AVAIL_RAD_value: Double = (bike in availableModes).D
 
-        val AVAIL_OEV_value: Double =
-            (modeMap[PUBLICTRANSPORT_KEY]!! in availableModes).D
+        val AVAIL_OEV_value: Double = (publicTransport in availableModes).D
 
         val TRAVEL_TIME_PUBLICTRANSPORT_value: Double = helper.getTRAVEL_TIME_PUBLICTRANSPORT(
             category,
@@ -288,10 +291,9 @@ class LegacyDestinationChoice(
         val TRAVEL_TIME_BIKE_value: Double =
             helper.getTRAVEL_TIME_BIKE(category, person, origin, destination, nextActivity, time, randomNumber)
 
-        val AVAIL_PKW_value: Double = (modeMap[CAR_KEY]!! in availableModes).D
+        val AVAIL_PKW_value: Double = (car in availableModes).D
 
-        val AVAIL_MF_value: Double =
-            (modeMap[PASSENGER_KEY]!! in availableModes).D
+        val AVAIL_MF_value: Double = (passenger in availableModes).D
 
         val TRAVEL_TIME_CAR_value: Double =
             helper.getTRAVEL_TIME_CAR(category, person, origin, destination, nextActivity, time, randomNumber)
@@ -1177,10 +1179,17 @@ class LegacyDestinationHelper(
     val umlands: (Location) -> Boolean,
     private val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
     private val durationUnit: DurationUnit = DurationUnit.MINUTES,
-    override val modes: CodePlan<Mode>,
-) : BasicModesModel {
+    private val modes: ChoiceModelModes,
+) {
 
     private val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS
+
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikesharing = modes.bikeSharing
 
     fun getAGE(
         category: ZoneLocation,
@@ -1363,7 +1372,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return impedance.distance(origin, destination, StandardMode.CAR).toDouble(distanceUnit)
+        return impedance.distance(origin, destination, car).toDouble(distanceUnit)
     }
 
     fun getATTRACTIVITY(
@@ -1418,7 +1427,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.tTime(origin, destination, time)
+        return publicTransport.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT(
@@ -1430,7 +1439,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.tCost(origin, destination, time)
+        return publicTransport.tCost(origin, destination, time)
     }
 
     fun getACCESS_TIME_PUBLICTRANSPORT(
@@ -1524,7 +1533,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PEDESTRIAN_KEY]!!.tTime(origin, destination, time)
+        return pedestrian.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_TIME_BIKE(
@@ -1536,7 +1545,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[BIKE_KEY]!!.tTime(origin, destination, time)
+        return bike.tTime(origin, destination, time)
     }
 
     private fun toTime(mode: Mode, origin: Location, destination: Location, time: Time) =
@@ -1592,7 +1601,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.tTime(origin, destination, time)
+        return car.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_COST_CAR(
@@ -1604,7 +1613,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.tCost(origin, destination, time)
+        return car.tCost(origin, destination, time)
     }
 
     fun getACCESS_TIME_CAR(
@@ -1652,7 +1661,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return publicTransport.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT_FIX(
@@ -1664,7 +1673,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::toCost, time)
+        return publicTransport.calculateFixed(person, destination, ::toCost, time)
     }
 
     private inline fun Mode.calculateFixed(
@@ -1687,7 +1696,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::aoTime, time)
+        return publicTransport.calculateFixed(person, destination, ::aoTime, time)
     }
 
     fun getEGRESS_TIME_PUBLICTRANSPORT_FIX(
@@ -1699,7 +1708,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::eoTime, time)
+        return publicTransport.calculateFixed(person, destination, ::eoTime, time)
     }
 
     fun getPARKDRUCK_FIX(
@@ -1723,7 +1732,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PEDESTRIAN_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return pedestrian.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_TIME_BIKE_FIX(
@@ -1735,7 +1744,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[BIKE_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return bike.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_TIME_CAR_FIX(
@@ -1747,7 +1756,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return car.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_COST_CAR_FIX(
@@ -1759,7 +1768,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::toCost, time)
+        return car.calculateFixed(person, destination, ::toCost, time)
     }
 
     fun getACCESS_TIME_CAR_FIX(
@@ -1771,7 +1780,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::aoTime, time)
+        return car.calculateFixed(person, destination, ::aoTime, time)
     }
 
     fun getEGRESS_TIME_CAR_FIX(
@@ -1783,7 +1792,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::eoTime, time)
+        return car.calculateFixed(person, destination, ::eoTime, time)
     }
 }
 

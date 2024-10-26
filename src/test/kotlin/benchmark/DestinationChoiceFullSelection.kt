@@ -2,16 +2,16 @@ package benchmark
 
 import BIELEFELD
 import domain.data.point
-import domain.enums.StandardMode
 import generateActivities
 import generateHouseholds
 import generateZones
 import syntheticsim.ControllableImpedance
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
 import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
+import usecases.legacyChoiceModelModes
 import kotlin.random.Random
 
 fun main() {
@@ -30,7 +30,7 @@ fun main() {
         attractiveness,
         umlands = { false },
         zones.toSet(),
-        FakePlan,
+        legacyChoiceModelModes,
         NoFilter
 
     )
@@ -38,9 +38,10 @@ fun main() {
     val destinationChoice2: ILegacyDestinationChoice = ModernizedDestinationChoice(
         controllableImpedance,
         attractiveness,
-        { 0.0 },
-        { false }
+        { false },
+        zones.toSet(),
 
+        legacyChoiceModelModes,
     )
     val amount = 100000
     val random = Random(42)
@@ -49,7 +50,7 @@ fun main() {
         val prev = activities.random(random)
         val next = activities.random(random)
         destinationChoice.run {
-            zoneLocations.selectDestination(person, prev, next, StandardMode.entries, 0.5)
+            zoneLocations.selectDestination(person, prev, next, LegacyMode.entries, 0.5)
         }
     }
     repeat(amount) {
@@ -57,7 +58,7 @@ fun main() {
             val person = persons.random(random)
             val prev = activities.random(random)
             val next = activities.random(random)
-            zoneLocations.selectDestination(person, prev, next, StandardMode.entries, 0.5)
+            zoneLocations.selectDestination(person, prev, next, LegacyMode.entries, 0.5)
         }
     }
 }

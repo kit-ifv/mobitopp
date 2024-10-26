@@ -6,7 +6,6 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.point
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric
@@ -21,6 +20,7 @@ import units.Currency
 import units.Distance
 import units.euros
 import units.kilometers
+import usecases.LegacyMode
 import utils.collections.cartesianProduct
 import utils.units.AbsoluteTime
 import utils.units.Time
@@ -39,7 +39,7 @@ import kotlin.time.Duration.Companion.minutes
  */
 @Suppress("NotImplementedDeclaration") // For test stubs this is not an issue
 class ControllableImpedance(
-    private val startingModes: Collection<Mode> = StandardMode.entries,
+    private val startingModes: Collection<Mode> = LegacyMode.entries,
     var standardCost: Currency = 1.euros,
     var standardTime: Duration = 10.minutes,
     var standardDistance: Distance = 1.kilometers
@@ -287,7 +287,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (-1).hours.sinceStart
             ),
             10.minutes
@@ -296,7 +296,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (0).hours.sinceStart
             ),
             999.hours
@@ -305,7 +305,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (1).hours.sinceStart
             ),
             888.hours
@@ -314,7 +314,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (1.49).hours.sinceStart
             ),
             888.hours
@@ -323,7 +323,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (1.5).hours.sinceStart
             ),
             10.minutes
@@ -332,7 +332,7 @@ class ControllableImpedanceTest {
             impedance.duration(
                 origin.point(BIELEFELD),
                 destination.point(BIELEFELD),
-                StandardMode.PASSENGER,
+                LegacyMode.PASSENGER,
                 (2).hours.sinceStart
             ),
             10.minutes

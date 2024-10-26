@@ -31,7 +31,6 @@ import domain.location.ZoneLocation
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
-import utils.CodePlan
 import java.time.DayOfWeek
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -259,8 +258,20 @@ inline val Boolean.D get() = if (this) 1.0 else 0.0
 
 class ModeChoiceHelperMNL(
     val attractivities: AttractivenessModel,
-    override val modes: CodePlan<Mode>
-) : BasicModesModel {
+    val modes: ChoiceModelModes,
+
+) {
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikesharing = modes.bikeSharing
+    val ridePooling = modes.ridePooling
+    val carSharingFree = modes.carSharingFree
+    val carSharingStation = modes.carSharingStation
+    val taxi = modes.taxi
+    val eScooter = modes.eScooter
 
     private val currencyUnit = CurrencyUnit.EUROS
     val distanceUnit = DistanceUnit.KILOMETERS
@@ -295,7 +306,7 @@ class ModeChoiceHelperMNL(
         return (nextActivity.type == LegacyActivityType.WORK).D
     }
 
-    val educations = listOf(
+    val educations = listOf( // TOPDO independent of legacy activity type
         LegacyActivityType.EDUCATION,
         LegacyActivityType.EDUCATION_PRIMARY,
         LegacyActivityType.EDUCATION_SECONDARY,
@@ -415,7 +426,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[PEDESTRIAN_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            pedestrian,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -428,9 +444,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.distance(origin, destination, modeMap[CAR_KEY]!!).toDouble(
-            distanceUnit
-        )
+        return impedance.distance(origin, destination, car).toDouble(distanceUnit)
     }
 
     fun getHAS_COMMUTER_TICKET(
@@ -458,7 +472,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (person.lastTransportMode(previousActivity) == modeMap[BIKE_KEY]!!).D
+        return (person.lastTransportMode(previousActivity) == bike).D
     }
 
     fun getTRAVEL_TIME_BIKE(
@@ -475,7 +489,7 @@ class ModeChoiceHelperMNL(
         return impedance.duration(
             origin,
             destination,
-            modeMap[BIKE_KEY]!!,
+            bike,
             previousActivity.endTime
         ).toDouble(durationUnit)
     }
@@ -493,7 +507,7 @@ class ModeChoiceHelperMNL(
     ): Double {
         // TODO figure out which logic is better, because a person in reengineering might not have a fixed location
         return person.nextFixedActivity()?.let {
-            impedance.duration(destination, it.location, modeMap[BIKE_KEY]!!, previousActivity.endTime)
+            impedance.duration(destination, it.location, bike, previousActivity.endTime)
                 .toDouble(durationUnit)
         } ?: 0.0
     }
@@ -509,7 +523,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (person.lastTransportMode(previousActivity) == modeMap[CAR_KEY]!!).D
+        return (person.lastTransportMode(previousActivity) == car).D
     }
 
     fun getIS_FEMALE(
@@ -555,7 +569,7 @@ class ModeChoiceHelperMNL(
         return impedance.duration(
             origin,
             destination,
-            modeMap[CAR_KEY]!!,
+            car,
             previousActivity.endTime
         ).toDouble(durationUnit)
     }
@@ -585,7 +599,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[CAR_KEY]!!, previousActivity.endTime).toDouble(currencyUnit)
+        return impedance.cost(
+            origin,
+            destination,
+            car,
+            previousActivity.endTime
+        ).toDouble(currencyUnit)
     }
 
     fun getACCESS_TIME_CAR(
@@ -628,7 +647,7 @@ class ModeChoiceHelperMNL(
         randomNumber: Double
     ): Double {
         return person.nextFixedActivity()?.let {
-            impedance.duration(destination, it.location, modeMap[CAR_KEY]!!, previousActivity.endTime)
+            impedance.duration(destination, it.location, car, previousActivity.endTime)
                 .toDouble(durationUnit)
         } ?: 0.0
     }
@@ -645,7 +664,7 @@ class ModeChoiceHelperMNL(
         randomNumber: Double
     ): Double {
         return person.nextFixedActivity()?.let {
-            impedance.cost(destination, it.location, modeMap[CAR_KEY]!!, previousActivity.endTime)
+            impedance.cost(destination, it.location, car, previousActivity.endTime)
                 .toDouble(currencyUnit)
         } ?: 0.0
     }
@@ -695,7 +714,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (person.lastTransportMode(previousActivity) == modeMap[PASSENGER_KEY]!!).D
+        return (person.lastTransportMode(previousActivity) == passenger).D
     }
 
     fun getHAS_DRIVING_LICENSE(
@@ -723,7 +742,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[PASSENGER_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            passenger,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -738,7 +762,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (person.lastTransportMode(previousActivity) == modeMap[PUBLICTRANSPORT_KEY]!!).D
+        return (person.lastTransportMode(previousActivity) == publicTransport).D
     }
 
     fun getLOGSUM_ACCESS_PUBLICTRANSPORT(
@@ -804,7 +828,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[PUBLICTRANSPORT_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            publicTransport,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -819,7 +848,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[PUBLICTRANSPORT_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            publicTransport,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -834,7 +868,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[BIKESHARING_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            bikesharing,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -849,7 +888,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[BIKESHARING_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            bikesharing,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -892,8 +936,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        // TODO I do not understand why the original concept is to use a string to identify memberships.
-        return person.memberships[moiaString]?.D ?: 0.0
+        return person.memberships.any { it.key.name == moiaString }.D
     }
 
     fun getTRAVEL_TIME_RIDE_POOLING(
@@ -907,7 +950,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[RIDE_POOLING_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            ridePooling,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -1014,7 +1062,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[RIDE_POOLING_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            ridePooling,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -1100,7 +1153,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[E_SCOOTER_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            eScooter,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -1115,7 +1173,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[E_SCOOTER_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            eScooter,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -1144,7 +1207,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[CARSHARING_FREE_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            carSharingFree,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -1159,7 +1227,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[CARSHARING_FREE_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            carSharingFree,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -1202,7 +1275,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.duration(origin, destination, modeMap[CARSHARING_STATION_KEY]!!, previousActivity.endTime)
+        return impedance.duration(
+            origin,
+            destination,
+            carSharingStation,
+            previousActivity.endTime
+        )
             .toDouble(durationUnit)
     }
 
@@ -1217,7 +1295,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[CARSHARING_STATION_KEY]!!, previousActivity.endTime)
+        return impedance.cost(
+            origin,
+            destination,
+            carSharingStation,
+            previousActivity.endTime
+        )
             .toDouble(currencyUnit)
     }
 
@@ -1235,7 +1318,7 @@ class ModeChoiceHelperMNL(
         return impedance.duration(
             origin,
             destination,
-            modeMap[TAXI_KEY]!!,
+            taxi,
             previousActivity.endTime
         ).toDouble(durationUnit)
     }
@@ -1251,7 +1334,12 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return impedance.cost(origin, destination, modeMap[TAXI_KEY]!!, previousActivity.endTime).toDouble(currencyUnit)
+        return impedance.cost(
+            origin,
+            destination,
+            taxi,
+            previousActivity.endTime
+        ).toDouble(currencyUnit)
     }
 
     fun getChoiceSet(

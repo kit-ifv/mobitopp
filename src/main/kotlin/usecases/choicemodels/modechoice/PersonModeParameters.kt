@@ -22,6 +22,17 @@ interface PersonModeParameters {
     fun evaluateAge(person: ModePersonScope): Double = 0.0
     fun evaluateNumberOfCars(person: ModePersonScope): Double = 0.0
     fun evaluateEconomicStatus(person: ModePersonScope): Double = 0.0
+
+    /**
+     * Some utility functions shift the utility if the mode of the last trip matches a specific transport mode. This function
+     * implements the behaviour and returns a shift value if the previous mode meets a condition specified in the subinterfaces
+     * Most implementations simply check whether the previous mode is the same as the mode for which the utility is calculated
+     * right now. Technically, any behaviour could be assigned to this function, such as assigning a target value if the
+     * previous mode is PT, and a different value if it is carsharing.
+     *
+     * @param person The target mode scope encapsulating the relevant information for calculating the mode utility
+     * @return a double by which the utility should be shifted if whatever condition specified in the function is met.
+     */
     fun evaluatePreviousMode(person: ModePersonScope): Double = 0.0
     fun evaluateCommuterTicket(person: ModePersonScope): Double = 0.0
     fun evaluateGender(person: ModePersonScope): Double = 0.0
@@ -259,9 +270,14 @@ interface CustomEconomicStatus : PersonModeParameters {
  *
  * Add this interface to a parameter composition if the previous mode is a relevant factor and no standard implementation
  * suits your needs.
+ * @property mode Some utility functions require knowledge of the mode of the previous trip, such as assigning car a higher
+ * utility if the previous trip has been taken by car. This field assigns the specific mode for which the calculation should
+ * look out for.
  */
 
 interface CustomPreviousMode : PersonModeParameters {
+    val mode: Mode
+
     override fun evaluatePreviousMode(person: ModePersonScope): Double
 }
 

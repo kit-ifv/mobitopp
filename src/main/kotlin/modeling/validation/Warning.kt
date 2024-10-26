@@ -2,6 +2,7 @@ package modeling.validation
 
 import utils.collections.printAsTree
 import utils.files.requireFileReadAccess
+import utils.files.requireFileWriteAccess
 import java.io.File
 
 /**
@@ -119,4 +120,11 @@ fun validateFileReadAccess(file: File, isError: Boolean = true, fileDescription:
     exceptionsAreErrors = isError
 ) {
     requireFileReadAccess(file, messagePrefix = fileDescription)
+}
+
+fun validateFileWriteAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(
+    message = "Validate write access of: ${file.absolutePath}",
+    exceptionsAreErrors = isError
+) {
+    requireFileWriteAccess(file, messagePrefix = fileDescription)
 }

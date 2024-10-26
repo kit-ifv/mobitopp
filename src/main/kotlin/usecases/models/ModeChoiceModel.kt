@@ -7,21 +7,19 @@ import domain.location.Metrics
 import modeling.models.LogitModel
 import units.CurrencyUnit
 import units.DistanceUnit
-import usecases.choicemodels.BIKE_KEY
-import usecases.choicemodels.BasicModesModel
-import usecases.choicemodels.CAR_KEY
-import utils.CodePlan
 import utils.units.Time
 import kotlin.time.DurationUnit
 
+@Suppress("LongParameterList")
 class ModeChoiceModel(
     override val name: String,
-    override val modes: CodePlan<Mode>,
+    val car: Mode,
+    val bike: Mode,
     val metrics: Metrics,
     val bCost: Double = 1.0,
     val bDist: Double = 1.0,
     val bDur: Double = 1.0,
-) : LogitModel<Person, Mode>(), BasicModesModel {
+) : LogitModel<Person, Mode>() {
 
     override fun utility(agent: Person, choice: Mode, time: Time): Double {
         val from = LOCATIONUNKNOWN
@@ -37,10 +35,10 @@ class ModeChoiceModel(
 
     @Suppress("MagicNumber")
     private fun asc(mode: Mode): Double = when (mode) {
-        modeMap[CAR_KEY]!! -> 2.0
-        modeMap[BIKE_KEY]!! -> -0.5
+        car -> 2.0
+        bike -> -0.5
         else -> 0.0
     }
 
-    override fun choices(agent: Person, time: Time): Set<Mode> = modes.values()
+    override fun choices(agent: Person, time: Time): Set<Mode> = setOf(bike, car)
 }

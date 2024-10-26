@@ -12,7 +12,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object EScooterParameters : WithCost {
+internal object EScooterParameters : WithCost {
     override val alpha: Alpha =
         object : Alpha, StandardGender, StandardCars, StandardActivities, StandardDrivingLicence, CustomAge {
             override val drivingLicence: Double = -0.73583050105007

@@ -1,16 +1,16 @@
 package benchmark
 
 import BIELEFELD
-import choicemodels.ModernizedModeUtility
 import domain.data.point
 import generateActivities
 import generateHouseholds
 import generateZones
 import syntheticsim.ControllableImpedance
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
 import usecases.choicemodels.GeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.speedupMap
+import usecases.choicemodels.modechoice.ModernizedModeUtility
+import usecases.legacyChoiceModelModes
 import kotlin.random.Random
 
 fun main() {
@@ -25,24 +25,24 @@ fun main() {
     }
     val modernizedModeChoice = LegacyModeChoiceModel(
         attractivenessModel,
-        modes = FakePlan,
+        modes = legacyChoiceModelModes,
         impedance = controllableImpedance,
-        modeFilter = { modes, _ -> modes }, // Factually no filter
-        utilitiesGenerator = { a, l, m, h -> ModernizedModeUtility(m, a) }
+        choiceFilter = { modes, _ -> modes }, // Factually no filter
+        utilitiesGenerator = { a, l, m, h, p -> ModernizedModeUtility(m, a, p) }
 //        utilitiesGenerator = {a, l, m , h -> GeneratedHcUtilityFunction(a, l, m, h) }
     )
 
     val modeChoice2 = LegacyModeChoiceModel(
         attractivenessModel,
-        modes = FakePlan,
+        modes = legacyChoiceModelModes,
         impedance = controllableImpedance,
-        modeFilter = { modes, _ -> modes }, // Factually no filter
+        choiceFilter = { modes, _ -> modes }, // Factually no filter
 //        utilitiesGenerator = { a, l, m, h -> ModernizedModeUtility(m) }
-        utilitiesGenerator = { a, l, m, h -> GeneratedHcUtilityFunction(a, l, m, h) }
+        utilitiesGenerator = { a, l, m, h, p -> GeneratedHcUtilityFunction(a, l, m, h) }
     )
     val random = Random(42)
 
-    val choiceSet = speedupMap.values.toSet()
+    val choiceSet = LegacyMode.entries.toSet()
     repeat(10000000) {
         modeChoice2.selectMode(
             persons.random(random),

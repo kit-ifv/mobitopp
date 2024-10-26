@@ -34,6 +34,8 @@ interface Car : Identifiable<CarId> {
 
     var passengers: MutableSet<Person>
 
+    var keyHolder: Person?
+
     fun addDriver(person: Person) {
         driver = person
     }
@@ -283,6 +285,8 @@ class PrivateCarBuilder(
         override var driver: Person? = null
         override var passengers: MutableSet<Person> = mutableSetOf()
         override var state = PrivateCar.CarState.PARKED
+
+        override var keyHolder: Person? = null
 
         init {
             owner.addCar(this)

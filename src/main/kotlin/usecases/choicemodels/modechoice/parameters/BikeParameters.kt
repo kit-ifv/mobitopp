@@ -1,6 +1,6 @@
 package usecases.choicemodels.modechoice.parameters
 
-import domain.enums.StandardMode
+import domain.enums.Mode
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomPreviousMode
 import usecases.choicemodels.modechoice.ModePersonScope
@@ -12,7 +12,7 @@ import usecases.choicemodels.modechoice.StandardHasCommuterTicket
 import usecases.choicemodels.modechoice.TravelTimeBeta
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object BikeParameters : NoCost {
+internal class BikeParameters(bike: Mode) : NoCost {
     override val alpha: Alpha =
         object :
             Alpha,
@@ -35,9 +35,11 @@ object BikeParameters : NoCost {
             override val commuterTicket: Double = -0.138496699678098
             val previousIsBike = 3.3046316124107 - 1
 
+            override val mode: Mode = bike
+
             // TODO build generic previous mode interface and assign the type to this mode
             override fun evaluatePreviousMode(person: ModePersonScope): Double {
-                return if (person.previousMode == StandardMode.BIKE) previousIsBike else 0.0
+                return if (person.previousMode == mode) previousIsBike else 0.0
             }
         }
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta(), StandardActivities {

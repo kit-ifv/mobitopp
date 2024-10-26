@@ -7,17 +7,17 @@ import domain.data.ZoneId
 import domain.data.point
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
-import domain.enums.StandardMode
 import generateActivities
 import generateHouseholds
 import generateZones
 import syntheticsim.ControllableImpedance
 import usecases.AttractivenessModel
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
 import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
+import usecases.legacyChoiceModelModes
 import utils.collections.cartesianProduct
 import utils.units.sinceStart
 import kotlin.random.Random
@@ -36,7 +36,7 @@ fun main() {
     val destinationChoice: ILegacyDestinationChoice =
         legacyDestinationChoice(controllableImpedance, attractiveness, zones)
     val destinationChoice2: ILegacyDestinationChoice =
-        modernizedDestinationChoice(controllableImpedance, attractiveness)
+        modernizedDestinationChoice(controllableImpedance, attractiveness, zones)
     val amount = 10000000
     val random = Random(42)
     repeat(amount) {
@@ -53,7 +53,7 @@ fun main() {
             zone3,
             act,
             0.hours.sinceStart,
-            StandardMode.entries,
+            LegacyMode.entries,
             0.5
 
         )
@@ -71,7 +71,7 @@ fun main() {
             zone3,
             act,
             0.hours.sinceStart,
-            StandardMode.entries,
+            LegacyMode.entries,
             0.5
         )
     }
@@ -86,20 +86,21 @@ private fun legacyDestinationChoice(
     attractiveness,
     umlands = { false },
     zones.toSet(),
-    FakePlan,
+    legacyChoiceModelModes,
     NoFilter
 
 )
 
 private fun modernizedDestinationChoice(
     controllableImpedance: ControllableImpedance,
-    attractiveness: ControllableAttractiveness
+    attractiveness: ControllableAttractiveness,
+    zones: Collection<Zone>
 ) = ModernizedDestinationChoice(
     controllableImpedance,
     attractiveness,
-    { 0.0 },
-    { false }
-
+    { false },
+    zones.toSet(),
+    legacyChoiceModelModes,
 )
 
 class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel {

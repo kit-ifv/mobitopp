@@ -1,15 +1,20 @@
 package domain.events
 
 import datastructure.LinkTrip
+import datastructure.alternateByImpedance
 import domain.data.Person
 import domain.data.PrivateCar
+import domain.data.SharingStation
+import domain.data.SharingVehicle
 import domain.data.getBestCar
 import domain.data.locationBySchedule
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Location
+import domain.location.Metrics
 import modeling.events.Agent
 import modeling.events.Event
+import usecases.choicemodels.ModeAvailabilityFilter
+import usecases.choicemodels.TripChoiceSituation
 
 /**
  * An event scope spans the event processing of a target entity [T] holding additional information until the
@@ -72,32 +77,115 @@ class CarScope(override val observer: Person, private val car: PrivateCar, val t
     }
 
     override fun exitScope(agent: Person): Boolean {
-        return agent.locationBySchedule() == target
+        return agent.location.matches(target)
     }
 
     override fun onEnter(t: Person) {
+        car.keyHolder = t
         car.addDriver(t)
         car.state = PrivateCar.CarState.IN_USE
     }
 
     override fun onExit(t: Person) {
-        car.location = observer.locationBySchedule()
+        car.location = observer.location
         car.removeDriver()
         car.state = PrivateCar.CarState.PARKED
+        if (observer.location.matches(t.household.location)) {
+            car.keyHolder = null
+        }
     }
+}
+
+class StationSharingVehicleScope(
+    override val observer: Person,
+//    private val startStation: SharingStation,
+    private val vehicle: SharingVehicle,
+    private val endStation: SharingStation,
+) : EventScope<Person> {
+
+    init {
+        onEnter(observer)
+    }
+
+    override fun onEnter(t: Person) {
+        // Nothing happens on enter
+    }
+
+    override fun onExit(t: Person) {
+        vehicle.returnTo(endStation)
+    }
+
+    override fun exitScope(agent: Person) = agent.locationBySchedule() == endStation.location
 }
 
 fun interface ModeScopeSelector {
     fun pickScope(event: Event<Person>, mode: Mode, person: Person, legs: LinkTrip): List<Event<Person>>
 }
 
-object CarSelector : ModeScopeSelector {
+class CarSelector(private val car: Mode) : ModeScopeSelector {
     override fun pickScope(event: Event<Person>, mode: Mode, person: Person, legs: LinkTrip): List<Event<Person>> {
-        return if (mode == StandardMode.CAR) {
-            // TODO dont't use !!
-            listOf(EventWithScope(event, CarScope(person, person.getBestCar()!!, legs.legs.last().endLocation)))
+        return if (mode == car) {
+            val vehicle = requireNotNull(person.getBestCar()) {
+                "No vehicle is available for this person ${person.id}." +
+                    " Household at ${person.household.location} contains vehicles: " +
+                    "${person.household.cars.map { "${it.id} ${it.state} ${it.keyHolder?.id} ${it.location}" }}\n\n"
+            }
+            listOf(EventWithScope(event, CarScope(person, vehicle, legs.legs.last().endLocation)))
         } else {
             listOf(event)
         }
+    }
+}
+
+class SharingVehicleSelector(
+    private val sharingMode: Mode,
+    private val modeAvailabilityFilter: ModeAvailabilityFilter,
+    private val metrics: Metrics,
+    private val footMode: Mode,
+) : ModeScopeSelector {
+
+    override fun pickScope(event: Event<Person>, mode: Mode, person: Person, legs: LinkTrip): List<Event<Person>> {
+        return if (mode == sharingMode) {
+            require(legs.legs.size == 1) {
+                "Expected trip with one leg, to replace it with 3 legs: foot - sharing - foot"
+            }
+
+            val origin = legs.origin
+            val destination = legs.destination
+
+            val checkSharing =
+                modeAvailabilityFilter.checkSharing(TripChoiceSituation(person, origin, destination), sharingMode)
+
+            val (startStation, endStation) = requireNotNull(checkSharing) {
+                "Wie hast du es geschafft Ridesharing zu wählen ohne ein Stationspaar?"
+            }
+
+            // Vehicle is reserved when the trip is planned
+            val vehicle = startStation.takeAny() // synchronized(startStation) {  }
+            legs.alternateByImpedance(metrics) {
+                taking(footMode to startStation.location)
+                taking(sharingMode to endStation.location)
+                taking(footMode to destination)
+            }
+
+            listOf(EventWithScope(event, StationSharingVehicleScope(person, vehicle, endStation)))
+        } else {
+            listOf(event)
+        }
+    }
+}
+
+class ModeScopeDispatcher(
+    private val scopeByMode: Map<Mode, ModeScopeSelector>
+) {
+
+    @Suppress("SpreadOperator")
+    constructor(vararg modeScopes: Pair<Mode, ModeScopeSelector>) : this(mapOf(*modeScopes))
+
+    fun pickScope(event: Event<Person>, mode: Mode, person: Person, legs: LinkTrip): List<Event<Person>> =
+        scopeByMode[mode]?.pickScope(event, mode, person, legs) ?: listOf(event)
+
+    companion object {
+        val empty = ModeScopeDispatcher(emptyMap())
     }
 }
