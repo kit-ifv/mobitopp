@@ -2,23 +2,23 @@ package usecases.choicemodels
 
 import domain.data.Person
 import domain.enums.ActivityType
-import domain.enums.StandardMode
+import domain.enums.Mode
 
 interface Parameters<M, A> {
 
     operator fun get(m: M, a: A): Double
 }
 
-class ModeActivityParameters : Parameters<StandardMode, ActivityType> {
+class ModeActivityParameters : Parameters<Mode, ActivityType> {
 
     val ass = 0.0
-    override operator fun get(m: StandardMode, a: ActivityType): Double {
+    override operator fun get(m: Mode, a: ActivityType): Double {
         return 0.0
     }
 }
 
-class ModePersonParameters : Parameters<StandardMode, Person> {
-    override operator fun get(m: StandardMode, a: Person): Double {
+class ModePersonParameters : Parameters<Mode, Person> {
+    override operator fun get(m: Mode, a: Person): Double {
         return 0.0
     }
 }

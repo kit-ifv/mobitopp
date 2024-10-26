@@ -41,7 +41,7 @@ class AttractivenessFromCsv(
     init {
 
         val parser = DefaultMapCsvParser(
-            CsvParser(errorHandling = ErrorHandling.THROW) { row ->
+            CsvParser(errorHandling = ErrorHandling.THROW) { row -> // TODO error level as config param
                 ZoneId(row.long(zoneColumn)) to
                     activityMapOf(row, activityTypes)
             }

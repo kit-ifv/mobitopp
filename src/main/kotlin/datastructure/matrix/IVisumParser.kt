@@ -8,5 +8,5 @@ interface IVisumParser {
 
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
     // TODO use by lazy { } instead of lateinit
-    fun getArray(): Array<Double>
+    fun getArray(): DoubleArray
 }

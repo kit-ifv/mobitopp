@@ -1,8 +1,8 @@
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
-import domain.enums.StandardMode
 import modeling.steps.ModelExecution
 import modeling.steps.Run
+import usecases.LegacyMode
 import usecases.steps.LegacyContext
 import usecases.steps.finishActivities
 import usecases.steps.finishSharingStations
@@ -29,7 +29,8 @@ fun main() {
             areaTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
-            simulationSeed = 42
+            simulationSeed = 42,
+            modes = LegacyMode,
         )
     }.steps {
         loadZones()
@@ -39,7 +40,7 @@ fun main() {
                 "$input\\zone-repository\\bikesharing_stations.csv"
             ),
             providerName = "StadtMobil",
-            mode = StandardMode.BIKESHARING,
+            mode = LegacyMode.BIKESHARING,
             vehicleCountColumn = "bikes",
         )
         finishSharingStations()

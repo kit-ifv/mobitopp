@@ -1,14 +1,14 @@
 package modeling.models
 
-import usecases.choicemodels.ModeFilter
+import usecases.choicemodels.ChoiceFilter
 import utils.random.StochasticActor
 import utils.units.Time
 
-internal fun <M, P> noFilter() = ModeFilter<M, P> { modes, _ -> modes }
+internal fun <M, P> noFilter() = ChoiceFilter<M, P> { modes, _ -> modes }
 
 interface ChoiceModel<A, R> where A : StochasticActor {
     val name: String
-    val modeFilter: ModeFilter<R, A> get() = noFilter()
+    val choiceFilter: ChoiceFilter<R, A> get() = noFilter()
     fun choose(agent: A, time: Time): R {
         val choices = choices(agent, time)
         val filtered = filter(agent, choices, time).toSet()
@@ -22,7 +22,7 @@ interface ChoiceModel<A, R> where A : StochasticActor {
     }
 
     fun choices(agent: A, time: Time): Set<R>
-    fun filter(agent: A, choices: Set<R>, time: Time) = modeFilter.filter(choices.toList(), agent)
+    fun filter(agent: A, choices: Set<R>, time: Time) = choiceFilter.filter(choices.toList(), agent)
     fun filter(agent: A, time: Time) = filter(agent, choices(agent, time), time)
     fun select(agent: A, choices: Set<R>, time: Time): R
 }
@@ -40,5 +40,20 @@ class RandomChoiceModel<A, R>(
 
     override fun select(agent: A, choices: Set<R>, time: Time): R {
         return choices.random(agent.random)
+    }
+}
+
+class FixedOrderChoiceModel<A, R>(
+    override val name: String,
+    choices: Set<R>,
+    override val choiceFilter: ChoiceFilter<R, A>
+) : ChoiceModel<A, R> where A : StochasticActor {
+    private val secretChoices = choices
+    override fun select(agent: A, choices: Set<R>, time: Time): R {
+        return secretChoices.first { it in choices }
+    }
+
+    override fun choices(agent: A, time: Time): Set<R> {
+        return choiceFilter.filter(secretChoices, agent).toSet()
     }
 }

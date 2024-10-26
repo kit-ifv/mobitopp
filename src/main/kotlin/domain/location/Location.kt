@@ -29,6 +29,11 @@ interface Location {
     fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R
     fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R
     fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R
+    fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R
+
+    fun matches(other: Location): Boolean {
+        return this.evaluate(other, ZoneEquality)
+    }
 }
 
 /**
@@ -52,6 +57,9 @@ interface Position : Location {
         metric.visit(origin, this)
 
     override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R =
         metric.visit(origin, this)
 }
 
@@ -80,6 +88,9 @@ interface ZoneLocation : Position {
 
     override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
         metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -106,6 +117,9 @@ interface RoadPosition : Position {
 
     override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
         metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -117,8 +131,13 @@ interface RoadPosition : Position {
 class RoadPositionInZone(
     roadPosition: RoadPosition,
     override val zone: Zone
-) : RoadPosition by roadPosition, ZoneLocation {
-
+) : RoadPosition, ZoneLocation {
+    // Robin: I removed the delegation implementation, as it always redirected the visitor pattern towards the
+    // significantly weaker road position instead of the roadPositionInZone class. Happened because the delegation
+    // is instantiated first and matches the visitor pattern.
+    override val road: Long = roadPosition.road
+    override val roadAccess: UnitIntervalValue = roadPosition.roadAccess
+    override val coordinate: Coordinate = roadPosition.coordinate
     override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
         destination.evaluateFrom(this, metric)
 
@@ -133,6 +152,9 @@ class RoadPositionInZone(
 
     override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
         metric.visit(origin, this)
+
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R =
+        metric.visit(origin, this)
 }
 
 /**
@@ -143,7 +165,9 @@ class RoadPositionInZone(
 @Suppress("MagicNumber")
 fun String.parseRoadPosition(): RoadPosition {
     val res = this.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
-    require(res.size == 4)
+    require(res.size == 4) {
+        "Cannot parse '$this' as RoadPosition: expected format LONG:LAT,ROAD_ID,ROAD_POS"
+    }
 
     return object : RoadPosition {
         override val road = res[2].toLong()
@@ -163,6 +187,7 @@ object LOCATIONUNKNOWN : Location {
     override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R = error(message)
 
     override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R = error(message)
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R = error(message)
 }
 
 data class ZoneLocationImpl(override val coordinate: Coordinate, override val zone: Zone) : ZoneLocation

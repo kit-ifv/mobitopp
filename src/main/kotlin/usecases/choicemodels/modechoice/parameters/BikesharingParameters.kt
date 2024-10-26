@@ -16,9 +16,10 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object BikesharingParameters : WithCost {
+internal object BikesharingParameters : WithCost {
     override val alpha: Alpha =
         object : Alpha, StandardHasCommuterTicket, StandardCars, StandardActivities, StandardGender, CustomAge {
+
             override val female: Double = -0.742975367550372
             override val commuterTicket: Double = 0.265046300898315
             override val numberOfCars: Double = -0.519466510039712
@@ -33,6 +34,7 @@ object BikesharingParameters : WithCost {
             val youngAdults: Double = 0.880034329871052
             val adults: Double = 0.378296037637105
             val seniorAdults = -0.203289071442423
+
             override fun evaluateAge(person: ModePersonScope): Double {
                 return when (person.person.age) {
                     in 18..29 -> youngAdults
@@ -42,6 +44,7 @@ object BikesharingParameters : WithCost {
                 }
             }
         }
+
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta() {
         override val constant: Double = -0.111596101439312
     }

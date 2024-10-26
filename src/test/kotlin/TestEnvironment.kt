@@ -1,5 +1,9 @@
 import datastructure.Activity
 import datastructure.RawActivity
+import datastructure.Schedule
+import datastructure.plans.BlockModel
+import datastructure.plans.TrackableModel
+import domain.data.ActivityId
 import domain.data.CarSegment
 import domain.data.ChargingInfluence
 import domain.data.DefaultHouseholdBuilder
@@ -8,13 +12,18 @@ import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Graduation
 import domain.data.Household
+import domain.data.HouseholdId
 import domain.data.LegacyZone
 import domain.data.Person
 import domain.data.PersonBuilder
 import domain.data.PersonId
+import domain.data.PlannedActivity
 import domain.data.PrivateCar
 import domain.data.PrivateCarBuilder
 import domain.data.Sex
+import domain.data.SharingProvider
+import domain.data.SharingStation
+import domain.data.SharingVehicle
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
@@ -26,14 +35,20 @@ import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
 import domain.location.ZoneLocation
 import domain.location.ZoneLocationImpl
+import domain.resources.Subscribable
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate
+import units.UnitIntervalValue
 import units.euros
 import units.meters
 import units.share
 import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -56,10 +71,32 @@ class TestZone(
     override val id: ZoneId = ZoneId(1L)
 ) : LegacyZone {
     override var centroid: ZoneLocation = point(point)
+
+    override fun toString(): String {
+        return "TestZone$id"
+    }
 }
 
 fun generateZones(numElements: Int): List<TestZone> {
     return (0..<numElements).map { TestZone(BIELEFELD, id = ZoneId(it.toLong())) }
+}
+
+fun Zone.generateSharingStation(sharingProvider: SharingProvider, vehicles: Set<SharingVehicle>): SharingStation {
+    return SharingStation(
+        "${this.id} Station",
+        "noName",
+        this.point(BIELEFELD),
+        setOf(this),
+        sharingProvider,
+        vehicles
+    )
+}
+
+fun generateZoneLocations(numElements: Int): List<ZoneLocation> {
+    return (0..<numElements).map {
+        val testZone = TestZone(BIELEFELD, id = ZoneId(it.toLong()))
+        ZoneLocationImpl(testZone.centroid.coordinate, testZone)
+    }
 }
 
 fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
@@ -67,13 +104,13 @@ fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
 }
 
 fun Long.toRoadPosition(): RoadPosition {
-    return object : RoadPosition {
-        override val road: Long = this@toRoadPosition
-        override val roadAccess = 0.5.share()
-        override val coordinate: Coordinate = BIELEFELD
-    }
+    return RoadPositionImpl(this, 0.5.share(), BIELEFELD)
 }
-
+data class RoadPositionImpl(
+    override val road: Long,
+    override val roadAccess: UnitIntervalValue,
+    override val coordinate: Coordinate
+) : RoadPosition
 fun Long.toRoadPositionInZone(zone: Zone): RoadPositionInZone {
     return RoadPositionInZone(this.toRoadPosition(), zone)
 }
@@ -109,10 +146,12 @@ fun Zone.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
-    personLimits: PersonSpawnLimits = PersonSpawnLimits()
+    personLimits: PersonSpawnLimits = PersonSpawnLimits(),
+    membershipsMap: MutableMap<Subscribable<Person>, Boolean> = mutableMapOf(),
 ): List<Household> {
     return (0..<num).map {
         val h = generateHousehold {
+            id = HouseholdId(it + this@generateHouseholds.id.id * 100)
             incomePerMonth = 0.euros
             economicStatus = spawnLimits.economicStatus.random(random)
             householdNumber = -1
@@ -121,7 +160,12 @@ fun Zone.generateHouseholds(
             h.spawnCar()
         }
 
-        h.generatePersons(spawnLimits.numPersons.random(random), random, personLimits)
+        h.generatePersons(
+            spawnLimits.numPersons.random(random),
+            random,
+            personLimits,
+            membershipsMap = membershipsMap.toMutableMap()
+        )
         h
     }
 }
@@ -130,20 +174,24 @@ fun Collection<Zone>.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
-    personLimits: PersonSpawnLimits = PersonSpawnLimits()
+    personLimits: PersonSpawnLimits = PersonSpawnLimits(),
+    membershipsMap: MutableMap<Subscribable<Person>, Boolean> = mutableMapOf()
 ): List<Household> {
-    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits) }
+    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits, membershipsMap.toMutableMap()) }
 }
 
 fun Household.generatePersons(
     num: Int,
     random: Random = Random(1),
-    spawnLimits: PersonSpawnLimits = PersonSpawnLimits()
+    spawnLimits: PersonSpawnLimits = PersonSpawnLimits(),
+    membershipsMap: MutableMap<Subscribable<Person>, Boolean>,
 ): List<Person> {
     return (0..<num).map {
+        val map = membershipsMap.toMutableMap()
+        map[this] = true
         buildPerson {
-            personId = it.toLong()
-            id = PersonId(it.toLong())
+            personId = it.toLong() + this@generatePersons.id.id * 100
+            id = PersonId(it.toLong() + this@generatePersons.id.id * 100)
             age = spawnLimits.age.random(random)
             employment = spawnLimits.employment.random(random)
             sex = spawnLimits.sex.random(random)
@@ -152,8 +200,37 @@ fun Household.generatePersons(
             hasBike = spawnLimits.hasBike.random(random)
             hasCommuterTicket = spawnLimits.hasCommuterTicket.random(random)
             hasLicense = spawnLimits.hasLicense.random(random)
-        }
+            memberships = map
+        }.also { it.schedule = Schedule(TrackableModel(BlockModel())) }
     }
+}
+
+fun Person.generateActivitySchedule(
+    num: Int,
+    random: Random
+) {
+    val range = 0.days.sinceStart..1.days.sinceStart
+    val targets = List(num) { range.random(random) }.sorted()
+
+    targets.zipWithNext { a, b ->
+        addActivity(
+            PlannedActivity(
+                ActivityId(-1L),
+                this,
+                LegacyActivityType.entries.random(random),
+                0.minutes,
+                a,
+                (b - a) / 2,
+                random
+            )
+        )
+    }
+}
+
+fun ClosedRange<AbsoluteTime>.random(random: Random = Random(1)): AbsoluteTime {
+    val rangeInSeconds = (start.secondsSinceStart..endInclusive.secondsSinceStart)
+    val randomSeconds = random.nextLong(rangeInSeconds.first, rangeInSeconds.last)
+    return randomSeconds.seconds.sinceStart
 }
 
 class ActivitySpawnLimits(
@@ -191,18 +268,13 @@ fun Household.spawnCar(lambda: PrivateCarBuilder.() -> Unit = {}): PrivateCar {
     }.apply(lambda).build()
 }
 
-val testPerson = testHousehold.buildPerson {
-    personId = 1L
-    id = PersonId(1L)
-}
-
 fun Household.buildPerson(builder: PersonBuilder): Person {
     builder.apply {
         builder.household = this@buildPerson
         personId = members.size + 1L
         id = PersonId(members.size + 1L)
     }
-    val person = builder.build()
+    val person = builder.build().also { it.schedule = Schedule(TrackableModel(BlockModel())) }
     addMember(person)
     return person
 }
