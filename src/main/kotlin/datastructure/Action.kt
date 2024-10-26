@@ -1,8 +1,8 @@
 package datastructure
 
 import domain.enums.ActivityType
+import domain.enums.MODEUNKOWN
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Location
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
@@ -275,7 +275,7 @@ interface Leg : MovingAction {
             duration: Duration,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = StandardMode.UNDEFINED
+            mode: Mode = MODEUNKOWN
         ): Leg {
             return RawLeg(
                 startTime = startTime,
@@ -302,7 +302,7 @@ interface Leg : MovingAction {
             endTime: AbsoluteTime,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = StandardMode.UNDEFINED
+            mode: Mode = MODEUNKOWN
         ): Leg {
             return RawLeg(
                 startTime = startTime,

@@ -1,12 +1,10 @@
 package syntheticsim
 
 import domain.data.Person
-import domain.enums.Mode
 import domain.location.ZoneLocation
 import modeling.models.ChoiceModel
-import usecases.choicemodels.BasicModesModel
+import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.LegacyDestinationChoice
-import utils.CodePlan
 import utils.units.Time
 
 /**
@@ -14,7 +12,7 @@ import utils.units.Time
  * of the original model, if not null. This allows controlling the choice function output.
  */
 class OverridableDestinationChoiceModel(val original: LegacyDestinationChoice) :
-    ChoiceModel<Person, ZoneLocation>, BasicModesModel {
+    ChoiceModel<Person, ZoneLocation> {
     var overrideDestination: ZoneLocation? = null
 
     override fun select(agent: Person, choices: Set<ZoneLocation>, time: Time): ZoneLocation {
@@ -28,6 +26,6 @@ class OverridableDestinationChoiceModel(val original: LegacyDestinationChoice) :
         return original.choices(agent, time)
     }
 
-    override val modes: CodePlan<Mode>
+    val modes: ChoiceModelModes
         get() = original.modes
 }

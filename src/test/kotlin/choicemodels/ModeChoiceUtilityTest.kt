@@ -7,9 +7,12 @@ import domain.enums.Mode
 import domain.location.Metrics
 import domain.location.ZoneLocation
 import syntheticsim.ControllableImpedance
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
 import usecases.choicemodels.IGeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyModeChoiceModel
+import usecases.choicemodels.modechoice.ModeParameters
+import usecases.choicemodels.modechoice.ModernizedModeUtility
+import usecases.legacyChoiceModelModes
 import kotlin.math.abs
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
@@ -27,7 +30,7 @@ class ModeChoiceUtilityTest : CompareTwoUtilityFunctions<IGeneratedHcUtilityFunc
             destinationLocation,
             previousActivity,
             nextActivity,
-            FakePlan.values(),
+            LegacyMode.entries.toSet(),
             impedance,
             0.5
         )
@@ -37,10 +40,15 @@ class ModeChoiceUtilityTest : CompareTwoUtilityFunctions<IGeneratedHcUtilityFunc
     fun setup() {
         val attractiveness = zones.spawnAttractiveness()
         val legacyModeChoice =
-            LegacyModeChoiceModel(attractiveness, modes = FakePlan, impedance = ControllableImpedance())
+            LegacyModeChoiceModel(attractiveness, modes = legacyChoiceModelModes, impedance = ControllableImpedance())
         a = legacyModeChoice.utilities
 //        b = a
-        b = ModernizedModeUtility(FakePlan, attractiveness)
+        b = ModernizedModeUtility(
+            legacyChoiceModelModes, attractiveness,
+            parameters = ModeParameters(
+                legacyChoiceModelModes
+            )
+        )
     }
 }
 

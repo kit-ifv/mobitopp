@@ -38,7 +38,7 @@ fun <S, C> S.preparePrivateCars(
     carSegmentCode: CodePlan<CarSegment>? = null,
     seatsColumnIndex: Int = 8,
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    filter: CarColumns.(Row) -> Boolean = { true }
+    filter: CarColumns.(Row, C) -> Boolean = { _, _ -> true }
 ) where S : ModelExecution<C>,
       C : Context,
       C : BasePrivateCarContext,
@@ -59,7 +59,7 @@ fun <S, C> S.preparePrivateCars(
         )
     }
 
-    this.preparePrivateCarsFile(csvParser.withFilter { carColumns.filter(it) }, file, delimiter)
+    this.preparePrivateCarsFile(csvParser.withFilter { carColumns.filter(it, context) }, file, delimiter)
 }
 
 data class CarColumns(

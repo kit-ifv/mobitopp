@@ -18,7 +18,7 @@ import usecases.choicemodels.destinationchoice.SurplusCars
  * is up to the utility function to decide for a given activity type.
  */
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object BusinessParameters : DestinationRequirements {
+internal object BusinessParameters : DestinationRequirements {
     override val constant: CombinedDestinationParameters =
         object : CombinedDestinationParameters, StandardDestinationDistance, StandardDestinationParkstress {
             override val base: Double = 0.0

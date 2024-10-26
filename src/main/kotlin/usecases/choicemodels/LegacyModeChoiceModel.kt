@@ -17,7 +17,7 @@ import domain.location.Metrics
 import domain.location.ZoneLocation
 import modeling.models.ChoiceModel
 import usecases.AttractivenessModel
-import utils.CodePlan
+import usecases.choicemodels.modechoice.ModeParameters
 import utils.collections.select
 import utils.units.Time
 import kotlin.math.exp
@@ -27,46 +27,61 @@ fun interface MakeUtilities {
     fun createFrom(
         a: AttractivenessModel,
         l: ModeChoiceParameters,
-        m: CodePlan<Mode>,
-        h: ModeChoiceHelperMNL
+        m: ChoiceModelModes,
+        h: ModeChoiceHelperMNL,
+        p: ModeParameters
     ): IGeneratedHcUtilityFunction
 }
 
 class LegacyModeChoiceModel(
     attractivenessModel: AttractivenessModel,
-    logitParameters: ModeChoiceParameters = ModeChoiceParameters(),
-    override val modes: CodePlan<Mode>,
+    logitParameters: ModeChoiceParameters = ModeChoiceParameters(), // TODO at some point this can be removed
+    val modes: ChoiceModelModes,
     private val helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivenessModel, modes),
     val impedance: Metrics,
-    override val modeFilter: ModeFilter<Mode, Person> = ModeAvailabilityFilter(modes),
-    val utilitiesGenerator: MakeUtilities = MakeUtilities { a, l, m, h -> GeneratedHcUtilityFunction(a, l, m, h) }
-) : ChoiceModel<Person, Mode>, BasicModesModel {
+    override val choiceFilter: ChoiceFilter<Mode, TripChoiceSituation> =
+        ModeAvailabilityFilter(modes, emptySet(), emptyMap(), impedance),
+    val utilitiesGenerator: MakeUtilities = MakeUtilities { a, l, m, h, p -> GeneratedHcUtilityFunction(a, l, m, h) },
+    betterParameters: ModeParameters = ModeParameters(modes),
+) : ChoiceModel<TripChoiceSituation, Mode> {
+
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikesharing = modes.bikeSharing
+    val ridePooling = modes.ridePooling
+    val carSharingFree = modes.carSharingFree
+    val carSharingStation = modes.carSharingStation
+    val taxi = modes.taxi
+    val eScooter = modes.eScooter
 
     /** Generate the utilities by the generator function so that the wild parameter list does not need to be passed
      * for every different constructor.
      */
     val utilities: IGeneratedHcUtilityFunction by lazy {
-        utilitiesGenerator.createFrom(attractivenessModel, logitParameters, modes, helper)
+        utilitiesGenerator.createFrom(attractivenessModel, logitParameters, modes, helper, betterParameters)
     }
     override val name: String = "LegacyModeChoiceModel"
 
-    override fun choices(agent: Person, time: Time): Set<Mode> {
-        return modes.values()
+    override fun choices(agent: TripChoiceSituation, time: Time): Set<Mode> {
+        return modes.options
     }
 
-    fun select(agent: Person, time: Time): Mode {
-        return select(agent, modes.values(), time)
+    fun select(agent: TripChoiceSituation, time: Time): Mode {
+        return select(agent, modes.options, time)
     }
 
-    override fun filter(agent: Person, choices: Set<Mode>, time: Time) =
-        modeFilter.filter(choices.toList(), agent).toSet()
+    override fun filter(agent: TripChoiceSituation, choices: Set<Mode>, time: Time) =
+        choiceFilter.filter(choices.toList(), agent).toSet()
 
-    override fun select(agent: Person, choices: Set<Mode>, time: Time): Mode {
-        val lastActivity = agent.schedule.pastActivities().last { it <= time }
-        val nextActivity = agent.schedule.activities().first { it > time }
+    override fun select(agent: TripChoiceSituation, choices: Set<Mode>, time: Time): Mode {
+        val lastActivity = agent.person.schedule.pastActivities().last { it <= time }
+        val nextActivity = agent.person.schedule.activities().first { it > time }
         return choices.select(
             LegacyModeChoiceParameters(
-                agent,
+                agent.person,
                 lastActivity,
                 nextActivity,
                 lastActivity.location as ZoneLocation,
@@ -142,17 +157,17 @@ class LegacyModeChoiceModel(
             randomNumber
         ).toSet()
         // Availability flags
-        val is_taxi_available = _choiceSet.contains(modeMap[TAXI_KEY])
-        val is_rp_available = _choiceSet.contains(modeMap[RIDE_POOLING_KEY])
-        val is_bs_available = _choiceSet.contains(modeMap[BIKESHARING_KEY])
-        val is_cs_ff_available = _choiceSet.contains(modeMap[CARSHARING_FREE_KEY])
-        val is_e_scooter_available = _choiceSet.contains(modeMap[E_SCOOTER_KEY])
-        val is_card_available = _choiceSet.contains(modeMap[CAR_KEY])
-        val is_passenger_available = _choiceSet.contains(modeMap[PASSENGER_KEY])
-        val is_cs_sb_available = _choiceSet.contains(modeMap[CARSHARING_STATION_KEY])
-        val is_bike_available = _choiceSet.contains(modeMap[BIKE_KEY])
-        val is_pt_available = _choiceSet.contains(modeMap[PUBLICTRANSPORT_KEY])
-        val is_walk_available = _choiceSet.contains(modeMap[PEDESTRIAN_KEY])
+        val is_taxi_available = _choiceSet.contains(taxi)
+        val is_rp_available = _choiceSet.contains(ridePooling)
+        val is_bs_available = _choiceSet.contains(bikesharing)
+        val is_cs_ff_available = _choiceSet.contains(carSharingFree)
+        val is_e_scooter_available = _choiceSet.contains(eScooter)
+        val is_card_available = _choiceSet.contains(car)
+        val is_passenger_available = _choiceSet.contains(passenger)
+        val is_cs_sb_available = _choiceSet.contains(carSharingStation)
+        val is_bike_available = _choiceSet.contains(bike)
+        val is_pt_available = _choiceSet.contains(publicTransport)
+        val is_walk_available = _choiceSet.contains(pedestrian)
         val is_nest_taxi_available = is_taxi_available || is_rp_available
         val is_nest_newmob_available = is_bs_available || is_cs_ff_available || is_e_scooter_available
         val is_nest_miv_available = is_card_available || is_passenger_available || is_cs_sb_available
@@ -454,38 +469,38 @@ class LegacyModeChoiceModel(
         // If a category is marked '?' in the nest structure it is only added to the map if it is available
         val probabilities: MutableMap<Mode, Double> = mutableMapOf()
         if (is_bike_available) {
-            probabilities[modeMap[BIKE_KEY]!!] = p_oevrad_in_nest_root * p_bike_in_nest_oevrad
+            probabilities[bike] = p_oevrad_in_nest_root * p_bike_in_nest_oevrad
         }
         if (is_bs_available) {
-            probabilities[modeMap[BIKESHARING_KEY]!!] = p_newmob_in_nest_root * p_bs_in_nest_newmob
+            probabilities[bikesharing] = p_newmob_in_nest_root * p_bs_in_nest_newmob
         }
         if (is_card_available) {
-            probabilities[modeMap[CAR_KEY]!!] = p_miv_in_nest_root * p_card_in_nest_miv
+            probabilities[car] = p_miv_in_nest_root * p_card_in_nest_miv
         }
         if (is_cs_ff_available) {
-            probabilities[modeMap[CARSHARING_FREE_KEY]!!] = p_newmob_in_nest_root * p_cs_ff_in_nest_newmob
+            probabilities[carSharingFree] = p_newmob_in_nest_root * p_cs_ff_in_nest_newmob
         }
         if (is_cs_sb_available) {
-            probabilities[modeMap[CARSHARING_STATION_KEY]!!] = p_miv_in_nest_root * p_cs_sb_in_nest_miv
+            probabilities[carSharingStation] = p_miv_in_nest_root * p_cs_sb_in_nest_miv
         }
         if (is_e_scooter_available) {
-            probabilities[modeMap[E_SCOOTER_KEY]!!] = p_newmob_in_nest_root * p_e_scooter_in_nest_newmob
+            probabilities[eScooter] = p_newmob_in_nest_root * p_e_scooter_in_nest_newmob
         }
         if (is_passenger_available) {
-            probabilities[modeMap[PASSENGER_KEY]!!] = p_miv_in_nest_root * p_passenger_in_nest_miv
+            probabilities[passenger] = p_miv_in_nest_root * p_passenger_in_nest_miv
         }
         if (is_walk_available) {
-            probabilities[modeMap[PEDESTRIAN_KEY]!!] = p_walk_in_nest_root
+            probabilities[pedestrian] = p_walk_in_nest_root
         }
         if (is_pt_available) {
-            probabilities[modeMap[PUBLICTRANSPORT_KEY]!!] = p_oevrad_in_nest_root * p_pt_in_nest_oevrad
+            probabilities[publicTransport] = p_oevrad_in_nest_root * p_pt_in_nest_oevrad
         }
         if (is_rp_available) {
-            probabilities[modeMap[RIDE_POOLING_KEY]!!] =
+            probabilities[ridePooling] =
                 p_taxi_in_nest_root * p_rp_in_nest_taxi + p_newmob_in_nest_root * p_rp_in_nest_newmob + p_oevrad_in_nest_root * p_rp_in_nest_oevrad + p_miv_in_nest_root * p_rp_in_nest_miv
         }
         if (is_taxi_available) {
-            probabilities[modeMap[TAXI_KEY]!!] = p_taxi_in_nest_root * p_taxi_in_nest_taxi
+            probabilities[taxi] = p_taxi_in_nest_root * p_taxi_in_nest_taxi
         }
 
         // TODO Logit model cannot be used, as it calculates the exp(U) internally, which is already done at this point

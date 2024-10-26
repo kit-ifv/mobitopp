@@ -3,6 +3,8 @@ package domain.data
 import Buildable
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
+import domain.location.Location
+import domain.location.LocationMetric
 import domain.location.Position
 import domain.location.RoadPosition
 import domain.location.RoadPositionInZone
@@ -29,7 +31,8 @@ typealias ZoneId = ID<Zone>
  * @property relief height difference in the zone
  */
 @Buildable
-interface Zone : Identifiable<ZoneId> {
+@Suppress("ComplexInterface") // TODO maybe revise this interface in the future?
+interface Zone : Identifiable<ZoneId>, Location { // TODO inherit location here?!
     val visumId: Long
     val name: String
     val areaType: AreaType
@@ -39,7 +42,27 @@ interface Zone : Identifiable<ZoneId> {
     val centroid: Position // TODO type point
     val isDestination: Boolean
     val relief: Distance
+    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R {
+        return destination.evaluateFrom(this, metric)
+    }
+    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R {
+        return metric.visit(origin, this)
+    }
+    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R {
+        return metric.visit(origin, this)
+    }
+    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R {
+        return metric.visit(origin, this)
+    }
+    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R {
+        return metric.visit(origin, this)
+    }
+    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R {
+        return metric.visit(origin, this)
+    }
 }
+
+fun Zone.asLocation() = ZoneLocationImpl(this.centroid.coordinate, this)
 
 fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
     return ZoneLocationImpl(gpsCoordinate, this)

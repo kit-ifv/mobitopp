@@ -52,7 +52,7 @@ fun <S, C> S.prepareHouseholds(
         from the constructor. The Annotation processing does not know that this implementation exists. I think the
         best approach would be to annotate classes only.
          */
-        HouseholdBuilder { p0, p1, p2, p3, p4, p5, p6, p7, _, _, p10 ->
+        HouseholdBuilder { p0, p1, p2, p3, p4, p5, p6, p7, _, _, _, p11, _ ->
             DefaultHousehold(
                 p0,
                 p1,
@@ -62,7 +62,7 @@ fun <S, C> S.prepareHouseholds(
                 p5,
                 p6,
                 p7,
-                p10
+                p11
             )
         }.apply {
             householdNumber = row.long(columnTranslator.hhNumberColumn)
@@ -80,6 +80,7 @@ fun <S, C> S.prepareHouseholds(
             id = HouseholdId(row.long(columnTranslator.hhIdColumn))
             // TODO this may be not the best random instantiation
             random = Random(row.long(columnTranslator.hhNumberColumn))
+            name = "Household: $householdNumber"
         }
     }
     val filterWrap: (Row) -> Boolean = { columnTranslator.filter(it) }

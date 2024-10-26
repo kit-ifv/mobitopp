@@ -4,7 +4,6 @@ import BIELEFELD
 import domain.data.Person
 import domain.data.point
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.enums.ZoneClassification
 import domain.location.ZoneLocation
 import generateZones
@@ -12,11 +11,12 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import syntheticsim.ControllableImpedance
 import syntheticsim.testAttractivenessModel
-import usecases.choicemodels.FakePlan
+import usecases.LegacyMode
+import usecases.choicemodels.ChoiceFilter
 import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.LegacyDestinationChoice
-import usecases.choicemodels.ModeFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
+import usecases.legacyChoiceModelModes
 import utils.collections.subsets
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -26,31 +26,36 @@ class DestinationChoiceUtilityTest : CompareTwoUtilityFunctions<ILegacyDestinati
     // to incorporate this...oversight
     override val impedanceOverride: ControllableImpedance = ControllableImpedance()
     var targetSet: Set<Mode> = setOf(
-        StandardMode.CAR,
-        StandardMode.PASSENGER,
-        StandardMode.PEDESTRIAN,
-        StandardMode.BIKE,
-        StandardMode.PUBLICTRANSPORT
+        LegacyMode.CAR,
+        LegacyMode.PASSENGER,
+        LegacyMode.PEDESTRIAN,
+        LegacyMode.BIKE,
+        LegacyMode.PUBLICTRANSPORT,
     )
-    var filter: ModeFilter<Mode, Person> = ModeFilter { _, _ ->
+    var filter: ChoiceFilter<Mode, Person> = ChoiceFilter { _, _ ->
         targetSet
     }
 
     @BeforeTest
     fun setup() {
         val zones = generateZones(10)
-        targetSet = setOf(StandardMode.CAR, StandardMode.PEDESTRIAN)
+        targetSet = setOf(LegacyMode.CAR, LegacyMode.PEDESTRIAN)
 
         a = LegacyDestinationChoice(
             impedance = impedanceOverride,
             testAttractivenessModel,
             umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
-            FakePlan,
+            legacyChoiceModelModes,
             filter = filter
 
         )
-        b = ModernizedDestinationChoice(impedanceOverride, testAttractivenessModel)
+        b = ModernizedDestinationChoice(
+            impedanceOverride,
+            testAttractivenessModel,
+            modes = legacyChoiceModelModes,
+            zones = zones.toSet()
+        )
     }
 
     @ParameterizedTest
@@ -61,6 +66,7 @@ class DestinationChoiceUtilityTest : CompareTwoUtilityFunctions<ILegacyDestinati
             assertEquals(filter.filter(emptyList(), person), set)
         }
     }
+
     override val comparison: TestSimulation.(ILegacyDestinationChoice, ILegacyDestinationChoice) -> Unit = { a, b ->
         val expected = a.calculateU_destination(
             destination.point(BIELEFELD),
@@ -93,11 +99,11 @@ class DestinationChoiceUtilityTest : CompareTwoUtilityFunctions<ILegacyDestinati
         @JvmStatic
         fun getStandardModeAvailabilities(): List<Set<Mode>> {
             val standardModes = setOf(
-                StandardMode.CAR,
-                StandardMode.PASSENGER,
-                StandardMode.PEDESTRIAN,
-                StandardMode.BIKE,
-                StandardMode.PUBLICTRANSPORT
+                LegacyMode.CAR,
+                LegacyMode.PASSENGER,
+                LegacyMode.PEDESTRIAN,
+                LegacyMode.BIKE,
+                LegacyMode.PUBLICTRANSPORT
             )
             return standardModes.subsets()
         }

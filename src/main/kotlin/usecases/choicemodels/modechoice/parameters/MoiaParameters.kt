@@ -20,7 +20,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 import utils.units.AbsoluteTime
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object MoiaParameters : WithCost {
+internal object MoiaParameters : WithCost {
     private fun AbsoluteTime.isEvening(): Boolean {
         return hour in 17..<21
     }

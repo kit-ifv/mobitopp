@@ -1,6 +1,6 @@
 package usecases.choicemodels.modechoice.parameters
 
-import domain.enums.StandardMode
+import domain.enums.Mode
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomPreviousMode
 import usecases.choicemodels.modechoice.ModePersonScope
@@ -15,7 +15,7 @@ import usecases.choicemodels.modechoice.TravelTimeActivities
 import usecases.choicemodels.modechoice.TravelTimeBeta
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-object PassengerParameters : NoCost {
+internal class PassengerParameters(passenger: Mode) : NoCost {
     override val alpha: Alpha = object :
         Alpha,
         CustomPreviousMode,
@@ -25,6 +25,8 @@ object PassengerParameters : NoCost {
         StandardActivities,
         StandardDrivingLicence,
         StandardGender {
+        override val mode: Mode = passenger
+
         override val female: Double = 0.893117885972587
         override val minors: Double = 3.11291433770843 + 0.3
         override val youngAdults: Double = 0.226300538038417 - 0.8
@@ -42,7 +44,7 @@ object PassengerParameters : NoCost {
 
         override fun evaluatePreviousMode(person: ModePersonScope): Double {
             // TODO naked parameter in this function. Find a better solution for previous mode
-            return if (person.previousMode == StandardMode.PASSENGER) 2.829225 else 0.0
+            return if (person.previousMode == mode) 2.829225 else 0.0
         }
     }
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta(), TravelTimeActivities {

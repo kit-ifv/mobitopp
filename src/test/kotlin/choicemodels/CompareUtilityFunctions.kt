@@ -8,6 +8,9 @@ import buildPerson
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedActivity
+import datastructure.Schedule
+import datastructure.plans.BlockModel
+import datastructure.plans.TrackableModel
 import domain.data.ChargingInfluence
 import domain.data.DefaultHouseholdBuilder
 import domain.data.EconomicStatus
@@ -20,11 +23,12 @@ import domain.data.Person
 import domain.data.PersonBuilder
 import domain.data.PrivateCar
 import domain.data.Sex
+import domain.data.SharingProvider
 import domain.data.lastTransportMode
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
+import domain.enums.MODEUNKOWN
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Location
 import generateZones
 import org.junit.jupiter.api.DisplayName
@@ -43,6 +47,7 @@ import units.kilometers
 import units.share
 import units.toCurrency
 import units.toDistance
+import usecases.LegacyMode
 import usecases.choicemodels.nextFixedActivity
 import utils.collections.cartesianProduct
 import utils.units.daysSinceStartOfWeek
@@ -137,7 +142,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 impedance.setTime(origin, destination, travelDuration)
             }
         ) {
-            StandardMode.entries.forEach {
+            LegacyMode.entries.forEach {
                 assertEquals(
                     impedance.duration(
                         origin.point(BIELEFELD),
@@ -164,7 +169,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 addFixedDestination(originLocation)
             }
         ) {
-            StandardMode.entries.forEach {
+            LegacyMode.entries.forEach {
                 assertEquals(
                     impedance.duration(
                         destination.point(BIELEFELD),
@@ -190,7 +195,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 impedance.setCost(origin, destination, money)
             }
         ) {
-            StandardMode.entries.forEach {
+            LegacyMode.entries.forEach {
                 assertEquals(
                     impedance.cost(
                         origin.point(BIELEFELD),
@@ -217,7 +222,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 addFixedDestination(originLocation)
             }
         ) {
-            StandardMode.entries.forEach {
+            LegacyMode.entries.forEach {
                 assertEquals(
                     impedance.cost(
                         destination.point(BIELEFELD),
@@ -256,7 +261,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
     @ParameterizedTest
     @EnumSource
     @DisplayName("Testing utility calculation with different previous modes")
-    fun testPreviousModes(mode: StandardMode) {
+    fun testPreviousModes(mode: LegacyMode) {
         runTest(
             {},
             {
@@ -274,7 +279,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
     @ParameterizedTest
     @EnumSource
     @DisplayName("Testing different impedance (cost, duration, distance) for specifically one target mode")
-    fun testSingularImpedanceDiscrepancy(mode: StandardMode) {
+    fun testSingularImpedanceDiscrepancy(mode: LegacyMode) {
         runTest(
             {},
             {
@@ -368,12 +373,13 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
     @ValueSource(booleans = [true, false])
     @DisplayName("Testing utility calculation for different moia memberships")
     fun moiaMembership(target: Boolean) {
+        val provider = SharingProvider(name = "Moia_an_member", mode = MODEUNKOWN)
         runTest(
-            { pBuilder.memberships["Moia_an_member"] = target },
+            { pBuilder.memberships[provider] = target },
             {}
         ) {
-            assertTrue(person.memberships.containsKey("Moia_an_member"))
-            assertEquals(person.memberships.getValue("Moia_an_member"), target)
+            assertTrue(person.memberships.containsKey(provider))
+            assertEquals(person.memberships.getValue(provider), target)
         }
     }
 
@@ -407,20 +413,20 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 impedance.cost(
                     originLocation,
                     destinationLocation,
-                    StandardMode.PASSENGER,
+                    LegacyMode.PASSENGER,
                     (upUntil.hours - 1.minutes).sinceStart
                 ),
                 999.euros
             )
             assertEquals(
-                impedance.cost(originLocation, destinationLocation, StandardMode.PASSENGER, (upUntil).hours.sinceStart),
+                impedance.cost(originLocation, destinationLocation, LegacyMode.PASSENGER, (upUntil).hours.sinceStart),
                 1.euros
             )
             assertEquals(
                 impedance.duration(
                     originLocation,
                     destinationLocation,
-                    StandardMode.PASSENGER,
+                    LegacyMode.PASSENGER,
                     (upUntil.hours - 1.minutes).sinceStart
                 ),
                 999.hours
@@ -429,7 +435,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 impedance.duration(
                     originLocation,
                     destinationLocation,
-                    StandardMode.PASSENGER,
+                    LegacyMode.PASSENGER,
                     (upUntil).hours.sinceStart
                 ),
                 10.minutes
@@ -573,10 +579,14 @@ class TestSimulation(
     val impedance: ControllableImpedance,
     val attractiveness: ControllableAttractiveness
 ) {
+
+    init {
+        person.schedule = Schedule(TrackableModel(BlockModel()))
+    }
     val originLocation = origin.point(BIELEFELD)
     val destinationLocation = destination.point(BIELEFELD)
 
-    var availableModes: Set<Mode> = StandardMode.entries.toSet()
+    var availableModes: Set<Mode> = LegacyMode.entries.toSet()
 
     // Using !! as I know that the activities should fit into the schedule and thus return the linked activity
     val startActivity: LinkedActivity =

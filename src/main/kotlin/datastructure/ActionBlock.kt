@@ -66,8 +66,20 @@ abstract class ActionBlock<T : LinkedAction> : Comparable<ActionBlock<*>> {
         if (this.isEmpty()) {
             return false
         }
-        return sortedSet.first() >= firstElement() && sortedSet.last() <= item.last()
+        return sortedSet.first() >= (
+            previous?.lastElementOrNull()
+                ?: firstElement()
+            ) && sortedSet.last() <= (next?.firstElementOrNull() ?: item.last())
     }
+    // original implementation of bounds which does not respect gaps in the activity plan for bounding
+//    fun strictlyBounds(elements: Collection<Action>): Boolean {
+//        val sortedSet = elements.toSortedSet()
+//        if (sortedSet.isEmpty()) return false
+//        if (this.isEmpty()) {
+//            return false
+//        }
+//        return sortedSet.first() >= firstElement() && sortedSet.last() <= item.last()
+//    }
 
     /**
      * Implementations of action block are iterables (which are holding iterables). In order to differentiate between
