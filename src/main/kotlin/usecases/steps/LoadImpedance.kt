@@ -31,7 +31,7 @@ fun <S, C> S.loadImpedance(
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
-    betterFormatRoot: File? = null
+    betterFormatRoot: InternalMatrixLookup? = null
 ) where S : ModelExecution<C>, C : Context, C : SimulationContext {
     addStep(
         LoadImpedanceStep(
@@ -47,6 +47,11 @@ fun <S, C> S.loadImpedance(
     )
 }
 
+data class InternalMatrixLookup(
+    val originalDirectory: File,
+    val internalDirectory: File
+)
+
 @Suppress("LongParameterList")
 private class LoadImpedanceStep(
     private val costMatrixConfig: File,
@@ -56,7 +61,7 @@ private class LoadImpedanceStep(
     private val currencyUnit: CurrencyUnit? = null,
     private val durationUnit: DurationUnit? = null,
     private val context: SimulationContext,
-    private val betterFormatRoot: File?
+    private val betterFormatRoot: InternalMatrixLookup?
 ) : ModelStep {
     override val name: String = "Load matrix impedance from yaml"
 
