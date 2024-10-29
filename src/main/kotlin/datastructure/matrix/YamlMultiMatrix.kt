@@ -10,7 +10,6 @@ import utils.Encodable
 import utils.collections.defaultProgressBarBuilder
 import utils.collections.stepBy
 import utils.units.AbsoluteTime
-import java.io.File
 import java.nio.file.Path
 import java.time.DayOfWeek
 import java.util.*
@@ -452,19 +451,20 @@ private enum class MatrixImpl {
     FloatMatrixInternal;
 
     fun <I, O> getMatrix(path: Path, converter: (Double) -> O, betterFormatFolder: InternalMatrixLookup? = null): Matrix<I, O> {
-
-        val outputPath = betterFormatFolder?.let {    Path(path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString()).removeSuffix(path.extension) + "bin") }
+        val outputPath = betterFormatFolder?.let {
+            Path(
+                path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString()).removeSuffix(path.extension) + "bin"
+            )
+        }
 
         outputPath?.let {
             val file = it.toFile()
-            if(file.exists()) {
+            if (file.exists()) {
                 @Suppress("UNCHECKED_CAST")
                 return (FloatMatrix.fromPath(file.toPath(), converter) as? Matrix<I, O>)
                     ?: throw YamlMultiMatrixError("Bad Matrix", path)
             }
-
         }
-
 
         return when (this) {
             VisumMatrix -> {
