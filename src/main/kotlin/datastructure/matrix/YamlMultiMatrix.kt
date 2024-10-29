@@ -4,15 +4,17 @@ package datastructure.matrix
 
 import me.tongfei.progressbar.ProgressBar
 import org.yaml.snakeyaml.Yaml
+import usecases.steps.InternalMatrixLookup
 import utils.Decodable
 import utils.Encodable
 import utils.collections.defaultProgressBarBuilder
 import utils.collections.stepBy
 import utils.units.AbsoluteTime
-import java.io.File
 import java.nio.file.Path
 import java.time.DayOfWeek
 import java.util.*
+import kotlin.io.path.Path
+import kotlin.io.path.extension
 import kotlin.io.path.pathString
 
 typealias YamlMap = Map<TransportType, WeekMap>
@@ -89,7 +91,7 @@ class YamlMultiMatrix<M, I, O>(
     modeDecoder: Decodable<M>,
     simulationStartInclusive: AbsoluteTime,
     simulationEndExclusive: AbsoluteTime,
-    betterFormatFolder: File? = null
+    betterFormatFolder: InternalMatrixLookup? = null
 ) : MultiMatrix<M, I, O> where M : Encodable {
 
     // a map from Mode to a list of matrices
@@ -157,7 +159,7 @@ private class YamlMultiMatrixParser<M, I, O>(
     private val modeDecoder: Decodable<M>,
     private val simulationStartInclusive: AbsoluteTime,
     private val simulationEndExclusive: AbsoluteTime,
-    private val betterFormatFolder: File? = null
+    private val betterFormatFolder: InternalMatrixLookup? = null
 ) where M : Encodable {
     private val entryList = mutableListOf<Pair<TransportType, Entry>>()
     val matrixMapFunny = HashMap<Pair<String, MatrixImpl>, Matrix<I, O>>()
@@ -448,16 +450,19 @@ private enum class MatrixImpl {
     ConstMatrix,
     FloatMatrixInternal;
 
-    fun <I, O> getMatrix(path: Path, converter: (Double) -> O, betterFormatFolder: File? = null): Matrix<I, O> {
-        if (path.nameCount >= 2) {
-            val filename = path.subpath(2, path.nameCount).toString().replace(".bz2", ".bin")
-            betterFormatFolder?.let {
-                val file = File(it, filename)
-                if (file.exists()) {
-                    @Suppress("UNCHECKED_CAST")
-                    return (FloatMatrix.fromPath(file.toPath(), converter) as? Matrix<I, O>)
-                        ?: throw YamlMultiMatrixError("Bad Matrix", path)
-                }
+    fun <I, O> getMatrix(path: Path, converter: (Double) -> O, betterFormatFolder: InternalMatrixLookup? = null): Matrix<I, O> {
+        val outputPath = betterFormatFolder?.let {
+            Path(
+                path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString()).removeSuffix(path.extension) + "bin"
+            )
+        }
+
+        outputPath?.let {
+            val file = it.toFile()
+            if (file.exists()) {
+                @Suppress("UNCHECKED_CAST")
+                return (FloatMatrix.fromPath(file.toPath(), converter) as? Matrix<I, O>)
+                    ?: throw YamlMultiMatrixError("Bad Matrix", path)
             }
         }
 

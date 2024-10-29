@@ -21,6 +21,7 @@ import units.Distance
 import units.DistanceUnit
 import units.toCurrency
 import units.toDistance
+import usecases.steps.InternalMatrixLookup
 import utils.CodePlan
 import utils.units.AbsoluteTime
 import utils.units.Time
@@ -40,7 +41,7 @@ class YamlMatrixLookupMetrics(
     modeCodes: CodePlan<Mode>,
     simulationStart: AbsoluteTime,
     simulationEnd: AbsoluteTime,
-    betterFormat: File? = null
+    betterFormat: InternalMatrixLookup? = null
 ) : Metrics {
 
     private val travelTimes: MultiMatrix<Mode, ZoneId, Duration> = YamlMultiMatrix<Mode, ZoneId, Duration>(
