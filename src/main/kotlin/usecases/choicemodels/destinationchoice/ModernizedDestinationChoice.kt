@@ -39,7 +39,7 @@ class ModernizedDestinationChoice(
 
     val umlands: (
         Location
-    ) -> Boolean = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA }, // TODO error msg
+    ) -> Boolean = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
     zones: Set<Zone>,
     val modes: ChoiceModelModes,
     val filter: ChoiceFilter<Mode, Person> = NoFilter,
