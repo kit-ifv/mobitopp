@@ -5,8 +5,7 @@ import domain.data.EconomicStatus
 import domain.data.HouseholdBuilder
 import domain.data.HouseholdId
 import domain.data.LegacyZone
-import domain.location.RoadPosition
-import domain.location.RoadPositionInZone
+import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
@@ -35,8 +34,8 @@ fun <S, C> S.prepareHouseholds(
     file: File? = null,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-    columnTranslator: HouseholdColumns = HouseholdColumns(),
-    roadPositionParser: (String) -> RoadPosition = String::parseRoadPosition,
+    columns: HouseholdColumns = HouseholdColumns(),
+    roadPositionParser: (String) -> Location = String::parseRoadPosition,
     incomeUnit: CurrencyUnit? = null,
     economicalStatusCodes: CodePlan<EconomicStatus>? = null,
     filter: HouseholdColumns.(Row) -> Boolean = { true }
@@ -65,25 +64,26 @@ fun <S, C> S.prepareHouseholds(
                 p11
             )
         }.apply {
-            householdNumber = row.long(columnTranslator.hhNumberColumn)
-            surveyYear = row.int(columnTranslator.yearColumn)
+            householdNumber = row.long(columns.hhNumberColumn)
+            surveyYear = row.int(columns.yearColumn)
+
             // Robin: I converted this builder call to the location as found in [Household]
-            location = RoadPositionInZone(
-                row(columnTranslator.locationColumn, roadPositionParser),
-                getLegacyZone(zoneIndex, row.int(columnTranslator.zoneColumn))
+            location = row(columns.locationColumn, roadPositionParser).withZone(
+                getLegacyZone(zoneIndex, row.int(columns.zoneColumn))
             )
+
             // legacy household.csv files reference column instead of visum id
-            domCode = row.int(columnTranslator.domCodeColumn)
-            type = row.int(columnTranslator.typeColumn)
-            incomePerMonth = row.currency(columnTranslator.incomeColumn, currencyUnit)
-            economicStatus = row.decode(columnTranslator.economicalStatusColumn, economicalStatusCodePlan)
-            id = HouseholdId(row.long(columnTranslator.hhIdColumn))
+            domCode = row.int(columns.domCodeColumn)
+            type = row.int(columns.typeColumn)
+            incomePerMonth = row.currency(columns.incomeColumn, currencyUnit)
+            economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodePlan)
+            id = HouseholdId(row.long(columns.hhIdColumn))
             // TODO this may be not the best random instantiation
-            random = Random(row.long(columnTranslator.hhNumberColumn))
+            random = Random(row.long(columns.hhNumberColumn))
             name = "Household: $householdNumber"
         }
     }
-    val filterWrap: (Row) -> Boolean = { columnTranslator.filter(it) }
+    val filterWrap: (Row) -> Boolean = { columns.filter(it) }
 
     this.prepareHouseholdsFile(parser.withFilter(filterWrap), file, delimiter)
 }

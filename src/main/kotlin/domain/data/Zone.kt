@@ -4,12 +4,6 @@ import Buildable
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
 import domain.location.Location
-import domain.location.LocationMetric
-import domain.location.Position
-import domain.location.RoadPosition
-import domain.location.RoadPositionInZone
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
 import units.Distance
 import units.GPSCoordinate
 import utils.ID
@@ -31,51 +25,42 @@ typealias ZoneId = ID<Zone>
  * @property relief height difference in the zone
  */
 @Buildable
-@Suppress("ComplexInterface") // TODO maybe revise this interface in the future?
-interface Zone : Identifiable<ZoneId>, Location { // TODO inherit location here?!
-    val visumId: Long
-    val name: String
-    val areaType: AreaType
-    val regionType: Int
-    val classification: ZoneClassification
-    val parkingPlaces: Int
-    val centroid: Position // TODO type point
-    val isDestination: Boolean
-    val relief: Distance
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R {
-        return destination.evaluateFrom(this, metric)
-    }
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R {
-        return metric.visit(origin, this)
-    }
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R {
-        return metric.visit(origin, this)
-    }
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R {
-        return metric.visit(origin, this)
-    }
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R {
-        return metric.visit(origin, this)
-    }
-    override fun <R> evaluateFrom(origin: Zone, metric: LocationMetric<R>): R {
-        return metric.visit(origin, this)
-    }
+@Suppress("LongParameterList")
+open class Zone(
+    override val id: ZoneId,
+    val visumId: Long,
+    val name: String,
+    val areaType: AreaType,
+    val regionType: Int,
+    val classification: ZoneClassification,
+    open val parkingPlaces: Int, // TODO only open for testing -> ugly :(
+    centroid: Location,
+    val isDestination: Boolean,
+    val relief: Distance,
+) : Identifiable<ZoneId> {
+
+    val centroid: Location = centroid.copy(zone = this)
+    operator fun contains(location: Location): Boolean = location.zone == this
 }
 
-fun Zone.asLocation() = ZoneLocationImpl(this.centroid.coordinate, this)
+fun Zone.centroidLocation() = centroid.copy(zone = this)
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
-    return ZoneLocationImpl(gpsCoordinate, this)
-}
-
-/**
- * I feel this operator makes sense, a zone plus a road position results in a roadPositionInZone
- */
-operator fun Zone.plus(roadPosition: RoadPosition): RoadPositionInZone {
-    return RoadPositionInZone(roadPosition, this)
-}
+fun Zone.point(gpsCoordinate: GPSCoordinate) = Location(gpsCoordinate, zone = this, roadAccess = null)
 
 @Buildable
-interface LegacyZone : Zone {
-    val matrixColumn: Int
-}
+@Suppress("LongParameterList")
+open class LegacyZone(
+    id: ZoneId,
+    visumId: Long,
+    name: String,
+    areaType: AreaType,
+    regionType: Int,
+    classification: ZoneClassification,
+    parkingPlaces: Int,
+    centroid: Location,
+    isDestination: Boolean,
+    relief: Distance,
+    val matrixColumn: Int,
+) : Zone(
+    id, visumId, name, areaType, regionType, classification, parkingPlaces, centroid, isDestination, relief
+)

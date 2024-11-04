@@ -77,7 +77,7 @@ class CarScope(override val observer: Person, private val car: PrivateCar, val t
     }
 
     override fun exitScope(agent: Person): Boolean {
-        return agent.location.matches(target)
+        return agent.location == target // TODO check
     }
 
     override fun onEnter(t: Person) {
@@ -90,7 +90,7 @@ class CarScope(override val observer: Person, private val car: PrivateCar, val t
         car.location = observer.location
         car.removeDriver()
         car.state = PrivateCar.CarState.PARKED
-        if (observer.location.matches(t.household.location)) {
+        if (observer.location == t.household.location) { // TODO check
             car.keyHolder = null
         }
     }

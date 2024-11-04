@@ -5,7 +5,6 @@ import domain.data.Person
 import domain.data.point
 import domain.enums.Mode
 import domain.enums.ZoneClassification
-import domain.location.ZoneLocation
 import generateZones
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -44,7 +43,7 @@ class DestinationChoiceUtilityTest : CompareTwoUtilityFunctions<ILegacyDestinati
         a = LegacyDestinationChoice(
             impedance = impedanceOverride,
             testAttractivenessModel,
-            umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+            umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
             legacyChoiceModelModes,
             filter = filter

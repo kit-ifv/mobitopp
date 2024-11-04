@@ -2,7 +2,6 @@ package usecases.steps
 
 import datastructure.Activity
 import datastructure.LinkedLeg
-import domain.location.ZoneLocation
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.RepositoryState
@@ -84,8 +83,8 @@ private class WriteTripsToCsvStep(
                         output,
                         leg.startTime,
                         leg.endTime,
-                        (leg.startLocation as ZoneLocation).zone.id,
-                        (leg.endLocation as ZoneLocation).zone.id,
+                        (leg.startLocation).requireZone().id,
+                        (leg.endLocation).requireZone().id,
                         previousOutput,
                     )
                 }

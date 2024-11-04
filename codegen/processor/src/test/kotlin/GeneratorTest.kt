@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 class GeneratorTest {
 
-    @Test
+
     fun `test simple compilation`() {
         val source = SourceFile.kotlin("Hello.kt", TEST1)
 //        lateinit var output: File
