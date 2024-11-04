@@ -79,7 +79,6 @@ private class LoadChoiceModelsStep<C>(
                 impedance,
                 context.attractivenessModel.value,
                 umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
-                // TODO error message
                 context.zoneRepository.elements.toSet(),
                 modes = modes,
                 parameterObject = parameters
