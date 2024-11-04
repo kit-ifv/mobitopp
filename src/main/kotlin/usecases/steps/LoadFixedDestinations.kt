@@ -2,7 +2,6 @@ package usecases.steps
 
 import domain.data.PersonId
 import domain.data.ZoneId
-import domain.data.plus
 import domain.enums.LegacyActivityType
 import domain.location.parseRoadPosition
 import modeling.steps.Context
@@ -38,7 +37,7 @@ fun <S, C> S.assignFixedDestinations(
         val activityType = LegacyActivityType.decode(row(columns.activityType))
         val zone = context.getZone(row.long(columns.zone))
 
-        val location = zone + row(columns.location).parseRoadPosition()
+        val location = row(columns.location, String::parseRoadPosition).withZone(zone)
         p?.let { person ->
             val acts = person.schedule.activities().filter { act -> act.type == activityType }
             acts.forEach { it.location = location }

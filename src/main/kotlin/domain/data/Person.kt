@@ -91,7 +91,7 @@ fun Schedule.location(): Location? {
 fun Person.locationBySchedule() = schedule.location() ?: household.location
 
 fun Person.getBestCar(): PrivateCar? {
-    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && it.location.matches(location) }
+    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && (it.location == location) }
         .maxByOrNull { if (it.mainUser == this) 1 else 0 }
 }
 

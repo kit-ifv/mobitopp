@@ -5,7 +5,6 @@ import domain.events.CarSelector
 import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
-import domain.location.ZoneLocationImpl
 import generateActivitySchedule
 import generateHouseholds
 import generateZones
@@ -61,7 +60,7 @@ class CarOnlyScenario {
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+                zones.map { it.centroid }.toSet()
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),

@@ -20,13 +20,12 @@ import datastructure.StationaryAction
 import domain.data.Employment
 import domain.data.Person
 import domain.data.Zone
+import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
 import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit
@@ -44,19 +43,19 @@ import kotlin.math.pow
 import kotlin.time.DurationUnit
 
 interface ILegacyDestinationChoice {
-    fun Collection<ZoneLocation>.selectDestination(
+    fun Collection<Location>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
         nextActivity: StationaryAction,
         modes: Collection<Mode>,
         randomNumber: Double
-    ): ZoneLocation
+    ): Location
 
     fun calculateU_destination(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         availableModes: Collection<Mode>,
@@ -71,7 +70,7 @@ class LegacyDestinationChoice(
     zones: Set<Zone>,
     val modes: ChoiceModelModes,
     val filter: ChoiceFilter<Mode, Person> = NoFilter,
-) : ChoiceModel<Person, ZoneLocation>, ILegacyDestinationChoice {
+) : ChoiceModel<Person, Location>, ILegacyDestinationChoice {
 
     val car = modes.car
     val bike = modes.bike
@@ -82,13 +81,13 @@ class LegacyDestinationChoice(
 
     override val name: String = "HamburgLegacyDestinationChoiceModel"
 
-    private val _choices: Set<ZoneLocation> = zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
 
-    override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+    override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices
     }
 
-    override fun select(agent: Person, choices: Set<ZoneLocation>, time: Time): ZoneLocation {
+    override fun select(agent: Person, choices: Set<Location>, time: Time): Location {
         // TODO comparision issue, have to use <= instead of <, maybe we need to think about this again
         val prevActivity = agent.schedule.pastActivities().lastOrNull { it <= time }
             ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has no past activities.")
@@ -112,27 +111,27 @@ class LegacyDestinationChoice(
 
     val helper = LegacyDestinationHelper(impedance, attractivenessModel, umlands, modes = modes)
 
-    override fun Collection<ZoneLocation>.selectDestination(
+    override fun Collection<Location>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
         nextActivity: StationaryAction,
         modes: Collection<Mode>,
         randomNumber: Double
-    ): ZoneLocation {
-        val origin = prevActivity.location as ZoneLocation
+    ): Location {
+        val origin = prevActivity.location as Location
         val endTime = prevActivity.endTime
 
         //             helper.getATTRACTIVITY(category, person, origin, destination, nextActivity, time, randomNumber)
         val zonesWithAttractivity =
             filter { helper.getATTRACTIVITY(it, person, origin, it, nextActivity, endTime, randomNumber) > 0.0 }
-        val build: LogitModel<Person, ZoneLocation> = object : LogitModel<Person, ZoneLocation>() {
-            override fun utility(agent: Person, choice: ZoneLocation, time: Time): Double {
+        val build: LogitModel<Person, Location> = object : LogitModel<Person, Location>() {
+            override fun utility(agent: Person, choice: Location, time: Time): Double {
                 return calculateU_destination(choice, agent, origin, choice, nextActivity, time, modes, randomNumber)
             }
 
             override val name: String = "TEST DESTINATION LOGIT"
 
-            override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+            override fun choices(agent: Person, time: Time): Set<Location> {
                 return zonesWithAttractivity.toSet()
             }
         }
@@ -140,10 +139,10 @@ class LegacyDestinationChoice(
     }
 
     override fun calculateU_destination(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         availableModes: Collection<Mode>,
@@ -1192,10 +1191,10 @@ class LegacyDestinationHelper(
     val bikesharing = modes.bikeSharing
 
     fun getAGE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1204,10 +1203,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1216,10 +1215,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_PRIMARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1228,10 +1227,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_SECONDARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1240,10 +1239,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_TERTIARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1252,10 +1251,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_EDUCATION(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1264,10 +1263,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_FULLTIME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1276,10 +1275,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_PARTTIME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1288,10 +1287,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_MARGINAL(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1300,10 +1299,10 @@ class LegacyDestinationHelper(
     }
 
     fun getHAS_COMMUTER_TICKET(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1312,10 +1311,10 @@ class LegacyDestinationHelper(
     }
 
     fun getCARS_PER_ADULT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1333,10 +1332,10 @@ class LegacyDestinationHelper(
     }
 
     fun getHOUSEHOLD_ECONOMICAL_STATUS(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1346,10 +1345,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_UMLAND(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1364,10 +1363,10 @@ class LegacyDestinationHelper(
     }
 
     fun getDISTANCE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1376,22 +1375,22 @@ class LegacyDestinationHelper(
     }
 
     fun getATTRACTIVITY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return attractiveness.attractivenessFor(destination.zone.id, nextActivity.type)
+        return attractiveness.attractivenessFor(destination.requireZone().id, nextActivity.type)
     }
 
     fun getPARKDRUCK(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1399,7 +1398,7 @@ class LegacyDestinationHelper(
         return iGetParkdruck(destination)
     }
 
-    fun iGetParkdruck(destination: ZoneLocation): Double {
+    fun iGetParkdruck(destination: Location): Double {
         // TODO this is a temporary hack to avoid cluttering of the destination choice by domination through parkdruck
         return 0.0
 //        // TODO this value is insane, is the calculation correct?
@@ -1419,10 +1418,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1431,10 +1430,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1443,10 +1442,10 @@ class LegacyDestinationHelper(
     }
 
     fun getACCESS_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1455,10 +1454,10 @@ class LegacyDestinationHelper(
     }
 
     fun getEGRESS_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1467,10 +1466,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_ACTIVITY_TYPE_WORK(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1479,10 +1478,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_ACTIVITY_TYPE_BUSINESS(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1501,10 +1500,10 @@ class LegacyDestinationHelper(
     )
 
     fun getACTIVITY_TYPE_IS_LEISURE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1513,10 +1512,10 @@ class LegacyDestinationHelper(
     }
 
     fun getIS_ACTIVITY_TYPE_SERVICE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1525,10 +1524,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1537,10 +1536,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_BIKE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1558,21 +1557,21 @@ class LegacyDestinationHelper(
     private fun toCost(mode: Mode, origin: Location, destination: Location, time: Time) =
         impedance.cost(origin, destination, mode, time).toDouble(currencyUnit)
 
-    private fun Mode.tTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun Mode.tTime(origin: Location, destination: Location, time: Time) =
         impedance.duration(origin, destination, this, time).toDouble(durationUnit)
 
-    private fun aTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun aTime(origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private fun eTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun eTime(origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private fun Mode.tCost(origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun Mode.tCost(origin: Location, destination: Location, time: Time) =
         impedance.cost(origin, destination, this, time).toDouble(currencyUnit)
 
 //    fun getAVAIL_PKW(
-//        category: ZoneLocation,
+//        category: Location,
 //        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
+//        origin: Location,
+//        destination: Location,
 //        nextActivity: StationaryAction,
 //        time: AbsoluteTime,
 //        randomNumber: Double
@@ -1581,10 +1580,10 @@ class LegacyDestinationHelper(
 //    }
 //
 //    fun getAVAIL_MF(
-//        category: ZoneLocation,
+//        category: Location,
 //        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
+//        origin: Location,
+//        destination: Location,
 //        nextActivity: StationaryAction,
 //        time: AbsoluteTime,
 //        randomNumber: Double
@@ -1593,10 +1592,10 @@ class LegacyDestinationHelper(
 //    }
 
     fun getTRAVEL_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1605,10 +1604,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_COST_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1617,10 +1616,10 @@ class LegacyDestinationHelper(
     }
 
     fun getACCESS_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1629,10 +1628,10 @@ class LegacyDestinationHelper(
     }
 
     fun getEGRESS_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1641,10 +1640,10 @@ class LegacyDestinationHelper(
     }
 
     fun getACTIVITY_TYPE_IS_HOME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1653,10 +1652,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1665,10 +1664,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1678,8 +1677,8 @@ class LegacyDestinationHelper(
 
     private inline fun Mode.calculateFixed(
         person: Person,
-        destination: ZoneLocation,
-        functor: Mode.(ZoneLocation, Location, Time) -> Double,
+        destination: Location,
+        functor: Mode.(Location, Location, Time) -> Double,
         time: Time,
     ): Double {
         return (person.nextFixedActivity()?.location ?: person.household.location).let {
@@ -1688,10 +1687,10 @@ class LegacyDestinationHelper(
     }
 
     fun getACCESS_TIME_PUBLICTRANSPORT_FIX( // TODO remove
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1700,10 +1699,10 @@ class LegacyDestinationHelper(
     }
 
     fun getEGRESS_TIME_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1712,22 +1711,22 @@ class LegacyDestinationHelper(
     }
 
     fun getPARKDRUCK_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as ZoneLocation) } ?: 0.0
+        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as Location) } ?: 0.0
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1736,10 +1735,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_BIKE_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1748,10 +1747,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1760,10 +1759,10 @@ class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_COST_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1772,10 +1771,10 @@ class LegacyDestinationHelper(
     }
 
     fun getACCESS_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1784,10 +1783,10 @@ class LegacyDestinationHelper(
     }
 
     fun getEGRESS_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
