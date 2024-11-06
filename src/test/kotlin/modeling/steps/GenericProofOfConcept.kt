@@ -2,6 +2,7 @@ package modeling.steps
 
 import java.io.BufferedReader
 import java.io.File
+import kotlin.properties.Delegates
 
 @JvmInline
 internal value class TestId<out E>(val id: Long)
@@ -169,3 +170,46 @@ class ParserB(
             .map { it.toInt() }.sum()
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+interface ImmutableEntity{
+    val name: String
+    val age: Int
+    val numbers: List<Int>
+}
+
+class MutableEntity: ImmutableEntity {
+    override lateinit var name: String
+    override var age by Delegates.notNull<Int>()
+    override lateinit var numbers: List<Int>
+}
+
+
+interface ReadOnlyContainer<out T> {
+    val elements: List<T>
+}
+
+class ReadWriteContainer<T>(): ReadOnlyContainer<T> {
+    override val elements: List<T>
+        get() = _elements
+
+    private var _elements : MutableList<T> = mutableListOf()
+
+    fun add(element: T) = _elements.add(element)
+    fun remove(element: T) = _elements.remove(element)
+    fun clear() = _elements.clear()
+    fun filter(predicate: (T) -> Boolean) {
+        _elements = _elements.filter(predicate).toMutableList()
+    }
+}
+
+val roImmuElemRepo: ReadOnlyContainer<ImmutableEntity> = ReadWriteContainer<MutableEntity>()
