@@ -31,15 +31,11 @@ import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
-import domain.location.RoadPosition
-import domain.location.RoadPositionInZone
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
+import domain.location.Location
+import domain.location.RoadAccess
 import domain.resources.Subscribable
-import units.Coordinate
 import units.Distance
 import units.GPSCoordinate
-import units.UnitIntervalValue
 import units.euros
 import units.meters
 import units.share
@@ -59,18 +55,20 @@ val TEST_ZONE = TestZone()
 @Suppress("LongParameterList")
 class TestZone(
     point: GPSCoordinate = BIELEFELD,
-    override var visumId: Long = 1L,
-    override var matrixColumn: Int = 0,
-    override var name: String = "TestZone",
-    override var areaType: AreaType = ZoneAreaType.DEFAULT,
-    override var regionType: Int = 0,
-    override var classification: ZoneClassification = ZoneClassification.STUDY_AREA,
+    visumId: Long = 1L,
+    matrixColumn: Int = 0,
+    name: String = "TestZone",
+    areaType: AreaType = ZoneAreaType.DEFAULT,
+    regionType: Int = 0,
+    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
-    override var isDestination: Boolean = true,
-    override var relief: Distance = 0.meters,
-    override val id: ZoneId = ZoneId(1L)
-) : LegacyZone {
-    override var centroid: ZoneLocation = point(point)
+    isDestination: Boolean = true,
+    relief: Distance = 0.meters,
+    id: ZoneId = ZoneId(1L)
+) : LegacyZone(
+    id, visumId, name, areaType, regionType, classification,
+    parkingPlaces, point.asLocation(), isDestination, relief, matrixColumn
+) {
 
     override fun toString(): String {
         return "TestZone$id"
@@ -92,27 +90,27 @@ fun Zone.generateSharingStation(sharingProvider: SharingProvider, vehicles: Set<
     )
 }
 
-fun generateZoneLocations(numElements: Int): List<ZoneLocation> {
+fun generateZoneLocations(numElements: Int): List<Location> {
     return (0..<numElements).map {
         val testZone = TestZone(BIELEFELD, id = ZoneId(it.toLong()))
-        ZoneLocationImpl(testZone.centroid.coordinate, testZone)
+        Location(testZone.centroid.coordinate, zone = testZone, roadAccess = null)
     }
 }
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
-    return ZoneLocationImpl(gpsCoordinate, this)
+fun Zone.point(gpsCoordinate: GPSCoordinate): Location {
+    return Location(gpsCoordinate, zone = this, roadAccess = null)
 }
 
-fun Long.toRoadPosition(): RoadPosition {
-    return RoadPositionImpl(this, 0.5.share(), BIELEFELD)
+fun GPSCoordinate.asLocation(): Location {
+    return Location(this, zone = null, roadAccess = null)
 }
-data class RoadPositionImpl(
-    override val road: Long,
-    override val roadAccess: UnitIntervalValue,
-    override val coordinate: Coordinate
-) : RoadPosition
-fun Long.toRoadPositionInZone(zone: Zone): RoadPositionInZone {
-    return RoadPositionInZone(this.toRoadPosition(), zone)
+
+fun Long.toRoadPosition(): Location {
+    return Location(BIELEFELD, null, RoadAccess(this, 0.5.share()))
+}
+
+fun Long.toRoadPositionInZone(zone: Zone): Location {
+    return Location(BIELEFELD, zone, RoadAccess(this, 0.5.share()))
 }
 
 val testHousehold = TEST_ZONE.generateHousehold {

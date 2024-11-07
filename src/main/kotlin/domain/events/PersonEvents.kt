@@ -14,7 +14,6 @@ import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import modeling.events.Event
 import modeling.models.ChoiceModel
 import usecases.AttractivenessModel
@@ -254,7 +253,7 @@ class EndLegEvent(
 }
 
 data class PersonBehavior(
-    val destinationChoice: ChoiceModel<Person, ZoneLocation>,
+    val destinationChoice: ChoiceModel<Person, Location>,
     val modeChoice: ChoiceModel<TripChoiceSituation, Mode>,
     val impedance: Metrics,
     val scopeDispatcher: ModeScopeDispatcher,
