@@ -3,14 +3,14 @@ package usecases.choicemodels
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.enums.Mode
-import domain.location.ZoneLocation
+import domain.location.Location
 
 data class LegacyModeChoiceParameters(
     val person: Person,
     val previous: StationaryAction,
     val next: StationaryAction,
-    val from: ZoneLocation,
-    val to: ZoneLocation
+    val from: Location,
+    val to: Location
 )
 
 data class ChoiceModelModes(

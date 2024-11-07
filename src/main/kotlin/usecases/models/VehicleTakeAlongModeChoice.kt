@@ -3,7 +3,6 @@ package usecases.models
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.enums.Mode
-import domain.location.ZoneLocation
 import modeling.models.ChoiceModel
 import usecases.choicemodels.TripChoiceSituation
 import utils.units.Time
@@ -34,6 +33,6 @@ class VehicleTakeAlongModeChoice(
     }
 
     private fun isNotAtHome(person: Person, activity: StationaryAction): Boolean {
-        return person.household.location.zone.id != (activity.location as ZoneLocation).zone.id
+        return person.household.location != activity.location
     }
 }
