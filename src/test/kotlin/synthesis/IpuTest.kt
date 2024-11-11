@@ -9,7 +9,7 @@ class IpuTest {
 
     @Test
     fun example() {
-        val targets = parseTargets(Path("src/test/resources/synthesis/ZoneTargets.csv").toFile()).toList()
+        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv").toFile()).toList()
         val target = targets[0]
         val result = parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv").toFile())
         val households = result.groupBy { it.id }
