@@ -1,10 +1,6 @@
 package synthesis
 
 import domain.data.Sex
-import utils.collections.HouseholdRepresentative
-import utils.collections.PersonRepresentative
-import utils.collections.equivalenceClasses
-import utils.collections.sortByValues
 import utils.csv.DefaultCsvParser
 import java.io.File
 import kotlin.io.path.Path
@@ -31,47 +27,6 @@ fun parseSurvey(file: File): Sequence<SurveyInfo> {
     return parser.parse(file)
 }
 
-data class SurveyHousehold(val id: Int, val members: List<SurveyPerson>) {
-    val representative = toRepresentative()
-    private fun toRepresentative(): HouseholdRepresentative  {
-        val memberCount =  members.map { it.representative }.groupingBy { it }.eachCount().map{(element, count) -> Pair(count, element)}.toSet()
-        return HouseholdRepresentative(memberCount)
-    }
-}
-
-data class SurveyPerson(
-    val sex: Sex,
-    val age: Int
-) {
-    val representative = toRepresentative()
-    private fun toRepresentative(): PersonRepresentative {
-        return PersonRepresentative.fromData(sex, age)
-    }
-}
-fun verifyVector(intArray: IntArray) : Boolean {
-    if(intArray[0] + intArray[1] + intArray[2] + intArray[3] + intArray[4] != 1) return false
-    if(intArray[0] == 1) {
-        if(intArray.sum() != 2) return false
-        assert(intArray.sum() == 2)
-    }
-
-    if(intArray[1] == 1) {
-        if(intArray.sum() != 3) return false
-    }
-    if(intArray[2] == 1) {
-        if(intArray.sum() != 4) return false
-        assert(intArray.sum() == 4)
-    }
-    if(intArray[3] == 1) {
-        if(intArray.sum() != 5) return false
-        assert(intArray.sum() == 5)
-    }
-    if(intArray[4] == 1) {
-        if(intArray.sum() < 6) return false
-        assert(intArray.sum() >= 6)
-    }
-    return true
-}
 class Temp(val vector: IntArray, var scalar: Double = 1.0)
 
 class ObserverBoys(val observedIndex: Int, val vectors: List<Temp>, val expected: Double) {
