@@ -67,17 +67,26 @@ class Parameter(
      * If the Parameter has generics, this attribute will return a string represenation similar to the instantiation of
      * the bracket part <X>. As in Set<Person> -> <Person>
      */
-    val generics = type.resolve().let {
+    val generics: String = type.resolve().let {
         if (it.arguments.isNotEmpty()) {
             it.arguments.joinToString(
                 separator = ", ",
                 prefix = "<",
                 postfix = ">"
-            ) { inner -> inner.type.toString() }
+            ) {
+                inner -> val asString = inner.type?.resolve()?.declaration?.qualifiedName?.asString()
+                if(inner.type.toString() in templateParameters) {
+                    inner.type.toString()
+                } else {
+                    (asString?.substring(0, (asString.lastIndexOf(".") + 1)) ?: "") +inner.type.toString() + "/* ${inner.type.toString() } $templateParameters */"
+                }
+                }
+
         } else {
             ""
         }
     }
+
 
     private val externalInstantiation = externalDefaultValue?.let { it + state.reverseInstantiate() }
     /**
@@ -96,7 +105,7 @@ class Parameter(
         val keyword = "var"
         val nullableString = if (isNullable()) "?" else ""
         // The state can override the type. This is mostly necessary for collections.
-        val typeString = overrideableType()
+        //val typeString = overrideableType() //TODO type string is never used?
         // If the parameter is nullable because a default value exists, the start value should be null regardless of
         // what the type specifies as start value
         val startValue = if (isNullable()) "null" else state.initialValue
@@ -315,7 +324,6 @@ enum class PotentialStates : ParameterInfos {
     override fun KSTypeReference.name(): String {
         return toString()
     }
-
     companion object {
         fun parse(type: KSTypeReference, templateParameters: List<String> = emptyList()): PotentialStates {
             val s = type.toString()

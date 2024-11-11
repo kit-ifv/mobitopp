@@ -1,5 +1,6 @@
 package modeling.events
 
+import domain.location.Location
 import utils.units.Time
 
 interface Agent<E> {
@@ -10,6 +11,8 @@ interface Agent<E> {
         nextEvent?.invalidate()
         nextEvent = newEvent
     }
+
+    var location: Location
 }
 
 abstract class Event<E>(

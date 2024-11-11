@@ -96,7 +96,7 @@ open class DefaultCsvParser<E>(
 
     override fun parse(row: Row): E? {
         return exceptionHandling.handleParseRow(row) {
-            mapping(ErrorHandlingRow(row, exceptionHandling.accumulating()))
+            mapping(ErrorHandlingRow(row, exceptionHandling)) // TODO accumulate during validate
         }
     }
 }

@@ -21,6 +21,7 @@ import domain.data.PrivateCar
 import domain.data.PrivateCarBuilder
 import domain.data.Sex
 import domain.data.SharingStation
+import domain.data.SharingStationBuilder
 import domain.data.SharingStationId
 import domain.data.Zone
 import domain.data.ZoneBuilder
@@ -30,7 +31,6 @@ import domain.enums.AreaType
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import modeling.steps.Context
@@ -89,7 +89,7 @@ interface ActivityContext {
 }
 
 interface SharingStationsContext {
-    val sharingStationsRepository: RepositoryBuilder<Builder<SharingStation>, SharingStation, SharingStationId>
+    val sharingStationsRepository: RepositoryBuilder<SharingStationBuilder, SharingStation, SharingStationId>
 }
 
 data class LegacyContext(
@@ -104,7 +104,7 @@ data class LegacyContext(
     override val engineCodes: CodePlan<EngineType> = EngineType,
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
     override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
-    override val modes: CodePlan<Mode> = StandardMode,
+    override val modes: CodePlan<Mode>,
 
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
@@ -146,5 +146,5 @@ data class LegacyContext(
     override val impedance = LateInit<Metrics>("Impedance")
 
     override val sharingStationsRepository =
-        RepositoryBuilder<Builder<SharingStation>, SharingStation, SharingStationId>()
+        RepositoryBuilder<SharingStationBuilder, SharingStation, SharingStationId>()
 }

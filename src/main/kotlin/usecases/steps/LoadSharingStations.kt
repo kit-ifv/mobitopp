@@ -1,21 +1,19 @@
 package usecases.steps
 
 import domain.data.SharingProvider
-import domain.data.SharingStation
+import domain.data.SharingStationBuilder
 import domain.data.SharingVehicle
 import domain.data.SharingVehicleId
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.data.weakerBuilder
 import domain.enums.Mode
-import domain.location.ZoneLocationImpl
+import domain.location.Location
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
 import modeling.steps.ModelExecution
 import units.Coordinate
-import utils.Builder
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
@@ -40,10 +38,8 @@ fun <S, C> S.prepareSharingStations(
     file: File? = null,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
-
     providerName: String,
     mode: Mode,
-
     uidColumn: String = "uid",
     nameColumn: String = "name",
     coordinatesColumn: String = "coordinates",
@@ -52,30 +48,45 @@ fun <S, C> S.prepareSharingStations(
     zoneColumn: String = "zone",
     zonesByFootColumn: String = "zone_avail",
 ) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext, C : SharingStationsContext {
-    val sharingProvider = SharingProvider(providerName)
+    val sharingProvider = SharingProvider(providerName, mode)
 
     val csvParser = CsvParser(errorHandling) { row ->
-        SharingStation(
-            owner = sharingProvider,
-            uid = row(uidColumn),
-            name = row(nameColumn),
-            zonesByFoot = context.prepareZonesByFoot(row, zonesByFootColumn),
-            location = ZoneLocationImpl(
+        SharingStationBuilder().apply {
+            owner = sharingProvider
+            uid = row(uidColumn)
+            name = row(nameColumn)
+            zonesByFoot = this@prepareSharingStations.context.prepareZonesByFoot(row, zonesByFootColumn).toMutableSet()
+            location = Location(
                 zone = context.getZone(row.long(zoneColumn)),
                 coordinate = coordinateParser(row(coordinatesColumn)),
-            ),
-            initialVehicles = prepareVehicles(
-                count = row.int(vehicleCountColumn),
-                mode,
-                sharingProvider
+                roadAccess = null
             )
-        ).also { it.vehicles.forEach { v -> v.returnTo(it) } }.weakerBuilder()
+            initialVehicles = sharingProvider.prepareVehicles(
+                count = row.int(vehicleCountColumn),
+
+            ).toMutableSet()
+        }
+//        SharingStation(
+//            owner = sharingProvider,
+//            uid = row(uidColumn),
+//            name = row(nameColumn),
+//            zonesByFoot = context.prepareZonesByFoot(row, zonesByFootColumn),
+//            location = ZoneLocationImpl(
+//                zone = context.getZone(row.long(zoneColumn)),
+//                coordinate = coordinateParser(row(coordinatesColumn)),
+//            ),
+//            initialVehicles = prepareVehicles(
+//                count = row.int(vehicleCountColumn),
+//                mode,
+//                sharingProvider
+//            )
+//        ).also { it.vehicles.forEach { v -> v.returnTo(it) } }.weakerBuilder()
     }
 
     this.prepareStationsFile(csvParser, file, delimiter)
 }
 
-private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : ZoneContext<*, *> {
+private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : LegacyZonesContext {
     return row(column).split(",").map { id ->
 
         id.toLongOrNull()?.let {
@@ -87,17 +98,18 @@ private fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where 
     }.toSet()
 }
 
-private fun prepareVehicles(count: Int, mode: Mode, owner: SharingProvider): Set<SharingVehicle> =
-    (0 until count).map {
+fun SharingProvider.prepareVehicles(count: Int, mode: Mode = this.mode): Set<SharingVehicle> {
+    return (numberOfVehicles until numberOfVehicles + count).map {
         SharingVehicle(
             id = SharingVehicleId(it.toLong()),
             mode = mode,
-            owner = owner,
+            owner = this,
         )
     }.toSet()
+}
 
 fun <S, C> S.prepareStationsFile(
-    parser: CsvParser<Builder<SharingStation>>,
+    parser: CsvParser<SharingStationBuilder>,
     file: File? = null,
     delimiter: String = SEMICOLON,
 ) where S : ModelExecution<C>, C : Context, C : SharingStationsContext {
@@ -127,8 +139,8 @@ fun <S, C> S.loadSharingStations(
     this.finishSharingStations()
 }
 
-internal fun <C> C.getZone(id: Long) where C : ZoneContext<*, *> = requireNotNull(
-    zoneRepository.getById(ZoneId(id))
+private fun <C> C.getZone(id: Long) where C : LegacyZonesContext = requireNotNull(
+    zoneRepository.getById(ZoneId(id)) ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +
         " ${zoneRepository.elements.map { it.id }.toList()}"

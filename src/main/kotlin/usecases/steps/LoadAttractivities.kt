@@ -3,9 +3,10 @@ package usecases.steps
 import domain.enums.ActivityType
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
+import modeling.validation.subValidateFileReadAccess
+import modeling.validation.validateScope
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
-import utils.files.validateFileReadAccess
 import java.io.File
 
 fun <S> S.loadAttractivities(
@@ -32,11 +33,11 @@ private class LoadAttractivenessStep(
         )
     }
 
-    override fun validate(): Boolean {
-        val valid = validateFileReadAccess(file, messagePrefix = this.name)
-
+    // TODO split into validate and repair function?
+    override fun validate() = validateScope(
+        "Validate $name produced warnings:"
+    ) {
+        subValidateFileReadAccess(file)
         context.attractivenessModel.value = AttractivenessModel { _, _ -> 1.0 }
-
-        return valid
     }
 }

@@ -9,7 +9,7 @@ import modeling.steps.SimulationContext
 fun <S, C> S.simulate() where S : ModelExecution<C>, C : PersonContext, C : SimulationContext {
     val simStep = CustomStep(
         name = "simulate planned activities",
-        validation = { true }
+        validation = { null }
     ) {
         val sim = ParallelSimulator(timeStep = context.timeStep)
 

@@ -2,21 +2,27 @@ package domain.data
 
 import Buildable
 import domain.enums.Mode
-import domain.location.ZoneLocation
+import domain.location.Location
+import domain.resources.Resource
+import domain.resources.Subscribable
 import utils.Builder
 import utils.ID
 import utils.Identifiable
+import java.util.*
 
 typealias SharingStationId = ID<SharingStation>
 
 private var idCounter: Long = 0L
 
 class SharingProvider(
-    val name: String,
-) {
+    override val name: String,
+    val mode: Mode // TODO assign proper mode
+) : Subscribable<Person> {
+
     val stations: Set<SharingStation>
         get() = _stations
 
+    val numberOfVehicles get() = _ownedVehicles.size
     private val _stations: MutableSet<SharingStation> = mutableSetOf()
 
     fun register(station: SharingStation) {
@@ -31,38 +37,75 @@ class SharingProvider(
     fun register(vehicle: SharingVehicle) {
         _ownedVehicles += vehicle
     }
+
+    override val resources: Set<Resource<Person>>
+        get() {
+            return _stations
+        }
 }
 
 @Buildable
 class SharingStation(
     val uid: String,
     val name: String,
-    val location: ZoneLocation,
+    val location: Location,
     val zonesByFoot: Set<Zone>,
     val owner: SharingProvider,
     initialVehicles: Set<SharingVehicle>,
-) : Identifiable<SharingStationId> {
+) : Identifiable<SharingStationId>, Resource<Person> {
+
     override val id = SharingStationId(idCounter++)
     val vehicles: Set<SharingVehicle>
         get() = _vehicles
 
-    private val _vehicles: MutableSet<SharingVehicle> = mutableSetOf()
+    //
+    private val _vehicles: MutableSet<SharingVehicle> = Collections.synchronizedSet(mutableSetOf())
 
     init {
         _vehicles.addAll(initialVehicles)
+        _vehicles.forEach { it.returnTo(this) }
         owner.register(this)
     }
 
     fun take(vehicle: SharingVehicle) {
+        require(vehicle in _vehicles) {
+            "Cannot take sharing vehicle ${vehicle.id} from station ${this.id} as it is not located there."
+        }
+
         this._vehicles -= vehicle
         vehicle.take()
+    }
+
+    fun takeAny(): SharingVehicle {
+        require(hasAvailableVehicles) {
+            "Cannot take a sharing vehicle from station '${this.name}' as none are currently available."
+        }
+
+        require(_vehicles.isNotEmpty()) {
+            "Empty $hasAvailableVehicles"
+        }
+        return _vehicles.first().also { take(it) }
     }
 
     fun giveBack(vehicle: SharingVehicle) {
         this._vehicles += vehicle
         vehicle.returnTo(this)
     }
+
+    override fun toString(): String {
+        return "$id ${vehicles.size}"
+    }
+    val hasAvailableVehicles: Boolean
+        get() = _vehicles.isNotEmpty()
+
+    override fun isAvailableFor(agent: Person): Boolean {
+        return agent.memberships.containsKey(owner) &&
+            !agent.inTransit &&
+//                hasAvailableVehicles && // Available vehicles is not relevant for the resource allocation
+            zonesByFoot.any { agent.location.inSameZone(it.centroid) }
+    }
 }
+
 fun SharingStation.weakerBuilder(): Builder<SharingStation> {
     val build = SharingStationBuilder()
     build.uid = uid
@@ -75,6 +118,7 @@ fun SharingStation.weakerBuilder(): Builder<SharingStation> {
 }
 
 typealias SharingVehicleId = ID<SharingVehicle>
+
 class SharingVehicle(
     override val id: SharingVehicleId,
     val mode: Mode,
@@ -88,10 +132,8 @@ class SharingVehicle(
     }
 
     fun take() {
-        currentStation?.also {
-            currentStation = null
-            it.take(this)
-        }
+        require(currentStation != null) { "How are you taking bike $id when it has no station?" }
+        currentStation = null
     }
 
     fun returnTo(sharingStation: SharingStation) {
@@ -104,5 +146,9 @@ class SharingVehicle(
             "Cannot return SharingVehicle[$id] to SharingStation[${sharingStation.id} " +
                 "as it is currently located at SharingStation[${currentStation?.id}]!"
         }
+    }
+
+    override fun toString(): String {
+        return "$id -> ${currentStation?.name}"
     }
 }

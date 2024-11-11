@@ -1,10 +1,15 @@
 package datastructure
 
 import datastructure.plans.IDispatcher
+import domain.enums.MODEUNKOWN
+import domain.enums.Mode
+import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import domain.location.Metrics
 import utils.units.AbsoluteTime
 import java.util.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A trip consists of a list of [legs] as well as a [previousAction] and a [nextAction]. All references in this class
@@ -16,9 +21,18 @@ interface Trip {
     val previousAction: StationaryAction?
     val nextAction: StationaryAction?
 
+    val origin get() = previousAction?.location ?: legs.firstOrNull()?.startLocation ?: LOCATIONUNKNOWN
+    val destination get() = nextAction?.location ?: legs.lastOrNull()?.endLocation ?: LOCATIONUNKNOWN
+
     fun alternate(lambda: TripBuilder.() -> Unit)
 
     fun isConsistent() = (listOf(previousAction) + legs + nextAction).filterNotNull().isConsistent()
+}
+
+fun Trip.alternateByImpedance(impedance: Metrics, lambda: ImpedanceBuilder.() -> Unit) {
+    alternate {
+        byImpedance(impedance, lambda)
+    }
 }
 
 /**
@@ -39,6 +53,20 @@ class RawTrip(
     }
 }
 
+class ImpedanceBuilder(val impedance: Metrics, private val tripBuilder: TripBuilder) {
+    fun taking(modeLocation: Pair<Mode, Location>) {
+        tripBuilder.taking(
+            modeLocation,
+            impedance.duration(
+                tripBuilder.currentLocation,
+                modeLocation.second,
+                modeLocation.first,
+                tripBuilder.currentTime
+            )
+        )
+    }
+}
+
 /**
  * The trip builder allows the creation of a new trip based on an original trip or otherwise specified input data.
  *
@@ -46,15 +74,19 @@ class RawTrip(
 class TripBuilder(
     val previousAction: StationaryAction?,
     val nextAction: StationaryAction?,
-    val originals: List<MovingAction>
+    val originals: List<MovingAction>,
+
 ) {
 
     constructor(trip: Trip) : this(trip.previousAction, trip.nextAction, trip.legs)
 
     // The previous action could be null, however the assumption that a previous location exists still holds, so I can
     // request the promise that this value will be set eventually.
-    private lateinit var currentLocation: Location
-    private var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
+    lateinit var currentLocation: Location
+        private set
+
+    var currentTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY
+        private set
 
     init {
         if (previousAction != null) {
@@ -73,13 +105,23 @@ class TripBuilder(
     }
 
     operator fun Step.unaryPlus() {
-        require(duration > Duration.ZERO) {
+        require(duration >= Duration.ZERO) {
             "Negative Duration is not supported. currentTime=$currentTime duration=$duration"
         }
 
-        legs.add(Leg.fromDuration(currentTime, duration = duration, currentLocation, location))
-        currentTime += duration
+        val posDuration = duration.takeIf { it > Duration.ZERO } ?: 1.seconds
+
+        legs.add(Leg.fromDuration(currentTime, duration = posDuration, currentLocation, location, mode))
+        currentTime += posDuration
         currentLocation = location
+    }
+
+    fun byImpedance(impedance: Metrics, lambda: ImpedanceBuilder.() -> Unit) {
+        ImpedanceBuilder(impedance, this).apply(lambda)
+    }
+
+    fun taking(modeLocation: Pair<Mode, Location>, duration: Duration) {
+        +Step(modeLocation.second, duration, modeLocation.first)
     }
 
     operator fun Pause.unaryPlus() {
@@ -87,7 +129,7 @@ class TripBuilder(
     }
 
     fun output(): SortedSet<Leg> = legs
-    inner class Step(val location: Location, val duration: Duration)
+    inner class Step(val location: Location, val duration: Duration, val mode: Mode = MODEUNKOWN)
     inner class Pause(val idleTime: Duration)
 }
 
@@ -104,6 +146,7 @@ class LinkTrip(
 ) : Trip, Comparable<LinkTrip>, Representative<LinkedLeg> {
     override val previousAction: StationaryAction? =
         schedule?.pastActivities()?.last() ?: legBlock.previous.lastElementOrNull()
+
     override val elements: List<LinkedLeg>
         get() = legBlock.item.toList()
 
@@ -114,18 +157,25 @@ class LinkTrip(
     override val legs: List<Leg>
         get() = legBlock.item.toList()
 
-//    override val previousAction: StationaryAction?
+    //    override val previousAction: StationaryAction?
 //        get() = legBlock.previous.lastElementOrNull()
     override val nextAction: StationaryAction?
-        get() = legBlock.next.firstElementOrNull()
+        get() = _nextAction
     val previousTrip: List<Leg>?
         get() = legBlock.previous.previous?.item?.toList()
     val nextTrip: List<Leg>?
         get() = legBlock.next.next?.item?.toList()
+    private val _nextAction get() = legBlock.next.firstElementOrNull()
     override fun alternate(lambda: TripBuilder.() -> Unit) {
         val builder = TripBuilder(previousAction, nextAction, legs)
         builder.lambda()
         val target = builder.output()
+        // TODO Robin: There should be a better way to force a trip into a block. Also Test this behaviour
+        target.lastOrNull()?.let { leg ->
+            _nextAction?.let {
+                if (it.startTime < leg.endTime) { it.shiftStartTo(leg.endTime) }
+            }
+        }
         dispatcher?.replaceLegs(legs.toSortedSet(), target)
     }
 

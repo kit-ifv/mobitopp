@@ -4,6 +4,7 @@ package datastructure.matrix
 
 import domain.data.ZoneId
 import java.nio.file.Path
+import kotlin.time.measureTime
 
 /**
  * Represents a matrix of values parsed from a Visum file.
@@ -12,37 +13,25 @@ import java.nio.file.Path
  * @param converter Function to convert Double to generic type O.
  */
 class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<ZoneId, O> {
-    private lateinit var matrix: Array<Double>
 
-    // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
-    private fun getMatrix(): Array<Double> {
-        synchronized(this) {
-            if (!this::matrix.isInitialized) {
-                matrix = parser.getArray()
-            }
+    private val data by lazy {
+        println("Starting parsing of $path")
+        lateinit var matrixData: DoubleArray
+        lateinit var indexData: Array<ZoneId>
+        val duration = measureTime {
+            val parser = MatrixParser(path)
+            matrixData = parser.getArray()
+            indexData = parser.getZoneIds()
         }
-
-        return matrix
+        println("Parsing of $path took $duration")
+        matrixData to indexData.withIndex().associate { (index, zoneId) -> zoneId to index }
     }
+    private val matrix get() = data.first
 
-    private lateinit var indexLookup: HashMap<ZoneId, Int>
+    private val indexLookup get() = data.second
 
-    // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler
-    private fun getIndexLookup(): HashMap<ZoneId, Int> {
-        synchronized(this) {
-            if (!this::indexLookup.isInitialized) {
-                val zoneIds = parser.getZoneIds()
-                indexLookup = HashMap()
-                for ((index, zoneId) in zoneIds.withIndex()) {
-                    indexLookup[zoneId] = index
-                }
-            }
-        }
-
-        return indexLookup
-    }
-
-    private val parser: IVisumParser = VisumParser(path)
+//    private val parser: () ->  IVisumParser =  {MatrixParser(path)}
+//    private val parser: IVisumParser = VisumParser(path)
 
     /**
      * Get the value at the specified row and column in the matrix.
@@ -53,13 +42,16 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
      * @throws IllegalArgumentException if the row or column key is not found in the index lookup.
      */
     override fun get(row: ZoneId, column: ZoneId): O {
-        val rowIndex = getIndexLookup()[row] ?: throw IllegalArgumentException("Row $row not found in index lookup")
-        val columnIndex = getIndexLookup()[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
-        val matrix = getMatrix()
+        val rowIndex = indexLookup[row] ?: throw IllegalArgumentException("Row $row not found in index lookup")
+        val columnIndex =
+            indexLookup[column] ?: throw IllegalArgumentException("Column $column not found in index lookup")
 
-        // Calculate the index in the one-dimensional matrix
-        val index = rowIndex * getIndexLookup().size + columnIndex
-
+//         Calculate the index in the one-dimensional matrix
+        val index = rowIndex * indexLookup.size + columnIndex
         return converter(matrix[index])
+    }
+
+    fun toFloatMatrix(): FloatMatrix<O> {
+        return FloatMatrix(indexLookup.size, indexLookup, matrix.map { it.toFloat() }.toFloatArray(), converter)
     }
 }

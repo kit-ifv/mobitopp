@@ -6,6 +6,7 @@ import datastructure.Agenda
 import datastructure.Leg
 import datastructure.LinkTrip
 import datastructure.StationaryAction
+import datastructure.alternateByImpedance
 import domain.data.Person
 import domain.data.Zone
 import domain.enums.MODEUNKOWN
@@ -13,14 +14,14 @@ import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import modeling.events.Event
 import modeling.models.ChoiceModel
 import usecases.AttractivenessModel
+import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.LegacyModeChoiceModel
-import utils.CodePlan
-import utils.units.AbsoluteTime
+import usecases.choicemodels.TripChoiceSituation
+import utils.concurrent.synchronizeAll
 import utils.units.Time
 
 private const val EXPECTED_LEG_BLOCK = "expected leg block"
@@ -38,7 +39,10 @@ abstract class ActionBlockEvent(
     ActionBlockVisitor<List<Event<*>>> {
 
     override fun process(entity: Person): List<Event<*>> {
-        entity.schedule.step()
+        entity.location = entity.schedule.step()
+//        require(entity.location == entity.locationBySchedule()) {
+//            "Error, mismatch in locations precision."
+//        }
         val block = entity.schedule.nextBlock()
         return block?.accept(this) ?: emptyList()
     }
@@ -117,7 +121,7 @@ class EndActivityEvent(
             StartTripEvent(
                 person = person,
                 time = time,
-                behavior
+                behavior,
             )
         )
     }
@@ -145,39 +149,37 @@ class StartTripEvent(
 ) {
     override fun visitTrip(leg: LinkTrip): List<Event<*>> {
         // mode and destination choice
+        // TODO Robin last.endlocation is destination?
         if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
             leg.elements.last().endLocation = behavior.destinationChoice.choose(person, time)
             leg.elements.forEach { it.transportType = MODEUNKOWN }
-
-            // update travel times!
         }
-        val mode = behavior.modeChoice.choose(person, time)
 
-        val duration = behavior.impedance.duration(
-            from = leg.elements.first().startLocation,
-            to = leg.elements.last().endLocation,
-            mode = mode,
-            time = time
-        )
+        val origin = leg.origin
+        val destination = leg.destination
 
-        // Alternates the leg block to a monomodal trip
-        leg.alternate {
-            +Leg.fromDuration(
-                previousAction?.endTime ?: person.schedule.lastAction()?.endTime?: AbsoluteTime.START,
-                duration = duration,
-                startLocation = originals.first().startLocation,
-                endLocation = originals.last().endLocation,
-                mode = mode
+        val sharedResources = person.sharedResources()
+        return synchronizeAll(sharedResources) {
+            val mode: Mode = behavior.modeChoice.choose(
+                TripChoiceSituation(person, origin, destination, sharedResources),
+                time
             )
-        }
 
-        return listOf(
-            StartLegEvent(
+            // TODO move this code snippet to the scope dispatcher maybe?
+
+            leg.alternateByImpedance(behavior.impedance) {
+                taking(mode to destination)
+            }
+            val startLegEvent = StartLegEvent(
                 person = person,
                 leg = leg.elements[0],
                 behavior
             )
-        )
+
+            behavior.scopeDispatcher.pickScope(startLegEvent, mode, person, leg).also {
+                person.inTransit = true
+            }
+        }
     }
 
     override fun visitActivityBlock(activity: Agenda): List<Event<*>> {
@@ -236,6 +238,8 @@ class EndLegEvent(
     }
 
     override fun visitActivityBlock(activity: Agenda): List<Event<*>> {
+        person.inTransit = false
+
         return activity.elements.firstOrNull()?.let {
             listOf(
                 StartActivityEvent(
@@ -249,22 +253,26 @@ class EndLegEvent(
 }
 
 data class PersonBehavior(
-    val destinationChoice: ChoiceModel<Person, ZoneLocation>,
-    val modeChoice: ChoiceModel<Person, Mode>,
+    val destinationChoice: ChoiceModel<Person, Location>,
+    val modeChoice: ChoiceModel<TripChoiceSituation, Mode>,
     val impedance: Metrics,
+    val scopeDispatcher: ModeScopeDispatcher,
 ) {
     companion object {
+        @Suppress("LongParameterList")
         fun from(
             impedance: Metrics,
             attractivenessModel: AttractivenessModel,
             umlands: (Location) -> Boolean,
             zones: Set<Zone>,
-            modes: CodePlan<Mode>
+            modes: ChoiceModelModes,
+            scopeByMode: Map<Mode, ModeScopeSelector>,
         ): PersonBehavior {
             return PersonBehavior(
                 LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes),
                 LegacyModeChoiceModel(attractivenessModel, modes = modes, impedance = impedance),
                 impedance,
+                ModeScopeDispatcher(scopeByMode)
             )
         }
     }

@@ -1,9 +1,9 @@
-
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
-import domain.enums.StandardMode
 import modeling.steps.Run
+import usecases.LegacyMode
+import usecases.legacyChoiceModelModes
 import usecases.steps.LegacyContext
 import usecases.steps.assignFixedDestinations
 import usecases.steps.assignHomeLocations
@@ -38,6 +38,7 @@ private val attractivenessTypes = setOf(
     LegacyActivityType.EDUCATION_TERTIARY,
     // TODO Sightseeing?
 )
+
 fun main() {
     Run {
         LegacyContext(
@@ -45,7 +46,8 @@ fun main() {
             areaTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
-            simulationSeed = 42
+            simulationSeed = 42,
+            modes = LegacyMode,
         )
     }.steps {
         loadZones()
@@ -72,11 +74,11 @@ fun main() {
                 "${ROOT_FS}\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
             ),
             providerName = "StadtMobil",
-            mode = StandardMode.BIKESHARING,
+            mode = LegacyMode.BIKESHARING,
             vehicleCountColumn = "bikes",
         )
         finishSharingStations()
-        loadChoiceModels()
+        loadChoiceModels(legacyChoiceModelModes)
         loadTestSet()
         assignHomeLocations()
         assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())

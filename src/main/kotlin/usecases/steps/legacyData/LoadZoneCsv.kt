@@ -1,9 +1,10 @@
 package usecases.steps.legacyData
 
 import domain.data.LegacyZoneBuilder
+import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
-import domain.location.RoadPosition
+import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
@@ -21,6 +22,7 @@ import utils.csv.boolean
 import utils.csv.decode
 import utils.csv.distance
 import utils.csv.double
+import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import java.io.File
@@ -38,7 +40,7 @@ fun <S, C> S.prepareZones(
     classificationColumn: String = "classification",
     parkingPlacesColumn: String = "parkingPlaces",
     centroidColumn: String = "centroidLocation",
-    centroidParser: (String) -> RoadPosition = String::parseRoadPosition,
+    centroidParser: (String) -> Location = String::parseRoadPosition,
     isDestinationColumn: String = "isDestination",
     reliefColumn: String = "relief",
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
@@ -47,6 +49,7 @@ fun <S, C> S.prepareZones(
 
     val csvParser = CsvParser(errorHandling) { row ->
         LegacyZoneBuilder().apply {
+            id = row.id(idColumn)
             visumId = row.long(idColumn)
             matrixColumn = row.index
             name = row(nameColumn)
@@ -57,6 +60,7 @@ fun <S, C> S.prepareZones(
             centroid = row(centroidColumn, centroidParser)
             isDestination = row.boolean(isDestinationColumn)
             relief = row.double().distance(reliefColumn, reliefUnit)
+            id = ZoneId(row.long(idColumn))
         }
     }
 

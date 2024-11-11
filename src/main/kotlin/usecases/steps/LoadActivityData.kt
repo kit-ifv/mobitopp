@@ -35,7 +35,7 @@ fun <S, C> S.prepareActivities(
     activitiesColumns: ActivitiesColumns = ActivitiesColumns(),
     activityTypeCodes: CodePlan<ActivityType>? = null,
     durationUnit: DurationUnit? = null,
-    filter: ActivitiesColumns.(Row) -> Boolean = { true }
+    filter: ActivitiesColumns.(Row, C) -> Boolean = { _, _ -> true }
 ) where S : ModelExecution<C>, C : Context, C : ActivityContext, C : PersonContext {
     val timeUnit = durationUnit ?: context.timeUnit
     val personRepo = { context.personRepository }
@@ -54,7 +54,7 @@ fun <S, C> S.prepareActivities(
         }
     }
 
-    this.prepareActivitiesFile(parser.withFilter { activitiesColumns.filter(it) }, file, delimiter)
+    this.prepareActivitiesFile(parser.withFilter { activitiesColumns.filter(it, context) }, file, delimiter)
 }
 
 private fun getPerson(
@@ -79,6 +79,7 @@ data class ActivitiesColumns(
     val startColumn: String = "startTime",
     val durationColumn: String = "duration",
 )
+
 fun <S, C> S.prepareActivitiesFile(
     parser: CsvParser<PlannedActivityBuilder>,
     file: File? = null,

@@ -40,6 +40,7 @@ interface SimulationContext : Context {
 
     val behavior: LateInit<PersonBehavior>
 }
+
 class LateInit<T>(
     val name: String,
 ) {
@@ -54,4 +55,7 @@ class LateInit<T>(
             }
             this._value = value
         }
+
+    val isSet: Boolean
+        get() = _value != null
 }

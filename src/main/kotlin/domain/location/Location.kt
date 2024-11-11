@@ -2,167 +2,87 @@ package domain.location
 
 import domain.data.Zone
 import units.Coordinate
+import units.Distance
 import units.GPSCoordinate
 import units.UnitIntervalValue
+import units.meters
 import units.share
 
-/**
- * Location is a generic representation of placement/whereabouts of entities.
- * It provides a method to evaluate a [LocationMetric] between two arbitrary [Location]s.
- *
- * Here the double-dispatch pattern is used, since there are four different specific types of locations.
- *  - [Position]
- *  - [ZoneLocation]
- *  - [RoadPosition]
- *  - [RoadPositionInZone]
- *
- * [LocationMetric]s can evaluate any combination of two specific location types.
- * To call the correct evaluation method of the [LocationMetric], first [Location.evaluate] knows the specific
- * [Location] type of the callee  and passes it to the corresponding version of [Location.evaluateFrom].
- * [Location.evaluateFrom] is called on the destination [Location], hence theis secend callee now nws the specific
- * [Location] type of the destination (itself) and the origin [Location] (the first callee which is given as parameter).
- */
-interface Location {
+data class RoadAccess(val roadId: Long, val position: UnitIntervalValue, val lateralDistance: Distance = 0.meters)
 
-    fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R
-    fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R
-    fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R
-    fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R
-    fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R
-}
+data class Location(
+    val coordinate: Coordinate,
+    val zone: Zone?,
+    val roadAccess: RoadAccess?,
+) {
 
-/**
- * A Position is a [Location] with a specific coordinate.
- *
- * @property coordinate the coordinate of the location
- */
-interface Position : Location {
-    val coordinate: Coordinate
+    fun inSameZone(other: Location): Boolean = this.zone == other.zone
 
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
-        destination.evaluateFrom(this, metric)
+    fun requireZone(): Zone = requireNotNull(zone) {
+        "Expected Location $this to specify a zone, but found null!"
+    }
 
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
+        other as Location
 
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
+        if (coordinate != other.coordinate) return false
+        if (zone != other.zone) return false
+        if (roadAccess != other.roadAccess) return false
 
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-}
+        return true
+    }
 
-/**
- * A ZoneLocation is a [Position] within a certain zone.
- *
- * @property zone the zone containing the location
- */
-interface ZoneLocation : Position {
-    val zone: Zone
-    // TODO this is linked to domain description which might change in the future
-    //  -> rethink this part (imported from  legacy mobitopp)
-    // TODO maybe extract minimum interface for zones or refencece only zone id
+    override fun hashCode(): Int {
+        var result = coordinate.hashCode()
+        result = 31 * result + (zone?.hashCode() ?: 0)
+        result = 31 * result + (roadAccess?.hashCode() ?: 0)
+        return result
+    }
 
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
-        destination.evaluateFrom(this, metric)
+    fun withZone(zone: Zone): Location {
+        require(this.zone == null) {
+            "Cannot add '$zone' to location '$this', as zone is already defined!"
+        }
 
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
+        return this.copy(zone = zone)
+    }
 
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
+    fun withRoadAccess(access: RoadAccess): Location {
+        require(this.roadAccess == null) {
+            "Cannot add '$access' to location '$this', as roadAccess is already defined!"
+        }
 
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-}
-
-/**
- * A RoadPosition is a [Position] located on or at a certain road.
- *
- * @property road the road (id) on/at which the location lies
- * @property roadAccess the access point along the road, specified by a percentage value in [0,1]
- */
-interface RoadPosition : Position {
-    val road: Long // TODO replace by link id
-    val roadAccess: UnitIntervalValue
-
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
-        destination.evaluateFrom(this, metric)
-
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-}
-
-/**
- * A RoadPositionInZone is a [RoadPosition] with additional [ZoneLocation] information.
- *
- * @param roadPosition the [RoadPosition] contained by the given zone
- * @property zone the zone containing the location
- */
-class RoadPositionInZone(
-    roadPosition: RoadPosition,
-    override val zone: Zone
-) : RoadPosition by roadPosition, ZoneLocation {
-
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R =
-        destination.evaluateFrom(this, metric)
-
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R =
-        metric.visit(origin, this)
-}
-
-/**
- * Parse the legacy mobiTopp String format of [RoadPosition]:
- *
- * @return the parsed [RoadPosition]
- */
-@Suppress("MagicNumber")
-fun String.parseRoadPosition(): RoadPosition {
-    val res = this.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
-    require(res.size == 4)
-
-    return object : RoadPosition {
-        override val road = res[2].toLong()
-        override val roadAccess = res[3].toDouble().share()
-        override val coordinate = GPSCoordinate.decimalDegree(res[1].toDouble(), res[0].toDouble())
+        return this.copy(roadAccess = access)
     }
 }
 
-object LOCATIONUNKNOWN : Location {
-    private const val message = "Distance, cost and duration should never be called on LOCATIONUNKNOWN!"
-    override fun <R> evaluate(destination: Location, metric: LocationMetric<R>): R = error(message)
+/**
+ * Parse the legacy mobiTopp String format of coordinate and road access:
+ *
+ * @return the parsed Location
+ */
+@Suppress("MagicNumber")
+fun String.parseRoadPosition(): Location {
+    val res = this.removeSurrounding(prefix = "(", suffix = ")").split(":", ",").map { it.trim() }
+    require(res.size == 4) {
+        "Cannot parse '$this' as RoadPosition: expected format LONG:LAT,ROAD_ID,ROAD_POS"
+    }
 
-    override fun <R> evaluateFrom(origin: Position, metric: LocationMetric<R>): R = error(message)
-
-    override fun <R> evaluateFrom(origin: ZoneLocation, metric: LocationMetric<R>): R = error(message)
-
-    override fun <R> evaluateFrom(origin: RoadPosition, metric: LocationMetric<R>): R = error(message)
-
-    override fun <R> evaluateFrom(origin: RoadPositionInZone, metric: LocationMetric<R>): R = error(message)
+    return Location(
+        coordinate = GPSCoordinate.decimalDegree(res[1].toDouble(), res[0].toDouble()),
+        zone = null,
+        roadAccess = RoadAccess(
+            roadId = res[2].toLong(),
+            position = res[3].toDouble().share(),
+        )
+    )
 }
 
-data class ZoneLocationImpl(override val coordinate: Coordinate, override val zone: Zone) : ZoneLocation
+val LOCATIONUNKNOWN = Location(
+    coordinate = GPSCoordinate.decimalDegree(0.0, 0.0),
+    zone = null,
+    roadAccess = null,
+)
