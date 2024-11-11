@@ -1,16 +1,10 @@
 package datastructure.matrix
 
 import domain.data.ZoneId
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
-import java.io.BufferedInputStream
+import utils.files.decompressedBufferedReader
 import java.io.BufferedReader
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
-import java.io.InputStreamReader
 import java.nio.file.Path
+
 // Detekt complained, so I extracted the number line pattern into its own variable
 const val NUMBER_LINE_PATTERN = "[\\d|\\s.-]+"
 
@@ -27,8 +21,14 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
     private lateinit var values: List<MutableList<Double>>
     private val mutableList: MutableList<ZoneId> = ArrayList()
     private var index = -1
-    constructor(file: Path) : this({ properBufferedReader(file.toFile()) })
+
+    constructor(file: Path) : this({
+        file.decompressedBufferedReader()
+        // properBufferedReader(file.toFile())
+    })
+
     init {
+
         val reader = thoth.invoke()
         reader.forEachLine {
             state = state.nextState(it)
@@ -154,8 +154,8 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
         return mutableList.toTypedArray()
     }
 
-    override fun getArray(): Array<Double> {
-        return values.flatten().toTypedArray()
+    override fun getArray(): DoubleArray {
+        return values.flatten().toDoubleArray()
     }
 }
 
@@ -166,24 +166,30 @@ private fun String.splitByWhitespace(): List<String> {
 private val AS_DOUBLE: (String) -> Double = { it.toDouble() }
 private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
 
-fun properBufferedReader(item: File): BufferedReader {
-    return when (item.extension) {
-        "bz2" -> BufferedReader(InputStreamReader(uncompressBZip2From(FileInputStream(item))))
-        else -> item.bufferedReader(charset("ISO-8859-1"))
-    }
-}
-
-@Suppress("MagicNumber") // 1024 is just the buffer size
-private fun uncompressBZip2From(fin: FileInputStream): InputStream {
-    val inputStream = BufferedInputStream(fin)
-    val bzIn = BZip2CompressorInputStream(inputStream)
-    val out = ByteArrayOutputStream()
-    val buffer = ByteArray(1024)
-    var n = 0
-    while (-1 != (bzIn.read(buffer).also { n = it })) {
-        out.write(buffer, 0, n)
-    }
-    out.close()
-    bzIn.close()
-    return ByteArrayInputStream(out.toByteArray())
-}
+// fun properBufferedReader(item: File): BufferedReader {
+//    return when (item.extension) {
+//        "bz2" -> BufferedReader(InputStreamReader(uncompressBZip2From(FileInputStream(item))))
+//        else -> item.bufferedReader(charset("ISO-8859-1"))
+//    }
+// }
+//
+// // TODO can be deleted, included buffering in FileDecompression.kt
+// @Suppress("MagicNumber") // 1024 is just the buffer size
+// private fun uncompressBZip2From(fin: FileInputStream): InputStream {
+//    val inputStream = BufferedInputStream(fin)
+//    val bzIn = BZip2CompressorInputStream(inputStream)
+//
+//    val out = ByteArrayOutputStream()
+//
+//    // TODO -> simplify to bzIn.copyTo(out)
+//    val buffer = ByteArray(1024)
+//    var n = 0
+//    while (-1 != (bzIn.read(buffer).also { n = it })) {
+//        out.write(buffer, 0, n)
+//    }
+//    out.close()
+//
+//    bzIn.close()
+//
+//    return ByteArrayInputStream(out.toByteArray())
+// }

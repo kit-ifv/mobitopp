@@ -5,10 +5,12 @@ import domain.data.Employment
 import domain.data.Graduation
 import domain.data.Household
 import domain.data.HouseholdId
+import domain.data.Person
 import domain.data.PersonBuilder
 import domain.data.PersonId
 import domain.data.Sex
 import domain.enums.LegacyActivityType
+import domain.resources.Subscribable
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
@@ -17,6 +19,9 @@ import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
 import modeling.steps.Repository
 import modeling.steps.RepositoryState
+import modeling.steps.repairFinishedState
+import modeling.steps.subValidateState
+import modeling.validation.validateScope
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
@@ -45,14 +50,18 @@ fun <S, C> S.preparePersons(
     sexCode: CodePlan<Sex>? = null,
     graduationCode: CodePlan<Graduation>? = null,
     incomeUnit: CurrencyUnit? = null,
-    filter: PersonColumns.(Row) -> Boolean = { true }
-) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext {
+    filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
+    // TODO Jelle add dependent repositories to validation!!
+) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext, C : SharingStationsContext {
     val employmentCodePlan = employmentCode ?: this.context.employmentCodes
     val sexCodePlan = sexCode ?: this.context.sexCodes
     val graduationCodePlan = graduationCode ?: this.context.graduationCodes
     val currencyUnit = incomeUnit ?: this.context.costUnit
 
     val householdRepo = { context.householdRepository }
+    val providersByNameFunction: () -> Map<String, Subscribable<Person>> = {
+        context.sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
+    }
 
     val csvParser = CsvParser(errorHandling) { row ->
         PersonBuilder().apply {
@@ -60,7 +69,9 @@ fun <S, C> S.preparePersons(
             // TODO someone should verify which column is which "personId, personNumber" needs to map to id, personId
             // Robin: I ran into an issue where planned activities could not be read , so I swapped the column order
             id = PersonId(row.long(personColumns.idColumn))
-            household = getHousehold(householdRepo, row, personColumns.householdColumn)
+
+            val requestedHousehold = getHousehold(householdRepo, row, personColumns.householdColumn)
+            household = requestedHousehold
             age = row.int(personColumns.ageColumn)
             employment = row.decodeName(personColumns.employmentColumn, employmentCodePlan)
             sex = row.decodeName(personColumns.sexColumn, sexCodePlan)
@@ -72,15 +83,30 @@ fun <S, C> S.preparePersons(
             eMobilityAcceptance = row.unitShare(personColumns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(personColumns.chargingInfluenceColumn, ChargingInfluence)
             random = Random(seed = personId!! + context.simulationSeed)
+
+            memberships =
+                row("mobilityProviderCustomership")
+                    .replace("{", "")
+                    .replace("}", "")
+                    .split(", ")
+                    .map { it.split("=") }
+                    .filter { it[0].lowercase() in providersByNameFunction() }
+                    .associate { membership ->
+                        requireNotNull(
+                            providersByNameFunction()[membership[0].lowercase()]
+                        ) to membership[1].toBoolean()
+                    }.toMutableMap().apply {
+                        put(requestedHousehold, true)
+                    }
         }
     }
-    val internalFilter = { row: Row -> personColumns.filter(row) }
+    val internalFilter = { row: Row -> personColumns.filter(row, context) }
     this.preparePersonsFile(csvParser.withFilter(internalFilter), file, delimiter)
 }
 
 data class PersonColumns(
     val idColumn: String = "personId",
-    val personIdColumn: String = idColumn,
+    val personIdColumn: String = "personNumber",
     val householdColumn: String = "householdId",
     val ageColumn: String = "age",
     val employmentColumn: String = "employment",
@@ -119,10 +145,10 @@ fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : Context, C : Perso
 
 fun <S, C> S.loadPersons(
     file: File? = null,
-    filter: PersonColumns.(Row) -> Boolean = {
+    filter: PersonColumns.(Row, C) -> Boolean = { _, _ ->
         true
     }
-) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext {
+) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext, C : SharingStationsContext {
     this.preparePersons(file = file, filter = filter)
     this.finishPersons()
 }
@@ -130,16 +156,19 @@ fun <S, C> S.loadPersons(
 fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : Context, C : LegacyContext, C : ActivityContext {
     this.addStep(
         CustomStep(
-            "assign HOME to Household",
+            "assign HOME location to Household and update schedules",
             validation = {
-                context.personRepository.state == RepositoryState.FINISHED &&
-                    context.plannedActivityRepository.state == RepositoryState.FINISHED
+                validateScope(
+                    "Validate assign HOME location to household and update schedules produced warnings:"
+                ) {
+                    subValidateState(context.personRepository, RepositoryState.FINISHED, this@assignHomeLocations)
+                    repairFinishedState(context.personRepository, this@assignHomeLocations)
+                }
             },
             exec = {
                 context.personRepository.elements.forEach {
                     it.schedule.activities().filter { act -> act.type == LegacyActivityType.HOME }
                         .forEach { home -> home.location = it.household.location }
-                    println(it)
                 }
             }
         )

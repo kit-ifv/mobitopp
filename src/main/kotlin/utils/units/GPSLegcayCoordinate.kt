@@ -9,6 +9,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
+
 interface LegcayCoordinate {
     val latitudeRadians: Double
     val longitudeRadians: Double

@@ -5,6 +5,8 @@ import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
 import modeling.steps.Run
 import units.share
+import usecases.LegacyMode
+import usecases.legacyChoiceModelModes
 import usecases.steps.LegacyContext
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
@@ -62,6 +64,7 @@ fun main() {
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
+            modes = LegacyMode,
         )
     }.steps {
         loadZones()
@@ -78,7 +81,6 @@ fun main() {
 //        finishSharingStations()
 //        loadTestSet()
 
-        ErrorHandling.mute()
         val filter = scaleFilter<Row>(0.1.share())
         prepareHouseholds(
             filter = { filter(it) }
@@ -112,7 +114,7 @@ fun main() {
             )
         )
 
-        loadChoiceModels()
+        loadChoiceModels(legacyChoiceModelModes)
         assignHomeLocations()
         assignFixedDestinations()
         simulate()

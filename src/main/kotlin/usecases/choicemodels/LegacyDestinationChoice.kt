@@ -20,103 +20,129 @@ import datastructure.StationaryAction
 import domain.data.Employment
 import domain.data.Person
 import domain.data.Zone
+import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.location.FlightDistance
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
 import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
-import usecases.choicemodels.parameters.BusinessParameters
-import usecases.choicemodels.parameters.LeisureParameters
-import usecases.choicemodels.parameters.ServiceParameters
-import usecases.choicemodels.parameters.ShoppingParameters
-import utils.CodePlan
+import usecases.choicemodels.parameters.LegacyBusinessParameters
+import usecases.choicemodels.parameters.LegacyLeisureParameters
+import usecases.choicemodels.parameters.LegacyServiceParameters
+import usecases.choicemodels.parameters.LegacyShoppingParameters
 import utils.units.AbsoluteTime
 import utils.units.Time
-import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.time.DurationUnit
+
+interface ILegacyDestinationChoice {
+    fun Collection<Location>.selectDestination(
+        person: Person,
+        prevActivity: StationaryAction,
+        nextActivity: StationaryAction,
+        modes: Collection<Mode>,
+        randomNumber: Double
+    ): Location
+
+    fun calculateU_destination(
+        category: Location,
+        person: Person,
+        origin: Location,
+        destination: Location,
+        nextActivity: StationaryAction,
+        time: AbsoluteTime,
+        availableModes: Collection<Mode>,
+        randomNumber: Double
+    ): Double
+}
 
 class LegacyDestinationChoice(
     impedance: Metrics,
     attractivenessModel: AttractivenessModel,
     umlands: (Location) -> Boolean, // TODO ask Lucas
     zones: Set<Zone>,
-    override val modes: CodePlan<Mode>,
-    val filter: ModeFilter<Mode, StandardSet> = ModeAvailabilityFilter(modes),
-) : ChoiceModel<Person, ZoneLocation>, BasicModesModel {
+    val modes: ChoiceModelModes,
+    val filter: ChoiceFilter<Mode, Person> = NoFilter,
+) : ChoiceModel<Person, Location>, ILegacyDestinationChoice {
 
-    override val name: String = "LegacyDestinationChoiceModel"
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikeSharing = modes.bikeSharing
 
-    private val _choices: Set<ZoneLocation> = zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+    override val name: String = "HamburgLegacyDestinationChoiceModel"
 
-    override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
+
+    override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices
     }
 
-    override fun select(agent: Person, choices: Set<ZoneLocation>, time: Time): ZoneLocation {
+    override fun select(agent: Person, choices: Set<Location>, time: Time): Location {
         // TODO comparision issue, have to use <= instead of <, maybe we need to think about this again
-        val prevActivity = agent.schedule.pastActivities().last { it <= time }
-        val nextActivity = agent.schedule.activities().first { it > time }
-        val modeOptions = filter.filter(modes.values().toList(), StandardSet(agent))
+        val prevActivity = agent.schedule.pastActivities().lastOrNull { it <= time }
+            ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has no past activities.")
+        val nextActivity = agent.schedule.activities().firstOrNull { it > time }
+            ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has future planned activity.")
+        val modeOptions = filter.filter(modes.options, agent)
         return choices.selectDestination(agent, prevActivity, nextActivity, modeOptions, agent.random.nextDouble())
     }
 
     /**
      * Taken from DestinationChoiceModelLoader.java Transmove line:55-80
      */
-    private fun getParams(type: ActivityType): IDestinationParameters {
+    private fun getParams(type: ActivityType): IDestinationParameters { // TODO independence of legacy activity type
         return when (type) {
-            LegacyActivityType.BUSINESS, LegacyActivityType.BUSINESS_TRAVEL, LegacyActivityType.BUSINESS_OUT, LegacyActivityType.BUSINESS_TO_WORK -> BusinessParameters
-            LegacyActivityType.SHOPPING, LegacyActivityType.PRIVATE_BUSINESS, LegacyActivityType.SHOPPING_OTHER, LegacyActivityType.SHOPPING_DAILY -> ShoppingParameters
-            LegacyActivityType.SERVICE -> ServiceParameters
-            else -> LeisureParameters
+            LegacyActivityType.BUSINESS, LegacyActivityType.BUSINESS_TRAVEL, LegacyActivityType.BUSINESS_OUT, LegacyActivityType.BUSINESS_TO_WORK -> LegacyBusinessParameters
+            LegacyActivityType.SHOPPING, LegacyActivityType.PRIVATE_BUSINESS, LegacyActivityType.SHOPPING_OTHER, LegacyActivityType.SHOPPING_DAILY -> LegacyShoppingParameters
+            LegacyActivityType.SERVICE -> LegacyServiceParameters
+            else -> LegacyLeisureParameters
         }
     }
 
-    private val helper = LegacyDestinationHelper(impedance, attractivenessModel, umlands, modes = modes)
+    val helper = LegacyDestinationHelper(impedance, attractivenessModel, umlands, modes = modes)
 
-    fun Collection<ZoneLocation>.selectDestination(
+    override fun Collection<Location>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
         nextActivity: StationaryAction,
         modes: Collection<Mode>,
         randomNumber: Double
-    ): ZoneLocation {
-        val origin = prevActivity.location as ZoneLocation
+    ): Location {
+        val origin = prevActivity.location as Location
         val endTime = prevActivity.endTime
+
         //             helper.getATTRACTIVITY(category, person, origin, destination, nextActivity, time, randomNumber)
         val zonesWithAttractivity =
             filter { helper.getATTRACTIVITY(it, person, origin, it, nextActivity, endTime, randomNumber) > 0.0 }
-        val build: LogitModel<Person, ZoneLocation> = object : LogitModel<Person, ZoneLocation>() {
-            override fun utility(agent: Person, choice: ZoneLocation, time: Time): Double {
+        val build: LogitModel<Person, Location> = object : LogitModel<Person, Location>() {
+            override fun utility(agent: Person, choice: Location, time: Time): Double {
                 return calculateU_destination(choice, agent, origin, choice, nextActivity, time, modes, randomNumber)
             }
 
             override val name: String = "TEST DESTINATION LOGIT"
 
-            override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+            override fun choices(agent: Person, time: Time): Set<Location> {
                 return zonesWithAttractivity.toSet()
             }
         }
-        val result = build.select(person, zonesWithAttractivity.toSet(), endTime)
-        return result
+        return build.select(person, zonesWithAttractivity.toSet(), endTime)
     }
 
-    fun calculateU_destination(
-        category: ZoneLocation,
+    override fun calculateU_destination(
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         availableModes: Collection<Mode>,
@@ -200,14 +226,11 @@ class LegacyDestinationChoice(
         val PARKDRUCK_value: Double =
             helper.getPARKDRUCK(category, person, origin, destination, nextActivity, time, randomNumber)
 
-        val AVAIL_FUSS_value: Double =
-            (modeMap[PEDESTRIAN_KEY]!! in availableModes).D
+        val AVAIL_FUSS_value: Double = (pedestrian in availableModes).D
 
-        val AVAIL_RAD_value: Double =
-            (modeMap[BIKE_KEY]!! in availableModes).D
+        val AVAIL_RAD_value: Double = (bike in availableModes).D
 
-        val AVAIL_OEV_value: Double =
-            (modeMap[PUBLICTRANSPORT_KEY]!! in availableModes).D
+        val AVAIL_OEV_value: Double = (publicTransport in availableModes).D
 
         val TRAVEL_TIME_PUBLICTRANSPORT_value: Double = helper.getTRAVEL_TIME_PUBLICTRANSPORT(
             category,
@@ -267,10 +290,9 @@ class LegacyDestinationChoice(
         val TRAVEL_TIME_BIKE_value: Double =
             helper.getTRAVEL_TIME_BIKE(category, person, origin, destination, nextActivity, time, randomNumber)
 
-        val AVAIL_PKW_value: Double = (modeMap[CAR_KEY]!! in availableModes).D
+        val AVAIL_PKW_value: Double = (car in availableModes).D
 
-        val AVAIL_MF_value: Double =
-            (modeMap[PASSENGER_KEY]!! in availableModes).D
+        val AVAIL_MF_value: Double = (passenger in availableModes).D
 
         val TRAVEL_TIME_CAR_value: Double =
             helper.getTRAVEL_TIME_CAR(category, person, origin, destination, nextActivity, time, randomNumber)
@@ -355,101 +377,671 @@ class LegacyDestinationChoice(
         val EGRESS_TIME_CAR_FIX_value: Double =
             helper.getEGRESS_TIME_CAR_FIX(category, person, origin, destination, nextActivity, time, randomNumber)
         val output = parameterSet.run {
-            val prefactor =
-                b_attr + shift_age_2_on_attr * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0) + (shift_age_3_on_attr * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_attr * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_attr * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_attr * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_attr * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_attr * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_attr * HAS_COMMUTER_TICKET_value) + (shift_carav_on_attr * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_attr * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_attr * IS_UMLAND_value) + (shift_b_0_1_on_attr * (if ((0.0 < DISTANCE_value && DISTANCE_value <= 1.0)) 1.0 else 0.0)) + (shift_b_1_2_on_attr * (if ((1.0 < DISTANCE_value && DISTANCE_value <= 2.0)) 1.0 else 0.0))
+            val zlogsumAttrFactor =
+                b_attr + shift_age_2_on_attr *
+                    (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0) +
+                    (shift_age_3_on_attr * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) +
+                    (shift_age_4_on_attr * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) +
+                    (shift_age_56_on_attr * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) +
+                    (shift_age_78_on_attr * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) +
+                    (
+                        shift_educ_on_attr *
+                            (
+                                if ((
+                                    (
+                                        IS_EMPLOYMENT_STUDENT_value +
+                                            IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+                                            IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+                                            IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+                                            IS_EMPLOYMENT_EDUCATION_value
+                                        ) > 0.0
+                                    )
+                                ) {
+                                    1.0
+                                } else {
+                                    0.0
+                                }
+                                )
+                        ) +
+                    (
+                        shift_arb_on_attr * (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_FULLTIME_value +
+                                        IS_EMPLOYMENT_PARTTIME_value +
+                                        IS_EMPLOYMENT_MARGINAL_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                        ) +
+                    (shift_zk_on_attr * HAS_COMMUTER_TICKET_value) +
+                    (shift_carav_on_attr * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+                    (
+                        shift_high_inc_on_attr * (
+                            if (
+                                (4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                        ) +
+                    (shift_uml_on_attr * IS_UMLAND_value) +
+                    (shift_b_0_1_on_attr * (if ((0.0 < DISTANCE_value && DISTANCE_value <= 1.0)) 1.0 else 0.0)) +
+                    (shift_b_1_2_on_attr * (if ((1.0 < DISTANCE_value && DISTANCE_value <= 2.0)) 1.0 else 0.0))
+            val zLogsumAttr = ln(
+                (if ((ATTRACTIVITY_value > max_attractivity)) (max_attractivity) else (ATTRACTIVITY_value))
+            )
             val firstVar =
-                prefactor * (
-                    ln(
-                        (if ((ATTRACTIVITY_value > max_attractivity)) (max_attractivity) else (ATTRACTIVITY_value))
+                zlogsumAttrFactor * zLogsumAttr
+            val oevExp = exp(
+                (
+                    asc_oev + b_tt_oev *
+                        (TRAVEL_TIME_PUBLICTRANSPORT_value.coerceAtMost(1000.0)) +
+                        (b_cost_oev * (TRAVEL_COST_PUBLICTRANSPORT_value.coerceAtMost(1000.0))) +
+                        (
+                            b_zuab_oev * (
+                                (
+                                    if ((
+                                        1000.0 > ACCESS_TIME_PUBLICTRANSPORT_value &&
+                                            1000.0 > EGRESS_TIME_PUBLICTRANSPORT_value
+                                        )
+                                    ) {
+                                        (ACCESS_TIME_PUBLICTRANSPORT_value + EGRESS_TIME_PUBLICTRANSPORT_value)
+                                    } else {
+                                        (999.0)
+                                    }
+                                    )
+                                )
+                            ) +
+                        (b_arb_on_oev * IS_ACTIVITY_TYPE_WORK_value) +
+                        (b_dienst_on_oev * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                        (b_freizeit_on_oev * ACTIVITY_TYPE_IS_LEISURE_value) +
+                        (b_service_on_oev * IS_ACTIVITY_TYPE_SERVICE_value) + (
+                            (
+                                b_park_oev * (
+                                    (if ((50.0 > PARKDRUCK_value)) (PARKDRUCK_value) else (50.0)).pow(
+                                        elasticity_park_oev
+                                    )
+                                    )
+                                ) * (if ((999.0 > PARKDRUCK_value)) 1.0 else 0.0)
+                            )
                     )
-                    )
-            val secondVar =
-                (b_logsum_pt_active + shift_age_2_on_logsum_pt_active * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0) + (shift_age_3_on_logsum_pt_active * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_logsum_pt_active * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_logsum_pt_active * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_logsum_pt_active * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_logsum_pt_active * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_logsum_pt_active * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_logsum_pt_active * HAS_COMMUTER_TICKET_value) + (shift_carav_on_logsum_pt_active * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_logsum_pt_active * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_logsum_pt_active * IS_UMLAND_value)) * (
+            )
+            val zlogsumPTFactor = b_logsum_pt_active +
+                shift_age_2_on_logsum_pt_active *
+                (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0) +
+                (
+                    shift_age_3_on_logsum_pt_active *
+                        (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_age_4_on_logsum_pt_active *
+                        (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)
+                    ) +
+                (shift_age_56_on_logsum_pt_active * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) +
+                (shift_age_78_on_logsum_pt_active * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) +
+                (
+                    shift_educ_on_logsum_pt_active *
+                        (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_STUDENT_value +
+                                        IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+                                        IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+                                        IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+                                        IS_EMPLOYMENT_EDUCATION_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (
+                    shift_arb_on_logsum_pt_active * (
+                        if ((
+                            (
+                                IS_EMPLOYMENT_FULLTIME_value +
+                                    IS_EMPLOYMENT_PARTTIME_value +
+                                    IS_EMPLOYMENT_MARGINAL_value
+                                ) > 0.0
+                            )
+                        ) {
+                            1.0
+                        } else {
+                            0.0
+                        }
+                        )
+                    ) +
+                (shift_zk_on_logsum_pt_active * HAS_COMMUTER_TICKET_value) +
+                (shift_carav_on_logsum_pt_active * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+                (
+                    shift_high_inc_on_logsum_pt_active *
+                        (
+                            if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_uml_on_logsum_pt_active * IS_UMLAND_value)
+            val zLogsumPT =
+                if (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value >= 1.0) {
                     (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value) * (
                         ln(
-                            AVAIL_OEV_value * (
-                                exp(
-                                    asc_oev + b_tt_oev * ((if ((1000.0 > TRAVEL_TIME_PUBLICTRANSPORT_value)) (TRAVEL_TIME_PUBLICTRANSPORT_value) else (999.0))) + (b_cost_oev * ((if ((1000.0 > TRAVEL_COST_PUBLICTRANSPORT_value)) (TRAVEL_COST_PUBLICTRANSPORT_value) else (999.0)))) + (b_zuab_oev * ((if ((1000.0 > ACCESS_TIME_PUBLICTRANSPORT_value && 1000.0 > EGRESS_TIME_PUBLICTRANSPORT_value)) (ACCESS_TIME_PUBLICTRANSPORT_value + EGRESS_TIME_PUBLICTRANSPORT_value) else (999.0)))) + (b_arb_on_oev * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_oev * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_oev * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_oev * IS_ACTIVITY_TYPE_SERVICE_value) + (
+                            AVAIL_OEV_value * oevExp +
+                                (
+                                    AVAIL_FUSS_value *
                                         (
-                                            b_park_oev * (
-                                                (if ((50.0 > PARKDRUCK_value)) (PARKDRUCK_value) else (50.0)).pow(
-                                                    elasticity_park_oev
+                                            exp(
+                                                (
+                                                    asc_fuss +
+                                                        (
+                                                            b_tt_fuss *
+                                                                (
+                                                                    TRAVEL_TIME_PEDESTRIAN_value.coerceAtMost(
+                                                                        1000.0
+                                                                    )
+                                                                    )
+                                                            ) +
+                                                        (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) +
+                                                        (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                                        (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) +
+                                                        (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value)
+                                                    )
+                                            )
+                                            )
+                                    ) + (
+                                    AVAIL_RAD_value * (
+                                        exp(
+                                            (
+                                                asc_rad +
+                                                    (
+                                                        b_tt_rad *
+                                                            (TRAVEL_TIME_BIKE_value.coerceAtMost(1000.0))
+                                                        ) +
+                                                    (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) +
+                                                    (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                                    (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value) +
+                                                    (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
                                                 )
-                                                )
-                                            ) * (if ((999.0 > PARKDRUCK_value)) 1.0 else 0.0)
                                         )
-                                )
-                                ) + (AVAIL_FUSS_value * (exp(asc_fuss + (b_tt_fuss * ((if ((1000.0 > TRAVEL_TIME_PEDESTRIAN_value)) (TRAVEL_TIME_PEDESTRIAN_value) else (999.0)))) + (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) + (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value)))) + (
-                                AVAIL_RAD_value * (
-                                    exp(
-                                        asc_rad + (b_tt_rad * ((if ((1000.0 > TRAVEL_TIME_BIKE_value)) (TRAVEL_TIME_BIKE_value) else (999.0)))) + (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        )
                                     )
-                                    )
-                                )
                         )
-                        ) + (if (((AVAIL_FUSS_value == 0.0) && (AVAIL_RAD_value == 0.0) && (AVAIL_OEV_value == 0.0))) 1.0 else 0.0) * (-50.0)
-                    )
-            val availabilityValue = if (AVAIL_PKW_value + AVAIL_MF_value >= 1.0) {
+                        )
+                } else {
+                    -50.0
+                }
+
+//                (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value) * (
+//                    ln(
+//                        AVAIL_OEV_value * oevExp +
+//                                (AVAIL_FUSS_value *
+//                                        (exp((
+//                                            asc_fuss +
+//                                                    (b_tt_fuss *
+//                                                            (TRAVEL_TIME_PEDESTRIAN_value.coerceAtMost(1000.0))) +
+//                                                    (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) +
+//                                                    (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) +
+//                                                    (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) +
+//                                                    (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value)
+//                                                )
+//                                        ))) + (
+//                                AVAIL_RAD_value * (
+//                                        exp((
+//                                            asc_rad +
+//                                                    (b_tt_rad *
+//                                                            (TRAVEL_TIME_BIKE_value.coerceAtMost(1000.0))) +
+//                                                    (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) +
+//                                                    (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) +
+//                                                    (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value) +
+//                                                    (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
+//                                                )
+//                                        )
+//                                        )
+//                                )
+//                    )
+//                    ) + (if (((AVAIL_FUSS_value == 0.0) && (AVAIL_RAD_value == 0.0) && (AVAIL_OEV_value == 0.0))) 1.0 else 0.0) * (-50.0)
+            val secondVar =
+                zlogsumPTFactor * zLogsumPT
+            val zLogsumCar = if (AVAIL_PKW_value + AVAIL_MF_value >= 1.0) {
                 (AVAIL_PKW_value + AVAIL_MF_value) * (
                     ln(
-                        AVAIL_PKW_value * (exp(asc_pkw + (b_tt_pkw * ((if ((1000.0 > TRAVEL_TIME_CAR_value)) (TRAVEL_TIME_CAR_value) else (999.0)))) + (b_cost_pkw * ((if ((1000.0 > TRAVEL_COST_CAR_value)) (TRAVEL_COST_CAR_value) else (999.0)))) + ((b_zuab_pkw * (ACCESS_TIME_CAR_value + EGRESS_TIME_CAR_value)) * ((if ((1000.0 > ACCESS_TIME_CAR_value)) 1.0 else 0.0) * (if ((1000.0 > EGRESS_TIME_CAR_value)) 1.0 else 0.0))) + (b_arb_on_pkw * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_pkw * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_pkw * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_pkw * IS_ACTIVITY_TYPE_SERVICE_value))) + AVAIL_MF_value * (
-                            exp(
-                                asc_mf + (b_tt_mf_taxi * ((if ((1000.0 > TRAVEL_TIME_CAR_value)) (TRAVEL_TIME_CAR_value + 3.0) else (999.0)))) + (b_arb_on_mf * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_mf * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_home_on_mf * ACTIVITY_TYPE_IS_HOME_value) + (b_service_on_mf * IS_ACTIVITY_TYPE_SERVICE_value)
-                            )
-                            )
+                        AVAIL_PKW_value *
+                            (
+                                exp(
+                                    (
+                                        asc_pkw +
+                                            (b_tt_pkw * (TRAVEL_TIME_CAR_value.coerceAtMost(1000.0))) +
+                                            (b_cost_pkw * (TRAVEL_COST_CAR_value.coerceAtMost(1000.0))) +
+                                            (
+                                                (b_zuab_pkw * (ACCESS_TIME_CAR_value + EGRESS_TIME_CAR_value)) *
+                                                    (
+                                                        (if ((1000.0 > ACCESS_TIME_CAR_value)) 1.0 else 0.0) *
+                                                            (if ((1000.0 > EGRESS_TIME_CAR_value)) 1.0 else 0.0)
+                                                        )
+                                                ) +
+                                            (b_arb_on_pkw * IS_ACTIVITY_TYPE_WORK_value) +
+                                            (b_dienst_on_pkw * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                            (b_freizeit_on_pkw * ACTIVITY_TYPE_IS_LEISURE_value) +
+                                            (b_service_on_pkw * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        )
+                                )
+                                ) +
+                            AVAIL_MF_value * (
+                                exp(
+                                    (
+                                        asc_mf +
+                                            (
+                                                b_tt_mf_taxi *
+                                                    (TRAVEL_TIME_CAR_value + 3.0).coerceAtMost(1000.0)
+                                                ) +
+                                            (b_arb_on_mf * IS_ACTIVITY_TYPE_WORK_value) +
+                                            (b_dienst_on_mf * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                            (b_home_on_mf * ACTIVITY_TYPE_IS_HOME_value) +
+                                            (b_service_on_mf * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        )
+                                )
+                                )
                     )
                     )
             } else {
                 -50.0
             }
+            val zlogsumCarFactor = b_logsum_drive +
+                (
+                    shift_age_2_on_logsum_drive *
+                        (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)
+                    ) +
+                (shift_age_3_on_logsum_drive * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) +
+                (shift_age_4_on_logsum_drive * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) +
+                (shift_age_56_on_logsum_drive * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) +
+                (shift_age_78_on_logsum_drive * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) +
+                (
+                    shift_educ_on_logsum_drive * (
+                        if ((
+                            (
+                                IS_EMPLOYMENT_STUDENT_value +
+                                    IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+                                    IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+                                    IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+                                    IS_EMPLOYMENT_EDUCATION_value
+                                ) > 0.0
+                            )
+                        ) {
+                            1.0
+                        } else {
+                            0.0
+                        }
+                        )
+                    ) +
+                (
+                    shift_arb_on_logsum_drive *
+                        (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_FULLTIME_value +
+                                        IS_EMPLOYMENT_PARTTIME_value +
+                                        IS_EMPLOYMENT_MARGINAL_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_zk_on_logsum_drive * HAS_COMMUTER_TICKET_value) +
+                (shift_carav_on_logsum_drive * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+                (
+                    shift_high_inc_on_logsum_drive *
+                        (
+                            if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_uml_on_logsum_drive * IS_UMLAND_value)
             val thirdVar =
-                (b_logsum_drive + (shift_age_2_on_logsum_drive * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) + (shift_age_3_on_logsum_drive * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_logsum_drive * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_logsum_drive * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_logsum_drive * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_logsum_drive * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_logsum_drive * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_logsum_drive * HAS_COMMUTER_TICKET_value) + (shift_carav_on_logsum_drive * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_logsum_drive * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_logsum_drive * IS_UMLAND_value)) * availabilityValue
-            val fourthVar =
-                (b_logsum_pt_active_fix + (shift_age_2_on_logsum_pt_active_fix * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) + (shift_age_3_on_logsum_pt_active_fix * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_logsum_pt_active_fix * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_logsum_pt_active_fix * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_logsum_pt_active_fix * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_logsum_pt_active_fix * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_logsum_pt_active_fix * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_logsum_pt_active_fix * HAS_COMMUTER_TICKET_value) + (shift_carav_on_logsum_pt_active_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_logsum_pt_active_fix * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_logsum_pt_active_fix * IS_UMLAND_value)) * (
+                zlogsumCarFactor * zLogsumCar
+            val zlogsumPtFixFactor = b_logsum_pt_active_fix +
+                (
+                    shift_age_2_on_logsum_pt_active_fix *
+                        (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_age_3_on_logsum_pt_active_fix *
+                        (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_age_4_on_logsum_pt_active_fix *
+                        (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_age_56_on_logsum_pt_active_fix *
+                        (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_age_78_on_logsum_pt_active_fix *
+                        (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)
+                    ) +
+                (
+                    shift_educ_on_logsum_pt_active_fix *
+                        (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_STUDENT_value +
+                                        IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+                                        IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+                                        IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+                                        IS_EMPLOYMENT_EDUCATION_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (
+                    shift_arb_on_logsum_pt_active_fix *
+                        (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_FULLTIME_value +
+                                        IS_EMPLOYMENT_PARTTIME_value +
+                                        IS_EMPLOYMENT_MARGINAL_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_zk_on_logsum_pt_active_fix * HAS_COMMUTER_TICKET_value) +
+                (shift_carav_on_logsum_pt_active_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+                (
+                    shift_high_inc_on_logsum_pt_active_fix *
+                        (
+                            if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_uml_on_logsum_pt_active_fix * IS_UMLAND_value)
+            val zlogsumPtFix =
+                if (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value >= 1.0) {
                     (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value) * (
                         ln(
                             (
                                 AVAIL_OEV_value * (
                                     exp(
-                                        asc_oev + (b_tt_oev * ((if ((1000.0 > TRAVEL_TIME_PUBLICTRANSPORT_FIX_value)) (TRAVEL_TIME_PUBLICTRANSPORT_FIX_value) else (999.0)))) + (b_cost_oev * ((if ((1000.0 > TRAVEL_COST_PUBLICTRANSPORT_FIX_value)) (TRAVEL_COST_PUBLICTRANSPORT_FIX_value) else (999.0)))) + (b_zuab_oev * ((if ((1000.0 > ACCESS_TIME_PUBLICTRANSPORT_FIX_value && 1000.0 > EGRESS_TIME_PUBLICTRANSPORT_FIX_value)) (ACCESS_TIME_PUBLICTRANSPORT_FIX_value + EGRESS_TIME_PUBLICTRANSPORT_FIX_value) else (999.0)))) + (b_arb_on_oev * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_oev * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_oev * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_oev * IS_ACTIVITY_TYPE_SERVICE_value) + (
-                                            (
-                                                b_park_oev * (
-                                                    (if ((50.0 > PARKDRUCK_FIX_value)) (PARKDRUCK_FIX_value) else (50.0)).pow(
-                                                        elasticity_park_oev
+                                        (
+                                            asc_oev +
+                                                (
+                                                    b_tt_oev *
+                                                        (
+                                                            TRAVEL_TIME_PUBLICTRANSPORT_FIX_value.coerceAtMost(
+                                                                1000.0
+                                                            )
+                                                            )
+                                                    ) +
+                                                (
+                                                    b_cost_oev *
+                                                        (
+                                                            TRAVEL_COST_PUBLICTRANSPORT_FIX_value.coerceAtMost(
+                                                                1000.0
+                                                            )
+                                                            )
+                                                    ) +
+                                                (
+                                                    b_zuab_oev * (
+                                                        (
+                                                            if ((1000.0 > ACCESS_TIME_PUBLICTRANSPORT_FIX_value && 1000.0 > EGRESS_TIME_PUBLICTRANSPORT_FIX_value)) {
+                                                                (ACCESS_TIME_PUBLICTRANSPORT_FIX_value + EGRESS_TIME_PUBLICTRANSPORT_FIX_value)
+                                                            } else {
+                                                                (999.0)
+                                                            }
+                                                            )
+                                                        )
+                                                    ) +
+                                                (b_arb_on_oev * IS_ACTIVITY_TYPE_WORK_value) +
+                                                (b_dienst_on_oev * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                                (b_freizeit_on_oev * ACTIVITY_TYPE_IS_LEISURE_value) +
+                                                (b_service_on_oev * IS_ACTIVITY_TYPE_SERVICE_value) + (
+                                                    (
+                                                        b_park_oev * (
+                                                            (if ((50.0 > PARKDRUCK_FIX_value)) (PARKDRUCK_FIX_value) else (50.0)).pow(
+                                                                elasticity_park_oev
+                                                            )
+                                                            )
+                                                        ) * (if ((999.0 > PARKDRUCK_FIX_value)) 1.0 else 0.0)
                                                     )
-                                                    )
-                                                ) * (if ((999.0 > PARKDRUCK_FIX_value)) 1.0 else 0.0)
                                             )
                                     )
                                     )
-                                ) + (AVAIL_FUSS_value * (exp(asc_fuss + (b_tt_fuss * ((if ((1000.0 > TRAVEL_TIME_PEDESTRIAN_FIX_value)) (TRAVEL_TIME_PEDESTRIAN_FIX_value) else (999.0)))) + (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) + (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value)))) + (
-                                AVAIL_RAD_value * (
+                                ) + (
+                                AVAIL_FUSS_value * (
                                     exp(
-                                        asc_rad + (b_tt_rad * ((if ((1000.0 > TRAVEL_TIME_BIKE_FIX_value)) (TRAVEL_TIME_BIKE_FIX_value) else (999.0)))) + (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        (
+                                            asc_fuss + (
+                                                b_tt_fuss *
+                                                    (TRAVEL_TIME_PEDESTRIAN_FIX_value.coerceAtMost(1000.0))
+                                                ) +
+                                                (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) +
+                                                (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                                (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) +
+                                                (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value)
+                                            )
                                     )
                                     )
-                                )
+                                ) +
+                                (
+                                    AVAIL_RAD_value * (
+                                        exp(
+                                            (
+                                                asc_rad + (
+                                                    b_tt_rad *
+                                                        (TRAVEL_TIME_BIKE_FIX_value.coerceAtMost(1000.0))
+                                                    ) +
+                                                    (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) +
+                                                    (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                                    (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value) +
+                                                    (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
+                                                )
+                                        )
+                                        )
+                                    )
                         )
-                        ) + (if (((AVAIL_FUSS_value == 0.0) && (AVAIL_RAD_value == 0.0) && (AVAIL_OEV_value == 0.0))) 1.0 else 0.0) * (-50.0)
-                    )
-            val otherAvailabilityValue = if (AVAIL_PKW_value + AVAIL_MF_value >= 1.0) {
+                        )
+                } else {
+                    -50.0
+                }
+//                (AVAIL_FUSS_value + AVAIL_RAD_value + AVAIL_OEV_value) * (
+//                    ln(
+//                        (
+//                                AVAIL_OEV_value * (
+//                                        exp((
+//                                            asc_oev +
+//                                                    (b_tt_oev *
+//                                                            (TRAVEL_TIME_PUBLICTRANSPORT_FIX_value.coerceAtMost(1000.0))) +
+//                                                    (b_cost_oev *
+//                                                            (TRAVEL_COST_PUBLICTRANSPORT_FIX_value.coerceAtMost(1000.0))) +
+//                                                    (b_zuab_oev * ((if ((1000.0 > ACCESS_TIME_PUBLICTRANSPORT_FIX_value && 1000.0 > EGRESS_TIME_PUBLICTRANSPORT_FIX_value))
+//                                                        (ACCESS_TIME_PUBLICTRANSPORT_FIX_value + EGRESS_TIME_PUBLICTRANSPORT_FIX_value) else (999.0)))) +
+//                                                    (b_arb_on_oev * IS_ACTIVITY_TYPE_WORK_value) +
+//                                                    (b_dienst_on_oev * IS_ACTIVITY_TYPE_BUSINESS_value) +
+//                                                    (b_freizeit_on_oev * ACTIVITY_TYPE_IS_LEISURE_value) +
+//                                                    (b_service_on_oev * IS_ACTIVITY_TYPE_SERVICE_value) + (
+//                                                    (
+//                                                            b_park_oev * (
+//                                                                    (if ((50.0 > PARKDRUCK_FIX_value)) (PARKDRUCK_FIX_value) else (50.0)).pow(
+//                                                                        elasticity_park_oev
+//                                                                    )
+//                                                                    )
+//                                                            ) * (if ((999.0 > PARKDRUCK_FIX_value)) 1.0 else 0.0)
+//                                                    )
+//                                                )
+//                                        )
+//                                        )
+//                                ) + (AVAIL_FUSS_value * (
+//                                exp((
+//                                    asc_fuss + (b_tt_fuss *
+//                                            (TRAVEL_TIME_PEDESTRIAN_FIX_value.coerceAtMost(1000.0)))
+//                                            + (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) +
+//                                            (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) +
+//                                            (b_service_on_fuss * IS_ACTIVITY_TYPE_SERVICE_value) +
+//                                            (b_freizeit_on_fuss * ACTIVITY_TYPE_IS_LEISURE_value))
+//                                ))) +
+//                                (
+//                                        AVAIL_RAD_value * (
+//                                                exp((
+//                                                    asc_rad + (b_tt_rad *
+//                                                            (TRAVEL_TIME_BIKE_FIX_value.coerceAtMost(1000.0)))
+//                                                            + (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value)
+//                                                            + (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value)
+//                                                            + (b_freizeit_on_rad * ACTIVITY_TYPE_IS_LEISURE_value)
+//                                                            + (b_service_on_rad * IS_ACTIVITY_TYPE_SERVICE_value)
+//                                                        )
+//                                                )
+//                                                )
+//                                        )
+//                    )
+//                    ) + (if (((AVAIL_FUSS_value == 0.0) && (AVAIL_RAD_value == 0.0) && (AVAIL_OEV_value == 0.0))) 1.0 else 0.0) * (-50.0)
+            val fourthVar =
+                zlogsumPtFixFactor * zlogsumPtFix
+            val zlogSumCarFix = if (AVAIL_PKW_value + AVAIL_MF_value >= 1.0) {
                 (AVAIL_PKW_value + AVAIL_MF_value) * (
                     ln(
-                        AVAIL_PKW_value * (exp(asc_pkw + (b_tt_pkw * ((if ((1000.0 > TRAVEL_TIME_CAR_FIX_value)) (TRAVEL_TIME_CAR_FIX_value) else (999.0)))) + (b_cost_pkw * ((if ((1000.0 > TRAVEL_COST_CAR_FIX_value)) (TRAVEL_COST_CAR_FIX_value) else (999.0)))) + ((b_zuab_pkw * (ACCESS_TIME_CAR_FIX_value + EGRESS_TIME_CAR_FIX_value)) * ((if ((1000.0 > ACCESS_TIME_CAR_FIX_value)) 1.0 else 0.0) * (if ((1000.0 > EGRESS_TIME_CAR_FIX_value)) 1.0 else 0.0))) + (b_arb_on_pkw * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_pkw * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_pkw * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_pkw * IS_ACTIVITY_TYPE_SERVICE_value))) + AVAIL_MF_value * (
-                            exp(
-                                asc_mf + (b_tt_mf_taxi * ((if ((1000.0 > TRAVEL_TIME_CAR_FIX_value)) (TRAVEL_TIME_CAR_FIX_value + 3.0) else (999.0)))) + (b_arb_on_mf * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_mf * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_home_on_mf * ACTIVITY_TYPE_IS_HOME_value) + (b_service_on_mf * IS_ACTIVITY_TYPE_SERVICE_value)
-                            )
-                            )
+                        AVAIL_PKW_value *
+                            (
+                                exp(
+                                    (
+                                        asc_pkw +
+                                            (
+                                                b_tt_pkw *
+                                                    (TRAVEL_TIME_CAR_FIX_value.coerceAtMost(1000.0))
+                                                ) +
+                                            (b_cost_pkw * (TRAVEL_COST_CAR_FIX_value.coerceAtMost(1000.0))) +
+                                            (
+                                                (b_zuab_pkw * (ACCESS_TIME_CAR_FIX_value + EGRESS_TIME_CAR_FIX_value)) *
+                                                    (
+                                                        (if ((1000.0 > ACCESS_TIME_CAR_FIX_value)) 1.0 else 0.0) *
+                                                            (if ((1000.0 > EGRESS_TIME_CAR_FIX_value)) 1.0 else 0.0)
+                                                        )
+                                                ) +
+                                            (b_arb_on_pkw * IS_ACTIVITY_TYPE_WORK_value) +
+                                            (b_dienst_on_pkw * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                            (b_freizeit_on_pkw * ACTIVITY_TYPE_IS_LEISURE_value) +
+                                            (b_service_on_pkw * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        )
+                                )
+                                ) +
+                            AVAIL_MF_value * (
+                                exp(
+                                    (
+                                        asc_mf + (
+                                            b_tt_mf_taxi *
+                                                (TRAVEL_TIME_CAR_FIX_value + 3).coerceAtMost(1000.0)
+                                            ) +
+                                            (b_arb_on_mf * IS_ACTIVITY_TYPE_WORK_value) +
+                                            (b_dienst_on_mf * IS_ACTIVITY_TYPE_BUSINESS_value) +
+                                            (b_home_on_mf * ACTIVITY_TYPE_IS_HOME_value) +
+                                            (b_service_on_mf * IS_ACTIVITY_TYPE_SERVICE_value)
+                                        )
+                                )
+                                )
                     )
                     )
-            } else { -50.0 }
+            } else {
+                -50.0
+            }
+            val zLogsumCarFixFactor = b_logsum_drive_fix +
+                (shift_age_2_on_logsum_drive_fix * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) +
+                (shift_age_3_on_logsum_drive_fix * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) +
+                (shift_age_4_on_logsum_drive_fix * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) +
+                (shift_age_56_on_logsum_drive_fix * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) +
+                (shift_age_78_on_logsum_drive_fix * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) +
+                (
+                    shift_educ_on_logsum_drive_fix *
+                        (
+                            if ((
+                                (
+                                    IS_EMPLOYMENT_STUDENT_value +
+                                        IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+                                        IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+                                        IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+                                        IS_EMPLOYMENT_EDUCATION_value
+                                    ) > 0.0
+                                )
+                            ) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (
+                    shift_arb_on_logsum_drive_fix * (
+                        if ((
+                            (
+                                IS_EMPLOYMENT_FULLTIME_value +
+                                    IS_EMPLOYMENT_PARTTIME_value +
+                                    IS_EMPLOYMENT_MARGINAL_value
+                                ) > 0.0
+                            )
+                        ) {
+                            1.0
+                        } else {
+                            0.0
+                        }
+                        )
+                    ) +
+                (shift_zk_on_logsum_drive_fix * HAS_COMMUTER_TICKET_value) +
+                (shift_carav_on_logsum_drive_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+                (
+                    shift_high_inc_on_logsum_drive_fix *
+                        (
+                            if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) {
+                                1.0
+                            } else {
+                                0.0
+                            }
+                            )
+                    ) +
+                (shift_uml_on_logsum_drive_fix * IS_UMLAND_value)
             val fifthVar =
-                (b_logsum_drive_fix + (shift_age_2_on_logsum_drive_fix * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) + (shift_age_3_on_logsum_drive_fix * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_logsum_drive_fix * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_logsum_drive_fix * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_logsum_drive_fix * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_logsum_drive_fix * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_logsum_drive_fix * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_logsum_drive_fix * HAS_COMMUTER_TICKET_value) + (shift_carav_on_logsum_drive_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_logsum_drive_fix * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_logsum_drive_fix * IS_UMLAND_value)) * otherAvailabilityValue
+                zLogsumCarFixFactor * zlogSumCarFix
+            val zConstant = (b_0_1 * (if ((0.0 < DISTANCE_value && DISTANCE_value <= 1.0)) 1.0 else 0.0)) +
+                (b_1_2 * (if ((1.0 < DISTANCE_value && DISTANCE_value <= 2.0)) 1.0 else 0.0)) +
+                (
+                    b_parken * (
+                        (if ((50.0 > PARKDRUCK_value)) (PARKDRUCK_value) else (50.0)).pow(
+                            elasticity_parken * (if ((999.0 > PARKDRUCK_value)) 1.0 else 0.0)
+                        )
+                        )
+                    )
             (
-                firstVar +
-                    (b_0_1 * (if ((0.0 < DISTANCE_value && DISTANCE_value <= 1.0)) 1.0 else 0.0)) +
-                    (b_1_2 * (if ((1.0 < DISTANCE_value && DISTANCE_value <= 2.0)) 1.0 else 0.0)) +
-                    (b_parken * ((if ((50.0 > PARKDRUCK_value)) (PARKDRUCK_value) else (50.0)).pow(elasticity_parken * (if ((999.0 > PARKDRUCK_value)) 1.0 else 0.0)))) +
+                firstVar + zConstant +
                     secondVar +
                     thirdVar +
                     fourthVar +
@@ -538,7 +1130,31 @@ class LegacyDestinationChoice(
 //                            )
 //                        ) +
 //                    (
-//                        (b_logsum_drive_fix + (shift_age_2_on_logsum_drive_fix * (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) + (shift_age_3_on_logsum_drive_fix * (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) + (shift_age_4_on_logsum_drive_fix * (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) + (shift_age_56_on_logsum_drive_fix * (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) + (shift_age_78_on_logsum_drive_fix * (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) + (shift_educ_on_logsum_drive_fix * (if (((IS_EMPLOYMENT_STUDENT_value + IS_EMPLOYMENT_STUDENT_PRIMARY_value + IS_EMPLOYMENT_STUDENT_SECONDARY_value + IS_EMPLOYMENT_STUDENT_TERTIARY_value + IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) + (shift_arb_on_logsum_drive_fix * (if (((IS_EMPLOYMENT_FULLTIME_value + IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) + (shift_zk_on_logsum_drive_fix * HAS_COMMUTER_TICKET_value) + (shift_carav_on_logsum_drive_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) + (shift_high_inc_on_logsum_drive_fix * (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0)) 1.0 else 0.0)) + (shift_uml_on_logsum_drive_fix * IS_UMLAND_value)) * (
+//                        (b_logsum_drive_fix +
+//                        (shift_age_2_on_logsum_drive_fix *
+//                        (if ((18.0 <= AGE_value && AGE_value <= 29.0)) 1.0 else 0.0)) +
+//                        (shift_age_3_on_logsum_drive_fix *
+//                        (if ((30.0 <= AGE_value && AGE_value <= 39.0)) 1.0 else 0.0)) +
+//                        (shift_age_4_on_logsum_drive_fix *
+//                        (if ((40.0 <= AGE_value && AGE_value <= 49.0)) 1.0 else 0.0)) +
+//                        (shift_age_56_on_logsum_drive_fix *
+//                        (if ((50.0 <= AGE_value && AGE_value <= 69.0)) 1.0 else 0.0)) +
+//                        (shift_age_78_on_logsum_drive_fix *
+//                        (if ((70.0 <= AGE_value && AGE_value <= 120.0)) 1.0 else 0.0)) +
+//                        (shift_educ_on_logsum_drive_fix *
+//                        (if (((IS_EMPLOYMENT_STUDENT_value +
+//                        IS_EMPLOYMENT_STUDENT_PRIMARY_value +
+//                        IS_EMPLOYMENT_STUDENT_SECONDARY_value +
+//                        IS_EMPLOYMENT_STUDENT_TERTIARY_value +
+//                        IS_EMPLOYMENT_EDUCATION_value) > 0.0)) 1.0 else 0.0)) +
+//                        (shift_arb_on_logsum_drive_fix *
+//                        (if (((IS_EMPLOYMENT_FULLTIME_value +
+//                        IS_EMPLOYMENT_PARTTIME_value + IS_EMPLOYMENT_MARGINAL_value) > 0.0)) 1.0 else 0.0)) +
+//                        (shift_zk_on_logsum_drive_fix * HAS_COMMUTER_TICKET_value) +
+//                        (shift_carav_on_logsum_drive_fix * (if ((CARS_PER_ADULT_value >= 1.0)) 1.0 else 0.0)) +
+//                        (shift_high_inc_on_logsum_drive_fix *
+//                        (if ((4.0 <= HOUSEHOLD_ECONOMICAL_STATUS_value && HOUSEHOLD_ECONOMICAL_STATUS_value <= 5.0))
+//                        1.0 else 0.0)) + (shift_uml_on_logsum_drive_fix * IS_UMLAND_value)) * (
 //                            (AVAIL_PKW_value + AVAIL_MF_value) * (
 //                                ln(
 //                                    AVAIL_PKW_value * (exp(asc_pkw + (b_tt_pkw * ((if ((1000.0 > TRAVEL_TIME_CAR_FIX_value)) (TRAVEL_TIME_CAR_FIX_value) else (999.0)))) + (b_cost_pkw * ((if ((1000.0 > TRAVEL_COST_CAR_FIX_value)) (TRAVEL_COST_CAR_FIX_value) else (999.0)))) + ((b_zuab_pkw * (ACCESS_TIME_CAR_FIX_value + EGRESS_TIME_CAR_FIX_value)) * ((if ((1000.0 > ACCESS_TIME_CAR_FIX_value)) 1.0 else 0.0) * (if ((1000.0 > EGRESS_TIME_CAR_FIX_value)) 1.0 else 0.0))) + (b_arb_on_pkw * IS_ACTIVITY_TYPE_WORK_value) + (b_dienst_on_pkw * IS_ACTIVITY_TYPE_BUSINESS_value) + (b_freizeit_on_pkw * ACTIVITY_TYPE_IS_LEISURE_value) + (b_service_on_pkw * IS_ACTIVITY_TYPE_SERVICE_value))) + AVAIL_MF_value * (
@@ -556,22 +1172,29 @@ class LegacyDestinationChoice(
     }
 }
 
-private class LegacyDestinationHelper(
+class LegacyDestinationHelper(
     private val impedance: Metrics,
     private val attractiveness: AttractivenessModel,
     val umlands: (Location) -> Boolean,
     private val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
     private val durationUnit: DurationUnit = DurationUnit.MINUTES,
-    override val modes: CodePlan<Mode>,
-) : BasicModesModel {
+    private val modes: ChoiceModelModes,
+) {
 
     private val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS
 
+    val car = modes.car
+    val bike = modes.bike
+    val pedestrian = modes.pedestrian
+    val publicTransport = modes.publicTransport
+    val passenger = modes.passenger
+    val bikesharing = modes.bikeSharing
+
     fun getAGE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -580,10 +1203,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -592,10 +1215,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_PRIMARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -604,10 +1227,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_SECONDARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -616,10 +1239,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_STUDENT_TERTIARY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -628,10 +1251,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_EDUCATION(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -640,10 +1263,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_FULLTIME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -652,10 +1275,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_PARTTIME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -664,10 +1287,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_EMPLOYMENT_MARGINAL(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -676,10 +1299,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getHAS_COMMUTER_TICKET(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -688,22 +1311,31 @@ private class LegacyDestinationHelper(
     }
 
     fun getCARS_PER_ADULT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return (person.household.cars.size).toDouble() / (person.household.members.size)
+        return if ((person.household.cars.size).toDouble() >= (
+                person.household.members.filter {
+                    it.age >= 18
+                }.size
+                )
+        ) {
+            1.0
+        } else {
+            0.0
+        }
     }
 
     fun getHOUSEHOLD_ECONOMICAL_STATUS(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -713,10 +1345,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_UMLAND(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -731,34 +1363,34 @@ private class LegacyDestinationHelper(
     }
 
     fun getDISTANCE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return origin.evaluate(destination, metric = FlightDistance()).toDouble(distanceUnit)
+        return impedance.distance(origin, destination, car).toDouble(distanceUnit)
     }
 
     fun getATTRACTIVITY(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return attractiveness.attractivenessFor(destination.zone.id, nextActivity.type)
+        return attractiveness.attractivenessFor(destination.requireZone().id, nextActivity.type)
     }
 
     fun getPARKDRUCK(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -766,112 +1398,78 @@ private class LegacyDestinationHelper(
         return iGetParkdruck(destination)
     }
 
-    fun iGetParkdruck(destination: ZoneLocation): Double {
-        // TODO this value is insane, is the calculation correct?
-        val attractivity =
-            attractiveness.attractivenessFor(
-                destination.zone.id,
-                LegacyActivityType.WORK
-            ) + attractiveness.attractivenessFor(
-                destination.zone.id,
-                LegacyActivityType.PRIVATE_VISIT
-            )
-
-        if (0 == destination.zone.parkingPlaces) {
-            return if (1e-6 > abs(attractivity)) 0.0 else 999.0
-        }
-        return attractivity / destination.zone.parkingPlaces.toDouble()
+    fun iGetParkdruck(destination: Location): Double {
+        // TODO this is a temporary hack to avoid cluttering of the destination choice by domination through parkdruck
+        return 0.0
+//        // TODO this value is insane, is the calculation correct?
+//        val attractivity =
+//            attractiveness.attractivenessFor(
+//                destination.zone.id,
+//                LegacyActivityType.WORK
+//            ) + attractiveness.attractivenessFor(
+//                destination.zone.id,
+//                LegacyActivityType.PRIVATE_VISIT
+//            )
+//
+//        if (0 == destination.zone.parkingPlaces) {
+//            return if (1e-6 > abs(attractivity)) 0.0 else 999.0
+//        }
+//        return attractivity / destination.zone.parkingPlaces.toDouble()
     }
 
-//    fun getAVAIL_FUSS(
-//        category: ZoneLocation,
-//        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
-//        nextActivity: StationaryAction,
-//        time: AbsoluteTime,
-//        randomNumber: Double
-//    ): Double {
-//        return availabilities(destination, modeMap[PEDESTRIAN).D
-//    }
-//
-//    fun getAVAIL_RAD(
-//        category: ZoneLocation,
-//        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
-//        nextActivity: StationaryAction,
-//        time: AbsoluteTime,
-//        randomNumber: Double
-//    ): Double {
-//        return availabilities(destination, modeMap[BIKE).D
-//    }
-//
-//    fun getAVAIL_OEV(
-//        category: ZoneLocation,
-//        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
-//        nextActivity: StationaryAction,
-//        time: AbsoluteTime,
-//        randomNumber: Double
-//    ): Double {
-//        return availabilities(destination, modeMap[PUBLICTRANSPORT).D
-//    }
-
     fun getTRAVEL_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.tTime(origin, destination, time)
+        return publicTransport.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.tCost(origin, destination, time)
+        return publicTransport.tCost(origin, destination, time)
     }
 
     fun getACCESS_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.aTime(origin, destination, time)
+        return aTime(origin, destination, time)
     }
 
     fun getEGRESS_TIME_PUBLICTRANSPORT(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.eTime(origin, destination, time)
+        return eTime(origin, destination, time)
     }
 
     fun getIS_ACTIVITY_TYPE_WORK(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -880,10 +1478,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_ACTIVITY_TYPE_BUSINESS(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -902,10 +1500,10 @@ private class LegacyDestinationHelper(
     )
 
     fun getACTIVITY_TYPE_IS_LEISURE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -914,10 +1512,10 @@ private class LegacyDestinationHelper(
     }
 
     fun getIS_ACTIVITY_TYPE_SERVICE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -926,54 +1524,54 @@ private class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PEDESTRIAN_KEY]!!.tTime(origin, destination, time)
+        return pedestrian.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_TIME_BIKE(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[BIKE_KEY]!!.tTime(origin, destination, time)
+        return bike.tTime(origin, destination, time)
     }
 
-    private inline fun toTime(mode: Mode, origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun toTime(mode: Mode, origin: Location, destination: Location, time: Time) =
         impedance.duration(origin, destination, mode, time).toDouble(durationUnit)
 
-    private inline fun aoTime(mode: Mode, origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun aoTime(mode: Mode, origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private inline fun eoTime(mode: Mode, origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun eoTime(mode: Mode, origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private inline fun toCost(mode: Mode, origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun toCost(mode: Mode, origin: Location, destination: Location, time: Time) =
         impedance.cost(origin, destination, mode, time).toDouble(currencyUnit)
 
-    private inline fun Mode.tTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun Mode.tTime(origin: Location, destination: Location, time: Time) =
         impedance.duration(origin, destination, this, time).toDouble(durationUnit)
 
-    private inline fun Mode.aTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun aTime(origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private inline fun Mode.eTime(origin: ZoneLocation, destination: ZoneLocation, time: Time) = 0.0 // TODO remove
+    private fun eTime(origin: Location, destination: Location, time: Time) = 0.0 // TODO remove
 
-    private inline fun Mode.tCost(origin: ZoneLocation, destination: ZoneLocation, time: Time) =
+    private fun Mode.tCost(origin: Location, destination: Location, time: Time) =
         impedance.cost(origin, destination, this, time).toDouble(currencyUnit)
 
 //    fun getAVAIL_PKW(
-//        category: ZoneLocation,
+//        category: Location,
 //        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
+//        origin: Location,
+//        destination: Location,
 //        nextActivity: StationaryAction,
 //        time: AbsoluteTime,
 //        randomNumber: Double
@@ -982,10 +1580,10 @@ private class LegacyDestinationHelper(
 //    }
 //
 //    fun getAVAIL_MF(
-//        category: ZoneLocation,
+//        category: Location,
 //        person: Person,
-//        origin: ZoneLocation,
-//        destination: ZoneLocation,
+//        origin: Location,
+//        destination: Location,
 //        nextActivity: StationaryAction,
 //        time: AbsoluteTime,
 //        randomNumber: Double
@@ -994,58 +1592,58 @@ private class LegacyDestinationHelper(
 //    }
 
     fun getTRAVEL_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.tTime(origin, destination, time)
+        return car.tTime(origin, destination, time)
     }
 
     fun getTRAVEL_COST_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.tCost(origin, destination, time)
+        return car.tCost(origin, destination, time)
     }
 
     fun getACCESS_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.aTime(origin, destination, time)
+        return aTime(origin, destination, time)
     }
 
     fun getEGRESS_TIME_CAR(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.eTime(origin, destination, time)
+        return eTime(origin, destination, time)
     }
 
     fun getACTIVITY_TYPE_IS_HOME(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
@@ -1054,146 +1652,146 @@ private class LegacyDestinationHelper(
     }
 
     fun getTRAVEL_TIME_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return publicTransport.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_COST_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::toCost, time)
+        return publicTransport.calculateFixed(person, destination, ::toCost, time)
     }
 
     private inline fun Mode.calculateFixed(
         person: Person,
-        destination: ZoneLocation,
-        functor: Mode.(ZoneLocation, ZoneLocation, Time) -> Double,
+        destination: Location,
+        functor: Mode.(Location, Location, Time) -> Double,
         time: Time,
     ): Double {
-        return person.nextFixedActivity()?.let {
-            this.functor(it.location as ZoneLocation, destination, time)
-        } ?: 0.0
+        return (person.nextFixedActivity()?.location ?: person.household.location).let {
+            this.functor(destination, it, time)
+        }
     }
 
     fun getACCESS_TIME_PUBLICTRANSPORT_FIX( // TODO remove
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::aoTime, time)
+        return publicTransport.calculateFixed(person, destination, ::aoTime, time)
     }
 
     fun getEGRESS_TIME_PUBLICTRANSPORT_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PUBLICTRANSPORT_KEY]!!.calculateFixed(person, destination, ::eoTime, time)
+        return publicTransport.calculateFixed(person, destination, ::eoTime, time)
     }
 
     fun getPARKDRUCK_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as ZoneLocation) } ?: 0.0
+        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as Location) } ?: 0.0
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[PEDESTRIAN_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return pedestrian.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_TIME_BIKE_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[BIKE_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return bike.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::toTime, time)
+        return car.calculateFixed(person, destination, ::toTime, time)
     }
 
     fun getTRAVEL_COST_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::toCost, time)
+        return car.calculateFixed(person, destination, ::toCost, time)
     }
 
     fun getACCESS_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::aoTime, time)
+        return car.calculateFixed(person, destination, ::aoTime, time)
     }
 
     fun getEGRESS_TIME_CAR_FIX(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return modeMap[CAR_KEY]!!.calculateFixed(person, destination, ::eoTime, time)
+        return car.calculateFixed(person, destination, ::eoTime, time)
     }
 }
 

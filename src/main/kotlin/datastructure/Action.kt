@@ -1,8 +1,8 @@
 package datastructure
 
 import domain.enums.ActivityType
+import domain.enums.MODEUNKOWN
 import domain.enums.Mode
-import domain.enums.StandardMode
 import domain.location.Location
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
@@ -149,6 +149,7 @@ interface Activity : StationaryAction {
         act.next?.previous = act
         return act
     }
+
     companion object {
         /**
          * Generates an Activity with the provided [location], [startTime], and [duration].
@@ -256,6 +257,7 @@ interface Leg : MovingAction {
         act.next?.previous = act
         return act
     }
+
     companion object {
         /**
          * Generates a leg with the provided [startLocation], [startTime], [endLocation] and [duration].
@@ -273,7 +275,7 @@ interface Leg : MovingAction {
             duration: Duration,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = StandardMode.UNDEFINED
+            mode: Mode = MODEUNKOWN
         ): Leg {
             return RawLeg(
                 startTime = startTime,
@@ -300,7 +302,7 @@ interface Leg : MovingAction {
             endTime: AbsoluteTime,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = StandardMode.UNDEFINED
+            mode: Mode = MODEUNKOWN
         ): Leg {
             return RawLeg(
                 startTime = startTime,

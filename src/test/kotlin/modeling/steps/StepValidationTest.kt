@@ -15,7 +15,7 @@ import utils.csv.expectedElements
 import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class StepValidationTest {
@@ -76,13 +76,13 @@ class StepValidationTest {
     }
 
     private fun initPreparing() {
-        assertTrue(prepareStep.validate())
+        assertNull(prepareStep.validate())
         assertEquals(RepositoryState.PREPARING, repository.state)
     }
 
     private fun initFinished() {
-        assertTrue(prepareStep.validate())
-        assertTrue(buildStep.validate())
+        assertNull(prepareStep.validate())
+        assertNull(buildStep.validate())
         assertEquals(RepositoryState.FINISHED, repository.state)
     }
 
@@ -180,16 +180,18 @@ class StepValidationTest {
 
         val check = if (expectValid) "valid" else "invalid"
         val errorMessage = "Step '${step.name}' is expected to be $check in state: ${repository.state}!"
-        var text: String
 
-        assertEquals(
-            expectValid,
-            step.validate(),
-            errorMessage.also { text = console.getText() }.let { "$it:\n<$text>\n" }
-        )
+        val res = MultiStep("TestMultiStep wrapper", step).validate()
+        res?.printTree()
+        val text: String = console.getText()
+
+        if (expectValid) {
+            assertNull(res, errorMessage.let { "$it:\n<$text>\n" })
+        }
+
         assertEquals(expectedState, repository.state)
 
-        val message = "WARNING: ${step::class.simpleName} '${step.name}' is invalid!"
+        val message = "${step::class.simpleName} '${step.name}' is invalid!"
         if (expectValid) {
             assertEmpty(text)
         } else {

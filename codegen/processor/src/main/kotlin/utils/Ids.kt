@@ -47,10 +47,10 @@ internal object GlobalIdCount {
 
 fun drawId(clazz: KClass<*>): Long = GlobalIdCount.drawId(clazz)
 inline fun <reified E> E.drawId(): ID<E> {
-    return ID<E>(drawId(E::class))
+    return ID(drawId(E::class))
 }
 
 fun registerId(clazz: KClass<*>, requestedId: Long): Long = GlobalIdCount.requestId(clazz, requestedId)
 inline fun <reified E> E.registerId(requestedId: Long): ID<E> {
-    return ID<E>(registerId(E::class, requestedId))
+    return ID(registerId(E::class, requestedId))
 }

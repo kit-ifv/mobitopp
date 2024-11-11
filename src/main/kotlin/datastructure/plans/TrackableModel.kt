@@ -16,7 +16,9 @@ class TrackableModel(private val separablePlanModel: SeparablePlanModel) : Separ
         val target = separablePlanModel.removeFirst()
         when (target) {
             is StationaryAction -> processedActivities.add(target)
-            is MovingAction -> processedLegs.add(target)
+            is MovingAction -> {
+                processedLegs.add(target)
+            }
         }
         return target
     }

@@ -24,6 +24,8 @@ interface Repository<out E, I> : Resource<E> where E : Identifiable<I> {
      * @return the element with the given id or null
      */
     fun getById(id: I): E?
+
+    fun clear()
 }
 
 /**
@@ -39,7 +41,7 @@ class MapRepository<out E, I>(
     override val name: String,
     override val source: String,
 ) : Repository<E, I> where E : Identifiable<I> {
-    private val idMap: Map<I, E> = elements.associateBy { it.id }
+    private val idMap: MutableMap<I, E> = elements.associateBy { it.id }.toMutableMap()
 
     constructor(resource: Resource<E>) : this(
         elements = resource.elements.toList(),
@@ -55,6 +57,10 @@ class MapRepository<out E, I>(
     override fun getById(id: I): E? = idMap[id]
 
     override fun toString() = "MapRepository[$name] ($source)"
+
+    override fun clear() {
+        idMap.clear()
+    }
 }
 
 /**
@@ -96,8 +102,8 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
 
     override val name: String
         get() {
-            internalState = internalState.performGetName()
-            return (elems ?: builders)!!.name
+            // internalState = internalState.performGetName()
+            return (elems ?: builders)?.name ?: "Empty Repository"
         }
 
     override val source: String
@@ -188,6 +194,13 @@ open class RepositoryBuilder<B, out E, I>() : Repository<E, I> where B : Builder
     fun build() {
         internalState = internalState.performBuild()
         elems = MapRepository(builders!!.build())
+        builders = null
+    }
+
+    override fun clear() {
+        internalState = RepositoryState.UNINITIALIZED
+        elems?.clear()
+        elems = null
         builders = null
     }
 

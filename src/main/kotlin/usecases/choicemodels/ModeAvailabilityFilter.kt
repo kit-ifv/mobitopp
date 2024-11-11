@@ -1,92 +1,127 @@
 package usecases.choicemodels
 
 import domain.data.Person
+import domain.data.PrivateCar
+import domain.data.SharingProvider
+import domain.data.SharingStation
 import domain.enums.Mode
-import utils.CodePlan
+import domain.location.Location
+import domain.location.Metrics
+import domain.resources.Resource
 import utils.PerpetualCache
 import utils.collections.filterBy
+import utils.random.StochasticActor
 import java.util.*
 
-const val TAXI_KEY = "TAXI"
-const val RIDE_POOLING_KEY = "RIDE_POOLING"
-const val BIKESHARING_KEY = "BIKESHARING"
-const val CARSHARING_FREE_KEY = "CARSHARING_FREE"
-const val CARSHARING_STATION_KEY = "CARSHARING_STATION"
-const val E_SCOOTER_KEY = "E_SCOOTER"
-const val CAR_KEY = "CAR"
-const val PASSENGER_KEY = "PASSENGER"
-const val BIKE_KEY = "BIKE"
-const val PUBLICTRANSPORT_KEY = "PUBLICTRANSPORT"
-const val PEDESTRIAN_KEY = "PEDESTRIAN"
-
-interface BasicModesModel {
-
-    val modes: CodePlan<Mode>
-
-    val modeMap: Map<String, Mode>
-        get() = listOf(
-            TAXI_KEY,
-            RIDE_POOLING_KEY,
-            BIKESHARING_KEY,
-            CARSHARING_FREE_KEY,
-            CARSHARING_STATION_KEY,
-            E_SCOOTER_KEY,
-            CAR_KEY,
-            PASSENGER_KEY,
-            BIKE_KEY,
-            PUBLICTRANSPORT_KEY,
-            PEDESTRIAN_KEY,
-        ).associateWith {
-            try {
-                modes.decode(it)
-            } catch (e: IllegalArgumentException) {
-                error(
-                    "Provided mode CodePlan ${modes::class.simpleName} does not provide a mode called $it: " +
-                        "\n${e.message}"
-                )
-            }
-        }
+fun interface ChoiceFilter<M, P> {
+    fun filter(modes: Collection<M>, params: P): Collection<M>
 }
 
-fun interface ModeFilter<M, P> {
-    fun filter(modes: List<M>, params: P): Collection<M>
+object NoFilter : ChoiceFilter<Mode, Person> {
+    override fun filter(modes: Collection<Mode>, params: Person): Collection<Mode> {
+        return modes
+    }
 }
 
-class ModeAvailabilityFilter(override val modes: CodePlan<Mode>) : ModeFilter<Mode, StandardSet>, BasicModesModel {
+data class TripChoiceSituation(
+    val person: Person,
+    val origin: Location,
+    val destination: Location,
+    val sharedResources: Set<Resource<Person>> = emptySet(),
+) : StochasticActor by person
+
+class ModeAvailabilityFilter(
+    val modes: ChoiceModelModes,
+    private val sharingStations: Set<SharingStation>,
+    private val providersByMode: Map<Mode, Set<SharingProvider>>,
+    private val metrics: Metrics,
+) : ChoiceFilter<Mode, TripChoiceSituation> {
 
     private val cache = PerpetualCache<List<Byte>, Set<Mode>>()
-    override fun filter(modes: List<Mode>, params: StandardSet): Collection<Mode> {
-        val set = BitSet(modes.size)
-        set.flip(0, modes.size)
-        modes.withIndex().forEach {
+
+    override fun filter(modes: Collection<Mode>, params: TripChoiceSituation): Collection<Mode> {
+        val modeList = modes.toList()
+        val set = BitSet(modeList.size)
+        set.flip(0, modeList.size)
+        modeList.withIndex().forEach {
             set[it.index] = determineAvailability(it.value, params)
         }
         return cache.getOrPut(set.toByteArray().toList()) {
-            modes.filterBy(set).toSet()
+            modeList.filterBy(set).toSet()
         }
     }
-    private fun determineAvailability(mode: Mode, params: StandardSet): Boolean {
-        return when (mode) {
-            modeMap[CAR_KEY]!! -> checkCar(params)
-            modeMap[BIKE_KEY]!! -> checkBike(params)
-            modeMap[PEDESTRIAN_KEY]!! -> true
-            modeMap[PUBLICTRANSPORT_KEY]!! -> checkPut(params)
 
+    // TODO insert check for sharing stations and find missing resources
+    private fun determineAvailability(mode: Mode, params: TripChoiceSituation): Boolean {
+        return when (mode) {
+            modes.car -> checkCar(params.person)
+            modes.bike -> checkBike(params.person)
+            modes.ridePooling -> checkRidepooling(params.person, mode)
+            modes.publicTransport -> checkPut(params.person)
+            modes.pedestrian -> true
+            modes.passenger -> true // TODO is passenger always available?
+            modes.bikeSharing -> checkSharing(params, mode) != null
             else -> false
         }
     }
 
-    private fun checkBike(params: StandardSet): Boolean {
-        return params.person.hasBike
+    private fun checkBike(person: Person): Boolean {
+        return person.hasBike
     }
 
-    private fun checkPut(params: StandardSet): Boolean {
-        return params.person.hasCommuterTicket
+    private fun checkPut(person: Person): Boolean {
+        return person.hasCommuterTicket
     }
 
-    private fun checkCar(params: StandardSet): Boolean {
-        return params.person.let { person ->
-            person.hasLicense && person.isAdult && person.household.cars.any { car -> car.mainUser == person }
+    private fun checkCar(person: Person): Boolean {
+        return person.hasLicense && person.household.cars.any {
+            (it.location == person.location) && it.state != PrivateCar.CarState.IN_USE &&
+                ((it.location == person.household.location) || it.keyHolder == person)
+        }
+    }
+
+    private fun checkRidepooling(person: Person, mode: Mode): Boolean {
+        val sharingProviders = providersByMode[mode] ?: emptySet()
+        // TODO test this
+        return sharingProviders.any { it in person.memberships }
+    }
+
+    fun checkSharing(params: TripChoiceSituation, sharingMode: Mode): Pair<SharingStation, SharingStation>? {
+        val person = params.person
+
+        val modeMemberships = providersByMode[sharingMode]?.filter {
+            it in person.memberships
+        } ?: emptySet()
+
+        if (modeMemberships.isEmpty()) { return null }
+
+        val memberStations = sharingStations.filter { it.owner in modeMemberships }
+
+        val origin = params.origin
+        val destination = params.destination
+
+        val startStation =
+            memberStations.filter {
+                it.zonesByFoot.any { zone -> origin in zone }
+            }.filter {
+                it.hasAvailableVehicles
+            }.minByOrNull {
+                metrics.distance(origin, it.location, sharingMode)
+            }
+
+        val endStation =
+            memberStations.filter {
+                it.zonesByFoot.any { zone -> destination in zone }
+            }.filter {
+                it != startStation
+            }.minByOrNull {
+                metrics.distance(it.location, destination, sharingMode)
+            }
+
+        return startStation?.let { start ->
+            endStation?.let { end ->
+                start to end
+            }
         }
     }
 }

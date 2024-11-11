@@ -3,11 +3,7 @@ package domain.data
 import Buildable
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
-import domain.location.Position
-import domain.location.RoadPosition
-import domain.location.RoadPositionInZone
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
+import domain.location.Location
 import units.Distance
 import units.GPSCoordinate
 import utils.ID
@@ -29,30 +25,42 @@ typealias ZoneId = ID<Zone>
  * @property relief height difference in the zone
  */
 @Buildable
-interface Zone : Identifiable<ZoneId> {
-    val visumId: Long
-    val name: String
-    val areaType: AreaType
-    val regionType: Int
-    val classification: ZoneClassification
-    val parkingPlaces: Int
-    val centroid: Position // TODO type point
-    val isDestination: Boolean
-    val relief: Distance
+@Suppress("LongParameterList")
+open class Zone(
+    override val id: ZoneId,
+    val visumId: Long,
+    val name: String,
+    val areaType: AreaType,
+    val regionType: Int,
+    val classification: ZoneClassification,
+    open val parkingPlaces: Int, // TODO only open for testing -> ugly :(
+    centroid: Location,
+    val isDestination: Boolean,
+    val relief: Distance,
+) : Identifiable<ZoneId> {
+
+    val centroid: Location = centroid.copy(zone = this)
+    operator fun contains(location: Location): Boolean = location.zone == this
 }
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
-    return ZoneLocationImpl(gpsCoordinate, this)
-}
+fun Zone.centroidLocation() = centroid.copy(zone = this)
 
-/**
- * I feel this operator makes sense, a zone plus a road position results in a roadPositionInZone
- */
-operator fun Zone.plus(roadPosition: RoadPosition): RoadPositionInZone {
-    return RoadPositionInZone(roadPosition, this)
-}
+fun Zone.point(gpsCoordinate: GPSCoordinate) = Location(gpsCoordinate, zone = this, roadAccess = null)
 
 @Buildable
-interface LegacyZone : Zone {
-    val matrixColumn: Int
-}
+@Suppress("LongParameterList")
+open class LegacyZone(
+    id: ZoneId,
+    visumId: Long,
+    name: String,
+    areaType: AreaType,
+    regionType: Int,
+    classification: ZoneClassification,
+    parkingPlaces: Int,
+    centroid: Location,
+    isDestination: Boolean,
+    relief: Distance,
+    val matrixColumn: Int,
+) : Zone(
+    id, visumId, name, areaType, regionType, classification, parkingPlaces, centroid, isDestination, relief
+)

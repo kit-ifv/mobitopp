@@ -40,6 +40,7 @@ class MapEventQueue : EventQueue {
             )
             v.addAll(temp)
         }
+
         this.events.putAll(targets)
     }
 

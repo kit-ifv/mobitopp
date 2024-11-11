@@ -1,8 +1,8 @@
 package modeling.steps
 
 import assertNotContains
+import modeling.validation.Warning
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import utils.ConsoleCaptor
@@ -18,6 +18,9 @@ import utils.csv.int
 import utils.csv.long
 import java.io.File
 import kotlin.test.assertContains
+import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -38,7 +41,9 @@ class ValidateCsvMetadataTest {
 
         override fun execute() { /**/ }
 
-        override fun validate() = true
+        override fun validate(): Warning? {
+            return null
+        }
     }
 
     @BeforeEach
@@ -110,7 +115,7 @@ class ValidateCsvMetadataTest {
     fun validCsv() {
         val console = ConsoleCaptor()
 
-        assertTrue(ValidateCsvMetadata(step, csvResource).validate())
+        assertNull(ValidateCsvMetadata(step, csvResource).validate())
 
         val text = console.getText()
         assertTrue(text.isEmpty())
@@ -121,9 +126,10 @@ class ValidateCsvMetadataTest {
     fun invalidCsv() {
         val console = ConsoleCaptor()
         val res = ValidateCsvMetadata(step, invalidResource).validate()
+        res?.printTree()
         val text = console.getText()
 
-        assertFalse(res)
+        assertNotNull(res)
         assertContains(text, "ERROR: Invalid column '$invalidColumnName'")
         assertContains(text, "ERROR: Invalid column '$invalidTypecastColumnName'")
         assertContains(text, "'${step.name}'")
@@ -142,9 +148,10 @@ class ValidateCsvMetadataTest {
     fun complexInvalidCsv() {
         val console = ConsoleCaptor()
         val res = ValidateCsvMetadata(step, complexInvalidResource).validate()
+        res?.printTree()
         val text = console.getText()
 
-        assertFalse(res)
+        assertNotNull(res)
         assertContains(text, "ERROR: Invalid column '$invalidTypecastColumnName'")
         assertContains(text, "'${step.name}'")
         assertContains(text, file.path)
@@ -166,14 +173,16 @@ class ValidateCsvMetadataTest {
     fun complexValidCsv() {
         val console = ConsoleCaptor()
         val res = ValidateCsvMetadata(step, complexValidResource).validate()
+        res?.printTree()
         val text = console.getText()
 
-        assertTrue(res)
+        assertNotNull(res, "Expected no warning but got:\n $text")
+        assertFalse(res.containsError())
         assertNotContains(text, "ERROR: Invalid column ")
 
         assertContains(
             text,
-            "WARNING: Value of column '$STR_COL' of $complexValidResource could not be mocked for parsing!"
+            "Could not mock column $STR_COL."
         )
         assertContains(text, "Validation of columns in step '${step.name}' may be incomplete!")
     }
