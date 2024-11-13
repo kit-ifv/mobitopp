@@ -48,7 +48,15 @@ data class PersonRepresentative(
     }
     companion object {
         fun fromData(sex: Sex, age: Int): PersonRepresentative {
-            val groupCode = when(age) {
+            val groupCode = groupCode(age)
+            return PersonRepresentative(
+                sex, groupCode
+
+            )
+        }
+
+        private fun groupCode(age: Int): Int {
+            val groupCode = when (age) {
                 in 0..5 -> 0
                 in 6..9 -> 1
                 in 10..14 -> 2
@@ -62,10 +70,7 @@ data class PersonRepresentative(
                 in 75..Int.MAX_VALUE -> 10
                 else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
             }
-            return PersonRepresentative(
-                sex, groupCode
-
-            )
+            return groupCode
         }
     }
 }
