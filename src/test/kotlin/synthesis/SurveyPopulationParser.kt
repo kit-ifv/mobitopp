@@ -7,12 +7,6 @@ import kotlin.io.path.Path
 import kotlin.math.abs
 
 
-data class SurveyInfo(
-    val id: Int,
-    val size: Int,
-    val sex: Sex,
-    val age: Int
-)
 
 fun parseSurvey(file: File): Sequence<SurveyInfo> {
     val parser = DefaultCsvParser { row ->
