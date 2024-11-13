@@ -1,18 +1,35 @@
 package synthesis
 
+import datastructure.Activity
+import domain.data.Household
 import domain.data.Sex
+import domain.enums.ActivityType
+import domain.enums.LegacyActivityType
+import domain.location.LOCATIONUNKNOWN
+import domain.location.Location
+import utils.Decodable
+import utils.collections.equivalenceClasses
+import utils.collections.sortByValues
 import utils.csv.DefaultCsvParser
+import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import java.io.File
+import java.util.*
+import kotlin.NoSuchElementException
+import kotlin.math.abs
+import kotlin.math.round
+import kotlin.time.Duration
 
 interface Synthesize {
     fun createFrom() {
         // Load potential locations (zones or road network)
         // Load target goals that need to be met.
         // generate households from survey data
+        // generate Activity Schedules
         // assign work / education location
         // assign cars
         // assign tickets
-        //
+        // generate activity schedule
     }
 }
 
@@ -20,16 +37,90 @@ data class Result(
     val location: SynZone
 
 )
+
+
+data class ActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
+    companion object {
+        operator fun invoke(decoder: Decodable<ActivityType> = LegacyActivityType.Companion, lambda: ScheduleBuilder.() -> Unit): ActivitySchedule {
+            val builder = ScheduleBuilder(decoder)
+            builder.lambda()
+            return builder.build()
+        }
+    }
+
+    override fun toString(): String {
+        return activities.toString()
+    }
+
+    class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
+        val activities: MutableList<Activity> = mutableListOf()
+
+
+
+        fun home(start: Duration, end: Duration) {
+            extracted(start, end, "HOME")
+        }
+
+        fun work(start: Duration, end: Duration) {
+            extracted(start, end, "WORK")
+        }
+
+
+        fun education(start: Duration, end: Duration) {
+            extracted(start, end, "EDUCATION")
+        }
+
+        fun shopping(start: Duration, end: Duration) {
+            extracted(start, end, "SHOPPING")
+        }
+
+        fun leisure(start: Duration, end: Duration) {
+            extracted(start, end, "LEISURE")
+        }
+
+        private fun extracted(start: Duration, end: Duration, type: String) {
+            activities.add(Activity.fromTimes(start, end, decoder.decode(type)))
+        }
+
+        fun build(): ActivitySchedule {
+            return ActivitySchedule(activities)
+        }
+    }
+}
+
+fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: ActivityType): Activity {
+    require(start <= end) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
+
+    return fromDuration(LOCATIONUNKNOWN, start, end - start, type)
+}
+
+fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityType): Activity {
+    return fromTimes(start.sinceStart, end.sinceStart, type)
+}
+
 fun interface Matcher {
     fun matches(surveyHousehold: SurveyHousehold): Int
 }
 
-fun Boolean.toInt() = if(this) 1 else 0
+fun Boolean.toInt() = if (this) 1 else 0
 
 
 interface Rule {
+    val target: Int
+    val name: String
     fun check(surveyHousehold: SurveyHousehold): Int
+
+    fun appliesTo(surveyHousehold: SurveyHousehold): Boolean = check(surveyHousehold) != 0
+
+    fun verify(output: Collection<SurveyHousehold>): Double {
+        return target.toDouble() - output.sumOf { check(it) }
+    }
+
+    fun filter(target: Collection<SurveyHousehold>): List<SurveyHousehold> {
+        return target.filter { appliesTo(it) }
+    }
 }
+
 fun interface CountRule {
     fun matches(surveyHousehold: SurveyHousehold): Int
 }
@@ -37,46 +128,168 @@ fun interface CountRule {
 fun interface CheckRule {
     fun matches(surveyHousehold: SurveyHousehold): Boolean
 }
-class ZoneRule(val target: Int, val matcher: CountRule): Rule {
+
+class ZoneRule(override val name: String, override val target: Int, val matcher: CountRule) : Rule {
 
     override fun check(surveyHousehold: SurveyHousehold): Int {
         return matcher.matches(surveyHousehold)
     }
+
+    override fun toString(): String {
+        return "[$name] expected = $target"
+    }
 }
 
-class ZoneCheckRule(val target: Int, val matcher: CheckRule): Rule {
+class ZoneCheckRule(override val name: String, override val target: Int, val matcher: CheckRule) : Rule {
     override fun check(surveyHousehold: SurveyHousehold): Int {
         return matcher.matches(surveyHousehold).toInt()
     }
-}
 
-
-class Target(val zone: Int, giltfür: (Int) -> Boolean) {
-    fun matches(int: Int): Boolean {
-        return int % 2 == 1
+    override fun toString(): String {
+        return "[$name] expected = $target"
     }
 }
 
+fun <T> Collection<T>.pickWithReplacement(
+    amount: Int,
+    random: Random = Random(1)
+): List<T> { // Initialize Random with a specific seed for reproducibility
+    val inputList = toList()  // Convert the set to a list to enable indexing
+    return List(amount) { inputList[random.nextInt(inputList.size)] }  // Sample with replacement
+
+}
 
 fun interface HouseholdSynthesis {
-    fun synthesize(surveyHouseholds: Collection<SurveyHousehold>, conditions: ): Map<SurveyHousehold, Double>
+    fun synthesize(
+        surveyHouseholds: Collection<SurveyHousehold>,
+        targets: Collection<SynZone>,
+        conditions: Map<SynZone, List<Rule>>
+    ): Map<SynZone, List<SurveyHousehold>>
+}
+typealias HouseholdEquivalence = Map<SurveyHousehold, Set<SurveyHousehold>>
+
+class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
+    HouseholdSynthesis {
+    private var overflowCounter: Double = 0.0
+    val convertNumbersToHousehold: (HouseholdEquivalence, SurveyHousehold, Double) -> List<SurveyHousehold> =
+        { e, h, d ->
+            val set = e.getOrElse(h) { throw NoSuchElementException("Somehow this happened") }
+            overflowCounter += d - d.toInt()
+            if (overflowCounter >= 1.0) {
+                overflowCounter--
+                set.pickWithReplacement(d.toInt() + 1)
+            } else {
+                set.pickWithReplacement(d.toInt())
+            }
+
+
+        }
+
+    override fun synthesize(
+        surveyHouseholds: Collection<SurveyHousehold>,
+        targets: Collection<SynZone>,
+        conditions: Map<SynZone, List<Rule>>
+    ): Map<SynZone, List<SurveyHousehold>> {
+        val uniques = surveyHouseholds.toSet()
+        //TODO equivalnece classes should be determined based on the rules
+        val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
+            .sortByValues { a, b -> b.size.compareTo(a.size) }
+
+        val results = targets.associateWith { synZone ->
+            println("Working on $synZone")
+            val rulesForZone = conditions.getOrDefault(synZone, emptyList())
+            val internal = synZone.calculate(eqD, rulesForZone)
+            val output = internal.flatMap {
+                convertNumbersToHousehold(eqD, it.first, it.second)
+            }
+            val check = rulesForZone.associateWith { it.filter(output) }
+            val otherCheck = rulesForZone.associateWith { it.verify(output) }
+            output
+        }
+        return results
+    }
+
+    private fun SynZone.calculate(
+        surveyHouseholds: HouseholdEquivalence,
+        rules: List<Rule>
+    ): Collection<Pair<SurveyHousehold, Double>> {
+        //TODO toVector should depend on the underlying ruleset instead of a hardcoded implementation.
+        val vectorMapping = surveyHouseholds.keys.associateWith { rules.vectorize(it) }
+        val vectors = vectorMapping.values
+        // TODO maybe assign rule -> Observer so that higher order logic may interact with these.
+        val observers = rules.withIndex().map { rule ->
+            Observer(
+                rule.value.name,
+                rule.index,
+                vectors.filter { it.appliesTo(rule) },
+                rule.value.target
+            )
+        }
+
+        val output = algorithm(vectors, observers)
+        return vectorMapping.entries.map { it.key to it.value.scalar }
+    }
+
+    fun ScalableVector.appliesTo(indexRule: IndexedValue<Rule>): Boolean {
+        return this.vector[indexRule.index] != 0
+    }
+
 }
 
-data class SynZone(val id: Int)
+class Observer(val name: String, val observedIndex: Int, val vectors: List<ScalableVector>, val expected: Int) {
+    fun sum(): Double {
+        return vectors.sumOf { it.vector[observedIndex] * it.scalar }
+    }
 
-data class SynRegion(val id: Int) {
+    operator fun times(factor: Number): Unit {
+        vectors.forEach { it.scalar *= factor.toDouble() }
+    }
 
+    val difference get() = abs(expected - sum()) / expected
+    fun optimize() {
+        this * (expected / sum())
+    }
 
+    override fun toString() = "[$name] difference = $difference"
 }
+
+fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold): ScalableVector {
+    return ScalableVector(map { it.check(surveyHousehold) }.toIntArray())
+}
+
+data class ScalableVector(val vector: IntArray, var scalar: Double = 1.0)
+interface Sth
+data class SynZone(val id: Int, val centroid: Location = LOCATIONUNKNOWN) : Sth
+
+data class SynRegion(val id: Int) : Sth
 
 data class SurveyData(val id: Int) {
 }
 
+data class SurveyInfo(
+    val id: Int,
+    val size: Int,
+    val sex: Sex,
+    val age: Int
+)
+
+fun Sequence<SurveyInfo>.toSurveyHouseholds(): Map<Int, SurveyHousehold> {
+    return groupBy { it.id }
+        .mapValues {
+            SurveyHousehold(
+                it.value.first().id,
+                it.value.map { person -> SurveyPerson(person.sex, person.age) })
+        }
+}
+
 fun main() {
-    val exampe = ZoneCheckRule(100) { it.members.size == 2 }
-    val ex2ampe = ZoneRule(100) { it.members.size * 4 }
+
     SynRegion(1)
     SynZone(1)
+}
+
+fun SurveyHousehold.amount(sex: Sex, ageCode: Int): Int {
+    return members.filter { it.sex == sex && it.groupCode == ageCode }.size
 }
 
 data class ZoneTarget(
@@ -110,43 +323,77 @@ data class ZoneTarget(
     val ageGroup9male: Int,
     val ageGroup10male: Int,
 
-) {
+    ) {
 
+    fun toSynZone(): SynZone {
+        return SynZone(zoneId)
+    }
 
     fun improvedTargets(): List<Rule> {
+        return listOf(
+            ZoneCheckRule("HHSize == 1", numHH1) { it.members.size == 1 },
+            ZoneCheckRule("HHSize == 2", numHH2) { it.members.size == 2 },
+            ZoneCheckRule("HHSize == 3", numHH3) { it.members.size == 3 },
+            ZoneCheckRule("HHSize == 4", numHH4) { it.members.size == 4 },
+            ZoneCheckRule("HHSize == 5", numHH5) { it.members.size >= 5 },
 
+            ZoneRule("#(Female, AgeGroup 0)", ageGroup0female) { it.amount(Sex.FEMALE, 0) },
+            ZoneRule("#(Female, AgeGroup 1)", ageGroup1female) { it.amount(Sex.FEMALE, 1) },
+            ZoneRule("#(Female, AgeGroup 2)", ageGroup2female) { it.amount(Sex.FEMALE, 2) },
+            ZoneRule("#(Female, AgeGroup 3)", ageGroup3female) { it.amount(Sex.FEMALE, 3) },
+            ZoneRule("#(Female, AgeGroup 4)", ageGroup4female) { it.amount(Sex.FEMALE, 4) },
+            ZoneRule("#(Female, AgeGroup 5)", ageGroup5female) { it.amount(Sex.FEMALE, 5) },
+            ZoneRule("#(Female, AgeGroup 6)", ageGroup6female) { it.amount(Sex.FEMALE, 6) },
+            ZoneRule("#(Female, AgeGroup 7)", ageGroup7female) { it.amount(Sex.FEMALE, 7) },
+            ZoneRule("#(Female, AgeGroup 8)", ageGroup8female) { it.amount(Sex.FEMALE, 8) },
+            ZoneRule("#(Female, AgeGroup 9)", ageGroup9female) { it.amount(Sex.FEMALE, 9) },
+            ZoneRule("#(Female, AgeGroup 10)", ageGroup10female) { it.amount(Sex.FEMALE, 10) },
+
+            ZoneRule("#(Male, AgeGroup 0)", ageGroup0male) { it.amount(Sex.MALE, 0) },
+            ZoneRule("#(Male, AgeGroup 1)", ageGroup1male) { it.amount(Sex.MALE, 1) },
+            ZoneRule("#(Male, AgeGroup 2)", ageGroup2male) { it.amount(Sex.MALE, 2) },
+            ZoneRule("#(Male, AgeGroup 3)", ageGroup3male) { it.amount(Sex.MALE, 3) },
+            ZoneRule("#(Male, AgeGroup 4)", ageGroup4male) { it.amount(Sex.MALE, 4) },
+            ZoneRule("#(Male, AgeGroup 5)", ageGroup5male) { it.amount(Sex.MALE, 5) },
+            ZoneRule("#(Male, AgeGroup 6)", ageGroup6male) { it.amount(Sex.MALE, 6) },
+            ZoneRule("#(Male, AgeGroup 7)", ageGroup7male) { it.amount(Sex.MALE, 7) },
+            ZoneRule("#(Male, AgeGroup 8)", ageGroup8male) { it.amount(Sex.MALE, 8) },
+            ZoneRule("#(Male, AgeGroup 9)", ageGroup9male) { it.amount(Sex.MALE, 9) },
+            ZoneRule("#(Male, AgeGroup 10)", ageGroup10male) { it.amount(Sex.MALE, 10) },
+        )
     }
+
     fun targets(): List<Int> {
         return listOf(
-        numHH1,
-        numHH2,
-        numHH3,
-        numHH4,
-        numHH5,
-        ageGroup0female,
-        ageGroup1female,
-        ageGroup2female,
-        ageGroup3female,
-        ageGroup4female,
-        ageGroup5female,
-        ageGroup6female,
-        ageGroup7female,
-        ageGroup8female,
-        ageGroup9female,
-        ageGroup10female,
+            numHH1,
+            numHH2,
+            numHH3,
+            numHH4,
+            numHH5,
+            ageGroup0female,
+            ageGroup1female,
+            ageGroup2female,
+            ageGroup3female,
+            ageGroup4female,
+            ageGroup5female,
+            ageGroup6female,
+            ageGroup7female,
+            ageGroup8female,
+            ageGroup9female,
+            ageGroup10female,
 
-        ageGroup0male,
-        ageGroup1male,
-        ageGroup2male,
-        ageGroup3male,
-        ageGroup4male,
-        ageGroup5male,
-        ageGroup6male,
-        ageGroup7male,
-        ageGroup8male,
-        ageGroup9male,
+            ageGroup0male,
+            ageGroup1male,
+            ageGroup2male,
+            ageGroup3male,
+            ageGroup4male,
+            ageGroup5male,
+            ageGroup6male,
+            ageGroup7male,
+            ageGroup8male,
+            ageGroup9male,
 
-        )
+            )
     }
 
     companion object {
@@ -234,8 +481,9 @@ data class ZoneTarget(
 //}
 data class SurveyHousehold(val id: Int, val members: List<SurveyPerson>) {
     val representative = toRepresentative()
-    private fun toRepresentative(): HouseholdRepresentative  {
-        val memberCount =  members.map { it.representative }.groupingBy { it }.eachCount().map{(element, count) -> Pair(count, element)}.toSet()
+    private fun toRepresentative(): HouseholdRepresentative {
+        val memberCount = members.map { it.representative }.groupingBy { it }.eachCount()
+            .map { (element, count) -> Pair(count, element) }.toSet()
         return HouseholdRepresentative(memberCount)
     }
 }
@@ -248,4 +496,23 @@ data class SurveyPerson(
     private fun toRepresentative(): PersonRepresentative {
         return PersonRepresentative.fromData(sex, age)
     }
+
+    val groupCode: Int
+        get() {
+            val groupCode = when (age) {
+                in 0..5 -> 0
+                in 6..9 -> 1
+                in 10..14 -> 2
+                in 15..17 -> 3
+                in 18..24 -> 4
+                in 25..29 -> 5
+                in 30..44 -> 6
+                in 45..59 -> 7
+                in 60..64 -> 8
+                in 65..74 -> 9
+                in 75..Int.MAX_VALUE -> 10
+                else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
+            }
+            return groupCode
+        }
 }
