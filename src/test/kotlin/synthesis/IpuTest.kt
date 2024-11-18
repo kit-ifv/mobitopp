@@ -1,6 +1,8 @@
 package synthesis
 
 import domain.enums.LegacyActivityType
+import usecases.AttractivenessFromCsv
+import usecases.AttractivenessModel
 import utils.collections.equivalenceClasses
 import utils.collections.sortByValues
 import kotlin.io.path.Path
@@ -51,9 +53,23 @@ class IpuTest {
     }
     @Test
     fun runIPU() {
+
+         val attractivenessTypes = setOf(
+            LegacyActivityType.WORK,
+            LegacyActivityType.EDUCATION_PRIMARY,
+            LegacyActivityType.EDUCATION_SECONDARY,
+            LegacyActivityType.EDUCATION_TERTIARY,
+        )
         val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv").toFile()).toList()
 
         val result = parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv").toFile())
+
+        val attractiveness: AttractivenessModel =
+            AttractivenessFromCsv(
+                file = Path("src/test/resources/synthesis/attractivities.csv").toFile(), activityTypes =
+                attractivenessTypes
+            )
+
 
         val zones = targets.map{it.toSynZone()}
         val rules = targets.associate { it.toSynZone() to it.improvedTargets() }
@@ -69,7 +85,15 @@ class IpuTest {
         val households = result.toSurveyHouseholds()
         val syntheticHouseholds = ipu.synthesize(households.values, zones, rules) // assign location in this step
         val locatedHouseholds = AssignAroundCentroid(100.0).assign(syntheticHouseholds)
+
+        val betterZones = zones.toLocatableZones()
+
+        val works = betterZones.flatMap { TrivialLocation().generateLocations(it, attractivenessTypes.first(), attractiveness) }
+
+        println(locatedHouseholds.sumOf { it.members.size })
+
         val schedules = locatedHouseholds.generateSchedules(TrivialActivityScheduleGeneration())
+
 
         return
         println(syntheticHouseholds)
