@@ -259,7 +259,9 @@ fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold): ScalableVector {
 
 data class ScalableVector(val vector: IntArray, var scalar: Double = 1.0)
 interface Sth
-data class SynZone(val id: Int, val centroid: Location = LOCATIONUNKNOWN) : Sth
+data class SynZone(val id: ZoneNumber, val centroid: Location = LOCATIONUNKNOWN) : Sth {
+    constructor(id: Int): this(ZoneNumber(id))
+}
 
 data class SynRegion(val id: Int) : Sth
 
@@ -293,7 +295,7 @@ fun SurveyHousehold.amount(sex: Sex, ageCode: Int): Int {
 }
 
 data class ZoneTarget(
-    val zoneId: Int,
+    val zoneId: ZoneNumber,
     val numHH1: Int,
     val numHH2: Int,
     val numHH3: Int,
@@ -327,6 +329,10 @@ data class ZoneTarget(
 
     fun toSynZone(): SynZone {
         return SynZone(zoneId)
+    }
+
+    fun numberOfPeople(): Int {
+        return numHH1 + 2 * numHH2 + 3 * numHH3 + 4 * numHH4 + 5 * numHH5
     }
 
     fun improvedTargets(): List<Rule> {
@@ -401,7 +407,7 @@ data class ZoneTarget(
             val offset = 4
             val parser = DefaultCsvParser { row ->
                 ZoneTarget(
-                    zoneId = row.valueAt(0).toInt(),
+                    zoneId = row.valueAt(0) {ZoneNumber.parse(it)},
 
                     numHH1 = row.valueAt(1).toInt(),
                     numHH2 = row.valueAt(2).toInt(),
