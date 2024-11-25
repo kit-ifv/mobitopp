@@ -46,7 +46,7 @@ interface CsvParser<E> {
     companion object {
         operator fun <E> invoke(
             errorHandling: ErrorHandling = ErrorHandling.WARNING,
-            mapping: (Row) -> E
+            mapping: (Row) -> E?
         ) = DefaultCsvParser(exceptionHandling = errorHandling, mapping = mapping)
     }
 }
@@ -91,12 +91,12 @@ fun <E> RowCsvParser<E>.withFilter(filter: (Row) -> Boolean): FilterRowCsvParser
  */
 open class DefaultCsvParser<E>(
     protected val exceptionHandling: ErrorHandling = ErrorHandling.WARNING,
-    protected val mapping: (Row) -> E,
+    protected val mapping: (Row) -> E?,
 ) : RowCsvParser<E> {
 
     override fun parse(row: Row): E? {
         return exceptionHandling.handleParseRow(row) {
-            mapping(ErrorHandlingRow(row, exceptionHandling)) // TODO accumulate during validate
+            mapping(ErrorHandlingRow(row, exceptionHandling))
         }
     }
 }

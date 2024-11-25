@@ -2,114 +2,84 @@ package usecases.steps
 
 import datastructure.Activity
 import datastructure.LinkedLeg
+import domain.data.Person
+import domain.data.PersonId
 import domain.location.ZoneLocation
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
-import modeling.steps.RepositoryState
-import modeling.steps.repairFinishedState
-import modeling.steps.subValidateState
+import modeling.steps.Repository
+import modeling.steps.SameValidationBehavior
 import modeling.validation.Warning
 import modeling.validation.validateFileWriteAccess
-import modeling.validation.validateScope
 import java.io.File
 import kotlin.io.path.Path
+
 fun <S, C> S.output(
     file: File = Path(
         "results/demandsimulation.csv"
     ).toFile()
-) where S : ModelExecution<C>, C : PersonContext {
+) where S : ModelExecution<C>, C : WriteTripsCsvContext {
     addStep(
         WriteTripsToCsvStep(file, context)
-//        CustomStep( //TODO inherit model step instead of implementing custom step -> this can be referenced in validate
-//            name = "Write Output",
-//            validation = {
-//                validateScope(
-//                    "Validate $name: write simulated trips to csv format:"
-//                ) {
-//                    validateFileWriteAccess(file, fileDescription = "result csv for simulated trips")
-//
-//                    subValidateState(context.personRepository, RepositoryState.FINISHED, this@output) //TODO
-//                    repairFinishedState(context.personRepository, this@output)
-//                }
-//            },
-//            exec = {
-//                val result =
-//                    context.personRepository.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
-//                        val legs = person.schedule.pastLegs()
-//                        val e = legs as List<LinkedLeg>
-//                        e.joinToString("\n") { leg ->
-//                            toCSV(
-//                                person.id,
-//                                leg.duration,
-//                                leg.transportType,
-//                                leg.startTime,
-//                                leg.endTime,
-//                                (leg.startLocation as ZoneLocation).zone.id,
-//                                (leg.endLocation as ZoneLocation).zone.id,
-//                            )
-//                        }
-//                    }
-//                val text =
-//                    result.joinToString("\n", prefix = "id;duration;mode;start;end;ZoneStart;ZoneEnd\n") { it }
-//
-//                file.writeText(text)
-//                println("Demand Simulation written to $file")
-//            }
-//        )
     )
+}
+
+interface WriteTripsCsvContext {
+    val personRepository: Repository<Person, PersonId>
 }
 
 private class WriteTripsToCsvStep(
     private val file: File,
-    private val context: PersonContext,
-) : ModelStep {
-    override val name: String
-        get() = "Write trip output to csv"
+    private val context: WriteTripsCsvContext,
+) : ModelStep, SameValidationBehavior {
+
+    override val name: String = "Write trip output to csv"
+
+    val header = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType\n"
 
     override fun execute() {
         val result =
             context.personRepository.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
                 val legs = person.schedule.pastLegs()
                 val e = legs as List<LinkedLeg>
+                stringifyLegs(e, person)
+            }
 
-                e.joinToString("\n") { leg ->
-                    val previous = leg.previous
-                    val next = leg.next
-                    val output = if (next is Activity) { next.type.toString() } else { "-" }
-                    val previousOutput = if (previous is Activity) { previous.type.toString() } else { "-" }
-                    toCSV(
-                        person.id,
-                        leg.duration,
-                        leg.transportType,
-                        output,
-                        leg.startTime,
-                        leg.endTime,
-                        (leg.startLocation as ZoneLocation).zone.id,
-                        (leg.endLocation as ZoneLocation).zone.id,
-                        previousOutput,
-                    )
-                }
-            }
-        val text =
-            result.joinToString(
-                "\n",
-                prefix = "id;duration;mode;activityType;tripStart;tripEnd;ZoneStart;ZoneEnd;previousActivityType\n"
-            ) {
-                it
-            }
+        val text = result.joinToString("\n", prefix = header)
 
         file.writeText(text)
         println("Demand Simulation written to $file")
     }
 
-    override fun validate(): Warning? = validateScope(
-        "Validate $name: write simulated trips to csv format:"
-    ) {
-        validateFileWriteAccess(file, fileDescription = "result csv for simulated trips")
+    private fun stringifyLegs(e: List<LinkedLeg>, person: Person) =
+        e.joinToString("\n") { leg ->
+            val previous = leg.previous
+            val next = leg.next
+            val output = if (next is Activity) {
+                next.type.toString()
+            } else {
+                "-"
+            }
+            val previousOutput = if (previous is Activity) {
+                previous.type.toString()
+            } else {
+                "-"
+            }
+            toCSV(
+                person.id,
+                leg.duration,
+                leg.transportType,
+                output,
+                leg.startTime,
+                leg.endTime,
+                (leg.startLocation as ZoneLocation).zone.id,
+                (leg.endLocation as ZoneLocation).zone.id,
+                previousOutput,
+            )
+        }
 
-        subValidateState(context.personRepository, RepositoryState.FINISHED, this@WriteTripsToCsvStep) // TODO
-        repairFinishedState(context.personRepository, this@WriteTripsToCsvStep)
-    }
+    override fun verifyInput(): Warning? =
+        validateFileWriteAccess(file, fileDescription = "result csv for simulated trips")
 }
 
 fun toCSV(vararg elements: Any): String {

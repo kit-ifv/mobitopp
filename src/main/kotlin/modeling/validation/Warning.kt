@@ -89,7 +89,7 @@ fun validateScope(
     scope: Warning.() -> Unit
 ): Warning? =
     Warning(message, false).apply {
-        subWarning(exceptionsAreErrors, scope)
+        validateNoException(exceptionsAreErrors, scope)
     }.takeIf { it.subWarnings.isNotEmpty() }
 
 /**
@@ -101,7 +101,7 @@ fun validateScope(
  * @receiver the paren [Warning] to which caught exceptions should be added to as child warnings
  */
 @Suppress("TooGenericExceptionCaught")
-fun Warning.subWarning(
+fun Warning.validateNoException(
     exceptionsAreErrors: Boolean = true,
     scope: Warning.() -> Unit
 ) = try {
@@ -110,10 +110,21 @@ fun Warning.subWarning(
     this.addChild(e, exceptionsAreErrors)
 }
 
-fun Warning.subValidateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") =
-    validateFileReadAccess(file, isError, fileDescription)?.also {
-        this.addChild(it)
+fun Warning.validateCondition(message: String, isError: Boolean = false, predicate: () -> Boolean) {
+    if (!predicate()) {
+        this.addChild(message, isError)
     }
+}
+
+fun Warning.subValidation(scope: Warning.() -> Warning?): Warning {
+    this.scope()?.also { this.addChild(this) }
+    return this
+}
+
+// fun Warning.subValidateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") =
+//    validateFileReadAccess(file, isError, fileDescription)?.also {
+//        this.addChild(it)
+//    }
 
 fun validateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(
     message = "Validate read access of: ${file.absolutePath}",
