@@ -26,8 +26,8 @@ import domain.data.lastTransportMode
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
@@ -281,8 +281,8 @@ class ModeChoiceHelperMNL(
     fun getHOUSEHOLD_NUMBER_OF_OWNED_CARS(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -295,8 +295,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_WORK(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -317,8 +317,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_EDUCATION(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -331,8 +331,8 @@ class ModeChoiceHelperMNL(
     fun getIS_ACTIVITY_TYPE_BUSINESS(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -355,8 +355,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_LEISURE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -369,8 +369,8 @@ class ModeChoiceHelperMNL(
     fun getIS_ACTIVITY_TYPE_SERVICE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -390,8 +390,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_SHOPPING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -404,8 +404,8 @@ class ModeChoiceHelperMNL(
     fun getAGE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -418,8 +418,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_PEDESTRIAN(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -438,8 +438,8 @@ class ModeChoiceHelperMNL(
     fun getDISTANCE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         impedance: Metrics,
         randomNumber: Double
@@ -450,8 +450,8 @@ class ModeChoiceHelperMNL(
     fun getHAS_COMMUTER_TICKET(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -464,8 +464,8 @@ class ModeChoiceHelperMNL(
     fun getIS_PREV_MODE_BIKE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -478,8 +478,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_BIKE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -497,8 +497,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_BIKE_FIX(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -515,8 +515,8 @@ class ModeChoiceHelperMNL(
     fun getIS_PREV_MODE_CAR(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -529,8 +529,8 @@ class ModeChoiceHelperMNL(
     fun getIS_FEMALE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -543,8 +543,8 @@ class ModeChoiceHelperMNL(
     fun getHOUSEHOLD_ECONOMICAL_STATUS(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -558,8 +558,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_CAR(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -577,8 +577,8 @@ class ModeChoiceHelperMNL(
     fun getIS_HOUSEHOLD_ECONOMICAL_STATUS_VERY_HIGH(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -591,8 +591,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_CAR(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -610,8 +610,8 @@ class ModeChoiceHelperMNL(
     fun getACCESS_TIME_CAR(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -624,8 +624,8 @@ class ModeChoiceHelperMNL(
     fun getEGRESS_TIME_CAR(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -638,8 +638,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_CAR_FIX(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -655,8 +655,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_CAR_FIX(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -672,8 +672,8 @@ class ModeChoiceHelperMNL(
     fun getIS_BEV(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -689,8 +689,8 @@ class ModeChoiceHelperMNL(
     fun getIS_PHEV(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -706,8 +706,8 @@ class ModeChoiceHelperMNL(
     fun getIS_PREV_MODE_CARP(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -720,8 +720,8 @@ class ModeChoiceHelperMNL(
     fun getHAS_DRIVING_LICENSE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -734,8 +734,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_PASSENGER(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -754,8 +754,8 @@ class ModeChoiceHelperMNL(
     fun getIS_PREV_MODE_PUBLICTRANSPORT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -768,8 +768,8 @@ class ModeChoiceHelperMNL(
     fun getLOGSUM_ACCESS_PUBLICTRANSPORT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -783,8 +783,8 @@ class ModeChoiceHelperMNL(
     fun getLOGSUM_EGRESS_PUBLICTRANSPORT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -798,8 +798,8 @@ class ModeChoiceHelperMNL(
     fun getPARKDRUCK(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -808,20 +808,20 @@ class ModeChoiceHelperMNL(
     ): Double {
         // TODO this value is insane, is the calculation correct?
         val attractivity =
-            attractivities.attractivenessFor(destination.zone.id, LegacyActivityType.WORK) +
-                attractivities.attractivenessFor(destination.zone.id, LegacyActivityType.PRIVATE_VISIT)
+            attractivities.attractivenessFor(destination.requireZone().id, LegacyActivityType.WORK) +
+                attractivities.attractivenessFor(destination.requireZone().id, LegacyActivityType.PRIVATE_VISIT)
 
-        if (0 == destination.zone.parkingPlaces) {
+        if (0 == destination.requireZone().parkingPlaces) {
             return if (1e-6 > abs(attractivity)) 0.0 else 999.0
         }
-        return attractivity / (destination.zone.parkingPlaces)
+        return attractivity / (destination.requireZone().parkingPlaces)
     }
 
     fun getTRAVEL_TIME_PUBLICTRANSPORT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -840,8 +840,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_PUBLICTRANSPORT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -860,8 +860,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_BIKESHARING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -880,8 +880,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_BIKESHARING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -900,8 +900,8 @@ class ModeChoiceHelperMNL(
     fun getACCESS_TIME_BIKESHARING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -914,8 +914,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_HOME(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -928,8 +928,8 @@ class ModeChoiceHelperMNL(
     fun getMEMBERSHIP_ACTIVE_MOIA(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -942,8 +942,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_RIDE_POOLING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -962,8 +962,8 @@ class ModeChoiceHelperMNL(
     fun getIS_EVENING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -979,8 +979,8 @@ class ModeChoiceHelperMNL(
     fun getIS_AFTERMIDNIGHT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -994,8 +994,8 @@ class ModeChoiceHelperMNL(
     fun getIS_BEFOREMIDNIGHT(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1009,8 +1009,8 @@ class ModeChoiceHelperMNL(
     fun getIS_FRIDAY(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1024,8 +1024,8 @@ class ModeChoiceHelperMNL(
     fun getIS_SATURDAY(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1039,8 +1039,8 @@ class ModeChoiceHelperMNL(
     fun getIS_SUNDAY(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1054,8 +1054,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_RIDE_POOLING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1074,8 +1074,8 @@ class ModeChoiceHelperMNL(
     fun getACCESS_TIME_RIDE_POOLING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1088,8 +1088,8 @@ class ModeChoiceHelperMNL(
     fun getEGRESS_TIME_RIDE_POOLING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1102,8 +1102,8 @@ class ModeChoiceHelperMNL(
     fun getWAITING_TIME_MOIA(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1117,8 +1117,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_LEISURE_TRAVEL(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1131,8 +1131,8 @@ class ModeChoiceHelperMNL(
     fun getACTIVITY_TYPE_IS_BUSINESS_TRAVEL(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1145,8 +1145,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_E_SCOOTER(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1165,8 +1165,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_E_SCOOTER(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1185,8 +1185,8 @@ class ModeChoiceHelperMNL(
     fun getACCESS_TIME_E_SCOOTER(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1199,8 +1199,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_CARSHARING_FREE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1219,8 +1219,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_CARSHARING_FREE(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1239,8 +1239,8 @@ class ModeChoiceHelperMNL(
     fun getACCESS_TIME_CARSHARING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1253,8 +1253,8 @@ class ModeChoiceHelperMNL(
     fun getEGRESS_TIME_CARSHARING(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1267,8 +1267,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_CARSHARING_STATION(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1287,8 +1287,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_CARSHARING_STATION(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1307,8 +1307,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_TIME_TAXI(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1326,8 +1326,8 @@ class ModeChoiceHelperMNL(
     fun getTRAVEL_COST_TAXI(
         category: String,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1344,8 +1344,8 @@ class ModeChoiceHelperMNL(
 
     fun getChoiceSet(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,

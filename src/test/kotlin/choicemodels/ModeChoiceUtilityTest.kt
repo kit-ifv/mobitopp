@@ -4,8 +4,8 @@ import benchmark.spawnAttractiveness
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.enums.Mode
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import syntheticsim.ControllableImpedance
 import usecases.LegacyMode
 import usecases.choicemodels.IGeneratedHcUtilityFunction
@@ -66,8 +66,8 @@ private fun testFunction(
     b: IGeneratedHcUtilityFunction,
     functor: IGeneratedHcUtilityFunction.(
         Person,
-        ZoneLocation,
-        ZoneLocation,
+        Location,
+        Location,
         StationaryAction,
         StationaryAction,
         Set<Mode>,
@@ -76,8 +76,8 @@ private fun testFunction(
     ) -> Double
 ): (
     Person,
-    ZoneLocation,
-    ZoneLocation,
+    Location,
+    Location,
     StationaryAction,
     StationaryAction,
     Set<Mode>,
@@ -111,8 +111,8 @@ private fun testAllCalculations(
     a: IGeneratedHcUtilityFunction,
     b: IGeneratedHcUtilityFunction,
     person: Person,
-    origin: ZoneLocation,
-    destination: ZoneLocation,
+    origin: Location,
+    destination: Location,
     previousActivity: StationaryAction,
     nextActivity: StationaryAction,
     choiceSet: Set<Mode>,

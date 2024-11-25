@@ -7,7 +7,7 @@ import domain.data.SharingVehicleId
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.Mode
-import domain.location.ZoneLocationImpl
+import domain.location.Location
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
 import modeling.steps.Context
@@ -56,9 +56,10 @@ fun <S, C> S.prepareSharingStations(
             uid = row(uidColumn)
             name = row(nameColumn)
             zonesByFoot = this@prepareSharingStations.context.prepareZonesByFoot(row, zonesByFootColumn).toMutableSet()
-            location = ZoneLocationImpl(
+            location = Location(
                 zone = context.getZone(row.long(zoneColumn)),
                 coordinate = coordinateParser(row(coordinatesColumn)),
+                roadAccess = null
             )
             initialVehicles = sharingProvider.prepareVehicles(
                 count = row.int(vehicleCountColumn),

@@ -1,6 +1,7 @@
 package choicemodels
 
 import Buildable
+import asLocation
 import datastructure.Activity
 import domain.data.ChargingInfluence
 import domain.data.DefaultHouseholdBuilder
@@ -24,11 +25,7 @@ import domain.location.DistanceMetric
 import domain.location.DurationMetric
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.RoadPosition
-import domain.location.RoadPositionInZone
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
-import units.Coordinate
+import domain.location.RoadAccess
 import units.Currency
 import units.CurrencyUnit
 import units.Distance
@@ -58,34 +55,35 @@ val TEST_ACTIVITY = Activity.Companion.fromDuration(
 @Suppress("LongParameterList")
 class TestZone(
     point: GPSCoordinate = BIELEFELD,
-    override var visumId: Long = 1L,
-    override var matrixColumn: Int = 0,
-    override var name: String = "HomeZone",
-    override var areaType: AreaType = ZoneAreaType.DEFAULT,
-    override var regionType: Int = 0,
-    override var classification: ZoneClassification = ZoneClassification.STUDY_AREA,
+    visumId: Long = 1L,
+    matrixColumn: Int = 0,
+    name: String = "HomeZone",
+    areaType: AreaType = ZoneAreaType.DEFAULT,
+    regionType: Int = 0,
+    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
-    override var isDestination: Boolean = true,
-    override var relief: Distance = 0.meters,
-    override val id: ZoneId = ZoneId(1L)
-) : LegacyZone {
-    override var centroid: ZoneLocation = point(point)
-}
+    isDestination: Boolean = true,
+    relief: Distance = 0.meters,
+    id: ZoneId = ZoneId(1L)
+) : LegacyZone(
+    id, visumId, name, areaType, regionType, classification,
+    parkingPlaces, point.asLocation(), isDestination, relief, matrixColumn
+)
 
 val OTHER_TEST_ZONE = TestZone(BIELEFELD_HBF)
 
-fun Zone.point(gpsCoordinate: GPSCoordinate): ZoneLocation {
-    return ZoneLocationImpl(gpsCoordinate, this)
+fun Zone.point(gpsCoordinate: GPSCoordinate): Location {
+    return Location(gpsCoordinate, this, null)
 }
-fun Long.toRoadPosition(): RoadPosition {
-    return object : RoadPosition {
-        override val road: Long = this@toRoadPosition
-        override val roadAccess = 0.5.share()
-        override val coordinate: Coordinate = BIELEFELD
-    }
+fun Long.toRoadPosition(): Location {
+    return Location(
+        BIELEFELD,
+        null,
+        RoadAccess(this, 0.5.share())
+    )
 }
-fun Long.toRoadPositionInZone(zone: Zone): RoadPositionInZone {
-    return RoadPositionInZone(this.toRoadPosition(), zone)
+fun Long.toRoadPositionInZone(zone: Zone): Location {
+    return this.toRoadPosition().withZone(zone)
 }
 class DebugImpedance : Metrics {
     val map: MutableMap<Triple<Mode, Location, Location>, Duration> = mutableMapOf()

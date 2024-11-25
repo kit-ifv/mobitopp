@@ -5,8 +5,8 @@ import domain.data.Person
 import domain.data.lastTransportMode
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import units.CurrencyUnit
 import units.Distance
 import units.euros
@@ -61,8 +61,8 @@ class ModernizedModeUtility(
 
     private data class Relevant(
         val person: Person,
-        val origin: ZoneLocation,
-        val destination: ZoneLocation,
+        val origin: Location,
+        val destination: Location,
         val previousActivity: StationaryAction,
         val nextActivity: StationaryAction
 
@@ -98,7 +98,7 @@ class ModernizedModeUtility(
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         distance: Distance,
-        targetZone: ZoneLocation
+        targetZone: Location
     ) {
         utilityScope = CombinedScope(
             ModePersonScope(
@@ -108,7 +108,7 @@ class ModernizedModeUtility(
 
             ModeZoneScope(
                 previousActivity.endTime, distance,
-                attractivenessModel.parkingPressure(targetZone.zone)
+                attractivenessModel.parkingPressure(targetZone.requireZone())
             )
         )
     }
@@ -116,8 +116,8 @@ class ModernizedModeUtility(
     @Suppress("LongParameterList")
     fun updateUtilityScope(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         impedance: Metrics
@@ -143,8 +143,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_fuss(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -164,8 +164,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_rad(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -183,8 +183,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_pkw(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -211,8 +211,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_mf(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -231,8 +231,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_oev(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -269,8 +269,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_bs(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -291,8 +291,8 @@ class ModernizedModeUtility(
     @Suppress("MagicNumber") // TODO move the constants out of this method, maybe into the parameter object
     override fun calculateU_moia(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -324,8 +324,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_escooter(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -345,8 +345,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_cs_ff(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -367,8 +367,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_cs_sb(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -389,8 +389,8 @@ class ModernizedModeUtility(
 
     override fun calculateU_taxi(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,

@@ -3,14 +3,13 @@ package usecases.choicemodels.destinationchoice
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.data.Zone
+import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
-import domain.location.ZoneLocationImpl
 import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit
@@ -40,30 +39,30 @@ class ModernizedDestinationChoice(
 
     val umlands: (
         Location
-    ) -> Boolean = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+    ) -> Boolean = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
     zones: Set<Zone>,
     val modes: ChoiceModelModes,
     val filter: ChoiceFilter<Mode, Person> = NoFilter,
     val parkstress: (Location) -> Double = { 0.0 },
     private val parameterObject: ParameterObject = ParameterObject()
-) : ChoiceModel<Person, ZoneLocation>,
+) : ChoiceModel<Person, Location>,
     ILegacyDestinationChoice {
-    private val _choices: Set<ZoneLocation> = zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
     private val car = modes.car
     private val publicTransport = modes.publicTransport
     private val pedestrian = modes.pedestrian
     private val bike = modes.bike
     private val passenger = modes.passenger
-    override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+    override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices
     }
-    override fun Collection<ZoneLocation>.selectDestination(
+    override fun Collection<Location>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
         nextActivity: StationaryAction,
         modes: Collection<Mode>,
         randomNumber: Double
-    ): ZoneLocation {
+    ): Location {
         val target = parameterObject.change(nextActivity.type)
         val scope = PersonScope(
             person.age,
@@ -80,19 +79,19 @@ class ModernizedDestinationChoice(
         val zonesWithAttractivity =
             filter {
                 attractivenessModel.attractivenessFor(
-                    it.zone.id,
+                    it.requireZone().id,
                     nextActivity.type
                 ) > 0.0
             }
 
-        val build: LogitModel<Person, ZoneLocation> = object : LogitModel<Person, ZoneLocation>() {
-            override fun utility(agent: Person, choice: ZoneLocation, time: Time): Double {
-                return calculate(target, person, scope, prevActivity.location as ZoneLocation, choice, nextActivity)
+        val build: LogitModel<Person, Location> = object : LogitModel<Person, Location>() {
+            override fun utility(agent: Person, choice: Location, time: Time): Double {
+                return calculate(target, person, scope, prevActivity.location, choice, nextActivity)
             }
 
             override val name: String = "Modernized Logit"
 
-            override fun choices(agent: Person, time: Time): Set<ZoneLocation> {
+            override fun choices(agent: Person, time: Time): Set<Location> {
                 return zonesWithAttractivity.toSet()
             }
         }
@@ -101,10 +100,10 @@ class ModernizedDestinationChoice(
     }
 
     override fun calculateU_destination(
-        category: ZoneLocation,
+        category: Location,
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction,
         time: AbsoluteTime,
         availableModes: Collection<Mode>,
@@ -131,8 +130,8 @@ class ModernizedDestinationChoice(
         target: DestinationRequirements,
         person: Person,
         scope: PersonScope,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         nextActivity: StationaryAction
     ): Double {
         val zone = ZoneScope(
@@ -144,7 +143,7 @@ class ModernizedDestinationChoice(
         val attractivenessFactor = target.attractiveness.evaluate(person, zone)
         val attractiveness = ln(
             attractivenessModel.attractivenessFor(
-                destination.zone.id,
+                destination.requireZone().id,
                 nextActivity.type
             ).coerceAtMost(target.attractiveness.maxAttractiveness)
         )
@@ -315,7 +314,7 @@ class ModernizedDestinationChoice(
     }
     override val name: String = "Modernized Destination Choice"
 
-    override fun select(agent: Person, choices: Set<ZoneLocation>, time: Time): ZoneLocation {
+    override fun select(agent: Person, choices: Set<Location>, time: Time): Location {
         val prevActivity = agent.schedule.pastActivities().lastOrNull { it <= time }
             ?: throw NoSuchElementException("Activity plan of agent ${agent.id} has no past activities.")
         val nextActivity = agent.schedule.activities().firstOrNull { it > time }

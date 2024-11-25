@@ -10,7 +10,6 @@ import domain.events.CarSelector
 import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
 import domain.events.SharingVehicleSelector
-import domain.location.ZoneLocation
 import modeling.models.RandomChoiceModel
 import modeling.steps.Context
 import modeling.steps.LateInit
@@ -95,7 +94,7 @@ private class LoadChoiceModelsStep(
             destinationChoice = ModernizedDestinationChoice(
                 impedance,
                 context.attractivenessModel.value,
-                umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+                umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
                 context.zoneRepository.elements.toSet(),
                 modes = modes,
                 parameterObject = parameters

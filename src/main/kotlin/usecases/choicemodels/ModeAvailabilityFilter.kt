@@ -75,8 +75,8 @@ class ModeAvailabilityFilter(
 
     private fun checkCar(person: Person): Boolean {
         return person.hasLicense && person.household.cars.any {
-            it.location.matches(person.location) && it.state != PrivateCar.CarState.IN_USE &&
-                (it.location.matches(person.household.location) || it.keyHolder == person)
+            (it.location == person.location) && it.state != PrivateCar.CarState.IN_USE &&
+                ((it.location == person.household.location) || it.keyHolder == person)
         }
     }
 
@@ -102,7 +102,7 @@ class ModeAvailabilityFilter(
 
         val startStation =
             memberStations.filter {
-                it.zonesByFoot.any { zones -> origin.matches(zones) }
+                it.zonesByFoot.any { zone -> origin in zone }
             }.filter {
                 it.hasAvailableVehicles
             }.minByOrNull {
@@ -111,7 +111,7 @@ class ModeAvailabilityFilter(
 
         val endStation =
             memberStations.filter {
-                it.zonesByFoot.any { zones -> destination.matches(zones) }
+                it.zonesByFoot.any { zone -> destination in zone }
             }.filter {
                 it != startStation
             }.minByOrNull {
