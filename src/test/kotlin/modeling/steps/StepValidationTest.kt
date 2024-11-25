@@ -30,7 +30,7 @@ class StepValidationTest {
     private lateinit var prepareStep: AddResourceStep<TestBuilder, TestEntity, TestId>
     private lateinit var prepareCsvStep: AddCsvStep<TestBuilder, TestEntity, TestId>
 
-    private lateinit var updateStep: UpdateStep<TestBuilder, TestEntity, TestId>
+    private lateinit var updateStep: TransformStep<TestBuilder, TestEntity, TestId>
     private lateinit var filterStep: FilterStep<TestBuilder, TestEntity, TestId>
 
     private lateinit var buildStep: BuildStep<TestBuilder, TestEntity, TestId>
@@ -64,7 +64,7 @@ class StepValidationTest {
 
         prepareStep = AddResourceStep("prepare sequence", builderResource, repository)
         prepareCsvStep = AddCsvStep("prepare csv", csvResource, repository)
-        updateStep = UpdateStep("map 'int' to length of 'str'", repository) {
+        updateStep = TransformStep("map 'int' to length of 'str'", repository) {
                 e ->
             e.also { e.int = e.string.length }
         }

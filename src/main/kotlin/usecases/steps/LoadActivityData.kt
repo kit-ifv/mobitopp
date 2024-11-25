@@ -2,16 +2,16 @@ package usecases.steps
 
 import domain.data.ActivityId
 import domain.data.Person
-import domain.data.PersonBuilder
 import domain.data.PersonId
-import domain.data.PlannedActivityBuilder
+import domain.data.PlannedActivity
 import domain.enums.ActivityType
 import modeling.steps.AddCsvStep
-import modeling.steps.BuildStep
 import modeling.steps.Context
 import modeling.steps.CsvResource
 import modeling.steps.ModelExecution
-import modeling.steps.RepositoryBuilder
+import modeling.steps.MutableRepository
+import modeling.steps.Repository
+import modeling.steps.SealStep
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -27,6 +27,13 @@ import kotlin.random.Random
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+interface PlannedActivitiesContext : Context {
+    val activitiesRepository: MutableRepository<PlannedActivity, ActivityId>
+    val personRepository: Repository<Person, PersonId>
+
+    val activityTypeCodes: CodePlan<ActivityType>
+}
+
 @Suppress("LongParameterList")
 fun <S, C> S.prepareActivities(
     file: File? = null,
@@ -36,13 +43,13 @@ fun <S, C> S.prepareActivities(
     activityTypeCodes: CodePlan<ActivityType>? = null,
     durationUnit: DurationUnit? = null,
     filter: ActivitiesColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : Context, C : ActivityContext, C : PersonContext {
+) where S : ModelExecution<C>, C : PlannedActivitiesContext {
     val timeUnit = durationUnit ?: context.timeUnit
     val personRepo = { context.personRepository }
     val activityTpeCodePlan = activityTypeCodes ?: context.activityTypeCodes
 
     val parser = CsvParser(errorHandling) { row ->
-        PlannedActivityBuilder().apply {
+        PlannedActivity().apply { // TODO
             id = ActivityId(row.index.toLong())
             person = getPerson(personRepo, row, activitiesColumns)
             observedTripDuration = row.int(activitiesColumns.tripDurationColumn).toDuration(timeUnit)
@@ -58,7 +65,7 @@ fun <S, C> S.prepareActivities(
 }
 
 private fun getPerson(
-    personRepo: () -> RepositoryBuilder<PersonBuilder, Person, PersonId>,
+    personRepo: () -> Repository<Person, PersonId>,
     row: Row,
     activitiesColumns: ActivitiesColumns
 ): Person = row.id<Person>(activitiesColumns.personColumn).let {
@@ -81,30 +88,44 @@ data class ActivitiesColumns(
 )
 
 fun <S, C> S.prepareActivitiesFile(
-    parser: CsvParser<PlannedActivityBuilder>,
+    parser: CsvParser<PlannedActivity>,
     file: File? = null,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : Context, C : ActivityContext {
-    val path = this.context.demandFolder.path + "\\demand-data\\activity.csv"
-    val activityFile = file ?: File(path)
+) where S : ModelExecution<C>, C : PlannedActivitiesContext {
+    val step = if (file != null) {
+        ReadActivityCsv(context, parser, delimiter, file)
+    } else {
+        ReadActivityCsv(context, parser, delimiter = delimiter)
+    }
 
-    val resource = CsvResource(activityFile, parser, delimiter)
-
-    this.addStep(
-        AddCsvStep(
-            name = "load activity csv",
-            csv = resource,
-            repository = context.plannedActivityRepository
-        )
-    )
+    this.addStep(step)
 }
 
-fun <S, C> S.finishActivities() where S : ModelExecution<C>, C : ActivityContext {
-    this.addStep(BuildStep("finish activities", context.plannedActivityRepository))
+class ReadActivityCsv(
+    context: PlannedActivitiesContext,
+    parser: CsvParser<PlannedActivity>,
+    delimiter: String = SEMICOLON,
+    file: File = File(context.demandFolder.path + "\\demand-data\\activity.csv"),
+) : AddCsvStep<PlannedActivity, ActivityId>(
+    csv = CsvResource(file, parser, delimiter)
+) {
+    override val name: String = "Reade planned activity csv: ${file.name}"
+
+    override val repository: MutableRepository<PlannedActivity, ActivityId> = context.activitiesRepository
+    override val dependentRepositories: Set<Repository<*, *>> = setOf(context.personRepository)
+
+    override fun mockElementsForValidation(): List<PlannedActivity> {
+        // TODO("Not yet implemented")
+        return emptyList()
+    }
+}
+
+fun <S, C> S.finishActivities() where S : ModelExecution<C>, C : PlannedActivitiesContext {
+    this.addStep(SealStep(context.activitiesRepository))
 }
 
 fun <S, C> S.loadActivities()
-    where S : ModelExecution<C>, C : Context, C : PersonContext, C : ActivityContext {
+    where S : ModelExecution<C>, C : PlannedActivitiesContext {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
 }
