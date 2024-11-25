@@ -6,8 +6,8 @@ import domain.data.Person
 import domain.data.point
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -204,8 +204,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_fuss(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -217,8 +217,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_rad(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -230,8 +230,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_pkw(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -243,8 +243,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_mf(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -256,8 +256,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_oev(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -269,8 +269,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_bs(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -282,8 +282,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_moia(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -295,8 +295,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_escooter(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -308,8 +308,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_cs_ff(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -321,8 +321,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_cs_sb(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -334,8 +334,8 @@ class ControllableUtilityFunction(override val modes: ChoiceModelModes) : IGener
 
     override fun calculateU_taxi(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,

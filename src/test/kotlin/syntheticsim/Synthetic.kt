@@ -25,7 +25,6 @@ import domain.events.StartActivityEvent
 import domain.events.StartLegEvent
 import domain.events.StartTripEvent
 import domain.location.LOCATIONUNKNOWN
-import domain.location.ZoneLocation
 import generateHousehold
 import generatePersons
 import generateZones
@@ -124,7 +123,7 @@ abstract class Scenario(
         LegacyDestinationChoice(
             impedance,
             currentAttractivenessModel,
-            umlands = { loc -> (loc as ZoneLocation).zone.classification == ZoneClassification.OUTLYING_AREA },
+            umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
             modes = legacyChoiceModelModes,
         )

@@ -7,7 +7,6 @@ import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
 import domain.events.SharingVehicleSelector
-import domain.location.ZoneLocationImpl
 import generateActivitySchedule
 import generateHouseholds
 import generateSharingStation
@@ -64,7 +63,7 @@ class RidesharingOnlyScenario {
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
-                zones.map { ZoneLocationImpl(it.centroid.coordinate, it) }.toSet()
+                zones.map { it.centroid }.toSet()
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),

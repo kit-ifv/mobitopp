@@ -6,14 +6,13 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.point
 import domain.enums.Mode
+import domain.location.ConstantMetric
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric
+import domain.location.Location
+import domain.location.LocationMetric
 import domain.location.Metrics
-import domain.location.Position
-import domain.location.RoadPosition
-import domain.location.ZoneLevelMetric
-import domain.location.ZoneLocation
 import generateZones
 import org.junit.jupiter.api.Test
 import units.Currency
@@ -50,46 +49,10 @@ class ControllableImpedance(
     private val durationMap: MutableMap<Mode, RangeMap<Time, Duration>> =
         mutableMapOf()
     private val distanceMap: MutableMap<Mode, MapMetric<Distance>> = mutableMapOf()
-    private val defaultCost: ZoneLevelMetric<Currency> = object : ZoneLevelMetric<Currency> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Currency {
-            return standardCost
-        }
 
-        override fun mapPosition(position: Position): ZoneLocation {
-            error("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            error("Not yet implemented")
-        }
-    }
-
-    private val defaultTime: DurationMetric = object : ZoneLevelMetric<Duration> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Duration {
-            return standardTime
-        }
-
-        override fun mapPosition(position: Position): ZoneLocation {
-            error("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            error("Not yet implemented")
-        }
-    }
-    private val defaultDistance: DistanceMetric = object : ZoneLevelMetric<Distance> {
-        override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): Distance {
-            return standardDistance
-        }
-
-        override fun mapPosition(position: Position): ZoneLocation {
-            error("Not yet implemented")
-        }
-
-        override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-            error("Not yet implemented")
-        }
-    }
+    private val defaultCost: LocationMetric<Currency> = ConstantMetric(standardCost)
+    private val defaultTime: DurationMetric = ConstantMetric(standardTime)
+    private val defaultDistance: DistanceMetric = ConstantMetric(standardDistance)
 
     /**
      * Either return a saved metric, or the [defaultTime] metric which always returns [standardTime]
@@ -339,18 +302,11 @@ class ControllableImpedanceTest {
         )
     }
 }
-class MapMetric<R>(private val standardValue: () -> R) : ZoneLevelMetric<R> {
+class MapMetric<R>(private val standardValue: () -> R) : LocationMetric<R> {
     private val fields: MutableMap<Pair<ZoneId, ZoneId>, R> = mutableMapOf()
-    override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): R {
-        return fields[Pair(origin.zone.id, destination.zone.id)] ?: standardValue()
-    }
 
-    override fun mapPosition(position: Position): ZoneLocation {
-        error("Not yet implemented")
-    }
-
-    override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-        error("Not yet implemented")
+    override fun evaluate(origin: Location, destination: Location): R {
+        return fields[Pair(origin.requireZone().id, destination.requireZone().id)] ?: standardValue()
     }
 
     operator fun set(origin: Zone, destination: Zone, content: R) {

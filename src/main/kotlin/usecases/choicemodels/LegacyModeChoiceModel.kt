@@ -13,8 +13,8 @@ package usecases.choicemodels
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.enums.Mode
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import modeling.models.ChoiceModel
 import usecases.AttractivenessModel
 import usecases.choicemodels.modechoice.ModeParameters
@@ -84,8 +84,8 @@ class LegacyModeChoiceModel(
                 agent.person,
                 lastActivity,
                 nextActivity,
-                lastActivity.location as ZoneLocation,
-                nextActivity.location as ZoneLocation
+                lastActivity.location,
+                nextActivity.location
             )
         )
     }
@@ -138,8 +138,8 @@ class LegacyModeChoiceModel(
 
     fun selectMode(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,

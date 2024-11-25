@@ -53,8 +53,7 @@ fun <S, C> S.assignFixedDestinations(
         ) // TODO should not be hardcoded to LegacyActivityType!
         val zone = context.getZone(row.long(columns.zone))
 
-        val location = zone + row(columns.location).parseRoadPosition()
-
+        val location = row(columns.location, String::parseRoadPosition).withZone(zone)
         p?.let { person ->
 
             ActivityLocation(person, activityType, location)

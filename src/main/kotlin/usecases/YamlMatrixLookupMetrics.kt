@@ -10,11 +10,9 @@ import domain.enums.Mode
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric
+import domain.location.Location
+import domain.location.LocationMetric
 import domain.location.Metrics
-import domain.location.Position
-import domain.location.RoadPosition
-import domain.location.ZoneLevelMetric
-import domain.location.ZoneLocation
 import units.Currency
 import units.CurrencyUnit
 import units.Distance
@@ -76,20 +74,22 @@ class YamlMatrixLookupMetrics(
     override fun durationMetric(mode: Mode, time: Time): DurationMetric = travelTimes.matrixAt(mode, time).asMetric()
 }
 
+private const val ERROR_MSG = "MatrixMetric requires Locations with zone Infos."
+
 private class MatrixMetric<R>(
     private val matrix: Matrix<ZoneId, R>,
-) : ZoneLevelMetric<R> {
+) : LocationMetric<R> {
 
-    override fun evaluate(origin: ZoneLocation, destination: ZoneLocation): R {
-        return matrix[origin.zone.id, destination.zone.id]
-    }
+    override fun evaluate(origin: Location, destination: Location): R {
+        val o = requireNotNull(origin.zone) {
+            "$ERROR_MSG. The given origin Location $origin does not provide a zone."
+        }
 
-    override fun mapPosition(position: Position): ZoneLocation {
-        error("Position locations not expected in theis simulation configuration!")
-    }
+        val d = requireNotNull(origin.zone) {
+            "$ERROR_MSG. The given destination Location $origin does not provide a zone."
+        }
 
-    override fun mapRoadPosition(roadPosition: RoadPosition): ZoneLocation {
-        error("RoadPosition locations not expected in theis simulation configuration!")
+        return matrix[o.id, d.id]
     }
 }
 

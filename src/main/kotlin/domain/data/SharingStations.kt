@@ -2,8 +2,7 @@ package domain.data
 
 import Buildable
 import domain.enums.Mode
-import domain.location.ZoneEquality
-import domain.location.ZoneLocation
+import domain.location.Location
 import domain.resources.Resource
 import domain.resources.Subscribable
 import utils.Builder
@@ -49,13 +48,11 @@ class SharingProvider(
 class SharingStation(
     val uid: String,
     val name: String,
-    val location: ZoneLocation,
+    val location: Location,
     val zonesByFoot: Set<Zone>,
     val owner: SharingProvider,
     initialVehicles: Set<SharingVehicle>,
 ) : Identifiable<SharingStationId>, Resource<Person> {
-
-    private val zonesByFootLocations = zonesByFoot.map { it.asLocation() }
 
     override val id = SharingStationId(idCounter++)
     val vehicles: Set<SharingVehicle>
@@ -105,7 +102,7 @@ class SharingStation(
         return agent.memberships.containsKey(owner) &&
             !agent.inTransit &&
 //                hasAvailableVehicles && // Available vehicles is not relevant for the resource allocation
-            zonesByFootLocations.any { agent.location.evaluate(it, ZoneEquality) }
+            zonesByFoot.any { agent.location.inSameZone(it.centroid) }
     }
 }
 

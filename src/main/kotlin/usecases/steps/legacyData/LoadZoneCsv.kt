@@ -4,7 +4,7 @@ import domain.data.LegacyZoneBuilder
 import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
-import domain.location.RoadPosition
+import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.AddCsvStep
 import modeling.steps.BuildStep
@@ -40,7 +40,7 @@ fun <S, C> S.prepareZones(
     classificationColumn: String = "classification",
     parkingPlacesColumn: String = "parkingPlaces",
     centroidColumn: String = "centroidLocation",
-    centroidParser: (String) -> RoadPosition = String::parseRoadPosition,
+    centroidParser: (String) -> Location = String::parseRoadPosition,
     isDestinationColumn: String = "isDestination",
     reliefColumn: String = "relief",
     reliefUnit: DistanceUnit = DistanceUnit.METERS,

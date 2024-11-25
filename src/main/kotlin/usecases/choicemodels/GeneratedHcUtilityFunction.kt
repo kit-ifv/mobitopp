@@ -3,8 +3,8 @@ package usecases.choicemodels
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.enums.Mode
+import domain.location.Location
 import domain.location.Metrics
-import domain.location.ZoneLocation
 import usecases.AttractivenessModel
 import kotlin.math.max
 import kotlin.math.pow
@@ -221,8 +221,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_fuss(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -296,8 +296,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_rad(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -369,8 +369,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_pkw(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -488,8 +488,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_mf(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -572,8 +572,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_oev(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -710,8 +710,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_bs(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -795,8 +795,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_moia(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -973,8 +973,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_escooter(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1053,8 +1053,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_cs_ff(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1160,8 +1160,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_cs_sb(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1204,8 +1204,8 @@ class GeneratedHcUtilityFunction(
 
     override fun calculateU_taxi(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1338,8 +1338,8 @@ interface IGeneratedHcUtilityFunction {
     val modes: ChoiceModelModes
     fun calculateU_fuss(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1349,8 +1349,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_rad(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1360,8 +1360,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_pkw(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1371,8 +1371,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_mf(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1382,8 +1382,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_oev(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1393,8 +1393,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_bs(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1404,8 +1404,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_moia(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1415,8 +1415,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_escooter(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1426,8 +1426,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_cs_ff(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1437,8 +1437,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_cs_sb(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
@@ -1448,8 +1448,8 @@ interface IGeneratedHcUtilityFunction {
 
     fun calculateU_taxi(
         person: Person,
-        origin: ZoneLocation,
-        destination: ZoneLocation,
+        origin: Location,
+        destination: Location,
         previousActivity: StationaryAction,
         nextActivity: StationaryAction,
         choiceSet: Set<Mode>,
