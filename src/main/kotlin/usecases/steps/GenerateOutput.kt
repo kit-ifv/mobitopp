@@ -4,7 +4,6 @@ import datastructure.Activity
 import datastructure.LinkedLeg
 import domain.data.Person
 import domain.data.PersonId
-import domain.location.ZoneLocation
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.Repository
@@ -72,8 +71,8 @@ private class WriteTripsToCsvStep(
                 output,
                 leg.startTime,
                 leg.endTime,
-                (leg.startLocation as ZoneLocation).zone.id,
-                (leg.endLocation as ZoneLocation).zone.id,
+                (leg.startLocation).requireZone().id,
+                (leg.endLocation).requireZone().id,
                 previousOutput,
             )
         }

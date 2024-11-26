@@ -9,19 +9,15 @@ import domain.data.Person
 import domain.data.PersonBuilder
 import domain.data.PersonId
 import domain.data.Sex
-import domain.enums.LegacyActivityType
+import domain.data.SharingStation
+import domain.data.SharingStationId
 import domain.resources.Subscribable
-import modeling.steps.AddCsvStep
-import modeling.steps.BuildStep
 import modeling.steps.Context
-import modeling.steps.CsvResource
-import modeling.steps.CustomStep
+import modeling.steps.LoadCsvStep
 import modeling.steps.ModelExecution
+import modeling.steps.MutableRepository
 import modeling.steps.Repository
-import modeling.steps.RepositoryState
-import modeling.steps.repairFinishedState
-import modeling.steps.subValidateState
-import modeling.validation.validateScope
+import modeling.steps.SealStep
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
@@ -40,22 +36,50 @@ import utils.csv.withFilter
 import java.io.File
 import kotlin.random.Random
 
+interface LoadPersonsContext : Context {
+    val personRepository: MutableRepository<Person, PersonId>
+    val householdRepository: Repository<Household, HouseholdId>
+    val sharingStationsRepository: Repository<SharingStation, SharingStationId>
+    val employmentCodes: CodePlan<Employment>
+    val graduationCodes: CodePlan<Graduation>
+    val sexCodes: CodePlan<Sex>
+
+    val defaultPersonFile: File
+        get() = File(demandFolder.path + "\\demand-data\\person.csv")
+}
+
+data class PersonColumns(
+    val idColumn: String = "personId",
+    val personIdColumn: String = "personNumber",
+    val householdColumn: String = "householdId",
+    val ageColumn: String = "age",
+    val employmentColumn: String = "employment",
+    val sexColumn: String = "gender",
+    val graduationColumn: String = "graduation",
+    val incomeColumn: String = "income",
+    val bikeColumn: String = "hasBike",
+    val commuterTicketColumn: String = "hasCommuterTicket",
+    val licenseColumn: String = "hasLicense",
+    val eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
+    val chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
+)
+
 @Suppress("LongParameterList")
 fun <S, C> S.preparePersons(
-    file: File? = null,
+    file: File = context.defaultPersonFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     personColumns: PersonColumns = PersonColumns(),
-    employmentCode: CodePlan<Employment>? = null,
-    sexCode: CodePlan<Sex>? = null,
-    graduationCode: CodePlan<Graduation>? = null,
+    // employmentCode: CodePlan<Employment>? = null, codes should be consistent within project, only specify once
+    // sexCode: CodePlan<Sex>? = null,
+    // graduationCode: CodePlan<Graduation>? = null,
     incomeUnit: CurrencyUnit? = null,
     filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
-    // TODO Jelle add dependent repositories to validation!!
-) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext, C : SharingStationsContext {
-    val employmentCodePlan = employmentCode ?: this.context.employmentCodes
-    val sexCodePlan = sexCode ?: this.context.sexCodes
-    val graduationCodePlan = graduationCode ?: this.context.graduationCodes
+
+) where S : ModelExecution<C>, C : LoadPersonsContext {
+    val employmentCodePlan = this.context.employmentCodes
+    val sexCodePlan = this.context.sexCodes
+    val graduationCodePlan = this.context.graduationCodes
     val currencyUnit = incomeUnit ?: this.context.costUnit
 
     val householdRepo = { context.householdRepository }
@@ -84,95 +108,44 @@ fun <S, C> S.preparePersons(
             chargingInfluence = row.decodeName(personColumns.chargingInfluenceColumn, ChargingInfluence)
             random = Random(seed = personId!! + context.simulationSeed)
 
-            memberships =
-                row("mobilityProviderCustomership")
-                    .replace("{", "")
-                    .replace("}", "")
-                    .split(", ")
-                    .map { it.split("=") }
-                    .filter { it[0].lowercase() in providersByNameFunction() }
-                    .associate { membership ->
-                        requireNotNull(
-                            providersByNameFunction()[membership[0].lowercase()]
-                        ) to membership[1].toBoolean()
-                    }.toMutableMap().apply {
-                        put(requestedHousehold, true)
-                    }
+            memberships = parserMemberships(row, providersByNameFunction, requestedHousehold)
         }
     }
     val internalFilter = { row: Row -> personColumns.filter(row, context) }
-    this.preparePersonsFile(csvParser.withFilter(internalFilter), file, delimiter)
+
+    this.preparePersonsFile(csvParser.withFilter(internalFilter), file, delimiter) // TODO
 }
 
-data class PersonColumns(
-    val idColumn: String = "personId",
-    val personIdColumn: String = "personNumber",
-    val householdColumn: String = "householdId",
-    val ageColumn: String = "age",
-    val employmentColumn: String = "employment",
-    val sexColumn: String = "gender",
-    val graduationColumn: String = "graduation",
-    val incomeColumn: String = "income",
-    val bikeColumn: String = "hasBike",
-    val commuterTicketColumn: String = "hasCommuterTicket",
-    val licenseColumn: String = "hasLicense",
-    val eMobilityAcceptanceColumn: String = "eMobilityAcceptance",
-    val chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
-)
-
 fun <S, C> S.preparePersonsFile(
-    parser: CsvParser<PersonBuilder>,
-    file: File? = null,
+    parser: CsvParser<Person>,
+    file: File = context.defaultPersonFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : Context, C : PersonContext {
-    val path = this.context.demandFolder.path + "\\demand-data\\person.csv"
-    val personFile = file ?: File(path)
-
-    val resource = CsvResource(personFile, parser, delimiter)
-
+) where S : ModelExecution<C>, C : LoadPersonsContext {
     this.addStep(
-        AddCsvStep(
-            name = "load person csv",
-            csv = resource,
-            repository = context.personRepository
+        LoadCsvStep<Person, PersonId>(
+            file = file,
+            name = "Load persons from csv",
+            parser = parser,
+            delimiter = delimiter,
+            repository = context.personRepository,
+            dependentRepositories = context.let {
+                setOf(it.householdRepository, it.sharingStationsRepository,)
+            },
+            validationMock = listOf() // TODO
         )
     )
 }
 
-fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : Context, C : PersonContext {
-    this.addStep(BuildStep("finish persons", context.personRepository))
+fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : LoadPersonsContext {
+    this.addStep(SealStep(context.personRepository))
 }
 
 fun <S, C> S.loadPersons(
-    file: File? = null,
-    filter: PersonColumns.(Row, C) -> Boolean = { _, _ ->
-        true
-    }
-) where S : ModelExecution<C>, C : Context, C : HouseholdContext, C : PersonContext, C : SharingStationsContext {
+    file: File = context.defaultPersonFile,
+    filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
+) where S : ModelExecution<C>, C : LoadPersonsContext {
     this.preparePersons(file = file, filter = filter)
     this.finishPersons()
-}
-
-fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : Context, C : LegacyContext, C : ActivityContext {
-    this.addStep(
-        CustomStep(
-            "assign HOME location to Household and update schedules",
-            validation = {
-                validateScope(
-                    "Validate assign HOME location to household and update schedules produced warnings:"
-                ) {
-                    subValidateState(context.personRepository, RepositoryState.FINISHED, this@assignHomeLocations)
-                    repairFinishedState(context.personRepository, this@assignHomeLocations)
-                }
-            },
-            exec = {
-                context.personRepository.elements.forEach {
-                    it.schedule.activities().filter { act -> act.type == LegacyActivityType.HOME }
-                        .forEach { home -> home.location = it.household.location }
-                }
-            }
-        )
-    )
 }
 
 internal fun getHousehold(
@@ -185,3 +158,21 @@ internal fun getHousehold(
     "Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
         " ${householdRepo().elements.map { it.id }.toList()}"
 }
+
+private fun parserMemberships(
+    row: Row,
+    providersByNameFunction: () -> Map<String, Subscribable<Person>>,
+    requestedHousehold: Household
+) = row("mobilityProviderCustomership")
+    .replace("{", "")
+    .replace("}", "")
+    .split(", ")
+    .map { it.split("=") }
+    .filter { it[0].lowercase() in providersByNameFunction() }
+    .associate { membership ->
+        requireNotNull(
+            providersByNameFunction()[membership[0].lowercase()]
+        ) to membership[1].toBoolean()
+    }.toMutableMap().apply {
+        put(requestedHousehold, true)
+    }
