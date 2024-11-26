@@ -7,7 +7,6 @@ import domain.data.PersonId
 import domain.data.PlannedActivity
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.data.plus
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.location.Location
@@ -54,11 +53,9 @@ fun <S, C> S.assignFixedDestinations(
         val zone = context.getZone(row.long(columns.zone))
 
         val location = row(columns.location, String::parseRoadPosition).withZone(zone)
-        p?.let { person ->
 
+        p?.let { person ->
             ActivityLocation(person, activityType, location)
-//            val acts = person.schedule.activities().filter { act -> act.type == activityType }
-//            acts.forEach { it.location = location }
         }
     }.withFilter(filterWrap)
 
@@ -74,13 +71,14 @@ data class FixedDestinationColumns(
     val zone: String = "zoneId",
 )
 
-@Suppress("UnusedParameter")
 fun <S, C> S.prepareFixedDestinationsFile(
-    parser: CsvParser<*>,
+    parser: CsvParser<ActivityLocation>,
     file: File = File(context.demandFolder.path + DEMAND_DATA_FIXED_DESTINATION_CSV),
     delimiter: String = SEMICOLON,
 ) where S : ModelExecution<C>, C : LoadFixedDestinationsContext {
-    //this.addStep()
+    this.addStep(
+        LoadFixedDestinationsStep(context, parser, file, delimiter)
+    )
 }
 
 interface LoadFixedDestinationsContext : Context {
@@ -100,11 +98,9 @@ interface LoadFixedDestinationsContext : Context {
 
 class LoadFixedDestinationsStep(
     private val context: LoadFixedDestinationsContext,
+    private val parser: CsvParser<ActivityLocation>,
     private val file: File = File(context.demandFolder.path + DEMAND_DATA_FIXED_DESTINATION_CSV),
-    private val errorHandling: ErrorHandling = ErrorHandling.WARNING,
     private val delimiter: String = SEMICOLON,
-    private val columns: FixedDestinationColumns = FixedDestinationColumns(),
-    private val filter: FixedDestinationColumns.(Row, Context) -> Boolean = { _, _ -> true }
 ) : MutatingStep<Person, PersonId>, RepositoryDependentStep {
     override val name: String = "Load and assign fixed destinations in person schedules"
 
@@ -115,25 +111,10 @@ class LoadFixedDestinationsStep(
     )
 
     override fun execute() {
-        val filterWrap: (Row) -> Boolean = { columns.filter(it, context) }
-
-        val csvParser = CsvParser(errorHandling) { row ->
-            val id: PersonId = row.id(columns.personOid)
-            val p = context.personRepository.getById(id)
-            val activityType = row.decode(
-                columns.activityType,
-                LegacyActivityType
-            ) // TODO should not be hardcoded to LegacyActivityType!
-            val zone = context.getZone(row.long(columns.zone))
-
-            val location = zone + row(columns.location).parseRoadPosition()
-            p?.let { person ->
-                val acts = person.schedule.activities().filter { act -> act.type == activityType }
-                acts.forEach { it.location = location }
-            }
-        }.withFilter(filterWrap)
-
-        csvParser.parse(CsvReader.of(file, delimiter)).toList()
+        parser.parse(CsvReader.of(file, delimiter)).toList().forEach { (person, activityType, location) ->
+            val acts = person.schedule.activities().filter { act -> act.type == activityType }
+            acts.forEach { it.location = location }
+        }
     }
 
     override fun verifyInput(): Warning? = validateScope {

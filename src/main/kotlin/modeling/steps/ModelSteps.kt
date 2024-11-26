@@ -8,7 +8,10 @@ import utils.ConsoleCaptor
 import utils.Identifiable
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
+import utils.csv.CsvParser
+import utils.csv.SEMICOLON
 import utils.units.logTime
+import java.io.File
 
 /**
  * A ModelStep represents an operation performed during the model execution.
@@ -97,27 +100,15 @@ interface SameValidationBehavior : ModelStep {
     }
 }
 
-// class CustomStep(
-//    override val name: String,
-//    val verifyInput: () -> Warning? = { null },
-//    val mockBehavior: () -> Warning? = { null },
-//    val exec: () -> Unit,
-// ) : ModelStep {
-//    override fun execute() = exec()
-//    override fun verifyInput(): Warning? = verifyInput()
-//    override fun mockBehavior(): Warning? = mockBehavior()
-// }
-
 /**
  * Add a [Resource] of elements to the given [MutableRepository].
  *
  * @param E the generic type of entities to be added
  * @param I the generic entity id type
- * @property resource the [Resource] of builders to be added
  */
-abstract class AddResourceStep<E, I>(
-    protected val resource: Resource<E>,
-) : MutatingStep<E, I> where E : Identifiable<I> {
+abstract class AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
+
+    protected abstract val resource: Resource<E>
 
     override fun execute() {
         repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
@@ -135,15 +126,12 @@ abstract class AddResourceStep<E, I>(
  *
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
- * @property csv the cev resource from where elements will be loaded
  */
-abstract class AddCsvStep<E, I>(
-    protected val csv: CsvResource<E>,
-) : AddResourceStep<E, I>(
-    resource = csv,
-) where E : Identifiable<I> {
+abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable<I> {
 
-    override fun verifyInput(): Warning? = ValidateCsvMetadata(this@AddCsvStep, csv).validate()
+    abstract override val resource: CsvResource<E>
+
+    override fun verifyInput(): Warning? = ValidateCsvMetadata(this@AddCsvStep, resource).validate()
 }
 
 /**
@@ -260,6 +248,22 @@ class SealStep<E, I>(
         repository.seal()
         // no print
     }
+}
+
+@Suppress("LongParameterList")
+class LoadCsvStep<E, I>(
+    file: File,
+    override val name: String = "load ${file.name}",
+    parser: CsvParser<E>,
+    delimiter: String = SEMICOLON,
+    override val repository: MutableRepository<E, I>,
+    override val dependentRepositories: Set<Repository<*, *>>,
+    private val validationMock: List<E>,
+) : AddCsvStep<E, I>() where E : Identifiable<I> {
+
+    override val resource: CsvResource<E> = CsvResource(file, parser, delimiter)
+
+    override fun mockElementsForValidation(): List<E> = validationMock
 }
 
 /**
