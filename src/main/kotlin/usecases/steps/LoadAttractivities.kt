@@ -9,20 +9,20 @@ import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
 import java.io.File
 
-fun <S> S.loadAttractivities(
+fun <S, C> S.loadAttractivities(
     file: File,
     activityTypes: Set<ActivityType>,
-) where S : ModelExecution<LegacyContext> {
+) where S : ModelExecution<C>, C : LegacyZonesContext {
     addStep(
         LoadAttractivenessStep(context, file, activityTypes)
     )
 }
 
-private class LoadAttractivenessStep(
-    private val context: LegacyZonesContext,
+private class LoadAttractivenessStep<C>(
+    private val context: C,
     private val file: File,
     private val activityTypes: Set<ActivityType>,
-) : ModelStep {
+) : ModelStep where C : LegacyZonesContext {
 
     override val name: String = "Load Attractiveness Csv"
 

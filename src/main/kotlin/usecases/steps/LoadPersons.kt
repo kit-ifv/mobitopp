@@ -153,7 +153,7 @@ fun <S, C> S.loadPersons(
     this.finishPersons()
 }
 
-fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : Context, C : LegacyContext, C : ActivityContext {
+fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : Context, C : PersonContext, C : ActivityContext {
     this.addStep(
         CustomStep(
             "assign HOME location to Household and update schedules",
