@@ -33,6 +33,7 @@ import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.events.PersonBehavior
 import domain.location.Metrics
+import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
 import modeling.steps.LateInit
 import modeling.steps.RepositoryBuilder
@@ -92,6 +93,18 @@ interface SharingStationsContext {
     val sharingStationsRepository: RepositoryBuilder<SharingStationBuilder, SharingStation, SharingStationId>
 }
 
+interface RoadNetworkContext {
+    val roadNetwork: LateInit<LocatableGraph>
+}
+interface DefaultContext :
+    Context,
+    LegacyZonesContext,
+    HouseholdContext,
+    PersonContext,
+    BasePrivateCarContext,
+    ActivityContext,
+    SharingStationsContext,
+    SimulationContext
 data class LegacyContext(
     override val scenarioName: String,
     override val demandFolder: File,
@@ -115,14 +128,7 @@ data class LegacyContext(
     override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
 
-) : Context,
-    LegacyZonesContext,
-    HouseholdContext,
-    PersonContext,
-    BasePrivateCarContext,
-    ActivityContext,
-    SharingStationsContext,
-    SimulationContext {
+) : DefaultContext {
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
