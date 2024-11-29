@@ -66,6 +66,7 @@ dependencies {
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
+    implementation("net.objecthunter:exp4j:0.4.8")
 
 
 }

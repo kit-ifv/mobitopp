@@ -133,7 +133,10 @@ data class FakeZone(
     val centroid: Location
 )
 
-class TrivialLocation : GenerateLocations {
+/**
+ * Generate a location for a given activity type at the center of a zone, if and only if the attractiveness is nonzero
+ */
+object TrivialLocation : GenerateLocations {
     override fun generateLocations(
         zone: FakeZone,
         activityType: ActivityType,
@@ -145,6 +148,9 @@ class TrivialLocation : GenerateLocations {
 
 }
 
+/**
+ * Assign a centroid location to the Zone
+ */
 fun Collection<SynZone>.toLocatableZones(): List<FakeZone> = map {FakeZone(it.id.toZoneId(), LOCATIONUNKNOWN) }
 
 fun interface FilterValidLocations {
