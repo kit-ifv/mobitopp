@@ -9,18 +9,20 @@ import java.lang.Math.sin
 import java.util.*
 
 fun interface AssignHouseholdLocations {
-    fun assign(synthesisResults: Map<SynZone, List<SurveyHousehold>>): List<LocatedHousehold>
+    fun assign(synthesisResults: Map<SynZone, List<SynthesisHouseholdBuilder>>):  List<SynthesisHouseholdBuilder>
 }
 
 
 class AssignAroundCentroid(val radius: Double) : AssignHouseholdLocations {
-    override fun assign(synthesisResults: Map<SynZone, List<SurveyHousehold>>): List<LocatedHousehold> {
+    override fun assign(synthesisResults: Map<SynZone, List<SynthesisHouseholdBuilder>>): List<SynthesisHouseholdBuilder> {
         return synthesisResults.entries.flatMap { (zone, households) ->
             households.map {
-                LocatedHousehold(
-                    it,
-                    Location(zone.centroid.coordinate.randomCoordinate(radius), null, null)
-                )
+                it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), null , null)
+                it
+//                LocatedHousehold(
+//                    it,
+//                    Location(zone.centroid.coordinate.randomCoordinate(radius), null, null)
+//                )
             }
         }
     }
@@ -57,7 +59,3 @@ fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = Random(
     return GPSCoordinate(newLatitude.radians, newLongitude.radians)
 }
 
-class LocatedHousehold(private val surveyHousehold: SurveyHousehold, val location: Location) {
-    val members get() = surveyHousehold.members
-
-}

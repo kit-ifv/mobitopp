@@ -1,5 +1,6 @@
 package modeling.discreteChoice
 
+import units.UnitIntervalValue
 import java.util.PriorityQueue
 import kotlin.math.exp
 import kotlin.math.ln
@@ -16,7 +17,11 @@ fun interface SingleElementUtilityFunction<X, P> {
 fun interface DistributionFunction<X, P> {
     fun calculateProbabilities(alternatives: Set<X>, parameters: P, utilityFunction: UtilityFunction<X, P>): Map<X, Double>
 }
-
+interface SufficientDistributionFunction<X, P> {
+    val alternatives: Set<X>
+    fun calculateProbabilities(alternatives: Set<X>, parameters: P): Map<X, Double>
+    fun calculateProbabilities(parameters: P): Map<X, Double> = calculateProbabilities(alternatives, parameters)
+}
 fun interface SelectionFunction<X> {
     fun calculateSelection(options: Map<X, Double>): X
 }
@@ -95,13 +100,11 @@ class NestBuilder<X, P> {
 
             maxUtility = childs.mapNotNull { it.utility }.maxOrNull() ?: 0.0
 
-            var x = childs.filter { it.isAvailable(options) }
+            val x = childs.filter { it.isAvailable(options) }
                 .mapNotNull { it.utility }
                 .sumOf { exp((it - maxUtility) / lambdaParameter) }
 
-            println("$this Logsum content $x max $maxUtility")
             utility = maxUtility + lambdaParameter * ln(x)
-            println("$this Children have ${childs.joinToString { it.utility.toString() }}")
             sum = x
             return parent?.also {it.calculateUtility(options, parameters)}
         }
@@ -113,7 +116,6 @@ class NestBuilder<X, P> {
         override fun calculateProbability() {
             childs.forEach {
                 val d1 = this.probability * (it.utility?.let { d -> exp((d - maxUtility) / lambdaParameter) / sum } ?: 0.0)
-                println("Setting $it probability to $d1 ${it.utility}")
                 it.probability = d1
             }
             childs.filter{it.probability > 0.0}.forEach {
@@ -160,20 +162,11 @@ class NestBuilder<X, P> {
 /**
  * TODO this class is not capable of parallel calculations.
  */
-class NestedLogit<X, P> (nestStructure: NestBuilder<X, P>): DistributionFunction<X, P> {
+class NestedLogit<X, P> (nestStructure: NestBuilder<X, P>): SufficientDistributionFunction<X, P> {
 
     val map = nestStructure.map
+    override val alternatives = map.values.map{it.x}.toSet()
     override fun calculateProbabilities(
-        alternatives: Set<X>,
-        parameters: P,
-        utilityFunction: UtilityFunction<X, P>
-    ): Map<X, Double> {
-        return calculateProbabilities(alternatives, parameters)
-    }
-    fun calculateProbabilities(parameters: P): Map<X, Double> {
-        return calculateProbabilities(map.values.map { it.x }.toSet(), parameters)
-    }
-    fun calculateProbabilities(
         alternatives: Set<X>,
         parameters: P,
     ): Map<X, Double> {
@@ -188,14 +181,17 @@ class NestedLogit<X, P> (nestStructure: NestBuilder<X, P>): DistributionFunction
             parent?.let { queue.add(it) }
         }
         lastElement.calculateProbability()
-        return map.values.associate{ it.x to it.probability }
+        return leafs.associate{ it.x to it.probability }
 
     }
 
     companion object {
         fun <X, P> root(lambda: NestBuilder<X, P>.() -> Unit): NestedLogit<X, P> {
             val builder = NestBuilder<X, P>()
-            builder.lambda()
+            builder.nest(1.0) {
+                lambda()
+            }
+
             return NestedLogit(builder)
         }
     }
@@ -206,16 +202,21 @@ fun <X> NestedLogit<X, Unit>.calculateProbabilities(alternatives: Set<X>): Map<X
 }
 
 class DiscreteChoiceModel<X, P>(
-    private val utilityFunction: UtilityFunction<X, P>,
-    private val distributionFunction: DistributionFunction<X, P>,
+    private val distributionFunction: SufficientDistributionFunction<X, P>,
     private val selectionFunction: SelectionFunction<X>,
 ) {
     fun select(alternatives: Set<X>, parameters: P): X {
-        return selectionFunction.calculateSelection(distributionFunction.calculateProbabilities(alternatives, parameters, utilityFunction))
+        return selectionFunction.calculateSelection(distributionFunction.calculateProbabilities(alternatives, parameters))
     }
+    fun select(parameters: P): X {
+        return selectionFunction.calculateSelection(distributionFunction.calculateProbabilities(parameters))
+    }
+
+    fun selectVerbose(parameters: P): X {
+        return selectionFunction.calculateSelection(distributionFunction.calculateProbabilities(parameters).also{println(it)})
+    }
+
+
 }
 
-enum class Attempt {
-    ONE, TWO, THREE;
-}
 

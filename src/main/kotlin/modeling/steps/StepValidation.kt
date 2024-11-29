@@ -122,6 +122,10 @@ class ValidateCsvMetadata<E>(
 
     // Row Attributes
     override val index = 0
+    override val size: Int  = reader.columns.size
+
+    override fun headerForIndex(i: Int): String  = reader.columns.toList()[i]
+
 
     override val name: String
         get() = reader.name

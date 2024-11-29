@@ -1,12 +1,13 @@
 package synthesis
 
 import datastructure.Activity
-import domain.data.Household
+import domain.data.Employment
 import domain.data.Sex
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import units.Currency
 import utils.Decodable
 import utils.collections.equivalenceClasses
 import utils.collections.sortByValues
@@ -17,7 +18,6 @@ import java.io.File
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.abs
-import kotlin.math.round
 import kotlin.time.Duration
 
 interface Synthesize {
@@ -29,14 +29,10 @@ interface Synthesize {
         // assign work / education location
         // assign cars
         // assign tickets
-        // generate activity schedule
+        // write output
     }
 }
 
-data class Result(
-    val location: SynZone
-
-)
 
 
 data class ActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
@@ -268,19 +264,31 @@ data class SynRegion(val id: Int) : Sth
 data class SurveyData(val id: Int) {
 }
 
+/**
+ * This is the class that holds the data extract from the survey population csv. The file merges household and
+ * person information.
+ */
 data class SurveyInfo(
-    val id: Int,
-    val size: Int,
+    val householdId: Int,
+    val householdSize: Int, //TODO remove. If I determine household size later over the household object, this info is useless
     val sex: Sex,
-    val age: Int
+    val age: Int,
+    val householdIncome: Currency,
+    val hasLicence: Boolean,
+    val employment: Employment
 )
 
 fun Sequence<SurveyInfo>.toSurveyHouseholds(): Map<Int, SurveyHousehold> {
-    return groupBy { it.id }
-        .mapValues {
+    return groupBy { it.householdId }
+        .mapValues { line ->
+            val income = line.value.first().householdIncome
+            require(line.value.all { it.householdIncome == income}) {
+                "The input file contains mismatched information for the income of the household, the code will only proceed if all incomes are equal $line"
+            }
             SurveyHousehold(
-                it.value.first().id,
-                it.value.map { person -> SurveyPerson(person.sex, person.age) })
+                line.value.first().householdId,
+                income,
+                line.value.map { person -> SurveyPerson(person.sex, person.age, person.employment, person.hasLicence) })
         }
 }
 
@@ -446,57 +454,12 @@ data class ZoneTarget(
     }
 }
 
-//fun parseTargets(file: File): Sequence<ZoneTarget> {
-//    val offset = 4
-//    val parser = DefaultCsvParser { row ->
-//        ZoneTarget(
-//            numHH1 = row.valueAt(1).toInt(),
-//            numHH2 = row.valueAt(2).toInt(),
-//            numHH3 = row.valueAt(3).toInt(),
-//            numHH4 = row.valueAt(4).toInt(),
-//            numHH5 = row.valueAt(5).toInt(),
-//
-//            ageGroup0female = row.valueAt(6 + offset).toInt(),
-//            ageGroup1female = row.valueAt(7 + offset).toInt(),
-//            ageGroup2female = row.valueAt(8 + offset).toInt(),
-//            ageGroup3female = row.valueAt(9 + offset).toInt(),
-//            ageGroup4female = row.valueAt(10 + offset).toInt(),
-//            ageGroup5female = row.valueAt(11 + offset).toInt(),
-//            ageGroup6female = row.valueAt(12 + offset).toInt(),
-//            ageGroup7female = row.valueAt(13 + offset).toInt(),
-//            ageGroup8female = row.valueAt(14 + offset).toInt(),
-//            ageGroup9female = row.valueAt(15 + offset).toInt(),
-//            ageGroup10female = row.valueAt(16 + offset).toInt(),
-//
-//            ageGroup0male = row.valueAt(17 + offset).toInt(),
-//            ageGroup1male = row.valueAt(18 + offset).toInt(),
-//            ageGroup2male = row.valueAt(19 + offset).toInt(),
-//            ageGroup3male = row.valueAt(20 + offset).toInt(),
-//            ageGroup4male = row.valueAt(21 + offset).toInt(),
-//            ageGroup5male = row.valueAt(22 + offset).toInt(),
-//            ageGroup6male = row.valueAt(23 + offset).toInt(),
-//            ageGroup7male = row.valueAt(24 + offset).toInt(),
-//            ageGroup8male = row.valueAt(25 + offset).toInt(),
-//            ageGroup9male = row.valueAt(26 + offset).toInt(),
-//            ageGroup10male = row.valueAt(27 + offset).toInt(),
-//
-//            )
-//    }
-//
-//    return parser.parse(file)
-//}
-data class SurveyHousehold(val id: Int, val members: List<SurveyPerson>) {
-    val representative = toRepresentative()
-    private fun toRepresentative(): HouseholdRepresentative {
-        val memberCount = members.map { it.representative }.groupingBy { it }.eachCount()
-            .map { (element, count) -> Pair(count, element) }.toSet()
-        return HouseholdRepresentative(memberCount)
-    }
-}
 
 data class SurveyPerson(
     val sex: Sex,
-    val age: Int
+    val age: Int,
+    val employment: Employment,
+    val driverLicence: Boolean
 ) {
     val representative = toRepresentative()
     private fun toRepresentative(): PersonRepresentative {
