@@ -28,7 +28,7 @@ fun interface VisumLinkIdLocator {
  * This class augments the [LinkInfo] class of the road network by calculating and storing the midpoint [midUTM] of
  * the origin and destination of the edge.
  */
-class LocatedLinkInfo(
+private class LocatedLinkInfo(
     v: Coordinate,
     u: Coordinate,
     val edge: LinkInfo,
@@ -95,7 +95,7 @@ fun Coordinate.toUTM(): UTMPosition {
     return GPSCoordinate.decimalDegree(latitudeDegrees, longitudeDegrees).toUTM()
 }
 
-fun Graph<Node, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
+private fun Graph<Node, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
     return LocatedLinkInfo(getEdgeSource(linkInfo).coordinate, getEdgeTarget(linkInfo).coordinate, linkInfo)
 }
 
