@@ -6,6 +6,7 @@ import domain.data.Sex
 import synthesis.ISurveyHousehold
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
+import synthesis.SynthesisHouseholdBuilder
 import utils.collections.select
 import java.util.*
 import java.util.function.DoubleSupplier
@@ -68,7 +69,7 @@ object DefaultEmploymentSorter : EmploymentSorter {
 }
 
 class CarOwnershipParameters(
-    val household: EconomicHousehold,
+    val household: SynthesisHouseholdBuilder,
     val doubleGenerator: DoubleSupplier,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
 ) {
@@ -368,7 +369,7 @@ fun Map<String, Double>.getOrWarn(key: String): Double {
 //    val input = "  -3.23972758525991 + 0.2 - 0.1 + 1.0 "
 //    val result = evaluateExpression(input)
 //    println("Result: $result")
-//    val map = parseParameterMap(textdump)
+//        val map = parseParameterMap(textdump)
 //    val attempt = CarParameters.parse("2", map)
 //    val attempt2 = CarParameters.parse("3", map)
 //    val attempt3 = CarParameters.parse("4", map)
@@ -408,9 +409,12 @@ fun main() {
 
     val choiceModel = carChoiceModel
 
-    val person = EmployedPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, true)
-    val otherPerson = EmployedPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, false)
-    val parameters = CarOwnershipParameters(EconomicHousehold(1, EconomicStatus.MIDDLE, listOf(person)), { 0.0 })
+    val person = SurveyPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, true)
+    val otherPerson = SurveyPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, false)
+    val parameters = CarOwnershipParameters(SynthesisHouseholdBuilder(1).apply {
+        economicStatus = EconomicStatus.MIDDLE
+        members = mutableListOf(person)
+    }, { 0.0 })
     println(choiceModel.selectVerbose(parameters))
 
     val fue = UtilityFunction<Int, CarOwnershipParameters> { _, p ->
@@ -420,12 +424,10 @@ fun main() {
     println(fue.calculateUtility(0, parameters))
     val result = nest.calculateProbabilities(parameters)
     val result2 = nest.calculateProbabilities(
-        CarOwnershipParameters(
-            EconomicHousehold(
-                1,
-                EconomicStatus.MIDDLE,
-                listOf(otherPerson)
-            ), { 0.0 })
+        CarOwnershipParameters(SynthesisHouseholdBuilder(1).apply {
+            economicStatus = EconomicStatus.MIDDLE
+            members = mutableListOf(otherPerson)
+        }, { 0.0 })
     )
     println(result)
     println(result2)

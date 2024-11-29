@@ -160,7 +160,7 @@ fun interface HouseholdSynthesis {
         surveyHouseholds: Collection<SurveyHousehold>,
         targets: Collection<SynZone>,
         conditions: Map<SynZone, List<Rule>>
-    ): Map<SynZone, List<SurveyHousehold>>
+    ): Map<SynZone, List<SynthesisHouseholdBuilder>>
 }
 typealias HouseholdEquivalence = Map<SurveyHousehold, Set<SurveyHousehold>>
 
@@ -185,7 +185,7 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
         surveyHouseholds: Collection<SurveyHousehold>,
         targets: Collection<SynZone>,
         conditions: Map<SynZone, List<Rule>>
-    ): Map<SynZone, List<SurveyHousehold>> {
+    ): Map<SynZone, List<SynthesisHouseholdBuilder>> {
         val uniques = surveyHouseholds.toSet()
         //TODO equivalnece classes should be determined based on the rules
         val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
@@ -200,7 +200,7 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
             }
             val check = rulesForZone.associateWith { it.filter(output) }
             val otherCheck = rulesForZone.associateWith { it.verify(output) }
-            output
+            output.map { it.toBuilder() }
         }
         return results
     }
@@ -278,13 +278,17 @@ data class SurveyInfo(
     val employment: Employment
 )
 
-fun Sequence<SurveyInfo>.toSurveyHouseholds(): Map<Int, SurveyHousehold> {
+/**
+ * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
+ */
+fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = {it.first()}): Map<Int, SurveyHousehold> {
     return groupBy { it.householdId }
         .mapValues { line ->
-            val income = line.value.first().householdIncome
-            require(line.value.all { it.householdIncome == income}) {
-                "The input file contains mismatched information for the income of the household, the code will only proceed if all incomes are equal $line"
-            }
+            val income = converter(line.value.map{it.householdIncome})
+//            val income = line.value.first().householdIncome
+//            require(line.value.all { it.householdIncome == income}) {
+//                "The input file contains mismatched information for the income of the household, the code will only proceed if all incomes are equal $line"
+//            }
             SurveyHousehold(
                 line.value.first().householdId,
                 income,
@@ -461,6 +465,7 @@ data class SurveyPerson(
     val employment: Employment,
     val driverLicence: Boolean
 ) {
+    var hasTransitPass: Boolean = false
     val representative = toRepresentative()
     private fun toRepresentative(): PersonRepresentative {
         return PersonRepresentative.fromData(sex, age)
