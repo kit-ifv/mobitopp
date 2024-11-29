@@ -19,10 +19,6 @@ class AssignAroundCentroid(val radius: Double) : AssignHouseholdLocations {
             households.map {
                 it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), null , null)
                 it
-//                LocatedHousehold(
-//                    it,
-//                    Location(zone.centroid.coordinate.randomCoordinate(radius), null, null)
-//                )
             }
         }
     }

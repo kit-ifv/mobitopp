@@ -11,7 +11,7 @@ interface GenerateActivitySchedule {
     fun generate(person: SurveyPerson): ActivitySchedule
 }
 
-fun List<LocatedHousehold>.generateSchedules( generator: GenerateActivitySchedule): Map<LocatedHousehold, List<ActivitySchedule>> {
+fun List<SynthesisHouseholdBuilder>.generateSchedules( generator: GenerateActivitySchedule): Map<SynthesisHouseholdBuilder, List<ActivitySchedule>> {
     return associateWith {household ->
         household.members.map { person ->
             val schedule = generator.generate(person)

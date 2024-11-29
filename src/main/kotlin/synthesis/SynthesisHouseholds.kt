@@ -7,18 +7,28 @@ import units.Currency
 import units.euros
 
 
-class SynthesisHouseholdBuilder {
-    var id: Int = 0
-    var income: Currency = 0.euros
-    var members: List<SurveyPerson> = emptyList()
+class SynthesisHouseholdBuilder(
+    var id: Int = 0,
+    var income: Currency = 0.euros,
+
+
+) {
+    fun toCarOwnershipParameters(): CarOwnershipParameters {
+        return CarOwnershipParameters(
+            this,
+            {0.0}
+        )
+    }
+
+    var members: MutableList<SurveyPerson> = mutableListOf()
     lateinit var location: Location
     lateinit var economicStatus: EconomicStatus
+    var amountOfCars = 0
 
 }
 
 val SynthesisHouseholdBuilder.numberOfAdults get() = members.count { it.age >= 18 }
 val SynthesisHouseholdBuilder.numberOfMinors get() = members.count { it.age < 18 }
-
 
 
 data class SurveyHousehold(
@@ -33,6 +43,16 @@ data class SurveyHousehold(
         val memberCount = members.map { it.representative }.groupingBy { it }.eachCount()
             .map { (element, count) -> Pair(count, element) }.toSet()
         return HouseholdRepresentative(memberCount)
+    }
+
+    fun toBuilder(): SynthesisHouseholdBuilder {
+        return SynthesisHouseholdBuilder(
+            id = id,
+            income = income,
+        ).apply {
+            members = this@SurveyHousehold.members.toMutableList()
+
+        }
     }
 }
 

@@ -11,8 +11,10 @@ import synthesis.TrivialActivityScheduleGeneration
 import synthesis.TrivialLocation
 import synthesis.ZoneTarget
 import synthesis.generateSchedules
+import synthesis.select
 import synthesis.toLocatableZones
 import synthesis.toSurveyHouseholds
+import synthesis.transitPassDiscreteChoiceModel
 import units.CurrencyUnit
 import units.toCurrency
 import usecases.AttractivenessFromCsv
@@ -26,6 +28,7 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
     "0" -> false
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
+
 fun parseSurvey(file: File): Sequence<SurveyInfo> {
     val parser = DefaultCsvParser { row ->
         SurveyInfo(
@@ -33,14 +36,15 @@ fun parseSurvey(file: File): Sequence<SurveyInfo> {
             householdSize = row("size").toInt(),
             sex = row("sex") { Sex.decode(it.toInt()) },
             age = row("year").toInt() - row("birthyear").toInt(),
-            householdIncome = row("hhincome") {it.toDouble().toCurrency(CurrencyUnit.EUROS)},
+            householdIncome = row("hhincome") { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
             hasLicence = row("licence").toBooleanNumeric(),
-            employment = row("employmenttype") {Employment.decode(it.toInt())}
+            employment = row("employmenttype") { Employment.decode(it.toInt()) }
         )
     }
 
     return parser.parse(file)
 }
+
 fun main() {
 
     val work = LegacyActivityType.WORK
@@ -79,12 +83,36 @@ fun main() {
     val locatableZones = zones.toLocatableZones()
     val works =
         locatableZones.flatMap { TrivialLocation.generateLocations(it, work, attractiveness) }
-    val activityTypeToLoc = attractivenessTypes.associateWith { actType -> locatableZones.flatMap{TrivialLocation.generateLocations(it, actType, attractiveness)} }
+    val activityTypeToLoc = attractivenessTypes.associateWith { actType ->
+        locatableZones.flatMap {
+            TrivialLocation.generateLocations(
+                it,
+                actType,
+                attractiveness
+            )
+        }
+    }
     println(locatedHouseholds.sumOf { it.members.size })
 
     val schedules = locatedHouseholds.generateSchedules(TrivialActivityScheduleGeneration())
     val assigner = OECDAssigner.fromFile()
     val economics = locatedHouseholds.map { assigner.assign(it) }
-    locatedHouseholds
-    locatedHouseholocatedHouseholds.forEach { carChoiceModel.select(it.toCarOwnershipParameters()) }
+    locatedHouseholds.forEach {
+
+        it.amountOfCars = carChoiceModel.select(it.toCarOwnershipParameters())
+    }
+    locatedHouseholds.forEach {
+        it.members.forEach { person ->
+            person.hasTransitPass = transitPassDiscreteChoiceModel.select(it, person)
+        }
+    }
+    val people= locatedHouseholds.flatMap { it.members }
+    people.filter{it.isPrimaryStudent()}.assignPrimarySchool()
+
+
+
+    //TODO generate cars based on some form of generation description.
+    // TODO assign primary schools by picking the closest one.
+    // TODO assign work/education based  on the legacy implementation of mobitopp bands
+    println(locatedHouseholds)
 }
