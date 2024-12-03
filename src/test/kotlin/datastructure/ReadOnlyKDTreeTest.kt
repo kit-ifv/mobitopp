@@ -58,7 +58,8 @@ class ReadOnlyKDTreeTest {
         assertEquals(tree.dimension, 3)
         val testPoints = TestElement.generateTestPoints()
         testPoints.forEach {
-            assertTrue(tree.find(it) in points.groupBy { point -> point.distanceTo(it) }.minBy { m -> m.key }.value)
+            assertTrue(tree.nearestNeighbor(it) in points.groupBy { point -> point.distanceTo(it) }
+                .minBy { m -> m.key }.value)
         }
     }
 
@@ -67,7 +68,16 @@ class ReadOnlyKDTreeTest {
         val points = TestElement.generateGrid()
         val tree = ReadOnlyKDTree(points, { it.x.toDouble() })
         assertThrows<IllegalArgumentException> {
-            tree.find(doubleArrayOf(2.0, 2.0))
+            tree.nearestNeighbor(doubleArrayOf(2.0, 2.0))
         }
+    }
+
+    @Test
+    fun findClosestList() {
+        val points = TestElement.generateGrid()
+        val tree = ReadOnlyKDTree(points, { it.x.toDouble() }, { it.y.toDouble() }, { it.z.toDouble() })
+        val output = tree.findUntil((doubleArrayOf(2.0, 2.0, 1.5))).dropWhile { (_, value) -> value < 0.9 }
+            .takeWhile { (_, value) -> value <= 1.5 }.toList()
+        println(output)
     }
 }

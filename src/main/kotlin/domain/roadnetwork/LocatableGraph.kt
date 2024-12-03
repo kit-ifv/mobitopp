@@ -82,7 +82,7 @@ class LocatableGraph(private val graph: Graph<Node, LinkInfo>) : Graph<Node, Lin
             location.coordinate.latitudeDegrees,
             location.coordinate.longitudeDegrees
         ).toUTM()
-        val edge = edgeKdTree.find(utm) { doubleArrayOf(it.e, it.n) }
+        val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
         return edge?.edge?.id?.toLong() ?: Long.MIN_VALUE
     }
 

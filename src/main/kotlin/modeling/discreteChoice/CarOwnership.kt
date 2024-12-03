@@ -409,8 +409,8 @@ fun main() {
 
     val choiceModel = carChoiceModel
 
-    val person = SurveyPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, true)
-    val otherPerson = SurveyPerson(Sex.MALE, age = 19, employment = Employment.FULLTIME, false)
+    val person = SurveyPerson.create(Sex.MALE, age = 19, employment = Employment.FULLTIME, true)
+    val otherPerson = SurveyPerson.create(Sex.MALE, age = 19, employment = Employment.FULLTIME, false)
     val parameters = CarOwnershipParameters(SynthesisHouseholdBuilder(1).apply {
         economicStatus = EconomicStatus.MIDDLE
         members = mutableListOf(person)

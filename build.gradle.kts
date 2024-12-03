@@ -22,7 +22,6 @@ repositories {
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
-
     mavenCentral()
     mavenLocal()
 
@@ -42,7 +41,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
-    implementation("edu.kit.ifv:visumNetfileParser:0.9.12")
+    implementation("edu.kit.ifv:visumNetfileParser:0.9.13")
 //    implementation(project(":annotations"))
     implementation("edu.kit.ifv:annotations:1.0.0")
     testImplementation("edu.kit.ifv:annotations:1.0.0")
@@ -67,6 +66,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
     implementation("net.objecthunter:exp4j:0.4.8")
+
 
 
 }

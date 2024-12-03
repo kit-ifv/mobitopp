@@ -1,31 +1,34 @@
 package synthesis
 
+import domain.data.Zone
 import domain.location.Location
+import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
 import units.GPSCoordinate
 import units.radians
 import java.lang.Math.cos
 import java.lang.Math.sin
 import java.util.*
+import kotlin.random.Random
 
 fun interface AssignHouseholdLocations {
-    fun assign(synthesisResults: Map<SynZone, List<SynthesisHouseholdBuilder>>):  List<SynthesisHouseholdBuilder>
+    fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder>>):  List<SynthesisHouseholdBuilder>
 }
 
 
 class AssignAroundCentroid(val radius: Double) : AssignHouseholdLocations {
-    override fun assign(synthesisResults: Map<SynZone, List<SynthesisHouseholdBuilder>>): List<SynthesisHouseholdBuilder> {
+    override fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder>>): List<SynthesisHouseholdBuilder> {
         return synthesisResults.entries.flatMap { (zone, households) ->
             households.map {
-                it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), null , null)
-                it
+                it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), zone , null)
+                it.also{h -> h.members.forEach {member ->member.homeLocation = h.location }}
             }
         }
     }
 
 }
 
-fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = Random(1)): Coordinate {
+fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalRandomizer): Coordinate {
     val lat1 = latitudeRadians.toDouble()
     val lon1 = longitudeRadians.toDouble()
 
@@ -52,6 +55,6 @@ fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = Random(
     val newLatitude = Math.toDegrees(newLat)
     val newLongitude = Math.toDegrees(newLon)
     val temp = newLatitude.radians
-    return GPSCoordinate(newLatitude.radians, newLongitude.radians)
+    return GPSCoordinate.decimalDegree(newLatitude, newLongitude)
 }
 

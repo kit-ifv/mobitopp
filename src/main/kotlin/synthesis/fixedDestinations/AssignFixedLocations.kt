@@ -1,20 +1,18 @@
-package synthesis
+package synthesis.fixedDestinations
 
-import domain.data.Sex
-import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.location.DistanceMetric
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import synthesis.BiMap.Companion.toBiMap
-import units.Coordinate
-import usecases.AttractivenessFromCsv
+import synthesis.ActivitySchedule
+import synthesis.SurveyHousehold
+import synthesis.SurveyPerson
+import synthesis.SynZone
+import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import usecases.AttractivenessModel
 import utils.csv.DefaultCsvParser
 import java.io.File
-import kotlin.io.path.Path
 
 data class PersonWithSchedule(
     private val person: SurveyPerson,
@@ -36,7 +34,7 @@ class TrivialLocations : AssignFixedLocations {
         distanceMetric: DistanceMetric,
         potentialLocations: Collection<Location>
     ) {
-        TODO("Not yet implemented")
+        potentialLocations.map {distanceMetric.evaluate(person.homeLocation, it)}
     }
 
 }
@@ -62,6 +60,7 @@ value class ZoneNumber(private val int: Int) {
     fun toZoneId(): ZoneId {
         return ZoneId(int.toLong())
     }
+
     companion object {
         fun parse(string: String): ZoneNumber {
             return ZoneNumber(string.toInt())
@@ -78,11 +77,11 @@ value class CommunityNumber(private val int: Int) {
     }
 }
 
-fun readZoneToCommunity(file: File): BiMap<CommunityNumber, ZoneNumber> {
+fun readZoneToCommunity(file: File): BiMap<ZoneId, CommunityNumber> {
     val parser = DefaultCsvParser { row ->
         Pair(
+            row("partId") { ZoneNumber.parse(it).toZoneId() },
             row("regionId") { CommunityNumber.parse(it) },
-            row("partId") { ZoneNumber.parse(it) },
 
             )
     }
@@ -93,7 +92,7 @@ fun readZoneToCommunity(file: File): BiMap<CommunityNumber, ZoneNumber> {
 
 class BiMap<K, V>(
     val forwardMap: MutableMap<K, V> = mutableMapOf(),
-    val backwardMap: MutableMap<V, K> = mutableMapOf()
+    val backwardMap: MutableMap<V, List<K>> = mutableMapOf()
 ) {
 
     operator fun contains(element: K): Boolean {
@@ -106,8 +105,9 @@ class BiMap<K, V>(
 
     companion object {
         fun <K, V> Map<K, V>.toBiMap(): BiMap<K, V> {
-            val backwardMap = this.entries.associate { (k, v) -> v to k }.toMutableMap()
-            return BiMap(this.toMutableMap(), backwardMap)
+            val backwardMap =
+                this.entries.groupBy { it.value }.map { entry -> entry.key to entry.value.map { it.key } }.toMap()
+            return BiMap(this.toMutableMap(), backwardMap.toMutableMap())
         }
     }
 }
@@ -122,7 +122,7 @@ private val attractivenessTypes = setOf(
 
 fun interface GenerateLocations {
     fun generateLocations(
-        zone: FakeZone,
+        zone: SynZone,
         activityType: ActivityType,
         attractivenessModel: AttractivenessModel
     ): Collection<Location>
@@ -138,7 +138,7 @@ data class FakeZone(
  */
 object TrivialLocation : GenerateLocations {
     override fun generateLocations(
-        zone: FakeZone,
+        zone: SynZone,
         activityType: ActivityType,
         attractivenessModel: AttractivenessModel
     ): Collection<Location> {
@@ -147,47 +147,3 @@ object TrivialLocation : GenerateLocations {
     }
 
 }
-
-/**
- * Assign a centroid location to the Zone
- */
-fun Collection<SynZone>.toLocatableZones(): List<FakeZone> = map {FakeZone(it.id.toZoneId(), LOCATIONUNKNOWN) }
-
-fun interface FilterValidLocations {
-    fun findValidTargets(person: PersonWithSchedule)
-}
-
-fun main() {
-    val results = readCommuters(Path("src/test/resources/synthesis/commuters-rastatt.csv").toFile()).toList()
-    val translator = readZoneToCommunity(Path("src/test/resources/synthesis/zone-to-community.csv").toFile())
-    val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv").toFile()).toList()
-    val attractiveness: AttractivenessModel =
-        AttractivenessFromCsv(
-            file = Path("src/test/resources/synthesis/attractivities.csv").toFile(), activityTypes =
-            attractivenessTypes
-        )
-
-
-    val targetKeys = targets.map { it.zoneId }
-    val goodRegions = translator.backwardMap.filter { it.key in targetKeys }.values
-    println(targets.sumOf { it.numberOfPeople() })
-    val generationTargets = targets.map { it.zoneId }
-    println(translator)
-    println(results)
-    println(results.map { it.origin }.associateWith { it in translator }.filter { !it.value })
-    println(results.sumOf { it.amount })
-
-
-}
-
-class StepAssign() {
-
-    fun ActivityType.assign(
-        personWithSchedule: PersonWithSchedule,
-        distanceMetric: DistanceMetric,
-        potentialLocations: Collection<Location>
-    ) {
-        potentialLocations.map { distanceMetric.evaluate(it, personWithSchedule.homeLocation) }
-    }
-}
-

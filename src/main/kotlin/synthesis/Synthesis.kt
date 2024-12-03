@@ -3,10 +3,13 @@ package synthesis
 import datastructure.Activity
 import domain.data.Employment
 import domain.data.Sex
+import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import synthesis.fixedDestinations.ZoneNumber
+import units.Coordinate
 import units.Currency
 import utils.Decodable
 import utils.collections.equivalenceClasses
@@ -34,10 +37,12 @@ interface Synthesize {
 }
 
 
-
 data class ActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
     companion object {
-        operator fun invoke(decoder: Decodable<ActivityType> = LegacyActivityType.Companion, lambda: ScheduleBuilder.() -> Unit): ActivitySchedule {
+        operator fun invoke(
+            decoder: Decodable<ActivityType> = LegacyActivityType.Companion,
+            lambda: ScheduleBuilder.() -> Unit
+        ): ActivitySchedule {
             val builder = ScheduleBuilder(decoder)
             builder.lambda()
             return builder.build()
@@ -50,7 +55,6 @@ data class ActivitySchedule(private val activities: MutableList<Activity>) : Mut
 
     class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
         val activities: MutableList<Activity> = mutableListOf()
-
 
 
         fun home(start: Duration, end: Duration) {
@@ -255,8 +259,9 @@ fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold): ScalableVector {
 
 data class ScalableVector(val vector: IntArray, var scalar: Double = 1.0)
 interface Sth
-data class SynZone(val id: ZoneNumber, val centroid: Location = LOCATIONUNKNOWN) : Sth {
-    constructor(id: Int): this(ZoneNumber(id))
+data class SynZone(val id: ZoneId, val centroid: Location = LOCATIONUNKNOWN) : Sth {
+    constructor(id: Int) : this(ZoneId(id.toLong()))
+    constructor(id: Int, coordinate: Coordinate) : this(ZoneId(id.toLong()), Location(coordinate, null, null))
 }
 
 data class SynRegion(val id: Int) : Sth
@@ -281,10 +286,10 @@ data class SurveyInfo(
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
  */
-fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = {it.first()}): Map<Int, SurveyHousehold> {
+fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): Map<Int, SurveyHousehold> {
     return groupBy { it.householdId }
         .mapValues { line ->
-            val income = converter(line.value.map{it.householdIncome})
+            val income = converter(line.value.map { it.householdIncome })
 //            val income = line.value.first().householdIncome
 //            require(line.value.all { it.householdIncome == income}) {
 //                "The input file contains mismatched information for the income of the household, the code will only proceed if all incomes are equal $line"
@@ -292,7 +297,7 @@ fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Curre
             SurveyHousehold(
                 line.value.first().householdId,
                 income,
-                line.value.map { person -> SurveyPerson(person.sex, person.age, person.employment, person.hasLicence) })
+                line.value.map { person -> SurveyPerson.create(person.sex, person.age, person.employment, person.hasLicence) })
         }
 }
 
@@ -307,7 +312,7 @@ fun SurveyHousehold.amount(sex: Sex, ageCode: Int): Int {
 }
 
 data class ZoneTarget(
-    val zoneId: ZoneNumber,
+    val zoneId: ZoneId,
     val numHH1: Int,
     val numHH2: Int,
     val numHH3: Int,
@@ -419,7 +424,7 @@ data class ZoneTarget(
             val offset = 4
             val parser = DefaultCsvParser { row ->
                 ZoneTarget(
-                    zoneId = row.valueAt(0) {ZoneNumber.parse(it)},
+                    zoneId = row.valueAt(0) { ZoneNumber.parse(it).toZoneId() },
 
                     numHH1 = row.valueAt(1).toInt(),
                     numHH2 = row.valueAt(2).toInt(),
@@ -459,7 +464,8 @@ data class ZoneTarget(
 }
 
 
-data class SurveyPerson(
+data class SurveyPerson private constructor(
+    val id: Int,
     val sex: Sex,
     val age: Int,
     val employment: Employment,
@@ -470,6 +476,8 @@ data class SurveyPerson(
     private fun toRepresentative(): PersonRepresentative {
         return PersonRepresentative.fromData(sex, age)
     }
+
+    lateinit var homeLocation: Location
 
     val groupCode: Int
         get() {
@@ -489,4 +497,16 @@ data class SurveyPerson(
             }
             return groupCode
         }
+
+    companion object {
+        private var idCounter: Int = 0
+        fun create(
+            sex: Sex,
+            age: Int,
+            employment: Employment,
+            driverLicence: Boolean
+        ): SurveyPerson {
+            return SurveyPerson(idCounter++, sex, age, employment, driverLicence)
+        }
+    }
 }
