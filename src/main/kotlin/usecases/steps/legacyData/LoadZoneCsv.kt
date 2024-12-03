@@ -17,6 +17,7 @@ import usecases.steps.LegacyZonesContext
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
+import utils.csv.DefaultCsvParser
 import utils.csv.SEMICOLON
 import utils.csv.boolean
 import utils.csv.decode
@@ -47,6 +48,40 @@ fun <S, C> S.prepareZones(
 ) where S : ModelExecution<C>, C : Context, C : LegacyZonesContext {
     val areaTypeCodePlan = areaTypeCodes ?: this.context.areaTypeCodes
 
+    val csvParser = defaultZoneCsvParser(
+        errorHandling,
+        idColumn,
+        nameColumn,
+        areaTypeColumn,
+        areaTypeCodePlan,
+        regionTypeColumn,
+        classificationColumn,
+        parkingPlacesColumn,
+        centroidColumn,
+        centroidParser,
+        isDestinationColumn,
+        reliefColumn,
+        reliefUnit
+    )
+
+    this.prepareZoneFile(csvParser, file, delimiter)
+}
+
+internal fun defaultZoneCsvParser(
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    idColumn: String = "id",
+    nameColumn: String = "name",
+    areaTypeColumn: String = "areaType",
+    areaTypeCodePlan: CodePlan<AreaType>,
+    regionTypeColumn: String = "regionType",
+    classificationColumn: String = "classification",
+    parkingPlacesColumn: String = "parkingPlaces",
+    centroidColumn: String = "centroidLocation",
+    centroidParser: (String) -> Location = String::parseRoadPosition,
+    isDestinationColumn: String = "isDestination",
+    reliefColumn: String = "relief",
+    reliefUnit: DistanceUnit = DistanceUnit.METERS,
+): DefaultCsvParser<LegacyZoneBuilder> {
     val csvParser = CsvParser(errorHandling) { row ->
         LegacyZoneBuilder().apply {
             id = row.id(idColumn)
@@ -63,8 +98,7 @@ fun <S, C> S.prepareZones(
             id = ZoneId(row.long(idColumn))
         }
     }
-
-    this.prepareZoneFile(csvParser, file, delimiter)
+    return csvParser
 }
 
 fun <S, C> S.prepareZoneFile(

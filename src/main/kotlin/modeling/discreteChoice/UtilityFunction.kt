@@ -24,10 +24,17 @@ fun interface DistributionFunction<X, P> {
     ): Map<X, Double>
 }
 
-interface SufficientDistributionFunction<X, P> {
+interface SufficientDistributionFunction<X, P>: DistributionFunction<X, P> {
     val alternatives: Set<X>
     fun calculateProbabilities(alternatives: Set<X>, parameters: P): Map<X, Double>
     fun calculateProbabilities(parameters: P): Map<X, Double> = calculateProbabilities(alternatives, parameters)
+    override fun calculateProbabilities(
+        alternatives: Set<X>,
+        parameters: P,
+        utilityFunction: UtilityFunction<X, P>
+    ): Map<X, Double> {
+        return calculateProbabilities(alternatives, parameters)
+    }
 }
 
 fun interface SelectionFunction<X> {
@@ -251,11 +258,32 @@ fun <X> NestedLogit<X, Unit>.calculateProbabilities(alternatives: Set<X>): Map<X
     return calculateProbabilities(alternatives, Unit)
 }
 
-object GlobalRandomizer {
-    val random = Random(1)
-    fun nextDouble() = random.nextDouble()
-}
+val GlobalRandomizer = Random(1)
+class OtherDiscreteChoiceModel<X, P>(
+    private val distributionFunction: DistributionFunction<X, P>,
+    private val selectionFunction: SelectionFunction<X> = SelectionFunction { it.select(GlobalRandomizer.nextDouble()) },
+    private val utilityFunction: UtilityFunction<X, P>,
+) {
 
+    fun select(alternatives: Set<X>, parameters: P): X {
+        return selectionFunction.calculateSelection(
+            distributionFunction.calculateProbabilities(
+                alternatives,
+                parameters,
+                utilityFunction
+            )
+        )
+    }
+    fun select(alternatives: Set<X>, parameters: P, utilityFunction: UtilityFunction<X, P>): X {
+        return selectionFunction.calculateSelection(
+            distributionFunction.calculateProbabilities(
+                alternatives,
+                parameters,
+                utilityFunction
+            )
+        )
+    }
+}
 class DiscreteChoiceModel<X, P>(
     private val distributionFunction: SufficientDistributionFunction<X, P>,
     private val selectionFunction: SelectionFunction<X> = SelectionFunction { it.select(GlobalRandomizer.nextDouble()) },
