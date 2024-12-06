@@ -16,15 +16,9 @@ import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.decode
-import utils.csv.id
-import utils.csv.int
 import utils.csv.withFilter
-import utils.units.AbsoluteTime
 import java.io.File
-import kotlin.random.Random
 import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 interface LoadPlannedActivitiesContext : Context {
     val plannedActivityRepository: MutableRepository<PlannedActivity, ActivityId>
@@ -43,7 +37,7 @@ data class ActivitiesColumns(
     val durationColumn: String = "duration",
 )
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "UnusedParameter")
 fun <S, C> S.prepareActivities(
     file: File = context.defaultActivityFile,
     delimiter: String = SEMICOLON,
@@ -53,21 +47,22 @@ fun <S, C> S.prepareActivities(
     durationUnit: DurationUnit? = null,
     filter: ActivitiesColumns.(Row, C) -> Boolean = { _, _ -> true }
 ) where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
-    val timeUnit = durationUnit ?: context.timeUnit
-    val personRepo = { context.personRepository }
-    val activityTpeCodePlan = activityTypeCodes ?: context.activityTypeCodes
+//    val timeUnit = durationUnit ?: context.timeUnit
+//    val personRepo = { context.personRepository }
+//    val activityTpeCodePlan = activityTypeCodes ?: context.activityTypeCodes
 
-    val parser = CsvParser(errorHandling) { row ->
-        PlannedActivity().apply { // TODO
-            id = ActivityId(row.index.toLong())
-            person = getPerson(personRepo, row, activitiesColumns)
-            observedTripDuration = row.int(activitiesColumns.tripDurationColumn).toDuration(timeUnit)
-            startTime = AbsoluteTime.START + row.int(activitiesColumns.startColumn).toDuration(timeUnit)
-            duration = row.int(activitiesColumns.durationColumn).toDuration(timeUnit)
-            activityType = row.decode(activitiesColumns.activityTypeColumn, activityTpeCodePlan)
-            // TODO someone should check that this is useful
-            random = Random(row.index.toLong())
-        }
+    val parser = CsvParser<PlannedActivity>(errorHandling) { row ->
+        null
+//        PlannedActivity().apply { // TODO
+//            id = ActivityId(row.index.toLong())
+//            person = getPerson(personRepo, row, activitiesColumns)
+//            observedTripDuration = row.int(activitiesColumns.tripDurationColumn).toDuration(timeUnit)
+//            startTime = AbsoluteTime.START + row.int(activitiesColumns.startColumn).toDuration(timeUnit)
+//            duration = row.int(activitiesColumns.durationColumn).toDuration(timeUnit)
+//            activityType = row.decode(activitiesColumns.activityTypeColumn, activityTpeCodePlan)
+//            // TODO someone should check that this is useful
+//            random = Random(row.index.toLong())
+//        }
     }
 
     this.prepareActivitiesFile(parser.withFilter { activitiesColumns.filter(it, context) }, file, delimiter)
@@ -101,17 +96,4 @@ fun <S, C> S.loadActivities()
     this.finishActivities()
 }
 
-private fun getPerson(
-    personRepo: () -> Repository<Person, PersonId>,
-    row: Row,
-    activitiesColumns: ActivitiesColumns
-): Person = row.id<Person>(activitiesColumns.personColumn).let {
-    val repo = personRepo()
-
-    return checkNotNull(
-        repo.getById(it)
-    ) {
-        "Person[$it] does not exist in the repository: ${repo.name}. (Maybe filters were applied?)\n" +
-            "    Repo ${repo.name}: ${repo.source}"
-    }
-}
+// private fu, "UnusedParameter"

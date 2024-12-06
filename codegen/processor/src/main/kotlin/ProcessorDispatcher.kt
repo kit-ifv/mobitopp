@@ -1,0 +1,137 @@
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
+import processor.builder.BuilderProcessor
+import processor.mutable.MutableProcessor
+import utils.groupByIgnoringNullKey
+import kotlin.reflect.KClass
+
+class ProcessorDispatcher(
+    codeGenerator: CodeGenerator,
+    private val logger: KSPLogger,
+    options: Map<String, String>
+) : SymbolProcessor {
+
+    private val processors = listOf<Processor<*, *>>(
+        BuilderProcessor(codeGenerator, logger, options),
+        MutableProcessor(logger, codeGenerator)
+    )
+
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        val result = mutableListOf<KSAnnotated>()
+
+        processors.forEach { processor ->
+            val symbols = resolver.getSymbolsWithAnnotation(processor.annotationName, inDepth = true).toList()
+            if (symbols.isEmpty()) {
+                return emptyList()
+            }
+
+            logger.warn("Found ${symbols.size} symbols annotated by @${processor.annotationName}: $symbols")
+            processor.processAnnotatedSymbolList(symbols, resolver)
+        }
+
+        return result
+    }
+
+}
+
+interface Processor<A, D> where A: Annotation {
+
+    val logger: KSPLogger
+
+    val annotationType: KClass<A>
+    val annotationName: String
+        get() = annotationType.simpleName!!
+
+    fun castAnnotations(symbol: KSAnnotated): List<D> = symbol.annotations.mapNotNull { castAnnotations(it) }.toList()
+    fun castAnnotations(annotation: KSAnnotation): D? =
+        throw UnsupportedOperationException("Cast annotation is not provided!")
+
+    fun processAnnotatedSymbolList(symbols: List<KSAnnotated>, resolver: Resolver): List<KSAnnotated>
+
+}
+
+interface SuccessiveProcessor<A,D>: Processor<A,D> where  A: Annotation {
+
+    override fun processAnnotatedSymbolList(symbols: List<KSAnnotated>, resolver: Resolver): List<KSAnnotated> {
+        val result = mutableListOf<KSAnnotated>()
+
+        symbols.forEach { symbol ->
+
+            val annotations = mutableListOf<D>()
+            try {
+
+                annotations += castAnnotations(symbol)
+                result += processAnnotatedSymbol(symbol, annotations, resolver)
+                logger.warn(
+                    "Processed $symbol, ${symbol.annotations.toList()}"
+                )
+
+            } catch (exception: Exception) {
+                logger.warn(
+                    "Error while processing $symbol with annotations: $annotations: \n${exception.message}"
+                )
+            }
+
+        }
+
+        return result
+    }
+
+    fun processAnnotatedSymbol(symbol: KSAnnotated, annotations: List<D>, resolver: Resolver) : List<KSAnnotated>
+
+}
+
+interface GroupingProcessor<A,D,G>: Processor<A,D> where  A: Annotation {
+
+    fun groupKey(symbol: KSAnnotated, annotations: List<D>): G?
+
+    override fun processAnnotatedSymbolList(symbols: List<KSAnnotated>, resolver: Resolver): List<KSAnnotated> {
+        val result = mutableListOf<KSAnnotated>()
+
+        val annotationsBySymbol = symbols.associateWith { castAnnotations(it) }
+
+        symbols.groupByIgnoringNullKey {
+            groupKey(it, annotationsBySymbol[it]!!)
+        }.forEach { (key, groupedSymbols) ->
+
+            val annotationsOfGroup = groupedSymbols.associateWith { annotationsBySymbol[it]!! }
+            try {
+                result += processAnnotatedSymbolGroup(key, groupedSymbols, annotationsOfGroup, resolver)
+                logger.warn(
+                    "Processed group ${key.toString()}:\n  $groupedSymbols\nwith annotations: \n  $annotationsOfGroup"
+                )
+
+            } catch (exception: Exception) {
+                logger.warn(
+                    "Error while processing group $key:\n" +
+                            "  $groupedSymbols\n" +
+                            "with annotations:\n" +
+                            "  $annotationsOfGroup\n" +
+                            "Message: ${exception.message}"
+                )
+            }
+
+        }
+
+        return result
+    }
+
+    fun processAnnotatedSymbolGroup(
+        groupKey: G,
+        symbolGroup: List<KSAnnotated>,
+        annotations: Map<KSAnnotated, List<D>>,
+        resolver: Resolver
+    ) : List<KSAnnotated>
+
+}
+
+interface AnnotationProcessor<A: Annotation>: Processor<A, A>
+
+interface SuccessiveAnnotationProcessor<A: Annotation>: SuccessiveProcessor<A, A>
+
+interface GroupingAnnotationProcessor<A: Annotation, G>: GroupingProcessor<A, A, G>
+

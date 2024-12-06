@@ -1,17 +1,14 @@
 package usecases.steps
 
-import domain.data.ChargingInfluence
 import domain.data.Employment
 import domain.data.Graduation
 import domain.data.Household
 import domain.data.HouseholdId
 import domain.data.Person
-import domain.data.PersonBuilder
 import domain.data.PersonId
 import domain.data.Sex
 import domain.data.SharingStation
 import domain.data.SharingStationId
-import domain.resources.Subscribable
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.ModelExecution
@@ -24,17 +21,9 @@ import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.boolean
-import utils.csv.currency
-import utils.csv.decode
-import utils.csv.decodeName
 import utils.csv.id
-import utils.csv.int
-import utils.csv.long
-import utils.csv.unitShare
 import utils.csv.withFilter
 import java.io.File
-import kotlin.random.Random
 
 interface LoadPersonsContext : Context {
     val personRepository: MutableRepository<Person, PersonId>
@@ -64,7 +53,7 @@ data class PersonColumns(
     val chargingInfluenceColumn: String = "chargingInfluencesDestinationChoice",
 )
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "UnusedParameter")
 fun <S, C> S.preparePersons(
     file: File = context.defaultPersonFile,
     delimiter: String = SEMICOLON,
@@ -77,39 +66,40 @@ fun <S, C> S.preparePersons(
     filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
 
 ) where S : ModelExecution<C>, C : LoadPersonsContext {
-    val employmentCodePlan = this.context.employmentCodes
-    val sexCodePlan = this.context.sexCodes
-    val graduationCodePlan = this.context.graduationCodes
-    val currencyUnit = incomeUnit ?: this.context.costUnit
+//    val employmentCodePlan = this.context.employmentCodes
+//    val sexCodePlan = this.context.sexCodes
+//    val graduationCodePlan = this.context.graduationCodes
+//    val currencyUnit = incomeUnit ?: this.context.costUnit
+//
+//    val householdRepo = { context.householdRepository }
+//    val providersByNameFunction: () -> Map<String, Subscribable<Person>> = {
+//        context.sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
+//    }
 
-    val householdRepo = { context.householdRepository }
-    val providersByNameFunction: () -> Map<String, Subscribable<Person>> = {
-        context.sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
-    }
-
-    val csvParser = CsvParser(errorHandling) { row ->
-        PersonBuilder().apply {
-            personId = row.long(personColumns.personIdColumn)
-            // TODO someone should verify which column is which "personId, personNumber" needs to map to id, personId
-            // Robin: I ran into an issue where planned activities could not be read , so I swapped the column order
-            id = PersonId(row.long(personColumns.idColumn))
-
-            val requestedHousehold = getHousehold(householdRepo, row, personColumns.householdColumn)
-            household = requestedHousehold
-            age = row.int(personColumns.ageColumn)
-            employment = row.decodeName(personColumns.employmentColumn, employmentCodePlan)
-            sex = row.decodeName(personColumns.sexColumn, sexCodePlan)
-            graduation = row.decode(personColumns.graduationColumn, graduationCodePlan)
-            income = row.int().currency(personColumns.incomeColumn, currencyUnit)
-            hasBike = row.boolean(personColumns.bikeColumn)
-            hasCommuterTicket = row.boolean(personColumns.commuterTicketColumn)
-            hasLicense = row.boolean(personColumns.licenseColumn)
-            eMobilityAcceptance = row.unitShare(personColumns.eMobilityAcceptanceColumn)
-            chargingInfluence = row.decodeName(personColumns.chargingInfluenceColumn, ChargingInfluence)
-            random = Random(seed = personId!! + context.simulationSeed)
-
-            memberships = parserMemberships(row, providersByNameFunction, requestedHousehold)
-        }
+    val csvParser = CsvParser<Person>(errorHandling) { row ->
+        null
+//        PersonBuilder().apply {
+//            personId = row.long(personColumns.personIdColumn)
+//            // TODO someone should verify which column is which "personId, personNumber" needs to map to id, personId
+//            // Robin: I ran into an issue where planned activities could not be read , so I swapped the column order
+//            id = PersonId(row.long(personColumns.idColumn))
+//
+//            val requestedHousehold = getHousehold(householdRepo, row, personColumns.householdColumn)
+//            household = requestedHousehold
+//            age = row.int(personColumns.ageColumn)
+//            employment = row.decodeName(personColumns.employmentColumn, employmentCodePlan)
+//            sex = row.decodeName(personColumns.sexColumn, sexCodePlan)
+//            graduation = row.decode(personColumns.graduationColumn, graduationCodePlan)
+//            income = row.int().currency(personColumns.incomeColumn, currencyUnit)
+//            hasBike = row.boolean(personColumns.bikeColumn)
+//            hasCommuterTicket = row.boolean(personColumns.commuterTicketColumn)
+//            hasLicense = row.boolean(personColumns.licenseColumn)
+//            eMobilityAcceptance = row.unitShare(personColumns.eMobilityAcceptanceColumn)
+//            chargingInfluence = row.decodeName(personColumns.chargingInfluenceColumn, ChargingInfluence)
+//            random = Random(seed = personId!! + context.simulationSeed)
+//
+//            memberships = parserMemberships(row, providersByNameFunction, requestedHousehold)
+//        }
     }
     val internalFilter = { row: Row -> personColumns.filter(row, context) }
 
@@ -159,20 +149,20 @@ internal fun getHousehold(
         " ${householdRepo().elements.map { it.id }.toList()}"
 }
 
-private fun parserMemberships(
-    row: Row,
-    providersByNameFunction: () -> Map<String, Subscribable<Person>>,
-    requestedHousehold: Household
-) = row("mobilityProviderCustomership")
-    .replace("{", "")
-    .replace("}", "")
-    .split(", ")
-    .map { it.split("=") }
-    .filter { it[0].lowercase() in providersByNameFunction() }
-    .associate { membership ->
-        requireNotNull(
-            providersByNameFunction()[membership[0].lowercase()]
-        ) to membership[1].toBoolean()
-    }.toMutableMap().apply {
-        put(requestedHousehold, true)
-    }
+// private fun parserMemberships(
+//    row: Row,
+//    providersByNameFunction: () -> Map<String, Subscribable<Person>>,
+//    requestedHousehold: Household
+// ) = row("mobilityProviderCustomership")
+//    .replace("{", "")
+//    .replace("}", "")
+//    .split(", ")
+//    .map { it.split("=") }
+//    .filter { it[0].lowercase() in providersByNameFunction() }
+//    .associate { membership ->
+//        requireNotNull(
+//            providersByNameFunction()[membership[0].lowercase()]
+//        ) to membership[1].toBoolean()
+//    }.toMutableMap().apply {
+//        put(requestedHousehold, true)
+//    }

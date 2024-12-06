@@ -9,7 +9,6 @@ import domain.data.HouseholdId
 import domain.data.Person
 import domain.data.PersonId
 import domain.data.PrivateCar
-import domain.data.PrivateCarBuilder
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.ModelExecution
@@ -21,9 +20,7 @@ import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.decodeName
 import utils.csv.id
-import utils.csv.int
 import utils.csv.withFilter
 import java.io.File
 
@@ -47,6 +44,7 @@ data class CarColumns(
     val seatsColumnIndex: Int = 8,
 )
 
+@Suppress("LongParameterList", "UnusedParameter")
 fun <S, C> S.preparePrivateCars(
     file: File = context.defaultCarFile,
     delimiter: String = SEMICOLON,
@@ -60,15 +58,16 @@ fun <S, C> S.preparePrivateCars(
     val householdRepo = context.householdRepository // }
     val personRepo = context.personRepository // }
 
-    val csvParser = CsvParser(errorHandling) { row ->
-        PrivateCarBuilder( // TODO
-            segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes),
-            engine = row(columns.engineTypeColumn, ::parseEngineType),
-            seats = row.int(columns.seatsColumnIndex),
-            owner = getOwnerHousehold(householdRepo, row, columns.ownerColumn),
-            mainUser = getMainUser(personRepo, row, columns.mainUserColumn),
-            carEngineStatistics = carEngineStatistics
-        )
+    val csvParser = CsvParser<PrivateCar>(errorHandling) { row ->
+        null
+//        PrivateCarBuilder( // TODO
+//            segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes),
+//            engine = row(columns.engineTypeColumn, ::parseEngineType),
+//            seats = row.int(columns.seatsColumnIndex),
+//            owner = getOwnerHousehold(householdRepo, row, columns.ownerColumn),
+//            mainUser = getMainUser(personRepo, row, columns.mainUserColumn),
+//            carEngineStatistics = carEngineStatistics
+//        )
     }
 
     this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, context) }, file, delimiter)

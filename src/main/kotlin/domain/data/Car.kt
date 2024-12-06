@@ -1,5 +1,6 @@
 package domain.data
 
+import Mutable
 import domain.location.Location
 import units.Distance
 import units.Efficiency
@@ -197,4 +198,18 @@ class PrivateCarBuilder(
             }
         }
     }
+}
+
+@Mutable
+interface TestMut {
+    val age: Int
+    val name: String
+}
+
+@Mutable
+abstract class SubTestMut(
+    override val age: Int,
+) : TestMut {
+
+    abstract val foo: Car
 }
