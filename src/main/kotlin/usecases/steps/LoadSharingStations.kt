@@ -3,14 +3,12 @@ package usecases.steps
 import domain.data.LegacyZone
 import domain.data.SharingProvider
 import domain.data.SharingStation
-import domain.data.SharingStationBuilder
 import domain.data.SharingStationId
 import domain.data.SharingVehicle
 import domain.data.SharingVehicleId
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.Mode
-import domain.location.Location
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.ModelExecution
@@ -22,8 +20,6 @@ import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.int
-import utils.csv.long
 import utils.units.toCoordinate
 import java.io.File
 
@@ -45,7 +41,7 @@ data class StationColumns(
     val zonesByFootColumn: String = "zone_avail",
 )
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "UnusedParameter")
 fun <S, C> S.prepareSharingStations(
     file: File = context.defaultSharingStationFile,
     columns: StationColumns = StationColumns(),
@@ -55,24 +51,25 @@ fun <S, C> S.prepareSharingStations(
     mode: Mode,
     coordinateParser: (String) -> Coordinate = String::parseCoordinate,
 ) where S : ModelExecution<C>, C : LoadSharingStationsContext {
-    val sharingProvider = SharingProvider(providerName, mode)
+//    val sharingProvider = SharingProvider(providerName, mode)
 
-    val csvParser = CsvParser(errorHandling) { row ->
-        SharingStationBuilder().apply {
-            owner = sharingProvider
-            uid = row(columns.uidColumn)
-            name = row(columns.nameColumn)
-            zonesByFoot = context.prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
-            location = Location(
-                zone = context.getZone(row.long(columns.zoneColumn)),
-                coordinate = coordinateParser(row(columns.coordinatesColumn)),
-                roadAccess = null
-            )
-            initialVehicles = sharingProvider.prepareVehicles(
-                count = row.int(columns.vehicleCountColumn),
-
-            ).toMutableSet()
-        }
+    val csvParser = CsvParser<SharingStation>(errorHandling) { row ->
+        null
+//        SharingStationBuilder().apply {
+//            owner = sharingProvider
+//            uid = row(columns.uidColumn)
+//            name = row(columns.nameColumn)
+//            zonesByFoot = context.prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
+//            location = Location(
+//                zone = context.getZone(row.long(columns.zoneColumn)),
+//                coordinate = coordinateParser(row(columns.coordinatesColumn)),
+//                roadAccess = null
+//            )
+//            initialVehicles = sharingProvider.prepareVehicles(
+//                count = row.int(columns.vehicleCountColumn),
+//
+//            ).toMutableSet()
+//        }
     }
 
     this.prepareStationsFile(csvParser, file, delimiter) // TODO

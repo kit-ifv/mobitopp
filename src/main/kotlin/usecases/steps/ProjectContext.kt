@@ -16,9 +16,7 @@ import domain.data.PlannedActivity
 import domain.data.PrivateCar
 import domain.data.Sex
 import domain.data.SharingStation
-import domain.data.SharingStationBuilder
 import domain.data.SharingStationId
-import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.AreaType
@@ -30,8 +28,6 @@ import domain.location.Metrics
 import modeling.steps.Context
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
-import modeling.steps.RepositoryBuilder
-import modeling.steps.RepositoryState
 import modeling.steps.SimulationContext
 import units.CurrencyUnit
 import units.DistanceUnit
@@ -47,49 +43,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-// interface HouseholdContext {
-//    val householdRepository: RepositoryBuilder<HouseholdBuilder, Household, HouseholdId>
-//    val economicalStatusCodes: CodePlan<EconomicStatus>
-// }
-//
-// interface PersonContext {
-//    val personRepository: RepositoryBuilder<PersonBuilder, Person, PersonId>
-//    val employmentCodes: CodePlan<Employment>
-//    val graduationCodes: CodePlan<Graduation>
-//    val sexCodes: CodePlan<Sex>
-// }
-//
-// interface ZoneContext<B, E> where B : Builder<E>, E : Zone {
-//    val zoneRepository: RepositoryBuilder<B, E, ZoneId>
-//    val areaTypeCodes: CodePlan<AreaType>
-// }
-//
-// interface BaseZoneContext : ZoneContext<ZoneBuilder, Zone>
-//
-// interface LegacyZonesContext : ZoneContext<LegacyZoneBuilder, LegacyZone> {
-//    val zoneColumnIndex: Map<Int, LegacyZone>
-//    val attractivenessModel: LateInit<AttractivenessModel>
-// }
-//
-// interface PrivateCarContext<B, E> where B : Builder<E>, E : PrivateCar {
-//    val engineCodes: CodePlan<EngineType>
-//    val carSegmentCodes: CodePlan<CarSegment>
-//    val carRepository: RepositoryBuilder<B, E, CarId>
-// }
-//
-// interface BasePrivateCarContext : PrivateCarContext<PrivateCarBuilder, PrivateCar>
-//
-// interface ActivityContext {
-//    val activityTypeCodes: CodePlan<ActivityType>
-//
-//    val plannedActivityRepository: RepositoryBuilder<PlannedActivityBuilder, PlannedActivity, ActivityId>
-// }
-//
-// interface SharingStationsContext {
-//    val sharingStationsRepository: RepositoryBuilder<SharingStationBuilder, SharingStation, SharingStationId>
-// }
-
-data class LegacyContext(
+data class ProjectContext(
     override val scenarioName: String,
     override val demandFolder: File,
 
@@ -113,6 +67,7 @@ data class LegacyContext(
     override val timeStep: Duration = 1.minutes,
 
 ) : Context,
+    LoadAttractivenessDataContext,
     LoadZonesContext,
     LoadSharingStationsContext,
     LoadHouseholdContext,
@@ -121,29 +76,29 @@ data class LegacyContext(
     LoadPlannedActivitiesContext,
     LoadFixedDestinationsContext,
     LoadChoiceModelsContext,
+    AssignCarsContext,
+    RunSimContext,
+    WriteTripsCsvContext,
     SimulationContext {
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
 
-    override val zoneRepository = MapRepository<Zone, ZoneId>("")
+    override val zoneRepository = MapRepository<LegacyZone, ZoneId>("")
     override val householdRepository = MapRepository<Household, HouseholdId>("")
     override val personRepository = MapRepository<Person, PersonId>("")
     override val carRepository = MapRepository<PrivateCar, CarId>("")
     override val plannedActivityRepository = MapRepository<PlannedActivity, ActivityId>("")
 
-    private var index: Map<Int, LegacyZone>? = null
-    override val zoneColumnIndex: Map<Int, LegacyZone>
-        get() {
-            check(zoneRepository.state == RepositoryState.FINISHED) {
-                "Cannot access zoneColumnIndex as the zoneRepository has not been built yet!"
-            }
-
-            return index ?: zoneRepository.elements.associateBy { it.matrixColumn }.also { index = it }
+    override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
+        require(zoneRepository.sealed) {
+            "Expected zone repo to be sealed/finished before using the matrix column > zone mapping"
         }
+        zoneRepository.elements.associateBy { it.matrixColumn }
+    }
 
     override val impedance = LateInit<Metrics>("Impedance")
 
     override val sharingStationsRepository =
-        RepositoryBuilder<SharingStationBuilder, SharingStation, SharingStationId>()
+        MapRepository<SharingStation, SharingStationId>("")
 }

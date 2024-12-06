@@ -1,6 +1,9 @@
 
+import utils.INDENT
+import utils.inline
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import utils.invoke
 
 
 class TextBuilderTest {
@@ -53,7 +56,7 @@ class TextBuilderTest {
                 +"B"
             }
         }
-        val expected = "test {\n${INDENT}A {\n${INDENT}${INDENT}B\n${INDENT}}\n}"
+        val expected = "test {\n${INDENT}A {\n$INDENT${INDENT}B\n$INDENT}\n}"
         assertEquals(expected, result)
         print(result)
     }

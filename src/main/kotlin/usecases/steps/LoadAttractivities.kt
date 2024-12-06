@@ -1,27 +1,33 @@
 package usecases.steps
 
 import domain.enums.ActivityType
+import modeling.steps.LateInit
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
-import modeling.validation.subValidateFileReadAccess
+import modeling.validation.Warning
+import modeling.validation.validateFileReadAccess
 import modeling.validation.validateScope
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
+import utils.CodePlan
 import java.io.File
 
-fun <S> S.loadAttractivities(
+fun <S, C> S.loadAttractivities(
     file: File,
-    activityTypes: Set<ActivityType>,
-) where S : ModelExecution<LegacyContext> {
+) where S : ModelExecution<C>, C : LoadAttractivenessDataContext {
     addStep(
-        LoadAttractivenessStep(context, file, activityTypes)
+        LoadAttractivenessStep(context, file)
     )
 }
 
+interface LoadAttractivenessDataContext {
+    val activityTypeCodes: CodePlan<ActivityType>
+    val attractivenessModel: LateInit<AttractivenessModel>
+}
+
 private class LoadAttractivenessStep(
-    private val context: LegacyZonesContext,
+    private val context: LoadAttractivenessDataContext,
     private val file: File,
-    private val activityTypes: Set<ActivityType>,
 ) : ModelStep {
 
     override val name: String = "Load Attractiveness Csv"
@@ -29,15 +35,15 @@ private class LoadAttractivenessStep(
     override fun execute() {
         context.attractivenessModel.value = AttractivenessFromCsv(
             file = file,
-            activityTypes = activityTypes
+            activityTypes = context.activityTypeCodes.values()
         )
     }
 
-    // TODO split into validate and repair function?
-    override fun validate() = validateScope(
-        "Validate $name produced warnings:"
-    ) {
-        subValidateFileReadAccess(file)
+    override fun verifyInput(): Warning? = validateScope("Validate attractiveness input data: ${file.name}") {
+        validateFileReadAccess(file, fileDescription = "Csv containing attractiveness data by activity type for zones")
+    }
+
+    override fun mockBehavior(): Warning? = validateScope("Mock attractiveness data") {
         context.attractivenessModel.value = AttractivenessModel { _, _ -> 1.0 }
     }
 }

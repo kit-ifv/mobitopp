@@ -7,7 +7,7 @@ import modeling.steps.Run
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
-import usecases.steps.LegacyContext
+import usecases.steps.ProjectContext
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
 import usecases.steps.assignHomeLocations
@@ -58,7 +58,7 @@ private const val ROOT_TRANSMOVE_ENV =
 
 fun main() {
     Run {
-        LegacyContext(
+        ProjectContext(
             scenarioName = "testSteps",
             areaTypeCodes = Bbsr17,
             demandFolder = rootRastatt,
@@ -99,7 +99,7 @@ fun main() {
 
         loadAttractivities(
             file = File("$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
-            activityTypes = attractivenessTypes
+//            activityTypes = attractivenessTypes
         )
 
         loadImpedance(
