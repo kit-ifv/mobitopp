@@ -6,10 +6,13 @@ import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
+import synthesis.PersonInfo
 import synthesis.SurveyPerson
+import synthesis.SynthesisPerson
 import synthesis.randomCoordinate
 import utils.collections.select
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 
@@ -62,8 +65,9 @@ class CommuterMatrix(
 //            LegacyActivityType.WORK
 //        )
 //    }
-    override fun find(person: SurveyPerson, home: Location, activityType: ActivityType): Location {
-        val communityTarget = translator.forwardMap[home.zone!!.id]
+    override fun find(person: SynthesisPerson, activityType: ActivityType): Location {
+        //TODO remove !! replace with accurate error message.
+        val communityTarget = translator.forwardMap[person.homeLocation.zone!!.id]
 
         val destination = commuterTargets[communityTarget]!!.select(GlobalRandomizer.nextDouble())
 
@@ -72,8 +76,8 @@ class CommuterMatrix(
     }
     companion object {
         fun parse(
-            mappingFile: File = Path("src/test/resources/synthesis/zone-to-community.csv").toFile(),
-            commuterFile: File = Path("src/test/resources/synthesis/commuters-rastatt.csv").toFile(),
+            mappingFile: Path = Path("src/test/resources/synthesis/zone-to-community.csv"),
+            commuterFile: Path = Path("src/test/resources/synthesis/commuters-rastatt.csv"),
             zoneMapping: Map<ZoneId, Zone>,
             converter: DetermineLocationInZone = DebugZoneAssigner
         ): CommuterMatrix {

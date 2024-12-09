@@ -8,7 +8,7 @@ import utils.Encodable
 import kotlin.time.Duration.Companion.hours
 
 interface GenerateActivitySchedule {
-    fun generate(person: SurveyPerson): ActivitySchedule
+    fun generate(person: PersonInfo): ActivitySchedule
 }
 
 fun List<SynthesisHouseholdBuilder>.generateSchedules( generator: GenerateActivitySchedule): Map<SynthesisHouseholdBuilder, List<ActivitySchedule>> {
@@ -63,7 +63,7 @@ class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType
             home(12.hours, 30.hours)
         }
 
-    override fun generate(person: SurveyPerson): ActivitySchedule {
+    override fun generate(person: PersonInfo): ActivitySchedule {
         if (person.age <= 18) return schoolSchedule
         if (person.age <= 40) return workingSchedule
         if (person.age <= 65) return homekeeperSchedule

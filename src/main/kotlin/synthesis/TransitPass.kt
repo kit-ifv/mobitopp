@@ -10,7 +10,7 @@ import units.euros
 import utils.collections.select
 import kotlin.random.Random
 
-class TransitPassParameters(householdBuilder: SynthesisHouseholdBuilder, person: SurveyPerson) {
+class TransitPassParameters(householdBuilder: SynthesisHouseholdBuilder, person: PersonInfo) {
     val size = householdBuilder.members.size
     val gender = person.sex
     val age = person.age
@@ -316,6 +316,6 @@ val selectionModel = MultinomialLogit.build {
 
 val transitPassDiscreteChoiceModel = DiscreteChoiceModel(selectionModel)
 
-fun DiscreteChoiceModel<Boolean, TransitPassParameters>.select(householdBuilder: SynthesisHouseholdBuilder, person: SurveyPerson): Boolean {
+fun DiscreteChoiceModel<Boolean, TransitPassParameters>.select(householdBuilder: SynthesisHouseholdBuilder, person: SynthesisPerson): Boolean {
     return select(TransitPassParameters(householdBuilder, person))
 }

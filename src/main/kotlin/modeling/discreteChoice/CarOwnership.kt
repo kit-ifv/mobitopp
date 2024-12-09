@@ -4,14 +4,11 @@ import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.Sex
 import synthesis.ISurveyHousehold
-import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
 import synthesis.SynthesisHouseholdBuilder
 import utils.collections.select
 import java.util.*
 import java.util.function.DoubleSupplier
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.random.Random
 
 class EconomicHousehold(
@@ -239,6 +236,7 @@ val OneCarParameters: ICarOwnershipParameters = CarParameters(
     mu = 0.420030501062286,
     sigma = -0.0321520185405091,
 )
+
 val TwoCarParameters = CarParameters(
     oneMember = -3.38452474375784,
     twoMembers = -0.780969322578045,
@@ -364,73 +362,34 @@ fun Map<String, Double>.getOrWarn(key: String): Double {
     }
 }
 
+val carSelectionFunction = CarNestStructure()
 
-//fun main() {
-//    val input = "  -3.23972758525991 + 0.2 - 0.1 + 1.0 "
-//    val result = evaluateExpression(input)
-//    println("Result: $result")
-//        val map = parseParameterMap(textdump)
-//    val attempt = CarParameters.parse("2", map)
-//    val attempt2 = CarParameters.parse("3", map)
-//    val attempt3 = CarParameters.parse("4", map)
-//    println(attempt)
-//    println(attempt2)
-//    println(attempt3)
-//    println(map)
-//}
-val carNest = NestedLogit.root<Int, CarOwnershipParameters> {
-    add(0) { _, p ->
-        NoCarParameters.calculate(p)
+data class CarNestStructure(
+    val lambdaCar: Double = 0.0463786710826848 + 0.01,
+    val lambdaTwoOrMoreCar: Double = 0.0132092332380213 + 0.01
+) {
 
-    }
-    nest(lambda = 0.0463786710826848 + 0.01) {
-        add(1) { _, p ->
-            OneCarParameters.calculate(p)
-        }
-        nest(lambda = 0.0132092332380213 + 0.01) {
-            add(2) { _, p -> TwoCarParameters.calculate(p) }
-            add(3) { _, p -> ThreeCarParameters.calculate(p) }
-            add(4) { _, p -> FourCarParameters.calculate(p) }
+    val nest = NestedLogit.root {
+        add(0) { _, p ->
+            NoCarParameters.calculate(p)
 
         }
+        nest(lambda = lambdaCar) {
+            add(1) { _, p ->
+                OneCarParameters.calculate(p)
+            }
+            nest(lambda = lambdaTwoOrMoreCar) {
+                add(2) { _, p -> TwoCarParameters.calculate(p) }
+                add(3) { _, p -> ThreeCarParameters.calculate(p) }
+                add(4) { _, p -> FourCarParameters.calculate(p) }
+
+            }
+        }
+
     }
 
 }
-val carChoiceModel =DiscreteChoiceModel<Int, CarOwnershipParameters>(
-    carNest
+val carChoiceModel =DiscreteChoiceModel(
+    carSelectionFunction.nest
 ) { it.select(Random(1).nextDouble()) }
-fun main() {
-
-
-//    val lambda_car = 0.0463786710826848 + 0.01
-//    val lambda_two_more_car = 0.0132092332380213 + 0.01
-
-    val nest = carNest
-
-    val choiceModel = carChoiceModel
-
-    val person = SurveyPerson.create(Sex.MALE, age = 19, employment = Employment.FULLTIME, true)
-    val otherPerson = SurveyPerson.create(Sex.MALE, age = 19, employment = Employment.FULLTIME, false)
-    val parameters = CarOwnershipParameters(SynthesisHouseholdBuilder(1).apply {
-        economicStatus = EconomicStatus.MIDDLE
-        members = mutableListOf(person)
-    }, { 0.0 })
-    println(choiceModel.selectVerbose(parameters))
-
-    val fue = UtilityFunction<Int, CarOwnershipParameters> { _, p ->
-        NoCarParameters.calculate(p)
-
-    }
-    println(fue.calculateUtility(0, parameters))
-    val result = nest.calculateProbabilities(parameters)
-    val result2 = nest.calculateProbabilities(
-        CarOwnershipParameters(SynthesisHouseholdBuilder(1).apply {
-            economicStatus = EconomicStatus.MIDDLE
-            members = mutableListOf(otherPerson)
-        }, { 0.0 })
-    )
-    println(result)
-    println(result2)
-
-}
 

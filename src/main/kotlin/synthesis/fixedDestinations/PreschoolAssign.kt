@@ -3,13 +3,11 @@ package synthesis.fixedDestinations
 import datastructure.ReadOnlyKDTree
 import datastructure.WithMetric
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import domain.roadnetwork.toUTM
 import modeling.discreteChoice.Logit
 import modeling.discreteChoice.OtherDiscreteChoiceModel
-import synthesis.ActivitySchedule
-import synthesis.SurveyPerson
+import synthesis.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
 import units.kilometers
@@ -18,13 +16,10 @@ import usecases.AttractivenessModel
 import kotlin.math.ln
 import kotlin.math.pow
 
-fun interface PreschoolAssign {
-    fun assignPreschoolLocation(person: SurveyPerson, home: Location): FixedLocationOutput
-}
 
 fun interface LocationFinder {
 
-    fun find(person: SurveyPerson, home: Location,activityType: ActivityType): Location
+    fun find(person: SynthesisPerson, activityType: ActivityType): Location
 }
 
 class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder {
@@ -32,11 +27,10 @@ class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder {
         ReadOnlyKDTree(potentialLocations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
     override fun find(
-        person: SurveyPerson,
-        home: Location,
+        person: SynthesisPerson,
         activityType: ActivityType
     ): Location {
-        return locationTree.nearestNeighbor(home) { doubleArrayOf(it.coordinate.toUTM().e, it.coordinate.toUTM().n) }
+        return locationTree.nearestNeighbor(person.homeLocation) { doubleArrayOf(it.coordinate.toUTM().e, it.coordinate.toUTM().n) }
     }
 
 }
@@ -66,7 +60,7 @@ class LocationKDTree(locations: List<Location>) {
 
 class UseBandwidthLocation(
     private val potentialLocations: List<Location>, val attractivenessModel: AttractivenessModel,
-    val parameters: BandwidthParameters
+    val parameters: BandwidthParameters = BandwidthParameters()
 ) : LocationFinder {
     private val locationTree = LocationKDTree(potentialLocations)
     private val model =
@@ -81,18 +75,17 @@ class UseBandwidthLocation(
         }
 
     override fun find(
-        person: SurveyPerson,
-        home: Location,
+        person: SynthesisPerson,
         activityType: ActivityType
     ): Location {
         var validTargets =
             locationTree.sequenceFor(
-                home,
+                person.homeLocation,
             )
-                .dropWhile { it.item.distance(home) <= parameters.poleDistance - parameters.poleRadius }
-                .takeWhile { it.item.distance(home) <= parameters.poleDistance + parameters.poleRadius }.toList()
+                .dropWhile { it.item.distance(person.homeLocation) <= parameters.poleDistance - parameters.poleRadius }
+                .takeWhile { it.item.distance(person.homeLocation) <= parameters.poleDistance + parameters.poleRadius }.toList()
         if(validTargets.isEmpty()) {
-            validTargets = potentialLocations.sortedBy { it.distance(home) }.map{ WithMetric(it, it.distance(home)) }
+            validTargets = potentialLocations.sortedBy { it.distance(person.homeLocation) }.map{ WithMetric(it, it.distance(person.homeLocation)) }
         }
 
 
@@ -104,14 +97,14 @@ class UseBandwidthLocation(
 
 private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
 
-class ClosestDistanceAssigner(schools: List<Location>) : PreschoolAssign {
-    private val schoolFinder: ReadOnlyKDTree<Location> =
-        ReadOnlyKDTree(schools, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
-
-    override fun assignPreschoolLocation(person: SurveyPerson, home: Location): FixedLocationOutput {
-        val closestSchool =
-            schoolFinder.nearestNeighbor(home) { doubleArrayOf(home.coordinate.toUTM().e, home.coordinate.toUTM().n) }
-        //TODO pass activity type
-        return FixedLocationOutput(person, closestSchool, LegacyActivityType.EDUCATION_PRIMARY)
-    }
-}
+//class ClosestDistanceAssigner(schools: List<Location>) : PreschoolAssign {
+//    private val schoolFinder: ReadOnlyKDTree<Location> =
+//        ReadOnlyKDTree(schools, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
+//
+//    override fun assignPreschoolLocation(person: SurveyPerson, home: Location): FixedLocationOutput {
+//        val closestSchool =
+//            schoolFinder.nearestNeighbor(home) { doubleArrayOf(home.coordinate.toUTM().e, home.coordinate.toUTM().n) }
+//        //TODO pass activity type
+//        return FixedLocationOutput(person, closestSchool, LegacyActivityType.EDUCATION_PRIMARY)
+//    }
+//}
