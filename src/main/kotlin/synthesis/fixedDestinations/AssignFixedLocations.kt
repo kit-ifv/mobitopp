@@ -13,6 +13,7 @@ import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import usecases.AttractivenessModel
 import utils.csv.DefaultCsvParser
 import java.io.File
+import java.nio.file.Path
 
 data class PersonWithSchedule(
     private val person: SurveyPerson,
@@ -41,7 +42,7 @@ class TrivialLocations : AssignFixedLocations {
 
 data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
 
-fun readCommuters(file: File): Sequence<CommuterInfo> {
+fun readCommuters(file: Path): Sequence<CommuterInfo> {
     val parser = DefaultCsvParser { row ->
         CommuterInfo(
             row("origin") { CommunityNumber.parse(it) },
@@ -51,7 +52,7 @@ fun readCommuters(file: File): Sequence<CommuterInfo> {
             )
     }
 
-    return parser.parse(file)
+    return parser.parse(file.toFile())
 }
 
 @JvmInline
@@ -77,7 +78,7 @@ value class CommunityNumber(private val int: Int) {
     }
 }
 
-fun readZoneToCommunity(file: File): BiMap<ZoneId, CommunityNumber> {
+fun readZoneToCommunity(file: Path): BiMap<ZoneId, CommunityNumber> {
     val parser = DefaultCsvParser { row ->
         Pair(
             row("partId") { ZoneNumber.parse(it).toZoneId() },
@@ -86,7 +87,7 @@ fun readZoneToCommunity(file: File): BiMap<ZoneId, CommunityNumber> {
             )
     }
 
-    return parser.parse(file).toMap().toBiMap()
+    return parser.parse(file.toFile()).toMap().toBiMap()
 }
 
 

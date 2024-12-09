@@ -3,6 +3,7 @@ package synthesis
 import datastructure.Activity
 import domain.data.Employment
 import domain.data.Sex
+import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
@@ -18,6 +19,7 @@ import utils.csv.DefaultCsvParser
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.io.File
+import java.nio.file.Path
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.abs
@@ -162,9 +164,9 @@ fun <T> Collection<T>.pickWithReplacement(
 fun interface HouseholdSynthesis {
     fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold>,
-        targets: Collection<SynZone>,
-        conditions: Map<SynZone, List<Rule>>
-    ): Map<SynZone, List<SynthesisHouseholdBuilder>>
+        targets: Collection<Zone>,
+        conditions: Map<Zone, List<Rule>>
+    ): Map<Zone, List<SynthesisHouseholdBuilder>>
 }
 typealias HouseholdEquivalence = Map<SurveyHousehold, Set<SurveyHousehold>>
 
@@ -187,16 +189,16 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
 
     override fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold>,
-        targets: Collection<SynZone>,
-        conditions: Map<SynZone, List<Rule>>
-    ): Map<SynZone, List<SynthesisHouseholdBuilder>> {
+        targets: Collection<Zone>,
+        conditions: Map<Zone, List<Rule>>
+    ): Map<Zone, List<SynthesisHouseholdBuilder>> {
         val uniques = surveyHouseholds.toSet()
         //TODO equivalnece classes should be determined based on the rules
         val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
             .sortByValues { a, b -> b.size.compareTo(a.size) }
 
         val results = targets.associateWith { synZone ->
-            println("Working on $synZone")
+//            println("Working on $synZone")
             val rulesForZone = conditions.getOrDefault(synZone, emptyList())
             val internal = synZone.calculate(eqD, rulesForZone)
             val output = internal.flatMap {
@@ -209,7 +211,7 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
         return results
     }
 
-    private fun SynZone.calculate(
+    private fun Zone.calculate(
         surveyHouseholds: HouseholdEquivalence,
         rules: List<Rule>
     ): Collection<Pair<SurveyHousehold, Double>> {
@@ -420,7 +422,7 @@ data class ZoneTarget(
     }
 
     companion object {
-        fun fromFile(file: File): Sequence<ZoneTarget> {
+        fun fromFile(file: Path): Sequence<ZoneTarget> {
             val offset = 4
             val parser = DefaultCsvParser { row ->
                 ZoneTarget(
@@ -458,20 +460,34 @@ data class ZoneTarget(
 
                     )
             }
-            return parser.parse(file)
+            return parser.parse(file.toFile())
         }
     }
 }
 
 
-data class SurveyPerson private constructor(
-    val id: Int,
-    val sex: Sex,
-    val age: Int,
-    val employment: Employment,
+interface PersonInfo {
+    val id: Int
+    val sex: Sex
+    val age: Int
+    val employment: Employment
     val driverLicence: Boolean
-) {
-    var hasTransitPass: Boolean = false
+    var hasTransitPass: Boolean
+
+}
+
+
+
+
+
+data class SurveyPerson(
+    override val id: Int,
+    override val sex: Sex,
+    override val age: Int,
+    override val employment: Employment,
+    override val driverLicence: Boolean
+) : PersonInfo{
+    override var hasTransitPass: Boolean = false
     val representative = toRepresentative()
     private fun toRepresentative(): PersonRepresentative {
         return PersonRepresentative.fromData(sex, age)

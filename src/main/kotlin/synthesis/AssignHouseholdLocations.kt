@@ -21,7 +21,7 @@ class AssignAroundCentroid(val radius: Double) : AssignHouseholdLocations {
         return synthesisResults.entries.flatMap { (zone, households) ->
             households.map {
                 it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), zone , null)
-                it.also{h -> h.members.forEach {member ->member.homeLocation = h.location }}
+                it
             }
         }
     }

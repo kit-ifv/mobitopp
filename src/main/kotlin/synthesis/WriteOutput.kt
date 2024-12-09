@@ -1,19 +1,109 @@
 package synthesis
 
+import datastructure.Activity
+import domain.data.Car
+import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.Location
-import org.jetbrains.kotlinx.dataframe.io.CSV
+import usecases.AttractivenessModel
+import usecases.steps.toCSV
+import java.nio.file.Path
+import kotlin.io.path.writeText
+
+//
+// Extension functions on existing classes.
+//
+
+/**
+ * Converts the Location to the standard representation found in legacy mobitopp input files which is the format
+ * (lat, lon: roadId, accessShare)
+ */
+fun Location.legacyStringRepresentation(): String =
+    "(${coordinate.latitudeDegrees}, ${coordinate.longitudeDegrees}: ${roadAccess?.roadId}, ${roadAccess?.position})"
+
+/**
+ * Extend the AttractivenessModel returning 0.0 for the attractiveness when the zone is null
+ */
+fun AttractivenessModel.nullableAttractiveness(zone: Zone?, activityType: ActivityType): Double {
+    return zone?.let { attractivenessFor(it.id, activityType) } ?: 0.0
+}
+// End extension functions
+
 
 interface CSVOutput<T> {
     val header: List<String>
     fun convert(element: T): String
-    fun toCSV(elements: Collection<T>) = header.joinToString { it } + elements.joinToString { convert(it) }
+    fun generateCSVString(elements: Collection<T>) =
+        header.joinToString(separator = ";", postfix = "\n") { it } + elements.joinToString(separator = "\n") {
+            convert(
+                it
+            )
+        }
+
+    fun writeCSVToFile(path: Path, elements: Collection<T>) {
+        path.writeText(generateCSVString(elements))
+    }
 }
 
 
+//TODO the synthesis activity will probably not match with the simulation activity.
+object ActivityOutput : CSVOutput<Activity> {
+    override val header: List<String> = listOf(
+        "personId",
+        "activityType",
+        "observedTripDuration",
+        "startTime",
+        "duration",
+        "tournr",
+        "isMainActivity",
+        "isSupertour"
+    )
+
+    override fun convert(element: Activity): String {
+        return element.run {
+            usecases.steps.toCSV(
+                "TODO personID",
+                type.encode(),
+                "TODO observedTripDuration",
+                startTime,
+                duration,
+                "TODO tournr",
+                "TODO isMainActivity",
+                "TODO isSupertour"
+            )
+        }
+    }
+
+}
+
+object CarOutput : CSVOutput<Car> {
+    override val header: List<String> = listOf("ownerId", "mainUserId", "personalUserId", "carType", "car attributes")
+
+    override fun convert(element: Car): String {
+        return element.run {
+
+            usecases.steps.toCSV(
+                "TODO ownerID",
+                "TODO mainUserId",
+                "TODO personalUserId",
+                "TODO probably Car ID",
+                "TODO always zero?",
+                engine.type,
+                location,
+                segment,
+                seats,
+                "TODO always 0.0?",
+                "TODO always 1.0?",
+                "TODO always 1000?",
+
+                )
+        }
+    }
+
+}
+
 data class FixedDestinationElements(
-    val household: SynthesisHouseholdBuilder,
-    val person: SurveyPerson,
+    val person: SynthesisPerson,
     val activityType: ActivityType,
     val location: Location
 )
@@ -34,15 +124,15 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
 
     override fun convert(element: FixedDestinationElements): String {
         return element.run {
-            usecases.steps.toCSV(
+            toCSV(
                 person.id,
                 "TODO personNumber",
-                household.id,
+                person.household.id,
                 "TODO household Year",
                 "TODO household number",
                 activityType.description,
                 location.zone?.id ?: "NULL",
-                location,
+                location.legacyStringRepresentation(),
                 location.coordinate.longitudeDegrees,
                 location.coordinate.latitudeDegrees
 
@@ -74,18 +164,18 @@ object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder> {
 
     override fun convert(element: SynthesisHouseholdBuilder): String {
         return element.run {
-            usecases.steps.toCSV(
+            toCSV(
                 id,
                 "TODO year",
                 "TODO householdNumber",
                 members.size,
                 "TODO domcode",
                 "TODO type",
-                location.zone?:"NULL",
+                location.zone ?: "NULL",
                 location,
                 location.coordinate.longitudeDegrees,
                 location.coordinate.latitudeDegrees,
-                members.count{it.age < 18},
+                members.count { it.age < 18 },
                 "TODO nomberofnotsimulatdchildren",
                 amountOfCars,
                 income,
@@ -93,6 +183,80 @@ object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder> {
                 economicStatus,
                 "TODO can charge privately"
 
+            )
+        }
+    }
+}
+
+data class OpportunityOutput(
+    val location: Location,
+    val attractivenessModel: AttractivenessModel,
+    val activityType: ActivityType
+)
+
+object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
+    override val header: List<String> =
+        listOf("zoneId", "activityType", "location", "attractivity", "locationX", "locationY")
+
+    override fun convert(element: OpportunityOutput): String {
+        return element.run {
+            toCSV(
+                location.zone?.id ?: -1,
+                activityType,
+                location.legacyStringRepresentation(),
+                attractivenessModel.nullableAttractiveness(location.zone, activityType),
+                location.coordinate.latitudeDegrees,
+                location.coordinate.longitudeDegrees
+
+            )
+
+        }
+    }
+
+}
+
+object PersonOutput : CSVOutput<PersonInfo> {
+    override val header: List<String> = listOf(
+        "personId",
+        "personNumber",
+        "householdId",
+        "age",
+        "employment",
+        "gender",
+        "graduation",
+        "income",
+        "hasBike",
+        "hasAccessToCar",
+        "hasPersonalCar",
+        "hasCommuterTicket",
+        "hasLicense",
+        "preferencesSurvey",
+        "preferencesSimulation",
+        "eMobilityAcceptance",
+        "chargingInfluencesDestinationChoice",
+        "mobilityProviderCustomership"
+
+    )
+
+    override fun convert(element: PersonInfo): String {
+        return element.run {
+            toCSV(
+                id,
+                "TODO personNumber",
+                "TODO add household",
+                age,
+                employment,
+                sex,
+                "TODO graduation",
+                "TODO income",
+                "TODO hasBike",
+                "TODO hasAccessToCar",
+                hasTransitPass,
+                "TODO preferencesSurvey",
+                "TODO preferencesSimulation",
+                "TODO emobilityAcceptance",
+                "TODO chargingInfluencesDestiantionChoice",
+                "TODO mobilityProviderCustomership"
             )
         }
     }

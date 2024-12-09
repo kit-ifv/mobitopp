@@ -20,13 +20,18 @@ class SynthesisHouseholdBuilder(
         )
     }
 
-    var members: MutableList<SurveyPerson> = mutableListOf()
+    var members: MutableList<SynthesisPerson> = mutableListOf()
     lateinit var location: Location
     lateinit var economicStatus: EconomicStatus
     var amountOfCars = 0
 
 }
-
+class SynthesisPerson(
+    val household: SynthesisHouseholdBuilder,
+    val person: PersonInfo
+): PersonInfo by person {
+    val homeLocation get() = household.location
+}
 val SynthesisHouseholdBuilder.numberOfAdults get() = members.count { it.age >= 18 }
 val SynthesisHouseholdBuilder.numberOfMinors get() = members.count { it.age < 18 }
 
@@ -50,7 +55,7 @@ data class SurveyHousehold(
             id = id,
             income = income,
         ).apply {
-            members = this@SurveyHousehold.members.toMutableList()
+            members = this@SurveyHousehold.members.map{SynthesisPerson(this, it)}.toMutableList()
 
         }
     }

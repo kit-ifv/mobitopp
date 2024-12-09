@@ -1,7 +1,6 @@
 package synthesis
 
 import domain.data.EconomicStatus
-import modeling.discreteChoice.EconomicalHousehold
 import splitOnce
 import units.Currency
 import units.euros
@@ -36,7 +35,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) : 
     }
 
     companion object {
-        fun fromFile(file: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")): OECDAssigner {
+        fun fromPath(path: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")): OECDAssigner {
 
             val parser = DefaultCsvParser { row ->
                 FileEntry(
@@ -51,7 +50,7 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) : 
 
             }
 
-            val map = TreeMap(parser.parse(file.toFile()).associate { it.amount to it.intervals })
+            val map = TreeMap(parser.parse(path.toFile()).associate { it.amount to it.intervals })
             return OECDAssigner { numPeep, income ->
                 val mapping = map.floorEntry(numPeep).value
                 mapping.first { income in it.first }.second
