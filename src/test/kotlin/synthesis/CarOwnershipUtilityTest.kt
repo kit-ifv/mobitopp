@@ -5,7 +5,7 @@ import domain.data.Employment
 import domain.data.Sex
 import modeling.discreteChoice.CarOwnershipParameters
 import modeling.discreteChoice.NoCarParameters
-import modeling.discreteChoice.UtilityFunction
+import modeling.discreteChoice.UtilityFunctionOld
 import modeling.discreteChoice.carChoiceModel
 import modeling.discreteChoice.carSelectionFunction
 import kotlin.test.Test
@@ -26,7 +26,7 @@ class CarOwnershipUtilityTest {
         }, { 0.0 })
         println(choiceModel.selectVerbose(parameters))
 
-        val fue = UtilityFunction<Int, CarOwnershipParameters> { _, p ->
+        val fue = UtilityFunctionOld<Int, CarOwnershipParameters> { _, p ->
             NoCarParameters.calculate(p)
 
         }

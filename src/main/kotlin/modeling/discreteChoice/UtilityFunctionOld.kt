@@ -1,37 +1,157 @@
 package modeling.discreteChoice
 
-import units.UnitIntervalValue
+import Situation
+import Term
+
 import utils.collections.select
 import java.util.PriorityQueue
 import kotlin.math.exp
 import kotlin.math.ln
 import kotlin.random.Random
 
-fun interface UtilityFunction<X, P> {
+fun interface UtilityFunctionOld<X, P> {
     // TODO debate whether double is the correct return type.
     fun calculateUtility(alternative: X, parameters: P): Double
 }
 
-fun interface SingleElementUtilityFunction<X, P> {
-    fun X.calculateUtility(parameters: P): Double
-}
 
-fun interface DistributionFunction<X, P> {
+
+/*
+Devcode below---------------------------------------------------------
+ */
+
+//class ParametrizedMultinomialLogit<X, S : ChoiceSituation<X>, Q>(private val utilityFunctions: Map<X, ParameterizedUtilityFunction<S, Q>>) {
+//    val alternatives = utilityFunctions.keys
+//
+//    companion object {
+//        class LoEgitBuilder<X, S : ChoiceSituation<X>, Q> {
+//            private val options: MutableMap<X, ParameterizedUtilityFunction<S, Q>> = mutableMapOf()
+//
+//            fun option(alternative: X, generator: Q.(S) -> Term<S>) =
+//                option(alternative, { this }, generator)
+//            fun <T> option(alternative: X, parameters: Q.() -> T, generator: T.(S) -> Term<S>) {
+//                options[alternative] = ParameterizedUtilityFunction { x, q ->
+//
+//                    q.parameters().generator(x.choice).invoke(x.choice)
+//
+//                }
+//
+//
+//            }
+//
+//            fun build(): ParametrizedMultinomialLogit<X, S, Q> {
+//                return ParametrizedMultinomialLogit(options)
+//            }
+//        }
+//
+//        fun <X, S : ChoiceSituation<X>, Q> build(lambda: LoEgitBuilder<X, S, Q>.() -> Unit): ParametrizedMultinomialLogit<X, S, Q> {
+//            val builder = LoEgitBuilder<X, S, Q>()
+//            builder.apply(lambda)
+//            return builder.build()
+//        }
+//    }
+//}
+//
+//
+//class Dbug(
+//    val a: Double
+//)
+//class Wrappa(
+//    val sit: ModeSit,
+//    val param: PBomb
+//)
+//open class Pate(
+//    protected open val e: Double
+//)
+//
+//class Pete(override val e: Double) : Pate(e) {
+//
+//}
+//
+//interface PBomb {
+//    val d: Double
+//    val AGE: Int
+//    fun TRAVEL_TIME(lambda: (ModeSit) -> Double): Double {
+//
+//
+//        return 0.0
+//    }
+//}
+///*
+//b + X_1 * b_1 etc.
+// */
+//
+//
+//class InversePPa(val p: PBomb)
+//data class ModeSit(
+//    override val choice: LegacyMode, val otherInfo: OtherInfo,
+//    val origin: Zone,
+//    val destination: Zone,
+//    val impedance: Metrics,
+//    val time: Time,
+//    val travelTimeShift: Double,
+//    val travelCostShift: Double
+//) : ChoiceSituation<LegacyMode> {
+//    val TRAVEL_TIME = 1.2
+//    val TRAVELTIME: (ModeSit) -> Double = {
+//        10.0
+//    }
+//}
+//
+//data class OtherInfo(
+//    val age: Int
+//)
+//
+//private val TRAVEL_TIME = property<ModeSit> {
+//    impedance.duration(origin.centroid, destination.centroid, choice, time).inWholeMinutes
+//}
+//
+//
+//
+//
+///**
+// * Solves the problem of not being able to write utility function terms using only numbers. Not really though
+// */
+//private val `Utility：` = property<ModeSit> {
+//    0.0
+//}
+//
+//inline fun <T> prop(crossinline compute: T.() -> Number) = property<T>(compute)
+//fun tMain() {
+//    ParametrizedMultinomialLogit.build<LegacyMode, ModeSit, PBomb> {
+//
+//        option(LegacyMode.TAXI) {
+//            `Utility：` + 1.0 + TRAVEL_TIME
+//        }
+//        option(LegacyMode.CAR, parameters = { d }) { mode ->
+//           U + mode.TRAVEL_TIME
+//        }
+//        other<PedBomb>(LegacyMode.CAR) {
+//            p + p + p + d
+//        }
+//        other<Dbug>()
+//    }
+//}
+
+/*
+Devcode above----------------------------------------------------------
+ */
+fun interface DistributionFunctionOld<X, P> {
     fun calculateProbabilities(
         alternatives: Set<X>,
         parameters: P,
-        utilityFunction: UtilityFunction<X, P>
+        utilityFunction: UtilityFunctionOld<X, P>
     ): Map<X, Double>
 }
 
-interface SufficientDistributionFunction<X, P>: DistributionFunction<X, P> {
+interface SufficientDistributionFunction<X, P> : DistributionFunctionOld<X, P> {
     val alternatives: Set<X>
     fun calculateProbabilities(alternatives: Set<X>, parameters: P): Map<X, Double>
     fun calculateProbabilities(parameters: P): Map<X, Double> = calculateProbabilities(alternatives, parameters)
     override fun calculateProbabilities(
         alternatives: Set<X>,
         parameters: P,
-        utilityFunction: UtilityFunction<X, P>
+        utilityFunction: UtilityFunctionOld<X, P>
     ): Map<X, Double> {
         return calculateProbabilities(alternatives, parameters)
     }
@@ -42,11 +162,11 @@ fun interface SelectionFunction<X> {
 }
 
 
-class Logit<X, P> : DistributionFunction<X, P> {
+class Logit<X, P> : DistributionFunctionOld<X, P> {
     override fun calculateProbabilities(
         alternatives: Set<X>,
         parameters: P,
-        utilityFunction: UtilityFunction<X, P>
+        utilityFunction: UtilityFunctionOld<X, P>
     ): Map<X, Double> {
 
 
@@ -60,7 +180,7 @@ class Logit<X, P> : DistributionFunction<X, P> {
 
 }
 
-class MultinomialLogit<X, P>(private val utilityFunctions: Map<X, UtilityFunction<X, P>>) :
+class MultinomialLogit<X, P>(private val utilityFunctions: Map<X, UtilityFunctionOld<X, P>>) :
     SufficientDistributionFunction<X, P> {
     override val alternatives: Set<X> = utilityFunctions.keys
     override fun calculateProbabilities(alternatives: Set<X>, parameters: P): Map<X, Double> {
@@ -71,16 +191,30 @@ class MultinomialLogit<X, P>(private val utilityFunctions: Map<X, UtilityFunctio
         val sum = utilities.values.sum()
         return utilities.mapValues { it.value / sum }
     }
+
     companion object {
         class LogitBuilder<X, P> {
-            private val options: MutableMap<X, UtilityFunction<X, P>> = mutableMapOf()
-            fun option(alternative: X, utilityFunction: UtilityFunction<X, P>) {
+            private val options: MutableMap<X, UtilityFunctionOld<X, P>> = mutableMapOf()
+            fun option(alternative: X, utilityFunction: UtilityFunctionOld<X, P>) {
+
                 options[alternative] = utilityFunction
             }
+
+            fun <V : Situation<X>> optionE(alternative: V, generator: V.() -> Term<X>) {
+
+                options[alternative.choice] = UtilityFunctionOld { x, _ -> alternative.generator().invoke(x) }
+            }
+
+            fun <V : Situation<X>> constant(alternative: V, generator: V.() -> Double) {
+
+                options[alternative.choice] = UtilityFunctionOld { x, _ -> alternative.generator() }
+            }
+
             fun build(): MultinomialLogit<X, P> {
                 return MultinomialLogit(options)
             }
         }
+
         fun <X, P> build(lambda: LogitBuilder<X, P>.() -> Unit): MultinomialLogit<X, P> {
             val builder = LogitBuilder<X, P>()
             builder.apply(lambda)
@@ -106,7 +240,7 @@ class NestBuilder<X, P> {
     }
 
     inner class Leaf<X, P>(
-        val x: X, private val utilityFunction: UtilityFunction<X, P>,
+        val x: X, private val utilityFunction: UtilityFunctionOld<X, P>,
     ) : Node<X, P>() {
         override var parent: Node<X, P>? = null
         override val childs: Collection<Node<X, P>> = emptySet()
@@ -148,8 +282,6 @@ class NestBuilder<X, P> {
                 utility = null
                 return null
             }
-            // TODO increase numeric stability.
-
             maxUtility = childs.mapNotNull { it.utility }.maxOrNull() ?: 0.0
 
             val x = childs.filter { it.isAvailable(options) }
@@ -193,13 +325,13 @@ class NestBuilder<X, P> {
         return nest
     }
 
-    fun add(element: X, function: UtilityFunction<X, P>) {
+    fun add(element: X, function: UtilityFunctionOld<X, P>) {
         val leaf = Leaf(element, function)
         addLeaf(element, leaf)
     }
 
 
-    operator fun Pair<X, UtilityFunction<X, P>>.unaryPlus() {
+    operator fun Pair<X, UtilityFunctionOld<X, P>>.unaryPlus() {
         val element = Leaf(this.first, this.second)
         addLeaf(this.first, element)
 
@@ -259,10 +391,11 @@ fun <X> NestedLogit<X, Unit>.calculateProbabilities(alternatives: Set<X>): Map<X
 }
 
 val GlobalRandomizer = Random(1)
+
 class OtherDiscreteChoiceModel<X, P>(
-    private val distributionFunction: DistributionFunction<X, P>,
+    private val distributionFunction: DistributionFunctionOld<X, P>,
     private val selectionFunction: SelectionFunction<X> = SelectionFunction { it.select(GlobalRandomizer.nextDouble()) },
-    private val utilityFunction: UtilityFunction<X, P>,
+    private val utilityFunction: UtilityFunctionOld<X, P>,
 ) {
 
     fun select(alternatives: Set<X>, parameters: P): X {
@@ -274,7 +407,8 @@ class OtherDiscreteChoiceModel<X, P>(
             )
         )
     }
-    fun select(alternatives: Set<X>, parameters: P, utilityFunction: UtilityFunction<X, P>): X {
+
+    fun select(alternatives: Set<X>, parameters: P, utilityFunction: UtilityFunctionOld<X, P>): X {
         return selectionFunction.calculateSelection(
             distributionFunction.calculateProbabilities(
                 alternatives,
@@ -284,6 +418,7 @@ class OtherDiscreteChoiceModel<X, P>(
         )
     }
 }
+
 class DiscreteChoiceModel<X, P>(
     private val distributionFunction: SufficientDistributionFunction<X, P>,
     private val selectionFunction: SelectionFunction<X> = SelectionFunction { it.select(GlobalRandomizer.nextDouble()) },
