@@ -200,6 +200,9 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
         val results = targets.associateWith { synZone ->
 //            println("Working on $synZone")
             val rulesForZone = conditions.getOrDefault(synZone, emptyList())
+            require(rulesForZone.isNotEmpty()) {
+                "Cannot run IPU for target zone ${synZone.id}, no rules found. Rules are present for ${conditions.keys.map { it.id }}"
+            }
             val internal = synZone.calculate(eqD, rulesForZone)
             val output = internal.flatMap {
                 convertNumbersToHousehold(eqD, it.first, it.second)

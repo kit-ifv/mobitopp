@@ -17,7 +17,7 @@ import kotlin.math.abs
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
 
-class ModeChoiceUtilityTest : CompareTwoUtilityFunctions<IGeneratedHcUtilityFunction>() {
+class ModeChoiceUtilityTest : CompareTwoUtilityFunctionsOld<IGeneratedHcUtilityFunction>() {
     override val comparison: TestSimulation.(
         IGeneratedHcUtilityFunction,
         IGeneratedHcUtilityFunction

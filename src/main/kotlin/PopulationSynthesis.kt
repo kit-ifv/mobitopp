@@ -108,29 +108,35 @@ class AssignStepBuilder(
 
     fun primarySchool(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
+        element.lambda()
         steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
     }
 
     fun secondarySchool(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
+        element.lambda()
         steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
     }
 
     fun work(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
+        element.lambda()
         steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
     }
 }
 
 
-class SynthesisSteps(val zones: List<Zone>, val surveyHouseholds: Collection<SurveyHousehold>) {
-    lateinit var attractivenessModel: AttractivenessModel
+class SynthesisSteps(
+    val zones: List<Zone>,
+    val surveyHouseholds: Collection<SurveyHousehold>,
+    val attractivenessModel: AttractivenessModel
+) {
+
     lateinit var householdsByZone: Map<Zone, List<SynthesisHouseholdBuilder>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
     val cars = listOf<Car>() // TODO cuirrently there is no generation of cars
-    val opportunities = listOf<OpportunityOutput>() // TODO cuirrently there is no generation of cars
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
     fun input(lambda: () -> Unit) {
         //TODO attractiveness Model, Zones, etc.
@@ -144,7 +150,14 @@ class SynthesisSteps(val zones: List<Zone>, val surveyHouseholds: Collection<Sur
 
     fun synthesis(randsums: Map<Zone, List<Rule>>, lambda: () -> HouseholdSynthesis) {
         val generator = lambda()
-        householdsByZone = generator.synthesize(surveyHouseholds, zones, randsums)
+        val synthesisZones = zones.filter { it in randsums.keys }
+        require(randsums.keys.all { it in zones }) {
+            "Zone Ids: ${
+                randsums.keys.filter { it !in zones }.map { it.id }
+            } requested by the marginal sums are not found" +
+                    "in the configuration. The program will terminate"
+        }
+        householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
 
     var assignHouseholdLocationStrategy: AssignHouseholdLocations = AssignAroundCentroid(100.0)
@@ -196,17 +209,28 @@ class OtherHolder(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold>,
-    val randsums: Map<Zone, List<Rule>>
+    val randsums: Map<Zone, List<Rule>>,
+    val attractivenessModel: AttractivenessModel
 ) {
-
+    val opportunities : MutableList<OpportunityOutput> = mutableListOf()
     fun build(lambda: SynthesisSteps.() -> Unit) {
-        val s = SynthesisSteps(zones, surveyHouseholds).apply(lambda)
+        val s = SynthesisSteps(zones, surveyHouseholds, attractivenessModel).apply(lambda)
         HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), s.households)
         PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), s.people)
         FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), s.fixedDestinations)
         ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), s.activities)
         CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), s.cars)
-        OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), s.opportunities)
+        OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
+    }
+
+    fun generateLocations(
+        activityType: ActivityType,
+        amount: Int = 10,
+        generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
+    ): List<Location> {
+        val generatedLocations =  zones.generateLocations(attractivenessModel, activityType, generationFunction)
+        opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
+        return generatedLocations
     }
 
     companion object {
@@ -215,6 +239,24 @@ class OtherHolder(
             lateinit var zones: List<Zone>
             lateinit var surveyHouseholds: Collection<SurveyHousehold>
             lateinit var randsums: Map<Zone, List<Rule>>
+            lateinit var attractivenessModel: AttractivenessModel
+
+            inner class AttractivenessModelParser {
+                var file = Path("src/test/resources/synthesis/attractivities.csv")
+                var activityTypes: Set<ActivityType> = emptySet()
+                fun build(): AttractivenessModel {
+                    return AttractivenessFromCsv(
+                        file = file.toFile(), activityTypes =
+                        activityTypes
+                    )
+                }
+            }
+
+            fun attractivenessFromFile(lambda: AttractivenessModelParser.() -> Unit): AttractivenessModel {
+                val attractivenessModel = AttractivenessModelParser()
+                attractivenessModel.lambda()
+                return attractivenessModel.build()
+            }
         }
 
         fun configure(lambda: SynthesisConfiguration.() -> Unit): OtherHolder {
@@ -223,7 +265,14 @@ class OtherHolder(
             val rules: Map<Zone, List<Rule>> = targets.associate {
                 config.zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
             }
-            return OtherHolder(config.outputDirectory, config.zones, config.surveyHouseholds, rules)
+
+            return OtherHolder(
+                config.outputDirectory,
+                config.zones,
+                config.surveyHouseholds,
+                rules,
+                config.attractivenessModel
+            )
         }
     }
 }
@@ -236,10 +285,17 @@ fun tryout() {
             .map { it.build() }
         surveyHouseholds =
             parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
+        attractivenessModel = attractivenessFromFile {
+            file = Path("src/test/resources/synthesis/attractivities.csv")
+            activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
+        }
 
     }
 
-    val primarySchools: List<Location> = emptyList() // TODO
+    val primarySchools: List<Location> = o.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+    require(primarySchools.isNotEmpty()) {
+        "Somehow no primary schools are generated"
+    }
     o.build {
         synthesis(o.randsums) {
             IPU { vectors, observers ->

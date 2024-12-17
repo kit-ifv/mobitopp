@@ -82,7 +82,7 @@ object CarOutput : CSVOutput<Car> {
     override fun convert(element: Car): String {
         return element.run {
 
-            usecases.steps.toCSV(
+            toCSV(
                 "TODO ownerID",
                 "TODO mainUserId",
                 "TODO personalUserId",

@@ -1,13 +1,25 @@
 package synthesis
 
+import Situation
+import Term
 import domain.data.Employment
+import domain.data.Person
 import domain.data.Sex
+import domain.data.Zone
+import domain.location.LOCATIONUNKNOWN
+import domain.location.Metrics
 import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.MultinomialLogit
 import modeling.discreteChoice.ReadParameterFile
 import modeling.discreteChoice.getOrWarn
+import plus
+import prop
+import property
+import times
 import units.euros
+import usecases.LegacyMode
 import utils.collections.select
+import utils.units.AbsoluteTime
 import kotlin.random.Random
 
 class TransitPassParameters(householdBuilder: SynthesisHouseholdBuilder, person: PersonInfo) {
@@ -308,14 +320,40 @@ data class TransitPass(
         }
     }
 }
+data class TicketSituation(
+    override val choice: Boolean,
+    val expert: Double = 0.0,
+//    val household: SurveyHousehold,
+): Situation<Boolean> {
+    val KUNGFU = property<Boolean> { 10.0 }
 
-val selectionModel = MultinomialLogit.build {
-            option(false) {_ , p -> NoTransitPass.calculate(p)  }
-    option(true)  {_ ,p -> YesTransitPass.calculate(p)}
+
+}
+
+val nope = object: Situation<Boolean> {
+    override val choice: Boolean = false
+    val interesting: List<Int> = emptyList()
+
+}
+class ESituation(override val choice: Int): Situation<Int>
+val yesTicket = TicketSituation(true)
+val sit = ESituation(1)
+val selectionModel = MultinomialLogit.build<Boolean, TransitPassParameters> {
+    option(false) { _, p -> NoTransitPass.calculate(p) }
+//    option(true) { _, p -> YesTransitPass.calculate(p) }
+    optionE(yesTicket) {
+        expert * KUNGFU + KUNGFU
+    }
+    constant(nope) {
+        1.0
+    }
 }
 
 val transitPassDiscreteChoiceModel = DiscreteChoiceModel(selectionModel)
 
-fun DiscreteChoiceModel<Boolean, TransitPassParameters>.select(householdBuilder: SynthesisHouseholdBuilder, person: SynthesisPerson): Boolean {
+fun DiscreteChoiceModel<Boolean, TransitPassParameters>.select(
+    householdBuilder: SynthesisHouseholdBuilder,
+    person: SynthesisPerson
+): Boolean {
     return select(TransitPassParameters(householdBuilder, person))
 }
