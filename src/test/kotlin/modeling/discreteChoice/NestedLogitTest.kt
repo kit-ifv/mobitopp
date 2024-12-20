@@ -2,70 +2,74 @@ package modeling.discreteChoice
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-private enum class Attempt {
-    ONE, TWO, THREE, FOUR;
-}
+import java.awt.Choice
 
 class NestedLogitTest {
-    @Test
-    fun firstTest() {
-        val nested = NestedLogit.root<Attempt, Unit> {
-            nest(lambda = 0.001) {
-                add(Attempt.ONE) { _, _ -> 0.0 }
-                add(Attempt.TWO) { _, _ -> 0.0 }
 
-            }
-            add(Attempt.THREE) { _, _ -> 0.0 }
-            add(Attempt.FOUR) { _, _ -> 0.0 }
-        }
-
-        val result = nested.calculateProbabilities(setOf(Attempt.ONE, Attempt.TWO, Attempt.THREE))
-        assertEquals(result.keys, setOf(Attempt.ONE, Attempt.TWO, Attempt.THREE))
-
+    private val choiceModel = NestedLogit.build<
+            Options, Situation, RedbusParameters> {
+                option(Options.CAR) {
+                    0.0
+                }
+                nest({lambda_bus}) {
+                    option(Options.RED_BUS) {
+                        0.0
+                    }
+                    option(Options.BLUE_BUS) {
+                        0.0
+                    }
+                }
     }
-
-    @Test
-    fun simplestNested() {
-        val nested = NestedLogit.root<Attempt, Unit> {
-
-            add(Attempt.ONE) { _, _ -> 0.0 }
-            add(Attempt.TWO) { _, _ -> 0.0 }
-        }
-
-        val result = nested.calculateProbabilities(setOf(Attempt.ONE, Attempt.TWO, Attempt.THREE))
-        assertEquals(result[Attempt.ONE], 0.5)
-        assertEquals(result[Attempt.TWO], 0.5)
-    }
-
-    @Test
-    fun multinomial() {
-        val nested = NestedLogit.root<Attempt, Unit> {
-            nest(lambda = 1.0) {
-                add(Attempt.ONE) { _, _ -> 0.0 }
-                add(Attempt.TWO) { _, _ -> 0.0 }
-            }
-            add(Attempt.THREE) { _, _ -> 0.0 }
-        }
-
-        val result = nested.calculateProbabilities(setOf(Attempt.ONE, Attempt.TWO, Attempt.THREE))
-        assertEquals(result[Attempt.ONE], 1.0 / 3)
-        assertEquals(result[Attempt.TWO], 1.0 / 3)
-        assertEquals(result[Attempt.THREE], 1.0 / 3)
-    }
-
     @Test
     fun redBusBlueBus() {
-        val nested = NestedLogit.root<Attempt, Unit> {
-            nest(lambda = Double.MIN_VALUE) {
-                add(Attempt.ONE) { _, _ -> 0.0 }
-                add(Attempt.TWO) { _, _ -> 0.0 }
-            }
-            add(Attempt.THREE) { _, _ -> 0.0 }
-        }
+        val result = choiceModel.calculateProbabilities(Situation.ALL, IDENTICAL)
+        assertEquals(result[Situation(Options.RED_BUS)], 0.25)
+        assertEquals(result[Situation(Options.BLUE_BUS)], 0.25)
+        assertEquals(result[Situation(Options.CAR)], 0.5)
 
-        val result = nested.calculateProbabilities(setOf(Attempt.ONE, Attempt.TWO, Attempt.THREE))
-        assertEquals(result[Attempt.ONE], 1.0 / 4)
-        assertEquals(result[Attempt.TWO], 1.0 / 4)
-        assertEquals(result[Attempt.THREE], 1.0 / 2)
+    }
+
+    @Test
+    fun invariantRedBus() {
+        val result = choiceModel.calculateProbabilities(Situation.ALL, DIFFERENT)
+        assertEquals(result[Situation(Options.RED_BUS)], 1.0 / 3)
+        assertEquals(result[Situation(Options.BLUE_BUS)], 1.0 / 3)
+        assertEquals(result[Situation(Options.CAR)], 1.0 / 3)
+
     }
 }
+
+operator fun <X: Any> Map<ChoiceSituation<X>, Double>.get(x: X) : Double {
+    return entries.first { it.key == x }.value
+}
+
+private class RedbusParameters(val lambda_bus: Double) {
+    val pedestrian = DifferentParameters.fromRedbusParameters(this)
+}
+private class DifferentParameters(val ped: Double) {
+    companion object {
+
+        fun fromRedbusParameters(redbusParameters: RedbusParameters): DifferentParameters {
+            return redbusParameters.fromRedbusParameters()
+        }
+        private fun RedbusParameters.fromRedbusParameters(): DifferentParameters {
+            return DifferentParameters(
+                ped = lambda_bus
+            )
+        }
+    }
+}
+private val IDENTICAL = RedbusParameters(Double.MIN_VALUE)
+private val DIFFERENT = RedbusParameters(1.0)
+
+
+private enum class Options {
+    RED_BUS, BLUE_BUS, CAR
+}
+
+private class Situation(override val choice: Options) : ChoiceSituation<Options>() {
+    companion object {
+        val ALL = Options.entries.map { Situation(it) }.toSet()
+    }
+}
+

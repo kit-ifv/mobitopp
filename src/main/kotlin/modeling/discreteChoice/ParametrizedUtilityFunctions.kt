@@ -27,62 +27,18 @@ abstract class ChoiceSituation<out X : Any> {
         return choice.hashCode()
     }
 
-}
-
-/**
- * A utility function takes in an alternative and a parameter object and returns the utility of said alternative.
- */
-fun interface UtilityFunction<SIT, PARAMS> {
-    fun calculateUtility(alternative: SIT, parameterObject: PARAMS): Double
-}
-
-
-interface AllocatedDistributionFunction<SIT : ChoiceSituation<*>, PARAMS> : DistributionFunction<SIT, PARAMS> {
-    fun translation(target: SIT): UtilityFunction<SIT, PARAMS>
-    fun calculateProbabilities(alternatives: Set<SIT>, parameters: PARAMS): Map<SIT, Double> {
-        return calculateProbabilities(alternatives.map { it to translation(it) }, parameters)
-    }
 
 
 }
 
 
-interface ParameterizedDistributionFunction<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
-    /**
-     * Specific implementations of discrete choice models need a layer of abstraction to determine the correct utility
-     * function that should be applied to a target situation. As Example take mode choice, where each mode is typically
-     * associated with its own utility funciton, whereas destination choice usually has a single function applied to all
-     * targets individually. By providing the layer of abstraction any discrete choice scenario should be representable
-     */
-    fun translation(target: SIT): UtilityFunction<SIT, PARAMS>
-
-    // TODO maybe change return type from X to S, that way X could be dropped from the class generics?
-    fun calculateProbabilities(
-        alternatives: Set<SIT>,
-        parameters: PARAMS,
-    ): Map<X, Double>
-
-}
-
-/**
- * A distribution function takes in a collection of situations with their associated utility functions, a parameter
- * object and returns a map of calculated probabilities from the given alternatives
- */
-fun interface DistributionFunction<SIT, PARAMS> {
-    fun calculateProbabilities(
-        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
-        parameters: PARAMS
-    ): Map<SIT, Double>
-}
 
 private class SimpleLogit<SIT : ChoiceSituation<*>, PARAMS> : DistributionFunction<SIT, PARAMS> {
-    override fun calculateProbabilities(
-        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
-        parameters: PARAMS
-    ): Map<SIT, Double> {
-        val results = evaluators.associate { it.first to it.second.calculateUtility(it.first, parameters) }
-        val sum = results.values.sum()
-        return results.mapValues { (_, v) -> v / sum }
+
+    override fun calculateProbabilities(evaluators: Map<SIT, Double>, parameters: PARAMS): Map<SIT, Double> {
+        val exponents = evaluators.mapValues { exp(it.value) }
+        val sum = exponents.values.sum()
+        return exponents.mapValues { it.value / sum }
     }
 
 }
@@ -131,7 +87,7 @@ class PNestBuilder<SIT, PARAMS> {
     }
 
     inner class Intermediate(
-        override val childs: Collection<Node<SIT>>, val lambdaParameter: Double,
+        override val childs: Collection<Node<SIT>>, var lambdaParameter: Double,
 
         ) : Node<SIT>() {
         override var parent: Node<SIT>? = null
@@ -234,48 +190,48 @@ class PNestBuilder<SIT, PARAMS> {
 }
 
 
-private class PNestDistributionFunction<SIT : ChoiceSituation<*>, PARAMS> : AllocatedDistributionFunction<SIT, PARAMS> {
-    val map: MutableMap<SIT, UtilityFunction<SIT, PARAMS>> = mutableMapOf()
-    val thirdMap: Map<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>> = emptyMap()
-    val otherMap: Map<SIT, PNestBuilder<SIT, PARAMS>.Leaf<SIT>> = emptyMap()
-    override fun calculateProbabilities(
-        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
-        parameters: PARAMS
-    ): Map<SIT, Double> {
-        return TODO()
-    }
-
-    fun translate(target: SIT): UtilityFunction<SIT, PARAMS> {
-        return map.getOrPut(target) {
-            val match = thirdMap.entries.first { (k) -> k(target) }
-            map[target] = match.value
-            match.value
-        }
-    }
-
-    override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> {
-        return map[target] ?: throw NoSuchElementException("Nope")
-    }
-
-}
-
-private class NumericStableNestLogit<SIT : ChoiceSituation<*>, PARAMS> : AllocatedDistributionFunction<SIT, PARAMS> {
-    val map: Map<SIT, UtilityFunction<SIT, PARAMS>> = emptyMap()
-    override fun calculateProbabilities(
-        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
-        parameters: PARAMS
-    ): Map<SIT, Double> {
-        val exponents = evaluators.associate { it.first to exp(it.second.calculateUtility(it.first, parameters)) }
-        val sum = exponents.values.sum()
-
-        return exponents.mapValues { it.value / sum }
-
-    }
-
-    override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> {
-        return map[target] ?: throw NoSuchElementException("No utility function found in map")
-    }
-}
+//private class PNestDistributionFunction<SIT : ChoiceSituation<*>, PARAMS> : AllocatedDistributionFunction<SIT, PARAMS> {
+//    val map: MutableMap<SIT, UtilityFunction<SIT, PARAMS>> = mutableMapOf()
+//    val thirdMap: Map<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>> = emptyMap()
+//    val otherMap: Map<SIT, PNestBuilder<SIT, PARAMS>.Leaf<SIT>> = emptyMap()
+//    override fun calculateProbabilities(
+//        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
+//        parameters: PARAMS
+//    ): Map<SIT, Double> {
+//        return TODO()
+//    }
+//
+//    fun translate(target: SIT): UtilityFunction<SIT, PARAMS> {
+//        return map.getOrPut(target) {
+//            val match = thirdMap.entries.first { (k) -> k(target) }
+//            map[target] = match.value
+//            match.value
+//        }
+//    }
+//
+//    override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> {
+//        return map[target] ?: throw NoSuchElementException("Nope")
+//    }
+//
+//}
+//
+//private class NumericStableNestLogit<SIT : ChoiceSituation<*>, PARAMS> : AllocatedDistributionFunction<SIT, PARAMS> {
+//    val map: Map<SIT, UtilityFunction<SIT, PARAMS>> = emptyMap()
+//    override fun calculateProbabilities(
+//        evaluators: Collection<Pair<SIT, UtilityFunction<SIT, PARAMS>>>,
+//        parameters: PARAMS
+//    ): Map<SIT, Double> {
+//        val exponents = evaluators.associate { it.first to exp(it.second.calculateUtility(it.first, parameters)) }
+//        val sum = exponents.values.sum()
+//
+//        return exponents.mapValues { it.value / sum }
+//
+//    }
+//
+//    override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> {
+//        return map[target] ?: throw NoSuchElementException("No utility function found in map")
+//    }
+//}
 
 
 private class MLogit<X : Any, S : ChoiceSituation<X>, Q>
@@ -321,20 +277,20 @@ private class MLogit<X : Any, S : ChoiceSituation<X>, Q>
 
 }
 
-private class ZoneLogit<X : Any, S : ChoiceSituation<X>, Q>(
-    val utilitFunction: UtilityFunction<S, Q>,
-    val calculation: DistributionFunction<S, Q> = SimpleLogit()
-) :
-    ParameterizedDistributionFunction<X, S, Q>, DistributionFunction<S, Q>  by calculation {
-    override fun translation(target: S): UtilityFunction<S, Q> {
-        return utilitFunction
-    }
-
-    override fun calculateProbabilities(alternatives: Set<S>, parameters: Q): Map<X, Double> {
-        val calculation = calculateProbabilities(alternatives.map{it to translation((it))}, parameters)
-        return calculation.mapKeys { (k, _) -> k.choice }
-    }
-}
+//private class ZoneLogit<X : Any, S : ChoiceSituation<X>, Q>(
+//    val utilitFunction: UtilityFunction<S, Q>,
+//    val calculation: DistributionFunction<S, Q> = SimpleLogit()
+//) :
+//    ParameterizedDistributionFunction<X, S, Q>, DistributionFunction<S, Q>  by calculation {
+//    override fun translation(target: S): UtilityFunction<S, Q> {
+//        return utilitFunction
+//    }
+//
+//    override fun calculateProbabilities(alternatives: Set<S>, parameters: Q): Map<X, Double> {
+//        val calculation = calculateProbabilities(alternatives.map{it to translation((it))}, parameters)
+//        return calculation.mapKeys { (k, _) -> k.choice }
+//    }
+//}
 
 class PNestedLogit<X, P>(nestStructure: PNestBuilder<X, P>) :
     SufficientDistributionFunction<X, P> {
@@ -361,25 +317,25 @@ class PNestedLogit<X, P>(nestStructure: PNestBuilder<X, P>) :
     }
 
     companion object {
-        fun <X, P: LambdaParameterObject> root(lambda: PNestBuilder<X, P>.() -> Unit): PNestedLogit<X, P> {
-            val builder = PNestBuilder<X, P>()
-            builder.nest(1.0) {
-                lambda()
-            }
-
-            return PNestedLogit(builder)
-        }
+//        fun <X, P: LambdaParameterObject> root(lambda: PNestBuilder<X, P>.() -> Unit): PNestedLogit<X, P> {
+//            val builder = PNestBuilder<X, P>()
+//            builder.nest(1.0) {
+//                lambda()
+//            }
+//
+//            return PNestedLogit(builder)
+//        }
     }
 
 }
 
-interface LambdaParameterObject {
-    val lambdaRoot: Double
-}
+//interface LambdaParameterObject {
+//    val lambdaRoot: Double
+//
+//    fun nestedLogit(lamdbda: PNestedLogit.root<X, P>.() -> Unit): Any
+//}
 
-interface TwoLevelParameterObject: LambdaParameterObject {
-    val lambdaCar: Double
-}
+
 
 open class Legg(override val choice: LegacyMode) : ChoiceSituation<LegacyMode>() {
     val number = 1.0
@@ -392,14 +348,14 @@ class BetterLegg(choice: LegacyMode) : Legg(choice) {
 }
 
 
-private class Parameters(
-    val asc_car: Double,
-    val asc_ped: Double, override val lambdaRoot: Double, override val lambdaCar: Double,
-): TwoLevelParameterObject {
-    fun toPedestrianParameters(): Double {
-        return 1.0
-    }
-}
+//private class Parameters(
+//    val asc_car: Double,
+//    val asc_ped: Double, override val lambdaRoot: Double, override val lambdaCar: Double,
+//): TwoLevelParameterObject {
+//    fun toPedestrianParameters(): Double {
+//        return 1.0
+//    }
+//}
 
 private open class TestMode : Mode {
     override val requiresVehicleTakeAlong: Boolean = false
@@ -429,65 +385,3 @@ private class GenerousModeChoice(override val choice: TestMode) : ChoiceSituatio
 
 private val TAXI: Legg.() -> Boolean = { taxi }
 private val BETTER: BetterLegg.() -> Boolean = { taxi }
-fun main() {
-    val choice = TestMode()
-    val otherchoice = TestMode()
-    val result = MLogit.build<TestMode, GenerousModeChoice, Parameters> {
-        option(Concretization) {
-            it.travelTime.toDouble(DurationUnit.DAYS) * 1.0 + 1.09
-        }
-        option(choice) {
-            1.0 - 99.99
-        }
-    }
-
-    val re3sult = PNestedLogit.root<TestMode, Parameters> {
-        nest(lambda = 1.0) {
-//            option(GenerousModeChoice(Concretization)) {
-//                1.0 + this.asc_car + it.travelTime.toDouble(DurationUnit.DAYS) * (
-//                        1 +
-//                                0 +
-//                                3 +
-//                                4)
-//            }
-            optionsafe(Concretization) {
-                1.0 + it.shift
-            }
-            optionsafe(choice) {
-                1.0
-            }
-            optionsafe(otherchoice) {
-                1.0
-            }
-        }
-    }
-
-    val re = PNestedLogit.root<Legg, Parameters> {
-//        optionsafe()
-//        optionsafe(LegacyMode.TAXI) {
-//            0.0 + 1.9
-//        }
-        optionOther(TAXI) {
-            1.0 + asc_car
-        }
-        optionOther(BETTER) {
-            it.explodotron + 1.0
-        }
-        optionOther(BETTER) {
-            1.0
-        }
-
-
-    }
-
-
-    val situation = GenerousModeChoice(Concretization)
-    val otherSituation = GenerousModeChoice(choice)
-    val parameters = Parameters(1.0, 12.0, 1.0, 1.0)
-    println(re.calculateProbabilities(setOf(Legg(LegacyMode.TAXI)), parameters))
-    val type = result.calculateProbabilities(setOf(situation, otherSituation), parameters)
-
-    println(re3sult.calculateProbabilities(setOf(choice, otherchoice, Concretization), parameters))
-
-
-}
