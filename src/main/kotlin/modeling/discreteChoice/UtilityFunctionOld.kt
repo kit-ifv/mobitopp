@@ -351,7 +351,7 @@ class NestBuilder<X, P> {
 /**
  * TODO this class is not capable of parallel calculations.
  */
-class NestedLogit<X, P>(nestStructure: NestBuilder<X, P>) : SufficientDistributionFunction<X, P> {
+class NestedLogitOld<X, P>(nestStructure: NestBuilder<X, P>) : SufficientDistributionFunction<X, P> {
 
     val map = nestStructure.map
     override val alternatives = map.values.map { it.x }.toSet()
@@ -375,18 +375,18 @@ class NestedLogit<X, P>(nestStructure: NestBuilder<X, P>) : SufficientDistributi
     }
 
     companion object {
-        fun <X, P> root(lambda: NestBuilder<X, P>.() -> Unit): NestedLogit<X, P> {
+        fun <X, P> root(lambda: NestBuilder<X, P>.() -> Unit): NestedLogitOld<X, P> {
             val builder = NestBuilder<X, P>()
             builder.nest(1.0) {
                 lambda()
             }
 
-            return NestedLogit(builder)
+            return NestedLogitOld(builder)
         }
     }
 }
 
-fun <X> NestedLogit<X, Unit>.calculateProbabilities(alternatives: Set<X>): Map<X, Double> {
+fun <X> NestedLogitOld<X, Unit>.calculateProbabilities(alternatives: Set<X>): Map<X, Double> {
     return calculateProbabilities(alternatives, Unit)
 }
 

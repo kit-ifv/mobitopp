@@ -369,7 +369,7 @@ data class CarNestStructure(
     val lambdaTwoOrMoreCar: Double = 0.0132092332380213 + 0.01
 ) {
 
-    val nest = NestedLogit.root {
+    val nest = NestedLogitOld.root {
         add(0) { _, p ->
             NoCarParameters.calculate(p)
 
