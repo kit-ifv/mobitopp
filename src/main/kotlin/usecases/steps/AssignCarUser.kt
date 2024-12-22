@@ -3,10 +3,9 @@ package usecases.steps
 import domain.data.CarId
 import domain.data.Household
 import domain.data.HouseholdId
+import domain.data.MutablePrivateCar
 import domain.data.Person
 import domain.data.PersonId
-import domain.data.PrivateCar
-import domain.data.PrivateCarBuilder
 import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
@@ -27,31 +26,29 @@ interface AssignCarsContext {
 
     val personRepository: Repository<Person, PersonId>
     val householdRepository: Repository<Household, HouseholdId>
-
-    val carRepository: MutableRepository<PrivateCar, CarId>
+    val carRepository: MutableRepository<MutablePrivateCar, CarId>
 }
 
 class AssignCarUserStep(
     context: AssignCarsContext,
-) : TransformStep<PrivateCar, CarId>() {
+) : TransformStep<MutablePrivateCar, CarId>() {
 
     override val name: String = "Assign cars to household members as main users."
-    override val repository: MutableRepository<PrivateCar, CarId> = context.carRepository
+    override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
     override val dependentRepositories: Set<Repository<*, *>> =
         setOf(context.personRepository, context.householdRepository)
 
-    val hhMembers: MutableMap<HouseholdId, UnAssignedPersons> = mutableMapOf()
+    private val hhMembers: MutableMap<HouseholdId, UnAssignedPersons> = mutableMapOf()
 
-    override fun transform(element: PrivateCar): PrivateCar? {
-        // TODO("Not yet implemented")
-        return null
+    override fun transform(element: MutablePrivateCar): MutablePrivateCar {
+        return assign(element, hhMembers)
     }
 
     override fun verifyInput(): Warning? = null
 }
 
 @Suppress("UnusedPrivateMember")
-private fun assign(car: PrivateCarBuilder, hhMembers: MutableMap<HouseholdId, UnAssignedPersons>): PrivateCarBuilder {
+private fun assign(car: MutablePrivateCar, hhMembers: MutableMap<HouseholdId, UnAssignedPersons>): MutablePrivateCar {
     val owner: Household = requireNotNull(
         car.owner
     ) { "Cannot assign main user of cars, since owner has not been defined yet!" }

@@ -6,6 +6,8 @@ import benchmark.ControllableAttractiveness
 import datastructure.Activity
 import domain.data.ActivityId
 import domain.data.Household
+import domain.data.MutableHousehold
+import domain.data.MutablePlannedActivity
 import domain.data.Person
 import domain.data.PlannedActivity
 import domain.data.ZoneId
@@ -51,8 +53,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 fun Person.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
@@ -62,34 +62,40 @@ fun Person.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
 
 class PlanLoader(private val person: Person) {
     val plannedActivities = mutableListOf<PlannedActivity>()
+
     operator fun Triple<ActivityType, Number, Number>.unaryPlus() {
+        val p = person
         plannedActivities.add(
-            PlannedActivity(
-                ActivityId(-1L),
-                person,
-                first,
-                (-1).minutes,
-                AbsoluteTime(
-                    second.toDouble().toDuration(DurationUnit.HOURS),
-                ),
-                third.toDouble().toDuration(DurationUnit.HOURS),
-                person.random
-            )
+            MutablePlannedActivity(
+                id = ActivityId(-1L),
+                seed = 42L,
+            ) {
+                this.person = p
+                activityType = first
+                observedTripDuration = (-1).minutes
+                startTime = AbsoluteTime(second.toDouble().hours)
+                duration = third.toDouble().hours
+            }
         )
     }
 
     var start = AbsoluteTime.START
     operator fun ActivityType.unaryPlus() {
+        val p = person
+
         plannedActivities.add(
-            PlannedActivity(
+
+            MutablePlannedActivity(
                 ActivityId(-1L),
-                person,
-                this,
-                (-1).minutes,
-                start,
-                4.hours,
-                person.random
-            ).also { start += 8.hours }
+                seed = 42L
+            ) {
+                this.person = p
+                activityType = this@unaryPlus
+                observedTripDuration = (-1).minutes
+                startTime = start
+                duration = 4.hours
+            }.also { start += 8.hours }
+
         )
     }
 }
@@ -172,8 +178,8 @@ val testAttractivenessModel = AttractivenessModel { i, _ ->
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 
-    override val households: List<Household> = listOf(
-        zones[0].generateHousehold {
+    override val households: List<MutableHousehold> = listOf(
+        zones[0].generateHousehold(id = 1) {
             householdNumber = 1
         }
     )

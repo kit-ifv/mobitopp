@@ -4,14 +4,14 @@ import Buildable
 import asLocation
 import datastructure.Activity
 import domain.data.ChargingInfluence
-import domain.data.DefaultHouseholdBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.Graduation
-import domain.data.Household
-import domain.data.LegacyZone
+import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutableLegacyZone
+import domain.data.MutablePerson
 import domain.data.Person
-import domain.data.PersonBuilder
 import domain.data.PersonId
 import domain.data.Sex
 import domain.data.Zone
@@ -65,9 +65,21 @@ class TestZone(
     isDestination: Boolean = true,
     relief: Distance = 0.meters,
     id: ZoneId = ZoneId(1L)
-) : LegacyZone(
-    id, visumId, name, areaType, regionType, classification,
-    parkingPlaces, point.asLocation(), isDestination, relief, matrixColumn
+) : MutableLegacyZone(
+    id = id,
+    centroid = point.asLocation(),
+    seed = 42L,
+    {
+        this.visumId = visumId
+        this.name = name
+        this.areaType = areaType
+        this.regionType = regionType
+        this.classification = classification
+        this.parkingPlaces = parkingPlaces
+        this.relief = relief
+        this.matrixColumn = matrixColumn
+        this.isDestination = isDestination
+    }
 )
 
 val OTHER_TEST_ZONE = TestZone(BIELEFELD_HBF)
@@ -116,19 +128,19 @@ class DebugImpedance : Metrics {
         map[Triple(mode, from, to)] = duration
     }
 }
-val testHousehold = TEST_ZONE.generateHousehold {
+val testHousehold = TEST_ZONE.generateHousehold(id = 1) {
     householdNumber = 1
 }
-val testPerson = testHousehold.buildPerson {
-    personId = 1L
-    id = PersonId(1L)
+val testPerson = testHousehold.buildPerson(1L) {
 }
-val otherTestPerson = testHousehold.buildPerson {
-    personId = 2L
-    id = PersonId(2L)
+
+val otherTestPerson = testHousehold.buildPerson(2L) {
     sex = Sex.FEMALE
 }
-val testHousehold1 = DefaultHouseholdBuilder().apply {
+val testHousehold1 = MutableHousehold(
+    id = HouseholdId(1),
+    seed = 42L,
+) {
     location = 1L.toRoadPositionInZone(TestZone())
     householdNumber = 1
     surveyYear = 2024
@@ -137,13 +149,14 @@ val testHousehold1 = DefaultHouseholdBuilder().apply {
     incomePerMonth = 0.euros
     economicStatus = EconomicStatus.MIDDLE
     random = Random(1)
-}.build()
+}
 
-fun Household.buildPerson(lambda: PersonBuilder.() -> Unit): Person {
-    val builder = PersonBuilder()
-    builder.apply {
-        household = this@buildPerson
-
+fun MutableHousehold.buildPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
+    val builder = MutablePerson(
+        id = PersonId(id),
+        household = this,
+        seed = 42L,
+    ) {
         eMobilityAcceptance = 0.share()
         chargingInfluence = ChargingInfluence.NEVER
         random = Random(1)
@@ -155,19 +168,23 @@ fun Household.buildPerson(lambda: PersonBuilder.() -> Unit): Person {
         hasBike = false
         hasCommuterTicket = false
         hasLicense = false
+
+        lambda()
     }
-    builder.household = this
-    val person = builder.build(lambda)
-    addMember(person)
-    return person
+
+    // addMember(person) happens in init of MutablePerson now
+    return builder
 }
 
 fun Zone.generateHouseholdBuilder(
+    id: Long,
     roadIndex: Long = -1L,
-    lambda: DefaultHouseholdBuilder.() -> Unit
-): DefaultHouseholdBuilder {
-    val builder = DefaultHouseholdBuilder()
-    builder.apply {
+    lambda: MutableHousehold.() -> Unit
+): MutableHousehold {
+    val builder = MutableHousehold(
+        id = HouseholdId(id),
+        seed = 42L,
+    ) {
         surveyYear = 2024
         domCode = 1
         type = 1
@@ -175,12 +192,13 @@ fun Zone.generateHouseholdBuilder(
         economicStatus = EconomicStatus.MIDDLE
         random = Random(1)
         location = roadIndex.toRoadPositionInZone(this@generateHouseholdBuilder)
+
+        lambda()
     }
 
-    builder.apply(lambda)
     return builder
 }
 
-fun Zone.generateHousehold(roadIndex: Long = -1L, lambda: DefaultHouseholdBuilder.() -> Unit): Household {
-    return generateHouseholdBuilder(roadIndex, lambda).build()
+fun Zone.generateHousehold(id: Long, roadIndex: Long = -1L, lambda: MutableHousehold.() -> Unit): MutableHousehold {
+    return generateHouseholdBuilder(id, roadIndex, lambda)
 }

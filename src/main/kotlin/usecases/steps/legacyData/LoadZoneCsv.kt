@@ -1,6 +1,6 @@
 package usecases.steps.legacyData
 
-import domain.data.LegacyZone
+import domain.data.MutableLegacyZone
 import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.ZoneClassification
@@ -16,10 +16,17 @@ import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
+import utils.csv.boolean
+import utils.csv.decode
+import utils.csv.distance
+import utils.csv.double
+import utils.csv.id
+import utils.csv.int
+import utils.csv.long
 import java.io.File
 
 interface LoadZonesContext : Context {
-    val zoneRepository: MutableRepository<LegacyZone, ZoneId>
+    val zoneRepository: MutableRepository<MutableLegacyZone, ZoneId>
     val areaTypeCodes: CodePlan<AreaType>
 
     val defaultZoneFile: File
@@ -44,38 +51,37 @@ fun <S, C> S.prepareZones(
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
-    // areaTypeCodes: CodePlan<AreaType>? = null, -> should be consistent within project, only specify in context
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
 ) where S : ModelExecution<C>, C : LoadZonesContext {
-    val csvParser = CsvParser<LegacyZone>(errorHandling) { row ->
-        null
-//        LegacyZoneBuilder().apply {
-//            id = row.id(columns.idColumn)
-//            visumId = row.long(columns.idColumn)
-//            matrixColumn = row.index
-//            name = row(columns.nameColumn)
-//            areaType = row.decode(columns.areaTypeColumn, context.areaTypeCodes)
-//            regionType = row.int(columns.regionTypeColumn)
-//            classification = row(columns.classificationColumn).toZoneClassification()
-//            parkingPlaces = row.int(columns.parkingPlacesColumn)
-//            centroid = row(columns.centroidColumn, centroidParser)
-//            isDestination = row.boolean(columns.isDestinationColumn)
-//            relief = row.double().distance(columns.reliefColumn, reliefUnit)
-//            id = ZoneId(row.long(columns.idColumn))
-//        }
+    val csvParser = CsvParser<MutableLegacyZone>(errorHandling) { row ->
+        MutableLegacyZone(
+            id = row.id(columns.idColumn),
+            centroid = row(columns.centroidColumn, centroidParser),
+            seed = context.simulationSeed
+        ) {
+            visumId = row.long(columns.idColumn)
+            matrixColumn = row.index
+            name = row(columns.nameColumn)
+            areaType = row.decode(columns.areaTypeColumn, context.areaTypeCodes)
+            regionType = row.int(columns.regionTypeColumn)
+            classification = row(columns.classificationColumn).toZoneClassification()
+            parkingPlaces = row.int(columns.parkingPlacesColumn)
+            isDestination = row.boolean(columns.isDestinationColumn)
+            relief = row.double().distance(columns.reliefColumn, reliefUnit)
+        }
     }
 
-    this.prepareZoneFile(csvParser, file, delimiter) // TODO
+    this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
 }
 
 fun <S, C> S.prepareZoneFile(
-    parser: CsvParser<LegacyZone>,
+    parser: CsvParser<MutableLegacyZone>,
     file: File = context.defaultZoneFile,
     delimiter: String = SEMICOLON,
 ) where S : ModelExecution<C>, C : LoadZonesContext {
     this.addStep(
-        LoadCsvStep<LegacyZone, ZoneId>(
+        LoadCsvStep<MutableLegacyZone, ZoneId>(
             file = file,
             name = "Load zones from csv",
             parser = parser,

@@ -55,7 +55,7 @@ interface ModelStep {
 
 interface RepositoryDependentStep : ModelStep {
 
-    val repository: MutableRepository<*, *>?
+    val repository: Repository<*, *>?
     val dependentRepositories: Set<Repository<*, *>>
 
     override fun validate(validationPrefix: Warning.() -> Unit): Warning? = super.validate {
@@ -221,6 +221,18 @@ abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavi
     }
 
     abstract fun transformAll(elements: Collection<E>): Collection<E>
+}
+
+abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+    abstract override val repository: Repository<E, I>
+
+    override fun execute() {
+        repository.elements.forEach {
+            process(it)
+        }
+    }
+
+    abstract fun process(element: E)
 }
 
 /**

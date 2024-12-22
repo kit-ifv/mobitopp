@@ -24,13 +24,13 @@ import utils.collections.replaceOrRemoveAll
 //    val id: I
 // }
 
-interface Repository<out T, I> where T : Identifiable<I> {
+interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
 
-    val name: String
-    val source: String
+    override val name: String
+    override val source: String
     val sealed: Boolean
 
-    val elements: Sequence<T>
+    override val elements: Sequence<T>
     fun getById(id: I): T?
 
     val size: Int
@@ -156,6 +156,10 @@ class MapRepository<T, I>(
         } else {
             ""
         }
+}
+
+fun <R, E, I> R.asRepository() where R: Resource<E>, E: Identifiable<I> = MapRepository<E, I>(name).also {
+    it.addElements(this.source, this.elements)
 }
 
 fun validateNotSealed(

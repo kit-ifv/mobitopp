@@ -7,7 +7,6 @@ import units.Efficiency
 import units.Energy
 import units.Volume
 import units.kilometers
-import utils.Builder
 import utils.Decodable
 import utils.Encodable
 import utils.ID
@@ -55,20 +54,30 @@ interface Car : Identifiable<CarId> {
 /**
  * A vehicle that is assigned to a specific household or user
  */
-interface PrivateCar : Car {
-    val owner: Household
-    val mainUser: Person?
+@Mutable
+abstract class PrivateCar(
+    final override val id: CarId,
+    val owner: MutableHousehold,
+) : Car {
+    abstract val mainUser: Person?
 
-    var state: CarState
+    // simulation vars -> how to handle with @Mutable?
+    var state: CarState = CarState.PARKED
+    final override var driver: Person? = null
+    final override var passengers: MutableSet<Person> = mutableSetOf()
+    final override var keyHolder: Person? = null
 
     enum class CarState {
         PARKED, IN_USE
     }
-}
 
-interface CarEngine {
-    val type: EngineType
-    val range: Distance
+    init {
+        registerCarOwner()
+    }
+
+    private fun registerCarOwner() {
+        owner.cars.add(this)
+    }
 }
 
 /**
@@ -88,6 +97,11 @@ enum class CarSegment(private val code: Int) : Encodable {
         override fun decode(s: String) = valueOf(s)
         override fun values(): Set<CarSegment> = CarSegment.entries.toSet()
     }
+}
+
+interface CarEngine {
+    val type: EngineType
+    val range: Distance
 }
 
 enum class EngineType(private val code: Int) : Encodable {
@@ -143,73 +157,36 @@ interface HybridEngine : CombustionEngine, ElectricEngine {
         get() = EngineType.HYBRID
 }
 
-class PrivateCarBuilder(
-    var segment: CarSegment? = null,
-    var engine: EngineType? = null,
-    var seats: Int? = null,
-    var owner: Household? = null,
-    var mainUser: Person? = null,
-    var carEngineStatistics: CarEngineStatistics? = CarEngineStatistics()
-) : Builder<PrivateCar> {
-    companion object {
-        private var idCount = 0L
-    }
+// class PrivateCarBuilder(
+//    var segment: CarSegment? = null,
+//    var engine: EngineType? = null,
+//    var seats: Int? = null,
+//    var owner: Household? = null,
+//    var mainUser: Person? = null,
+//    var carEngineStatistics: CarEngineStatistics? = CarEngineStatistics()
+// ) : Builder<PrivateCar> {
+//    companion object {
+//        private var idCount = 0L
+//    }
+//
+//    override fun build() = object : PrivateCar {
+//        override val owner: Household = this@PrivateCarBuilder.owner!!
+//        override val mainUser: Person? = this@PrivateCarBuilder.mainUser
+//        override val segment: CarSegment = this@PrivateCarBuilder.segment!!
+//        override val seats: Int = this@PrivateCarBuilder.seats!!
+//        override val id: CarId = ID(idCount++)
+//        override val engine: CarEngine = buildEngine()
+//        override var location: Location = owner.location
+//
+//        override var driver: Person? = null
+//        override var passengers: MutableSet<Person> = mutableSetOf()
+//        override var state = PrivateCar.CarState.PARKED
+//
+//        override var keyHolder: Person? = null
+//
+//        init {
+//            owner.addCar(this)
+//        }
+//    }
 
-    override fun build() = object : PrivateCar {
-        override val owner: Household = this@PrivateCarBuilder.owner!!
-        override val mainUser: Person? = this@PrivateCarBuilder.mainUser
-        override val segment: CarSegment = this@PrivateCarBuilder.segment!!
-        override val seats: Int = this@PrivateCarBuilder.seats!!
-        override val id: CarId = ID(idCount++)
-        override val engine: CarEngine = buildEngine()
-        override var location: Location = owner.location
-
-        override var driver: Person? = null
-        override var passengers: MutableSet<Person> = mutableSetOf()
-        override var state = PrivateCar.CarState.PARKED
-
-        override var keyHolder: Person? = null
-
-        init {
-            owner.addCar(this)
-        }
-    }
-
-    fun buildEngine(): CarEngine {
-        val stats = this.carEngineStatistics!!
-        val segment = this.segment!!
-
-        return when (val engine = this.engine!!) {
-            EngineType.COMBUSTION -> object : CombustionEngine {
-                override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
-                override val fuelConsumption100Km: Volume = stats.fuelConsumption100kmOf(segment)
-            }
-
-            EngineType.ELECTRIC -> object : ElectricEngine {
-                override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
-                override val electricRange = stats.batteryRangeOf(segment, engine)
-            }
-
-            EngineType.HYBRID -> object : HybridEngine {
-                override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
-                override val fuelConsumption100Km = stats.fuelConsumption100kmOf(segment)
-                override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
-                override val electricRange = stats.batteryRangeOf(segment, engine)
-            }
-        }
-    }
-}
-
-@Mutable
-interface TestMut {
-    val age: Int
-    val name: String
-}
-
-@Mutable
-abstract class SubTestMut(
-    override val age: Int,
-) : TestMut {
-
-    abstract val foo: Car
-}
+// }

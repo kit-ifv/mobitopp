@@ -2,7 +2,7 @@ package usecases.steps
 
 import datastructure.plans.SingularDispatcher
 import domain.data.ActivityId
-import domain.data.Person
+import domain.data.MutablePerson
 import domain.data.PersonId
 import domain.data.PlannedActivity
 import domain.data.toSchedule
@@ -18,17 +18,17 @@ fun <S, C> S.assignPlannedActivities() where S : ModelExecution<C>, C : AssignPl
 }
 
 interface AssignPlannedActivitiesContext {
-    val personRepository: MutableRepository<Person, PersonId>
+    val personRepository: MutableRepository<MutablePerson, PersonId>
     val plannedActivityRepository: MutableRepository<PlannedActivity, ActivityId>
 }
 
 class AssignPlannedActivities(
     activityRepositoryContext: AssignPlannedActivitiesContext,
-) : UpdateStep<Person, PersonId>() {
+) : UpdateStep<MutablePerson, PersonId>() {
 
     override val name: String = "Assign planned activities to person in bulk."
 
-    override val repository: MutableRepository<Person, PersonId> = activityRepositoryContext.personRepository
+    override val repository: MutableRepository<MutablePerson, PersonId> = activityRepositoryContext.personRepository
     private val activityRepository = activityRepositoryContext.plannedActivityRepository
     override val dependentRepositories: Set<Repository<*, *>> = setOf(activityRepository)
 
@@ -38,7 +38,7 @@ class AssignPlannedActivities(
         activityRepository.elements.groupBy { it.person.id }.toMutableMap()
     }
 
-    override fun update(element: Person) {
+    override fun update(element: MutablePerson) {
         element.schedule = requireNotNull(activitiesPerPerson[element.id]) {
             "No activities found for Person ${element.id}" // TODO error handling here
         }.toSchedule(SingularDispatcher())

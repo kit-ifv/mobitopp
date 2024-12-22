@@ -7,15 +7,16 @@ import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Graduation
-import domain.data.Household
 import domain.data.HouseholdId
 import domain.data.LegacyZone
-import domain.data.Person
+import domain.data.MutableHousehold
+import domain.data.MutableLegacyZone
+import domain.data.MutablePerson
+import domain.data.MutablePrivateCar
+import domain.data.MutableSharingStation
 import domain.data.PersonId
 import domain.data.PlannedActivity
-import domain.data.PrivateCar
 import domain.data.Sex
-import domain.data.SharingStation
 import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
@@ -84,11 +85,12 @@ data class ProjectContext(
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val behavior = LateInit<PersonBehavior>("Person Choice Models")
 
-    override val zoneRepository = MapRepository<LegacyZone, ZoneId>("")
-    override val householdRepository = MapRepository<Household, HouseholdId>("")
-    override val personRepository = MapRepository<Person, PersonId>("")
-    override val carRepository = MapRepository<PrivateCar, CarId>("")
-    override val plannedActivityRepository = MapRepository<PlannedActivity, ActivityId>("")
+    override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
+    override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
+    override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
+    override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
+    override val plannedActivityRepository = MapRepository<PlannedActivity, ActivityId>("planned activities")
+    override val sharingStationsRepository = MapRepository<MutableSharingStation, SharingStationId>("sharing stations")
 
     override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
         require(zoneRepository.sealed) {
@@ -98,7 +100,4 @@ data class ProjectContext(
     }
 
     override val impedance = LateInit<Metrics>("Impedance")
-
-    override val sharingStationsRepository =
-        MapRepository<SharingStation, SharingStationId>("")
 }
