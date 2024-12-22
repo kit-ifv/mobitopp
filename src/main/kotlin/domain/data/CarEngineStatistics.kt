@@ -123,3 +123,26 @@ fun EngineType.fuelCapacityOf(segment: CarSegment, data: CarEngineStatistics): V
     EngineType.HYBRID -> segment.fuelConsumption100km(data) *
         (this.totalRangeOf(segment, data) - this.batteryRangeOf(segment, data)).div(100.kilometers)
 }
+
+fun CarEngineStatistics.buildEngine(segment: CarSegment, engine: EngineType): CarEngine {
+    val stats = this
+
+    return when (engine) {
+        EngineType.COMBUSTION -> object : CombustionEngine {
+            override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
+            override val fuelConsumption100Km: Volume = stats.fuelConsumption100kmOf(segment)
+        }
+
+        EngineType.ELECTRIC -> object : ElectricEngine {
+            override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
+            override val electricRange = stats.batteryRangeOf(segment, engine)
+        }
+
+        EngineType.HYBRID -> object : HybridEngine {
+            override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
+            override val fuelConsumption100Km = stats.fuelConsumption100kmOf(segment)
+            override val batteryCapacity = stats.batteryCapacityOf(segment, engine)
+            override val electricRange = stats.batteryRangeOf(segment, engine)
+        }
+    }
+}

@@ -20,7 +20,6 @@ import datastructure.StationaryAction
 import domain.data.Employment
 import domain.data.Person
 import domain.data.Zone
-import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
@@ -81,7 +80,7 @@ class LegacyDestinationChoice(
 
     override val name: String = "HamburgLegacyDestinationChoiceModel"
 
-    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
+    private val _choices: Set<Location> = zones.map { it.centroid }.toSet()
 
     override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices

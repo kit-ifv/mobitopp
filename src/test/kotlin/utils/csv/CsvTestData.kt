@@ -1,6 +1,5 @@
 package utils.csv
 
-import utils.Builder
 import utils.ID
 import utils.Identifiable
 import kotlin.time.Duration
@@ -15,42 +14,59 @@ val COLUMNS = listOf(INDEX_COL, BOOL_COL, INT_COL, FLOAT_COL, STR_COL)
 
 typealias TestId = ID<TestEntity>
 
+interface ImmutableEntity : Identifiable<TestId> {
+    val rowIndex: Int
+    val csvIndex: Int
+    val string: String
+    val byte: Byte
+    val short: Short
+    val int: Int
+    val long: Long
+    val float: Float
+    val double: Double
+    val bool: Boolean
+    val duration: Duration?
+}
+
 data class TestEntity(
-    var rowIndex: Int,
-    var csvIndex: Int = -1,
-    var string: String = "",
-    var byte: Byte = 0,
-    var short: Short = 0,
-    var int: Int = 0,
-    var long: Long = 0,
-    var float: Float = 0.0f,
-    var double: Double = 0.0,
-    var bool: Boolean = false,
-    var duration: Duration? = null,
-) : Identifiable<TestId> {
+    override var rowIndex: Int,
+    override var csvIndex: Int = -1,
+    override var string: String = "",
+    override var byte: Byte = 0,
+    override var short: Short = 0,
+    override var int: Int = 0,
+    override var long: Long = 0,
+    override var float: Float = 0.0f,
+    override var double: Double = 0.0,
+    override var bool: Boolean = false,
+    override var duration: Duration? = null,
+) : Identifiable<TestId>, ImmutableEntity {
     override val id: ID<TestEntity>
         get() = ID(rowIndex.toLong())
 }
 
-data class TestBuilder(
-    var rowIndex: Int,
-    var csvIndex: Int = -1,
-    var string: String = "",
-    var byte: Byte = 0,
-    var short: Short = 0,
-    var int: Int = 0,
-    var long: Long = 0,
-    var float: Float = 0.0f,
-    var double: Double = 0.0,
-    var bool: Boolean = false,
-    var duration: Duration? = null,
-) : Builder<TestEntity> {
-    override fun build() = TestEntity(
-        rowIndex, csvIndex, string, byte, short, int, long, float, double, bool, duration
-    )
-}
+// data class TestBuilder(
+//    var rowIndex: Int,
+//    var csvIndex: Int = -1,
+//    var string: String = "",
+//    var byte: Byte = 0,
+//    var short: Short = 0,
+//    var int: Int = 0,
+//    var long: Long = 0,
+//    var float: Float = 0.0f,
+//    var double: Double = 0.0,
+//    var bool: Boolean = false,
+//    var duration: Duration? = null,
+// ) : Builder<TestEntity> {
+//    override fun build() = TestEntity(
+//        rowIndex, csvIndex, string, byte, short, int, long, float, double, bool, duration
+//    )
+// }
 
-val expectedElements: List<TestEntity> = listOf(
+val expectedElements: List<TestEntity>
+    get() = expectedElementSource.map { it.copy() }
+
+private val expectedElementSource = listOf(
     TestEntity(rowIndex = 0, string = "a"),
     TestEntity(rowIndex = 1, string = "Hello; World"),
     TestEntity(rowIndex = 2, string = "42"),
@@ -63,7 +79,10 @@ val expectedElements: List<TestEntity> = listOf(
     TestEntity(rowIndex = 9, string = "fin"),
 )
 
-val expectedElementsMappedStringLength: List<TestEntity> = listOf(
+val expectedElementsMappedStringLength: List<TestEntity>
+    get() = expectedElementsMappedStringLengthSource.map { it.copy() }
+
+private val expectedElementsMappedStringLengthSource = listOf(
     TestEntity(rowIndex = 0, string = "a", int = 1),
     TestEntity(rowIndex = 1, string = "Hello; World", int = 12),
     TestEntity(rowIndex = 2, string = "42", int = 2),
@@ -76,28 +95,28 @@ val expectedElementsMappedStringLength: List<TestEntity> = listOf(
     TestEntity(rowIndex = 9, string = "fin", int = 3),
 )
 
-val expectedBuilders: List<TestBuilder> = listOf(
-    TestBuilder(rowIndex = 0, string = "a"),
-    TestBuilder(rowIndex = 1, string = "Hello; World"),
-    TestBuilder(rowIndex = 2, string = "42"),
-    TestBuilder(rowIndex = 3, string = "exitProcess(1)"),
-    TestBuilder(rowIndex = 4, string = "test"),
-    TestBuilder(rowIndex = 5, string = "%&#)!?"),
-    TestBuilder(rowIndex = 6, string = "1+2*3"),
-    TestBuilder(rowIndex = 7, string = "mobiTopp"),
-    TestBuilder(rowIndex = 8, string = "IfV"),
-    TestBuilder(rowIndex = 9, string = "fin"),
-)
-
-val expectedBuildersMappedStringLength: List<TestBuilder> = listOf(
-    TestBuilder(rowIndex = 0, string = "a", int = 1),
-    TestBuilder(rowIndex = 1, string = "Hello; World", int = 12),
-    TestBuilder(rowIndex = 2, string = "42", int = 2),
-    TestBuilder(rowIndex = 3, string = "exitProcess(1)", int = 14),
-    TestBuilder(rowIndex = 4, string = "test", int = 4),
-    TestBuilder(rowIndex = 5, string = "%&#)!?", int = 6),
-    TestBuilder(rowIndex = 6, string = "1+2*3", int = 5),
-    TestBuilder(rowIndex = 7, string = "mobiTopp", int = 8),
-    TestBuilder(rowIndex = 8, string = "IfV", int = 3),
-    TestBuilder(rowIndex = 9, string = "fin", int = 3),
-)
+// val expectedBuilders: List<TestBuilder> = listOf(
+//    TestBuilder(rowIndex = 0, string = "a"),
+//    TestBuilder(rowIndex = 1, string = "Hello; World"),
+//    TestBuilder(rowIndex = 2, string = "42"),
+//    TestBuilder(rowIndex = 3, string = "exitProcess(1)"),
+//    TestBuilder(rowIndex = 4, string = "test"),
+//    TestBuilder(rowIndex = 5, string = "%&#)!?"),
+//    TestBuilder(rowIndex = 6, string = "1+2*3"),
+//    TestBuilder(rowIndex = 7, string = "mobiTopp"),
+//    TestBuilder(rowIndex = 8, string = "IfV"),
+//    TestBuilder(rowIndex = 9, string = "fin"),
+// )
+//
+// val expectedBuildersMappedStringLength: List<TestBuilder> = listOf(
+//    TestBuilder(rowIndex = 0, string = "a", int = 1),
+//    TestBuilder(rowIndex = 1, string = "Hello; World", int = 12),
+//    TestBuilder(rowIndex = 2, string = "42", int = 2),
+//    TestBuilder(rowIndex = 3, string = "exitProcess(1)", int = 14),
+//    TestBuilder(rowIndex = 4, string = "test", int = 4),
+//    TestBuilder(rowIndex = 5, string = "%&#)!?", int = 6),
+//    TestBuilder(rowIndex = 6, string = "1+2*3", int = 5),
+//    TestBuilder(rowIndex = 7, string = "mobiTopp", int = 8),
+//    TestBuilder(rowIndex = 8, string = "IfV", int = 3),
+//    TestBuilder(rowIndex = 9, string = "fin", int = 3),
+// )

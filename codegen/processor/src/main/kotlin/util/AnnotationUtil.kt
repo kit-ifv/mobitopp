@@ -2,15 +2,21 @@ package util
 
 import com.google.devtools.ksp.containingFile
 import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
+import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeVariableName
@@ -80,7 +86,7 @@ fun KSType.resolveGenerics(): TypeName {
 
 }
 
-fun KSClassDeclaration.getAllFunctions(): List<KSFunctionDeclaration> {
+fun KSClassDeclaration.getAllFunctionsList(): List<KSFunctionDeclaration> {
     // Get functions declared in this class
     val ownFunctions = this.getDeclaredFunctions().toList()
 
@@ -110,3 +116,66 @@ fun KSNode?.asFunction() = this as? KSFunctionDeclaration ?:
 
 private fun KSNode?.symbolErrorMessage(expectedClass: String) =
     "Expected symbol to be a $expectedClass but was ${this?.let { it::class.simpleName }}\n   Symbol: $this"
+
+fun KSType.isInlineClass(): Boolean {
+    println("Hello: checking ${this.declaration.simpleName.asString()}")
+    // Get the class declaration associated with this type
+    val classDeclaration = this.declaration as? KSClassDeclaration ?: return false
+
+    // Check if the class is inline
+    if (classDeclaration.modifiers.contains(Modifier.INLINE)) return true
+
+    return classDeclaration.annotations.any { annotation ->
+        annotation.shortName.asString() == "JvmInline" &&
+            annotation.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.jvm.JvmInline"
+    }
+}
+
+fun TypeName.isCollectionType(): Boolean {
+    return when (this) {
+        is ParameterizedTypeName -> {
+            when (rawType.toString()) {
+                "kotlin.collections.List",
+                "kotlin.collections.Set",
+                "kotlin.collections.Map" -> true
+                else -> false // If it's not a known collection, keep it as is
+            }
+
+        }
+        else -> false // Non-parameterized types are returned as-is
+    }
+}
+
+fun TypeName.toMutableCollectionType(): TypeName {
+    return when (this) {
+        is ParameterizedTypeName -> {
+            // Check the raw type and convert it
+            val mutableRawType = when (rawType.toString()) {
+                "kotlin.collections.List" -> ClassName("kotlin.collections", "MutableList")
+                "kotlin.collections.Set" -> ClassName("kotlin.collections", "MutableSet")
+                "kotlin.collections.Map" -> ClassName("kotlin.collections", "MutableMap")
+                else -> rawType // If it's not a known collection, keep it as is
+            }
+            // Reapply the type arguments to the new raw type
+            mutableRawType.parameterizedBy(typeArguments)
+        }
+        else -> this // Non-parameterized types are returned as-is
+    }
+}
+
+fun Resolver.getKSTypeByName(fqName: String, generics: List<KSTypeArgument> = emptyList()): KSType? {
+    val classDeclaration = getClassDeclarationByName(getKSNameFromString(fqName))
+    return classDeclaration?.asType(generics)
+}
+
+fun TypeName.getEmptyInitializer(): String {
+    return when (this.toString().split("<")[0]) {
+        "kotlin.collections.List" -> "mutableListOf()"
+        "kotlin.collections.Set" -> "mutableSetOf()"
+        "kotlin.collections.Map" -> "mutableMapOf()"
+        "kotlin.collections.MutableList" -> "mutableListOf()"
+        "kotlin.collections.MutableSet" -> "mutableSetOf()"
+        "kotlin.collections.MutableMap" -> "mutableMapOf()"
+        else -> "TODO()" // Fallback for non-collection types
+    }
+}

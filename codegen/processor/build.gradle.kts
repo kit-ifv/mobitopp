@@ -19,6 +19,13 @@ dependencies {
     testImplementation(kotlin("reflect"))
     implementation(kotlin("reflect"))
 }
+
+//ksp {
+//    arg("incremental", "true")
+//    arg("ksp.incremental", "true")
+//
+//}
+
 group = "edu.kit.ifv"
 version = "1.0.0"
 publishing {
@@ -37,4 +44,10 @@ publishing {
         }
     }
 }
+
+//sourceSets {
+//    main {
+//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
+//    }
+//}
 

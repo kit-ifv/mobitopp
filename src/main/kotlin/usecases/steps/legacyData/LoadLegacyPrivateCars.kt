@@ -4,11 +4,12 @@ import domain.data.CarEngineStatistics
 import domain.data.CarId
 import domain.data.CarSegment
 import domain.data.EngineType
-import domain.data.Household
 import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutablePrivateCar
 import domain.data.Person
 import domain.data.PersonId
-import domain.data.PrivateCar
+import domain.data.buildEngine
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.ModelExecution
@@ -17,23 +18,46 @@ import modeling.steps.Repository
 import modeling.steps.SealStep
 import utils.CodePlan
 import utils.ErrorHandling
+import utils.ID
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
+import utils.csv.decodeName
 import utils.csv.id
+import utils.csv.int
 import utils.csv.withFilter
 import java.io.File
 
 interface LoadPrivateCarsContext : Context {
-    val carRepository: MutableRepository<PrivateCar, CarId>
+    val carRepository: MutableRepository<MutablePrivateCar, CarId>
     val engineCodes: CodePlan<EngineType>
     val carSegmentCodes: CodePlan<CarSegment>
 
-    val householdRepository: Repository<Household, HouseholdId>
+    val householdRepository: Repository<MutableHousehold, HouseholdId>
     val personRepository: Repository<Person, PersonId>
 
     val defaultCarFile: File
         get() = File(demandFolder.path + "\\demand-data\\car.csv")
+
+    fun getOwnerHousehold(
+        row: Row,
+        ownerColumn: String
+    ) = requireNotNull(
+        householdRepository.getById(row.id(ownerColumn))
+    ) {
+        "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
+            " ${householdRepository.elements.map { it.id }.toList()}"
+    }
+
+    fun getMainUser(
+        row: Row,
+        mainUserColumn: String
+    ) = requireNotNull(
+        personRepository.getById(row.id(mainUserColumn))
+    ) {
+        "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
+            " ${personRepository.elements.map { it.id }.toList()}"
+    }
 }
 
 data class CarColumns(
@@ -50,36 +74,33 @@ fun <S, C> S.preparePrivateCars(
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
-    // carSegmentCode: CodePlan<CarSegment>? = null, should be consistent within project -> only define in context
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
     filter: CarColumns.(Row, C) -> Boolean = { _, _ -> true }
-
 ) where S : ModelExecution<C>, C : LoadPrivateCarsContext {
-    val householdRepo = context.householdRepository // }
-    val personRepo = context.personRepository // }
+    val csvParser = CsvParser<MutablePrivateCar>(errorHandling) { row ->
 
-    val csvParser = CsvParser<PrivateCar>(errorHandling) { row ->
-        null
-//        PrivateCarBuilder( // TODO
-//            segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes),
-//            engine = row(columns.engineTypeColumn, ::parseEngineType),
-//            seats = row.int(columns.seatsColumnIndex),
-//            owner = getOwnerHousehold(householdRepo, row, columns.ownerColumn),
-//            mainUser = getMainUser(personRepo, row, columns.mainUserColumn),
-//            carEngineStatistics = carEngineStatistics
-//        )
+        MutablePrivateCar(
+            id = ID(row.index.toLong()),
+            owner = context.getOwnerHousehold(row, columns.ownerColumn)
+        ) {
+            seats = row.int(columns.seatsColumnIndex)
+            mainUser = context.getMainUser(row, columns.mainUserColumn)
+            segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes)
+            val engineType = row(columns.engineTypeColumn, ::parseEngineType)
+            engine = carEngineStatistics.buildEngine(segment, engineType)
+        }
     }
 
     this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, context) }, file, delimiter)
 }
 
 fun <S, C> S.preparePrivateCarsFile(
-    parser: CsvParser<PrivateCar>,
+    parser: CsvParser<MutablePrivateCar>,
     file: File = context.defaultCarFile,
     delimiter: String = SEMICOLON,
 ) where S : ModelExecution<C>, C : LoadPrivateCarsContext {
     this.addStep(
-        LoadCsvStep<PrivateCar, CarId>(
+        LoadCsvStep<MutablePrivateCar, CarId>(
             file = file,
             name = "Load private cars from csv",
             parser = parser,
@@ -114,26 +135,4 @@ internal fun parseEngineType(string: String): EngineType = when (string) {
     else -> throw IllegalArgumentException(
         "Cannot parse string $string to EngineType: expected 'conventional', 'bev' or 'erev'!"
     )
-}
-
-internal fun getOwnerHousehold(
-    householdRepo: Repository<Household, HouseholdId>, // () ->
-    row: Row,
-    ownerColumn: String
-) = requireNotNull(
-    householdRepo.getById(row.id(ownerColumn))
-) {
-    "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
-        " ${householdRepo.elements.map { it.id }.toList()}"
-}
-
-internal fun getMainUser(
-    personRepo: Repository<Person, PersonId>, // () ->
-    row: Row,
-    mainUserColumn: String
-) = requireNotNull(
-    personRepo.getById(row.id(mainUserColumn))
-) {
-    "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
-        " ${personRepo.elements.map { it.id }.toList()}"
 }

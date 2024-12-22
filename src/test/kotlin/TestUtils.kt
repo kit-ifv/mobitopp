@@ -38,3 +38,18 @@ fun assertEmpty(charSequence: CharSequence, message: String? = null) {
         charSequence.isEmpty()
     )
 }
+
+fun <T> assertNotContains(
+    collection: Collection<T>,
+    element: T,
+    message: String? = null
+) {
+    asserter.assertTrue(
+        {
+            messagePrefix(message) +
+                    "Expected the collection not to contain the element.\n" +
+                    "Collection <$collection>, element <$element>."
+        },
+        !collection.contains(element)
+    )
+}

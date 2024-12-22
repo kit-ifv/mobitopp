@@ -1,3 +1,11 @@
+@file:Suppress(
+    "TooManyFunctions",
+    "NotImplementedDeclaration",
+    "ConstructorParameterNaming",
+    "MagicNumber",
+    "UnusedPrivateProperty"
+)
+
 import domain.data.Person
 import domain.data.Zone
 import domain.location.Metrics
@@ -7,8 +15,8 @@ import utils.units.AbsoluteTime
 import kotlin.math.ln
 import kotlin.math.pow
 
-//Data types for nest structure
-interface Structure<T>{
+// Data types for nest structure
+interface Structure<T> {
     val name: String
     val options: List<Option<T>>
 }
@@ -16,20 +24,21 @@ interface Structure<T>{
 data class Nest<T, P>(
     override val name: String,
 //    val lambda: Double,
-): Structure<T> {
+) : Structure<T> {
     private val children = mutableListOf<Structure<T>>()
 
     private lateinit var lambdaSelector: (P.() -> Double)
 
     fun lambda(parameters: P) = require(this::lambdaSelector.isInitialized) {
         "error, lambda not set for nest '$name'!\n" +
-        "Consider adding '.withLambda{ 1.0 //TODO }' as suffix to the nest definition."
+            "Consider adding '.withLambda{ 1.0 //TODO }' as suffix to the nest definition."
     }.let {
         lambdaSelector(parameters)
     }
 
-    fun nest(name: String, scope: Nest<T, P>.() -> Unit): Nest<T, P> { //lambda: Double, //TODO check availability
-        val newChild = Nest<T, P>(name) //lambda
+    @Suppress("MemberNameEqualsClassName")
+    fun nest(name: String, scope: Nest<T, P>.() -> Unit): Nest<T, P> { // lambda: Double, //TODO check availability
+        val newChild = Nest<T, P>(name) // lambda
         newChild.scope()
         children.add(newChild)
         return this
@@ -48,24 +57,20 @@ data class Nest<T, P>(
     }
 }
 
-
 data class Option<T>(
     override val name: String,
     val value: T,
-): Structure<T> {
+) : Structure<T> {
     override val options = listOf(this)
 }
 
-
-
-//overall choice model holding nest structure and utility functions (terms)
+// overall choice model holding nest structure and utility functions (terms)
 typealias Term<S> = (S) -> Double
 
 fun <T, P, S> choicemodel(name: String, options: Nest<T, P>.() -> Unit): ChoiceModelTest<T, P, S> {
     val structure = Nest<T, P>("root").withLambda { 1.0 }.apply(options)
     return ChoiceModelTest<T, P, S>(name, structure)
 }
-
 
 data class ChoiceModelTest<T, P, S>(
     val name: String,
@@ -80,14 +85,11 @@ data class ChoiceModelTest<T, P, S>(
         this.utilityFunctions.putAll(collector.utilityFunctions)
         return this
     }
-
 }
 
+// scope functions and operators to build up utility functions
 
-
-//scope functions and operators to build up utility functions
-
-//class Property<S>(val compute: S.() -> Number) {
+// class Property<S>(val compute: S.() -> Number) {
 //    inline fun evaluate(situation: S): Double = compute(situation).toDouble()
 //
 //    //Property X Double -> Term
@@ -107,26 +109,25 @@ data class ChoiceModelTest<T, P, S>(
 //    inline operator fun times(crossinline term: Term<S>): Term<S> = { evaluate(it) * term(it) }
 //    inline operator fun minus(crossinline term: Term<S>): Term<S> = { evaluate(it) - term(it) }
 //    inline operator fun div(crossinline term: Term<S>): Term<S> = { evaluate(it) / term(it) }
-//}
+// }
 
 inline fun <S> property(crossinline compute: S.() -> Number): Term<S> = { compute(it).toDouble() }
 
+// (Double X Double)
+// Double X Property -> Term
+// inline operator fun <S> Double.plus(property: Property<S>): Term<S> = { situation -> this@plus + property.evaluate(situation) }
+// inline operator fun <S> Double.times(property: Property<S>): Term<S> = { situation -> this@times * property.evaluate(situation) }
+// inline operator fun <S> Double.minus(property: Property<S>): Term<S> = { situation -> this@minus - property.evaluate(situation) }
+// inline operator fun <S> Double.div(property: Property<S>): Term<S> = { situation -> this@div / property.evaluate(situation) }
 
-
-//(Double X Double)
-//Double X Property -> Term
-//inline operator fun <S> Double.plus(property: Property<S>): Term<S> = { situation -> this@plus + property.evaluate(situation) }
-//inline operator fun <S> Double.times(property: Property<S>): Term<S> = { situation -> this@times * property.evaluate(situation) }
-//inline operator fun <S> Double.minus(property: Property<S>): Term<S> = { situation -> this@minus - property.evaluate(situation) }
-//inline operator fun <S> Double.div(property: Property<S>): Term<S> = { situation -> this@div / property.evaluate(situation) }
-
-//Double X Term -> Term
+// Double X Term -> Term
 inline operator fun <S> Double.plus(crossinline term: Term<S>): Term<S> = { situation -> this@plus + term(situation) }
 inline operator fun <S> Double.times(crossinline term: Term<S>): Term<S> = { situation -> this@times * term(situation) }
 inline operator fun <S> Double.minus(crossinline term: Term<S>): Term<S> = { situation -> this@minus - term(situation) }
 inline operator fun <S> Double.div(crossinline term: Term<S>): Term<S> = { situation -> this@div / term(situation) }
-inline fun <S> Double.toPowerOf(crossinline term: Term<S>): Term<S> = { situation -> this@toPowerOf.pow(term(situation)) }
-
+inline fun <S> Double.toPowerOf(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@toPowerOf.pow(term(situation)) }
 
 inline fun <S> log(crossinline term: Term<S>): Term<S> = { situation -> ln(term(situation)) }
 inline fun <S> exp(crossinline term: Term<S>): Term<S> = { situation -> kotlin.math.exp(term(situation)) }
@@ -138,19 +139,28 @@ inline operator fun <S> Term<S>.minus(value: Double): Term<S> = { situation -> t
 inline operator fun <S> Term<S>.div(value: Double): Term<S> = { situation -> this@div(situation) / value }
 inline fun <S> Term<S>.toPowerOf(value: Double): Term<S> = { situation -> this@toPowerOf(situation).pow(value) }
 
-//Term X Property -> Term
-//inline operator fun <S> Term<S>.plus(property: Property<S>): Term<S> = { situation -> this@plus(situation) + property.evaluate(situation) }
-//inline operator fun <S> Term<S>.times(property: Property<S>): Term<S> = { situation -> this@times(situation) * property.evaluate(situation) }
-//inline operator fun <S> Term<S>.minus(property: Property<S>): Term<S> = { situation -> this@minus(situation) - property.evaluate(situation) }
-//inline operator fun <S> Term<S>.div(property: Property<S>): Term<S> = { situation -> this@div(situation) / property.evaluate(situation) }
+// Term X Property -> Term
+// inline operator fun <S> Term<S>.plus(property: Property<S>): Term<S> = { situation -> this@plus(situation) + property.evaluate(situation) }
+// inline operator fun <S> Term<S>.times(property: Property<S>): Term<S> = { situation -> this@times(situation) * property.evaluate(situation) }
+// inline operator fun <S> Term<S>.minus(property: Property<S>): Term<S> = { situation -> this@minus(situation) - property.evaluate(situation) }
+// inline operator fun <S> Term<S>.div(property: Property<S>): Term<S> = { situation -> this@div(situation) / property.evaluate(situation) }
 
-//Term X Term -> Term
-inline operator fun <S> Term<S>.plus(crossinline term: Term<S>): Term<S> = { situation -> this@plus(situation) + term(situation) }
-inline operator fun <S> Term<S>.times(crossinline term: Term<S>): Term<S> ={ situation -> this@times(situation) * term(situation) }
-inline operator fun <S> Term<S>.minus(crossinline term: Term<S>): Term<S> = { situation -> this@minus(situation) - term(situation) }
-inline operator fun <S> Term<S>.div(crossinline term: Term<S>): Term<S> = { situation -> this@div(situation) / term(situation) }
-inline fun <S> Term<S>.toPowerOf(crossinline term: Term<S>): Term<S> = { situation -> this@toPowerOf(situation).pow(term(situation)) }
-
+// Term X Term -> Term
+inline operator fun <S> Term<S>.plus(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@plus(situation) + term(situation) }
+inline operator fun <S> Term<S>.times(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@times(situation) * term(situation) }
+inline operator fun <S> Term<S>.minus(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@minus(situation) - term(situation) }
+inline operator fun <S> Term<S>.div(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@div(situation) / term(situation) }
+inline fun <S> Term<S>.toPowerOf(
+    crossinline term: Term<S>
+): Term<S> = { situation -> this@toPowerOf(situation).pow(term(situation)) }
 
 class UtilityCollector<P, S>(
     private val expectedOptions: List<String>,
@@ -163,22 +173,15 @@ class UtilityCollector<P, S>(
         }
         utilityFunctions[name] = scope
     }
-
 }
-
-
-
-
 
 interface Situation<C> {
     val choice: C
 }
 
-
-
 // --------------- user input area ---------------------------------
 
-//@ChoiceSituation -> generate function alias for property and choice model definition, default situations can be predefined
+// @ChoiceSituation -> generate function alias for property and choice model definition, default situations can be predefined
 data class ModeChoiceSituation(
     override val choice: LegacyMode,
     val time: AbsoluteTime,
@@ -186,15 +189,14 @@ data class ModeChoiceSituation(
     val origin: Zone,
     val destination: Zone,
     val impedance: Metrics,
-): Situation<LegacyMode>
-//autogenerate through annotation?
+) : Situation<LegacyMode>
+
+// autogenerate through annotation?
 inline fun prop(crossinline compute: ModeChoiceSituation.() -> Number) = property<ModeChoiceSituation>(compute)
 fun modeChoiceModel(name: String, options: Nest<LegacyMode, ParametersRaExmpl>.() -> Unit) =
     choicemodel<LegacyMode, ParametersRaExmpl, ModeChoiceSituation>(name, options)
 
-
-
-//User defines parameters
+// User defines parameters
 data class ParametersRaExmpl(
     val b_tt: Double,
     val asc_ped: Double,
@@ -204,7 +206,7 @@ data class ParametersRaExmpl(
     val lambda_put: Double,
 )
 
-//Less boilerplate for helpers, defaults could be predefined in mobitopp framework code
+// Less boilerplate for helpers, defaults could be predefined in mobitopp framework code
 val AGE = prop { person.age }
 val DISTANCE = prop {
     impedance.distance(origin.centroid, destination.centroid, choice).inWholeMeters
@@ -217,7 +219,7 @@ val ATTRACTIVITY = prop {
 }
 val PARKDRUCK = prop { 100 }
 
-//in some other parameter file
+// in some other parameter file
 val parameterSet1 = ParametersRaExmpl(
     b_tt = 1.42,
     asc_ped = 3.1415,
@@ -246,14 +248,12 @@ val choiceModel = modeChoiceModel("LegacyModeChoice") {
             option("car_d", LegacyMode.CAR)
             option("car_p", LegacyMode.PASSENGER)
         }.withLambda { lambda_car }
-
     }.withLambda { lambda_iv }
 
     nest("PUT") {
         option("put", LegacyMode.PUBLICTRANSPORT)
         option("taxi", LegacyMode.TAXI)
     }.withLambda { lambda_put }
-
 }.utilities {
 
     utility("walk") {
@@ -262,24 +262,22 @@ val choiceModel = modeChoiceModel("LegacyModeChoice") {
 
     utility("car") {
         asc_car_d +
-                b_tt * TRAVEL_TIME +
-                log(ATTRACTIVITY) +
-                exp(b_tt*AGE) +
-                PARKDRUCK.toPowerOf(b_tt * AGE) +
-                asc_ped.toPowerOf(AGE)
+            b_tt * TRAVEL_TIME +
+            log(ATTRACTIVITY) +
+            exp(b_tt * AGE) +
+            PARKDRUCK.toPowerOf(b_tt * AGE) +
+            asc_ped.toPowerOf(AGE)
     }
-
 }
-
 
 // ------------------------------------------------
 
-//internally use factory to create choice situation / add the choice option to the situation
-//here its LegacyMode:
+// internally use factory to create choice situation / add the choice option to the situation
+// here its LegacyMode:
 val baseSituation: ModeChoiceSituation = TODO()
 val situationOf: (LegacyMode) -> ModeChoiceSituation = { baseSituation.copy(choice = it) }
 
-//internally evaluate utility function via:
+// internally evaluate utility function via:
 fun foo(sit: ModeChoiceSituation) {
     val res = choiceModel.utilityFunctions["walk"]!!.invoke(parameterSet1).invoke(sit)
 }

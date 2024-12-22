@@ -12,7 +12,7 @@ import java.io.File
  *
  * @param E the generic type of the entities to be parsed
  */
-interface CsvParser<E> {
+interface CsvParser<out E> {
 
     /**
      * Parse the csv file at the given path.

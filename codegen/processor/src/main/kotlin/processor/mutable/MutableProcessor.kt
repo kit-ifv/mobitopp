@@ -21,7 +21,13 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.*
+import util.getEmptyInitializer
+import util.isCollectionType
+import util.isInlineClass
 import util.resolveGenerics
+import util.toMutableCollectionType
+import java.io.File
+import java.net.URLClassLoader
 import kotlin.reflect.KClass
 
 class MutableProcessor(
@@ -47,7 +53,7 @@ class MutableProcessor(
 
         val packageName = symbol.packageName.asString()
         val className = symbol.simpleName.asString()
-        val mutableClassName = "Mutable${className}"
+        val mutableClassName = annotations.map { it.className }.firstOrNull { it.trim().isNotEmpty() } ?: "Mutable${className}"
 
         if (!symbol.isSubClassable()) {
             logger.warn(
@@ -73,9 +79,11 @@ class MutableProcessor(
         constructorParams: List<KSValueParameter>,
         props: List<KSPropertyDeclaration>,
     ) {
-        logger.warn("Generate mutable class $packageName.$mutableClassName: $className")
+        val mutClassType = ClassName(packageName, mutableClassName)
+
+        logger.warn("Generate mutable class $packageName.$mutableClassName: $className (${mutClassType.canonicalName})")
         val mutClassBuilder = TypeSpec.classBuilder(mutableClassName)
-                                        .addModifiers(KModifier.PUBLIC)
+                                        .addModifiers(KModifier.PUBLIC, KModifier.OPEN)
         if (symbol.classKind != ClassKind.INTERFACE) {
             mutClassBuilder.superclass(ClassName(packageName, className))
         } else {
@@ -84,14 +92,19 @@ class MutableProcessor(
 
 
         val constructorBuilder = generateConstructor(mutClassBuilder, constructorParams)
+
+        addOptionalScopeToConstructorAndInit(constructorBuilder, mutClassType, mutClassBuilder)
+
         if (constructorBuilder.parameters.isNotEmpty()) {
             mutClassBuilder.primaryConstructor(constructorBuilder.build())
         }
 
-        logger.warn("Generate mutable properties: ${props.map { it.simpleName.getShortName() + ": " + it.type.resolve().toString() }}")
+//        logger.warn("Generate mutable properties: ${props.map { it.simpleName.getShortName() + ": " + it.type.resolve().toString() }}")
         props.forEach {
             generateMutableProperty(mutClassBuilder, constructorBuilder, it)
         }
+
+
 
         // Write the class to a file
         val fileSpec = FileSpec.builder(packageName, mutableClassName)
@@ -99,14 +112,34 @@ class MutableProcessor(
             .build()
 
         val outputStream = codeGenerator.createNewFile(
-            Dependencies(true, symbol.containingFile!!),
+            Dependencies(false, symbol.containingFile!!),
             packageName,
             mutableClassName
         )
         outputStream.writer().use { writer ->
             fileSpec.writeTo(writer)
         }
+        outputStream.close()
 
+    }
+
+    private fun addOptionalScopeToConstructorAndInit(
+        constructorBuilder: FunSpec.Builder,
+        mutClassType: ClassName,
+        mutClassBuilder: TypeSpec.Builder
+    ) {
+        constructorBuilder.addParameter(
+            ParameterSpec.builder(
+                "scope",
+                LambdaTypeName.get(receiver = mutClassType, returnType = UNIT)
+            ).defaultValue("{}") // Default value is an empty function
+                .build()
+        )
+
+        val initBlock = CodeBlock.builder()
+            .addStatement("this.scope()") // Call the scope function
+            .build()
+        mutClassBuilder.addInitializerBlock(initBlock)
     }
 
     private fun generateConstructor(
@@ -118,7 +151,7 @@ class MutableProcessor(
 
         if (constructorParams.isNotEmpty()) {
             logger.warn(
-                "Generate (super)constructor params: ${constructorParams.map { it.name.toString() + ": " + it.type.resolve().toString() }}"
+                "Generate (super)constructor params: ${constructorParams.map { it.name?.getShortName() + ": " + it.type.resolve().toString() }}"
             )
 
             val superConstructorCall = CodeBlock.builder()
@@ -151,24 +184,63 @@ class MutableProcessor(
         val propertyName = property.simpleName.asString()
         val propertyType = property.type.resolve().resolveGenerics()
 
-        if (property.canBeVar()) {
-            val propertySpec = PropertySpec.builder(propertyName, propertyType, KModifier.OVERRIDE)
-                .mutable(true)
+        if (constructorBuilder.parameters.any {
+            it.name == propertyName && it.type == propertyType
+        }) {
+            return
+        }
 
-                if (property.canBeLateinitInSubclass()) {
-                    propertySpec.initializer("lateinit var $propertyName")
+//        logger.warn("Process $propertyName: $propertyType")
+        if (property.canBeVar()) {
+
+            val propertyBuilder: PropertySpec.Builder =
+                if (propertyType.isCollectionType()) {
+                     collectionPropertyBuilder(propertyType, propertyName) // Initialize with an empty collection
                 } else {
-                    propertySpec.initializer("TODO()")
+                    nonCollectionPropertyBuilder(propertyName, propertyType, property)
                 }
 
-            mutClassBuilder.addProperty(propertySpec.build())
+            mutClassBuilder.addProperty(propertyBuilder.build())
 
-        } else if (propertyName !in constructorBuilder.parameters.map { it.name }) { //if property not yet in constructor, add it
+        } else if (propertyName !in constructorBuilder.parameters.map { it.name }) {
+            //if property not yet in constructor, add it
+            //TODO constructor already built here !! should not work!
             constructorBuilder.addParameter(propertyName, propertyType)
         }
 
     }
 
+    private fun nonCollectionPropertyBuilder(
+        propertyName: String,
+        propertyType: TypeName,
+        property: KSPropertyDeclaration
+    ): PropertySpec.Builder {
+        val propertySpec = PropertySpec.builder(propertyName, propertyType, KModifier.OVERRIDE)
+            .mutable(true)
+
+        if (property.canBeLateinitInSubclass()) {
+            propertySpec.addModifiers(KModifier.LATEINIT)
+
+        } else {
+            propertySpec.initializer("TODO()")
+        }
+        return propertySpec
+    }
+
+    private fun collectionPropertyBuilder(
+        propertyType: TypeName,
+        propertyName: String
+    ): PropertySpec.Builder {
+
+        // Convert to Mutable type
+        val mutableCollectionType = propertyType.toMutableCollectionType()
+
+        // Initialize with an empty collection
+        val propertySpec = PropertySpec.builder(propertyName, mutableCollectionType, KModifier.OVERRIDE)
+            .mutable(false)
+            .initializer(mutableCollectionType.getEmptyInitializer())
+        return propertySpec
+    }
 
 
 }
@@ -196,14 +268,10 @@ private fun KSPropertyDeclaration.canBeVar(): Boolean =
 
 
 fun KSPropertyDeclaration.canBeLateinitInSubclass(): Boolean {
-    // 1. Check if the property is mutable (`var`) or could become `var` in a subclass
-    val canBeVar = this.isMutable || Modifier.VALUE in this.modifiers
-
-    // If it can't be mutable, it can't be `lateinit`
-    if (!canBeVar) return false
-
     // 2. Resolve the property type
     val type: KSType = this.type.resolve()
+
+    if (type.isInlineClass()) return false
 
     // 3. Check if it is nullable
     if (type.isMarkedNullable) return false

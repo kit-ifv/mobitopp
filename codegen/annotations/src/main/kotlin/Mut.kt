@@ -1,2 +1,5 @@
 @Target(AnnotationTarget.CLASS)
-annotation class Mutable
+@Retention(AnnotationRetention.SOURCE)
+annotation class Mutable(
+    val className: String = "",
+)

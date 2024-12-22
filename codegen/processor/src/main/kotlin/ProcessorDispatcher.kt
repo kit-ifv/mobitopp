@@ -1,39 +1,81 @@
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.validate
 import processor.builder.BuilderProcessor
 import processor.mutable.MutableProcessor
 import utils.groupByIgnoringNullKey
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
+
+private var roundCounter: Int = 0
 
 class ProcessorDispatcher(
-    codeGenerator: CodeGenerator,
+    private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
-    options: Map<String, String>
+    options: Map<String, String>,
+    private val environment: SymbolProcessorEnvironment
 ) : SymbolProcessor {
+
+    init {
+        logger.warn("Processor options: $options")
+        logger.warn("Api version: ${environment.apiVersion}")
+        logger.warn("Kotlin version: ${environment.kotlinVersion}")
+        logger.warn("Compiler version: ${environment.compilerVersion}")
+    }
 
     private val processors = listOf<Processor<*, *>>(
         BuilderProcessor(codeGenerator, logger, options),
         MutableProcessor(logger, codeGenerator)
     )
 
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val result = mutableListOf<KSAnnotated>()
+        roundCounter++
+        logger.warn("Processing round: $roundCounter")
+
+        val deferred = mutableListOf<KSAnnotated>()
 
         processors.forEach { processor ->
             val symbols = resolver.getSymbolsWithAnnotation(processor.annotationName, inDepth = true).toList()
+            logger.warn("Round $roundCounter - Found ${symbols.size} symbols annotated by @${processor.annotationName}: $symbols")
+
             if (symbols.isEmpty()) {
-                return emptyList()
+                deferred += emptyList()
             }
 
-            logger.warn("Found ${symbols.size} symbols annotated by @${processor.annotationName}: $symbols")
-            processor.processAnnotatedSymbolList(symbols, resolver)
+            var newDeferred = processor.processAnnotatedSymbolList(symbols, resolver)
+            if (newDeferred.isNotEmpty()) {
+                logger.warn("Round $roundCounter - RETRY processor: ${processor::class.simpleName}")
+                newDeferred = processor.processAnnotatedSymbolList(newDeferred, resolver)
+            }
+            deferred += newDeferred
         }
 
-        return result
+
+
+        logger.warn("Round $roundCounter - Generated files: ${codeGenerator.generatedFile.map { it.name }}")
+        logger.warn("Round $roundCounter - New files: ${resolver.getNewFiles().toList()}")
+        logger.warn("Round $roundCounter - All files: ${resolver.getAllFiles().toList()}")
+
+//        if (deferred.isNotEmpty()) {
+//            logger.warn("Round $roundCounter - Deferred symbols ${deferred.size}: ${deferred.map { it.toString() }}")
+//            val marker = codeGenerator.createNewFile(Dependencies.ALL_FILES, "generated", "Marker_$roundCounter")
+//            marker.write("// Marker file $roundCounter to force next round\n".toByteArray())
+//            marker.close()
+//
+//        }
+
+
+
+        return deferred
     }
 
 }
@@ -57,18 +99,22 @@ interface Processor<A, D> where A: Annotation {
 interface SuccessiveProcessor<A,D>: Processor<A,D> where  A: Annotation {
 
     override fun processAnnotatedSymbolList(symbols: List<KSAnnotated>, resolver: Resolver): List<KSAnnotated> {
-        val result = mutableListOf<KSAnnotated>()
+        val deferred = mutableListOf<KSAnnotated>()
 
         symbols.forEach { symbol ->
 
             val annotations = mutableListOf<D>()
             try {
-
-                annotations += castAnnotations(symbol)
-                result += processAnnotatedSymbol(symbol, annotations, resolver)
-                logger.warn(
-                    "Processed $symbol, ${symbol.annotations.toList()}"
-                )
+                if(!symbol.validate()) {
+                    deferred.add(symbol)
+                    logger.warn("Deferred $symbol as it is not valid !!")
+                } else {
+                    annotations += castAnnotations(symbol)
+                    deferred += processAnnotatedSymbol(symbol, annotations, resolver)
+                    logger.warn(
+                        "Processed $symbol, ${symbol.annotations.toList()}"
+                    )
+                }
 
             } catch (exception: Exception) {
                 logger.warn(
@@ -78,7 +124,7 @@ interface SuccessiveProcessor<A,D>: Processor<A,D> where  A: Annotation {
 
         }
 
-        return result
+        return deferred
     }
 
     fun processAnnotatedSymbol(symbol: KSAnnotated, annotations: List<D>, resolver: Resolver) : List<KSAnnotated>

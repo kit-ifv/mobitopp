@@ -146,3 +146,13 @@ tasks.withType<JavaExec>().configureEach {
     )
 }
 
+ksp {
+    arg("incremental", "true")
+    arg("ksp.incremental", "true")
+}
+//
+//sourceSets {
+//    main {
+//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
+//    }
+//}
