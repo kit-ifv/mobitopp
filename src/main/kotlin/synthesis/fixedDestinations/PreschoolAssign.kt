@@ -6,7 +6,7 @@ import domain.enums.ActivityType
 import domain.location.Location
 import domain.roadnetwork.toUTM
 import modeling.discreteChoice.Logit
-import modeling.discreteChoice.OtherDiscreteChoiceModel
+
 import synthesis.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
@@ -64,7 +64,7 @@ class UseBandwidthLocation(
 ) : LocationFinder {
     private val locationTree = LocationKDTree(potentialLocations)
     private val model =
-        OtherDiscreteChoiceModel<WithMetric<Location, Distance>, UtilityFunctionParameters>(Logit()) { x, p ->
+        DiscreteChoiceModel<WithMetric<Location, Distance>, UtilityFunctionParameters>(Logit()) { x, p ->
             val attractiveness = p.run {
                 x.item.zone?.let { attractivenessModel.attractivenessFor(it.id, activityType) }
                     ?: 0.0.also { System.err.println("Cannot find attractiveness for location ${x.item}") }

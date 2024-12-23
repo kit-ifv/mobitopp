@@ -2,7 +2,7 @@ package synthesis
 
 import domain.data.EconomicStatus
 import domain.location.Location
-import modeling.discreteChoice.CarOwnershipParameters
+import synthesis.discreteChoice.CarOwnershipFactors
 import units.Currency
 import units.euros
 
@@ -13,10 +13,9 @@ class SynthesisHouseholdBuilder(
 
 
 ) {
-    fun toCarOwnershipParameters(): CarOwnershipParameters {
-        return CarOwnershipParameters(
+    fun toCarOwnershipAttributes(): CarOwnershipFactors {
+        return CarOwnershipFactors(
             this,
-            {0.0}
         )
     }
 

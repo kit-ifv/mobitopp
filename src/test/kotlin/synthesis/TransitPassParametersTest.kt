@@ -2,8 +2,9 @@ package synthesis
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import synthesis.discreteChoice.TransitPassParameters
 
-class TransitPassTest {
+class TransitPassParametersTest {
 
     private val textdump = """asc_Ticket = -0.312173681653899
 b_hhgro_2 = -0.0256945305058742 -0.3
@@ -41,7 +42,7 @@ b_p617 = -0.305570335406822"""
     @Test
     fun testLegacyParameterParse() {
 
-        val parameters = TransitPass.parse(textdump)
+        val parameters = TransitPassParameters.parse(textdump)
         println(parameters)
         assertEquals(parameters.age0to9, -3.25644379813947 )
     }
