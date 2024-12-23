@@ -1,7 +1,6 @@
 import datastructure.Activity
 import domain.data.Car
 import domain.data.Employment
-import domain.data.Person
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
@@ -10,7 +9,7 @@ import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
-import modeling.discreteChoice.carChoiceModel
+import synthesis.discreteChoice.carChoiceModel
 import synthesis.ActivityOutput
 import synthesis.AssignAroundCentroid
 import synthesis.AssignEconomicStatus
@@ -34,15 +33,20 @@ import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
 import synthesis.TrivialActivityScheduleGeneration
 import synthesis.ZoneTarget
+import synthesis.discreteChoice.CarOwnershipAttributes
+import synthesis.discreteChoice.CarOwnershipParameters
+import synthesis.discreteChoice.TicketSituation
+import synthesis.discreteChoice.TransitPassParameters
+import synthesis.discreteChoice.YesTransitPass
+import synthesis.discreteChoice.transitPassDiscreteChoiceModel
 import synthesis.fixedDestinations.CommuterMatrix
 import synthesis.fixedDestinations.LocationFinder
 import synthesis.fixedDestinations.UseBandwidthLocation
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.generateSchedules
 import synthesis.randomCoordinate
-import synthesis.select
+
 import synthesis.toSurveyHouseholds
-import synthesis.transitPassDiscreteChoiceModel
 import units.Coordinate
 import units.CurrencyUnit
 import units.GPSCoordinate
@@ -178,24 +182,36 @@ class SynthesisSteps(
 
     class ChoiceModelData {
         var choiceModel = carChoiceModel
+        var parameters = CarOwnershipParameters()
     }
 
     fun assignAmountOfCarsUsingChoiceModel(lambda: ChoiceModelData.() -> Unit) {
-        val model = ChoiceModelData().apply(lambda).choiceModel
+        val input = ChoiceModelData()
+        input.apply(lambda)
+        val model = input.choiceModel
+        val parameters = input.parameters
 
-        households.forEach { it.amountOfCars = model.select(it.toCarOwnershipParameters()) }
+
+        households.forEach { household -> household.amountOfCars = model.select({
+            CarOwnershipAttributes(it, household.toCarOwnershipAttributes())
+        }, parameters) }
     }
 
     class TransitCardChoiceModelData {
         var choiceModel = transitPassDiscreteChoiceModel
+        var parameters = YesTransitPass
     }
 
     fun assignTransitCardOwnership(lambda: TransitCardChoiceModelData.() -> Unit) {
-        val model = TransitCardChoiceModelData().apply(lambda).choiceModel
+        val input = TransitCardChoiceModelData()
+        input.apply(lambda)
+        val model = input.choiceModel
+        val parameters = input.parameters
 
-        households.forEach {
-            it.members.forEach { person ->
-                person.hasTransitPass = model.select(it, person)
+
+        households.forEach {household ->
+            household.members.forEach { person ->
+                person.hasTransitPass = model.select({ TicketSituation(it,household, person ) }, parameters)
             }
         }
     }
@@ -459,140 +475,140 @@ data class Rectangle(
         }
     }
 }
-
-fun extem() {
-    val work = LegacyActivityType.WORK
-    val attractivenessTypes = setOf(
-        work,
-        LegacyActivityType.EDUCATION_PRIMARY,
-        LegacyActivityType.EDUCATION_SECONDARY,
-        LegacyActivityType.EDUCATION_TERTIARY,
-    )
-    val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-
 //
-//    val visumPath = Path("src/test/resources/rastatt.net")
-//    val elements = parse(visumPath)
-//    val visumZones = elements.zones.associateBy { it.id }
+//fun extem() {
+//    val work = LegacyActivityType.WORK
+//    val attractivenessTypes = setOf(
+//        work,
+//        LegacyActivityType.EDUCATION_PRIMARY,
+//        LegacyActivityType.EDUCATION_SECONDARY,
+//        LegacyActivityType.EDUCATION_TERTIARY,
+//    )
+//    val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
+//
+////
+////    val visumPath = Path("src/test/resources/rastatt.net")
+////    val elements = parse(visumPath)
+////    val visumZones = elements.zones.associateBy { it.id }
+////
+////
+////    val visumNetwork = parseNetwork(visumPath) {}
+//    val result = parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv"))
+//    val inputZones =
+//        defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
+//            .map { it.build() }
+//
+//    val attractiveness: AttractivenessModel =
+//        AttractivenessFromCsv(
+//            file = Path("src/test/resources/synthesis/attractivities.csv").toFile(), activityTypes =
+//            attractivenessTypes
+//        )
+//
+//    val zones = targets.map { target -> inputZones.first { it.id == target.zoneId } }
+//    val rules: Map<Zone, List<Rule>> = targets.associate {
+//        inputZones.first { i -> i.id == it.zoneId } to it.improvedTargets()
+//    }
+//    val ipu = IPU { vectors, observers ->
+//        var counter = 0
+//        while (observers.maxBy { it.difference }.difference >= 0.01 && counter < 100) {
+//            observers.forEach { it.optimize() }
+//            counter++
+//        }
+////        println("Finished after $counter iterations ${observers.joinToString(", ")}")
+//        vectors
+//    }
+//    val households = result.toSurveyHouseholds()
+//    val syntheticHouseholds: Map<Zone, List<SynthesisHouseholdBuilder>> =
+//        ipu.synthesize(households.values, zones, rules)// assign location in this step
+//    AssignAroundCentroid(100.0).assign(syntheticHouseholds)
+//
+//    val households2 = syntheticHouseholds.flatMap { it.value }
+//    //TODO Schedule generation
+//    val schedules = households2.generateSchedules(TrivialActivityScheduleGeneration())
+//    val economicStatusDesigner = OECDAssigner.fromPath()
+//    val economics = households2.map { economicStatusDesigner.assign(it) }
+//    households2.forEach {
+//
+//        it.amountOfCars = carChoiceModel.select(it.toCarOwnershipAttributes())
+//    }
+//    households2.forEach {
+//        it.members.forEach { person ->
+//            person.hasTransitPass = transitPassDiscreteChoiceModel.select(it, person)
+//        }
+//    }
+//    val people = households2.flatMap { household -> household.members }
+//    // Generate potential targets for determining fixed destinations, should be exposed so that external code can create the locations
+//    val primarySchools: List<Location> =
+//        inputZones.generateLocations(attractiveness, LegacyActivityType.EDUCATION_PRIMARY)
+//    val higherSchools: List<Location> = inputZones.generateLocations(
+//        attractiveness,
+//        listOf(LegacyActivityType.EDUCATION_SECONDARY, LegacyActivityType.EDUCATION_TERTIARY)
+//    )
+//    val assignStep = AssignStep(
+//        LegacyActivityType.EDUCATION_PRIMARY,
+//        SynthesisPerson::isPrimaryStudent,
+//        UseClosestLocation(primarySchools)
+//    )
+//
+//    val assignStep2 = AssignStep(
+//        LegacyActivityType.EDUCATION_SECONDARY,
+//        SynthesisPerson::isHigherStudent,
+//        UseBandwidthLocation(higherSchools, attractiveness)
+//    )
+//    val assignStep3 = AssignStep(
+//        LegacyActivityType.EDUCATION_TERTIARY,
+//        SynthesisPerson::hasEducationActivity,
+//        UseClosestLocation(primarySchools)
+//    )
+//
+//    val workAssigner = CommuterMatrix.parse(zoneMapping = inputZones.associateBy { it.id })
+//    val assignStep4 = AssignStep(
+//        LegacyActivityType.WORK,
+//        SynthesisPerson::isWorker,
+//        workAssigner
+//    )
+//
+//    val fixedDestinations = AllAssignments().apply {
+//        steps += listOf(assignStep, assignStep2, assignStep4)
+//    }
+//
+//    fixedDestinations.write(people)
+//    val primarySchoolAssigner = UseClosestLocation(primarySchools)
+//    val secondarySchoolAssigner = UseBandwidthLocation(higherSchools, attractiveness)
+//    val primaries = people.filter { it.employment == Employment.STUDENT_PRIMARY }
+//    val primaryLocations =
+//        primaries.associateWith { primarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_PRIMARY) }
+//    val secondaries = people.filter { it.employment == Employment.STUDENT_SECONDARY }
+//    val secondaryLocations =
+//        secondaries.associateWith { secondarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_SECONDARY) }
+//    val workers = people.filter { it.employment == Employment.FULLTIME || it.employment == Employment.PARTTIME }
+//
+//    val workLocations = workers.associateWith { workAssigner.find(it, LegacyActivityType.WORK) }
+//    //TODO generate cars based on some form of generation description.
+//    households2.forEach { it.amountOfCars }
+//    people.joinToString {
+//        toCSV(
+//            it.id,
+//            -1,
+//            -1,
+//            "householdyear",
+//            "householdNumber",
+//            "activitytype",
+//        )
 //
 //
-//    val visumNetwork = parseNetwork(visumPath) {}
-    val result = parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv"))
-    val inputZones =
-        defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
-            .map { it.build() }
-
-    val attractiveness: AttractivenessModel =
-        AttractivenessFromCsv(
-            file = Path("src/test/resources/synthesis/attractivities.csv").toFile(), activityTypes =
-            attractivenessTypes
-        )
-
-    val zones = targets.map { target -> inputZones.first { it.id == target.zoneId } }
-    val rules: Map<Zone, List<Rule>> = targets.associate {
-        inputZones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-    }
-    val ipu = IPU { vectors, observers ->
-        var counter = 0
-        while (observers.maxBy { it.difference }.difference >= 0.01 && counter < 100) {
-            observers.forEach { it.optimize() }
-            counter++
-        }
-//        println("Finished after $counter iterations ${observers.joinToString(", ")}")
-        vectors
-    }
-    val households = result.toSurveyHouseholds()
-    val syntheticHouseholds: Map<Zone, List<SynthesisHouseholdBuilder>> =
-        ipu.synthesize(households.values, zones, rules)// assign location in this step
-    AssignAroundCentroid(100.0).assign(syntheticHouseholds)
-
-    val households2 = syntheticHouseholds.flatMap { it.value }
-    //TODO Schedule generation
-    val schedules = households2.generateSchedules(TrivialActivityScheduleGeneration())
-    val economicStatusDesigner = OECDAssigner.fromPath()
-    val economics = households2.map { economicStatusDesigner.assign(it) }
-    households2.forEach {
-
-        it.amountOfCars = carChoiceModel.select(it.toCarOwnershipParameters())
-    }
-    households2.forEach {
-        it.members.forEach { person ->
-            person.hasTransitPass = transitPassDiscreteChoiceModel.select(it, person)
-        }
-    }
-    val people = households2.flatMap { household -> household.members }
-    // Generate potential targets for determining fixed destinations, should be exposed so that external code can create the locations
-    val primarySchools: List<Location> =
-        inputZones.generateLocations(attractiveness, LegacyActivityType.EDUCATION_PRIMARY)
-    val higherSchools: List<Location> = inputZones.generateLocations(
-        attractiveness,
-        listOf(LegacyActivityType.EDUCATION_SECONDARY, LegacyActivityType.EDUCATION_TERTIARY)
-    )
-    val assignStep = AssignStep(
-        LegacyActivityType.EDUCATION_PRIMARY,
-        SynthesisPerson::isPrimaryStudent,
-        UseClosestLocation(primarySchools)
-    )
-
-    val assignStep2 = AssignStep(
-        LegacyActivityType.EDUCATION_SECONDARY,
-        SynthesisPerson::isHigherStudent,
-        UseBandwidthLocation(higherSchools, attractiveness)
-    )
-    val assignStep3 = AssignStep(
-        LegacyActivityType.EDUCATION_TERTIARY,
-        SynthesisPerson::hasEducationActivity,
-        UseClosestLocation(primarySchools)
-    )
-
-    val workAssigner = CommuterMatrix.parse(zoneMapping = inputZones.associateBy { it.id })
-    val assignStep4 = AssignStep(
-        LegacyActivityType.WORK,
-        SynthesisPerson::isWorker,
-        workAssigner
-    )
-
-    val fixedDestinations = AllAssignments().apply {
-        steps += listOf(assignStep, assignStep2, assignStep4)
-    }
-
-    fixedDestinations.write(people)
-    val primarySchoolAssigner = UseClosestLocation(primarySchools)
-    val secondarySchoolAssigner = UseBandwidthLocation(higherSchools, attractiveness)
-    val primaries = people.filter { it.employment == Employment.STUDENT_PRIMARY }
-    val primaryLocations =
-        primaries.associateWith { primarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_PRIMARY) }
-    val secondaries = people.filter { it.employment == Employment.STUDENT_SECONDARY }
-    val secondaryLocations =
-        secondaries.associateWith { secondarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_SECONDARY) }
-    val workers = people.filter { it.employment == Employment.FULLTIME || it.employment == Employment.PARTTIME }
-
-    val workLocations = workers.associateWith { workAssigner.find(it, LegacyActivityType.WORK) }
-    //TODO generate cars based on some form of generation description.
-    households2.forEach { it.amountOfCars }
-    people.joinToString {
-        toCSV(
-            it.id,
-            -1,
-            -1,
-            "householdyear",
-            "householdNumber",
-            "activitytype",
-        )
-
-
-    }
-
-    val csvString = HouseholdOutput.generateCSVString(households2)
-    val output = File("src/test/resources/household.csv")
-    output.writeText(csvString)
-    val personCSV = PersonOutput.generateCSVString(people)
-    val output2 = File("src/test/resources/person.csv")
-    output2.writeText(personCSV)
-    val destinations = listOf(primaryLocations, secondaryLocations, workLocations)
-    val output3 = File("src/test/resources/person.csv")
-    output3.writeText(personCSV)
-}
-/*
- *
- */
+//    }
+//
+//    val csvString = HouseholdOutput.generateCSVString(households2)
+//    val output = File("src/test/resources/household.csv")
+//    output.writeText(csvString)
+//    val personCSV = PersonOutput.generateCSVString(people)
+//    val output2 = File("src/test/resources/person.csv")
+//    output2.writeText(personCSV)
+//    val destinations = listOf(primaryLocations, secondaryLocations, workLocations)
+//    val output3 = File("src/test/resources/person.csv")
+//    output3.writeText(personCSV)
+//}
+///*
+// *
+// */

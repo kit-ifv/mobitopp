@@ -254,7 +254,7 @@ class ModeChoiceParameters {
     val factor_cost_phev: Double = 1.0
 }
 
-inline val Boolean.D get() = if (this) 1.0 else 0.0
+
 
 class ModeChoiceHelperMNL(
     val attractivities: AttractivenessModel,
