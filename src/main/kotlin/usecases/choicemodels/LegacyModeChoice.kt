@@ -28,6 +28,7 @@ import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
+import modeling.discreteChoice.D
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel

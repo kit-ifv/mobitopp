@@ -4,6 +4,7 @@ import domain.data.EconomicStatus
 import domain.data.Employment
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
+import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.NestedLogit
 import modeling.discreteChoice.NestedLogit.Companion.NestedLogitBuilder
 import modeling.discreteChoice.times
@@ -521,7 +522,7 @@ private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double =
  * attributes defined in [CarOwnershipAttributes] and the parameters defined in [CarOwnershipParameters]. We create
  * a discrete choice model and pass a nested logit as distribution function to determine the probabilities.
  */
-val carChoiceModel: DiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = DiscreteChoiceModel(
+val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = KnownDiscreteChoiceModel(
     /*
       Calling NestedLogit.root tells the program that you want to build a nested logit for your discrete choice model.
       Note that "root" automatically assigns a nest with lambda = 1.0. So the parameter lambda_root is no longer required.

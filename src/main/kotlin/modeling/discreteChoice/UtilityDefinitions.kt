@@ -1,6 +1,5 @@
 package modeling.discreteChoice
 
-import java.util.*
 import kotlin.NoSuchElementException
 
 /**
@@ -13,38 +12,28 @@ fun interface UtilityFunction<SIT, PARAMS> {
 /**
  * An allocated function knows what options are available
  */
-interface AllocatedDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS> : DistributionFunction<SIT, PARAMS> {
+interface OptionDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS> : ExtractableDistributionFunction<X, SIT, PARAMS> {
+    val options: Set<X> get()= translation.keys
+    val translation: Map<X, UtilityFunction<SIT, PARAMS>>
+    override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> = translation.getOrElse(target.choice) {
+        throw NoSuchElementException("There is no utility function for $target in this distribution function")
+    }
+}
+
+/**
+ * If we have this class we have the ability to predetermine the utility function for a given situation SIT
+ */
+interface ExtractableDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS>: DistributionFunction<SIT, PARAMS> {
     val name get() = "Unnamed Distribution Function"
-    val options: Set<X>
     fun translation(target: SIT): UtilityFunction<SIT, PARAMS>
     fun calculateProbabilities(alternatives: Set<SIT>, parameters: PARAMS): Map<SIT, Double> {
-
         return calculateProbabilities(
             alternatives.associateWith { translation(it).calculateUtility(it, parameters) },
             parameters
         )
     }
-
-
 }
 
-
-interface ParameterizedDistributionFunction<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
-    /**
-     * Specific implementations of discrete choice models need a layer of abstraction to determine the correct utility
-     * function that should be applied to a target situation. As Example take mode choice, where each mode is typically
-     * associated with its own utility funciton, whereas destination choice usually has a single function applied to all
-     * targets individually. By providing the layer of abstraction any discrete choice scenario should be representable
-     */
-    fun translation(target: SIT): UtilityFunction<SIT, PARAMS>
-
-    // TODO maybe change return type from X to S, that way X could be dropped from the class generics?
-    fun calculateProbabilities(
-        alternatives: Set<SIT>,
-        parameters: PARAMS,
-    ): Map<X, Double>
-
-}
 
 /**
  * A distribution function takes in a collection of situations with their associated utility functions already calculated,
@@ -69,7 +58,7 @@ interface MapBasedAssociation<SIT, PARAMS> : UtilityFunctionAssociation<SIT, PAR
 }
 
 interface RuleBasedAssociation<X: Any, SIT : ChoiceSituation<X>, PARAMS> : UtilityFunctionAssociation<SIT, PARAMS>,
-    AllocatedDistributionFunction<X, SIT, PARAMS> {
+    ExtractableDistributionFunction<X, SIT, PARAMS> {
     val rules: List<Pair<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>>>
     override fun associateFunction(to: SIT): UtilityFunction<SIT, PARAMS> {
         val firstMatchingRule = rules.firstOrNull { it.first.invoke(to) }
