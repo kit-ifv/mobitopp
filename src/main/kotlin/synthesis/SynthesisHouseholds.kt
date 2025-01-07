@@ -25,20 +25,26 @@ class SynthesisHouseholdBuilder(
     var amountOfCars = 0
 
 }
+// TODO move this somewhere else
+var GLOBAL_PERSON_ID_GENERATOR = 0
+    get() = field.also { field++ }
+    private set
 class SynthesisPerson(
     val household: SynthesisHouseholdBuilder,
-    val person: PersonInfo
-): PersonInfo by person {
+    val person: SurveyInfo
+): SurveyInfo by person {
     val homeLocation get() = household.location
+    var hasTransitPass = false
+    val personId = GLOBAL_PERSON_ID_GENERATOR
 }
 val SynthesisHouseholdBuilder.numberOfAdults get() = members.count { it.age >= 18 }
 val SynthesisHouseholdBuilder.numberOfMinors get() = members.count { it.age < 18 }
 
 
 data class SurveyHousehold(
-    override val id: Int,
+    override val householdId: Int,
     override val income: Currency,
-    override val members: List<SurveyPerson>
+    override val members: List<SurveyPerson<*>>
 ) :
     ISurveyHousehold {
     lateinit var economicStatus: EconomicStatus
@@ -51,7 +57,7 @@ data class SurveyHousehold(
 
     fun toBuilder(): SynthesisHouseholdBuilder {
         return SynthesisHouseholdBuilder(
-            id = id,
+            id = householdId,
             income = income,
         ).apply {
             members = this@SurveyHousehold.members.map{SynthesisPerson(this, it)}.toMutableList()
@@ -61,14 +67,10 @@ data class SurveyHousehold(
 }
 
 interface ISurveyHousehold {
-    val id: Int
+    val householdId: Int
     val income: Currency
-    val members: List<SurveyPerson>
+    val members: List<SurveyPerson<*>>
 }
 
-class LocatedHousehold(private val surveyHousehold: SurveyHousehold, val location: Location) :
-    ISurveyHousehold by surveyHousehold {
-
-}
 
 

@@ -12,31 +12,18 @@ import domain.location.Location
 import synthesis.fixedDestinations.ZoneNumber
 import units.Coordinate
 import units.Currency
+import units.Distance
 import utils.Decodable
 import utils.collections.equivalenceClasses
 import utils.collections.sortByValues
 import utils.csv.DefaultCsvParser
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
-import java.io.File
 import java.nio.file.Path
 import java.util.*
 import kotlin.NoSuchElementException
 import kotlin.math.abs
 import kotlin.time.Duration
-
-interface Synthesize {
-    fun createFrom() {
-        // Load potential locations (zones or road network)
-        // Load target goals that need to be met.
-        // generate households from survey data
-        // generate Activity Schedules
-        // assign work / education location
-        // assign cars
-        // assign tickets
-        // write output
-    }
-}
 
 
 data class ActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
@@ -274,19 +261,57 @@ data class SynRegion(val id: Int) : Sth
 data class SurveyData(val id: Int) {
 }
 
+fun interface ConvertToInternalInfo {
+    fun convert(): SurveyInfo
+}
+
 /**
  * This is the class that holds the data extract from the survey population csv. The file merges household and
  * person information.
  */
-data class SurveyInfo(
-    val householdId: Int,
-    val householdSize: Int, //TODO remove. If I determine household size later over the household object, this info is useless
-    val sex: Sex,
-    val age: Int,
-    val householdIncome: Currency,
-    val hasLicence: Boolean,
+interface SurveyInfo {
+    val householdId: Int
+    val sex: Sex
+    val age: Int
+    val householdIncome: Currency
+    val hasLicence: Boolean
     val employment: Employment
-)
+}
+
+interface PersonInfo {
+    val personId: Int
+    val sex: Sex
+    val age: Int
+    val employment: Employment
+    val hasLicence: Boolean
+    var hasTransitPass: Boolean
+
+}
+
+/**
+ * All the information from the survey file, including all irrelevant information
+ */
+data class RawSurveyInfo(
+    override val householdId: Int,
+    val year: Int,
+    val areaType: Int, //TODO what is this?
+    val householdSize: Int, //TODO remove. If I determine household size later over the household object, this info is useless
+    val personNumber: Int,
+    override val sex: Sex,
+    val birthyear: Int,
+    override val employment: Employment,
+    val hasCommuterTicket: Boolean,
+    override val householdIncome: Currency,
+    val householdIncomeClass: Int, // TODO what is this?
+    val type: Int, //TODO what even is this?
+    val cars: Int,
+    val hasBicycle: Boolean,
+    override val hasLicence: Boolean,
+    val distanceWork: Distance,
+    val distanceEducation: Distance
+) : SurveyInfo {
+    override val age = year - birthyear
+}
 
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
@@ -302,7 +327,11 @@ fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Curre
             SurveyHousehold(
                 line.value.first().householdId,
                 income,
-                line.value.map { person -> SurveyPerson.create(person.sex, person.age, person.employment, person.hasLicence) })
+                line.value.map { person ->
+                    SurveyPerson.create(
+                        person
+                    )
+                })
         }
 }
 
@@ -349,13 +378,6 @@ data class ZoneTarget(
 
     ) {
 
-    fun toSynZone(): SynZone {
-        return SynZone(zoneId)
-    }
-
-    fun numberOfPeople(): Int {
-        return numHH1 + 2 * numHH2 + 3 * numHH3 + 4 * numHH4 + 5 * numHH5
-    }
 
     fun improvedTargets(): List<Rule> {
         return listOf(
@@ -469,34 +491,19 @@ data class ZoneTarget(
 }
 
 
-interface PersonInfo {
-    val id: Int
-    val sex: Sex
-    val age: Int
-    val employment: Employment
-    val driverLicence: Boolean
-    var hasTransitPass: Boolean
+data class SurveyPerson<T: SurveyInfo>(
+    val personId: Int,
+    val information: T
+): SurveyInfo by information {
 
-}
-
-
-
-
-
-data class SurveyPerson(
-    override val id: Int,
-    override val sex: Sex,
-    override val age: Int,
-    override val employment: Employment,
-    override val driverLicence: Boolean
-) : PersonInfo{
-    override var hasTransitPass: Boolean = false
+    override val sex: Sex = information.sex
+    override val age: Int = information.age
+    override val employment: Employment = information.employment
+    override val hasLicence: Boolean = information.hasLicence
     val representative = toRepresentative()
     private fun toRepresentative(): PersonRepresentative {
         return PersonRepresentative.fromData(sex, age)
     }
-
-    lateinit var homeLocation: Location
 
     val groupCode: Int
         get() {
@@ -519,13 +526,16 @@ data class SurveyPerson(
 
     companion object {
         private var idCounter: Int = 0
-        fun create(
-            sex: Sex,
-            age: Int,
-            employment: Employment,
-            driverLicence: Boolean
-        ): SurveyPerson {
-            return SurveyPerson(idCounter++, sex, age, employment, driverLicence)
-        }
+        fun <T: SurveyInfo> create(
+            information: T
+        ) = SurveyPerson(idCounter++, information)
+//        fun <T: PersonInfo> create(
+//            sex: Sex,
+//            age: Int,
+//            employment: Employment,
+//            driverLicence: Boolean
+//        ): SurveyPerson<T> {
+//            return SurveyPerson(idCounter++, sex, age, employment, driverLicence)
+//        }
     }
 }

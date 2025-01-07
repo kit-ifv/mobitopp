@@ -1,44 +1,10 @@
 package synthesis.fixedDestinations
 
 import domain.data.ZoneId
-import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
-import domain.location.DistanceMetric
-import domain.location.Location
-import synthesis.ActivitySchedule
-import synthesis.SurveyHousehold
-import synthesis.SurveyPerson
-import synthesis.SynZone
 import synthesis.fixedDestinations.BiMap.Companion.toBiMap
-import usecases.AttractivenessModel
 import utils.csv.DefaultCsvParser
-import java.io.File
 import java.nio.file.Path
 
-data class PersonWithSchedule(
-    private val person: SurveyPerson,
-    private val household: SurveyHousehold,
-    val homeLocation: Location,
-    private val activitySchedule: ActivitySchedule
-)
-
-
-fun interface AssignFixedLocations {
-
-    fun assign(person: PersonWithSchedule, distanceMetric: DistanceMetric, potentialLocations: Collection<Location>)
-}
-
-
-class TrivialLocations : AssignFixedLocations {
-    override fun assign(
-        person: PersonWithSchedule,
-        distanceMetric: DistanceMetric,
-        potentialLocations: Collection<Location>
-    ) {
-        potentialLocations.map {distanceMetric.evaluate(person.homeLocation, it)}
-    }
-
-}
 
 data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
 
@@ -113,38 +79,9 @@ class BiMap<K, V>(
     }
 }
 
-private val attractivenessTypes = setOf(
-    LegacyActivityType.WORK,
-    LegacyActivityType.EDUCATION_PRIMARY,
-    LegacyActivityType.EDUCATION_SECONDARY,
-    LegacyActivityType.EDUCATION_TERTIARY,
-    // TODO Sightseeing?
-)
 
-fun interface GenerateLocations {
-    fun generateLocations(
-        zone: SynZone,
-        activityType: ActivityType,
-        attractivenessModel: AttractivenessModel
-    ): Collection<Location>
-}
 
-data class FakeZone(
-    val id: ZoneId,
-    val centroid: Location
-)
 
-/**
- * Generate a location for a given activity type at the center of a zone, if and only if the attractiveness is nonzero
- */
-object TrivialLocation : GenerateLocations {
-    override fun generateLocations(
-        zone: SynZone,
-        activityType: ActivityType,
-        attractivenessModel: AttractivenessModel
-    ): Collection<Location> {
-        return if (attractivenessModel.attractivenessFor(zone.id, activityType) > 0.0)
-            listOf(zone.centroid) else emptyList()
-    }
 
-}
+
+

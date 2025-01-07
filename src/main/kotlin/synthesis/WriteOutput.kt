@@ -125,7 +125,7 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     override fun convert(element: FixedDestinationElements): String {
         return element.run {
             toCSV(
-                person.id,
+                person.personId,
                 "TODO personNumber",
                 person.household.id,
                 "TODO household Year",
@@ -215,7 +215,7 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
 
 }
 
-object PersonOutput : CSVOutput<PersonInfo> {
+object PersonOutput : CSVOutput<SynthesisPerson> {
     override val header: List<String> = listOf(
         "personId",
         "personNumber",
@@ -238,12 +238,12 @@ object PersonOutput : CSVOutput<PersonInfo> {
 
     )
 
-    override fun convert(element: PersonInfo): String {
+    override fun convert(element: SynthesisPerson): String {
         return element.run {
             toCSV(
-                id,
+                personId,
                 "TODO personNumber",
-                "TODO add household",
+                household.id,
                 age,
                 employment,
                 sex,

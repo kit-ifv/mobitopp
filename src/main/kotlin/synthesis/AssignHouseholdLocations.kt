@@ -5,10 +5,9 @@ import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
 import units.GPSCoordinate
-import units.radians
-import java.lang.Math.cos
-import java.lang.Math.sin
-import java.util.*
+
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 fun interface AssignHouseholdLocations {
@@ -54,7 +53,7 @@ fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalR
     // Convert the new latitude and longitude back to degrees
     val newLatitude = Math.toDegrees(newLat)
     val newLongitude = Math.toDegrees(newLon)
-    val temp = newLatitude.radians
+
     return GPSCoordinate.decimalDegree(newLatitude, newLongitude)
 }
 

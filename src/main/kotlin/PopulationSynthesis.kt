@@ -25,6 +25,7 @@ import synthesis.OpportunitiesOutput
 import synthesis.OpportunityOutput
 import synthesis.PersonInfo
 import synthesis.PersonOutput
+import synthesis.RawSurveyInfo
 import synthesis.Rule
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
@@ -32,6 +33,7 @@ import synthesis.SurveyPerson
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
 import synthesis.TrivialActivityScheduleGeneration
+import synthesis.TrivialCarGeneration
 import synthesis.ZoneTarget
 import synthesis.discreteChoice.CarOwnershipAttributes
 import synthesis.discreteChoice.CarOwnershipParameters
@@ -48,8 +50,11 @@ import synthesis.randomCoordinate
 
 import synthesis.toSurveyHouseholds
 import units.Coordinate
+import units.Currency
 import units.CurrencyUnit
+import units.Distance
 import units.GPSCoordinate
+import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
@@ -66,16 +71,26 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 
-fun parseSurvey(file: Path): Sequence<SurveyInfo> {
+fun parseSurvey(file: Path): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
-        SurveyInfo(
-            householdId = row("ID").toInt(),
-            householdSize = row("size").toInt(),
-            sex = row("sex") { Sex.decode(it.toInt()) },
-            age = row("year").toInt() - row("birthyear").toInt(),
-            householdIncome = row("hhincome") { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-            hasLicence = row("licence").toBooleanNumeric(),
-            employment = row("employmenttype") { Employment.decode(it.toInt()) }
+        RawSurveyInfo(
+        householdId = row("ID").toInt(),
+        year = row("year").toInt(),
+        areaType = row("areatype").toInt(),
+        householdSize = row("size").toInt(),
+        personNumber = row("personnumber").toInt(),
+        sex = row("sex"){Sex.decode(it.toInt())},
+        birthyear = row("birthyear").toInt(),
+        employment = row("employmenttype") {Employment.decode(it.toInt())},
+        hasCommuterTicket = row("commuterticket").toBooleanNumeric(),
+        householdIncome = row("hhincome"){ it.toDouble().toCurrency(CurrencyUnit.EUROS) },
+        householdIncomeClass = row("hhincome_class").toInt(),
+        type = row("type").toInt(),
+        cars = row("cars").toInt(),
+        hasBicycle = row("bicycle").toBooleanNumeric(),
+        hasLicence = row("licence").toBooleanNumeric(),
+        distanceWork = row("distance_work"){it.toDouble().kilometers},
+        distanceEducation = row("distance_education"){it.toDouble().kilometers},
         )
     }
 
@@ -130,7 +145,7 @@ class AssignStepBuilder(
 }
 
 
-class SynthesisSteps(
+class SynthesisSteps<T: SurveyInfo>(
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold>,
     val attractivenessModel: AttractivenessModel
@@ -140,7 +155,7 @@ class SynthesisSteps(
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
-    val cars = listOf<Car>() // TODO cuirrently there is no generation of cars
+    var cars = listOf<Car>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
     fun input(lambda: () -> Unit) {
         //TODO attractiveness Model, Zones, etc.
@@ -163,7 +178,9 @@ class SynthesisSteps(
         }
         householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
+    fun generateSyntheticHouseholds(lambda: T.() -> Unit) {
 
+    }
     var assignHouseholdLocationStrategy: AssignHouseholdLocations = AssignAroundCentroid(100.0)
     fun assignLocations(lambda: () -> Unit) {
         assignHouseholdLocationStrategy.assign(householdsByZone)
@@ -217,20 +234,23 @@ class SynthesisSteps(
     }
 
     fun generateCars(lambda: () -> Unit) {
+        cars = households.flatMap { TrivialCarGeneration.generate(it) }
 
     }
+
 }
 
-class OtherHolder(
+class OtherHolder<T: SurveyInfo>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold>,
     val randsums: Map<Zone, List<Rule>>,
-    val attractivenessModel: AttractivenessModel
+    val attractivenessModel: AttractivenessModel,
+    val surveyData: Collection<T>
 ) {
     val opportunities : MutableList<OpportunityOutput> = mutableListOf()
-    fun build(lambda: SynthesisSteps.() -> Unit) {
-        val s = SynthesisSteps(zones, surveyHouseholds, attractivenessModel).apply(lambda)
+    fun build(lambda: SynthesisSteps<T>.() -> Unit) {
+        val s = SynthesisSteps<T>(zones, surveyHouseholds, attractivenessModel).apply(lambda)
         HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), s.households)
         PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), s.people)
         FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), s.fixedDestinations)
@@ -250,11 +270,13 @@ class OtherHolder(
     }
 
     companion object {
-        class SynthesisConfiguration() {
+        class SynthesisConfiguration<T: SurveyInfo>(
+            val surveyInfo: Collection<T>
+        ) {
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
+
             lateinit var surveyHouseholds: Collection<SurveyHousehold>
-            lateinit var randsums: Map<Zone, List<Rule>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -275,8 +297,8 @@ class OtherHolder(
             }
         }
 
-        fun configure(lambda: SynthesisConfiguration.() -> Unit): OtherHolder {
-            val config = SynthesisConfiguration().apply(lambda)
+        fun <T: SurveyInfo> configure(surveyData: Collection<T>, lambda: SynthesisConfiguration<T>.() -> Unit): OtherHolder<T> {
+            val config = SynthesisConfiguration(surveyData).apply(lambda)
             val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
             val rules: Map<Zone, List<Rule>> = targets.associate {
                 config.zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
@@ -287,15 +309,16 @@ class OtherHolder(
                 config.zones,
                 config.surveyHouseholds,
                 rules,
-                config.attractivenessModel
+                config.attractivenessModel,
+                surveyData
             )
         }
     }
 }
 
 fun tryout() {
-
-    val o = OtherHolder.configure {
+    val surveyPeople =  parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toList()
+    val o = OtherHolder.configure(surveyPeople) {
         outputDirectory = Path("src/test/resources/tempOutput")
         zones = defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
             .map { it.build() }
@@ -313,6 +336,13 @@ fun tryout() {
         "Somehow no primary schools are generated"
     }
     o.build {
+
+        generateSyntheticHouseholds {
+            surveyPeople.groupBy { it.householdId }.map {
+                SurveyHousehold(it.value.map { SynthesisPerson() })
+            }
+
+        }
         synthesis(o.randsums) {
             IPU { vectors, observers ->
                 var counter = 0
@@ -363,6 +393,9 @@ fun tryout() {
 
         }
 
+
+
+
     }
 
 }
@@ -410,15 +443,7 @@ class AllAssignments {
 
 }
 
-private data class SettledPerson(
-    val surveyPerson: PersonInfo,
-    val location: Location
-) : PersonInfo by surveyPerson
 
-data class School(
-    val location: Location,
-    val students: MutableList<SurveyPerson> = mutableListOf()
-)
 
 fun SynthesisPerson.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
 fun SynthesisPerson.isHigherStudent(): Boolean =

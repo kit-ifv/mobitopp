@@ -17,11 +17,6 @@ import kotlin.io.path.Path
 
 
 
-data class FixedLocationOutput(
-    val person: SurveyPerson,
-    val location: Location,
-    val activityType: ActivityType
-)
 
 fun interface DetermineLocationInZone {
     fun getLocation(zone: Zone): Location
