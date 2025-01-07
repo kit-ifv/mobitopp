@@ -220,9 +220,6 @@ data class RawActivity(
         var result = location.hashCode()
         result = 31 * result + startTime.hashCode()
         result = 31 * result + endTime.hashCode()
-        result = 31 * result + earliestStartTime.hashCode()
-        result = 31 * result + latestEndTime.hashCode()
-        result = 31 * result + type.hashCode()
         return result
     }
 }
@@ -241,7 +238,7 @@ interface Leg : MovingAction {
     override var latestEndTime: AbsoluteTime
 
     override var transportType: Mode
-
+    //Todo Jan: zu prüfen
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 
@@ -335,7 +332,7 @@ data class RawLeg(
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
-
+    //Todo Jan: zu prüfen
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
