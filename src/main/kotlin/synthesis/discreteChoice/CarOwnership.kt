@@ -3,7 +3,6 @@ package synthesis.discreteChoice
 import domain.data.EconomicStatus
 import domain.data.Employment
 import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.NestedLogit
 import modeling.discreteChoice.NestedLogit.Companion.NestedLogitBuilder
@@ -21,7 +20,7 @@ class CarOwnershipFactors(
 ) {
     val size = household.members.size
     val economicStatus: EconomicStatus = household.economicStatus
-    val numDrivingLicence: Int = household.members.count { it.driverLicence }
+    val numDrivingLicence: Int = household.members.count { it.hasLicence }
     val numberOfWorkers = household.members.count { employmentSorter.isWorking(it.employment) }
     val isWg = household.members.all { employmentSorter.isUniversityStudent(it.employment) } && size >= 3
     val isOnlyRetired = household.members.all { employmentSorter.isRetired(it.employment) }

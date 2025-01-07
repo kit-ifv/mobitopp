@@ -279,7 +279,7 @@ class PrivateCarBuilder(
         override val segment: CarSegment = this@PrivateCarBuilder.segment!!
         override val seats: Int = this@PrivateCarBuilder.seats!!
         override val id: CarId = ID(idCount++)
-        override val engine: CarEngine = buildEngine()
+        override val engine: CarEngine = CarEngineBuilder(carEngineStatistics!!, segment, this@PrivateCarBuilder.engine!!).buildEngine()
         override var location: Location = owner.location
 
         override var driver: Person? = null
@@ -293,11 +293,14 @@ class PrivateCarBuilder(
         }
     }
 
-    fun buildEngine(): CarEngine {
-        val stats = this.carEngineStatistics!!
-        val segment = this.segment!!
 
-        return when (val engine = this.engine!!) {
+}
+class CarEngineBuilder(val carEngineStatistics: CarEngineStatistics, val segment: CarSegment, val engine: EngineType) {
+    fun buildEngine(): CarEngine {
+        val stats = this.carEngineStatistics
+        val segment = this.segment
+
+        return when (val engine = this.engine) {
             EngineType.COMBUSTION -> object : CombustionEngine {
                 override val fuelCapacity = stats.fuelCapacityOf(segment, engine)
                 override val fuelConsumption100Km: Volume = stats.fuelConsumption100kmOf(segment)

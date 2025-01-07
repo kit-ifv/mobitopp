@@ -4,26 +4,12 @@ import domain.data.Employment
 import domain.data.Sex
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.PersonInfo
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
 import units.euros
-
-class TransitPassParametersss(householdBuilder: SynthesisHouseholdBuilder, person: PersonInfo) {
-    val size = householdBuilder.members.size
-    val gender = person.sex
-    val age = person.age
-    val drivingLicence = person.driverLicence
-    val numberOfCars = householdBuilder.amountOfCars
-    val employment = person.employment
-    val income = householdBuilder.income
-    val numChildsAgeFiveOrLess = householdBuilder.members.count { it.age in 0..5 }
-    val numAgeInSixToSeventeen = householdBuilder.members.count { it.age in 6..17 }
-}
-
 
 
 val YesTransitPass = TransitPassParameters(
@@ -112,7 +98,7 @@ data class TicketSituation(
     val householdSize = household.members.size
     val gender = person.sex
     val age = person.age
-    val hasDrivingLicence = person.driverLicence
+    val hasDrivingLicence = person.hasLicence
     val householdNumCars = household.amountOfCars
     val employment = person.employment
     val income = household.income
