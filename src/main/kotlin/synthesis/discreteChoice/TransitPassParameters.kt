@@ -5,9 +5,9 @@ import domain.data.Sex
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
+import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.PersonInfo
-import synthesis.SurveyPerson
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
 import units.euros
@@ -123,7 +123,7 @@ data class TicketSituation(
 }
 
 
-val transitPassDiscreteChoiceModel = DiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
+val transitPassDiscreteChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
     AllocatedLogit.create {
         option(false) {
             0.0

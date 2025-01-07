@@ -5,7 +5,9 @@ import datastructure.WithMetric
 import domain.enums.ActivityType
 import domain.location.Location
 import domain.roadnetwork.toUTM
-import modeling.discreteChoice.Logit
+import modeling.discreteChoice.AllocatedLogit
+import modeling.discreteChoice.ChoiceSituation
+import modeling.discreteChoice.DiscreteChoiceModel
 
 import synthesis.SynthesisPerson
 import units.Distance
@@ -30,7 +32,12 @@ class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder {
         person: SynthesisPerson,
         activityType: ActivityType
     ): Location {
-        return locationTree.nearestNeighbor(person.homeLocation) { doubleArrayOf(it.coordinate.toUTM().e, it.coordinate.toUTM().n) }
+        return locationTree.nearestNeighbor(person.homeLocation) {
+            doubleArrayOf(
+                it.coordinate.toUTM().e,
+                it.coordinate.toUTM().n
+            )
+        }
     }
 
 }
@@ -42,10 +49,6 @@ data class BandwidthParameters(
     val aDistance: Double = 5.0 // TODO sehr wahrscheinlich kilometer statt meter. Rausfinden
 )
 
-private data class UtilityFunctionParameters(
-    val attractivenessModel: AttractivenessModel,
-    val activityType: ActivityType
-)
 
 class LocationKDTree(locations: List<Location>) {
     private val tree = ReadOnlyKDTree(locations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
@@ -58,21 +61,32 @@ class LocationKDTree(locations: List<Location>) {
     }
 }
 
+data class LocationSituation(
+    override val choice: Location,
+    val distance: Distance,
+    val activityType: ActivityType
+) : ChoiceSituation<Location>()
+
 class UseBandwidthLocation(
     private val potentialLocations: List<Location>, val attractivenessModel: AttractivenessModel,
     val parameters: BandwidthParameters = BandwidthParameters()
 ) : LocationFinder {
     private val locationTree = LocationKDTree(potentialLocations)
     private val model =
-        DiscreteChoiceModel<WithMetric<Location, Distance>, UtilityFunctionParameters>(Logit()) { x, p ->
-            val attractiveness = p.run {
-                x.item.zone?.let { attractivenessModel.attractivenessFor(it.id, activityType) }
-                    ?: 0.0.also { System.err.println("Cannot find attractiveness for location ${x.item}") }
-            }
-            ln(attractiveness) / (parameters.bDistance * x.metric.toDouble(DistanceUnit.KILOMETERS)
-                .pow(parameters.aDistance))
+        DiscreteChoiceModel<Location, LocationSituation, BandwidthParameters>(
+            AllocatedLogit.create(potentialLocations) {
+                ruleForAll {
+                    val zoneId = it.choice.zone?.id
 
-        }
+                    val attractiveness =
+                        zoneId?.let { zId-> attractivenessModel.attractivenessFor(zId, it.activityType) }
+                            ?: 0.0.also { System.err.println("Cannot find attractiveness for location") }
+
+                    ln(attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
+
+                }
+            }
+        )
 
     override fun find(
         person: SynthesisPerson,
@@ -83,28 +97,20 @@ class UseBandwidthLocation(
                 person.homeLocation,
             )
                 .dropWhile { it.item.distance(person.homeLocation) <= parameters.poleDistance - parameters.poleRadius }
-                .takeWhile { it.item.distance(person.homeLocation) <= parameters.poleDistance + parameters.poleRadius }.toList()
-        if(validTargets.isEmpty()) {
-            validTargets = potentialLocations.sortedBy { it.distance(person.homeLocation) }.map{ WithMetric(it, it.distance(person.homeLocation)) }
+                .takeWhile { it.item.distance(person.homeLocation) <= parameters.poleDistance + parameters.poleRadius }
+                .toList()
+        if (validTargets.isEmpty()) {
+            validTargets = potentialLocations.sortedBy { it.distance(person.homeLocation) }
+                .map { WithMetric(it, it.distance(person.homeLocation)) }
         }
 
 
         //TODO code fallback if no location is found!!
-        return model.select(validTargets.toSet(), UtilityFunctionParameters(attractivenessModel, activityType)).item
+        val converted = validTargets.map {LocationSituation(it.item, it.metric, activityType)}.toSet()
+        return model.select(converted, parameters)
 
     }
 }
 
 private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
 
-//class ClosestDistanceAssigner(schools: List<Location>) : PreschoolAssign {
-//    private val schoolFinder: ReadOnlyKDTree<Location> =
-//        ReadOnlyKDTree(schools, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
-//
-//    override fun assignPreschoolLocation(person: SurveyPerson, home: Location): FixedLocationOutput {
-//        val closestSchool =
-//            schoolFinder.nearestNeighbor(home) { doubleArrayOf(home.coordinate.toUTM().e, home.coordinate.toUTM().n) }
-//        //TODO pass activity type
-//        return FixedLocationOutput(person, closestSchool, LegacyActivityType.EDUCATION_PRIMARY)
-//    }
-//}

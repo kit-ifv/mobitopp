@@ -26,6 +26,7 @@ import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
+import modeling.discreteChoice.D
 import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit

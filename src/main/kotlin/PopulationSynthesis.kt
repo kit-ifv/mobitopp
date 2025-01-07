@@ -211,7 +211,7 @@ class SynthesisSteps(
 
         households.forEach {household ->
             household.members.forEach { person ->
-                person.hasTransitPass = model.select({ TicketSituation(it,household, person ) }, parameters)
+                person.hasTransitPass = model.select( {TicketSituation(it,household, person )}, parameters)
             }
         }
     }

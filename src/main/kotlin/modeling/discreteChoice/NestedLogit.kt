@@ -21,16 +21,15 @@ import kotlin.math.ln
  */
 class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
     override val name: String = "Unnamed Nested Logit",
-    override val rules: List<Pair<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>>> = emptyList(),
     private val leafs: Map<X, NestStructure<PARAMS>.Leaf>,
-    private val root: NestStructure<PARAMS>.Nest
+    private val root: NestStructure<PARAMS>.Nest, override val translation: Map<X, UtilityFunction<SIT, PARAMS>>
 ) :
-    RuleBasedAssociation<X, SIT, PARAMS> {
+    OptionDistributionFunction<X, SIT, PARAMS> {
 
 
     override val options: Set<X> = leafs.keys
     /**
-     * We need to cross reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
+     * We need to cross-reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
      * this object state until we release the probability calculation
      */
     private inner class AssociatedSituation(
@@ -81,9 +80,9 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
          */
         class NestedLogitBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> private constructor(
             val map: MutableMap<X, NestStructure<PARAMS>.Leaf>,
-            val rules: MutableList<Pair<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>>>
-        ) : ChoiceSituationBuilder<X, SIT, PARAMS>{
-            constructor(): this(mutableMapOf(), mutableListOf())
+            val translation: MutableMap<X, UtilityFunction<SIT, PARAMS>>
+        ) : OptionBasedSituationBuilder<X, SIT, PARAMS>{
+            constructor(): this(mutableMapOf(), mutableMapOf())
             private val childs: MutableList<NestStructure<PARAMS>.Node> = mutableListOf()
 
             /**
@@ -97,7 +96,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                 lambdaParameterExtraction: PARAMS.() -> Double,
                 functor: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
             ): NestStructure<PARAMS>.Nest {
-                val builder = NestedLogitBuilder(map, rules)
+                val builder = NestedLogitBuilder(map, translation)
                 builder.functor()
                 val childNodes = builder.build()
                 map.putAll(builder.map)
@@ -121,8 +120,8 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
             }
 
 
-            override fun addUtilityFunction(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>) {
-                rules.add({ sit: SIT -> sit.choice == x } to utilityFunction)
+            override fun addUtilityFunctionByIdentifier(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>) {
+                translation[x] = utilityFunction
                 val element = NestStructure<PARAMS>().Leaf()
                 childs.add(element)
                 require(!map.containsKey(x)) {
@@ -149,7 +148,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
             }
 
 
-            return NestedLogit(name, builder.rules, builder.map, root)
+            return NestedLogit(name,  builder.map, root, builder.translation)
         }
         fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> root(name: String = "Unnamed Nested Logit model" , lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit): NestedLogit<X, SIT, PARAMS>
         = build(name, lambda)
