@@ -41,10 +41,10 @@ val SynthesisHouseholdBuilder.numberOfAdults get() = members.count { it.age >= 1
 val SynthesisHouseholdBuilder.numberOfMinors get() = members.count { it.age < 18 }
 
 
-data class SurveyHousehold(
+data class SurveyHousehold<T: SurveyInfo>(
     override val householdId: Int,
     override val income: Currency,
-    override val members: List<SurveyPerson<*>>
+    override val members: List<SurveyPerson<T>>
 ) :
     ISurveyHousehold {
     lateinit var economicStatus: EconomicStatus

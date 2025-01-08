@@ -23,43 +23,37 @@ import synthesis.IPU
 import synthesis.OECDAssigner
 import synthesis.OpportunitiesOutput
 import synthesis.OpportunityOutput
-import synthesis.PersonInfo
 import synthesis.PersonOutput
 import synthesis.RawSurveyInfo
 import synthesis.Rule
+import synthesis.SmallestInfo
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
-import synthesis.SurveyPerson
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
-import synthesis.TrivialActivityScheduleGeneration
 import synthesis.TrivialCarGeneration
 import synthesis.ZoneTarget
 import synthesis.discreteChoice.CarOwnershipAttributes
 import synthesis.discreteChoice.CarOwnershipParameters
 import synthesis.discreteChoice.TicketSituation
-import synthesis.discreteChoice.TransitPassParameters
 import synthesis.discreteChoice.YesTransitPass
 import synthesis.discreteChoice.transitPassDiscreteChoiceModel
 import synthesis.fixedDestinations.CommuterMatrix
 import synthesis.fixedDestinations.LocationFinder
 import synthesis.fixedDestinations.UseBandwidthLocation
 import synthesis.fixedDestinations.UseClosestLocation
-import synthesis.generateSchedules
 import synthesis.randomCoordinate
 
 import synthesis.toSurveyHouseholds
 import units.Coordinate
-import units.Currency
 import units.CurrencyUnit
-import units.Distance
 import units.GPSCoordinate
+import units.euros
 import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
 import usecases.steps.legacyData.defaultZoneCsvParser
-import usecases.steps.toCSV
 import utils.csv.DefaultCsvParser
 import java.io.File
 import java.nio.file.Path
@@ -147,8 +141,10 @@ class AssignStepBuilder(
 
 class SynthesisSteps<T: SurveyInfo>(
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold>,
-    val attractivenessModel: AttractivenessModel
+    val surveyHouseholds: Collection<SurveyHousehold<T>>,
+    val attractivenessModel: AttractivenessModel,
+    val outputDirectory: Path,
+    val opportunities: List<OpportunityOutput>
 ) {
 
     lateinit var householdsByZone: Map<Zone, List<SynthesisHouseholdBuilder>>
@@ -178,7 +174,7 @@ class SynthesisSteps<T: SurveyInfo>(
         }
         householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
-    fun generateSyntheticHouseholds(lambda: T.() -> Unit) {
+    fun generateSurveyHousholds(lambda: T.() -> Unit) {
 
     }
     var assignHouseholdLocationStrategy: AssignHouseholdLocations = AssignAroundCentroid(100.0)
@@ -240,23 +236,18 @@ class SynthesisSteps<T: SurveyInfo>(
 
 }
 
-class OtherHolder<T: SurveyInfo>(
+class PopulationSynthesis<T: SurveyInfo>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
-    val surveyHouseholds: Collection<SurveyHousehold>,
+    val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val randsums: Map<Zone, List<Rule>>,
     val attractivenessModel: AttractivenessModel,
     val surveyData: Collection<T>
 ) {
     val opportunities : MutableList<OpportunityOutput> = mutableListOf()
-    fun build(lambda: SynthesisSteps<T>.() -> Unit) {
-        val s = SynthesisSteps<T>(zones, surveyHouseholds, attractivenessModel).apply(lambda)
-        HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), s.households)
-        PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), s.people)
-        FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), s.fixedDestinations)
-        ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), s.activities)
-        CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), s.cars)
-        OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
+    fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
+        val s = SynthesisSteps<T>(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
+
     }
 
     fun generateLocations(
@@ -270,13 +261,12 @@ class OtherHolder<T: SurveyInfo>(
     }
 
     companion object {
-        class SynthesisConfiguration<T: SurveyInfo>(
-            val surveyInfo: Collection<T>
-        ) {
+        class SynthesisConfiguration<T: SurveyInfo>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
+            val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
 
-            lateinit var surveyHouseholds: Collection<SurveyHousehold>
+            lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
@@ -295,35 +285,52 @@ class OtherHolder<T: SurveyInfo>(
                 attractivenessModel.lambda()
                 return attractivenessModel.build()
             }
+
         }
 
-        fun <T: SurveyInfo> configure(surveyData: Collection<T>, lambda: SynthesisConfiguration<T>.() -> Unit): OtherHolder<T> {
-            val config = SynthesisConfiguration(surveyData).apply(lambda)
+        fun <T: SurveyInfo> configure(surveyPopulation: GenerateArtificialPopulation<T>, lambda: SynthesisConfiguration<T>.() -> Unit): PopulationSynthesis<T> {
+            val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
             val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
             val rules: Map<Zone, List<Rule>> = targets.associate {
                 config.zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
             }
 
-            return OtherHolder(
+            return PopulationSynthesis(
                 config.outputDirectory,
                 config.zones,
                 config.surveyHouseholds,
                 rules,
                 config.attractivenessModel,
-                surveyData
+                config.surveyPopulation
             )
         }
     }
 }
 
+fun interface GenerateArtificialPopulation<T: SurveyInfo> {
+    fun generateArtificialPopulation(): Collection<T>
+    companion object {
+        fun fromFile(file: File) = fromFile(file.toPath())
+        fun fromFile(fileString: String) = fromFile(Path(fileString))
+        fun fromFile(file: Path) = GenerateArtificialPopulation { parseSurvey(file).toList() }
+    }
+}
+
+
+
 fun tryout() {
-    val surveyPeople =  parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toList()
-    val o = OtherHolder.configure(surveyPeople) {
+
+
+    val populationSynthesis = PopulationSynthesis.configure(
+        surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv")
+
+    ) {
+
         outputDirectory = Path("src/test/resources/tempOutput")
         zones = defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
             .map { it.build() }
-        surveyHouseholds =
-            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
+        surveyHouseholds = surveyPopulation.toSurveyHouseholds()
+//            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             file = Path("src/test/resources/synthesis/attractivities.csv")
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
@@ -331,19 +338,13 @@ fun tryout() {
 
     }
 
-    val primarySchools: List<Location> = o.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+    val primarySchools: List<Location> = populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
-    o.build {
+    populationSynthesis.execute {
 
-        generateSyntheticHouseholds {
-            surveyPeople.groupBy { it.householdId }.map {
-                SurveyHousehold(it.value.map { SynthesisPerson() })
-            }
-
-        }
-        synthesis(o.randsums) {
+        synthesis(populationSynthesis.randsums) {
             IPU { vectors, observers ->
                 var counter = 0
                 while (observers.maxBy { it.difference }.difference >= 0.01 && counter < 100) {
@@ -392,12 +393,19 @@ fun tryout() {
         generateCars {
 
         }
-
-
-
+        writeLegacyOutput()
 
     }
 
+}
+
+fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
+    HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
+    PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
+    FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
+    ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), activities)
+    CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
+    OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
 }
 
 fun main() {
@@ -426,22 +434,6 @@ class AssignStep(
 
 }
 
-class AllAssignments {
-    val steps: MutableList<AssignStep> = mutableListOf()
-
-
-    fun run(people: Collection<SynthesisPerson>): String {
-        return FixedDestinationOutput.generateCSVString(steps.flatMap { it.runOther(people) })
-    }
-
-    fun write(
-        people: Collection<SynthesisPerson>,
-        file: File = File("src/test/resources/tempOutput/fixedDestination.csv")
-    ) {
-        file.writeText(run(people))
-    }
-
-}
 
 
 
@@ -500,140 +492,3 @@ data class Rectangle(
         }
     }
 }
-//
-//fun extem() {
-//    val work = LegacyActivityType.WORK
-//    val attractivenessTypes = setOf(
-//        work,
-//        LegacyActivityType.EDUCATION_PRIMARY,
-//        LegacyActivityType.EDUCATION_SECONDARY,
-//        LegacyActivityType.EDUCATION_TERTIARY,
-//    )
-//    val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-//
-////
-////    val visumPath = Path("src/test/resources/rastatt.net")
-////    val elements = parse(visumPath)
-////    val visumZones = elements.zones.associateBy { it.id }
-////
-////
-////    val visumNetwork = parseNetwork(visumPath) {}
-//    val result = parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv"))
-//    val inputZones =
-//        defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
-//            .map { it.build() }
-//
-//    val attractiveness: AttractivenessModel =
-//        AttractivenessFromCsv(
-//            file = Path("src/test/resources/synthesis/attractivities.csv").toFile(), activityTypes =
-//            attractivenessTypes
-//        )
-//
-//    val zones = targets.map { target -> inputZones.first { it.id == target.zoneId } }
-//    val rules: Map<Zone, List<Rule>> = targets.associate {
-//        inputZones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-//    }
-//    val ipu = IPU { vectors, observers ->
-//        var counter = 0
-//        while (observers.maxBy { it.difference }.difference >= 0.01 && counter < 100) {
-//            observers.forEach { it.optimize() }
-//            counter++
-//        }
-////        println("Finished after $counter iterations ${observers.joinToString(", ")}")
-//        vectors
-//    }
-//    val households = result.toSurveyHouseholds()
-//    val syntheticHouseholds: Map<Zone, List<SynthesisHouseholdBuilder>> =
-//        ipu.synthesize(households.values, zones, rules)// assign location in this step
-//    AssignAroundCentroid(100.0).assign(syntheticHouseholds)
-//
-//    val households2 = syntheticHouseholds.flatMap { it.value }
-//    //TODO Schedule generation
-//    val schedules = households2.generateSchedules(TrivialActivityScheduleGeneration())
-//    val economicStatusDesigner = OECDAssigner.fromPath()
-//    val economics = households2.map { economicStatusDesigner.assign(it) }
-//    households2.forEach {
-//
-//        it.amountOfCars = carChoiceModel.select(it.toCarOwnershipAttributes())
-//    }
-//    households2.forEach {
-//        it.members.forEach { person ->
-//            person.hasTransitPass = transitPassDiscreteChoiceModel.select(it, person)
-//        }
-//    }
-//    val people = households2.flatMap { household -> household.members }
-//    // Generate potential targets for determining fixed destinations, should be exposed so that external code can create the locations
-//    val primarySchools: List<Location> =
-//        inputZones.generateLocations(attractiveness, LegacyActivityType.EDUCATION_PRIMARY)
-//    val higherSchools: List<Location> = inputZones.generateLocations(
-//        attractiveness,
-//        listOf(LegacyActivityType.EDUCATION_SECONDARY, LegacyActivityType.EDUCATION_TERTIARY)
-//    )
-//    val assignStep = AssignStep(
-//        LegacyActivityType.EDUCATION_PRIMARY,
-//        SynthesisPerson::isPrimaryStudent,
-//        UseClosestLocation(primarySchools)
-//    )
-//
-//    val assignStep2 = AssignStep(
-//        LegacyActivityType.EDUCATION_SECONDARY,
-//        SynthesisPerson::isHigherStudent,
-//        UseBandwidthLocation(higherSchools, attractiveness)
-//    )
-//    val assignStep3 = AssignStep(
-//        LegacyActivityType.EDUCATION_TERTIARY,
-//        SynthesisPerson::hasEducationActivity,
-//        UseClosestLocation(primarySchools)
-//    )
-//
-//    val workAssigner = CommuterMatrix.parse(zoneMapping = inputZones.associateBy { it.id })
-//    val assignStep4 = AssignStep(
-//        LegacyActivityType.WORK,
-//        SynthesisPerson::isWorker,
-//        workAssigner
-//    )
-//
-//    val fixedDestinations = AllAssignments().apply {
-//        steps += listOf(assignStep, assignStep2, assignStep4)
-//    }
-//
-//    fixedDestinations.write(people)
-//    val primarySchoolAssigner = UseClosestLocation(primarySchools)
-//    val secondarySchoolAssigner = UseBandwidthLocation(higherSchools, attractiveness)
-//    val primaries = people.filter { it.employment == Employment.STUDENT_PRIMARY }
-//    val primaryLocations =
-//        primaries.associateWith { primarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_PRIMARY) }
-//    val secondaries = people.filter { it.employment == Employment.STUDENT_SECONDARY }
-//    val secondaryLocations =
-//        secondaries.associateWith { secondarySchoolAssigner.find(it, LegacyActivityType.EDUCATION_SECONDARY) }
-//    val workers = people.filter { it.employment == Employment.FULLTIME || it.employment == Employment.PARTTIME }
-//
-//    val workLocations = workers.associateWith { workAssigner.find(it, LegacyActivityType.WORK) }
-//    //TODO generate cars based on some form of generation description.
-//    households2.forEach { it.amountOfCars }
-//    people.joinToString {
-//        toCSV(
-//            it.id,
-//            -1,
-//            -1,
-//            "householdyear",
-//            "householdNumber",
-//            "activitytype",
-//        )
-//
-//
-//    }
-//
-//    val csvString = HouseholdOutput.generateCSVString(households2)
-//    val output = File("src/test/resources/household.csv")
-//    output.writeText(csvString)
-//    val personCSV = PersonOutput.generateCSVString(people)
-//    val output2 = File("src/test/resources/person.csv")
-//    output2.writeText(personCSV)
-//    val destinations = listOf(primaryLocations, secondaryLocations, workLocations)
-//    val output3 = File("src/test/resources/person.csv")
-//    output3.writeText(personCSV)
-//}
-///*
-// *
-// */
