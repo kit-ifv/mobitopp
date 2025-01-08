@@ -37,6 +37,7 @@ interface ModelStep {
         subValidation {
             verifyInput()
         }
+
         subValidation {
             mockBehavior()
         }
@@ -74,7 +75,7 @@ interface RepositoryDependentStep : ModelStep {
     fun Warning.warnIfDependentNotSealed(it: Repository<*, *>) {
         validateCondition(
             message = "Step ${this@RepositoryDependentStep.name} depends on unsealed repository: ${it.name}. " +
-                "Make sure this is desired behavior, if possible add clear() step before this step!",
+                "Make sure this is desired behavior, if so, consider removing the seal step before this step!",
             isError = false
         ) {
             it.sealed
@@ -258,7 +259,7 @@ class SealStep<E, I>(
 
     override fun mockBehavior(): Warning? = validateScope("Try seal ${repository.name}") {
         repository.seal()
-        // no print
+        // no print, compared to execute()
     }
 }
 
@@ -273,7 +274,7 @@ class LoadCsvStep<E, I>(
     private val validationMock: List<E>,
 ) : AddCsvStep<E, I>() where E : Identifiable<I> {
 
-    override val resource: CsvResource<E> = CsvResource(file, parser, delimiter)
+    override val resource: CsvResource<E> by lazy { CsvResource(file, parser, delimiter) }
 
     override fun mockElementsForValidation(): List<E> = validationMock
 }
@@ -307,7 +308,7 @@ open class MultiStep(
     }
 
     override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
-        "Validate multiple ModelSteps:"
+        "Validate multiple ModelSteps ($name):"
     ) {
         validationPrefix()
 
