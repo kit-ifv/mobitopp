@@ -6,7 +6,6 @@ import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
-import synthesis.PersonInfo
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
 import units.euros

@@ -87,9 +87,6 @@ fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityT
     return fromTimes(start.sinceStart, end.sinceStart, type)
 }
 
-fun interface Matcher {
-    fun matches(surveyHousehold: SurveyHousehold): Int
-}
 
 fun Boolean.toInt() = if (this) 1 else 0
 
@@ -97,30 +94,30 @@ fun Boolean.toInt() = if (this) 1 else 0
 interface Rule {
     val target: Int
     val name: String
-    fun check(surveyHousehold: SurveyHousehold): Int
+    fun check(surveyHousehold: SurveyHousehold<*>): Int
 
-    fun appliesTo(surveyHousehold: SurveyHousehold): Boolean = check(surveyHousehold) != 0
+    fun appliesTo(surveyHousehold: SurveyHousehold<*>): Boolean = check(surveyHousehold) != 0
 
-    fun verify(output: Collection<SurveyHousehold>): Double {
+    fun verify(output: Collection<SurveyHousehold<*>>): Double {
         return target.toDouble() - output.sumOf { check(it) }
     }
 
-    fun filter(target: Collection<SurveyHousehold>): List<SurveyHousehold> {
+    fun filter(target: Collection<SurveyHousehold<*>>): List<SurveyHousehold<*>> {
         return target.filter { appliesTo(it) }
     }
 }
 
 fun interface CountRule {
-    fun matches(surveyHousehold: SurveyHousehold): Int
+    fun matches(surveyHousehold: SurveyHousehold<*>): Int
 }
 
 fun interface CheckRule {
-    fun matches(surveyHousehold: SurveyHousehold): Boolean
+    fun matches(surveyHousehold: SurveyHousehold<*>): Boolean
 }
 
 class ZoneRule(override val name: String, override val target: Int, val matcher: CountRule) : Rule {
 
-    override fun check(surveyHousehold: SurveyHousehold): Int {
+    override fun check(surveyHousehold: SurveyHousehold<*>): Int {
         return matcher.matches(surveyHousehold)
     }
 
@@ -130,7 +127,7 @@ class ZoneRule(override val name: String, override val target: Int, val matcher:
 }
 
 class ZoneCheckRule(override val name: String, override val target: Int, val matcher: CheckRule) : Rule {
-    override fun check(surveyHousehold: SurveyHousehold): Int {
+    override fun check(surveyHousehold: SurveyHousehold<*>): Int {
         return matcher.matches(surveyHousehold).toInt()
     }
 
@@ -150,17 +147,17 @@ fun <T> Collection<T>.pickWithReplacement(
 
 fun interface HouseholdSynthesis {
     fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold>,
+        surveyHouseholds: Collection<SurveyHousehold<*>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
     ): Map<Zone, List<SynthesisHouseholdBuilder>>
 }
-typealias HouseholdEquivalence = Map<SurveyHousehold, Set<SurveyHousehold>>
+typealias HouseholdEquivalence = Map<SurveyHousehold<*>, Set<SurveyHousehold<*>>>
 
 class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
     HouseholdSynthesis {
     private var overflowCounter: Double = 0.0
-    val convertNumbersToHousehold: (HouseholdEquivalence, SurveyHousehold, Double) -> List<SurveyHousehold> =
+    val convertNumbersToHousehold: (HouseholdEquivalence, SurveyHousehold<*>, Double) -> List<SurveyHousehold<*>> =
         { e, h, d ->
             val set = e.getOrElse(h) { throw NoSuchElementException("Somehow this happened") }
             overflowCounter += d - d.toInt()
@@ -175,7 +172,7 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
         }
 
     override fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold>,
+        surveyHouseholds: Collection<SurveyHousehold<*>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
     ): Map<Zone, List<SynthesisHouseholdBuilder>> {
@@ -204,7 +201,7 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
     private fun Zone.calculate(
         surveyHouseholds: HouseholdEquivalence,
         rules: List<Rule>
-    ): Collection<Pair<SurveyHousehold, Double>> {
+    ): Collection<Pair<SurveyHousehold<*>, Double>> {
         //TODO toVector should depend on the underlying ruleset instead of a hardcoded implementation.
         val vectorMapping = surveyHouseholds.keys.associateWith { rules.vectorize(it) }
         val vectors = vectorMapping.values
@@ -245,7 +242,7 @@ class Observer(val name: String, val observedIndex: Int, val vectors: List<Scala
     override fun toString() = "[$name] difference = $difference"
 }
 
-fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold): ScalableVector {
+fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold<*>): ScalableVector {
     return ScalableVector(map { it.check(surveyHousehold) }.toIntArray())
 }
 
@@ -278,15 +275,14 @@ interface SurveyInfo {
     val employment: Employment
 }
 
-interface PersonInfo {
-    val personId: Int
-    val sex: Sex
-    val age: Int
-    val employment: Employment
-    val hasLicence: Boolean
-    var hasTransitPass: Boolean
-
-}
+data class SmallestInfo(
+    override val householdId: Int,
+    override val sex: Sex,
+    override val age: Int,
+    override val householdIncome: Currency,
+    override val hasLicence: Boolean,
+    override val employment: Employment
+): SurveyInfo
 
 /**
  * All the information from the survey file, including all irrelevant information
@@ -303,7 +299,7 @@ data class RawSurveyInfo(
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this?
-    val type: Int, //TODO what even is this?
+    val type: Int, //TODO what even is this? It Could be raumtype
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
@@ -316,14 +312,10 @@ data class RawSurveyInfo(
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
  */
-fun Sequence<SurveyInfo>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): Map<Int, SurveyHousehold> {
+fun <T: SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): List<SurveyHousehold<T>> {
     return groupBy { it.householdId }
-        .mapValues { line ->
+        .map { line ->
             val income = converter(line.value.map { it.householdIncome })
-//            val income = line.value.first().householdIncome
-//            require(line.value.all { it.householdIncome == income}) {
-//                "The input file contains mismatched information for the income of the household, the code will only proceed if all incomes are equal $line"
-//            }
             SurveyHousehold(
                 line.value.first().householdId,
                 income,
@@ -341,7 +333,7 @@ fun main() {
     SynZone(1)
 }
 
-fun SurveyHousehold.amount(sex: Sex, ageCode: Int): Int {
+fun SurveyHousehold<*>.amount(sex: Sex, ageCode: Int): Int {
     return members.filter { it.sex == sex && it.groupCode == ageCode }.size
 }
 
@@ -529,13 +521,5 @@ data class SurveyPerson<T: SurveyInfo>(
         fun <T: SurveyInfo> create(
             information: T
         ) = SurveyPerson(idCounter++, information)
-//        fun <T: PersonInfo> create(
-//            sex: Sex,
-//            age: Int,
-//            employment: Employment,
-//            driverLicence: Boolean
-//        ): SurveyPerson<T> {
-//            return SurveyPerson(idCounter++, sex, age, employment, driverLicence)
-//        }
     }
 }
