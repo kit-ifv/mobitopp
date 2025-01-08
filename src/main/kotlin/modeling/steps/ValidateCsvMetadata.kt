@@ -6,6 +6,7 @@ import modeling.validation.Warning
 import modeling.validation.validateFileReadAccess
 import modeling.validation.validateNoException
 import modeling.validation.validateScope
+import utils.ErrorHandling
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
 import utils.csv.CsvReader
@@ -133,7 +134,7 @@ class ValidateCsvMetadata<E>(
     override val source
         get() = "ValidationRow for " + reader.source
 
-    override fun toString() = "$source[1]:$columns"
+    override fun toString() = "$source[1] = $columns"
 
     // Assume all columns exist external module try to access them to trigger error report in case of missing column
     override fun hasColumn(column: String) = true
@@ -149,10 +150,11 @@ class ValidateCsvMetadata<E>(
 
         validateFileReadAccess(csv.file)?.also {
             this.addChild(it)
+            return@validateScope
         }
 
         muteProgressBars()
-        reader = DefaultCsvReader(csv.file)
+        reader = DefaultCsvReader(csv.file, errorHandling = ErrorHandling.SILENT)
         try {
             csv.parser.parse(this@ValidateCsvMetadata).toList()
         } catch (_: Exception) { }
@@ -200,9 +202,9 @@ class ValidateCsvMetadata<E>(
 
     private fun validateColumnIndex(columnIndex: Int) =
         parentWarning?.validateNoException {
-            require(reader.columns.size < columnIndex) {
+            require(reader.columns.size >= columnIndex) {
                 "ERROR: Invalid column index '$columnIndex' accessed in step '${step.name}' " +
-                    "is higher than column number in source csv file: ${reader.source}!"
+                    "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
             }
         } ?: error(VALIDATION_MODE_ERROR)
 

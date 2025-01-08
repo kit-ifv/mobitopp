@@ -1,5 +1,7 @@
 package modeling.validation
 
+import utils.ErrorHandling
+import utils.collections.indentSubsequentLines
 import utils.collections.printAsTree
 import utils.files.requireFileReadAccess
 import utils.files.requireFileWriteAccess
@@ -74,6 +76,8 @@ class Warning(
     }
 }
 
+
+
 /**
  * ValidateScope is a scope function to catch exceptions add add them as sub-warning
  * to the warning specified by the given [message].
@@ -117,7 +121,7 @@ fun Warning.validateCondition(message: String, isError: Boolean = false, predica
 }
 
 fun Warning.subValidation(scope: Warning.() -> Warning?): Warning {
-    this.scope()?.also { this.addChild(this) }
+    this.scope()?.also { this.addChild(it) }
     return this
 }
 
@@ -130,7 +134,7 @@ fun validateFileReadAccess(file: File, isError: Boolean = true, fileDescription:
     message = "Validate read access of: ${file.absolutePath}",
     exceptionsAreErrors = isError
 ) {
-    requireFileReadAccess(file, messagePrefix = fileDescription)
+    requireFileReadAccess(file, messagePrefix = fileDescription, errorLevel = ErrorHandling.THROW_NO_LOG)
 }
 
 fun validateFileWriteAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(

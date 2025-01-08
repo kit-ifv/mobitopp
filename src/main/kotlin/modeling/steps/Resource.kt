@@ -65,15 +65,15 @@ class CsvResource<E>(
     private val reusable: Boolean = false,
 ) : Resource<E> {
     override val name: String
-        get() = rowSequence.name
+        get() = file.name
 
     override val source: String
-        get() = rowSequence.source
+        get() = file.path
 
     override val elements: Sequence<E>
         get() = rowSequence.elements
 
-    private val rowSequence =
+    private val rowSequence by lazy {
         parser.parse(CsvReader.of(file, delimiter))
             .asResource(file.name, file.path).let {
                 if (reusable) {
@@ -82,6 +82,7 @@ class CsvResource<E>(
                     it
                 }
             }
+    }
 
     override fun toString() = "CSV $name ($source)"
 }

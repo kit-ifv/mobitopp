@@ -60,12 +60,14 @@ private fun <T> printTreeRecursive(
     // Detect cycle by checking if the current message has already been visited
     if (element in visited) {
         val errorType = if (expandNonCycleDuplicates) { "Cycle detected!" } else { "Duplicate" }
-        println("$prefix$mark [$errorType] $label")
+        println(
+            "$prefix$mark [$errorType] $label".indentSubsequentLines(prefix = prefix)
+        )
         return
     }
 
     // Add the current message to the set of visited elements
-    println("$prefix$mark $label")
+    println("$prefix$mark $label".indentSubsequentLines(prefix = prefix + " ".repeat(mark.length)))
 
     val children = getChildren(element)
     visited.add(element)

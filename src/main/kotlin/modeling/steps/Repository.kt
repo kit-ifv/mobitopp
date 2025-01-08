@@ -81,11 +81,15 @@ class MapRepository<T, I>(
 
     override var sealed = false
 
-    private fun requireNotSealed(operation: String) = require(!sealed) {
-        "Repository $name has already been sealed and can no longer be updated!\n" +
-            "attempted mutating action: $operation\n" +
-            "Repository changelog:\n" +
-            source
+    private fun requireNotSealed(operation: String) {
+        if(sealed) {
+            error(
+                "Repository $name has already been sealed and can no longer be updated!\n" +
+                    "attempted mutating action: $operation\n" +
+                    "Repository changelog:\n" +
+                    source
+            )
+        }
     }
 
     override fun addElements(operation: String, elements: Sequence<T>) = addElements(operation, elements.toList())
