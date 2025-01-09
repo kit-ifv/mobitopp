@@ -78,18 +78,18 @@ object ActivityOutput : CSVOutput<Activity> {
 
 
 
-object CarOutput : CSVOutput<Car> {
+object CarOutput : CSVOutput<SynthesisCar> {
     override val header: List<String> = listOf("ownerId", "mainUserId", "personalUserId", "carType", "car attributes")
 
-    override fun convert(element: Car): String {
+    override fun convert(element: SynthesisCar): String {
         return element.run {
 
             toCSV(
-                "TODO ownerID",
-                "TODO mainUserId",
-                "TODO personalUserId",
-                "TODO probably Car ID",
-                "TODO always zero?",
+                mainUser?.household?.id?: "Null",
+                mainUser?.personId?:"Null",
+                mainUser?.personId?:"Null",
+                id, // TODO verify that this is always the car ID
+                "0", // TODO verify that this is acurraty
                 engine.type,
                 location,
                 segment,
