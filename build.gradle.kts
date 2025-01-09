@@ -59,7 +59,7 @@ dependencies {
     runtimeOnly("org.jetbrains.kotlinx:kandy-util:0.6.0")
     implementation("org.jetbrains.kotlinx:kandy-api:0.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-
+    implementation("edu.kit.ifv.mobitopp:actitopp:1.9+")
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))
 

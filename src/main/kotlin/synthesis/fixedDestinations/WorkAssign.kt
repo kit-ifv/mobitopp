@@ -40,7 +40,7 @@ class CommuterMatrix(
             }
 
 
-    override fun find(person: SynthesisPerson, activityType: ActivityType): Location {
+    override fun find(person: SynthesisPerson<*>, activityType: ActivityType): Location {
         //TODO remove !! replace with accurate error message.
         val communityTarget = translator.forwardMap[person.homeLocation.zone!!.id]
 

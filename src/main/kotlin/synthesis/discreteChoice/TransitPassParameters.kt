@@ -91,8 +91,8 @@ data class TransitPassParameters(
 
 data class TicketSituation(
     override val choice: Boolean,
-    val household: SynthesisHouseholdBuilder,
-    val person: SynthesisPerson
+    val household: SynthesisHouseholdBuilder<*>,
+    val person: SynthesisPerson<*>
 ) : ChoiceSituation<Boolean>() {
     val householdSize = household.members.size
     val gender = person.sex

@@ -13,9 +13,9 @@ import domain.data.PrivateCarBuilder
 import domain.location.Location
 
 fun interface GenerateCars {
-    fun generate(householdBuilder: SynthesisHouseholdBuilder): List<Car>
+    fun generate(householdBuilder: SynthesisHouseholdBuilder<*>): List<Car>
 }
-class SynthesisCar(householdBuilder: SynthesisHouseholdBuilder): Car {
+class SynthesisCar(householdBuilder: SynthesisHouseholdBuilder<*>): Car {
     override val segment: CarSegment
         get() = CarSegment.MIDSIZE
     override val engine: CarEngine = CarEngineBuilder(CarEngineStatistics(), segment, EngineType.COMBUSTION).buildEngine()
@@ -29,7 +29,7 @@ class SynthesisCar(householdBuilder: SynthesisHouseholdBuilder): Car {
 
 }
 object TrivialCarGeneration : GenerateCars {
-    override fun generate(householdBuilder: SynthesisHouseholdBuilder): List<Car> {
+    override fun generate(householdBuilder: SynthesisHouseholdBuilder<*>): List<Car> {
 
         return (0..<householdBuilder.amountOfCars).map { SynthesisCar(householdBuilder) }
     }

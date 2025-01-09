@@ -12,7 +12,7 @@ import java.util.*
  * Assign an economic status to a household
  */
 fun interface AssignEconomicStatus {
-    fun assign(surveyHousehold: SynthesisHouseholdBuilder)
+    fun assign(surveyHousehold: SynthesisHouseholdBuilder<*>)
 }
 
 /**
@@ -21,14 +21,14 @@ fun interface AssignEconomicStatus {
  * income.
  */
 class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) : AssignEconomicStatus {
-    override fun assign(surveyHousehold: SynthesisHouseholdBuilder) {
+    override fun assign(surveyHousehold: SynthesisHouseholdBuilder<*>) {
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.income)
         surveyHousehold.economicStatus = economicStatus
 
     }
 
-    private fun calculateOECDAmount(surveyHousehold: SynthesisHouseholdBuilder): Double {
+    private fun calculateOECDAmount(surveyHousehold: SynthesisHouseholdBuilder<*>): Double {
         val adults = surveyHousehold.numberOfAdults
         val additionalAdults = (adults - 1).coerceAtLeast(0)
         return 1.0 + 0.5 * additionalAdults + 0.3 * surveyHousehold.numberOfMinors

@@ -21,7 +21,7 @@ import kotlin.math.pow
 
 fun interface LocationFinder {
 
-    fun find(person: SynthesisPerson, activityType: ActivityType): Location
+    fun find(person: SynthesisPerson<*>, activityType: ActivityType): Location
 }
 
 class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder {
@@ -29,7 +29,7 @@ class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder {
         ReadOnlyKDTree(potentialLocations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
     override fun find(
-        person: SynthesisPerson,
+        person: SynthesisPerson<*>,
         activityType: ActivityType
     ): Location {
         return locationTree.nearestNeighbor(person.homeLocation) {
@@ -80,7 +80,7 @@ class UseBandwidthLocation(
 
                     val attractiveness =
                         zoneId?.let { zId-> attractivenessModel.attractivenessFor(zId, it.activityType) }
-                            ?: 0.0.also { System.err.println("Cannot find attractiveness for location") }
+                            ?: 0.000001.also { System.err.println("Cannot find attractiveness for location") }
 
                     ln(attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
 
@@ -89,7 +89,7 @@ class UseBandwidthLocation(
         )
 
     override fun find(
-        person: SynthesisPerson,
+        person: SynthesisPerson<*>,
         activityType: ActivityType
     ): Location {
         var validTargets =
@@ -103,9 +103,6 @@ class UseBandwidthLocation(
             validTargets = potentialLocations.sortedBy { it.distance(person.homeLocation) }
                 .map { WithMetric(it, it.distance(person.homeLocation)) }
         }
-
-
-        //TODO code fallback if no location is found!!
         val converted = validTargets.map {LocationSituation(it.item, it.metric, activityType)}.toSet()
         return model.select(converted, parameters)
 

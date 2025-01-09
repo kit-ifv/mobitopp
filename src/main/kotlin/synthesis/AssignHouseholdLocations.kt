@@ -10,13 +10,13 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-fun interface AssignHouseholdLocations {
-    fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder>>):  List<SynthesisHouseholdBuilder>
+fun interface AssignHouseholdLocations<T: SurveyInfo> {
+    fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder<T>>>):  List<SynthesisHouseholdBuilder<T>>
 }
 
 
-class AssignAroundCentroid(val radius: Double) : AssignHouseholdLocations {
-    override fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder>>): List<SynthesisHouseholdBuilder> {
+class AssignAroundCentroid<T: SurveyInfo>(val radius: Double) : AssignHouseholdLocations<T> {
+    override fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder<T>>>): List<SynthesisHouseholdBuilder<T>> {
         return synthesisResults.entries.flatMap { (zone, households) ->
             households.map {
                 it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), zone , null)

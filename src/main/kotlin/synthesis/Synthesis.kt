@@ -145,19 +145,19 @@ fun <T> Collection<T>.pickWithReplacement(
 
 }
 
-fun interface HouseholdSynthesis {
+fun interface HouseholdSynthesis<T: SurveyInfo> {
     fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<*>>,
+        surveyHouseholds: Collection<SurveyHousehold<T>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
-    ): Map<Zone, List<SynthesisHouseholdBuilder>>
+    ): Map<Zone, List<SynthesisHouseholdBuilder<T>>>
 }
-typealias HouseholdEquivalence = Map<SurveyHousehold<*>, Set<SurveyHousehold<*>>>
+typealias HouseholdEquivalence<T> = Map<SurveyHousehold<T>, Set<SurveyHousehold<T>>>
 
-class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
-    HouseholdSynthesis {
+class IPU<T: SurveyInfo>(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
+    HouseholdSynthesis<T> {
     private var overflowCounter: Double = 0.0
-    val convertNumbersToHousehold: (HouseholdEquivalence, SurveyHousehold<*>, Double) -> List<SurveyHousehold<*>> =
+    val convertNumbersToHousehold: (HouseholdEquivalence<T>, SurveyHousehold<T>, Double) -> List<SurveyHousehold<T>> =
         { e, h, d ->
             val set = e.getOrElse(h) { throw NoSuchElementException("Somehow this happened") }
             overflowCounter += d - d.toInt()
@@ -172,10 +172,10 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
         }
 
     override fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<*>>,
+        surveyHouseholds: Collection<SurveyHousehold<T>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
-    ): Map<Zone, List<SynthesisHouseholdBuilder>> {
+    ): Map<Zone, List<SynthesisHouseholdBuilder<T>>> {
         val uniques = surveyHouseholds.toSet()
         //TODO equivalnece classes should be determined based on the rules
         val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
@@ -199,9 +199,9 @@ class IPU(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observ
     }
 
     private fun Zone.calculate(
-        surveyHouseholds: HouseholdEquivalence,
+        surveyHouseholds: HouseholdEquivalence<T>,
         rules: List<Rule>
-    ): Collection<Pair<SurveyHousehold<*>, Double>> {
+    ): Collection<Pair<SurveyHousehold<T>, Double>> {
         //TODO toVector should depend on the underlying ruleset instead of a hardcoded implementation.
         val vectorMapping = surveyHouseholds.keys.associateWith { rules.vectorize(it) }
         val vectors = vectorMapping.values
@@ -298,8 +298,8 @@ data class RawSurveyInfo(
     override val employment: Employment,
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
-    val householdIncomeClass: Int, // TODO what is this?
-    val type: Int, //TODO what even is this? It Could be raumtype
+    val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
+    val type: Int, //TODO what even is this? It Could be raumtype NVM it is Household Type (SINGLE_HH_ETC
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,

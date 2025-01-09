@@ -61,7 +61,7 @@ object ActivityOutput : CSVOutput<Activity> {
 
     override fun convert(element: Activity): String {
         return element.run {
-            usecases.steps.toCSV(
+            toCSV(
                 "TODO personID",
                 type.encode(),
                 "TODO observedTripDuration",
@@ -75,6 +75,8 @@ object ActivityOutput : CSVOutput<Activity> {
     }
 
 }
+
+
 
 object CarOutput : CSVOutput<Car> {
     override val header: List<String> = listOf("ownerId", "mainUserId", "personalUserId", "carType", "car attributes")
@@ -103,7 +105,7 @@ object CarOutput : CSVOutput<Car> {
 }
 
 data class FixedDestinationElements(
-    val person: SynthesisPerson,
+    val person: SynthesisPerson<*>,
     val activityType: ActivityType,
     val location: Location
 )
@@ -141,7 +143,7 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
-object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder> {
+object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder<*>> {
     override val header: List<String> = listOf(
         "householdId",
         "year",
@@ -162,7 +164,7 @@ object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder> {
         "canChargePrivately"
     )
 
-    override fun convert(element: SynthesisHouseholdBuilder): String {
+    override fun convert(element: SynthesisHouseholdBuilder<*>): String {
         return element.run {
             toCSV(
                 id,
@@ -215,7 +217,7 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
 
 }
 
-object PersonOutput : CSVOutput<SynthesisPerson> {
+object PersonOutput : CSVOutput<SynthesisPerson<*>> {
     override val header: List<String> = listOf(
         "personId",
         "personNumber",
@@ -238,7 +240,7 @@ object PersonOutput : CSVOutput<SynthesisPerson> {
 
     )
 
-    override fun convert(element: SynthesisPerson): String {
+    override fun convert(element: SynthesisPerson<*>): String {
         return element.run {
             toCSV(
                 personId,
