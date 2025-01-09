@@ -22,7 +22,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class ModeStepTest {
+class ModelStepTest {
 
     private lateinit var repository: MutableRepository<TestEntity, TestId>
     private lateinit var readOnlyRepository: Repository<ImmutableEntity, TestId>
@@ -236,7 +236,7 @@ class ModeStepTest {
         val validationText = getValidationText(warning)
 
         assertContains(validationText, "WARNING: Validate step CustomValidationStep_AddDummy produced warnings:")
-        assertContains(validationText, "└─ WARNING: CustomValidationStep_AddDummy_Warning")
+        assertContains(validationText, "WARNING: CustomValidationStep_AddDummy_Warning")
     }
 
     @Test

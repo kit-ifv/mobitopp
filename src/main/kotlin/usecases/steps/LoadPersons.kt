@@ -12,7 +12,6 @@ import domain.data.PersonId
 import domain.data.Sex
 import domain.data.SharingStation
 import domain.data.SharingStationId
-import domain.enums.LegacyActivityType
 import domain.resources.Subscribable
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
@@ -20,7 +19,6 @@ import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
-import modeling.validation.validateScope
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
