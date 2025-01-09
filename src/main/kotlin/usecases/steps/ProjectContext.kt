@@ -26,6 +26,7 @@ import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.events.PersonBehavior
 import domain.location.Metrics
+import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
