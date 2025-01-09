@@ -3,11 +3,14 @@
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
+import domain.roadnetwork.LocatableGraph
+import modeling.steps.LateInit
 import modeling.steps.Run
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.steps.ProjectContext
+import usecases.steps.RoadNetworkContext
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
 import usecases.steps.assignHomeLocations
@@ -21,12 +24,14 @@ import usecases.steps.loadAttractivities
 import usecases.steps.loadChoiceModels
 import usecases.steps.loadImpedance
 import usecases.steps.loadPersons
+import usecases.steps.loadVisumNetwork
 import usecases.steps.prepareActivities
 import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
 import utils.csv.Row
 import java.io.File
+import kotlin.io.path.Path
 
 private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
 
@@ -56,18 +61,27 @@ private const val ROOT_TRANSMOVE_ENV =
     "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input" +
         "\\transmove\\mobitopp-env\\data\\zone-repository"
 
+private class RoadbasedContext(val original: DefaultContext) :
+    DefaultContext by original,
+    RoadNetworkContext {
+    override val roadNetwork: LateInit<LocatableGraph> = LateInit("Visum RoadNetwork")
+}
+
 fun main() {
     Run {
-        ProjectContext(
-            scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
-            demandFolder = rootRastatt,
-            economicalStatusCodes = EconomicStatus,
-            simulationSeed = 42,
-            modes = LegacyMode,
+        RoadbasedContext(
+            ProjectContext(
+                scenarioName = "testSteps",
+                areaTypeCodes = Bbsr17,
+                demandFolder = rootRastatt,
+                economicalStatusCodes = EconomicStatus,
+                simulationSeed = 42,
+                modes = LegacyMode,
+            )
         )
     }.steps {
         loadZones()
+        loadVisumNetwork(Path("src/test/resources/rastatt.net"))
 //        prepareSharingStations(
 //            errorHandling = ErrorHandling.THROW,
 //            file = File(
