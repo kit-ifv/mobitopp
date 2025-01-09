@@ -8,6 +8,7 @@ import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import modeling.discreteChoice.GlobalRandomizer
 import synthesis.discreteChoice.carChoiceModel
 import synthesis.ActivityOutput
@@ -42,7 +43,9 @@ import synthesis.fixedDestinations.CommuterMatrix
 import synthesis.fixedDestinations.LocationFinder
 import synthesis.fixedDestinations.UseBandwidthLocation
 import synthesis.fixedDestinations.UseClosestLocation
+import synthesis.generateActivitiesViaActitopp
 import synthesis.randomCoordinate
+import synthesis.toActiToppHousehold
 
 import synthesis.toSurveyHouseholds
 import units.Coordinate
@@ -122,19 +125,19 @@ class AssignStepBuilder(
     fun primarySchool(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
         element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
+        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
     }
 
     fun secondarySchool(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
         element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
+        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
     }
 
     fun work(lambda: FixedIn.() -> Unit) {
         val element = FixedIn()
         element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson::isPrimaryStudent, element.assignmentStrategy))
+        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
     }
 }
 
@@ -147,7 +150,7 @@ class SynthesisSteps<T: SurveyInfo>(
     val opportunities: List<OpportunityOutput>
 ) {
 
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHouseholdBuilder>>
+    lateinit var householdsByZone: Map<Zone, List<SynthesisHouseholdBuilder<T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
@@ -163,7 +166,7 @@ class SynthesisSteps<T: SurveyInfo>(
         fixedDestinations = stepBuilder.steps.flatMap { it.runOther(people) }
     }
 
-    fun synthesis(randsums: Map<Zone, List<Rule>>, lambda: () -> HouseholdSynthesis) {
+    fun synthesis(randsums: Map<Zone, List<Rule>>, lambda: () -> HouseholdSynthesis<T>) {
         val generator = lambda()
         val synthesisZones = zones.filter { it in randsums.keys }
         require(randsums.keys.all { it in zones }) {
@@ -177,7 +180,7 @@ class SynthesisSteps<T: SurveyInfo>(
     fun generateSurveyHousholds(lambda: T.() -> Unit) {
 
     }
-    var assignHouseholdLocationStrategy: AssignHouseholdLocations = AssignAroundCentroid(100.0)
+    var assignHouseholdLocationStrategy: AssignHouseholdLocations<T> = AssignAroundCentroid(100.0)
     fun assignLocations(lambda: () -> Unit) {
         assignHouseholdLocationStrategy.assign(householdsByZone)
     }
@@ -338,7 +341,8 @@ fun tryout() {
 
     }
 
-    val primarySchools: List<Location> = populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+    val primarySchools: List<Location> =
+        populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
@@ -373,6 +377,7 @@ fun tryout() {
             choiceModel = transitPassDiscreteChoiceModel
         }
 
+
         fixedDestinations {
             primarySchool {
                 activityType = LegacyActivityType.EDUCATION_PRIMARY
@@ -392,13 +397,17 @@ fun tryout() {
         }
         generateCars {
 
+
+            writeLegacyOutput()
+
         }
-        writeLegacyOutput()
+
+        generateActivitiesViaActitopp()
+
 
     }
 
 }
-
 fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
@@ -420,14 +429,14 @@ fun main() {
 
 class AssignStep(
     private val activityType: ActivityType,
-    private val filter: (SynthesisPerson) -> Boolean,
+    private val filter: (SynthesisPerson<*>) -> Boolean,
     private val assignFunction: LocationFinder
 ) {
-    fun run(target: Collection<SynthesisPerson>): Map<SynthesisPerson, Pair<ActivityType, Location>> {
+    fun run(target: Collection<SynthesisPerson<*>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
         return target.filter(filter).associateWith { activityType to assignFunction.find(it, activityType) }
     }
 
-    fun runOther(target: Collection<SynthesisPerson>): List<FixedDestinationElements> {
+    fun runOther(target: Collection<SynthesisPerson<*>>): List<FixedDestinationElements> {
         return target.filter(filter)
             .map { FixedDestinationElements(it, activityType, assignFunction.find(it, activityType)) }
     }
@@ -437,12 +446,12 @@ class AssignStep(
 
 
 
-fun SynthesisPerson.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
-fun SynthesisPerson.isHigherStudent(): Boolean =
+fun SynthesisPerson<*>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
+fun SynthesisPerson<*>.isHigherStudent(): Boolean =
     employment == Employment.STUDENT_SECONDARY || employment == Employment.STUDENT_TERTIARY
 
-fun SynthesisPerson.isWorker() = employment == Employment.FULLTIME || employment == Employment.PARTTIME
-fun SynthesisPerson.hasEducationActivity() = false // TODO needs schedule information
+fun SynthesisPerson<*>.isWorker() = employment == Employment.FULLTIME || employment == Employment.PARTTIME
+fun SynthesisPerson<*>.hasEducationActivity() = false // TODO needs schedule information
 fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,

@@ -15,7 +15,7 @@ import synthesis.SynthesisHouseholdBuilder
  * employment types.
  */
 class CarOwnershipFactors(
-    val household: SynthesisHouseholdBuilder,
+    val household: SynthesisHouseholdBuilder<*>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
 ) {
     val size = household.members.size
