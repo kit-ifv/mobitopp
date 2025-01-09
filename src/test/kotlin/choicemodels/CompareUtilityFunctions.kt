@@ -56,7 +56,6 @@ import utils.collections.cartesianProduct
 import utils.units.daysSinceStartOfWeek
 import utils.units.sinceStart
 import java.time.DayOfWeek
-import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -516,47 +515,59 @@ class TestSynthesis(zones: List<TestZone>, impedance: ControllableImpedance = Co
             domCode = 1
             type = 1
             incomePerMonth = 0.euros
-            economicStatus = EconomicStatus.MIDDLE
-            random = Random(1)
+            economicStatus = builderEcoStatus
+//            random = Random(1)
             householdNumber = 1L
         }
     }
+    private var builderEcoStatus = EconomicStatus.MIDDLE
+
     var pBuilder: (Long, MutableHousehold) -> MutablePerson = { id, hh ->
         MutablePerson(id = PersonId(id), household = hh, seed = 42L) {
             eMobilityAcceptance = 0.share()
             chargingInfluence = ChargingInfluence.NEVER
-            random = Random(1)
-            age = 20
+//            random = Random(1)
+            age = builderAge
             employment = Employment.NONE
-            sex = Sex.MALE
+            sex = builderGender
             graduation = Graduation.UNDEFINED
             income = 0.euros
             hasBike = false
-            hasCommuterTicket = false
+            hasCommuterTicket = builderCommuterTicket
             hasLicense = false
+            memberships.putAll(builderMemberships)
         }
     }
+    private var builderAge = 20
+    private var builderCommuterTicket = false
+    private val builderMemberships = mutableMapOf<Subscribable<Person>, Boolean>()
+    private var builderGender = Sex.MALE
 
     override val persons: List<Person> = emptyList()
 
     fun setAge(target: Int) {
-        pBuilder = { i, h -> pBuilder(i, h).also { it.age = target } }
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.age = target } }
+        builderAge = target
     }
 
     fun setCommuterTicket(target: Boolean) {
-        pBuilder = { i, h -> pBuilder(i, h).also { it.hasCommuterTicket = target } }
+        builderCommuterTicket = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.hasCommuterTicket = target } }
     }
 
     fun addMembership(key: Subscribable<Person>, target: Boolean) {
-        pBuilder = { i, h -> pBuilder(i, h).also { it.memberships[key] = target } }
+        builderMemberships[key] = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.memberships[key] = target } }
     }
 
     fun setGender(target: Sex) {
-        pBuilder = { i, h -> pBuilder(i, h).also { it.sex = target } }
+        builderGender = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.sex = target } }
     }
 
     fun setEconomicStatus(target: EconomicStatus) {
-        hBuilder = { -> hBuilder().also { it.economicStatus = target } }
+        builderEcoStatus = target
+//        hBuilder = { -> hBuilder().also { it.economicStatus = target } }
     }
 
     fun run(): TestSimulation {

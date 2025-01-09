@@ -1,7 +1,6 @@
 package modeling.validation
 
 import utils.ErrorHandling
-import utils.collections.indentSubsequentLines
 import utils.collections.printAsTree
 import utils.files.requireFileReadAccess
 import utils.files.requireFileWriteAccess
@@ -75,8 +74,6 @@ class Warning(
         ) { it.subWarnings }
     }
 }
-
-
 
 /**
  * ValidateScope is a scope function to catch exceptions add add them as sub-warning

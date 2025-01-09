@@ -15,6 +15,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
@@ -92,8 +93,7 @@ class MutableProcessor(
 
 
         val constructorBuilder = generateConstructor(mutClassBuilder, constructorParams)
-
-        addOptionalScopeToConstructorAndInit(constructorBuilder, mutClassType, mutClassBuilder)
+        addOptionalScopeToConstructor(constructorBuilder, mutClassType, mutClassBuilder)
 
         if (constructorBuilder.parameters.isNotEmpty()) {
             mutClassBuilder.primaryConstructor(constructorBuilder.build())
@@ -104,10 +104,11 @@ class MutableProcessor(
             generateMutableProperty(mutClassBuilder, constructorBuilder, it)
         }
 
-
+        addInitScopeBlock(mutClassBuilder)
 
         // Write the class to a file
         val fileSpec = FileSpec.builder(packageName, mutableClassName)
+            .addImport("kotlin.properties", "Delegates")
             .addType(mutClassBuilder.build())
             .build()
 
@@ -123,7 +124,7 @@ class MutableProcessor(
 
     }
 
-    private fun addOptionalScopeToConstructorAndInit(
+    private fun addOptionalScopeToConstructor(
         constructorBuilder: FunSpec.Builder,
         mutClassType: ClassName,
         mutClassBuilder: TypeSpec.Builder
@@ -136,6 +137,9 @@ class MutableProcessor(
                 .build()
         )
 
+    }
+
+    private fun addInitScopeBlock(mutClassBuilder: TypeSpec.Builder) {
         val initBlock = CodeBlock.builder()
             .addStatement("this.scope()") // Call the scope function
             .build()
@@ -195,7 +199,7 @@ class MutableProcessor(
 
             val propertyBuilder: PropertySpec.Builder =
                 if (propertyType.isCollectionType()) {
-                     collectionPropertyBuilder(propertyType, propertyName) // Initialize with an empty collection
+                    collectionPropertyBuilder(propertyType, propertyName) // Initialize with an empty collection
                 } else {
                     nonCollectionPropertyBuilder(propertyName, propertyType, property)
                 }
@@ -215,14 +219,23 @@ class MutableProcessor(
         propertyType: TypeName,
         property: KSPropertyDeclaration
     ): PropertySpec.Builder {
-        val propertySpec = PropertySpec.builder(propertyName, propertyType, KModifier.OVERRIDE)
-            .mutable(true)
+        val nullable = property.type.resolve().nullability == Nullability.NULLABLE
 
-        if (property.canBeLateinitInSubclass()) {
+        val propertySpec = PropertySpec.builder(
+            propertyName,
+            propertyType.copy(nullable = nullable),
+            KModifier.OVERRIDE
+        ).mutable(true)
+
+        if (nullable) {
+            propertySpec.initializer("null")
+
+        } else if (property.canBeLateinitInSubclass()) {
             propertySpec.addModifiers(KModifier.LATEINIT)
 
         } else {
-            propertySpec.initializer("TODO()")
+            propertySpec.delegate("Delegates.notNull()")
+//            propertySpec.initializer("TODO()")
         }
         return propertySpec
     }

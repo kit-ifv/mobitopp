@@ -1,18 +1,18 @@
 package modeling.steps
 
- import org.junit.jupiter.api.AfterEach
- import org.junit.jupiter.api.BeforeEach
- import org.junit.jupiter.api.Test
- import utils.collections.muteProgressBars
- import utils.collections.unmuteProgressBars
- import utils.csv.CsvParser
- import utils.csv.TestEntity
- import java.io.File
- import kotlin.io.path.Path
- import kotlin.test.assertContentEquals
- import kotlin.test.assertEquals
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import utils.collections.muteProgressBars
+import utils.collections.unmuteProgressBars
+import utils.csv.CsvParser
+import utils.csv.TestEntity
+import java.io.File
+import kotlin.io.path.Path
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 
- abstract class ResourceTest<E> {
+abstract class ResourceTest<E> {
     protected lateinit var resource: Resource<E>
 
     @BeforeEach
@@ -85,9 +85,9 @@ package modeling.steps
             assertEquals(expected, actual.trim())
         }
     }
- }
+}
 
- class SequenceResourceTest : ResourceTest<String>() {
+class SequenceResourceTest : ResourceTest<String>() {
     private val name: String = "TestStringList"
     private val source: String = "SequenceResourceTest#init()"
     private val elements: List<String> = listOf("Hello", "World", "!", "This", "is", "1", "test")
@@ -102,9 +102,9 @@ package modeling.steps
 
     override fun expectedToString() = "${expectedName()} (${expectedBaseSource()})"
     override fun expectedElements() = elements
- }
+}
 
- class CsvResourceTest : ResourceTest<TestEntity>() {
+class CsvResourceTest : ResourceTest<TestEntity>() {
 
     override fun init(): Resource<TestEntity> {
         val file = File("src/test/resources/test_data.csv")
@@ -133,4 +133,4 @@ package modeling.steps
     }
 
     // private fun expectedBuildResults() = utils.csv.expectedElements
- }
+}

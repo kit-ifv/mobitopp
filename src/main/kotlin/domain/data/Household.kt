@@ -29,6 +29,8 @@ abstract class Household(
     abstract val members: Set<Person>
     abstract val cars: Set<PrivateCar>
 
+    final override val name: String by lazy { "H_${id}_$householdNumber" }
+
     final override fun isAvailableFor(agent: Person): Boolean {
         return (location == agent.location) && !agent.inTransit
     }

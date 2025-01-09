@@ -1,7 +1,6 @@
 package scenarios
 
 import domain.data.MutableSharingProvider
-import domain.data.SharingProvider
 import domain.data.SharingStation
 import domain.events.CarSelector
 import domain.events.InitPersonEvent

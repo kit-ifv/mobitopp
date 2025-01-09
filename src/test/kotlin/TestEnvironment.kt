@@ -102,13 +102,14 @@ fun Zone.generateSharingStation(
     vehicles: Set<SharingVehicle>
 ): SharingStation {
     return MutableSharingStation(
-        SharingStationId(0L),
-        sharingProvider
+        SharingStationId(sharingProvider.numberOfVehicles.toLong()),
+        sharingProvider,
     ) {
         this.uid = "${this.id} Station"
         this.name = "noName"
         this.location = point(BIELEFELD)
-        this.vehicles.addAll(vehicles)
+        this.zonesByFoot.add(this@generateSharingStation)
+        this.addVehicles(vehicles)
     }
 }
 
@@ -287,6 +288,7 @@ fun MutableHousehold.spawnCar(lambda: MutablePrivateCar.() -> Unit = {}): Privat
         seats = 4
         val engineType = EngineType.COMBUSTION
         engine = CarEngineStatistics().buildEngine(segment, engineType)
+        location = owner.location
     }.apply(lambda)
 }
 
@@ -338,7 +340,7 @@ fun Zone.generateHouseholdBuilder(
         type = 1
         incomePerMonth = 0.euros
         economicStatus = EconomicStatus.MIDDLE
-        random = Random(1)
+//        random = Random(1)
         location = roadIndex.toRoadPositionInZone(this@generateHouseholdBuilder)
     }
 

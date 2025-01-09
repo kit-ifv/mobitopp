@@ -36,7 +36,6 @@ import units.share
 import units.toCurrency
 import utils.units.AbsoluteTime
 import utils.units.Time
-import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -148,7 +147,7 @@ val testHousehold1 = MutableHousehold(
     type = 1
     incomePerMonth = 0.euros
     economicStatus = EconomicStatus.MIDDLE
-    random = Random(1)
+//    random = Random(1)
 }
 
 fun MutableHousehold.buildPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
@@ -159,7 +158,7 @@ fun MutableHousehold.buildPerson(id: Long, lambda: MutablePerson.() -> Unit): Pe
     ) {
         eMobilityAcceptance = 0.share()
         chargingInfluence = ChargingInfluence.NEVER
-        random = Random(1)
+//        random = Random(1)
         age = 20
         employment = Employment.NONE
         sex = Sex.MALE
@@ -190,7 +189,7 @@ fun Zone.generateHouseholdBuilder(
         type = 1
         incomePerMonth = 0.euros
         economicStatus = EconomicStatus.MIDDLE
-        random = Random(1)
+//        random = Random(1)
         location = roadIndex.toRoadPositionInZone(this@generateHouseholdBuilder)
 
         lambda()

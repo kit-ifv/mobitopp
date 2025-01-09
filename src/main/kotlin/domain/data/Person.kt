@@ -42,7 +42,7 @@ abstract class Person(
     abstract val chargingInfluence: ChargingInfluence
     abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
 
-    abstract var inTransit: Boolean // TODO simulation attribute, how to handle?
+    var inTransit: Boolean = false // TODO simulation attribute, how to handle?
 
     final override var location: Location = household.location
 
