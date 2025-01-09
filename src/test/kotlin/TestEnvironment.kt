@@ -340,7 +340,6 @@ fun Zone.generateHouseholdBuilder(
         type = 1
         incomePerMonth = 0.euros
         economicStatus = EconomicStatus.MIDDLE
-//        random = Random(1)
         location = roadIndex.toRoadPositionInZone(this@generateHouseholdBuilder)
     }
 

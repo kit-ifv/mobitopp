@@ -7,23 +7,6 @@ import utils.Identifiable
 import utils.collections.enforceIndent
 import utils.collections.replaceOrRemoveAll
 
-// @Serializable
-// @JvmInline
-// value class NewId<out E>(val value: Long) : Comparable<NewId<*>> {
-//    /**
-//     * Compares this object with the specified object for order. Returns zero if this object is equal
-//     * to the specified [other] object, a negative number if it's less than [other], or a positive number
-//     * if it's greater than [other].
-//     */
-//    override fun compareTo(other: NewId<*>): Int {
-//        return value.compareTo(other.value)
-//    }
-// }
-
-// interface Identifiable<I> {
-//    val id: I
-// }
-
 interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
 
     override val name: String
@@ -176,4 +159,3 @@ fun validateNotSealed(
         "Error: repository ${repository.name} was sealed before execution of step: ${step.name}\n$repository"
     }
 }
-

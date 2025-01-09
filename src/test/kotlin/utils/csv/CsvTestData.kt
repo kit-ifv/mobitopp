@@ -45,24 +45,6 @@ data class TestEntity(
         get() = ID(rowIndex.toLong())
 }
 
-// data class TestBuilder(
-//    var rowIndex: Int,
-//    var csvIndex: Int = -1,
-//    var string: String = "",
-//    var byte: Byte = 0,
-//    var short: Short = 0,
-//    var int: Int = 0,
-//    var long: Long = 0,
-//    var float: Float = 0.0f,
-//    var double: Double = 0.0,
-//    var bool: Boolean = false,
-//    var duration: Duration? = null,
-// ) : Builder<TestEntity> {
-//    override fun build() = TestEntity(
-//        rowIndex, csvIndex, string, byte, short, int, long, float, double, bool, duration
-//    )
-// }
-
 val expectedElements: List<TestEntity>
     get() = expectedElementSource.map { it.copy() }
 
@@ -94,29 +76,3 @@ private val expectedElementsMappedStringLengthSource = listOf(
     TestEntity(rowIndex = 8, string = "IfV", int = 3),
     TestEntity(rowIndex = 9, string = "fin", int = 3),
 )
-
-// val expectedBuilders: List<TestBuilder> = listOf(
-//    TestBuilder(rowIndex = 0, string = "a"),
-//    TestBuilder(rowIndex = 1, string = "Hello; World"),
-//    TestBuilder(rowIndex = 2, string = "42"),
-//    TestBuilder(rowIndex = 3, string = "exitProcess(1)"),
-//    TestBuilder(rowIndex = 4, string = "test"),
-//    TestBuilder(rowIndex = 5, string = "%&#)!?"),
-//    TestBuilder(rowIndex = 6, string = "1+2*3"),
-//    TestBuilder(rowIndex = 7, string = "mobiTopp"),
-//    TestBuilder(rowIndex = 8, string = "IfV"),
-//    TestBuilder(rowIndex = 9, string = "fin"),
-// )
-//
-// val expectedBuildersMappedStringLength: List<TestBuilder> = listOf(
-//    TestBuilder(rowIndex = 0, string = "a", int = 1),
-//    TestBuilder(rowIndex = 1, string = "Hello; World", int = 12),
-//    TestBuilder(rowIndex = 2, string = "42", int = 2),
-//    TestBuilder(rowIndex = 3, string = "exitProcess(1)", int = 14),
-//    TestBuilder(rowIndex = 4, string = "test", int = 4),
-//    TestBuilder(rowIndex = 5, string = "%&#)!?", int = 6),
-//    TestBuilder(rowIndex = 6, string = "1+2*3", int = 5),
-//    TestBuilder(rowIndex = 7, string = "mobiTopp", int = 8),
-//    TestBuilder(rowIndex = 8, string = "IfV", int = 3),
-//    TestBuilder(rowIndex = 9, string = "fin", int = 3),
-// )

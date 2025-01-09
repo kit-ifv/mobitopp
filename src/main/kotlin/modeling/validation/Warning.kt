@@ -122,11 +122,6 @@ fun Warning.subValidation(scope: Warning.() -> Warning?): Warning {
     return this
 }
 
-// fun Warning.subValidateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") =
-//    validateFileReadAccess(file, isError, fileDescription)?.also {
-//        this.addChild(it)
-//    }
-
 fun validateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(
     message = "Validate read access of: ${file.absolutePath}",
     exceptionsAreErrors = isError

@@ -24,21 +24,6 @@ private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp"
 private val rootHamburg = File(
     "$ROOT_FS\\Output\\transmove-synthesis-city-bs\\last-stable"
 )
-// private val attractivenessTypes = setOf(
-//    LegacyActivityType.BUSINESS,
-//    LegacyActivityType.LEISURE_INDOOR,
-//    LegacyActivityType.LEISURE_OUTDOOR,
-//    LegacyActivityType.PRIVATE_BUSINESS,
-//    LegacyActivityType.PRIVATE_VISIT,
-//    LegacyActivityType.SERVICE,
-//    LegacyActivityType.SHOPPING_DAILY,
-//    LegacyActivityType.SHOPPING_OTHER,
-//    LegacyActivityType.SHOPPING,
-//    LegacyActivityType.EDUCATION_PRIMARY,
-//    LegacyActivityType.EDUCATION_SECONDARY,
-//    LegacyActivityType.EDUCATION_TERTIARY,
-//    // TODO Sightseeing?
-// )
 
 fun main() {
     Run {

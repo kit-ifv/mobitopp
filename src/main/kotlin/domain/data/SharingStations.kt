@@ -29,39 +29,6 @@ abstract class SharingProvider : Subscribable<Person> {
         }
 }
 
-// class MutableSharingProvider(scope: SharingProviderBuilder.() -> Unit) : SharingProviderBuilder(scope)
-
-// class MySharingProvider(
-//    override val name: String,
-//    val mode: Mode // TODO assign proper mode
-// ) : Subscribable<Person> {
-//
-//    val stations: Set<SharingStation>
-//        get() = _stations
-//
-//    val numberOfVehicles get() = _ownedVehicles.size
-//    private val _stations: MutableSet<SharingStation> = mutableSetOf()
-//
-//    fun register(station: SharingStation) {
-//        _stations += station
-//    }
-//
-//    val ownedVehicles: Set<SharingVehicle>
-//        get() = _ownedVehicles
-//
-//    private val _ownedVehicles: MutableSet<SharingVehicle> = mutableSetOf()
-//
-//    fun register(vehicle: SharingVehicle) {
-//        _ownedVehicles += vehicle
-//    }
-//
-//    override val resources: Set<Resource<Person>>
-//        get() {
-//            return _stations
-//        }
-// }
-
-// @Buildable
 @Mutable
 abstract class SharingStation(
     override val id: SharingStationId = SharingStationId(idCounter++),
@@ -133,17 +100,6 @@ abstract class SharingStation(
             zonesByFoot.any { agent.location.inSameZone(it.centroid) }
     }
 }
-
-// fun SharingStation.weakerBuilder(): Builder<SharingStation> {
-//    val build = SharingStationBuilder()
-//    build.uid = uid
-//    build.name = name
-//    build.location = location
-//    build.zonesByFoot = zonesByFoot.toMutableSet()
-//    build.owner = owner
-//    build.initialVehicles = vehicles.toMutableSet()
-//    return build
-// }
 
 typealias SharingVehicleId = ID<SharingVehicle>
 
