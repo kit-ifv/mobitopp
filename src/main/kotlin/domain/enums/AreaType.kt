@@ -1,5 +1,6 @@
 package domain.enums
 
+import org.jline.terminal.Size
 import utils.CodePlan
 import utils.Decodable
 import utils.Encodable
@@ -196,6 +197,17 @@ enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
         }
     }
 
+    fun toSizebasedClassification(): SizebasedRegiostarClassification {
+        return when(code) {
+            111, 112, 121, 211 -> SizebasedRegiostarClassification.CITY
+            113, 123, 213, 223, 221 -> SizebasedRegiostarClassification.SMALL_TOWN
+            114, 124, 214 -> SizebasedRegiostarClassification.URBAN_AREA
+            115, 125, 215, 224, 225 -> SizebasedRegiostarClassification.RURAL_AREA
+            else -> throw IllegalStateException("There should never be a code $code. That is not a valid Regiostar17 encoding.")
+        }
+
+    }
+
     companion object : Decodable<Regiostar17> {
         override fun decode(i: Int) = Regiostar17.entries.first { it.code == i }
         override fun decode(s: String) = Regiostar17.valueOf(s)
@@ -218,6 +230,14 @@ enum class Regiostar4(val code: Int, val text: String) {
     CITY_REGIOPOLITAN(12, "Regiopolitane Stadtregion"),
     RURAL_URBAN_AREA(21, "Stadtregionsnahe ländliche Region"),
     RURAL_PERIPHERAL(22, "Periphere ländliche Region");
+}
+
+/**
+ * A representation that I have found in the legacy code that exists without explanation. Possible guesses are that
+ * these encodings are based on the underlying settlement size, but expert input is recommended.
+ */
+enum class SizebasedRegiostarClassification {
+    CITY, SMALL_TOWN, URBAN_AREA, RURAL_AREA
 }
 enum class RegiostarGem5(val code: Int) {
     METROPOLE(1), REGIOPOLE(2), CENTRAL_CITY(3), CITY_AREA(4), RURAL_AREA(5)

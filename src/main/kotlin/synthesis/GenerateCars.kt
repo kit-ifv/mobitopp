@@ -19,7 +19,7 @@ import synthesis.discreteChoice.carSegmentChoiceModel
 import synthesis.discreteChoice.toChoice
 
 fun interface GenerateCars<T : SurveyInfo> {
-    fun generate(householdBuilder: SynthesisHouseholdBuilder<T>): List<Car>
+    fun generate(householdBuilder: SynthesisHouseholdBuilder<T>): List<SynthesisCar>
 }
 
 class SynthesisCar(
@@ -40,7 +40,7 @@ class SynthesisCar(
 }
 
 object TrivialCarGeneration : GenerateCars<SurveyInfo> {
-    override fun generate(householdBuilder: SynthesisHouseholdBuilder<SurveyInfo>): List<Car> {
+    override fun generate(householdBuilder: SynthesisHouseholdBuilder<SurveyInfo>): List<SynthesisCar> {
 
         return buildCars(householdBuilder)
     }
@@ -64,7 +64,7 @@ object TrivialCarGeneration : GenerateCars<SurveyInfo> {
 
 object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
     private val segmentModel = carSegmentChoiceModel
-    override fun generate(householdBuilder: SynthesisHouseholdBuilder<RawSurveyInfo>): List<Car> {
+    override fun generate(householdBuilder: SynthesisHouseholdBuilder<RawSurveyInfo>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers =
             if (householdBuilder.numberOfDrivingLicences == 0) householdBuilder.adults else householdBuilder.licenceHolders

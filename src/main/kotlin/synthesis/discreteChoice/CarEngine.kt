@@ -5,6 +5,7 @@ import domain.data.EngineType
 import domain.data.Sex
 import domain.enums.Regiostar17
 import domain.enums.Regiostar4
+import domain.enums.SizebasedRegiostarClassification
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
@@ -262,8 +263,8 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegiostar17: Regiostar17 = TODO()
-    val regionType = regionTypeRegiostar17.toRegiostar4()
+    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17()?:throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
+    val regionType = regionTypeRegiostar17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
     val isParttime = employment == Employment.PARTTIME
@@ -327,9 +328,9 @@ private val defaultUtilityFunction: EngineSpecificParameters.(EngineSituation) -
             (it.householdSize == 3) * householdSize3 +
             (it.householdSize == 4) * householdSize4 +
 
-            (it.regionType == Regiostar4.CITY_METROPOLITAN) * regionStadt +
-            (it.regionType == Regiostar4.CITY_REGIOPOLITAN) * regionKleinstadt +
-            (it.regionType == Regiostar4.RURAL_URBAN_AREA) * regionStadtraum +
-            (it.regionType == Regiostar4.RURAL_PERIPHERAL) * regionLandraum
+            (it.regionType == SizebasedRegiostarClassification.CITY) * regionStadt +
+            (it.regionType == SizebasedRegiostarClassification.SMALL_TOWN) * regionKleinstadt +
+            (it.regionType == SizebasedRegiostarClassification.URBAN_AREA) * regionStadtraum +
+            (it.regionType == SizebasedRegiostarClassification.RURAL_AREA) * regionLandraum
 }
 

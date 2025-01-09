@@ -30,14 +30,19 @@ import synthesis.Rule
 import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
+import synthesis.SynthesisCar
 import synthesis.SynthesisHouseholdBuilder
 import synthesis.SynthesisPerson
-import synthesis.TrivialCarGeneration
 import synthesis.ZoneTarget
-import synthesis.discreteChoice.CarOwnershipAttributes
+import synthesis.carownership.AssignViaRegionType
+import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.discreteChoice.CarOwnershipParameters
 import synthesis.discreteChoice.TicketSituation
 import synthesis.discreteChoice.YesTransitPass
+import synthesis.discreteChoice.carOwnershipCityParameters
+import synthesis.discreteChoice.carOwnershipRuralArea
+import synthesis.discreteChoice.carOwnershipSmallCity
+import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.transitPassDiscreteChoiceModel
 import synthesis.fixedDestinations.CommuterMatrix
 import synthesis.fixedDestinations.LocationFinder
@@ -152,7 +157,7 @@ class SynthesisSteps<T: SurveyInfo>(
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
-    var cars = listOf<Car>()
+    var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
     fun input(lambda: () -> Unit) {
         //TODO attractiveness Model, Zones, etc.
@@ -196,19 +201,17 @@ class SynthesisSteps<T: SurveyInfo>(
 
     class ChoiceModelData {
         var choiceModel = carChoiceModel
-        var parameters = CarOwnershipParameters()
+        var parameters = carOwnershipRuralArea
     }
 
-    fun assignAmountOfCarsUsingChoiceModel(lambda: ChoiceModelData.() -> Unit) {
-        val input = ChoiceModelData()
-        input.apply(lambda)
-        val model = input.choiceModel
-        val parameters = input.parameters
+    fun assignAmountOfCars(lambda: ()-> CarOwnershipAssignStrategy) {
+//        val input = ChoiceModelData()
+//        input.apply(lambda)
+//        val model = input.choiceModel
+//        val parameters = input.parameters
 
-
-        households.forEach { household -> household.amountOfCars = model.select({
-            CarOwnershipAttributes(it, household.toCarOwnershipAttributes())
-        }, parameters) }
+        val strategy = lambda()
+        households.forEach { household -> household.amountOfCars = strategy.assignNumberOfCars(household) }
     }
 
     class TransitCardChoiceModelData {
@@ -368,8 +371,14 @@ fun tryout() {
             )
         }
 
-        assignAmountOfCarsUsingChoiceModel {
-            choiceModel = carChoiceModel
+        assignAmountOfCars {
+            AssignViaRegionType.create {
+                model = carChoiceModel
+                cityParameters = carOwnershipCityParameters
+                smallTownParameters = carOwnershipSmallCity
+                urbanAreaParameters = carOwnershipUrbanAreaParameters
+                ruralAreaParameters = carOwnershipRuralArea
+            }
         }
 
         assignTransitCardOwnership {
@@ -397,8 +406,9 @@ fun tryout() {
 //        generateCars (TrivialCarGeneration::generateCars)
         generateCars (strategy = SamplingCarGeneration)
 
-        generateActivitiesViaActitopp()
-
+        //generateActivitiesViaActitopp()
+        writeLegacyOutput()
+        println("Finished")
 
     }
 
