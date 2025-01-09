@@ -47,8 +47,8 @@ fun <T> assertNotContains(
     asserter.assertTrue(
         {
             messagePrefix(message) +
-                    "Expected the collection not to contain the element.\n" +
-                    "Collection <$collection>, element <$element>."
+                "Expected the collection not to contain the element.\n" +
+                "Collection <$collection>, element <$element>."
         },
         !collection.contains(element)
     )

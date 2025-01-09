@@ -14,7 +14,7 @@ interface StochasticActor {
 }
 
 abstract class SeededActor<I>(seed: Long) : Identifiable<ID<I>>, StochasticActor {
-    override val random: Random by lazy { Random(id.value + seed) }
+    final override val random: Random by lazy { Random(id.value + seed) }
 }
 
 /**

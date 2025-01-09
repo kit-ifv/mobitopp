@@ -91,7 +91,6 @@ fun <S, C> S.prepareHouseholds(
             type = row.int(columns.typeColumn)
             incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
             economicStatus = row.decode(columns.economicalStatusColumn, context.economicalStatusCodes)
-            name = "Household: $householdNumber"
 
             // Robin: I converted this builder call to the location as found in [Household]
             location = row(columns.locationColumn, roadPositionParser).withZone(

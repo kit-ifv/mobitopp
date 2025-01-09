@@ -82,7 +82,7 @@ class MapRepository<T, I>(
     override var sealed = false
 
     private fun requireNotSealed(operation: String) {
-        if(sealed) {
+        if (sealed) {
             error(
                 "Repository $name has already been sealed and can no longer be updated!\n" +
                     "attempted mutating action: $operation\n" +
@@ -162,7 +162,7 @@ class MapRepository<T, I>(
         }
 }
 
-fun <R, E, I> R.asRepository() where R: Resource<E>, E: Identifiable<I> = MapRepository<E, I>(name).also {
+fun <R, E, I> R.asRepository() where R : Resource<E>, E : Identifiable<I> = MapRepository<E, I>(name).also {
     it.addElements(this.source, this.elements)
 }
 
@@ -177,19 +177,3 @@ fun validateNotSealed(
     }
 }
 
-//
-// interface Ent: Identifiable<Int> {
-//    val name: String
-//    val age: Int
-//    val numbers: List<Int>
-// }
-//
-// class MutEnt: Ent {
-//    override lateinit var name: String
-//    override var age by Delegates.notNull<Int>()
-//    override var numbers: MutableList<Int> = mutableListOf()
-//    override val id: Int
-//        get() = age
-// }
-//
-// val entRepo: Repository<Ent, Int> = MutableRepository<MutEnt, Int>("test")

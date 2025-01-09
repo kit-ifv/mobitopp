@@ -73,10 +73,12 @@ abstract class SharingStation(
     abstract val location: Location
     abstract val zonesByFoot: Set<Zone>
 
-    val vehicles: MutableSet<SharingVehicle> = Collections.synchronizedSet(mutableSetOf())
+    // only provide immutable view of vehicle set, since adding/removing vehicles requires additional logic
+    val vehicles: Set<SharingVehicle>
+        get() = _vehicles
+    private val _vehicles: MutableSet<SharingVehicle> = Collections.synchronizedSet(mutableSetOf())
 
     init {
-        vehicles.forEach { it.returnTo(this) }
         registerOwner()
     }
 
@@ -84,12 +86,20 @@ abstract class SharingStation(
         owner.stations.add(this)
     }
 
+    fun addVehicle(vehicle: SharingVehicle) {
+        vehicle.returnTo(this)
+    }
+
+    fun addVehicles(vehicles: Collection<SharingVehicle>) {
+        vehicles.forEach { addVehicle(it) }
+    }
+
     fun take(vehicle: SharingVehicle) {
         require(vehicle in vehicles) {
             "Cannot take sharing vehicle ${vehicle.id} from station ${this.id} as it is not located there."
         }
 
-        this.vehicles -= vehicle
+        _vehicles -= vehicle
         vehicle.take()
     }
 
@@ -98,23 +108,23 @@ abstract class SharingStation(
             "Cannot take a sharing vehicle from station '${this.name}' as none are currently available."
         }
 
-        require(vehicles.isNotEmpty()) {
+        require(_vehicles.isNotEmpty()) {
             "Empty $hasAvailableVehicles"
         }
-        return vehicles.first().also { take(it) }
+        return _vehicles.first().also { take(it) }
     }
 
     fun giveBack(vehicle: SharingVehicle) {
-        this.vehicles += vehicle
+        _vehicles += vehicle
         vehicle.returnTo(this)
     }
 
     override fun toString(): String {
-        return "$id ${vehicles.size}"
+        return "$id ${_vehicles.size}"
     }
 
     val hasAvailableVehicles: Boolean
-        get() = vehicles.isNotEmpty()
+        get() = _vehicles.isNotEmpty()
 
     override fun isAvailableFor(agent: Person): Boolean {
         return agent.memberships.containsKey(owner) &&

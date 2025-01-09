@@ -6,7 +6,6 @@ fun String.enforceIndent(spaces: Int = 2): String {
 }
 
 fun String.indentSubsequentLines(indentMarker: String = ":", prefix: String = ""): String {
-
     val indentSize = (this.indexOf(indentMarker) + 2 - prefix.length).let {
         if (it < 0) 1 else it
     }
@@ -18,9 +17,8 @@ fun String.indentSubsequentLines(indentMarker: String = ":", prefix: String = ""
 
     return lines.let {
         lines.first() + "\n" +
-        lines.drop(1).joinToString("\n") { line ->
-            prefix + " ".repeat(indentSize) + line
-        }
+            lines.drop(1).joinToString("\n") { line ->
+                prefix + " ".repeat(indentSize) + line
+            }
     }
-
 }

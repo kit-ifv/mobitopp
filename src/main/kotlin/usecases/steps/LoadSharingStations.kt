@@ -77,7 +77,7 @@ fun <S, C> S.prepareSharingStations(
                 coordinate = coordinateParser(row(columns.coordinatesColumn)),
                 roadAccess = null
             )
-            vehicles.addAll(
+            addVehicles(
                 sharingProvider.prepareVehicles(
                     count = row.int(columns.vehicleCountColumn),
                 )

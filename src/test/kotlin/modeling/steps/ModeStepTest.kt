@@ -54,7 +54,6 @@ class ModeStepTest {
         repository = MapRepository<TestEntity, TestId>("test_repo")
         readOnlyRepository = repository
 
-
         resource = SequenceResource("seq_resource", "ModelStepTest", expectedElements.asSequence()).reusable()
         csvResource = CsvResource(csvFile, parser, reusable = true)
 
@@ -83,7 +82,6 @@ class ModeStepTest {
             customValidationStep(repository, name = "SubStep1"),
             customValidationStep(repository, name = "SubStep2")
         )
-
     }
 
     @Test
@@ -157,7 +155,6 @@ class ModeStepTest {
         resource.elements.forEach {
             assertNotContains(repository.elements.toList(), it)
         }
-
     }
 
     @Test
@@ -218,7 +215,6 @@ class ModeStepTest {
         assertContains(message, "Repository ${repository.name}")
         assertContains(message, "has already been sealed")
         assertContains(message, "attempted mutating action: test_add_csv")
-
     }
 
     @Test
@@ -241,7 +237,6 @@ class ModeStepTest {
 
         assertContains(validationText, "WARNING: Validate step CustomValidationStep_AddDummy produced warnings:")
         assertContains(validationText, "└─ WARNING: CustomValidationStep_AddDummy_Warning")
-
     }
 
     @Test
@@ -268,7 +263,6 @@ class ModeStepTest {
         assertRepoContainsElements(expectedElements)
     }
 
-
     @Test
     fun validateStepOnSealedRepositoryShouldProduceError() {
         sealStep.validate()
@@ -282,15 +276,16 @@ class ModeStepTest {
 
     @Test
     fun executeMultiStep() {
-
         val captor = ConsoleCaptor()
         multiStep.execute()
         val consoleText = captor.getText()
 
-        assertRepoContainsElements(expected = listOf(
-            TestEntity(0, string="execute_dummy"),
-            TestEntity(1, string="execute_dummy")
-        ))
+        assertRepoContainsElements(
+            expected = listOf(
+                TestEntity(0, string = "execute_dummy"),
+                TestEntity(1, string = "execute_dummy")
+            )
+        )
 
         assertContains(consoleText, "Run SubStep1")
         assertContains(consoleText, "Run SubStep2")
@@ -310,10 +305,12 @@ class ModeStepTest {
         assertContains(consoleText, "Validate step SubStep1 produced warnings")
         assertContains(consoleText, "Validate step SubStep2 produced warnings")
 
-        assertRepoContainsElements(expected = listOf(
-            TestEntity(0, string="mock_dummy"),
-            TestEntity(1, string="mock_dummy")
-        ))
+        assertRepoContainsElements(
+            expected = listOf(
+                TestEntity(0, string = "mock_dummy"),
+                TestEntity(1, string = "mock_dummy")
+            )
+        )
     }
 
     @Test
@@ -355,10 +352,10 @@ class ModeStepTest {
         val consoleText = captor.getText()
 
         assertNotNull(warning)
-        assertContains(consoleText,"Invalid column 'INVALID_COL' accessed in step 'load test_data.csv' ")
-        assertContains(consoleText,"does not exist in the source csv file: src\\test\\resources\\test_data.csv!")
-        assertContains(consoleText,"Invalid column index '42' accessed in step 'load test_data.csv'")
-        assertContains(consoleText,"higher than number of columns (5)")
+        assertContains(consoleText, "Invalid column 'INVALID_COL' accessed in step 'load test_data.csv' ")
+        assertContains(consoleText, "does not exist in the source csv file: src\\test\\resources\\test_data.csv!")
+        assertContains(consoleText, "Invalid column index '42' accessed in step 'load test_data.csv'")
+        assertContains(consoleText, "higher than number of columns (5)")
     }
 
     @Test
@@ -381,14 +378,7 @@ class ModeStepTest {
         assertContains(consoleText, "Value of column 'str' of CSV test_data.csv")
         assertContains(consoleText, "could not be mocked for parsing!")
         assertContains(consoleText, "Validation of columns in step 'load test_data.csv' may be incomplete!")
-
     }
-
-
-
-
-
-
 
     private fun getValidationText(warning: Warning?): String {
         val validationCaptor = ConsoleCaptor()
@@ -403,7 +393,6 @@ class ModeStepTest {
     }
 
     private fun assertRepoContainsElements(expected: List<TestEntity>, onlySubset: Boolean = false) {
-
         if (!onlySubset) {
             assertEquals(expected.size, repository.size)
 
@@ -415,7 +404,6 @@ class ModeStepTest {
         expected.forEach {
             assertContains(repository.elements.toList(), it, "Expected has element missing in repository!")
         }
-
     }
 
     private fun assertRepoSource(resource: Resource<TestEntity>, operation: String, step: ModelStep?) {
@@ -423,8 +411,6 @@ class ModeStepTest {
         step?.also { assertContains(repository.source, it.name) }
         assertContains(repository.source, "${resource.name} [${resource.source}]")
     }
-
-
 }
 
 private fun addResourceStep(
@@ -492,7 +478,7 @@ private fun transformStep(
     name: String,
     transform: (TestEntity) -> TestEntity?,
     repository: MutableRepository<TestEntity, TestId>,
-) = object: TransformStep<TestEntity, TestId>() {
+) = object : TransformStep<TestEntity, TestId>() {
     override val name = name
     override val repository: MutableRepository<TestEntity, TestId> = repository
     override fun transform(element: TestEntity) = transform(element)
@@ -504,7 +490,7 @@ private fun transformAllStep(
     name: String,
     transformAll: (Collection<TestEntity>) -> Collection<TestEntity>,
     repository: MutableRepository<TestEntity, TestId>,
-) = object: TransformAllStep<TestEntity, TestId>() {
+) = object : TransformAllStep<TestEntity, TestId>() {
     override val name = name
     override val repository = repository
     override fun transformAll(elements: Collection<TestEntity>) = transformAll(elements)
@@ -516,7 +502,7 @@ private fun forEachStep(
     name: String,
     process: (ImmutableEntity) -> Unit,
     repository: Repository<ImmutableEntity, TestId>,
-) = object: ForEachStep<ImmutableEntity, TestId>() {
+) = object : ForEachStep<ImmutableEntity, TestId>() {
     override val name = name
     override val repository = repository
     override fun process(element: ImmutableEntity) = process(element)
@@ -524,14 +510,14 @@ private fun forEachStep(
     override fun verifyInput(): Warning? = null
 }
 
-private val parser: CsvParser<TestEntity> = CsvParser<TestEntity>() { row ->
+private val parser: CsvParser<TestEntity> = CsvParser<TestEntity> { row ->
     TestEntity(
         rowIndex = row.index,
         string = row(STR_COL)
     )
 }
 
-private val invalidParser: CsvParser<TestEntity> = CsvParser<TestEntity>() { row ->
+private val invalidParser: CsvParser<TestEntity> = CsvParser<TestEntity> { row ->
     TestEntity(
         rowIndex = row.index,
         float = row.float(42),
@@ -561,7 +547,7 @@ private val transformedOddIdSquared = expectedElements.mapNotNull { transformOdd
 private fun transformOddIdSquared(element: TestEntity): TestEntity? =
     element.takeIf {
         it.id.value >= 2 &&
-        filterOddIndex(it)
+            filterOddIndex(it)
     }?.let {
         it.copy(rowIndex = it.rowIndex * it.rowIndex)
     }
@@ -583,13 +569,16 @@ private val expectedElementStrings = expectedElements.map { it.string }
 private fun customValidationStep(
     repository: MutableRepository<TestEntity, TestId>,
     name: String = "CustomValidationStep_AddDummy"
-) = object:ModelStep {
+) = object : ModelStep {
     override val name = name
 
     override fun execute() {
-        repository.addElements("add_dummy", listOf(
-            TestEntity(repository.size, string = "execute_dummy")
-        ))
+        repository.addElements(
+            "add_dummy",
+            listOf(
+                TestEntity(repository.size, string = "execute_dummy")
+            )
+        )
     }
 
     override fun verifyInput(): Warning {
@@ -598,11 +587,12 @@ private fun customValidationStep(
     }
 
     override fun mockBehavior(): Warning? {
-        repository.addElements("add_dummy", listOf(
-            TestEntity(repository.size, string = "mock_dummy")
-        ))
+        repository.addElements(
+            "add_dummy",
+            listOf(
+                TestEntity(repository.size, string = "mock_dummy")
+            )
+        )
         return null
     }
-
 }
-
