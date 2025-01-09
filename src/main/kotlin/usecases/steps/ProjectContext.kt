@@ -31,6 +31,7 @@ import domain.enums.AreaType
 import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
+import domain.enums.Regiostar17
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
@@ -109,7 +110,7 @@ data class LegacyContext(
     override val scenarioName: String,
     override val demandFolder: File,
 
-    override val areaTypeCodes: CodePlan<AreaType> = Bbsr17,
+    override val areaTypeCodes: CodePlan<AreaType> = Regiostar17,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus,
     override val sexCodes: CodePlan<Sex> = Sex,
     override val graduationCodes: CodePlan<Graduation> = Graduation,

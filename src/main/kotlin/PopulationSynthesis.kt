@@ -4,11 +4,10 @@ import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
-import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
+import domain.enums.Regiostar17
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import modeling.discreteChoice.GlobalRandomizer
 import synthesis.discreteChoice.carChoiceModel
 import synthesis.ActivityOutput
@@ -27,7 +26,6 @@ import synthesis.OpportunityOutput
 import synthesis.PersonOutput
 import synthesis.RawSurveyInfo
 import synthesis.Rule
-import synthesis.SmallestInfo
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisHouseholdBuilder
@@ -45,13 +43,11 @@ import synthesis.fixedDestinations.UseBandwidthLocation
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.generateActivitiesViaActitopp
 import synthesis.randomCoordinate
-import synthesis.toActiToppHousehold
 
 import synthesis.toSurveyHouseholds
 import units.Coordinate
 import units.CurrencyUnit
 import units.GPSCoordinate
-import units.euros
 import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
@@ -330,7 +326,7 @@ fun tryout() {
     ) {
 
         outputDirectory = Path("src/test/resources/tempOutput")
-        zones = defaultZoneCsvParser(areaTypeCodePlan = Bbsr17).parse("src/test/resources/synthesis/zones.csv").toList()
+        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv").toList()
             .map { it.build() }
         surveyHouseholds = surveyPopulation.toSurveyHouseholds()
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
