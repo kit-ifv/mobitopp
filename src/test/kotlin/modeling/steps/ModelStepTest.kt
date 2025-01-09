@@ -353,7 +353,7 @@ class ModelStepTest {
 
         assertNotNull(warning)
         assertContains(consoleText, "Invalid column 'INVALID_COL' accessed in step 'load test_data.csv' ")
-        assertContains(consoleText, "does not exist in the source csv file: src\\test\\resources\\test_data.csv!")
+        assertContains(consoleText, "does not exist in the source csv file: ${csvFile.path}!")
         assertContains(consoleText, "Invalid column index '42' accessed in step 'load test_data.csv'")
         assertContains(consoleText, "higher than number of columns (5)")
     }
