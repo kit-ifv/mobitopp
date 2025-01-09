@@ -77,66 +77,6 @@ abstract class Person(
     fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
 }
 
-//
-// /**
-// * A person in for the simulation. Certain properties can be assumed to be known during the simulation
-// * @property age The age in years
-// * @property sex the Sex of the person
-// * @property employment the employment state
-// * @property hasLicense whether the individual is allowed to operate motor vehicles (maybe refactor if different licence
-// * types become interesting)
-// * @property hasCommuterTicket whether a PT ticket is present
-// */
-// @Suppress("ComplexInterface")
-// @Buildable
-// data class Person(
-//    // These values can reasonably be expected for any Person to be present in the simulation
-//    val personId: Long,
-//    val household: Household,
-//    val age: Int,
-//    val employment: Employment,
-//    val sex: Sex,
-//    val graduation: Graduation,
-//    val income: Currency,
-//    val hasBike: Boolean,
-//    val hasCommuterTicket: Boolean,
-//    val hasLicense: Boolean,
-//    val memberships: Map<Subscribable<Person>, Boolean>,
-//    val eMobilityAcceptance: UnitIntervalValue,
-//    val chargingInfluence: ChargingInfluence,
-//    override val id: PersonId,
-//    override val random: Random,
-// ) : Identifiable<PersonId>, Agent<Person>, StochasticActor { // TODO merge Agent and Stochastic Actor
-//    override var location: Location = household.location
-//
-//    init {
-//        this.household.addMember(this)
-//    }
-//
-//    override var nextEvent: Event<Person>? = null
-//    override val entity: Person = this
-//    lateinit var schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
-//
-//    private val plannedActivityList: MutableList<PlannedActivity> = mutableListOf()
-//    val plannedActivities: List<PlannedActivity>
-//        get() = plannedActivityList
-//
-//    fun addActivity(plannedActivity: PlannedActivity) {
-//        plannedActivityList.add(plannedActivity)
-//
-//        schedule.addWithPrecedingLeg(
-//            plannedActivity.toActivity()
-//        )
-//    }
-//
-//    val isAdult: Boolean
-//        get() = (age >= ADULT_AGE_GER)
-//
-//    var inTransit: Boolean = false
-//
-//    fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
-// }
-
 fun Person.lastTransportMode(action: Action): Mode? {
     return schedule.pastLegs().lastOrNull { it < action }?.transportType
 }

@@ -346,11 +346,6 @@ class CsvParserTest {
             )
         }
         assertStackTrace(consoleText)
-//        if (error) {
-//
-//        } else {
-//            assertNoStackTrace(consoleText)
-//        }
     }
 
     private fun assertNoWarnings(consoleText: String) {

@@ -27,11 +27,8 @@ interface Car : Identifiable<CarId> {
 
     // TODO Debate with Jelle whether CAR should hold information and state or be separated.
     var location: Location
-
     var driver: Person?
-
     var passengers: MutableSet<Person>
-
     var keyHolder: Person?
 
     fun addDriver(person: Person) {
@@ -156,37 +153,3 @@ interface HybridEngine : CombustionEngine, ElectricEngine {
     override val type: EngineType
         get() = EngineType.HYBRID
 }
-
-// class PrivateCarBuilder(
-//    var segment: CarSegment? = null,
-//    var engine: EngineType? = null,
-//    var seats: Int? = null,
-//    var owner: Household? = null,
-//    var mainUser: Person? = null,
-//    var carEngineStatistics: CarEngineStatistics? = CarEngineStatistics()
-// ) : Builder<PrivateCar> {
-//    companion object {
-//        private var idCount = 0L
-//    }
-//
-//    override fun build() = object : PrivateCar {
-//        override val owner: Household = this@PrivateCarBuilder.owner!!
-//        override val mainUser: Person? = this@PrivateCarBuilder.mainUser
-//        override val segment: CarSegment = this@PrivateCarBuilder.segment!!
-//        override val seats: Int = this@PrivateCarBuilder.seats!!
-//        override val id: CarId = ID(idCount++)
-//        override val engine: CarEngine = buildEngine()
-//        override var location: Location = owner.location
-//
-//        override var driver: Person? = null
-//        override var passengers: MutableSet<Person> = mutableSetOf()
-//        override var state = PrivateCar.CarState.PARKED
-//
-//        override var keyHolder: Person? = null
-//
-//        init {
-//            owner.addCar(this)
-//        }
-//    }
-
-// }
