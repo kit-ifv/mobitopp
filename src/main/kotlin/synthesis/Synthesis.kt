@@ -145,6 +145,23 @@ fun <T> Collection<T>.pickWithReplacement(
 
 }
 
+/**
+ * Select an exact amount from a list, if the list is not sufficiently long enough, it will be artificially filled by
+ * repeating the elements. each list or list repetition element is shuffled. In order to return a random list of exactly
+ * [amount] elements, the shuffled list will be truncated to the length.
+ */
+fun <T> Collection<T>.selectExact(amount: Int, random: Random = Random(1)): List<T> {
+    if(amount == 0) return emptyList()
+    require(isNotEmpty()) {
+        "Cannot select an exact amount of elements from an empty collection"
+    }
+    val inputList = toList()
+    val repeatedList = List(amount) {inputList[it % size]}
+    return repeatedList.shuffled(random)
+
+}
+
+
 fun interface HouseholdSynthesis<T: SurveyInfo> {
     fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<T>>,

@@ -8,6 +8,7 @@ import domain.enums.Regiostar4
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
+import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.RawSurveyInfo
 import synthesis.SurveyHousehold
@@ -274,7 +275,11 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val isRetired = employment == Employment.RETIRED
 }
 
-val carEngineChoiceModel = DiscreteChoiceModel<EngineType, EngineSituation, EngineParameters>(
+fun EngineType.toChoice(person: SynthesisPerson<RawSurveyInfo>, household: SynthesisHouseholdBuilder<RawSurveyInfo>): EngineSituation {
+    return EngineSituation(this, person.person, household)
+}
+
+val carEngineChoiceModel = KnownDiscreteChoiceModel<EngineType, EngineSituation, EngineParameters>(
     AllocatedLogit.create {
         option(EngineType.COMBUSTION) {
             0.0

@@ -17,6 +17,7 @@ import synthesis.AssignHouseholdLocations
 import synthesis.CarOutput
 import synthesis.FixedDestinationElements
 import synthesis.FixedDestinationOutput
+import synthesis.GenerateCars
 import synthesis.HouseholdOutput
 import synthesis.HouseholdSynthesis
 import synthesis.IPU
@@ -26,6 +27,7 @@ import synthesis.OpportunityOutput
 import synthesis.PersonOutput
 import synthesis.RawSurveyInfo
 import synthesis.Rule
+import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisHouseholdBuilder
@@ -228,8 +230,9 @@ class SynthesisSteps<T: SurveyInfo>(
         }
     }
 
-    fun generateCars(lambda: () -> Unit) {
-        cars = households.flatMap { TrivialCarGeneration.generate(it) }
+    fun generateCars(strategy: GenerateCars<T>) {
+
+        cars = households.flatMap { strategy.generate(it) }
 
     }
 
@@ -391,12 +394,8 @@ fun tryout() {
                 }
             }
         }
-        generateCars {
-
-
-            writeLegacyOutput()
-
-        }
+//        generateCars (TrivialCarGeneration::generateCars)
+        generateCars (strategy = SamplingCarGeneration)
 
         generateActivitiesViaActitopp()
 
