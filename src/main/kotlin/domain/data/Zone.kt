@@ -2,8 +2,10 @@ package domain.data
 
 import Buildable
 import domain.enums.AreaType
+import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.location.Location
+import units.Area
 import units.Distance
 import units.GPSCoordinate
 import utils.ID
@@ -16,8 +18,7 @@ typealias ZoneId = ID<Zone>
  * patches/addons.
  * @property visumId the zone id in visum
  * @property name The name of the zone
- * @property areaType the area type of the zone
- * @property regionType the region type of the zone
+ * @property regionType the region type of the zone, could be Regiostar17 or some of the old legacy encodings :/
  * @property classification the zone classification in the research context
  * @property parkingPlaces the number of available parking spaces in the zone
  * @property centroid the centroid point of the zone
@@ -30,8 +31,7 @@ open class Zone(
     override val id: ZoneId,
     val visumId: Long,
     val name: String,
-    val areaType: AreaType,
-    val regionType: Int,
+    val regionType: AreaType,
     val classification: ZoneClassification,
     open val parkingPlaces: Int, // TODO only open for testing -> ugly :(
     centroid: Location,
@@ -53,8 +53,7 @@ open class LegacyZone(
     id: ZoneId,
     visumId: Long,
     name: String,
-    areaType: AreaType,
-    regionType: Int,
+    regionType: AreaType,
     classification: ZoneClassification,
     parkingPlaces: Int,
     centroid: Location,
@@ -62,5 +61,5 @@ open class LegacyZone(
     relief: Distance,
     val matrixColumn: Int,
 ) : Zone(
-    id, visumId, name, areaType, regionType, classification, parkingPlaces, centroid, isDestination, relief
+    id, visumId, name,  regionType, classification, parkingPlaces, centroid, isDestination, relief
 )

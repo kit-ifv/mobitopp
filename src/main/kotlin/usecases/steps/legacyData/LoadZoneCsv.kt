@@ -35,7 +35,6 @@ fun <S, C> S.prepareZones(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     idColumn: String = "id",
     nameColumn: String = "name",
-    areaTypeColumn: String = "areaType",
     areaTypeCodes: CodePlan<AreaType>? = null,
     regionTypeColumn: String = "regionType",
     classificationColumn: String = "classification",
@@ -52,7 +51,6 @@ fun <S, C> S.prepareZones(
         errorHandling,
         idColumn,
         nameColumn,
-        areaTypeColumn,
         areaTypeCodePlan,
         regionTypeColumn,
         classificationColumn,
@@ -71,8 +69,7 @@ internal fun defaultZoneCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     idColumn: String = "id",
     nameColumn: String = "name",
-    areaTypeColumn: String = "areaType",
-    areaTypeCodePlan: CodePlan<AreaType>,
+    regionTypeCodePlan: CodePlan<AreaType>,
     regionTypeColumn: String = "regionType",
     classificationColumn: String = "classification",
     parkingPlacesColumn: String = "parkingPlaces",
@@ -88,8 +85,7 @@ internal fun defaultZoneCsvParser(
             visumId = row.long(idColumn)
             matrixColumn = row.index
             name = row(nameColumn)
-            areaType = row.decode(areaTypeColumn, areaTypeCodePlan)
-            regionType = row.int(regionTypeColumn)
+            regionType = row.decode(regionTypeColumn, regionTypeCodePlan)
             classification = row(classificationColumn).toZoneClassification()
             parkingPlaces = row.int(parkingPlacesColumn)
             centroid = row(centroidColumn, centroidParser)
