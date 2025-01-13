@@ -1,6 +1,6 @@
 package domain.data
 
-import Buildable
+import Mutable
 import datastructure.Activity
 import datastructure.ActivityBlock
 import datastructure.LinkTrip
@@ -16,28 +16,23 @@ import domain.enums.MODEUNKOWN
 import domain.location.LOCATIONUNKNOWN
 import utils.ID
 import utils.Identifiable
+import utils.random.SeededActor
 import utils.units.AbsoluteTime
-import java.util.*
-import kotlin.random.Random
 import kotlin.time.Duration
-// TODO is it really sensible to assign the household id to the activity??
-typealias ActivityId = ID<Household>
 
-@Suppress("LongParameterList")
-@Buildable
-class PlannedActivity(
-    override val id: ActivityId,
-    val person: Person,
-    val activityType: ActivityType,
-    val observedTripDuration: Duration,
-    val startTime: AbsoluteTime,
-    val duration: Duration,
-    val random: Random,
-) : Identifiable<ActivityId> {
+typealias ActivityId = ID<PlannedActivity>
 
-    init {
-//        person.addActivity(this)
-    }
+@Mutable
+abstract class PlannedActivity(
+    final override val id: ActivityId,
+    seed: Long
+) : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
+
+    abstract val person: Person
+    abstract val activityType: ActivityType
+    abstract val observedTripDuration: Duration
+    abstract val startTime: AbsoluteTime
+    abstract val duration: Duration
 
     val endTime: AbsoluteTime
         get() = startTime + duration

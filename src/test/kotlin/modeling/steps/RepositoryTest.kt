@@ -3,6 +3,7 @@ package modeling.steps
 import org.junit.jupiter.api.Test
 import utils.ID
 import utils.Identifiable
+import utils.collections.enforceIndent
 import utils.csv.TestEntity
 import utils.csv.TestId
 import kotlin.test.assertEquals
@@ -34,7 +35,7 @@ abstract class RepositoryTest<E, I> : ResourceTest<E>() where E : Identifiable<I
 
 open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
     protected val name: String = "TestEntityList"
-    protected val source: String = "MapRepositoryTest#createRepository()"
+    protected val source: String = "TestEntityList\n" + "+ add elements: init\n"
     override fun expectedElements() = listOf(
         TestEntity(rowIndex = 0, string = "a"),
         TestEntity(rowIndex = 1, string = "Hello; World"),
@@ -49,7 +50,9 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
     )
 
     override fun createRepo(): Repository<TestEntity, TestId> =
-        MapRepository(expectedElements(), name, source)
+        MapRepository<TestEntity, TestId>(name).also { repo ->
+            repo.addElements("init", expectedElements())
+        }
 
     override fun expectedSize() = 10
 
@@ -61,5 +64,9 @@ open class MapRepositoryTest : RepositoryTest<TestEntity, TestId>() {
 
     override fun expectedBaseSource() = source
 
-    override fun expectedToString() = "MapRepository[$name] ($source)"
+    override fun expectedToString() = "Repository '$name':\n" +
+        "  source:\n" +
+        "${source.enforceIndent(4)}\n" +
+        "  elements (${expectedSize()}):\n" +
+        "    ${expectedElements().joinToString(", ")}"
 }

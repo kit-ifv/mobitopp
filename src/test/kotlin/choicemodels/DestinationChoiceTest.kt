@@ -31,7 +31,7 @@ class DestinationChoiceTest {
     @Test
     fun personWithoutAnyActivities() {
         val exception = assertThrows<NoSuchElementException> { original.choose(scenario.first, 0.hours.sinceStart) }
-        assertContains(exception.message!!, scenario.first.personId.toString())
+        assertContains(exception.message!!, scenario.first.id.toString())
     }
 
     @Test
@@ -49,6 +49,6 @@ class DestinationChoiceTest {
                 original.choose(first, 0.hours.sinceStart)
             }
         }
-        assertContains(exception.message!!, scenario.first.personId.toString())
+        assertContains(exception.message!!, scenario.first.id.toString())
     }
 }

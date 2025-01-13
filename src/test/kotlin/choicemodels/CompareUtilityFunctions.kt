@@ -11,25 +11,28 @@ import datastructure.LinkedActivity
 import datastructure.Schedule
 import datastructure.plans.BlockModel
 import datastructure.plans.TrackableModel
+import domain.data.CarEngineStatistics
 import domain.data.ChargingInfluence
-import domain.data.DefaultHouseholdBuilder
 import domain.data.EconomicStatus
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Graduation
-import domain.data.Household
 import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutablePerson
+import domain.data.MutableSharingProvider
 import domain.data.Person
-import domain.data.PersonBuilder
+import domain.data.PersonId
 import domain.data.PrivateCar
 import domain.data.Sex
-import domain.data.SharingProvider
+import domain.data.buildEngine
 import domain.data.lastTransportMode
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.Location
+import domain.resources.Subscribable
 import generateZones
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
@@ -53,7 +56,6 @@ import utils.collections.cartesianProduct
 import utils.units.daysSinceStartOfWeek
 import utils.units.sinceStart
 import java.time.DayOfWeek
-import kotlin.random.Random
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -373,9 +375,13 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
     @ValueSource(booleans = [true, false])
     @DisplayName("Testing utility calculation for different moia memberships")
     fun moiaMembership(target: Boolean) {
-        val provider = SharingProvider(name = "Moia_an_member", mode = MODEUNKOWN)
+        val provider = MutableSharingProvider {
+            name = "Moia_an_member"
+            mode = MODEUNKOWN
+        }
+
         runTest(
-            { pBuilder.memberships[provider] = target },
+            { addMembership(provider, target) },
             {}
         ) {
             assertTrue(person.memberships.containsKey(provider))
@@ -500,55 +506,68 @@ class TestSynthesis(zones: List<TestZone>, impedance: ControllableImpedance = Co
     zones,
     impedance = impedance
 ) {
-    override val households: List<Household> by lazy {
+    override val households: List<MutableHousehold> by lazy {
         listOf(zones[0].build(hBuilder))
     }
-    val hBuilder = DefaultHouseholdBuilder()
-    val pBuilder = PersonBuilder()
-
-    init {
-        hBuilder.apply {
+    var hBuilder: () -> MutableHousehold = {
+        MutableHousehold(id = HouseholdId(1), seed = 42L) {
             surveyYear = 2024
             domCode = 1
             type = 1
             incomePerMonth = 0.euros
-            economicStatus = EconomicStatus.MIDDLE
-            random = Random(1)
+            economicStatus = builderEcoStatus
+//            random = Random(1)
             householdNumber = 1L
-            id = HouseholdId(1L)
         }
-        pBuilder.apply {
+    }
+    private var builderEcoStatus = EconomicStatus.MIDDLE
 
+    var pBuilder: (Long, MutableHousehold) -> MutablePerson = { id, hh ->
+        MutablePerson(id = PersonId(id), household = hh, seed = 42L) {
             eMobilityAcceptance = 0.share()
             chargingInfluence = ChargingInfluence.NEVER
-            random = Random(1)
-            age = 20
+//            random = Random(1)
+            age = builderAge
             employment = Employment.NONE
-            sex = Sex.MALE
+            sex = builderGender
             graduation = Graduation.UNDEFINED
             income = 0.euros
             hasBike = false
-            hasCommuterTicket = false
+            hasCommuterTicket = builderCommuterTicket
             hasLicense = false
+            memberships.putAll(builderMemberships)
         }
     }
+    private var builderAge = 20
+    private var builderCommuterTicket = false
+    private val builderMemberships = mutableMapOf<Subscribable<Person>, Boolean>()
+    private var builderGender = Sex.MALE
 
     override val persons: List<Person> = emptyList()
 
     fun setAge(target: Int) {
-        pBuilder.age = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.age = target } }
+        builderAge = target
     }
 
     fun setCommuterTicket(target: Boolean) {
-        pBuilder.hasCommuterTicket = target
+        builderCommuterTicket = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.hasCommuterTicket = target } }
+    }
+
+    fun addMembership(key: Subscribable<Person>, target: Boolean) {
+        builderMemberships[key] = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.memberships[key] = target } }
     }
 
     fun setGender(target: Sex) {
-        pBuilder.sex = target
+        builderGender = target
+//        pBuilder = { i, h -> pBuilder(i, h).also { it.sex = target } }
     }
 
     fun setEconomicStatus(target: EconomicStatus) {
-        hBuilder.economicStatus = target
+        builderEcoStatus = target
+//        hBuilder = { -> hBuilder().also { it.economicStatus = target } }
     }
 
     fun run(): TestSimulation {
@@ -573,7 +592,7 @@ class TestSynthesis(zones: List<TestZone>, impedance: ControllableImpedance = Co
  * @property attractiveness hold a reference to the attractiveness to induce changes and assert invariants.
  */
 class TestSimulation(
-    val person: Person,
+    val person: MutablePerson,
     val origin: TestZone,
     val destination: TestZone,
     val impedance: ControllableImpedance,
@@ -613,7 +632,7 @@ class TestSimulation(
      */
     fun spawnCarWithEngine(target: EngineType): PrivateCar {
         return person.household.spawnCar {
-            engine = target
+            engine = CarEngineStatistics().buildEngine(segment, target)
             mainUser = person
         }
     }

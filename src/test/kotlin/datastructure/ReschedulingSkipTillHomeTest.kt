@@ -68,12 +68,12 @@ class ReschedulingSkipTillHomeTest {
 
     @Test
     fun reschedulingShouldWork() {
-//        // Some external force causes the second leg to take forever
+        // Some external force causes the second leg to take forever
 //        val plan = model.actions()
 //        val leg2inPlan = plan[3] as LinkedLeg
-//        leg2inPlan.endTime = 23.5.hours.absolute
+//        leg2inPlan.endTime = 23.5.hours.sinceStart
 //
-//        SkipToNextHomeActivity().modify(model, 23.5.hours.absolute)
+//        SkipToNextHomeActivity().modify(model, 23.5.hours.sinceStart)
 //
 //        assertTrue(model.actions().isConsistent())
 //        assertEquals(plan.size, 6)

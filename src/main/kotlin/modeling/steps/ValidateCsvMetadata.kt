@@ -3,99 +3,15 @@
 package modeling.steps
 
 import modeling.validation.Warning
-import modeling.validation.subWarning
 import modeling.validation.validateFileReadAccess
+import modeling.validation.validateNoException
 import modeling.validation.validateScope
-import utils.Builder
+import utils.ErrorHandling
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
 import utils.csv.CsvReader
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
-
-/** Create an empty copy of the given resource but holding the same metadata. */
-private fun <E> dummyCopyOf(resource: Resource<E>): Resource<E> {
-    val name = resource.name
-    val source = resource.source
-
-    return SequenceResource(name, source, emptySequence())
-}
-
-/** Create an empty dummy resource referencing the given  [ModelStep] in its metadata. */
-internal fun <E> dummyResource(step: ModelStep): Resource<E> {
-    val name = "${step::class.simpleName}-Dummy"
-    val source = "${step::class.simpleName}.validate()"
-
-    return SequenceResource(name, source, emptySequence())
-}
-
-/**
- * Validate the state of the [repository].
- * In case it does not match the [expectedState], add a sub-warning to the receiver [Warning].
- *
- * @param repository the repository to be validated
- * @param expectedState the expected state of the repository
- * @param step the step being validated
- */
-fun Warning.subValidateState(
-    repository: RepositoryBuilder<*, *, *>,
-    expectedState: RepositoryState,
-    step: ModelStep
-) = validateState(repository, expectedState, step)?.also {
-    this.addChild(it)
-}
-
-/** Check whether the given repository has the expected state. */
-fun validateState(
-    repository: RepositoryBuilder<*, *, *>,
-    expectedState: RepositoryState,
-    step: ModelStep
-) = validateScope(
-    "Validate state of ${repository.name}:"
-) {
-    require(repository.state == expectedState) {
-        "Error: expected state of repository ${repository.name} after execution of step '${step.name}' " +
-            "is expected to be $expectedState but is ${repository.state}. Repo: $repository"
-    }
-}
-
-/** Mock the finished state in the given [RepositoryBuilder] to validate subsequent states.*/
-fun repairFinishedState(
-    repository: RepositoryBuilder<*, *, *>,
-    step: ModelStep
-) = when (repository.state) {
-    RepositoryState.UNINITIALIZED -> {
-        repository.addBuilders(dummyResource(step))
-        repository.build()
-    }
-
-    RepositoryState.PREPARING -> {
-        repository.build()
-    }
-
-    RepositoryState.FINISHED -> {
-        /* State is already FINISHED. */
-    }
-}
-
-/** Mock the preparing state in the given [RepositoryBuilder] to validate subsequent states.*/
-fun <B> repairPreparingState(
-    repository: RepositoryBuilder<B, *, *>,
-    resource: Resource<B>
-) where B : Builder<*> = when (repository.state) {
-    RepositoryState.UNINITIALIZED -> {
-        repository.addBuilders(dummyCopyOf(resource))
-    }
-
-    RepositoryState.PREPARING -> {
-        /* State is already PREPARING */
-    }
-
-    RepositoryState.FINISHED -> {
-        repository.reset()
-        repository.addBuilders(dummyCopyOf(resource))
-    }
-}
 
 private const val VALIDATION_MODE_ERROR =
     "Expected parentWarning to be set in validation mode. Make sure to call validate for validation"
@@ -134,7 +50,7 @@ class ValidateCsvMetadata<E>(
     override val source
         get() = "ValidationRow for " + reader.source
 
-    override fun toString() = "$source[1]:$columns"
+    override fun toString() = "$source[1] = $columns"
 
     // Assume all columns exist external module try to access them to trigger error report in case of missing column
     override fun hasColumn(column: String) = true
@@ -150,10 +66,11 @@ class ValidateCsvMetadata<E>(
 
         validateFileReadAccess(csv.file)?.also {
             this.addChild(it)
+            return@validateScope
         }
 
         muteProgressBars()
-        reader = DefaultCsvReader(csv.file)
+        reader = DefaultCsvReader(csv.file, errorHandling = ErrorHandling.SILENT)
         try {
             csv.parser.parse(this@ValidateCsvMetadata).toList()
         } catch (_: Exception) { }
@@ -200,18 +117,18 @@ class ValidateCsvMetadata<E>(
     }
 
     private fun validateColumnIndex(columnIndex: Int) =
-        parentWarning?.subWarning {
-            require(reader.columns.size < columnIndex) {
+        parentWarning?.validateNoException {
+            require(reader.columns.size >= columnIndex) {
                 "ERROR: Invalid column index '$columnIndex' accessed in step '${step.name}' " +
-                    "is higher than column number in source csv file: ${reader.source}!"
+                    "is higher than number of columns (${reader.columns.size}) in source csv file: ${reader.source}!"
             }
         } ?: error(VALIDATION_MODE_ERROR)
 
     private fun validateColumnExists(column: String) =
-        parentWarning?.subWarning {
+        parentWarning?.validateNoException {
             require(reader.columns.contains(column)) {
                 "ERROR: Invalid column '$column' accessed in step '${step.name}' " +
                     "does not exist in the source csv file: ${reader.source}!"
             }
-        }
+        } ?: error(VALIDATION_MODE_ERROR)
 }

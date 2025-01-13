@@ -3,6 +3,7 @@ package modeling.eval
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.validation.Warning
+import modeling.validation.validateScope
 import units.UnitIntervalValue
 
 data class PlotterBuilder<E, G, X, A, Y, C>(
@@ -20,9 +21,9 @@ fun <M, C> M.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) where M : ModelExec
             plotter.plot()
         }
 
-        override fun validate(): Warning? {
-            return null
-        }
+        override fun verifyInput(): Warning? = validateScope { }
+
+        override fun mockBehavior(): Warning? = validateScope { }
     })
 }
 

@@ -3,7 +3,6 @@ package usecases.choicemodels.destinationchoice
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.data.Zone
-import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
@@ -47,7 +46,7 @@ class ModernizedDestinationChoice(
     private val parameterObject: ParameterObject = ParameterObject()
 ) : ChoiceModel<Person, Location>,
     ILegacyDestinationChoice {
-    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
+    private val _choices: Set<Location> = zones.map { it.centroid }.toSet()
     private val car = modes.car
     private val publicTransport = modes.publicTransport
     private val pedestrian = modes.pedestrian

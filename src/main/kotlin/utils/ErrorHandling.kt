@@ -42,6 +42,14 @@ enum class ErrorHandling { // TODO introduce interface? TODO maybe separate erro
             throw IllegalArgumentException(message, e)
             // TODO which specific exception type should we use here?
         }
+    },
+
+    /** Upon parsing errors: throw an exception with detailed message. */
+    THROW_NO_LOG {
+        override fun processException(e: Exception, message: String) {
+            throw IllegalArgumentException(message, e)
+            // TODO which specific exception type should we use here?
+        }
     };
 
     fun <E> handle(runnable: () -> E?): E? =
