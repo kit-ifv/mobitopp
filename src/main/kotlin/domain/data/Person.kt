@@ -1,6 +1,6 @@
 package domain.data
 
-import Buildable
+import Mutable
 import datastructure.Action
 import datastructure.Schedule
 import domain.enums.Mode
@@ -14,52 +14,50 @@ import utils.Decodable
 import utils.Encodable
 import utils.ID
 import utils.Identifiable
-import utils.random.StochasticActor
-import kotlin.random.Random
+import utils.random.SeededActor
 
 typealias PersonId = ID<Person>
 
 const val ADULT_AGE_GER = 18
 
-/**
- * A person in for the simulation. Certain properties can be assumed to be known during the simulation
- * @property age The age in years
- * @property sex the Sex of the person
- * @property employment the employment state
- * @property hasLicense whether the individual is allowed to operate motor vehicles (maybe refactor if different licence
- * types become interesting)
- * @property hasCommuterTicket whether a PT ticket is present
- */
-@Suppress("ComplexInterface")
-@Buildable
-data class Person(
-    // These values can reasonably be expected for any Person to be present in the simulation
-    val personId: Long,
-    val household: Household,
-    val age: Int,
-    val employment: Employment,
-    val sex: Sex,
-    val graduation: Graduation,
-    val income: Currency,
-    val hasBike: Boolean,
-    val hasCommuterTicket: Boolean,
-    val hasLicense: Boolean,
-    val memberships: Map<Subscribable<Person>, Boolean>,
-    val eMobilityAcceptance: UnitIntervalValue,
-    val chargingInfluence: ChargingInfluence,
-    override val id: PersonId,
-    override val random: Random,
-) : Identifiable<PersonId>, Agent<Person>, StochasticActor { // TODO merge Agent and Stochastic Actor
-    override var location: Location = household.location
+@Mutable
+abstract class Person(
+    final override val id: PersonId,
+    val household: MutableHousehold,
+    seed: Long,
+) : SeededActor<Person>(seed),
+    Identifiable<PersonId>,
+    Agent<Person> { // TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
+
+    abstract val age: Int
+    abstract val employment: Employment
+    abstract val sex: Sex
+    abstract val graduation: Graduation
+    abstract val income: Currency
+    abstract val hasBike: Boolean
+    abstract val hasCommuterTicket: Boolean
+    abstract val hasLicense: Boolean
+    abstract val memberships: Map<Subscribable<Person>, Boolean>
+    abstract val eMobilityAcceptance: UnitIntervalValue
+    abstract val chargingInfluence: ChargingInfluence
+    abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
+
+    var inTransit: Boolean = false // TODO simulation attribute, how to handle?
+
+    final override var location: Location = household.location
 
     init {
-        this.household.addMember(this)
+        addAsMember()
     }
 
-    override var nextEvent: Event<Person>? = null
-    override val entity: Person = this
-    lateinit var schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
+    private fun addAsMember() {
+        this.household.members.add(this)
+    }
 
+    final override var nextEvent: Event<Person>? = null
+    final override val entity: Person by lazy { this }
+
+    // TODO keep for old tests to be functional, remove in the future! ->
     private val plannedActivityList: MutableList<PlannedActivity> = mutableListOf()
     val plannedActivities: List<PlannedActivity>
         get() = plannedActivityList
@@ -71,11 +69,10 @@ data class Person(
             plannedActivity.toActivity()
         )
     }
+    // TODO <- remove until here
 
     val isAdult: Boolean
         get() = (age >= ADULT_AGE_GER)
-
-    var inTransit: Boolean = false
 
     fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
 }

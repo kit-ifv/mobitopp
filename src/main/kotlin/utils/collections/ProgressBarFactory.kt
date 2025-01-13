@@ -43,4 +43,4 @@ fun defaultProgressBarBuilder(
     .setTaskName(label)
     .setInitialMax(expectedCount)
 
-fun ProgressBar.stepBy(n: Int) = stepBy(n.toLong())
+fun ProgressBar.stepBy(n: Int): ProgressBar = stepBy(n.toLong())

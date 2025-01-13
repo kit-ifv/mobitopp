@@ -61,22 +61,28 @@ fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Ite
 class CsvResource<E>(
     val file: File,
     val parser: CsvParser<E>,
-    private val delimiter: String = SEMICOLON
-
+    private val delimiter: String = SEMICOLON,
+    private val reusable: Boolean = false,
 ) : Resource<E> {
     override val name: String
-        get() = rowSequence.name
+        get() = file.name
 
     override val source: String
-        get() = rowSequence.source
+        get() = file.path
 
     override val elements: Sequence<E>
         get() = rowSequence.elements
 
-    private val rowSequence =
+    private val rowSequence by lazy {
         parser.parse(CsvReader.of(file, delimiter))
-            .asResource(file.name, file.path)
-//            .reusable()
+            .asResource(file.name, file.path).let {
+                if (reusable) {
+                    it.reusable()
+                } else {
+                    it
+                }
+            }
+    }
 
     override fun toString() = "CSV $name ($source)"
 }

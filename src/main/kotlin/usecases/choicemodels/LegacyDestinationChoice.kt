@@ -20,7 +20,6 @@ import datastructure.StationaryAction
 import domain.data.Employment
 import domain.data.Person
 import domain.data.Zone
-import domain.data.centroidLocation
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
@@ -81,7 +80,7 @@ class LegacyDestinationChoice(
 
     override val name: String = "HamburgLegacyDestinationChoiceModel"
 
-    private val _choices: Set<Location> = zones.map { it.centroidLocation() }.toSet()
+    private val _choices: Set<Location> = zones.map { it.centroid }.toSet()
 
     override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices
@@ -118,7 +117,7 @@ class LegacyDestinationChoice(
         modes: Collection<Mode>,
         randomNumber: Double
     ): Location {
-        val origin = prevActivity.location as Location
+        val origin = prevActivity.location
         val endTime = prevActivity.endTime
 
         //             helper.getATTRACTIVITY(category, person, origin, destination, nextActivity, time, randomNumber)
@@ -1719,7 +1718,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as Location) } ?: 0.0
+        return person.nextFixedActivity()?.let { iGetParkdruck(it.location) } ?: 0.0
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN_FIX(

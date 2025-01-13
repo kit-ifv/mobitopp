@@ -4,20 +4,19 @@ import datastructure.MovingAction
 import domain.data.Household
 import domain.data.Person
 import modeling.steps.ModelExecution
-import usecases.steps.HouseholdContext
-import usecases.steps.PersonContext
+import usecases.steps.ProjectContext
 import utils.collections.asBins
 import utils.collections.mapToBins
 
-val <M, C> M.persons: List<Person> where M : ModelExecution<C>, C : PersonContext
+val <M, C> M.persons: List<Person> where M : ModelExecution<C>, C : ProjectContext
     get() = context.personRepository.elements.toList()
 
-val <M, C> M.households: List<Household> where M : ModelExecution<C>, C : HouseholdContext
+val <M, C> M.households: List<Household> where M : ModelExecution<C>, C : ProjectContext
     get() = context.householdRepository.elements.toList()
 
 data class PersonLeg(val person: Person, val leg: MovingAction)
 
-val <M, C> M.personLegs: List<PersonLeg> where M : ModelExecution<C>, C : PersonContext
+val <M, C> M.personLegs: List<PersonLeg> where M : ModelExecution<C>, C : ProjectContext
     get() = context.personRepository.elements.flatMap { person ->
         person.schedule.pastLegs().map { leg -> PersonLeg(person, leg) }
     }.toList()
@@ -55,7 +54,7 @@ fun <M, C, G> M.agePlot(
     label: String = "group",
     order: Ordering<G> = Ordering.Arbitrary(),
     coloring: (G) -> RGB = { _ -> randomColor() }
-) where M : ModelExecution<C>, C : PersonContext =
+) where M : ModelExecution<C>, C : ProjectContext =
     forData {
         persons
     }.groupBy {

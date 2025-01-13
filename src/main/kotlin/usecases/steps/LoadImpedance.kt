@@ -10,8 +10,9 @@ import modeling.steps.Context
 import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.SimulationContext
-import modeling.validation.subValidateFileReadAccess
-import modeling.validation.subWarning
+import modeling.validation.Warning
+import modeling.validation.validateCondition
+import modeling.validation.validateFileReadAccess
 import modeling.validation.validateScope
 import units.CurrencyUnit
 import units.DistanceUnit
@@ -82,14 +83,10 @@ private class LoadImpedanceStep(
         context.impedance.value = (impedance)
     }
 
-    override fun validate() = validateScope(
-        "Validate $name produced warnings:"
-    ) {
-        subValidateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:")
-        subValidateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:")
-        subValidateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
-
-        context.impedance.value = dummyImpedance
+    override fun verifyInput(): Warning? = validateScope("Validate input data for impedance model:") {
+        validateFileReadAccess(costMatrixConfig, fileDescription = "cost matrix config:")
+        validateFileReadAccess(durationMatrixConfig, fileDescription = "travel time matrix config:")
+        validateFileReadAccess(distanceMatrix, fileDescription = "distance matrix:")
 
         if (subWarnings.isEmpty()) {
             val costConfig = costMatrixConfig.readText()
@@ -101,19 +98,19 @@ private class LoadImpedanceStep(
                     "Matrix config ${file.name} does not specify mode $mode"
                 }
 
-                subWarning {
-                    require(modeLabel in costConfig) {
-                        errorMessage(costMatrixConfig)
-                    }
+                validateCondition(errorMessage(costMatrixConfig), true) {
+                    modeLabel in costConfig
                 }
 
-                subWarning {
-                    require(modeLabel in durationConfig) {
-                        errorMessage(durationMatrixConfig)
-                    }
+                validateCondition(errorMessage(durationMatrixConfig), true) {
+                    modeLabel in durationConfig
                 }
             }
         }
+    }
+
+    override fun mockBehavior(): Warning? = validateScope("Mock impedance data") {
+        context.impedance.value = dummyImpedance
     }
 }
 

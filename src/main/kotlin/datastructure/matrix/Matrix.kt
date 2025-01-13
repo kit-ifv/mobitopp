@@ -77,7 +77,7 @@ class FloatMatrix<O>(
 
                     // Write all zoneIds (their corresponding Int values) from the translation map
                     translation.keys.forEach { zoneIdInt ->
-                        outputStream.writeInt(zoneIdInt.id.toInt())
+                        outputStream.writeInt(zoneIdInt.value.toInt())
                     }
 
                     // Write all floats from the floatArray

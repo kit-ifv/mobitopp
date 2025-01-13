@@ -1,3 +1,5 @@
+package utils
+
 const val INDENT = "    "
 
 /**
@@ -82,7 +84,7 @@ operator fun String.invoke(vararg x: String): String {
  */
 fun String.inline(vararg x: String): String {
     val joinToString = x.joinToString(separator = ", ", prefix = "")
-    return "$this(${joinToString.replace("\n", "\n${INDENT}")})"
+    return "$this(${joinToString.replace("\n", "\n$INDENT")})"
 }
 
 /**
@@ -92,5 +94,5 @@ fun String.inline(vararg x: String): String {
  * @return The indented string.
  */
 fun String.indent(): String {
-    return this.replace("\n", "\n${INDENT}")
+    return this.replace("\n", "\n$INDENT")
 }

@@ -1,13 +1,17 @@
 package modeling.steps
 
 import modeling.validation.Warning
+import modeling.validation.subValidation
+import modeling.validation.validateCondition
 import modeling.validation.validateScope
-import utils.Builder
 import utils.ConsoleCaptor
 import utils.Identifiable
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
+import utils.csv.CsvParser
+import utils.csv.SEMICOLON
 import utils.units.logTime
+import java.io.File
 
 /**
  * A ModelStep represents an operation performed during the model execution.
@@ -25,7 +29,22 @@ interface ModelStep {
      *
      * @return a warning, if the validation discovered warnings or errors
      */
-    fun validate(): Warning?
+    fun validate(validationPrefix: Warning.() -> Unit = { }): Warning? = validateScope(
+        message = "Validate step $name produced warnings:"
+    ) {
+        validationPrefix()
+
+        subValidation {
+            verifyInput()
+        }
+
+        subValidation {
+            mockBehavior()
+        }
+    }
+
+    fun verifyInput(): Warning?
+    fun mockBehavior(): Warning?
 
     /**
      * Check if this [ModelStep] is valid.
@@ -35,191 +54,229 @@ interface ModelStep {
         get() = validate()?.containsError()?.let { !it } ?: true
 }
 
-class CustomStep(
-    override val name: String,
-    val validation: () -> Warning? = { null },
-    val exec: () -> Unit,
-) : ModelStep {
-    override fun execute() = exec()
+interface RepositoryDependentStep : ModelStep {
 
-    override fun validate(): Warning? = validation()
-}
+    val repository: Repository<*, *>?
+    val dependentRepositories: Set<Repository<*, *>>
 
-/**
- * Add a [Resource] of [Builder]s to the given [RepositoryBuilder].
- *
- * @param B the generic type of builders
- * @param E the generic type of entities to be built
- * @param I the generic entity id type
- * @property name the name of the mode step
- * @property resource the [Resource] of builders to be added
- * @property repository the [RepositoryBuilder] into which the [Builder]s are added
- */
-open class AddResourceStep<B, E, I>(
-    override val name: String,
-    protected val resource: Resource<B>,
-    protected val repository: RepositoryBuilder<B, E, I>,
-) : ModelStep where E : Identifiable<I>, B : Builder<E> {
-
-    override fun execute() {
-        repository.addBuilders(resource)
+    override fun validate(validationPrefix: Warning.() -> Unit): Warning? = super.validate {
+        validationPrefix()
+        checkAllDependent()
     }
 
-    override fun validate() = validateScope(
-        "Validate $name: adding resource ${resource.name} to repo ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.UNINITIALIZED, this@AddResourceStep)
-        repairPreparingState(repository, resource)
-    }
-}
-
-/**
- * A [ModelStep] adding [Builder]s created from csv data.
- *
- * @param B the generic [Builder] type
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @param name the name of this add csv step
- * @param repository the repository to which the builders should be added to
- * @constructor
- * @property csv
- */
-open class AddCsvStep<B, E, I>(
-    name: String,
-    protected val csv: CsvResource<B>,
-    repository: RepositoryBuilder<B, E, I>,
-) : AddResourceStep<B, E, I>(
-    name = name,
-    resource = csv,
-    repository = repository
-) where E : Identifiable<I>, B : Builder<E> {
-
-    override fun validate() = validateScope(
-        "Validate $name: adding csv ${csv.name} to repo ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.UNINITIALIZED, this@AddCsvStep)
-        ValidateCsvMetadata(this@AddCsvStep, csv).validate()?.also {
-            this.addChild(it)
+    private fun Warning.checkAllDependent() {
+        dependentRepositories.forEach {
+            if (it != repository) {
+                warnIfDependentNotSealed(it)
+            }
         }
+    }
 
-        repairPreparingState(repository, resource)
+    fun Warning.warnIfDependentNotSealed(it: Repository<*, *>) {
+        validateCondition(
+            message = "Step ${this@RepositoryDependentStep.name} depends on unsealed repository: ${it.name}. " +
+                "Make sure this is desired behavior, if so, consider removing the seal step before this step!",
+            isError = false
+        ) {
+            it.sealed
+        }
+    }
+}
+
+interface MutatingStep<E, I> : RepositoryDependentStep where E : Identifiable<I> {
+
+    override val repository: MutableRepository<E, I>
+
+    override fun validate(validationPrefix: Warning.() -> Unit): Warning? = super.validate {
+        validationPrefix()
+        subValidation {
+            validateNotSealed(repository, this@MutatingStep)
+        }
+    }
+}
+
+interface SameValidationBehavior : ModelStep {
+    override fun mockBehavior(): Warning? = validateScope("Try ${this::class.simpleName}: $name") {
+        execute()
     }
 }
 
 /**
- * A FilterStep is a [ModelStep] that filters the builders of a given [RepositoryBuilder]
+ * Add a [Resource] of elements to the given [MutableRepository].
+ *
+ * @param E the generic type of entities to be added
+ * @param I the generic entity id type
+ */
+abstract class AddResourceStep<E, I> : MutatingStep<E, I> where E : Identifiable<I> {
+
+    protected abstract val resource: Resource<E>
+
+    override fun execute() {
+        repository.addElements("$name (from ${resource.name} [${resource.source}])", resource.elements)
+    }
+
+    override fun mockBehavior(): Warning? = validateScope("Mock elements of ${resource.name}") {
+        repository.addElements("$name (mocked resource ${resource.name})", mockElementsForValidation())
+    }
+
+    abstract fun mockElementsForValidation(): List<E>
+}
+
+/**
+ * A [ModelStep] adding elements created from csv data.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ */
+abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable<I> {
+
+    abstract override val resource: CsvResource<E>
+
+    override fun verifyInput(): Warning? = ValidateCsvMetadata(this@AddCsvStep, resource).validate()
+}
+
+/**
+ * A FilterStep is a [ModelStep] that filters the elements of a given [MutableRepository]
  * using a given predicate.
- * This removes [Builder]s from the repository if applying the predicates evaluates to false.
+ * This removes elements from the repository if applying the predicates evaluates to false.
  *
- * @param B the generic [Builder] type
- * @param E the generic type of entities to be built
+ * @param E the generic type of entities to be filtered
  * @param I the generic id type of entities
- * @property name the name of the filter step
- * @property repository the repository to be filtered
- * @property predicate the predicate used to filter the repository
  */
-open class FilterStep<B, E, I>(
-    override val name: String,
-    val repository: RepositoryBuilder<B, E, I>,
-    protected val predicate: (B) -> Boolean,
-) : ModelStep where B : Builder<E>, E : Identifiable<I> {
+abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
-        repository.filter(name, predicate)
+        repository.filterElements(name, this::check)
     }
 
-    override fun validate() = validateScope(
-        "Validate $name: filtering ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.PREPARING, this@FilterStep)
-        repairPreparingState(repository, dummyResource(this@FilterStep))
-    }
+    abstract fun check(element: E): Boolean
 }
 
 /**
- * An UpdateStep is a [ModelStep] used to modify / update [Builder]s in a given repository
- * by applying a transformation (mapping) to each [Builder] in the repository.
- * The transformation might evaluate to null, which removes the [Builder] from the repository.
+ * A FilterIdsStep is a [ModelStep] that filters the elements of a given [MutableRepository] by id
+ * using a given predicate.
+ * This removes elements from the repository if applying the predicates evaluates to false.
  *
- * @param B the generic [Builder] type
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @property name the name of the update step
- * @property repository the repository in which [Builder]s are updated
- * @property transformation a mapping to update a single [Builder]
+ * @param E the generic type of entities
+ * @param I the generic id type of entities to be filtered
  */
-open class UpdateStep<B, E, I>(
-    override val name: String,
-    protected val repository: RepositoryBuilder<B, E, I>,
-    protected val transformation: (B) -> B?,
-) : ModelStep where B : Builder<E>, E : Identifiable<I> {
+abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
-        repository.update(name, transformation)
+        repository.filterIds(name, this::check)
     }
 
-    override fun validate() = validateScope(
-        "Validate $name: updating ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.PREPARING, this@UpdateStep)
-        repairPreparingState(repository, dummyResource(this@UpdateStep))
-    }
+    abstract fun check(id: I): Boolean
 }
 
 /**
- * UpdateAllStep is a [ModelStep] that replaces all [Builder]s of a repository by new / derived builders.
+ * An [UpdateStep] is a [ModelStep] used to modify / update the internal state of elements in a given repository
+ * by applying an action to each element in the repository. This action may alter state variables of the element.
  *
- *
- * @param B the generic [Builder] type
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
- * @property name the name of the update all step
- * @property repository the repository in which all [Builder]s should be updated
- * @property transformation a mapping to be applied to all [Builder]s of the repository
  */
-open class UpdateAllStep<B, E, I>(
-    override val name: String,
-    protected val repository: RepositoryBuilder<B, E, I>,
-    protected val transformation: (Sequence<B>) -> Sequence<B>,
-) : ModelStep where B : Builder<E>, E : Identifiable<I> {
+abstract class UpdateStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
-        repository.updateAll(name, transformation)
+        repository.updateEach(name, this::update)
     }
 
-    override fun validate() = validateScope(
-        "Validate $name: updating all elements of ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.PREPARING, this@UpdateAllStep)
-        repairPreparingState(repository, dummyResource(this@UpdateAllStep))
-    }
+    abstract fun update(element: E)
 }
 
 /**
- * A BuildStep is a [ModelStep] that builds all [Builder]s in a given repository.
+ * An [TransformStep] is a [ModelStep] used to modify / update elements in a given repository
+ * by applying a transformation (mapping) to each element in the repository.
+ * The transformation might evaluate to null, which removes the element from the repository.
  *
- * @param B the generic [Builder] type
+ * Unlike [TransformAllStep] where the new elements are computed from data of all current elements in the repository,
+ * [TransformStep] maps each current element to a new element or null.
+ *
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
- * @property name th name of the build step
+ */
+abstract class TransformStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.transformEach(name, this::transform)
+    }
+
+    abstract fun transform(element: E): E?
+}
+
+/**
+ * [TransformAllStep] is a [ModelStep] that replaces all elements of a repository by new / derived elements.
+ *
+ * Unlike [TransformStep] where each current element is mapped to a new element or null,
+ * [TransformAllStep] computes the new elements from data of all current elements in the repository.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be updated
+ */
+abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.transformAll(name, this::transformAll)
+    }
+
+    abstract fun transformAll(elements: Collection<E>): Collection<E>
+}
+
+abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+    abstract override val repository: Repository<E, I>
+
+    override fun execute() {
+        repository.elements.forEach {
+            process(it)
+        }
+    }
+
+    abstract fun process(element: E)
+}
+
+/**
+ * A SealStep is a [ModelStep] that seals the given repository denying any future modification.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
  * @property repository the repository to be built
  */
-open class BuildStep<B, E, I>(
-    override val name: String,
-    protected val repository: RepositoryBuilder<B, E, I>,
-) : ModelStep where B : Builder<E>, E : Identifiable<I> {
+class SealStep<E, I>(
+    override val repository: MutableRepository<E, I>,
+) : MutatingStep<E, I> where E : Identifiable<I> {
+    override val name: String = "seal ${repository.name}"
+
+    override val dependentRepositories: Set<MutableRepository<*, *>> = emptySet()
 
     override fun execute() {
-        repository.build()
-        println("Built ${repository.name} repo: ${repository.size} elements")
+        repository.seal()
+        println("Sealed ${repository.name} repo: ${repository.size} elements. This repo can no longer be updated!")
     }
 
-    override fun validate() = validateScope(
-        "Validate $name: building ${repository.name} produced warnings:"
-    ) {
-        subValidateState(repository, RepositoryState.PREPARING, this@BuildStep)
-        repairFinishedState(repository, this@BuildStep)
+    override fun verifyInput(): Warning? = null
+
+    override fun mockBehavior(): Warning? = validateScope("Try seal ${repository.name}") {
+        repository.seal()
+        // no print, compared to execute()
     }
+}
+
+@Suppress("LongParameterList")
+class LoadCsvStep<E, I>(
+    file: File,
+    override val name: String = "load ${file.name}",
+    parser: CsvParser<E>,
+    delimiter: String = SEMICOLON,
+    override val repository: MutableRepository<E, I>,
+    override val dependentRepositories: Set<Repository<*, *>>,
+    private val validationMock: List<E>,
+) : AddCsvStep<E, I>() where E : Identifiable<I> {
+
+    override val resource: CsvResource<E> by lazy { CsvResource(file, parser, delimiter) }
+
+    override fun mockElementsForValidation(): List<E> = validationMock
 }
 
 /**
@@ -250,9 +307,11 @@ open class MultiStep(
         }
     }
 
-    override fun validate() = validateScope(
-        "Validate multiple ModelSteps:"
+    override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
+        "Validate multiple ModelSteps ($name):"
     ) {
+        validationPrefix()
+
         val captor = ConsoleCaptor()
 
         steps.forEach {
@@ -268,6 +327,12 @@ open class MultiStep(
     }?.also {
         it.printTree()
     }
+
+    override fun verifyInput(): Warning? =
+        throw UnsupportedOperationException("MultiStep.verifyInput should not be called!")
+
+    override fun mockBehavior(): Warning? =
+        throw UnsupportedOperationException("MultiStep.mockBehavior should not be called!")
 }
 
 /**
