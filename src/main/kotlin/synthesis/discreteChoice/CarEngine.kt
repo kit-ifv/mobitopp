@@ -4,17 +4,14 @@ import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Sex
 import domain.enums.Regiostar17
-import domain.enums.Regiostar4
 import domain.enums.SizebasedRegiostarClassification
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.RawSurveyInfo
-import synthesis.SurveyHousehold
-import synthesis.SynthesisHouseholdBuilder
-import synthesis.SynthesisPerson
+import synthesis.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
 
@@ -255,7 +252,7 @@ data class EngineSpecificParameters(
 
 )
 
-class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHouseholdBuilder<RawSurveyInfo>) : ChoiceSituation<EngineType>() {
+class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHousehold<RawSurveyInfo>) : ChoiceSituation<EngineType>() {
     val workDistance: Distance = person.distanceWork//Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -276,8 +273,8 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val isRetired = employment == Employment.RETIRED
 }
 
-fun EngineType.toChoice(person: SynthesisPerson<RawSurveyInfo>, household: SynthesisHouseholdBuilder<RawSurveyInfo>): EngineSituation {
-    return EngineSituation(this, person.person, household)
+fun EngineType.toChoice(person: SynthesisPerson<out RawSurveyInfo>, household: SynthesisHousehold<RawSurveyInfo>): EngineSituation {
+    return EngineSituation(this, person.info, household)
 }
 
 val carEngineChoiceModel = KnownDiscreteChoiceModel<EngineType, EngineSituation, EngineParameters>(

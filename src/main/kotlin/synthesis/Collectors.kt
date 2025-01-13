@@ -9,7 +9,7 @@ data class HouseholdRepresentative(
     val members: Set<Pair<Int, PersonRepresentative>>
 ) {
     val size = members.sumOf{it.first}
-    fun sizeIndex(): Int {
+    private fun sizeIndex(): Int {
         return (size - 1).coerceAtMost(4)
     }
 

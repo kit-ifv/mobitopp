@@ -2,7 +2,8 @@ package synthesis.carownership
 
 import domain.enums.SizebasedRegiostarClassification
 import modeling.discreteChoice.KnownDiscreteChoiceModel
-import synthesis.SynthesisHouseholdBuilder
+import synthesis.RawSurveyInfo
+import synthesis.SurveyInfo
 import synthesis.discreteChoice.CarOwnershipAttributes
 import synthesis.discreteChoice.CarOwnershipParameters
 import synthesis.discreteChoice.carChoiceModel
@@ -11,17 +12,27 @@ import synthesis.discreteChoice.carOwnershipRuralArea
 import synthesis.discreteChoice.carOwnershipSmallCity
 import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.select
+import synthesis.domain.SynthesisHousehold
 
-fun interface CarOwnershipAssignStrategy {
+fun interface CarOwnershipAssignStrategy<T> {
 
-    fun assignNumberOfCars(householdBuilder: SynthesisHouseholdBuilder<*>): Int
+    fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
 }
 
-object TrivialAssignment : CarOwnershipAssignStrategy {
-    override fun assignNumberOfCars(householdBuilder: SynthesisHouseholdBuilder<*>): Int {
+object TrivialAssignment : CarOwnershipAssignStrategy<SurveyInfo>  {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
         return 0
     }
 }
+
+object ConcreteAssignment : CarOwnershipAssignStrategy<RawSurveyInfo> {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out RawSurveyInfo>): Int {
+        return 1
+    }
+
+}
+
+
 
 class AssignViaRegionType(
     val model: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = carChoiceModel,
@@ -29,10 +40,10 @@ class AssignViaRegionType(
     val smallTownParameters: CarOwnershipParameters = carOwnershipSmallCity,
     val urbanAreaParameters: CarOwnershipParameters = carOwnershipUrbanAreaParameters,
     val ruralAreaParameters: CarOwnershipParameters = carOwnershipRuralArea,
-) : CarOwnershipAssignStrategy {
+) : CarOwnershipAssignStrategy<SurveyInfo> {
 
 
-    override fun assignNumberOfCars(householdBuilder: SynthesisHouseholdBuilder<*>): Int {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
 
 
         val parameterSet =
@@ -60,9 +71,16 @@ class AssignViaRegionType(
             lateinit var ruralAreaParameters: CarOwnershipParameters
 
             fun build(): AssignViaRegionType {
-                return AssignViaRegionType(model, cityParameters, smallTownParameters, urbanAreaParameters, ruralAreaParameters)
+                return AssignViaRegionType(
+                    model,
+                    cityParameters,
+                    smallTownParameters,
+                    urbanAreaParameters,
+                    ruralAreaParameters
+                )
             }
         }
+
         fun create(lambda: AssignViaRegionTypeBuilder.() -> Unit): AssignViaRegionType {
             val builder = AssignViaRegionTypeBuilder()
             builder.apply(lambda)

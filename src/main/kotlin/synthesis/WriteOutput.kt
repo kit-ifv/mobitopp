@@ -1,10 +1,11 @@
 package synthesis
 
 import datastructure.Activity
-import domain.data.Car
 import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.Location
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import usecases.AttractivenessModel
 import usecases.steps.toCSV
 import java.nio.file.Path
@@ -143,7 +144,7 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
-object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder<*>> {
+object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
     override val header: List<String> = listOf(
         "householdId",
         "year",
@@ -164,7 +165,7 @@ object HouseholdOutput : CSVOutput<SynthesisHouseholdBuilder<*>> {
         "canChargePrivately"
     )
 
-    override fun convert(element: SynthesisHouseholdBuilder<*>): String {
+    override fun convert(element: SynthesisHousehold<out SurveyInfo>): String {
         return element.run {
             toCSV(
                 id,
@@ -217,7 +218,7 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
 
 }
 
-object PersonOutput : CSVOutput<SynthesisPerson<*>> {
+object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
     override val header: List<String> = listOf(
         "personId",
         "personNumber",
@@ -240,7 +241,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<*>> {
 
     )
 
-    override fun convert(element: SynthesisPerson<*>): String {
+    override fun convert(element: SynthesisPerson<out SurveyInfo>): String {
         return element.run {
             toCSV(
                 personId,

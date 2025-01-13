@@ -2,6 +2,7 @@ package synthesis
 
 import domain.data.EconomicStatus
 import splitOnce
+import synthesis.domain.SynthesisHousehold
 import units.Currency
 import units.euros
 import utils.csv.DefaultCsvParser
@@ -11,8 +12,8 @@ import java.util.*
 /**
  * Assign an economic status to a household
  */
-fun interface AssignEconomicStatus {
-    fun assign(surveyHousehold: SynthesisHouseholdBuilder<*>)
+fun interface DetermineEconomicStatus<T> {
+    fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus
 }
 
 /**
@@ -20,22 +21,23 @@ fun interface AssignEconomicStatus {
  * people, based on the number of children and adults and then returns the economic status based on size and
  * income.
  */
-class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) : AssignEconomicStatus {
-    override fun assign(surveyHousehold: SynthesisHouseholdBuilder<*>) {
+class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> EconomicStatus) :
+    DetermineEconomicStatus<T> {
+    override fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus {
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.income)
-        surveyHousehold.economicStatus = economicStatus
+        return economicStatus
 
     }
 
-    private fun calculateOECDAmount(surveyHousehold: SynthesisHouseholdBuilder<*>): Double {
+    private fun calculateOECDAmount(surveyHousehold: SynthesisHousehold<out T>): Double {
         val adults = surveyHousehold.numberOfAdults
         val additionalAdults = (adults - 1).coerceAtLeast(0)
         return 1.0 + 0.5 * additionalAdults + 0.3 * surveyHousehold.numberOfMinors
     }
 
     companion object {
-        fun fromPath(path: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")): OECDAssigner {
+        fun <T : SurveyInfo> fromPath(path: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")): OECDAssigner<T> {
 
             val parser = DefaultCsvParser { row ->
                 FileEntry(
@@ -71,6 +73,9 @@ class OECDAssigner(val oecdTranslation: (Double, Currency) -> EconomicStatus) : 
     }
 
 }
+
+val SynthesisHousehold<out SurveyAge>.numberOfAdults get() = members.count { it.age >= 18 }
+val SynthesisHousehold<out SurveyAge>.numberOfMinors get() = members.count { it.age < 18 }
 
 private class FileEntry(
     val amount: Double,

@@ -1,17 +1,19 @@
-package synthesis
+package synthesis.activityGeneration
 
-import domain.data.Sex
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
+import synthesis.SurveyInfo
+import synthesis.age
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import utils.Decodable
-import utils.Encodable
 import kotlin.time.Duration.Companion.hours
 
-interface GenerateActivitySchedule {
-    fun generate(person: SynthesisPerson<*>): ActivitySchedule
+interface GenerateActivitySchedule<T> {
+    fun generate(person: SynthesisPerson<out T>): PreliminaryActivitySchedule
 }
 
-fun List<SynthesisHouseholdBuilder<*>>.generateSchedules( generator: GenerateActivitySchedule): Map<SynthesisHouseholdBuilder<*>, List<ActivitySchedule>> {
+fun List<SynthesisHousehold<Any>>.generateSchedules(generator: GenerateActivitySchedule<Any>): Map<SynthesisHousehold<Any>, List<PreliminaryActivitySchedule>> {
     return associateWith {household ->
         household.members.map { person ->
             val schedule = generator.generate(person)
@@ -27,11 +29,11 @@ fun List<SynthesisHouseholdBuilder<*>>.generateSchedules( generator: GenerateAct
 }
 
 class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
-    GenerateActivitySchedule {
+    GenerateActivitySchedule<SurveyInfo> {
 
 
-    private val schoolSchedule: ActivitySchedule
-        get() = ActivitySchedule(init) {
+    private val schoolSchedule: PreliminaryActivitySchedule
+        get() = PreliminaryActivitySchedule(init) {
             home(0.hours, 7.hours)
             education(7.5.hours, 14.hours)
             leisure(15.hours, 17.hours)
@@ -39,7 +41,7 @@ class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType
         }
 
     private val workingSchedule
-        get() = ActivitySchedule(init) {
+        get() = PreliminaryActivitySchedule(init) {
             home(0.hours, 6.hours)
             work(7.hours, 12.hours)
             leisure(12.5.hours, 13.5.hours)
@@ -48,7 +50,7 @@ class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType
         }
 
     private val homekeeperSchedule
-        get() = ActivitySchedule(init) {
+        get() = PreliminaryActivitySchedule(init) {
             home(0.hours, 10.hours)
             shopping(11.hours, 13.5.hours)
             home(14.hours, 16.hours)
@@ -57,13 +59,13 @@ class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType
         }
 
     private val seniorSchedule
-        get() = ActivitySchedule(init) {
+        get() = PreliminaryActivitySchedule(init) {
             home(0.hours, 5.hours)
             leisure(6.hours, 8.hours)
             home(12.hours, 30.hours)
         }
 
-    override fun generate(person: SynthesisPerson<*>): ActivitySchedule {
+    override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
         if (person.age <= 18) return schoolSchedule
         if (person.age <= 40) return workingSchedule
         if (person.age <= 65) return homekeeperSchedule

@@ -1,23 +1,21 @@
 import datastructure.Activity
-import domain.data.Car
 import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import domain.enums.Regiostar17
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.discreteChoice.GlobalRandomizer
-import synthesis.discreteChoice.carChoiceModel
+import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.ActivityOutput
-import synthesis.AssignAroundCentroid
-import synthesis.AssignEconomicStatus
+import synthesis.AssignAroundZoneCentroid
+import synthesis.DetermineEconomicStatus
 import synthesis.AssignHouseholdLocations
 import synthesis.CarOutput
 import synthesis.FixedDestinationElements
 import synthesis.FixedDestinationOutput
 import synthesis.GenerateCars
+import synthesis.GroupAssignHouseholdLocations
 import synthesis.HouseholdOutput
 import synthesis.HouseholdSynthesis
 import synthesis.IPU
@@ -31,30 +29,34 @@ import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisCar
-import synthesis.SynthesisHouseholdBuilder
-import synthesis.SynthesisPerson
+import synthesis.domain.SynthesisHousehold
 import synthesis.ZoneTarget
+import synthesis.activityGeneration.ActitoppGenerator
+import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.carownership.AssignViaRegionType
 import synthesis.carownership.CarOwnershipAssignStrategy
-import synthesis.discreteChoice.CarOwnershipParameters
 import synthesis.discreteChoice.TicketSituation
 import synthesis.discreteChoice.YesTransitPass
+import synthesis.discreteChoice.carChoiceModel
 import synthesis.discreteChoice.carOwnershipCityParameters
 import synthesis.discreteChoice.carOwnershipRuralArea
 import synthesis.discreteChoice.carOwnershipSmallCity
 import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.transitPassDiscreteChoiceModel
-import synthesis.fixedDestinations.CommuterMatrix
-import synthesis.fixedDestinations.LocationFinder
+import synthesis.fixedDestinations.AssignStepBuilder
+import synthesis.fixedDestinations.DebugZoneAssigner
+import synthesis.fixedDestinations.GREEDY_BY_DISTANCE
 import synthesis.fixedDestinations.UseBandwidthLocation
 import synthesis.fixedDestinations.UseClosestLocation
-import synthesis.generateActivitiesViaActitopp
+import synthesis.fixedDestinations.primarySchool
+import synthesis.fixedDestinations.secondarySchool
+import synthesis.fixedDestinations.work
+import synthesis.activityGeneration.generateActivitiesViaActitopp
+import synthesis.discreteChoice.TransitPassParameters
+import synthesis.domain.SynthesisPerson
 import synthesis.randomCoordinate
-
 import synthesis.toSurveyHouseholds
-import units.Coordinate
 import units.CurrencyUnit
-import units.GPSCoordinate
 import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
@@ -74,78 +76,51 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
 fun parseSurvey(file: Path): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
         RawSurveyInfo(
-        householdId = row("ID").toInt(),
-        year = row("year").toInt(),
-        areaType = row("areatype").toInt(),
-        householdSize = row("size").toInt(),
-        personNumber = row("personnumber").toInt(),
-        sex = row("sex"){Sex.decode(it.toInt())},
-        birthyear = row("birthyear").toInt(),
-        employment = row("employmenttype") {Employment.decode(it.toInt())},
-        hasCommuterTicket = row("commuterticket").toBooleanNumeric(),
-        householdIncome = row("hhincome"){ it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-        householdIncomeClass = row("hhincome_class").toInt(),
-        type = row("type").toInt(),
-        cars = row("cars").toInt(),
-        hasBicycle = row("bicycle").toBooleanNumeric(),
-        hasLicence = row("licence").toBooleanNumeric(),
-        distanceWork = row("distance_work"){it.toDouble().kilometers},
-        distanceEducation = row("distance_education"){it.toDouble().kilometers},
+            householdId = row("ID").toInt(),
+            year = row("year").toInt(),
+            areaType = row("areatype").toInt(),
+            householdSize = row("size").toInt(),
+            personNumber = row("personnumber").toInt(),
+            sex = row("sex") { Sex.decode(it.toInt()) },
+            birthyear = row("birthyear").toInt(),
+            employment = row("employmenttype") { Employment.decode(it.toInt()) },
+            hasCommuterTicket = row("commuterticket").toBooleanNumeric(),
+            householdIncome = row("hhincome") { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
+            householdIncomeClass = row("hhincome_class").toInt(),
+            type = row("type").toInt(),
+            cars = row("cars").toInt(),
+            hasBicycle = row("bicycle").toBooleanNumeric(),
+            hasLicence = row("licence").toBooleanNumeric(),
+            distanceWork = row("distance_work") { it.toDouble().kilometers },
+            distanceEducation = row("distance_education") { it.toDouble().kilometers },
         )
     }
 
     return parser.parse(file.toFile())
 }
 
-class AssignStepBuilder(
-    val zones: List<Zone>
 
-) {
+fun interface AssignTransitCardOwnership<T> {
+    fun assignFor(person: SynthesisPerson<out T>): Boolean
+}
 
-    val steps: MutableList<AssignStep> = mutableListOf()
-
-    inner class FixedIn {
-        lateinit var activityType: ActivityType
-        lateinit var assignmentStrategy: LocationFinder
-
-        inner class StepIN {
-            var communityMapping = Path("src/test/resources/synthesis/zone-to-community.csv")
-            var commuterFile = Path("src/test/resources/synthesis/commuters-rastatt.csv")
-            fun generate(): CommuterMatrix {
-                return CommuterMatrix.parse(
-                    mappingFile = communityMapping,
-                    commuterFile = commuterFile,
-                    zoneMapping = zones.associateBy { it.id })
-            }
-        }
-
-        fun commuterMatrix(lambda: StepIN.() -> Unit): CommuterMatrix {
-            return StepIN().apply(lambda).generate()
-        }
+class AssignByDiscreteChoice(
+    val parameters: TransitPassParameters,
+    val model: KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters> = transitPassDiscreteChoiceModel
+) : AssignTransitCardOwnership<SurveyInfo> {
+    override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
+        return model.select({ TicketSituation(it, person.household, person) }, parameters)
     }
 
+}
 
-    fun primarySchool(lambda: FixedIn.() -> Unit) {
-        val element = FixedIn()
-        element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
-    }
-
-    fun secondarySchool(lambda: FixedIn.() -> Unit) {
-        val element = FixedIn()
-        element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
-    }
-
-    fun work(lambda: FixedIn.() -> Unit) {
-        val element = FixedIn()
-        element.lambda()
-        steps.add(AssignStep(element.activityType, SynthesisPerson<*>::isPrimaryStudent, element.assignmentStrategy))
+object TrivialTransitCardOwnership : AssignTransitCardOwnership<Any> {
+    override fun assignFor(person: SynthesisPerson<out Any>): Boolean {
+        return false
     }
 }
 
-
-class SynthesisSteps<T: SurveyInfo>(
+class SynthesisSteps<T : Any>(
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
@@ -153,18 +128,15 @@ class SynthesisSteps<T: SurveyInfo>(
     val opportunities: List<OpportunityOutput>
 ) {
 
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHouseholdBuilder<T>>>
+    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
-    fun input(lambda: () -> Unit) {
-        //TODO attractiveness Model, Zones, etc.
-    }
 
-    fun fixedDestinations(lambda: AssignStepBuilder.() -> Unit) {
-        val stepBuilder = AssignStepBuilder(zones)
+    fun fixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
+        val stepBuilder = AssignStepBuilder<T>(zones, attractivenessModel)
         stepBuilder.apply(lambda)
         fixedDestinations = stepBuilder.steps.flatMap { it.runOther(people) }
     }
@@ -180,58 +152,61 @@ class SynthesisSteps<T: SurveyInfo>(
         }
         householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
-    fun generateSurveyHousholds(lambda: T.() -> Unit) {
 
-    }
-    var assignHouseholdLocationStrategy: AssignHouseholdLocations<T> = AssignAroundCentroid(100.0)
-    fun assignLocations(lambda: () -> Unit) {
-        assignHouseholdLocationStrategy.assign(householdsByZone)
-    }
-
-    class Strategy(
-
-    ) {
-        lateinit var strategy: AssignEconomicStatus
-    }
-
-    fun assignEconomicStatus(lambda: Strategy.() -> Unit) {
-        val strat = Strategy().apply(lambda)
-        households.forEach { strat.strategy.assign(it) }
-    }
-
-    class ChoiceModelData {
-        var choiceModel = carChoiceModel
-        var parameters = carOwnershipRuralArea
-    }
-
-    fun assignAmountOfCars(lambda: ()-> CarOwnershipAssignStrategy) {
-//        val input = ChoiceModelData()
-//        input.apply(lambda)
-//        val model = input.choiceModel
-//        val parameters = input.parameters
-
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in T>) {
         val strategy = lambda()
-        households.forEach { household -> household.amountOfCars = strategy.assignNumberOfCars(household) }
-    }
 
-    class TransitCardChoiceModelData {
-        var choiceModel = transitPassDiscreteChoiceModel
-        var parameters = YesTransitPass
-    }
-
-    fun assignTransitCardOwnership(lambda: TransitCardChoiceModelData.() -> Unit) {
-        val input = TransitCardChoiceModelData()
-        input.apply(lambda)
-        val model = input.choiceModel
-        val parameters = input.parameters
-
-
-        households.forEach {household ->
-            household.members.forEach { person ->
-                person.hasTransitPass = model.select( {TicketSituation(it,household, person )}, parameters)
+        householdsByZone.entries.forEach { (zone, households) ->
+            strategy.generateLocations(zone, households).forEach {
+                it.first.location = it.second
             }
         }
     }
+
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<in T>) {
+        val strategy = lambda()
+        householdsByZone.entries.forEach { (zone, households) ->
+            households.forEach {
+                it.location = strategy.generateLocation(zone, it)
+            }
+        }
+    }
+
+
+    fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<T>) {
+        val strategy = lambda()
+        households.forEach { it.economicStatus = strategy.determineStatus(it) }
+    }
+
+
+    fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
+        val strategy = lambda()
+        households.forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
+    }
+
+    fun assignTransitCardOwnership(lambda: () -> AssignTransitCardOwnership<in T>) {
+        val strategy = lambda()
+        households.forEach { hh ->
+            hh.members.forEach {
+                it.hasTransitPass = strategy.assignFor(it)
+            }
+        }
+
+    }
+
+//    fun assignTransitCardOwnershipold(lambda: TransitCardChoiceModelData.() -> Unit) {
+//        val input = TransitCardChoiceModelData()
+//        input.apply(lambda)
+//        val model = input.choiceModel
+//        val parameters = input.parameters
+//
+//
+//        households.forEach {household ->
+//            household.members.forEach { person ->
+//                person.hasTransitPass = model.select( {TicketSituation(it,household, person )}, parameters)
+//            }
+//        }
+//    }
 
     fun generateCars(strategy: GenerateCars<T>) {
 
@@ -239,9 +214,16 @@ class SynthesisSteps<T: SurveyInfo>(
 
     }
 
+    fun assignActivities(lambda: () -> GenerateActivitySchedule<in T>) {
+        val strategy = lambda()
+        people.forEach {
+            it.plannedActivities = strategy.generate(it)
+        }
+    }
+
 }
 
-class PopulationSynthesis<T: SurveyInfo>(
+class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
@@ -249,9 +231,10 @@ class PopulationSynthesis<T: SurveyInfo>(
     val attractivenessModel: AttractivenessModel,
     val surveyData: Collection<T>
 ) {
-    val opportunities : MutableList<OpportunityOutput> = mutableListOf()
+    val opportunities: MutableList<OpportunityOutput> = mutableListOf()
     fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
-        val s = SynthesisSteps<T>(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
+        val s =
+            SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
 
     }
 
@@ -260,13 +243,13 @@ class PopulationSynthesis<T: SurveyInfo>(
         amount: Int = 10,
         generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
     ): List<Location> {
-        val generatedLocations =  zones.generateLocations(attractivenessModel, activityType, generationFunction)
+        val generatedLocations = zones.generateLocations(attractivenessModel, activityType, generationFunction)
         opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
         return generatedLocations
     }
 
     companion object {
-        class SynthesisConfiguration<T: SurveyInfo>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
+        class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
@@ -293,7 +276,10 @@ class PopulationSynthesis<T: SurveyInfo>(
 
         }
 
-        fun <T: SurveyInfo> configure(surveyPopulation: GenerateArtificialPopulation<T>, lambda: SynthesisConfiguration<T>.() -> Unit): PopulationSynthesis<T> {
+        fun <T : Any> configure(
+            surveyPopulation: GenerateArtificialPopulation<T>,
+            lambda: SynthesisConfiguration<T>.() -> Unit
+        ): PopulationSynthesis<T> {
             val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
             val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
             val rules: Map<Zone, List<Rule>> = targets.associate {
@@ -312,15 +298,15 @@ class PopulationSynthesis<T: SurveyInfo>(
     }
 }
 
-fun interface GenerateArtificialPopulation<T: SurveyInfo> {
+fun interface GenerateArtificialPopulation<T> {
     fun generateArtificialPopulation(): Collection<T>
+
     companion object {
         fun fromFile(file: File) = fromFile(file.toPath())
         fun fromFile(fileString: String) = fromFile(Path(fileString))
         fun fromFile(file: Path) = GenerateArtificialPopulation { parseSurvey(file).toList() }
     }
 }
-
 
 
 fun tryout() {
@@ -332,7 +318,8 @@ fun tryout() {
     ) {
 
         outputDirectory = Path("src/test/resources/tempOutput")
-        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv").toList()
+        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
+            .toList()
             .map { it.build() }
         surveyHouseholds = surveyPopulation.toSurveyHouseholds()
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
@@ -361,12 +348,12 @@ fun tryout() {
             }
         }
         assignLocations {
-            assignHouseholdLocationStrategy = AssignAroundCentroid(100.0)
+            AssignAroundZoneCentroid(100.0)
         }
 
 
         assignEconomicStatus {
-            strategy = OECDAssigner.fromPath(
+            OECDAssigner.fromPath(
                 Path("src/test/resources/synthesis/economical-status-oecd2017.csv")
             )
         }
@@ -379,10 +366,16 @@ fun tryout() {
                 urbanAreaParameters = carOwnershipUrbanAreaParameters
                 ruralAreaParameters = carOwnershipRuralArea
             }
+
         }
 
         assignTransitCardOwnership {
-            choiceModel = transitPassDiscreteChoiceModel
+            AssignByDiscreteChoice(
+                parameters = YesTransitPass,
+                model = transitPassDiscreteChoiceModel
+            )
+//            transitPassDiscreteChoiceModel.select( {TicketSituation(it,household, person )}, parameters)
+//            choiceModel = transitPassDiscreteChoiceModel
         }
 
 
@@ -397,22 +390,27 @@ fun tryout() {
             }
             work {
                 activityType = LegacyActivityType.WORK
-                assignmentStrategy = commuterMatrix {
+                assignmentStrategy = distanceBasedCommunity {
                     communityMapping = Path("src/test/resources/synthesis/zone-to-community.csv")
                     commuterFile = Path("src/test/resources/synthesis/commuters-rastatt.csv")
+                    strategy = GREEDY_BY_DISTANCE
+                    locationInZone = DebugZoneAssigner
                 }
             }
         }
 //        generateCars (TrivialCarGeneration::generateCars)
-        generateCars (strategy = SamplingCarGeneration)
-
-        //generateActivitiesViaActitopp()
+        generateCars(strategy = SamplingCarGeneration)
+        assignActivities {
+            ActitoppGenerator()
+        }
+        generateActivitiesViaActitopp()
         writeLegacyOutput()
         println("Finished")
 
     }
 
 }
+
 fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
@@ -428,35 +426,7 @@ fun main() {
 
 }
 
-/*
- * Everything below here is development code and should be properly assigned to the corresponding packages.
- */
 
-class AssignStep(
-    private val activityType: ActivityType,
-    private val filter: (SynthesisPerson<*>) -> Boolean,
-    private val assignFunction: LocationFinder
-) {
-    fun run(target: Collection<SynthesisPerson<*>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
-        return target.filter(filter).associateWith { activityType to assignFunction.find(it, activityType) }
-    }
-
-    fun runOther(target: Collection<SynthesisPerson<*>>): List<FixedDestinationElements> {
-        return target.filter(filter)
-            .map { FixedDestinationElements(it, activityType, assignFunction.find(it, activityType)) }
-    }
-
-}
-
-
-
-
-fun SynthesisPerson<*>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
-fun SynthesisPerson<*>.isHigherStudent(): Boolean =
-    employment == Employment.STUDENT_SECONDARY || employment == Employment.STUDENT_TERTIARY
-
-fun SynthesisPerson<*>.isWorker() = employment == Employment.FULLTIME || employment == Employment.PARTTIME
-fun SynthesisPerson<*>.hasEducationActivity() = false // TODO needs schedule information
 fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
@@ -469,40 +439,7 @@ fun Collection<Zone>.generateLocations(
     }
 }
 
-fun Collection<Zone>.generateLocations(
-    attractivenessModel: AttractivenessModel,
-    activityTypes: Collection<ActivityType>,
-    generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 }
-): List<Location> {
-    return filter { zone -> activityTypes.any { attractivenessModel.attractivenessFor(zone.id, it) > 0.0 } }.flatMap {
-        it.generateLocations(
-            // TODO not entirely accurate to only use the first activity type for generating locations with shared activity type.
-            generationFunction(it, attractivenessModel, activityTypes.first())
-        )
-    }
-}
 
 fun Zone.generateLocations(amount: Int): List<Location> {
     return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.0), this, null) }
-}
-
-fun debugGetSchools(): List<Location> = listOf(LOCATIONUNKNOWN)
-
-
-val RastattBounds = Rectangle()
-
-data class Rectangle(
-    val minCoord: Coordinate = GPSCoordinate.decimalDegree(48.4280418587, 8.0077508),
-    val maxCoord: Coordinate = GPSCoordinate.decimalDegree(49.2402568, 9.1873355),
-) {
-
-    val latitudeRange = minCoord.latitudeDegrees..maxCoord.latitudeDegrees
-    val longitudeRange = minCoord.longitudeDegrees..maxCoord.longitudeDegrees
-    fun generateLocations(amount: Int): List<Location> {
-        return (0..<amount).map {
-            val latitude = GlobalRandomizer.nextDouble(latitudeRange.start, latitudeRange.endInclusive)
-            val longitude = GlobalRandomizer.nextDouble(longitudeRange.start, longitudeRange.endInclusive)
-            Location(GPSCoordinate.decimalDegree(latitude, longitude), zone = null, roadAccess = null)
-        }
-    }
 }

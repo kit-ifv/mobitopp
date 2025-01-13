@@ -6,24 +6,22 @@ import domain.data.CarEngineBuilder
 import domain.data.CarEngineStatistics
 import domain.data.CarId
 import domain.data.CarSegment
-import domain.data.CombustionEngine
 import domain.data.EngineType
 import domain.data.Person
-import domain.data.PrivateCarBuilder
 import domain.location.Location
-import synthesis.discreteChoice.CarSegmentChoice
 import synthesis.discreteChoice.CarSegmentParameters
 import synthesis.discreteChoice.FatParameters
 import synthesis.discreteChoice.carEngineChoiceModel
 import synthesis.discreteChoice.carSegmentChoiceModel
 import synthesis.discreteChoice.toChoice
+import synthesis.domain.SynthesisPerson
 
-fun interface GenerateCars<T : SurveyInfo> {
-    fun generate(householdBuilder: SynthesisHouseholdBuilder<T>): List<SynthesisCar>
+fun interface GenerateCars<T> {
+    fun generate(householdBuilder: SynthesisHousehold<T>): List<SynthesisCar>
 }
 
 class SynthesisCar(
-    householdBuilder: SynthesisHouseholdBuilder<*>,
+    householdBuilder: SynthesisHousehold<*>,
     override val segment: CarSegment, engineType: EngineType, override val seats: Int,
     val mainUser: SynthesisPerson<*>? = null
 ) : Car {
@@ -39,13 +37,13 @@ class SynthesisCar(
 
 }
 
-object TrivialCarGeneration : GenerateCars<SurveyInfo> {
-    override fun generate(householdBuilder: SynthesisHouseholdBuilder<SurveyInfo>): List<SynthesisCar> {
+object TrivialCarGeneration : GenerateCars<Any> {
+    override fun generate(householdBuilder: SynthesisHousehold<Any>): List<SynthesisCar> {
 
         return buildCars(householdBuilder)
     }
 
-    private fun buildCars(householdBuilder: SynthesisHouseholdBuilder<*>) =
+    private fun buildCars(householdBuilder: SynthesisHousehold<*>) =
         (0..<householdBuilder.amountOfCars).map {
             SynthesisCar(
                 householdBuilder,
@@ -55,16 +53,20 @@ object TrivialCarGeneration : GenerateCars<SurveyInfo> {
             )
         }
 
-    fun <T: SurveyInfo> generateCars(householdBuilder: SynthesisHouseholdBuilder<T>): List<SynthesisCar> {
+    fun <T: SurveyInfo> generateCars(householdBuilder: SynthesisHousehold<T>): List<SynthesisCar> {
         return buildCars(householdBuilder)
     }
 
 
 }
 
+
+/**
+ * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
+ */
 object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
     private val segmentModel = carSegmentChoiceModel
-    override fun generate(householdBuilder: SynthesisHouseholdBuilder<RawSurveyInfo>): List<SynthesisCar> {
+    override fun generate(householdBuilder: SynthesisHousehold<RawSurveyInfo>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers =
             if (householdBuilder.numberOfDrivingLicences == 0) householdBuilder.adults else householdBuilder.licenceHolders
@@ -86,17 +88,17 @@ object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
 }
 
 
-val <T : SurveyInfo> SynthesisHouseholdBuilder<T>.licenceHolders
-    get(): List<SynthesisPerson<T>> {
+val <T : SurveyInfo> SynthesisHousehold<T>.licenceHolders
+    get(): List<SynthesisPerson<out T>> {
         return members.filter { it.hasLicence }
     }
 
-val <T : SurveyInfo> SynthesisHouseholdBuilder<T>.adults
-    get(): List<SynthesisPerson<T>> {
+val <T : SurveyInfo> SynthesisHousehold<T>.adults
+    get(): List<SynthesisPerson<out T>> {
         return members.filter { it.age >= 18 }
     }
 
-val <T : SurveyInfo> SynthesisHouseholdBuilder<T>.numberOfDrivingLicences
+val <T : SurveyInfo> SynthesisHousehold<T>.numberOfDrivingLicences
     get(): Int {
         return members.count { it.hasLicence }
     }

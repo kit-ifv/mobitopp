@@ -3,6 +3,7 @@ package synthesis
 import domain.data.Zone
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
+import synthesis.domain.SynthesisHousehold
 import units.Coordinate
 import units.GPSCoordinate
 
@@ -10,19 +11,37 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-fun interface AssignHouseholdLocations<T: SurveyInfo> {
-    fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder<T>>>):  List<SynthesisHouseholdBuilder<T>>
+/**
+ * Assign a Location to a household with no information other than the household and the zone
+ */
+fun interface AssignHouseholdLocations<T> {
+    fun generateLocation(zone: Zone, household: SynthesisHousehold<out T>): Location
 }
 
+/**
+ * Assign a list of locations, because sometimes it makes sense to handle the group as a whole (To avoid location
+ * collisions, for example)
+ */
+fun interface GroupAssignHouseholdLocations<T> {
+    fun generateLocations(
+        zone: Zone,
+        householdsToLocate: List<SynthesisHousehold<out T>>
+    ): List<Pair<SynthesisHousehold<out T>, Location>>
+}
 
-class AssignAroundCentroid<T: SurveyInfo>(val radius: Double) : AssignHouseholdLocations<T> {
-    override fun assign(synthesisResults: Map<Zone, List<SynthesisHouseholdBuilder<T>>>): List<SynthesisHouseholdBuilder<T>> {
-        return synthesisResults.entries.flatMap { (zone, households) ->
-            households.map {
-                it.location = Location(zone.centroid.coordinate.randomCoordinate(radius), zone , null)
-                it
-            }
-        }
+class TrivialGroupStrategy<T>(val singularStrategy: AssignHouseholdLocations<T>) : GroupAssignHouseholdLocations<T> {
+    override fun generateLocations(
+        zone: Zone,
+        householdsToLocate: List<SynthesisHousehold<out T>>
+    ): List<Pair<SynthesisHousehold<out T>, Location>> {
+        return householdsToLocate.map{it to singularStrategy.generateLocation(zone, it)}
+    }
+
+}
+
+class AssignAroundZoneCentroid(private val radius: Double) : AssignHouseholdLocations<Any> {
+    override fun generateLocation(zone: Zone, household: SynthesisHousehold<out Any>): Location {
+        return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
     }
 
 }
