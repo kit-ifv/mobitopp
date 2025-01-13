@@ -1,4 +1,4 @@
-package synthesis
+package synthesis.activityGeneration
 
 import SynthesisSteps
 import datastructure.Activity
@@ -12,13 +12,21 @@ import edu.kit.ifv.mobitopp.actitopp.HActivity
 import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
+import synthesis.CSVOutput
+import synthesis.RawSurveyInfo
+import synthesis.SurveyInfo
+import synthesis.age
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
+import synthesis.employment
+import synthesis.sex
 import usecases.steps.toCSV
 import utils.units.sinceStart
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 
-fun SynthesisPerson<*>.toActitoppPerson(household: ActiToppHousehold): ActitoppPerson {
+fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(household: ActiToppHousehold): ActitoppPerson {
     val number = household.householdmembers.size + 1
     val person = ActitoppPerson(
         household,
@@ -35,7 +43,7 @@ fun SynthesisPerson<*>.toActitoppPerson(household: ActiToppHousehold): ActitoppP
     return person
 }
 
-fun SynthesisPerson<*>.toActitoppPerson(): ActitoppPerson {
+fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(): ActitoppPerson {
     return ActitoppPerson(
         personId,
         0,
@@ -47,22 +55,21 @@ fun SynthesisPerson<*>.toActitoppPerson(): ActitoppPerson {
     )
 }
 
-fun SynthesisHouseholdBuilder<*>.toActiToppHousehold(): ActiToppHousehold {
+fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold {
 
     val hh = ActiToppHousehold(
         id,
         numberOfChilds,
         numberOfYouths,
-        -1, //TODO areatype is not yet member of SynHousehold
+        location.requireZone().regionType.encode(),
         amountOfCars
     )
-    members.forEach { it.toActitoppPerson(hh) }
     return hh
 
 }
 
-val SynthesisHouseholdBuilder<*>.numberOfChilds get() = members.count { it.age <= 10 }
-val SynthesisHouseholdBuilder<*>.numberOfYouths get() = members.count { it.age in 10..<18 }
+val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it.age <= 10 }
+val SynthesisHousehold<out SurveyInfo>.numberOfYouths get() = members.count { it.age in 10..<18 }
 
 fun SynthesisSteps<RawSurveyInfo>.generateActivitiesViaActitopp() {
     val fileBase = ModelFileBase()
@@ -72,20 +79,13 @@ fun SynthesisSteps<RawSurveyInfo>.generateActivitiesViaActitopp() {
         person.generateScheduleBruteForce(fileBase, randomgenerator)
         person.weekPattern.allActivities
     }
-//    val actis = households.map { it.toActiToppHousehold() }
-//    val peeps = actis.flatMap { it.householdmembersasList }
-//    val schedules = peeps.map {
-//        it.generateScheduleBruteForce(fileBase, randomgenerator)
-//        it.weekPattern.allActivities
-//    }
-
     HActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), schedules.flatten())
 }
 
 fun ActitoppPerson.generateScheduleBruteForce(fileBase: ModelFileBase, rngGen: RNGHelper) {
     while (true) {
         try {
-            val targetSchedule = generateSchedule(fileBase, rngGen)
+            generateSchedule(fileBase, rngGen)
             return
         } catch (e: InvalidPatternException) {
             System.err.println(e.reason);
@@ -93,13 +93,12 @@ fun ActitoppPerson.generateScheduleBruteForce(fileBase: ModelFileBase, rngGen: R
         }
     }
 }
-
 fun HActivity.toReengineeredActivity(): Activity {
     return RawActivity(
-        LOCATIONUNKNOWN,
+        location = LOCATIONUNKNOWN,
         startTime = startTime.toDuration(DurationUnit.MINUTES).sinceStart,
         endTime = endTime.toDuration(DurationUnit.MINUTES).sinceStart,
-        type = activityType.toReengineeredType(),
+        type = activityType.toReengineeredType()
     )
 }
 

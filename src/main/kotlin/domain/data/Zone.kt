@@ -34,7 +34,7 @@ open class Zone(
     val regionType: AreaType,
     val classification: ZoneClassification,
     open val parkingPlaces: Int, // TODO only open for testing -> ugly :(
-    centroid: Location,
+    centroid: Location, //TODO this should be a coordinate only, otherwise there is a circular dependency.
     val isDestination: Boolean,
     val relief: Distance,
 ) : Identifiable<ZoneId> {

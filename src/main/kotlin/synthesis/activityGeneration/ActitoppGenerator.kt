@@ -1,0 +1,108 @@
+package synthesis.activityGeneration
+
+import datastructure.Activity
+import domain.enums.ActivityType
+import domain.enums.LegacyActivityType
+import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
+import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
+import edu.kit.ifv.mobitopp.actitopp.RNGHelper
+import synthesis.SurveyInfo
+import synthesis.age
+import synthesis.domain.SynthesisPerson
+import synthesis.employment
+import synthesis.fromTimes
+import synthesis.sex
+import utils.Decodable
+import kotlin.time.Duration
+
+class ActitoppGenerator(
+    val fileBase: ModelFileBase = ModelFileBase(),
+    val randomgenerator: RNGHelper = RNGHelper(1234)
+) : GenerateActivitySchedule<SurveyInfo> {
+    override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
+
+        val actitoppPerson = convertToSingularHousehold(person)
+        actitoppPerson.generateSchedule(fileBase, randomgenerator)
+
+
+
+        return PreliminaryActivitySchedule(actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() })
+
+    }
+
+    /* Actitopp breaks when using joint actions. The workaround is to imitate each person to be part of a fake "household"
+       which only contains this person, but all other attributes are taken as is from the original household.
+    */
+    private fun convertToSingularHousehold(person: SynthesisPerson<out SurveyInfo>): ActitoppPerson {
+
+        val actiToppHousehold = person.household.toActiToppHousehold()
+        return person.run {
+            ActitoppPerson(
+                actiToppHousehold,
+                1,
+                personId,
+                age,
+                employment.encode(),
+                sex.encode(),
+            )
+        }
+    }
+}
+
+data class PreliminaryActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
+
+    constructor(activities: List<Activity>): this(activities.toMutableList())
+    companion object {
+
+        val STAY_AT_HOME = PreliminaryActivitySchedule(emptyList())
+        operator fun invoke(
+            decoder: Decodable<ActivityType> = LegacyActivityType.Companion,
+            lambda: ScheduleBuilder.() -> Unit
+        ): PreliminaryActivitySchedule {
+            val builder = ScheduleBuilder(decoder)
+            builder.lambda()
+            return builder.build()
+        }
+    }
+
+    override fun toString(): String {
+        return activities.toString()
+    }
+
+    class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
+        val activities: MutableList<Activity> = mutableListOf()
+
+
+        fun home(start: Duration, end: Duration) {
+            extracted(start, end, "HOME")
+        }
+
+        fun work(start: Duration, end: Duration) {
+            extracted(start, end, "WORK")
+        }
+
+
+        fun education(start: Duration, end: Duration) {
+            extracted(start, end, "EDUCATION")
+        }
+
+        fun shopping(start: Duration, end: Duration) {
+            extracted(start, end, "SHOPPING")
+        }
+
+        fun leisure(start: Duration, end: Duration) {
+            extracted(start, end, "LEISURE")
+        }
+
+        private fun extracted(start: Duration, end: Duration, type: String) {
+            activities.add(Activity.fromTimes(start, end, decoder.decode(type)))
+        }
+
+        fun build(): PreliminaryActivitySchedule {
+            return PreliminaryActivitySchedule(activities)
+        }
+    }
+
+
+
+}

@@ -3,20 +3,24 @@ package synthesis.discreteChoice
 import domain.data.EconomicStatus
 import domain.data.Employment
 import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.NestedLogit
 import modeling.discreteChoice.NestedLogit.Companion.NestedLogitBuilder
 import modeling.discreteChoice.times
-import synthesis.SynthesisHouseholdBuilder
+import synthesis.SurveyInfo
+import synthesis.SynthesisHousehold
+import synthesis.age
+import synthesis.employment
+import synthesis.hasLicence
+import synthesis.toCarOwnershipAttributes
 
 /**
- * This class calculates the necessary attributes for the calculation of car ownership using a [SynthesisHouseholdBuilder]
+ * This class calculates the necessary attributes for the calculation of car ownership using a [SynthesisHousehold]
  * from the population synthesis as input, as well as an [EmploymentSorter] as dependency injection for translating
  * employment types.
  */
 class CarOwnershipFactors(
-    val household: SynthesisHouseholdBuilder<*>,
+    val household: SynthesisHousehold<out SurveyInfo>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
 ) {
     val size = household.members.size
@@ -624,7 +628,7 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
             Did you think that the standardFunction is written in stone? Actually you can modify it and perform amendments,
             so if for example the utility function needs to do some calculation specifically only for 4 cars, you could add
             it here and reuse the code for the utility function that you had already written. (For this example we added a
-             + it.isWg * 0.0 line. )
+             + it.isWg * 0.0 line.)
 
              Sadly the invocation of standardFunction(this, it) is a bit cryptic, but necessary if you intend to use the
              amendment approach.
@@ -637,6 +641,6 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
     },
 )
 
-fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(household: SynthesisHouseholdBuilder<*>, parameters: CarOwnershipParameters): Int {
+fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(household: SynthesisHousehold<out SurveyInfo>, parameters: CarOwnershipParameters): Int {
     return select({CarOwnershipAttributes(it, household.toCarOwnershipAttributes())}, parameters)
 }

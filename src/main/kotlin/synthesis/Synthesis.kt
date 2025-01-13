@@ -2,18 +2,19 @@ package synthesis
 
 import datastructure.Activity
 import domain.data.Employment
+import domain.data.Person
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.ZoneNumber
 import units.Coordinate
 import units.Currency
 import units.Distance
-import utils.Decodable
 import utils.collections.equivalenceClasses
 import utils.collections.sortByValues
 import utils.csv.DefaultCsvParser
@@ -25,57 +26,6 @@ import kotlin.NoSuchElementException
 import kotlin.math.abs
 import kotlin.time.Duration
 
-
-data class ActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
-    companion object {
-        operator fun invoke(
-            decoder: Decodable<ActivityType> = LegacyActivityType.Companion,
-            lambda: ScheduleBuilder.() -> Unit
-        ): ActivitySchedule {
-            val builder = ScheduleBuilder(decoder)
-            builder.lambda()
-            return builder.build()
-        }
-    }
-
-    override fun toString(): String {
-        return activities.toString()
-    }
-
-    class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
-        val activities: MutableList<Activity> = mutableListOf()
-
-
-        fun home(start: Duration, end: Duration) {
-            extracted(start, end, "HOME")
-        }
-
-        fun work(start: Duration, end: Duration) {
-            extracted(start, end, "WORK")
-        }
-
-
-        fun education(start: Duration, end: Duration) {
-            extracted(start, end, "EDUCATION")
-        }
-
-        fun shopping(start: Duration, end: Duration) {
-            extracted(start, end, "SHOPPING")
-        }
-
-        fun leisure(start: Duration, end: Duration) {
-            extracted(start, end, "LEISURE")
-        }
-
-        private fun extracted(start: Duration, end: Duration, type: String) {
-            activities.add(Activity.fromTimes(start, end, decoder.decode(type)))
-        }
-
-        fun build(): ActivitySchedule {
-            return ActivitySchedule(activities)
-        }
-    }
-}
 
 fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: ActivityType): Activity {
     require(start <= end) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
@@ -94,30 +44,30 @@ fun Boolean.toInt() = if (this) 1 else 0
 interface Rule {
     val target: Int
     val name: String
-    fun check(surveyHousehold: SurveyHousehold<*>): Int
+    fun check(surveyHousehold: SurveyHousehold<out SurveyInfo>): Int
 
-    fun appliesTo(surveyHousehold: SurveyHousehold<*>): Boolean = check(surveyHousehold) != 0
+    fun appliesTo(surveyHousehold: SurveyHousehold<out SurveyInfo>): Boolean = check(surveyHousehold) != 0
 
-    fun verify(output: Collection<SurveyHousehold<*>>): Double {
+    fun verify(output: Collection<SurveyHousehold<out SurveyInfo>>): Double {
         return target.toDouble() - output.sumOf { check(it) }
     }
 
-    fun filter(target: Collection<SurveyHousehold<*>>): List<SurveyHousehold<*>> {
+    fun filter(target: Collection<SurveyHousehold<out SurveyInfo>>): List<SurveyHousehold<out SurveyInfo>> {
         return target.filter { appliesTo(it) }
     }
 }
 
 fun interface CountRule {
-    fun matches(surveyHousehold: SurveyHousehold<*>): Int
+    fun matches(surveyHousehold: SurveyHousehold<out SurveyInfo>): Int
 }
 
 fun interface CheckRule {
-    fun matches(surveyHousehold: SurveyHousehold<*>): Boolean
+    fun matches(surveyHousehold: SurveyHousehold<out SurveyInfo>): Boolean
 }
 
 class ZoneRule(override val name: String, override val target: Int, val matcher: CountRule) : Rule {
 
-    override fun check(surveyHousehold: SurveyHousehold<*>): Int {
+    override fun check(surveyHousehold: SurveyHousehold<out SurveyInfo>): Int {
         return matcher.matches(surveyHousehold)
     }
 
@@ -127,7 +77,7 @@ class ZoneRule(override val name: String, override val target: Int, val matcher:
 }
 
 class ZoneCheckRule(override val name: String, override val target: Int, val matcher: CheckRule) : Rule {
-    override fun check(surveyHousehold: SurveyHousehold<*>): Int {
+    override fun check(surveyHousehold: SurveyHousehold<out SurveyInfo>): Int {
         return matcher.matches(surveyHousehold).toInt()
     }
 
@@ -151,27 +101,27 @@ fun <T> Collection<T>.pickWithReplacement(
  * [amount] elements, the shuffled list will be truncated to the length.
  */
 fun <T> Collection<T>.selectExact(amount: Int, random: Random = Random(1)): List<T> {
-    if(amount == 0) return emptyList()
+    if (amount == 0) return emptyList()
     require(isNotEmpty()) {
         "Cannot select an exact amount of elements from an empty collection"
     }
     val inputList = toList()
-    val repeatedList = List(amount) {inputList[it % size]}
+    val repeatedList = List(amount) { inputList[it % size] }
     return repeatedList.shuffled(random)
 
 }
 
 
-fun interface HouseholdSynthesis<T: SurveyInfo> {
+fun interface HouseholdSynthesis<T> {
     fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<T>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
-    ): Map<Zone, List<SynthesisHouseholdBuilder<T>>>
+    ): Map<Zone, List<SynthesisHousehold<T>>>
 }
 typealias HouseholdEquivalence<T> = Map<SurveyHousehold<T>, Set<SurveyHousehold<T>>>
 
-class IPU<T: SurveyInfo>(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
+class IPU<T : SurveyInfo>(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
     HouseholdSynthesis<T> {
     private var overflowCounter: Double = 0.0
     val convertNumbersToHousehold: (HouseholdEquivalence<T>, SurveyHousehold<T>, Double) -> List<SurveyHousehold<T>> =
@@ -192,7 +142,7 @@ class IPU<T: SurveyInfo>(val algorithm: (vectors: Collection<ScalableVector>, Co
         surveyHouseholds: Collection<SurveyHousehold<T>>,
         targets: Collection<Zone>,
         conditions: Map<Zone, List<Rule>>
-    ): Map<Zone, List<SynthesisHouseholdBuilder<T>>> {
+    ): Map<Zone, List<SynthesisHousehold<T>>> {
         val uniques = surveyHouseholds.toSet()
         //TODO equivalnece classes should be determined based on the rules
         val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
@@ -210,7 +160,7 @@ class IPU<T: SurveyInfo>(val algorithm: (vectors: Collection<ScalableVector>, Co
             }
             val check = rulesForZone.associateWith { it.filter(output) }
             val otherCheck = rulesForZone.associateWith { it.verify(output) }
-            output.map { it.toBuilder() }
+            output.map { it.toSynthesisHousehold() }
         }
         return results
     }
@@ -259,7 +209,7 @@ class Observer(val name: String, val observedIndex: Int, val vectors: List<Scala
     override fun toString() = "[$name] difference = $difference"
 }
 
-fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold<*>): ScalableVector {
+fun List<Rule>.vectorize(surveyHousehold: SurveyHousehold<out SurveyInfo>): ScalableVector {
     return ScalableVector(map { it.check(surveyHousehold) }.toIntArray())
 }
 
@@ -283,23 +233,39 @@ fun interface ConvertToInternalInfo {
  * This is the class that holds the data extract from the survey population csv. The file merges household and
  * person information.
  */
-interface SurveyInfo {
+interface SurveyInfo : SurveyEmployment, SurveyAge {
     val householdId: Int
     val sex: Sex
-    val age: Int
+    override val age: Int
     val householdIncome: Currency
     val hasLicence: Boolean
+    override val employment: Employment
+}
+
+/**
+ * This interface annotates the information about a survey person, so that the information of the distance to
+ * the work location is known in the survey.
+ */
+interface CommuteDistance {
+    val distanceWork: Distance
+}
+
+/**
+ * If the survey data has information about the employment status of the survey person, this interface should be added
+ * to the class holding the information block
+ */
+
+interface SurveyEmployment {
     val employment: Employment
 }
 
-data class SmallestInfo(
-    override val householdId: Int,
-    override val sex: Sex,
-    override val age: Int,
-    override val householdIncome: Currency,
-    override val hasLicence: Boolean,
-    override val employment: Employment
-): SurveyInfo
+/**
+ * If the survey data or the person has age as an attribute
+ */
+interface SurveyAge {
+    val age: Int
+}
+
 
 /**
  * All the information from the survey file, including all irrelevant information
@@ -320,16 +286,16 @@ data class RawSurveyInfo(
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
-    val distanceWork: Distance,
+    override val distanceWork: Distance,
     val distanceEducation: Distance
-) : SurveyInfo {
+) : SurveyInfo, CommuteDistance {
     override val age = year - birthyear
 }
 
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
  */
-fun <T: SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): List<SurveyHousehold<T>> {
+fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): List<SurveyHousehold<T>> {
     return groupBy { it.householdId }
         .map { line ->
             val income = converter(line.value.map { it.householdIncome })
@@ -337,7 +303,7 @@ fun <T: SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>)
                 line.value.first().householdId,
                 income,
                 line.value.map { person ->
-                    SurveyPerson.create(
+                    DefaultSurveyPerson.create(
                         person
                     )
                 })
@@ -350,7 +316,7 @@ fun main() {
     SynZone(1)
 }
 
-fun SurveyHousehold<*>.amount(sex: Sex, ageCode: Int): Int {
+fun SurveyHousehold<out SurveyInfo>.amount(sex: Sex, ageCode: Int): Int {
     return members.filter { it.sex == sex && it.groupCode == ageCode }.size
 }
 
@@ -499,20 +465,45 @@ data class ZoneTarget(
     }
 }
 
-
-data class SurveyPerson<T: SurveyInfo>(
-    val personId: Int,
+interface SurveyPerson<T> {
+    val personId: Int
     val information: T
-): SurveyInfo by information {
+    val age: Int
+    val sex: Sex
+
+    fun toRepresentative(): PersonRepresentative {
+        return PersonRepresentative.fromData(sex, age)
+    }
+}
+
+//val SurveyPerson<out SurveyInfo>.sex get() = information.sex
+//val SurveyPerson<out SurveyAge>.age get() = information.age
+val SurveyPerson<out SurveyAge>.groupCode
+    get() = when (age) {
+        in 0..5 -> 0
+        in 6..9 -> 1
+        in 10..14 -> 2
+        in 15..17 -> 3
+        in 18..24 -> 4
+        in 25..29 -> 5
+        in 30..44 -> 6
+        in 45..59 -> 7
+        in 60..64 -> 8
+        in 65..74 -> 9
+        in 75..Int.MAX_VALUE -> 10
+        else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
+    }
+
+data class DefaultSurveyPerson<T : SurveyInfo>(
+    override val personId: Int,
+    override val information: T
+) : SurveyInfo by information, SurveyPerson<T> {
 
     override val sex: Sex = information.sex
     override val age: Int = information.age
     override val employment: Employment = information.employment
     override val hasLicence: Boolean = information.hasLicence
     val representative = toRepresentative()
-    private fun toRepresentative(): PersonRepresentative {
-        return PersonRepresentative.fromData(sex, age)
-    }
 
     val groupCode: Int
         get() {
@@ -535,8 +526,8 @@ data class SurveyPerson<T: SurveyInfo>(
 
     companion object {
         private var idCounter: Int = 0
-        fun <T: SurveyInfo> create(
+        fun <T : SurveyInfo> create(
             information: T
-        ) = SurveyPerson(idCounter++, information)
+        ) = DefaultSurveyPerson(idCounter++, information)
     }
 }

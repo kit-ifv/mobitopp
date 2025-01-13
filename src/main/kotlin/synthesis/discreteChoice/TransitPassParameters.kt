@@ -6,8 +6,13 @@ import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
-import synthesis.SynthesisHouseholdBuilder
-import synthesis.SynthesisPerson
+import synthesis.SurveyInfo
+import synthesis.age
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
+import synthesis.employment
+import synthesis.hasLicence
+import synthesis.sex
 import units.euros
 
 
@@ -91,8 +96,8 @@ data class TransitPassParameters(
 
 data class TicketSituation(
     override val choice: Boolean,
-    val household: SynthesisHouseholdBuilder<*>,
-    val person: SynthesisPerson<*>
+    val household: SynthesisHousehold<out SurveyInfo>,
+    val person: SynthesisPerson<out SurveyInfo>
 ) : ChoiceSituation<Boolean>() {
     val householdSize = household.members.size
     val gender = person.sex

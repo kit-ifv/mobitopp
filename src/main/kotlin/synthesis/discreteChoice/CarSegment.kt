@@ -4,12 +4,13 @@ import domain.data.CarSegment
 import domain.data.Sex
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
+
 import synthesis.RawSurveyInfo
-import synthesis.SynthesisHouseholdBuilder
+import synthesis.SynthesisHousehold
 import synthesis.SynthesisPerson
+import synthesis.sex
 import units.Currency
 import units.Distance
 import units.euros
@@ -23,16 +24,19 @@ class CarSegmentChoice(
 
 }
 
-fun CarSegment.toChoice(person: SynthesisPerson<RawSurveyInfo>, household: SynthesisHouseholdBuilder<RawSurveyInfo>): CarSegmentChoice {
+fun CarSegment.toChoice(
+    person: SynthesisPerson<out RawSurveyInfo>,
+    household: SynthesisHousehold<out RawSurveyInfo>
+): CarSegmentChoice {
     return CarSegmentChoice(
         this,
-            person.person.distanceWork,
+        person.person.distanceWork,
         household.size,
         household.income,
         household.amountOfCars,
         person.sex,
         false // TODO extract the infomration that the person is commuting
-        )
+    )
 }
 
 data class CarSegmentParameters(
