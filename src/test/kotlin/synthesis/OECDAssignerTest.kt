@@ -3,6 +3,7 @@ package synthesis
 import domain.data.EconomicStatus
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import synthesis.domain.SynthesisHousehold
 import kotlin.io.path.Path
 
 class OECDAssignerTest {

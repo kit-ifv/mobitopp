@@ -47,6 +47,8 @@ data class SurveyHousehold<T>(
     ISurveyHousehold {
     lateinit var economicStatus: EconomicStatus
     val representative = toRepresentative()
+
+    val size get() = members.size
     private fun toRepresentative(): HouseholdRepresentative {
         val memberCount = members.map { it.toRepresentative() }.groupingBy { it }.eachCount()
             .map { (element, count) -> Pair(count, element) }.toSet()

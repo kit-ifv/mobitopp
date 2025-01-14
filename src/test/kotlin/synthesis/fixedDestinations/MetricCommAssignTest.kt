@@ -10,8 +10,8 @@ import domain.location.Location
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import synthesis.CommuteDistance
-import synthesis.SynthesisHousehold
-import synthesis.SynthesisPerson
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import units.Distance
 import units.GPSCoordinate
@@ -38,7 +38,7 @@ class MetricCommAssignTest {
 
         val household = SynthesisHousehold<CommuteDistance>()
 
-        val person = SynthesisPerson<CommuteDistance>(household, CommuteDistancer(1.kilometers))
+        val person = SynthesisPerson(household, CommuteDistancer(1.kilometers))
         val zones =
             defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
                 .toList()
@@ -112,11 +112,11 @@ class MetricCommAssignTest {
         )
         val household = SynthesisHousehold<CommuteDistance>()
 
-        val person = SynthesisPerson<CommuteDistance>(household, CommuteDistancer(1.kilometers))
+        val person = SynthesisPerson(household, CommuteDistancer(1.kilometers))
 
         val household2 = SynthesisHousehold<CommuteDistance>()
 
-        val person2 = SynthesisPerson<CommuteDistance>(household, CommuteDistancer(1.kilometers))
+        val person2 = SynthesisPerson(household, CommuteDistancer(1.kilometers))
         household.location = CentroidAssigner.getLocation(zone1)
         household2.location = CentroidAssigner.getLocation(zone2)
         val assignStrat = MetricCommAssign(

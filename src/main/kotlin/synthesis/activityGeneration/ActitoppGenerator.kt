@@ -3,6 +3,7 @@ package synthesis.activityGeneration
 import datastructure.Activity
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
+import domain.location.LOCATIONUNKNOWN
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
@@ -10,9 +11,10 @@ import synthesis.SurveyInfo
 import synthesis.age
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import synthesis.fromTimes
 import synthesis.sex
 import utils.Decodable
+import utils.units.AbsoluteTime
+import utils.units.sinceStart
 import kotlin.time.Duration
 
 class ActitoppGenerator(
@@ -26,7 +28,7 @@ class ActitoppGenerator(
 
 
 
-        return PreliminaryActivitySchedule(actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() })
+        return PreliminaryActivitySchedule(actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() }.toMutableList())
 
     }
 
@@ -51,10 +53,9 @@ class ActitoppGenerator(
 
 data class PreliminaryActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
 
-    constructor(activities: List<Activity>): this(activities.toMutableList())
     companion object {
 
-        val STAY_AT_HOME = PreliminaryActivitySchedule(emptyList())
+        val STAY_AT_HOME = PreliminaryActivitySchedule(mutableListOf())
         operator fun invoke(
             decoder: Decodable<ActivityType> = LegacyActivityType.Companion,
             lambda: ScheduleBuilder.() -> Unit
@@ -103,6 +104,14 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
         }
     }
 
+}
 
+fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: ActivityType): Activity {
+    require(start <= end) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
 
+    return fromDuration(LOCATIONUNKNOWN, start, end - start, type)
+}
+
+fun Activity.Companion.fromTimes(start: Duration, end: Duration, type: ActivityType): Activity {
+    return fromTimes(start.sinceStart, end.sinceStart, type)
 }

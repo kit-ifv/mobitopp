@@ -83,7 +83,7 @@ class LocatableGraph(private val graph: Graph<VisumNode, LinkInfo>) : Graph<Visu
             location.coordinate.longitudeDegrees
         ).toUTM()
         val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
-        return edge?.edge?.id?.toLong() ?: Long.MIN_VALUE
+        return edge.edge?.id?.toLong() ?: Long.MIN_VALUE
     }
 
     fun helpLinkId(location: Location): Long {

@@ -8,8 +8,9 @@ import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 
 import synthesis.RawSurveyInfo
-import synthesis.SynthesisHousehold
-import synthesis.SynthesisPerson
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
+
 import synthesis.sex
 import units.Currency
 import units.Distance
@@ -30,7 +31,7 @@ fun CarSegment.toChoice(
 ): CarSegmentChoice {
     return CarSegmentChoice(
         this,
-        person.person.distanceWork,
+        person.info.distanceWork,
         household.size,
         household.income,
         household.amountOfCars,

@@ -14,6 +14,7 @@ import synthesis.discreteChoice.FatParameters
 import synthesis.discreteChoice.carEngineChoiceModel
 import synthesis.discreteChoice.carSegmentChoiceModel
 import synthesis.discreteChoice.toChoice
+import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 
 fun interface GenerateCars<T> {

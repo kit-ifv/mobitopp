@@ -9,33 +9,33 @@ import domain.location.Location
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.ActivityOutput
 import synthesis.AssignAroundZoneCentroid
-import synthesis.DetermineEconomicStatus
 import synthesis.AssignHouseholdLocations
 import synthesis.CarOutput
+import synthesis.DetermineEconomicStatus
 import synthesis.FixedDestinationElements
 import synthesis.FixedDestinationOutput
 import synthesis.GenerateCars
 import synthesis.GroupAssignHouseholdLocations
 import synthesis.HouseholdOutput
-import synthesis.HouseholdSynthesis
-import synthesis.IPU
+
 import synthesis.OECDAssigner
 import synthesis.OpportunitiesOutput
 import synthesis.OpportunityOutput
 import synthesis.PersonOutput
 import synthesis.RawSurveyInfo
-import synthesis.Rule
+
 import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisCar
-import synthesis.domain.SynthesisHousehold
-import synthesis.ZoneTarget
+
 import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateActivitySchedule
+import synthesis.activityGeneration.generateActivitiesViaActitopp
 import synthesis.carownership.AssignViaRegionType
 import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.discreteChoice.TicketSituation
+import synthesis.discreteChoice.TransitPassParameters
 import synthesis.discreteChoice.YesTransitPass
 import synthesis.discreteChoice.carChoiceModel
 import synthesis.discreteChoice.carOwnershipCityParameters
@@ -43,6 +43,8 @@ import synthesis.discreteChoice.carOwnershipRuralArea
 import synthesis.discreteChoice.carOwnershipSmallCity
 import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.transitPassDiscreteChoiceModel
+import synthesis.domain.SynthesisHousehold
+import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.AssignStepBuilder
 import synthesis.fixedDestinations.DebugZoneAssigner
 import synthesis.fixedDestinations.GREEDY_BY_DISTANCE
@@ -51,9 +53,10 @@ import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.fixedDestinations.primarySchool
 import synthesis.fixedDestinations.secondarySchool
 import synthesis.fixedDestinations.work
-import synthesis.activityGeneration.generateActivitiesViaActitopp
-import synthesis.discreteChoice.TransitPassParameters
-import synthesis.domain.SynthesisPerson
+import synthesis.householdgeneration.HouseholdSynthesis
+import synthesis.householdgeneration.IPU
+import synthesis.householdgeneration.Rule
+import synthesis.householdgeneration.ZoneTarget
 import synthesis.randomCoordinate
 import synthesis.toSurveyHouseholds
 import units.CurrencyUnit
@@ -140,8 +143,8 @@ class SynthesisSteps<T : Any>(
         stepBuilder.apply(lambda)
         fixedDestinations = stepBuilder.steps.flatMap { it.runOther(people) }
     }
-
-    fun synthesis(randsums: Map<Zone, List<Rule>>, lambda: () -> HouseholdSynthesis<T>) {
+    // TODO speaking type parameter names
+    fun  synthesis(randsums: Map<Zone, List<Rule<Any>>>, lambda: () -> HouseholdSynthesis<T>) {
         val generator = lambda()
         val synthesisZones = zones.filter { it in randsums.keys }
         require(randsums.keys.all { it in zones }) {
@@ -227,7 +230,7 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val randsums: Map<Zone, List<Rule>>,
+    val randsums: Map<Zone, List<Rule<Any>>>,
     val attractivenessModel: AttractivenessModel,
     val surveyData: Collection<T>
 ) {
@@ -282,7 +285,7 @@ class PopulationSynthesis<T : Any>(
         ): PopulationSynthesis<T> {
             val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
             val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-            val rules: Map<Zone, List<Rule>> = targets.associate {
+            val rules: Map<Zone, List<Rule<Any>>> = targets.associate {
                 config.zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
             }
 

@@ -179,7 +179,9 @@ class NestStructure<PARAMS> {
         var utility: Double = 0.0
         var probability: Double = 0.0
 
-        abstract fun calculateProbability(parameters: PARAMS)
+        open fun calculateProbability(parameters: PARAMS) {
+
+        }
     }
 
     inner class Leaf : Node() {
@@ -188,10 +190,6 @@ class NestStructure<PARAMS> {
 
         override fun reset() {
             relevantForCalculation = false
-        }
-
-        override fun calculateProbability(parameters: PARAMS) {
-            return
         }
 
         fun initializeUtility(utility: Double): Nest? {
