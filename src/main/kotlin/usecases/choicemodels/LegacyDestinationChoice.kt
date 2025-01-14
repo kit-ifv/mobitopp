@@ -119,7 +119,7 @@ class LegacyDestinationChoice(
         modes: Collection<Mode>,
         randomNumber: Double
     ): Location {
-        val origin = prevActivity.location as Location
+        val origin = prevActivity.location
         val endTime = prevActivity.endTime
 
         //             helper.getATTRACTIVITY(category, person, origin, destination, nextActivity, time, randomNumber)
@@ -1720,7 +1720,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let { iGetParkdruck(it.location as Location) } ?: 0.0
+        return person.nextFixedActivity()?.let { iGetParkdruck(it.location) } ?: 0.0
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN_FIX(

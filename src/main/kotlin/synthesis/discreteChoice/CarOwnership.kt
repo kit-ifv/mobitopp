@@ -8,8 +8,8 @@ import modeling.discreteChoice.NestedLogit
 import modeling.discreteChoice.NestedLogit.Companion.NestedLogitBuilder
 import modeling.discreteChoice.times
 import synthesis.SurveyInfo
-import synthesis.SynthesisHousehold
 import synthesis.age
+import synthesis.domain.SynthesisHousehold
 import synthesis.employment
 import synthesis.hasLicence
 import synthesis.toCarOwnershipAttributes
@@ -126,7 +126,7 @@ data class CarParameters(
  * When you hover over [b_hh_size_1_on_3] in the utility function for 3 cars you will see the description text.
  */
 @Suppress("PropertyName")
-data class CarOwnershipParameters(
+class CarOwnershipParameters(
     val asc_0_mu: Double,
     val asc_0_sig: Double,
     val asc_1_mu: Double,

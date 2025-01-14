@@ -1,15 +1,9 @@
 package synthesis.fixedDestinations
 
 import domain.data.Zone
-import domain.data.ZoneId
-import domain.enums.ActivityType
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
-import synthesis.SynthesisPerson
 import synthesis.randomCoordinate
-import utils.collections.select
-import java.nio.file.Path
-import kotlin.io.path.Path
 
 
 fun interface DetermineLocationInZone {

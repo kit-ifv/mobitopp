@@ -263,7 +263,7 @@ class MetricCommAssign(
         activityType: ActivityType
     ): Collection<Pair<SynthesisPerson<out CommuteDistance>, Location>> {
         val targets = persons.groupBy { commuterMatrix.getCommunityId(it.homeLocation.requireZone()) }
-        val canIMeetTheRequirements = targets.entries.associate { it.key to ((it.value.size to commuterMatrix.requests[it.key]) ?: 0.0) }
+        val canIMeetTheRequirements = targets.entries.associate { it.key to (it.value.size to commuterMatrix.requests[it.key]) }
         return persons.map { it to find(it, activityType) }
     }
 
