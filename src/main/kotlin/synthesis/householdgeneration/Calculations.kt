@@ -21,7 +21,7 @@ class Observer(val name: String, val observedIndex: Int, val vectors: List<Scala
 }
 
 fun List<Rule<Any>>.vectorize(surveyHousehold: SurveyHousehold<out Any>): ScalableVector {
-    return ScalableVector(map { it.check(surveyHousehold) }.toIntArray())
+    return ScalableVector(map { it.evaluate(surveyHousehold) }.toIntArray())
 }
 
 class ScalableVector(val vector: IntArray, var scalar: Double = 1.0)

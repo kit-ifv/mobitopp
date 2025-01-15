@@ -1,19 +1,8 @@
 package synthesis.householdgeneration
 
-import TestZone
-import domain.data.Sex
-import domain.data.Zone
-import domain.data.ZoneId
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import synthesis.SurveyHousehold
-import synthesis.SurveyPerson
-import synthesis.amount
 import units.euros
 import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class IPUTest: SynthesisTest() {
 

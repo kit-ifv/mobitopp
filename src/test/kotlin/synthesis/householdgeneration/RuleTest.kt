@@ -18,12 +18,8 @@ class RuleTest : SynthesisTest() {
     @Test
     fun sizeAsRule() {
         val household1 = createHousehold {
-            person(10, Sex.MALE) {
-
-            }
-            person(10, Sex.MALE) {
-
-            }
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
 
             person(10, Sex.MALE) {
                 Employment.NONE
@@ -31,7 +27,7 @@ class RuleTest : SynthesisTest() {
         }
         val rule = ZoneCheckRule<Any>("Fake description", 10) { it.size == 3 }
         assertTrue(rule.appliesTo(household1))
-        assertEquals(rule.check(household1), 1)
+        assertEquals(rule.evaluate(household1), 1)
 
         val complexHousehold = SurveyHousehold<SurveyInfo>(
             1,
@@ -41,10 +37,10 @@ class RuleTest : SynthesisTest() {
             )
         )
         assertFalse(rule.appliesTo(complexHousehold))
-        assertEquals(rule.check(complexHousehold), 0)
+        assertEquals(rule.evaluate(complexHousehold), 0)
 
 
-        rule.check(complexHousehold)
+        rule.evaluate(complexHousehold)
 
         assertContentEquals(rule.filter(listOf(household1, complexHousehold)), listOf(household1))
 
@@ -53,24 +49,30 @@ class RuleTest : SynthesisTest() {
     @Test
     fun countRule() {
         val household = createHousehold {
-            person(10, Sex.MALE) {
-
-            }
-            person(9, Sex.FEMALE) {
-
-            }
-            person(25, Sex.MALE) {
-
-            }
+            person(10, Sex.MALE) {}
+            person(9, Sex.FEMALE) {}
+            person(25, Sex.MALE) {}
         }
         val rule = ZoneRule<Any>(description = "Test description", 42) {
             it.members.count { it.age in 5..10 }
         }
-        assertEquals(rule.check(household), 2)
+        assertEquals(rule.evaluate(household), 2)
     }
 
     @Test
     fun advancedRules() {
+        val (household1, household2, household3) = generateHouseholds()
+        val rule = ZoneCheckRule<ExampleInterface>("Attempt", 10) { household ->
+            household.members.any { it.information.employment == Employment.NONE }
+        }
+
+        assertEquals(rule.evaluate(household1), 1)
+        assertEquals(rule.evaluate(household2), 0)
+        assertEquals(rule.evaluate(household3), 1)
+
+    }
+
+    private fun generateHouseholds(): Triple<SurveyHousehold<ExampleInterface>, SurveyHousehold<ExampleInstantiation>, SurveyHousehold<ExampleInstantiation>> {
         val household1 = createHousehold {
 
             person(10, Sex.MALE) {
@@ -102,14 +104,59 @@ class RuleTest : SynthesisTest() {
                 ExampleInstantiation(Employment.NONE)
             }
         }
+        return Triple(household1, household2, household3)
+    }
+
+    @Test
+    fun checkCountRule() {
+        val household = createHousehold {
+            person(10, Sex.MALE) {
+
+            }
+
+            person(12, Sex.FEMALE) {
+
+            }
+        }
+
+        val rule1 = CountRule<Any> { h -> h.count { it.age in 9..12 } }
+        assertEquals(rule1.matches(household), 2)
+
+        val rule2 = CountRule<Any> { h -> h.count { it.age in 11..12 } }
+        assertEquals(rule2.matches(household), 1)
+
+        val rule3 = CountRule<Any> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
+        assertEquals(rule3.matches(household), 1)
+
+    }
+
+    @Test
+    fun testFilter() {
+        val (household1, household2, household3) = generateHouseholds()
+        val households = listOf(household1, household2, household3)
         val rule = ZoneCheckRule<ExampleInterface>("Attempt", 10) { household ->
             household.members.any { it.information.employment == Employment.NONE }
         }
+        assertContentEquals(rule.filter(households), listOf(household1, household3))
+    }
 
-        assertEquals(rule.check(household1), 1)
-        assertEquals(rule.check(household2), 0)
-        assertEquals(rule.check(household3), 1)
-
+    @Test
+    fun testVerification() {
+        val household = createHousehold {
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
+        }
+        val household2 = createHousehold {
+            person(10, Sex.MALE) {}
+            person(10, Sex.MALE) {}
+        }
+        val rule = ZoneRule<Any>("Test Rule", 10) { it.size }
+        assertEquals(rule.verify(listOf(household)), 5.0)
+        assertEquals(rule.verify(listOf(household, household2)), 3.0)
+        assertEquals(rule.verify(listOf(household, household, household2)), -2.0)
     }
 }
 

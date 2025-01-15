@@ -65,6 +65,10 @@ data class SurveyHousehold<T>(
         }
     }
 
+    fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
+        return members.count(condition)
+    }
+
 
 
 }
