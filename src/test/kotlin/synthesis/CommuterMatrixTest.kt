@@ -6,9 +6,7 @@ import kotlin.test.Test
 class CommuterMatrixTest {
 
     @Test
-    fun commuterRelationParse()  {
-
+    fun commuterRelationParse() {
         val commuterMatrix = CommuterMatrix.parse(zoneMapping = emptyMap())
-
     }
 }

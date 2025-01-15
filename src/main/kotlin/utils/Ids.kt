@@ -21,7 +21,7 @@ value class ID<out E>(val value: Long) : Comparable<ID<*>> {
      * @return the next higher id.
      */
     fun next(): ID<E> {
-        return ID(id + 1)
+        return ID(value + 1)
     }
 }
 

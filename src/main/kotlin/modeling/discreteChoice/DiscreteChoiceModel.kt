@@ -9,7 +9,11 @@ fun interface SelectionFunction<X> {
 
 open class DiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
     protected open val distributionFunction: ExtractableDistributionFunction<X, SIT, P>,
-    protected val selectionFunction: SelectionFunction<SIT> = SelectionFunction { it.select(GlobalRandomizer.nextDouble()) },
+    protected val selectionFunction: SelectionFunction<SIT> = SelectionFunction {
+        it.select(
+            GlobalRandomizer.nextDouble()
+        )
+    },
 ) {
     fun select(alternatives: Set<SIT>, parameters: P): X {
         return selectionFunction.calculateSelection(
@@ -32,7 +36,6 @@ open class DiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
 //            ).also { println(it) }
 //        ).choice
 //    }
-
 }
 
 class KnownDiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(

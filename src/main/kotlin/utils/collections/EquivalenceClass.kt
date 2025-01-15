@@ -1,6 +1,5 @@
 package utils.collections
 
-
 class EquivalenceGroup<T>(
     val equivalence: (T, T) -> Boolean = { a, b -> a == b },
     val map: MutableMap<T, MutableSet<T>> = mutableMapOf()
@@ -38,8 +37,7 @@ class EquivalenceGroup<T>(
      * @return the equivalence class of the element, should one exist.
      */
     override operator fun get(key: T): Set<T>? {
-        return map[key] ?: map.entries.firstOrNull {it.key eqv key}?.value
-
+        return map[key] ?: map.entries.firstOrNull { it.key eqv key }?.value
     }
 
     /**
@@ -60,8 +58,11 @@ class EquivalenceGroup<T>(
       is not the same, however as it is a function and very often an anonymous one I have no idea how to incorporate it
       into this equality */
     override fun equals(other: Any?): Boolean {
-        return if (other !is EquivalenceGroup<*>) false
-        else map == other.map
+        return if (other !is EquivalenceGroup<*>) {
+            false
+        } else {
+            map == other.map
+        }
     }
 
     override fun hashCode(): Int {
@@ -71,21 +72,17 @@ class EquivalenceGroup<T>(
     override fun toString(): String {
         return map.toString()
     }
-
 }
 
 fun <R, T> Set<T>.equivalenceClassByRepresentative(converter: (T) -> R): Map<R, Set<T>> {
-
     val groups = EquivalenceGroup(equivalence = { a: T, b: T ->
         converter(a) == converter(b)
-
     })
     forEach {
         groups.add(it)
     }
 
     return groups.toRepresentative(converter)
-
 }
 
 fun <T> Set<T>.equivalenceClasses(equivalence: (T, T) -> Boolean): EquivalenceGroup<T> {
@@ -95,6 +92,4 @@ fun <T> Set<T>.equivalenceClasses(equivalence: (T, T) -> Boolean): EquivalenceGr
     }
 
     return groups
-
 }
-

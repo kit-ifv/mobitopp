@@ -26,6 +26,7 @@ interface Row {
 
     /** Return the column header for a target index */
     fun headerForIndex(i: Int): String
+
     /**
      * Parse this [Row]'s value in the given column using the given parser.
      *
@@ -104,6 +105,7 @@ open class DefaultRow(
     override fun headerForIndex(i: Int): String {
         return columnIndexMap.keys.toList()[i]
     }
+
     @Suppress("TooGenericExceptionCaught")
     private fun getIndexValue(columnIndex: Int, column: String? = null): String = try {
         values[columnIndex]

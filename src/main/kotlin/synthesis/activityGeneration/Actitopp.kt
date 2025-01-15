@@ -25,7 +25,6 @@ import utils.units.sinceStart
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
-
 fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(household: ActiToppHousehold): ActitoppPerson {
     val number = household.householdmembers.size + 1
     val person = ActitoppPerson(
@@ -35,7 +34,6 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(household: ActiToppHousehol
         age,
         employment.encode(),
         sex.encode()
-
 
     )
     household.addHouseholdmember(person, number)
@@ -56,7 +54,6 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(): ActitoppPerson {
 }
 
 fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold {
-
     val hh = ActiToppHousehold(
         id,
         numberOfChilds,
@@ -65,7 +62,6 @@ fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold 
         amountOfCars
     )
     return hh
-
 }
 
 val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it.age <= 10 }
@@ -88,8 +84,8 @@ fun ActitoppPerson.generateScheduleBruteForce(fileBase: ModelFileBase, rngGen: R
             generateSchedule(fileBase, rngGen)
             return
         } catch (e: InvalidPatternException) {
-            System.err.println(e.reason);
-            System.err.println("person involved: $persIndex");
+            System.err.println(e.reason)
+            System.err.println("person involved: $persIndex")
         }
     }
 }
@@ -136,11 +132,10 @@ object HActivityOutput : CSVOutput<HActivity> {
                 startTime,
                 duration,
 
-                //TODO Tour index,
+                // TODO Tour index,
                 isMainActivityoftheDay,
                 "TODO isSupertour"
             )
         }
     }
-
 }

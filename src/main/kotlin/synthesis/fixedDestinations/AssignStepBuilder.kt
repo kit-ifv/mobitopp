@@ -29,17 +29,19 @@ class AssignStepBuilder<G>(
         fun run(target: Collection<SynthesisPerson<out G>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
             val applicableAgents = target.filter(filter)
             println("The simulation has: ${applicableAgents.size} agents required for $activityType")
-            return assignFunction.find(applicableAgents, activityType).associate { it.first to Pair(activityType, it.second) }
+            return assignFunction.find(
+                applicableAgents,
+                activityType
+            ).associate { it.first to Pair(activityType, it.second) }
         }
 
         fun runOther(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
-
             val applicableAgents = target.filter(filter)
             println("The simulation has: ${applicableAgents.size} agents required for $activityType")
             return assignFunction.find(target, activityType).map {
-                FixedDestinationElements(it.first, activityType, it.second) }
+                FixedDestinationElements(it.first, activityType, it.second)
+            }
         }
-
     }
 
     val steps: MutableList<AssignStep> = mutableListOf()
@@ -51,7 +53,7 @@ class AssignStepBuilder<G>(
     inner class FixedIn {
         lateinit var activityType: ActivityType
         lateinit var assignmentStrategy: GroupLocationFinder<in G>
-        lateinit var filter : (SynthesisPerson<out G>) -> Boolean
+        lateinit var filter: (SynthesisPerson<out G>) -> Boolean
         var strategy = GREEDY_BY_DISTANCE
         var locationInZone = DebugZoneAssigner
 
@@ -62,40 +64,35 @@ class AssignStepBuilder<G>(
                 return CommuterMatrix.parse(
                     mappingFile = communityMapping,
                     commuterFile = commuterFile,
-                    zoneMapping = zones.associateBy { it.id })
+                    zoneMapping = zones.associateBy { it.id }
+                )
             }
         }
-
-
 
         fun distanceBasedCommunity(lambda: StepIN.() -> Unit): MetricCommAssign {
             val commuterMatrix = StepIN().apply(lambda).generate()
             return MetricCommAssign(commuterMatrix, FlightDistance(), attractivenessModel, strategy, locationInZone)
         }
-
     }
-
-
-
 }
 
 /**
  * Extension functions if the person has attribute
  *
  */
-fun <T: SurveyInfo> AssignStepBuilder<T>.primarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <T : SurveyInfo> AssignStepBuilder<T>.primarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isPrimaryStudent, element.assignmentStrategy))
 }
 
-fun <T: SurveyInfo> AssignStepBuilder<T>.secondarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <T : SurveyInfo> AssignStepBuilder<T>.secondarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isHigherStudent, element.assignmentStrategy))
 }
 
-fun <T: SurveyInfo> AssignStepBuilder<T>.work(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <T : SurveyInfo> AssignStepBuilder<T>.work(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isWorker, element.assignmentStrategy))

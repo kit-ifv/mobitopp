@@ -12,8 +12,8 @@ fun interface UtilityFunction<SIT, PARAMS> {
 /**
  * An allocated function knows what options are available
  */
-interface OptionDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS> : ExtractableDistributionFunction<X, SIT, PARAMS> {
-    val options: Set<X> get()= translation.keys
+interface OptionDistributionFunction<X : Any, SIT : ChoiceSituation<X>, PARAMS> : ExtractableDistributionFunction<X, SIT, PARAMS> {
+    val options: Set<X> get() = translation.keys
     val translation: Map<X, UtilityFunction<SIT, PARAMS>>
     override fun translation(target: SIT): UtilityFunction<SIT, PARAMS> = translation.getOrElse(target.choice) {
         throw NoSuchElementException("There is no utility function for $target in this distribution function")
@@ -23,7 +23,7 @@ interface OptionDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS> :
 /**
  * If we have this class we have the ability to predetermine the utility function for a given situation SIT
  */
-interface ExtractableDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARAMS>: DistributionFunction<SIT, PARAMS> {
+interface ExtractableDistributionFunction<X : Any, SIT : ChoiceSituation<X>, PARAMS> : DistributionFunction<SIT, PARAMS> {
     val name get() = "Unnamed Distribution Function"
     fun translation(target: SIT): UtilityFunction<SIT, PARAMS>
     fun calculateProbabilities(alternatives: Set<SIT>, parameters: PARAMS): Map<SIT, Double> {
@@ -33,7 +33,6 @@ interface ExtractableDistributionFunction<X: Any, SIT : ChoiceSituation<X>, PARA
         )
     }
 }
-
 
 /**
  * A distribution function takes in a collection of situations with their associated utility functions already calculated,
@@ -57,7 +56,8 @@ interface MapBasedAssociation<SIT, PARAMS> : UtilityFunctionAssociation<SIT, PAR
     }
 }
 
-interface RuleBasedAssociation<X: Any, SIT : ChoiceSituation<X>, PARAMS> : UtilityFunctionAssociation<SIT, PARAMS>,
+interface RuleBasedAssociation<X : Any, SIT : ChoiceSituation<X>, PARAMS> :
+    UtilityFunctionAssociation<SIT, PARAMS>,
     ExtractableDistributionFunction<X, SIT, PARAMS> {
     val rules: List<Pair<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>>>
     override fun associateFunction(to: SIT): UtilityFunction<SIT, PARAMS> {
@@ -70,4 +70,3 @@ interface RuleBasedAssociation<X: Any, SIT : ChoiceSituation<X>, PARAMS> : Utili
         return associateFunction(target)
     }
 }
-

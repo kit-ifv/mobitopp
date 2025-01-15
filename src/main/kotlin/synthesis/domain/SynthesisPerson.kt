@@ -1,6 +1,5 @@
 package synthesis.domain
 
-
 import domain.enums.ActivityType
 import domain.location.Location
 import synthesis.GLOBAL_PERSON_ID_GENERATOR
@@ -17,5 +16,4 @@ class SynthesisPerson<T>(
     var hasTransitPass = false
     var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.STAY_AT_HOME
     val fixedDestinations: MutableMap<ActivityType, Location> = mutableMapOf()
-
 }

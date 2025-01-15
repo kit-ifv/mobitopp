@@ -15,7 +15,6 @@ import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
 open class SynthesisTest {
 
     val zone1 = TestZone(id = ZoneId(1))
@@ -34,7 +33,6 @@ open class SynthesisTest {
             person(firstAge, firstSex) {
             }
             person(secondAge, secondSex) {
-
             }
         }
         assertEquals(household.size, 2)
@@ -45,8 +43,6 @@ open class SynthesisTest {
         val secondPerson = household.members[1]
         assertEquals(secondPerson.age, secondAge)
         assertEquals(secondPerson.sex, secondSex)
-
-
     }
 
     @Test
@@ -71,18 +67,14 @@ open class SynthesisTest {
 
         val fittingHousehold = createHousehold<Any> {
             person(10, Sex.MALE) {
-
             }
         }
         val mismatchingHousehold = createHousehold<Any> {
             person(10, Sex.MALE) {
-
             }
 
             person(10, Sex.MALE) {
-
             }
-
         }
         assertTrue(rule.appliesTo(fittingHousehold))
         assertFalse(rule.appliesTo(mismatchingHousehold))
@@ -100,7 +92,6 @@ open class SynthesisTest {
         val idMap = builder.createRules()
 
         return associateWith { idMap[it.id] ?: emptyList() }
-
     }
 
     protected inner class ZoneBuilder<T>(zones: Collection<Zone>) {
@@ -150,7 +141,6 @@ open class SynthesisTest {
             val builder = RulesForZoneBuilder()
             builder.apply(lambda)
             associatedRules[ZoneId(id.toLong())] = builder.createRules()
-
         }
 
         fun createRules(): Map<ZoneId, List<Rule<T>>> = associatedRules
@@ -171,15 +161,11 @@ open class SynthesisTest {
         }
 
         fun person(age: Int, sex: Sex, lambda: () -> T): SmallestSurveyPerson<T> {
-
-            val smallestSurveyPerson = SmallestSurveyPerson(personId = members.size + 1, age = age, sex = sex, information = lambda())
+            val smallestSurveyPerson =
+                SmallestSurveyPerson(personId = members.size + 1, age = age, sex = sex, information = lambda())
             members.add(smallestSurveyPerson)
             return smallestSurveyPerson
         }
-
-
-
-
 
         fun createHousehold(): SurveyHousehold<T> {
             return SurveyHousehold(id, income, members)
@@ -193,4 +179,3 @@ open class SynthesisTest {
         override val sex: Sex
     ) : SurveyPerson<Any>
 }
-

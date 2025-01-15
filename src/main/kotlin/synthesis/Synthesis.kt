@@ -2,18 +2,9 @@ package synthesis
 
 import domain.data.Employment
 import domain.data.Sex
-import domain.data.ZoneId
-import synthesis.fixedDestinations.ZoneNumber
 import units.Currency
 import units.Distance
-import utils.csv.DefaultCsvParser
-import java.nio.file.Path
 import java.util.*
-import kotlin.math.abs
-
-
-
-
 
 fun <T> Collection<T>.pickWithReplacement(
     amount: Int,
@@ -21,7 +12,6 @@ fun <T> Collection<T>.pickWithReplacement(
 ): List<T> {
     val inputList = toList()
     return List(amount) { inputList[random.nextInt(inputList.size)] }
-
 }
 
 /**
@@ -37,15 +27,7 @@ fun <T> Collection<T>.selectExact(amount: Int, random: Random = Random(1)): List
     val inputList = toList()
     val repeatedList = List(amount) { inputList[it % size] }
     return repeatedList.shuffled(random)
-
 }
-
-
-
-
-
-
-
 
 /**
  * This is the class that holds the data extract from the survey population csv. The file merges household and
@@ -84,15 +66,14 @@ interface SurveyAge {
     val age: Int
 }
 
-
 /**
  * All the information from the survey file, including all irrelevant information
  */
 data class RawSurveyInfo(
     override val householdId: Int,
     val year: Int,
-    val areaType: Int, //TODO what is this?
-    val householdSize: Int, //TODO remove. If I determine household size later over the household object, this info is useless
+    val areaType: Int, // TODO what is this?
+    val householdSize: Int, // TODO remove. If I determine household size later over the household object, this info is useless
     val personNumber: Int,
     override val sex: Sex,
     val birthyear: Int,
@@ -100,7 +81,7 @@ data class RawSurveyInfo(
     val hasCommuterTicket: Boolean,
     override val householdIncome: Currency,
     val householdIncomeClass: Int, // TODO what is this? it is in a range between 0-8 ???
-    val type: Int, //TODO what even is this? It Could be raumtype NVM it is Household Type (SINGLE_HH_ETC
+    val type: Int, // TODO what even is this? It Could be raumtype NVM it is Household Type (SINGLE_HH_ETC
     val cars: Int,
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
@@ -113,7 +94,11 @@ data class RawSurveyInfo(
 /**
  * @param converter provide a converter to determine the household income, as the reported incomes can be inaccurate.
  */
-fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>) -> Currency = { it.first() }): List<SurveyHousehold<T>> {
+fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(
+    converter: (List<Currency>) -> Currency = {
+        it.first()
+    }
+): List<SurveyHousehold<T>> {
     return groupBy { it.householdId }
         .map { line ->
             val income = converter(line.value.map { it.householdIncome })
@@ -124,13 +109,10 @@ fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>
                     DefaultSurveyPerson.create(
                         person
                     )
-                })
+                }
+            )
         }
 }
-
-
-
-
 
 interface SurveyPerson<T> {
     val personId: Int
@@ -143,17 +125,12 @@ interface SurveyPerson<T> {
     }
 }
 
-
-
-
 data class SmallestSurveyPerson<T>(
     override val personId: Int,
     override val information: T,
     override val age: Int,
     override val sex: Sex
-): SurveyPerson<T> {
-
-}
+) : SurveyPerson<T>
 
 data class DefaultSurveyPerson<T : SurveyInfo>(
     override val personId: Int,

@@ -2,7 +2,6 @@ package synthesis.carownership
 
 import domain.enums.SizebasedRegiostarClassification
 import modeling.discreteChoice.KnownDiscreteChoiceModel
-import synthesis.RawSurveyInfo
 import synthesis.SurveyInfo
 import synthesis.discreteChoice.CarOwnershipAttributes
 import synthesis.discreteChoice.CarOwnershipParameters
@@ -19,12 +18,11 @@ fun interface CarOwnershipAssignStrategy<T> {
     fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
 }
 
-class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>  {
+class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any> {
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out Any>): Int {
         return amount
     }
 }
-
 
 class AssignViaRegionType(
     val model: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = carChoiceModel,
@@ -34,10 +32,7 @@ class AssignViaRegionType(
     val ruralAreaParameters: CarOwnershipParameters = carOwnershipRuralArea,
 ) : CarOwnershipAssignStrategy<SurveyInfo> {
 
-
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
-
-
         val parameterSet =
             householdBuilder.location.zone?.regionType?.toRegiostar17()?.toSizebasedClassification()?.toParameters()
                 ?: cityParameters
@@ -78,6 +73,5 @@ class AssignViaRegionType(
             builder.apply(lambda)
             return builder.build()
         }
-
     }
 }

@@ -110,7 +110,11 @@ fun interface CheckRule<T> {
  * @property target The numeric target for the rule.
  * @property matcher The [CountRule] implementation defining the logic for evaluating households.
  */
-class ZoneRule<T>(override val description: String, override val target: Int, private val matcher: CountRule<T>) : Rule<T> {
+class ZoneRule<T>(
+    override val description: String,
+    override val target: Int,
+    private val matcher: CountRule<T>
+) : Rule<T> {
 
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return matcher.matches(surveyHousehold)
@@ -129,7 +133,11 @@ class ZoneRule<T>(override val description: String, override val target: Int, pr
  * @property target The numeric target for the rule.
  * @property matcher The [CheckRule] implementation defining the logic for evaluating households.
  */
-class ZoneCheckRule<T>(override val description: String, override val target: Int, private val matcher: CheckRule<T>) : Rule<T> {
+class ZoneCheckRule<T>(
+    override val description: String,
+    override val target: Int,
+    private val matcher: CheckRule<T>
+) : Rule<T> {
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
         return matcher.matches(surveyHousehold).toInt()
     }
@@ -140,4 +148,3 @@ class ZoneCheckRule<T>(override val description: String, override val target: In
 }
 
 private fun Boolean.toInt() = if (this) 1 else 0
-

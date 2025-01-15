@@ -4,7 +4,6 @@ import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
-import domain.enums.Regiostar17
 import domain.location.Location
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.ActivityOutput
@@ -64,7 +63,7 @@ import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
-import usecases.steps.legacyData.defaultZoneCsvParser
+// import usecases.steps.legacyData.defaultZoneCsvParser
 import utils.csv.DefaultCsvParser
 import java.io.File
 import java.nio.file.Path
@@ -102,7 +101,6 @@ fun parseSurvey(file: Path): Sequence<RawSurveyInfo> {
     return parser.parse(file.toFile())
 }
 
-
 fun interface AssignTransitCardOwnership<T> {
     fun assignFor(person: SynthesisPerson<out T>): Boolean
 }
@@ -114,7 +112,6 @@ class AssignByDiscreteChoice(
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
         return model.select({ TicketSituation(it, person.household, person) }, parameters)
     }
-
 }
 
 object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
@@ -159,11 +156,12 @@ class SynthesisSteps<T : Any>(
             "Zone Ids: ${
                 randsums.keys.filter { it !in zones }.map { it.id }
             } requested by the marginal sums are not found" +
-                    "in the configuration. The program will terminate"
+                "in the configuration. The program will terminate"
         }
         householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
-    //TODO refactor, use or discard this method
+
+    // TODO refactor, use or discard this method
     fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in T>) {
         val strategy = lambda()
 
@@ -183,12 +181,10 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-
     fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<in T>) {
         val strategy = lambda()
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
-
 
     fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
         val strategy = lambda()
@@ -202,13 +198,11 @@ class SynthesisSteps<T : Any>(
                 it.hasTransitPass = strategy.assignFor(it)
             }
         }
-
     }
 
     fun generateCars(strategy: GenerateCars<in T>) {
         households.forEach { it.cars += strategy.generate(it) }
         cars = households.flatMap { it.cars }
-
     }
 
     fun assignActivities(lambda: () -> GenerateActivitySchedule<in T>) {
@@ -217,7 +211,6 @@ class SynthesisSteps<T : Any>(
             it.plannedActivities = strategy.generate(it)
         }
     }
-
 }
 
 class PopulationSynthesis<T : Any>(
@@ -230,7 +223,6 @@ class PopulationSynthesis<T : Any>(
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
     fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
-
     }
 
     fun generateLocations(
@@ -257,7 +249,8 @@ class PopulationSynthesis<T : Any>(
                 var activityTypes: Set<ActivityType> = emptySet()
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
-                        file = file.toFile(), activityTypes =
+                        file = file.toFile(),
+                        activityTypes =
                         activityTypes
                     )
                 }
@@ -268,7 +261,6 @@ class PopulationSynthesis<T : Any>(
                 attractivenessModel.lambda()
                 return attractivenessModel.build()
             }
-
         }
 
         fun <T : Any> configure(
@@ -276,7 +268,6 @@ class PopulationSynthesis<T : Any>(
             lambda: SynthesisConfiguration<T>.() -> Unit
         ): PopulationSynthesis<T> {
             val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
-
 
             return PopulationSynthesis(
                 config.outputDirectory,
@@ -299,26 +290,22 @@ fun interface GenerateArtificialPopulation<T> {
     }
 }
 
-
 fun tryout() {
-
-
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv")
 
     ) {
-
         outputDirectory = Path("src/test/resources/tempOutput")
-        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
-            .toList()
-            .map { it.build() }
+        zones = emptyList()
+        //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
+//            .toList()
+//            .map { it.build() }
         surveyHouseholds = surveyPopulation.toSurveyHouseholds()
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
             file = Path("src/test/resources/synthesis/attractivities.csv")
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
         }
-
     }
 
     val primarySchools: List<Location> =
@@ -327,8 +314,6 @@ fun tryout() {
         "Somehow no primary schools are generated"
     }
     populationSynthesis.execute {
-
-
         // TODO make this a bit more beautiful
         val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
         val rules: Map<Zone, List<Rule<Any>>> = targets.associate {
@@ -349,7 +334,6 @@ fun tryout() {
             AssignAroundZoneCentroid(100.0)
         }
 
-
         assignEconomicStatus {
             OECDAssigner.fromPath(
                 Path("src/test/resources/synthesis/economical-status-oecd2017.csv")
@@ -364,7 +348,6 @@ fun tryout() {
                 urbanAreaParameters = carOwnershipUrbanAreaParameters
                 ruralAreaParameters = carOwnershipRuralArea
             }
-
         }
 
         assignTransitCardOwnership {
@@ -375,7 +358,6 @@ fun tryout() {
 //            transitPassDiscreteChoiceModel.select( {TicketSituation(it,household, person )}, parameters)
 //            choiceModel = transitPassDiscreteChoiceModel
         }
-
 
         fixedDestinations {
             primarySchool {
@@ -404,9 +386,7 @@ fun tryout() {
         generateActivitiesViaActitopp()
         writeLegacyOutput()
         println("Finished")
-
     }
-
 }
 
 fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
@@ -419,11 +399,8 @@ fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
 }
 
 fun main() {
-
     tryout()
-
 }
-
 
 fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
@@ -436,7 +413,6 @@ fun Collection<Zone>.generateLocations(
         )
     }
 }
-
 
 fun Zone.generateLocations(amount: Int): List<Location> {
     return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.0), this, null) }

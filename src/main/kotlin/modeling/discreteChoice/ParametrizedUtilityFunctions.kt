@@ -15,5 +15,4 @@ abstract class ChoiceSituation<X : Any> {
     override fun hashCode(): Int {
         return choice.hashCode()
     }
-
 }

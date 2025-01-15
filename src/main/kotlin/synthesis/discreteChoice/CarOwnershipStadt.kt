@@ -1,8 +1,5 @@
 package synthesis.discreteChoice
 
-import domain.data.Car
-
-
 val carOwnershipCityParameters: CarOwnershipParameters = CarOwnershipParameters(
     asc_0_mu = 0.0,
     asc_0_sig = 2.67593060385488,

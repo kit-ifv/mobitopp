@@ -30,7 +30,6 @@ fun AttractivenessModel.nullableAttractiveness(zone: Zone?, activityType: Activi
 }
 // End extension functions
 
-
 interface CSVOutput<T> {
     val header: List<String>
     fun convert(element: T): String
@@ -46,8 +45,7 @@ interface CSVOutput<T> {
     }
 }
 
-
-//TODO the synthesis activity will probably not match with the simulation activity.
+// TODO the synthesis activity will probably not match with the simulation activity.
 object ActivityOutput : CSVOutput<Activity> {
     override val header: List<String> = listOf(
         "personId",
@@ -74,21 +72,17 @@ object ActivityOutput : CSVOutput<Activity> {
             )
         }
     }
-
 }
-
-
 
 object CarOutput : CSVOutput<SynthesisCar> {
     override val header: List<String> = listOf("ownerId", "mainUserId", "personalUserId", "carType", "car attributes")
 
     override fun convert(element: SynthesisCar): String {
         return element.run {
-
             toCSV(
-                mainUser?.household?.id?: "Null",
-                mainUser?.personId?:"Null",
-                mainUser?.personId?:"Null",
+                mainUser?.household?.id ?: "Null",
+                mainUser?.personId ?: "Null",
+                mainUser?.personId ?: "Null",
                 id, // TODO verify that this is always the car ID
                 "0", // TODO verify that this is acurraty
                 engine.type,
@@ -99,10 +93,9 @@ object CarOutput : CSVOutput<SynthesisCar> {
                 "TODO always 1.0?",
                 "TODO always 1000?",
 
-                )
+            )
         }
     }
-
 }
 
 data class FixedDestinationElements(
@@ -212,10 +205,8 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
                 location.coordinate.longitudeDegrees
 
             )
-
         }
     }
-
 }
 
 object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
@@ -263,5 +254,4 @@ object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
             )
         }
     }
-
 }

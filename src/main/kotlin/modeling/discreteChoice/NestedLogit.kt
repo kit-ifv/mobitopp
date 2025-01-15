@@ -22,12 +22,13 @@ import kotlin.math.ln
 class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
     override val name: String = "Unnamed Nested Logit",
     private val leafs: Map<X, NestStructure<PARAMS>.Leaf>,
-    private val root: NestStructure<PARAMS>.Nest, override val translation: Map<X, UtilityFunction<SIT, PARAMS>>
+    private val root: NestStructure<PARAMS>.Nest,
+    override val translation: Map<X, UtilityFunction<SIT, PARAMS>>
 ) :
     OptionDistributionFunction<X, SIT, PARAMS> {
 
-
     override val options: Set<X> = leafs.keys
+
     /**
      * We need to cross-reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
      * this object state until we release the probability calculation
@@ -45,7 +46,6 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
         fun initializeUtility(): NestStructure<PARAMS>.Nest? {
             return leaf.initializeUtility(utility)
         }
-
     }
 
     override fun calculateProbabilities(
@@ -81,15 +81,15 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
         class NestedLogitBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> private constructor(
             val map: MutableMap<X, NestStructure<PARAMS>.Leaf>,
             val translation: MutableMap<X, UtilityFunction<SIT, PARAMS>>
-        ) : OptionBasedSituationBuilder<X, SIT, PARAMS>{
-            constructor(): this(mutableMapOf(), mutableMapOf())
+        ) : OptionBasedSituationBuilder<X, SIT, PARAMS> {
+            constructor() : this(mutableMapOf(), mutableMapOf())
             private val childs: MutableList<NestStructure<PARAMS>.Node> = mutableListOf()
 
             /**
              * Generate a nest block with
              *
              * @param lambdaParameterExtraction a function defining how this nest block should extract the lambda parameter
-               from the input object
+             from the input object
              * @param functor a description to build the nest structure along the builder.
              */
             fun nest(
@@ -119,7 +119,6 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                 return nest({ lambda }, functor)
             }
 
-
             override fun addUtilityFunctionByIdentifier(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>) {
                 translation[x] = utilityFunction
                 val element = NestStructure<PARAMS>().Leaf()
@@ -133,35 +132,31 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
             fun build(): MutableList<NestStructure<PARAMS>.Node> {
                 return childs
             }
-
-
         }
 
         /**
          * Create a nested logit structure by parsing the instruction and building an implicit "ROOT-Nest" with a lambda
          * 1.0 parameter
          */
-        fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> build(name: String = "Unnamed Nested Logit model" , lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit): NestedLogit<X, SIT, PARAMS> {
+        fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> build(
+            name: String = "Unnamed Nested Logit model",
+            lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
+        ): NestedLogit<X, SIT, PARAMS> {
             val builder = NestedLogitBuilder<X, SIT, PARAMS>()
             val root = builder.nest(1.0) {
                 lambda()
             }
 
-
-            return NestedLogit(name,  builder.map, root, builder.translation)
+            return NestedLogit(name, builder.map, root, builder.translation)
         }
-        fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> root(name: String = "Unnamed Nested Logit model" , lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit): NestedLogit<X, SIT, PARAMS>
-        = build(name, lambda)
-
-
-        }
-
-
+        fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> root(
+            name: String = "Unnamed Nested Logit model",
+            lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
+        ): NestedLogit<X, SIT, PARAMS> = build(name, lambda)
+    }
 }
 
-
 class NestStructure<PARAMS> {
-
 
     fun build(leafs: Set<Leaf>) {
         leafs.groupBy { it.parent }
@@ -180,7 +175,6 @@ class NestStructure<PARAMS> {
         var probability: Double = 0.0
 
         open fun calculateProbability(parameters: PARAMS) {
-
         }
     }
 
@@ -237,6 +231,5 @@ class NestStructure<PARAMS> {
             }
             relevantChilds.forEach { it.calculateProbability(parameters) }
         }
-
     }
 }

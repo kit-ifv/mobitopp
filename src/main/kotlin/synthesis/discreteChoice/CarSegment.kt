@@ -6,11 +6,9 @@ import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
-
 import synthesis.RawSurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
-
 import synthesis.sex
 import units.Currency
 import units.Distance
@@ -18,12 +16,14 @@ import units.euros
 import units.kilometers
 
 class CarSegmentChoice(
-    override val choice: CarSegment, val commuterDistance: Distance,
-    val householdSize: Int, val householdIncome: Currency,
-    val numberOfCars: Int, val sex: Sex, val isCommuting: Boolean
-) : ChoiceSituation<CarSegment>() {
-
-}
+    override val choice: CarSegment,
+    val commuterDistance: Distance,
+    val householdSize: Int,
+    val householdIncome: Currency,
+    val numberOfCars: Int,
+    val sex: Sex,
+    val isCommuting: Boolean
+) : ChoiceSituation<CarSegment>()
 
 fun CarSegment.toChoice(
     person: SynthesisPerson<out RawSurveyInfo>,
@@ -168,7 +168,6 @@ val carSegmentChoiceModel = KnownDiscreteChoiceModel<CarSegment, CarSegmentChoic
         }
         option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) {
             defaultUtilityFunction(this, it)
-
         }
         option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) {
             defaultUtilityFunction(this, it)
@@ -179,33 +178,31 @@ val carSegmentChoiceModel = KnownDiscreteChoiceModel<CarSegment, CarSegmentChoic
 private val defaultUtilityFunction: SimplifiedParameters.(CarSegmentChoice) -> Double =
     {
         constant +
-                if (it.isCommuting) {
-                    (it.commuterDistance in 0.kilometers..<10.kilometers) * commuterDistance0to10kilometers +
-                            (it.commuterDistance in 10.kilometers..<20.kilometers) * commuterDistance10to20kilometers +
-                            (it.commuterDistance in 20.kilometers..<30.kilometers) * commuterDistance20to30kilometers +
-                            (it.commuterDistance in 30.kilometers..<40.kilometers) * commuterDistance30to40kilometers +
-                            (it.commuterDistance in 40.kilometers..<50.kilometers) * commuterDistance40to50kilometers +
-                            (it.commuterDistance >= 50.kilometers) * commuterDistanceAtLeast50kilometers
-                } else {
-                    0.0
-                } +
+            if (it.isCommuting) {
+                (it.commuterDistance in 0.kilometers..<10.kilometers) * commuterDistance0to10kilometers +
+                    (it.commuterDistance in 10.kilometers..<20.kilometers) * commuterDistance10to20kilometers +
+                    (it.commuterDistance in 20.kilometers..<30.kilometers) * commuterDistance20to30kilometers +
+                    (it.commuterDistance in 30.kilometers..<40.kilometers) * commuterDistance30to40kilometers +
+                    (it.commuterDistance in 40.kilometers..<50.kilometers) * commuterDistance40to50kilometers +
+                    (it.commuterDistance >= 50.kilometers) * commuterDistanceAtLeast50kilometers
+            } else {
+                0.0
+            } +
 
+            (it.householdSize == 1) * householdSize1 +
+            (it.householdSize == 2) * householdSize2 +
+            (it.householdSize >= 3) * householdSize3orMore +
 
-                (it.householdSize == 1) * householdSize1 +
-                (it.householdSize == 2) * householdSize2 +
-                (it.householdSize >= 3) * householdSize3orMore +
+            (it.householdIncome in 0.euros..<500.euros) * incomeIn0to499 +
+            (it.householdIncome in 500.euros..<1000.euros) * incomeIn500to999 +
+            (it.householdIncome in 1000.euros..<1500.euros) * incomeIn1000to1499 +
+            (it.householdIncome in 1500.euros..<2000.euros) * incomeIn1500to1999 +
+            (it.householdIncome in 2000.euros..<2500.euros) * incomeIn2000to2499 +
+            (it.householdIncome in 2500.euros..<3000.euros) * incomeIn2500to2999 +
+            (it.householdIncome in 3000.euros..<3500.euros) * incomeIn3000to3499 +
+            (it.householdIncome >= 3500.euros) * incomeAtLeast3500 +
+            (it.householdIncome <= 0.euros) * incomeNegative +
 
-                (it.householdIncome in 0.euros..<500.euros) * incomeIn0to499 +
-                (it.householdIncome in 500.euros..<1000.euros) * incomeIn500to999 +
-                (it.householdIncome in 1000.euros..<1500.euros) * incomeIn1000to1499 +
-                (it.householdIncome in 1500.euros..<2000.euros) * incomeIn1500to1999 +
-                (it.householdIncome in 2000.euros..<2500.euros) * incomeIn2000to2499 +
-                (it.householdIncome in 2500.euros..<3000.euros) * incomeIn2500to2999 +
-                (it.householdIncome in 3000.euros..<3500.euros) * incomeIn3000to3499 +
-                (it.householdIncome >= 3500.euros) * incomeAtLeast3500 +
-                (it.householdIncome <= 0.euros) * incomeNegative +
-
-                (it.numberOfCars >= 2) * atLeast2Cars +
-                (it.sex == Sex.FEMALE) * female
+            (it.numberOfCars >= 2) * atLeast2Cars +
+            (it.sex == Sex.FEMALE) * female
     }
-    

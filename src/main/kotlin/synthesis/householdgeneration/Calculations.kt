@@ -11,7 +11,6 @@ import kotlin.math.abs
  */
 class Observer(val name: String, val observedIndex: Int, val vectors: List<ScalableVector>, val expected: Int) {
 
-
     fun sum(): Double {
         return vectors.sumOf { it.currentValueForIndex(observedIndex) }
     }

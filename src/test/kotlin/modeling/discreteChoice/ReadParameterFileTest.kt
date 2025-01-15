@@ -95,10 +95,10 @@ class ReadParameterFileTest {
 
     @Test
     fun readText() {
-       val map = ReadParameterFile.read(textdump)
+        val map = ReadParameterFile.read(textdump)
         assertEquals(map.size, 84)
-        assertEquals(map["b_person_working_2_on_4"]  , -1.62356367470392)
+        assertEquals(map["b_person_working_2_on_4"], -1.62356367470392)
         assertEquals(map["lambda_car"], 0.0463786710826848 + 0.01)
-        assertEquals(map["b_hh_size_4_on_1"] , 0.768330308949847 +0.08)
+        assertEquals(map["b_hh_size_4_on_1"], 0.768330308949847 + 0.08)
     }
 }

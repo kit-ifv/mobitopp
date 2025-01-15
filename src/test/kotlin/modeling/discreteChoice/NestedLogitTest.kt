@@ -7,7 +7,10 @@ import org.junit.jupiter.api.assertThrows
 class NestedLogitTest {
 
     private val choiceModel = NestedLogit.build<
-            Options, Situation, RedbusParameters>("Red bus Blue bus choice model") {
+        Options,
+        Situation,
+        RedbusParameters
+        >("Red bus Blue bus choice model") {
         option(Options.CAR) {
             0.0
         }
@@ -27,7 +30,6 @@ class NestedLogitTest {
         assertEquals(result[Situation(Options.RED_BUS)], 0.25)
         assertEquals(result[Situation(Options.BLUE_BUS)], 0.25)
         assertEquals(result[Situation(Options.CAR)], 0.5)
-
     }
 
     @Test
@@ -40,10 +42,12 @@ class NestedLogitTest {
 
     @Test
     fun badCreationSchemesAreCaught() {
-
         assertThrows<IllegalArgumentException> {
             NestedLogit.build<
-                    Options, Situation, RedbusParameters> {
+                Options,
+                Situation,
+                RedbusParameters
+                > {
                 option(Options.CAR) {
                     1.0
                 }
@@ -58,7 +62,10 @@ class NestedLogitTest {
     fun badCreationSchemesAreCaught2() {
         assertThrows<IllegalArgumentException> {
             NestedLogit.build<
-                    Options, Situation, RedbusParameters> {
+                Options,
+                Situation,
+                RedbusParameters
+                > {
             }
         }
     }
@@ -67,12 +74,14 @@ class NestedLogitTest {
     fun badCreationSchemesAreCaught3() {
         assertThrows<IllegalArgumentException> {
             NestedLogit.build<
-                    Options, Situation, RedbusParameters> {
+                Options,
+                Situation,
+                RedbusParameters
+                > {
                 nest(1.0) {
                     nest(1.0) {
                         nest(1.0) {
                             nest(1.0) {
-
                             }
                         }
                     }
@@ -86,9 +95,9 @@ class NestedLogitTest {
         assertThrows<NoSuchElementException> {
             choiceModel.calculateProbabilities(
                 Situation.ALL_VALID + setOf(Situation(Options.OTHER_ILLEGAL_OPTION)),
-                RedbusParameters(1.0))
+                RedbusParameters(1.0)
+            )
         }
-
     }
 
     operator fun <X : Any> Map<ChoiceSituation<X>, Double>.get(x: X): Double {
@@ -116,7 +125,6 @@ class NestedLogitTest {
 
     private val IDENTICAL = RedbusParameters(Double.MIN_VALUE)
     private val DIFFERENT = RedbusParameters(1.0)
-
 
     private enum class Options {
         RED_BUS, BLUE_BUS, CAR, OTHER_ILLEGAL_OPTION

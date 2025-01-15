@@ -18,6 +18,7 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.Mode
+import domain.enums.Regiostar17
 import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
 import domain.location.CostMetric
@@ -72,7 +73,7 @@ class TestZone(
         this.visumId = visumId
         this.name = name
         this.areaType = areaType
-        this.regionType = regionType
+        this.regionType = Regiostar17.METROPOLE
         this.classification = classification
         this.parkingPlaces = parkingPlaces
         this.relief = relief

@@ -11,7 +11,6 @@ import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.RawSurveyInfo
 import synthesis.domain.SynthesisHousehold
-
 import synthesis.domain.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
@@ -254,14 +253,14 @@ data class EngineSpecificParameters(
 )
 
 class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHousehold<out RawSurveyInfo>) : ChoiceSituation<EngineType>() {
-    val workDistance: Distance = person.distanceWork//Distance to pole zone
+    val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
     val employment: Employment = person.employment
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17()?:throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
+    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17() ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
     val regionType = regionTypeRegiostar17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
@@ -294,41 +293,40 @@ val carEngineChoiceModel = KnownDiscreteChoiceModel<EngineType, EngineSituation,
 
 private val defaultUtilityFunction: EngineSpecificParameters.(EngineSituation) -> Double = {
     constant +
-            it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +
-            it.educationDistance.toDouble(DistanceUnit.KILOMETERS) * educationDistance +
+        it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +
+        it.educationDistance.toDouble(DistanceUnit.KILOMETERS) * educationDistance +
 
-            it.sex.isMale() * isMale +
+        it.sex.isMale() * isMale +
 
-            it.isWorking * fullTime +
-            it.isParttime * partTime +
-            it.isHomekeeper * homekeeper +
-            it.isStudentTertiary * studentTertiary +
-            it.isStudentSecondary * studentSecondary +
-            it.isEducationEmployment * educationEmployment +
-            it.isUnemployed * unemployed +
-            it.isRetired * retired +
+        it.isWorking * fullTime +
+        it.isParttime * partTime +
+        it.isHomekeeper * homekeeper +
+        it.isStudentTertiary * studentTertiary +
+        it.isStudentSecondary * studentSecondary +
+        it.isEducationEmployment * educationEmployment +
+        it.isUnemployed * unemployed +
+        it.isRetired * retired +
 
-            (it.age in 18..<25) * age18to25 +
-            (it.age in 25..<35) * age25to35 +
-            (it.age in 35..<45) * age35to45 +
-            (it.age in 45..<55) * age45to55 +
-            (it.age in 55..<65) * age55to65 +
-            (it.age in 65..<75) * age65to75 +
-            (it.age in 75..<85) * age75to85 +
+        (it.age in 18..<25) * age18to25 +
+        (it.age in 25..<35) * age25to35 +
+        (it.age in 35..<45) * age35to45 +
+        (it.age in 45..<55) * age45to55 +
+        (it.age in 55..<65) * age55to65 +
+        (it.age in 65..<75) * age65to75 +
+        (it.age in 75..<85) * age75to85 +
 
-            (it.householdNumberOfCars == 1) * numPKW1 +
-            (it.householdNumberOfCars == 2) * numPKW2 +
-            (it.householdNumberOfCars == 3) * numPKW3 +
-            (it.householdNumberOfCars == 4) * numPKW4 +
+        (it.householdNumberOfCars == 1) * numPKW1 +
+        (it.householdNumberOfCars == 2) * numPKW2 +
+        (it.householdNumberOfCars == 3) * numPKW3 +
+        (it.householdNumberOfCars == 4) * numPKW4 +
 
-            (it.householdSize == 1) * householdSize1 +
-            (it.householdSize == 2) * householdSize2 +
-            (it.householdSize == 3) * householdSize3 +
-            (it.householdSize == 4) * householdSize4 +
+        (it.householdSize == 1) * householdSize1 +
+        (it.householdSize == 2) * householdSize2 +
+        (it.householdSize == 3) * householdSize3 +
+        (it.householdSize == 4) * householdSize4 +
 
-            (it.regionType == SizebasedRegiostarClassification.CITY) * regionStadt +
-            (it.regionType == SizebasedRegiostarClassification.SMALL_TOWN) * regionKleinstadt +
-            (it.regionType == SizebasedRegiostarClassification.URBAN_AREA) * regionStadtraum +
-            (it.regionType == SizebasedRegiostarClassification.RURAL_AREA) * regionLandraum
+        (it.regionType == SizebasedRegiostarClassification.CITY) * regionStadt +
+        (it.regionType == SizebasedRegiostarClassification.SMALL_TOWN) * regionKleinstadt +
+        (it.regionType == SizebasedRegiostarClassification.URBAN_AREA) * regionStadtraum +
+        (it.regionType == SizebasedRegiostarClassification.RURAL_AREA) * regionLandraum
 }
-

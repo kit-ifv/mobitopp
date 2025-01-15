@@ -1,7 +1,7 @@
 package synthesis
 
 import domain.data.EconomicStatus
-import splitOnce
+import processor.builder.splitOnce
 import synthesis.domain.SynthesisHousehold
 import units.Currency
 import units.euros
@@ -15,11 +15,12 @@ import java.util.*
 fun interface DetermineEconomicStatus<T> {
     fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus
 }
-class AlwaysAssignSameStatus(val economicStatus: EconomicStatus): DetermineEconomicStatus<Any> {
+class AlwaysAssignSameStatus(val economicStatus: EconomicStatus) : DetermineEconomicStatus<Any> {
     override fun determineStatus(surveyHousehold: SynthesisHousehold<out Any>): EconomicStatus {
         return economicStatus
     }
 }
+
 /**
  * The default implementation to determine an Economic status for a household. Checks against a table of
  * people, based on the number of children and adults and then returns the economic status based on size and
@@ -31,7 +32,6 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
         val oecdNumber = calculateOECDAmount(surveyHousehold)
         val economicStatus = oecdTranslation(oecdNumber, surveyHousehold.income)
         return economicStatus
-
     }
 
     private fun calculateOECDAmount(surveyHousehold: SynthesisHousehold<out T>): Double {
@@ -41,8 +41,9 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
     }
 
     companion object {
-        fun <T : SurveyInfo> fromPath(path: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")): OECDAssigner<T> {
-
+        fun <T : SurveyInfo> fromPath(
+            path: Path = Path.of("src/test/resources/synthesis/economical-status-oecd2017.csv")
+        ): OECDAssigner<T> {
             val parser = DefaultCsvParser { row ->
                 FileEntry(
 
@@ -52,8 +53,6 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
                         headerToRange(header) to EconomicStatus.decode(row.valueAt(it).toInt())
                     }
                 )
-
-
             }
 
             val map = TreeMap(parser.parse(path.toFile()).associate { it.amount to it.intervals })
@@ -67,7 +66,9 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
             val (start, end) = input.splitOnce(":").second.splitOnce("-")
             val endCurrency = if (end.isEmpty()) {
                 Long.MAX_VALUE.euros
-            } else end.toCurrency()
+            } else {
+                end.toCurrency()
+            }
             return start.toCurrency()..endCurrency
         }
 
@@ -75,7 +76,6 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
             return toDouble().euros
         }
     }
-
 }
 
 val SynthesisHousehold<out SurveyAge>.numberOfAdults get() = members.count { it.age >= 18 }

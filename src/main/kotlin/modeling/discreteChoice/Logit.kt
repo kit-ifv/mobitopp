@@ -1,6 +1,5 @@
 package modeling.discreteChoice
 
-
 import kotlin.math.exp
 
 class Logit<X, P> : DistributionFunction<X, P> {
@@ -8,7 +7,7 @@ class Logit<X, P> : DistributionFunction<X, P> {
     override fun calculateProbabilities(evaluators: Map<X, Double>, parameters: P): Map<X, Double> {
         val currentExp = evaluators.entries.associate {
             it.key to
-                    exp(it.value)
+                exp(it.value)
         }
         val sum = currentExp.values.sum()
 
@@ -17,10 +16,11 @@ class Logit<X, P> : DistributionFunction<X, P> {
 }
 
 class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
-    override val options: Set<X>, override val rules: List<Pair<(SIT) -> Boolean, UtilityFunction<SIT, P>>>,
+    override val options: Set<X>,
+    override val rules: List<Pair<(SIT) -> Boolean, UtilityFunction<SIT, P>>>,
     override val name: String = "Unnamed allocated logit",
 
-    ) : RuleBasedAssociation<X, SIT, P>, OptionDistributionFunction<X, SIT, P> {
+) : RuleBasedAssociation<X, SIT, P>, OptionDistributionFunction<X, SIT, P> {
     override val translation: Map<X, UtilityFunction<SIT, P>> = emptyMap()
 
     override fun calculateProbabilities(evaluators: Map<SIT, Double>, parameters: P): Map<SIT, Double> {
@@ -57,7 +57,6 @@ class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
             val builder = LogitBuilder<X, SIT, PARAMS>(options)
             builder.apply(lambda)
 
-
             return AllocatedLogit(builder.options, builder.rules, name = name)
         }
 
@@ -65,7 +64,5 @@ class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
             name: String = "Unnamed MNL model",
             lambda: LogitBuilder<X, SIT, PARAMS>.() -> Unit
         ): AllocatedLogit<X, SIT, PARAMS> = create(emptySet(), name, lambda)
-
-
     }
 }

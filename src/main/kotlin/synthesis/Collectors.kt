@@ -1,21 +1,17 @@
 package synthesis
 
-import domain.data.Household
 import domain.data.Person
 import domain.data.Sex
-
 
 data class HouseholdRepresentative(
     val members: Set<Pair<Int, PersonRepresentative>>
 ) {
-    val size = members.sumOf{it.first}
-
+    val size = members.sumOf { it.first }
 
     override fun toString(): String {
         return members.joinToString(prefix = "[", postfix = "]") { "${it.first}x ${it.second.shortString()}" }
     }
 }
-
 
 fun Person.toRepresentative(): PersonRepresentative {
     return PersonRepresentative.fromData(sex, age)
@@ -25,14 +21,15 @@ data class PersonRepresentative(
     val sex: Sex,
     val ageGroup: Int
 ) {
-    fun shortString() : String {
+    fun shortString(): String {
         return "$sex ageGroup=$ageGroup"
     }
     companion object {
         fun fromData(sex: Sex, age: Int): PersonRepresentative {
             val groupCode = groupCode(age)
             return PersonRepresentative(
-                sex, groupCode
+                sex,
+                groupCode
 
             )
         }
