@@ -80,9 +80,12 @@ fun File.decompressedInputStream(): InputStream {
     var inputStream: InputStream = BufferedInputStream(this.inputStream())
     var currentFileName = name
 
+    if (compressionExtension(currentFileName) == null) {
+        return inputStream
+    }
+
     while (true) {
-        val extension = currentFileName.substringAfterLast(".", missingDelimiterValue = "")
-        val fileExtension = Compression.fromExtension(extension)
+        val fileExtension = compressionExtension(currentFileName)
 
         if (fileExtension != null) {
             errorScope(
@@ -99,11 +102,22 @@ fun File.decompressedInputStream(): InputStream {
     }
 
     // This decompresses all compression layers into one buffer
-    val out = ByteArrayOutputStream()
-    inputStream.copyTo(out)
-    inputStream.close()
+    val array = errorScope(
+        ErrorHandling.THROW,
+        message = "Error while executing decompression of file content: $name",
+    ) {
+        val out = ByteArrayOutputStream()
+        inputStream.copyTo(out)
+        inputStream.close()
+        out.toByteArray()
+    }
 
-    return ByteArrayInputStream(out.toByteArray())
+    return ByteArrayInputStream(array)
+}
+
+private fun compressionExtension(currentFileName: String): Compression? {
+    val extension = currentFileName.substringAfterLast(".", missingDelimiterValue = "")
+    return Compression.fromExtension(extension)
 }
 
 /**

@@ -7,7 +7,6 @@ class ProcessorProvider : SymbolProcessorProvider {
      * Called by Kotlin Symbol Processing to create the processor.
      */
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-
-        return Processor(environment.codeGenerator, environment.logger, environment.options)
+        return ProcessorDispatcher(environment.codeGenerator, environment.logger, environment.options, environment)
     }
 }

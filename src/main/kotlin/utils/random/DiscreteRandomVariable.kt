@@ -1,5 +1,7 @@
 package utils.random
 
+import utils.ID
+import utils.Identifiable
 import java.util.*
 import kotlin.random.Random
 
@@ -9,6 +11,10 @@ import kotlin.random.Random
  */
 interface StochasticActor {
     val random: Random
+}
+
+abstract class SeededActor<I>(seed: Long) : Identifiable<ID<I>>, StochasticActor {
+    final override val random: Random by lazy { Random(id.value + seed) }
 }
 
 /**

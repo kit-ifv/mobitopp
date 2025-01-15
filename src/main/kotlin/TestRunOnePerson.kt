@@ -3,7 +3,8 @@ import domain.enums.Bbsr17
 import modeling.steps.ModelExecution
 import modeling.steps.Run
 import usecases.LegacyMode
-import usecases.steps.LegacyContext
+import usecases.steps.ProjectContext
+import usecases.steps.StationColumns
 import usecases.steps.finishActivities
 import usecases.steps.finishSharingStations
 import usecases.steps.legacyData.loadHouseholds
@@ -24,7 +25,7 @@ private val rootHamburg = File(
 fun main() {
     val input = "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input\\transmove\\mobitopp-env\\data"
     Run {
-        LegacyContext(
+        ProjectContext(
             scenarioName = "testSteps",
             areaTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
@@ -41,7 +42,7 @@ fun main() {
             ),
             providerName = "StadtMobil",
             mode = LegacyMode.BIKESHARING,
-            vehicleCountColumn = "bikes",
+            columns = StationColumns(vehicleCountColumn = "bikes"),
         )
         finishSharingStations()
         loadTestSet()
@@ -50,7 +51,7 @@ fun main() {
     }
 }
 
-fun <S, C> S.loadTestSet() where S : ModelExecution<C>, C : LegacyContext {
+fun <S, C> S.loadTestSet() where S : ModelExecution<C>, C : ProjectContext {
     loadHouseholds(Path("src/test/resources/hamburg/household.csv").toFile())
     loadPersons(Path("src/test/resources/hamburg/person.csv").toFile())
     //    preparePrivateCars(file = Path("src/test/resources/hamburg/person.csv").toFile()) // file = File("example/car.csv"))

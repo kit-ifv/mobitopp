@@ -34,9 +34,7 @@ detekt {
     autoCorrect = true
 }
 dependencies {
-    api("edu.kit.ifv:processor:1.0.0")
-//    api(project(":processor"))
-//    testImplementation(project(":processor"))
+
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
@@ -49,8 +47,10 @@ dependencies {
 //    ksp(project(":processor")) // to make KSP work
     ksp("edu.kit.ifv:processor:1.0.0") // to make KSP work
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
+
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
     detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
+
     implementation("org.yaml:snakeyaml:2.2") // SnakeYAML dependency
     implementation("org.apache.commons:commons-compress:1.26.2")
     implementation("org.tukaani:xz:1.9")
@@ -66,7 +66,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
     implementation("net.objecthunter:exp4j:0.4.8")
-
 
 
 }
@@ -143,3 +142,13 @@ tasks.withType<JavaExec>().configureEach {
     )
 }
 
+ksp {
+    arg("incremental", "true")
+    arg("ksp.incremental", "true")
+}
+//
+//sourceSets {
+//    main {
+//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
+//    }
+//}

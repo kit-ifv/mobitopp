@@ -13,11 +13,19 @@ dependencies {
     testImplementation(project(":annotations"))
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
     implementation("com.google.devtools.ksp:symbol-processing-api:1.6.20-1.0.5")
+    implementation("com.squareup:kotlinpoet:1.16.0")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("reflect"))
     implementation(kotlin("reflect"))
 }
+
+//ksp {
+//    arg("incremental", "true")
+//    arg("ksp.incremental", "true")
+//
+//}
+
 group = "edu.kit.ifv"
 version = "1.0.0"
 publishing {
@@ -36,4 +44,10 @@ publishing {
         }
     }
 }
+
+//sourceSets {
+//    main {
+//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
+//    }
+//}
 

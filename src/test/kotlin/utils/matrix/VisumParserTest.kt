@@ -25,7 +25,7 @@ class VisumParserTest {
             10101, 10301, 10302, 10601, 10701, 10702, 11001, 11002, 11003, 11101,
             11102, 11103, 11104, 11201, 11202, 11203
         )
-        assertArrayEquals(expectedZoneIds, zoneIds.map { it.id.toInt() }.toTypedArray())
+        assertArrayEquals(expectedZoneIds, zoneIds.map { it.value.toInt() }.toTypedArray())
 
         val array = parser.getArray()
 

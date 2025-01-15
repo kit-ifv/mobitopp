@@ -1,6 +1,6 @@
 package domain.data
 
-import Buildable
+import Mutable
 import domain.location.Location
 import domain.resources.Resource
 import domain.resources.Subscribable
@@ -9,71 +9,34 @@ import utils.Decodable
 import utils.Encodable
 import utils.ID
 import utils.Identifiable
-import kotlin.random.Random
+import utils.random.SeededActor
 
 typealias HouseholdId = ID<Household>
 
-/**
- * The minimal viable information about a household in the simulation.
- *  @property location A household will have a fixed location somewhere in the simulation world.
- *  @property incomePerMonth The household income as required by some utility functions
- *  @property economicStatus The economic status grouping (Might be derived from income)
- *  @property householdNumber id of household in survey
- *  @property surveyYear year the survey was conducted
- *  @property domCode domestic code (legacy mobiTopp)
- *  @property type household type (legacy mobiTopp)
- *  @property members a set of household members
- *  @property random a random value provider for decisions carried out by this agent
- */
-@Buildable
-@Suppress("ComplexInterface")
-interface Household : Identifiable<HouseholdId>, Subscribable<Person>, Resource<Person> {
-    val householdNumber: Long
-    val surveyYear: Int
-    val location: Location
-    val domCode: Int
-    val type: Int
-    val incomePerMonth: Currency
-    val economicStatus: EconomicStatus
-    val random: Random
-    val members: Set<Person>
-    val cars: Set<PrivateCar>
-    fun addMember(person: Person): Boolean
-    fun addCar(privateCar: PrivateCar): Boolean
+@Mutable
+abstract class Household(
+    override val id: HouseholdId,
+    seed: Long,
+) : SeededActor<Household>(seed), Identifiable<HouseholdId>, Subscribable<Person>, Resource<Person> {
 
-    override fun isAvailableFor(agent: Person): Boolean {
+    abstract val householdNumber: Long
+    abstract val surveyYear: Int
+    abstract val location: Location
+    abstract val domCode: Int
+    abstract val type: Int
+    abstract val incomePerMonth: Currency
+    abstract val economicStatus: EconomicStatus
+    abstract val members: Set<Person>
+    abstract val cars: Set<PrivateCar>
+
+    final override val name: String by lazy { "H_${id}_$householdNumber" }
+
+    final override fun isAvailableFor(agent: Person): Boolean {
         return (location == agent.location) && !agent.inTransit
     }
 
-    override val resources: Set<Resource<Person>>
+    final override val resources: Set<Resource<Person>>
         get() = setOf(this)
-}
-
-@Buildable
-@Suppress("LongParameterList")
-class DefaultHousehold(
-    override val householdNumber: Long,
-    override val surveyYear: Int,
-    override val location: Location,
-    override val domCode: Int,
-    override val type: Int,
-    override val incomePerMonth: Currency,
-    override val economicStatus: EconomicStatus,
-    override val random: Random,
-    override val id: HouseholdId = ID(householdNumber),
-    override val name: String = "Household: $id"
-
-) : Household {
-    override val members: MutableSet<Person> = mutableSetOf()
-    override val cars: MutableSet<PrivateCar> = mutableSetOf()
-
-    override fun addMember(person: Person): Boolean {
-        return members.add(person)
-    }
-
-    override fun addCar(privateCar: PrivateCar): Boolean {
-        return cars.add(privateCar)
-    }
 }
 
 /**
