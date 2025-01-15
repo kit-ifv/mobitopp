@@ -1,45 +1,52 @@
 package usecases.steps
 
 import datastructure.plans.SingularDispatcher
+import domain.data.ActivityId
+import domain.data.MutablePerson
+import domain.data.PersonId
+import domain.data.PlannedActivity
 import domain.data.toSchedule
-import modeling.steps.Context
-import modeling.steps.CustomStep
 import modeling.steps.ModelExecution
-import modeling.steps.RepositoryState
-import modeling.steps.repairFinishedState
-import modeling.steps.subValidateState
-import modeling.validation.validateScope
+import modeling.steps.MutableRepository
+import modeling.steps.Repository
+import modeling.steps.UpdateStep
+import modeling.steps.validateNotSealed
+import modeling.validation.Warning
 
-fun <S, C> S.assignPlannedActivities()
-    where S : ModelExecution<C>, C : Context, C : ActivityContext, C : PersonContext {
-    this.addStep(
-        CustomStep(
-            "assign planned activities to persons",
-            validation = {
-                validateScope(
-                    "Validate assign HOME location to household and update schedules produced warnings:"
-                ) {
-                    subValidateState(
-                        context.personRepository,
-                        RepositoryState.FINISHED,
-                        this@assignPlannedActivities
-                    )
-                    subValidateState(
-                        context.plannedActivityRepository,
-                        RepositoryState.FINISHED,
-                        this@assignPlannedActivities
-                    )
-                    repairFinishedState(context.personRepository, this@assignPlannedActivities)
-                }
-            },
-            exec = {
-                context.plannedActivityRepository.elements.groupBy { it.person.id }.map {
-                    context.personRepository.getById(it.key)!!.schedule = it.value.toSchedule(SingularDispatcher())
-                }
+fun <S, C> S.assignPlannedActivities() where S : ModelExecution<C>, C : AssignPlannedActivitiesContext {
+    this.addStep(AssignPlannedActivities(context))
+}
 
-                context.plannedActivityRepository.clear()
-                System.gc()
-            }
-        )
-    )
+interface AssignPlannedActivitiesContext {
+    val personRepository: MutableRepository<MutablePerson, PersonId>
+    val plannedActivityRepository: MutableRepository<PlannedActivity, ActivityId>
+}
+
+class AssignPlannedActivities(
+    activityRepositoryContext: AssignPlannedActivitiesContext,
+) : UpdateStep<MutablePerson, PersonId>() {
+
+    override val name: String = "Assign planned activities to person in bulk."
+
+    override val repository: MutableRepository<MutablePerson, PersonId> = activityRepositoryContext.personRepository
+    private val activityRepository = activityRepositoryContext.plannedActivityRepository
+    override val dependentRepositories: Set<Repository<*, *>> = setOf(activityRepository)
+
+    override fun verifyInput(): Warning? = validateNotSealed(activityRepository, this)
+
+    private val activitiesPerPerson: MutableMap<PersonId, List<PlannedActivity>> by lazy {
+        activityRepository.elements.groupBy { it.person.id }.toMutableMap()
+    }
+
+    override fun update(element: MutablePerson) {
+        element.schedule = requireNotNull(activitiesPerPerson[element.id]) {
+            "No activities found for Person ${element.id}" // TODO error handling here
+        }.toSchedule(SingularDispatcher())
+    }
+
+    override fun execute() = super.execute().also {
+        activityRepository.clear()
+        activitiesPerPerson.clear()
+        System.gc()
+    }
 }

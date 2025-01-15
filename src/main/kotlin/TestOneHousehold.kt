@@ -1,10 +1,10 @@
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
-import domain.enums.LegacyActivityType
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
-import usecases.steps.LegacyContext
+import usecases.steps.ProjectContext
+import usecases.steps.StationColumns
 import usecases.steps.assignFixedDestinations
 import usecases.steps.assignHomeLocations
 import usecases.steps.dummyImpedance
@@ -23,25 +23,10 @@ private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp"
 private val rootHamburg = File(
     "$ROOT_FS\\Output\\transmove-synthesis-city-bs\\last-stable"
 )
-private val attractivenessTypes = setOf(
-    LegacyActivityType.BUSINESS,
-    LegacyActivityType.LEISURE_INDOOR,
-    LegacyActivityType.LEISURE_OUTDOOR,
-    LegacyActivityType.PRIVATE_BUSINESS,
-    LegacyActivityType.PRIVATE_VISIT,
-    LegacyActivityType.SERVICE,
-    LegacyActivityType.SHOPPING_DAILY,
-    LegacyActivityType.SHOPPING_OTHER,
-    LegacyActivityType.SHOPPING,
-    LegacyActivityType.EDUCATION_PRIMARY,
-    LegacyActivityType.EDUCATION_SECONDARY,
-    LegacyActivityType.EDUCATION_TERTIARY,
-    // TODO Sightseeing?
-)
 
 fun main() {
     Run {
-        LegacyContext(
+        ProjectContext(
             scenarioName = "testSteps",
             areaTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
@@ -66,7 +51,6 @@ fun main() {
 
         loadAttractivities(
             file = File("data/attractivities.csv"),
-            activityTypes = attractivenessTypes
         )
         prepareSharingStations(
             errorHandling = ErrorHandling.THROW,
@@ -75,7 +59,7 @@ fun main() {
             ),
             providerName = "StadtMobil",
             mode = LegacyMode.BIKESHARING,
-            vehicleCountColumn = "bikes",
+            columns = StationColumns(vehicleCountColumn = "bikes"),
         )
         finishSharingStations()
         loadChoiceModels(legacyChoiceModelModes)

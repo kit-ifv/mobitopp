@@ -1,19 +1,10 @@
-
+package utils.units
 import units.DistanceUnit
 import units.toDistance
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ExampleTest {
-//    @Test
-//    fun creatorTest() {
-//        assertEquals("Robin", creator)
-//    }
-//
-//    @Test
-//    fun nonCreatorTest() {
-//        assertNotEquals("PETER", creator)
-//    }
+class DistanceUnitTest {
 
     @Test
     fun distanceInspector() {

@@ -1,6 +1,6 @@
 package scenarios
 
-import domain.data.SharingProvider
+import domain.data.MutableSharingProvider
 import domain.data.SharingStation
 import domain.events.CarSelector
 import domain.events.InitPersonEvent
@@ -35,7 +35,11 @@ class RidesharingOnlyScenario {
         val pedestrian = legacyChoiceModelModes.pedestrian
         val zones = generateZones(10)
 
-        val provider = SharingProvider("Testprovider", bikeSharing)
+        val provider = MutableSharingProvider {
+            name = "Testprovider"
+            mode = bikeSharing
+        }
+
         val stations = zones.map { it.generateSharingStation(provider, provider.prepareVehicles(1)) }
         val households = zones.generateHouseholds(10, membershipsMap = mutableMapOf(provider to true))
         val persons = households.flatMap { it.members }
