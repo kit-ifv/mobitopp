@@ -154,8 +154,6 @@ data class ZoneTarget(
     }
 }
 
-//val SurveyPerson<out SurveyInfo>.sex get() = information.sex
-//val SurveyPerson<out SurveyAge>.age get() = information.age
 val SurveyPerson<out Any>.groupCode
     get() = when (age) {
         in 0..5 -> 0

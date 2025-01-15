@@ -15,7 +15,11 @@ import java.util.*
 fun interface DetermineEconomicStatus<T> {
     fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus
 }
-
+class AlwaysAssignSameStatus(val economicStatus: EconomicStatus): DetermineEconomicStatus<Any> {
+    override fun determineStatus(surveyHousehold: SynthesisHousehold<out Any>): EconomicStatus {
+        return economicStatus
+    }
+}
 /**
  * The default implementation to determine an Economic status for a household. Checks against a table of
  * people, based on the number of children and adults and then returns the economic status based on size and

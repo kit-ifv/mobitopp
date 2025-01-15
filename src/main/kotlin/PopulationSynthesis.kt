@@ -117,9 +117,9 @@ class AssignByDiscreteChoice(
 
 }
 
-object TrivialTransitCardOwnership : AssignTransitCardOwnership<Any> {
+object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
     override fun assignFor(person: SynthesisPerson<out Any>): Boolean {
-        return false
+        return true
     }
 }
 
@@ -131,7 +131,7 @@ class SynthesisSteps<T : Any>(
     val opportunities: List<OpportunityOutput>
 ) {
 
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<T>>>
+    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
@@ -141,12 +141,20 @@ class SynthesisSteps<T : Any>(
     fun fixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
         val stepBuilder = AssignStepBuilder<T>(zones, attractivenessModel)
         stepBuilder.apply(lambda)
-        fixedDestinations = stepBuilder.steps.flatMap { it.runOther(people) }
+
+        val fixedDestinationse = stepBuilder.steps.flatMap { it.runOther(people) }
+        fixedDestinationse.forEach { it.person.fixedDestinations[it.activityType] = it.location }
+        fixedDestinations = fixedDestinationse
     }
+
     // TODO speaking type parameter names
-    fun  synthesis(randsums: Map<Zone, List<Rule<Any>>>, lambda: () -> HouseholdSynthesis<T>) {
+    fun synthesis(
+        randsums: Map<Zone, List<Rule<Any>>>,
+        filter: (Zone) -> Boolean = { it in randsums.keys },
+        lambda: () -> HouseholdSynthesis<T>
+    ) {
         val generator = lambda()
-        val synthesisZones = zones.filter { it in randsums.keys }
+        val synthesisZones = zones.filter(filter)
         require(randsums.keys.all { it in zones }) {
             "Zone Ids: ${
                 randsums.keys.filter { it !in zones }.map { it.id }
@@ -155,7 +163,7 @@ class SynthesisSteps<T : Any>(
         }
         householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
     }
-
+    //TODO refactor, use or discard this method
     fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in T>) {
         val strategy = lambda()
 
@@ -176,7 +184,7 @@ class SynthesisSteps<T : Any>(
     }
 
 
-    fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<T>) {
+    fun assignEconomicStatus(lambda: () -> DetermineEconomicStatus<in T>) {
         val strategy = lambda()
         households.forEach { it.economicStatus = strategy.determineStatus(it) }
     }
@@ -197,23 +205,9 @@ class SynthesisSteps<T : Any>(
 
     }
 
-//    fun assignTransitCardOwnershipold(lambda: TransitCardChoiceModelData.() -> Unit) {
-//        val input = TransitCardChoiceModelData()
-//        input.apply(lambda)
-//        val model = input.choiceModel
-//        val parameters = input.parameters
-//
-//
-//        households.forEach {household ->
-//            household.members.forEach { person ->
-//                person.hasTransitPass = model.select( {TicketSituation(it,household, person )}, parameters)
-//            }
-//        }
-//    }
-
-    fun generateCars(strategy: GenerateCars<T>) {
-
-        cars = households.flatMap { strategy.generate(it) }
+    fun generateCars(strategy: GenerateCars<in T>) {
+        households.forEach { it.cars += strategy.generate(it) }
+        cars = households.flatMap { it.cars }
 
     }
 
@@ -230,14 +224,12 @@ class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
     val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
-    val randsums: Map<Zone, List<Rule<Any>>>,
+    val rules: List<Rule<Any>>,
     val attractivenessModel: AttractivenessModel,
-    val surveyData: Collection<T>
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
     fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
-        val s =
-            SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
+        SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
 
     }
 
@@ -256,7 +248,7 @@ class PopulationSynthesis<T : Any>(
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
             lateinit var zones: List<Zone>
-
+            lateinit var rules: List<Rule<Any>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
 
@@ -284,18 +276,14 @@ class PopulationSynthesis<T : Any>(
             lambda: SynthesisConfiguration<T>.() -> Unit
         ): PopulationSynthesis<T> {
             val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
-            val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-            val rules: Map<Zone, List<Rule<Any>>> = targets.associate {
-                config.zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-            }
+
 
             return PopulationSynthesis(
                 config.outputDirectory,
                 config.zones,
                 config.surveyHouseholds,
-                rules,
+                config.rules,
                 config.attractivenessModel,
-                config.surveyPopulation
             )
         }
     }
@@ -340,10 +328,17 @@ fun tryout() {
     }
     populationSynthesis.execute {
 
-        synthesis(populationSynthesis.randsums) {
+
+        // TODO make this a bit more beautiful
+        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
+        val rules: Map<Zone, List<Rule<Any>>> = targets.associate {
+            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
+        }
+
+        synthesis(rules) {
             IPU { vectors, observers ->
                 var counter = 0
-                while (observers.maxBy { it.difference }.difference >= 0.01 && counter < 100) {
+                while (observers.maxBy { it.relativeDifference }.relativeDifference >= 0.01 && counter < 100) {
                     observers.forEach { it.optimize() }
                     counter++
                 }

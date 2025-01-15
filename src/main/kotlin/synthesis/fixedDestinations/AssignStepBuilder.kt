@@ -43,7 +43,11 @@ class AssignStepBuilder<G>(
     }
 
     val steps: MutableList<AssignStep> = mutableListOf()
-
+    fun forActivity(lambda: AssignStepBuilder<G>.FixedIn.() -> Unit) {
+        val element = FixedIn()
+        element.apply(lambda)
+        steps.add(AssignStep(element.activityType, element.filter, element.assignmentStrategy))
+    }
     inner class FixedIn {
         lateinit var activityType: ActivityType
         lateinit var assignmentStrategy: GroupLocationFinder<in G>

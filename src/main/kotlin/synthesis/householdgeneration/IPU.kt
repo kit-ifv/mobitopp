@@ -2,7 +2,6 @@ package synthesis.householdgeneration
 
 import domain.data.Zone
 import synthesis.SurveyHousehold
-import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.pickWithReplacement
 import utils.collections.equivalenceClasses
@@ -58,7 +57,7 @@ class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collecti
         surveyHouseholds: HouseholdEquivalence<T>,
         rules: List<Rule<Any>>
     ): Collection<Pair<SurveyHousehold<T>, Double>> {
-        val vectorMapping = surveyHouseholds.keys.associateWith { rules.vectorize(it) }
+        val vectorMapping = surveyHouseholds.keys.associateWith { rules.vectorized(it) }
         val vectors = vectorMapping.values
         // TODO maybe assign rule -> Observer so that higher order logic may interact with these.
         val observers = rules.withIndex().map { rule ->
@@ -75,7 +74,7 @@ class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collecti
     }
 
     private fun ScalableVector.appliesTo(indexRule: IndexedValue<Rule<Any>>): Boolean {
-        return this.vector[indexRule.index] != 0
+        return this.content[indexRule.index] != 0
     }
 
 }
