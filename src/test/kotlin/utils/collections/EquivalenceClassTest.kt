@@ -9,6 +9,7 @@ import domain.data.PersonBuilder
 import domain.data.PersonId
 import domain.data.Sex
 import domain.location.LOCATIONUNKNOWN
+import synthesis.HouseholdRepresentative
 import synthesis.toRepresentative
 import units.euros
 import kotlin.math.sqrt
@@ -205,4 +206,8 @@ class EquivalenceClassTest {
         assertEquals(otherEquivalence[thirdTriangle]!!, setOf(thirdTriangle))
         assertNull(otherEquivalence[randomTriangle])
     }
+}
+
+private fun Household.toRepresentative(): HouseholdRepresentative {
+    return HouseholdRepresentative((members.map { it.toRepresentative() }.groupingBy { it }.eachCount().map{(element, count) -> Pair(count, element) }.toSet()))
 }

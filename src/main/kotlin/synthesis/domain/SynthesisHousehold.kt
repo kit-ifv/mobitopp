@@ -2,6 +2,7 @@ package synthesis.domain
 
 import domain.data.EconomicStatus
 import domain.location.Location
+import synthesis.SynthesisCar
 import units.Currency
 import units.euros
 
@@ -20,8 +21,11 @@ class SynthesisHousehold<T>(
     var members: MutableList<SynthesisPerson<out T>> = mutableListOf()
     val size get() = members.size
     lateinit var location: Location
-    lateinit var economicStatus: EconomicStatus
-    var amountOfCars = 0
 
+    fun locationIsAssigned() = ::location.isInitialized
+    lateinit var economicStatus: EconomicStatus
+    fun economicStatusIsAssigned() = ::economicStatus.isInitialized
+    var amountOfCars = 0
+    val cars : MutableList<SynthesisCar> = mutableListOf()
 
 }

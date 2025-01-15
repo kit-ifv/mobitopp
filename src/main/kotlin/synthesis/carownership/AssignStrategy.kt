@@ -19,19 +19,11 @@ fun interface CarOwnershipAssignStrategy<T> {
     fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out T>): Int
 }
 
-object TrivialAssignment : CarOwnershipAssignStrategy<SurveyInfo>  {
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
-        return 0
+class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>  {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out Any>): Int {
+        return amount
     }
 }
-
-object ConcreteAssignment : CarOwnershipAssignStrategy<RawSurveyInfo> {
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out RawSurveyInfo>): Int {
-        return 1
-    }
-
-}
-
 
 
 class AssignViaRegionType(

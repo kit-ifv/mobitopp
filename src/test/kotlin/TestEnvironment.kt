@@ -49,6 +49,8 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
+val ITZEHOE = GPSCoordinate.decimalDegree(53.925032, 9.515585)
+val SCHWEINFURT = GPSCoordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE = TestZone()
 
 @Buildable

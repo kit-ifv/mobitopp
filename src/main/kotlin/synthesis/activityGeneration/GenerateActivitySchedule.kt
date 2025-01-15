@@ -14,7 +14,7 @@ interface GenerateActivitySchedule<T> {
 }
 
 fun List<SynthesisHousehold<Any>>.generateSchedules(generator: GenerateActivitySchedule<Any>): Map<SynthesisHousehold<Any>, List<PreliminaryActivitySchedule>> {
-    return associateWith {household ->
+    return associateWith { household ->
         household.members.map { person ->
             val schedule = generator.generate(person)
             schedule.forEach { act ->
@@ -28,7 +28,7 @@ fun List<SynthesisHousehold<Any>>.generateSchedules(generator: GenerateActivityS
 
 }
 
-class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
+class SimpleActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
     GenerateActivitySchedule<SurveyInfo> {
 
 
@@ -73,4 +73,17 @@ class TrivialActivityScheduleGeneration(private val init: Decodable<ActivityType
 
     }
 
+}
+
+class TrivialActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
+    GenerateActivitySchedule<Any> {
+    override fun generate(person: SynthesisPerson<out Any>): PreliminaryActivitySchedule {
+        return PreliminaryActivitySchedule(init) {
+            home(0.hours, 10.hours)
+            shopping(11.hours, 13.5.hours)
+            work(14.hours, 16.hours)
+            leisure(17.hours, 18.hours)
+            home(19.hours, 30.hours)
+        }
+    }
 }

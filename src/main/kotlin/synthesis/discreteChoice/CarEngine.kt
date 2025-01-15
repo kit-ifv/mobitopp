@@ -253,7 +253,7 @@ data class EngineSpecificParameters(
 
 )
 
-class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHousehold<RawSurveyInfo>) : ChoiceSituation<EngineType>() {
+class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHousehold<out RawSurveyInfo>) : ChoiceSituation<EngineType>() {
     val workDistance: Distance = person.distanceWork//Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -274,7 +274,7 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val isRetired = employment == Employment.RETIRED
 }
 
-fun EngineType.toChoice(person: SynthesisPerson<out RawSurveyInfo>, household: SynthesisHousehold<RawSurveyInfo>): EngineSituation {
+fun EngineType.toChoice(person: SynthesisPerson<out RawSurveyInfo>, household: SynthesisHousehold<out RawSurveyInfo>): EngineSituation {
     return EngineSituation(this, person.info, household)
 }
 

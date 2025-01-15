@@ -3,7 +3,6 @@ package modeling.discreteChoice
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.awt.Choice
 
 class NestedLogitTest {
 
@@ -24,7 +23,7 @@ class NestedLogitTest {
 
     @Test
     fun redBusBlueBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL, IDENTICAL)
+        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, IDENTICAL)
         assertEquals(result[Situation(Options.RED_BUS)], 0.25)
         assertEquals(result[Situation(Options.BLUE_BUS)], 0.25)
         assertEquals(result[Situation(Options.CAR)], 0.5)
@@ -33,7 +32,7 @@ class NestedLogitTest {
 
     @Test
     fun invariantRedBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL, DIFFERENT)
+        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, DIFFERENT)
         assertEquals(result[Situation(Options.RED_BUS)], 1.0 / 3)
         assertEquals(result[Situation(Options.BLUE_BUS)], 1.0 / 3)
         assertEquals(result[Situation(Options.CAR)], 1.0 / 3)
@@ -86,7 +85,7 @@ class NestedLogitTest {
     fun unassociatedElementsGiveMessage() {
         assertThrows<NoSuchElementException> {
             choiceModel.calculateProbabilities(
-                Situation.ALL + setOf(Situation(Options.OTHER_ILLEGAL_OPTION)),
+                Situation.ALL_VALID + setOf(Situation(Options.OTHER_ILLEGAL_OPTION)),
                 RedbusParameters(1.0))
         }
 
@@ -125,7 +124,7 @@ class NestedLogitTest {
 
     private class Situation(override val choice: Options) : ChoiceSituation<Options>() {
         companion object {
-            val ALL = Options.entries.map { Situation(it) }.toSet()
+            val ALL_VALID = setOf(Situation(Options.RED_BUS), Situation(Options.BLUE_BUS), Situation(Options.CAR))
         }
     }
 }
