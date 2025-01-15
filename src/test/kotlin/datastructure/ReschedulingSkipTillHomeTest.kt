@@ -5,7 +5,6 @@ import START
 import THIRD
 import datastructure.plans.BlockModel
 import domain.enums.LegacyActivityType
-import org.junit.jupiter.api.Test
 import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.hours

@@ -30,10 +30,13 @@ fun interface LocationFinder<T : Any> {
     fun find(person: SynthesisPerson<out T>, activityType: ActivityType): Location
 }
 fun interface GroupLocationFinder<T> {
-    fun find(persons: Collection<SynthesisPerson<out T>>, activityType: ActivityType): Collection<Pair<SynthesisPerson<out T>, Location>>
+    fun find(
+        persons: Collection<SynthesisPerson<out T>>,
+        activityType: ActivityType
+    ): Collection<Pair<SynthesisPerson<out T>, Location>>
 }
 
-class TrivialGroupLocationFinder<T: Any>(val original: LocationFinder<T>): GroupLocationFinder<T> {
+class TrivialGroupLocationFinder<T : Any>(val original: LocationFinder<T>) : GroupLocationFinder<T> {
     override fun find(
         persons: Collection<SynthesisPerson<out T>>,
         activityType: ActivityType
@@ -61,9 +64,8 @@ class UseClosestLocation(potentialLocations: List<Location>) : LocationFinder<An
         persons: Collection<SynthesisPerson<out Any>>,
         activityType: ActivityType
     ): Collection<Pair<SynthesisPerson<out Any>, Location>> {
-        return  persons.map { it to find(it, activityType) }
+        return persons.map { it to find(it, activityType) }
     }
-
 }
 
 data class BandwidthParameters(
@@ -73,7 +75,6 @@ data class BandwidthParameters(
     val aDistance: Double = 5.0 // TODO sehr wahrscheinlich kilometer statt meter. Rausfinden
 )
 
-
 class LocationKDTree(locations: List<Location>) {
     private val tree = ReadOnlyKDTree(locations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
@@ -81,7 +82,8 @@ class LocationKDTree(locations: List<Location>) {
         return tree.findUntil(
             location,
             { doubleArrayOf(it.coordinate.toUTM().e, it.coordinate.toUTM().n) },
-            { it.toDistance(DistanceUnit.METERS) })
+            { it.toDistance(DistanceUnit.METERS) }
+        )
     }
 }
 
@@ -92,7 +94,8 @@ data class LocationSituation(
 ) : ChoiceSituation<Location>()
 
 class UseBandwidthLocation(
-    private val potentialLocations: List<Location>, val attractivenessModel: AttractivenessModel,
+    private val potentialLocations: List<Location>,
+    val attractivenessModel: AttractivenessModel,
     val parameters: BandwidthParameters = BandwidthParameters()
 ) : LocationFinder<Any>, GroupLocationFinder<Any> {
     private val locationTree = LocationKDTree(potentialLocations)
@@ -107,7 +110,6 @@ class UseBandwidthLocation(
                             ?: 0.000001.also { System.err.println("Cannot find attractiveness for location") }
 
                     ln(attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
-
                 }
             }
         )
@@ -129,7 +131,6 @@ class UseBandwidthLocation(
         }
         val converted = validTargets.map { LocationSituation(it.item, it.metric, activityType) }.toSet()
         return model.select(converted, parameters)
-
     }
 
     override fun find(
@@ -145,7 +146,7 @@ class CommuterMatrix(
     commuterInfo: List<CommuterInfo>,
     val zoneMapping: Map<ZoneId, Zone>,
 ) {
-    val workZones = zoneMapping.values.filter{it.id in translator.forwardMap.keys}
+    val workZones = zoneMapping.values.filter { it.id in translator.forwardMap.keys }
     private val commuterTargets: Map<CommunityNumber, Map<CommunityNumber, Double>> =
         commuterInfo.groupBy { it.origin }
             .mapValues { targets ->
@@ -154,9 +155,9 @@ class CommuterMatrix(
     val requests: Map<CommunityNumber, Double> = commuterTargets.entries.associate { it.key to it.value.values.sum() }
     val targetSize = commuterTargets.values.sumOf { it.values.sum() }
     fun commuterTargets(origin: Zone, destination: Zone): Double {
-        val originCommunity = translator.forwardMap[origin.id]?: throw NoSuchElementException("Did not find ${origin.id} in commuting relations")
-        val destinationCommunity = translator.forwardMap[destination.id]?: throw NoSuchElementException("Did not find ${destination.id} in commuting relations")
-        val originCommuters = commuterTargets[originCommunity]?: emptyMap()
+        val originCommunity = translator.forwardMap[origin.id] ?: throw NoSuchElementException("Did not find ${origin.id} in commuting relations")
+        val destinationCommunity = translator.forwardMap[destination.id] ?: throw NoSuchElementException("Did not find ${destination.id} in commuting relations")
+        val originCommuters = commuterTargets[originCommunity] ?: emptyMap()
 
         return originCommuters[destinationCommunity] ?: 0.0
     }
@@ -187,8 +188,6 @@ class CommuterAssignee<T : Any>(
 ) : LocationFinder<T> {
     override fun find(person: SynthesisPerson<out T>, activityType: ActivityType): Location {
         return locateFromCommuterMatrix.locate(commuterMatrix, person, activityType)
-
-
     }
 }
 
@@ -217,13 +216,11 @@ class MetricCommAssign(
         assignedPeeps[target] = assignedPeeps.getOrPut(target) { 0 } + 1
     }
 
-
     /**
      * There is no distance evaluable between communities, only zones, so we need to unroll the entirety to get
      * approximate distances for actually assigning a work location based on the survey data.
      */
     private fun unrollCommutermatrix(): Map<Zone, Collection<WorkDistances>> {
-
         return commuterMatrix.workZones.associateWith { origin ->
             commuterMatrix.workZones.map { destination ->
                 WorkDistances(
@@ -232,11 +229,10 @@ class MetricCommAssign(
                     attractiveness = attractivenessModel.attractivenessFor(destination.id, legacyActivityType),
                     distance = metric.evaluate(origin.centroid, destination.centroid),
                     communityCommutersDesired = commuterMatrix.commuterTargets(origin, destination),
-                    originCommunity = commuterMatrix.getCommunityId(origin) ,
-                    destinationCommunity = commuterMatrix.getCommunityId(destination) ,
+                    originCommunity = commuterMatrix.getCommunityId(origin),
+                    destinationCommunity = commuterMatrix.getCommunityId(destination),
                     tracker = ::access
                 )
-
             }
         }
     }
@@ -266,7 +262,6 @@ class MetricCommAssign(
         val canIMeetTheRequirements = targets.entries.associate { it.key to (it.value.size to commuterMatrix.requests[it.key]) }
         return persons.map { it to find(it, activityType) }
     }
-
 }
 
 class WorkDistances(
@@ -310,7 +305,7 @@ fun interface FindProperWorkspace {
  */
 val GREEDY_BY_DISTANCE = FindProperWorkspace { targets, distance ->
 
-    val potentialTargets = if (targets.any { it.isUndersaturated()}) {
+    val potentialTargets = if (targets.any { it.isUndersaturated() }) {
         targets.filter { it.isUndersaturated() }
         // Fallback solution, if all destinations are saturated, use the original set again
     } else {
@@ -318,13 +313,13 @@ val GREEDY_BY_DISTANCE = FindProperWorkspace { targets, distance ->
     }
 
     val sortedBy = potentialTargets.sortedBy { it.distance }
-    //Fallback solution, if no zone with sufficient commuter distance is available, use the largest remaining zone instead
-    sortedBy.firstOrNull { it.distance >= distance } ?:sortedBy.last()
+    // Fallback solution, if no zone with sufficient commuter distance is available, use the largest remaining zone instead
+    sortedBy.firstOrNull { it.distance >= distance } ?: sortedBy.last()
 }
 
 val GREEDY_BY_DISTANCE_PROPORTIONAL = FindProperWorkspace { targets, distance ->
 
-    val potentialTargets = if (targets.any { it.isUndersaturated()}) {
+    val potentialTargets = if (targets.any { it.isUndersaturated() }) {
         targets.filter { it.isUndersaturated() }
         // Fallback solution, if all destinations are saturated, use the original set again
     } else {
@@ -332,7 +327,7 @@ val GREEDY_BY_DISTANCE_PROPORTIONAL = FindProperWorkspace { targets, distance ->
     }
 
     val sortedBy = potentialTargets.sortedBy { it.distance }
-    //Fallback solution, if no zone with sufficient commuter distance is available, use the largest remaining zone instead
+    // Fallback solution, if no zone with sufficient commuter distance is available, use the largest remaining zone instead
     sortedBy.filter { it.distance >= distance }.maxBy { it.communityCommutersDesired }
 }
 
@@ -340,7 +335,7 @@ val WarnSaturation: WarnOnce = WarnOnce()
 class WarnOnce {
     private var triggered = false
     fun print(message: () -> String) {
-        if(triggered) return
+        if (triggered) return
         println(message())
         triggered = true
     }
@@ -354,7 +349,4 @@ fun interface LocationFromCommuterMatrix<T : Any> : LocationFinder<T> {
     fun locate(commuterMatrix: CommuterMatrix, person: SynthesisPerson<out T>, activityType: ActivityType): Location
 }
 
-
-
 private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
-

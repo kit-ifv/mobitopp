@@ -9,7 +9,6 @@ import utils.collections.sortByValues
 
 typealias HouseholdEquivalence<T> = Map<SurveyHousehold<T>, Set<SurveyHousehold<T>>>
 
-
 class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>) :
     HouseholdSynthesis<T> {
     private var overflowCounter: Double = 0.0
@@ -23,8 +22,6 @@ class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collecti
             } else {
                 set.pickWithReplacement(d.toInt())
             }
-
-
         }
 
     override fun synthesize(
@@ -33,7 +30,7 @@ class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collecti
         conditions: Map<Zone, List<Rule<Any>>>
     ): Map<Zone, List<SynthesisHousehold<T>>> {
         val uniques = surveyHouseholds.toSet()
-        //TODO equivalnece classes should be determined based on the rules
+        // TODO equivalnece classes should be determined based on the rules
         val eqD = uniques.equivalenceClasses { hh1, hh2 -> hh1.representative == hh2.representative }
             .sortByValues { a, b -> b.size.compareTo(a.size) }
 
@@ -76,5 +73,4 @@ class IPU<T : Any>(val algorithm: (vectors: Collection<ScalableVector>, Collecti
     private fun ScalableVector.appliesTo(indexRule: IndexedValue<Rule<Any>>): Boolean {
         return this.content[indexRule.index] != 0
     }
-
 }

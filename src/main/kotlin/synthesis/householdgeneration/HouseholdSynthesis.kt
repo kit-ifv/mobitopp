@@ -16,7 +16,7 @@ fun interface HouseholdSynthesis<T> {
  * Create synthesis households by placing a copy of each survey household in each zone. Disregard any conditions that
  * may exist.
  */
-class TrivialSynthesis<T>: HouseholdSynthesis<T> {
+class TrivialSynthesis<T> : HouseholdSynthesis<T> {
     override fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<T>>,
         targets: Collection<Zone>,

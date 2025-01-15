@@ -32,7 +32,6 @@ class CarOwnershipFactors(
     val isOnlyUnemployed = household.members.all { employmentSorter.isUnemployed(it.employment) }
     val amountOfChildren = household.members.count { it.age < 10 }
     val amountOfYouth = household.members.count { it.age in 10..17 }
-
 }
 
 /**
@@ -244,7 +243,6 @@ class CarOwnershipParameters(
             mu = asc_1_mu,
             sigma = asc_1_sig
         )
-
     }
 
     /**
@@ -272,7 +270,6 @@ class CarOwnershipParameters(
             mu = asc_2_mu,
             sigma = asc_2_sig
         )
-
     }
 
     /**
@@ -300,7 +297,6 @@ class CarOwnershipParameters(
             mu = asc_3_mu,
             sigma = asc_3_sig
         )
-
     }
 
     /**
@@ -328,10 +324,8 @@ class CarOwnershipParameters(
             mu = asc_4,
             sigma = 0.0
         )
-
     }
 }
-
 
 /**
  * The class [CarOwnershipAttributes] is an example to show the attributes that are required to form a meaningful decision
@@ -381,7 +375,6 @@ class CarOwnershipAttributes(
     val isOnlyRetired = infos.isOnlyRetired
     val isOnlyUnemployed = infos.isOnlyUnemployed
 }
-
 
 /**
  * This interface provides an interaction point to define different behaviours to determine whether a person is considered
@@ -451,7 +444,6 @@ object DefaultEmploymentSorter : EmploymentSorter {
     override fun isUnemployed(employment: Employment): Boolean {
         return employment == Employment.UNEMPLOYED
     }
-
 }
 
 /*
@@ -498,27 +490,26 @@ private inline val EconomicStatus.rich get(): Boolean = this == EconomicStatus.H
  */
 private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double = {
     mu +
-            sigma * it.RAND +
-            (it.size == 1) * oneMember +
-            (it.size == 2) * twoMembers +
-            (it.size >= 4) * fourOrMoreMembers +
+        sigma * it.RAND +
+        (it.size == 1) * oneMember +
+        (it.size == 2) * twoMembers +
+        (it.size >= 4) * fourOrMoreMembers +
 
-            (it.economicStatus.poor) * lowIncome +
-            (it.economicStatus.rich) * highIncome +
-            (it.amountOfChildren >= 1) * childrenFactor +
-            (it.amountOfYouth >= 1) * youthFactor +
-            (it.amountOfWorkers == 1) * oneWorker +
-            (it.amountOfWorkers == 2) * twoWorkers +
+        (it.economicStatus.poor) * lowIncome +
+        (it.economicStatus.rich) * highIncome +
+        (it.amountOfChildren >= 1) * childrenFactor +
+        (it.amountOfYouth >= 1) * youthFactor +
+        (it.amountOfWorkers == 1) * oneWorker +
+        (it.amountOfWorkers == 2) * twoWorkers +
 
-            (it.amountOfLicences == 1) * oneLicence +
-            (it.amountOfLicences == 2) * twoLicences +
-            (it.amountOfLicences == 3) * threeLicences +
-            (it.amountOfLicences >= 4) * fourOrMoreLicences +
+        (it.amountOfLicences == 1) * oneLicence +
+        (it.amountOfLicences == 2) * twoLicences +
+        (it.amountOfLicences == 3) * threeLicences +
+        (it.amountOfLicences >= 4) * fourOrMoreLicences +
 
-            (it.isWg) * isFlat +
-            (it.isOnlyRetired) * isRetired +
-            (it.isOnlyUnemployed) * isUnemployed
-
+        (it.isWg) * isFlat +
+        (it.isOnlyRetired) * isRetired +
+        (it.isOnlyUnemployed) * isUnemployed
 }
 
 /**
@@ -526,42 +517,43 @@ private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double =
  * attributes defined in [CarOwnershipAttributes] and the parameters defined in [CarOwnershipParameters]. We create
  * a discrete choice model and pass a nested logit as distribution function to determine the probabilities.
  */
-val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = KnownDiscreteChoiceModel(
+val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> =
+    KnownDiscreteChoiceModel(
     /*
       Calling NestedLogit.root tells the program that you want to build a nested logit for your discrete choice model.
       Note that "root" automatically assigns a nest with lambda = 1.0. So the parameter lambda_root is no longer required.
      */
-    NestedLogit.root {
+        NestedLogit.root {
         /*
         To add an option within a nest you can simply write option("Number") to define the utility function for said number.
         Since CarOwnershipAttributes is a choice situation over a whole number (You can see that in the class definition
         CarOwnershipParameters: ChoiceSituation<Int> - that tells the program that you want to build a choice model
         for whole numbers - Integers). Afterwards you can build the utility function. For no car it is currently just 0.0
          */
-        option(0) {
-            0.0
-        }
+            option(0) {
+                0.0
+            }
         /*
         If you want to build a nest you can write nest()  {...}. You need to specify the lambda parameter within curly brackets
         i.e. nest({lambda_car}). The curly brackets are sadly a computational necessity and cannot be omitted.
          */
-        nest({ lambda_car }) {
+            nest({ lambda_car }) {
             /*
              Note how you can write the utility function either by writing option()  { UtilityFunction }
              or by passing a reference via option(utilityFunction = standardFunction). the parameters = {} translation
              automatically determines the appropriate parameters.
              */
-            option(1, parameters = { oneCar }, utilityFunction = standardFunction)
-        }
-        nest({ lambda_two_more_car }) {
+                option(1, parameters = { oneCar }, utilityFunction = standardFunction)
+            }
+            nest({ lambda_two_more_car }) {
             /*
             You can also use the full language syntax of kotlin in your utility function. Here we have an example
             using the when(...) {} block, which is a miniscule amount faster than the handwritten utility function.
             (Though it is not as readable as the standardFunction)
             Also, you don't need to explicitly write parameters = {...}.
              */
-            option(2, { twoCar }) {
-                mu +
+                option(2, { twoCar }) {
+                    mu +
                         sigma * it.RAND +
                         when (it.size) {
                             1 -> oneMember
@@ -573,7 +565,6 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
                             EconomicStatus.LOW, EconomicStatus.VERY_LOW -> lowIncome
                             EconomicStatus.HIGH, EconomicStatus.VERY_HIGH -> highIncome
                             EconomicStatus.MIDDLE -> 0.0
-
                         } +
                         (it.amountOfChildren >= 1) * childrenFactor +
 
@@ -593,15 +584,15 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
                         (it.isWg) * isFlat +
                         (it.isOnlyRetired) * isRetired +
                         (it.isOnlyUnemployed) * isUnemployed
-            }
+                }
             /*
             If you do not specify a parameters = {...} translation you get the entire parameter object, which you can then
             use in your utility function. Here you can theoretically use b_hh_size_1_on_1, even though that parameter
             is not intended to be used in the utility function for 3 cars. (You can also very easily mistype and mess up
             the utility function, so be moderately careful)
              */
-            option(3) {
-                asc_3_mu +
+                option(3) {
+                    asc_3_mu +
                         asc_3_sig * it.RAND +
                         (it.size == 1) * b_hh_size_1_on_3 +
                         (it.size == 2) * b_hh_size_2_on_3 +
@@ -623,7 +614,7 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
                         (it.isWg) * b_shared_flat_on_3 +
                         (it.isOnlyRetired) * b_hh_retired_on_3 +
                         (it.isOnlyUnemployed) * b_hh_unemployed_on_3
-            }
+                }
             /*
             Did you think that the standardFunction is written in stone? Actually you can modify it and perform amendments,
             so if for example the utility function needs to do some calculation specifically only for 4 cars, you could add
@@ -633,14 +624,14 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
              Sadly the invocation of standardFunction(this, it) is a bit cryptic, but necessary if you intend to use the
              amendment approach.
              */
-            option(4, parameters = { fourCar }) {
-                standardFunction(this, it) +
+                option(4, parameters = { fourCar }) {
+                    standardFunction(this, it) +
                         it.isWg * 0.0
+                }
             }
-        }
-    },
-)
+        },
+    )
 
 fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(household: SynthesisHousehold<out SurveyInfo>, parameters: CarOwnershipParameters): Int {
-    return select({CarOwnershipAttributes(it, household.toCarOwnershipAttributes())}, parameters)
+    return select({ CarOwnershipAttributes(it, household.toCarOwnershipAttributes()) }, parameters)
 }

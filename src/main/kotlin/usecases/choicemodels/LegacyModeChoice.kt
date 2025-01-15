@@ -255,8 +255,6 @@ class ModeChoiceParameters {
     val factor_cost_phev: Double = 1.0
 }
 
-
-
 class ModeChoiceHelperMNL(
     val attractivities: AttractivenessModel,
     val modes: ChoiceModelModes,

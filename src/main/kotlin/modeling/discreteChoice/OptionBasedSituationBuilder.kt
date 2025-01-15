@@ -1,13 +1,11 @@
 package modeling.discreteChoice
 
-
 interface OptionBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
     /**
      * Checking whether a situation is equal to a certain element x is a concretization of the more general
      * concept of when to apply a rule.
      */
     fun addUtilityFunctionByIdentifier(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>)
-
 
     /**
      * Add an option to a nest block via specifying the concrete choice [option] as well as a [utilityFunction] to
@@ -51,8 +49,6 @@ interface OptionBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS>
     fun <P> option(option: SIT, parameters: PARAMS.() -> P, utilityFunction: P.(SIT) -> Double) {
         option(option.choice, parameters, utilityFunction)
     }
-
-
 }
 
 interface RuleBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
@@ -77,11 +73,11 @@ interface RuleBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
         addUtilityFunctionByRule(rule, internalUtilityFunction)
     }
     fun ruleForAll(utilityFunction: PARAMS.(SIT) -> Double) {
-        rule({true}, utilityFunction)
+        rule({ true }, utilityFunction)
     }
 
-    fun <P> ruleForAll( parameters: PARAMS.() -> P, utilityFunction: P.(SIT) -> Double) {
-        rule({true}, parameters, utilityFunction)
+    fun <P> ruleForAll(parameters: PARAMS.() -> P, utilityFunction: P.(SIT) -> Double) {
+        rule({ true }, parameters, utilityFunction)
     }
 }
 

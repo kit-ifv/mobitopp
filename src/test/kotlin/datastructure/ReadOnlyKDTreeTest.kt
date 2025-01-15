@@ -58,8 +58,10 @@ class ReadOnlyKDTreeTest {
         assertEquals(tree.dimension, 3)
         val testPoints = TestElement.generateTestPoints()
         testPoints.forEach {
-            assertTrue(tree.nearestNeighbor(it) in points.groupBy { point -> point.distanceTo(it) }
-                .minBy { m -> m.key }.value)
+            assertTrue(
+                tree.nearestNeighbor(it) in points.groupBy { point -> point.distanceTo(it) }
+                    .minBy { m -> m.key }.value
+            )
         }
     }
 

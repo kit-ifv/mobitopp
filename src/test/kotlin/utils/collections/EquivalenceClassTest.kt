@@ -1,11 +1,13 @@
 package utils.collections
 
 import buildPerson
-import domain.data.DefaultHouseholdBuilder
+
 import domain.data.EconomicStatus
 import domain.data.Household
 import domain.data.HouseholdId
-import domain.data.PersonBuilder
+import domain.data.MutableHousehold
+import domain.data.MutablePerson
+
 import domain.data.PersonId
 import domain.data.Sex
 import domain.location.LOCATIONUNKNOWN
@@ -23,12 +25,11 @@ class Generator {
 
     private var householdId = HouseholdId(0L)
     private var personId = PersonId(0L)
-    fun nextHouseholdId() = householdId.also {householdId = householdId.next()}
-    fun nextPersonId() = personId.also {personId = personId.next()}
-    var householdChanges: DefaultHouseholdBuilder.() -> Unit = {
-
+    fun nextHouseholdId() = householdId.also { householdId = householdId.next() }
+    fun nextPersonId() = personId.also { personId = personId.next() }
+    var householdChanges: MutableHousehold.() -> Unit = {
     }
-    val personChanges: MutableList<PersonBuilder.() -> Unit> = mutableListOf()
+    val personChanges: MutableList<MutablePerson.() -> Unit> = mutableListOf()
 
     /**
      * In case the information of the household needs adaption.
@@ -36,12 +37,14 @@ class Generator {
      * @param lambda
      * @receiver
      */
-    fun information(lambda: DefaultHouseholdBuilder.() -> Unit) {
+    fun information(lambda: MutableHousehold.() -> Unit) {
         householdChanges = lambda
     }
-    fun person(lambda: PersonBuilder.() -> Unit) {
+
+    fun person(lambda: MutablePerson.() -> Unit) {
         personChanges.add(lambda)
     }
+
     fun clear() {
         householdChanges = {}
         personChanges.clear()
@@ -51,38 +54,30 @@ class Generator {
         return householdFromIdGenerator(this, lambda)
     }
 }
-fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit): Household {
 
+fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit): Household {
     generator.lambda()
-    val household = DefaultHouseholdBuilder().apply {
+    val household = MutableHousehold(id = generator.nextHouseholdId(), seed = 1).apply {
         householdNumber = 1
         surveyYear = 2024
         domCode = 1
         type = 1
         incomePerMonth = 0.euros
         economicStatus = EconomicStatus.MIDDLE
-        random = Random(1)
         location = LOCATIONUNKNOWN
-        id = generator.nextHouseholdId()
         apply(generator.householdChanges)
-    }.build()
-    generator.personChanges.forEach {
-        household.buildPerson {
-            id = generator.nextPersonId()
-            personId = id!!.id
-            apply(it)
-        }
     }
+    //TODO rework this to work tomorrow
+//    generator.personChanges.forEach {
+//        household.buildPerson(generator.nextPersonId(), household) {
+//            MutablePerson()
+//        }
+//    }
     generator.clear()
     return household
-
-
 }
 
-
-
-
-fun Set<Household>.buildEquivalenceClasses()=  equivalenceClassByRepresentative  {it.toRepresentative()}
+fun Set<Household>.buildEquivalenceClasses() = equivalenceClassByRepresentative { it.toRepresentative() }
 class EquivalenceClassTest {
 
     private val generator = Generator()
@@ -116,10 +111,11 @@ class EquivalenceClassTest {
                 sex = Sex.FEMALE
             }
         }
-        val eqC = setOf(first, second).equivalenceClasses {a, b -> a.toRepresentative() == b.toRepresentative()}
+        val eqC = setOf(first, second).equivalenceClasses { a, b -> a.toRepresentative() == b.toRepresentative() }
         assertEquals(eqC[first], setOf(first))
         assertEquals(eqC[second], setOf(second))
     }
+
     @Test
     fun theseShouldBeEquivalent() {
         val first = household {
@@ -158,6 +154,7 @@ class EquivalenceClassTest {
                             x3 * (y1 - y2)
                 )
             }
+
             // Calculate the distance between two points
             private fun distance(p1: Pair<Double, Double>, p2: Pair<Double, Double>): Double {
                 val (x1, y1) = p1
@@ -194,13 +191,13 @@ class EquivalenceClassTest {
         assertNotEquals(secondTriangle, thirdTriangle)
         // When forming equivalence over the area all three triangles should be in the same group.
         val allTriangles = setOf(firstTriangle, secondTriangle, thirdTriangle)
-        val representative = allTriangles.equivalenceClassByRepresentative{it.area}
+        val representative = allTriangles.equivalenceClassByRepresentative { it.area }
         assertEquals(1, representative.size)
         assertEquals(setOf(2.0), representative.keys)
         assertEquals(allTriangles, representative.values.flatten().toSet())
         assertEquals(allTriangles, representative[2.0])
 
-        val otherEquivalence = allTriangles.equivalenceClasses { a, b -> a.congruent(b)}
+        val otherEquivalence = allTriangles.equivalenceClasses { a, b -> a.congruent(b) }
         assertEquals(otherEquivalence[firstTriangle]!!, setOf(firstTriangle, secondTriangle))
         assertEquals(otherEquivalence[secondTriangle]!!, setOf(firstTriangle, secondTriangle))
         assertEquals(otherEquivalence[thirdTriangle]!!, setOf(thirdTriangle))
@@ -209,5 +206,11 @@ class EquivalenceClassTest {
 }
 
 private fun Household.toRepresentative(): HouseholdRepresentative {
-    return HouseholdRepresentative((members.map { it.toRepresentative() }.groupingBy { it }.eachCount().map{(element, count) -> Pair(count, element) }.toSet()))
+    return HouseholdRepresentative(
+        (
+                members.map {
+                    it.toRepresentative()
+                }.groupingBy { it }.eachCount().map { (element, count) -> Pair(count, element) }.toSet()
+                )
+    )
 }

@@ -19,16 +19,12 @@ import units.euros
 import kotlin.io.path.Path
 import kotlin.test.Test
 
-
 private interface MinimalSurveyInformation {
     val age: Int
     val sex: Sex
 }
 
-private data class MinimalSurveyInstantiation(override val age: Int, override val sex: Sex) : MinimalSurveyInformation {
-
-}
-
+private data class MinimalSurveyInstantiation(override val age: Int, override val sex: Sex) : MinimalSurveyInformation
 
 private fun Collection<MinimalSurveyInformation>.toSurveyHouseholds(): List<SurveyHousehold<MinimalSurveyInformation>> {
     return map {
@@ -51,8 +47,6 @@ class PopulationSynthesisKtTest {
         override fun generateArtificialPopulation(): Collection<MinimalSurveyInformation> {
             return listOf(child, working, senior)
         }
-
-
     }
 
     @Test
@@ -64,7 +58,6 @@ class PopulationSynthesisKtTest {
             surveyPopulation = TrivialTestGeneration()
 
         ) {
-
             outputDirectory = Path("src/test/resources/tempOutput")
             zones = listOf(TEST_ZONE)
             rules = emptyList()
@@ -73,12 +66,10 @@ class PopulationSynthesisKtTest {
                 file = Path("src/test/resources/synthesis/attractivities.csv")
                 activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
             }
-
         }
 
         val primarySchools: List<Location> =
             populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
-
 
         require(primarySchools.isNotEmpty()) {
             "Somehow no primary schools are generated"
@@ -88,8 +79,6 @@ class PopulationSynthesisKtTest {
         val workLocations = populationSynthesis.generateLocations(work, amount = 1)
 
         populationSynthesis.execute {
-
-
             synthesis(emptyMap(), filter = { true }) {
                 TrivialSynthesis()
             }
@@ -104,14 +93,17 @@ class PopulationSynthesisKtTest {
             val hh3 = hh[2]
             val p3 = hh3.members.first()
             assertEquals(
-                p1.info, child
+                p1.info,
+                child
             )
 
             assertEquals(
-                p2.info, working
+                p2.info,
+                working
             )
             assertEquals(
-                p3.info, senior
+                p3.info,
+                senior
             )
             assertFalse(hh1.locationIsAssigned())
             assertFalse(hh2.locationIsAssigned())
@@ -122,7 +114,6 @@ class PopulationSynthesisKtTest {
             assertEquals(hh1.location.requireZone(), TEST_ZONE)
             assertEquals(hh2.location.requireZone(), TEST_ZONE)
             assertEquals(hh3.location.requireZone(), TEST_ZONE)
-
 
             assertFalse(hh1.economicStatusIsAssigned())
             assertFalse(hh2.economicStatusIsAssigned())
@@ -169,15 +160,12 @@ class PopulationSynthesisKtTest {
             assertEquals(p2.plannedActivities.size, 5)
             assertEquals(p3.plannedActivities.size, 5)
 
-
             // Assign fixed Destinations
             assertTrue(p1.fixedDestinations.isEmpty())
             assertTrue(p2.fixedDestinations.isEmpty())
             assertTrue(p3.fixedDestinations.isEmpty())
 
-
             fixedDestinations {
-
                 forActivity {
                     activityType = work
                     filter = { it.plannedActivities.any { it.type == activityType } }
@@ -185,13 +173,13 @@ class PopulationSynthesisKtTest {
                 }
                 /* We can also assign a fixed location for stuff that is not even included in the activity plan, like
                 here where no agent has a "PICK_UP_PARCEL" activity.
-                */
-                 assertTrue(p1.plannedActivities.none{it.type == LegacyActivityType.PICK_UP_PARCEL})
-                 assertTrue(p2.plannedActivities.none{it.type == LegacyActivityType.PICK_UP_PARCEL})
-                 assertTrue(p3.plannedActivities.none{it.type == LegacyActivityType.PICK_UP_PARCEL})
+                 */
+                assertTrue(p1.plannedActivities.none { it.type == LegacyActivityType.PICK_UP_PARCEL })
+                assertTrue(p2.plannedActivities.none { it.type == LegacyActivityType.PICK_UP_PARCEL })
+                assertTrue(p3.plannedActivities.none { it.type == LegacyActivityType.PICK_UP_PARCEL })
                 forActivity {
                     activityType = LegacyActivityType.PICK_UP_PARCEL
-                    filter = {true}
+                    filter = { true }
                     /*
                     We can code within the execution block, if we so desire.
                      */
@@ -200,11 +188,8 @@ class PopulationSynthesisKtTest {
                     assignmentStrategy = GroupLocationFinder { persons, _ ->
 
                         persons.zip(locations)
-
                     }
                 }
-
-
             }
 
             assertEquals(p1.fixedDestinations.size, 2)
@@ -224,9 +209,6 @@ class PopulationSynthesisKtTest {
             assertEquals(hh1.cars.size, hh1.amountOfCars)
             assertEquals(hh2.cars.size, hh2.amountOfCars)
             assertEquals(hh3.cars.size, hh3.amountOfCars)
-
-
-
         }
     }
 }

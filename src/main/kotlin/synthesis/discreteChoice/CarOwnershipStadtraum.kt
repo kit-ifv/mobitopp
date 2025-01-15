@@ -1,7 +1,5 @@
 package synthesis.discreteChoice
 
-
-
 val carOwnershipUrbanAreaParameters: CarOwnershipParameters = CarOwnershipParameters(
     asc_0_mu = 0.0,
     asc_0_sig = 0.0,

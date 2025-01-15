@@ -6,7 +6,6 @@ import modeling.discreteChoice.GlobalRandomizer
 import synthesis.domain.SynthesisHousehold
 import units.Coordinate
 import units.GPSCoordinate
-
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -34,16 +33,14 @@ class TrivialGroupStrategy<T>(val singularStrategy: AssignHouseholdLocations<T>)
         zone: Zone,
         householdsToLocate: List<SynthesisHousehold<out T>>
     ): List<Pair<SynthesisHousehold<out T>, Location>> {
-        return householdsToLocate.map{it to singularStrategy.generateLocation(zone, it)}
+        return householdsToLocate.map { it to singularStrategy.generateLocation(zone, it) }
     }
-
 }
 
 class AssignAroundZoneCentroid(private val radius: Double) : AssignHouseholdLocations<Any> {
     override fun generateLocation(zone: Zone, household: SynthesisHousehold<out Any>): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
     }
-
 }
 
 fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalRandomizer): Coordinate {
@@ -75,4 +72,3 @@ fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalR
 
     return GPSCoordinate.decimalDegree(newLatitude, newLongitude)
 }
-

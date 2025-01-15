@@ -5,7 +5,6 @@ import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import synthesis.randomCoordinate
 
-
 fun interface DetermineLocationInZone {
     fun getLocation(zone: Zone): Location
 }
@@ -17,12 +16,10 @@ object DebugZoneAssigner : DetermineLocationInZone {
     override fun getLocation(zone: Zone): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(100.0, GlobalRandomizer), zone, null)
     }
-
 }
 
-object CentroidAssigner: DetermineLocationInZone {
+object CentroidAssigner : DetermineLocationInZone {
     override fun getLocation(zone: Zone): Location {
         return Location(zone.centroid.coordinate, zone, null)
     }
 }
-

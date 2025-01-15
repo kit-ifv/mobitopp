@@ -15,7 +15,6 @@ import synthesis.hasLicence
 import synthesis.sex
 import units.euros
 
-
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,
     twoMembers = -0.3256945305058742,
@@ -88,11 +87,7 @@ data class TransitPassParameters(
     val incomeAtLeast4000: Double,
     val numChildsAge0to5: Double,
     val numChildsAge6to17: Double
-) {
-
-
-}
-
+)
 
 data class TicketSituation(
     override val choice: Boolean,
@@ -108,10 +103,7 @@ data class TicketSituation(
     val income = household.income
     val numChildsAgeFiveOrLess = household.members.count { it.age in 0..5 }
     val numAgeInSixToSeventeen = household.members.count { it.age in 6..17 }
-
-
 }
-
 
 val transitPassDiscreteChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
     AllocatedLogit.create {
@@ -120,47 +112,46 @@ val transitPassDiscreteChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSit
         }
         option(true) {
             base +
-                    (it.householdSize == 2) * twoMembers +
-                    (it.householdSize == 3) * threeMembers +
-                    (it.householdSize == 4) * fourMembers +
-                    (it.householdSize == 5) * fiveMembers +
-                    (it.householdSize == 6) * sixMembers +
-                    (it.householdSize == 7) * sevenMembers +
-                    (it.householdSize in 8..20) * eightToTwentyMembers +
+                (it.householdSize == 2) * twoMembers +
+                (it.householdSize == 3) * threeMembers +
+                (it.householdSize == 4) * fourMembers +
+                (it.householdSize == 5) * fiveMembers +
+                (it.householdSize == 6) * sixMembers +
+                (it.householdSize == 7) * sevenMembers +
+                (it.householdSize in 8..20) * eightToTwentyMembers +
 
-                    (it.gender == Sex.FEMALE) * female +
+                (it.gender == Sex.FEMALE) * female +
 
-                    (it.age in 0..9) * age0to9 +
-                    (it.age in 10..17) * age10to17 +
-                    (it.age in 30..39) * age30to39 +
-                    (it.age in 40..49) * age40to49 +
-                    (it.age in 50..59) * age50to59 +
-                    (it.age in 60..69) * age60to69 +
-                    (it.age in 70..79) * age70to79 +
-                    (it.age >= 80) * age80plus +
+                (it.age in 0..9) * age0to9 +
+                (it.age in 10..17) * age10to17 +
+                (it.age in 30..39) * age30to39 +
+                (it.age in 40..49) * age40to49 +
+                (it.age in 50..59) * age50to59 +
+                (it.age in 60..69) * age60to69 +
+                (it.age in 70..79) * age70to79 +
+                (it.age >= 80) * age80plus +
 
-                    (it.hasDrivingLicence) * hasLicence +
+                (it.hasDrivingLicence) * hasLicence +
 
-                    (it.householdNumCars == 1) * oneCar +
-                    (it.householdNumCars == 2) * twoCars +
-                    (it.householdNumCars == 3) * threeCars +
-                    (it.householdNumCars >= 4) * fourOrMoreCars +
+                (it.householdNumCars == 1) * oneCar +
+                (it.householdNumCars == 2) * twoCars +
+                (it.householdNumCars == 3) * threeCars +
+                (it.householdNumCars >= 4) * fourOrMoreCars +
 
-                    (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
-                    (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
-                    (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
-                    (it.employment == Employment.HOMEKEEPER) * homeKeeper +
-                    (it.employment == Employment.PARTTIME) * partTime +
+                (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
+                (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
+                (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
+                (it.employment == Employment.HOMEKEEPER) * homeKeeper +
+                (it.employment == Employment.PARTTIME) * partTime +
 
-                    (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
-                    (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
-                    (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
-                    (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
-                    (it.income >= 4000.`€`) * incomeAtLeast4000 +
+                (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
+                (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
+                (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
+                (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
+                (it.income >= 4000.`€`) * incomeAtLeast4000 +
 
-                    (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
-                    (it.numAgeInSixToSeventeen) * numChildsAge6to17
-
+                (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
+                (it.numAgeInSixToSeventeen) * numChildsAge6to17
         }
     }
 )

@@ -35,6 +35,7 @@ import domain.data.buildEngine
 import domain.enums.ActivityType
 import domain.enums.AreaType
 import domain.enums.LegacyActivityType
+import domain.enums.Regiostar17
 import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
 import domain.location.Location
@@ -67,7 +68,7 @@ class TestZone(
     matrixColumn: Int = 0,
     name: String = "TestZone",
     areaType: AreaType = ZoneAreaType.DEFAULT,
-    regionType: Int = 0,
+    regionType: AreaType = Regiostar17.METROPOLE,
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
     isDestination: Boolean = true,

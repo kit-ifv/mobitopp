@@ -35,17 +35,20 @@ detekt {
 }
 dependencies {
 
+
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
     implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
     implementation("edu.kit.ifv:visumNetfileParser:0.9.13")
-//    implementation(project(":annotations"))
-    implementation("edu.kit.ifv:annotations:1.0.0")
-    testImplementation("edu.kit.ifv:annotations:1.0.0")
-//    testImplementation(project(":annotations"))
+    implementation(project(":annotations"))
+//    implementation("edu.kit.ifv:annotations:1.0.0")
+//    testImplementation("edu.kit.ifv:annotations:1.0.0")
+    testImplementation(project(":annotations"))
 //    ksp(project(":processor")) // to make KSP work
-    ksp("edu.kit.ifv:processor:1.0.0") // to make KSP work
+    ksp(project(":processor")) // to make KSP work
+    api(project(":processor")) // to make KSP work
+    implementation(project(":annotations"))
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
 
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")

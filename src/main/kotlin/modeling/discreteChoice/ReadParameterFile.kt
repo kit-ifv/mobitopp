@@ -1,7 +1,7 @@
 package modeling.discreteChoice
 
 import net.objecthunter.exp4j.ExpressionBuilder
-import splitOnce
+import processor.builder.splitOnce
 import java.io.File
 import java.nio.charset.Charset
 

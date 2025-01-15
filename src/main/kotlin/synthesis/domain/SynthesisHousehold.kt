@@ -14,8 +14,7 @@ class SynthesisHousehold<T>(
     var id: Int = 0,
     var income: Currency = 0.euros,
 
-
-    ) {
+) {
 
     // Whatever the type T is of my household class, the members must be at least that type or better
     var members: MutableList<SynthesisPerson<out T>> = mutableListOf()
@@ -26,6 +25,5 @@ class SynthesisHousehold<T>(
     lateinit var economicStatus: EconomicStatus
     fun economicStatusIsAssigned() = ::economicStatus.isInitialized
     var amountOfCars = 0
-    val cars : MutableList<SynthesisCar> = mutableListOf()
-
+    val cars: MutableList<SynthesisCar> = mutableListOf()
 }

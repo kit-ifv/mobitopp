@@ -2,10 +2,8 @@ package domain.data
 
 import Mutable
 import domain.enums.AreaType
-import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.location.Location
-import units.Area
 import units.Distance
 import units.GPSCoordinate
 import utils.ID
@@ -24,7 +22,7 @@ abstract class Zone(
     abstract val visumId: Long
     abstract val name: String
     abstract val areaType: AreaType
-    abstract val regionType: Int
+    abstract val regionType: AreaType
     abstract val classification: ZoneClassification
     abstract val parkingPlaces: Int
     abstract val isDestination: Boolean

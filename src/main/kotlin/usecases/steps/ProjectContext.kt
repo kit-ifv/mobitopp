@@ -21,7 +21,6 @@ import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.AreaType
-import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.enums.Regiostar17

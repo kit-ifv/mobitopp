@@ -25,12 +25,10 @@ fun List<SynthesisHousehold<Any>>.generateSchedules(generator: GenerateActivityS
             schedule
         }
     }
-
 }
 
 class SimpleActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :
     GenerateActivitySchedule<SurveyInfo> {
-
 
     private val schoolSchedule: PreliminaryActivitySchedule
         get() = PreliminaryActivitySchedule(init) {
@@ -70,9 +68,7 @@ class SimpleActivityGeneration(private val init: Decodable<ActivityType> = Legac
         if (person.age <= 40) return workingSchedule
         if (person.age <= 65) return homekeeperSchedule
         return seniorSchedule
-
     }
-
 }
 
 class TrivialActivityGeneration(private val init: Decodable<ActivityType> = LegacyActivityType.Companion) :

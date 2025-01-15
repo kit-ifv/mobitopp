@@ -22,21 +22,18 @@ class ActitoppGenerator(
     val randomgenerator: RNGHelper = RNGHelper(1234)
 ) : GenerateActivitySchedule<SurveyInfo> {
     override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
-
         val actitoppPerson = convertToSingularHousehold(person)
         actitoppPerson.generateSchedule(fileBase, randomgenerator)
 
-
-
-        return PreliminaryActivitySchedule(actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() }.toMutableList())
-
+        return PreliminaryActivitySchedule(
+            actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() }.toMutableList()
+        )
     }
 
     /* Actitopp breaks when using joint actions. The workaround is to imitate each person to be part of a fake "household"
        which only contains this person, but all other attributes are taken as is from the original household.
-    */
+     */
     private fun convertToSingularHousehold(person: SynthesisPerson<out SurveyInfo>): ActitoppPerson {
-
         val actiToppHousehold = person.household.toActiToppHousehold()
         return person.run {
             ActitoppPerson(
@@ -73,7 +70,6 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
     class ScheduleBuilder(private val decoder: Decodable<ActivityType>) {
         val activities: MutableList<Activity> = mutableListOf()
 
-
         fun home(start: Duration, end: Duration) {
             extracted(start, end, "HOME")
         }
@@ -81,7 +77,6 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
         fun work(start: Duration, end: Duration) {
             extracted(start, end, "WORK")
         }
-
 
         fun education(start: Duration, end: Duration) {
             extracted(start, end, "EDUCATION")
@@ -103,11 +98,12 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
             return PreliminaryActivitySchedule(activities)
         }
     }
-
 }
 
 fun Activity.Companion.fromTimes(start: AbsoluteTime, end: AbsoluteTime, type: ActivityType): Activity {
-    require(start <= end) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
+    require(
+        start <= end
+    ) { "Cannot create activity where start time is larger than end time: [start=$start , end=$end]" }
 
     return fromDuration(LOCATIONUNKNOWN, start, end - start, type)
 }

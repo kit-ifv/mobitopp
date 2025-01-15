@@ -28,7 +28,6 @@ import usecases.steps.simulate
 import utils.ErrorHandling
 import utils.csv.Row
 import java.io.File
-import kotlin.concurrent.timer
 import kotlin.io.path.Path
 
 private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
@@ -72,7 +71,6 @@ fun main() {
     }.steps {
         loadZones()
         loadVisumNetwork(Path("src/test/resources/rastatt.net"))
-
 
         val filter = scaleFilter<Row>(0.1.share())
         prepareHouseholds(

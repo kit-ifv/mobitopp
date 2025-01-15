@@ -9,7 +9,9 @@ import kotlin.io.path.Path
 class OECDAssignerTest {
     @Test
     fun properTableReadin() {
-        val assigner = OECDAssigner.fromPath<SurveyInfo>(Path("src/test/resources/synthesis/economical-status-oecd2017.csv"))
+        val assigner = OECDAssigner.fromPath<SurveyInfo>(
+            Path("src/test/resources/synthesis/economical-status-oecd2017.csv")
+        )
         val testCandidate = SynthesisHousehold<SurveyInfo>()
         testCandidate.economicStatus = assigner.determineStatus(testCandidate)
         assertEquals(testCandidate.economicStatus, EconomicStatus.VERY_LOW)

@@ -1,5 +1,6 @@
 package synthesis.fixedDestinations
 
+import choicemodels.TestZone
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.LegacyActivityType
@@ -17,32 +18,29 @@ import units.Distance
 import units.GPSCoordinate
 import units.kilometers
 import usecases.AttractivenessModel
-import usecases.steps.legacyData.defaultZoneCsvParser
+import usecases.steps.legacyData.defaultCsvParser
+
 
 class MetricCommAssignTest {
 
-
-    private data class CommuteDistancer(override val distanceWork: Distance) : CommuteDistance {
-    }
+    private data class CommuteDistancer(override val distanceWork: Distance) : CommuteDistance
 
     private val attractivenessModel: AttractivenessModel by lazy {
         val attractivenessModel = AttractivenessModel { _, _ ->
             1000.0
-
         }
         attractivenessModel
     }
 
     @Test
     fun worklocationAssigmentConsideringDistance() {
-
         val household = SynthesisHousehold<CommuteDistance>()
 
         val person = SynthesisPerson(household, CommuteDistancer(1.kilometers))
         val zones =
-            defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
+            defaultCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
                 .toList()
-                .map { it.build() }
+
 
         household.location = DebugZoneAssigner.getLocation(zones.first())
         val metric = FlightDistance()
@@ -57,44 +55,35 @@ class MetricCommAssignTest {
             zoneLocationAssigner = DebugZoneAssigner
         )
         assigner.find(person, LegacyActivityType.WORK)
-
-
     }
-
+    /*
+        point: GPSCoordinate = BIELEFELD,
+    visumId: Long = 1L,
+    matrixColumn: Int = 0,
+    name: String = "HomeZone",
+    areaType: AreaType = ZoneAreaType.DEFAULT,
+    regionType: Int = 0,
+    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
+    override var parkingPlaces: Int = 1,
+    isDestination: Boolean = true,
+    relief: Distance = 0.meters,
+    id: ZoneId = ZoneId(1L)
+     */
     @Test
     fun communitySaturationIsProperlyUpdated() {
-        val zone1 = Zone(
-            ZoneId(1),
-            1L,
-            "TestZone",
-            Regiostar17.REGIOPOLE,
-            ZoneClassification.STUDY_AREA,
-            0,
-            Location(GPSCoordinate.decimalDegree(0.0, 0.0), null, null),
-            true,
-            1.kilometers
+        val zone1 = TestZone(
+            id = ZoneId(1),
+
+            areaType = Regiostar17.REGIOPOLE,
         )
-        val zone2 = Zone(
-            ZoneId(2),
-            1L,
-            "TestZone",
-            Regiostar17.REGIOPOLE,
-            ZoneClassification.STUDY_AREA,
-            0,
-            Location(GPSCoordinate.decimalDegree(0.0, 0.0), null, null),
-            true,
-            1.kilometers
+        val zone2 = TestZone(
+            id = ZoneId(2),
+            areaType = Regiostar17.REGIOPOLE,
+
         )
-        val zone3 = Zone(
-            ZoneId(3),
-            1L,
-            "TestZone",
-            Regiostar17.REGIOPOLE,
-            ZoneClassification.STUDY_AREA,
-            0,
-            Location(GPSCoordinate.decimalDegree(0.0, 1.0), null, null),
-            true,
-            1.kilometers
+        val zone3 = TestZone(
+            id = ZoneId(3),
+            areaType = Regiostar17.REGIOPOLE,
         )
         val c1 = CommunityNumber(1)
         val c2 = CommunityNumber(2)
@@ -106,8 +95,10 @@ class MetricCommAssignTest {
 
         val fakeMatrix = CommuterMatrix(
             communities.toBiMap(),
-            listOf(CommuterInfo(c1, c2, 1),
-                CommuterInfo(c1, c1, 9999)),
+            listOf(
+                CommuterInfo(c1, c2, 1),
+                CommuterInfo(c1, c1, 9999)
+            ),
             zoneMapping = listOf(zone1, zone2, zone3).associateBy { it.id },
         )
         val household = SynthesisHousehold<CommuteDistance>()
@@ -129,5 +120,4 @@ class MetricCommAssignTest {
         assertEquals(assignStrat.find(person, LegacyActivityType.WORK).requireZone(), zone3)
         assertNotEquals(assignStrat.find(person2, LegacyActivityType.WORK).requireZone(), zone3)
     }
-
 }

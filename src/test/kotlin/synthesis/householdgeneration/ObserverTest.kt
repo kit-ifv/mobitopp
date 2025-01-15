@@ -7,37 +7,34 @@ import synthesis.SurveyHousehold
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
-class ObserverTest: SynthesisTest() {
-    private val hh1: SurveyHousehold<Any>
-            = createHousehold {
-                person(10, Sex.FEMALE) {}
-
-            }
-        private val hh2 = createHousehold<Any> {
+class ObserverTest : SynthesisTest() {
+    private val hh1: SurveyHousehold<Any> =
+        createHousehold {
+            person(10, Sex.FEMALE) {}
+        }
+    private val hh2 = createHousehold<Any> {
         person(10, Sex.FEMALE) {}
         person(10, Sex.MALE) {}
     }
 
     @Test
     fun ruleVectorization() {
-        val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20){it.size == 1}
-        val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10){it.size == 2}
-
-
+        val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20) { it.size == 1 }
+        val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10) { it.size == 2 }
 
         assertContentEquals(listOf(rule1, rule2).vectorized(hh1).content, listOf(1, 0))
         assertContentEquals(listOf(rule1, rule2).vectorized(hh2).content, listOf(0, 1))
 
-        val rule3 = ZoneRule<Any>("aged 10", -0) {it.members.count { it.age == 10 }}
+        val rule3 = ZoneRule<Any>("aged 10", -0) { it.members.count { it.age == 10 } }
 
         assertContentEquals(listOf(rule1, rule2, rule3).vectorized(hh1).content, listOf(1, 0, 1))
         assertContentEquals(listOf(rule1, rule2, rule3).vectorized(hh2).content, listOf(0, 1, 2))
-
     }
+
     @Test
     fun observerCreation() {
-        val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20){it.size == 1}
-        val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10){it.size == 2}
+        val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20) { it.size == 1 }
+        val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10) { it.size == 2 }
 
         val vector1 = listOf(rule1, rule2).vectorized(hh1)
         val vector2 = listOf(rule1, rule2).vectorized(hh2)
@@ -56,10 +53,11 @@ class ObserverTest: SynthesisTest() {
         assertEquals(observer2.vectors, listOf(vector2))
         assertTrue(observer2.sanityCheck())
     }
+
     @Test
     fun observerManipulation() {
         // Both households match this rule, but hh2 = 2 and hh1 = 1, for different impacts on the rule
-        val rule = ZoneRule<Any> ("hhsize == 1", 20){it.size}
+        val rule = ZoneRule<Any> ("hhsize == 1", 20) { it.size }
         val vector1 = listOf(rule).vectorized(hh1)
         val vector2 = listOf(rule).vectorized(hh2)
 
@@ -77,7 +75,6 @@ class ObserverTest: SynthesisTest() {
         assertEquals(observer.relativeDifference, 0.0)
         assertEquals(vector1.scalar, 20.0 / 3)
         assertEquals(vector2.scalar, 20.0 / 3)
-
     }
 
     /**
@@ -86,7 +83,7 @@ class ObserverTest: SynthesisTest() {
      */
     @Test
     fun vectorManipulation() {
-        val rule = ZoneRule<Any> ("hhsize == 1", 20){it.size}
+        val rule = ZoneRule<Any> ("hhsize == 1", 20) { it.size }
         val vector1 = listOf(rule).vectorized(hh1)
         val vector2 = listOf(rule).vectorized(hh2)
 
@@ -101,4 +98,3 @@ class ObserverTest: SynthesisTest() {
         assertEquals(vector2.scalar, 4.0)
     }
 }
-

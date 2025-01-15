@@ -7,18 +7,15 @@ import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import units.Currency
 
-
 fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipFactors {
     return CarOwnershipFactors(
         this,
     )
 }
 
-
 val SynthesisPerson<out SurveyInfo>.householdId get() = info.householdId
 val SynthesisPerson<out SurveyInfo>.sex get() = info.sex
 val SynthesisPerson<out SurveyAge>.age get() = info.age
-
 
 val SynthesisPerson<out SurveyInfo>.householdIncome get() = info.householdIncome
 val SynthesisPerson<out SurveyInfo>.hasLicence get() = info.hasLicence
@@ -29,15 +26,10 @@ fun SynthesisPerson<out SurveyEmployment>.isHigherStudent(): Boolean =
 
 fun SynthesisPerson<out SurveyEmployment>.isWorker() = employment == Employment.FULLTIME || employment == Employment.PARTTIME
 
-
-
-
 // TODO move this somewhere else
 var GLOBAL_PERSON_ID_GENERATOR = 0
     get() = field.also { field++ }
     private set
-
-
 
 data class SurveyHousehold<T>(
     override val householdId: Int,
@@ -60,17 +52,13 @@ data class SurveyHousehold<T>(
             id = householdId,
             income = income,
         ).apply {
-            members = this@SurveyHousehold.members.map{SynthesisPerson(this, it.information)}.toMutableList()
-
+            members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.information) }.toMutableList()
         }
     }
 
     fun count(condition: (SurveyPerson<out T>) -> Boolean): Int {
         return members.count(condition)
     }
-
-
-
 }
 
 interface ISurveyHousehold {
@@ -78,6 +66,3 @@ interface ISurveyHousehold {
     val income: Currency
     val members: List<SurveyPerson<*>>
 }
-
-
-

@@ -5,7 +5,6 @@ import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 
-
 data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
 
 fun readCommuters(file: Path): Sequence<CommuterInfo> {
@@ -15,7 +14,7 @@ fun readCommuters(file: Path): Sequence<CommuterInfo> {
             row("destination") { CommunityNumber.parse(it) },
             row("commuters").toInt(),
 
-            )
+        )
     }
 
     return parser.parse(file.toFile())
@@ -50,12 +49,11 @@ fun readZoneToCommunity(file: Path): BiMap<ZoneId, CommunityNumber> {
             row("partId") { ZoneNumber.parse(it).toZoneId() },
             row("regionId") { CommunityNumber.parse(it) },
 
-            )
+        )
     }
 
     return parser.parse(file.toFile()).toMap().toBiMap()
 }
-
 
 class BiMap<K, V>(
     val forwardMap: MutableMap<K, V> = mutableMapOf(),
@@ -78,10 +76,3 @@ class BiMap<K, V>(
         }
     }
 }
-
-
-
-
-
-
-

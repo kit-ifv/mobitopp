@@ -39,11 +39,9 @@ class RuleTest : SynthesisTest() {
         assertFalse(rule.appliesTo(complexHousehold))
         assertEquals(rule.evaluate(complexHousehold), 0)
 
-
         rule.evaluate(complexHousehold)
 
         assertContentEquals(rule.filter(listOf(household1, complexHousehold)), listOf(household1))
-
     }
 
     @Test
@@ -69,32 +67,26 @@ class RuleTest : SynthesisTest() {
         assertEquals(rule.evaluate(household1), 1)
         assertEquals(rule.evaluate(household2), 0)
         assertEquals(rule.evaluate(household3), 1)
-
     }
 
     private fun generateHouseholds(): Triple<SurveyHousehold<ExampleInterface>, SurveyHousehold<ExampleInstantiation>, SurveyHousehold<ExampleInstantiation>> {
         val household1 = createHousehold {
-
             person(10, Sex.MALE) {
                 DifferentExampleInstantiation(
                     Employment.RETIRED
                 )
-
             }
 
             person(10, Sex.MALE) {
                 ExampleInstantiation(
                     Employment.RETIRED
                 )
-
             }
-
 
             person(10, Sex.MALE) {
                 DifferentExampleInstantiation(
                     Employment.NONE
                 )
-
             }
         }
 
@@ -111,11 +103,9 @@ class RuleTest : SynthesisTest() {
     fun checkCountRule() {
         val household = createHousehold {
             person(10, Sex.MALE) {
-
             }
 
             person(12, Sex.FEMALE) {
-
             }
         }
 
@@ -127,7 +117,6 @@ class RuleTest : SynthesisTest() {
 
         val rule3 = CountRule<Any> { h -> h.count { it.age in 9..12 && it.sex == Sex.FEMALE } }
         assertEquals(rule3.matches(household), 1)
-
     }
 
     @Test
