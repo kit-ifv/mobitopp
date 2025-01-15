@@ -12,8 +12,6 @@ import java.util.*
 import kotlin.math.abs
 
 
-fun Boolean.toInt() = if (this) 1 else 0
-
 
 
 
@@ -130,9 +128,7 @@ fun <T : SurveyInfo> Collection<T>.toSurveyHouseholds(converter: (List<Currency>
         }
 }
 
-fun SurveyHousehold<out Any>.amount(sex: Sex, ageCode: Int): Int {
-    return members.filter { it.sex == sex && it.groupCode == ageCode }.size
-}
+
 
 
 
@@ -147,23 +143,7 @@ interface SurveyPerson<T> {
     }
 }
 
-//val SurveyPerson<out SurveyInfo>.sex get() = information.sex
-//val SurveyPerson<out SurveyAge>.age get() = information.age
-val SurveyPerson<out Any>.groupCode
-    get() = when (age) {
-        in 0..5 -> 0
-        in 6..9 -> 1
-        in 10..14 -> 2
-        in 15..17 -> 3
-        in 18..24 -> 4
-        in 25..29 -> 5
-        in 30..44 -> 6
-        in 45..59 -> 7
-        in 60..64 -> 8
-        in 65..74 -> 9
-        in 75..Int.MAX_VALUE -> 10
-        else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
-    }
+
 
 
 data class SmallestSurveyPerson<T>(
