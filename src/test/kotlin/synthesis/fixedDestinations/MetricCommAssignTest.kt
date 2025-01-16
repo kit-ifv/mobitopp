@@ -1,21 +1,18 @@
 package synthesis.fixedDestinations
 
 import choicemodels.TestZone
-import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.LegacyActivityType
 import domain.enums.Regiostar17
-import domain.enums.ZoneClassification
 import domain.location.FlightDistance
-import domain.location.Location
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import units.Distance
-import units.GPSCoordinate
 import units.kilometers
 import usecases.AttractivenessModel
 import usecases.steps.legacyData.defaultCsvParser
@@ -74,16 +71,16 @@ class MetricCommAssignTest {
         val zone1 = TestZone(
             id = ZoneId(1),
 
-            areaType = Regiostar17.REGIOPOLE,
+            regionType = Regiostar17.REGIOPOLE,
         )
         val zone2 = TestZone(
             id = ZoneId(2),
-            areaType = Regiostar17.REGIOPOLE,
+            regionType = Regiostar17.REGIOPOLE,
 
         )
         val zone3 = TestZone(
             id = ZoneId(3),
-            areaType = Regiostar17.REGIOPOLE,
+            regionType = Regiostar17.REGIOPOLE,
         )
         val c1 = CommunityNumber(1)
         val c2 = CommunityNumber(2)

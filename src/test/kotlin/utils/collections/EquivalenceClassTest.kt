@@ -42,6 +42,9 @@ class Generator {
     }
 
     fun person(lambda: MutablePerson.() -> Unit) {
+        val newFunction: (Long, MutablePerson) -> MutablePerson  =  {l, p ->
+            p.apply(lambda)
+        }
         personChanges.add(lambda)
     }
 
@@ -68,11 +71,10 @@ fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit)
         apply(generator.householdChanges)
     }
     //TODO rework this to work tomorrow
-//    generator.personChanges.forEach {
-//        household.buildPerson(generator.nextPersonId(), household) {
-//            MutablePerson()
-//        }
-//    }
+
+    generator.personChanges.forEach {
+        household.buildPerson(generator.nextPersonId().value, it)
+    }
     generator.clear()
     return household
 }

@@ -58,8 +58,8 @@ class TestZone(
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "HomeZone",
-    areaType: AreaType = ZoneAreaType.DEFAULT,
-    regionType: Int = 0,
+    regionType: AreaType = ZoneAreaType.DEFAULT,
+
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
     isDestination: Boolean = true,
@@ -72,7 +72,6 @@ class TestZone(
     {
         this.visumId = visumId
         this.name = name
-        this.areaType = areaType
         this.regionType = Regiostar17.METROPOLE
         this.classification = classification
         this.parkingPlaces = parkingPlaces

@@ -79,7 +79,6 @@ fun defaultCsvParser(
             visumId = row.long(columns.idColumn)
             matrixColumn = row.index
             name = row(columns.nameColumn)
-            areaType = row.decode(columns.areaTypeColumn, regionTypeCodePlan)
             regionType =
                 row.decode(columns.regionTypeColumn, regionTypeCodePlan) //TODO remove either areaType or RegionType
             classification = row(columns.classificationColumn).toZoneClassification()
