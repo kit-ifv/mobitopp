@@ -4,12 +4,28 @@ import domain.data.Zone
 import synthesis.SurveyHousehold
 import synthesis.domain.SynthesisHousehold
 
+/**
+ * A functional interface that synthesizes households for different zones based on the provided [SurveyHousehold] data
+ * and the associated rules for each zone.
+ *
+ * The [synthesize] function processes a collection of [SurveyHousehold] objects and applies the rules for each zone
+ * to generate synthesized households, returning a mapping of zones to the synthesized households within those zones.
+ *
+ * @param T The type of data associated with the household (e.g., demographic information).
+ */
 fun interface HouseholdSynthesis<T> {
+    /**
+     * Synthesizes households based on the provided survey data and rules for each zone.
+     *
+     * @param surveyHouseholds A collection of [SurveyHousehold] objects containing the raw household data.
+     * @param conditions The rules for each zone that define how to synthesize the households.
+     * @return A map of [Zone] to a list of [SynthesisHousehold] objects representing the synthesized households for
+     *         each zone.
+     */
     fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<T>>,
-        targets: Collection<Zone>,
-        conditions: Map<Zone, List<Rule<Any>>>
-    ): Map<Zone, List<SynthesisHousehold<T>>>
+        surveyHouseholds: Collection<SurveyHousehold<out T>>,
+        conditions: Map<Zone, List<Rule<in T>>>
+    ): Map<Zone, List<SynthesisHousehold<out T>>>
 }
 
 /**
@@ -18,10 +34,9 @@ fun interface HouseholdSynthesis<T> {
  */
 class TrivialSynthesis<T> : HouseholdSynthesis<T> {
     override fun synthesize(
-        surveyHouseholds: Collection<SurveyHousehold<T>>,
-        targets: Collection<Zone>,
-        conditions: Map<Zone, List<Rule<Any>>>
-    ): Map<Zone, List<SynthesisHousehold<T>>> {
-        return targets.associateWith { surveyHouseholds.map { it.toSynthesisHousehold() } }
+        surveyHouseholds: Collection<SurveyHousehold<out T>>,
+        conditions: Map<Zone, List<Rule<in T>>>
+    ): Map<Zone, List<SynthesisHousehold<out T>>> {
+        return conditions.keys.associateWith { surveyHouseholds.map { it.toSynthesisHousehold() } }
     }
 }

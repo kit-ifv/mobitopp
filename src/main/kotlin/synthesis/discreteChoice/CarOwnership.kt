@@ -8,7 +8,6 @@ import modeling.discreteChoice.NestedLogit
 import modeling.discreteChoice.NestedLogit.Companion.NestedLogitBuilder
 import modeling.discreteChoice.times
 import synthesis.SurveyInfo
-import synthesis.age
 import synthesis.domain.SynthesisHousehold
 import synthesis.employment
 import synthesis.hasLicence

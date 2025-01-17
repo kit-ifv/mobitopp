@@ -3,7 +3,6 @@ package synthesis.activityGeneration
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
 import synthesis.SurveyInfo
-import synthesis.age
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import utils.Decodable

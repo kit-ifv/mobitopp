@@ -4,7 +4,8 @@ import domain.data.Employment
 import domain.data.Sex
 import units.Currency
 import units.Distance
-import java.util.*
+import kotlin.random.Random
+
 
 fun <T> Collection<T>.pickWithReplacement(
     amount: Int,
@@ -20,13 +21,20 @@ fun <T> Collection<T>.pickWithReplacement(
  * [amount] elements, the shuffled list will be truncated to the length.
  */
 fun <T> Collection<T>.selectExact(amount: Int, random: Random = Random(1)): List<T> {
+    val repeatedList = repeatExact(amount)
+    return repeatedList.shuffled(random)
+}
+
+/**
+ * Same as [selectExact] only that no shuffle is performed
+ */
+fun <T> Collection<T>.repeatExact(amount: Int): List<T> {
     if (amount == 0) return emptyList()
     require(isNotEmpty()) {
         "Cannot select an exact amount of elements from an empty collection"
     }
     val inputList = toList()
-    val repeatedList = List(amount) { inputList[it % size] }
-    return repeatedList.shuffled(random)
+    return List(amount) { inputList[it % size] }
 }
 
 /**

@@ -21,14 +21,15 @@ class ObserverTest : SynthesisTest() {
     fun ruleVectorization() {
         val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20) { it.size == 1 }
         val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10) { it.size == 2 }
+        val firstRuleSet = listOf(rule1, rule2)
+        assertContentEquals(ScalableVector.createFrom(hh1, firstRuleSet).content, listOf(1, 0))
+        assertContentEquals(ScalableVector.createFrom(hh2, firstRuleSet).content, listOf(0, 1))
 
-        assertContentEquals(listOf(rule1, rule2).vectorized(hh1).content, listOf(1, 0))
-        assertContentEquals(listOf(rule1, rule2).vectorized(hh2).content, listOf(0, 1))
 
         val rule3 = ZoneRule<Any>("aged 10", -0) { it.members.count { it.age == 10 } }
-
-        assertContentEquals(listOf(rule1, rule2, rule3).vectorized(hh1).content, listOf(1, 0, 1))
-        assertContentEquals(listOf(rule1, rule2, rule3).vectorized(hh2).content, listOf(0, 1, 2))
+        val secondRuleSet = listOf(rule1, rule2, rule3)
+        assertContentEquals(ScalableVector.createFrom(hh1, secondRuleSet).content, listOf(1, 0, 1))
+        assertContentEquals(ScalableVector.createFrom(hh2, secondRuleSet).content, listOf(0, 1, 2))
     }
 
     @Test
@@ -36,8 +37,9 @@ class ObserverTest : SynthesisTest() {
         val rule1 = ZoneCheckRule<Any> ("hhsize == 1", 20) { it.size == 1 }
         val rule2 = ZoneCheckRule<Any> ("hhsize == 2", 10) { it.size == 2 }
 
-        val vector1 = listOf(rule1, rule2).vectorized(hh1)
-        val vector2 = listOf(rule1, rule2).vectorized(hh2)
+        val vector1 = ScalableVector.createFrom(hh1, listOf(rule1, rule2))
+        val vector2 = ScalableVector.createFrom(hh2, listOf(rule1, rule2))
+
         assertContentEquals(vector1.content, listOf(1, 0))
         assertContentEquals(vector2.content, listOf(0, 1))
 
@@ -58,8 +60,10 @@ class ObserverTest : SynthesisTest() {
     fun observerManipulation() {
         // Both households match this rule, but hh2 = 2 and hh1 = 1, for different impacts on the rule
         val rule = ZoneRule<Any> ("hhsize == 1", 20) { it.size }
-        val vector1 = listOf(rule).vectorized(hh1)
-        val vector2 = listOf(rule).vectorized(hh2)
+
+        val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
+        val vector2 = ScalableVector.createFrom(hh2, listOf(rule))
+
 
         val observer = rule.createObserver(0, listOf(vector1, vector2))
         assertEquals(observer.sum(), 3.0)
@@ -84,8 +88,10 @@ class ObserverTest : SynthesisTest() {
     @Test
     fun vectorManipulation() {
         val rule = ZoneRule<Any> ("hhsize == 1", 20) { it.size }
-        val vector1 = listOf(rule).vectorized(hh1)
-        val vector2 = listOf(rule).vectorized(hh2)
+
+        val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
+        val vector2 = ScalableVector.createFrom(hh2, listOf(rule))
+
 
         val observer = rule.createObserver(0, listOf(vector1, vector2))
 
@@ -97,4 +103,14 @@ class ObserverTest : SynthesisTest() {
         assertEquals(vector1.scalar, 12.0)
         assertEquals(vector2.scalar, 4.0)
     }
+}
+/**
+ * Extension function to create an [Observer] from a [Rule] and a collection of encoded household vectors.
+ *
+ * @param index The index of the observed target in the rule.
+ * @param encodedHouseholds A collection of [ScalableVector]s representing encoded households.
+ * @return A new [Observer] instance.
+ */
+fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): Observer {
+    return Observer.fromRule(this, index, encodedHouseholds)
 }
