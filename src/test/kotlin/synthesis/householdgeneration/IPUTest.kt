@@ -34,12 +34,10 @@ class IPUTest : SynthesisTest() {
 
     private val employmentIPU = IPU<Employment>(GenerateHouseholdsFromVector.coerceMaintainingOrder()) { vectors, _ ->
         vectors.forEach { it *= 2 }
-        vectors
     }
 
     private val unitIPU = IPU<Any>(GenerateHouseholdsFromVector.coerceMaintainingOrder()) { vectors, _ ->
         vectors.forEach { it *= 3 }
-        vectors
     }
     private val testZone = TEST_ZONE
 
