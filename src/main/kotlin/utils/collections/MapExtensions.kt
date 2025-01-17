@@ -38,6 +38,11 @@ fun <K, V> Map<K, V>.sortByValues(comparator: Comparator<V>): Map<K, V> {
         .toMap()
 }
 
+fun <K, V> Map<K, V>.invertMap(): Map<V, List<K>> {
+    return this.entries
+        .groupBy({ it.value }, { it.key })
+}
+
 /**
  * Converts the return value of [binarySearch] to the index position
  */

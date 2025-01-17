@@ -1,0 +1,59 @@
+package synthesis
+
+import domain.data.Sex
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
+import synthesis.householdgeneration.CountRule
+import synthesis.householdgeneration.SynthesisTest
+import synthesis.householdgeneration.ZoneRule
+import utils.collections.invertMap
+import kotlin.test.assertContentEquals
+
+
+class SurveyHouseholdTest: SynthesisTest() {
+    @Test
+    fun testRepresentationByVector() {
+
+        val hh = createHousehold {
+            person(10, Sex.MALE) {
+                1
+            }
+            person(10, Sex.MALE) {
+                2
+            }
+        }
+        val hh2 = createHousehold {
+            person(10, Sex.MALE) {
+                1
+            }
+            person(10, Sex.MALE) {
+                2
+            }
+        }
+
+
+        val rule = ZoneRule<Any>("fake Description", 10)  {
+            it.count { it.age == 10 }
+        }
+        val households = listOf(hh, hh2)
+        assertNotEquals(hh, hh2)
+
+
+        val map = households.associateWith {it.toScalableVector(listOf(rule))}
+
+        assertEquals(map[hh], map[hh2])
+        assertFalse(map[hh] === map[hh2])
+        val scalar1 = map[hh]!!
+        val scalar2 = map[hh2]!!
+
+        assertEquals(scalar1, scalar2)
+
+        val inverse = map.invertMap()
+        assertEquals(inverse.size, 1)
+        assertContentEquals(inverse[scalar1], listOf(hh, hh2))
+
+
+
+
+    }
+}

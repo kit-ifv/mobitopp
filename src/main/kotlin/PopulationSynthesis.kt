@@ -55,7 +55,7 @@ import synthesis.fixedDestinations.work
 import synthesis.householdgeneration.HouseholdSynthesis
 import synthesis.householdgeneration.IPU
 import synthesis.householdgeneration.Rule
-import synthesis.householdgeneration.ZoneTarget
+
 import synthesis.randomCoordinate
 import synthesis.toSurveyHouseholds
 import units.CurrencyUnit
@@ -147,18 +147,16 @@ class SynthesisSteps<T : Any>(
     // TODO speaking type parameter names
     fun synthesis(
         randsums: Map<Zone, List<Rule<Any>>>,
-        filter: (Zone) -> Boolean = { it in randsums.keys },
         lambda: () -> HouseholdSynthesis<T>
     ) {
         val generator = lambda()
-        val synthesisZones = zones.filter(filter)
         require(randsums.keys.all { it in zones }) {
             "Zone Ids: ${
                 randsums.keys.filter { it !in zones }.map { it.id }
             } requested by the marginal sums are not found" +
                 "in the configuration. The program will terminate"
         }
-        householdsByZone = generator.synthesize(surveyHouseholds, synthesisZones, randsums)
+        householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
 
     // TODO refactor, use or discard this method
@@ -315,10 +313,12 @@ fun tryout() {
     }
     populationSynthesis.execute {
         // TODO make this a bit more beautiful
-        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any>>> = targets.associate {
-            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
-        }
+
+//        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
+        val rules: Map<Zone, List<Rule<Any>>> = TODO()
+//            targets.associate {
+//            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
+//        }
 
         synthesis(rules) {
             IPU { vectors, observers ->

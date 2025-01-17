@@ -14,6 +14,7 @@ import synthesis.activityGeneration.TrivialActivityGeneration
 import synthesis.carownership.AlwaysAssignFixedNumber
 import synthesis.fixedDestinations.GroupLocationFinder
 import synthesis.fixedDestinations.UseClosestLocation
+import synthesis.householdgeneration.Rule
 import synthesis.householdgeneration.TrivialSynthesis
 import units.euros
 import kotlin.io.path.Path
@@ -79,7 +80,7 @@ class PopulationSynthesisKtTest {
         val workLocations = populationSynthesis.generateLocations(work, amount = 1)
 
         populationSynthesis.execute {
-            synthesis(emptyMap(), filter = { true }) {
+            synthesis(mapOf(TEST_ZONE to emptyList())) {
                 TrivialSynthesis()
             }
             val test = householdsByZone

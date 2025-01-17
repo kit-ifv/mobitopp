@@ -8,7 +8,24 @@ import synthesis.fixedDestinations.ZoneNumber
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.NoSuchElementException
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
+class ExampleRastattTest  {
+
+    @Test
+    fun generateProperRulesFromInput() {
+        val targets = ZoneTarget.fromFile("src/test/resources/synthesis/ZoneTargets.csv").toList()
+        assertEquals(targets.size, 47)
+    }
+}
+
+/**
+ * This is the example class building conditions from the input file found in the legacy rastatt code. The targets match
+ * the description of src/test/resources/zoneTargets.csv.
+ *
+ * The Zones match src/test/resources/zones.csv
+ * */
 data class ZoneTarget(
     val zoneId: ZoneId,
     val numHH1: Int,
@@ -40,7 +57,7 @@ data class ZoneTarget(
     val ageGroup9male: Int,
     val ageGroup10male: Int,
 
-) {
+    ) {
 
     fun improvedTargets(): List<Rule<Any>> {
         return listOf(
@@ -106,10 +123,11 @@ data class ZoneTarget(
             ageGroup8male,
             ageGroup9male,
 
-        )
+            )
     }
 
     companion object {
+        fun fromFile(string: String): Sequence<ZoneTarget> = fromFile(Path.of(string))
         fun fromFile(file: Path): Sequence<ZoneTarget> {
             val offset = 4
             val parser = DefaultCsvParser { row ->
@@ -146,7 +164,7 @@ data class ZoneTarget(
                     ageGroup9male = row.valueAt(26 + offset).toInt(),
                     ageGroup10male = row.valueAt(27 + offset).toInt(),
 
-                )
+                    )
             }
             return parser.parse(file.toFile())
         }

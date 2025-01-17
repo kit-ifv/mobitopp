@@ -15,11 +15,11 @@ import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.CSVOutput
 import synthesis.RawSurveyInfo
 import synthesis.SurveyInfo
-import synthesis.age
+
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import synthesis.sex
+
 import usecases.steps.toCSV
 import utils.units.sinceStart
 import kotlin.time.DurationUnit

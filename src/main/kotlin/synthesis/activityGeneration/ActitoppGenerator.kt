@@ -8,10 +8,10 @@ import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.SurveyInfo
-import synthesis.age
+
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import synthesis.sex
+
 import utils.Decodable
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
