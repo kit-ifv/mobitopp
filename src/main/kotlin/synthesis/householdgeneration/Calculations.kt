@@ -92,7 +92,6 @@ class Observer(val name: String, private val observedIndex: Int, val vectors: Li
 }
 
 
-
 /**
  * A [ScalableVector] represents a vectorized encoding of household attributes, where each element of the vector
  * corresponds to a specific attribute, and the `scalar` factor indicates how many instances of the household encoding
@@ -125,6 +124,7 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
      * @return The value at the specified [index] in the vector, multiplied by the [scalar].
      */
     fun currentValueForIndex(index: Int): Double = array[index] * scalar
+
     /**
      * Determines whether this vector applies to a given rule based on the value at the [ruleIndex].
      * A value other than 0 at the [ruleIndex] indicates that the vector applies to the rule.
@@ -135,6 +135,7 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
     fun appliesToRule(ruleIndex: Int): Boolean {
         return array[ruleIndex] != 0
     }
+
     /**
      * Multiplies the [scalar] of the vector by the given [times] value.
      *
@@ -163,6 +164,7 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         }
         return result
     }
+
     companion object {
         /**
          * creates a Scalable Vector for a target [surveyHousehold] based on the ruleset defined in [rules]

@@ -58,10 +58,11 @@ class IPU<T>(
         conditions: Map<Zone, List<Rule<in T>>>
     ): Map<Zone, List<SynthesisHousehold<out T>>> {
         return conditions.entries.associate { (zone, rules) ->
-            zone to calculate(surveyHouseholds, rules, converter).map{it.toSynthesisHousehold()}
+            zone to calculate(surveyHouseholds, rules, converter).map { it.toSynthesisHousehold() }
 
         }
     }
+
     /**
      * Calculates the synthetic household population for a set of survey households, based on the provided rules
      * and conversion strategy. This method first converts each survey household into its vector representation,
@@ -105,18 +106,6 @@ fun interface GenerateHouseholdsFromVector<T> {
     companion object {
         /**
          * Coercion strategy cuts off the number of requested households. if the required number is 12.8, the number
-         * of households picked is 12. Shuffles by the random supplier.
-         */
-        fun <T> coerceShuffled(random: Random = Random(1)): GenerateHouseholdsFromVector<T> {
-            return GenerateHouseholdsFromVector {
-                entries.flatMap {
-                    it.value.selectExact(it.key.scalar.toInt(), random = random)
-                }
-            }
-        }
-
-        /**
-         * Coercion strategy cuts off the number of requested households. if the required number is 12.8, the number
          * of households picked is 12. Does not shuffle and maintains the order of the entries
          */
         fun <T> coerceMaintainingOrder(): GenerateHouseholdsFromVector<T> {
@@ -137,15 +126,18 @@ class SampleAndCollect<T>(val random: Random = Random(1)) : GenerateHouseholdsFr
     private var overflowCounter: Double = 0.0
     override fun Map<ScalableVector, List<SurveyHousehold<out T>>>.extract(): List<SurveyHousehold<out T>> {
         return entries.flatMap {
+            // Update the offset decimal to be added to the overflow counter
+            val offset = it.key.scalar - it.key.scalar.toInt()
+            overflowCounter += offset
             val amount = if (overflowCounter >= 1.0) {
-                it.key.scalar + 1
+                // If the overflow counter spills, add one extra household
                 overflowCounter--
+                it.key.scalar.toInt() + 1
+
             } else {
-                it.key.scalar
+                it.key.scalar.toInt()
             }
-            // Add the remainder to the overflow counter
-            overflowCounter += it.key.scalar - it.key.scalar.toInt()
-            it.value.pickWithReplacement(amount.toInt(), random)
+            it.value.pickWithReplacement(amount, random)
         }
     }
 }
