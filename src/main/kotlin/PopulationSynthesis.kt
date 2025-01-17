@@ -315,7 +315,7 @@ fun tryout() {
         // TODO make this a bit more beautiful
 
 //        val targets = ZoneTarget.fromFile(Path("src/test/resources/synthesis/ZoneTargets.csv")).toList()
-        val rules: Map<Zone, List<Rule<Any>>> = TODO()
+        val rules: Map<Zone, List<Rule<Any>>> = emptyMap()
 //            targets.associate {
 //            zones.first { i -> i.id == it.zoneId } to it.improvedTargets()
 //        }
@@ -327,7 +327,6 @@ fun tryout() {
                     observers.forEach { it.optimize() }
                     counter++
                 }
-                vectors
             }
         }
         assignLocations {
@@ -408,10 +407,10 @@ fun Collection<Zone>.generateLocations(
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 }
 ): List<Location> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
-        it.generateLocations(
-            generationFunction(it, attractivenessModel, activityType)
-        )
+        it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
+
+
 }
 
 fun Zone.generateLocations(amount: Int): List<Location> {

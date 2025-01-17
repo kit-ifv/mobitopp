@@ -35,7 +35,7 @@ import kotlin.random.Random
  */
 class IPU<T>(
     val converter: GenerateHouseholdsFromVector<T> = SampleAndCollect(),
-    val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Collection<ScalableVector>
+    val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Unit
 ) :
     HouseholdSynthesis<T> {
 
