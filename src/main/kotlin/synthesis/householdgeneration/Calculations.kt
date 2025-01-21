@@ -4,7 +4,7 @@ import synthesis.SurveyHousehold
 import kotlin.math.abs
 
 /**
- * The Observer class is responsible for monitoring a set of households encoded as vectors (represented by [ScalableVector])
+ * The RuleObserver class is responsible for monitoring a set of households encoded as vectors (represented by [ScalableVector])
  * and tracking the deviation from an expected value based on the application of rules. After the vectorization of households,
  * the encoded information is stored in a matrix where each column represents a household, and each row corresponds to a rule
  * or target condition. The observer tracks which households, encoded as vectors, need to be monitored to ensure that the rules
@@ -15,7 +15,7 @@ import kotlin.math.abs
  * @param vectors A list of [ScalableVector] objects representing the household data in vectorized form.
  * @param expected The expected value that the household sum should match after optimization.
  */
-class Observer(val name: String, private val observedIndex: Int, val vectors: List<ScalableVector>, val expected: Int) {
+class RuleObserver(val name: String, private val observedIndex: Int, val vectors: List<ScalableVector>, val expected: Int) {
     /**
      * Sums the current values for the given [observedIndex] across all the vectors.
      *
@@ -68,20 +68,20 @@ class Observer(val name: String, private val observedIndex: Int, val vectors: Li
 
     companion object {
         /**
-         * Creates an [Observer] from a given [Rule] and a collection of all encoded household vectors.
+         * Creates an [RuleObserver] from a given [Rule] and a collection of all encoded household vectors.
          * Filters the vectors to include only those that apply to the given rule at the specified [observedIndex].
          *
          * @param rule The rule that describes the condition or target to observe.
          * @param observedIndex The index of the rule defined in the external logic.
          * @param allHouseholdsEncoded The collection of all [ScalableVector]s representing encoded households.
-         * @return A new [Observer] instance.
+         * @return A new [RuleObserver] instance.
          */
         fun <T> fromRule(
             rule: Rule<T>,
             observedIndex: Int,
             allHouseholdsEncoded: Collection<ScalableVector>
-        ): Observer {
-            return Observer(
+        ): RuleObserver {
+            return RuleObserver(
                 rule.description,
                 observedIndex,
                 allHouseholdsEncoded.filter { it.appliesToRule(observedIndex) },

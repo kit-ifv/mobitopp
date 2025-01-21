@@ -1,78 +1,75 @@
 package synthesis.fixedDestinations
 
+import domain.data.Zone
 import domain.data.ZoneId
+import domain.enums.ActivityType
+import domain.location.Location
+import modeling.discreteChoice.GlobalRandomizer
+import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.BiMap.Companion.toBiMap
+import synthesis.randomCoordinate
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 
-data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
+/**
+ * Finds a proper location for a given person, and activity type.
+ */
+fun interface IndividualActivityLocator<T> {
 
-fun readCommuters(file: Path): Sequence<CommuterInfo> {
-    val parser = DefaultCsvParser { row ->
-        CommuterInfo(
-            row("origin") { CommunityNumber.parse(it) },
-            row("destination") { CommunityNumber.parse(it) },
-            row("commuters").toInt(),
-
-        )
-    }
-
-    return parser.parse(file.toFile())
+    fun find(individual: SynthesisPerson<out T>, activityType: ActivityType): Location
 }
 
-@JvmInline
-value class ZoneNumber(private val int: Int) {
-
-    fun toZoneId(): ZoneId {
-        return ZoneId(int.toLong())
-    }
-
-    companion object {
-        fun parse(string: String): ZoneNumber {
-            return ZoneNumber(string.toInt())
-        }
-    }
+/**
+ * Sometimes it is smarter to assign locations for an activity type in groups, rather than individually. For
+ * example, when assigning 300 students to three schools which each can house 100 students, it may not be
+ * prudent to just randomly assign each student individually, but to consider all students and perform a matching.
+ */
+fun interface GroupActivityLocator<T> {
+    fun find(
+        group: Collection<SynthesisPerson<out T>>,
+        activityType: ActivityType
+    ): Collection<Pair<SynthesisPerson<out T>, Location>>
 }
 
-@JvmInline
-value class CommunityNumber(private val int: Int) {
-    companion object {
-        fun parse(string: String): CommunityNumber {
-            return CommunityNumber(string.toInt())
-        }
+/**
+ * The most trivial implementation of a group locator is to simply use an individual assignment strategy and use said
+ * strategy to generate locations.
+ */
+
+class TrivialGroupActivityLocator<T>(val original: IndividualActivityLocator<T>) : GroupActivityLocator<T> {
+    override fun find(
+        group: Collection<SynthesisPerson<out T>>,
+        activityType: ActivityType
+    ): Collection<Pair<SynthesisPerson<out T>, Location>> {
+        return group.map { it to original.find(it, activityType) }
     }
 }
 
-fun readZoneToCommunity(file: Path): BiMap<ZoneId, CommunityNumber> {
-    val parser = DefaultCsvParser { row ->
-        Pair(
-            row("partId") { ZoneNumber.parse(it).toZoneId() },
-            row("regionId") { CommunityNumber.parse(it) },
 
-        )
-    }
-
-    return parser.parse(file.toFile()).toMap().toBiMap()
+/**
+ * A functional interface to provide a location from the knowledge of a zone. In the synthesis this step is necessary to
+ * determine the correct location of synthesis households, which know only the zone in which they are located
+ */
+fun interface DetermineLocationInZone {
+    fun getLocation(zone: Zone): Location
 }
 
-class BiMap<K, V>(
-    val forwardMap: MutableMap<K, V> = mutableMapOf(),
-    val backwardMap: MutableMap<V, List<K>> = mutableMapOf()
-) {
-
-    operator fun contains(element: K): Boolean {
-        return element in forwardMap
-    }
-
-    fun containsValue(element: V): Boolean {
-        return element in backwardMap
-    }
-
-    companion object {
-        fun <K, V> Map<K, V>.toBiMap(): BiMap<K, V> {
-            val backwardMap =
-                this.entries.groupBy { it.value }.map { entry -> entry.key to entry.value.map { it.key } }.toMap()
-            return BiMap(this.toMutableMap(), backwardMap.toMutableMap())
-        }
+/**
+ * Assign a location randomly in a radius of 100 meters around the zone centroid
+ */
+object DebugZoneAssigner : DetermineLocationInZone {
+    override fun getLocation(zone: Zone): Location {
+        return Location(zone.centroid.coordinate.randomCoordinate(100.0, GlobalRandomizer), zone, null)
     }
 }
+
+/**
+ * Assign the location based on the centroid coordinate.
+ */
+object CentroidAssigner : DetermineLocationInZone {
+    override fun getLocation(zone: Zone): Location {
+        return Location(zone.centroid.coordinate, zone, null)
+    }
+}
+
+

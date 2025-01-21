@@ -7,7 +7,7 @@ import synthesis.SurveyHousehold
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
-class ObserverTest : SynthesisTest() {
+class RuleObserverTest : SynthesisTest() {
     private val hh1: SurveyHousehold<Any> =
         createHousehold {
             person(10, Sex.FEMALE) {}
@@ -105,12 +105,12 @@ class ObserverTest : SynthesisTest() {
     }
 }
 /**
- * Extension function to create an [Observer] from a [Rule] and a collection of encoded household vectors.
+ * Extension function to create an [RuleObserver] from a [Rule] and a collection of encoded household vectors.
  *
  * @param index The index of the observed target in the rule.
  * @param encodedHouseholds A collection of [ScalableVector]s representing encoded households.
- * @return A new [Observer] instance.
+ * @return A new [RuleObserver] instance.
  */
-fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): Observer {
-    return Observer.fromRule(this, index, encodedHouseholds)
+fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): RuleObserver {
+    return RuleObserver.fromRule(this, index, encodedHouseholds)
 }

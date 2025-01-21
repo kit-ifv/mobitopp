@@ -4,7 +4,7 @@ import domain.data.Sex
 import domain.data.ZoneId
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
-import synthesis.fixedDestinations.ZoneNumber
+//import synthesis.fixedDestinations.ZoneNumber
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.NoSuchElementException
@@ -132,7 +132,7 @@ data class ZoneTarget(
             val offset = 4
             val parser = DefaultCsvParser { row ->
                 ZoneTarget(
-                    zoneId = row.valueAt(0) { ZoneNumber.parse(it).toZoneId() },
+                    zoneId = row.valueAt(0) { ZoneId(it.toLong()) },
 
                     numHH1 = row.valueAt(1).toInt(),
                     numHH2 = row.valueAt(2).toInt(),

@@ -26,10 +26,10 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>
 
 class AssignViaRegionType(
     val model: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> = carChoiceModel,
-    val cityParameters: CarOwnershipParameters = carOwnershipCityParameters,
-    val smallTownParameters: CarOwnershipParameters = carOwnershipSmallCity,
-    val urbanAreaParameters: CarOwnershipParameters = carOwnershipUrbanAreaParameters,
-    val ruralAreaParameters: CarOwnershipParameters = carOwnershipRuralArea,
+    private val cityParameters: CarOwnershipParameters = carOwnershipCityParameters,
+    private val smallTownParameters: CarOwnershipParameters = carOwnershipSmallCity,
+    private val urbanAreaParameters: CarOwnershipParameters = carOwnershipUrbanAreaParameters,
+    private val ruralAreaParameters: CarOwnershipParameters = carOwnershipRuralArea,
 ) : CarOwnershipAssignStrategy<SurveyInfo> {
 
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {

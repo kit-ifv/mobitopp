@@ -138,7 +138,7 @@ class SynthesisSteps<T : Any>(
     fun fixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
         val stepBuilder = AssignStepBuilder<T>(zones, attractivenessModel)
         stepBuilder.apply(lambda)
-
+        //TODO fix the name, fix the name shadowing, maybe find a better solution for assignment
         val fixedDestinationse = stepBuilder.steps.flatMap { it.runOther(people) }
         fixedDestinationse.forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = fixedDestinationse
