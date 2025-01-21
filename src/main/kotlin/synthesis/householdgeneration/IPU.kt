@@ -11,7 +11,7 @@ import kotlin.random.Random
 /**
  * The default implementation of the [HouseholdSynthesis] interface, which generates a synthetic population
  * for each zone based on survey household data represented as [ScalableVector]s. The goal of the synthesis is
- * to match the conditions defined by a set of rules using the [Observer] for each zone.
+ * to match the conditions defined by a set of rules using the [RuleObserver] for each zone.
  *
  * Each household in the survey is encoded as a [ScalableVector], a vector where each element represents an
  * attribute of the household. For example, a household might be encoded as `[0, 1, 2, 0]`. The synthesis process
@@ -35,7 +35,7 @@ import kotlin.random.Random
  */
 class IPU<T>(
     val converter: GenerateHouseholdsFromVector<T> = SampleAndCollect(),
-    val algorithm: (vectors: Collection<ScalableVector>, Collection<Observer>) -> Unit
+    val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit
 ) :
     HouseholdSynthesis<T> {
 
@@ -84,10 +84,10 @@ class IPU<T>(
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
-        val observers = rules.withIndex().map {
-            Observer.fromRule(it.value, it.index, uniqueVectors)
+        val ruleObservers = rules.withIndex().map {
+            RuleObserver.fromRule(it.value, it.index, uniqueVectors)
         }
-        algorithm(uniqueVectors, observers)
+        algorithm(uniqueVectors, ruleObservers)
         return conversion.run {
             inverseMap.extract()
         }

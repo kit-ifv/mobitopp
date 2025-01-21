@@ -18,7 +18,7 @@ import usecases.AttractivenessModel
 import usecases.steps.legacyData.defaultCsvParser
 
 
-class MetricCommAssignTest {
+class AssignFromCommuterMatrixTest {
 
     private data class CommuteDistancer(override val distanceWork: Distance) : CommuteDistance
 
@@ -42,7 +42,7 @@ class MetricCommAssignTest {
         household.location = DebugZoneAssigner.getLocation(zones.first())
         val metric = FlightDistance()
 
-        val assigner = MetricCommAssign(
+        val assigner = AssignFromCommuterMatrix(
             CommuterMatrix.parse(
                 zoneMapping = zones.associateBy { it.id },
             ),
@@ -53,19 +53,7 @@ class MetricCommAssignTest {
         )
         assigner.find(person, LegacyActivityType.WORK)
     }
-    /*
-        point: GPSCoordinate = BIELEFELD,
-    visumId: Long = 1L,
-    matrixColumn: Int = 0,
-    name: String = "HomeZone",
-    areaType: AreaType = ZoneAreaType.DEFAULT,
-    regionType: Int = 0,
-    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
-    override var parkingPlaces: Int = 1,
-    isDestination: Boolean = true,
-    relief: Distance = 0.meters,
-    id: ZoneId = ZoneId(1L)
-     */
+
     @Test
     fun communitySaturationIsProperlyUpdated() {
         val zone1 = TestZone(
@@ -107,7 +95,7 @@ class MetricCommAssignTest {
         val person2 = SynthesisPerson(household, CommuteDistancer(1.kilometers))
         household.location = CentroidAssigner.getLocation(zone1)
         household2.location = CentroidAssigner.getLocation(zone2)
-        val assignStrat = MetricCommAssign(
+        val assignStrat = AssignFromCommuterMatrix(
             fakeMatrix,
             FlightDistance(),
             attractivenessModel,

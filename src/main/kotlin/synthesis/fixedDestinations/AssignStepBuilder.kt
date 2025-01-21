@@ -3,7 +3,6 @@ package synthesis.fixedDestinations
 import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.FlightDistance
-import domain.location.Location
 import synthesis.FixedDestinationElements
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisPerson
@@ -24,16 +23,16 @@ class AssignStepBuilder<G>(
     inner class AssignStep(
         private val activityType: ActivityType,
         private val filter: (SynthesisPerson<out G>) -> Boolean,
-        private val assignFunction: GroupLocationFinder<in G>
+        private val assignFunction: GroupActivityLocator<in G>
     ) {
-        fun run(target: Collection<SynthesisPerson<out G>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
-            val applicableAgents = target.filter(filter)
-            println("The simulation has: ${applicableAgents.size} agents required for $activityType")
-            return assignFunction.find(
-                applicableAgents,
-                activityType
-            ).associate { it.first to Pair(activityType, it.second) }
-        }
+//        fun run(target: Collection<SynthesisPerson<out G>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
+//            val applicableAgents = target.filter(filter)
+//            println("The simulation has: ${applicableAgents.size} agents required for $activityType")
+//            return assignFunction.find(
+//                applicableAgents,
+//                activityType
+//            ).associate { it.first to Pair(activityType, it.second) }
+//        }
 
         fun runOther(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
             val applicableAgents = target.filter(filter)
@@ -52,7 +51,7 @@ class AssignStepBuilder<G>(
     }
     inner class FixedIn {
         lateinit var activityType: ActivityType
-        lateinit var assignmentStrategy: GroupLocationFinder<in G>
+        lateinit var assignmentStrategy: GroupActivityLocator<in G>
         lateinit var filter: (SynthesisPerson<out G>) -> Boolean
         var strategy = GREEDY_BY_DISTANCE
         var locationInZone = DebugZoneAssigner
@@ -69,16 +68,16 @@ class AssignStepBuilder<G>(
             }
         }
 
-        fun distanceBasedCommunity(lambda: StepIN.() -> Unit): MetricCommAssign {
+        fun distanceBasedCommunity(lambda: StepIN.() -> Unit): AssignFromCommuterMatrix {
             val commuterMatrix = StepIN().apply(lambda).generate()
-            return MetricCommAssign(commuterMatrix, FlightDistance(), attractivenessModel, strategy, locationInZone)
+            return AssignFromCommuterMatrix(commuterMatrix, FlightDistance(), attractivenessModel, strategy, locationInZone)
         }
     }
 }
 
 /**
- * Extension functions if the person has attribute
- *
+ * Extension functions if the person has the employment as an attribute, in which case the filter condition does not
+ * need to be provided externally
  */
 fun <T : SurveyInfo> AssignStepBuilder<T>.primarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
     val element = FixedIn()
