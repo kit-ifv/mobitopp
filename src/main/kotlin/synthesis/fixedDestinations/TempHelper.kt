@@ -9,9 +9,9 @@ import kotlin.math.abs
 
 private typealias Agent<T> = SynthesisPerson<out T>
 /**
- * TODO very similar to Groupbased activity locator
+ * A group locator assigns locations to a collection of agents instead of individually assigning locations.
  */
-fun interface MatchAgentsToLocations<T> {
+fun interface GroupLocator<T> {
     fun match(
         agents: Collection<Agent<T>>,
         potentialLocations: Collection<Location>
@@ -19,24 +19,25 @@ fun interface MatchAgentsToLocations<T> {
 }
 
 
-
-
-
-
-
-class TempLocationSorter<T>(
+/**
+ * A community based locator groups the agents based on the community number of their home location, defined by the
+ * demand and then assigns the work locations using a group locator for each group. Since the community demands are
+ * independent of one another this strategy can simply filter the target locations based on whether a commute demand
+ * to their community number exists.
+ */
+class CommunityBasedGroupLocator<T>(
     val demands: CommuterDemandsMatrix,
     val strategy: AssignAgentsInCommunity<T>
-) : MatchAgentsToLocations<T> {
+) : GroupLocator<T> {
     override fun match(
         agents: Collection<Agent<T>>,
         potentialLocations: Collection<Location>
     ): List<Pair<Agent<T>, Location>> {
         val targets = agents.groupBy { it.homeLocation.toCommunity() }
         return targets.flatMap { (communityNumber, agents) ->
-            val concreteDemands = demands[communityNumber]
-            val concreteLocations = potentialLocations.filter { it.toCommunity() in concreteDemands }
-            strategy.assign(agents, concreteDemands, concreteLocations)
+            val demandsForCommunity = demands[communityNumber]
+            val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
+            strategy.assign(agents, demandsForCommunity, locationsInTargetCommunities)
         }
     }
 
@@ -45,11 +46,17 @@ class TempLocationSorter<T>(
     }
 }
 
+/**
+ * Assign the agents of a given community a corresponding location.
+ */
 fun interface AssignAgentsInCommunity<T> {
     fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
     ): List<Pair<Agent<T>, Location>>
 
+    /**
+     * Convenience function to construct the wrapper for the Demand planner automatically.
+     */
     fun assign(
         agents: Collection<Agent<T>>,
         demand: MutableCommunityDemand,
@@ -57,7 +64,9 @@ fun interface AssignAgentsInCommunity<T> {
     ) = assign(CommunityDemandPlaner(agents, demand, potentialLocations))
 }
 
-
+/**
+ * Find the best location for a target agent based on the demand and available locations.
+ */
 fun interface BestLocationFromDemand<T> {
     fun bestLocation(
         agent: Agent<T>,
@@ -74,12 +83,16 @@ data class CommunityDemandPlaner<T>(
     val demand: MutableCommunityDemand,
     val potentialLocations: Collection<Location>
 ) {
+    /**
+     * The standard function to a assign a location for each agent, find the best location as defined by the strategy
+     * and decrease the demand in the community where the target location resides.
+     */
     fun plan(
-        lambda: BestLocationFromDemand<T> = BestLocationFromDemand { _, _, loc -> loc.first() }
+        strategy: BestLocationFromDemand<T> = BestLocationFromDemand { _, _, loc -> loc.first() }
     ): List<Pair<SynthesisPerson<out T>, Location>> {
         return agents.associateWith { agent ->
 
-            val targetLocation = lambda.bestLocation(agent, demand, potentialLocations)
+            val targetLocation = strategy.bestLocation(agent, demand, potentialLocations)
             demand.decreaseDemandFor(targetLocation)
             targetLocation
         }.toList()
@@ -87,7 +100,10 @@ data class CommunityDemandPlaner<T>(
 }
 
 
-
+/**
+ * An example implementation of assigning an agent a location: Use the location with the smallest possible distance,
+ * which still has an unsaturated demand. If all demands are saturated, use the first
+ */
 class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
@@ -103,6 +119,11 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
     }
 }
 
+/**
+ * This implementation of assigning an agent to a location takes in the stated commute distance of an agent and tries
+ * to find the location which most closely matches the specified commute distance, while still having unsaturated demand.
+ * If all demands are saturated, the best location without regard to saturation is used as a fallback.
+ */
 class UsingCommuteDistance<T : CommuteDistance>(private val metric: DistanceMetric) : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>

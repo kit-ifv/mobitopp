@@ -1,15 +1,11 @@
 package synthesis.fixedDestinations
 
 import domain.data.Zone
-import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import synthesis.domain.SynthesisPerson
-import synthesis.fixedDestinations.BiMap.Companion.toBiMap
 import synthesis.randomCoordinate
-import utils.csv.DefaultCsvParser
-import java.nio.file.Path
 
 /**
  * Finds a proper location for a given person, and activity type.
@@ -24,7 +20,7 @@ fun interface IndividualActivityLocator<T> {
  * example, when assigning 300 students to three schools which each can house 100 students, it may not be
  * prudent to just randomly assign each student individually, but to consider all students and perform a matching.
  */
-fun interface GroupActivityLocator<T> {
+fun interface OldGroupActivityLocator<T> {
     fun find(
         group: Collection<SynthesisPerson<out T>>,
         activityType: ActivityType
@@ -36,7 +32,7 @@ fun interface GroupActivityLocator<T> {
  * strategy to generate locations.
  */
 
-class TrivialGroupActivityLocator<T>(val original: IndividualActivityLocator<T>) : GroupActivityLocator<T> {
+class TrivialGroupActivityLocator<T>(val original: IndividualActivityLocator<T>) : OldGroupActivityLocator<T> {
     override fun find(
         group: Collection<SynthesisPerson<out T>>,
         activityType: ActivityType

@@ -2,31 +2,23 @@ package synthesis.fixedDestinations
 
 import datastructure.ReadOnlyKDTree
 import datastructure.WithMetric
-import domain.data.Zone
-import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
-import domain.location.DistanceMetric
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.roadnetwork.toUTM
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
-import synthesis.CommuteDistance
 import synthesis.domain.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
 import units.kilometers
 import units.toDistance
 import usecases.AttractivenessModel
-import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.math.ln
 import kotlin.math.pow
 
 
-class UseClosestLocation(potentialLocations: List<Location>) : IndividualActivityLocator<Any>, GroupActivityLocator<Any> {
+class UseClosestLocation(potentialLocations: List<Location>) : IndividualActivityLocator<Any>, OldGroupActivityLocator<Any> {
     private val locationTree =
         ReadOnlyKDTree(potentialLocations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
@@ -79,7 +71,7 @@ class UseBandwidthLocation(
     private val potentialLocations: List<Location>,
     val attractivenessModel: AttractivenessModel,
     val parameters: BandwidthParameters = BandwidthParameters()
-) : IndividualActivityLocator<Any>, GroupActivityLocator<Any> {
+) : IndividualActivityLocator<Any>, OldGroupActivityLocator<Any> {
     private val locationTree = LocationKDTree(potentialLocations)
     private val model =
         DiscreteChoiceModel<Location, LocationSituation, BandwidthParameters>(

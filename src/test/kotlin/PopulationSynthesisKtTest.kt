@@ -12,7 +12,7 @@ import synthesis.SurveyHousehold
 import synthesis.TrivialCarGeneration
 import synthesis.activityGeneration.TrivialActivityGeneration
 import synthesis.carownership.AlwaysAssignFixedNumber
-import synthesis.fixedDestinations.GroupActivityLocator
+import synthesis.fixedDestinations.OldGroupActivityLocator
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.householdgeneration.TrivialSynthesis
 import units.euros
@@ -185,7 +185,7 @@ class PopulationSynthesisKtTest {
                      */
 
                     val locations: List<Location> = listOf(bielefeld, itzehoe, schweinfurt)
-                    assignmentStrategy = GroupActivityLocator { persons, _ ->
+                    assignmentStrategy = OldGroupActivityLocator { persons, _ ->
 
                         persons.zip(locations)
                     }

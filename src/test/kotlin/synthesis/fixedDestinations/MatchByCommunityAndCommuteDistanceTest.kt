@@ -46,7 +46,7 @@ class MatchByCommunityAndCommuteDistanceTest : SynthesisTest() {
         val locations = testZone2.generateLocations(10)
 
 
-        val tmpSorter = TempLocationSorter<CommuteDistance>(
+        val tmpSorter = CommunityBasedGroupLocator<CommuteDistance>(
             demands = commuterDemandsMatrix,
             strategy = UsingCommuteDistance(FlightDistance())
         )
