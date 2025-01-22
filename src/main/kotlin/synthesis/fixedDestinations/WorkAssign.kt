@@ -141,7 +141,7 @@ class AssignFromCommuterMatrix(
     val attractivenessModel: AttractivenessModel,
     val findProperWorkspace: FindProperWorkspace,
     val zoneLocationAssigner: DetermineLocationInZone
-) : GroupActivityLocator<CommuteDistance> {
+) : OldGroupActivityLocator<CommuteDistance> {
 
     private val legacyActivityType = LegacyActivityType.WORK
     private val helper: Map<Zone, Collection<WorkDistances>> = unrollCommutermatrix()

@@ -23,7 +23,7 @@ class AssignStepBuilder<G>(
     inner class AssignStep(
         private val activityType: ActivityType,
         private val filter: (SynthesisPerson<out G>) -> Boolean,
-        private val assignFunction: GroupActivityLocator<in G>
+        private val assignFunction: OldGroupActivityLocator<in G>
     ) {
 //        fun run(target: Collection<SynthesisPerson<out G>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
 //            val applicableAgents = target.filter(filter)
@@ -51,7 +51,7 @@ class AssignStepBuilder<G>(
     }
     inner class FixedIn {
         lateinit var activityType: ActivityType
-        lateinit var assignmentStrategy: GroupActivityLocator<in G>
+        lateinit var assignmentStrategy: OldGroupActivityLocator<in G>
         lateinit var filter: (SynthesisPerson<out G>) -> Boolean
         var strategy = GREEDY_BY_DISTANCE
         var locationInZone = DebugZoneAssigner
