@@ -2,7 +2,6 @@ package synthesis.fixedDestinations
 
 import domain.data.Zone
 import domain.enums.ActivityType
-import domain.location.FlightDistance
 import synthesis.FixedDestinationElements
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisPerson
@@ -10,7 +9,6 @@ import synthesis.isHigherStudent
 import synthesis.isPrimaryStudent
 import synthesis.isWorker
 import usecases.AttractivenessModel
-import kotlin.io.path.Path
 
 class AssignStepBuilder<G>(
     val zones: List<Zone>,
@@ -23,21 +21,14 @@ class AssignStepBuilder<G>(
     inner class AssignStep(
         private val activityType: ActivityType,
         private val filter: (SynthesisPerson<out G>) -> Boolean,
-        private val assignFunction: OldGroupActivityLocator<in G>
+        private val assignFunction: SimpleGroupLocator<in G>
     ) {
-//        fun run(target: Collection<SynthesisPerson<out G>>): Map<SynthesisPerson<*>, Pair<ActivityType, Location>> {
-//            val applicableAgents = target.filter(filter)
-//            println("The simulation has: ${applicableAgents.size} agents required for $activityType")
-//            return assignFunction.find(
-//                applicableAgents,
-//                activityType
-//            ).associate { it.first to Pair(activityType, it.second) }
-//        }
 
-        fun runOther(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
+
+        fun generateFixedDestinations(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
+            // TODO test that only valid agents are assigned stuff
             val applicableAgents = target.filter(filter)
-            println("The simulation has: ${applicableAgents.size} agents required for $activityType")
-            return assignFunction.find(target, activityType).map {
+            return assignFunction.match(applicableAgents).map {
                 FixedDestinationElements(it.first, activityType, it.second)
             }
         }
@@ -51,27 +42,10 @@ class AssignStepBuilder<G>(
     }
     inner class FixedIn {
         lateinit var activityType: ActivityType
-        lateinit var assignmentStrategy: OldGroupActivityLocator<in G>
+        lateinit var assignmentStrategy: SimpleGroupLocator<in G>
         lateinit var filter: (SynthesisPerson<out G>) -> Boolean
-        var strategy = GREEDY_BY_DISTANCE
         var locationInZone = DebugZoneAssigner
 
-        inner class StepIN {
-            var communityMapping = Path("src/test/resources/synthesis/zone-to-community.csv")
-            var commuterFile = Path("src/test/resources/synthesis/commuters-rastatt.csv")
-            fun generate(): CommuterMatrix {
-                return CommuterMatrix.parse(
-                    mappingFile = communityMapping,
-                    commuterFile = commuterFile,
-                    zoneMapping = zones.associateBy { it.id }
-                )
-            }
-        }
-
-        fun distanceBasedCommunity(lambda: StepIN.() -> Unit): AssignFromCommuterMatrix {
-            val commuterMatrix = StepIN().apply(lambda).generate()
-            return AssignFromCommuterMatrix(commuterMatrix, FlightDistance(), attractivenessModel, strategy, locationInZone)
-        }
     }
 }
 

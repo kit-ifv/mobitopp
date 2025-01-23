@@ -4,11 +4,13 @@ import TestZone
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
+import domain.location.Location
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import synthesis.SmallestSurveyPerson
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
+import synthesis.domain.SynthesisHousehold
 import units.euros
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
@@ -86,6 +88,16 @@ open class SynthesisTest {
         return builder.createHousehold()
     }
 
+    /**
+     * Spawn in a synthesis household, if you happen to have a location at hand where the household should be.
+     */
+    protected fun <T> Location.createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SynthesisHousehold<T> {
+        val builder = HouseholdBuilder<T>()
+        builder.apply(lambda)
+        val synthesisHousehold = builder.createHousehold().toSynthesisHousehold()
+        synthesisHousehold.location = this
+        return synthesisHousehold
+    }
     protected fun <T> Collection<Zone>.createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T>>> {
         val builder = ZoneBuilder<T>(this)
         builder.apply(lambda)

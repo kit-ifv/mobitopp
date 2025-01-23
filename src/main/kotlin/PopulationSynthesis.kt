@@ -45,10 +45,13 @@ import synthesis.discreteChoice.transitPassDiscreteChoiceModel
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.AssignStepBuilder
-import synthesis.fixedDestinations.DebugZoneAssigner
-import synthesis.fixedDestinations.GREEDY_BY_DISTANCE
-import synthesis.fixedDestinations.UseBandwidthLocation
+import synthesis.fixedDestinations.BandwidthLocator
+
 import synthesis.fixedDestinations.UseClosestLocation
+import synthesis.fixedDestinations.communityBased.CommunityBasedGroupLocator
+import synthesis.fixedDestinations.communityBased.CommuterDemandsMatrix
+import synthesis.fixedDestinations.communityBased.CommuterDistance
+
 import synthesis.fixedDestinations.primarySchool
 import synthesis.fixedDestinations.secondarySchool
 import synthesis.fixedDestinations.work
@@ -135,13 +138,12 @@ class SynthesisSteps<T : Any>(
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
-    fun fixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
+    fun assignFixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
         val stepBuilder = AssignStepBuilder<T>(zones, attractivenessModel)
         stepBuilder.apply(lambda)
-        //TODO fix the name, fix the name shadowing, maybe find a better solution for assignment
-        val fixedDestinationse = stepBuilder.steps.flatMap { it.runOther(people) }
-        fixedDestinationse.forEach { it.person.fixedDestinations[it.activityType] = it.location }
-        fixedDestinations = fixedDestinationse
+        val allFixedDestinations = stepBuilder.steps.flatMap { it.generateFixedDestinations(people) }
+        allFixedDestinations.forEach { it.person.fixedDestinations[it.activityType] = it.location }
+        fixedDestinations = allFixedDestinations
     }
 
     // TODO speaking type parameter names
@@ -154,7 +156,7 @@ class SynthesisSteps<T : Any>(
             "Zone Ids: ${
                 randsums.keys.filter { it !in zones }.map { it.id }
             } requested by the marginal sums are not found" +
-                "in the configuration. The program will terminate"
+                    "in the configuration. The program will terminate"
         }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
@@ -308,6 +310,9 @@ fun tryout() {
 
     val primarySchools: List<Location> =
         populationSynthesis.generateLocations(LegacyActivityType.EDUCATION_PRIMARY, amount = 1)
+
+    val works: List<Location> =
+        populationSynthesis.generateLocations(LegacyActivityType.WORK, amount = 1)
     require(primarySchools.isNotEmpty()) {
         "Somehow no primary schools are generated"
     }
@@ -358,23 +363,26 @@ fun tryout() {
 //            choiceModel = transitPassDiscreteChoiceModel
         }
 
-        fixedDestinations {
+        assignFixedDestinations {
             primarySchool {
                 activityType = LegacyActivityType.EDUCATION_PRIMARY
                 assignmentStrategy = UseClosestLocation(primarySchools)
             }
             secondarySchool {
                 activityType = LegacyActivityType.EDUCATION_SECONDARY
-                assignmentStrategy = UseBandwidthLocation(primarySchools, attractivenessModel)
+                assignmentStrategy =
+                    BandwidthLocator(primarySchools, attractivenessModel, LegacyActivityType.EDUCATION_SECONDARY)
             }
             work {
                 activityType = LegacyActivityType.WORK
-                assignmentStrategy = distanceBasedCommunity {
-                    communityMapping = Path("src/test/resources/synthesis/zone-to-community.csv")
-                    commuterFile = Path("src/test/resources/synthesis/commuters-rastatt.csv")
-                    strategy = GREEDY_BY_DISTANCE
-                    locationInZone = DebugZoneAssigner
-                }
+                assignmentStrategy = CommunityBasedGroupLocator(
+                    demands = CommuterDemandsMatrix.parse(
+                        Path("src/test/resources/synthesis/zone-to-community.csv"),
+                        Path("src/test/resources/synthesis/commuters-rastatt.csv")
+                    ),
+                    strategy = CommuterDistance(),
+                    potentialLocations = works
+                )
             }
         }
 //        generateCars (TrivialCarGeneration::generateCars)

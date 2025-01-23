@@ -39,7 +39,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
-    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
+    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
     implementation("edu.kit.ifv:visumNetfileParser:0.9.13")
     implementation(project(":annotations"))
 //    implementation("edu.kit.ifv:annotations:1.0.0")

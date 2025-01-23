@@ -10,7 +10,7 @@ import synthesis.randomCoordinate
 /**
  * Finds a proper location for a given person, and activity type.
  */
-fun interface IndividualActivityLocator<T> {
+fun interface IndividualOldActivityLocator<T> {
 
     fun find(individual: SynthesisPerson<out T>, activityType: ActivityType): Location
 }
@@ -32,7 +32,7 @@ fun interface OldGroupActivityLocator<T> {
  * strategy to generate locations.
  */
 
-class TrivialGroupActivityLocator<T>(val original: IndividualActivityLocator<T>) : OldGroupActivityLocator<T> {
+class TrivialGroupActivityLocator<T>(val original: IndividualOldActivityLocator<T>) : OldGroupActivityLocator<T> {
     override fun find(
         group: Collection<SynthesisPerson<out T>>,
         activityType: ActivityType

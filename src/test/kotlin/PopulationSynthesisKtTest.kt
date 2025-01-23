@@ -12,7 +12,7 @@ import synthesis.SurveyHousehold
 import synthesis.TrivialCarGeneration
 import synthesis.activityGeneration.TrivialActivityGeneration
 import synthesis.carownership.AlwaysAssignFixedNumber
-import synthesis.fixedDestinations.OldGroupActivityLocator
+import synthesis.fixedDestinations.SimpleGroupLocator
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.householdgeneration.TrivialSynthesis
 import units.euros
@@ -62,6 +62,7 @@ class PopulationSynthesisKtTest {
             zones = listOf(TEST_ZONE)
             rules = emptyList()
             surveyHouseholds = surveyPopulation.toSurveyHouseholds()
+            // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {
                 file = Path("src/test/resources/synthesis/attractivities.csv")
                 activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
@@ -165,7 +166,7 @@ class PopulationSynthesisKtTest {
             assertTrue(p2.fixedDestinations.isEmpty())
             assertTrue(p3.fixedDestinations.isEmpty())
 
-            fixedDestinations {
+            assignFixedDestinations {
                 forActivity {
                     activityType = work
                     filter = { it.plannedActivities.any { it.type == activityType } }
@@ -185,7 +186,7 @@ class PopulationSynthesisKtTest {
                      */
 
                     val locations: List<Location> = listOf(bielefeld, itzehoe, schweinfurt)
-                    assignmentStrategy = OldGroupActivityLocator { persons, _ ->
+                    assignmentStrategy = SimpleGroupLocator { persons ->
 
                         persons.zip(locations)
                     }
