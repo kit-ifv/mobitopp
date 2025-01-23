@@ -3,8 +3,12 @@ package synthesis.domain
 import domain.data.Sex
 import domain.enums.ActivityType
 import domain.location.Location
+import synthesis.CommuteDistance
 import synthesis.GLOBAL_PERSON_ID_GENERATOR
 import synthesis.activityGeneration.PreliminaryActivitySchedule
+import units.Distance
+import units.abs
+
 // TODO I don't think that age and sex are mandatory attributes, and should be in the info block. Debate with Jelle?
 class SynthesisPerson<T>(
     val household: SynthesisHousehold<T>,

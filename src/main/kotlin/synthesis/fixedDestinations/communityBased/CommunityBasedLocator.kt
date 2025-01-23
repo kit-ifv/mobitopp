@@ -1,23 +1,12 @@
-package synthesis.fixedDestinations
+package synthesis.fixedDestinations.communityBased
 
 import domain.location.DistanceMetric
 import domain.location.Location
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisPerson
-import units.DistanceUnit
-import kotlin.math.abs
-
-private typealias Agent<T> = SynthesisPerson<out T>
-/**
- * A group locator assigns locations to a collection of agents instead of individually assigning locations.
- */
-fun interface GroupLocator<T> {
-    fun match(
-        agents: Collection<Agent<T>>,
-        potentialLocations: Collection<Location>
-    ): List<Pair<Agent<T>, Location>>
-}
-
+import synthesis.fixedDestinations.SimpleGroupLocator
+import units.Distance
+import units.abs
 
 /**
  * A community based locator groups the agents based on the community number of their home location, defined by the
@@ -27,12 +16,12 @@ fun interface GroupLocator<T> {
  */
 class CommunityBasedGroupLocator<T>(
     val demands: CommuterDemandsMatrix,
-    val strategy: AssignAgentsInCommunity<T>
-) : GroupLocator<T> {
+    val strategy: AssignAgentsInCommunity<T>,
+    private val potentialLocations: Collection<Location>,
+) : SimpleGroupLocator<T> {
     override fun match(
-        agents: Collection<Agent<T>>,
-        potentialLocations: Collection<Location>
-    ): List<Pair<Agent<T>, Location>> {
+        agents: Collection<SynthesisPerson<out T>>,
+    ): List<Pair<SynthesisPerson<out T>, Location>> {
         val targets = agents.groupBy { it.homeLocation.toCommunity() }
         return targets.flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
@@ -52,13 +41,13 @@ class CommunityBasedGroupLocator<T>(
 fun interface AssignAgentsInCommunity<T> {
     fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
-    ): List<Pair<Agent<T>, Location>>
+    ): List<Pair<SynthesisPerson<out T>, Location>>
 
     /**
      * Convenience function to construct the wrapper for the Demand planner automatically.
      */
     fun assign(
-        agents: Collection<Agent<T>>,
+        agents: Collection<SynthesisPerson<out T>>,
         demand: MutableCommunityDemand,
         potentialLocations: Collection<Location>
     ) = assign(CommunityDemandPlaner(agents, demand, potentialLocations))
@@ -69,7 +58,7 @@ fun interface AssignAgentsInCommunity<T> {
  */
 fun interface BestLocationFromDemand<T> {
     fun bestLocation(
-        agent: Agent<T>,
+        agent: SynthesisPerson<out T>,
         demand: CommunityDemand,
         locations: Collection<Location>
     ): Location
@@ -79,7 +68,7 @@ fun interface BestLocationFromDemand<T> {
  * Gather all agents in a communitynumber and get their demand, then try to assign stuff.
  */
 data class CommunityDemandPlaner<T>(
-    val agents: Collection<Agent<T>>,
+    val agents: Collection<SynthesisPerson<out T>>,
     val demand: MutableCommunityDemand,
     val potentialLocations: Collection<Location>
 ) {
@@ -90,8 +79,11 @@ data class CommunityDemandPlaner<T>(
     fun plan(
         strategy: BestLocationFromDemand<T> = BestLocationFromDemand { _, _, loc -> loc.first() }
     ): List<Pair<SynthesisPerson<out T>, Location>> {
+        val size = agents.toSet().size
+        if (size > demand.total) {
+            System.err.println("The amount of unique agents $size to be assigned exceeds the the total demand ${demand.total}.")
+        }
         return agents.associateWith { agent ->
-
             val targetLocation = strategy.bestLocation(agent, demand, potentialLocations)
             demand.decreaseDemandFor(targetLocation)
             targetLocation
@@ -112,7 +104,7 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
         return communityDemandPlaner.plan { a, dem, loc ->
             loc.sortedBy {
                 metric.evaluate(it, a.homeLocation)
-            }.firstOrNull { !dem.isSaturated(it) }?:loc.first()
+            }.firstOrNull { !dem.isSaturated(it) } ?: loc.first()
 
         }
 
@@ -120,11 +112,28 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
 }
 
 /**
+ * If a metric is present, the commuter distance can also be extracted using said metric.
+ */
+class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMetric) : CommuterDistance<T>() {
+
+
+    override fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
+        return abs(
+            metric.evaluate(
+                agent.homeLocation,
+                location
+            ) - agent.info.distanceWork
+        )
+
+
+    }
+}
+/**
  * This implementation of assigning an agent to a location takes in the stated commute distance of an agent and tries
  * to find the location which most closely matches the specified commute distance, while still having unsaturated demand.
  * If all demands are saturated, the best location without regard to saturation is used as a fallback.
  */
-class UsingCommuteDistance<T : CommuteDistance>(private val metric: DistanceMetric) : AssignAgentsInCommunity<T> {
+open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
     ): List<Pair<SynthesisPerson<out T>, Location>> {
@@ -135,7 +144,6 @@ class UsingCommuteDistance<T : CommuteDistance>(private val metric: DistanceMetr
             }
             val filteredLocations = locations.filter { !demand.isSaturated(it) }
             if (filteredLocations.isEmpty()) {
-                println("Be advised that the demand for all Locations $locations is saturated. Agent $agent still requires a solution, we will use the best remaining demand")
                 locations.minBy { differenceToCommuteDistance(agent, it) }
             } else {
                 filteredLocations.minBy { differenceToCommuteDistance(agent, it) }
@@ -146,20 +154,15 @@ class UsingCommuteDistance<T : CommuteDistance>(private val metric: DistanceMetr
 
     }
 
-    private fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Double {
+    open fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
         return abs(
-            (metric.evaluate(
-                location,
-                agent.homeLocation
-            ) - agent.info.distanceWork).toDouble(DistanceUnit.METERS)
+
+            agent.homeLocation.distance(location)
+                    - agent.info.distanceWork
         )
 
+
     }
+
+    private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)
 }
-
-
-
-
-
-
-

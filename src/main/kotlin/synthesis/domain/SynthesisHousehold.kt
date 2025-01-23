@@ -26,4 +26,6 @@ class SynthesisHousehold<T>(
     fun economicStatusIsAssigned() = ::economicStatus.isInitialized
     var amountOfCars = 0
     val cars: MutableList<SynthesisCar> = mutableListOf()
+
+    operator fun get(index: Int): SynthesisPerson<out T> = members[index]
 }

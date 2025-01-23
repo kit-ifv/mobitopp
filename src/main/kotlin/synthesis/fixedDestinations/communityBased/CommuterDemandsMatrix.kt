@@ -1,4 +1,4 @@
-package synthesis.fixedDestinations
+package synthesis.fixedDestinations.communityBased
 
 import domain.data.ZoneId
 import domain.location.Location
@@ -14,6 +14,8 @@ class CommuterDemandsMatrix(
     private val demands: MutableMap<CommunityNumber, MutableCommunityDemand> = mutableMapOf(),
     private val converter: (Location) -> CommunityNumber
 ) {
+
+    val total get() = demands.values.sumOf{it.total}
     fun convert(location: Location): CommunityNumber {
         return converter(location)
     }
@@ -115,6 +117,8 @@ open class CommunityDemand(
     protected val converter: (Location) -> CommunityNumber,
     protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf()
 ) {
+    val total get() = demands.values.sum()
+
     operator fun get(j: CommunityNumber): Double {
         return demands[j] ?: 0.0
     }

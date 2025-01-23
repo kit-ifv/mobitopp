@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import point
+import synthesis.fixedDestinations.communityBased.CommunityNumber
+import synthesis.fixedDestinations.communityBased.CommuterDemandsMatrix
 import kotlin.io.path.Path
 import kotlin.test.assertContains
 
@@ -31,6 +33,7 @@ class CommuterDemandsMatrixTest {
 
         assertEquals(demands[2, 1], 2.0)
         assertEquals(demands[c2, c1], 2.0)
+        assertEquals(demands.total, 3.0)
     }
     @Test
     fun copyDoesNotAlter() {
@@ -64,6 +67,7 @@ class CommuterDemandsMatrixTest {
         demandFor.decreaseDemandFor(BIELEFELD.asLocation())
         assertEquals(demandFor[1], 0.0)
         demandFor[1] = 1.0
+        assertEquals(demandFor.total, 1.0)
         assertEquals(demandFor[1], 1.0)
     }
     @Test
@@ -75,8 +79,11 @@ class CommuterDemandsMatrixTest {
         assertFalse(concreteDemands.contains(1))
         assertTrue(concreteDemands.contains(2))
         assertTrue(concreteDemands.contains(3))
-
+        assertEquals(demands.total, 2.5)
         concreteDemands.decreaseDemandFor(bielefeld)
+        assertEquals(demands.total, 2.5) // Should be copied and thus unaffected
+        assertEquals(concreteDemands.total, 1.5)
+
         assertEquals(concreteDemands[2], 0.0)
         assertTrue(concreteDemands.contains(2))
 
