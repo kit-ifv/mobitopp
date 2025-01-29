@@ -4,15 +4,17 @@ import domain.location.DistanceMetric
 import domain.location.Location
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisPerson
+import synthesis.fixedDestinations.AssignedLocation
 import synthesis.fixedDestinations.SimpleGroupLocator
 import units.Distance
 import units.abs
+
 
 /**
  * A community based locator groups the agents based on the community number of their home location, defined by the
  * demand and then assigns the work locations using a group locator for each group. Since the community demands are
  * independent of one another this strategy can simply filter the target locations based on whether a commute demand
- * to their community number exists.
+ * to their community number exists. Feed this implementation with all locations that are suitable for your assignment
  */
 class CommunityBasedGroupLocator<T>(
     val demands: CommuterDemandsMatrix,
@@ -21,12 +23,29 @@ class CommunityBasedGroupLocator<T>(
 ) : SimpleGroupLocator<T> {
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
-    ): List<Pair<SynthesisPerson<out T>, Location>> {
+    ): List<AssignedLocation<T>> {
         val targets = agents.groupBy { it.homeLocation.toCommunity() }
+        verifyDemand(targets.keys)
+        verifyLocationsPresent(targets.keys)
+
+
         return targets.flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
             val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
             strategy.assign(agents, demandsForCommunity, locationsInTargetCommunities)
+        }
+    }
+
+    private fun verifyDemand(targets: Collection<CommunityNumber>) {
+        val badTargets = targets.filter{demands[it].isEmpty()}
+        require(badTargets.isEmpty()) {
+            "The following communities have agents in need of location assignment, but no associated demand: ${badTargets.joinToString()}"
+        }
+    }
+    private fun verifyLocationsPresent(targets: Collection<CommunityNumber>) {
+        val badTargets = targets.filter {potentialLocations.none{ loc -> loc.toCommunity() in demands[it]}}
+        require(badTargets.isEmpty()) {
+            "The following communities have demand, but no location is found in the target communities: ${badTargets.joinToString()}"
         }
     }
 
@@ -41,7 +60,7 @@ class CommunityBasedGroupLocator<T>(
 fun interface AssignAgentsInCommunity<T> {
     fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
-    ): List<Pair<SynthesisPerson<out T>, Location>>
+    ): List<AssignedLocation<T>>
 
     /**
      * Convenience function to construct the wrapper for the Demand planner automatically.
@@ -73,21 +92,21 @@ data class CommunityDemandPlaner<T>(
     val potentialLocations: Collection<Location>
 ) {
     /**
-     * The standard function to a assign a location for each agent, find the best location as defined by the strategy
+     * The standard function to assign a location for each agent, find the best location as defined by the strategy
      * and decrease the demand in the community where the target location resides.
      */
     fun plan(
-        strategy: BestLocationFromDemand<T> = BestLocationFromDemand { _, _, loc -> loc.first() }
-    ): List<Pair<SynthesisPerson<out T>, Location>> {
-        val size = agents.toSet().size
+        strategy: BestLocationFromDemand<T>
+    ): List<AssignedLocation<T>> {
+        val size = agents.size
         if (size > demand.total) {
-            System.err.println("The amount of unique agents $size to be assigned exceeds the the total demand ${demand.total}.")
+            System.err.println("The amount of agents ($size) to be assigned in community ${demand.communityID} exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment")
         }
-        return agents.associateWith { agent ->
+        return agents.map { agent ->
             val targetLocation = strategy.bestLocation(agent, demand, potentialLocations)
             demand.decreaseDemandFor(targetLocation)
-            targetLocation
-        }.toList()
+            AssignedLocation(agent, targetLocation)
+        }
     }
 }
 
@@ -99,11 +118,11 @@ data class CommunityDemandPlaner<T>(
 class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
-    ): List<Pair<SynthesisPerson<out T>, Location>> {
+    ): List<AssignedLocation<T>> {
 
         return communityDemandPlaner.plan { a, dem, loc ->
             loc.sortedBy {
-                metric.evaluate(it, a.homeLocation)
+                metric.evaluate(a.homeLocation, it)
             }.firstOrNull { !dem.isSaturated(it) } ?: loc.first()
 
         }
@@ -128,6 +147,7 @@ class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMe
 
     }
 }
+
 /**
  * This implementation of assigning an agent to a location takes in the stated commute distance of an agent and tries
  * to find the location which most closely matches the specified commute distance, while still having unsaturated demand.
@@ -136,7 +156,7 @@ class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMe
 open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
-    ): List<Pair<SynthesisPerson<out T>, Location>> {
+    ): List<AssignedLocation<T>> {
 
         return communityDemandPlaner.plan { agent, demand, locations ->
             require(locations.isNotEmpty()) {

@@ -8,7 +8,7 @@ import synthesis.domain.SynthesisPerson
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours
 
-interface GenerateActivitySchedule<T> {
+fun interface GenerateActivitySchedule<T> {
     fun generate(person: SynthesisPerson<out T>): PreliminaryActivitySchedule
 }
 

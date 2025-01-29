@@ -27,7 +27,7 @@ class CommuterDemandsMatrix(
      * @param communityNumber the origin community number
      */
     operator fun get(communityNumber: CommunityNumber): MutableCommunityDemand {
-        val out = demands[communityNumber] ?: MutableCommunityDemand(converter)
+        val out = demands[communityNumber] ?: MutableCommunityDemand(converter, communityID = communityNumber)
         return out.copy()
     }
     operator fun get(i: Number): MutableCommunityDemand = get(i.toCommunity())
@@ -43,7 +43,7 @@ class CommuterDemandsMatrix(
      * Set the demand of commute between communityNumber i and j to the target value.
      */
     operator fun set(i: CommunityNumber, j: CommunityNumber, value: Double) {
-        val demandForI = demands.getOrPut(i) { MutableCommunityDemand(converter) }
+        val demandForI = demands.getOrPut(i) { MutableCommunityDemand(converter, communityID = j) }
         demandForI[j] = value
     }
     operator fun set(i: Number, j: Number, value: Double) = set(i.toCommunity(), j.toCommunity(), value)
@@ -115,10 +115,13 @@ class CommuterDemandsMatrix(
  */
 open class CommunityDemand(
     protected val converter: (Location) -> CommunityNumber,
-    protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf()
+    protected val demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
+    val communityID: CommunityNumber
 ) {
     val total get() = demands.values.sum()
-
+    val keys get() = demands.keys
+    fun isEmpty() = demands.isEmpty()
+    fun isNotEmpty() = demands.isNotEmpty()
     operator fun get(j: CommunityNumber): Double {
         return demands[j] ?: 0.0
     }
@@ -155,9 +158,10 @@ open class CommunityDemand(
  */
 class MutableCommunityDemand(
     converter: (Location) -> CommunityNumber,
-    demands: MutableMap<CommunityNumber, Double> = mutableMapOf()
+    demands: MutableMap<CommunityNumber, Double> = mutableMapOf(),
+    communityID: CommunityNumber
 ) :
-    CommunityDemand(converter, demands) {
+    CommunityDemand(converter, demands, communityID) {
 
     operator fun set(j: CommunityNumber, value: Double) {
         demands[j] = value
@@ -166,7 +170,7 @@ class MutableCommunityDemand(
     operator fun set(j: Number, value: Double) = set(j.toCommunity(), value)
 
 
-    fun copy(): MutableCommunityDemand = MutableCommunityDemand(converter, demands.toMutableMap())
+    fun copy(): MutableCommunityDemand = MutableCommunityDemand(converter, demands.toMutableMap(), communityID)
 
     /**
      * Decrease the demand towards the target community number by 1. If the demand is not present, add it and set it to
