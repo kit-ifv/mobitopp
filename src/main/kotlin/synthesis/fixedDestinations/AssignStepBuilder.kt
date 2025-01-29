@@ -29,7 +29,7 @@ class AssignStepBuilder<G>(
             // TODO test that only valid agents are assigned stuff
             val applicableAgents = target.filter(filter)
             return assignFunction.match(applicableAgents).map {
-                FixedDestinationElements(it.first, activityType, it.second)
+                FixedDestinationElements(it.targetPerson, activityType, it.assignedLocation)
             }
         }
     }
@@ -44,8 +44,6 @@ class AssignStepBuilder<G>(
         lateinit var activityType: ActivityType
         lateinit var assignmentStrategy: SimpleGroupLocator<in G>
         lateinit var filter: (SynthesisPerson<out G>) -> Boolean
-        var locationInZone = DebugZoneAssigner
-
     }
 }
 

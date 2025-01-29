@@ -1,24 +1,15 @@
-package synthesis.fixedDestinations
+package datastructure
 
-import datastructure.ReadOnlyKDTree
-import datastructure.WithMetric
-import domain.enums.ActivityType
 import domain.location.Location
 import domain.roadnetwork.toUTM
-import modeling.discreteChoice.AllocatedLogit
-import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.DiscreteChoiceModel
-import synthesis.domain.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
-import units.kilometers
 import units.toDistance
-import usecases.AttractivenessModel
-import kotlin.math.ln
-import kotlin.math.pow
 
-
-
+/**
+ * A KD-tree built by locations using the UTM Coordinate Representation.
+ * TODO test that this datastructure works with very distant points in UTM
+ */
 class LocationKDTree(locations: List<Location>) {
     private val tree = ReadOnlyKDTree(locations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
 
@@ -29,6 +20,16 @@ class LocationKDTree(locations: List<Location>) {
             { it.toDistance(DistanceUnit.METERS) }
         )
     }
+
+    fun nearestNeighbor(element: Location): Location {
+        return tree.findUntil(element, converter = {
+            doubleArrayOf(
+                it.coordinate.toUTM().e,
+                it.coordinate.toUTM().n
+            )
+        }).first().item
+    }
+
 }
 
 

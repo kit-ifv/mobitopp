@@ -1,5 +1,6 @@
 package synthesis.fixedDestinations
 
+import datastructure.LocationKDTree
 import datastructure.ReadOnlyKDTree
 import domain.location.DistanceMetric
 import domain.location.Location
@@ -12,18 +13,12 @@ import units.Distance
  * distance of coordinates.
  */
 class UseClosestLocation(potentialLocations: List<Location>) : SimpleLocator<Any> {
-    private val locationTree =
-        ReadOnlyKDTree(potentialLocations, { it.coordinate.toUTM().e }, { it.coordinate.toUTM().n })
+    private val locationTree = LocationKDTree(potentialLocations)
 
     override fun locate(
         agent: SynthesisPerson<out Any>,
     ): Location {
-        return locationTree.nearestNeighbor(agent.homeLocation) {
-            doubleArrayOf(
-                it.coordinate.toUTM().e,
-                it.coordinate.toUTM().n
-            )
-        }
+        return locationTree.nearestNeighbor(agent.homeLocation)
     }
 }
 

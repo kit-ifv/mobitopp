@@ -11,17 +11,20 @@ import synthesis.SmallestSurveyPerson
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
 import synthesis.domain.SynthesisHousehold
+
+import units.Coordinate
+import units.Distance
+import units.Radians
 import units.euros
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-
-open class SynthesisTest {
-
+class ToolTest: SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
     private val zones = listOf(zone1)
-    protected fun <T> createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T>>> {
+
+    private fun <T> createRules(lambda: ZoneBuilder<T>.() -> Unit): Map<Zone, List<Rule<T>>> {
         return zones.createRules(lambda)
     }
 
@@ -81,6 +84,12 @@ open class SynthesisTest {
         assertTrue(rule.appliesTo(fittingHousehold))
         assertFalse(rule.appliesTo(mismatchingHousehold))
     }
+}
+open class SynthesisTest {
+
+
+
+
 
     protected fun <T> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<T> {
         val builder = HouseholdBuilder<T>()
@@ -157,7 +166,32 @@ open class SynthesisTest {
 
         fun createRules(): Map<ZoneId, List<Rule<T>>> = associatedRules
     }
+    protected fun fakeLocation() = Location(FakeCoord(), null, null)
+    protected fun Zone.spawnFakeLoc(): Location {
+        return Location(FakeCoord(), this, null)
+    }
 
+
+    protected fun Zone.spawnLocation(coordinate: Coordinate): Location = Location(coordinate, this, null)
+
+    protected class FakeCoord : Coordinate {
+        val id = counter
+        override val latitudeRadians: Radians = Radians(0.0)
+        override val longitudeRadians: Radians = Radians(0.0)
+        override fun distance(other: Coordinate): Distance {
+            throw NotImplementedError("This method should never be called for this test to work")
+        }
+
+        override fun toString(): String {
+            return "FakeLoc($id)"
+        }
+
+        companion object {
+            var counter: Int = 0
+                get() = field++
+                private set
+        }
+    }
     protected class HouseholdBuilder<T> {
         var id: Int = 0
         var income = 0.euros

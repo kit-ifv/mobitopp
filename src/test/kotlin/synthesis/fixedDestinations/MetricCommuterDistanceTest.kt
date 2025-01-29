@@ -14,13 +14,14 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 import synthesis.CommuteDistance
 import synthesis.fixedDestinations.communityBased.CommunityNumber
+import synthesis.fixedDestinations.communityBased.CommuterDistance
 import synthesis.fixedDestinations.communityBased.MutableCommunityDemand
 import synthesis.fixedDestinations.communityBased.MetricCommuterDistance
 import synthesis.householdgeneration.SynthesisTest
 import units.Coordinate
 import units.Distance
 import units.DistanceUnit
-import units.Radians
+import units.GPSCoordinate
 import units.kilometers
 import units.toDistance
 import utils.ConsoleCaptor
@@ -34,12 +35,11 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     private val testZone1 = TestZone(id = ZoneId(1L))
     private val testZone2 = TestZone(id = ZoneId(2L))
     private val testZone3 = TestZone(id = ZoneId(3L))
-
-    private val home1 = testZone1.spawnLoc()
-    private val home2 = testZone1.spawnLoc()
-    private val work1 = testZone1.spawnLoc()
-    private val work2 = testZone2.spawnLoc()
-    private val work3 = testZone3.spawnLoc()
+    private val home1 = testZone1.spawnFakeLoc()
+    private val home2 = testZone1.spawnFakeLoc()
+    private val work1 = testZone1.spawnFakeLoc()
+    private val work2 = testZone2.spawnFakeLoc()
+    private val work3 = testZone3.spawnFakeLoc()
 
     private val defaultHome = home1.createHousehold {
         person(10, Sex.MALE) {
@@ -121,7 +121,8 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     @Test
     fun throwsNoExceptionWhenNoAgentIsPresent() {
         val demand = MutableCommunityDemand(
-            converter = { CommunityNumber(-42) }
+            converter = { CommunityNumber(-42) },
+            communityID = CommunityNumber(-42)
         )
         // The strategy should not throw an exception if no agent is there to be assigned a location
         assertDoesNotThrow {
@@ -135,7 +136,8 @@ class MetricCommuterDistanceTest : SynthesisTest() {
 
 
         val demand = MutableCommunityDemand(
-            converter = { CommunityNumber(-42) }
+            converter = { CommunityNumber(-42) },
+            communityID = CommunityNumber(-42)
         )
         // If a person is present and no location - there should be an exception
         assertThrows<IllegalArgumentException> {
@@ -146,19 +148,19 @@ class MetricCommuterDistanceTest : SynthesisTest() {
     fun respectsSaturationLevels() {
         val demand = generateStandardDemand()
         val output = strategy.assign(listOf(person1, person2, person3), demand, listOf(work1, work2, work3))
-        assertEquals(output[0].first, person1)
-        assertEquals(output[1].first, person2)
-        assertEquals(output[2].first, person3)
+        assertEquals(output[0].targetPerson, person1)
+        assertEquals(output[1].targetPerson, person2)
+        assertEquals(output[2].targetPerson, person3)
 
-        assertEquals(output[0].second, work2)
-        assertEquals(output[1].second, work1)
-        assertEquals(output[2].second, work1)
+        assertEquals(output[0].assignedLocation, work2)
+        assertEquals(output[1].assignedLocation, work1)
+        assertEquals(output[2].assignedLocation, work1)
     }
     @Test
-    fun copiesOfAgentAreDiscarded() {
+    fun copiesOfAgentAreNotDiscarded() {
         val demand = generateStandardDemand()
         val output = strategy.assign(listOf(person4, person4), demand, listOf(work1))
-        assertEquals(output.size, 1)
+        assertEquals(output.size, 2)
     }
     @TestFactory
     fun configurations(): List<DynamicTest> {
@@ -202,10 +204,29 @@ class MetricCommuterDistanceTest : SynthesisTest() {
                 } else {
                     assertTrue(text.isEmpty())
                 }
-                assertContentEquals(output.map {o ->o .first }, agents)
-                assertContentEquals(output.map{o ->o.second}, it.second)
+                assertContentEquals(output.map {o ->o.targetPerson }, agents)
+                assertContentEquals(output.map{o ->o.assignedLocation}, it.second)
             }
         }
+
+
+
+    }
+    @Test
+    fun testLocationBased() {
+        val strategy = CommuterDistance<CommuteDistance>()
+        val home = testZone1.spawnLocation(GPSCoordinate.decimalDegree(0.0,0.0))
+        val household = home.createHousehold<CommuteDistance> {
+            person(10, Sex.MALE) {
+                object :CommuteDistance {
+                    override val distanceWork: Distance = 1.0.kilometers
+                }
+            }
+        }
+        val work1 = testZone1.spawnLocation(GPSCoordinate.decimalDegree(0.0, 0.0))
+
+        assertEquals(strategy.differenceToCommuteDistance(household[0], work1), 1.0.kilometers)
+
 
     }
     private fun generateStandardDemand(): MutableCommunityDemand {
@@ -217,42 +238,24 @@ class MetricCommuterDistanceTest : SynthesisTest() {
             )
 
         val demand = MutableCommunityDemand(
-            converter = { zoneCommunityMapping.getValue(it.requireZone()) }
+            converter = { zoneCommunityMapping.getValue(it.requireZone()) },
+            communityID = CommunityNumber(1)
         )
         demand[2] = 1.0
         demand[1] = 2.0
         return demand
     }
 
-    private fun Zone.spawnLoc(): Location {
-        return Location(FakeCoord(), this, null)
-    }
+
 
 
 }
 
 
-private class FakeCoord : Coordinate {
-    val id = counter
-    override val latitudeRadians: Radians = Radians(0.0)
-    override val longitudeRadians: Radians = Radians(0.0)
-    override fun distance(other: Coordinate): Distance {
-        throw NotImplementedError("This method should never be called for this test to work")
-    }
 
-    override fun toString(): String {
-        return "FakeLoc($id)"
-    }
 
-    companion object {
-        var counter: Int = 0
-            get() = field++
-            private set
-    }
-}
 
-private fun fakeLocation() = Location(FakeCoord(), null, null)
-private class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
+class SymmetricMockDistance(default: Distance = 0.kilometers) : AsymmetricMockDistance(default) {
 
 
     override operator fun set(origin: Location, destination: Location, value: Distance) {
@@ -262,7 +265,7 @@ private class SymmetricMockDistance(default: Distance = 0.kilometers) : Asymmetr
 
 }
 
-private open class AsymmetricMockDistance(val default: Distance = 0.kilometers) : DistanceMetric {
+open class AsymmetricMockDistance(private val default: Distance = 0.kilometers) : DistanceMetric {
     protected val map: MutableMap<Location, MutableMap<Location, Distance>> = mutableMapOf()
     override fun evaluate(origin: Location, destination: Location): Distance {
         return get(origin, destination)
@@ -282,7 +285,7 @@ private open class AsymmetricMockDistance(val default: Distance = 0.kilometers) 
     }
 }
 
-class MockDistanceTest {
+class MockDistanceTest: SynthesisTest() {
     @Test
     fun setAndGet() {
         val l1 = fakeLocation()

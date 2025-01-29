@@ -25,17 +25,12 @@ open class DiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
     }
 
     fun select(singularOption: SIT, parameters: P): X = select(setOf(singularOption), parameters)
-//    fun select(converter: (X) -> SIT, parameters: P) : X {
-//        return select(distributionFunction.options.map(converter).toSet(), parameters)
-//    }
-//    fun selectVerbose(alternatives: Set<SIT>, parameters: P): X {
-//        return selectionFunction.calculateSelection(
-//            distributionFunction.calculateProbabilities(
-//                alternatives,
-//                parameters
-//            ).also { println(it) }
-//        ).choice
-//    }
+
+    fun probabilities(alternatives: Set<SIT>, parameters: P) = distributionFunction.calculateProbabilities(alternatives, parameters)
+    fun utility(alternative: SIT, parameters: P) = distributionFunction.translation(alternative).calculateUtility(alternative, parameters)
+    fun changeSelectionFunction(selectionFunction: SelectionFunction<SIT>): DiscreteChoiceModel<X, SIT, P> {
+        return DiscreteChoiceModel(distributionFunction, selectionFunction)
+    }
 }
 
 class KnownDiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
