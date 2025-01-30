@@ -1,12 +1,14 @@
 package synthesis
 
 import domain.data.Sex
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import synthesis.householdgeneration.SynthesisTest
 import synthesis.householdgeneration.ZoneRule
 import utils.collections.invertMap
 import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class SurveyHouseholdTest : SynthesisTest() {
     @Test

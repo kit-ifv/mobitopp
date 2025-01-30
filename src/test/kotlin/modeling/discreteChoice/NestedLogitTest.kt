@@ -1,8 +1,8 @@
 package modeling.discreteChoice
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertEquals
 
 class NestedLogitTest {
 
@@ -14,7 +14,7 @@ class NestedLogitTest {
         option(Options.CAR) {
             0.0
         }
-        nest({ lambda_bus }) {
+        nest({ lambdaBus }) {
             option(Options.RED_BUS) {
                 0.0
             }
@@ -26,7 +26,7 @@ class NestedLogitTest {
 
     @Test
     fun redBusBlueBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, IDENTICAL)
+        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, identical)
         assertEquals(result[Situation(Options.RED_BUS)], 0.25)
         assertEquals(result[Situation(Options.BLUE_BUS)], 0.25)
         assertEquals(result[Situation(Options.CAR)], 0.5)
@@ -34,7 +34,7 @@ class NestedLogitTest {
 
     @Test
     fun invariantRedBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, DIFFERENT)
+        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, different)
         assertEquals(result[Situation(Options.RED_BUS)], 1.0 / 3)
         assertEquals(result[Situation(Options.BLUE_BUS)], 1.0 / 3)
         assertEquals(result[Situation(Options.CAR)], 1.0 / 3)
@@ -104,7 +104,7 @@ class NestedLogitTest {
         return entries.first { it.key == x }.value
     }
 
-    private class RedbusParameters(val lambda_bus: Double) {
+    private class RedbusParameters(val lambdaBus: Double) {
         val pedestrian = DifferentParameters.fromRedbusParameters(this)
     }
 
@@ -117,14 +117,14 @@ class NestedLogitTest {
 
             private fun RedbusParameters.internalConverter(): DifferentParameters {
                 return DifferentParameters(
-                    ped = lambda_bus
+                    ped = lambdaBus
                 )
             }
         }
     }
 
-    private val IDENTICAL = RedbusParameters(Double.MIN_VALUE)
-    private val DIFFERENT = RedbusParameters(1.0)
+    private val identical = RedbusParameters(Double.MIN_VALUE)
+    private val different = RedbusParameters(1.0)
 
     private enum class Options {
         RED_BUS, BLUE_BUS, CAR, OTHER_ILLEGAL_OPTION

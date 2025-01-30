@@ -1,12 +1,12 @@
 package modeling.discreteChoice
 
-import org.junit.jupiter.api.Assertions.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /**
  * Taken from Rastatt car_ownership_stadt.txt
  */
-private val textdump = """
+private const val TEXT_DUMP = """
 asc_0_mu = 0
 asc_0_sig = 2.67593060385488
 asc_1_mu = 0.420030501062286
@@ -95,7 +95,7 @@ class ReadParameterFileTest {
 
     @Test
     fun readText() {
-        val map = ReadParameterFile.read(textdump)
+        val map = ReadParameterFile.read(TEXT_DUMP)
         assertEquals(map.size, 84)
         assertEquals(map["b_person_working_2_on_4"], -1.62356367470392)
         assertEquals(map["lambda_car"], 0.0463786710826848 + 0.01)

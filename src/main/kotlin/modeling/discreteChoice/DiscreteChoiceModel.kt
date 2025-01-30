@@ -30,10 +30,12 @@ open class DiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
         alternatives,
         parameters
     )
+
     fun utility(
         alternative: SIT,
         parameters: P
     ) = distributionFunction.translation(alternative).calculateUtility(alternative, parameters)
+
     fun changeSelectionFunction(selectionFunction: SelectionFunction<SIT>): DiscreteChoiceModel<X, SIT, P> {
         return DiscreteChoiceModel(distributionFunction, selectionFunction)
     }

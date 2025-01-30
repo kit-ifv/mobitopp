@@ -69,6 +69,7 @@ fun <S, C> S.prepareZones(
     this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
 }
 
+@Suppress("LongParameterList") // TODO this should actually be refactored
 fun defaultCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),

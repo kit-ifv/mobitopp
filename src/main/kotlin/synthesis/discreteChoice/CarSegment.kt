@@ -14,7 +14,7 @@ import units.Distance
 import units.euros
 import units.kilometers
 
-class CarSegmentChoice(
+data class CarSegmentChoice(
     override val choice: CarSegment,
     val commuterDistance: Distance,
     val householdSize: Int,
@@ -39,6 +39,10 @@ fun CarSegment.toChoice(
     )
 }
 
+@Suppress(
+    "MagicNumber",
+    "ConstructorParameterNaming"
+) // The parameters are magic numbers, but there is nothing we can do about that
 data class CarSegmentParameters(
     val MIDSIZE_CONSTANT: Double = 2.016,
     val MIDSIZE_DIST_COMM_0_TO_9: Double = -0.5936,
@@ -174,6 +178,7 @@ val carSegmentChoiceModel = KnownDiscreteChoiceModel<CarSegment, CarSegmentChoic
     }
 )
 
+@Suppress("MagicNumber")
 private val defaultUtilityFunction: SimplifiedParameters.(CarSegmentChoice) -> Double =
     {
         constant +

@@ -22,7 +22,9 @@ class SynthesisPerson<T>(
         info,
         GLOBAL_PERSON_ID_GENERATOR
     )
+
     constructor(household: SynthesisHousehold<T>, info: T) : this(household, 0, Sex.MALE, info)
+
     val homeLocation get() = household.location
     var hasTransitPass = false
     var plannedActivities: PreliminaryActivitySchedule = PreliminaryActivitySchedule.STAY_AT_HOME

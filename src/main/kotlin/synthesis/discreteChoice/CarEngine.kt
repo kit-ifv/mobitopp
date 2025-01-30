@@ -80,6 +80,10 @@ val FatParameters = EngineParameters(
     LANDRAUM_EREV = 0.0
 )
 
+@Suppress(
+    "MagicNumber",
+    "ConstructorParameterNaming"
+) // Parameters for configurations are magic, but there is no better representation
 data class EngineParameters(
     val CONST_BEV: Double = -2.3079 - 7.5,
     val WORKDIS_BEV: Double = 0.0525,
@@ -252,7 +256,11 @@ data class EngineSpecificParameters(
 
 )
 
-class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, household: SynthesisHousehold<out RawSurveyInfo>) : ChoiceSituation<EngineType>() {
+class EngineSituation(
+    override val choice: EngineType,
+    person: RawSurveyInfo,
+    household: SynthesisHousehold<out RawSurveyInfo>
+) : ChoiceSituation<EngineType>() {
     val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -260,7 +268,8 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17() ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
+    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17()
+        ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
     val regionType = regionTypeRegiostar17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
@@ -273,7 +282,10 @@ class EngineSituation(override val choice: EngineType, person: RawSurveyInfo, ho
     val isRetired = employment == Employment.RETIRED
 }
 
-fun EngineType.toChoice(person: SynthesisPerson<out RawSurveyInfo>, household: SynthesisHousehold<out RawSurveyInfo>): EngineSituation {
+fun EngineType.toChoice(
+    person: SynthesisPerson<out RawSurveyInfo>,
+    household: SynthesisHousehold<out RawSurveyInfo>
+): EngineSituation {
     return EngineSituation(this, person.info, household)
 }
 
@@ -291,6 +303,7 @@ val carEngineChoiceModel = KnownDiscreteChoiceModel<EngineType, EngineSituation,
     }
 )
 
+@Suppress("MagicNumber")
 private val defaultUtilityFunction: EngineSpecificParameters.(EngineSituation) -> Double = {
     constant +
         it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +

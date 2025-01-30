@@ -51,6 +51,7 @@ class PopulationSynthesisKtTest {
     }
 
     @Test
+    @Suppress("LongMethod") // This method may be long, it is the entire execution of a population synthesis
     fun runWithDebug() {
         val bielefeld = Location(BIELEFELD, null, null)
         val itzehoe = Location(ITZEHOE, null, null)

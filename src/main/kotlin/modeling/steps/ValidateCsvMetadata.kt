@@ -76,7 +76,8 @@ class ValidateCsvMetadata<E>(
         reader = DefaultCsvReader(csv.file, errorHandling = ErrorHandling.SILENT)
         try {
             csv.parser.parse(this@ValidateCsvMetadata).toList()
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
 
         unmuteProgressBars()
 

@@ -39,6 +39,7 @@ class AssignStepBuilder<G>(
         element.apply(lambda)
         steps.add(AssignStep(element.activityType, element.filter, element.assignmentStrategy))
     }
+
     inner class FixedIn {
         lateinit var activityType: ActivityType
         lateinit var assignmentStrategy: SimpleGroupLocator<in G>

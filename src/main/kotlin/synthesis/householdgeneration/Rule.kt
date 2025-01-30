@@ -12,7 +12,7 @@ import synthesis.SurveyHousehold
  * numeric target that specifies the desired outcome.
  *
  * @property target The numeric value representing the desired state or outcome defined by the rule.
- * @property description A human-readable name or description of the rule.
+ * @property descriptiveText A human-readable name or description of the rule.
  * @param T The shared property type required by a household to be evaluated against this rule.
  */
 interface Rule<T> {
@@ -58,6 +58,8 @@ interface Rule<T> {
     fun filter(target: Collection<SurveyHousehold<out T>>): List<SurveyHousehold<out T>> {
         return target.filter { appliesTo(it) }
     }
+
+    fun descriptiveText() = "[$description] expected = $target"
 }
 
 /*
@@ -121,7 +123,7 @@ class ZoneRule<T>(
     }
 
     override fun toString(): String {
-        return "[$description] expected = $target"
+        return descriptiveText()
     }
 }
 
@@ -143,7 +145,7 @@ class ZoneCheckRule<T>(
     }
 
     override fun toString(): String {
-        return "[$description] expected = $target"
+        return descriptiveText()
     }
 }
 

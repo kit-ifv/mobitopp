@@ -21,7 +21,9 @@ class VehicleTakeAlongModeChoice(
             val lastMode = agent.person.schedule.pastLegs().lastOrNull()?.transportType
 
             lastMode?.let {
-                if (it.requiresVehicleTakeAlong) { it } else {
+                if (it.requiresVehicleTakeAlong) {
+                    it
+                } else {
                     modeChoice.select(
                         agent,
                         choices.filter { m -> !m.requiresVehicleTakeAlong }.toSet(),

@@ -4,7 +4,6 @@ import BIELEFELD
 import TestZone
 import asLocation
 import domain.data.ZoneId
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import point
@@ -12,6 +11,9 @@ import synthesis.fixedDestinations.communityBased.CommunityNumber
 import synthesis.fixedDestinations.communityBased.CommuterDemandsMatrix
 import kotlin.io.path.Path
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class CommuterDemandsMatrixTest {
     val bielefeld = BIELEFELD.asLocation()

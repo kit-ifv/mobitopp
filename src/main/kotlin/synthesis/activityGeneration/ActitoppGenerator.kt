@@ -14,7 +14,9 @@ import utils.Decodable
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.time.Duration
-
+@Suppress(
+    "MagicNumber"
+) // 1234 is just a random seed, I took this from actitopp example; there is no thought behind this number
 class ActitoppGenerator(
     val fileBase: ModelFileBase = ModelFileBase(),
     val randomgenerator: RNGHelper = RNGHelper(1234)
@@ -46,7 +48,8 @@ class ActitoppGenerator(
     }
 }
 
-data class PreliminaryActivitySchedule(private val activities: MutableList<Activity>) : MutableList<Activity> by activities {
+data class PreliminaryActivitySchedule(private val activities: MutableList<Activity>) :
+    MutableList<Activity> by activities {
 
     companion object {
 

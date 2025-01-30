@@ -15,13 +15,13 @@ interface AreaType : Encodable {
     fun toRegiostar17(): Regiostar17
 }
 
-private const val conversionErrorZoneArea = """The ZoneAreaType DEFAULT cannot be translated to RegioStar17.
+private const val CONVERSION_ERROR_ZONE_AREA = """The ZoneAreaType DEFAULT cannot be translated to RegioStar17.
 In old mobitopp this area type existed to express an unknown type, which cannot be translated to a concrete RegioStar17
 instance. To avoid this issue you need to manually convert the Default type to the RegioStar17 instance you require for
 your project. We cannot provide a default conversion for you"
 """
 
-private const val conversionErrorBbsr17 = """The BBsr17 type "default" cannot be translated to RegioStar17.
+private const val CONVERSION_ERROR_BBSR17 = """The BBsr17 type "default" cannot be translated to RegioStar17.
 In old mobitopp this area type existed to express an unknown type, which cannot be translated to a concrete RegioStar17
 instance. To avoid this issue you need to manually convert the Default type to the RegioStar17 instance you require for
 your project. We cannot provide a default conversion for you"
@@ -57,7 +57,7 @@ enum class ZoneAreaType(private val code: Int) : AreaType {
             CITYOUTSKIRT -> Regiostar17.URBAN_AREA_RURAL_NEAR_URBAN
             PROVINCIAL -> Regiostar17.MEDIUM_CITY_RURAL_PERIPHERAL
             RURAL -> Regiostar17.SMALL_RURAL_AREA_PERIPHERAL
-            DEFAULT -> throw NoSuchElementException(conversionErrorZoneArea)
+            DEFAULT -> throw NoSuchElementException(CONVERSION_ERROR_ZONE_AREA)
         }
     }
 }
@@ -108,6 +108,7 @@ enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
     ),
     ruralCountiesWithLowerDensityInRuralAreas(17, "Rural counties with lower density in rural areas");
 
+    @Suppress("CyclomaticComplexMethod") // There are more than 14 enum entries.
     override fun toRegiostar17(): Regiostar17 {
         return when (this) {
             largerCentralCitiesInAgglomerationAreas -> Regiostar17.METROPOLE
@@ -127,9 +128,10 @@ enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
             ruralCountiesWithHigherDensityInRuralAreas -> Regiostar17.MEDIUM_CITY_RURAL_PERIPHERAL
             highOrderCentresInRuralCountiesWithLowerDensityInRuralAreas -> Regiostar17.URBAN_AREA_RURAL_PERIPHERAL
             ruralCountiesWithLowerDensityInRuralAreas -> Regiostar17.SMALL_RURAL_AREA_PERIPHERAL
-            defaultType -> throw NoSuchElementException(conversionErrorBbsr17)
+            defaultType -> throw NoSuchElementException(CONVERSION_ERROR_BBSR17)
         }
     }
+
     override fun encode() = this.code
 
     override val description: String
@@ -142,6 +144,7 @@ enum class Bbsr17(private val code: Int, private val text: String) : AreaType {
     }
 }
 
+@Suppress("MagicNumber") // These magic numbers are ok
 enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
     METROPOLE(111, "Metropole"),
     LARGE_CITY_METRO(112, "Großstadt einer Metropolitanen Stadtregion"),
@@ -178,7 +181,7 @@ enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
             213, 214, 223, 224 -> Regiostar7.MEDIUM_CITIES_URBAN_AREA
             215, 225 -> Regiostar7.SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS
             else -> throw IllegalStateException(
-                "There should never be a code $code. That is not a valid Regiostar17 encoding."
+                errorCode()
             )
         }
     }
@@ -190,7 +193,7 @@ enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
             211, 213, 214, 215 -> Regiostar4.RURAL_URBAN_AREA
             221, 223, 224, 225 -> Regiostar4.RURAL_PERIPHERAL
             else -> throw IllegalStateException(
-                "There should never be a code $code. That is not a valid Regiostar17 encoding."
+                errorCode()
             )
         }
     }
@@ -202,10 +205,12 @@ enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
             114, 124, 214 -> SizebasedRegiostarClassification.URBAN_AREA
             115, 125, 215, 224, 225 -> SizebasedRegiostarClassification.RURAL_AREA
             else -> throw IllegalStateException(
-                "There should never be a code $code. That is not a valid Regiostar17 encoding."
+                errorCode()
             )
         }
     }
+
+    private fun errorCode() = "There should never be a code $code. That is not a valid Regiostar17 encoding."
 
     companion object : Decodable<Regiostar17> {
         override fun decode(i: Int) = Regiostar17.entries.first { it.code == i }
@@ -223,6 +228,7 @@ enum class Regiostar7(val code: Int, val text: String) {
     MEDIUM_CITIES_URBAN_AREA(76, "Mittelstädte, städtischer Raum"),
     SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS(77, "Kleinstädtischer, dörflicher Raum einer Ländlichen Region")
 }
+
 enum class Regiostar4(val code: Int, val text: String) {
     CITY_METROPOLITAN(11, "Metropolitane Stadtregion"),
     CITY_REGIOPOLITAN(12, "Regiopolitane Stadtregion"),
@@ -237,6 +243,7 @@ enum class Regiostar4(val code: Int, val text: String) {
 enum class SizebasedRegiostarClassification {
     CITY, SMALL_TOWN, URBAN_AREA, RURAL_AREA
 }
+
 enum class RegiostarGem5(val code: Int) {
     METROPOLE(1), REGIOPOLE(2), CENTRAL_CITY(3), CITY_AREA(4), RURAL_AREA(5)
 }

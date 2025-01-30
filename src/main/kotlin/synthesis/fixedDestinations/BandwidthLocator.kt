@@ -80,6 +80,7 @@ data class BandwidthParameters(
 /**
  * Contains all relevant information for the discrete choice within the [BandwidthLocator] to select a proper target.
  */
+@Suppress("MagicNumber") // The small attractiveness as default seems to cause issues.
 data class LocationSituation(
     override val choice: Location,
     val distance: Distance,
@@ -89,5 +90,7 @@ data class LocationSituation(
     /**
      * We can extrapolate the attractiveness by simply evaluating the location.
      */
-    val attractiveness = choice.zone?.id?.let { attractivenessModel.attractivenessFor(it, activityType) } ?: 0.00001
+    val attractiveness = choice.zone?.id?.let {
+        attractivenessModel.attractivenessFor(it, activityType)
+    } ?: 0.00001
 }
