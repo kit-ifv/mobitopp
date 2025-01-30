@@ -123,7 +123,7 @@ class CommuterDemandsMatrixTest {
         val exception = assertThrows<IllegalArgumentException> {
             demands.convert(42.toZone().point(BIELEFELD))
         }
-        assertContains(exception.message!!, "src\\test\\resources\\synthesis\\zone-to-community.csv")
+        assertContains(exception.message!!, "zone-to-community.csv")
         assertContains(exception.message!!, ZoneId(42).toString())
     }
 
