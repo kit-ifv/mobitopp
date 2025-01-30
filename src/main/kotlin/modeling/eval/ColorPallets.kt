@@ -7,7 +7,6 @@ import org.jetbrains.kotlinx.kandy.util.color.Color
 import org.jetbrains.kotlinx.kandy.util.color.StandardColor
 import units.UnitIntervalValue
 import units.share
-import java.util.*
 import kotlin.math.abs
 import kotlin.random.Random
 
@@ -217,7 +216,11 @@ fun Color.shiftHue(by: Double): Color = toRgb().shiftHue(by).toColor()
 fun RGB.shiftHue(by: Double): RGB =
     this.toHsl().let {
         val shiftedHue = ((it.h + by) % 360.0).let { hue ->
-            if (hue < 0.0) { hue + 360 } else { hue }
+            if (hue < 0.0) {
+                hue + 360
+            } else {
+                hue
+            }
         }
         it.copy(h = shiftedHue)
     }.toRbg()
@@ -227,7 +230,11 @@ fun Color.withHue(hue: Double): Color = toRgb().withHue(hue).toColor()
 fun RGB.withHue(hue: Double): RGB =
     this.toHsl().let {
         val newHue = (hue % 360.0).let { h ->
-            if (h < 0.0) { h + 360 } else { h }
+            if (h < 0.0) {
+                h + 360
+            } else {
+                h
+            }
         }
         it.copy(h = newHue).toRbg()
     }

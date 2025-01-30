@@ -1,4 +1,5 @@
 package usecases.choicemodels.destinationchoice.parameters
+
 @Suppress("VariableNaming", "ComplexInterface") // I agree with detekt that these names are not good
 interface IDefaultDestinationParameters {
     val asc_fuss: Double

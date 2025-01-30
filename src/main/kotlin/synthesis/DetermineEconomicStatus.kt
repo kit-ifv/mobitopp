@@ -15,6 +15,7 @@ import java.util.*
 fun interface DetermineEconomicStatus<T> {
     fun determineStatus(surveyHousehold: SynthesisHousehold<out T>): EconomicStatus
 }
+
 class AlwaysAssignSameStatus(val economicStatus: EconomicStatus) : DetermineEconomicStatus<Any> {
     override fun determineStatus(surveyHousehold: SynthesisHousehold<out Any>): EconomicStatus {
         return economicStatus
@@ -34,6 +35,9 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
         return economicStatus
     }
 
+    @Suppress(
+        "MagicNumber"
+    ) // In this case I understand the complaint of detekt, these numbers, 1.0, 0.5 and 0.3 are magic
     private fun calculateOECDAmount(surveyHousehold: SynthesisHousehold<out T>): Double {
         val adults = surveyHousehold.numberOfAdults
         val additionalAdults = (adults - 1).coerceAtLeast(0)
@@ -78,7 +82,10 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
     }
 }
 
+@Suppress("MagicNumber") // These magic numbers are ok
 val SynthesisHousehold<out SurveyAge>.numberOfAdults get() = members.count { it.age >= 18 }
+
+@Suppress("MagicNumber") // These magic numbers are ok
 val SynthesisHousehold<out SurveyAge>.numberOfMinors get() = members.count { it.age < 18 }
 
 private class FileEntry(

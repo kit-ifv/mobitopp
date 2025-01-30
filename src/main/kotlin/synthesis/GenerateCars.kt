@@ -43,6 +43,7 @@ object TrivialCarGeneration : GenerateCars<Any> {
         return buildCars(householdBuilder)
     }
 
+    @Suppress("MagicNumber") // 4 seats is not magic, but default
     private fun buildCars(householdBuilder: SynthesisHousehold<out Any>) =
         (0..<householdBuilder.amountOfCars).map {
             SynthesisCar(
@@ -65,8 +66,9 @@ object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
     private val segmentModel = carSegmentChoiceModel
     override fun generate(householdBuilder: SynthesisHousehold<out RawSurveyInfo>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
-        val potentialCarUsers =
-            if (householdBuilder.numberOfDrivingLicences == 0) householdBuilder.adults else householdBuilder.licenceHolders
+        val potentialCarUsers = householdBuilder.run {
+            if (numberOfDrivingLicences == 0) adults else licenceHolders
+        }
         val generationTargets = potentialCarUsers.selectExact(householdBuilder.amountOfCars)
         return generationTargets.map { person ->
             val segment = segmentModel.select({ it.toChoice(person, householdBuilder) }, CarSegmentParameters())
@@ -75,6 +77,7 @@ object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
         }
     }
 
+    @Suppress("MagicNumber") // Seat size is a number
     private fun CarSegment.toSeats(): Int {
         return when (this) {
             CarSegment.SMALL -> 4
@@ -89,6 +92,7 @@ val <T : SurveyInfo> SynthesisHousehold<T>.licenceHolders
         return members.filter { it.hasLicence }
     }
 
+@Suppress("MagicNumber")
 val <T : SurveyInfo> SynthesisHousehold<T>.adults
     get(): List<SynthesisPerson<out T>> {
         return members.filter { it.age >= 18 }

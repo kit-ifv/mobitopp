@@ -173,7 +173,9 @@ class LinkTrip(
         // TODO Robin: There should be a better way to force a trip into a block. Also Test this behaviour
         target.lastOrNull()?.let { leg ->
             _nextAction?.let {
-                if (it.startTime < leg.endTime) { it.shiftStartTo(leg.endTime) }
+                if (it.startTime < leg.endTime) {
+                    it.shiftStartTo(leg.endTime)
+                }
             }
         }
         dispatcher?.replaceLegs(legs.toSortedSet(), target)

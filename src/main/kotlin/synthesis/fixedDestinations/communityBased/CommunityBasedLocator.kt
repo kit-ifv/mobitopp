@@ -37,13 +37,16 @@ class CommunityBasedGroupLocator<T>(
     private fun verifyDemand(targets: Collection<CommunityNumber>) {
         val badTargets = targets.filter { demands[it].isEmpty() }
         require(badTargets.isEmpty()) {
-            "The following communities have agents in need of location assignment, but no associated demand: ${badTargets.joinToString()}"
+            "The following communities have agents in need of location assignment, but no associated " +
+                "demand: ${badTargets.joinToString()}"
         }
     }
+
     private fun verifyLocationsPresent(targets: Collection<CommunityNumber>) {
         val badTargets = targets.filter { potentialLocations.none { loc -> loc.toCommunity() in demands[it] } }
         require(badTargets.isEmpty()) {
-            "The following communities have demand, but no location is found in the target communities: ${badTargets.joinToString()}"
+            "The following communities have demand, but no location is found in the" +
+                " target communities: ${badTargets.joinToString()}"
         }
     }
 
@@ -99,7 +102,8 @@ data class CommunityDemandPlaner<T>(
         val size = agents.size
         if (size > demand.total) {
             System.err.println(
-                "The amount of agents ($size) to be assigned in community ${demand.communityID} exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
+                "The amount of agents ($size) to be assigned in community ${demand.communityID} " +
+                    "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
             )
         }
         return agents.map { agent ->

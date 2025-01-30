@@ -8,7 +8,6 @@ import domain.enums.MODEUNKOWN
 import domain.location.Location
 import utils.units.AbsoluteTime
 import java.util.*
-import kotlin.NoSuchElementException
 
 /**
  * Current Action is a wrapper class that only allows modification of [LinkedAction] attributes which are in the future:

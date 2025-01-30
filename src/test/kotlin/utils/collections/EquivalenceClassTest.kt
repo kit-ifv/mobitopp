@@ -7,10 +7,7 @@ import domain.data.HouseholdId
 import domain.data.MutableHousehold
 import domain.data.MutablePerson
 import domain.data.PersonId
-import domain.data.Sex
 import domain.location.LOCATIONUNKNOWN
-import synthesis.HouseholdRepresentative
-import synthesis.toRepresentative
 import units.euros
 import kotlin.math.sqrt
 import kotlin.test.Test
@@ -39,9 +36,6 @@ class Generator {
     }
 
     fun person(lambda: MutablePerson.() -> Unit) {
-        val newFunction: (Long, MutablePerson) -> MutablePerson = { l, p ->
-            p.apply(lambda)
-        }
         personChanges.add(lambda)
     }
 
@@ -76,61 +70,7 @@ fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit)
     return household
 }
 
-fun Set<Household>.buildEquivalenceClasses() = equivalenceClassByRepresentative { it.toRepresentative() }
 class EquivalenceClassTest {
-
-    private val generator = Generator()
-    private fun household(lambda: Generator.() -> Unit): Household {
-        return generator.household(lambda)
-    }
-
-    @Test
-    fun twoHouseholds() {
-        val first = household {
-            person {
-                age = 10
-                sex = Sex.MALE
-            }
-            person {
-                age = 11
-                sex = Sex.MALE
-            }
-            person {
-                age = 20
-                sex = Sex.FEMALE
-            }
-        }
-        val second = household {
-            person {
-                age = 9
-                sex = Sex.MALE
-            }
-            person {
-                age = 21
-                sex = Sex.FEMALE
-            }
-        }
-        val eqC = setOf(first, second).equivalenceClasses { a, b -> a.toRepresentative() == b.toRepresentative() }
-        assertEquals(eqC[first], setOf(first))
-        assertEquals(eqC[second], setOf(second))
-    }
-
-    @Test
-    fun theseShouldBeEquivalent() {
-        val first = household {
-            person {
-                age = 2
-                sex = Sex.MALE
-            }
-        }
-        val second = household {
-            person {
-                age = 4
-                sex = Sex.MALE
-            }
-        }
-        assertEquals(first.toRepresentative(), second.toRepresentative())
-    }
 
     /**
      * Equivalence groups can be built over any concept, the wikipedia article gave triangle area as an example, so
@@ -202,14 +142,4 @@ class EquivalenceClassTest {
         assertEquals(otherEquivalence[thirdTriangle]!!, setOf(thirdTriangle))
         assertNull(otherEquivalence[randomTriangle])
     }
-}
-
-private fun Household.toRepresentative(): HouseholdRepresentative {
-    return HouseholdRepresentative(
-        (
-            members.map {
-                it.toRepresentative()
-            }.groupingBy { it }.eachCount().map { (element, count) -> Pair(count, element) }.toSet()
-            )
-    )
 }

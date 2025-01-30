@@ -72,6 +72,9 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
     }
 
     companion object {
+
+        private const val UNNAMED_NEST_MODEL = "Unnamed Nested Logit model"
+
         /**
          * The build structure class for a nested logit system. The map and rules are attributes propagated by the eldest
          * builder object. Thus the primary constructor is private, to avoid potential errors. All child builders need to
@@ -83,6 +86,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
             val translation: MutableMap<X, UtilityFunction<SIT, PARAMS>>
         ) : OptionBasedSituationBuilder<X, SIT, PARAMS> {
             constructor() : this(mutableMapOf(), mutableMapOf())
+
             private val childs: MutableList<NestStructure<PARAMS>.Node> = mutableListOf()
 
             /**
@@ -101,7 +105,8 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                 val childNodes = builder.build()
                 map.putAll(builder.map)
                 require(childNodes.isNotEmpty()) {
-                    "Cannot create an empty nest. You must add at least one option in a nest block using the option(...) { } syntax. This includes the implicit root nest block. "
+                    "Cannot create an empty nest. You must add at least one option in a nest block using " +
+                        "the option(...) { } syntax. This includes the implicit root nest block. "
                 }
                 val nest = NestStructure<PARAMS>().Nest(childNodes, lambdaParameterExtraction)
                 childNodes.forEach { it.parent = nest }
@@ -124,7 +129,8 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                 val element = NestStructure<PARAMS>().Leaf()
                 childs.add(element)
                 require(!map.containsKey(x)) {
-                    "A utility function for $x has already been defined in this nest structure. Current elements ${map.keys} have a utility function associated. "
+                    "A utility function for $x has already been defined in this nest structure. Current elements" +
+                        " ${map.keys} have a utility function associated. "
                 }
                 map[x] = element
             }
@@ -139,7 +145,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
          * 1.0 parameter
          */
         fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> build(
-            name: String = "Unnamed Nested Logit model",
+            name: String = UNNAMED_NEST_MODEL,
             lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
         ): NestedLogit<X, SIT, PARAMS> {
             val builder = NestedLogitBuilder<X, SIT, PARAMS>()
@@ -149,8 +155,9 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
 
             return NestedLogit(name, builder.map, root, builder.translation)
         }
+
         fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> root(
-            name: String = "Unnamed Nested Logit model",
+            name: String = UNNAMED_NEST_MODEL,
             lambda: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
         ): NestedLogit<X, SIT, PARAMS> = build(name, lambda)
     }
@@ -194,7 +201,8 @@ class NestStructure<PARAMS> {
         }
     }
 
-    inner class Nest(private val childNodes: Collection<Node>, val extractLambdaParameter: (PARAMS) -> Double) : Node() {
+    inner class Nest(private val childNodes: Collection<Node>, val extractLambdaParameter: (PARAMS) -> Double) :
+        Node() {
         override var parent: Nest? = null
         override val level = childNodes.maxOf { it.level } + 1
         private var maxUtility = 0.0
@@ -208,7 +216,7 @@ class NestStructure<PARAMS> {
             val lambda = extractLambdaParameter(parameters)
             val relevantChilds = childNodes.filter { it.relevantForCalculation }
             if (relevantChilds.isEmpty()) {
-                throw IllegalStateException("Never should a calculate Utility be called when the childs are irrelevant")
+                error("Never should a calculate Utility be called when the childs are irrelevant")
             }
             maxUtility = relevantChilds.maxOf { it.utility }
 

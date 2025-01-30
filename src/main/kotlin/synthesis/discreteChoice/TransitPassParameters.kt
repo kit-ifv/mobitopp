@@ -87,6 +87,7 @@ data class TransitPassParameters(
     val numChildsAge6to17: Double
 )
 
+@Suppress("MagicNumber") // These magic numbers are ok
 data class TicketSituation(
     override val choice: Boolean,
     val household: SynthesisHousehold<out SurveyInfo>,
@@ -103,7 +104,8 @@ data class TicketSituation(
     val numAgeInSixToSeventeen = household.members.count { it.age in 6..17 }
 }
 
-val transitPassDiscreteChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
+@Suppress("MagicNumber") // In a utility function everything is magic, so complaining about age in 10..18 is irrelevant
+val transitPassChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
     AllocatedLogit.create {
         option(false) {
             0.0
@@ -157,4 +159,5 @@ val transitPassDiscreteChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSit
 /**
  * Yes this works...
  */
+@Suppress("TopLevelPropertyNaming") // In this instance the exotic naming is deliberate
 private val Number.`€` get() = this.euros

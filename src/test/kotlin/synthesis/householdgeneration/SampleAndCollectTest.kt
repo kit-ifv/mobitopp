@@ -1,8 +1,8 @@
 package synthesis.householdgeneration
 
 import domain.data.Sex
-import org.junit.jupiter.api.Assertions.*
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SampleAndCollectTest : SynthesisTest() {
 

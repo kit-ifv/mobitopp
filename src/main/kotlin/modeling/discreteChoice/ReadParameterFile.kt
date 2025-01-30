@@ -14,6 +14,7 @@ object ReadParameterFile {
             .map { it.first.trim() to evaluateExpression(it.second) }.associate { it }
         return map
     }
+
     fun read(file: File, charset: Charset = Charsets.UTF_8): Map<String, Double> {
         return read(file.readText(charset = charset))
     }
@@ -22,6 +23,7 @@ object ReadParameterFile {
 /**
  * Use Exp4j to parse the mathematical expression found in the legacy parameter files
  */
+@Suppress("TooGenericExceptionCaught") // This is a exp4j problem throwing a wild assortment of exceptions
 private fun evaluateExpression(expression: String): Double {
     return try {
         val exp = ExpressionBuilder(expression).build()

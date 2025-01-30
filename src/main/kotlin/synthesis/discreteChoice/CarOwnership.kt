@@ -18,6 +18,7 @@ import synthesis.toCarOwnershipAttributes
  * from the population synthesis as input, as well as an [EmploymentSorter] as dependency injection for translating
  * employment types.
  */
+@Suppress("MagicNumber") // These magic numbers are ok
 class CarOwnershipFactors(
     val household: SynthesisHousehold<out SurveyInfo>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
@@ -123,7 +124,10 @@ data class CarParameters(
  *
  * When you hover over [b_hh_size_1_on_3] in the utility function for 3 cars you will see the description text.
  */
-@Suppress("PropertyName")
+/*Since we omit the "data class" keyword, the constructor is too complex. Also, kotlin does not use snake_case,
+rather camelCase, which is why the parameter naming is flagged as incorrect.
+*/
+@Suppress("PropertyName", "LongParameterList", "ConstructorParameterNaming")
 class CarOwnershipParameters(
     val asc_0_mu: Double,
     val asc_0_sig: Double,
@@ -363,7 +367,7 @@ class CarOwnershipAttributes(
     override val choice: Int,
     infos: CarOwnershipFactors
 ) : ChoiceSituation<Int>() {
-    val RAND = 0.0
+    val randomNumber = 0.0
     val size = infos.size
     val economicStatus = infos.economicStatus
     val amountOfChildren = infos.amountOfChildren
@@ -487,9 +491,10 @@ private inline val EconomicStatus.rich get(): Boolean = this == EconomicStatus.H
  * @property standardFunction This is the standard utility function for car ownership as found in the Rastatt model of
  * mobitopp. Used later in the discrete choice model definition.
  */
+@Suppress("MagicNumber") // These magic numbers are ok, the content of the function should still be understandable
 private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double = {
     mu +
-        sigma * it.RAND +
+        sigma * it.randomNumber +
         (it.size == 1) * oneMember +
         (it.size == 2) * twoMembers +
         (it.size >= 4) * fourOrMoreMembers +
@@ -516,44 +521,50 @@ private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double =
  * attributes defined in [CarOwnershipAttributes] and the parameters defined in [CarOwnershipParameters]. We create
  * a discrete choice model and pass a nested logit as distribution function to determine the probabilities.
  */
+/*This Annotation tells the code analysis tool to ignore numbers that occur
+inexplicably in the code. The tool cannot differentiate between application code and choice model configuration and
+starts complaining, if you never write application code or run the tool for code quality you can simply accept the
+existence of this annotation + comment as something you don't care about*/
+@Suppress("MagicNumber")
 val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters> =
     KnownDiscreteChoiceModel(
-    /*
-      Calling NestedLogit.root tells the program that you want to build a nested logit for your discrete choice model.
-      Note that "root" automatically assigns a nest with lambda = 1.0. So the parameter lambda_root is no longer required.
-     */
-        NestedLogit.root {
         /*
-        To add an option within a nest you can simply write option("Number") to define the utility function for said number.
-        Since CarOwnershipAttributes is a choice situation over a whole number (You can see that in the class definition
-        CarOwnershipParameters: ChoiceSituation<Int> - that tells the program that you want to build a choice model
-        for whole numbers - Integers). Afterwards you can build the utility function. For no car it is currently just 0.0
+          Calling NestedLogit.root tells the program that you want to build a nested logit for your discrete choice model.
+          Note that "root" automatically assigns a nest with lambda = 1.0. So the parameter lambda_root is no longer required.
          */
+        NestedLogit.root {
+            /*
+            To add an option within a nest you can simply write option("Number") to define the utility function for said number.
+            Since CarOwnershipAttributes is a choice situation over a whole number (You can see that in the class definition
+            CarOwnershipParameters: ChoiceSituation<Int> - that tells the program that you want to build a choice model
+            for whole numbers - Integers). Afterwards you can build the utility function. For no car it is currently just 0.0
+             */
             option(0) {
                 0.0
             }
-        /*
-        If you want to build a nest you can write nest()  {...}. You need to specify the lambda parameter within curly brackets
-        i.e. nest({lambda_car}). The curly brackets are sadly a computational necessity and cannot be omitted.
-         */
-            nest({ lambda_car }) {
             /*
-             Note how you can write the utility function either by writing option()  { UtilityFunction }
-             or by passing a reference via option(utilityFunction = standardFunction). the parameters = {} translation
-             automatically determines the appropriate parameters.
+            If you want to build a nest you can write nest()  {...}. You need to specify the lambda parameter within curly brackets
+            i.e. nest({lambda_car}). The curly brackets are sadly a computational necessity and cannot be omitted.
              */
+            nest({ lambda_car }) {
+                /*
+                 Note how you can write the utility function either by writing option()  { UtilityFunction }
+                 or by passing a reference via option(utilityFunction = standardFunction). the parameters = {} translation
+                 automatically determines the appropriate parameters.
+                 */
                 option(1, parameters = { oneCar }, utilityFunction = standardFunction)
             }
             nest({ lambda_two_more_car }) {
-            /*
-            You can also use the full language syntax of kotlin in your utility function. Here we have an example
-            using the when(...) {} block, which is a miniscule amount faster than the handwritten utility function.
-            (Though it is not as readable as the standardFunction)
-            Also, you don't need to explicitly write parameters = {...}.
-             */
+                /*
+                You can also use the full language syntax of kotlin in your utility function. Here we have an example
+                using the when(...) {} block, which is a miniscule amount faster than the handwritten utility function.
+                (Though it is not as readable as the standardFunction)
+                Also, you don't need to explicitly write parameters = {...}, the curly brackets are automatically assumed
+                to be the parameter translation.
+                 */
                 option(2, { twoCar }) {
                     mu +
-                        sigma * it.RAND +
+                        sigma * it.randomNumber +
                         when (it.size) {
                             1 -> oneMember
                             2 -> twoMembers
@@ -584,15 +595,15 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
                         (it.isOnlyRetired) * isRetired +
                         (it.isOnlyUnemployed) * isUnemployed
                 }
-            /*
-            If you do not specify a parameters = {...} translation you get the entire parameter object, which you can then
-            use in your utility function. Here you can theoretically use b_hh_size_1_on_1, even though that parameter
-            is not intended to be used in the utility function for 3 cars. (You can also very easily mistype and mess up
-            the utility function, so be moderately careful)
-             */
+                /*
+                If you do not specify a parameters = {...} translation you get the entire parameter object, which you can then
+                use in your utility function. Here you can theoretically use b_hh_size_1_on_1, even though that parameter
+                is not intended to be used in the utility function for 3 cars. (You can also very easily mistype and mess up
+                the utility function, so be moderately careful)
+                 */
                 option(3) {
                     asc_3_mu +
-                        asc_3_sig * it.RAND +
+                        asc_3_sig * it.randomNumber +
                         (it.size == 1) * b_hh_size_1_on_3 +
                         (it.size == 2) * b_hh_size_2_on_3 +
                         (it.size >= 4) * b_hh_size_4_on_3 +
@@ -614,15 +625,15 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
                         (it.isOnlyRetired) * b_hh_retired_on_3 +
                         (it.isOnlyUnemployed) * b_hh_unemployed_on_3
                 }
-            /*
-            Did you think that the standardFunction is written in stone? Actually you can modify it and perform amendments,
-            so if for example the utility function needs to do some calculation specifically only for 4 cars, you could add
-            it here and reuse the code for the utility function that you had already written. (For this example we added a
-             + it.isWg * 0.0 line.)
+                /*
+                the standardFunction is not written in stone. You can modify it and perform amendments,
+                so if for example the utility function needs to do some calculation specifically only for 4 cars, you could add
+                it here and reuse the code for the utility function that you had already written. (For this example we added a
+                 + it.isWg * 0.0 line.)
 
-             Sadly the invocation of standardFunction(this, it) is a bit cryptic, but necessary if you intend to use the
-             amendment approach.
-             */
+                 Sadly the invocation of standardFunction(this, it) is a bit cryptic, but necessary if you intend to use the
+                 amendment approach.
+                 */
                 option(4, parameters = { fourCar }) {
                     standardFunction(this, it) +
                         it.isWg * 0.0
@@ -631,6 +642,9 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
         },
     )
 
-fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(household: SynthesisHousehold<out SurveyInfo>, parameters: CarOwnershipParameters): Int {
+fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(
+    household: SynthesisHousehold<out SurveyInfo>,
+    parameters: CarOwnershipParameters
+): Int {
     return select({ CarOwnershipAttributes(it, household.toCarOwnershipAttributes()) }, parameters)
 }

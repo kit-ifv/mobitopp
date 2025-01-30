@@ -63,6 +63,7 @@ interface RuleBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
         }
         addUtilityFunctionByRule(rule, internalUtilityFunction)
     }
+
     fun rule(rule: (SIT) -> Boolean, utilityFunction: PARAMS.(SIT) -> Double) {
         val internalUtilityFunction = UtilityFunction { alternative: SIT, parameterObject: PARAMS ->
             utilityFunction.invoke(
@@ -72,6 +73,7 @@ interface RuleBasedSituationBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> {
         }
         addUtilityFunctionByRule(rule, internalUtilityFunction)
     }
+
     fun ruleForAll(utilityFunction: PARAMS.(SIT) -> Double) {
         rule({ true }, utilityFunction)
     }

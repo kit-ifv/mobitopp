@@ -43,6 +43,7 @@ class AssignAroundZoneCentroid(private val radius: Double) : AssignHouseholdLoca
     }
 }
 
+@Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
 fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalRandomizer): Coordinate {
     val lat1 = latitudeRadians.toDouble()
     val lon1 = longitudeRadians.toDouble()

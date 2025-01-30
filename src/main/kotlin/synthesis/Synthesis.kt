@@ -80,7 +80,7 @@ data class RawSurveyInfo(
     override val householdId: Int,
     val year: Int,
     val areaType: Int, // TODO what is this?
-    val householdSize: Int, // TODO remove. If I determine household size later over the household object, this info is useless
+    val householdSize: Int, // TODO remove?. If I determine household size over the household object, this is useless
     val personNumber: Int,
     override val sex: Sex,
     val birthyear: Int,
@@ -126,10 +126,6 @@ interface SurveyPerson<T> {
     val information: T
     val age: Int
     val sex: Sex
-
-    fun toRepresentative(): PersonRepresentative {
-        return PersonRepresentative.fromData(sex, age)
-    }
 }
 
 data class SmallestSurveyPerson<T>(
@@ -148,26 +144,6 @@ data class DefaultSurveyPerson<T : SurveyInfo>(
     override val age: Int = information.age
     override val employment: Employment = information.employment
     override val hasLicence: Boolean = information.hasLicence
-    val representative = toRepresentative()
-
-    val groupCode: Int
-        get() {
-            val groupCode = when (age) {
-                in 0..5 -> 0
-                in 6..9 -> 1
-                in 10..14 -> 2
-                in 15..17 -> 3
-                in 18..24 -> 4
-                in 25..29 -> 5
-                in 30..44 -> 6
-                in 45..59 -> 7
-                in 60..64 -> 8
-                in 65..74 -> 9
-                in 75..Int.MAX_VALUE -> 10
-                else -> throw NoSuchElementException("Negative Age cannot be translated to a group code person=$this")
-            }
-            return groupCode
-        }
 
     companion object {
         private var idCounter: Int = 0

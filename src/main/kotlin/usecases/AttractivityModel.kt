@@ -31,6 +31,7 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     }
     return attractiveness / target.parkingPlaces
 }
+
 class AttractivenessFromCsv(
     private val file: File,
     delimiter: String = ";",

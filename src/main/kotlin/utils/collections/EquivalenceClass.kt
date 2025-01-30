@@ -1,6 +1,6 @@
 package utils.collections
 
-class EquivalenceGroup<T>(
+class EquivalenceClass<T>(
     val equivalence: (T, T) -> Boolean = { a, b -> a == b },
     val map: MutableMap<T, MutableSet<T>> = mutableMapOf()
 ) : Map<T, Set<T>> by map {
@@ -58,7 +58,7 @@ class EquivalenceGroup<T>(
       is not the same, however as it is a function and very often an anonymous one I have no idea how to incorporate it
       into this equality */
     override fun equals(other: Any?): Boolean {
-        return if (other !is EquivalenceGroup<*>) {
+        return if (other !is EquivalenceClass<*>) {
             false
         } else {
             map == other.map
@@ -74,8 +74,9 @@ class EquivalenceGroup<T>(
     }
 }
 
+@Suppress("FunctionMaxLength")
 fun <R, T> Set<T>.equivalenceClassByRepresentative(converter: (T) -> R): Map<R, Set<T>> {
-    val groups = EquivalenceGroup(equivalence = { a: T, b: T ->
+    val groups = EquivalenceClass(equivalence = { a: T, b: T ->
         converter(a) == converter(b)
     })
     forEach {
@@ -85,8 +86,8 @@ fun <R, T> Set<T>.equivalenceClassByRepresentative(converter: (T) -> R): Map<R, 
     return groups.toRepresentative(converter)
 }
 
-fun <T> Set<T>.equivalenceClasses(equivalence: (T, T) -> Boolean): EquivalenceGroup<T> {
-    val groups = EquivalenceGroup(equivalence = equivalence)
+fun <T> Set<T>.equivalenceClasses(equivalence: (T, T) -> Boolean): EquivalenceClass<T> {
+    val groups = EquivalenceClass(equivalence = equivalence)
     forEach {
         groups.add(it)
     }

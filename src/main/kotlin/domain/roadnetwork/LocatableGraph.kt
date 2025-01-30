@@ -40,6 +40,7 @@ private class LocatedLinkInfo(
         return midUTM.distance(other)
     }
 }
+
 fun UTMPosition.distance(other: UTMPosition): Distance {
     return sqrt((e - other.e).pow(2) + (n - other.n).pow(2)).toDistance(DistanceUnit.METERS)
 }
@@ -85,7 +86,7 @@ class LocatableGraph(
             location.coordinate.longitudeDegrees
         ).toUTM()
         val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
-        return edge.edge?.id?.toLong() ?: Long.MIN_VALUE
+        return edge.edge.id?.toLong() ?: Long.MIN_VALUE
     }
 
     fun helpLinkId(location: Location): Long {

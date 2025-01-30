@@ -24,7 +24,9 @@ fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employme
 fun SynthesisPerson<out SurveyEmployment>.isHigherStudent(): Boolean =
     employment == Employment.STUDENT_SECONDARY || employment == Employment.STUDENT_TERTIARY
 
-fun SynthesisPerson<out SurveyEmployment>.isWorker() = employment == Employment.FULLTIME || employment == Employment.PARTTIME
+fun SynthesisPerson<out SurveyEmployment>.isWorker(): Boolean {
+    return employment == Employment.FULLTIME || employment == Employment.PARTTIME
+}
 
 // TODO move this somewhere else
 var GLOBAL_PERSON_ID_GENERATOR = 0
@@ -38,23 +40,18 @@ class SurveyHousehold<T>(
 ) :
     ISurveyHousehold {
     lateinit var economicStatus: EconomicStatus
-    val representative = toRepresentative()
-
     val size get() = members.size
     fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
         return ScalableVector.createFrom(this, rules)
     }
-    private fun toRepresentative(): HouseholdRepresentative {
-        val memberCount = members.map { it.toRepresentative() }.groupingBy { it }.eachCount()
-            .map { (element, count) -> Pair(count, element) }.toSet()
-        return HouseholdRepresentative(memberCount)
-    }
+
     fun toSynthesisHousehold(): SynthesisHousehold<T> {
         return SynthesisHousehold<T>(
             id = householdId,
             income = income,
         ).apply {
-            members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }.toMutableList()
+            members = this@SurveyHousehold.members.map { SynthesisPerson(this, it.age, it.sex, it.information) }
+                .toMutableList()
         }
     }
 

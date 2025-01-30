@@ -62,9 +62,13 @@ fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold 
     return hh
 }
 
+@Suppress("MagicNumber") // TODO this may be relevant to fix, age 10 is magic
 val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it.age <= 10 }
+
+@Suppress("MagicNumber") // TODO this may be relevant to fix, age 10 is magic
 val SynthesisHousehold<out SurveyInfo>.numberOfYouths get() = members.count { it.age in 10..<18 }
 
+@Suppress("MagicNumber") // 1234 is the default number from actitopp example
 fun SynthesisSteps<RawSurveyInfo>.generateActivitiesViaActitopp() {
     val fileBase = ModelFileBase()
     val randomgenerator = RNGHelper(1234)
@@ -87,6 +91,7 @@ fun ActitoppPerson.generateScheduleBruteForce(fileBase: ModelFileBase, rngGen: R
         }
     }
 }
+
 fun HActivity.toReengineeredActivity(): Activity {
     return RawActivity(
         location = LOCATIONUNKNOWN,

@@ -46,6 +46,7 @@ interface CSVOutput<T> {
 }
 
 // TODO the synthesis activity will probably not match with the simulation activity.
+@Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object ActivityOutput : CSVOutput<Activity> {
     override val header: List<String> = listOf(
         "personId",
@@ -74,6 +75,7 @@ object ActivityOutput : CSVOutput<Activity> {
     }
 }
 
+@Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object CarOutput : CSVOutput<SynthesisCar> {
     override val header: List<String> = listOf("ownerId", "mainUserId", "personalUserId", "carType", "car attributes")
 
@@ -104,6 +106,7 @@ data class FixedDestinationElements(
     val location: Location
 )
 
+@Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     override val header: List<String> = listOf(
         "personOid",
@@ -137,7 +140,10 @@ object FixedDestinationOutput : CSVOutput<FixedDestinationElements> {
     }
 }
 
+// Sorry detekt, householdId and other strings may occur more often.
+@Suppress("StringLiteralDuplication", "MagicNumber")
 object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
+
     override val header: List<String> = listOf(
         "householdId",
         "year",
@@ -190,6 +196,7 @@ data class OpportunityOutput(
     val activityType: ActivityType
 )
 
+@Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
     override val header: List<String> =
         listOf("zoneId", "activityType", "location", "attractivity", "locationX", "locationY")
@@ -209,6 +216,7 @@ object OpportunitiesOutput : CSVOutput<OpportunityOutput> {
     }
 }
 
+@Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
 object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
     override val header: List<String> = listOf(
         "personId",

@@ -160,6 +160,7 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         return array.contentHashCode()
     }
 
+    @Suppress("MagicNumber")
     private fun IntArray.contentHashCode(): Int {
         var result = 1
         for (element in this) {

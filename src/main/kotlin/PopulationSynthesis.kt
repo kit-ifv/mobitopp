@@ -16,18 +16,15 @@ import synthesis.FixedDestinationOutput
 import synthesis.GenerateCars
 import synthesis.GroupAssignHouseholdLocations
 import synthesis.HouseholdOutput
-
 import synthesis.OECDAssigner
 import synthesis.OpportunitiesOutput
 import synthesis.OpportunityOutput
 import synthesis.PersonOutput
 import synthesis.RawSurveyInfo
-
 import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisCar
-
 import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.activityGeneration.generateActivitiesViaActitopp
@@ -41,24 +38,21 @@ import synthesis.discreteChoice.carOwnershipCityParameters
 import synthesis.discreteChoice.carOwnershipRuralArea
 import synthesis.discreteChoice.carOwnershipSmallCity
 import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
-import synthesis.discreteChoice.transitPassDiscreteChoiceModel
+import synthesis.discreteChoice.transitPassChoiceModel
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.fixedDestinations.AssignStepBuilder
 import synthesis.fixedDestinations.BandwidthLocator
-
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import synthesis.fixedDestinations.communityBased.CommuterDemandsMatrix
 import synthesis.fixedDestinations.communityBased.CommuterDistance
-
 import synthesis.fixedDestinations.primarySchool
 import synthesis.fixedDestinations.secondarySchool
 import synthesis.fixedDestinations.work
 import synthesis.householdgeneration.HouseholdSynthesis
 import synthesis.householdgeneration.IPU
 import synthesis.householdgeneration.Rule
-
 import synthesis.randomCoordinate
 import synthesis.toSurveyHouseholds
 import units.CurrencyUnit
@@ -66,7 +60,6 @@ import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
-// import usecases.steps.legacyData.defaultZoneCsvParser
 import utils.csv.DefaultCsvParser
 import java.io.File
 import java.nio.file.Path
@@ -110,7 +103,7 @@ fun interface AssignTransitCardOwnership<T> {
 
 class AssignByDiscreteChoice(
     val parameters: TransitPassParameters,
-    val model: KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters> = transitPassDiscreteChoiceModel
+    val model: KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters> = transitPassChoiceModel
 ) : AssignTransitCardOwnership<SurveyInfo> {
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
         return model.select({ TicketSituation(it, person.household, person) }, parameters)
@@ -245,7 +238,8 @@ class PopulationSynthesis<T : Any>(
             lateinit var attractivenessModel: AttractivenessModel
 
             inner class AttractivenessModelParser {
-                var file = Path("src/test/resources/synthesis/attractivities.csv")
+
+                var file = attractivenessModelPath
                 var activityTypes: Set<ActivityType> = emptySet()
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
@@ -290,7 +284,13 @@ fun interface GenerateArtificialPopulation<T> {
     }
 }
 
-fun tryout() {
+private val attractivenessModelPath = Path("src/test/resources/synthesis/attractivities.csv")
+
+@Suppress(
+    "LongMethod",
+    "MagicNumber"
+) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
+fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv")
 
@@ -303,7 +303,7 @@ fun tryout() {
         surveyHouseholds = surveyPopulation.toSurveyHouseholds()
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
-            file = Path("src/test/resources/synthesis/attractivities.csv")
+            file = attractivenessModelPath
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
         }
     }
@@ -357,7 +357,7 @@ fun tryout() {
         assignTransitCardOwnership {
             AssignByDiscreteChoice(
                 parameters = YesTransitPass,
-                model = transitPassDiscreteChoiceModel
+                model = transitPassChoiceModel
             )
 //            transitPassDiscreteChoiceModel.select( {TicketSituation(it,household, person )}, parameters)
 //            choiceModel = transitPassDiscreteChoiceModel
@@ -406,10 +406,11 @@ fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
 }
 
 fun main() {
-    tryout()
+    examplePopulationSynthesis()
 }
 
-fun Collection<Zone>.generateLocations(
+@Suppress("MagicNumber") // 10 is the number of locations to be generated, no thought is behind that number
+private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
     generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 }
@@ -419,6 +420,7 @@ fun Collection<Zone>.generateLocations(
     }
 }
 
-fun Zone.generateLocations(amount: Int): List<Location> {
+@Suppress("MagicNumber") // These magic numbers are ok
+private fun Zone.generateLocations(amount: Int): List<Location> {
     return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.0), this, null) }
 }

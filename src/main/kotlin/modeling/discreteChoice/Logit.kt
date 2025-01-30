@@ -32,6 +32,9 @@ class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
     }
 
     companion object {
+
+        private const val DEFAULT_NAME = "Unnamed MNL model"
+
         class LogitBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS>(preknownOptions: Collection<X>) :
             OptionBasedSituationBuilder<X, SIT, PARAMS>, RuleBasedSituationBuilder<X, SIT, PARAMS> {
             val rules: MutableList<Pair<(SIT) -> Boolean, UtilityFunction<SIT, PARAMS>>> = mutableListOf()
@@ -51,7 +54,7 @@ class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
 
         fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> create(
             options: Collection<X>,
-            name: String = "Unnamed MNL model",
+            name: String = DEFAULT_NAME,
             lambda: LogitBuilder<X, SIT, PARAMS>.() -> Unit
         ): AllocatedLogit<X, SIT, PARAMS> {
             val builder = LogitBuilder<X, SIT, PARAMS>(options)
@@ -61,7 +64,7 @@ class AllocatedLogit<X : Any, SIT : ChoiceSituation<X>, P>(
         }
 
         fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> create(
-            name: String = "Unnamed MNL model",
+            name: String = DEFAULT_NAME,
             lambda: LogitBuilder<X, SIT, PARAMS>.() -> Unit
         ): AllocatedLogit<X, SIT, PARAMS> = create(emptySet(), name, lambda)
     }

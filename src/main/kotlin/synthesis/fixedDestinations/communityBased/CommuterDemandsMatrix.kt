@@ -30,6 +30,7 @@ class CommuterDemandsMatrix(
         val out = demands[communityNumber] ?: MutableCommunityDemand(converter, communityID = communityNumber)
         return out.copy()
     }
+
     operator fun get(i: Number): MutableCommunityDemand = get(i.toCommunity())
 
     /**
@@ -45,6 +46,7 @@ class CommuterDemandsMatrix(
         val demandForI = demands.getOrPut(i) { MutableCommunityDemand(converter, communityID = j) }
         demandForI[j] = value
     }
+
     operator fun set(i: Number, j: Number, value: Double) = set(i.toCommunity(), j.toCommunity(), value)
 
     private fun Number.toCommunity(): CommunityNumber = CommunityNumber(this.toInt())
@@ -66,7 +68,8 @@ class CommuterDemandsMatrix(
             return readCommuters(commuterFile) {
                 val zoneID = it.requireZone().id
                 require(match.containsKey(zoneID)) {
-                    "Zone id $zoneID cannot be converted to a community number. Check that the file: $mappingFile contains the zone ID"
+                    "Zone id $zoneID cannot be converted to a community number." +
+                        " Check that the file: $mappingFile contains the zone ID"
                 }
                 match.getValue(zoneID)
             }

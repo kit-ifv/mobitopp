@@ -48,6 +48,7 @@ class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, va
     fun findUntil(doubleArray: DoubleArray): Sequence<WithMetric<T, Double>> {
         return findUntil(doubleArray) { it }
     }
+
     fun <S, M : Comparable<M>> findUntil(
         element: S,
         converter: (S) -> KDPoint,
@@ -83,6 +84,7 @@ class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, va
             }
         }
     }
+
     fun <S> findUntil(element: S, converter: (S) -> KDPoint): Sequence<WithMetric<T, Double>> {
         return findUntil(element, converter, { it })
     }

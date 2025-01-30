@@ -112,11 +112,11 @@ open class SynthesisTest {
 
     protected inner class ZoneBuilder<T>(zones: Collection<Zone>) {
 
-        protected val associatedRules: MutableMap<ZoneId, List<Rule<T>>> =
+        private val associatedRules: MutableMap<ZoneId, List<Rule<T>>> =
             zones.associate { it.id to listOf<Rule<T>>() }.toMutableMap()
 
         inner class RulesForZoneBuilder {
-            protected val rules: MutableList<Rule<T>> = mutableListOf()
+            private val rules: MutableList<Rule<T>> = mutableListOf()
 
             inner class ZoneRuleBuilder {
                 lateinit var description: String
@@ -173,7 +173,7 @@ open class SynthesisTest {
         override val latitudeRadians: Radians = Radians(0.0)
         override val longitudeRadians: Radians = Radians(0.0)
         override fun distance(other: Coordinate): Distance {
-            throw NotImplementedError("This method should never be called for this test to work")
+            error("This method should never be called for this test to work")
         }
 
         override fun toString(): String {

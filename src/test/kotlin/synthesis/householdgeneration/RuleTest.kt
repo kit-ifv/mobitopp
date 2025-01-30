@@ -69,7 +69,11 @@ class RuleTest : SynthesisTest() {
         assertEquals(rule.evaluate(household3), 1)
     }
 
-    private fun generateHouseholds(): Triple<SurveyHousehold<ExampleInterface>, SurveyHousehold<ExampleInstantiation>, SurveyHousehold<ExampleInstantiation>> {
+    private fun generateHouseholds(): Triple<
+        SurveyHousehold<ExampleInterface>,
+        SurveyHousehold<ExampleInstantiation>,
+        SurveyHousehold<ExampleInstantiation>
+        > {
         val household1 = createHousehold {
             person(10, Sex.MALE) {
                 DifferentExampleInstantiation(
