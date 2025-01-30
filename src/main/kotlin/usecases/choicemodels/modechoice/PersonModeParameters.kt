@@ -4,9 +4,9 @@ import datastructure.StationaryAction
 import domain.data.EconomicStatus
 import domain.data.Person
 import domain.data.Sex
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import usecases.choicemodels.D
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 
 /**
  * Encapsulates all the attributes of a person that may influence the mode choice. Collects all the attributes in a
@@ -19,6 +19,7 @@ import usecases.choicemodels.D
  */
 interface PersonModeParameters {
     val constant: Double
+    val purposes: ChoiceModelPurposes
     fun evaluateAge(person: ModePersonScope): Double = 0.0
     fun evaluateNumberOfCars(person: ModePersonScope): Double = 0.0
     fun evaluateEconomicStatus(person: ModePersonScope): Double = 0.0
@@ -139,16 +140,16 @@ interface TravelTimeActivities : PersonModeParameters {
     val business: Double
     override fun evaluateNextActivity(person: ModePersonScope): Double {
         return when (person.nextActivity.type) {
-            LegacyActivityType.WORK -> work
-            LegacyActivityType.BUSINESS -> business
-            LegacyActivityType.LEISURE,
-            LegacyActivityType.LEISURE_INDOOR,
-            LegacyActivityType.LEISURE_OUTDOOR,
-            LegacyActivityType.LEISURE_OTHER,
-            LegacyActivityType.LEISURE_WALK,
-            LegacyActivityType.LEISURE_SIGHTSEEING,
-            LegacyActivityType.PRIVATE_VISIT -> leisure
-
+            purposes.work -> work
+            purposes.business -> business
+            in purposes.leisureTypes -> leisure
+//            LegacyActivityType.LEISURE,
+//            LegacyActivityType.LEISURE_INDOOR,
+//            LegacyActivityType.LEISURE_OUTDOOR,
+//            LegacyActivityType.LEISURE_OTHER,
+//            LegacyActivityType.LEISURE_WALK,
+//            LegacyActivityType.LEISURE_SIGHTSEEING,
+//            LegacyActivityType.PRIVATE_VISIT
             else -> 0.0
         }
     }
@@ -198,30 +199,17 @@ interface StandardActivities : PersonModeParameters {
 
     override fun evaluateNextActivity(person: ModePersonScope): Double {
         return when (person.nextActivity.type) {
-            LegacyActivityType.WORK -> work
+            purposes.work -> work
 
-            LegacyActivityType.BUSINESS -> business
+            purposes.business -> business
 
-            LegacyActivityType.SERVICE -> service
+            purposes.service -> service
 
-            LegacyActivityType.EDUCATION,
-            LegacyActivityType.EDUCATION_PRIMARY,
-            LegacyActivityType.EDUCATION_SECONDARY,
-            LegacyActivityType.EDUCATION_TERTIARY,
-            LegacyActivityType.EDUCATION_OCCUP -> education
+            in purposes.educationTypes -> education
 
-            LegacyActivityType.SHOPPING,
-            LegacyActivityType.PRIVATE_BUSINESS,
-            LegacyActivityType.SHOPPING_DAILY,
-            LegacyActivityType.SHOPPING_OTHER -> shopping
+            in purposes.shoppingTypes -> shopping
 
-            LegacyActivityType.LEISURE,
-            LegacyActivityType.PRIVATE_VISIT,
-            LegacyActivityType.LEISURE_INDOOR,
-            LegacyActivityType.LEISURE_OUTDOOR,
-            LegacyActivityType.LEISURE_OTHER,
-            LegacyActivityType.LEISURE_SIGHTSEEING,
-            LegacyActivityType.LEISURE_WALK -> leisure
+            in purposes.leisureTypes -> leisure
 
             else -> 0.0
         }

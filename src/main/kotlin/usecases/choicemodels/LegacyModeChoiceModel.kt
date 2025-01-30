@@ -17,6 +17,7 @@ import domain.location.Location
 import domain.location.Metrics
 import modeling.models.ChoiceModel
 import usecases.AttractivenessModel
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.ModeParameters
 import utils.collections.select
 import utils.units.Time
@@ -37,12 +38,15 @@ class LegacyModeChoiceModel(
     attractivenessModel: AttractivenessModel,
     logitParameters: ModeChoiceParameters = ModeChoiceParameters(), // TODO at some point this can be removed
     val modes: ChoiceModelModes,
-    private val helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivenessModel, modes),
+    val purposes: ChoiceModelPurposes,
+    private val helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivenessModel, modes, purposes),
     val impedance: Metrics,
     override val choiceFilter: ChoiceFilter<Mode, TripChoiceSituation> =
         ModeAvailabilityFilter(modes, emptySet(), emptyMap(), impedance),
-    val utilitiesGenerator: MakeUtilities = MakeUtilities { a, l, m, h, p -> GeneratedHcUtilityFunction(a, l, m, h) },
-    betterParameters: ModeParameters = ModeParameters(modes),
+    val utilitiesGenerator: MakeUtilities = MakeUtilities { a, l, m, h, _ ->
+        GeneratedHcUtilityFunction(a, l, m, purposes, h)
+    },
+    betterParameters: ModeParameters = ModeParameters(modes, purposes),
 ) : ChoiceModel<TripChoiceSituation, Mode> {
 
     val car = modes.car

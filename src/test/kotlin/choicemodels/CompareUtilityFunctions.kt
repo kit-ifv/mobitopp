@@ -28,7 +28,6 @@ import domain.data.Sex
 import domain.data.buildEngine
 import domain.data.lastTransportMode
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.Location
@@ -50,8 +49,10 @@ import units.kilometers
 import units.share
 import units.toCurrency
 import units.toDistance
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.choicemodels.nextFixedActivity
+import usecases.legacyChoiceModelPurposes
 import utils.collections.cartesianProduct
 import utils.units.daysSinceStartOfWeek
 import utils.units.sinceStart
@@ -155,7 +156,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                     travelDuration
                 )
             }
-            assertNull(person.nextFixedActivity())
+            assertNull(person.nextFixedActivity(legacyChoiceModelPurposes))
         }
     }
 
@@ -182,7 +183,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                     travelDuration
                 )
             }
-            assertNotNull(person.nextFixedActivity())
+            assertNotNull(person.nextFixedActivity(legacyChoiceModelPurposes))
         }
     }
 
@@ -208,7 +209,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                     money
                 )
             }
-            assertNull(person.nextFixedActivity())
+            assertNull(person.nextFixedActivity(legacyChoiceModelPurposes))
         }
     }
 
@@ -235,7 +236,7 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                     money
                 )
             }
-            assertNotNull(person.nextFixedActivity())
+            assertNotNull(person.nextFixedActivity(legacyChoiceModelPurposes))
         }
     }
 
@@ -308,8 +309,8 @@ abstract class CompareTwoUtilityFunctions<T : Any> {
                 assertEquals(this.past, listOf(this@runTest.startActivity, this@runTest.previousLeg))
                 assertNull(this.present)
             }
-            assertNotNull(person.nextFixedActivity())
-            assertEquals(person.nextFixedActivity()!!, fixedActivity)
+            assertNotNull(person.nextFixedActivity(legacyChoiceModelPurposes))
+            assertEquals(person.nextFixedActivity(legacyChoiceModelPurposes)!!, fixedActivity)
         }
     }
 

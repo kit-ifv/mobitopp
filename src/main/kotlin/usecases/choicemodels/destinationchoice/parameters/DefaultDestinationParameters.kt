@@ -1,4 +1,7 @@
 package usecases.choicemodels.destinationchoice.parameters
+
+import domain.enums.ActivityType
+
 @Suppress("VariableNaming", "ComplexInterface") // I agree with detekt that these names are not good
 interface IDefaultDestinationParameters {
     val asc_fuss: Double
@@ -82,3 +85,22 @@ internal object DefaultDestinationParameters : IDefaultDestinationParameters {
     override val b_park_oev = 0.426245178308876
     override val elasticity_park_oev = 0.597562490122148
 }
+
+data class ChoiceModelPurposes(
+    val home: ActivityType,
+    val work: ActivityType,
+    val business: ActivityType,
+    val shopping: ActivityType,
+    val privateBusiness: ActivityType,
+    val service: ActivityType,
+    val privateVisit: ActivityType,
+    val leisureTravel: ActivityType,
+    val businessTravel: ActivityType,
+
+    val allActivityTypes: Set<ActivityType>,
+    val typesWithAttractivity: Set<ActivityType>,
+    val leisureTypes: Set<ActivityType>,
+    val educationTypes: Set<ActivityType>,
+    val shoppingTypes: Set<ActivityType>,
+    val businessTypes: Set<ActivityType>,
+)

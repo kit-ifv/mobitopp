@@ -23,7 +23,6 @@ import domain.data.EngineType
 import domain.data.Person
 import domain.data.Sex
 import domain.data.lastTransportMode
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
@@ -31,6 +30,7 @@ import domain.location.Metrics
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import java.time.DayOfWeek
 import kotlin.math.abs
 import kotlin.time.Duration
@@ -40,8 +40,10 @@ import kotlin.time.toDuration
 operator fun Duration.rem(other: Duration): Duration =
     (this.inWholeSeconds % other.inWholeSeconds).toDuration(DurationUnit.SECONDS)
 
-fun Person.nextFixedActivity() = schedule.activities().firstOrNull { it.isFixed() && it.location != LOCATIONUNKNOWN }
-fun Activity.isFixed() = type == LegacyActivityType.WORK || type == LegacyActivityType.EDUCATION
+fun Activity.isFixed(purposes: ChoiceModelPurposes) = type == purposes.work || type in purposes.educationTypes
+fun Person.nextFixedActivity(purposes: ChoiceModelPurposes) = schedule.activities().firstOrNull {
+    it.isFixed(purposes) && it.location != LOCATIONUNKNOWN
+}
 
 @Suppress("VariableNaming", "MagicNumber") // Sadly naming and magic number remains for the legacy mode choice
 class ModeChoiceParameters {
@@ -259,7 +261,7 @@ inline val Boolean.D get() = if (this) 1.0 else 0.0
 class ModeChoiceHelperMNL(
     val attractivities: AttractivenessModel,
     val modes: ChoiceModelModes,
-
+    val purposes: ChoiceModelPurposes
 ) {
     val car = modes.car
     val bike = modes.bike
@@ -303,16 +305,17 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.WORK).D
+        return (nextActivity.type == purposes.work).D
     }
 
-    val educations = listOf( // TOPDO independent of legacy activity type
-        LegacyActivityType.EDUCATION,
-        LegacyActivityType.EDUCATION_PRIMARY,
-        LegacyActivityType.EDUCATION_SECONDARY,
-        LegacyActivityType.EDUCATION_TERTIARY,
-        LegacyActivityType.EDUCATION_OCCUP
-    )
+    val educations = purposes.educationTypes
+//        listOf( // TOPDO independent of legacy activity type
+//        LegacyActivityType.EDUCATION,
+//        LegacyActivityType.EDUCATION_PRIMARY,
+//        LegacyActivityType.EDUCATION_SECONDARY,
+//        LegacyActivityType.EDUCATION_TERTIARY,
+//        LegacyActivityType.EDUCATION_OCCUP
+//    )
 
     fun getACTIVITY_TYPE_IS_EDUCATION(
         category: String,
@@ -339,18 +342,19 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.BUSINESS).D
+        return (nextActivity.type == purposes.business).D
     }
 
-    val leisures = listOf(
-        LegacyActivityType.LEISURE,
-        LegacyActivityType.LEISURE_INDOOR,
-        LegacyActivityType.LEISURE_OUTDOOR,
-        LegacyActivityType.LEISURE_OTHER,
-        LegacyActivityType.LEISURE_WALK,
-        LegacyActivityType.LEISURE_SIGHTSEEING,
-        LegacyActivityType.PRIVATE_VISIT,
-    )
+    val leisures = purposes.leisureTypes
+//        listOf(
+//        LegacyActivityType.LEISURE,
+//        LegacyActivityType.LEISURE_INDOOR,
+//        LegacyActivityType.LEISURE_OUTDOOR,
+//        LegacyActivityType.LEISURE_OTHER,
+//        LegacyActivityType.LEISURE_WALK,
+//        LegacyActivityType.LEISURE_SIGHTSEEING,
+//        LegacyActivityType.PRIVATE_VISIT,
+//    )
 
     fun getACTIVITY_TYPE_IS_LEISURE(
         category: String,
@@ -377,15 +381,17 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.SERVICE).D
+        return (nextActivity.type == purposes.service).D
     }
 
-    val shoppings = listOf(
-        LegacyActivityType.SHOPPING,
-        LegacyActivityType.SHOPPING_DAILY,
-        LegacyActivityType.SHOPPING_OTHER,
-        LegacyActivityType.PRIVATE_BUSINESS,
-    )
+    val shoppings = purposes.shoppingTypes.toList()
+//        listOf(
+//
+//        LegacyActivityType.SHOPPING,
+//        LegacyActivityType.SHOPPING_DAILY,
+//        LegacyActivityType.SHOPPING_OTHER,
+//        LegacyActivityType.PRIVATE_BUSINESS,
+//    )
 
     fun getACTIVITY_TYPE_IS_SHOPPING(
         category: String,
@@ -506,7 +512,7 @@ class ModeChoiceHelperMNL(
         randomNumber: Double
     ): Double {
         // TODO figure out which logic is better, because a person in reengineering might not have a fixed location
-        return person.nextFixedActivity()?.let {
+        return person.nextFixedActivity(purposes)?.let {
             impedance.duration(destination, it.location, bike, previousActivity.endTime)
                 .toDouble(durationUnit)
         } ?: 0.0
@@ -646,7 +652,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let {
+        return person.nextFixedActivity(purposes)?.let {
             impedance.duration(destination, it.location, car, previousActivity.endTime)
                 .toDouble(durationUnit)
         } ?: 0.0
@@ -663,7 +669,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let {
+        return person.nextFixedActivity(purposes)?.let {
             impedance.cost(destination, it.location, car, previousActivity.endTime)
                 .toDouble(currencyUnit)
         } ?: 0.0
@@ -808,8 +814,8 @@ class ModeChoiceHelperMNL(
     ): Double {
         // TODO this value is insane, is the calculation correct?
         val attractivity =
-            attractivities.attractivenessFor(destination.requireZone().id, LegacyActivityType.WORK) +
-                attractivities.attractivenessFor(destination.requireZone().id, LegacyActivityType.PRIVATE_VISIT)
+            attractivities.attractivenessFor(destination.requireZone().id, purposes.work) +
+                attractivities.attractivenessFor(destination.requireZone().id, purposes.privateVisit)
 
         if (0 == destination.requireZone().parkingPlaces) {
             return if (1e-6 > abs(attractivity)) 0.0 else 999.0
@@ -922,7 +928,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.HOME).D
+        return (nextActivity.type == purposes.home).D
     }
 
     fun getMEMBERSHIP_ACTIVE_MOIA(
@@ -1125,7 +1131,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.LEISURE_TRAVEL).D
+        return (nextActivity.type == purposes.leisureTravel).D
     }
 
     fun getACTIVITY_TYPE_IS_BUSINESS_TRAVEL(
@@ -1139,7 +1145,7 @@ class ModeChoiceHelperMNL(
         impedance: Metrics,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.BUSINESS_TRAVEL).D
+        return (nextActivity.type == purposes.businessTravel).D
     }
 
     fun getTRAVEL_TIME_E_SCOOTER(

@@ -27,19 +27,21 @@ import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.ModeAvailabilityFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
 import usecases.choicemodels.destinationchoice.ParameterObject
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.ModeParameters
 import usecases.choicemodels.modechoice.ModernizedModeUtility
 import usecases.models.VehicleTakeAlongModeChoice
 
 fun <S, C> S.loadChoiceModels(
     modes: ChoiceModelModes,
-    destinationParameters: ParameterObject = ParameterObject(),
-    modeParameters: (ChoiceModelModes) -> ModeParameters = { ModeParameters(it) }
+    purposes: ChoiceModelPurposes,
+    destinationParameters: ParameterObject = ParameterObject(purposes),
+    modeParameters: (ChoiceModelModes) -> ModeParameters = { ModeParameters(it, purposes) }
 ) where
       S : ModelExecution<C>,
       C : LoadChoiceModelsContext {
     addStep(
-        LoadChoiceModelsStep(context, modes, destinationParameters, modeParameters(modes))
+        LoadChoiceModelsStep(context, modes, purposes, destinationParameters, modeParameters(modes))
     )
 }
 
@@ -53,6 +55,7 @@ interface LoadChoiceModelsContext : Context, SimulationContext {
 private class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
     private val modes: ChoiceModelModes,
+    private val purposes: ChoiceModelPurposes,
     private val parameters: ParameterObject,
     private val modeParameters: ModeParameters,
 ) : RepositoryDependentStep {
@@ -86,7 +89,8 @@ private class LoadChoiceModelsStep(
                 impedance = context.impedance.value,
                 choiceFilter = availability,
                 utilitiesGenerator = { a, _, m, _, p -> ModernizedModeUtility(m, a, p) },
-                betterParameters = modeParameters
+                betterParameters = modeParameters,
+                purposes = purposes
             )
         )
 
@@ -97,7 +101,8 @@ private class LoadChoiceModelsStep(
                 umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
                 context.zoneRepository.elements.toSet(),
                 modes = modes,
-                parameterObject = parameters
+                parameterObject = parameters,
+                purposes = purposes
             ),
 
             modeChoice = modeChoice,
