@@ -7,12 +7,10 @@ import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.SurveyInfo
-
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
-
 import units.euros
 
 val YesTransitPass = TransitPassParameters(

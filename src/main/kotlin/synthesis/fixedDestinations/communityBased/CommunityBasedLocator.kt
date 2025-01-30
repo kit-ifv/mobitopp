@@ -9,7 +9,6 @@ import synthesis.fixedDestinations.SimpleGroupLocator
 import units.Distance
 import units.abs
 
-
 /**
  * A community based locator groups the agents based on the community number of their home location, defined by the
  * demand and then assigns the work locations using a group locator for each group. Since the community demands are
@@ -28,7 +27,6 @@ class CommunityBasedGroupLocator<T>(
         verifyDemand(targets.keys)
         verifyLocationsPresent(targets.keys)
 
-
         return targets.flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
             val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
@@ -37,13 +35,13 @@ class CommunityBasedGroupLocator<T>(
     }
 
     private fun verifyDemand(targets: Collection<CommunityNumber>) {
-        val badTargets = targets.filter{demands[it].isEmpty()}
+        val badTargets = targets.filter { demands[it].isEmpty() }
         require(badTargets.isEmpty()) {
             "The following communities have agents in need of location assignment, but no associated demand: ${badTargets.joinToString()}"
         }
     }
     private fun verifyLocationsPresent(targets: Collection<CommunityNumber>) {
-        val badTargets = targets.filter {potentialLocations.none{ loc -> loc.toCommunity() in demands[it]}}
+        val badTargets = targets.filter { potentialLocations.none { loc -> loc.toCommunity() in demands[it] } }
         require(badTargets.isEmpty()) {
             "The following communities have demand, but no location is found in the target communities: ${badTargets.joinToString()}"
         }
@@ -100,7 +98,9 @@ data class CommunityDemandPlaner<T>(
     ): List<AssignedLocation<T>> {
         val size = agents.size
         if (size > demand.total) {
-            System.err.println("The amount of agents ($size) to be assigned in community ${demand.communityID} exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment")
+            System.err.println(
+                "The amount of agents ($size) to be assigned in community ${demand.communityID} exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
+            )
         }
         return agents.map { agent ->
             val targetLocation = strategy.bestLocation(agent, demand, potentialLocations)
@@ -110,7 +110,6 @@ data class CommunityDemandPlaner<T>(
     }
 }
 
-
 /**
  * An example implementation of assigning an agent a location: Use the location with the smallest possible distance,
  * which still has an unsaturated demand. If all demands are saturated, use the first
@@ -119,14 +118,11 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
     ): List<AssignedLocation<T>> {
-
         return communityDemandPlaner.plan { a, dem, loc ->
             loc.sortedBy {
                 metric.evaluate(a.homeLocation, it)
             }.firstOrNull { !dem.isSaturated(it) } ?: loc.first()
-
         }
-
     }
 }
 
@@ -135,7 +131,6 @@ class TrivialDemands<T>(private val metric: DistanceMetric) : AssignAgentsInComm
  */
 class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMetric) : CommuterDistance<T>() {
 
-
     override fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
         return abs(
             metric.evaluate(
@@ -143,8 +138,6 @@ class MetricCommuterDistance<T : CommuteDistance>(private val metric: DistanceMe
                 location
             ) - agent.info.distanceWork
         )
-
-
     }
 }
 
@@ -157,7 +150,6 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
     override fun assign(
         communityDemandPlaner: CommunityDemandPlaner<T>
     ): List<AssignedLocation<T>> {
-
         return communityDemandPlaner.plan { agent, demand, locations ->
             require(locations.isNotEmpty()) {
                 "Cannot assign a location from an empty location list $locations"
@@ -168,20 +160,15 @@ open class CommuterDistance<T : CommuteDistance> : AssignAgentsInCommunity<T> {
             } else {
                 filteredLocations.minBy { differenceToCommuteDistance(agent, it) }
             }
-
-
         }
-
     }
 
     open fun differenceToCommuteDistance(agent: SynthesisPerson<out T>, location: Location): Distance {
         return abs(
 
-            agent.homeLocation.distance(location)
-                    - agent.info.distanceWork
+            agent.homeLocation.distance(location) -
+                agent.info.distanceWork
         )
-
-
     }
 
     private fun Location.distance(other: Location) = coordinate.distance(other.coordinate)

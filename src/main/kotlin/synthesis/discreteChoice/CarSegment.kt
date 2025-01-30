@@ -9,7 +9,6 @@ import modeling.discreteChoice.times
 import synthesis.RawSurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
-
 import units.Currency
 import units.Distance
 import units.euros

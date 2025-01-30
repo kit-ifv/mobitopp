@@ -25,7 +25,6 @@ class RuleObserverTest : SynthesisTest() {
         assertContentEquals(ScalableVector.createFrom(hh1, firstRuleSet).content, listOf(1, 0))
         assertContentEquals(ScalableVector.createFrom(hh2, firstRuleSet).content, listOf(0, 1))
 
-
         val rule3 = ZoneRule<Any>("aged 10", -0) { it.members.count { it.age == 10 } }
         val secondRuleSet = listOf(rule1, rule2, rule3)
         assertContentEquals(ScalableVector.createFrom(hh1, secondRuleSet).content, listOf(1, 0, 1))
@@ -64,7 +63,6 @@ class RuleObserverTest : SynthesisTest() {
         val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
         val vector2 = ScalableVector.createFrom(hh2, listOf(rule))
 
-
         val observer = rule.createObserver(0, listOf(vector1, vector2))
         assertEquals(observer.sum(), 3.0)
         assertEquals(observer.absoluteDifference, 17.0)
@@ -92,7 +90,6 @@ class RuleObserverTest : SynthesisTest() {
         val vector1 = ScalableVector.createFrom(hh1, listOf(rule))
         val vector2 = ScalableVector.createFrom(hh2, listOf(rule))
 
-
         val observer = rule.createObserver(0, listOf(vector1, vector2))
 
         vector1 *= 3
@@ -104,6 +101,7 @@ class RuleObserverTest : SynthesisTest() {
         assertEquals(vector2.scalar, 4.0)
     }
 }
+
 /**
  * Extension function to create an [RuleObserver] from a [Rule] and a collection of encoded household vectors.
  *

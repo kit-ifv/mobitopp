@@ -156,7 +156,7 @@ class SynthesisSteps<T : Any>(
             "Zone Ids: ${
                 randsums.keys.filter { it !in zones }.map { it.id }
             } requested by the marginal sums are not found" +
-                    "in the configuration. The program will terminate"
+                "in the configuration. The program will terminate"
         }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
@@ -417,8 +417,6 @@ fun Collection<Zone>.generateLocations(
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))
     }
-
-
 }
 
 fun Zone.generateLocations(amount: Int): List<Location> {

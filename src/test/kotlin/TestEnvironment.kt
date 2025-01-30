@@ -36,7 +36,6 @@ import domain.enums.ActivityType
 import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.Regiostar17
-import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.RoadAccess

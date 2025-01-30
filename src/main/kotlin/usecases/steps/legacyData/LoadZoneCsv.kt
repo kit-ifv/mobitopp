@@ -57,16 +57,23 @@ fun <S, C> S.prepareZones(
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
 ) where S : ModelExecution<C>, C : LoadZonesContext {
-    val csvParser = defaultCsvParser(errorHandling, columns, centroidParser, reliefUnit, regionTypeCodePlan = context.areaTypeCodes, seed= context.simulationSeed)
+    val csvParser = defaultCsvParser(
+        errorHandling,
+        columns,
+        centroidParser,
+        reliefUnit,
+        regionTypeCodePlan = context.areaTypeCodes,
+        seed = context.simulationSeed
+    )
 
     this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
 }
 
 fun defaultCsvParser(
-    errorHandling: ErrorHandling= ErrorHandling.WARNING,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
     centroidParser: (String) -> Location = String::parseRoadPosition,
-    reliefUnit: DistanceUnit= DistanceUnit.METERS,
+    reliefUnit: DistanceUnit = DistanceUnit.METERS,
     regionTypeCodePlan: Decodable<AreaType> = Regiostar17,
     seed: Long = 1,
 ): DefaultCsvParser<MutableLegacyZone> {
@@ -80,7 +87,7 @@ fun defaultCsvParser(
             matrixColumn = row.index
             name = row(columns.nameColumn)
             regionType =
-                row.decode(columns.regionTypeColumn, regionTypeCodePlan) //TODO remove either areaType or RegionType
+                row.decode(columns.regionTypeColumn, regionTypeCodePlan) // TODO remove either areaType or RegionType
             classification = row(columns.classificationColumn).toZoneClassification()
             parkingPlaces = row.int(columns.parkingPlacesColumn)
             isDestination = row.boolean(columns.isDestinationColumn)

@@ -26,8 +26,14 @@ open class DiscreteChoiceModel<X : Any, SIT : ChoiceSituation<X>, P>(
 
     fun select(singularOption: SIT, parameters: P): X = select(setOf(singularOption), parameters)
 
-    fun probabilities(alternatives: Set<SIT>, parameters: P) = distributionFunction.calculateProbabilities(alternatives, parameters)
-    fun utility(alternative: SIT, parameters: P) = distributionFunction.translation(alternative).calculateUtility(alternative, parameters)
+    fun probabilities(alternatives: Set<SIT>, parameters: P) = distributionFunction.calculateProbabilities(
+        alternatives,
+        parameters
+    )
+    fun utility(
+        alternative: SIT,
+        parameters: P
+    ) = distributionFunction.translation(alternative).calculateUtility(alternative, parameters)
     fun changeSelectionFunction(selectionFunction: SelectionFunction<SIT>): DiscreteChoiceModel<X, SIT, P> {
         return DiscreteChoiceModel(distributionFunction, selectionFunction)
     }

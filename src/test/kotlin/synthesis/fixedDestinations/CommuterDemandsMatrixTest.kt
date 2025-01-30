@@ -15,11 +15,12 @@ import kotlin.test.assertContains
 
 class CommuterDemandsMatrixTest {
     val bielefeld = BIELEFELD.asLocation()
+
     @Test
     fun communityConfiguration() {
         val c1 = CommunityNumber(1)
         val c2 = CommunityNumber(2)
-        val demands = CommuterDemandsMatrix(converter = {throw NotImplementedError()})
+        val demands = CommuterDemandsMatrix(converter = { throw NotImplementedError() })
         assertEquals(demands[1, 2], 0.0)
         assertEquals(demands[c1, c2], 0.0)
         demands[1, 2] = 1.0
@@ -35,6 +36,7 @@ class CommuterDemandsMatrixTest {
         assertEquals(demands[c2, c1], 2.0)
         assertEquals(demands.total, 3.0)
     }
+
     @Test
     fun copyDoesNotAlter() {
         val demands = CommuterDemandsMatrix(converter = { CommunityNumber(2) })
@@ -60,9 +62,10 @@ class CommuterDemandsMatrixTest {
 
         assertEquals(copy[3], 1.5)
     }
+
     @Test
     fun decreaseDemandForNonexistingDoesNothing() {
-        val demands = CommuterDemandsMatrix(converter = { CommunityNumber(1)})
+        val demands = CommuterDemandsMatrix(converter = { CommunityNumber(1) })
         val demandFor = demands[1]
         demandFor.decreaseDemandFor(BIELEFELD.asLocation())
         assertEquals(demandFor[1], 0.0)
@@ -70,6 +73,7 @@ class CommuterDemandsMatrixTest {
         assertEquals(demandFor.total, 1.0)
         assertEquals(demandFor[1], 1.0)
     }
+
     @Test
     fun containsWorksProperly() {
         val demands = CommuterDemandsMatrix(converter = { CommunityNumber(2) })
@@ -86,19 +90,19 @@ class CommuterDemandsMatrixTest {
 
         assertEquals(concreteDemands[2], 0.0)
         assertTrue(concreteDemands.contains(2))
-
     }
+
     @Test
     fun decreaseDemand() {
-        val demands = CommuterDemandsMatrix(converter = { CommunityNumber(2)})
+        val demands = CommuterDemandsMatrix(converter = { CommunityNumber(2) })
         val demandFor = demands[1]
         demandFor[2] = 1.5
         demandFor.decreaseDemandFor(CommunityNumber(2))
         assertEquals(demandFor[2], 0.5)
     }
+
     @Test
     fun properParsing() {
-
         val demands = CommuterDemandsMatrix.parseRastatt()
         assertEquals(demands.convert(6113.toZone().point(BIELEFELD)), CommunityNumber(8216043))
         assertEquals(demands.convert(10015.toZone().point(BIELEFELD)), CommunityNumber(10015))
@@ -111,27 +115,25 @@ class CommuterDemandsMatrixTest {
 
         assertTrue(10006 in demandFor)
         assertEquals(demandFor[10006], 42.0)
-
-
     }
 
     @Test
     fun parseNonexistingCommunity() {
-
         val demands = CommuterDemandsMatrix.parseRastatt()
         val exception = assertThrows<IllegalArgumentException> {
             demands.convert(42.toZone().point(BIELEFELD))
         }
         assertContains(exception.message!!, "src\\test\\resources\\synthesis\\zone-to-community.csv")
         assertContains(exception.message!!, ZoneId(42).toString())
-
     }
 
     private fun Number.toZone(): TestZone {
         return TestZone(id = ZoneId(toLong()))
     }
     private fun CommuterDemandsMatrix.Companion.parseRastatt(): CommuterDemandsMatrix {
-        return parse(Path("src/test/resources/synthesis/zone-to-community.csv"),Path("src/test/resources/synthesis/commuters-rastatt.csv"))
+        return parse(
+            Path("src/test/resources/synthesis/zone-to-community.csv"),
+            Path("src/test/resources/synthesis/commuters-rastatt.csv")
+        )
     }
-
 }

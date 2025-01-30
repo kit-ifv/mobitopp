@@ -1320,9 +1320,9 @@ class LegacyDestinationHelper(
         randomNumber: Double
     ): Double {
         return if ((person.household.cars.size).toDouble() >= (
-                person.household.members.filter {
+                person.household.members.count {
                     it.age >= 18
-                }.size
+                }
                 )
         ) {
             1.0

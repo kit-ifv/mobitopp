@@ -5,10 +5,10 @@ import kotlin.math.pow
 
 data class WithMetric<T, M : Comparable<M>>(val item: T, val metric: M)
 
-
-fun <T> Collection<WithMetric<T,*>>.discardMetric(): List<T> {
-    return map{it.item}
+fun <T> Collection<WithMetric<T, *>>.discardMetric(): List<T> {
+    return map { it.item }
 }
+
 /**
  * An implementation of a K-D Tree providing a search function for arbitrary elements. The dimensions of the tree are
  * calculated automatically by the provided translations in the public constructor.

@@ -189,7 +189,7 @@ class PopulationSynthesisKtTest {
                     val locations: List<Location> = listOf(bielefeld, itzehoe, schweinfurt)
                     assignmentStrategy = SimpleGroupLocator { persons ->
 
-                        persons.zip(locations) {p, l -> AssignedLocation(p, l)}
+                        persons.zip(locations) { p, l -> AssignedLocation(p, l) }
                     }
                 }
             }

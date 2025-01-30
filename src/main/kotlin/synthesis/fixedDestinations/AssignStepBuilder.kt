@@ -24,7 +24,6 @@ class AssignStepBuilder<G>(
         private val assignFunction: SimpleGroupLocator<in G>
     ) {
 
-
         fun generateFixedDestinations(target: Collection<SynthesisPerson<out G>>): List<FixedDestinationElements> {
             // TODO test that only valid agents are assigned stuff
             val applicableAgents = target.filter(filter)

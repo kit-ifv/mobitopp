@@ -43,7 +43,7 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         testZone2 to c2,
         testZone3 to c3,
 
-        )
+    )
     private lateinit var metric: AsymmetricMockDistance
     private lateinit var demand: CommuterDemandsMatrix
     private lateinit var strategy: TrivialDemands<Any>
@@ -57,7 +57,6 @@ class CommunityGroupLocatorTest : SynthesisTest() {
 
     @Test
     fun noDemandPromptsErrorMessage() {
-
         val exception = assertThrows<IllegalArgumentException> {
             val locator = CommunityBasedGroupLocator(demand, strategy, listOf(work3))
             locator.match(listOf(person1, person2))
@@ -106,8 +105,6 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         // The output should be location 3, as location 2 is in a community that has no saturated demand
         assertEquals(work3, output.assignedLocation)
         assertEquals(person1, output.targetPerson)
-
-
     }
 
     @Test
@@ -152,7 +149,6 @@ class CommunityGroupLocatorTest : SynthesisTest() {
         demand[c2, c3] = 1.0
         demand[c1, c1] = 1.0
 
-
         metric[home2, work2] = 1.0
         metric[home2, work3] = 2.5
 
@@ -174,7 +170,6 @@ class CommunityGroupLocatorTest : SynthesisTest() {
             assertEquals(person2, targetPerson)
             assertEquals(work2, assignedLocation)
         }
-
 
         output[1].nonInlineRun {
             assertEquals(person2, targetPerson)

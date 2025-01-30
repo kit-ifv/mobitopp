@@ -4,14 +4,13 @@ import domain.data.Sex
 import domain.data.ZoneId
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
-//import synthesis.fixedDestinations.ZoneNumber
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.NoSuchElementException
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ExampleRastattTest  {
+class ExampleRastattTest {
 
     @Test
     fun generateProperRulesFromInput() {
@@ -57,7 +56,7 @@ data class ZoneTarget(
     val ageGroup9male: Int,
     val ageGroup10male: Int,
 
-    ) {
+) {
 
     fun improvedTargets(): List<Rule<Any>> {
         return listOf(
@@ -123,7 +122,7 @@ data class ZoneTarget(
             ageGroup8male,
             ageGroup9male,
 
-            )
+        )
     }
 
     companion object {
@@ -164,7 +163,7 @@ data class ZoneTarget(
                     ageGroup9male = row.valueAt(26 + offset).toInt(),
                     ageGroup10male = row.valueAt(27 + offset).toInt(),
 
-                    )
+                )
             }
             return parser.parse(file.toFile())
         }

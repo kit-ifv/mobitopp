@@ -55,7 +55,6 @@ class IPUTest : SynthesisTest() {
         assertTrue(genderRule.appliesTo(unitHousehold))
         assertEquals(genderRule.evaluate(employmentHousehold), 1)
         assertEquals(genderRule.evaluate(unitHousehold), 2)
-
     }
 
     @Test
@@ -77,9 +76,11 @@ class IPUTest : SynthesisTest() {
 
     @Test
     fun unitIPUAge() {
-
         val ruleSet = listOf(ageRule)
-        assertEquals(ScalableVector.createFrom(employmentHousehold, ruleSet), ScalableVector.createFrom(unitHousehold, ruleSet))
+        assertEquals(
+            ScalableVector.createFrom(employmentHousehold, ruleSet),
+            ScalableVector.createFrom(unitHousehold, ruleSet)
+        )
         val output = unitIPU.synthesize(listOf(employmentHousehold, unitHousehold), mapOf(TEST_ZONE to ruleSet))
         val result = output[testZone]
         assertNotNull(result)
@@ -91,9 +92,11 @@ class IPUTest : SynthesisTest() {
 
     @Test
     fun unitIPUGender() {
-
         val ruleSet = listOf(genderRule)
-        assertNotEquals(ScalableVector.createFrom(employmentHousehold, ruleSet), ScalableVector.createFrom(unitHousehold, ruleSet))
+        assertNotEquals(
+            ScalableVector.createFrom(employmentHousehold, ruleSet),
+            ScalableVector.createFrom(unitHousehold, ruleSet)
+        )
         val output = unitIPU.synthesize(listOf(employmentHousehold, unitHousehold), mapOf(TEST_ZONE to ruleSet))
         val result = output[testZone]
         assertNotNull(result)
@@ -126,7 +129,6 @@ class IPUTest : SynthesisTest() {
             assertIs<SynthesisPerson<Unit>>(this)
             assertEquals(age, 10)
             assertEquals(sex, Sex.MALE)
-
         }
         target.members[1].run {
             assertIs<SynthesisPerson<Unit>>(this)
