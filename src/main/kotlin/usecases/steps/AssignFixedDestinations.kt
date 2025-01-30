@@ -3,7 +3,7 @@ package usecases.steps
 // import domain.data.LegacyZone
 // import domain.data.PersonId
 // import domain.data.plus
-// import domain.enums.LegacyActivityType
+// import usecases.LegacyActivityType
 // import domain.location.parseRoadPosition
 // import modeling.steps.Context
 // import modeling.steps.CustomStep

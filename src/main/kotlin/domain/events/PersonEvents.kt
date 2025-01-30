@@ -21,6 +21,7 @@ import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.TripChoiceSituation
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import utils.concurrent.synchronizeAll
 import utils.units.Time
 
@@ -266,11 +267,12 @@ data class PersonBehavior(
             umlands: (Location) -> Boolean,
             zones: Set<Zone>,
             modes: ChoiceModelModes,
+            purposes: ChoiceModelPurposes,
             scopeByMode: Map<Mode, ModeScopeSelector>,
         ): PersonBehavior {
             return PersonBehavior(
-                LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes),
-                LegacyModeChoiceModel(attractivenessModel, modes = modes, impedance = impedance),
+                LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes, purposes),
+                LegacyModeChoiceModel(attractivenessModel, modes = modes, purposes = purposes, impedance = impedance),
                 impedance,
                 ModeScopeDispatcher(scopeByMode)
             )

@@ -1,10 +1,10 @@
 package usecases.choicemodels.modechoice
 
 import domain.data.EconomicStatus
-import domain.enums.LegacyActivityType
 import units.Currency
 import units.CurrencyUnit
 import units.euros
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
@@ -106,7 +106,9 @@ abstract class TravelCostBeta : CombinedModeParameters {
     "Are you absolutely sure you want to multiply the parameter for" +
         " economic status with the number of cars rather than the economic status?"
 )
-open class NumCarCostBeta : TravelCostBeta(), CustomNextActivity, StandardCars {
+open class NumCarCostBeta(
+    override val purposes: ChoiceModelPurposes
+) : TravelCostBeta(), CustomNextActivity, StandardCars {
     /* This is originally "b_oekstat5_on_cost" though in order to multiply it with the number of cars we need to
     implement the StandardCars interface, which requires a "numberOfCars" parameter, which is reasonable as the interface
     expects you to multiply a parameter with the number of cars. In order to cheat the behavior from the original
@@ -116,7 +118,7 @@ open class NumCarCostBeta : TravelCostBeta(), CustomNextActivity, StandardCars {
     override val constant: Double = -0.173579310377872
     private val businessCost = 0.0840900269251931 - 0.02
     override fun evaluateNextActivity(person: ModePersonScope): Double {
-        return if (person.nextActivity.type == LegacyActivityType.BUSINESS) businessCost else 0.0
+        return if (person.nextActivity.type == purposes.business) businessCost else 0.0
     }
 }
 
@@ -127,12 +129,14 @@ open class NumCarCostBeta : TravelCostBeta(), CustomNextActivity, StandardCars {
  */
 // Takes care of the most cost implementations based on b_cost b_cost_oekv5 and b_dienst_on_cost
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-open class EconomicStatusCostBeta : TravelCostBeta(), CustomNextActivity, CustomEconomicStatus {
+open class EconomicStatusCostBeta(
+    override val purposes: ChoiceModelPurposes
+) : TravelCostBeta(), CustomNextActivity, CustomEconomicStatus {
     override val constant: Double = -0.173579310377872
     val veryRich = 0.029633074216897
     val businessCost = 0.0840900269251931 - 0.02
     override fun evaluateNextActivity(person: ModePersonScope): Double {
-        return if (person.nextActivity.type == LegacyActivityType.BUSINESS) businessCost else 0.0
+        return if (person.nextActivity.type == purposes.business) businessCost else 0.0
     }
 
     override fun evaluateEconomicStatus(person: ModePersonScope): Double {

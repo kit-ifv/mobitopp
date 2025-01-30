@@ -4,7 +4,6 @@ import BIELEFELD
 import datastructure.StationaryAction
 import domain.data.Person
 import domain.data.point
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
@@ -16,12 +15,14 @@ import syntheticsim.ControllableImpedance
 import syntheticsim.OneHouseholdTwoPersons
 import syntheticsim.loadActivityPlan
 import syntheticsim.testAttractivenessModel
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.IGeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.TripChoiceSituation
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import utils.units.sinceStart
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours
@@ -150,6 +151,7 @@ class ModeChoiceTest {
                 val choiceModel = LegacyModeChoiceModel(
                     testAttractivenessModel,
                     modes = legacyChoiceModelModes,
+                    purposes = legacyChoiceModelPurposes,
                     impedance = ControllableImpedance(),
                     utilitiesGenerator = { _, _, _, _, _ -> controllableUtilityFunction }
                 )
@@ -172,6 +174,7 @@ class ModeChoiceTest {
         val choiceModel = LegacyModeChoiceModel(
             testAttractivenessModel,
             modes = legacyChoiceModelModes,
+            purposes = legacyChoiceModelPurposes,
             impedance = ControllableImpedance(),
             utilitiesGenerator = { _, _, _, _, _ -> controllableUtilityFunction }
         )

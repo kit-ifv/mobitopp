@@ -12,6 +12,7 @@ import domain.data.PersonId
 import domain.data.Sex
 import domain.data.SharingStation
 import domain.data.SharingStationId
+import domain.enums.ActivityType
 import domain.resources.Subscribable
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
@@ -42,6 +43,8 @@ interface LoadPersonsContext : Context {
     val employmentCodes: CodePlan<Employment>
     val graduationCodes: CodePlan<Graduation>
     val sexCodes: CodePlan<Sex>
+
+    val homeActivityType: ActivityType
 
     val defaultPersonFile: File
         get() = File(demandFolder.path + "\\demand-data\\person.csv")

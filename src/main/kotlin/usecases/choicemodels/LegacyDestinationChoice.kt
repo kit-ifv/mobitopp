@@ -21,7 +21,6 @@ import domain.data.Employment
 import domain.data.Person
 import domain.data.Zone
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
@@ -30,6 +29,7 @@ import modeling.models.LogitModel
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.parameters.LegacyBusinessParameters
 import usecases.choicemodels.parameters.LegacyLeisureParameters
 import usecases.choicemodels.parameters.LegacyServiceParameters
@@ -68,6 +68,7 @@ class LegacyDestinationChoice(
     umlands: (Location) -> Boolean, // TODO ask Lucas
     zones: Set<Zone>,
     val modes: ChoiceModelModes,
+    val purposes: ChoiceModelPurposes,
     val filter: ChoiceFilter<Mode, Person> = NoFilter,
 ) : ChoiceModel<Person, Location>, ILegacyDestinationChoice {
 
@@ -101,14 +102,20 @@ class LegacyDestinationChoice(
      */
     private fun getParams(type: ActivityType): IDestinationParameters { // TODO independence of legacy activity type
         return when (type) {
-            LegacyActivityType.BUSINESS, LegacyActivityType.BUSINESS_TRAVEL, LegacyActivityType.BUSINESS_OUT, LegacyActivityType.BUSINESS_TO_WORK -> LegacyBusinessParameters
-            LegacyActivityType.SHOPPING, LegacyActivityType.PRIVATE_BUSINESS, LegacyActivityType.SHOPPING_OTHER, LegacyActivityType.SHOPPING_DAILY -> LegacyShoppingParameters
-            LegacyActivityType.SERVICE -> LegacyServiceParameters
+            in purposes.businessTypes -> LegacyBusinessParameters
+            in purposes.shoppingTypes -> LegacyShoppingParameters
+            purposes.service -> LegacyServiceParameters
             else -> LegacyLeisureParameters
         }
     }
 
-    val helper = LegacyDestinationHelper(impedance, attractivenessModel, umlands, modes = modes)
+    val helper = LegacyDestinationHelper(
+        impedance,
+        attractivenessModel,
+        umlands,
+        modes = modes,
+        purposes = purposes
+    )
 
     override fun Collection<Location>.selectDestination(
         person: Person,
@@ -1178,6 +1185,7 @@ class LegacyDestinationHelper(
     private val distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
     private val durationUnit: DurationUnit = DurationUnit.MINUTES,
     private val modes: ChoiceModelModes,
+    private val purposes: ChoiceModelPurposes,
 ) {
 
     private val currencyUnit: CurrencyUnit = CurrencyUnit.EUROS
@@ -1473,7 +1481,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.WORK).D
+        return (nextActivity.type == purposes.work).D
     }
 
     fun getIS_ACTIVITY_TYPE_BUSINESS(
@@ -1485,18 +1493,19 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.BUSINESS).D
+        return (nextActivity.type == purposes.business).D
     }
 
-    val leisures = listOf(
-        LegacyActivityType.LEISURE,
-        LegacyActivityType.LEISURE_INDOOR,
-        LegacyActivityType.LEISURE_OUTDOOR,
-        LegacyActivityType.LEISURE_OTHER,
-        LegacyActivityType.LEISURE_WALK,
-        LegacyActivityType.LEISURE_SIGHTSEEING,
-        LegacyActivityType.PRIVATE_VISIT,
-    )
+    val leisures = purposes.leisureTypes.toList()
+//    listOf(
+//            LegacyActivityType.LEISURE,
+//    LegacyActivityType.LEISURE_INDOOR,
+//    LegacyActivityType.LEISURE_OUTDOOR,
+//    LegacyActivityType.LEISURE_OTHER,
+//    LegacyActivityType.LEISURE_WALK,
+//        LegacyActivityType.LEISURE_SIGHTSEEING,
+//        LegacyActivityType.PRIVATE_VISIT,
+//    )
 
     fun getACTIVITY_TYPE_IS_LEISURE(
         category: Location,
@@ -1519,7 +1528,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.SERVICE).D
+        return (nextActivity.type == purposes.service).D
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN(
@@ -1647,7 +1656,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return (nextActivity.type == LegacyActivityType.HOME).D
+        return (nextActivity.type == purposes.home).D
     }
 
     fun getTRAVEL_TIME_PUBLICTRANSPORT_FIX(
@@ -1680,7 +1689,7 @@ class LegacyDestinationHelper(
         functor: Mode.(Location, Location, Time) -> Double,
         time: Time,
     ): Double {
-        return (person.nextFixedActivity()?.location ?: person.household.location).let {
+        return (person.nextFixedActivity(purposes)?.location ?: person.household.location).let {
             this.functor(destination, it, time)
         }
     }
@@ -1718,7 +1727,7 @@ class LegacyDestinationHelper(
         time: AbsoluteTime,
         randomNumber: Double
     ): Double {
-        return person.nextFixedActivity()?.let { iGetParkdruck(it.location) } ?: 0.0
+        return person.nextFixedActivity(purposes)?.let { iGetParkdruck(it.location) } ?: 0.0
     }
 
     fun getTRAVEL_TIME_PEDESTRIAN_FIX(

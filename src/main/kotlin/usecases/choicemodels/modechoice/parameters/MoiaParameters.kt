@@ -1,8 +1,8 @@
 package usecases.choicemodels.modechoice.parameters
 
-import domain.enums.LegacyActivityType
 import units.kilometers
 import units.meters
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomAge
 import usecases.choicemodels.modechoice.CustomDistance
@@ -20,7 +20,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 import utils.units.AbsoluteTime
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-internal object MoiaParameters : WithCost {
+internal class MoiaParameters(purposes: ChoiceModelPurposes) : WithCost {
     private fun AbsoluteTime.isEvening(): Boolean {
         return hour in 17..<21
     }
@@ -50,6 +50,7 @@ internal object MoiaParameters : WithCost {
         // TODO Why is this "b_konto_moia_on_moia" existing in the original utility function
         val randomParameterWithoutImpact = 0.952788891671551
         override val constant: Double = -4.98883914602145 - 0.6 + randomParameterWithoutImpact
+        override val purposes: ChoiceModelPurposes = purposes
 
         val adults: Double = -0.133870668781963
         val seniorAdults = 0.240651982840271
@@ -73,33 +74,20 @@ internal object MoiaParameters : WithCost {
         val businessTravel: Double = 6.0
         override fun evaluateNextActivity(person: ModePersonScope): Double {
             return when (person.nextActivity.type) {
-                LegacyActivityType.WORK -> work
+                purposes.work -> work
 
-                LegacyActivityType.BUSINESS -> business
+                purposes.business -> business
 
-                LegacyActivityType.SERVICE -> service
+                purposes.service -> service
 
-                LegacyActivityType.EDUCATION,
-                LegacyActivityType.EDUCATION_PRIMARY,
-                LegacyActivityType.EDUCATION_SECONDARY,
-                LegacyActivityType.EDUCATION_TERTIARY,
-                LegacyActivityType.EDUCATION_OCCUP -> education
+                in purposes.educationTypes -> education
 
-                LegacyActivityType.SHOPPING,
-                LegacyActivityType.PRIVATE_BUSINESS,
-                LegacyActivityType.SHOPPING_DAILY,
-                LegacyActivityType.SHOPPING_OTHER -> shopping
+                in purposes.shoppingTypes -> shopping
+                in purposes.leisureTypes -> leisure
 
-                LegacyActivityType.LEISURE,
-                LegacyActivityType.PRIVATE_VISIT,
-                LegacyActivityType.LEISURE_INDOOR,
-                LegacyActivityType.LEISURE_OUTDOOR,
-                LegacyActivityType.LEISURE_OTHER,
-                LegacyActivityType.LEISURE_SIGHTSEEING,
-                LegacyActivityType.LEISURE_WALK -> leisure
                 // Note that in the original transmove implementation the leisureTravel took both leisure and leisureTravel Parameters
-                LegacyActivityType.LEISURE_TRAVEL -> leisureTravel
-                LegacyActivityType.BUSINESS_TRAVEL -> businessTravel
+                purposes.leisureTravel -> leisureTravel
+                purposes.businessTravel -> businessTravel
 
                 else -> 0.0
             }
@@ -129,14 +117,15 @@ internal object MoiaParameters : WithCost {
     }
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta(), CustomNextActivity {
         override val constant: Double = -0.0558270784857267 + 0.019
+        override val purposes: ChoiceModelPurposes = purposes
 
         override fun evaluateNextActivity(person: ModePersonScope): Double {
-            return if (person.nextActivity.type == LegacyActivityType.BUSINESS) -0.0165983651233786 else 0.0
+            return if (person.nextActivity.type == purposes.business) -0.0165983651233786 else 0.0
         }
     }
 
     // TODO Moia Membership
-    override val travelCostBeta: TravelCostBeta = object : EconomicStatusCostBeta(), CustomSimulationTime {
+    override val travelCostBeta: TravelCostBeta = object : EconomicStatusCostBeta(purposes), CustomSimulationTime {
 
         val eveningCost: Double = 0.173579310377872 / 3
         val nightCost = 0.173579310377872 / 2

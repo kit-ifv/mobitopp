@@ -88,6 +88,7 @@ fun <S, C> S.preparePrivateCars(
             segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes)
             val engineType = row(columns.engineTypeColumn, ::parseEngineType)
             engine = carEngineStatistics.buildEngine(segment, engineType)
+            location = owner.location
         }
     }
 
