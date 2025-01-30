@@ -6,7 +6,6 @@ import units.Currency
 import units.Distance
 import kotlin.random.Random
 
-
 fun <T> Collection<T>.pickWithReplacement(
     amount: Int,
     random: Random = Random(1)

@@ -15,7 +15,7 @@ class CommuterDemandsMatrix(
     private val converter: (Location) -> CommunityNumber
 ) {
 
-    val total get() = demands.values.sumOf{it.total}
+    val total get() = demands.values.sumOf { it.total }
     fun convert(location: Location): CommunityNumber {
         return converter(location)
     }
@@ -38,7 +38,6 @@ class CommuterDemandsMatrix(
     operator fun get(i: CommunityNumber, j: CommunityNumber): Double = get(i)[j]
     operator fun get(i: Number, j: Number): Double = get(i.toCommunity(), j.toCommunity())
 
-
     /**
      * Set the demand of commute between communityNumber i and j to the target value.
      */
@@ -48,9 +47,7 @@ class CommuterDemandsMatrix(
     }
     operator fun set(i: Number, j: Number, value: Double) = set(i.toCommunity(), j.toCommunity(), value)
 
-
     private fun Number.toCommunity(): CommunityNumber = CommunityNumber(this.toInt())
-
 
     override fun toString(): String = demands.toString()
 
@@ -72,9 +69,7 @@ class CommuterDemandsMatrix(
                     "Zone id $zoneID cannot be converted to a community number. Check that the file: $mappingFile contains the zone ID"
                 }
                 match.getValue(zoneID)
-
             }
-
         }
 
         private fun readZoneToCommunity(file: Path): Map<ZoneId, CommunityNumber> {
@@ -83,11 +78,10 @@ class CommuterDemandsMatrix(
                     row("partId") { ZoneId(it.toLong()) },
                     row("regionId") { CommunityNumber.parse(it) },
 
-                    )
+                )
             }
 
             return parser.parse(file.toFile()).toMap()
-
         }
 
         private fun readCommuters(file: Path, converter: (Location) -> CommunityNumber): CommuterDemandsMatrix {
@@ -98,12 +92,11 @@ class CommuterDemandsMatrix(
                     row("destination") { CommunityNumber.parse(it) },
                     row("commuters").toInt(),
 
-                    )
+                )
             }
             parser.parse(file.toFile()).forEach { (i, j, value) -> communityDemand[i, j] = value.toDouble() }
             return communityDemand
         }
-
     }
 
     data class CommuterInfo(val origin: CommunityNumber, val destination: CommunityNumber, val amount: Int)
@@ -128,7 +121,6 @@ open class CommunityDemand(
 
     operator fun get(j: Number): Double = get(j.toCommunity())
 
-
     operator fun contains(j: CommunityNumber): Boolean {
         return j in demands.keys
     }
@@ -147,9 +139,7 @@ open class CommunityDemand(
 
     override fun toString(): String = demands.toString()
 
-
     protected fun Number.toCommunity(): CommunityNumber = CommunityNumber(this.toInt())
-
 }
 
 /**
@@ -169,7 +159,6 @@ class MutableCommunityDemand(
 
     operator fun set(j: Number, value: Double) = set(j.toCommunity(), value)
 
-
     fun copy(): MutableCommunityDemand = MutableCommunityDemand(converter, demands.toMutableMap(), communityID)
 
     /**
@@ -181,5 +170,4 @@ class MutableCommunityDemand(
     }
 
     fun decreaseDemandFor(location: Location) = decreaseDemandFor(converter(location))
-
 }

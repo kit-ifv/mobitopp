@@ -32,9 +32,7 @@ fun interface SimpleGroupLocator<T> : AdjustableGroupLocator<T> {
         agents: Collection<SynthesisPerson<out T>>,
         potentialLocations: Collection<Location>
     ): List<AssignedLocation<T>> = match(agents)
-
 }
-
 
 /**
  * An Adjustable Agent locator is able to adjust the valid locations for each agent individually.
@@ -49,8 +47,6 @@ fun interface AdjustableAgentLocator<T> : AdjustableGroupLocator<T> {
         return agents.map { AssignedLocation(it, locate(it, potentialLocations)) }
     }
 }
-
-
 
 /**
  * The locations in this class are already set, thus only a locate needs to be implemented. This is useful if you don't
@@ -70,6 +66,3 @@ fun interface SimpleLocator<T> : AdjustableAgentLocator<T>, SimpleGroupLocator<T
         return agents.map { AssignedLocation(it, locate(it)) }
     }
 }
-
-
-

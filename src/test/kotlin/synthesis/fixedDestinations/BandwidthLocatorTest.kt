@@ -25,7 +25,6 @@ class BandwidthLocatorTest : SynthesisTest() {
     private val myActivityType = LegacyActivityType.LEISURE_SIGHTSEEING
     private lateinit var attractivenessModel: ControllableAttractiveness
 
-
     private fun Zone.spawnUTM(eOffset: Number, nOffset: Number): Location {
         val utm = UTMPosition(500000.0 + eOffset.toDouble(), 5000000.0 + nOffset.toDouble(), 32, Hemisphere.NORTHERN)
         return Location(utm.toWGS84(), this, null)
@@ -43,7 +42,6 @@ class BandwidthLocatorTest : SynthesisTest() {
 
     @Test
     fun testProperExtraction() {
-
         val home = testZone.spawnUTM(0, 0)
         val loc1 = testZone.spawnUTM(0, 1000)
         val loc2 = testZone.spawnUTM(0, 2000)
@@ -99,7 +97,6 @@ class BandwidthLocatorTest : SynthesisTest() {
         val location2 = locator.locate(person2)
         assertEquals(location2, loc1)
     }
-
 
     @Test
     fun testBandwidthDiscreteChoiceModel() {

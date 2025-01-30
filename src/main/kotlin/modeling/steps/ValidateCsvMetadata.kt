@@ -38,7 +38,7 @@ class ValidateCsvMetadata<E>(
 
     // Row Attributes
     override val index = 0
-    override val size: Int get()= reader.columns.size
+    override val size: Int get() = reader.columns.size
 
     override fun headerForIndex(i: Int): String = reader.columns.toList()[i]
 

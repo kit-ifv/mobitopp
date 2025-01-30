@@ -11,7 +11,6 @@ import synthesis.SmallestSurveyPerson
 import synthesis.SurveyHousehold
 import synthesis.SurveyPerson
 import synthesis.domain.SynthesisHousehold
-
 import units.Coordinate
 import units.Distance
 import units.Radians
@@ -20,7 +19,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-class ToolTest: SynthesisTest() {
+class ToolTest : SynthesisTest() {
     val zone1 = TestZone(id = ZoneId(1))
     private val zones = listOf(zone1)
 
@@ -86,10 +85,6 @@ class ToolTest: SynthesisTest() {
     }
 }
 open class SynthesisTest {
-
-
-
-
 
     protected fun <T> createHousehold(lambda: HouseholdBuilder<T>.() -> Unit): SurveyHousehold<T> {
         val builder = HouseholdBuilder<T>()
@@ -170,7 +165,6 @@ open class SynthesisTest {
     protected fun Zone.spawnFakeLoc(): Location {
         return Location(FakeCoord(), this, null)
     }
-
 
     protected fun Zone.spawnLocation(coordinate: Coordinate): Location = Location(coordinate, this, null)
 

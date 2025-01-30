@@ -1,13 +1,11 @@
 package utils.collections
 
 import buildPerson
-
 import domain.data.EconomicStatus
 import domain.data.Household
 import domain.data.HouseholdId
 import domain.data.MutableHousehold
 import domain.data.MutablePerson
-
 import domain.data.PersonId
 import domain.data.Sex
 import domain.location.LOCATIONUNKNOWN
@@ -15,7 +13,6 @@ import synthesis.HouseholdRepresentative
 import synthesis.toRepresentative
 import units.euros
 import kotlin.math.sqrt
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -42,7 +39,7 @@ class Generator {
     }
 
     fun person(lambda: MutablePerson.() -> Unit) {
-        val newFunction: (Long, MutablePerson) -> MutablePerson  =  {l, p ->
+        val newFunction: (Long, MutablePerson) -> MutablePerson = { l, p ->
             p.apply(lambda)
         }
         personChanges.add(lambda)
@@ -70,7 +67,7 @@ fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit)
         location = LOCATIONUNKNOWN
         apply(generator.householdChanges)
     }
-    //TODO rework this to work tomorrow
+    // TODO rework this to work tomorrow
 
     generator.personChanges.forEach {
         household.buildPerson(generator.nextPersonId().value, it)
@@ -152,8 +149,8 @@ class EquivalenceClassTest {
                 // Shoelace formula
                 return 0.5 * kotlin.math.abs(
                     x1 * (y2 - y3) +
-                            x2 * (y3 - y1) +
-                            x3 * (y1 - y2)
+                        x2 * (y3 - y1) +
+                        x3 * (y1 - y2)
                 )
             }
 
@@ -210,9 +207,9 @@ class EquivalenceClassTest {
 private fun Household.toRepresentative(): HouseholdRepresentative {
     return HouseholdRepresentative(
         (
-                members.map {
-                    it.toRepresentative()
-                }.groupingBy { it }.eachCount().map { (element, count) -> Pair(count, element) }.toSet()
-                )
+            members.map {
+                it.toRepresentative()
+            }.groupingBy { it }.eachCount().map { (element, count) -> Pair(count, element) }.toSet()
+            )
     )
 }

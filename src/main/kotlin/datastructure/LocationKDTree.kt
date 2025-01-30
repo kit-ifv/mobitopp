@@ -29,10 +29,4 @@ class LocationKDTree(locations: List<Location>) {
             )
         }).first().item
     }
-
 }
-
-
-
-
-

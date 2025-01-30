@@ -17,7 +17,6 @@ fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipF
 
 val SynthesisPerson<out SurveyInfo>.householdId get() = info.householdId
 
-
 val SynthesisPerson<out SurveyInfo>.householdIncome get() = info.householdIncome
 val SynthesisPerson<out SurveyInfo>.hasLicence get() = info.hasLicence
 val SynthesisPerson<out SurveyEmployment>.employment get() = info.employment

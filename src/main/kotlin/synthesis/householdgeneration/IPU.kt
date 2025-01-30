@@ -59,7 +59,6 @@ class IPU<T>(
     ): Map<Zone, List<SynthesisHousehold<out T>>> {
         return conditions.entries.associate { (zone, rules) ->
             zone to calculate(surveyHouseholds, rules, converter).map { it.toSynthesisHousehold() }
-
         }
     }
 
@@ -91,9 +90,7 @@ class IPU<T>(
         return conversion.run {
             inverseMap.extract()
         }
-
     }
-
 }
 
 /**
@@ -133,7 +130,6 @@ class SampleAndCollect<T>(val random: Random = Random(1)) : GenerateHouseholdsFr
                 // If the overflow counter spills, add one extra household
                 overflowCounter--
                 it.key.scalar.toInt() + 1
-
             } else {
                 it.key.scalar.toInt()
             }
@@ -141,6 +137,3 @@ class SampleAndCollect<T>(val random: Random = Random(1)) : GenerateHouseholdsFr
         }
     }
 }
-
-
-

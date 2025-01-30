@@ -15,7 +15,12 @@ import kotlin.math.abs
  * @param vectors A list of [ScalableVector] objects representing the household data in vectorized form.
  * @param expected The expected value that the household sum should match after optimization.
  */
-class RuleObserver(val name: String, private val observedIndex: Int, val vectors: List<ScalableVector>, val expected: Int) {
+class RuleObserver(
+    val name: String,
+    private val observedIndex: Int,
+    val vectors: List<ScalableVector>,
+    val expected: Int
+) {
     /**
      * Sums the current values for the given [observedIndex] across all the vectors.
      *
@@ -91,7 +96,6 @@ class RuleObserver(val name: String, private val observedIndex: Int, val vectors
     }
 }
 
-
 /**
  * A [ScalableVector] represents a vectorized encoding of household attributes, where each element of the vector
  * corresponds to a specific attribute, and the `scalar` factor indicates how many instances of the household encoding
@@ -150,7 +154,6 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
             return false
         }
         return array.contentEquals(other.array)
-
     }
 
     override fun hashCode(): Int {
@@ -174,5 +177,3 @@ class ScalableVector(private val vector: Collection<Int>, var scalar: Double = 1
         }
     }
 }
-
-
