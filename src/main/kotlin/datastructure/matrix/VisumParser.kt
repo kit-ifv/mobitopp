@@ -40,7 +40,7 @@ class VisumParser(val path: Path) : IVisumParser {
     private var lines: Iterator<IndexedValue<String>>? =
         path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()
 
-//    private val generateLines = {path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()}
+    //    private val generateLines = {path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()}
     private var numberOfNetworkObjects: Int = 0
         get() {
             while (field == 0) {
@@ -117,7 +117,8 @@ class VisumParser(val path: Path) : IVisumParser {
             ): MatrixParseState {
                 try {
                     parser.numberOfNetworkObjects = line.toUInt().toInt()
-                    parser.array = DoubleArray(parser.numberOfNetworkObjects * parser.numberOfNetworkObjects) { Double.NaN }
+                    parser.array =
+                        DoubleArray(parser.numberOfNetworkObjects * parser.numberOfNetworkObjects) { Double.NaN }
                     parser.zoneIds = Array(parser.numberOfNetworkObjects) { ZoneId(-1) }
                 } catch (error: Exception) {
                     throw VisumParseError(

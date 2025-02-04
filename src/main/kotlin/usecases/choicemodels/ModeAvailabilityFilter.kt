@@ -93,7 +93,9 @@ class ModeAvailabilityFilter(
             it in person.memberships
         } ?: emptySet()
 
-        if (modeMemberships.isEmpty()) { return null }
+        if (modeMemberships.isEmpty()) {
+            return null
+        }
 
         val memberStations = sharingStations.filter { it.owner in modeMemberships }
 

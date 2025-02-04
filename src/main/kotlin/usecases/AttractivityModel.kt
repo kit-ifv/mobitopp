@@ -14,6 +14,8 @@ import java.io.File
 import kotlin.math.abs
 
 // Can be "fun" when implementing only one function
+// TODO Debate with Jelle, There is a more generalized version of attractiveness, which takes in a location, rather than
+//  a zoneID
 fun interface AttractivenessModel {
     fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double
 }
@@ -29,6 +31,7 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
     }
     return attractiveness / target.parkingPlaces
 }
+
 class AttractivenessFromCsv(
     private val file: File,
     delimiter: String = ";",

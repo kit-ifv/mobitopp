@@ -22,7 +22,6 @@ repositories {
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
-
     mavenCentral()
     mavenLocal()
 
@@ -36,17 +35,20 @@ detekt {
 }
 dependencies {
 
+
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
 
-    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.4")
-    implementation("edu.kit.ifv:visumNetfileParser:0.9.12")
-
-
-    ksp(project(":processor")) // to make KSP work
-    api(project(":processor"))
+    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
+    implementation("edu.kit.ifv:visumNetfileParser:0.9.13")
     implementation(project(":annotations"))
+//    implementation("edu.kit.ifv:annotations:1.0.0")
+//    testImplementation("edu.kit.ifv:annotations:1.0.0")
     testImplementation(project(":annotations"))
+//    ksp(project(":processor")) // to make KSP work
+    ksp(project(":processor")) // to make KSP work
+    api(project(":processor")) // to make KSP work
+    implementation(project(":annotations"))
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
 
     detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
@@ -60,12 +62,14 @@ dependencies {
     runtimeOnly("org.jetbrains.kotlinx:kandy-util:0.6.0")
     implementation("org.jetbrains.kotlinx:kandy-api:0.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-
+    implementation("edu.kit.ifv.mobitopp:actitopp:1.9+")
     implementation("me.tongfei:progressbar:0.10.1")
     implementation(kotlin("reflect"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
+    implementation("net.objecthunter:exp4j:0.4.8")
+
 
 }
 

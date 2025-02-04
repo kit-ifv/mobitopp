@@ -167,9 +167,11 @@ interface DestinationEmployment : PersonDestinationParameters {
             Employment.STUDENT_SECONDARY,
             Employment.STUDENT_TERTIARY,
             Employment.EDUCATION -> employmentEducation
+
             Employment.FULLTIME,
             Employment.PARTTIME,
             Employment.MARGINAL -> employmentWork
+
             else -> 0.0
         }
     }

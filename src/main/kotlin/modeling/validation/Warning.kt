@@ -20,7 +20,13 @@ class Warning(
 ) {
 
     constructor(cause: Throwable, isError: Boolean) : this(
-        cause.message ?: ("Validation" + if (isError) { "Error" } else { "Warning" }),
+        cause.message ?: (
+            "Validation" + if (isError) {
+                "Error"
+            } else {
+                "Warning"
+            }
+            ),
         isError
     )
 
@@ -69,7 +75,13 @@ class Warning(
     fun printTree() {
         printAsTree(
             this,
-            { if (it.containsError()) { "ERROR: " } else { "WARNING: " } + it.message },
+            {
+                if (it.containsError()) {
+                    "ERROR: "
+                } else {
+                    "WARNING: "
+                } + it.message
+            },
             false
         ) { it.subWarnings }
     }

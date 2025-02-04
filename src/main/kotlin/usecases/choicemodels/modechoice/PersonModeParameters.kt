@@ -6,7 +6,7 @@ import domain.data.Person
 import domain.data.Sex
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import usecases.choicemodels.D
+import modeling.discreteChoice.D
 
 /**
  * Encapsulates all the attributes of a person that may influence the mode choice. Collects all the attributes in a
