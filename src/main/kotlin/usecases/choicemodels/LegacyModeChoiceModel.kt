@@ -503,21 +503,6 @@ class LegacyModeChoiceModel(
             probabilities[taxi] = p_taxi_in_nest_root * p_taxi_in_nest_taxi
         }
 
-        // TODO Logit model cannot be used, as it calculates the exp(U) internally, which is already done at this point
-        // Filter probabilities
-//        val build: LogitModel<Person, Mode> = object : LogitModel<Person, Mode>() {
-//            override fun utility(agent: Person, choice: Mode, time: Time): Double {
-//                return ln(probabilities[choice] ?: Double.NEGATIVE_INFINITY)
-//            }
-//
-//            override val name: String = "TEST MODE LOGIT"
-//
-//            override fun choices(agent: Person, time: Time): Set<Mode> {
-//                return _choiceSet
-//            }
-//        }
-//        //TODO no access to time and reconstructing via previous activity is not good.
-//        return build.select(person, _choiceSet, previousActivity.endTime)
         val filteredProbabilities = probabilities.filter { it.value.isFinite() }
         return filteredProbabilities.select(randomNumber)
     }

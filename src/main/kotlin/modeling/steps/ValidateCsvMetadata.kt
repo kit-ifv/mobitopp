@@ -38,6 +38,9 @@ class ValidateCsvMetadata<E>(
 
     // Row Attributes
     override val index = 0
+    override val size: Int get() = reader.columns.size
+
+    override fun headerForIndex(i: Int): String = reader.columns.toList()[i]
 
     override val name: String
         get() = reader.name
@@ -73,7 +76,8 @@ class ValidateCsvMetadata<E>(
         reader = DefaultCsvReader(csv.file, errorHandling = ErrorHandling.SILENT)
         try {
             csv.parser.parse(this@ValidateCsvMetadata).toList()
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
 
         unmuteProgressBars()
 

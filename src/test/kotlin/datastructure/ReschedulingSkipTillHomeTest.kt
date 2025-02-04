@@ -5,7 +5,6 @@ import START
 import THIRD
 import datastructure.plans.BlockModel
 import domain.enums.LegacyActivityType
-import org.junit.jupiter.api.Test
 import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.time.Duration.Companion.hours
@@ -64,18 +63,5 @@ class ReschedulingSkipTillHomeTest {
         model.add(a3)
         model.add(l3)
         model.add(a4)
-    }
-
-    @Test
-    fun reschedulingShouldWork() {
-        // Some external force causes the second leg to take forever
-//        val plan = model.actions()
-//        val leg2inPlan = plan[3] as LinkedLeg
-//        leg2inPlan.endTime = 23.5.hours.sinceStart
-//
-//        SkipToNextHomeActivity().modify(model, 23.5.hours.sinceStart)
-//
-//        assertTrue(model.actions().isConsistent())
-//        assertEquals(plan.size, 6)
     }
 }

@@ -188,7 +188,7 @@ class StartTripEvent(
 
     override fun process(entity: Person): List<Event<*>> {
         val block = entity.schedule.nextBlock()
-        return block?.accept(this) ?: emptyList()
+        return block?.accept(this).orEmpty()
     }
 }
 

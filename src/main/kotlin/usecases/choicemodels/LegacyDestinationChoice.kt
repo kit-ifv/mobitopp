@@ -25,6 +25,7 @@ import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
+import modeling.discreteChoice.D
 import modeling.models.ChoiceModel
 import modeling.models.LogitModel
 import units.CurrencyUnit
@@ -567,7 +568,11 @@ class LegacyDestinationChoice(
                                                 asc_rad +
                                                     (
                                                         b_tt_rad *
-                                                            (TRAVEL_TIME_BIKE_value.coerceAtMost(1000.0))
+                                                            (
+                                                                TRAVEL_TIME_BIKE_value.coerceAtMost(
+                                                                    1000.0
+                                                                )
+                                                                )
                                                         ) +
                                                     (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) +
                                                     (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) +
@@ -644,7 +649,9 @@ class LegacyDestinationChoice(
                                         asc_mf +
                                             (
                                                 b_tt_mf_taxi *
-                                                    (TRAVEL_TIME_CAR_value + 3.0).coerceAtMost(1000.0)
+                                                    (TRAVEL_TIME_CAR_value + 3.0).coerceAtMost(
+                                                        1000.0
+                                                    )
                                                 ) +
                                             (b_arb_on_mf * IS_ACTIVITY_TYPE_WORK_value) +
                                             (b_dienst_on_mf * IS_ACTIVITY_TYPE_BUSINESS_value) +
@@ -844,7 +851,11 @@ class LegacyDestinationChoice(
                                         (
                                             asc_fuss + (
                                                 b_tt_fuss *
-                                                    (TRAVEL_TIME_PEDESTRIAN_FIX_value.coerceAtMost(1000.0))
+                                                    (
+                                                        TRAVEL_TIME_PEDESTRIAN_FIX_value.coerceAtMost(
+                                                            1000.0
+                                                        )
+                                                        )
                                                 ) +
                                                 (b_arb_on_fuss * IS_ACTIVITY_TYPE_WORK_value) +
                                                 (b_dienst_on_fuss * IS_ACTIVITY_TYPE_BUSINESS_value) +
@@ -860,7 +871,11 @@ class LegacyDestinationChoice(
                                             (
                                                 asc_rad + (
                                                     b_tt_rad *
-                                                        (TRAVEL_TIME_BIKE_FIX_value.coerceAtMost(1000.0))
+                                                        (
+                                                            TRAVEL_TIME_BIKE_FIX_value.coerceAtMost(
+                                                                1000.0
+                                                            )
+                                                            )
                                                     ) +
                                                     (b_arb_on_rad * IS_ACTIVITY_TYPE_WORK_value) +
                                                     (b_dienst_on_rad * IS_ACTIVITY_TYPE_BUSINESS_value) +
@@ -938,9 +953,19 @@ class LegacyDestinationChoice(
                                         asc_pkw +
                                             (
                                                 b_tt_pkw *
-                                                    (TRAVEL_TIME_CAR_FIX_value.coerceAtMost(1000.0))
+                                                    (
+                                                        TRAVEL_TIME_CAR_FIX_value.coerceAtMost(
+                                                            1000.0
+                                                        )
+                                                        )
                                                 ) +
-                                            (b_cost_pkw * (TRAVEL_COST_CAR_FIX_value.coerceAtMost(1000.0))) +
+                                            (
+                                                b_cost_pkw * (
+                                                    TRAVEL_COST_CAR_FIX_value.coerceAtMost(
+                                                        1000.0
+                                                    )
+                                                    )
+                                                ) +
                                             (
                                                 (b_zuab_pkw * (ACCESS_TIME_CAR_FIX_value + EGRESS_TIME_CAR_FIX_value)) *
                                                     (
@@ -1319,9 +1344,9 @@ class LegacyDestinationHelper(
         randomNumber: Double
     ): Double {
         return if ((person.household.cars.size).toDouble() >= (
-                person.household.members.filter {
+                person.household.members.count {
                     it.age >= 18
-                }.size
+                }
                 )
         ) {
             1.0

@@ -74,7 +74,7 @@ import kotlin.time.toDuration
  * @param T The type of the first utility function
  * @property comparison the inheriting class should provide an implementation to test the output of the two utility functions
  */
-abstract class CompareTwoUtilityFunctions<T : Any> {
+abstract class CompareTwoUtilityFunctionsOld<T : Any> {
     abstract val comparison: TestSimulation.(T, T) -> Unit
 
     lateinit var a: T

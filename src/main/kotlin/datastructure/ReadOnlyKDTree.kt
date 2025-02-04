@@ -3,21 +3,36 @@ package datastructure
 import java.util.*
 import kotlin.math.pow
 
+data class WithMetric<T, M : Comparable<M>>(val item: T, val metric: M)
+
+fun <T> Collection<WithMetric<T, *>>.discardMetric(): List<T> {
+    return map { it.item }
+}
+
 /**
  * An implementation of a K-D Tree providing a search function for arbitrary elements. The dimensions of the tree are
  * calculated automatically by the provided translations in the public constructor.
  */
-class ReadOnlyKDTree<T> (points: List<T>, firstAttribute: (T) -> Double, vararg attributes: (T) -> Double) {
+class ReadOnlyKDTree<T : Any>(points: List<T>, firstAttribute: (T) -> Double, vararg attributes: (T) -> Double) {
     val dimension = attributes.size + 1 // Optional attributes plus the first attribute
-    private val root: KDTreeNode<T>
+    private val root: KDElement<T>
+
     init {
+
+        require(points.isNotEmpty()) {
+            "Building a K-D Tree with no input is useless"
+        }
         val temp = { t: T -> (listOf(firstAttribute) + attributes).map { it(t) }.toDoubleArray() }
         val comparator = build(temp, dimension)
-        root = KDTreeNode(points, comparator, Hypercube.unlimited(dimension))
+        root = if (points.size > 1) {
+            KDTreeNode(points, comparator, Hypercube.unlimited(dimension))
+        } else {
+            KDTreeLeaf(points.first(), comparator.converter)
+        }
     }
 
-    fun find(point: Point): T? {
-        return find(point) { it }
+    fun nearestNeighbor(point: KDPoint): T {
+        return nearestNeighbor(point) { it }
     }
 
     /**
@@ -26,58 +41,69 @@ class ReadOnlyKDTree<T> (points: List<T>, firstAttribute: (T) -> Double, vararg 
      * @param converter A translation to turn the [element] into a multidimensional point, preferably matching the
      * multidimensional points of the tree elements.
      */
-    fun <S> find(element: S, converter: (S) -> Point): T? {
+    fun <S> nearestNeighbor(element: S, converter: (S) -> KDPoint): T {
+        return findUntil(element, converter).first().item
+    }
+
+    fun findUntil(doubleArray: DoubleArray): Sequence<WithMetric<T, Double>> {
+        return findUntil(doubleArray) { it }
+    }
+
+    fun <S, M : Comparable<M>> findUntil(
+        element: S,
+        converter: (S) -> KDPoint,
+        metric: (Double) -> M
+    ): Sequence<WithMetric<T, M>> {
         require(converter(element).size == dimension) {
-            "The conversion for element $element has ${converter(
-                element
-            ).size} dimensions, but the Tree is $dimension dimensional"
+            "The conversion for element $element has ${
+                converter(
+                    element
+                ).size
+            } dimensions, but the Tree is $dimension dimensional"
         }
         // The elements of the tree are assigned a proximity score; The priority queue should use this score for insertion
-        val comparator = Comparator<Pair<KDElement<T>, Double>> { a, b ->
-            a.second.compareTo(b.second)
+        val comparator = Comparator<WithMetric<KDElement<T>, M>> { a, b ->
+            a.metric.compareTo(b.metric)
         }
         val queue = PriorityQueue(comparator)
-        queue.add(root to root.distance(element, converter))
+        queue.add(WithMetric(root, metric(root.distance(element, converter))))
+        return sequence {
+            while (queue.isNotEmpty()) {
+                val result = queue.poll()
 
-        // Keep the best element if a leaf has been unrolled
-        var best: T? = null
-        var bestMetric: Double = Double.POSITIVE_INFINITY
-
-        while (queue.isNotEmpty()) {
-            val result = queue.poll()
-            // If an actual node has been found anything with a larger metric can be skipped as it will not improve the result
-            if (result.second >= bestMetric) {
-                continue
-            } else {
-                if (result.first is KDTreeLeaf) {
-                    // The best result can only be updated if and only if a leaf node has been found.
+                if (result.item is KDTreeLeaf) {
+                    // The result can only be updated if and only if a leaf node has been found.
                     // Intermediate nodes only provide a heuristic.
-                    best = result.first.point
-                    bestMetric = result.second
+                    yield(WithMetric(result.item.point, result.metric))
                 } else {
                     // Only an intermediate node will have children, which need to be added to the queue.
-                    queue.addAll(result.first.evaluate(element, converter))
+                    queue.addAll(
+                        result.item.evaluate(element, converter).map { WithMetric(it.item, metric(it.metric)) }
+                    )
                 }
             }
         }
-        return best
+    }
+
+    fun <S> findUntil(element: S, converter: (S) -> KDPoint): Sequence<WithMetric<T, Double>> {
+        return findUntil(element, converter, { it })
     }
 }
 
-private fun <T> build(converter: (T) -> Point, size: Int): ComparatorBlock<T> {
+private fun <T> build(converter: (T) -> KDPoint, size: Int): ComparatorBlock<T> {
     val blocks = (0..<size).map { ComparatorBlock(it, Double::compareTo, converter) }
     blocks.zipWithNext { first, second -> first.next = second }
     blocks.last().next = blocks.first()
     return blocks.first()
 }
-private typealias Point = DoubleArray
+typealias KDPoint = DoubleArray
 
-private fun Point.distanceTo(other: Point): Double {
+private fun KDPoint.distanceTo(other: KDPoint): Double {
     require(this.size == other.size) { "Points must have the same dimension" }
     return kotlin.math.sqrt(this.zip(other).sumOf { (a, b) -> (a - b).pow(2) })
 }
 
-private class ComparatorBlock<T>(val index: Int, val comparator: Comparator<Double>, val converter: (T) -> Point) {
+private class ComparatorBlock<T>(val index: Int, val comparator: Comparator<Double>, val converter: (T) -> KDPoint) {
 
     lateinit var next: ComparatorBlock<T>
 }
@@ -90,12 +116,12 @@ private fun <T> List<T>.median(): T {
     return get(size / 2)
 }
 
-private class Hypercube(val min: Point, val max: Point) {
+private class Hypercube(val min: KDPoint, val max: KDPoint) {
     override fun toString(): String {
         return "${min.joinToString { it.toString() }} ${max.joinToString { it.toString() }}"
     }
 
-    fun closestDistance(to: Point): Double {
+    fun closestDistance(to: KDPoint): Double {
         var distance = 0.0
 
         // Iterate over each dimension (axis)
@@ -128,8 +154,8 @@ private sealed interface KDElement<T> {
     val point: T
     fun find(element: T): T
     fun elements(): List<T>
-    fun <S> distance(element: S, converter: (S) -> Point): Double
-    fun <S> evaluate(element: S, metric: (S) -> Point): List<Pair<KDElement<T>, Double>>
+    fun <S> distance(element: S, converter: (S) -> KDPoint): Double
+    fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>>
 }
 
 private class KDTreeLeaf<T>(override val point: T, val converter: (T) -> DoubleArray) : KDElement<T> {
@@ -141,11 +167,11 @@ private class KDTreeLeaf<T>(override val point: T, val converter: (T) -> DoubleA
         return listOf(point)
     }
 
-    override fun <S> evaluate(element: S, metric: (S) -> Point): List<Pair<KDElement<T>, Double>> {
+    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> {
         return listOf()
     }
 
-    override fun <S> distance(element: S, converter: (S) -> Point): Double {
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double {
         return converter(element).distanceTo(this.converter(point))
     }
 
@@ -171,11 +197,14 @@ private class KDTreeNode<T>(
         return left.elements() + right.elements()
     }
 
-    override fun <S> evaluate(element: S, metric: (S) -> Point): List<Pair<KDElement<T>, Double>> {
-        return listOf(left to left.distance(element, metric), right to right.distance(element, metric))
+    override fun <S> evaluate(element: S, metric: (S) -> KDPoint): List<WithMetric<KDElement<T>, Double>> {
+        return listOf(
+            WithMetric(left, left.distance(element, metric)),
+            WithMetric(right, right.distance(element, metric))
+        )
     }
 
-    override fun <S> distance(element: S, converter: (S) -> Point): Double {
+    override fun <S> distance(element: S, converter: (S) -> KDPoint): Double {
         return bounds.closestDistance(converter(element))
     }
 
@@ -191,7 +220,7 @@ private class KDTreeNode<T>(
     private val left: KDElement<T>
     private val right: KDElement<T>
 
-    private val pivot: Point
+    private val pivot: KDPoint
 
     init {
 

@@ -28,6 +28,7 @@ import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
+import modeling.discreteChoice.D
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
@@ -253,8 +254,6 @@ class ModeChoiceParameters {
     val factor_cost_bev: Double = 1.0
     val factor_cost_phev: Double = 1.0
 }
-
-inline val Boolean.D get() = if (this) 1.0 else 0.0
 
 class ModeChoiceHelperMNL(
     val attractivities: AttractivenessModel,

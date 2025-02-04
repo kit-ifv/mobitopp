@@ -35,7 +35,7 @@ import domain.data.buildEngine
 import domain.enums.ActivityType
 import domain.enums.AreaType
 import domain.enums.LegacyActivityType
-import domain.enums.ZoneAreaType
+import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.RoadAccess
@@ -55,6 +55,8 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 val BIELEFELD = GPSCoordinate.degreesMinutesSeconds(52, 0, 59.99, 8, 30, 59.99)
+val ITZEHOE = GPSCoordinate.decimalDegree(53.925032, 9.515585)
+val SCHWEINFURT = GPSCoordinate.decimalDegree(50.049994, 10.233302)
 val TEST_ZONE = TestZone()
 
 @Buildable
@@ -64,8 +66,7 @@ class TestZone(
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "TestZone",
-    areaType: AreaType = ZoneAreaType.DEFAULT,
-    regionType: Int = 0,
+    regionType: AreaType = Regiostar17.METROPOLE,
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
     isDestination: Boolean = true,
@@ -78,7 +79,6 @@ class TestZone(
     {
         this.visumId = visumId
         this.name = name
-        this.areaType = areaType
         this.regionType = regionType
         this.classification = classification
         this.parkingPlaces = parkingPlaces
