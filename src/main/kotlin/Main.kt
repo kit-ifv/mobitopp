@@ -1,7 +1,7 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
+import domain.enums.Regiostar17
 import modeling.steps.Run
 import units.share
 import usecases.LegacyMode
@@ -63,7 +63,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
+            areaTypeCodes = Regiostar17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,

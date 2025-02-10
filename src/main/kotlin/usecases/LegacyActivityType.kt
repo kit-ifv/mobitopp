@@ -64,6 +64,10 @@ val legacyChoiceModelPurposes = ChoiceModelPurposes(
     privateVisit = LegacyActivityType.PRIVATE_VISIT,
     leisureTravel = LegacyActivityType.LEISURE_TRAVEL,
     businessTravel = LegacyActivityType.BUSINESS_TRAVEL,
+    education = LegacyActivityType.EDUCATION,
+    leisure = LegacyActivityType.LEISURE,
+    undefined = LegacyActivityType.UNDEFINED,
+
     allActivityTypes = LegacyActivityType.entries.toSet(),
     typesWithAttractivity = setOf(
         LegacyActivityType.BUSINESS,

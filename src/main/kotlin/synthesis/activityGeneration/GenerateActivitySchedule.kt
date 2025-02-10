@@ -1,8 +1,8 @@
 package synthesis.activityGeneration
 
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import synthesis.domain.SynthesisPerson
+import usecases.LegacyActivityType
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours
 

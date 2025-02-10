@@ -2,7 +2,6 @@ package synthesis.activityGeneration
 
 import datastructure.Activity
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
@@ -10,6 +9,7 @@ import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import utils.Decodable
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
@@ -19,14 +19,15 @@ import kotlin.time.Duration
 ) // 1234 is just a random seed, I took this from actitopp example; there is no thought behind this number
 class ActitoppGenerator(
     val fileBase: ModelFileBase = ModelFileBase(),
-    val randomgenerator: RNGHelper = RNGHelper(1234)
+    val randomgenerator: RNGHelper = RNGHelper(1234),
+    val purposes: ChoiceModelPurposes,
 ) : GenerateActivitySchedule<SurveyInfo> {
     override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
         val actitoppPerson = convertToSingularHousehold(person)
         actitoppPerson.generateSchedule(fileBase, randomgenerator)
 
         return PreliminaryActivitySchedule(
-            actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity() }.toMutableList()
+            actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity(purposes) }.toMutableList()
         )
     }
 
@@ -54,8 +55,9 @@ data class PreliminaryActivitySchedule(private val activities: MutableList<Activ
     companion object {
 
         val STAY_AT_HOME = PreliminaryActivitySchedule(mutableListOf())
+
         operator fun invoke(
-            decoder: Decodable<ActivityType> = LegacyActivityType.Companion,
+            decoder: Decodable<ActivityType>,
             lambda: ScheduleBuilder.() -> Unit
         ): PreliminaryActivitySchedule {
             val builder = ScheduleBuilder(decoder)
