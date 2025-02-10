@@ -10,6 +10,7 @@ import utils.Encodable
  * outlying are: rest
  *
  * (imported from legacy mobiTopp)
+ * //TODO maybe convert to interface with legacy implementation? or is this a general concept?
  *
  * @property code integer code of zone classification
  */

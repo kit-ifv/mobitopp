@@ -11,7 +11,7 @@ interface Mode : Encodable {
     val requiresVehicleTakeAlong: Boolean
 }
 
-object MODEUNKOWN : Mode {
+object MODEUNKOWN : Mode { //TODO get rid of mode unknown!
     override val requiresVehicleTakeAlong: Boolean = false
 
     override fun encode(): Int {
