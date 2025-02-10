@@ -13,6 +13,16 @@ value class ID<out E>(val value: Long) : Comparable<ID<*>> {
     override fun compareTo(other: ID<*>): Int {
         return value.compareTo(other.value)
     }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): ID<E> {
+        return ID(value + 1)
+    }
 }
 
 interface Identifiable<I> {

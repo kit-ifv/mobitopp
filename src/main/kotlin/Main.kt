@@ -72,18 +72,6 @@ fun main() {
     }.steps {
         loadZones()
         loadVisumNetwork(Path("src/test/resources/rastatt.net"))
-//        prepareSharingStations(
-//            errorHandling = ErrorHandling.THROW,
-//            file = File(
-//        "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
-//                "$ROOT_FS\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
-//            ),
-//            providerName = "StadtMobil",
-//            mode = StandardMode.BIKESHARING,
-//            vehicleCountColumn = "bikes",
-//        )
-//        finishSharingStations()
-//        loadTestSet()
 
         val filter = scaleFilter<Row>(0.1.share())
         prepareHouseholds(
@@ -91,7 +79,6 @@ fun main() {
         )
 
 //        scalePopulation(0.1.share())
-
         finishHouseholds()
 
         loadPersons()

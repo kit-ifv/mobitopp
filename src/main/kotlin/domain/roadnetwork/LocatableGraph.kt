@@ -2,7 +2,7 @@ package domain.roadnetwork
 
 import datastructure.ReadOnlyKDTree
 import domain.LinkInfo
-import domain.Node
+import domain.VisumNode
 import domain.location.Location
 import org.jgrapht.Graph
 import units.Coordinate
@@ -40,6 +40,7 @@ private class LocatedLinkInfo(
         return midUTM.distance(other)
     }
 }
+
 fun UTMPosition.distance(other: UTMPosition): Distance {
     return sqrt((e - other.e).pow(2) + (n - other.n).pow(2)).toDistance(DistanceUnit.METERS)
 }
@@ -48,7 +49,9 @@ fun UTMPosition.distance(other: UTMPosition): Distance {
  * A locatable graph is a representation of the road network, where in addition to the usual graph utility, a location
  * can be assigned to the closest road edge.
  */
-class LocatableGraph(private val graph: Graph<Node, LinkInfo>) : Graph<Node, LinkInfo> by graph, VisumLinkIdLocator {
+class LocatableGraph(
+    private val graph: Graph<VisumNode, LinkInfo>
+) : Graph<VisumNode, LinkInfo> by graph, VisumLinkIdLocator {
     /* Extract all edges from the road network and map them to the midpoint, for locating the closest edge.
        Since the input may be (very likely) a directed graph, an edge midpoint would be represented twice,
        thus filtering by the id removes duplicates and speeds up the search.
@@ -82,8 +85,8 @@ class LocatableGraph(private val graph: Graph<Node, LinkInfo>) : Graph<Node, Lin
             location.coordinate.latitudeDegrees,
             location.coordinate.longitudeDegrees
         ).toUTM()
-        val edge = edgeKdTree.find(utm) { doubleArrayOf(it.e, it.n) }
-        return edge?.edge?.id?.toLong() ?: Long.MIN_VALUE
+        val edge = edgeKdTree.nearestNeighbor(utm) { doubleArrayOf(it.e, it.n) }
+        return edge.edge.id?.toLong() ?: Long.MIN_VALUE
     }
 
     fun helpLinkId(location: Location): Long {
@@ -95,7 +98,7 @@ fun Coordinate.toUTM(): UTMPosition {
     return GPSCoordinate.decimalDegree(latitudeDegrees, longitudeDegrees).toUTM()
 }
 
-private fun Graph<Node, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
+private fun Graph<VisumNode, LinkInfo>.convertLink(linkInfo: LinkInfo): LocatedLinkInfo {
     return LocatedLinkInfo(getEdgeSource(linkInfo).coordinate, getEdgeTarget(linkInfo).coordinate, linkInfo)
 }
 

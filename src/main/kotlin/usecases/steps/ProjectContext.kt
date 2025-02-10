@@ -71,7 +71,7 @@ data class ProjectContext(
     override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
 
-) : Context,
+    ) : Context,
     LoadAttractivenessDataContext,
     LoadZonesContext,
     LoadSharingStationsContext,

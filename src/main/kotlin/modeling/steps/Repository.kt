@@ -133,7 +133,8 @@ class MapRepository<T, I>(
         |  source:
         |${source.enforceIndent(4)}
         |  elements ($size):
-        |    ${elements.take(MAX_ELEMENTS_IN_TO_STRING).toList().let { elementsToString(it) }
+        |    ${
+        elements.take(MAX_ELEMENTS_IN_TO_STRING).toList().let { elementsToString(it) }
     }
     """.trimMargin()
 

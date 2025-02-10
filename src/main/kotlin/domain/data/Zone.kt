@@ -42,8 +42,7 @@ abstract class Zone(
 
     abstract val visumId: Long //TODO not a general property of zone, only here because we use visum
     abstract val name: String
-    abstract val areaType: AreaType
-    abstract val regionType: Int
+    abstract val regionType: AreaType // Region type and area type are the same. RegionType is the more adequate name
     abstract val classification: ZoneClassification
     abstract val parkingPlaces: Int
     abstract val isDestination: Boolean

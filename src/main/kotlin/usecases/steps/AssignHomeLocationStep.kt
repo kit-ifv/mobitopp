@@ -25,11 +25,9 @@ class AssignHomeLocationStep(
     )
 
     override fun process(element: Person) {
-        element.schedule.activities().filter {
-                act ->
+        element.schedule.activities().filter { act ->
             act.type == home
-        }.forEach {
-                home ->
+        }.forEach { home ->
             home.location = element.household.location
         }
     }

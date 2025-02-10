@@ -149,15 +149,19 @@ inline fun <S> Term<S>.toPowerOf(value: Double): Term<S> = { situation -> this@t
 inline operator fun <S> Term<S>.plus(
     crossinline term: Term<S>
 ): Term<S> = { situation -> this@plus(situation) + term(situation) }
+
 inline operator fun <S> Term<S>.times(
     crossinline term: Term<S>
 ): Term<S> = { situation -> this@times(situation) * term(situation) }
+
 inline operator fun <S> Term<S>.minus(
     crossinline term: Term<S>
 ): Term<S> = { situation -> this@minus(situation) - term(situation) }
+
 inline operator fun <S> Term<S>.div(
     crossinline term: Term<S>
 ): Term<S> = { situation -> this@div(situation) / term(situation) }
+
 inline fun <S> Term<S>.toPowerOf(
     crossinline term: Term<S>
 ): Term<S> = { situation -> this@toPowerOf(situation).pow(term(situation)) }
