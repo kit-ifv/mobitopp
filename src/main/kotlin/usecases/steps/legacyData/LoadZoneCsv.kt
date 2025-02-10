@@ -3,6 +3,7 @@ package usecases.steps.legacyData
 import domain.data.MutableLegacyZone
 import domain.data.ZoneId
 import domain.enums.AreaType
+import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.parseRoadPosition
@@ -13,8 +14,10 @@ import modeling.steps.MutableRepository
 import modeling.steps.SealStep
 import units.DistanceUnit
 import utils.CodePlan
+import utils.Decodable
 import utils.ErrorHandling
 import utils.csv.CsvParser
+import utils.csv.DefaultCsvParser
 import utils.csv.SEMICOLON
 import utils.csv.boolean
 import utils.csv.decode
@@ -54,25 +57,45 @@ fun <S, C> S.prepareZones(
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
 ) where S : ModelExecution<C>, C : LoadZonesContext {
-    val csvParser = CsvParser<MutableLegacyZone>(errorHandling) { row ->
+    val csvParser = defaultCsvParser(
+        errorHandling,
+        columns,
+        centroidParser,
+        reliefUnit,
+        regionTypeCodePlan = context.areaTypeCodes,
+        seed = context.simulationSeed
+    )
+
+    this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
+}
+
+@Suppress("LongParameterList") // TODO this should actually be refactored
+fun defaultCsvParser(
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    columns: ZoneColumns = ZoneColumns(),
+    centroidParser: (String) -> Location = String::parseRoadPosition,
+    reliefUnit: DistanceUnit = DistanceUnit.METERS,
+    regionTypeCodePlan: Decodable<AreaType> = Regiostar17,
+    seed: Long = 1,
+): DefaultCsvParser<MutableLegacyZone> {
+    val csvParser = CsvParser(errorHandling) { row ->
         MutableLegacyZone(
             id = row.id(columns.idColumn),
             centroid = row(columns.centroidColumn, centroidParser),
-            seed = context.simulationSeed
+            seed = seed
         ) {
             visumId = row.long(columns.idColumn)
             matrixColumn = row.index
             name = row(columns.nameColumn)
-            areaType = row.decode(columns.areaTypeColumn, context.areaTypeCodes)
-            regionType = row.int(columns.regionTypeColumn)
+            regionType =
+                row.decode(columns.regionTypeColumn, regionTypeCodePlan) // TODO remove either areaType or RegionType
             classification = row(columns.classificationColumn).toZoneClassification()
             parkingPlaces = row.int(columns.parkingPlacesColumn)
             isDestination = row.boolean(columns.isDestinationColumn)
             relief = row.double().distance(columns.reliefColumn, reliefUnit)
         }
     }
-
-    this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
+    return csvParser
 }
 
 fun <S, C> S.prepareZoneFile(

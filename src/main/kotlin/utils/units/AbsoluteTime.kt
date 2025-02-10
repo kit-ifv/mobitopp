@@ -70,7 +70,7 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         minute: Int,
         second: Int,
         week: Int,
-    ) : this (
+    ) : this(
         (week * DAYS_PER_WEEK).days +
             weekday.daysSinceStartOfWeek() +
             hour.hours + minute.minutes +
@@ -82,9 +82,10 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
     val minutesSinceStart get() = offset.inWholeMinutes
     val secondsSinceStart get() = offset.inWholeSeconds
 
-    val weekDay get() = decodeDayOfWeek(
-        (day % DAYS_PER_WEEK).let { if (it >= 0) it else it + DAYS_PER_WEEK }
-    )
+    val weekDay
+        get() = decodeDayOfWeek(
+            (day % DAYS_PER_WEEK).let { if (it >= 0) it else it + DAYS_PER_WEEK }
+        )
 
     // TODO convert to duration?
     val week get() = (offset.inWholeDays / DAYS_PER_WEEK).toInt()

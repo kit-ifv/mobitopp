@@ -450,10 +450,15 @@ private enum class MatrixImpl {
     ConstMatrix,
     FloatMatrixInternal;
 
-    fun <I, O> getMatrix(path: Path, converter: (Double) -> O, betterFormatFolder: InternalMatrixLookup? = null): Matrix<I, O> {
+    fun <I, O> getMatrix(
+        path: Path,
+        converter: (Double) -> O,
+        betterFormatFolder: InternalMatrixLookup? = null
+    ): Matrix<I, O> {
         val outputPath = betterFormatFolder?.let {
             Path(
-                path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString()).removeSuffix(path.extension) + "bin"
+                path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString())
+                    .removeSuffix(path.extension) + "bin"
             )
         }
 

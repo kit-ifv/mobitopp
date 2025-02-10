@@ -19,6 +19,7 @@ interface Evaluable {
 
     fun convertTravelTime(travelTime: Duration): Double =
         travelTime.coerceAtMost(1000.minutes).toDouble(DurationUnit.MINUTES)
+
     fun convertTravelCost(travelCost: Currency): Double =
         travelCost.coerceAtMost(1000.euros).toDouble(CurrencyUnit.EUROS)
 }

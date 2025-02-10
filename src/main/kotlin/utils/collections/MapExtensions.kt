@@ -32,6 +32,17 @@ fun <K> Map<K, Double>.cumulativeSum(): List<Pair<Double, K>> {
     return cumSum.zip(keys)
 }
 
+fun <K, V> Map<K, V>.sortByValues(comparator: Comparator<V>): Map<K, V> {
+    return this.toList()
+        .sortedWith(compareBy(comparator) { it.second })
+        .toMap()
+}
+
+fun <K, V> Map<K, V>.invertMap(): Map<V, List<K>> {
+    return this.entries
+        .groupBy({ it.value }, { it.key })
+}
+
 /**
  * Converts the return value of [binarySearch] to the index position
  */

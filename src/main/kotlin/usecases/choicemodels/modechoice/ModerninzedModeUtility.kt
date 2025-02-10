@@ -7,12 +7,12 @@ import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
+import modeling.discreteChoice.D
 import units.CurrencyUnit
 import units.Distance
 import units.euros
 import usecases.AttractivenessModel
 import usecases.choicemodels.ChoiceModelModes
-import usecases.choicemodels.D
 import usecases.choicemodels.IGeneratedHcUtilityFunction
 import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.parameters.BikeParameters

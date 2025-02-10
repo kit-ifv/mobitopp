@@ -67,6 +67,7 @@ class YamlMatrixLookupMetrics(
         converter = { it.toDistance(distanceUnit) }
 
     )
+
     override fun costMetric(mode: Mode, time: Time): CostMetric = travelCosts.matrixAt(mode, time).asMetric()
 
     override fun distanceMetric(mode: Mode): DistanceMetric = distances.asMetric()

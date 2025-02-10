@@ -19,6 +19,7 @@ import usecases.choicemodels.modechoice.TravelCostBeta
 import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 import utils.units.AbsoluteTime
+
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
 internal class MoiaParameters(purposes: ChoiceModelPurposes) : WithCost {
     private fun AbsoluteTime.isEvening(): Boolean {

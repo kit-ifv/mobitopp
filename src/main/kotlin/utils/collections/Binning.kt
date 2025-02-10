@@ -70,11 +70,9 @@ open class Bin<T>(val lower: T, val upper: T) : Comparable<Bin<T>> where T : Com
 
     fun toPair() = lower to upper
 
-    override fun compareTo(other: Bin<T>) = Comparator.comparing {
-            b: Bin<T> ->
+    override fun compareTo(other: Bin<T>) = Comparator.comparing { b: Bin<T> ->
         b.lower
-    }.thenComparing {
-            b: Bin<T> ->
+    }.thenComparing { b: Bin<T> ->
         b.upper
     }.compare(this, other)
 

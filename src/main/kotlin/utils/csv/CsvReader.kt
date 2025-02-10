@@ -21,6 +21,12 @@ interface Row {
     /** The index of this [Row]. */
     val index: Int
 
+    /** The amount of elements to be expected in this row */
+    val size: Int
+
+    /** Return the column header for a target index */
+    fun headerForIndex(i: Int): String
+
     /**
      * Parse this [Row]'s value in the given column using the given parser.
      *
@@ -82,7 +88,7 @@ open class DefaultRow(
     protected val columnIndexMap: Map<String, Int>,
     protected val values: List<String>
 ) : Row {
-
+    override val size = values.size
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
         val columnIndex = requireNotNull(columnIndexMap[column]) {
             "The given column '$column' is missing in $source. " +
@@ -94,6 +100,10 @@ open class DefaultRow(
 
     override fun <T> valueAt(columnIndex: Int, converter: (String) -> T): T {
         return converter(getIndexValue(columnIndex))
+    }
+
+    override fun headerForIndex(i: Int): String {
+        return columnIndexMap.keys.toList()[i]
     }
 
     @Suppress("TooGenericExceptionCaught")

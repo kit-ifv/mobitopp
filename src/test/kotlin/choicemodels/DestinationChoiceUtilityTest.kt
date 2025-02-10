@@ -21,7 +21,7 @@ import utils.collections.subsets
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 
-class DestinationChoiceUtilityTest : CompareTwoUtilityFunctions<ILegacyDestinationChoice>() {
+class DestinationChoiceUtilityTest : CompareTwoUtilityFunctionsOld<ILegacyDestinationChoice>() {
     // Since destination choice does not get impedance as a parameter but a constructor I had to change the test architecture
     // to incorporate this...oversight
     override val impedanceOverride: ControllableImpedance = ControllableImpedance()

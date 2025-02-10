@@ -130,7 +130,7 @@ fun <S, C> S.preparePersonsFile(
             delimiter = delimiter,
             repository = context.personRepository,
             dependentRepositories = context.let {
-                setOf(it.householdRepository, it.sharingStationsRepository,)
+                setOf(it.householdRepository, it.sharingStationsRepository)
             },
             validationMock = listOf() // TODO
         )

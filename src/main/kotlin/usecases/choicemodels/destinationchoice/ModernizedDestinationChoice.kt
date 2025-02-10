@@ -31,6 +31,7 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
+
 @Suppress("LongParameterList")
 class ModernizedDestinationChoice(
     val impedance: Metrics,
@@ -56,6 +57,7 @@ class ModernizedDestinationChoice(
     override fun choices(agent: Person, time: Time): Set<Location> {
         return _choices
     }
+
     override fun Collection<Location>.selectDestination(
         person: Person,
         prevActivity: StationaryAction,
