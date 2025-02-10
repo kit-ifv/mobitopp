@@ -5,7 +5,7 @@ import domain.data.EconomicStatus
 import domain.data.Person
 import domain.data.Sex
 import domain.enums.Mode
-import usecases.choicemodels.D
+import modeling.discreteChoice.D
 import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 
 /**

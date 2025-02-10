@@ -96,6 +96,9 @@ data class ChoiceModelPurposes(
     val privateVisit: ActivityType,
     val leisureTravel: ActivityType,
     val businessTravel: ActivityType,
+    val education: ActivityType,
+    val leisure: ActivityType,
+    val undefined: ActivityType,
 
     val allActivityTypes: Set<ActivityType>,
     val typesWithAttractivity: Set<ActivityType>,

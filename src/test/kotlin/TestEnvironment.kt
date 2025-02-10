@@ -34,7 +34,7 @@ import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
 import domain.enums.AreaType
-import domain.enums.ZoneAreaType
+import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.location.Location
 import domain.location.RoadAccess
