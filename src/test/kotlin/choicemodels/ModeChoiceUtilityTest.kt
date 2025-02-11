@@ -13,6 +13,7 @@ import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.modechoice.ModeParameters
 import usecases.choicemodels.modechoice.ModernizedModeUtility
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import kotlin.math.abs
 import kotlin.test.BeforeTest
 import kotlin.test.assertTrue
@@ -39,14 +40,19 @@ class ModeChoiceUtilityTest : CompareTwoUtilityFunctionsOld<IGeneratedHcUtilityF
     @BeforeTest
     fun setup() {
         val attractiveness = zones.spawnAttractiveness()
-        val legacyModeChoice =
-            LegacyModeChoiceModel(attractiveness, modes = legacyChoiceModelModes, impedance = ControllableImpedance())
+        val legacyModeChoice = LegacyModeChoiceModel(
+            attractiveness,
+            modes = legacyChoiceModelModes,
+            purposes = legacyChoiceModelPurposes,
+            impedance = ControllableImpedance()
+        )
         a = legacyModeChoice.utilities
 //        b = a
         b = ModernizedModeUtility(
-            legacyChoiceModelModes, attractiveness,
+            legacyChoiceModelModes,
+            attractiveness,
             parameters = ModeParameters(
-                legacyChoiceModelModes
+                legacyChoiceModelModes, legacyChoiceModelPurposes
             )
         )
     }

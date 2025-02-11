@@ -6,6 +6,7 @@ import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
 import usecases.AttractivenessModel
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import kotlin.math.max
 import kotlin.math.pow
 
@@ -22,7 +23,8 @@ class GeneratedHcUtilityFunction(
     attractivities: AttractivenessModel,
     logitParameters: ModeChoiceParameters = ModeChoiceParameters(),
     override val modes: ChoiceModelModes,
-    helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivities, modes),
+    val purposes: ChoiceModelPurposes,
+    helper: ModeChoiceHelperMNL = ModeChoiceHelperMNL(attractivities, modes, purposes),
 ) : IGeneratedHcUtilityFunction {
     private val asc_bs = logitParameters.asc_bs
     private val asc_cs_ff = logitParameters.asc_cs_ff

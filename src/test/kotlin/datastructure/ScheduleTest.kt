@@ -5,7 +5,7 @@ import START
 import THIRD
 import datastructure.plans.BlockModel
 import datastructure.plans.addAll
-import domain.enums.LegacyActivityType
+import usecases.LegacyActivityType
 import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -68,6 +68,6 @@ class ScheduleTest {
         repeat(7) { schedule.step() }
         schedule.present?.endTime = 24.5.hours.sinceStart
         assertTrue(schedule.actions().hasTimeBoundViolations())
-        schedule.applyAt(24.5.hours.sinceStart, SkipToNextHomeActivity)
+        schedule.applyAt(24.5.hours.sinceStart, SkipToNextHomeActivity(LegacyActivityType.HOME))
     }
 }

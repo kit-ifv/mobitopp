@@ -14,7 +14,6 @@ import domain.data.ZoneId
 import domain.data.getBestCar
 import domain.data.locationBySchedule
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.enums.ZoneClassification
 import domain.events.CarSelector
 import domain.events.EndActivityEvent
@@ -36,13 +35,16 @@ import point
 import spawnCar
 import spawnDrivers
 import usecases.AttractivenessModel
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.choicemodels.GeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.MakeUtilities
 import usecases.choicemodels.TripChoiceSituation
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.util.*
@@ -107,11 +109,12 @@ fun Person.hasAccessToCar(): Boolean {
 abstract class Scenario(
     val zones: List<TestZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
-    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, p ->
+    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, _ ->
         GeneratedHcUtilityFunction(
             a,
             l,
             m,
+            legacyChoiceModelPurposes,
             h
         )
     }
@@ -132,12 +135,14 @@ abstract class Scenario(
             umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
             modes = legacyChoiceModelModes,
+            purposes = legacyChoiceModelPurposes,
         )
     )
     val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
         LegacyModeChoiceModel(
             attractivenessModel = currentAttractivenessModel,
             modes = legacyChoiceModelModes,
+            purposes = legacyChoiceModelPurposes,
             impedance = impedance,
             utilitiesGenerator = utilGenerator
         )
@@ -167,13 +172,17 @@ abstract class Scenario(
     }
 }
 
-val testAttractivenessModel = AttractivenessModel { i, _ ->
-    when (i) {
-        ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
-        ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
-        ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
-        else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
-    }
+val testAttractivenessModel = object : AttractivenessModel {
+
+    override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
+
+    override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double =
+        when (zone) {
+            ZoneId(0L) -> 0.0 // Home zone attractiveness should be 0
+            ZoneId(1L) -> 999999.9 // Zone 1 should be the most attractive zone ever
+            ZoneId(2L) -> 1.0 // Zone 2 should be barely attractive at all
+            else -> throw NoSuchElementException("In this test the IDs should only be 0, 1, 2")
+        }
 }
 
 class OneHouseholdTwoPersons : Scenario(generateZones(3)) {

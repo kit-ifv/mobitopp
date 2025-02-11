@@ -1,11 +1,11 @@
 package choicemodels
 
-import domain.enums.LegacyActivityType
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.assertThrows
 import syntheticsim.OneHouseholdTwoPersons
 import syntheticsim.loadActivityPlan
+import usecases.LegacyActivityType
 import usecases.choicemodels.LegacyDestinationChoice
 import utils.units.sinceStart
 import kotlin.test.Test

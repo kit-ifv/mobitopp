@@ -8,7 +8,6 @@ import domain.data.PlannedActivity
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
@@ -18,12 +17,13 @@ import modeling.steps.Repository
 import modeling.steps.RepositoryDependentStep
 import modeling.validation.Warning
 import modeling.validation.validateScope
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.CsvReader
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.decode
+import utils.csv.decodeName
 import utils.csv.id
 import utils.csv.long
 import utils.csv.withFilter
@@ -38,6 +38,8 @@ interface LoadFixedDestinationsContext : Context {
 
     val personRepository: Repository<Person, PersonId>
     val plannedActivityRepository: Repository<PlannedActivity, ActivityId>
+
+    val activityTypeCodes: CodePlan<ActivityType>
 
     val defaultFixedDestinationsFile: File
         get() = File(demandFolder.path + "\\demand-data\\fixedDestination.csv")
@@ -58,7 +60,6 @@ data class FixedDestinationColumns(
 )
 
 data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
-// private const val DEMAND_DATA_FIXED_DESTINATION_CSV = "\\demand-data\\fixedDestination.csv"
 
 fun <S, C> S.assignFixedDestinations(
     file: File = context.defaultFixedDestinationsFile,
@@ -71,10 +72,10 @@ fun <S, C> S.assignFixedDestinations(
     val csvParser = CsvParser(errorHandling) { row ->
         val id: PersonId = row.id(columns.personOid)
         val p = context.personRepository.getById(id)
-        val activityType = row.decode(
+        val activityType = row.decodeName(
             columns.activityType,
-            LegacyActivityType
-        ) // TODO should not be hardcoded to LegacyActivityType!
+            context.activityTypeCodes
+        )
         val zone = context.getZone(row.long(columns.zone))
 
         val location = row(columns.location, String::parseRoadPosition).withZone(zone)
