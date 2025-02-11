@@ -3,7 +3,6 @@ import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.ActivityOutput
@@ -60,6 +59,8 @@ import units.kilometers
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
+import usecases.LegacyActivityType
+import usecases.legacyChoiceModelPurposes
 import utils.csv.DefaultCsvParser
 import java.io.File
 import java.nio.file.Path
@@ -244,8 +245,7 @@ class PopulationSynthesis<T : Any>(
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
                         file = file.toFile(),
-                        activityTypes =
-                        activityTypes
+                        purposes = legacyChoiceModelPurposes
                     )
                 }
             }
@@ -388,7 +388,7 @@ fun examplePopulationSynthesis() {
 //        generateCars (TrivialCarGeneration::generateCars)
         generateCars(strategy = SamplingCarGeneration)
         assignActivities {
-            ActitoppGenerator()
+            ActitoppGenerator(purposes = legacyChoiceModelPurposes)
         }
         generateActivitiesViaActitopp()
         writeLegacyOutput()

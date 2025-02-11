@@ -75,7 +75,7 @@ interface RepositoryDependentStep : ModelStep {
     fun Warning.warnIfDependentNotSealed(it: Repository<*, *>) {
         validateCondition(
             message = "Step ${this@RepositoryDependentStep.name} depends on unsealed repository: ${it.name}. " +
-                "Make sure this is desired behavior, if so, consider removing the seal step before this step!",
+                "Make sure this is desired behavior!",
             isError = false
         ) {
             it.sealed

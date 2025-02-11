@@ -1,16 +1,17 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
-import domain.enums.LegacyActivityType
+import domain.enums.Regiostar17
 import modeling.steps.Run
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
 import usecases.steps.assignHomeLocations
+import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
@@ -38,21 +39,21 @@ private val rootKarlsruhe = File("$ROOT_FS\\logiktram_karlsruhe_long-term-module
 
 private val rootHamburg = File("$ROOT_FS\\transmove-synthesis-city-bs\\last-stable")
 
-private val attractivenessTypes = setOf(
-    LegacyActivityType.BUSINESS,
-    LegacyActivityType.LEISURE_INDOOR,
-    LegacyActivityType.LEISURE_OUTDOOR,
-    LegacyActivityType.PRIVATE_BUSINESS,
-    LegacyActivityType.PRIVATE_VISIT,
-    LegacyActivityType.SERVICE,
-    LegacyActivityType.SHOPPING_DAILY,
-    LegacyActivityType.SHOPPING_OTHER,
-    LegacyActivityType.SHOPPING,
-    LegacyActivityType.EDUCATION_PRIMARY,
-    LegacyActivityType.EDUCATION_SECONDARY,
-    LegacyActivityType.EDUCATION_TERTIARY,
-    // TODO Sightseeing?
-)
+// private val attractivenessTypes = setOf(
+//    LegacyActivityType.BUSINESS,x
+//    LegacyActivityType.LEISURE_INDOOR,
+//    LegacyActivityType.LEISURE_OUTDOOR,
+//    LegacyActivityType.PRIVATE_BUSINESS,x
+//    LegacyActivityType.PRIVATE_VISIT,
+//    LegacyActivityType.SERVICE,x
+//    LegacyActivityType.SHOPPING_DAILY,x
+//    LegacyActivityType.SHOPPING_OTHER,x
+//    LegacyActivityType.SHOPPING,x
+//    LegacyActivityType.EDUCATION_PRIMARY,
+//    LegacyActivityType.EDUCATION_SECONDARY,
+//    LegacyActivityType.EDUCATION_TERTIARY,
+//    // TODO Sightseeing?
+// )
 
 private const val ROOT_TRANSMOVE_ENV =
     "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input" +
@@ -62,7 +63,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
+            areaTypeCodes = Regiostar17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
@@ -87,9 +88,11 @@ fun main() {
         prepareActivities(errorHandling = ErrorHandling.WARNING)
         finishActivities()
 
+        assignPlannedActivities()
+
         loadAttractivities(
             file = File("$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
-//            activityTypes = attractivenessTypes
+            purposes = legacyChoiceModelPurposes,
         )
 
         loadImpedance(
@@ -104,7 +107,7 @@ fun main() {
             )
         )
 
-        loadChoiceModels(legacyChoiceModelModes)
+        loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
         assignHomeLocations()
         assignFixedDestinations()
         simulate()

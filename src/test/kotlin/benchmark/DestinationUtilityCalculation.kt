@@ -6,18 +6,20 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.point
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import generateActivities
 import generateHouseholds
 import generateZones
 import syntheticsim.ControllableImpedance
 import usecases.AttractivenessModel
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import utils.collections.cartesianProduct
 import utils.units.sinceStart
 import kotlin.random.Random
@@ -87,6 +89,7 @@ private fun legacyDestinationChoice(
     umlands = { false },
     zones.toSet(),
     legacyChoiceModelModes,
+    legacyChoiceModelPurposes,
     NoFilter
 
 )
@@ -101,6 +104,7 @@ private fun modernizedDestinationChoice(
     { false },
     zones.toSet(),
     legacyChoiceModelModes,
+    legacyChoiceModelPurposes,
 )
 
 class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel {
@@ -111,6 +115,8 @@ class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel 
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double {
         return attractivenessMap[Pair(zone, activityType)] ?: 0.0
     }
+
+    override val purposes: ChoiceModelPurposes = legacyChoiceModelPurposes
 
     operator fun set(zone: ZoneId, activityType: ActivityType, value: Double) {
         attractivenessMap[Pair(zone, activityType)] = value
