@@ -1,6 +1,5 @@
 import domain.data.EconomicStatus
 import domain.data.Sex
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -17,6 +16,7 @@ import synthesis.fixedDestinations.SimpleGroupLocator
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.householdgeneration.TrivialSynthesis
 import units.euros
+import usecases.LegacyActivityType
 import kotlin.io.path.Path
 import kotlin.test.Test
 

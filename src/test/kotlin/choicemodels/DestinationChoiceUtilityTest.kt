@@ -16,6 +16,7 @@ import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import utils.collections.subsets
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -46,12 +47,14 @@ class DestinationChoiceUtilityTest : CompareTwoUtilityFunctionsOld<ILegacyDestin
             umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
             zones.toSet(),
             legacyChoiceModelModes,
+            legacyChoiceModelPurposes,
             filter = filter
 
         )
         b = ModernizedDestinationChoice(
             impedanceOverride,
             testAttractivenessModel,
+            purposes = legacyChoiceModelPurposes,
             modes = legacyChoiceModelModes,
             zones = zones.toSet()
         )

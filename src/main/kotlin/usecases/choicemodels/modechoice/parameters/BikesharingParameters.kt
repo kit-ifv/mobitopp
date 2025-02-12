@@ -1,7 +1,7 @@
 package usecases.choicemodels.modechoice.parameters
 
 import domain.data.EconomicStatus
-import domain.enums.LegacyActivityType
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomAge
 import usecases.choicemodels.modechoice.CustomEconomicStatus
@@ -16,7 +16,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-internal object BikesharingParameters : WithCost {
+internal class BikesharingParameters(purposes: ChoiceModelPurposes) : WithCost {
     override val alpha: Alpha =
         object : Alpha, StandardHasCommuterTicket, StandardCars, StandardActivities, StandardGender, CustomAge {
 
@@ -30,6 +30,7 @@ internal object BikesharingParameters : WithCost {
             override val service: Double = -0.441718268397706 - 1
             override val shopping: Double = 0.0
             override val constant: Double = -7.87371999724625 + 1.1 + 1.15
+            override val purposes: ChoiceModelPurposes = purposes
 
             val youngAdults: Double = 0.880034329871052
             val adults: Double = 0.378296037637105
@@ -47,11 +48,13 @@ internal object BikesharingParameters : WithCost {
 
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta() {
         override val constant: Double = -0.111596101439312
+        override val purposes: ChoiceModelPurposes = purposes
     }
 
     override val travelCostBeta: TravelCostBeta = object : TravelCostBeta(), CustomEconomicStatus, CustomNextActivity {
         override val constant: Double =
             -0.173579310377872 // TODO make reference to main cost inheritor to link the parameter
+        override val purposes: ChoiceModelPurposes = purposes
         val richGuyFactor = 0.029633074216897 // TODO this parameter is shared between multiple utility functions
         val businessFactor = 0.0840900269251931 - 0.02 // TODO as is this one
         override fun evaluateEconomicStatus(person: ModePersonScope): Double {
@@ -59,7 +62,7 @@ internal object BikesharingParameters : WithCost {
         }
 
         override fun evaluateNextActivity(person: ModePersonScope): Double {
-            return if (person.nextActivity.type == LegacyActivityType.BUSINESS) businessFactor else 0.0
+            return if (person.nextActivity.type == purposes.business) businessFactor else 0.0
         }
     }
 }

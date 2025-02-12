@@ -34,6 +34,8 @@ import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
 import domain.enums.LegacyActivityType
+import domain.enums.AreaType
+import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.enums.areatype.AreaType
 import domain.enums.areatype.Regiostar17
@@ -45,6 +47,7 @@ import units.GPSCoordinate
 import units.euros
 import units.meters
 import units.share
+import usecases.LegacyActivityType
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.random.Random
