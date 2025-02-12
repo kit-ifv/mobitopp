@@ -1,8 +1,8 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
 import domain.enums.LegacyActivityType
+import domain.enums.areatype.Bbsr17
 import modeling.steps.Run
 import units.share
 import usecases.LegacyMode

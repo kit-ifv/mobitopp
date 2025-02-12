@@ -14,7 +14,11 @@ interface Mode : Encodable {
 object MODEUNKOWN : Mode {
     override val requiresVehicleTakeAlong: Boolean = false
 
-    override fun encode(): Int {
-        throw UnsupportedOperationException("MODE UNKNOWN should never be encoded!")
-    }
+    private const val ERROR_CODE = "MODE UNKNOWN should never be encoded!"
+
+    override val code: Int
+        get() = throw UnsupportedOperationException(ERROR_CODE)
+
+    override val description: String
+        get() = throw UnsupportedOperationException(ERROR_CODE)
 }

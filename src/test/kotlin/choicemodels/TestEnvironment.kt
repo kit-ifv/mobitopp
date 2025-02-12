@@ -16,11 +16,11 @@ import domain.data.PersonId
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
 import domain.enums.Mode
-import domain.enums.Regiostar17
-import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.AreaType
+import domain.enums.areatype.Regiostar17
+import domain.enums.areatype.ZoneAreaType
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric

@@ -1,6 +1,6 @@
 package synthesis.carownership
 
-import domain.enums.SizebasedRegiostarClassification
+import domain.enums.areatype.SizebasedRegiostarClassification
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.SurveyInfo
 import synthesis.discreteChoice.CarOwnershipAttributes

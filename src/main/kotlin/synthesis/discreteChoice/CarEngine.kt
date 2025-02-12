@@ -3,8 +3,9 @@ package synthesis.discreteChoice
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Sex
-import domain.enums.Regiostar17
-import domain.enums.SizebasedRegiostarClassification
+import domain.enums.areatype.Regiostar17
+import domain.enums.areatype.SizebasedRegiostarClassification
+import domain.enums.areatype.toSizebasedClassification
 import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel

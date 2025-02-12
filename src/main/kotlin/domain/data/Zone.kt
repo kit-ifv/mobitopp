@@ -1,8 +1,8 @@
 package domain.data
 
 import Mutable
-import domain.enums.AreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.AreaType
 import domain.location.Location
 import units.Distance
 import units.GPSCoordinate
