@@ -1,7 +1,6 @@
 package domain.enums
 
 import utils.Encodable
-import utils.EnumDecodable
 
 /**
  * An activity type describes which kind of activity is executed by a person.

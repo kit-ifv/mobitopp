@@ -33,8 +33,8 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.enums.AreaType
+import domain.enums.LegacyActivityType
 import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
 import domain.enums.areatype.AreaType
