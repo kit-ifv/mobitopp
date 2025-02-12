@@ -33,10 +33,10 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
-import domain.enums.AreaType
 import domain.enums.LegacyActivityType
-import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
+import domain.enums.areatype.AreaType
+import domain.enums.areatype.Regiostar17
 import domain.location.Location
 import domain.location.RoadAccess
 import domain.resources.Subscribable

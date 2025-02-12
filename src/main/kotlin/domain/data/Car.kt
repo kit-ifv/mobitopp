@@ -7,8 +7,8 @@ import units.Efficiency
 import units.Energy
 import units.Volume
 import units.kilometers
-import utils.Decodable
 import utils.Encodable
+import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
 
@@ -82,18 +82,16 @@ abstract class PrivateCar(
  * to implement a different segment encoding it is up to the developer to extract an interface and provide a different
  * encoding.
  */
-enum class CarSegment(private val code: Int) : Encodable {
+enum class CarSegment(
+    override val code: Int
+) : Encodable {
     SMALL(1),
     MIDSIZE(2),
     LARGE(3);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<CarSegment> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<CarSegment> = CarSegment.entries.toSet()
-    }
+    companion object : EnumDecodable<CarSegment>(CarSegment::class)
 }
 
 interface CarEngine {
@@ -101,18 +99,14 @@ interface CarEngine {
     val range: Distance
 }
 
-enum class EngineType(private val code: Int) : Encodable {
+enum class EngineType(override val code: Int) : Encodable {
     COMBUSTION(1),
     ELECTRIC(2),
     HYBRID(3);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<EngineType> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<EngineType> = EngineType.entries.toSet()
-    }
+    companion object : EnumDecodable<EngineType>(EngineType::class)
 }
 
 interface CombustionEngine : CarEngine {

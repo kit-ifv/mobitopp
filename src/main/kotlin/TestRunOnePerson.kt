@@ -1,5 +1,5 @@
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
+import domain.enums.areatype.Bbsr17
 import modeling.steps.ModelExecution
 import modeling.steps.Run
 import usecases.LegacyMode

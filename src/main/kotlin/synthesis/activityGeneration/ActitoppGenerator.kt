@@ -41,8 +41,8 @@ class ActitoppGenerator(
                 1,
                 personId,
                 age,
-                employment.encode(),
-                sex.encode(),
+                employment.code,
+                sex.code,
             )
         }
     }

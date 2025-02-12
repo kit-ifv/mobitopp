@@ -20,10 +20,10 @@ import domain.data.Sex
 import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
-import domain.enums.Regiostar17
+import domain.enums.areatype.AreaType
+import domain.enums.areatype.Regiostar17
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph

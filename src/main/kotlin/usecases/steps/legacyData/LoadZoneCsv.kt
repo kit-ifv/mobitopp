@@ -2,9 +2,9 @@ package usecases.steps.legacyData
 
 import domain.data.MutableLegacyZone
 import domain.data.ZoneId
-import domain.enums.AreaType
-import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
+import domain.enums.areatype.AreaType
+import domain.enums.areatype.Regiostar17
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context

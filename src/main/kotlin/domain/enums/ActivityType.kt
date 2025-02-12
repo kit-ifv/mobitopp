@@ -1,7 +1,7 @@
 package domain.enums
 
-import utils.Decodable
 import utils.Encodable
+import utils.EnumDecodable
 
 /**
  * An activity type describes which kind of activity is executed by a person.
@@ -9,16 +9,14 @@ import utils.Encodable
  * hence each project can provide a custom definition of activity types.
  */
 interface ActivityType : Encodable {
-    val description: String
+    override val description: String
 
     companion object {
         val UNKNOWN = object : ActivityType {
             override val description: String = "Unknown"
 
             @Suppress("MagicNumber")
-            override fun encode(): Int {
-                return -2
-            }
+            override val code: Int = -2
         }
     }
 }
@@ -26,7 +24,7 @@ interface ActivityType : Encodable {
 /**
  * The default activity encoding from legacy mobiTopp
  */
-enum class LegacyActivityType(val code: Int) : ActivityType {
+enum class LegacyActivityType(override val code: Int) : ActivityType {
     WORK(1),
     BUSINESS(2),
     EDUCATION(3),
@@ -62,13 +60,5 @@ enum class LegacyActivityType(val code: Int) : ActivityType {
     override val description: String
         get() = this.name
 
-    override fun encode(): Int {
-        return this.code
-    }
-
-    companion object : Decodable<ActivityType> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<LegacyActivityType> = LegacyActivityType.entries.toSet()
-    }
+    companion object : EnumDecodable<LegacyActivityType>(LegacyActivityType::class)
 }
