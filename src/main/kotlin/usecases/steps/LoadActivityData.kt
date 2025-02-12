@@ -23,6 +23,10 @@ import utils.csv.int
 import utils.csv.withFilter
 import utils.units.AbsoluteTime
 import java.io.File
+import kotlin.math.cos
+import kotlin.math.ln
+import kotlin.math.sqrt
+import kotlin.random.Random
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -50,6 +54,17 @@ data class ActivitiesColumns(
     val durationColumn: String = "duration",
 )
 
+@Suppress("MagicNumber")
+fun Random.randomGaussian(): Double {
+    val u1 = nextDouble()
+    val u2 = nextDouble()
+    return sqrt(-2.0 * ln(u1)) * cos(2.0 * Math.PI * u2)
+}
+
+fun Random.getGaussian(mean: Double, stdDev: Double): Double {
+    return randomGaussian() * stdDev + mean
+}
+
 @Suppress("LongParameterList")
 fun <S, C> S.prepareActivities(
     file: File = context.defaultActivityFile,
@@ -59,6 +74,8 @@ fun <S, C> S.prepareActivities(
     durationUnit: DurationUnit = context.timeUnit,
     filter: ActivitiesColumns.(Row, C) -> Boolean = { _, _ -> true }
 ) where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
+//    val shiftMap: MutableMap<PersonId, Int> = mutableMapOf()
+
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
         MutablePlannedActivity(
@@ -66,9 +83,14 @@ fun <S, C> S.prepareActivities(
             seed = context.simulationSeed
         ) {
             person = context.getPerson(row, columns.personColumn)
+//            val shift: Duration = shiftMap.computeIfAbsent(person.id) {
+//                random.nextInt(-7, 7)
+//            }.minutes
+
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
-            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit)
+            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) // + shift
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
+
             activityType = row.decode(columns.activityTypeColumn, context.activityTypeCodes)
         }
     }
