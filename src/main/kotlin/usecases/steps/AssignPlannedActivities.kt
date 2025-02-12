@@ -42,6 +42,15 @@ class AssignPlannedActivities(
         element.schedule = requireNotNull(activitiesPerPerson[element.id]) {
             "No activities found for Person ${element.id}" // TODO error handling here
         }.toSchedule(SingularDispatcher())
+
+//        val schedule = element.schedule
+//        val rand = element.random
+//        for (i in 0 until schedule.activities().size) {
+//            val act = schedule.activities().toList()[i]
+//            val durMin = act.duration.inWholeMinutes
+//            val deviation = Math.round(rand.getGaussian(0.0, 1.0) * durMin / 20.0)
+//            act.duration = min(max(1.0, (durMin + deviation).toDouble()), 10080.0).minutes
+//        }
     }
 
     override fun execute() = super.execute().also {
