@@ -20,6 +20,7 @@ import domain.data.Sex
 import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
+import domain.enums.AreaType
 import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.enums.areatype.AreaType
@@ -34,6 +35,8 @@ import modeling.steps.SimulationContext
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
+import usecases.LegacyActivityType
+import usecases.LegacyMode
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
@@ -57,7 +60,9 @@ data class ProjectContext(
     override val engineCodes: CodePlan<EngineType> = EngineType,
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
     override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
-    override val modes: CodePlan<Mode>,
+    override val modes: CodePlan<Mode> = LegacyMode,
+
+    override val homeActivityType: ActivityType = LegacyActivityType.HOME,
 
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
@@ -76,6 +81,7 @@ data class ProjectContext(
     LoadPersonsContext,
     LoadPrivateCarsContext,
     LoadPlannedActivitiesContext,
+    AssignPlannedActivitiesContext,
     LoadFixedDestinationsContext,
     LoadChoiceModelsContext,
     AssignCarsContext,

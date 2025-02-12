@@ -12,6 +12,7 @@ import usecases.choicemodels.LegacyDestinationChoice
 import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import kotlin.random.Random
 
 fun main() {
@@ -31,6 +32,7 @@ fun main() {
         umlands = { false },
         zones.toSet(),
         legacyChoiceModelModes,
+        legacyChoiceModelPurposes,
         NoFilter
 
     )
@@ -42,6 +44,7 @@ fun main() {
         zones.toSet(),
 
         legacyChoiceModelModes,
+        legacyChoiceModelPurposes,
     )
     val amount = 100000
     val random = Random(42)

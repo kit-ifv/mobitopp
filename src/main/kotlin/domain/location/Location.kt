@@ -22,26 +22,6 @@ data class Location(
         "Expected Location $this to specify a zone, but found null!"
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Location
-
-        if (coordinate != other.coordinate) return false
-        if (zone != other.zone) return false
-        if (roadAccess != other.roadAccess) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = coordinate.hashCode()
-        result = 31 * result + (zone?.hashCode() ?: 0)
-        result = 31 * result + (roadAccess?.hashCode() ?: 0)
-        return result
-    }
-
     fun withZone(zone: Zone): Location {
         require(this.zone == null) {
             "Cannot add '$zone' to location '$this', as zone is already defined!"

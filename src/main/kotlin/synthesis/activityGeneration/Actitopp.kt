@@ -3,7 +3,6 @@ package synthesis.activityGeneration
 import SynthesisSteps
 import datastructure.Activity
 import datastructure.RawActivity
-import domain.enums.LegacyActivityType
 import domain.location.LOCATIONUNKNOWN
 import edu.kit.ifv.mobitopp.actitopp.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
@@ -18,6 +17,7 @@ import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.steps.toCSV
 import utils.units.sinceStart
 import kotlin.time.DurationUnit
@@ -92,25 +92,27 @@ fun ActitoppPerson.generateScheduleBruteForce(fileBase: ModelFileBase, rngGen: R
     }
 }
 
-fun HActivity.toReengineeredActivity(): Activity {
+fun HActivity.toReengineeredActivity(purposes: ChoiceModelPurposes): Activity {
     return RawActivity(
         location = LOCATIONUNKNOWN,
         startTime = startTime.toDuration(DurationUnit.MINUTES).sinceStart,
         endTime = endTime.toDuration(DurationUnit.MINUTES).sinceStart,
-        type = activityType.toReengineeredType()
+        type = activityType.toReengineeredType(purposes)
     )
 }
 
-fun ActivityType.toReengineeredType(): domain.enums.ActivityType {
+// TODO we should talk about activity types hierarchies and check how general types like
+// EDUCATION are translated into more specific types like EDUCATION_PRIMARY in legacy mobiTopp
+fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.enums.ActivityType {
     return when (typeasChar) {
-        'W' -> LegacyActivityType.WORK
-        'E' -> LegacyActivityType.EDUCATION
-        'L' -> LegacyActivityType.LEISURE
-        'S' -> LegacyActivityType.SHOPPING
-        'T' -> LegacyActivityType.LEISURE_TRAVEL // TODO verify what TRANSPORT SHOULD BE
-        'H' -> LegacyActivityType.HOME
-        'x' -> LegacyActivityType.UNDEFINED
-        else -> LegacyActivityType.UNDEFINED
+        'W' -> purposes.work
+        'E' -> purposes.education
+        'L' -> purposes.leisure
+        'S' -> purposes.shopping
+        'T' -> purposes.leisureTravel // TODO verify what TRANSPORT SHOULD BE
+        'H' -> purposes.home
+        'x' -> purposes.undefined
+        else -> purposes.undefined
     }
 }
 
