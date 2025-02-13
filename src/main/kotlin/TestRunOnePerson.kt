@@ -1,6 +1,5 @@
 import domain.data.EconomicStatus
 import domain.enums.Bbsr17
-import modeling.steps.ModelExecution
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.steps.ProjectContext
@@ -51,7 +50,7 @@ fun main() {
     }
 }
 
-fun <S, C> S.loadTestSet() where S : ModelExecution<C>, C : ProjectContext {
+fun ProjectContext.loadTestSet() {
     loadHouseholds(Path("src/test/resources/hamburg/household.csv").toFile())
     loadPersons(Path("src/test/resources/hamburg/person.csv").toFile())
     //    preparePrivateCars(file = Path("src/test/resources/hamburg/person.csv").toFile()) // file = File("example/car.csv"))

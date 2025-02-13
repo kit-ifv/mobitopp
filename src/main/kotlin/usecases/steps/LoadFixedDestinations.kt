@@ -11,7 +11,6 @@ import domain.enums.ActivityType
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.Repository
 import modeling.steps.RepositoryDependentStep
@@ -61,22 +60,22 @@ data class FixedDestinationColumns(
 
 data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
 
-fun <S, C> S.assignFixedDestinations(
-    file: File = context.defaultFixedDestinationsFile,
+fun LoadFixedDestinationsContext.assignFixedDestinations(
+    file: File = defaultFixedDestinationsFile,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: FixedDestinationColumns = FixedDestinationColumns(),
-    filter: FixedDestinationColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : LoadFixedDestinationsContext {
-    val filterWrap: (Row) -> Boolean = { columns.filter(it, context) }
+    filter: FixedDestinationColumns.(Row, LoadFixedDestinationsContext) -> Boolean = { _, _ -> true }
+) {
+    val filterWrap: (Row) -> Boolean = { columns.filter(it, this) }
 
     val csvParser = CsvParser(errorHandling) { row ->
         val id: PersonId = row.id(columns.personOid)
-        val p = context.personRepository.getById(id)
+        val p = personRepository.getById(id)
         val activityType = row.decodeName(
             columns.activityType,
-            context.activityTypeCodes
+            activityTypeCodes
         )
-        val zone = context.getZone(row.long(columns.zone))
+        val zone = getZone(row.long(columns.zone))
 
         val location = row(columns.location, String::parseRoadPosition).withZone(zone)
 
@@ -88,14 +87,12 @@ fun <S, C> S.assignFixedDestinations(
     prepareFixedDestinationsFile(csvParser, file)
 }
 
-fun <S, C> S.prepareFixedDestinationsFile(
+fun LoadFixedDestinationsContext.prepareFixedDestinationsFile(
     parser: CsvParser<ActivityLocation>,
-    file: File = context.defaultFixedDestinationsFile,
+    file: File = defaultFixedDestinationsFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadFixedDestinationsContext {
-    this.addStep(
-        LoadFixedDestinationsStep(context, parser, file, delimiter)
-    )
+) = runStep {
+    LoadFixedDestinationsStep(this, parser, file, delimiter)
 }
 
 class LoadFixedDestinationsStep(

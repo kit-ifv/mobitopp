@@ -4,7 +4,7 @@ import datastructure.Activity
 import datastructure.LinkedLeg
 import domain.data.Person
 import domain.data.PersonId
-import modeling.steps.ModelExecution
+import modeling.steps.Context
 import modeling.steps.ModelStep
 import modeling.steps.Repository
 import modeling.steps.SameValidationBehavior
@@ -13,17 +13,13 @@ import modeling.validation.validateFileWriteAccess
 import java.io.File
 import kotlin.io.path.Path
 
-fun <S, C> S.output(
-    file: File = Path(
-        "results/demandsimulation.csv"
-    ).toFile()
-) where S : ModelExecution<C>, C : WriteTripsCsvContext {
-    addStep(
-        WriteTripsToCsvStep(file, context)
-    )
+fun WriteTripsCsvContext.output(
+    file: File = Path("results/demandsimulation.csv").toFile()
+) = runStep {
+    WriteTripsToCsvStep(file, this)
 }
 
-interface WriteTripsCsvContext {
+interface WriteTripsCsvContext : Context {
     val personRepository: Repository<Person, PersonId>
 }
 

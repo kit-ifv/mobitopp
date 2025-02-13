@@ -113,7 +113,7 @@ sealed interface MovingAction : Action {
     override val actionType: ActionType
         get() = ActionType.LEG
 
-    val transportType: Mode
+    val transportType: Mode //TODO can we rename this property to mode?
 }
 
 /**
