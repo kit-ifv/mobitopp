@@ -14,9 +14,11 @@ stages: # List of stages for jobs, and their order of execution
 unit-test-job: # This job runs in the test stage.
   stage: test
   # It only starts when the job in the build stage completes successfully.
-  image: eclipse-temurin:21
+  image: amazoncorretto:21
+  variables:
+    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
   script:
-    - export GRADLE_OPTS="-Dorg.gradle.workers.max=1 Xms128m -Xmx512m"
     - ./gradlew test koverXmlReport koverLog
   artifacts:
     when: always
@@ -40,8 +42,10 @@ coverage-test:
 
 code-style:
   stage: test
-  image: eclipse-temurin:21
+  image: amazoncorretto:21
+  variables:
+    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
   script:
-    - export GRADLE_OPTS="-Dorg.gradle.workers.max=1 Xms128m -Xmx512m"
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
