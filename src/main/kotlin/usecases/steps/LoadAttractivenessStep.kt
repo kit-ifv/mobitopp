@@ -2,8 +2,8 @@ package usecases.steps
 
 import domain.data.ZoneId
 import domain.enums.ActivityType
+import modeling.steps.Context
 import modeling.steps.LateInit
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.validation.Warning
 import modeling.validation.validateCondition
@@ -17,21 +17,19 @@ import utils.CodePlan
 import utils.csv.CsvReader
 import java.io.File
 
-fun <S, C> S.loadAttractivities(
+fun LoadAttractivenessDataContext.loadAttractivities(
     file: File,
     purposes: ChoiceModelPurposes,
-) where S : ModelExecution<C>, C : LoadAttractivenessDataContext {
-    addStep(
-        LoadAttractivenessStep(context, file, purposes)
-    )
+) = runStep {
+    LoadAttractivenessStep(this, file, purposes)
 }
 
-interface LoadAttractivenessDataContext {
+interface LoadAttractivenessDataContext : Context {
     val activityTypeCodes: CodePlan<ActivityType>
     val attractivenessModel: LateInit<AttractivenessModel>
 }
 
-private class LoadAttractivenessStep(
+class LoadAttractivenessStep(
     private val context: LoadAttractivenessDataContext,
     private val file: File,
     private val purposes: ChoiceModelPurposes,

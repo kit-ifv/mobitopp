@@ -45,8 +45,6 @@ class ModelStepTest {
 
     private lateinit var sealStep: SealStep<TestEntity, TestId>
 
-    private lateinit var multiStep: MultiStep
-
     private val csvFile = File("src/test/resources/test_data.csv")
 
     @BeforeEach
@@ -76,12 +74,6 @@ class ModelStepTest {
         resultList = mutableListOf()
         forEachStep = forEachStep("test_for_each", collectStringsInList(resultList), readOnlyRepository)
         sealStep = SealStep(repository)
-
-        multiStep = MultiStep(
-            name = "TestMultiStep",
-            customValidationStep(repository, name = "SubStep1"),
-            customValidationStep(repository, name = "SubStep2")
-        )
     }
 
     @Test
@@ -272,45 +264,6 @@ class ModelStepTest {
 
         assertContains(validationText, "test_repo was sealed")
         assertContains(validationText, "load test_data.csv")
-    }
-
-    @Test
-    fun executeMultiStep() {
-        val captor = ConsoleCaptor()
-        multiStep.execute()
-        val consoleText = captor.getText()
-
-        assertRepoContainsElements(
-            expected = listOf(
-                TestEntity(0, string = "execute_dummy"),
-                TestEntity(1, string = "execute_dummy")
-            )
-        )
-
-        assertContains(consoleText, "Run SubStep1")
-        assertContains(consoleText, "Run SubStep2")
-    }
-
-    @Test
-    fun validateMultistep() {
-        val captor = ConsoleCaptor()
-        val warning = multiStep.validate()
-        val consoleText = captor.getText()
-
-        assertNotNull(warning)
-
-        assertContains(consoleText, multiStep.name)
-        assertContains(consoleText, "SubStep1_Warning")
-        assertContains(consoleText, "SubStep2_Warning")
-        assertContains(consoleText, "Validate step SubStep1 produced warnings")
-        assertContains(consoleText, "Validate step SubStep2 produced warnings")
-
-        assertRepoContainsElements(
-            expected = listOf(
-                TestEntity(0, string = "mock_dummy"),
-                TestEntity(1, string = "mock_dummy")
-            )
-        )
     }
 
     @Test
