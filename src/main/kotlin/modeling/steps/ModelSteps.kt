@@ -19,6 +19,14 @@ import java.io.File
 interface ModelStep {
     val name: String
 
+    /**
+     * Run the model step in the given [ExecutionMode].
+     *
+     * In validation mode: run [validate] and add potential warning as child to the [ExecutionMode.warnings].
+     * In execution mode: run [execute] and log the execution time.
+     *
+     * @param execMode the desired execution mode for this [ModelStep] run.
+     */
     fun run(execMode: ExecutionMode) {
         if (execMode.isValidate) {
             val captor = ConsoleCaptor()
@@ -44,7 +52,7 @@ interface ModelStep {
     fun execute()
 
     /**
-     * Validate this [ModelStep]
+     * Validate this [ModelStep].
      *
      * @return a warning, if the validation discovered warnings or errors
      */
@@ -319,116 +327,3 @@ class LoadCsvStep<E, I>(
     override fun mockElementsForValidation(): List<E> = validationMock
 }
 
-// /**
-// * A MultiStep is a [ModelStep] that executes multiple steps sequentially.
-// *
-// * @param steps the steps to be executed (in order of execution)
-// * @property name the name of the multi step
-// */
-// open class MultiStep(
-//    override val name: String,
-//    vararg steps: ModelStep,
-// ) : ModelStep {
-//    private val steps = steps.toMutableList()
-//
-//    /**
-//     * Add the given step as new last step of the execution order.
-//     *
-//     * @param step the step to added to this [MultiStep]
-//     */
-//    fun addStep(step: ModelStep) {
-//        steps.add(step)
-//    }
-//
-//    override fun execute() = steps.forEach {
-//        println("\nRun ${it.name}")
-//        logTime("    ${it.name}") {
-//            it.execute()
-//        }
-//    }
-//
-//    override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
-//        "Validate multiple ModelSteps ($name):"
-//    ) {
-//        validationPrefix()
-//
-//        val captor = ConsoleCaptor()
-//
-//        steps.forEach {
-//            it.validate()?.also { warning ->
-//                if (warning.containsError()) {
-//                    warning.addChild("${it::class.simpleName} '${it.name}' is invalid!", true)
-//                }
-//                this.addChild(warning)
-//            }
-//        }
-//
-//        captor.getText()
-//    }?.also {
-//        it.printTree()
-//    }
-//
-//    override fun verifyInput(): Warning? =
-//        throw UnsupportedOperationException("MultiStep.verifyInput should not be called!")
-//
-//    override fun mockBehavior(): Warning? =
-//        throw UnsupportedOperationException("MultiStep.mockBehavior should not be called!")
-// }
-//
-// /**
-// * ModelExecution is a [MultiStep] holding a context object.
-// * This can be used e.g. to define the steps of a simulation.
-// *
-// * @param C the generic context type
-// * @property context the context object for
-// */
-// class ModelExecution<C>(
-//    val context: C,
-// ) : MultiStep(context.scenarioName) where C : Context
-
-/**
- * Run allows to specify a simulation configuration in readable kotlin dsl.
- * Users can define a context object and model steps.
- * When executed, all specified [ModelStep]s are validated first.
- *
- * @param C the generic context type
- * @property contextFactory a factory to create new context objects
- */
-class Run<C>(private val contextFactory: () -> C) where C : Context {
-
-    /**
-     * Steps scope defines execution (order) of model steps.
-     *
-     * @param lambda a function executed on the model
-     *      execution object which defines / adds the steps to the [ModelExecution]
-     */
-    fun steps(lambda: C.() -> Unit) {
-        println("Validate before run!")
-
-        if (validate(lambda)) {
-            println("\nExecute")
-
-            val simulationContext = contextFactory()
-            simulationContext.execMode.setExecute()
-            logTime("    Execution") {
-                simulationContext.lambda()
-            }
-        } else {
-            error("validation failed")
-        }
-    }
-
-    private fun validate(lambda: C.() -> Unit) = logTime("    Validation") {
-        val context = contextFactory()
-        context.execMode.setValidate(context.scenarioName)
-        context.lambda()
-
-        val warnings = context.execMode.warnings?.takeIf { it.subWarnings.isNotEmpty() }
-
-        warnings?.also {
-            it.printTree()
-        }
-
-        return@logTime warnings?.containsError()?.let { !it } ?: true
-    }
-}
