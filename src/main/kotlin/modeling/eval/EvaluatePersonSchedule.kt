@@ -3,21 +3,20 @@ package modeling.eval
 import datastructure.MovingAction
 import domain.data.Household
 import domain.data.Person
-import modeling.steps.ModelExecution
 import usecases.steps.ProjectContext
 import utils.collections.asBins
 import utils.collections.mapToBins
 
-val <M, C> M.persons: List<Person> where M : ModelExecution<C>, C : ProjectContext
-    get() = context.personRepository.elements.toList()
+val ProjectContext.persons: List<Person>
+    get() = personRepository.elements.toList()
 
-val <M, C> M.households: List<Household> where M : ModelExecution<C>, C : ProjectContext
-    get() = context.householdRepository.elements.toList()
+val ProjectContext.households: List<Household>
+    get() = householdRepository.elements.toList()
 
 data class PersonLeg(val person: Person, val leg: MovingAction)
 
-val <M, C> M.personLegs: List<PersonLeg> where M : ModelExecution<C>, C : ProjectContext
-    get() = context.personRepository.elements.flatMap { person ->
+val ProjectContext.personLegs: List<PersonLeg>
+    get() = personRepository.elements.flatMap { person ->
         person.schedule.pastLegs().map { leg -> PersonLeg(person, leg) }
     }.toList()
 
@@ -49,12 +48,12 @@ private val ageBins = listOf(
     40 to 50, 50 to 60, 60 to 65, 65 to 75, 75 to 80, 80 to 120
 ).asBins()
 
-fun <M, C, G> M.agePlot(
+fun <G> ProjectContext.agePlot(
     groupBy: (Person) -> G,
     label: String = "group",
     order: Ordering<G> = Ordering.Arbitrary(),
     coloring: (G) -> RGB = { _ -> randomColor() }
-) where M : ModelExecution<C>, C : ProjectContext =
+) =
     forData {
         persons
     }.groupBy {

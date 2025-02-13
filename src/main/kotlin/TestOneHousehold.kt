@@ -37,7 +37,7 @@ fun main() {
         )
     }.steps {
         loadZones()
-        context.impedance.value = dummyImpedance
+        impedance.value = dummyImpedance
 //        loadImpedance(
 //            costMatrixConfig = File(
 //                "$ROOT_MTX\\cost-matrix-configuration_transmove_turbo.yaml"
