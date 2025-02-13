@@ -16,6 +16,7 @@ unit-test-job: # This job runs in the test stage.
   # It only starts when the job in the build stage completes successfully.
   image: eclipse-temurin:21
   script:
+    - export GRADLE_OPTS="-Dorg.gradle.workers.max=1 Xms128m -Xmx512m"
     - ./gradlew test koverXmlReport koverLog
   artifacts:
     when: always
@@ -41,5 +42,6 @@ code-style:
   stage: test
   image: eclipse-temurin:21
   script:
+    - export GRADLE_OPTS="-Dorg.gradle.workers.max=1 Xms128m -Xmx512m"
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
