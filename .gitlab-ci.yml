@@ -38,7 +38,7 @@ coverage-test:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: build/cobertura.xml
+        path: build/reports/kover/report.xml
 
 code-style:
   stage: test
