@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "2.0.10" //
     id("maven-publish")
 }
 
@@ -8,6 +8,7 @@ repositories {
 }
 group = "edu.kit.ifv"
 version = "1.0.0"
+
 publishing {
     publications {
         register("mavenData", MavenPublication::class) {
