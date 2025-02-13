@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
-    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
+    kotlin("jvm") version "2.0.10" //
+    id("com.google.devtools.ksp") version "2.0.10-1.0.24"
     id("maven-publish")
 }
 
@@ -11,9 +11,11 @@ repositories {
 dependencies {
     implementation(project(":annotations"))
     testImplementation(project(":annotations"))
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.6.20-1.0.5")
-    implementation("com.squareup:kotlinpoet:1.16.0")
+
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0") //TODO check new version
+    implementation("com.google.devtools.ksp:symbol-processing-api:2.0.10-1.0.24") //
+
+    implementation("com.squareup:kotlinpoet:2.0.0")
 
     testImplementation(kotlin("test"))
     testImplementation(kotlin("reflect"))
