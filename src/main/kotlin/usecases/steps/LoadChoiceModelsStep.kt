@@ -13,7 +13,6 @@ import domain.events.SharingVehicleSelector
 import modeling.models.RandomChoiceModel
 import modeling.steps.Context
 import modeling.steps.LateInit
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.RepositoryDependentStep
@@ -32,17 +31,13 @@ import usecases.choicemodels.modechoice.ModeParameters
 import usecases.choicemodels.modechoice.ModernizedModeUtility
 import usecases.models.VehicleTakeAlongModeChoice
 
-fun <S, C> S.loadChoiceModels(
+fun LoadChoiceModelsContext.loadChoiceModels(
     modes: ChoiceModelModes,
     purposes: ChoiceModelPurposes,
     destinationParameters: ParameterObject = ParameterObject(purposes),
     modeParameters: (ChoiceModelModes) -> ModeParameters = { ModeParameters(it, purposes) }
-) where
-      S : ModelExecution<C>,
-      C : LoadChoiceModelsContext {
-    addStep(
-        LoadChoiceModelsStep(context, modes, purposes, destinationParameters, modeParameters(modes))
-    )
+) = runStep {
+    LoadChoiceModelsStep(this, modes, purposes, destinationParameters, modeParameters(modes))
 }
 
 interface LoadChoiceModelsContext : Context, SimulationContext {
@@ -52,7 +47,7 @@ interface LoadChoiceModelsContext : Context, SimulationContext {
     val attractivenessModel: LateInit<AttractivenessModel>
 }
 
-private class LoadChoiceModelsStep(
+class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
     private val modes: ChoiceModelModes,
     private val purposes: ChoiceModelPurposes,

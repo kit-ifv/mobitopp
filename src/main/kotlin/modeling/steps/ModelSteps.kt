@@ -6,8 +6,6 @@ import modeling.validation.validateCondition
 import modeling.validation.validateScope
 import utils.ConsoleCaptor
 import utils.Identifiable
-import utils.collections.muteProgressBars
-import utils.collections.unmuteProgressBars
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
 import utils.units.logTime
@@ -20,6 +18,27 @@ import java.io.File
  */
 interface ModelStep {
     val name: String
+
+    fun run(execMode: ExecutionMode) {
+        if (execMode.isValidate) {
+            val captor = ConsoleCaptor()
+
+            validate()?.also { warning ->
+                if (warning.containsError()) {
+                    warning.addChild("${this::class.simpleName} '$name' is invalid!", true)
+                }
+                execMode.warnings?.addChild(warning)
+            }
+
+            // No console output during validate
+            captor.getText()
+        } else {
+            println("\nRun $name")
+            logTime("    $name") {
+                execute()
+            }
+        }
+    }
 
     /** Execute this [ModelStep]. */
     fun execute()
@@ -52,6 +71,27 @@ interface ModelStep {
      */
     val isValid: Boolean
         get() = validate()?.containsError()?.let { !it } ?: true
+}
+
+class ExecutionMode { // Do not make class open!
+    private var validateMode: Warning? = null
+
+    val warnings: Warning?
+        get() = validateMode
+
+    val isValidate: Boolean
+        get() = validateMode != null
+
+    val isExecute: Boolean
+        get() = validateMode == null
+
+    fun setValidate(simulationName: String) {
+        validateMode = Warning("Validate multiple ModelSteps ($simulationName):", false)
+    }
+
+    fun setExecute() {
+        validateMode = null
+    }
 }
 
 interface RepositoryDependentStep : ModelStep {
@@ -279,72 +319,72 @@ class LoadCsvStep<E, I>(
     override fun mockElementsForValidation(): List<E> = validationMock
 }
 
-/**
- * A MultiStep is a [ModelStep] that executes multiple steps sequentially.
- *
- * @param steps the steps to be executed (in order of execution)
- * @property name the name of the multi step
- */
-open class MultiStep(
-    override val name: String,
-    vararg steps: ModelStep,
-) : ModelStep {
-    private val steps = steps.toMutableList()
-
-    /**
-     * Add the given step as new last step of the execution order.
-     *
-     * @param step the step to added to this [MultiStep]
-     */
-    fun addStep(step: ModelStep) {
-        steps.add(step)
-    }
-
-    override fun execute() = steps.forEach {
-        println("\nRun ${it.name}")
-        logTime("    ${it.name}") {
-            it.execute()
-        }
-    }
-
-    override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
-        "Validate multiple ModelSteps ($name):"
-    ) {
-        validationPrefix()
-
-        val captor = ConsoleCaptor()
-
-        steps.forEach {
-            it.validate()?.also { warning ->
-                if (warning.containsError()) {
-                    warning.addChild("${it::class.simpleName} '${it.name}' is invalid!", true)
-                }
-                this.addChild(warning)
-            }
-        }
-
-        captor.getText()
-    }?.also {
-        it.printTree()
-    }
-
-    override fun verifyInput(): Warning? =
-        throw UnsupportedOperationException("MultiStep.verifyInput should not be called!")
-
-    override fun mockBehavior(): Warning? =
-        throw UnsupportedOperationException("MultiStep.mockBehavior should not be called!")
-}
-
-/**
- * ModelExecution is a [MultiStep] holding a context object.
- * This can be used e.g. to define the steps of a simulation.
- *
- * @param C the generic context type
- * @property context the context object for
- */
-class ModelExecution<C>(
-    val context: C,
-) : MultiStep(context.scenarioName) where C : Context
+// /**
+// * A MultiStep is a [ModelStep] that executes multiple steps sequentially.
+// *
+// * @param steps the steps to be executed (in order of execution)
+// * @property name the name of the multi step
+// */
+// open class MultiStep(
+//    override val name: String,
+//    vararg steps: ModelStep,
+// ) : ModelStep {
+//    private val steps = steps.toMutableList()
+//
+//    /**
+//     * Add the given step as new last step of the execution order.
+//     *
+//     * @param step the step to added to this [MultiStep]
+//     */
+//    fun addStep(step: ModelStep) {
+//        steps.add(step)
+//    }
+//
+//    override fun execute() = steps.forEach {
+//        println("\nRun ${it.name}")
+//        logTime("    ${it.name}") {
+//            it.execute()
+//        }
+//    }
+//
+//    override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
+//        "Validate multiple ModelSteps ($name):"
+//    ) {
+//        validationPrefix()
+//
+//        val captor = ConsoleCaptor()
+//
+//        steps.forEach {
+//            it.validate()?.also { warning ->
+//                if (warning.containsError()) {
+//                    warning.addChild("${it::class.simpleName} '${it.name}' is invalid!", true)
+//                }
+//                this.addChild(warning)
+//            }
+//        }
+//
+//        captor.getText()
+//    }?.also {
+//        it.printTree()
+//    }
+//
+//    override fun verifyInput(): Warning? =
+//        throw UnsupportedOperationException("MultiStep.verifyInput should not be called!")
+//
+//    override fun mockBehavior(): Warning? =
+//        throw UnsupportedOperationException("MultiStep.mockBehavior should not be called!")
+// }
+//
+// /**
+// * ModelExecution is a [MultiStep] holding a context object.
+// * This can be used e.g. to define the steps of a simulation.
+// *
+// * @param C the generic context type
+// * @property context the context object for
+// */
+// class ModelExecution<C>(
+//    val context: C,
+// ) : MultiStep(context.scenarioName) where C : Context
 
 /**
  * Run allows to specify a simulation configuration in readable kotlin dsl.
@@ -357,36 +397,38 @@ class ModelExecution<C>(
 class Run<C>(private val contextFactory: () -> C) where C : Context {
 
     /**
-     * Steps
+     * Steps scope defines execution (order) of model steps.
      *
      * @param lambda a function executed on the model
      *      execution object which defines / adds the steps to the [ModelExecution]
-     * @return the context
      */
-    fun steps(lambda: ModelExecution<C>.() -> Unit): C {
+    fun steps(lambda: C.() -> Unit) {
         println("Validate before run!")
 
         if (validate(lambda)) {
             println("\nExecute")
 
-            val simulation = ModelExecution(context = contextFactory())
+            val simulationContext = contextFactory()
+            simulationContext.execMode.setExecute()
             logTime("    Execution") {
-                simulation.lambda()
-                simulation.execute()
+                simulationContext.lambda()
             }
-
-            return simulation.context
         } else {
             error("validation failed")
         }
     }
 
-    private fun validate(lambda: ModelExecution<C>.() -> Unit) = logTime("    Validation") {
-        muteProgressBars()
-        val validation = ModelExecution(context = contextFactory())
-        validation.lambda()
-        validation.validate().also {
-            unmuteProgressBars()
+    private fun validate(lambda: C.() -> Unit) = logTime("    Validation") {
+        val context = contextFactory()
+        context.execMode.setValidate(context.scenarioName)
+        context.lambda()
+
+        val warnings = context.execMode.warnings?.takeIf { it.subWarnings.isNotEmpty() }
+
+        warnings?.also {
+            it.printTree()
         }
-    }?.containsError()?.let { !it } ?: true
+
+        return@logTime warnings?.containsError()?.let { !it } ?: true
+    }
 }
