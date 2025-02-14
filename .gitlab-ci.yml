@@ -1,7 +1,6 @@
 stages: # List of stages for jobs, and their order of execution
   - build
   - test
-  - visualize
   - deploy
 
 build-job:
@@ -28,6 +27,9 @@ unit-test-job: # This job runs in the test stage.
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: build/reports/kover/report.xml
 
     paths:
       - build/reports/kover/*
@@ -43,12 +45,3 @@ code-style:
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
-
-coverage-test:
-  stage: visualize
-  needs: [ "unit-test-job" ]
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: build/reports/kover/report.xml
