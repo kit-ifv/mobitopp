@@ -59,11 +59,7 @@ class ProcessorDispatcher(
             deferred += newDeferred
         }
 
-
-
-        logger.warn("Round $roundCounter - Generated files: ${codeGenerator.generatedFile.map { it.name }}")
         logger.warn("Round $roundCounter - New files: ${resolver.getNewFiles().toList()}")
-        logger.warn("Round $roundCounter - All files: ${resolver.getAllFiles().toList()}")
 
 //        if (deferred.isNotEmpty()) {
 //            logger.warn("Round $roundCounter - Deferred symbols ${deferred.size}: ${deferred.map { it.toString() }}")

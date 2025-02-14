@@ -13,14 +13,10 @@ build-job:
     paths:
       - build/
 
-unit-test-job: # This job runs in the test stage.
+unit-test-job:
   stage: test
-  # It only starts when the job in the build stage completes successfully.
   image: amazoncorretto:21
   needs: ["build-job"]
-#  variables:
-#    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
-#    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
   script:
     - ./gradlew test koverXmlReport koverLog
   artifacts:
@@ -39,9 +35,6 @@ code-style:
   stage: test
   needs: ["build-job"]
   image: amazoncorretto:21
-#  variables:
-#    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
-#    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
