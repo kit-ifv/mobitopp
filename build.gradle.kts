@@ -86,33 +86,18 @@ tasks.test {
 }
 
 
-
-//koverReport {
-////    filters {
-////        excludes {
-////            packages("com.example.generated") // Exclude any unwanted packages
-////        }
-////    }
-//    reports {
-//        xml {
-//            required.set(true)
-//            outputFile.set(file("$buildDir/reports/kover/coverage.xml"))
-//        }
-//        html {
-//            required.set(true)
-//            outputDir.set(file("$buildDir/reports/kover/html"))
-//        }
-//    }
-//}
-
-
 tasks.withType<Detekt>().configureEach {
     reports {
-        html.required.set(true) // observe findings in your browser with structure and code snippets
-        xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
-        txt.required.set(true) // similar to the console output, contains issue signature to manually edit baseline files
-        sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with GitHub Code Scanning
-        md.required.set(true) // simple Markdown format
+        // observe findings in your browser with structure and code snippets
+        html.required.set(true)
+        // checkstyle like format mainly for integrations like Jenkins
+        xml.required.set(true)
+        // similar to the console output, contains issue signature to manually edit baseline files
+        txt.required.set(true)
+        // standardized SARIF format (https://sarifweb.azurewebsites.net/) for integrations with GitHub Code Scanning
+        sarif.required.set(true)
+        // simple Markdown format
+        md.required.set(true)
     }
 }
 tasks.withType<Detekt>().configureEach {
@@ -162,8 +147,3 @@ tasks.withType<JavaExec>().configureEach {
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
 }
-
-//ksp {
-//    arg("incremental", "true")
-//    arg("ksp.incremental", "true")
-//}
