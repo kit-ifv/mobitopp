@@ -3,14 +3,11 @@ package usecases.steps
 import domain.data.Person
 import domain.data.PersonId
 import modeling.steps.ForEachStep
-import modeling.steps.ModelExecution
 import modeling.steps.Repository
 import modeling.validation.Warning
 
-fun <S, C> S.assignHomeLocations() where S : ModelExecution<C>, C : LoadPersonsContext {
-    this.addStep(
-        AssignHomeLocationStep(context)
-    )
+fun LoadPersonsContext.assignHomeLocations() = runStep {
+    AssignHomeLocationStep(this)
 }
 
 class AssignHomeLocationStep(

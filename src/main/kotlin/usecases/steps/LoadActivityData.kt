@@ -8,7 +8,6 @@ import domain.data.PlannedActivity
 import domain.enums.ActivityType
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
@@ -51,55 +50,52 @@ data class ActivitiesColumns(
 )
 
 @Suppress("LongParameterList")
-fun <S, C> S.prepareActivities(
-    file: File = context.defaultActivityFile,
+fun LoadPlannedActivitiesContext.prepareActivities(
+    file: File = defaultActivityFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ActivitiesColumns = ActivitiesColumns(),
-    durationUnit: DurationUnit = context.timeUnit,
-    filter: ActivitiesColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
+    durationUnit: DurationUnit = timeUnit,
+    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true }
+) {
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
         MutablePlannedActivity(
             id = ActivityId(row.index.toLong()),
-            seed = context.simulationSeed
+            seed = simulationSeed
         ) {
-            person = context.getPerson(row, columns.personColumn)
+            person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
             startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit)
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
-            activityType = row.decode(columns.activityTypeColumn, context.activityTypeCodes)
+            activityType = row.decode(columns.activityTypeColumn, activityTypeCodes)
         }
     }
 
-    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, context) }, file, delimiter)
+    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, file, delimiter)
 }
 
-fun <S, C> S.prepareActivitiesFile(
+fun LoadPlannedActivitiesContext.prepareActivitiesFile(
     parser: CsvParser<PlannedActivity>,
-    file: File = context.defaultActivityFile,
+    file: File = defaultActivityFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
-    this.addStep(
-        LoadCsvStep<PlannedActivity, ActivityId>(
-            file = file,
-            name = "Load planned activities from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.plannedActivityRepository,
-            dependentRepositories = setOf(context.personRepository),
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep<PlannedActivity, ActivityId>(
+        file = file,
+        name = "Load planned activities from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = plannedActivityRepository,
+        dependentRepositories = setOf(personRepository),
+        validationMock = listOf() // TODO
     )
 }
 
-fun <S, C> S.finishActivities() where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
-    this.addStep(SealStep(context.plannedActivityRepository))
+fun LoadPlannedActivitiesContext.finishActivities() = runStep {
+    SealStep(plannedActivityRepository)
 }
 
-fun <S, C> S.loadActivities()
-    where S : ModelExecution<C>, C : LoadPlannedActivitiesContext {
+fun LoadPlannedActivitiesContext.loadActivities() {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
 }

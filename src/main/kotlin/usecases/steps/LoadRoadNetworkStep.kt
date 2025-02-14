@@ -4,7 +4,6 @@ import VisumLocale
 import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
 import modeling.steps.LateInit
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.validation.Warning
 import modeling.validation.validateFileReadAccess
@@ -13,32 +12,31 @@ import parseNetwork
 import java.nio.file.Path
 import kotlin.io.path.name
 
-fun <S, C> S.loadVisumNetwork(
+fun RoadNetworkContext.loadVisumNetwork(
     file: Path,
     localeLambda: VisumLocale.() -> Unit = {}
-) where S : ModelExecution<C>, C : Context, C : RoadNetworkContext {
-    addStep(
-        LoadRoadNetworkStep(
-            context,
-            file,
-            localeLambda
-        )
+) = runStep {
+    LoadRoadNetworkStep(
+        this,
+        file,
+        localeLambda
     )
+
 //    context.roadNetwork.value = LocatableGraph( //TODO @Robin, why parse outside the model step?
 //        parseNetwork(file) { }
 //    )
 }
 
-interface RoadNetworkContext {
+interface RoadNetworkContext : Context {
     val roadNetwork: LateInit<LocatableGraph>
 }
 
-private class LoadRoadNetworkStep<C>(
+class LoadRoadNetworkStep<C>(
     private val context: C,
     val file: Path,
     val localeLambda: VisumLocale.() -> Unit = {}
 
-) : ModelStep where C : Context, C : RoadNetworkContext {
+) : ModelStep where C : RoadNetworkContext {
 
     override val name: String = "Load visum road network from ${file.name}"
 
