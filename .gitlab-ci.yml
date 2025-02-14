@@ -1,23 +1,27 @@
 stages: # List of stages for jobs, and their order of execution
-  #- build
+  - build
   - test
   - visualize
   - deploy
 
-
-#build-job:       # This job runs in the build stage, which runs first.
-#  stage: build
-#  script:
-#    - echo "Compiling the code..."
-#    - echo "Compile complete."
+build-job:
+  stage: build
+  image: amazoncorretto:21
+  script:
+    - ./gradlew compileJava
+  artifacts:
+    when: always
+    paths:
+      - build/
 
 unit-test-job: # This job runs in the test stage.
   stage: test
   # It only starts when the job in the build stage completes successfully.
   image: amazoncorretto:21
-  variables:
-    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
-    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
+  needs: ["build-job"]
+#  variables:
+#    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+#    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
   script:
     - ./gradlew test koverXmlReport koverLog
   artifacts:
@@ -29,23 +33,22 @@ unit-test-job: # This job runs in the test stage.
       - build/reports/kover/*
   coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
 
+code-style:
+  stage: test
+  needs: ["build-job"]
+  image: amazoncorretto:21
+#  variables:
+#    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+#    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
+  script:
+    - ./gradlew detektGenerateConfig
+    - ./gradlew detekt
+
 coverage-test:
   stage: visualize
-  script:
-    - ./gradlew test koverXmlReport
   needs: [ "unit-test-job" ]
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
         path: build/reports/kover/report.xml
-
-code-style:
-  stage: test
-  image: amazoncorretto:21
-  variables:
-    JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
-    GRADLE_OPTS: "-Dorg.gradle.workers.max=1"
-  script:
-    - ./gradlew detektGenerateConfig
-    - ./gradlew detekt
