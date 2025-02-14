@@ -27,6 +27,7 @@ import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
+import modeling.steps.ExecutionMode
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
 import modeling.steps.SimulationContext
@@ -70,7 +71,6 @@ data class ProjectContext(
     override val simulationStart: AbsoluteTime = AbsoluteTime.START,
     override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
-
 ) : Context,
     LoadAttractivenessDataContext,
     LoadZonesContext,
@@ -87,6 +87,7 @@ data class ProjectContext(
     WriteTripsCsvContext,
     SimulationContext,
     RoadNetworkContext {
+    override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")

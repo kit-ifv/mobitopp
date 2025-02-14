@@ -4,14 +4,13 @@ import domain.data.Person
 import domain.data.PersonId
 import domain.events.InitPersonEvent
 import modeling.events.ParallelSimulator
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.Repository
 import modeling.steps.SimulationContext
 import modeling.validation.Warning
 
-fun <S, C> S.simulate() where S : ModelExecution<C>, C : RunSimContext {
-    this.addStep(SimulateStep(context))
+fun RunSimContext.simulate() = runStep {
+    SimulateStep(this)
 }
 
 interface RunSimContext : SimulationContext {
