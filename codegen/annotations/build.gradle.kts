@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.0.10" //
+    alias(libs.plugins.kotlin.jvm) // "2.0.10" //
     id("maven-publish")
 }
 
