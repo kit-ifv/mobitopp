@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.jvm) // "2.0.10" //
     alias(libs.plugins.ksp) // "2.0.10-1.0.24"
-    id("maven-publish")
+//    id("maven-publish")
 }
 
-group = "edu.kit.ifv"
-version = "1.0.0"
+//group = "edu.kit.ifv"
+//version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -24,19 +24,19 @@ dependencies {
     implementation(kotlin("reflect"))
 }
 
-publishing {
-    publications {
-        register("mavenData", MavenPublication::class) {
-            from(components["kotlin"])
-        }
-        repositories {
-            maven {
-                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-                credentials {
-                    username = project.findProperty("nexusUsername") as String?
-                    password = project.findProperty("nexusPassword") as String?
-                }
-            }
-        }
-    }
-}
+//publishing {
+//    publications {
+//        register("mavenData", MavenPublication::class) {
+//            from(components["kotlin"])
+//        }
+//        repositories {
+//            maven {
+//                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
+//                credentials {
+//                    username = project.findProperty("nexusUsername") as String?
+//                    password = project.findProperty("nexusPassword") as String?
+//                }
+//            }
+//        }
+//    }
+//}
