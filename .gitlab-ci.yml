@@ -38,3 +38,34 @@ code-style:
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
+
+deploy-job:
+  stage: deploy
+  only:
+    - main
+  needs: [ "build-job" ]
+  image: amazoncorretto:21
+  script:
+    - ./gradlew publish -PbuildNumber=$CI_PIPELINE_IID \
+      -DdoPublish=true \
+      -DlocalUrl=$LOCAL_REPO_URL \
+      -DlocalRepoUser=$LOCAL_REPO_USERNAME \
+      -DlocalRepoPassword=$LOCAL_REPO_PASSWORD
+
+# Keep for first public release of reengineered mobitopp
+#public-deploy-job:
+#  stage: deploy
+#  only:
+#    - main
+#  when: manual
+#  image: amazoncorretto:21
+#  script:
+#    - ./gradlew build publish -PbuildNumber=$CI_PIPELINE_IID \
+#      -DdoPublish=true \
+#      -DlocalUrl=$LOCAL_REPO_URL \
+#      -DlocalRepoUser=$LOCAL_REPO_USERNAME \
+#      -DlocalRepoPassword=$LOCAL_REPO_PASSWORD \
+#      -DisRelease=true \
+#      -DpublicUrl=$PUBLIC_REPO_URL \
+#      -DpublicRepoUser=$PUBLIC_REPO_USERNAME \
+#      -DpublicRepoPassword=$PUBLIC_REPO_PASSWOR

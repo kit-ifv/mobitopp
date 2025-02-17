@@ -11,8 +11,8 @@ plugins {
     id("maven-publish")
 }
 
-group = "edu.kit.ifv"
-version = "0.9.11"
+//group = "edu.kit.ifv"
+//version = "0.9.11"
 
 repositories {
 
@@ -107,22 +107,6 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 kotlin {
     jvmToolchain(21)
 }
-publishing {
-    publications {
-        register("mavenData", MavenPublication::class) {
-            from(components["kotlin"])
-        }
-        repositories {
-            maven {
-                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-                credentials {
-                    username = project.findProperty("nexusUsername") as String?
-                    password = project.findProperty("nexusPassword") as String?
-                }
-            }
-        }
-    }
-}
 
 application {
     mainClass.set("MainKt")
@@ -144,3 +128,83 @@ tasks.withType<JavaExec>().configureEach {
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
 }
+
+
+//publishing {
+//    publications {
+//        register("mavenData", MavenPublication::class) {
+//            from(components["kotlin"])
+//        }
+//        repositories {
+//            maven {
+//                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
+//                credentials {
+//                    username = project.findProperty("nexusUsername") as String?
+//                    password = project.findProperty("nexusPassword") as String?
+//                }
+//            }
+//        }
+//    }
+//}
+
+allprojects {
+    apply(plugin = "maven-publish")
+
+    group = "edu.kit.ifv.mobitopp"
+
+
+    if (checkProperty("doPublish")) {
+        version = "0.10." + requireProperty("buildNumber")
+        val latestPublicVersion = "0.3.580"
+
+        publishing {
+            publications {
+                register("mavenData", MavenPublication::class) {
+                    from(components["kotlin"]) // For Kotlin projects
+                }
+            }
+
+            repositories {
+                maven {
+                    name = "LocalRepo"
+                    url = uri(requireProperty("localUrl"))
+                    credentials {
+                        username = requireProperty("localRepoUser")
+                        password = requireProperty("localRepoPassword")
+                    }
+                }
+
+//  Keep for first public release of reengineered mobitopp
+//                if (checkProperty("isRelease")) {
+//                    require(version.toString().getMajorMinor() != latestPublicVersion.getMajorMinor()) {
+//                        "Please update 'major.minor' of the current version " +
+//                        "as it was already used for the last public release."
+//                    }
+//
+//                    maven {
+//                        name = "PublicRepo"
+//                        url = uri(requireProperty("publicUrl"))
+//                        credentials {
+//                            username = requireProperty("publicRepoUser")
+//                            password = requireProperty("publicRepoPassword")
+//                        }
+//                    }
+//                }
+
+            }
+
+        }
+
+    }
+
+}
+
+fun requireProperty(property: String, orElse: String? = null): String =
+    requireNotNull(project.findProperty(property) as? String ?: orElse) {
+        "Could not find property '$property'. Please check the gradle command args. It should contain:\n" +
+            "    ./gradlew ... -D$property=<VALUE> ..."
+    }
+
+fun checkProperty(property: String): Boolean = project.hasProperty(property) && project.property(property) == "true"
+
+fun String.getMajorMinor() = this.split('.').take(2).joinToString(".")
