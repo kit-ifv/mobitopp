@@ -11,9 +11,6 @@ plugins {
     id("maven-publish")
 }
 
-//group = "edu.kit.ifv"
-//version = "0.9.11"
-
 repositories {
 
     maven { url = uri("https://repo.osgeo.org/repository/release") }
@@ -129,24 +126,6 @@ tasks.withType<JavaExec>().configureEach {
     )
 }
 
-
-//publishing {
-//    publications {
-//        register("mavenData", MavenPublication::class) {
-//            from(components["kotlin"])
-//        }
-//        repositories {
-//            maven {
-//                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-//                credentials {
-//                    username = project.findProperty("nexusUsername") as String?
-//                    password = project.findProperty("nexusPassword") as String?
-//                }
-//            }
-//        }
-//    }
-//}
-
 allprojects {
     apply(plugin = "maven-publish")
 
@@ -154,10 +133,29 @@ allprojects {
 
 
     if (checkProperty("doPublish")) {
-        version = "0.10." + requireProperty("buildNumber")
-        val latestPublicVersion = "0.3.580"
+        /* mobiTopp publishing process (see .gitlab-ci.yml)
+         * Parameters such as "doPublish" must be passed in gradle command:
+         *  - ./gradlew <TASKS> publish -PdoPublish=true -Pparam=value...
+         * Lookup of parameters doPublish and isRelease returns true if they are specified and their value reads "true".
+         * Other required parameters must be specified, otherwise an error is thrown.
+         *
+         * The pipeline build version is used as the published artifacts version string.
+         *  - uses parameter: "buildVersion"
+         *
+         * Every merge on main is published to local repo: see deploy-job
+         *  - checks: doPublish=true, isRelease=false
+         *  - requires parameters: "localUrl", "localRepoUser" and "localRepoPassword"
+         *
+         * Public releases must be published manually:
+         *  - checks: doPublish=true, isRelease=true
+         *  - requires parameters: "publicUrl", "publicRepoUser" and "publicRepoPassword"
+         */
+
+
+        version = requireProperty("buildVersion")
 
         publishing {
+
             publications {
                 register("mavenData", MavenPublication::class) {
                     from(components["kotlin"]) // For Kotlin projects
@@ -165,32 +163,31 @@ allprojects {
             }
 
             repositories {
-                maven {
-                    name = "LocalRepo"
-                    url = uri(requireProperty("localUrl"))
-                    credentials {
-                        username = requireProperty("localRepoUser")
-                        password = requireProperty("localRepoPassword")
+                if (checkProperty("isRelease")) {
+                    println("Activate: publish public release!")
+                    println("WARNING: Public release still deactivated!")
+
+                    //  Keep for first public release of reengineered mobitopp
+                    //maven {
+                    //    name = "PublicRepo"
+                    //    url = uri(requireProperty("publicUrl"))
+                    //    credentials {
+                    //        username = requireProperty("publicRepoUser")
+                    //        password = requireProperty("publicRepoPassword")
+                    //    }
+                    //}
+
+                } else {
+                    println("Activate: publish local build!")
+                    maven {
+                        name = "LocalRepo"
+                        url = uri(requireProperty("localUrl"))
+                        credentials {
+                            username = requireProperty("localRepoUser")
+                            password = requireProperty("localRepoPassword")
+                        }
                     }
                 }
-
-//  Keep for first public release of reengineered mobitopp
-//                if (checkProperty("isRelease")) {
-//                    require(version.toString().getMajorMinor() != latestPublicVersion.getMajorMinor()) {
-//                        "Please update 'major.minor' of the current version " +
-//                        "as it was already used for the last public release."
-//                    }
-//
-//                    maven {
-//                        name = "PublicRepo"
-//                        url = uri(requireProperty("publicUrl"))
-//                        credentials {
-//                            username = requireProperty("publicRepoUser")
-//                            password = requireProperty("publicRepoPassword")
-//                        }
-//                    }
-//                }
-
             }
 
         }
@@ -206,5 +203,3 @@ fun requireProperty(property: String, orElse: String? = null): String =
     }
 
 fun checkProperty(property: String): Boolean = project.hasProperty(property) && project.property(property) == "true"
-
-fun String.getMajorMinor() = this.split('.').take(2).joinToString(".")
