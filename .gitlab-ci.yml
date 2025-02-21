@@ -1,3 +1,31 @@
+# The .gitlab-ci.yml makes use of some variables stored in repositories config:
+#
+#  MAJOR: the current releases major version number
+#   - automatically incremented after each major-release-job
+#
+#  MINOR: the current releases minor version number
+#   - automatically incremented after each minor-release-job
+#   - reset to 0 after each major-release-job
+#
+# BUILD_NUMBER: the current releases build number, suffix of the version string
+#  - automatically incremented after each deploy-job
+#  - reset to 0 after each major-release-job and minor-release-job
+#
+# CI_JOB_TOKEN: token to update version and build numbers in GitLab variables, must be activated in CI/CD settings
+# GITLAB_API_URL: url pointing to the variables endpoint, to update version and build number variables
+#  - e.g. https://gitlab.example.server.com/api/v4/projects/$CI_PROJECT_ID/variables
+#
+# LOCAL_REPO_URL: repository url for hosting local (non-public) artifacts: deploy-job
+# LOCAL_REPO_USERNAME: username for publishing to local (non-public) artifact repository: deploy-job
+# LOCAL_REPO_PASSWORD: password for publishing to local (non-public) artifact repository: deploy-job
+#
+# PUBLIC_REPO_URL: repository url for hosting public artifacts: major-release-job, minor-release-job
+# PUBLIC_REPO_USERNAME: username for publishing to public artifact repository: major-release-job, minor-release-job
+# PUBLIC_REPO_PASSWORD: password for publishing to public artifact repository: major-release-job, minor-release-job
+
+variables:
+  BUILD_VERSION: "$MAJOR.$MINOR.$BUILD_NUMBER"
+
 stages: # List of stages for jobs, and their order of execution
   - build
   - test
@@ -46,26 +74,54 @@ deploy-job:
   needs: [ "build-job" ]
   image: amazoncorretto:21
   script:
-    - ./gradlew publish -PbuildNumber=$CI_PIPELINE_IID \
-      -DdoPublish=true \
-      -DlocalUrl=$LOCAL_REPO_URL \
-      -DlocalRepoUser=$LOCAL_REPO_USERNAME \
-      -DlocalRepoPassword=$LOCAL_REPO_PASSWORD
+    - echo "Publish local release $BUILD_VERSION"
+    - ./gradlew publish -PbuildVersion=$BUILD_VERSION \
+      -PdoPublish=true \
+      -PisRelease=false \
+      -PlocalUrl=$LOCAL_REPO_URL \
+      -PlocalRepoUser=$LOCAL_REPO_USERNAME \
+      -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
+    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+    - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
+    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
 
 # Keep for first public release of reengineered mobitopp
-#public-deploy-job:
+#minor-release-job:
 #  stage: deploy
 #  only:
 #    - main
 #  when: manual
 #  image: amazoncorretto:21
 #  script:
-#    - ./gradlew build publish -PbuildNumber=$CI_PIPELINE_IID \
-#      -DdoPublish=true \
-#      -DlocalUrl=$LOCAL_REPO_URL \
-#      -DlocalRepoUser=$LOCAL_REPO_USERNAME \
-#      -DlocalRepoPassword=$LOCAL_REPO_PASSWORD \
-#      -DisRelease=true \
-#      -DpublicUrl=$PUBLIC_REPO_URL \
-#      -DpublicRepoUser=$PUBLIC_REPO_USERNAME \
-#      -DpublicRepoPassword=$PUBLIC_REPO_PASSWOR
+#    - echo "Publish public minor release $BUILD_VERSION"
+#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#      -PdoPublish=true \
+#      -PisRelease=true \
+#      -PpublicUrl=$PUBLIC_REPO_URL \
+#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
+#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
+#    - export NEW_MINOR=$((MINOR + 1))
+#    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MINOR" "$GITLAB_API_URL/MINOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"
+#
+#
+#major-release-job:
+#  stage: deploy
+#  only:
+#    - main
+#  when: manual
+#  image: amazoncorretto:21
+#  script:
+#    - echo "Publish public major release $BUILD_VERSION"
+#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#      -PdoPublish=true \
+#      -PisRelease=true \
+#      -PpublicUrl=$PUBLIC_REPO_URL \
+#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
+#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
+#    - export NEW_MAJOR=$((MAJOR + 1))
+#    - echo "Update MAJOR to $NEW_MAJOR, set MINOR to 0, set BUILD_NUMBER to 0"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MAJOR" "$GITLAB_API_URL/MAJOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/MINOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"
