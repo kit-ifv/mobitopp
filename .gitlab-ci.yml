@@ -31,12 +31,18 @@ stages: # List of stages for jobs, and their order of execution
   - test
   - deploy
 
+test_update-job:
+  stage: build
+  script:
+    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+    - echo "--request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" \"$GITLAB_API_URL/BUILD_NUMBER\" --form \"value=$NEW_BUILD_NUMBER\""
+    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=$NEW_BUILD_NUMBER"
+  when: manual
+
 build-job:
   stage: build
   image: amazoncorretto:21
   script:
-    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
-    - echo "-request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" --form \"value=$NEW_BUILD_NUMBER\" \"$GITLAB_API_URL/BUILD_NUMBER\""
     - ./gradlew compileJava
   artifacts:
     when: always
