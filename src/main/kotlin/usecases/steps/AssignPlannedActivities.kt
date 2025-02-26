@@ -12,6 +12,11 @@ import modeling.steps.Repository
 import modeling.steps.UpdateStep
 import modeling.steps.validateNotSealed
 import modeling.validation.Warning
+import utils.random.getGaussian
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.minutes
 
 fun AssignPlannedActivitiesContext.assignPlannedActivities() = runStep {
     AssignPlannedActivities(this)
@@ -43,14 +48,14 @@ class AssignPlannedActivities(
             "No activities found for Person ${element.id}" // TODO error handling here
         }.toSchedule(SingularDispatcher())
 
-//        val schedule = element.schedule
-//        val rand = element.random
-//        for (i in 0 until schedule.activities().size) {
-//            val act = schedule.activities().toList()[i]
-//            val durMin = act.duration.inWholeMinutes
-//            val deviation = Math.round(rand.getGaussian(0.0, 1.0) * durMin / 20.0)
-//            act.duration = min(max(1.0, (durMin + deviation).toDouble()), 10080.0).minutes
-//        }
+        val schedule = element.schedule
+        val rand = element.random
+        for (i in 0 until schedule.activities().size) {
+            val act = schedule.activities().toList()[i]
+            val durMin = act.duration.inWholeMinutes
+            val deviation = (rand.getGaussian(0.0, 1.0) * durMin / 20.0).roundToInt()
+            act.duration = min(max(1.0, (durMin + deviation).toDouble()), 10080.0).minutes //TODO legacy shift algorithm is fixed to one week?!
+        }
     }
 
     override fun execute() = super.execute().also {
