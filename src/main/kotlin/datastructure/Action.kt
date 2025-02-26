@@ -53,9 +53,14 @@ sealed interface Action : Comparable<Action> {
 
     fun <T> accept(actionVisitor: ActionVisitor<T>): T
     operator fun compareTo(time: AbsoluteTime): Int {
-        if (endTime < time) return -1
-        if (startTime > time) return 1
-        return 0
+        /*
+            if (endTime < time) return -1
+            if (startTime > time) return 1
+            return 0
+
+            in branch less
+         */
+        return (startTime > time).compareTo(endTime < time)
     }
 }
 
@@ -108,7 +113,7 @@ sealed interface MovingAction : Action {
     override val actionType: ActionType
         get() = ActionType.LEG
 
-    val transportType: Mode
+    val transportType: Mode // TODO can we rename this property to mode?
 }
 
 /**
@@ -220,9 +225,6 @@ data class RawActivity(
         var result = location.hashCode()
         result = 31 * result + startTime.hashCode()
         result = 31 * result + endTime.hashCode()
-        result = 31 * result + earliestStartTime.hashCode()
-        result = 31 * result + latestEndTime.hashCode()
-        result = 31 * result + type.hashCode()
         return result
     }
 }
@@ -241,7 +243,6 @@ interface Leg : MovingAction {
     override var latestEndTime: AbsoluteTime
 
     override var transportType: Mode
-
     override fun equals(other: Any?): Boolean
     override fun hashCode(): Int
 
@@ -335,7 +336,6 @@ data class RawLeg(
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
-
     override fun equals(other: Any?): Boolean {
         if (other !is MovingAction) return false
         return startTime == other.startTime &&
@@ -349,8 +349,6 @@ data class RawLeg(
         result = 31 * result + startLocation.hashCode()
         result = 31 * result + endLocation.hashCode()
         result = 31 * result + endTime.hashCode()
-        result = 31 * result + earliestStartTime.hashCode()
-        result = 31 * result + latestEndTime.hashCode()
         return result
     }
 }

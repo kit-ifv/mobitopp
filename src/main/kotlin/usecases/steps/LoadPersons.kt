@@ -12,10 +12,10 @@ import domain.data.PersonId
 import domain.data.Sex
 import domain.data.SharingStation
 import domain.data.SharingStationId
+import domain.enums.ActivityType
 import domain.resources.Subscribable
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
@@ -42,6 +42,8 @@ interface LoadPersonsContext : Context {
     val employmentCodes: CodePlan<Employment>
     val graduationCodes: CodePlan<Graduation>
     val sexCodes: CodePlan<Sex>
+
+    val homeActivityType: ActivityType
 
     val defaultPersonFile: File
         get() = File(demandFolder.path + "\\demand-data\\person.csv")
@@ -74,30 +76,29 @@ data class PersonColumns(
 )
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun <S, C> S.preparePersons(
-    file: File = context.defaultPersonFile,
+fun LoadPersonsContext.preparePersons(
+    file: File = defaultPersonFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
-    incomeUnit: CurrencyUnit = context.costUnit,
-    filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
-
-) where S : ModelExecution<C>, C : LoadPersonsContext {
+    incomeUnit: CurrencyUnit = costUnit,
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
+) {
     val providersByNameFunction: () -> Map<String, Subscribable<Person>> = {
-        context.sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
+        sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
     }
 
     val csvParser = CsvParser<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
             id = row.id(columns.idColumn),
-            household = context.getHousehold(row, columns.householdColumn),
-            context.simulationSeed,
+            household = getHousehold(row, columns.householdColumn),
+            simulationSeed,
         ) {
             age = row.int(columns.ageColumn)
-            employment = row.decodeName(columns.employmentColumn, context.employmentCodes)
-            sex = row.decodeName(columns.sexColumn, context.sexCodes)
-            graduation = row.decode(columns.graduationColumn, context.graduationCodes)
+            employment = row.decodeName(columns.employmentColumn, employmentCodes)
+            sex = row.decodeName(columns.sexColumn, sexCodes)
+            graduation = row.decode(columns.graduationColumn, graduationCodes)
             income = row.int().currency(columns.incomeColumn, incomeUnit)
             hasBike = row.boolean(columns.bikeColumn)
             hasCommuterTicket = row.boolean(columns.commuterTicketColumn)
@@ -110,38 +111,34 @@ fun <S, C> S.preparePersons(
         }
     }
 
-    val internalFilter = { row: Row -> columns.filter(row, context) }
+    val internalFilter = { row: Row -> columns.filter(row, this) }
     this.preparePersonsFile(csvParser.withFilter(internalFilter), file, delimiter)
 }
 
-fun <S, C> S.preparePersonsFile(
+fun LoadPersonsContext.preparePersonsFile(
     parser: CsvParser<MutablePerson>,
-    file: File = context.defaultPersonFile,
+    file: File = defaultPersonFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadPersonsContext {
-    this.addStep(
-        LoadCsvStep<MutablePerson, PersonId>(
-            file = file,
-            name = "Load persons from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.personRepository,
-            dependentRepositories = context.let {
-                setOf(it.householdRepository, it.sharingStationsRepository)
-            },
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep<MutablePerson, PersonId>(
+        file = file,
+        name = "Load persons from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = personRepository,
+        dependentRepositories = setOf(householdRepository, sharingStationsRepository),
+        validationMock = listOf() // TODO
     )
 }
 
-fun <S, C> S.finishPersons() where S : ModelExecution<C>, C : LoadPersonsContext {
-    this.addStep(SealStep(context.personRepository))
+fun LoadPersonsContext.finishPersons() = runStep {
+    SealStep(personRepository)
 }
 
-fun <S, C> S.loadPersons(
-    file: File = context.defaultPersonFile,
-    filter: PersonColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : LoadPersonsContext {
+fun LoadPersonsContext.loadPersons(
+    file: File = defaultPersonFile,
+    filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
+) {
     this.preparePersons(file = file, filter = filter)
     this.finishPersons()
 }

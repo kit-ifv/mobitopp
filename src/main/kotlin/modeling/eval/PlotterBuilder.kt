@@ -1,6 +1,6 @@
 package modeling.eval
 
-import modeling.steps.ModelExecution
+import modeling.steps.Context
 import modeling.steps.ModelStep
 import modeling.validation.Warning
 import modeling.validation.validateScope
@@ -11,8 +11,8 @@ data class PlotterBuilder<E, G, X, A, Y, C>(
     val values: PlotDataSpecification<E, G, X, A, Y, C>
 )
 
-fun <M, C> M.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) where M : ModelExecution<C> {
-    addStep(object : ModelStep {
+fun Context.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) = runStep {
+    object : ModelStep {
 
         private val plotter = setup()
         override val name = "Add Plot ${plotter.name}"
@@ -24,7 +24,7 @@ fun <M, C> M.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) where M : ModelExec
         override fun verifyInput(): Warning? = validateScope { }
 
         override fun mockBehavior(): Warning? = validateScope { }
-    })
+    }
 }
 
 fun <E> forData(entities: () -> List<E>) = PlotterBuilderWithEntities(entities)

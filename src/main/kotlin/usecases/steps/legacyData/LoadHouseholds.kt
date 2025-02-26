@@ -11,7 +11,6 @@ import domain.location.parseRoadPosition
 import modeling.steps.Context
 import modeling.steps.FilterIdsStep
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
@@ -68,33 +67,31 @@ data class HouseholdColumns(
 )
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun <S, C> S.prepareHouseholds(
-    file: File = context.defaultHouseholdFile,
+fun LoadHouseholdContext.prepareHouseholds(
+    file: File = defaultHouseholdFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: HouseholdColumns = HouseholdColumns(),
     roadPositionParser: (String) -> Location = String::parseRoadPosition,
-    incomeUnit: CurrencyUnit = context.costUnit,
-//    economicalStatusCodes: CodePlan<EconomicStatus>? = null, //to be consistent within project only define in context once!
+    incomeUnit: CurrencyUnit = costUnit,
     filter: HouseholdColumns.(Row) -> Boolean = { true }
-) where S : ModelExecution<C>, C : LoadHouseholdContext {
-    // TODO
+) {
     val parser = CsvParser<MutableHousehold>(errorHandling) { row ->
 
         MutableHousehold(
             id = row.id(columns.hhIdColumn),
-            context.simulationSeed,
+            simulationSeed,
         ) {
             householdNumber = row.long(columns.hhNumberColumn)
             surveyYear = row.int(columns.yearColumn)
             domCode = row.int(columns.domCodeColumn)
             type = row.int(columns.typeColumn)
             incomePerMonth = row.currency(columns.incomeColumn, incomeUnit)
-            economicStatus = row.decode(columns.economicalStatusColumn, context.economicalStatusCodes)
+            economicStatus = row.decode(columns.economicalStatusColumn, economicalStatusCodes)
 
             // Robin: I converted this builder call to the location as found in [Household]
             location = row(columns.locationColumn, roadPositionParser).withZone(
-                context.getLegacyZone(row.int(columns.zoneColumn))
+                getLegacyZone(row.int(columns.zoneColumn))
             )
         }
     }
@@ -103,43 +100,39 @@ fun <S, C> S.prepareHouseholds(
     this.prepareHouseholdsFile(parser.withFilter(filterWrap), file, delimiter)
 }
 
-fun <S, C> S.prepareHouseholdsFile(
+fun LoadHouseholdContext.prepareHouseholdsFile(
     parser: CsvParser<MutableHousehold>,
-    file: File = context.defaultHouseholdFile,
+    file: File = defaultHouseholdFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadHouseholdContext {
-    this.addStep(
-        LoadCsvStep(
-            file = file,
-            name = "Load households from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.householdRepository,
-            dependentRepositories = setOf(context.zoneRepository),
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep(
+        file = file,
+        name = "Load households from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = householdRepository,
+        dependentRepositories = setOf(zoneRepository),
+        validationMock = listOf() // TODO
     )
 }
 
-fun <S, C> S.finishHouseholds() where S : ModelExecution<C>, C : LoadHouseholdContext {
-    this.addStep(SealStep(context.householdRepository))
+fun LoadHouseholdContext.finishHouseholds() = runStep {
+    SealStep(householdRepository)
 }
 
-fun <S, C> S.loadHouseholds(
-    file: File = context.defaultHouseholdFile,
+fun LoadHouseholdContext.loadHouseholds(
+    file: File = defaultHouseholdFile,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     filter: HouseholdColumns.(Row) -> Boolean = {
         true
     }
-) where S : ModelExecution<C>, C : Context, C : LoadHouseholdContext {
+) {
     this.prepareHouseholds(file = file, errorHandling = errorHandling, filter = filter)
     this.finishHouseholds()
 }
 
-fun <S, C> S.filterHouseholds(valid: Collection<HouseholdId>) where S : ModelExecution<C>, C : LoadHouseholdContext {
-    this.addStep(
-        FilterHouseholds(context, valid)
-    )
+fun LoadHouseholdContext.filterHouseholds(valid: Collection<HouseholdId>) = runStep {
+    FilterHouseholds(this, valid)
 }
 
 class FilterHouseholds(

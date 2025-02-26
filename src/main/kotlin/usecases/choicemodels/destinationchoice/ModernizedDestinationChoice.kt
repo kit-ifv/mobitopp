@@ -4,7 +4,6 @@ import datastructure.StationaryAction
 import domain.data.Person
 import domain.data.Zone
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.enums.ZoneClassification
 import domain.location.Location
@@ -18,6 +17,7 @@ import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.ILegacyDestinationChoice
 import usecases.choicemodels.NoFilter
 import usecases.choicemodels.destinationchoice.parameters.BusinessParameters
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.destinationchoice.parameters.DefaultDestinationParameters
 import usecases.choicemodels.destinationchoice.parameters.IDefaultDestinationParameters
 import usecases.choicemodels.destinationchoice.parameters.LeisureParameters
@@ -42,9 +42,10 @@ class ModernizedDestinationChoice(
     ) -> Boolean = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
     zones: Set<Zone>,
     val modes: ChoiceModelModes,
+    val purposes: ChoiceModelPurposes,
     val filter: ChoiceFilter<Mode, Person> = NoFilter,
     val parkstress: (Location) -> Double = { 0.0 },
-    private val parameterObject: ParameterObject = ParameterObject()
+    private val parameterObject: ParameterObject = ParameterObject(purposes)
 ) : ChoiceModel<Person, Location>,
     ILegacyDestinationChoice {
     private val _choices: Set<Location> = zones.map { it.centroid }.toSet()
@@ -74,7 +75,7 @@ class ModernizedDestinationChoice(
             nextActivity.type,
             modes,
             prevActivity.endTime,
-            person.nextFixedActivity()?.location ?: person.household.location
+            person.nextFixedActivity(purposes)?.location ?: person.household.location
         )
 
         val zonesWithAttractivity =
@@ -120,7 +121,7 @@ class ModernizedDestinationChoice(
             nextActivity.type,
             availableModes,
             time,
-            person.nextFixedActivity()?.location ?: person.household.location
+            person.nextFixedActivity(purposes)?.location ?: person.household.location
 
         )
         return calculate(target, person, scope, origin, destination, nextActivity)
@@ -185,16 +186,10 @@ class ModernizedDestinationChoice(
                 ).toDouble(CurrencyUnit.EUROS).coerceAtMost(1000.0)
                 asc_pkw + b_tt_pkw * travelTime + b_cost_pkw * travelCost +
                     when (scope.nextActivityType) {
-                        LegacyActivityType.WORK -> b_arb_on_pkw
-                        LegacyActivityType.BUSINESS -> b_dienst_on_pkw
-                        LegacyActivityType.SERVICE -> b_service_on_pkw
-                        LegacyActivityType.LEISURE,
-                        LegacyActivityType.LEISURE_INDOOR,
-                        LegacyActivityType.LEISURE_OUTDOOR,
-                        LegacyActivityType.LEISURE_OTHER,
-                        LegacyActivityType.LEISURE_WALK,
-                        LegacyActivityType.LEISURE_SIGHTSEEING,
-                        LegacyActivityType.PRIVATE_VISIT -> b_freizeit_on_pkw
+                        purposes.work -> b_arb_on_pkw
+                        purposes.business -> b_dienst_on_pkw
+                        purposes.service -> b_service_on_pkw
+                        in purposes.leisureTypes -> b_freizeit_on_pkw
 
                         else -> 0.0
                     }
@@ -213,10 +208,10 @@ class ModernizedDestinationChoice(
                     DurationUnit.MINUTES
                 ).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
-                        LegacyActivityType.WORK -> b_arb_on_mf
-                        LegacyActivityType.BUSINESS -> b_dienst_on_mf
-                        LegacyActivityType.SERVICE -> b_service_on_mf
-                        LegacyActivityType.HOME -> b_home_on_mf
+                        purposes.work -> b_arb_on_mf
+                        purposes.business -> b_dienst_on_mf
+                        purposes.service -> b_service_on_mf
+                        purposes.home -> b_home_on_mf
                         else -> 0.0
                     }
             }
@@ -240,16 +235,10 @@ class ModernizedDestinationChoice(
                         scope.time
                     ).toDouble(CurrencyUnit.EUROS).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
-                        LegacyActivityType.WORK -> b_arb_on_oev
-                        LegacyActivityType.BUSINESS -> b_dienst_on_oev
-                        LegacyActivityType.SERVICE -> b_service_on_oev
-                        LegacyActivityType.LEISURE,
-                        LegacyActivityType.LEISURE_INDOOR,
-                        LegacyActivityType.LEISURE_OUTDOOR,
-                        LegacyActivityType.LEISURE_OTHER,
-                        LegacyActivityType.LEISURE_WALK,
-                        LegacyActivityType.LEISURE_SIGHTSEEING,
-                        LegacyActivityType.PRIVATE_VISIT -> b_freizeit_on_oev
+                        purposes.work -> b_arb_on_oev
+                        purposes.business -> b_dienst_on_oev
+                        purposes.service -> b_service_on_oev
+                        in purposes.leisureTypes -> b_freizeit_on_oev
 
                         else -> 0.0
                     } +
@@ -273,16 +262,10 @@ class ModernizedDestinationChoice(
                         scope.time
                     ).toDouble(DurationUnit.MINUTES).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
-                        LegacyActivityType.WORK -> b_arb_on_fuss
-                        LegacyActivityType.BUSINESS -> b_dienst_on_fuss
-                        LegacyActivityType.SERVICE -> b_service_on_fuss
-                        LegacyActivityType.LEISURE,
-                        LegacyActivityType.LEISURE_INDOOR,
-                        LegacyActivityType.LEISURE_OUTDOOR,
-                        LegacyActivityType.LEISURE_OTHER,
-                        LegacyActivityType.LEISURE_WALK,
-                        LegacyActivityType.LEISURE_SIGHTSEEING,
-                        LegacyActivityType.PRIVATE_VISIT -> b_freizeit_on_fuss
+                        purposes.work -> b_arb_on_fuss
+                        purposes.business -> b_dienst_on_fuss
+                        purposes.service -> b_service_on_fuss
+                        in purposes.leisureTypes -> b_freizeit_on_fuss
 
                         else -> 0.0
                     }
@@ -297,16 +280,10 @@ class ModernizedDestinationChoice(
                     scope.time
                 ).toDouble(DurationUnit.MINUTES).coerceAtMost(1000.0) +
                     when (scope.nextActivityType) {
-                        LegacyActivityType.WORK -> b_arb_on_rad
-                        LegacyActivityType.BUSINESS -> b_dienst_on_rad
-                        LegacyActivityType.SERVICE -> b_service_on_rad
-                        LegacyActivityType.LEISURE,
-                        LegacyActivityType.LEISURE_INDOOR,
-                        LegacyActivityType.LEISURE_OUTDOOR,
-                        LegacyActivityType.LEISURE_OTHER,
-                        LegacyActivityType.LEISURE_WALK,
-                        LegacyActivityType.LEISURE_SIGHTSEEING,
-                        LegacyActivityType.PRIVATE_VISIT -> b_freizeit_on_rad
+                        purposes.work -> b_arb_on_rad
+                        purposes.business -> b_dienst_on_rad
+                        purposes.service -> b_service_on_rad
+                        in purposes.leisureTypes -> b_freizeit_on_rad
 
                         else -> 0.0
                     }
@@ -359,25 +336,18 @@ class LogsumCalculation {
 }
 
 data class ParameterObject(
+    val purposes: ChoiceModelPurposes,
     val shared: IDefaultDestinationParameters = DefaultDestinationParameters,
     val leisure: DestinationRequirements = LeisureParameters,
     val business: DestinationRequirements = BusinessParameters,
     val service: DestinationRequirements = ServiceParameters,
-    val shopping: DestinationRequirements = ShoppingParameters
+    val shopping: DestinationRequirements = ShoppingParameters,
 ) {
     fun change(type: ActivityType): DestinationRequirements {
         return when (type) {
-            LegacyActivityType.BUSINESS,
-            LegacyActivityType.BUSINESS_TRAVEL,
-            LegacyActivityType.BUSINESS_OUT,
-            LegacyActivityType.BUSINESS_TO_WORK -> BusinessParameters
-
-            LegacyActivityType.SHOPPING,
-            LegacyActivityType.PRIVATE_BUSINESS,
-            LegacyActivityType.SHOPPING_OTHER,
-            LegacyActivityType.SHOPPING_DAILY -> ShoppingParameters
-
-            LegacyActivityType.SERVICE -> ServiceParameters
+            in purposes.businessTypes -> BusinessParameters
+            in purposes.shoppingTypes -> ShoppingParameters
+            purposes.service -> ServiceParameters
             else -> LeisureParameters
         }
     }

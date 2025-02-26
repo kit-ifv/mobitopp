@@ -1,7 +1,7 @@
 package usecases.choicemodels.modechoice.parameters
 
-import domain.enums.LegacyActivityType
 import units.kilometers
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomAge
 import usecases.choicemodels.modechoice.CustomDistance
@@ -21,7 +21,7 @@ import usecases.choicemodels.modechoice.WithCost
 import utils.units.AbsoluteTime
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-internal object TaxiParameters : WithCost {
+internal class TaxiParameters(purposes: ChoiceModelPurposes) : WithCost {
     override val alpha: Alpha = object :
         Alpha,
         StandardCars,
@@ -41,6 +41,7 @@ internal object TaxiParameters : WithCost {
         override val shopping: Double = -1.97851919243732 + 0.3
         override val drivingLicence: Double = -1.24853468668945
         override val constant: Double = -6.26874836363272 + 1
+        override val purposes: ChoiceModelPurposes = purposes
 
         /**
          * Parameter influencing the Taxi Utility of young adults based on an age categorization defined by [evaluateAge]
@@ -101,13 +102,14 @@ internal object TaxiParameters : WithCost {
 
     override val travelTimeBeta: TravelTimeBeta = object : TravelTimeBeta(), CustomNextActivity {
         override val constant: Double = -0.0337950092387434
+        override val purposes: ChoiceModelPurposes = purposes
         val business = -0.0165983651233786
         override fun evaluateNextActivity(person: ModePersonScope): Double {
-            return if (person.nextActivity.type == LegacyActivityType.BUSINESS) business else 0.0
+            return if (person.nextActivity.type == purposes.business) business else 0.0
         }
     }
 
-    override val travelCostBeta: TravelCostBeta = object : NumCarCostBeta(), CustomSimulationTime {
+    override val travelCostBeta: TravelCostBeta = object : NumCarCostBeta(purposes), CustomSimulationTime {
         val b_taxi_on_cost = 0.02
         override val constant: Double = super.constant + b_taxi_on_cost
 

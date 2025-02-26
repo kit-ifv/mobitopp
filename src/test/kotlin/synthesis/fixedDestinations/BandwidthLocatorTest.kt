@@ -6,7 +6,6 @@ import datastructure.discardMetric
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import org.junit.jupiter.api.Test
 import synthesis.CommuteDistance
@@ -15,6 +14,7 @@ import units.Distance
 import units.Hemisphere
 import units.UTMPosition
 import units.kilometers
+import usecases.LegacyActivityType
 import kotlin.math.E
 import kotlin.test.BeforeTest
 import kotlin.test.assertContentEquals

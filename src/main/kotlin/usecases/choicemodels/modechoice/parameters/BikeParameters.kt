@@ -1,6 +1,7 @@
 package usecases.choicemodels.modechoice.parameters
 
 import domain.enums.Mode
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomPreviousMode
 import usecases.choicemodels.modechoice.ModePersonScope
@@ -12,7 +13,7 @@ import usecases.choicemodels.modechoice.StandardHasCommuterTicket
 import usecases.choicemodels.modechoice.TravelTimeBeta
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-internal class BikeParameters(bike: Mode) : NoCost {
+internal class BikeParameters(bike: Mode, purposes: ChoiceModelPurposes) : NoCost {
     override val alpha: Alpha =
         object :
             Alpha,
@@ -29,6 +30,7 @@ internal class BikeParameters(bike: Mode) : NoCost {
             override val shopping: Double = -0.00714067693903813 + 0.15
             override val numberOfCars: Double = -0.854549090872297
             override val constant: Double = -3.34401676623963 - 0.5 - 0.05 - 0.2
+            override val purposes: ChoiceModelPurposes = purposes
             override val minors: Double = 2.78514456752499
             override val youngAdults: Double = 0.389316612655132
             override val adults: Double = 0.113391623780271
@@ -50,5 +52,6 @@ internal class BikeParameters(bike: Mode) : NoCost {
         override val shopping: Double = 0.0
         override val business: Double = -0.0448785360310769 - 0.02
         override val constant: Double = -0.132222310507272 - 0.05
+        override val purposes: ChoiceModelPurposes = purposes
     }
 }

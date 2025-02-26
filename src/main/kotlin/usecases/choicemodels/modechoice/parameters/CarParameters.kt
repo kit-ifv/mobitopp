@@ -3,6 +3,7 @@ package usecases.choicemodels.modechoice.parameters
 import domain.data.EconomicStatus
 import domain.enums.Mode
 import units.kilometers
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.Alpha
 import usecases.choicemodels.modechoice.CustomDistance
 import usecases.choicemodels.modechoice.CustomEconomicStatus
@@ -18,7 +19,7 @@ import usecases.choicemodels.modechoice.TravelTimeBeta
 import usecases.choicemodels.modechoice.WithCost
 
 @Suppress("MagicNumber") // It's ok detekt, parameters may be magic numbers
-internal class CarParameters(car: Mode) : WithCost {
+internal class CarParameters(car: Mode, purposes: ChoiceModelPurposes) : WithCost {
     override val alpha: Alpha =
         object :
             Alpha,
@@ -41,6 +42,7 @@ internal class CarParameters(car: Mode) : WithCost {
 
             // TODO move access egress out of constant
             override val constant: Double = -4.69347301935537 + 1.7 + 0.1 + 0.1 + (accessEgress * 3)
+            override val purposes: ChoiceModelPurposes = purposes
 
             override val female: Double = -0.0530617111718515
             override val commuterTicket = -0.42095211929704
@@ -71,10 +73,13 @@ internal class CarParameters(car: Mode) : WithCost {
         override val shopping: Double = 0.0
         override val business: Double = 0.0
         override val constant: Double = -0.0397735554726612 - 0.02
+        override val purposes: ChoiceModelPurposes = purposes
     }
     override val travelCostBeta: TravelCostBeta = object : TravelCostBeta(), CustomEconomicStatus {
         val economicStatus: Double = 0.0276716356674532
         override val constant: Double = -0.0681515897245829 - 0.03
+        override val purposes: ChoiceModelPurposes = purposes
+
         override fun evaluateEconomicStatus(person: ModePersonScope): Double {
             return if (person.person.household.economicStatus == EconomicStatus.VERY_HIGH) this.economicStatus else 0.0
         }

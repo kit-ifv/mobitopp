@@ -14,6 +14,7 @@ import units.euros
 import usecases.AttractivenessModel
 import usecases.choicemodels.ChoiceModelModes
 import usecases.choicemodels.IGeneratedHcUtilityFunction
+import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.choicemodels.modechoice.parameters.BikeParameters
 import usecases.choicemodels.modechoice.parameters.BikesharingParameters
 import usecases.choicemodels.modechoice.parameters.CarParameters
@@ -34,19 +35,23 @@ import kotlin.time.DurationUnit
 
 data class ModeParameters(
     val modes: ChoiceModelModes,
-    val pedestrianParameters: Evaluable = PedestrianParameters,
-    val bikeParameters: Evaluable = BikeParameters(modes.bike),
-    val carParameters: Evaluable = CarParameters(modes.car),
-    val bikesharingParameters: Evaluable = BikesharingParameters,
-    val moiaParameters: WithCost = MoiaParameters, // TODO moia has complex calculation in the utility function
-    val csffParameters: Evaluable = CarsharingFreeFloatingParameters,
-    val cssbParameters: Evaluable = CarsharingStationParameters(modes.carSharingStation),
-    val taxiParameters: Evaluable = TaxiParameters,
-    val passengerParameters: Evaluable = PassengerParameters(modes.passenger),
+    val purposes: ChoiceModelPurposes,
+    val pedestrianParameters: Evaluable = PedestrianParameters(purposes),
+    val bikeParameters: Evaluable = BikeParameters(modes.bike, purposes),
+    val carParameters: Evaluable = CarParameters(modes.car, purposes),
+    val bikesharingParameters: Evaluable = BikesharingParameters(purposes),
+    val moiaParameters: WithCost = MoiaParameters(
+        purposes
+    ), // TODO moia has complex calculation in the utility function
+    val csffParameters: Evaluable = CarsharingFreeFloatingParameters(purposes),
+    val cssbParameters: Evaluable = CarsharingStationParameters(modes.carSharingStation, purposes),
+    val taxiParameters: Evaluable = TaxiParameters(purposes),
+    val passengerParameters: Evaluable = PassengerParameters(modes.passenger, purposes),
     val publicTransportParameters: WithCost = PublicTransportParameters(
-        modes.publicTransport
+        modes.publicTransport,
+        purposes
     ), // TODO pt has complex calculation in utility function.
-    val eScooterParameters: Evaluable = EScooterParameters,
+    val eScooterParameters: Evaluable = EScooterParameters(purposes),
 )
 
 class ModernizedModeUtility(
@@ -54,6 +59,8 @@ class ModernizedModeUtility(
     val attractivenessModel: AttractivenessModel,
     parameters: ModeParameters,
 ) : IGeneratedHcUtilityFunction {
+
+    private val purposes = attractivenessModel.purposes
 
     lateinit var utilityScope: CombinedScope
 
@@ -174,7 +181,7 @@ class ModernizedModeUtility(
     ): Double {
         updateUtilityScope(person, origin, destination, previousActivity, nextActivity, impedance)
         val travelTime: Duration = impedance.duration(origin, destination, bike, previousActivity.endTime)
-        val travelTimeFixed: Duration = person.nextFixedActivity()?.let {
+        val travelTimeFixed: Duration = person.nextFixedActivity(purposes)?.let {
             impedance.duration(destination, it.location, bike, previousActivity.endTime)
         } ?: Duration.ZERO
         val maxTravelTime = max(travelTimeFixed, travelTime)
@@ -194,13 +201,13 @@ class ModernizedModeUtility(
         updateUtilityScope(person, origin, destination, previousActivity, nextActivity, impedance)
         val travelTimeDirect = impedance.duration(origin, destination, car, previousActivity.endTime)
 
-        val travelTimeFixed: Duration = person.nextFixedActivity()?.let {
+        val travelTimeFixed: Duration = person.nextFixedActivity(purposes)?.let {
             impedance.duration(destination, it.location, car, previousActivity.endTime)
         } ?: Duration.ZERO
 
         val travelTime = max(travelTimeFixed, travelTimeDirect)
         val travelCostDirect = impedance.cost(origin, destination, car, previousActivity.endTime)
-        val travelCostFixed = person.nextFixedActivity()?.let {
+        val travelCostFixed = person.nextFixedActivity(purposes)?.let {
             impedance.cost(destination, it.location, car, previousActivity.endTime)
         } ?: 0.euros
         val travelCost = max(travelCostFixed, travelCostDirect)
