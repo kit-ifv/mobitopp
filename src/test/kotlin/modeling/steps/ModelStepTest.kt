@@ -36,8 +36,8 @@ class ModelStepTest {
     private lateinit var filterStep: FilterStep<TestEntity, TestId>
     private lateinit var filterIdsStep: FilterIdsStep<TestEntity, TestId>
 
-    private lateinit var updateStep: UpdateStep<TestEntity, TestId>
-    private lateinit var transformStep: TransformStep<TestEntity, TestId>
+    private lateinit var updateEachStep: UpdateEachStep<TestEntity, TestId>
+    private lateinit var transformEachStep: TransformEachStep<TestEntity, TestId>
     private lateinit var transformAllStep: TransformAllStep<TestEntity, TestId>
 
     private lateinit var forEachStep: ForEachStep<ImmutableEntity, TestId>
@@ -67,8 +67,8 @@ class ModelStepTest {
 
         filterStep = filterStep("test_filter", ::filterOddIndex, repository)
         filterIdsStep = filterIdStep("test_filter_ids", ::filterOddId, repository)
-        updateStep = updateStep("test_update", ::updateIntAttToStringLength, repository)
-        transformStep = transformStep("test_transform", ::transformOddIdSquared, repository)
+        updateEachStep = updateStep("test_update", ::updateIntAttToStringLength, repository)
+        transformEachStep = transformStep("test_transform", ::transformOddIdSquared, repository)
         transformAllStep = transformAllStep("test_transform_all", ::transformAllCumSumStringLength, repository)
 
         resultList = mutableListOf()
@@ -131,18 +131,18 @@ class ModelStepTest {
     fun updateIntAttributeToStringLength() {
         initRepositoryForTest()
 
-        updateStep.execute()
+        updateEachStep.execute()
         assertRepoContainsElements(expectedElementsMappedStringLength)
-        assertRepoSource(resource, "update each element:", updateStep)
+        assertRepoSource(resource, "update each element:", updateEachStep)
     }
 
     @Test
     fun transformOddIdSquared() {
         initRepositoryForTest()
 
-        transformStep.execute()
+        transformEachStep.execute()
         assertRepoContainsElements(transformedOddIdSquared)
-        assertRepoSource(resource, "replace each element:", transformStep)
+        assertRepoSource(resource, "replace each element:", transformEachStep)
 
         resource.elements.forEach {
             assertNotContains(repository.elements.toList(), it)
@@ -419,7 +419,7 @@ private fun updateStep(
     name: String,
     update: (TestEntity) -> Unit,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : UpdateStep<TestEntity, TestId>() {
+) = object : UpdateEachStep<TestEntity, TestId>() {
     override val name = name
     override val repository: MutableRepository<TestEntity, TestId> = repository
     override fun update(element: TestEntity) = update(element)
@@ -431,7 +431,7 @@ private fun transformStep(
     name: String,
     transform: (TestEntity) -> TestEntity?,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : TransformStep<TestEntity, TestId>() {
+) = object : TransformEachStep<TestEntity, TestId>() {
     override val name = name
     override val repository: MutableRepository<TestEntity, TestId> = repository
     override fun transform(element: TestEntity) = transform(element)

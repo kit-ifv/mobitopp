@@ -36,6 +36,7 @@ import units.DistanceUnit
 import usecases.AttractivenessModel
 import usecases.LegacyActivityType
 import usecases.LegacyMode
+import usecases.steps.legacyData.HomeLocationModelContext
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
@@ -86,7 +87,8 @@ data class ProjectContext(
     RunSimContext,
     WriteTripsCsvContext,
     SimulationContext,
-    RoadNetworkContext {
+    RoadNetworkContext,
+    HomeLocationModelContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")

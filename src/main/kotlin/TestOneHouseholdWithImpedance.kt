@@ -7,7 +7,7 @@ import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
 import usecases.steps.StationColumns
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignHomeLocations
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.finishSharingStations
 import usecases.steps.legacyData.loadZones
 import usecases.steps.loadAttractivities
@@ -67,7 +67,7 @@ fun main() {
         finishSharingStations()
         loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
         loadTestSet()
-        assignHomeLocations()
+        applyHomeLocationsInSchedule()
         assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())
         simulate()
         output()

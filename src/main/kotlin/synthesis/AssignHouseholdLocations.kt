@@ -5,6 +5,7 @@ import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import synthesis.domain.SynthesisHousehold
 import units.Coordinate
+import units.Distance
 import units.GPSCoordinate
 import kotlin.math.cos
 import kotlin.math.sin
@@ -13,43 +14,43 @@ import kotlin.random.Random
 /**
  * Assign a Location to a household with no information other than the household and the zone
  */
-fun interface AssignHouseholdLocations<T> {
-    fun generateLocation(zone: Zone, household: SynthesisHousehold<out T>): Location
+fun interface AssignHouseholdLocations<H> {
+    fun generateLocation(zone: Zone, household: H): Location
 }
 
 /**
  * Assign a list of locations, because sometimes it makes sense to handle the group as a whole (To avoid location
  * collisions, for example)
  */
-fun interface GroupAssignHouseholdLocations<T> {
+fun interface GroupAssignHouseholdLocations<H> {
     fun generateLocations(
         zone: Zone,
-        householdsToLocate: List<SynthesisHousehold<out T>>
-    ): List<Pair<SynthesisHousehold<out T>, Location>>
+        householdsToLocate: List<H>
+    ): List<Pair<H, Location>>
 }
 
-class TrivialGroupStrategy<T>(val singularStrategy: AssignHouseholdLocations<T>) : GroupAssignHouseholdLocations<T> {
+class TrivialGroupStrategy<H>(val singularStrategy: AssignHouseholdLocations<H>) : GroupAssignHouseholdLocations<H> {
     override fun generateLocations(
         zone: Zone,
-        householdsToLocate: List<SynthesisHousehold<out T>>
-    ): List<Pair<SynthesisHousehold<out T>, Location>> {
+        householdsToLocate: List<H>
+    ): List<Pair<H, Location>> {
         return householdsToLocate.map { it to singularStrategy.generateLocation(zone, it) }
     }
 }
 
-class AssignAroundZoneCentroid(private val radius: Double) : AssignHouseholdLocations<Any> {
-    override fun generateLocation(zone: Zone, household: SynthesisHousehold<out Any>): Location {
+class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<H> {
+    override fun generateLocation(zone: Zone, household: H): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
     }
 }
 
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
-fun Coordinate.randomCoordinate(radiusInMeters: Double, random: Random = GlobalRandomizer): Coordinate {
+fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomizer): Coordinate {
     val lat1 = latitudeRadians.toDouble()
     val lon1 = longitudeRadians.toDouble()
 
     // Random distance from the center within the radius (in meters)
-    val randomDistance = random.nextDouble() * radiusInMeters
+    val randomDistance = random.nextDouble() * radius.inWholeMeters
 
     // Random bearing (angle) in radians
     val randomAngle = random.nextDouble(0.0, 2 * Math.PI)
