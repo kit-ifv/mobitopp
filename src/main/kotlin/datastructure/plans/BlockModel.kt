@@ -179,10 +179,10 @@ class BlockModel(
     }
 
     override fun remove(leg: Leg) {
-        val changedBlock = legBlocks?.first { block -> block.containsAction(leg) }
+        val changedBlock = legBlocks?.firstOrNull { block -> block.containsAction(leg) }
         changedBlock?.let { legBlock ->
-            val b = legBlock.remove(leg)
-            if (b) {
+            val blockIsNowEmpty = legBlock.remove(leg)
+            if (blockIsNowEmpty) {
                 val targetTrip = legBlockList.find { trip -> trip.matches(legBlock) }
                 targetTrip?.let {
                     it.removeDispatcher()
@@ -215,7 +215,7 @@ class BlockModel(
             it.replaceAll(target, to)
             legBlockList
         } ?: run {
-            target.forEach { remove(it) }
+            target.forEach { remove(it) } //TODO here is a bug: (or exotic behaviour) When deleting all elements within a block, the block is removed from the activity schedule, and the new legs are added to a new leg block which is a completely different object. The LinkTrip holds a reference to the original block and may induce headache when debugging
             to.forEach { add(it) }
         }
     }
