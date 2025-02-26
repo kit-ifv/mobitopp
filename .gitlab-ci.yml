@@ -36,8 +36,8 @@ test_update-job:
   image: curlimages/curl:latest
   script:
     - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
-    - echo "--request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" \"$GITLAB_API_URL/BUILD_NUMBER\" --form \"value=$NEW_BUILD_NUMBER\""
-    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=$NEW_BUILD_NUMBER"
+    - echo "--request PUT --header \"PRIVATE-TOKEN:$API_TOKEN\" \"$GITLAB_API_URL/BUILD_NUMBER\" --form \"value=$NEW_BUILD_NUMBER\""
+    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=$NEW_BUILD_NUMBER"
   when: manual
 
 build-job:
