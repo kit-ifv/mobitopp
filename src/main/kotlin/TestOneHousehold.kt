@@ -3,6 +3,7 @@ import domain.enums.Bbsr17
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
 import usecases.steps.StationColumns
 import usecases.steps.assignFixedDestinations
@@ -36,7 +37,7 @@ fun main() {
         )
     }.steps {
         loadZones()
-        context.impedance.value = dummyImpedance
+        impedance.value = dummyImpedance
 //        loadImpedance(
 //            costMatrixConfig = File(
 //                "$ROOT_MTX\\cost-matrix-configuration_transmove_turbo.yaml"
@@ -51,6 +52,7 @@ fun main() {
 
         loadAttractivities(
             file = File("data/attractivities.csv"),
+            legacyChoiceModelPurposes,
         )
         prepareSharingStations(
             errorHandling = ErrorHandling.THROW,
@@ -62,7 +64,7 @@ fun main() {
             columns = StationColumns(vehicleCountColumn = "bikes"),
         )
         finishSharingStations()
-        loadChoiceModels(legacyChoiceModelModes)
+        loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
         loadTestSet()
         assignHomeLocations()
         assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())

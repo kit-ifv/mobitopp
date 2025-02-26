@@ -1,6 +1,6 @@
 package datastructure
 
-import domain.enums.LegacyActivityType
+import domain.enums.ActivityType
 import utils.collections.iterate
 import utils.units.AbsoluteTime
 import kotlin.time.Duration.Companion.minutes
@@ -14,13 +14,13 @@ fun Schedule.applyAt(currentTime: AbsoluteTime, functor: ScheduleModifier) {
     functor.applyTo(this, currentTime)
 }
 
-object SkipToNextHomeActivity : ScheduleModifier {
+class SkipToNextHomeActivity(private val home: ActivityType) : ScheduleModifier {
 
     override fun applyTo(schedule: Schedule, currentTime: AbsoluteTime) {
         if (schedule.present.iterate(schedule.future).hasTimeBoundViolations()) {
             val nextHomeActivity =
                 schedule.activities().dropWhile { it.endTime < currentTime }
-                    .first { it.type == LegacyActivityType.HOME }
+                    .first { it.type == home }
             schedule.dropUntil(nextHomeActivity)
 
             // If the current action is a leg it might be reasonable to redirect the leg, rather than to end it and

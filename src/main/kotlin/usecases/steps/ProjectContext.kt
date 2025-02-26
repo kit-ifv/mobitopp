@@ -21,19 +21,21 @@ import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.AreaType
-import domain.enums.LegacyActivityType
 import domain.enums.Mode
 import domain.enums.Regiostar17
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
+import modeling.steps.ExecutionMode
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
 import modeling.steps.SimulationContext
 import units.CurrencyUnit
 import units.DistanceUnit
 import usecases.AttractivenessModel
+import usecases.LegacyActivityType
+import usecases.LegacyMode
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
@@ -57,7 +59,9 @@ data class ProjectContext(
     override val engineCodes: CodePlan<EngineType> = EngineType,
     override val carSegmentCodes: CodePlan<CarSegment> = CarSegment,
     override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
-    override val modes: CodePlan<Mode>,
+    override val modes: CodePlan<Mode> = LegacyMode,
+
+    override val homeActivityType: ActivityType = LegacyActivityType.HOME,
 
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
@@ -67,7 +71,6 @@ data class ProjectContext(
     override val simulationStart: AbsoluteTime = AbsoluteTime.START,
     override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
-
 ) : Context,
     LoadAttractivenessDataContext,
     LoadZonesContext,
@@ -76,6 +79,7 @@ data class ProjectContext(
     LoadPersonsContext,
     LoadPrivateCarsContext,
     LoadPlannedActivitiesContext,
+    AssignPlannedActivitiesContext,
     LoadFixedDestinationsContext,
     LoadChoiceModelsContext,
     AssignCarsContext,
@@ -83,6 +87,7 @@ data class ProjectContext(
     WriteTripsCsvContext,
     SimulationContext,
     RoadNetworkContext {
+    override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")

@@ -11,6 +11,7 @@ import usecases.choicemodels.GeneratedHcUtilityFunction
 import usecases.choicemodels.LegacyModeChoiceModel
 import usecases.choicemodels.modechoice.ModernizedModeUtility
 import usecases.legacyChoiceModelModes
+import usecases.legacyChoiceModelPurposes
 import kotlin.random.Random
 
 fun main() {
@@ -26,19 +27,21 @@ fun main() {
     val modernizedModeChoice = LegacyModeChoiceModel(
         attractivenessModel,
         modes = legacyChoiceModelModes,
+        purposes = legacyChoiceModelPurposes,
         impedance = controllableImpedance,
         choiceFilter = { modes, _ -> modes }, // Factually no filter
-        utilitiesGenerator = { a, l, m, h, p -> ModernizedModeUtility(m, a, p) }
+        utilitiesGenerator = { a, _, m, _, p -> ModernizedModeUtility(m, a, p) }
 //        utilitiesGenerator = {a, l, m , h -> GeneratedHcUtilityFunction(a, l, m, h) }
     )
 
     val modeChoice2 = LegacyModeChoiceModel(
         attractivenessModel,
         modes = legacyChoiceModelModes,
+        purposes = legacyChoiceModelPurposes,
         impedance = controllableImpedance,
         choiceFilter = { modes, _ -> modes }, // Factually no filter
 //        utilitiesGenerator = { a, l, m, h -> ModernizedModeUtility(m) }
-        utilitiesGenerator = { a, l, m, h, p -> GeneratedHcUtilityFunction(a, l, m, h) }
+        utilitiesGenerator = { a, l, m, h, _ -> GeneratedHcUtilityFunction(a, l, m, legacyChoiceModelPurposes, h) }
     )
     val random = Random(42)
 

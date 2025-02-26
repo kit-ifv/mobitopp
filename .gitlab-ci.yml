@@ -1,82 +1,127 @@
-# This file is a template, and might need editing before it works on your project.
-# This is a sample GitLab CI/CD configuration file that should run without any modifications.
-# It demonstrates a basic 3 stage CI/CD pipeline. Instead of real tests or scripts,
-# it uses echo commands to simulate the pipeline execution.
+# The .gitlab-ci.yml makes use of some variables stored in repositories config:
 #
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
+#  MAJOR: the current releases major version number
+#   - automatically incremented after each major-release-job
 #
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
+#  MINOR: the current releases minor version number
+#   - automatically incremented after each minor-release-job
+#   - reset to 0 after each major-release-job
 #
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+# BUILD_NUMBER: the current releases build number, suffix of the version string
+#  - automatically incremented after each deploy-job
+#  - reset to 0 after each major-release-job and minor-release-job
 #
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Getting-Started.gitlab-ci.yml
+# CI_JOB_TOKEN: token to update version and build numbers in GitLab variables, must be activated in CI/CD settings
+# GITLAB_API_URL: url pointing to the variables endpoint, to update version and build number variables
+#  - e.g. https://gitlab.example.server.com/api/v4/projects/$CI_PROJECT_ID/variables
+#
+# LOCAL_REPO_URL: repository url for hosting local (non-public) artifacts: deploy-job
+# LOCAL_REPO_USERNAME: username for publishing to local (non-public) artifact repository: deploy-job
+# LOCAL_REPO_PASSWORD: password for publishing to local (non-public) artifact repository: deploy-job
+#
+# PUBLIC_REPO_URL: repository url for hosting public artifacts: major-release-job, minor-release-job
+# PUBLIC_REPO_USERNAME: username for publishing to public artifact repository: major-release-job, minor-release-job
+# PUBLIC_REPO_PASSWORD: password for publishing to public artifact repository: major-release-job, minor-release-job
 
+variables:
+  BUILD_VERSION: "$MAJOR.$MINOR.$BUILD_NUMBER"
 
 stages: # List of stages for jobs, and their order of execution
-  #- build
+  - build
   - test
-  - visualize
   - deploy
 
-
-#build-job:       # This job runs in the build stage, which runs first.
-#  stage: build
-#  script:
-#    - echo "Compiling the code..."
-#    - echo "Compile complete."
-
-unit-test-job: # This job runs in the test stage.
-  stage: test
-  # It only starts when the job in the build stage completes successfully.
-  image: amazoncorretto:17
+build-job:
+  stage: build
+  image: amazoncorretto:21
   script:
+    - ./gradlew compileJava
+  artifacts:
+    when: always
+    paths:
+      - build/
 
-    #- ./gradlew build jacocoTestReport
-    - ./gradlew test
+unit-test-job:
+  stage: test
+  image: amazoncorretto:21
+  needs: ["build-job"]
+  script:
+    - ./gradlew test koverXmlReport koverLog
   artifacts:
     when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
-
-    paths:
-      - build/reports/jacoco/test/*
-  coverage: "/- Line Coverage: (.*)/"
-
-
-
-# Taken from https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
-coverage-test:
-  stage: visualize
-  image: registry.gitlab.com/haynes/jacoco2cobertura:1.0.7
-  script:
-    - python /opt/cover2cover.py build/reports/jacoco/test/jacocoTestReport.xml $CI_PROJECT_DIR/src/main/java/ > build/cobertura.xml
-  needs: [ "unit-test-job" ]
-  artifacts:
-    reports:
       coverage_report:
         coverage_format: cobertura
-        path: build/cobertura.xml
+        path: build/reports/kover/report.xml
+
+    paths:
+      - build/reports/kover/*
+  coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
 
 code-style:
   stage: test
-  image: amazoncorretto:17
+  needs: ["build-job"]
+  image: amazoncorretto:21
   script:
     - ./gradlew detektGenerateConfig
     - ./gradlew detekt
-#lint-test-job:   # This job also runs in the test stage.
-#  stage: test    # It can run at the same time as unit-test-job (in parallel).
-#  script:
-#    - echo "Linting code... This will take about 10 seconds."
-#    - echo "No lint issues found."
 
-#deploy-job:      # This job runs in the deploy stage.
-#  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-#  environment: production
+deploy-job:
+  stage: deploy
+  only:
+    - main
+  needs: [ "build-job" ]
+  image: amazoncorretto:21
+  script:
+    - echo "Publish local release $BUILD_VERSION"
+    - ./gradlew publish -PbuildVersion=$BUILD_VERSION \
+      -PdoPublish=true \
+      -PisRelease=false \
+      -PlocalUrl=$LOCAL_REPO_URL \
+      -PlocalRepoUser=$LOCAL_REPO_USERNAME \
+      -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
+    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+    - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
+    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
+
+# Keep for first public release of reengineered mobitopp
+#minor-release-job:
+#  stage: deploy
+#  only:
+#    - main
+#  when: manual
+#  image: amazoncorretto:21
 #  script:
-#    - echo "Deploying application..."
-#    - echo "Application successfully deployed."
+#    - echo "Publish public minor release $BUILD_VERSION"
+#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#      -PdoPublish=true \
+#      -PisRelease=true \
+#      -PpublicUrl=$PUBLIC_REPO_URL \
+#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
+#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
+#    - export NEW_MINOR=$((MINOR + 1))
+#    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MINOR" "$GITLAB_API_URL/MINOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"
+#
+#
+#major-release-job:
+#  stage: deploy
+#  only:
+#    - main
+#  when: manual
+#  image: amazoncorretto:21
+#  script:
+#    - echo "Publish public major release $BUILD_VERSION"
+#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#      -PdoPublish=true \
+#      -PisRelease=true \
+#      -PpublicUrl=$PUBLIC_REPO_URL \
+#      -PpublicRepoUser=$PUBLIC_REPO_USERNAME \
+#      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
+#    - export NEW_MAJOR=$((MAJOR + 1))
+#    - echo "Update MAJOR to $NEW_MAJOR, set MINOR to 0, set BUILD_NUMBER to 0"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MAJOR" "$GITLAB_API_URL/MAJOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/MINOR"
+#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"

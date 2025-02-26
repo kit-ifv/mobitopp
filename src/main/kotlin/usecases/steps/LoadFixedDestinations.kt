@@ -8,22 +8,21 @@ import domain.data.PlannedActivity
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.LegacyActivityType
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.Repository
 import modeling.steps.RepositoryDependentStep
 import modeling.validation.Warning
 import modeling.validation.validateScope
+import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.CsvReader
 import utils.csv.Row
 import utils.csv.SEMICOLON
-import utils.csv.decode
+import utils.csv.decodeName
 import utils.csv.id
 import utils.csv.long
 import utils.csv.withFilter
@@ -38,6 +37,8 @@ interface LoadFixedDestinationsContext : Context {
 
     val personRepository: Repository<Person, PersonId>
     val plannedActivityRepository: Repository<PlannedActivity, ActivityId>
+
+    val activityTypeCodes: CodePlan<ActivityType>
 
     val defaultFixedDestinationsFile: File
         get() = File(demandFolder.path + "\\demand-data\\fixedDestination.csv")
@@ -58,24 +59,23 @@ data class FixedDestinationColumns(
 )
 
 data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
-// private const val DEMAND_DATA_FIXED_DESTINATION_CSV = "\\demand-data\\fixedDestination.csv"
 
-fun <S, C> S.assignFixedDestinations(
-    file: File = context.defaultFixedDestinationsFile,
+fun LoadFixedDestinationsContext.assignFixedDestinations(
+    file: File = defaultFixedDestinationsFile,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: FixedDestinationColumns = FixedDestinationColumns(),
-    filter: FixedDestinationColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : LoadFixedDestinationsContext {
-    val filterWrap: (Row) -> Boolean = { columns.filter(it, context) }
+    filter: FixedDestinationColumns.(Row, LoadFixedDestinationsContext) -> Boolean = { _, _ -> true }
+) {
+    val filterWrap: (Row) -> Boolean = { columns.filter(it, this) }
 
     val csvParser = CsvParser(errorHandling) { row ->
         val id: PersonId = row.id(columns.personOid)
-        val p = context.personRepository.getById(id)
-        val activityType = row.decode(
+        val p = personRepository.getById(id)
+        val activityType = row.decodeName(
             columns.activityType,
-            LegacyActivityType
-        ) // TODO should not be hardcoded to LegacyActivityType!
-        val zone = context.getZone(row.long(columns.zone))
+            activityTypeCodes
+        )
+        val zone = getZone(row.long(columns.zone))
 
         val location = row(columns.location, String::parseRoadPosition).withZone(zone)
 
@@ -87,14 +87,12 @@ fun <S, C> S.assignFixedDestinations(
     prepareFixedDestinationsFile(csvParser, file)
 }
 
-fun <S, C> S.prepareFixedDestinationsFile(
+fun LoadFixedDestinationsContext.prepareFixedDestinationsFile(
     parser: CsvParser<ActivityLocation>,
-    file: File = context.defaultFixedDestinationsFile,
+    file: File = defaultFixedDestinationsFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadFixedDestinationsContext {
-    this.addStep(
-        LoadFixedDestinationsStep(context, parser, file, delimiter)
-    )
+) = runStep {
+    LoadFixedDestinationsStep(this, parser, file, delimiter)
 }
 
 class LoadFixedDestinationsStep(
