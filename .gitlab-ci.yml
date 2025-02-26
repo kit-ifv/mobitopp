@@ -35,6 +35,7 @@ build-job:
   stage: build
   image: amazoncorretto:21
   script:
+    - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
     - echo "-request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" --form \"value=$NEW_BUILD_NUMBER\" \"$GITLAB_API_URL/BUILD_NUMBER\""
     - ./gradlew compileJava
   artifacts:
