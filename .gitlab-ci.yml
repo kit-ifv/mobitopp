@@ -74,6 +74,7 @@ deploy-job:
     - main
   needs: [ "build-job" ]
   image: amazoncorretto:21
+  resource_group: production #only one deploy job at a time
   script:
     - echo "Publish local release $BUILD_VERSION"
     - |
@@ -94,6 +95,7 @@ deploy-job:
 #    - main
 #  when: manual
 #  image: amazoncorretto:21
+#  resource_group: production #only one deploy job at a time
 #  script:
 #    - echo "Publish public minor release $BUILD_VERSION"
 #    - |
@@ -115,6 +117,7 @@ deploy-job:
 #    - main
 #  when: manual
 #  image: amazoncorretto:21
+#  resource_group: production #only one deploy job at a time
 #  script:
 #    - echo "Publish public major release $BUILD_VERSION"
 #    - |
