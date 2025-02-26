@@ -10,9 +10,9 @@ import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
-import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons

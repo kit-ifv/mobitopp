@@ -183,6 +183,22 @@ abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable
     override fun verifyInput(): Warning? = ValidateCsvMetadata(this@AddCsvStep, resource).validate()
 }
 
+@Suppress("LongParameterList")
+class LoadCsvStep<E, I>(
+    file: File,
+    override val name: String = "load ${file.name}",
+    parser: CsvParser<E>,
+    delimiter: String = SEMICOLON,
+    override val repository: MutableRepository<E, I>,
+    override val dependentRepositories: Set<Repository<*, *>>,
+    private val validationMock: List<E>,
+) : AddCsvStep<E, I>() where E : Identifiable<I> {
+
+    override val resource: CsvResource<E> by lazy { CsvResource(file, parser, delimiter) }
+
+    override fun mockElementsForValidation(): List<E> = validationMock
+}
+
 /**
  * A FilterStep is a [ModelStep] that filters the elements of a given [MutableRepository]
  * using a given predicate.
@@ -196,7 +212,6 @@ abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior whe
     override fun execute() {
         repository.filterElements(name, this::check)
     }
-
     abstract fun check(element: E): Boolean
 }
 
@@ -213,7 +228,6 @@ abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
     override fun execute() {
         repository.filterIds(name, this::check)
     }
-
     abstract fun check(id: I): Boolean
 }
 
@@ -234,7 +248,6 @@ abstract class UpdateEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior
     override fun execute() {
         repository.updateEach(name, this::update)
     }
-
     abstract fun update(element: E)
 }
 
@@ -255,7 +268,6 @@ abstract class UpdateAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
     override fun execute() {
         repository.updateAll(name, this::updateAll)
     }
-
     abstract fun updateAll(element: Collection<E>)
 }
 
@@ -276,7 +288,6 @@ abstract class TransformEachStep<E, I> : MutatingStep<E, I>, SameValidationBehav
     override fun execute() {
         repository.transformEach(name, this::transform)
     }
-
     abstract fun transform(element: E): E?
 }
 
@@ -295,7 +306,6 @@ abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavi
     override fun execute() {
         repository.transformAll(name, this::transformAll)
     }
-
     abstract fun transformAll(elements: Collection<E>): Collection<E>
 }
 
@@ -311,6 +321,7 @@ abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavi
  * @property repository the repository in which each element should be processed
  */
 abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+
     abstract override val repository: Repository<E, I>
 
     override fun execute() {
@@ -318,7 +329,6 @@ abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentSt
             process(it)
         }
     }
-
     abstract fun process(element: E)
 }
 
@@ -333,16 +343,14 @@ abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentSt
  * @property repository the repository in which all elements should be processed
  */
 abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+
     abstract override val repository: Repository<E, I>
 
     override fun execute() {
         processAll(repository.elements.toList())
     }
-
     abstract fun processAll(element: Collection<E>)
 }
-
-
 
 /**
  * A SealStep is a [ModelStep] that seals the given repository denying any future modification.
@@ -354,6 +362,7 @@ abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentSte
 class SealStep<E, I>(
     override val repository: MutableRepository<E, I>,
 ) : MutatingStep<E, I> where E : Identifiable<I> {
+
     override val name: String = "seal ${repository.name}"
 
     override val dependentRepositories: Set<MutableRepository<*, *>> = emptySet()
@@ -364,25 +373,8 @@ class SealStep<E, I>(
     }
 
     override fun verifyInput(): Warning? = null
-
     override fun mockBehavior(): Warning? = validateScope("Try seal ${repository.name}") {
         repository.seal()
         // no print, compared to execute()
     }
-}
-
-@Suppress("LongParameterList")
-class LoadCsvStep<E, I>(
-    file: File,
-    override val name: String = "load ${file.name}",
-    parser: CsvParser<E>,
-    delimiter: String = SEMICOLON,
-    override val repository: MutableRepository<E, I>,
-    override val dependentRepositories: Set<Repository<*, *>>,
-    private val validationMock: List<E>,
-) : AddCsvStep<E, I>() where E : Identifiable<I> {
-
-    override val resource: CsvResource<E> by lazy { CsvResource(file, parser, delimiter) }
-
-    override fun mockElementsForValidation(): List<E> = validationMock
 }
