@@ -1,53 +1,42 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
-    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
-    id("maven-publish")
+    alias(libs.plugins.kotlin.jvm) // "2.0.10" //
+    alias(libs.plugins.ksp) // "2.0.10-1.0.24"
+//    id("maven-publish")
 }
+
+//group = "edu.kit.ifv"
+//version = "1.0.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation(project(":annotations"))
-    testImplementation(project(":annotations"))
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.6.20-1.0.5")
-    implementation("com.squareup:kotlinpoet:1.16.0")
 
+    testImplementation(project(":annotations"))
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.compile.testing.ksp) // 1.5.0
     testImplementation(kotlin("reflect"))
+
+    implementation(project(":annotations"))
+    implementation(libs.symbol.processing.api) // 2.0.10-1.0.24
+    implementation(libs.kotlinpoet) //2.0.0
     implementation(kotlin("reflect"))
 }
 
-//ksp {
-//    arg("incremental", "true")
-//    arg("ksp.incremental", "true")
-//
-//}
-
-group = "edu.kit.ifv"
-version = "1.0.0"
-publishing {
-    publications {
-        register("mavenData", MavenPublication::class) {
-            from(components["kotlin"])
-        }
-        repositories {
-            maven {
-                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-                credentials {
-                    username = project.findProperty("nexusUsername") as String?
-                    password = project.findProperty("nexusPassword") as String?
-                }
-            }
-        }
-    }
-}
-
-//sourceSets {
-//    main {
-//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
+//publishing {
+//    publications {
+//        register("mavenData", MavenPublication::class) {
+//            from(components["kotlin"])
+//        }
+//        repositories {
+//            maven {
+//                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
+//                credentials {
+//                    username = project.findProperty("nexusUsername") as String?
+//                    password = project.findProperty("nexusPassword") as String?
+//                }
+//            }
+//        }
 //    }
 //}
-
