@@ -35,6 +35,7 @@ build-job:
   stage: build
   image: amazoncorretto:21
   script:
+    - echo "-request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" --form \"value=$NEW_BUILD_NUMBER\" \"$GITLAB_API_URL/BUILD_NUMBER\""
     - ./gradlew compileJava
   artifacts:
     when: always
@@ -84,6 +85,7 @@ deploy-job:
       -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
     - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
     - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
+    - echo "-request PUT --header \"JOB-TOKEN:$CI_JOB_TOKEN\" --form \"value=$NEW_BUILD_NUMBER\" \"$GITLAB_API_URL/BUILD_NUMBER\""
     - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
 
 # Keep for first public release of reengineered mobitopp
