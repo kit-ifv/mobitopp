@@ -3,7 +3,6 @@ package synthesis
 import domain.data.Zone
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
-import synthesis.domain.SynthesisHousehold
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate

@@ -20,7 +20,7 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.forEach
 
-interface HomeLocationModelContext: Context {
+interface HomeLocationModelContext : Context {
     val zoneRepository: Repository<Zone, ZoneId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
 }
@@ -40,7 +40,7 @@ fun HomeLocationModelContext.groupedHouseholdHomeLocation(
 class HomeLocationStep(
     context: HomeLocationModelContext,
     val model: AssignHouseholdLocations<Household>
-): UpdateEachStep<MutableHousehold, HouseholdId>() {
+) : UpdateEachStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households"
     override val repository = context.householdRepository
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
@@ -50,14 +50,13 @@ class HomeLocationStep(
         element.location = model.generateLocation(zone, element)
     }
 
-    override fun verifyInput(): Warning? = null //TODO
-
+    override fun verifyInput(): Warning? = null // TODO
 }
 
 class GroupedHomeLocationsStep(
     context: HomeLocationModelContext,
     val model: GroupAssignHouseholdLocations<MutableHousehold>
-): UpdateAllStep<MutableHousehold, HouseholdId>() {
+) : UpdateAllStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households grouped by zone"
     override val repository = context.householdRepository
     override val dependentRepositories: Set<Repository<*, *>> = setOf(context.zoneRepository)
@@ -71,6 +70,5 @@ class GroupedHomeLocationsStep(
         }
     }
 
-    override fun verifyInput(): Warning? = null //TODO
-
+    override fun verifyInput(): Warning? = null // TODO
 }
