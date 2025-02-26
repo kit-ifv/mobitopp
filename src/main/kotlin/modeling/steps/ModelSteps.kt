@@ -218,13 +218,18 @@ abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
 }
 
 /**
- * An [UpdateStep] is a [ModelStep] used to modify / update the internal state of elements in a given repository
+ * An [UpdateEachStep] is a [ModelStep] used to modify / update the internal state of elements in a given repository
  * by applying an action to each element in the repository. This action may alter state variables of the element.
+ *
+ *  Unlike [UpdateAllStep] where all current elements in the repository
+ *  are passed as a collection to the [UpdateAllStep.updateAll] function,
+ *  [UpdateEachStep] applies the [update] function to each element individually.
  *
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
+ * @property repository the repository in which each element should be updated
  */
-abstract class UpdateStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class UpdateEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.updateEach(name, this::update)
@@ -234,17 +239,39 @@ abstract class UpdateStep<E, I> : MutatingStep<E, I>, SameValidationBehavior whe
 }
 
 /**
- * An [TransformStep] is a [ModelStep] used to modify / update elements in a given repository
+ * An [UpdateAllStep] is a [ModelStep] used to modify / update the internal state of all elements in a given repository
+ * by processing all elements in the repository at once. This action may alter state variables of all elements.
+ * This can be used if the stat update of the elements are not isolated but interdependent.
+ *
+ *  Unlike [UpdateEachStep] where the action is applied to each element individually,
+ *  [UpdateAllStep] passes all current elements in the repository as a collection to the [updateAll] function.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be updated
+ */
+abstract class UpdateAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.updateAll(name, this::updateAll)
+    }
+
+    abstract fun updateAll(element: Collection<E>)
+}
+
+/**
+ * An [TransformEachStep] is a [ModelStep] used to modify / update elements in a given repository
  * by applying a transformation (mapping) to each element in the repository.
  * The transformation might evaluate to null, which removes the element from the repository.
  *
  * Unlike [TransformAllStep] where the new elements are computed from data of all current elements in the repository,
- * [TransformStep] maps each current element to a new element or null.
+ * [TransformEachStep] maps each current element to a new element or null.
  *
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
+ * @property repository the repository in which each element should be transformed
  */
-abstract class TransformStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+abstract class TransformEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
     override fun execute() {
         repository.transformEach(name, this::transform)
@@ -256,12 +283,12 @@ abstract class TransformStep<E, I> : MutatingStep<E, I>, SameValidationBehavior 
 /**
  * [TransformAllStep] is a [ModelStep] that replaces all elements of a repository by new / derived elements.
  *
- * Unlike [TransformStep] where each current element is mapped to a new element or null,
+ * Unlike [TransformEachStep] where each current element is mapped to a new element or null,
  * [TransformAllStep] computes the new elements from data of all current elements in the repository.
  *
  * @param E the generic type of entities to be built
  * @param I the generic id type of entities
- * @property repository the repository in which all elements should be updated
+ * @property repository the repository in which all elements should be transformed
  */
 abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
@@ -272,6 +299,17 @@ abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavi
     abstract fun transformAll(elements: Collection<E>): Collection<E>
 }
 
+/**
+ * [ForEachStep] is a [ModelStep] that applies a (non mutating) action to each element of the [repository].
+ *
+ * Unlike [ForAllStep] where all current elements of the [repository]
+ * are passed as a collection to the [ForAllStep.processAll] action,
+ * [ForEachStep] applies the [process] action to each current element individually.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which each element should be processed
+ */
 abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
     abstract override val repository: Repository<E, I>
 
@@ -283,6 +321,28 @@ abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentSt
 
     abstract fun process(element: E)
 }
+
+/**
+ * [ForAllStep] is a [ModelStep] that applies a (non mutating) action to all element of the [repository].
+ *
+ * Unlike [ForEachStep] where the action is applied to each current element individually,
+ * [ForAllStep] passes all current elements of the [repository] as a collection to the [processAll] action.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be processed
+ */
+abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+    abstract override val repository: Repository<E, I>
+
+    override fun execute() {
+        processAll(repository.elements.toList())
+    }
+
+    abstract fun processAll(element: Collection<E>)
+}
+
+
 
 /**
  * A SealStep is a [ModelStep] that seals the given repository denying any future modification.
