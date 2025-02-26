@@ -31,6 +31,7 @@ stages: # List of stages for jobs, and their order of execution
   - test
   - deploy
 
+
 build-job:
   stage: build
   image: amazoncorretto:21
@@ -84,7 +85,7 @@ deploy-job:
       -PlocalRepoPassword=$LOCAL_REPO_PASSWORD
     - export NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
     - echo "Update BUILD_NUMBER to $NEW_BUILD_NUMBER"
-    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
+    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" --form "value=$NEW_BUILD_NUMBER" "$GITLAB_API_URL/BUILD_NUMBER"
 
 # Keep for first public release of reengineered mobitopp
 #minor-release-job:
@@ -95,7 +96,8 @@ deploy-job:
 #  image: amazoncorretto:21
 #  script:
 #    - echo "Publish public minor release $BUILD_VERSION"
-#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#    - |
+#      ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
 #      -PdoPublish=true \
 #      -PisRelease=true \
 #      -PpublicUrl=$PUBLIC_REPO_URL \
@@ -103,8 +105,8 @@ deploy-job:
 #      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
 #    - export NEW_MINOR=$((MINOR + 1))
 #    - echo "Update MINOR to $NEW_MINOR, set BUILD_NUMBER to 0"
-#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MINOR" "$GITLAB_API_URL/MINOR"
-#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"
+#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=$NEW_MINOR"
+#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
 #
 #
 #major-release-job:
@@ -115,7 +117,8 @@ deploy-job:
 #  image: amazoncorretto:21
 #  script:
 #    - echo "Publish public major release $BUILD_VERSION"
-#    - ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
+#    - |
+#      ./gradlew build publish -PbuildVersion=$BUILD_VERSION \
 #      -PdoPublish=true \
 #      -PisRelease=true \
 #      -PpublicUrl=$PUBLIC_REPO_URL \
@@ -123,6 +126,6 @@ deploy-job:
 #      -PpublicRepoPassword=$PUBLIC_REPO_PASSWORD
 #    - export NEW_MAJOR=$((MAJOR + 1))
 #    - echo "Update MAJOR to $NEW_MAJOR, set MINOR to 0, set BUILD_NUMBER to 0"
-#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=$NEW_MAJOR" "$GITLAB_API_URL/MAJOR"
-#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/MINOR"
-#    - curl --request PUT --header "JOB-TOKEN:$CI_JOB_TOKEN" --form "value=0" "$GITLAB_API_URL/BUILD_NUMBER"
+#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MAJOR" --form "value=$NEW_MAJOR"
+#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/MINOR" --form "value=0"
+#    - curl --request PUT --header "PRIVATE-TOKEN:$API_TOKEN" "$GITLAB_API_URL/BUILD_NUMBER" --form "value=0"
