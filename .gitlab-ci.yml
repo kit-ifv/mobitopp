@@ -75,7 +75,8 @@ deploy-job:
   image: amazoncorretto:21
   script:
     - echo "Publish local release $BUILD_VERSION"
-    - ./gradlew publish -PbuildVersion=$BUILD_VERSION \
+    - |
+      ./gradlew publish -PbuildVersion=$BUILD_VERSION \
       -PdoPublish=true \
       -PisRelease=false \
       -PlocalUrl=$LOCAL_REPO_URL \
