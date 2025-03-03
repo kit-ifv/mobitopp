@@ -26,6 +26,7 @@ interface MutableRepository<T, I> : Repository<T, I> where T : Identifiable<I> {
     fun filterElements(operation: String, predicate: (T) -> Boolean)
     fun filterIds(operation: String, predicate: (I) -> Boolean)
     fun updateEach(operation: String, action: (T) -> Unit)
+    fun updateAll(operation: String, action: (Collection<T>) -> Unit)
     fun transformEach(operation: String, mapping: (T) -> T?)
     fun transformAll(operation: String, mapping: (Collection<T>) -> Collection<T>)
     fun clear()
@@ -99,6 +100,12 @@ class MapRepository<T, I>(
         requireNotSealed(operation)
         updateChangelog("update each element: $operation")
         _elements.values.forEach(action)
+    }
+
+    override fun updateAll(operation: String, action: (Collection<T>) -> Unit) {
+        requireNotSealed(operation)
+        updateChangelog("update all elements: $operation")
+        action(_elements.values)
     }
 
     override fun transformEach(operation: String, mapping: (T) -> T?) {

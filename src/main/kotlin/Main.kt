@@ -3,19 +3,22 @@
 import domain.data.EconomicStatus
 import domain.enums.Regiostar17
 import modeling.steps.Run
+import synthesis.AssignAroundZoneCentroid
+import units.meters
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignHomeLocations
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
+import usecases.steps.legacyData.householdHomeLocation
 import usecases.steps.legacyData.loadZones
 import usecases.steps.legacyData.prepareHouseholds
 import usecases.steps.legacyData.preparePrivateCars
@@ -79,6 +82,10 @@ fun main() {
             filter = { filter(it) }
         )
 
+        householdHomeLocation(
+            AssignAroundZoneCentroid(50.meters)
+        )
+
 //        scalePopulation(0.1.share())
         finishHouseholds()
 
@@ -112,7 +119,7 @@ fun main() {
         )
 
         loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
-        assignHomeLocations()
+        applyHomeLocationsInSchedule()
         assignFixedDestinations()
         simulate()
     }

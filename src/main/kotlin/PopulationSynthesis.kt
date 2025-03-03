@@ -56,6 +56,7 @@ import synthesis.randomCoordinate
 import synthesis.toSurveyHouseholds
 import units.CurrencyUnit
 import units.kilometers
+import units.meters
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
@@ -156,7 +157,7 @@ class SynthesisSteps<T : Any>(
     }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in T>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<SynthesisHousehold<out T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -166,7 +167,7 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<in T>) {
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<SynthesisHousehold<out T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
@@ -335,7 +336,7 @@ fun examplePopulationSynthesis() {
             }
         }
         assignLocations {
-            AssignAroundZoneCentroid(100.0)
+            AssignAroundZoneCentroid(100.meters)
         }
 
         assignEconomicStatus {
@@ -422,5 +423,5 @@ private fun Collection<Zone>.generateLocations(
 
 @Suppress("MagicNumber") // These magic numbers are ok
 private fun Zone.generateLocations(amount: Int): List<Location> {
-    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.0), this, null) }
+    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters), this, null) }
 }
