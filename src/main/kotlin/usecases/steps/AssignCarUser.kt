@@ -9,7 +9,7 @@ import domain.data.PersonId
 import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
-import modeling.steps.TransformStep
+import modeling.steps.TransformEachStep
 import modeling.validation.Warning
 
 private typealias Persons = MutableSet<Person>
@@ -28,7 +28,7 @@ interface AssignCarsContext : Context {
 
 class AssignCarUserStep(
     context: AssignCarsContext,
-) : TransformStep<MutablePrivateCar, CarId>() {
+) : TransformEachStep<MutablePrivateCar, CarId>() {
 
     override val name: String = "Assign cars to household members as main users."
     override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository
