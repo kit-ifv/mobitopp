@@ -41,6 +41,8 @@ import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
 import utils.CodePlan
+import utils.binary.ReadonlyHouseholdContext
+import utils.binary.ReadonlyZoneContext
 import utils.units.AbsoluteTime
 import utils.units.weeks
 import java.io.File
@@ -88,7 +90,9 @@ data class ProjectContext(
     WriteTripsCsvContext,
     SimulationContext,
     RoadNetworkContext,
-    HomeLocationModelContext {
+    HomeLocationModelContext,
+    ReadonlyHouseholdContext,
+    ReadonlyZoneContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")

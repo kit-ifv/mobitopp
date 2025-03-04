@@ -4,7 +4,7 @@ import BIELEFELD
 import TestZone
 import benchmark.ControllableAttractiveness
 import build
-import buildPerson
+import generateAndAddPerson
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedActivity
@@ -573,7 +573,7 @@ class TestSynthesis(zones: List<TestZone>, impedance: ControllableImpedance = Co
 
     fun run(): TestSimulation {
         return TestSimulation(
-            households[0].buildPerson(pBuilder),
+            households[0].generateAndAddPerson(pBuilder),
             zones[0],
             zones[1],
             impedance,
