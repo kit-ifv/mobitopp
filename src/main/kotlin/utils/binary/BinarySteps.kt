@@ -1,125 +1,161 @@
 package utils.binary
 
 import domain.data.Household
-import domain.data.MutableHousehold
-import domain.data.MutablePrivateCar
+import domain.data.HouseholdId
 import domain.data.Person
-import domain.data.PlannedActivity
+import domain.data.PersonId
 import domain.data.Zone
-import domain.enums.ActivityType
+import domain.data.ZoneId
+import modeling.steps.AddResourceStep
+import modeling.steps.Context
+import modeling.steps.ForAllStep
+import modeling.steps.MutableRepository
 import modeling.steps.Repository
+import modeling.steps.Resource
+import modeling.steps.asResource
+import modeling.validation.Warning
 import usecases.steps.LoadPersonsContext
+import usecases.steps.LoadPlannedActivitiesContext
+import usecases.steps.legacyData.LoadHouseholdContext
+import utils.Identifiable
 import java.nio.file.Path
+import kotlin.io.path.name
 
-fun LoadPersonsContext.writePersonToBinary(path: Path) {
-    val map = householdRepository.elements.associateBy { it.id }
+fun LoadPersonsContext.loadPersonFromBinary(path: Path) {
+    val converter = BinaryPersonReader(householdRepository.elements.associateBy { it.id }::getValue, simulationSeed)
     runStep {
-        WriteBinaryPerson()
-    }
-    this.addStep(
-        WriteBinaryPerson(map, repository = context.personRepository, path, context.simulationSeed)
-    )
-}
-
-class WriteBinaryPerson(
-    val households: Map<HouseholdId, MutableHousehold>,
-    override val repository: Repository<Person, PersonId>,
-    val path: Path,
-    val seed: Long,
-
-    ) : ForAllStep<Person, PersonId> {
-    override val name: String = "Convert Simulation Person to binary format"
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-    override fun process(element: Collection<Person>) {
-        println("Converting ${element.size} persons to binary.")
-        PersonConverter(households, seed).toBinary(path, element)
-    }
-}
-
-fun <S> S.writeActivityToBinary(path: Path) where S : ModelExecution<MatsimContext> {
-    val map = context.zoneRepository.elements.associateBy { it.id }
-    val persons = context.personRepository.elements.associateBy { it.id }
-    this.addStep(
-        WriteBinaryActivity(
-            map,
-            repository = context.plannedActivityRepository,
-            context.simulationSeed,
-            context.activityTypeCodes,
-            persons,
-            path
+        LoadBinaryStep(
+            path,
+            parser = converter,
+            repository = personRepository,
+            dependentRepositories = setOf(householdRepository)
         )
-    )
+
+    }
 }
 
-class WriteBinaryActivity(
-    val zones: Map<ZoneId, Zone>,
-    override val repository: Repository<PlannedActivity, ActivityId>,
-    val contextSimulationSeed: Long,
-    val activityPlan: CodePlan<ActivityType>,
-    val personConverter: Map<PersonId, Person>,
-    val path: Path
-) : ForAllStep<PlannedActivity, ActivityId> {
+fun LoadHouseholdContext.loadHouseholdFromBinary(path: Path) {
+    val converter = BinaryHouseholdReader(zoneRepository.elements.associateBy { it.id }::getValue, simulationSeed)
+    runStep {
+        LoadBinaryStep(path, converter, householdRepository, setOf(zoneRepository))
+    }
+}
 
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
+fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
 
-    override val name: String = "Write Households to binary"
+    val converter = BinaryActivityReader(
+        activityTypeCodes,
+        { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
+        simulationSeed
+    )
+    runStep {
+        LoadBinaryStep(path, converter, plannedActivityRepository, setOf(personRepository))
+    }
+}
 
-    override fun process(element: Collection<PlannedActivity>) {
-        println("Converting ${element.size} planned activities to binary.")
-        ActivityConverter(activityPlan, personConverter::getValue, contextSimulationSeed).toBinary(path, element)
+//fun LoadFixedDestinationsContext.loadFixedDestinationsFromBinary(path: Path) {
+//    val converter = FixedDestinationReader(
+//        { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
+//        activityTypeCodes,
+//        { zoneRepository.getById(it) ?: throw NoSuchElementException("No zone of id $it in repository") }
+//    )
+//    runStep {
+//        object : UpdateEachStep<Person, PersonId>() {
+//            val fixedDestinations = converter.fromBinary(path).groupBy { it.person }
+//            override fun update(element: Person) {
+//                val activities = element.schedule.activities()
+//                fixedDestinations[element]?.let { entry ->
+//                    entry.forEach { actLoc ->
+//                        activities.filter { act -> act.type == actLoc.activityType }.forEach {
+//                            it.location = actLoc.location
+//                        }
+//                    }
+//                }
+//            }
+//
+//            override val repository: MutableRepository<Person, PersonId> = personRepository
+//            override val dependentRepositories: Set<Repository<*, *>> = emptySet()
+//
+//            override val name: String = "I hate the step system"
+//
+//            override fun verifyInput(): Warning? {
+//                return null //TODO("Not yet implemented")
+//            }
+//
+//        }
+//    }
+//}
+
+class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
+    val path: Path,
+    val writer: BinaryWriter<READONLY>,
+    override val repository: Repository<READONLY, ID>,
+    override val dependentRepositories: Set<Repository<*, *>>,
+) : ForAllStep<READONLY, ID>() {
+    override val name: String = "Write Binary"
+
+    override fun processAll(element: Collection<READONLY>) {
+        writer.toBinary(path, element)
+    }
+
+    override fun verifyInput(): Warning? {
+        return null // TODO("Not yet implemented")
+    }
+
+    override fun mockBehavior(): Warning? {
+        return null
     }
 
 }
 
-fun <S> S.writeCarToBinary(path: Path) where S : ModelExecution<MatsimContext> {
-    val map = context.zoneRepository.elements.associateBy { it.id }
-    val personConverter = context.personRepository.elements.associateBy { it.id }
-    val householdConverter = context.householdRepository.elements.associateBy { it.id }
-    this.addStep(
-        WriteBinaryCars(map, repository = context.carRepository, personConverter, householdConverter, path)
-    )
-}
+class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
+    path: Path,
+    parser: BinaryReader<MUTABLE>,
+    override val repository: MutableRepository<MUTABLE, ID>,
+    override val dependentRepositories: Set<Repository<*, *>>,
 
-class WriteBinaryCars(
-    val zones: Map<ZoneId, Zone>,
-    override val repository: Repository<MutablePrivateCar, CarId>,
-    val personConverter: Map<PersonId, Person>,
-    val householdConverter: Map<HouseholdId, MutableHousehold>,
-    val path: Path
-) : ForAllStep<MutablePrivateCar, CarId> {
+    ) : AddResourceStep<MUTABLE, ID>() {
 
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
+    override val name: String = "load ${path.fileName}"
+    override val resource: Resource<MUTABLE> = parser.fromBinary(path).asResource(name, path.name)
 
-    override val name: String = "Write Households to binary"
+    override fun mockElementsForValidation(): List<MUTABLE> {
+        return emptyList() //TODO I WILL NOT WRTIE A BINARY FILE ON MY OWN
+    }
 
-    override fun process(element: Collection<MutablePrivateCar>) {
-        println("Converting ${element.size} cars to binary.")
-        CarConverter(householdConverter::getValue, personConverter::getValue).toBinary(path, element)
+    override fun verifyInput(): Warning? {
+        return null // TODO some reasonable validation.
     }
 
 }
 
-fun <S> S.writeHouseholdToBinary(path: Path) where S : ModelExecution<MatsimContext> {
-    val map = context.zoneRepository.elements.associateBy { it.id }
-    this.addStep(
-        WriteBinaryHousehold(map, repository = context.householdRepository, context.simulationSeed, path)
-    )
+interface ReadonlyPersonContext : Context {
+    val personRepository: Repository<Person, PersonId>
+
 }
 
-class WriteBinaryHousehold(
-    val zones: Map<ZoneId, Zone>,
-    override val repository: Repository<Household, HouseholdId>,
-    val contextSimulationSeed: Long,
-    val path: Path
-) : ForAllStep<Household, HouseholdId> {
+fun ReadonlyPersonContext.writePersonBinary(path: Path) {
 
-    override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-
-    override val name: String = "Write Households to binary"
-
-    override fun process(element: Collection<Household>) {
-        println("Converting ${element.size} households to binary.")
-        HouseholdConverter(zones, contextSimulationSeed).toBinary(path, element)
+    runStep {
+        WriteBinaryStep<Person, PersonId>(path, BinaryPersonWriter(), personRepository, emptySet())
     }
 
+}
+
+interface ReadonlyHouseholdContext: Context {
+    val householdRepository: Repository<Household, HouseholdId>
+}
+
+fun ReadonlyHouseholdContext.writeHouseholdBinary(path: Path) {
+    runStep {
+        WriteBinaryStep(path, BinaryHouseholdWriter(), householdRepository, emptySet())
+    }
+}
+interface ReadonlyZoneContext: Context {
+    val zoneRepository: Repository<Zone, ZoneId>
+}
+fun ReadonlyZoneContext.writeZonesBinary(path: Path) {
+    runStep {
+        WriteBinaryStep(path, BinaryZoneWriter(), zoneRepository, emptySet())
+    }
 }

@@ -16,6 +16,7 @@ import domain.data.MutableHousehold
 import domain.data.MutablePerson
 import domain.data.MutablePlannedActivity
 import domain.data.MutablePrivateCar
+import domain.data.MutableZone
 import domain.data.Person
 import domain.data.PersonId
 import domain.data.PlannedActivity
@@ -25,15 +26,21 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
+import domain.enums.AreaType
+import domain.enums.ZoneClassification
+import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.RoadAccess
 import units.CurrencyUnit
+import units.DistanceUnit
 import units.GPSCoordinate
 import units.UnitIntervalValue
 import units.euros
 import units.share
+import units.toDistance
 import usecases.steps.ActivityLocation
 import utils.CodePlan
+import utils.Decodable
 import utils.units.sinceStart
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
@@ -46,12 +53,20 @@ import kotlin.time.toDuration
 
 fun MappedByteBuffer.getBoolean(index: Int): Boolean {
     val b = getInt(index)
-    return (b and 0x80) != 0
+    /* This magic number is the hexadecimal representation of an integer block in memory, such as 01 XX XX XX
+    since the boolean flag is written as a byte of 01, the quickest way to check whether the integer at that location
+    matches this mask 01-XX-XX-XX, because there is no convenient way to get a boolean from a bytebuffer, and no
+    convenient way to apply mask operations on anything but an int.
+    * */
+    return (b and 0x01000000) != 0
 }
 
-interface BinaryConverter<T, S : T> {
-    fun fromBinary(file: Path): List<S>
-    fun toBinary(path: Path, elements: Collection<T>) {
+fun interface BinaryReader<out MUTABLE> {
+    fun fromBinary(path: Path): List<MUTABLE>
+}
+
+fun interface BinaryWriter<in READONLY> {
+    fun toBinary(path: Path, elements: Collection<READONLY>) {
         Files.newOutputStream(path).use { fileStream ->
             BufferedOutputStream(fileStream).use { bufferedStream ->
                 DataOutputStream(bufferedStream).use { outputStream ->
@@ -62,27 +77,39 @@ interface BinaryConverter<T, S : T> {
         }
     }
 
-    fun operateStream(outStream: DataOutputStream, elements: Collection<T>)
+    fun operateStream(outStream: DataOutputStream, elements: Collection<READONLY>)
 }
 
+/**
+ * To avoid issues with keeping track at which index an element is read, the tracking buffer remembers where
+ * the read process is at the current time. Maybe this is slower than providing the correct byte offsets, but
+ * it prevents counting errors, which may easily occur.
+ */
 class TrackingBuffer(private val buffer: MappedByteBuffer, initialOffset: Int) {
-    private var currentPosition = initialOffset
+    var currentPosition = initialOffset
 
     val nextInt get() = buffer.getInt(currentPosition).also { currentPosition += 4 }
     val nextDouble get() = buffer.getDouble(currentPosition).also { currentPosition += 8 }
     val nextLong get() = buffer.getLong(currentPosition).also { currentPosition += 8 }
     val nextBoolean get() = buffer.getBoolean(currentPosition).also { currentPosition += 1 }
+    fun readString(length: Int) : String {
+        val byteArray = CharArray(length)
+        (0..<length).forEach  {
+            byteArray[it] = buffer.getChar(currentPosition)
+            currentPosition += 2
+        }
+        return String(byteArray)
+    }
 }
 
+class BinaryHouseholdReader(val zoneC: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
+    BinaryReader<MutableHousehold> {
 
-class HouseholdConverter(val zoneC: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
-    BinaryConverter<Household, MutableHousehold> {
-    constructor(map: Map<ZoneId, Zone>, contextSimulationSeed: Long) : this(map::getValue, contextSimulationSeed)
-
-    override fun fromBinary(file: Path): List<MutableHousehold> {
-        val mappedBuffer = mapFileToMemory(file)
+    private val idBitSize = 8
+    override fun fromBinary(path: Path): List<MutableHousehold> {
+        val mappedBuffer = mapFileToMemory(path)
         val size = mappedBuffer.getInt(0)
-        val ids = Array<HouseholdId>(size) {
+        val ids = Array(size) {
             HouseholdId(-1)
         }
 
@@ -100,19 +127,7 @@ class HouseholdConverter(val zoneC: (ZoneId) -> Zone, private val contextSimulat
         return households
     }
 
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
-        outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
-        // Separate the writing to mimic the construction of the object, so first write all the necessary constructor parameters
-        elements.forEach { outStream.writeIDS(it) }
-        // And then write all the secondary attributes that are set afterwards.
-        elements.forEach { outStream.writeHouseholdAttributes(it) }
-    }
-
-    private val idBitSize = 8
-    private fun DataOutputStream.writeIDS(element: Household) {
-        writeLong(element.id.value)
-    }
-
+    private val attributesBitSize = 72
     private fun extractInfos(buffer: MappedByteBuffer, at: Int, household: MutableHousehold) {
         TrackingBuffer(buffer, at).run {
             household.apply {
@@ -123,16 +138,27 @@ class HouseholdConverter(val zoneC: (ZoneId) -> Zone, private val contextSimulat
                 incomePerMonth = nextDouble.euros
                 val ecoStatusNumber = nextInt
                 economicStatus = EconomicStatus.decode(ecoStatusNumber)
-                val zoneId = ZoneId(nextLong)
-                val zone = zoneC(zoneId)
-                val lat = nextDouble
-                val lon = nextDouble
-                location = Location(GPSCoordinate.decimalDegree(lat, lon), zone, roadAccess = null)
+                location = nextLocation(converter = zoneC)
             }
         }
     }
 
-    private val attributesBitSize = 56
+
+}
+
+class BinaryHouseholdWriter : BinaryWriter<Household> {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
+        outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
+        // Separate the writing to mimic the construction of the object, so first write all the necessary constructor parameters
+        elements.forEach { outStream.writeIDS(it) }
+        // And then write all the secondary attributes that are set afterwards.
+        elements.forEach { outStream.writeHouseholdAttributes(it) }
+    }
+
+    private fun DataOutputStream.writeIDS(element: Household) {
+        writeLong(element.id.value)
+    }
+
     private fun DataOutputStream.writeHouseholdAttributes(element: Household) {
         element.run {
             writeLong(householdNumber) // 8
@@ -141,33 +167,41 @@ class HouseholdConverter(val zoneC: (ZoneId) -> Zone, private val contextSimulat
             writeInt(type) // 20
             writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS)) // 28
             writeInt(economicStatus.encode()) // 32
-            writeLong(location.zone?.id?.value ?: -1) // 40
-            writeDouble(location.coordinate.latitudeDegrees) // 48
-            writeDouble(location.coordinate.longitudeDegrees) //56
+            writeLocation(location) // 72
         }
     }
 
 }
+// 40 bit
+/**
+ * Adds 40 bit to the write process
+ */
+fun DataOutputStream.writeLocation(location: Location) {
+    writeLong(location.zone?.id?.value?: Long.MIN_VALUE)
+    writeDouble(location.coordinate.latitudeDegrees)
+    writeDouble(location.coordinate.longitudeDegrees)
+    writeLong(location.roadAccess?.roadId?: Long.MIN_VALUE)
+    writeDouble(location.roadAccess?.position?.toDouble()?: 0.5)
+}
 
-class FixedDestinationConverter(
+fun TrackingBuffer.nextLocation(converter: (ZoneId) -> Zone?): Location {
+    val zoneId = ZoneId(nextLong)
+    val coordinate = GPSCoordinate.decimalDegree(nextDouble, nextDouble)
+    val roadAccess = RoadAccess(nextLong, nextDouble.share())
+    return Location(coordinate, converter(zoneId), roadAccess)
+}
+
+class FixedDestinationReader(
     val personConverter: (PersonId) -> Person,
     private val activityTypeConverter: CodePlan<ActivityType>,
     val zoneConverter: (ZoneId) -> Zone
-) : BinaryConverter<ActivityLocation, ActivityLocation> {
-
-    override fun fromBinary(file: Path): List<ActivityLocation> {
-        val mappedBuffer = mapFileToMemory(file)
+) : BinaryReader<ActivityLocation> {
+    override fun fromBinary(path: Path): List<ActivityLocation> {
+        val mappedBuffer = mapFileToMemory(path)
         val size = mappedBuffer.getInt(0)
         return (0 until size).map {
             extractContent(mappedBuffer, it * elementBitSize + 4)
         }
-    }
-
-
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<ActivityLocation>) {
-        val size = elements.size
-        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-        elements.forEach { outStream.encodeElement(it) }
     }
 
     private fun extractContent(buffer: MappedByteBuffer, at: Int): ActivityLocation {
@@ -191,6 +225,16 @@ class FixedDestinationConverter(
     }
 
     private val elementBitSize = 52
+}
+
+class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<ActivityLocation>) {
+        val size = elements.size
+        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+        elements.forEach { outStream.encodeElement(it) }
+    }
+
+
     private fun DataOutputStream.encodeElement(act: ActivityLocation) {
         act.run {
             writeLong(person.id.value) // 8 Bit
@@ -205,13 +249,14 @@ class FixedDestinationConverter(
     }
 }
 
-class CarConverter(
+class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
     val personConverter: (PersonId) -> Person,
+    val zoneConverter: (ZoneId) -> Zone? = {null},
     private val carEngineStatistics: CarEngineStatistics = CarEngineStatistics()
-) : BinaryConverter<PrivateCar, MutablePrivateCar> {
-    override fun fromBinary(file: Path): List<MutablePrivateCar> {
-        val mappedBuffer = mapFileToMemory(file)
+) : BinaryReader<MutablePrivateCar> {
+    override fun fromBinary(path: Path): List<MutablePrivateCar> {
+        val mappedBuffer = mapFileToMemory(path)
         val size = mappedBuffer.getInt(0)
         // Preallocate id array
         val idArray = Array(size) {
@@ -234,6 +279,34 @@ class CarConverter(
     }
 
 
+    private val idBitSize = 16
+    private fun extractIds(buffer: MappedByteBuffer, at: Int): Pair<CarId, HouseholdId> {
+        return TrackingBuffer(buffer, at).run {
+            CarId(nextLong) to HouseholdId(nextLong)
+        }
+    }
+
+    private fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
+        TrackingBuffer(buffer, at).run {
+            car.apply {
+
+                seats = nextInt
+
+                val personId = PersonId(nextLong)
+                mainUser = if(personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
+                segment = CarSegment.decode(nextInt)
+                val engineType = EngineType.decode(nextInt)
+                engine = carEngineStatistics.buildEngine(segment, engineType)
+                location = nextLocation(zoneConverter)
+            }
+        }
+
+    }
+
+    private val attributeBitSize = 60
+}
+
+class BinaryCarWriter : BinaryWriter<PrivateCar> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
         val size = elements.size
         outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
@@ -247,44 +320,22 @@ class CarConverter(
         writeLong(car.owner.id.value) // 16 bit
     }
 
-    private val idBitSize = 16
-    private fun extractIds(buffer: MappedByteBuffer, at: Int): Pair<CarId, HouseholdId> {
-        return TrackingBuffer(buffer, at).run {
-            CarId(nextLong) to HouseholdId(nextLong)
-        }
-    }
-
-    private fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
-        TrackingBuffer(buffer, at).run {
-            car.apply {
-                seats = nextInt
-                mainUser = personConverter(PersonId(nextLong))
-                segment = CarSegment.decode(nextInt)
-                val engineType = EngineType.decode(nextInt)
-                engine = carEngineStatistics.buildEngine(segment, engineType)
-            }
-        }
-
-    }
-
-    private val attributeBitSize = 20
     private fun DataOutputStream.encodeAttributes(car: PrivateCar) {
         car.run {
             writeInt(seats)                         //  4 Bit
-            writeLong(mainUser?.id?.value ?: -1) // 12 Bit
+            writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bit
             writeInt(segment.encode())              // 16 Bit
             writeInt(engine.type.encode())          // 20 Bit
+            writeLocation(location) // 60 bit
         }
     }
-
-
 }
 
-class ActivityConverter(
+class BinaryActivityReader(
     private val codeActivity: CodePlan<ActivityType>,
     val personConverter: (PersonId) -> Person,
     private val contextSimulationSeed: Long
-) : BinaryConverter<PlannedActivity, MutablePlannedActivity> {
+) : BinaryReader<MutablePlannedActivity> {
     override fun fromBinary(file: Path): List<MutablePlannedActivity> {
         val mappedBuffer = mapFileToMemory(file)
         val size = mappedBuffer.getInt(0)
@@ -310,22 +361,12 @@ class ActivityConverter(
 
     }
 
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<PlannedActivity>) {
-        val size = elements.size
-        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-
-        elements.forEach { outStream.encodeID(it) } // For each agent write the ID and the household ID
-        elements.forEach { outStream.encodeAttributes(it) }
-    }
-
     private fun extractIds(buffer: MappedByteBuffer, at: Int): ActivityId {
         return ActivityId(buffer.getLong(at))
     }
 
     private val idBitSize = 8
-    private fun DataOutputStream.encodeID(act: PlannedActivity) {
-        writeLong(act.id.value)
-    }
+
 
     // 28 Bits
     private fun extractContent(obuffer: MappedByteBuffer, at: Int, target: MutablePlannedActivity) {
@@ -341,6 +382,23 @@ class ActivityConverter(
     }
 
     private val attributesBitSize = 28
+}
+
+class BinaryActivityWriter : BinaryWriter<PlannedActivity> {
+
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<PlannedActivity>) {
+        val size = elements.size
+        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+
+        elements.forEach { outStream.encodeID(it) } // For each agent write the ID and the household ID
+        elements.forEach { outStream.encodeAttributes(it) }
+    }
+
+
+    private fun DataOutputStream.encodeID(act: PlannedActivity) {
+        writeLong(act.id.value)
+    }
+
 
     private fun DataOutputStream.encodeAttributes(act: PlannedActivity) {
         writeLong(act.person.id.value) // 8
@@ -351,12 +409,10 @@ class ActivityConverter(
     }
 }
 
-class PersonConverter(val map: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
-    BinaryConverter<Person, MutablePerson> {
-    constructor(map: Map<HouseholdId, MutableHousehold>, seed: Long) : this(map::getValue, seed)
-
-    override fun fromBinary(file: Path): List<MutablePerson> {
-        val mappedBuffer = mapFileToMemory(file)
+class BinaryPersonReader(val map: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
+    BinaryReader<MutablePerson> {
+    override fun fromBinary(path: Path): List<MutablePerson> {
+        val mappedBuffer = mapFileToMemory(path)
         val size = mappedBuffer.getInt(0)
         val idArray = Array(size) {
             PersonId(-1L) to HouseholdId(-1)
@@ -370,14 +426,11 @@ class PersonConverter(val map: (HouseholdId) -> MutableHousehold, private val co
                 it.first, map(it.second), contextSimulationSeed
             )
         }
-        //TODO find solution for magic numbers.
         for (i in 0 until size) {
             extractInfos(mappedBuffer, i * attributesBitSize + 4 + size * idBitSize, persons[i])
         }
 
         return persons
-
-
     }
 
     // 16 Bit
@@ -388,22 +441,8 @@ class PersonConverter(val map: (HouseholdId) -> MutableHousehold, private val co
     }
 
     private val idBitSize = 16
-    private fun DataOutputStream.encodeID(person: Person) {
 
-        person.run {
-            writeLong(id.value)             //  8 bit
-            writeLong(household.id.value)   // 16 bit
-        }
-    }
-
-    override fun operateStream(outStream: DataOutputStream, elements: Collection<Person>) {
-        val size = elements.size
-        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
-
-        elements.forEach { outStream.encodeID(it) } // For each agent write the ID and the household ID
-        elements.forEach { outStream.encodeAttributes(it) }
-    }
-
+    // 39 Bit
     private fun extractInfos(buffer: MappedByteBuffer, at: Int, person: MutablePerson) {
         TrackingBuffer(buffer, at).run {
             person.apply {
@@ -424,25 +463,145 @@ class PersonConverter(val map: (HouseholdId) -> MutableHousehold, private val co
 
     private val attributesBitSize = 39
 
-    // Currently 39 bits
+}
+
+class BinaryPersonWriter : BinaryWriter<Person> {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<Person>) {
+        val size = elements.size
+        outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+
+        elements.forEach { outStream.encodeID(it) } // For each agent write the ID and the household ID
+        elements.forEach { outStream.encodeAttributes(it) }
+
+
+    }
+
+    private fun DataOutputStream.encodeID(person: Person) {
+
+        person.run {
+            writeLong(id.value)             //  8 bit
+            writeLong(household.id.value)   // 16 bit
+        }
+    }
+
+    // Currently 39 byte
     private fun DataOutputStream.encodeAttributes(person: Person) {
         person.run {
-            writeInt(age)                                       // 4 bit
-            writeInt(employment.encode())                       // 8 bit
-            writeInt(sex.encode()) // TODO could be boolean     //12 bit
-            writeDouble(income.toDouble(CurrencyUnit.EUROS))    //20 bit
-            writeBoolean(hasBike)                               //21 bit
-            writeBoolean(hasCommuterTicket)                     //22 bit
-            writeBoolean(hasLicense)                            //23 bit
-            writeDouble(eMobilityAcceptance.toDouble())         //31 bit
-            writeInt(chargingInfluence.encode())                //35 bit
-            writeInt(graduation.encode())                       //39 bit
+            writeInt(age)                                       // 4 byte
+            writeInt(employment.encode())                       // 8 byte
+            writeInt(sex.encode()) // TODO could be boolean     //12 byte
+            writeDouble(income.toDouble(CurrencyUnit.EUROS))    //20 byte
+            writeBoolean(hasBike)                               //21 byte
+            writeBoolean(hasCommuterTicket)                     //22 byte
+            writeBoolean(hasLicense)                            //23 byte
+            writeDouble(eMobilityAcceptance.toDouble())         //31 byte
+            writeInt(chargingInfluence.encode())                //35 byte
+            writeInt(graduation.encode())                       //39 byte
             //TODO add memberships, they are currently missing
 
         }
     }
-
-
 }
 
+class BinaryZoneReader(val seed: Long, val regionCode: Decodable<AreaType>) : BinaryReader<MutableZone> {
+    override fun fromBinary(path: Path): List<MutableZone> {
+        val mappedBuffer = mapFileToMemory(path)
+        val size = mappedBuffer.getInt(0)
+        val maxNameLength = mappedBuffer.getInt(4)
+        val idArray = Array(size) {
+            ZoneId(-1L) to LOCATIONUNKNOWN
+        }
+
+        for (i in 0 until size) {
+            idArray[i] = extractIds(mappedBuffer, i * idBitSize + 4 + 4)
+        }
+        val zones = idArray.map {
+            MutableZone(
+                it.first, it.second, seed
+            )
+        }
+        for (i in 0 until size) {
+            extractInfos(
+                mappedBuffer, i * (attributesBitSize + maxNameLength) + 4 + 4 + size * idBitSize, zones[i],
+                maxNameLength = maxNameLength
+            )
+        }
+
+        return zones
+    }
+
+    // 40 Bit
+    private fun extractIds(buffer: MappedByteBuffer, at: Int): Pair<ZoneId, Location> {
+        return TrackingBuffer(buffer, at).run {
+
+            val id = nextLong
+
+            ZoneId(id) to Location(
+                GPSCoordinate.decimalDegree(nextDouble, nextDouble),
+                roadAccess = RoadAccess(roadId = nextLong, position = UnitIntervalValue(nextDouble)),
+                zone= null
+            )
+        }
+    }
+
+    private val idBitSize = 40
+
+    // 29 + ???? Bit
+    private fun extractInfos(buffer: MappedByteBuffer, at: Int, zone: MutableZone, maxNameLength: Int) {
+        TrackingBuffer(buffer, at).run {
+            zone.apply {
+                visumId = nextLong //8
+                name = readString(maxNameLength)//??
+                regionType = regionCode.decode(nextInt) //12
+                classification = ZoneClassification.decode(nextInt)//16
+                parkingPlaces = nextInt//20
+                isDestination = nextBoolean//21
+                relief = nextDouble.toDistance(DistanceUnit.METERS)//29
+
+            }
+        }
+    }
+
+    private val attributesBitSize = 29
+}
+
+class BinaryZoneWriter : BinaryWriter<Zone> {
+    override fun operateStream(outStream: DataOutputStream, elements: Collection<Zone>) {
+        val size = elements.size
+        val maxNameLength =
+            elements.maxOf { it.name.length } // It is idiotic to give the zones a name, it was never used in old mobitopp, and won't be used in new mobitopp
+        outStream.writeInt(size) // Write the amount of zones found in the simulation
+        outStream.writeInt(maxNameLength)
+        elements.forEach { outStream.encodeID(it) } // Encode constructor arguments of MutableZone
+        elements.forEach { outStream.encodeAttributes(it, maxNameLength) } // Encode Secondary arugments, which are set in the builder
+
+
+    }
+
+    private fun DataOutputStream.encodeID(zone: Zone) {
+
+        zone.run {
+            writeLong(id.value)
+            writeDouble(centroid.coordinate.latitudeDegrees)
+            writeDouble(centroid.coordinate.longitudeDegrees)
+            writeLong(centroid.roadAccess?.roadId ?: Long.MIN_VALUE)//  8 bit
+            writeDouble(centroid.roadAccess?.position?.toDouble() ?: 0.0)
+            //TODO maybe lateral Distance, or even a write Location method, since this is not the first time a location is written
+        }
+    }
+
+
+    private fun DataOutputStream.encodeAttributes(zone: Zone, maxNameLength: Int) {
+        zone.run {
+            writeLong(visumId)
+            // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the reader
+            writeChars(name.padEnd(maxNameLength, '.'))
+            writeInt(regionType.encode())
+            writeInt(classification.encode())
+            writeInt(parkingPlaces)
+            writeBoolean(isDestination)
+            writeDouble(relief.toDouble(DistanceUnit.METERS))
+        }
+    }
+}
 

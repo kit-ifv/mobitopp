@@ -33,9 +33,9 @@ interface Context {
     val costUnit: CurrencyUnit
     val distanceUnit: DistanceUnit
 
-    fun runStep(createStep: () -> ModelStep) = runStep(createStep())
+    fun runStep(createStep: () -> ModelStep) = runStepObject(createStep())
 
-    fun runStep(step: ModelStep) {
+    fun runStepObject(step: ModelStep) {
         step.run(execMode)
     }
 }
