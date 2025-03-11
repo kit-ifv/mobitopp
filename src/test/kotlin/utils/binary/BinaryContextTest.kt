@@ -96,7 +96,7 @@ class BinaryContextTest {
         y.loadPersons()
         y.loadPrivateCars()
         y.loadActivities()
-//        repoEquals(x.zoneRepository, y.zoneRepository)
+        repoEquals(x.zoneRepository, y.zoneRepository)
         repoEquals(x.householdRepository, y.householdRepository)
         repoEquals(x.personRepository, y.personRepository)
         repoEquals(x.carRepository, y.carRepository)

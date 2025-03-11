@@ -120,9 +120,11 @@ interface CarEngine {
     val type: EngineType
     val range: Distance
 
-    fun identical(other: CarEngine): Boolean {
-        return type == other.type && range == other.range
-    }
+
+}
+
+fun CarEngine.identical(other: CarEngine): Boolean {
+    return type == other.type && range == other.range
 }
 
 enum class EngineType(private val code: Int) : Encodable {
