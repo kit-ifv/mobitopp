@@ -51,6 +51,32 @@ abstract class Zone(
     val centroid: Location = centroid.copy(zone = this)
 
     operator fun contains(location: Location): Boolean = location.zone == this
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is Zone) return false
+        return id == other.id &&
+                centroid.coordinate == other.centroid.coordinate &&
+                visumId == other.visumId &&
+//                name == other.name &&
+                regionType == other.regionType &&
+                classification == other.classification &&
+                parkingPlaces == other.parkingPlaces &&
+                isDestination == other.isDestination &&
+                relief == other.relief
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + visumId.hashCode()
+//        result = 31 * result + name.hashCode()
+        result = 31 * result + regionType.hashCode()
+        result = 31 * result + classification.hashCode()
+        result = 31 * result + parkingPlaces
+        result = 31 * result + isDestination.hashCode()
+        result = 31 * result + relief.hashCode()
+        result = 31 * result + centroid.coordinate.hashCode()
+        return result
+    }
 }
 
 @Mutable
@@ -61,6 +87,16 @@ abstract class LegacyZone(
 ) : Zone(id, centroid, seed) {
 
     abstract val matrixColumn: Int
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is LegacyZone) return false
+        return matrixColumn == other.matrixColumn && super.equals(other)
+
+    }
+
+    override fun hashCode(): Int {
+        return matrixColumn.hashCode() +  31 * super.hashCode()
+    }
 }
 
 fun Zone.point(gpsCoordinate: GPSCoordinate) = Location(gpsCoordinate, zone = this, roadAccess = null)
