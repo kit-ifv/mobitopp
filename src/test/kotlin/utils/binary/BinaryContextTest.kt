@@ -2,6 +2,8 @@ package utils.binary
 
 import domain.data.EconomicStatus
 import domain.enums.Regiostar17
+import modeling.steps.Identifiable
+import modeling.steps.Repository
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.steps.ProjectContext
@@ -94,9 +96,19 @@ class BinaryContextTest {
         y.loadPersons()
         y.loadPrivateCars()
         y.loadActivities()
-
-        val expected = x.zoneRepository.elements.toList()
-        val actual = y.zoneRepository.elements.toList()
+//        repoEquals(x.zoneRepository, y.zoneRepository)
+        repoEquals(x.householdRepository, y.householdRepository)
+        repoEquals(x.personRepository, y.personRepository)
+        repoEquals(x.carRepository, y.carRepository)
+        repoEquals(x.plannedActivityRepository, y.plannedActivityRepository)
+    }
+    private fun <E : utils.Identifiable<I>, I> repoEquals(x: Repository<E, I>, y: Repository<E, I>) {
+        val expected = x.elements.toList()
+        val actual = y.elements.toList()
+        val a = expected[0]
+        val b = actual[0]
+        val equals = a == b
         assertContentEquals(expected, actual)
     }
+
 }
