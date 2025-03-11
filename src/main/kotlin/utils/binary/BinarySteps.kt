@@ -1,13 +1,6 @@
 package utils.binary
 
-import domain.data.Household
-import domain.data.HouseholdId
-import domain.data.Person
-import domain.data.PersonId
-import domain.data.Zone
-import domain.data.ZoneId
 import modeling.steps.AddResourceStep
-import modeling.steps.Context
 import modeling.steps.ForAllStep
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
@@ -17,11 +10,13 @@ import modeling.validation.Warning
 import usecases.steps.LoadPersonsContext
 import usecases.steps.LoadPlannedActivitiesContext
 import usecases.steps.legacyData.LoadHouseholdContext
+import usecases.steps.legacyData.LoadPrivateCarsContext
+import usecases.steps.legacyData.LoadZonesContext
 import utils.Identifiable
 import java.nio.file.Path
 import kotlin.io.path.name
 
-fun LoadPersonsContext.loadPersonFromBinary(path: Path) {
+fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
     val converter = BinaryPersonReader(householdRepository.elements.associateBy { it.id }::getValue, simulationSeed)
     runStep {
         LoadBinaryStep(
@@ -40,6 +35,23 @@ fun LoadHouseholdContext.loadHouseholdFromBinary(path: Path) {
         LoadBinaryStep(path, converter, householdRepository, setOf(zoneRepository))
     }
 }
+
+fun LoadZonesContext.loadZonesFromBinary(path: Path) {
+    val converter = BinaryZoneReader(simulationSeed, areaTypeCodes)
+    runStep {
+        LoadBinaryStep(path, converter, zoneRepository, emptySet())
+    }
+}
+
+fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
+    val converter = BinaryCarReaderHome(householdRepository.elements.associateBy { it.id }::getValue,
+        personRepository.elements.associateBy { it.id }::getValue,
+    )
+    runStep {
+        LoadBinaryStep(path, converter, carRepository, emptySet())
+    }
+}
+
 
 fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
 
@@ -90,9 +102,11 @@ class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
     val path: Path,
     val writer: BinaryWriter<READONLY>,
     override val repository: Repository<READONLY, ID>,
-    override val dependentRepositories: Set<Repository<*, *>>,
-) : ForAllStep<READONLY, ID>() {
-    override val name: String = "Write Binary"
+
+    ) : ForAllStep<READONLY, ID>() {
+    override val name: String = "Write Binary ${repository.name}"
+    override val dependentRepositories: Set<Repository<*, *>> =
+        emptySet() // There is no need for dependent repositories, the objects are already there
 
     override fun processAll(element: Collection<READONLY>) {
         writer.toBinary(path, element)
@@ -129,33 +143,40 @@ class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
 
 }
 
-interface ReadonlyPersonContext : Context {
-    val personRepository: Repository<Person, PersonId>
+/* TODO There is no reason to require the LoadHouseholdContext or any other of the predefined context, but sadly writing
+     a readonly interface also requires adding the interface to the underlying context, as the interfaces do not specify
+     what they require. The correct procedure would be i.e. that LoadHouseholdContext is a : ReadonlyZonesContext,
+     MutableHouseholdContext, etc. If that would be the case, this extension method could be built upon a readonly
+     household context. Which would be better, because you can write a household repository to binary, even if your
+     context does not fulfill LoadHouseholdContext because Zones are missing (or sth else)
+ */
 
-}
-
-fun ReadonlyPersonContext.writePersonBinary(path: Path) {
-
+fun LoadHouseholdContext.writeHouseholdBinary(path: Path) {
     runStep {
-        WriteBinaryStep<Person, PersonId>(path, BinaryPersonWriter(), personRepository, emptySet())
-    }
-
-}
-
-interface ReadonlyHouseholdContext: Context {
-    val householdRepository: Repository<Household, HouseholdId>
-}
-
-fun ReadonlyHouseholdContext.writeHouseholdBinary(path: Path) {
-    runStep {
-        WriteBinaryStep(path, BinaryHouseholdWriter(), householdRepository, emptySet())
+        WriteBinaryStep(path, BinaryHouseholdWriter(), householdRepository)
     }
 }
-interface ReadonlyZoneContext: Context {
-    val zoneRepository: Repository<Zone, ZoneId>
-}
-fun ReadonlyZoneContext.writeZonesBinary(path: Path) {
+
+fun LoadZonesContext.writeZonesBinary(path: Path) {
     runStep {
-        WriteBinaryStep(path, BinaryZoneWriter(), zoneRepository, emptySet())
+        WriteBinaryStep(path, BinaryZoneWriter(), zoneRepository)
+    }
+}
+
+fun LoadPersonsContext.writePersonsBinary(path: Path) {
+    runStep {
+        WriteBinaryStep(path, BinaryPersonWriter(), personRepository)
+    }
+}
+
+fun LoadPlannedActivitiesContext.writeActivitiesBinary(path: Path) {
+    runStep {
+        WriteBinaryStep(path, BinaryActivityWriter(), plannedActivityRepository)
+    }
+}
+
+fun LoadPrivateCarsContext.writeCarsBinary(path: Path) {
+    runStep {
+        WriteBinaryStep(path, BinaryCarWriter(), carRepository)
     }
 }
