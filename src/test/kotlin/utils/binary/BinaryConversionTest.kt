@@ -13,19 +13,19 @@ import domain.enums.Regiostar17
 import generateHousehold
 import generatePerson
 import generatePlannedActivity
-import modeling.steps.Run
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import spawnCar
 import units.euros
 import usecases.LegacyActivityType
-import usecases.LegacyMode
-import usecases.steps.ProjectContext
-import usecases.steps.legacyData.loadHouseholds
-import usecases.steps.legacyData.loadZones
 import utils.units.sinceStart
 import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import kotlin.io.path.Path
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours
@@ -34,44 +34,11 @@ import kotlin.time.Duration.Companion.minutes
 
 class BinaryConversionTest {
 
-    private val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
 
-    private val rootRastatt = File("$ROOT_FS\\logiktram_rastatt_long-term-module\\rastatt")
-
-    @Test
-    fun householdTest() {
-        Run {
-            ProjectContext(
-                scenarioName = "testSteps",
-                areaTypeCodes = Regiostar17,
-                demandFolder = rootRastatt,
-                economicalStatusCodes = EconomicStatus,
-                simulationSeed = 42,
-                modes = LegacyMode,
-            )
-        }.steps {
-            loadZones()
-            loadHouseholds()
-            writeZonesBinary(Path("src/test/resources/binaryZone.bin"))
-            writeHouseholdBinary(Path("src/test/resources/binaryHousehold.bin"))
-        }
-    }
-
-    private val path = Path("src/test/resources/temp.bin")
-
-    @BeforeTest
-    fun setup() {
-
-    }
-
-    @AfterTest
-    fun removeTemporaryFile() {
-
-    }
 
     @Test
     fun testZones() {
-
+        val path = Path("src/test/resources/tempOutput/zones.bin")
         val testZone = TEST_ZONE
         val writer = BinaryZoneWriter()
         writer.toBinary(path, listOf(testZone, testZone))
@@ -139,6 +106,7 @@ class BinaryConversionTest {
 
     @Test
     fun testHousehold() {
+        val path = Path("src/test/resources/tempOutput/household.bin")
         val writer = BinaryHouseholdWriter()
         val reader = BinaryHouseholdReader({ zone }, 1L)
         writer.toBinary(path, listOf(hh1, hh2))
@@ -166,10 +134,14 @@ class BinaryConversionTest {
             assertEquals(it.incomePerMonth, hh2.incomePerMonth)
             assertEquals(it.location, hh2.location)
         }
+
     }
 
     @Test
     fun testPerson() {
+
+        val path = Path("src/test/resources/tempOutput/person.bin")
+
         val map = listOf(hh1, hh2).associateBy { it.id }
         val reader = BinaryPersonReader(map::getValue, 1)
         val writer = BinaryPersonWriter()
@@ -197,7 +169,9 @@ class BinaryConversionTest {
             assertEquals(it.sex, p2.sex)
 
         }
+
     }
+
     private val act1 = p1.generatePlannedActivity(1L) {
         this.startTime = 1.hours.sinceStart
         this.duration = 1.hours
@@ -211,8 +185,11 @@ class BinaryConversionTest {
         this.activityType = LegacyActivityType.SHOPPING
         this.observedTripDuration = 90.minutes
     }
+
     @Test
     fun testActivities() {
+
+        val path = Path("src/test/resources/tempOutput/activities.bin")
         val map = listOf(p1, p2).associateBy { it.id }
         val reader = BinaryActivityReader(LegacyActivityType, map::getValue, 1L)
         val writer = BinaryActivityWriter()
@@ -235,6 +212,8 @@ class BinaryConversionTest {
             assertEquals(it.duration, act2.duration)
             assertEquals(it.observedTripDuration, act2.observedTripDuration)
         }
+
+
     }
 
     private val car1 = hh1.spawnCar {
@@ -247,12 +226,14 @@ class BinaryConversionTest {
         this.segment = CarSegment.SMALL
         this.engine = CarEngineStatistics().buildEngine(this.segment, EngineType.HYBRID)
     }
+
     @Test
     fun testCars() {
+        val path = Path("src/test/resources/tempOutput/cars.bin")
         val hhMap = listOf(hh1, hh2).associateBy { it.id }
         val personMap = listOf(p1, p2).associateBy { it.id }
         val zoneMap = listOf(zone).associateBy { it.id }
-        val reader = BinaryCarReader(hhMap::getValue, personMap::getValue, zoneMap::getValue)
+        val reader = BinaryCarReaderLocations(hhMap::getValue, personMap::getValue, zoneMap::getValue)
         val writer = BinaryCarWriter()
 
         writer.toBinary(path, listOf(car1, car2))
@@ -265,12 +246,46 @@ class BinaryConversionTest {
             assertEquals(it.engine.range, car1.engine.range)
             assertEquals(it.segment, car1.segment)
         }
-        cars[1].let{
+        cars[1].let {
             assertEquals(it.seats, car2.seats)
             assertEquals(it.location, car2.location)
             assertEquals(it.engine.type, car2.engine.type)
             assertEquals(it.engine.range, car2.engine.range)
             assertEquals(it.segment, car2.segment)
+        }
+
+
+    }
+
+    companion object {
+
+        private val directoryPath: Path = Paths.get("src/test/resources/tempOutput")
+
+        @BeforeAll
+        @JvmStatic
+        fun beforeAll() {
+            setup()
+        }
+
+
+        fun setup(): Unit {
+            try {
+                // Ensure the directory exists before trying to delete files
+                if (Files.exists(directoryPath) && Files.isDirectory(directoryPath)) {
+                    // Delete all files in the directory
+                    Files.walk(directoryPath)
+                        .filter { Files.isRegularFile(it) } // Only delete regular files (not directories)
+                        .forEach { file ->
+                            try {
+                                Files.delete(file)
+                            } catch (e: IOException) {
+                                println("Failed to delete file: $file")
+                            }
+                        }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
     }
 

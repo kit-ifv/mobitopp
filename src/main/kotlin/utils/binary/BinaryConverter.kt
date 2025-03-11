@@ -13,6 +13,7 @@ import domain.data.Graduation
 import domain.data.Household
 import domain.data.HouseholdId
 import domain.data.MutableHousehold
+import domain.data.MutableLegacyZone
 import domain.data.MutablePerson
 import domain.data.MutablePlannedActivity
 import domain.data.MutablePrivateCar
@@ -249,11 +250,11 @@ class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
     }
 }
 
-class BinaryCarReader(
+abstract class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
     val personConverter: (PersonId) -> Person,
     val zoneConverter: (ZoneId) -> Zone? = {null},
-    private val carEngineStatistics: CarEngineStatistics = CarEngineStatistics()
+    val carEngineStatistics: CarEngineStatistics = CarEngineStatistics()
 ) : BinaryReader<MutablePrivateCar> {
     override fun fromBinary(path: Path): List<MutablePrivateCar> {
         val mappedBuffer = mapFileToMemory(path)
@@ -286,7 +287,22 @@ class BinaryCarReader(
         }
     }
 
-    private fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
+    abstract fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar)
+
+    private val attributeBitSize = 60
+}
+
+/**
+ * If the locations are relevant, and can somehow be mapped to zones.
+ */
+class BinaryCarReaderLocations(householdConverter: (HouseholdId) -> MutableHousehold,
+                               personConverter: (PersonId) -> Person,
+                               zoneConverter: (ZoneId) -> Zone,
+    carEngineStatistics: CarEngineStatistics = CarEngineStatistics()
+): BinaryCarReader(
+    householdConverter, personConverter, zoneConverter, carEngineStatistics
+){
+    override fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
         TrackingBuffer(buffer, at).run {
             car.apply {
 
@@ -302,9 +318,33 @@ class BinaryCarReader(
         }
 
     }
-
-    private val attributeBitSize = 60
 }
+
+class BinaryCarReaderHome(householdConverter: (HouseholdId) -> MutableHousehold,
+                               personConverter: (PersonId) -> Person,
+                               carEngineStatistics: CarEngineStatistics = CarEngineStatistics()
+): BinaryCarReader(
+    householdConverter, personConverter, carEngineStatistics = carEngineStatistics
+){
+    override fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
+        TrackingBuffer(buffer, at).run {
+            car.apply {
+
+                seats = nextInt
+
+                val personId = PersonId(nextLong)
+                mainUser = if(personId != PersonId(Long.MIN_VALUE)) personConverter(personId) else null
+                segment = CarSegment.decode(nextInt)
+                val engineType = EngineType.decode(nextInt)
+                engine = carEngineStatistics.buildEngine(segment, engineType)
+                location = owner.location
+                //nextLocation() Reenable if you need to add other information after the location.
+            }
+        }
+
+    }
+}
+
 
 class BinaryCarWriter : BinaryWriter<PrivateCar> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
@@ -503,8 +543,8 @@ class BinaryPersonWriter : BinaryWriter<Person> {
     }
 }
 
-class BinaryZoneReader(val seed: Long, val regionCode: Decodable<AreaType>) : BinaryReader<MutableZone> {
-    override fun fromBinary(path: Path): List<MutableZone> {
+class BinaryZoneReader(val seed: Long, val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
+    override fun fromBinary(path: Path): List<MutableLegacyZone> {
         val mappedBuffer = mapFileToMemory(path)
         val size = mappedBuffer.getInt(0)
         val maxNameLength = mappedBuffer.getInt(4)
@@ -516,17 +556,17 @@ class BinaryZoneReader(val seed: Long, val regionCode: Decodable<AreaType>) : Bi
             idArray[i] = extractIds(mappedBuffer, i * idBitSize + 4 + 4)
         }
         val zones = idArray.map {
-            MutableZone(
+            MutableLegacyZone(
                 it.first, it.second, seed
             )
         }
         for (i in 0 until size) {
             extractInfos(
-                mappedBuffer, i * (attributesBitSize + maxNameLength) + 4 + 4 + size * idBitSize, zones[i],
+                mappedBuffer, i * (attributesBitSize + maxNameLength * 2 /*Has to be times 2 because chars take up 2 bytes*/) + 4 + 4 + size * idBitSize, zones[i],
                 maxNameLength = maxNameLength
             )
         }
-
+        zones.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
         return zones
     }
 
@@ -547,7 +587,7 @@ class BinaryZoneReader(val seed: Long, val regionCode: Decodable<AreaType>) : Bi
     private val idBitSize = 40
 
     // 29 + ???? Bit
-    private fun extractInfos(buffer: MappedByteBuffer, at: Int, zone: MutableZone, maxNameLength: Int) {
+    private fun extractInfos(buffer: MappedByteBuffer, at: Int, zone: MutableLegacyZone, maxNameLength: Int) {
         TrackingBuffer(buffer, at).run {
             zone.apply {
                 visumId = nextLong //8
