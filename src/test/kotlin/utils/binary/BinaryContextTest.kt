@@ -4,6 +4,7 @@ import domain.data.EconomicStatus
 import domain.enums.Regiostar17
 import modeling.steps.Repository
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import usecases.LegacyMode
 import usecases.steps.ProjectContext
 import usecases.steps.legacyData.loadHouseholds
@@ -19,6 +20,7 @@ private val demandFolder = Path("src/test/resources/testDemand").toFile()
 class BinaryContextTest {
 
     @Test
+    @EnabledIfSystemProperty(named = "skip.filebasedTest", matches = "false")
     fun readBinaryTest() {
         val x = ProjectContext(
             scenarioName = "testSteps",
