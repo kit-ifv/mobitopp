@@ -10,7 +10,7 @@ import utils.CodePlan
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
-
+@Suppress("MagicNumber")
 class FixedDestinationReader(
     val personConverter: (PersonId) -> Person,
     private val activityTypeConverter: CodePlan<ActivityType>,

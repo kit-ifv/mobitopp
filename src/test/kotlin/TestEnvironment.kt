@@ -296,6 +296,7 @@ fun MutableHousehold.generateAndAddPerson(builder: (Long, MutableHousehold) -> M
     val person = builder(members.size + 1L, this).also { it.schedule = Schedule(TrackableModel(BlockModel())) }
     return person
 }
+
 fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
     val builder = MutablePerson(
         id = PersonId(id),
@@ -318,12 +319,17 @@ fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit):
     return builder
 }
 
-fun Person.generatePlannedActivity(id: Long, seed: Long = 1L, lambda: MutablePlannedActivity.() -> Unit): MutablePlannedActivity {
+fun Person.generatePlannedActivity(
+    id: Long,
+    seed: Long = 1L,
+    lambda: MutablePlannedActivity.() -> Unit
+): MutablePlannedActivity {
     val mutable = MutablePlannedActivity(ActivityId(id), seed)
     mutable.apply(lambda)
     mutable.person = this
     return mutable
 }
+
 fun MutableHousehold.generateAndAddPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
     val person = generatePerson(id, lambda)
 

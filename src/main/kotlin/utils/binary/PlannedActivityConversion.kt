@@ -1,6 +1,10 @@
 package utils.binary
 
-import domain.data.*
+import domain.data.ActivityId
+import domain.data.MutablePlannedActivity
+import domain.data.Person
+import domain.data.PersonId
+import domain.data.PlannedActivity
 import domain.enums.ActivityType
 import utils.CodePlan
 import utils.units.sinceStart
@@ -18,6 +22,7 @@ import kotlin.time.toDuration
  * 3) The [contextSimulationSeed]
  *
  */
+@Suppress("MagicNumber")
 class BinaryActivityReader(
     private val codeActivity: CodePlan<ActivityType>,
     val personConverter: (PersonId) -> Person,

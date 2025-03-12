@@ -19,7 +19,6 @@ import spawnCar
 import units.euros
 import usecases.LegacyActivityType
 import utils.units.sinceStart
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -259,25 +258,8 @@ class BinaryConversionTest {
         }
 
         fun setup() {
-            try {
-                if (!Files.exists(directoryPath)) {
-                    Files.createDirectories(directoryPath)
-                }
-                // Ensure the directory exists before trying to delete files
-                if (Files.exists(directoryPath) && Files.isDirectory(directoryPath)) {
-                    // Delete all files in the directory
-                    Files.walk(directoryPath)
-                        .filter { Files.isRegularFile(it) } // Only delete regular files (not directories)
-                        .forEach { file ->
-                            try {
-                                Files.delete(file)
-                            } catch (e: IOException) {
-                                println("Failed to delete file: $file")
-                            }
-                        }
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
+            if (!Files.exists(directoryPath)) {
+                Files.createDirectories(directoryPath)
             }
         }
     }

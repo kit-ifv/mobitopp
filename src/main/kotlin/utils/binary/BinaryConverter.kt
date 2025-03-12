@@ -97,6 +97,7 @@ fun interface BinaryWriter<in READONLY> {
  * work correctly without the need for manual offset management.
  *
  */
+@Suppress("MagicNumber")
 class TrackingBuffer(private val buffer: MappedByteBuffer, initialOffset: Int) {
     var currentPosition = initialOffset
 
@@ -106,8 +107,8 @@ class TrackingBuffer(private val buffer: MappedByteBuffer, initialOffset: Int) {
     val nextBoolean get() = buffer.getBoolean(currentPosition).also { currentPosition += 1 }
     fun readString(length: Int): String {
         val charArray = CharArray(length)
-        (0..<length).forEach {
-            charArray[it] = buffer.getChar(currentPosition)
+        for (i in 0..<length) {
+            charArray[i] = buffer.getChar(currentPosition)
             currentPosition += 2
         }
         return String(charArray)
@@ -124,6 +125,7 @@ class TrackingBuffer(private val buffer: MappedByteBuffer, initialOffset: Int) {
  * method as well. the write calls should be in the same order as the read calls. WriteLong -> WriteDouble -> etc.
  * should meet nextLong -> nextDouble -> etc.
  */
+@Suppress("MagicNumber")
 object LocationUtils {
     fun writeLocation(location: Location, outputStream: DataOutputStream) {
         outputStream.writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)

@@ -50,6 +50,8 @@ fun DataOutputStream.writeLocation(location: Location) {
  * @param index The position (index) in the [MappedByteBuffer] where the integer representing the boolean is stored.
  * @return The boolean value extracted from the 4-byte integer at the specified index. Returns `true` if the first byte is set (0x01), otherwise `false`.
  */
+
+@Suppress("MagicNumber")
 fun MappedByteBuffer.getBoolean(index: Int): Boolean {
     val b = getInt(index)
     /* This magic number is the hexadecimal representation of an integer block in memory, such as 01 XX XX XX
