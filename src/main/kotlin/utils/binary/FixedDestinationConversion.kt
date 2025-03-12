@@ -22,10 +22,7 @@ class FixedDestinationReader(
             (0 until size).map {
                 extractContent(this, it * elementByteSize + 4)
             }
-
         }
-
-
     }
 
     private fun extractContent(buffer: MappedByteBuffer, at: Int): ActivityLocation {
@@ -35,7 +32,9 @@ class FixedDestinationReader(
             val location = nextLocation(zoneConverter)
 
             ActivityLocation(
-                person, activityType, location
+                person,
+                activityType,
+                location
             )
         }
     }
@@ -50,13 +49,12 @@ class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
         elements.forEach { outStream.encodeElement(it) }
     }
 
-
     private fun DataOutputStream.encodeElement(act: ActivityLocation) {
         act.run {
-            writeLong(person.id.value)                          //  8 Bytes
-            writeInt(activityType.encode())                     // 12 Bytes
-            writeLong(location.zone?.id?.value ?: -1)        // 20 Bytes
-            writeLocation(location)                             // 60 Bytes
+            writeLong(person.id.value) //  8 Bytes
+            writeInt(activityType.encode()) // 12 Bytes
+            writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
+            writeLocation(location) // 60 Bytes
 
             // TODO maybe add lateral distance if needed.
         }

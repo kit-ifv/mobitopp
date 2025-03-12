@@ -1,6 +1,5 @@
 package utils.collections
 
-import generateAndAddPerson
 import domain.data.EconomicStatus
 import domain.data.Household
 import domain.data.HouseholdId
@@ -8,6 +7,7 @@ import domain.data.MutableHousehold
 import domain.data.MutablePerson
 import domain.data.PersonId
 import domain.location.LOCATIONUNKNOWN
+import generateAndAddPerson
 import units.euros
 import kotlin.math.sqrt
 import kotlin.test.Test

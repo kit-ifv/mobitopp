@@ -49,25 +49,26 @@ abstract class Person(
     init {
         addAsMember()
     }
+
     /* TODO it would be smart to separate the person class into attributes, and simulation state so that equality tests
         are easier to write, because currently I am uncertain which simulation states should be considered for equality
         checks.
-    */
+     */
     override fun equals(other: Any?): Boolean {
         if (other !is Person) return false
         return id == other.id &&
-                household.id == other.household.id && // Compare over household id to avoid infinite loop
-                age == other.age &&
-                employment == other.employment &&
-                sex == other.sex &&
-                graduation == other.graduation &&
-                income == other.income &&
-                hasBike == other.hasBike &&
-                hasCommuterTicket == other.hasCommuterTicket &&
-                hasLicense == other.hasLicense &&
-                // memberships &&// TODO no Idea how to incorporate memberships in equals check
-                eMobilityAcceptance == other.eMobilityAcceptance &&
-                chargingInfluence == other.chargingInfluence
+            household.id == other.household.id && // Compare over household id to avoid infinite loop
+            age == other.age &&
+            employment == other.employment &&
+            sex == other.sex &&
+            graduation == other.graduation &&
+            income == other.income &&
+            hasBike == other.hasBike &&
+            hasCommuterTicket == other.hasCommuterTicket &&
+            hasLicense == other.hasLicense &&
+            // memberships &&// TODO no Idea how to incorporate memberships in equals check
+            eMobilityAcceptance == other.eMobilityAcceptance &&
+            chargingInfluence == other.chargingInfluence
     }
 
     private fun addAsMember() {
@@ -97,7 +98,7 @@ abstract class Person(
     fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
     override fun hashCode(): Int {
         return id.hashCode()
-        //TODO cannot use hash with reference to delegates that have certain properties not set, if the person is immediately added to the household
+        // TODO cannot use hash with reference to delegates that have certain properties not set, if the person is immediately added to the household
 //        var result = id.hashCode()
 //        result = 31 * result + household.hashCode()
 //        result = 31 * result + age

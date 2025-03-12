@@ -4,7 +4,6 @@ import BIELEFELD
 import TestZone
 import benchmark.ControllableAttractiveness
 import build
-import generateAndAddPerson
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedActivity
@@ -32,6 +31,7 @@ import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.Location
 import domain.resources.Subscribable
+import generateAndAddPerson
 import generateZones
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest

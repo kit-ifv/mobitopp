@@ -1,22 +1,16 @@
 package utils.binary
 
-
 import domain.data.Zone
 import domain.data.ZoneId
-
 import domain.location.Location
 import domain.location.RoadAccess
-
 import units.GPSCoordinate
-
 import units.share
-
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Files
 import java.nio.file.Path
-
 
 /**
  * A functional interface for reading binary files.
@@ -82,6 +76,7 @@ fun interface BinaryWriter<in READONLY> {
      */
     fun operateStream(outStream: DataOutputStream, elements: Collection<READONLY>)
 }
+
 /**
  * A class that facilitates sequential reading of primitive data types and strings from a mapped byte buffer.
  * It keeps track of the current position in the buffer to prevent errors in manual index tracking.
@@ -139,15 +134,12 @@ object LocationUtils {
     }
 
     fun readLocation(buffer: TrackingBuffer, converter: (ZoneId) -> Zone?): Location {
-        val zoneId = ZoneId(buffer.nextLong)  // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(buffer.nextDouble, buffer.nextDouble)  // Reading latitude and longitude
-        val roadAccess = RoadAccess(buffer.nextLong, buffer.nextDouble.share())  // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess)  // Returning a Location object
+        val zoneId = ZoneId(buffer.nextLong) // Reading zone ID
+        val coordinate = GPSCoordinate.decimalDegree(
+            buffer.nextDouble,
+            buffer.nextDouble
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(buffer.nextLong, buffer.nextDouble.share()) // Reading roadId and position
+        return Location(coordinate, converter(zoneId), roadAccess) // Returning a Location object
     }
 }
-
-
-
-
-
-

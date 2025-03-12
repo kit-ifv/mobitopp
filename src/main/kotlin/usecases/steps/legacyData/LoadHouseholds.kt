@@ -46,7 +46,7 @@ interface LoadHouseholdContext : Context {
         zoneColumnIndex[matrixColumn]
     ) {
         "Could not find zone with matrix column $matrixColumn " +
-                "in index: ${zoneColumnIndex.keys}"
+            "in index: ${zoneColumnIndex.keys}"
     }
 }
 

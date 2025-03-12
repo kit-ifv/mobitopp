@@ -13,28 +13,22 @@ import domain.enums.Regiostar17
 import generateHousehold
 import generatePerson
 import generatePlannedActivity
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import spawnCar
 import units.euros
 import usecases.LegacyActivityType
 import utils.units.sinceStart
-import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.Path
-import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-
 class BinaryConversionTest {
-
-
 
     @Test
     fun testZones() {
@@ -59,7 +53,6 @@ class BinaryConversionTest {
             assertEquals(it.parkingPlaces, testZone.parkingPlaces)
             assertEquals(it.relief, testZone.relief)
         }
-
     }
 
     private val zone = TEST_ZONE
@@ -78,7 +71,6 @@ class BinaryConversionTest {
         surveyYear = 0
         economicStatus = EconomicStatus.VERY_HIGH
         incomePerMonth = 1.euros
-
     }
     private val p1 = hh1.generatePerson(1L) {
         age = 20
@@ -89,7 +81,6 @@ class BinaryConversionTest {
         hasBike = false
         hasLicense = false
         hasCommuterTicket = false
-
     }
 
     private val p2 = hh2.generatePerson(2L) {
@@ -101,7 +92,6 @@ class BinaryConversionTest {
         hasBike = true
         hasLicense = true
         hasCommuterTicket = true
-
     }
 
     @Test
@@ -120,8 +110,6 @@ class BinaryConversionTest {
             assertEquals(it.economicStatus, hh1.economicStatus)
             assertEquals(it.incomePerMonth, hh1.incomePerMonth)
             assertEquals(hh1.location, it.location)
-
-
         }
 
         households[1].let {
@@ -134,12 +122,10 @@ class BinaryConversionTest {
             assertEquals(it.incomePerMonth, hh2.incomePerMonth)
             assertEquals(it.location, hh2.location)
         }
-
     }
 
     @Test
     fun testPerson() {
-
         val path = Path("src/test/resources/tempOutput/person.bin")
 
         val map = listOf(hh1, hh2).associateBy { it.id }
@@ -162,7 +148,6 @@ class BinaryConversionTest {
             assertEquals(it.hasLicense, p1.hasLicense)
             assertEquals(it.hasCommuterTicket, p1.hasCommuterTicket)
             assertEquals(it.sex, p1.sex)
-
         }
 
         persons[1].let {
@@ -173,9 +158,7 @@ class BinaryConversionTest {
             assertEquals(it.hasLicense, p2.hasLicense)
             assertEquals(it.hasCommuterTicket, p2.hasCommuterTicket)
             assertEquals(it.sex, p2.sex)
-
         }
-
     }
 
     private val act1 = p1.generatePlannedActivity(1L) {
@@ -194,7 +177,6 @@ class BinaryConversionTest {
 
     @Test
     fun testActivities() {
-
         val path = Path("src/test/resources/tempOutput/activities.bin")
         val map = listOf(p1, p2).associateBy { it.id }
         val reader = BinaryActivityReader(LegacyActivityType, map::getValue, 1L)
@@ -218,8 +200,6 @@ class BinaryConversionTest {
             assertEquals(it.duration, act2.duration)
             assertEquals(it.observedTripDuration, act2.observedTripDuration)
         }
-
-
     }
 
     private val car1 = hh1.spawnCar {
@@ -266,8 +246,6 @@ class BinaryConversionTest {
             assertEquals(it.engine.range, car2.engine.range)
             assertEquals(it.segment, car2.segment)
         }
-
-
     }
 
     companion object {
@@ -280,9 +258,11 @@ class BinaryConversionTest {
             setup()
         }
 
-
-        fun setup(): Unit {
+        fun setup() {
             try {
+                if (!Files.exists(directoryPath)) {
+                    Files.createDirectories(directoryPath)
+                }
                 // Ensure the directory exists before trying to delete files
                 if (Files.exists(directoryPath) && Files.isDirectory(directoryPath)) {
                     // Delete all files in the directory
@@ -301,5 +281,4 @@ class BinaryConversionTest {
             }
         }
     }
-
 }

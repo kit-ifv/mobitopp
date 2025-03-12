@@ -14,11 +14,9 @@ import usecases.steps.legacyData.loadZones
 import usecases.steps.loadActivities
 import usecases.steps.loadPersons
 import java.io.File
-import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
-
 
 private val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
 
@@ -70,7 +68,7 @@ class BinaryContextTest {
     companion object {
         @JvmStatic
         @BeforeAll
-        fun setup(): Unit {
+        fun setup() {
             /*TODO find a way to only create these files when necessary, also the pipeline may be unhappy about this
                test because the paths may not be visible to the gitlab runner */
             createBinaryFiles()
@@ -99,5 +97,4 @@ class BinaryContextTest {
             }
         }
     }
-
 }

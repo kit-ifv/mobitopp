@@ -25,12 +25,10 @@ fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
             repository = personRepository,
             dependentRepositories = setOf(householdRepository)
         )
-
     }
 }
 
 fun LoadHouseholdContext.loadHouseholdFromBinary(path: Path) {
-
     runStep {
         val converter = BinaryHouseholdReader(zoneRepository.elements.associateBy { it.id }::getValue, simulationSeed)
         LoadBinaryStep(path, converter, householdRepository, setOf(zoneRepository))
@@ -45,7 +43,8 @@ fun LoadZonesContext.loadZonesFromBinary(path: Path) {
 }
 
 fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
-    val converter = BinaryCarReader(householdRepository.elements.associateBy { it.id }::getValue,
+    val converter = BinaryCarReader(
+        householdRepository.elements.associateBy { it.id }::getValue,
         personRepository.elements.associateBy { it.id }::getValue,
     ) {
         it.owner.location
@@ -55,9 +54,7 @@ fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
     }
 }
 
-
 fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
-
     val converter = BinaryActivityReader(
         activityTypeCodes,
         { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
@@ -73,7 +70,7 @@ class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
     val writer: BinaryWriter<READONLY>,
     override val repository: Repository<READONLY, ID>,
 
-    ) : ForAllStep<READONLY, ID>() {
+) : ForAllStep<READONLY, ID>() {
     override val name: String = "Write Binary ${repository.name}"
     override val dependentRepositories: Set<Repository<*, *>> =
         emptySet() // There is no need for dependent repositories, the objects are already there
@@ -89,7 +86,6 @@ class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
     override fun mockBehavior(): Warning? {
         return null
     }
-
 }
 
 class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
@@ -98,19 +94,18 @@ class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
     override val repository: MutableRepository<MUTABLE, ID>,
     override val dependentRepositories: Set<Repository<*, *>>,
 
-    ) : AddResourceStep<MUTABLE, ID>() {
+) : AddResourceStep<MUTABLE, ID>() {
 
     override val name: String = "load ${path.fileName}"
     override val resource: Resource<MUTABLE> = parser.fromBinary(path).asResource(name, path.name)
 
     override fun mockElementsForValidation(): List<MUTABLE> {
-        return emptyList() //TODO I WILL NOT WRTIE A BINARY FILE ON MY OWN
+        return emptyList() // TODO I WILL NOT WRTIE A BINARY FILE ON MY OWN
     }
 
     override fun verifyInput(): Warning? {
         return null // TODO some reasonable validation.
     }
-
 }
 
 /* TODO There is no reason to require the LoadHouseholdContext or any other of the predefined context, but sadly writing
