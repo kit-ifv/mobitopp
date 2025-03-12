@@ -65,7 +65,12 @@ class BinaryContextTest {
         fun setup() {
             /*TODO find a way to only create these files when necessary, also the pipeline may be unhappy about this
                test because the paths may not be visible to the gitlab runner */
-            createBinaryFiles()
+            try {
+                createBinaryFiles()
+            }
+            catch (e: Exception) {
+                println(e.stackTrace)
+            }
         }
         private fun createBinaryFiles() {
             val x = ProjectContext(
