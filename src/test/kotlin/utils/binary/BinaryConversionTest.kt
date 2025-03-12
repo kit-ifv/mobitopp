@@ -147,6 +147,12 @@ class BinaryConversionTest {
         val writer = BinaryPersonWriter()
 
         writer.toBinary(path, listOf(p1, p2))
+        /* TODO this is only necessary because Person always runs addAsMember() which always adds a person to the
+            household as a side effect, it is currently impossible to create a person without a household. it would
+            be significantly better if Person creation would not introduce this side effect.
+         */
+        hh1.members.clear()
+        hh2.members.clear()
         val persons = reader.fromBinary(path)
         persons[0].let {
             assertEquals(it.age, p1.age)
@@ -233,9 +239,16 @@ class BinaryConversionTest {
         val hhMap = listOf(hh1, hh2).associateBy { it.id }
         val personMap = listOf(p1, p2).associateBy { it.id }
         val zoneMap = listOf(zone).associateBy { it.id }
-        val reader = BinaryCarReaderLocations(hhMap::getValue, personMap::getValue, zoneMap::getValue)
+        val reader = BinaryCarReader(hhMap::getValue, personMap::getValue) {
+            nextLocation(zoneMap::getValue)
+        }
         val writer = BinaryCarWriter()
-
+        /* TODO similar argument to person test case. The Car is always automatically added to the household which in
+            turn makes this test fail because: Car is present -> Hash Collision -> Object check -> Properties not yet
+            defined -> Crash.
+         */
+        hh1.cars.clear()
+        hh2.cars.clear()
         writer.toBinary(path, listOf(car1, car2))
         val cars = reader.fromBinary(path)
 

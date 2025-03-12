@@ -1,6 +1,7 @@
 package datastructure.matrix
 
 import domain.data.ZoneId
+import utils.binary.operateOnMemoryFile
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
 import java.io.RandomAccessFile
@@ -37,28 +38,24 @@ class ConstantMatrix<O>(val value: O) : Matrix<Any, O> {
 
 @Suppress("MagicNumber") // 4 is not magic, it is the size of an int/float respectively
 fun Path.getSize(): Triple<Int, Map<ZoneId, Int>, FloatArray> {
-    val mappedBuffer = mapFileToMemory(this)
-    val size = mappedBuffer.getInt(0)
-    val mapper = HashMap<ZoneId, Int>()
-    val translation = IntArray(size)
-    for (i in 0 until size) {
-        val fileContent = mappedBuffer.getInt((i + 1) * 4)
-        mapper[ZoneId(fileContent.toLong())] = i
-        translation[i] = mappedBuffer.getInt((i + 1) * 4)
+    return operateOnMemoryFile {
+        val size = this.getInt(0)
+        val mapper = HashMap<ZoneId, Int>()
+        val translation = IntArray(size)
+        for (i in 0 until size) {
+            val fileContent = this.getInt((i + 1) * 4)
+            mapper[ZoneId(fileContent.toLong())] = i
+            translation[i] = this.getInt((i + 1) * 4)
+        }
+        val floatArray = FloatArray(size * size)
+        for (i in floatArray.indices) {
+            floatArray[i] = this.getFloat((i + 1 + size) * 4)
+        }
+        Triple(size, mapper, floatArray)
     }
-    val floatArray = FloatArray(size * size)
-    for (i in floatArray.indices) {
-        floatArray[i] = mappedBuffer.getFloat((i + 1 + size) * 4)
-    }
-    return Triple(size, mapper, floatArray)
 }
 
-fun mapFileToMemory(path: Path): MappedByteBuffer {
-    val file = RandomAccessFile(path.toFile(), "r") // Open in read-only mode
-    val channel = file.channel
-    val size = channel.size() // Get file size in bytes
-    return channel.map(FileChannel.MapMode.READ_ONLY, 0, size)
-}
+
 
 // TODO maybe apply the converter to the elements of the matrix directly, unless this would waste storage space when <O> is complex
 class FloatMatrix<O>(

@@ -30,8 +30,9 @@ fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
 }
 
 fun LoadHouseholdContext.loadHouseholdFromBinary(path: Path) {
-    val converter = BinaryHouseholdReader(zoneRepository.elements.associateBy { it.id }::getValue, simulationSeed)
+
     runStep {
+        val converter = BinaryHouseholdReader(zoneRepository.elements.associateBy { it.id }::getValue, simulationSeed)
         LoadBinaryStep(path, converter, householdRepository, setOf(zoneRepository))
     }
 }
@@ -44,9 +45,11 @@ fun LoadZonesContext.loadZonesFromBinary(path: Path) {
 }
 
 fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
-    val converter = BinaryCarReaderHome(householdRepository.elements.associateBy { it.id }::getValue,
+    val converter = BinaryCarReader(householdRepository.elements.associateBy { it.id }::getValue,
         personRepository.elements.associateBy { it.id }::getValue,
-    )
+    ) {
+        it.owner.location
+    }
     runStep {
         LoadBinaryStep(path, converter, carRepository, emptySet())
     }
@@ -64,39 +67,6 @@ fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
         LoadBinaryStep(path, converter, plannedActivityRepository, setOf(personRepository))
     }
 }
-
-//fun LoadFixedDestinationsContext.loadFixedDestinationsFromBinary(path: Path) {
-//    val converter = FixedDestinationReader(
-//        { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
-//        activityTypeCodes,
-//        { zoneRepository.getById(it) ?: throw NoSuchElementException("No zone of id $it in repository") }
-//    )
-//    runStep {
-//        object : UpdateEachStep<Person, PersonId>() {
-//            val fixedDestinations = converter.fromBinary(path).groupBy { it.person }
-//            override fun update(element: Person) {
-//                val activities = element.schedule.activities()
-//                fixedDestinations[element]?.let { entry ->
-//                    entry.forEach { actLoc ->
-//                        activities.filter { act -> act.type == actLoc.activityType }.forEach {
-//                            it.location = actLoc.location
-//                        }
-//                    }
-//                }
-//            }
-//
-//            override val repository: MutableRepository<Person, PersonId> = personRepository
-//            override val dependentRepositories: Set<Repository<*, *>> = emptySet()
-//
-//            override val name: String = "I hate the step system"
-//
-//            override fun verifyInput(): Warning? {
-//                return null //TODO("Not yet implemented")
-//            }
-//
-//        }
-//    }
-//}
 
 class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
     val path: Path,
