@@ -79,16 +79,14 @@ abstract class PrivateCar(
     override fun equals(other: Any?): Boolean {
         if (other !is PrivateCar) return false
         return id == other.id &&
-        segment == other.segment  &&
-        engine.identical(other.engine) &&
-        seats == other.seats
-
-
+            segment == other.segment &&
+            engine.identical(other.engine) &&
+            seats == other.seats
     }
 
     override fun hashCode(): Int {
         return id.hashCode()
-        //TODO cannot use attributes as hash target, they can be uninitialized before the object is added somewhere
+        // TODO cannot use attributes as hash target, they can be uninitialized before the object is added somewhere
 //        var result = id.hashCode()
 //        result = 31 * result + segment.hashCode()
 //        result = 31 * result + engine.hashCode()
@@ -119,8 +117,6 @@ enum class CarSegment(private val code: Int) : Encodable {
 interface CarEngine {
     val type: EngineType
     val range: Distance
-
-
 }
 
 fun CarEngine.identical(other: CarEngine): Boolean {

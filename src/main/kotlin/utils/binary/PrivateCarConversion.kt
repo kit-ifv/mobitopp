@@ -1,6 +1,5 @@
 package utils.binary
 
-
 import domain.data.*
 import domain.location.Location
 import java.io.DataOutputStream
@@ -26,7 +25,8 @@ class BinaryCarReader(
             }
             val cars = idArray.map {
                 MutablePrivateCar(
-                    it.first, householdConverter(it.second)
+                    it.first,
+                    householdConverter(it.second)
                 )
             }
             for (i in 0 until size) {
@@ -35,10 +35,7 @@ class BinaryCarReader(
 
             cars
         }
-
-
     }
-
 
     private val idByteSize = 16
     private fun extractIds(buffer: MappedByteBuffer, at: Int): Pair<CarId, HouseholdId> {
@@ -65,7 +62,6 @@ class BinaryCarReader(
     private val attributeByteSize = 60
 }
 
-
 class BinaryCarWriter : BinaryWriter<PrivateCar> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<PrivateCar>) {
         val size = elements.size
@@ -76,17 +72,17 @@ class BinaryCarWriter : BinaryWriter<PrivateCar> {
     }
 
     private fun DataOutputStream.encodeIDs(car: PrivateCar) {
-        writeLong(car.id.value)                                 //  8 Bytes
-        writeLong(car.owner.id.value)                           // 16 Bytes
+        writeLong(car.id.value) //  8 Bytes
+        writeLong(car.owner.id.value) // 16 Bytes
     }
 
     private fun DataOutputStream.encodeAttributes(car: PrivateCar) {
         car.run {
-            writeInt(seats)                                     //  4 Bytes
+            writeInt(seats) //  4 Bytes
             writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
-            writeInt(segment.encode())                          // 16 Bytes
-            writeInt(engine.type.encode())                      // 20 Bytes
-            writeLocation(location)                             // 60 Bytes
+            writeInt(segment.encode()) // 16 Bytes
+            writeInt(engine.type.encode()) // 20 Bytes
+            writeLocation(location) // 60 Bytes
         }
     }
 }

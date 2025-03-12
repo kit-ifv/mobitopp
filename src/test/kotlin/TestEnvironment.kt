@@ -318,7 +318,7 @@ fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit):
     return builder
 }
 
-fun Person.generatePlannedActivity(id: Long, seed : Long = 1L, lambda: MutablePlannedActivity.() -> Unit): MutablePlannedActivity {
+fun Person.generatePlannedActivity(id: Long, seed: Long = 1L, lambda: MutablePlannedActivity.() -> Unit): MutablePlannedActivity {
     val mutable = MutablePlannedActivity(ActivityId(id), seed)
     mutable.apply(lambda)
     mutable.person = this

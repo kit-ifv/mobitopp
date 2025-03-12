@@ -49,11 +49,11 @@ abstract class PlannedActivity(
     override fun equals(other: Any?): Boolean {
         if (other !is PlannedActivity) return false
         return id == other.id &&
-                person.id == other.person.id &&
-                activityType == other.activityType &&
-                observedTripDuration == other.observedTripDuration &&
-                startTime == other.startTime &&
-                duration == other.duration
+            person.id == other.person.id &&
+            activityType == other.activityType &&
+            observedTripDuration == other.observedTripDuration &&
+            startTime == other.startTime &&
+            duration == other.duration
     }
 
     override fun hashCode(): Int {

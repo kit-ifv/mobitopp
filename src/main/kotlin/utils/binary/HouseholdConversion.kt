@@ -31,7 +31,8 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
             }
             val households = ids.map {
                 MutableHousehold(
-                    it, contextSimulationSeed
+                    it,
+                    contextSimulationSeed
                 )
             }
             for (i in 0 until size) {
@@ -55,8 +56,6 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
             }
         }
     }
-
-
 }
 
 /**
@@ -72,19 +71,18 @@ class BinaryHouseholdWriter : BinaryWriter<Household> {
     }
 
     private fun DataOutputStream.writeIDS(element: Household) {
-        writeLong(element.id.value)                                     //  8 Bytes
+        writeLong(element.id.value) //  8 Bytes
     }
 
     private fun DataOutputStream.writeHouseholdAttributes(element: Household) {
         element.run {
-            writeLong(householdNumber)                                  //  8 Bytes
-            writeInt(surveyYear)                                        // 12 Bytes
-            writeInt(domCode)                                           // 16 Bytes
-            writeInt(type)                                              // 20 Bytes
-            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))    // 28 Bytes
-            writeInt(economicStatus.encode())                           // 32 Bytes
-            writeLocation(location)                                     // 72 Bytes
+            writeLong(householdNumber) //  8 Bytes
+            writeInt(surveyYear) // 12 Bytes
+            writeInt(domCode) // 16 Bytes
+            writeInt(type) // 20 Bytes
+            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS)) // 28 Bytes
+            writeInt(economicStatus.encode()) // 32 Bytes
+            writeLocation(location) // 72 Bytes
         }
     }
-
 }

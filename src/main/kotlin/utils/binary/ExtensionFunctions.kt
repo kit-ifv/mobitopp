@@ -7,7 +7,7 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path
 
-fun <T> Path.operateOnMemoryFile(run : MappedByteBuffer.() -> T): T {
+fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
     return RandomAccessFile(toFile(), "r").use { file ->
         val channel = file.channel
         val size = channel.size()
@@ -56,6 +56,6 @@ fun MappedByteBuffer.getBoolean(index: Int): Boolean {
     since the boolean flag is written as a byte of 01, the quickest way to check whether the integer at that location
     matches this mask 01-XX-XX-XX, because there is no convenient way to get a boolean from a bytebuffer, and no
     convenient way to apply mask operations on anything but an int.
-    * */
+     * */
     return (b and 0x01000000) != 0
 }

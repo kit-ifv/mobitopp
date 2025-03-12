@@ -53,16 +53,16 @@ abstract class Zone(
     operator fun contains(location: Location): Boolean = location.zone == this
 
     override fun equals(other: Any?): Boolean {
-        if(other !is Zone) return false
+        if (other !is Zone) return false
         return id == other.id &&
-                centroid.coordinate == other.centroid.coordinate &&
-                visumId == other.visumId &&
+            centroid.coordinate == other.centroid.coordinate &&
+            visumId == other.visumId &&
 //                name == other.name &&
-                regionType == other.regionType &&
-                classification == other.classification &&
-                parkingPlaces == other.parkingPlaces &&
-                isDestination == other.isDestination &&
-                relief == other.relief
+            regionType == other.regionType &&
+            classification == other.classification &&
+            parkingPlaces == other.parkingPlaces &&
+            isDestination == other.isDestination &&
+            relief == other.relief
     }
 
     override fun hashCode(): Int {
@@ -89,13 +89,12 @@ abstract class LegacyZone(
     abstract val matrixColumn: Int
 
     override fun equals(other: Any?): Boolean {
-        if(other !is LegacyZone) return false
+        if (other !is LegacyZone) return false
         return matrixColumn == other.matrixColumn && super.equals(other)
-
     }
 
     override fun hashCode(): Int {
-        return matrixColumn.hashCode() +  31 * super.hashCode()
+        return matrixColumn.hashCode() + 31 * super.hashCode()
     }
 }
 

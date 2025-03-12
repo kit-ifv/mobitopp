@@ -4,9 +4,6 @@ import domain.data.ZoneId
 import utils.binary.operateOnMemoryFile
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
-import java.io.RandomAccessFile
-import java.nio.MappedByteBuffer
-import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -54,8 +51,6 @@ fun Path.getSize(): Triple<Int, Map<ZoneId, Int>, FloatArray> {
         Triple(size, mapper, floatArray)
     }
 }
-
-
 
 // TODO maybe apply the converter to the elements of the matrix directly, unless this would waste storage space when <O> is complex
 class FloatMatrix<O>(

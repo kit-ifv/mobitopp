@@ -26,7 +26,6 @@ class BinaryActivityReader(
 
     override fun fromBinary(path: Path): List<MutablePlannedActivity> {
         return path.operateOnMemoryFile {
-
             val size = this.getInt(0)
             val idArray = Array(size) {
                 ActivityId(-1L)
@@ -37,7 +36,8 @@ class BinaryActivityReader(
             }
             val activities = idArray.map {
                 MutablePlannedActivity(
-                    it, contextSimulationSeed
+                    it,
+                    contextSimulationSeed
                 )
             }
             for (i in 0 until size) {
@@ -46,9 +46,6 @@ class BinaryActivityReader(
 
             activities
         }
-
-
-
     }
 
     private fun extractIds(buffer: MappedByteBuffer, at: Int): ActivityId {
@@ -56,7 +53,6 @@ class BinaryActivityReader(
     }
 
     private val idByteSize = 8
-
 
     private fun extractContent(buffer: MappedByteBuffer, at: Int, target: MutablePlannedActivity) {
         TrackingBuffer(buffer, at).run {
@@ -69,7 +65,6 @@ class BinaryActivityReader(
                 activityType = codeActivity.decode(nextInt)
             }
         }
-
     }
 
     private val attributesByteSize = 28
@@ -88,17 +83,15 @@ class BinaryActivityWriter : BinaryWriter<PlannedActivity> {
         elements.forEach { outStream.encodeAttributes(it) } // write all the other information.
     }
 
-
     private fun DataOutputStream.encodeID(act: PlannedActivity) {
-        writeLong(act.id.value)                                                        //  8 Bytes
+        writeLong(act.id.value) //  8 Bytes
     }
 
-
     private fun DataOutputStream.encodeAttributes(act: PlannedActivity) {
-        writeLong(act.person.id.value)                                                 //  8 Bytes
-        writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES))                 // 12 Bytes
-        writeLong(act.startTime.minutesSinceStart)                                     // 20 Bytes
-        writeInt(act.duration.toInt(DurationUnit.MINUTES))                             // 24 Bytes
-        writeInt(act.activityType.encode())                                            // 28 Bytes
+        writeLong(act.person.id.value) //  8 Bytes
+        writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES)) // 12 Bytes
+        writeLong(act.startTime.minutesSinceStart) // 20 Bytes
+        writeInt(act.duration.toInt(DurationUnit.MINUTES)) // 24 Bytes
+        writeInt(act.activityType.encode()) // 28 Bytes
     }
 }
