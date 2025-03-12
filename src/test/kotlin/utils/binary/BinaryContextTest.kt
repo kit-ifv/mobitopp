@@ -2,7 +2,6 @@ package utils.binary
 
 import domain.data.EconomicStatus
 import domain.enums.Regiostar17
-import modeling.steps.Identifiable
 import modeling.steps.Repository
 import modeling.steps.Run
 import org.junit.jupiter.api.BeforeAll
@@ -13,15 +12,11 @@ import usecases.steps.legacyData.loadPrivateCars
 import usecases.steps.legacyData.loadZones
 import usecases.steps.loadActivities
 import usecases.steps.loadPersons
-import java.io.File
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
-private val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
-
-private val rootRastatt = File("$ROOT_FS\\logiktram_rastatt_long-term-module\\rastatt")
-
+private val demandFolder = Path("src/test/resources/testDemand").toFile()
 class BinaryContextTest {
 
     @Test
@@ -29,7 +24,7 @@ class BinaryContextTest {
         val x = ProjectContext(
             scenarioName = "testSteps",
             areaTypeCodes = Regiostar17,
-            demandFolder = rootRastatt,
+            demandFolder = demandFolder,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -43,7 +38,7 @@ class BinaryContextTest {
         val y = ProjectContext(
             scenarioName = "testSteps",
             areaTypeCodes = Regiostar17,
-            demandFolder = rootRastatt,
+            demandFolder = demandFolder,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -74,27 +69,26 @@ class BinaryContextTest {
             createBinaryFiles()
         }
         private fun createBinaryFiles() {
-            Run {
-                ProjectContext(
-                    scenarioName = "testSteps",
-                    areaTypeCodes = Regiostar17,
-                    demandFolder = rootRastatt,
-                    economicalStatusCodes = EconomicStatus,
-                    simulationSeed = 42,
-                    modes = LegacyMode,
-                )
-            }.steps {
-                loadZones()
-                loadHouseholds()
-                loadPersons()
-                loadPrivateCars()
-                loadActivities()
-                writeZonesBinary(Path("src/test/resources/binaryZone.bin"))
-                writeHouseholdBinary(Path("src/test/resources/binaryHousehold.bin"))
-                writePersonsBinary(Path("src/test/resources/binaryPerson.bin"))
-                writeActivitiesBinary(Path("src/test/resources/binaryPlannedActivities.bin"))
-                writeCarsBinary(Path("src/test/resources/binaryCars.bin"))
-            }
+            val x = ProjectContext(
+                scenarioName = "testSteps",
+                areaTypeCodes = Regiostar17,
+                demandFolder = demandFolder,
+                economicalStatusCodes = EconomicStatus,
+                simulationSeed = 42,
+                modes = LegacyMode,
+            )
+
+                x.loadZones()
+                x.loadHouseholds()
+                x.loadPersons()
+                x.loadPrivateCars()
+                x.loadActivities()
+                x.writeZonesBinary(Path("src/test/resources/binaryZone.bin"))
+                x.writeHouseholdBinary(Path("src/test/resources/binaryHousehold.bin"))
+                x.writePersonsBinary(Path("src/test/resources/binaryPerson.bin"))
+                x.writeActivitiesBinary(Path("src/test/resources/binaryPlannedActivities.bin"))
+                x.writeCarsBinary(Path("src/test/resources/binaryCars.bin"))
+
         }
     }
 }

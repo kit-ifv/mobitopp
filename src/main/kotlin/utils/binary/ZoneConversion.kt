@@ -13,7 +13,7 @@ import utils.Decodable
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
-
+@Suppress("MagicNumber")
 class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         return path.operateOnMemoryFile {
@@ -24,7 +24,8 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaTyp
             }
 
             for (i in 0 until size) {
-                idArray[i] = extractIds(this, i * idByteSize + 8) // Since we are reading Size and (MaxNameLength) we have an offset of 8 bytes and not 4
+                idArray[i] = extractIds(this, i * idByteSize + 8) // Since we are reading Size and
+                // (MaxNameLength) we have an offset of 8 bytes and not 4
             }
             val zones = idArray.map {
                 MutableLegacyZone(
@@ -36,7 +37,8 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaTyp
             for (i in 0 until size) {
                 extractInfos(
                     this,
-                    i * (attributeByteSize + maxNameLength * 2 /*Has to be times 2 because chars take up 2 bytes*/) + 8 + size * idByteSize,
+                    i * (attributeByteSize + maxNameLength * 2) +
+                        8 + size * idByteSize,
                     zones[i],
                     maxNameLength = maxNameLength
                 )

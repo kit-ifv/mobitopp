@@ -1,6 +1,11 @@
 package utils.binary
 
-import domain.data.*
+import domain.data.EconomicStatus
+import domain.data.Household
+import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.Zone
+import domain.data.ZoneId
 import units.CurrencyUnit
 import units.euros
 import java.io.DataOutputStream
@@ -15,6 +20,7 @@ import java.nio.file.Path
  * @property contextSimulationSeed an external factor that is needed in the mutable households and is not written to
  * the binary file.
  */
+@Suppress("MagicNumber")
 class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
     BinaryReader<MutableHousehold> {
 

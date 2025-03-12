@@ -51,6 +51,10 @@ abstract class Household(
             members == other.members &&
             cars == other.cars
     }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }
 
 /**

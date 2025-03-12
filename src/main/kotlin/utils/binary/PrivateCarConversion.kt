@@ -1,11 +1,21 @@
 package utils.binary
 
-import domain.data.*
+import domain.data.CarEngineStatistics
+import domain.data.CarId
+import domain.data.CarSegment
+import domain.data.EngineType
+import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutablePrivateCar
+import domain.data.Person
+import domain.data.PersonId
+import domain.data.PrivateCar
+import domain.data.buildEngine
 import domain.location.Location
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
-
+@Suppress("MagicNumber")
 class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
     val personConverter: (PersonId) -> Person,
@@ -44,6 +54,7 @@ class BinaryCarReader(
         }
     }
 
+    @Suppress("MagicNumber")
     private fun extractContent(buffer: MappedByteBuffer, at: Int, car: MutablePrivateCar) {
         TrackingBuffer(buffer, at).run {
             car.apply {
