@@ -3,7 +3,6 @@ package utils.binary
 import domain.data.EconomicStatus
 import domain.enums.Regiostar17
 import modeling.steps.Repository
-import modeling.steps.Run
 import org.junit.jupiter.api.BeforeAll
 import usecases.LegacyMode
 import usecases.steps.ProjectContext
@@ -78,17 +77,16 @@ class BinaryContextTest {
                 modes = LegacyMode,
             )
 
-                x.loadZones()
-                x.loadHouseholds()
-                x.loadPersons()
-                x.loadPrivateCars()
-                x.loadActivities()
-                x.writeZonesBinary(Path("src/test/resources/binaryZone.bin"))
-                x.writeHouseholdBinary(Path("src/test/resources/binaryHousehold.bin"))
-                x.writePersonsBinary(Path("src/test/resources/binaryPerson.bin"))
-                x.writeActivitiesBinary(Path("src/test/resources/binaryPlannedActivities.bin"))
-                x.writeCarsBinary(Path("src/test/resources/binaryCars.bin"))
-
+            x.loadZones()
+            x.loadHouseholds()
+            x.loadPersons()
+            x.loadPrivateCars()
+            x.loadActivities()
+            x.writeZonesBinary(Path("src/test/resources/binaryZone.bin"))
+            x.writeHouseholdBinary(Path("src/test/resources/binaryHousehold.bin"))
+            x.writePersonsBinary(Path("src/test/resources/binaryPerson.bin"))
+            x.writeActivitiesBinary(Path("src/test/resources/binaryPlannedActivities.bin"))
+            x.writeCarsBinary(Path("src/test/resources/binaryCars.bin"))
         }
     }
 }
