@@ -20,7 +20,7 @@ private val demandFolder = Path("src/test/resources/testDemand").toFile()
 class BinaryContextTest {
 
     @Test
-    @EnabledIfSystemProperty(named = "skip.filebasedTest", matches = "false")
+    @EnabledIfSystemProperty(named = "skip_filebasedTest", matches = "false")
     fun readBinaryTest() {
         val x = ProjectContext(
             scenarioName = "testSteps",

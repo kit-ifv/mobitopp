@@ -47,7 +47,7 @@ unit-test-job:
   image: amazoncorretto:21
   needs: ["build-job"]
   script:
-    - export skip.filebasedTest=true
+    - export skip_filebasedTest=true
     - ./gradlew test koverXmlReport koverLog
   artifacts:
     when: always
