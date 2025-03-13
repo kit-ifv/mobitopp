@@ -69,8 +69,7 @@ class BinaryContextTest {
                test because the paths may not be visible to the gitlab runner */
             try {
                 createBinaryFiles()
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 println(e.stackTrace)
             }
         }
