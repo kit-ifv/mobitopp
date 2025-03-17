@@ -1,20 +1,13 @@
-package utils.binary
+package usecases.steps.binary
 
-import modeling.steps.AddResourceStep
-import modeling.steps.ForAllStep
-import modeling.steps.MutableRepository
-import modeling.steps.Repository
-import modeling.steps.Resource
-import modeling.steps.asResource
-import modeling.validation.Warning
+import usecases.steps.LoadBinaryStep
 import usecases.steps.LoadPersonsContext
 import usecases.steps.LoadPlannedActivitiesContext
+import usecases.steps.WriteBinaryStep
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
-import utils.Identifiable
 import java.nio.file.Path
-import kotlin.io.path.name
 
 fun LoadPersonsContext.loadPersonsFromBinary(path: Path) {
     val converter = BinaryPersonReader(householdRepository.elements.associateBy { it.id }::getValue, simulationSeed)
@@ -65,48 +58,6 @@ fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
     }
 }
 
-class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
-    val path: Path,
-    val writer: BinaryWriter<READONLY>,
-    override val repository: Repository<READONLY, ID>,
-
-) : ForAllStep<READONLY, ID>() {
-    override val name: String = "Write Binary ${repository.name}"
-    override val dependentRepositories: Set<Repository<*, *>> =
-        emptySet() // There is no need for dependent repositories, the objects are already there
-
-    override fun processAll(element: Collection<READONLY>) {
-        writer.toBinary(path, element)
-    }
-
-    override fun verifyInput(): Warning? {
-        return null // TODO("Not yet implemented")
-    }
-
-    override fun mockBehavior(): Warning? {
-        return null
-    }
-}
-
-class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
-    path: Path,
-    parser: BinaryReader<MUTABLE>,
-    override val repository: MutableRepository<MUTABLE, ID>,
-    override val dependentRepositories: Set<Repository<*, *>>,
-
-) : AddResourceStep<MUTABLE, ID>() {
-
-    override val name: String = "load ${path.fileName}"
-    override val resource: Resource<MUTABLE> = parser.fromBinary(path).asResource(name, path.name)
-
-    override fun mockElementsForValidation(): List<MUTABLE> {
-        return emptyList() // TODO I WILL NOT WRTIE A BINARY FILE ON MY OWN
-    }
-
-    override fun verifyInput(): Warning? {
-        return null // TODO some reasonable validation.
-    }
-}
 
 /* TODO There is no reason to require the LoadHouseholdContext or any other of the predefined context, but sadly writing
      a readonly interface also requires adding the interface to the underlying context, as the interfaces do not specify
