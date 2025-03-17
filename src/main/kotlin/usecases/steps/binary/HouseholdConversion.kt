@@ -1,4 +1,4 @@
-package utils.binary
+package usecases.steps.binary
 
 import domain.data.EconomicStatus
 import domain.data.Household

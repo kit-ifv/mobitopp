@@ -18,6 +18,16 @@ import org.junit.jupiter.api.Test
 import spawnCar
 import units.euros
 import usecases.LegacyActivityType
+import usecases.steps.binary.BinaryActivityReader
+import usecases.steps.binary.BinaryActivityWriter
+import usecases.steps.binary.BinaryCarReader
+import usecases.steps.binary.BinaryCarWriter
+import usecases.steps.binary.BinaryHouseholdReader
+import usecases.steps.binary.BinaryHouseholdWriter
+import usecases.steps.binary.BinaryPersonReader
+import usecases.steps.binary.BinaryPersonWriter
+import usecases.steps.binary.BinaryZoneReader
+import usecases.steps.binary.BinaryZoneWriter
 import utils.units.sinceStart
 import java.nio.file.Files
 import java.nio.file.Path
