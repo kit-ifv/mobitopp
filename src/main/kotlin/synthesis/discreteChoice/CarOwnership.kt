@@ -642,9 +642,9 @@ val carChoiceModel: KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwn
         },
     )
 
-fun KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, CarOwnershipParameters>.select(
+fun <T> KnownDiscreteChoiceModel<Int, CarOwnershipAttributes, T>.select(
     household: SynthesisHousehold<out SurveyInfo>,
-    parameters: CarOwnershipParameters
+    parameters: T
 ): Int {
     return select({ CarOwnershipAttributes(it, household.toCarOwnershipAttributes()) }, parameters)
 }
