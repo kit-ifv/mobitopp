@@ -1,4 +1,4 @@
-package utils.binary
+package usecases.steps.binary
 
 import domain.location.Location
 import java.io.DataOutputStream

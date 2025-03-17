@@ -1,7 +1,7 @@
 package datastructure.matrix
 
 import domain.data.ZoneId
-import utils.binary.operateOnMemoryFile
+import usecases.steps.binary.operateOnMemoryFile
 import java.io.BufferedOutputStream
 import java.io.DataOutputStream
 import java.nio.file.Files
