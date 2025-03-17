@@ -50,7 +50,6 @@ abstract class Person(
         addAsMember()
     }
 
-
     private fun addAsMember() {
         this.household.members.add(this)
     }

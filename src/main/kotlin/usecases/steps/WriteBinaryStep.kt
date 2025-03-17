@@ -12,7 +12,7 @@ class WriteBinaryStep<READONLY : Identifiable<ID>, ID>(
     val writer: BinaryWriter<READONLY>,
     override val repository: Repository<READONLY, ID>,
 
-    ) : ForAllStep<READONLY, ID>() {
+) : ForAllStep<READONLY, ID>() {
     override val name: String = "Write Binary ${repository.name}"
     override val dependentRepositories: Set<Repository<*, *>> =
         emptySet() // There is no need for dependent repositories, the objects are already there

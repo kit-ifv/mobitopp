@@ -17,7 +17,7 @@ class LoadBinaryStep<MUTABLE : Identifiable<ID>, ID>(
     override val repository: MutableRepository<MUTABLE, ID>,
     override val dependentRepositories: Set<Repository<*, *>>,
 
-    ) : AddResourceStep<MUTABLE, ID>() {
+) : AddResourceStep<MUTABLE, ID>() {
 
     override val name: String = "load ${path.fileName}"
     override val resource: Resource<MUTABLE> = parser.fromBinary(path).asResource(name, path.name)
