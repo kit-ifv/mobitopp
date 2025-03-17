@@ -45,26 +45,6 @@ abstract class PlannedActivity(
             type = activityType
         )
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is PlannedActivity) return false
-        return id == other.id &&
-            person.id == other.person.id &&
-            activityType == other.activityType &&
-            observedTripDuration == other.observedTripDuration &&
-            startTime == other.startTime &&
-            duration == other.duration
-    }
-
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + person.id.hashCode()
-        result = 31 * result + activityType.hashCode()
-        result = 31 * result + observedTripDuration.hashCode()
-        result = 31 * result + startTime.hashCode()
-        result = 31 * result + duration.hashCode()
-        return result
-    }
 }
 
 fun List<PlannedActivity>.toSchedule(dispatcher: IDispatcher): Schedule {
