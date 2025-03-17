@@ -75,24 +75,6 @@ abstract class PrivateCar(
     private fun registerCarOwner() {
         owner.cars.add(this)
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is PrivateCar) return false
-        return id == other.id &&
-            segment == other.segment &&
-            engine.identical(other.engine) &&
-            seats == other.seats
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-        // TODO cannot use attributes as hash target, they can be uninitialized before the object is added somewhere
-//        var result = id.hashCode()
-//        result = 31 * result + segment.hashCode()
-//        result = 31 * result + engine.hashCode()
-//        result = 31 * result + seats
-//        return result
-    }
 }
 
 /**

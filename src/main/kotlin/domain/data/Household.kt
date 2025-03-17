@@ -38,23 +38,6 @@ abstract class Household(
     final override val resources: Set<Resource<Person>>
         get() = setOf(this)
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Household) return false
-        return id == other.id &&
-            householdNumber == other.householdNumber &&
-            surveyYear == other.surveyYear &&
-            location == other.location &&
-            domCode == other.domCode &&
-            type == other.type &&
-            incomePerMonth == other.incomePerMonth &&
-            economicStatus == other.economicStatus &&
-            members == other.members &&
-            cars == other.cars
-    }
-
-    override fun hashCode(): Int {
-        return id.hashCode()
-    }
 }
 
 /**
