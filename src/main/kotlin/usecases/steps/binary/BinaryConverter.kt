@@ -69,4 +69,3 @@ fun interface BinaryWriter<in READONLY> {
      */
     fun operateStream(outStream: DataOutputStream, elements: Collection<READONLY>)
 }
-
