@@ -66,7 +66,7 @@ class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
             householdBuilder.location.zone?.regionType?.toRegiostar17()?.toSizebasedClassification()?.toParameters()
                 ?: cityParameters
 
-        return model.select({converter(it, householdBuilder) }, parameterSet)
+        return model.select({ converter(it, householdBuilder) }, parameterSet)
     }
 
     private fun SizebasedRegiostarClassification.toParameters(): PARAMS {
