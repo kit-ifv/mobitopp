@@ -37,7 +37,6 @@ abstract class Household(
 
     final override val resources: Set<Resource<Person>>
         get() = setOf(this)
-
 }
 
 /**
