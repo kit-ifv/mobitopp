@@ -3,8 +3,9 @@ package utils.binary
 import utils.csv.DefaultCsvParser
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
+import java.io.BufferedOutputStream
 import java.io.DataOutputStream
-import java.io.FileOutputStream
+import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -16,7 +17,7 @@ enum class DataType {
             throw Error("Please specify the maximum String length, otherwise the String cannot be properly decoded afterwards.")
         }
     },
-    FLOAT, DOUBLE, CHAR;
+    FLOAT, DOUBLE, CHAR; /** Float not in [TrackingBuffer], unwanted? **/
 
     /**
      * @return the maximum length the datatype has in bytes.
@@ -85,20 +86,23 @@ class CSVBinaryConverter {
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
 
 
-        val outputStream = DataOutputStream(FileOutputStream(outputLocation.toFile()))
+        Files.newOutputStream(outputLocation).use { fileStream ->
+            BufferedOutputStream(fileStream).use { bufferedStream ->
+                DataOutputStream(bufferedStream).use { outputStream ->
+                    outputStream.writeInt(numElements) // Write the amount of elements that are expected to be found in this file
+                    ids.forEach { outputStream.writeLong(it.toLong()) } // Write ID's of the elements
 
+                    /**
+                     * Takes a column name and maps it to a strategy for writing that column element of the row onto the bytebuffer.
+                     */
+                    val writeMap = createColumnMapping(datatypeMapping, otherColumns, outputStream)
 
-        outputStream.writeInt(numElements) // Write the amount of elements that are expected to be found in this file
-        ids.forEach { outputStream.writeLong(it.toLong()) } // Write ID's of the elements
-
-        /**
-         * Takes a column name and maps it to a strategy for writing that column element of the row onto the bytebuffer.
-         */
-        val writeMap = createColumnMapping(datatypeMapping, otherColumns, outputStream)
-
-        reader.rows().forEach { row ->
-            otherColumns.forEach { columnName ->
-                writeMap[columnName]?.invoke(row) // Write elements
+                    reader.rows().forEach { row ->
+                        otherColumns.forEach { columnName ->
+                            writeMap[columnName]?.invoke(row) // Write elements
+                        }
+                    }
+                }
             }
         }
     }
