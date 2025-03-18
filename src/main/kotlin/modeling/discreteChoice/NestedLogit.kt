@@ -3,7 +3,44 @@ package modeling.discreteChoice
 import java.util.*
 import kotlin.math.exp
 import kotlin.math.ln
+fun <SIT, PARAMS> runQueue(
+    situations: List<AssociatedSituation<SIT, PARAMS>>,
+    parameters: PARAMS
+) {
+    val nextNests = situations.mapNotNull { it.initializeUtility() }
+    val queue = PriorityQueue<NestStructure<PARAMS>.Nest> { a, b -> a.level - b.level }
 
+    lateinit var lastElement: NestStructure<PARAMS>.Nest
+    queue.addAll(nextNests)
+    while (queue.isNotEmpty()) {
+        val n = queue.poll()
+        lastElement = n
+        val parent = n.calculateUtility(parameters)
+        parent?.let { queue.add(it) }
+    }
+    lastElement.probability = 1.0
+    lastElement.calculateProbability(parameters)
+}
+
+
+/**
+ * We need to cross-reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
+ * this object state until we release the probability calculation
+ */
+class AssociatedSituation<SIT, PARAMS>(
+    val sit: SIT,
+    val leaf: NestStructure<PARAMS>.Leaf,
+    val utility: Double
+) {
+    val probability get() = leaf.probability
+
+    /**
+     * set the utility of the leaf to the already calculated utility and set the calculation flags.
+     */
+    fun initializeUtility(): NestStructure<PARAMS>.Nest? {
+        return leaf.initializeUtility(utility)
+    }
+}
 /**
  * A nested logit is an allocated distribution function, as the class holds the necessary data to associate an
  * element of type [X] or [SIT] to the appropriate utility function. This class uses a two way calculation to determine
@@ -15,7 +52,6 @@ import kotlin.math.ln
  * Since the available set of options is known beforehand, only the necessary options and nests are taken into calculation
  *
  * @property name A name for the choice model to allow better error messages.
- * @property rules A collection of rules which decide whether an element [SIT] should be associated to a target utility function
  * @property leafs holds a reference to the leaves to trigger the initial nest calculation.
  * @property root holds a reference to the root node of the nest structure to quickly reset the flags
  */
@@ -29,46 +65,18 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
 
     override val options: Set<X> = leafs.keys
 
-    /**
-     * We need to cross-reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
-     * this object state until we release the probability calculation
-     */
-    private inner class AssociatedSituation(
-        val sit: SIT,
-        val leaf: NestStructure<PARAMS>.Leaf,
-        val utility: Double
-    ) {
-        val probability get() = leaf.probability
-
-        /**
-         * set the utility of the leaf to the already calculated utility and set the calculation flags.
-         */
-        fun initializeUtility(): NestStructure<PARAMS>.Nest? {
-            return leaf.initializeUtility(utility)
-        }
-    }
 
     override fun calculateProbabilities(
         evaluators: Map<SIT, Double>,
         parameters: PARAMS
     ): Map<SIT, Double> {
-        root.reset() // Reset the calculation tree to reset the relevantForCalculation flags.
-        val relevantLeaves = evaluators.entries.map { AssociatedSituation(it.key, leafs[it.key.choice]!!, it.value) }
-        val nextNests = relevantLeaves.mapNotNull { it.initializeUtility() }
-        val queue = PriorityQueue<NestStructure<PARAMS>.Nest> { a, b -> a.level - b.level }
-        lateinit var lastElement: NestStructure<PARAMS>.Nest
-        queue.addAll(nextNests)
-        // TODO queue may calculate an element twice. Doesn't harm the result but is moderately inefficient. Maybe hold
-        //   a set of visited alternatives?
-        while (queue.isNotEmpty()) {
-            val n = queue.poll()
-            lastElement = n
-            val parent = n.calculateUtility(parameters)
-            parent?.let { queue.add(it) }
+        return synchronized(this) {
+            root.reset() // Reset the calculation tree to reset the relevantForCalculation flags.
+            val relevantLeaves = evaluators.entries.map { AssociatedSituation(it.key, leafs[it.key.choice]!!, it.value) }
+            runQueue(relevantLeaves, parameters)
+            relevantLeaves.associate { it.sit to it.probability }
         }
-        lastElement.probability = 1.0
-        lastElement.calculateProbability(parameters)
-        return relevantLeaves.associate { it.sit to it.probability }
+
     }
 
     companion object {
@@ -251,13 +259,11 @@ class NestStructure<PARAMS> {
             val relevantChilds = childNodes.filter { it.relevantForCalculation }
             relevantChilds.forEach {
                 val actualUtil = ln(it.extractAlphaParameter(parameters)) + it.utility
-//                println("Probability Calculation for ${it.name} : util = ${it.utility} maxUtil = ${maxUtility} lambda = $lambda sum = $sum (${exp((actualUtil - maxUtility) / lambda) / sum})")
                 val utilCalculation = actualUtil.let { d -> exp((d - maxUtility) / lambda) / sum }
                 val childProbability =
                     this.probability * utilCalculation
                 it.probability = childProbability
             }
-//            println("Probability for $name [${relevantChilds.map { "(${it.name} -> ${it.probability})" }}")
             relevantChilds.forEach { it.calculateProbability(parameters) }
         }
 
