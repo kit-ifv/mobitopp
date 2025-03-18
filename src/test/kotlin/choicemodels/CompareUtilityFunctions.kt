@@ -4,7 +4,6 @@ import BIELEFELD
 import TestZone
 import benchmark.ControllableAttractiveness
 import build
-import buildPerson
 import datastructure.Activity
 import datastructure.Leg
 import datastructure.LinkedActivity
@@ -32,6 +31,7 @@ import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.Location
 import domain.resources.Subscribable
+import generateAndAddPerson
 import generateZones
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.params.ParameterizedTest
@@ -573,7 +573,7 @@ class TestSynthesis(zones: List<TestZone>, impedance: ControllableImpedance = Co
 
     fun run(): TestSimulation {
         return TestSimulation(
-            households[0].buildPerson(pBuilder),
+            households[0].generateAndAddPerson(pBuilder),
             zones[0],
             zones[1],
             impedance,
