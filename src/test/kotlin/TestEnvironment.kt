@@ -209,7 +209,7 @@ fun MutableHousehold.generatePersons(
     return (0..<num).map {
         val map = membershipsMap.toMutableMap()
         map[this] = true
-        buildPerson(it.toLong() + this@generatePersons.id.value * 100) {
+        generateAndAddPerson(it.toLong() + this@generatePersons.id.value * 100) {
             age = spawnLimits.age.random(random)
             employment = spawnLimits.employment.random(random)
             sex = spawnLimits.sex.random(random)
@@ -292,12 +292,12 @@ fun MutableHousehold.spawnCar(lambda: MutablePrivateCar.() -> Unit = {}): Privat
     }.apply(lambda)
 }
 
-fun MutableHousehold.buildPerson(builder: (Long, MutableHousehold) -> MutablePerson): MutablePerson {
+fun MutableHousehold.generateAndAddPerson(builder: (Long, MutableHousehold) -> MutablePerson): MutablePerson {
     val person = builder(members.size + 1L, this).also { it.schedule = Schedule(TrackableModel(BlockModel())) }
     return person
 }
 
-fun MutableHousehold.buildPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
+fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
     val builder = MutablePerson(
         id = PersonId(id),
         household = this,
@@ -316,9 +316,25 @@ fun MutableHousehold.buildPerson(id: Long, lambda: MutablePerson.() -> Unit): Pe
 
         lambda()
     }
-
-    members.add(builder) // TODO should now be handled in MutablePerson init
     return builder
+}
+
+fun Person.generatePlannedActivity(
+    id: Long,
+    seed: Long = 1L,
+    lambda: MutablePlannedActivity.() -> Unit
+): MutablePlannedActivity {
+    val mutable = MutablePlannedActivity(ActivityId(id), seed)
+    mutable.apply(lambda)
+    mutable.person = this
+    return mutable
+}
+
+fun MutableHousehold.generateAndAddPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
+    val person = generatePerson(id, lambda)
+
+    members.add(person) // TODO should now be handled in MutablePerson init
+    return person
 }
 
 fun Zone.build(builder: () -> MutableHousehold, roadIndex: Long = -1L): MutableHousehold {

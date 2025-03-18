@@ -213,7 +213,11 @@ enum class Regiostar17(val code: Int, val text: String) : Encodable, AreaType {
     private fun errorCode() = "There should never be a code $code. That is not a valid Regiostar17 encoding."
 
     companion object : Decodable<Regiostar17> {
-        override fun decode(i: Int) = Regiostar17.entries.first { it.code == i }
+        override fun decode(
+            i: Int
+        ) = Regiostar17.entries.firstOrNull {
+            it.code == i
+        } ?: throw NoSuchElementException("Cannot parse the code $i to a valid RegioStar number")
         override fun decode(s: String) = Regiostar17.valueOf(s)
         override fun values(): Set<Regiostar17> = Regiostar17.entries.toSet()
     }

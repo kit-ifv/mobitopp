@@ -12,6 +12,7 @@ import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
 import modeling.steps.ModelStep
+import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.RepositoryDependentStep
 import modeling.validation.Warning
@@ -35,7 +36,7 @@ interface LoadFixedDestinationsContext : Context {
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone> // TODO legacy
 
-    val personRepository: Repository<Person, PersonId>
+    val personRepository: MutableRepository<out Person, PersonId>
     val plannedActivityRepository: Repository<PlannedActivity, ActivityId>
 
     val activityTypeCodes: CodePlan<ActivityType>
