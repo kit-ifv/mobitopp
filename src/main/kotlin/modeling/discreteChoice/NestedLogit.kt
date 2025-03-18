@@ -22,7 +22,6 @@ fun <SIT, PARAMS> runQueue(
     lastElement.calculateProbability(parameters)
 }
 
-
 /**
  * We need to cross-reference an arbitrary situation [SIT] to the corresponding [leaf]. This class maintains
  * this object state until we release the probability calculation
@@ -41,6 +40,7 @@ class AssociatedSituation<SIT, PARAMS>(
         return leaf.initializeUtility(utility)
     }
 }
+
 /**
  * A nested logit is an allocated distribution function, as the class holds the necessary data to associate an
  * element of type [X] or [SIT] to the appropriate utility function. This class uses a two way calculation to determine
@@ -65,18 +65,22 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
 
     override val options: Set<X> = leafs.keys
 
-
     override fun calculateProbabilities(
         evaluators: Map<SIT, Double>,
         parameters: PARAMS
     ): Map<SIT, Double> {
         return synchronized(this) {
             root.reset() // Reset the calculation tree to reset the relevantForCalculation flags.
-            val relevantLeaves = evaluators.entries.map { AssociatedSituation(it.key, leafs[it.key.choice]!!, it.value) }
+            val relevantLeaves = evaluators.entries.map {
+                AssociatedSituation(
+                    it.key,
+                    leafs[it.key.choice]!!,
+                    it.value
+                )
+            }
             runQueue(relevantLeaves, parameters)
             relevantLeaves.associate { it.sit to it.probability }
         }
-
     }
 
     companion object {
@@ -117,7 +121,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                     "Cannot create an empty nest. You must add at least one option in a nest block using " +
                         "the option(...) { } syntax. This includes the implicit root nest block. "
                 }
-                val nest = NestStructure<PARAMS>().Nest(childNodes, name,  lambdaParameterExtraction)
+                val nest = NestStructure<PARAMS>().Nest(childNodes, name, lambdaParameterExtraction)
                 childNodes.forEach { it.parent = nest }
                 childs.add(nest)
                 return nest
@@ -130,7 +134,7 @@ class NestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
                 lambda: Double,
                 functor: NestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
             ): NestStructure<PARAMS>.Nest {
-                return nest({ lambda },"Unnamed", functor)
+                return nest({ lambda }, "Unnamed", functor)
             }
 
             override fun addUtilityFunctionByIdentifier(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>) {
@@ -192,11 +196,16 @@ class NestStructure<PARAMS> {
         var probability: Double = 0.0
         abstract val name: String
         open fun calculateProbability(parameters: PARAMS) {
-            //println(this)
+            // println(this)
         }
     }
 
-    inner class Leaf(override val extractAlphaParameter: (PARAMS) -> Double = { 1.0 }, override val name: String = hashCode().toString()) : Node() {
+    inner class Leaf(
+        override val extractAlphaParameter: (PARAMS) -> Double = {
+            1.0
+        },
+        override val name: String = hashCode().toString()
+    ) : Node() {
         override var parent: Nest? = null
         override val level: Int = 0
 
@@ -214,10 +223,13 @@ class NestStructure<PARAMS> {
         override fun toString(): String {
             return "Leaf $name: [U: $utility, P: $probability]"
         }
-
     }
 
-    inner class Nest(private val childNodes: Collection<Node>, override val name: String = hashCode().toString(), val extractLambdaParameter: (PARAMS) -> Double) :
+    inner class Nest(
+        private val childNodes: Collection<Node>,
+        override val name: String = hashCode().toString(),
+        val extractLambdaParameter: (PARAMS) -> Double
+    ) :
         Node() {
         override var parent: Nest? = null
         override val level = childNodes.maxOf { it.level } + 1
@@ -230,7 +242,9 @@ class NestStructure<PARAMS> {
         private var maxUtility = 0.0
         private var sum = 0.0
 
-        override val extractAlphaParameter: (PARAMS) -> Double = { 1.0 }// Alpha parameter is only relevant for leaves. and thus not in the constructor
+        override val extractAlphaParameter: (PARAMS) -> Double = {
+            1.0
+        } // Alpha parameter is only relevant for leaves. and thus not in the constructor
         override fun reset() {
             relevantForCalculation = false
             childNodes.forEach { it.reset() }
@@ -243,14 +257,14 @@ class NestStructure<PARAMS> {
                 error("Never should a calculate Utility be called when the childs are irrelevant")
             }
             maxUtility = relevantChilds.maxOf { ln(it.extractAlphaParameter(parameters)) + it.utility }
-            //println(relevantChilds.joinToString(prefix="calcMax = ") { "${it.name} -> ${ln(it.extractAlphaParameter(parameters)) + it.utility}" })
+            // println(relevantChilds.joinToString(prefix="calcMax = ") { "${it.name} -> ${ln(it.extractAlphaParameter(parameters)) + it.utility}" })
             val x = relevantChilds
                 .map { ln(it.extractAlphaParameter(parameters)) + it.utility }
                 .sumOf { exp((it - maxUtility) / lambda) }
 
             utility = maxUtility + lambda * ln(x)
             sum = x
-            //println("calcUtility $name: max=$maxUtility x=$x util=$utility sum=$sum")
+            // println("calcUtility $name: max=$maxUtility x=$x util=$utility sum=$sum")
             return parent
         }
 
@@ -268,7 +282,10 @@ class NestStructure<PARAMS> {
         }
 
         override fun toString(): String {
-            return "${name}: (U: $utility P: $probability): Childs: ${childNodes.joinToString(prefix = "[", postfix = "]") { it.name}}"
+            return "$name: (U: $utility P: $probability): Childs: ${childNodes.joinToString(
+                prefix = "[",
+                postfix = "]"
+            ) { it.name}}"
         }
     }
 }
