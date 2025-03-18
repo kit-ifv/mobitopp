@@ -27,16 +27,11 @@ import synthesis.SynthesisCar
 import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.activityGeneration.generateActivitiesViaActitopp
-import synthesis.carownership.AssignViaRegionType
 import synthesis.carownership.CarOwnershipAssignStrategy
+import synthesis.carownership.standardAssignmentByRegionSize
 import synthesis.discreteChoice.TicketSituation
 import synthesis.discreteChoice.TransitPassParameters
 import synthesis.discreteChoice.YesTransitPass
-import synthesis.discreteChoice.carChoiceModel
-import synthesis.discreteChoice.carOwnershipCityParameters
-import synthesis.discreteChoice.carOwnershipRuralArea
-import synthesis.discreteChoice.carOwnershipSmallCity
-import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.transitPassChoiceModel
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
@@ -346,13 +341,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignAmountOfCars {
-            AssignViaRegionType.create {
-                model = carChoiceModel
-                cityParameters = carOwnershipCityParameters
-                smallTownParameters = carOwnershipSmallCity
-                urbanAreaParameters = carOwnershipUrbanAreaParameters
-                ruralAreaParameters = carOwnershipRuralArea
-            }
+            standardAssignmentByRegionSize
         }
 
         assignTransitCardOwnership {
