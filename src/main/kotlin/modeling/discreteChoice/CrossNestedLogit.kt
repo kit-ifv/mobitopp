@@ -1,0 +1,222 @@
+package modeling.discreteChoice
+
+import java.util.*
+import kotlin.math.exp
+
+/**
+ * Leafs maps to a non empty list of leaves, as the structure in a crossnested logit may allow for an option to occur
+ * multiple times
+ */
+class CrossNestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
+    private val leafs: Map<X, List<NestStructure<PARAMS>.Leaf>>,
+    private val root: NestStructure<PARAMS>.Nest,
+) : OptionDistributionFunction<X, SIT, PARAMS> {
+
+    override lateinit var translation: Map<X, UtilityFunction<SIT, PARAMS>>
+    override fun calculateProbabilities(evaluators: Map<SIT, Double>, parameters: PARAMS): Map<SIT, Double> {
+        return synchronized(this) {
+            root.reset()
+
+
+            val situations = evaluators.entries.flatMap { (k, v) ->
+                leafs[k.choice]?.map { AssociatedSituation(k, it, v) } ?: emptyList()
+            }
+            val e = situations.groupBy { it.sit.choice }.values.associateWith {
+                it.sumOf { sit ->
+                    sit.leaf.extractAlphaParameter(parameters)
+                }
+            }
+            require(e.none { it.value != 1.0 }) {
+                println(
+                    "Your alpha parameters do not sum to 1 for the alternatives ${
+                        e.filter { it.value != 1.0 }.map { "${it.key.first().sit.choice} ${it.value}" }
+                    }"
+                )
+            }
+            val nextNests = situations.mapNotNull { it.initializeUtility() }
+            val queue = PriorityQueue<NestStructure<PARAMS>.Nest> { a, b -> a.level - b.level }
+
+            lateinit var lastElement: NestStructure<PARAMS>.Nest
+            queue.addAll(nextNests)
+            while (queue.isNotEmpty()) {
+                val n = queue.poll()
+                lastElement = n
+                val parent = n.calculateUtility(parameters)
+                parent?.let { queue.add(it) }
+            }
+            lastElement.probability = 1.0
+            lastElement.calculateProbability(parameters)
+            situations.groupBy { it.sit }.mapValues { it.value.sumOf { it.probability } }
+        }
+
+
+
+    }
+
+    fun setUtilityFunctions(lambda: UtilityMapBuilder<X, SIT, PARAMS>.() -> Unit) {
+        translation = UtilityMapBuilder<X, SIT, PARAMS>().apply(lambda).build()
+    }
+
+    fun updateUtilityFunctions(lambda: UtilityMapBuilder<X, SIT, PARAMS>.() -> Unit) {
+
+        translation = UtilityMapBuilder(translation.toMutableMap()).apply(lambda).build()
+    }
+
+    private inner class AssociatedSituation(
+        val sit: SIT,
+        val leaf: NestStructure<PARAMS>.Leaf,
+        val utility: Double
+    ) {
+        val probability get() = leaf.probability
+
+        /**
+         * set the utility of the leaf to the already calculated utility and set the calculation flags.
+         */
+        fun initializeUtility(): NestStructure<PARAMS>.Nest? {
+            return leaf.initializeUtility(utility)
+        }
+    }
+
+    companion object {
+        private const val UNNAMED_CROSS_NEST_MODEL = "Unnamed Cross Nested Logit model"
+
+        class CrossNestedLogitBuilder<X : Any, SIT : ChoiceSituation<X>, PARAMS> :
+            OptionBasedSituationBuilder<X, SIT, PARAMS> {
+            private lateinit var nestStructure: MutableList<NestStructure<PARAMS>.Node>
+            private val entriesFor: MutableMap<X, MutableList<NestStructure<PARAMS>.Leaf>> = mutableMapOf()
+            lateinit var root: NestStructure<PARAMS>.Nest
+            override fun addUtilityFunctionByIdentifier(x: X, utilityFunction: UtilityFunction<SIT, PARAMS>) {
+
+            }
+
+            fun build(): CrossNestedLogit<X, SIT, PARAMS> {
+
+                println(nestStructure)
+                return CrossNestedLogit(entriesFor, root)
+            }
+
+            fun structure(lambda: NestStructureBuilder<X, PARAMS>.() -> Unit): MutableList<NestStructure<PARAMS>.Node> {
+                val builder = NestStructureBuilder<X, PARAMS>(entriesFor)
+                root = builder.nest(name = "root", lambda = { 1.0 }) {
+                    lambda()
+                }
+                nestStructure = builder.build()
+                return builder.build()
+            }
+        }
+
+        fun <X : Any, SIT : ChoiceSituation<X>, PARAMS> build(
+            name: String = UNNAMED_CROSS_NEST_MODEL,
+            lambda: CrossNestedLogitBuilder<X, SIT, PARAMS>.() -> Unit
+        ): CrossNestedLogit<X, SIT, PARAMS> {
+            val builder = CrossNestedLogitBuilder<X, SIT, PARAMS>()
+            builder.apply(lambda)
+            return builder.build()
+        }
+
+        class NestStructureBuilder<X, PARAMS>(val entriesFor: MutableMap<X, MutableList<NestStructure<PARAMS>.Leaf>>) {
+            fun nest(
+                name: String = "Unnamed Nest",
+                lambda: PARAMS.() -> Double = { 1.0 },
+                buildInstruction: NestStructureBuilder<X, PARAMS>.() -> Unit
+            ): NestStructure<PARAMS>.Nest {
+                val newBuilder = NestStructureBuilder<X, PARAMS>(entriesFor = entriesFor)
+                newBuilder.apply(buildInstruction)
+                val childNodes = newBuilder.build()
+                val nest = NestStructure<PARAMS>().Nest(childNodes, name, lambda)
+                childNodes.forEach { it.parent = nest }
+                childs.add(nest)
+                return nest
+            }
+
+            fun option(x: X, name: String = x.toString(), alpha: PARAMS.() -> Double = { 1.0 }) {
+                val element = NestStructure<PARAMS>().Leaf(extractAlphaParameter = alpha, name = name)
+                childs.add(element)
+                val globalEntries = entriesFor.getOrPut(x) {
+                    mutableListOf()
+                }
+                globalEntries.add(element)
+            }
+
+            private val childs: MutableList<NestStructure<PARAMS>.Node> = mutableListOf()
+            fun build(): MutableList<NestStructure<PARAMS>.Node> {
+                return childs
+            }
+        }
+    }
+}
+
+class UtilityMapBuilder<X, SIT, PARAMS>( val map: MutableMap<X, UtilityFunction<SIT, PARAMS>> = mutableMapOf()) {
+
+    fun option(x: X, utilityFunction: PARAMS.(SIT) -> Double) {
+        map[x] = UtilityFunction { alternative: SIT, parameterObject: PARAMS ->
+            utilityFunction.invoke(
+                parameterObject,
+                alternative
+            )
+        }
+    }
+    fun <P> option(option: X, parameters: PARAMS.() -> P, utilityFunction: P.(SIT) -> Double) {
+        val internalUtilityFunction = UtilityFunction { alternative: SIT, parameterObject: PARAMS ->
+            utilityFunction.invoke(
+                parameterObject.parameters(),
+                alternative
+            )
+        }
+        map[option] = internalUtilityFunction
+    }
+
+
+    fun build(): Map<X, UtilityFunction<SIT, PARAMS>> {
+        return map
+    }
+}
+
+private data class IntSit(override val choice: Int) : ChoiceSituation<Int>()
+private data class Pa(
+    val base: Double = 1.0,
+    val alpha0_newmob: Double = 1.0,
+    val alpha0_miv: Double = 1.0,
+    val alpha0_oevrad: Double = 1.0,
+    val alpha0_taxi: Double = 1.0,
+) {
+    val alpha_newMob = exp(alpha0_newmob) / sumOfAlpha()
+    fun sumOfAlpha() = exp(alpha0_newmob) + exp(alpha0_miv) + exp(alpha0_oevrad) + exp(alpha0_taxi)
+}
+
+fun main() {
+    val e = CrossNestedLogit.build<Int, ChoiceSituation<Int>, Pa> {
+        structure {
+
+            nest(name = "Nest 1", lambda = { 1.0 }) {
+                option(1, alpha = { 0.25 })
+                option(2)
+            }
+            nest(name = "Nest 2", lambda = { 0.001 }) {
+
+                option(1, alpha = { 0.75 })
+                option(3)
+            }
+
+
+        }
+    }
+    e.setUtilityFunctions {
+        option(1) {
+            0.0
+        }
+
+        option(2) {
+            -10000.0
+        }
+        option(3) {
+            0.0
+        }
+    }
+    val probs = e.calculateProbabilities(listOf(1, 2, 3).map { it.toSit() }.toSet(), Pa())
+    println(probs)
+}
+
+private fun Int.toSit(): IntSit {
+    return IntSit(this)
+}
