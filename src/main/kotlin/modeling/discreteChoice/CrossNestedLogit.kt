@@ -1,6 +1,5 @@
 package modeling.discreteChoice
 
-import java.util.*
 import kotlin.math.exp
 
 /**
@@ -21,31 +20,19 @@ class CrossNestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
             val situations = evaluators.entries.flatMap { (k, v) ->
                 leafs[k.choice]?.map { AssociatedSituation(k, it, v) } ?: emptyList()
             }
-            val e = situations.groupBy { it.sit.choice }.values.associateWith {
+            val crossNestedSimilarity = situations.groupBy { it.sit.choice }.values.associateWith {
                 it.sumOf { sit ->
                     sit.leaf.extractAlphaParameter(parameters)
                 }
             }
-            require(e.none { it.value != 1.0 }) {
+            require(crossNestedSimilarity.none { it.value != 1.0 }) {
                 println(
                     "Your alpha parameters do not sum to 1 for the alternatives ${
-                        e.filter { it.value != 1.0 }.map { "${it.key.first().sit.choice} ${it.value}" }
+                        crossNestedSimilarity.filter { it.value != 1.0 }.map { "${it.key.first().sit.choice} ${it.value}" }
                     }"
                 )
             }
-            val nextNests = situations.mapNotNull { it.initializeUtility() }
-            val queue = PriorityQueue<NestStructure<PARAMS>.Nest> { a, b -> a.level - b.level }
-
-            lateinit var lastElement: NestStructure<PARAMS>.Nest
-            queue.addAll(nextNests)
-            while (queue.isNotEmpty()) {
-                val n = queue.poll()
-                lastElement = n
-                val parent = n.calculateUtility(parameters)
-                parent?.let { queue.add(it) }
-            }
-            lastElement.probability = 1.0
-            lastElement.calculateProbability(parameters)
+            runQueue(situations, parameters)
             situations.groupBy { it.sit }.mapValues { it.value.sumOf { it.probability } }
         }
 
@@ -62,20 +49,6 @@ class CrossNestedLogit<X : Any, SIT : ChoiceSituation<X>, PARAMS>(
         translation = UtilityMapBuilder(translation.toMutableMap()).apply(lambda).build()
     }
 
-    private inner class AssociatedSituation(
-        val sit: SIT,
-        val leaf: NestStructure<PARAMS>.Leaf,
-        val utility: Double
-    ) {
-        val probability get() = leaf.probability
-
-        /**
-         * set the utility of the leaf to the already calculated utility and set the calculation flags.
-         */
-        fun initializeUtility(): NestStructure<PARAMS>.Nest? {
-            return leaf.initializeUtility(utility)
-        }
-    }
 
     companion object {
         private const val UNNAMED_CROSS_NEST_MODEL = "Unnamed Cross Nested Logit model"
