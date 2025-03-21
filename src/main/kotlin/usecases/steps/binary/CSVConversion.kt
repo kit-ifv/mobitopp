@@ -1,4 +1,4 @@
-package utils.binary
+package usecases.steps.binary
 
 import utils.csv.DefaultCsvParser
 import utils.csv.DefaultCsvReader
