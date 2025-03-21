@@ -21,7 +21,7 @@ enum class DataType {
             dataStream.writeLong(element.toLong())
         }
     },
-    BOOL {
+    BOOLEAN {
         override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
             dataStream.writeBoolean(element.toBoolean())
         }
@@ -30,10 +30,11 @@ enum class DataType {
         /**
          * Scales the [element] to have exactly the length of [stringLength]. If [element] is too short,
          * it gets padded with '.', if it's too long, it everything after [stringLength] is getting ignored.
+         * Writes characters utf8 encoded.
          */
         override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            val scaledString = element.take(stringLength).padEnd(stringLength, '.')
-            dataStream.writeChars(scaledString)
+            val scaledString = element.take(stringLength).padEnd(stringLength, '.').toCharArray()
+            scaledString.forEach { dataStream.writeChar(it.code)}
         }
     },
     FLOAT {
@@ -82,7 +83,7 @@ class CSVBinaryConverter {
      * Writes into following format:
      * ```
      * Int: number of elements found in the binary file.
-     * Long: maximal length of strings in the binary file in characters.
+     * Int: maximal length of strings in the binary file in characters.
      * List<Long>: All IDs of elements sequentially.
      * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the ID. The given sequence of
      * columns is kept. Strings are cut to max-String-Many
@@ -90,43 +91,47 @@ class CSVBinaryConverter {
      *
      * @param csvFile The file to convert.
      * @param datatypeMapping Should map each column-name to it's appropriate datatype.
-     * @param outputFile Path to a binary file, where the result of the conversion should be stored. If not specified, a
-     * binary file will get created at the same location and same name as the [csvFile].
      * @param stringLength The number of characters of a string that will be transferred to the binary file. Longer
      * strings will get cut. Shorter strings will get padded with '.'
      * @param idColumnName The name of the column, which contains the IDs to be written.
+     * @param outputFile Path to a binary file, where the result of the conversion should be stored. If not specified, a
+     * binary file will get created at the same location and same name as the [csvFile].
+     * @return path to the created binary file.
      */
     fun makeCSVBinary(
         csvFile: Path,
         datatypeMapping: Map<(String), DataType>,
         stringLength: Int,
-        outputFile: Path?,
-        idColumnName: String
-    ) {
+        idColumnName: String,
+        outputFile: Path? = null
+    ): Path {
         require(csvFile.exists()) { "Can't convert nonexistent csv file does not exist: $csvFile" }
-        require(csvFile.endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
+        require(csvFile.toString().endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
 
         val reader = DefaultCsvReader(csvFile.toFile(), showProgressBar = false)
         val idColumn = reader.columns.first { it == idColumnName }
-        val nonIDColumns = reader.columns.filter { it != idColumn }
-        val datatypeGivenForAllColumns = nonIDColumns.all { datatypeMapping.containsKey(it) }
+        val datatypeGivenForAllColumns = reader.columns.all { datatypeMapping.containsKey(it) }
         if (!datatypeGivenForAllColumns) {
-            val columnsWithoutDatatype = nonIDColumns.filter { !datatypeMapping.containsKey(it) }
+            val columnsWithoutDatatype = reader.columns.filter { !datatypeMapping.containsKey(it) }
             throw IllegalArgumentException("No datatype provided for following columns: $columnsWithoutDatatype")
         }
 
         val ids = reader.rows().map { row -> row.invoke(idColumn) }.toList()
         val numElements = ids.size
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
+        val nonIDColumns = reader.columns.filter { it != idColumn }
 
         handleStream(outputLocation) { outputStream ->
             // Write the amount of elements that are expected to be found in this file.
             outputStream.writeInt(numElements)
+            // Write the string length to be expected from this binary file.
+            outputStream.writeInt(stringLength)
             // Write IDs of the elements.
             ids.forEach { outputStream.writeLong(it.toLong()) }
             // Write elements.
             writeElements(reader.rows(), nonIDColumns, outputStream, datatypeMapping, stringLength)
         }
+        return outputLocation
     }
 
     /**
