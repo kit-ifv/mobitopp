@@ -12,17 +12,46 @@ import kotlin.io.path.exists
 
 
 enum class DataType {
-    INT, LONG, BOOL, STRING {
-        override fun maxByteLength(): Int {
-            throw Error("Please specify the maximum String length, otherwise the String cannot be properly decoded afterwards.")
+    INT {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeInt(element.toInt())
         }
     },
-    FLOAT, DOUBLE, CHAR; /** Float not in [TrackingBuffer], unwanted? **/
+    LONG {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeLong(element.toLong())
+        }
+    },
+    BOOL {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeBoolean(element.toBoolean())
+        }
+    },
+    STRING {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeChars(element)
+        }
+    },
+    FLOAT {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeFloat(element.toFloat())
+        }
+    },
+    DOUBLE {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeDouble(element.toDouble())
+        }
+    },
+    CHAR {
+        override fun writeToStream(dataStream: DataOutputStream, element: String) {
+            dataStream.writeChar(element.toInt())
+        }
+    };
 
     /**
-     * @return the maximum length the datatype has in bytes.
+     * Parses element to the datatype and writes it onto the dataStream.
      */
-    open fun maxByteLength(): Int = 2
+    abstract fun writeToStream(dataStream: DataOutputStream, element: String)
 }
 
 /**
@@ -31,8 +60,10 @@ enum class DataType {
 class CSVBinaryConverter {
 
     /**
-     * Takes any CSV file, which contains at least one column with an ID and converts it to a binary file.
+     * Convenience function. Takes any CSV file, which contains at least one column with an ID and converts it to a binary file.
      * The binary file is put into the same directory, as the CSV file.
+     * @param mapping Object generator for a row of the csv file.
+     * @param binaryWriter A BinaryWriter, able to write objects of the type [T].
      */
     fun <T> makeCSVBinary(csvFile: Path, mapping: (Row) -> T?, binaryWriter: BinaryWriter<T>) {
         val reader = DefaultCsvParser(mapping = mapping)
@@ -43,28 +74,33 @@ class CSVBinaryConverter {
     }
 
     /**
-     * YES, this is the function you searched for! Easily convert csv files to performant binary files!
-     * Takes any CSV file, which contains at least one column with an ID and converts it to a binary file.
+     * This function convert csv files to a binary file in a standardized format.
+     * The CSV file needs to contain at least one column with an ID.
      * The binary file is written to the same location as the csv, unless otherwise specified.
      *
      * Writes into following format:
      * ```
      * Int: number of elements found in the binary file.
+     * Int: maximal length of strings in the binary file in characters.
      * List<Long>: All IDs of elements sequentially.
-     * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the id. The given sequence of columns is kept.
+     * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the ID. The given sequence of
+     * columns is kept. Strings are cut to max-String-Many
      * ```
      *
      * @param csvFile The file to convert.
      * @param datatypeMapping Should map each column-name to it's appropriate datatype.
      * @param outputFile Path to a binary file, where the result of the conversion should be stored. If not specified, a
      * binary file will get created at the same location and same name as the [csvFile].
+     * @param stringLength the number of characters of a string that will be transferred to the binary file. Longer
+     * strings will get cut. Shorter Strings will get padded with '.'
      */
     fun makeCSVBinary(
         csvFile: Path,
         datatypeMapping: Map<(String), DataType>,
+        stringLength: Int,
         outputFile: Path?,
     ) {
-        require(csvFile.exists()) { "csv file does not exist: $csvFile" }
+        require(csvFile.exists()) { "Can't convert nonexistent csv file does not exist: $csvFile" }
         require(csvFile.endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
 
         val reader = DefaultCsvReader(csvFile.toFile(), showProgressBar = false)
@@ -91,15 +127,9 @@ class CSVBinaryConverter {
                 DataOutputStream(bufferedStream).use { outputStream ->
                     outputStream.writeInt(numElements) // Write the amount of elements that are expected to be found in this file
                     ids.forEach { outputStream.writeLong(it.toLong()) } // Write ID's of the elements
-
-                    /**
-                     * Takes a column name and maps it to a strategy for writing that column element of the row onto the bytebuffer.
-                     */
-                    val writeMap = createColumnMapping(datatypeMapping, otherColumns, outputStream)
-
                     reader.rows().forEach { row ->
                         otherColumns.forEach { columnName ->
-                            writeMap[columnName]?.invoke(row) // Write elements
+                            datatypeMapping[columnName]?.writeToStream(outputStream, row.invoke(columnName)) // write each row sequentially
                         }
                     }
                 }
@@ -113,7 +143,8 @@ class CSVBinaryConverter {
     private fun createColumnMapping(
         datatypeMapping: Map<(String), DataType>,
         columnsWithoutID: List<String>,
-        outputStream: DataOutputStream
+        outputStream: DataOutputStream,
+        stringLength: Int
     ): Map<String, (Row) -> Unit> {
         val writeMap: MutableMap<String, (Row) -> Unit> = mutableMapOf()
         columnsWithoutID.forEach { columnName ->
@@ -125,11 +156,9 @@ class CSVBinaryConverter {
                         row.invoke(columnName).toBoolean()
                     )
                 }
-
                 DataType.STRING -> { row: Row ->
                     outputStream.writeChars(
-                        row.invoke(columnName).padEnd(datatypeMapping[columnName]!!.maxByteLength(), '.')
-                    )
+                        row.invoke(columnName).padEnd(stringLength, '.')                    )
                 }
 
                 DataType.FLOAT -> { row: Row -> outputStream.writeFloat(row.invoke(columnName).toFloat()) }
