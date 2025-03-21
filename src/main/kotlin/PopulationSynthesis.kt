@@ -386,7 +386,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<RawSurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<out SurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

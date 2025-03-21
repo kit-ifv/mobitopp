@@ -12,7 +12,6 @@ import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.CSVOutput
-import synthesis.RawSurveyInfo
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
@@ -69,7 +68,7 @@ val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it
 val SynthesisHousehold<out SurveyInfo>.numberOfYouths get() = members.count { it.age in 10..<18 }
 
 @Suppress("MagicNumber") // 1234 is the default number from actitopp example
-fun SynthesisSteps<RawSurveyInfo>.generateActivitiesViaActitopp() {
+fun SynthesisSteps<out SurveyInfo>.generateActivitiesViaActitopp() {
     val fileBase = ModelFileBase()
     val randomgenerator = RNGHelper(1234)
     val schedules = people.map {
