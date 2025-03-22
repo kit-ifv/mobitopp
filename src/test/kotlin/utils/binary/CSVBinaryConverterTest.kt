@@ -50,6 +50,8 @@ class CSVBinaryConverterTest {
                 assertEquals(432, it.readInt())
             }
         }
+
+        binary.toFile().delete()
     }
 
     private fun DataInputStream.readString(stringLength: Int) : String {
