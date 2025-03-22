@@ -34,7 +34,7 @@ enum class DataType {
          */
         override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
             val scaledString = element.take(stringLength).padEnd(stringLength, '.').toCharArray()
-            scaledString.forEach { dataStream.writeChar(it.code)}
+            scaledString.forEach { dataStream.writeChar(it.code) }
         }
     },
     FLOAT {
