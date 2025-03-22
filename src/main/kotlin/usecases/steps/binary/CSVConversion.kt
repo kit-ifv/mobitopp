@@ -83,10 +83,13 @@ class CSVBinaryConverter {
      * Writes into following format:
      * ```
      * Int: number of elements found in the binary file.
+     *
      * Int: maximal length of strings in the binary file in characters.
+     *
      * List<Long>: All IDs of elements sequentially.
-     * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the ID. The given sequence of
-     * columns is kept. Strings are cut to max-String-Many
+     *
+     * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the entries of the ID column. The
+     *                                      given sequence of columns is kept. Strings are cut to max-String-Many
      * ```
      *
      * @param csvFile The file to convert.
@@ -153,7 +156,7 @@ class CSVBinaryConverter {
     }
 
     /**
-     * Creates and closes a DataOutputStream to [outputLocation] and executes write on it.
+     * Creates and closes a DataOutputStream to [outputLocation]. While open executes write on it.
      */
     private fun handleStream(outputLocation: Path, write: (dataStream: DataOutputStream) -> Unit) {
         Files.newOutputStream(outputLocation).use { fileStream ->
