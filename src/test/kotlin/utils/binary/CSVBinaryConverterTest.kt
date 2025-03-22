@@ -27,16 +27,10 @@ class CSVBinaryConverterTest {
             DataInputStream(fileInputStream).use {
                 assertEquals(10, it.readInt())
                 assertEquals(20, it.readInt())
-                assertEquals(1, it.readLong())
-                assertEquals(2, it.readLong())
-                assertEquals(3, it.readLong())
-                assertEquals(4, it.readLong())
-                assertEquals(5, it.readLong())
-                assertEquals(6, it.readLong())
-                assertEquals(7, it.readLong())
-                assertEquals(8, it.readLong())
-                assertEquals(9, it.readLong())
-                assertEquals(10, it.readLong())
+
+                for (i in 1 until 11) {
+                    assertEquals(i.toLong(), it.readLong()) // ids
+                }
 
                 assertEquals(true, it.readBoolean())
                 assertEquals(24.7009.toFloat(), it.readFloat())
