@@ -241,6 +241,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
     )
 
     override fun convert(element: SynthesisPerson<out SurveyInfo>): String {
+        element.info
         return element.run {
             toCSV(
                 personId,
