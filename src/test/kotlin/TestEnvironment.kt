@@ -34,8 +34,8 @@ import domain.data.ZoneId
 import domain.data.buildEngine
 import domain.enums.ActivityType
 import domain.enums.ZoneClassification
-import domain.enums.areatype.AreaType
 import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.RegionType
 import domain.location.Location
 import domain.location.RoadAccess
 import domain.resources.Subscribable
@@ -66,7 +66,7 @@ class TestZone(
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "TestZone",
-    regionType: AreaType = RegioStaR17.METROPOLE,
+    regionType: RegionType = RegioStaR17.METROPOLE,
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
     isDestination: Boolean = true,

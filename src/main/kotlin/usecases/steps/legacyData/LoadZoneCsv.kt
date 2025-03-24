@@ -3,8 +3,8 @@ package usecases.steps.legacyData
 import domain.data.MutableLegacyZone
 import domain.data.ZoneId
 import domain.enums.ZoneClassification
-import domain.enums.areatype.AreaType
 import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.RegionType
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
@@ -29,7 +29,7 @@ import java.io.File
 
 interface LoadZonesContext : Context {
     val zoneRepository: MutableRepository<MutableLegacyZone, ZoneId>
-    val areaTypeCodes: CodePlan<AreaType>
+    val regionTypeCodes: CodePlan<RegionType>
 
     val defaultZoneFile: File
         get() = File(demandFolder.path + "\\zone-repository\\zones.csv")
@@ -61,7 +61,7 @@ fun LoadZonesContext.prepareZones(
         columns,
         centroidParser,
         reliefUnit,
-        regionTypeCodePlan = areaTypeCodes,
+        regionTypeCodePlan = regionTypeCodes,
         seed = simulationSeed
     )
 
@@ -74,7 +74,7 @@ fun defaultCsvParser(
     columns: ZoneColumns = ZoneColumns(),
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
-    regionTypeCodePlan: Decodable<AreaType> = RegioStaR17,
+    regionTypeCodePlan: Decodable<RegionType> = RegioStaR17,
     seed: Long = 1,
 ): DefaultCsvParser<MutableLegacyZone> {
     val csvParser = CsvParser(errorHandling) { row ->

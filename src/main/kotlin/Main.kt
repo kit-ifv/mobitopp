@@ -67,7 +67,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = RegioStaR17,
+            regionTypeCodes = RegioStaR17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,

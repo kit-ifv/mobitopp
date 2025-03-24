@@ -21,7 +21,7 @@ private const val MEDIUM_CITY_PERIPHERAL_STR = "Mittelstadt einer Peripheren lä
 private const val URBAN_AREA_PERIPHERAL_STR = "Städtischer Raum einer Peripheren ländlichen Region"
 private const val RURAL_AREA_PERIPHERAL_STR = "Kleinstädtischer, dörflicher Raum einer Peripheren ländlichen Region"
 
-interface RegioStaRClassification : Encodable, AreaType {
+interface RegioStaRClassification : Encodable, RegionType {
 
     fun toRegioStaR2(): RegioStaR2
     fun toRegioStaR4(): RegioStaR4

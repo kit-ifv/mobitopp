@@ -7,7 +7,7 @@ import utils.Encodable
  * There are multiple definitions of area types:
  * hence each project can select which area type should be used.
  */
-interface AreaType : Encodable {
+interface RegionType : Encodable {
 
     fun toRegioStaR17(): RegioStaR17
     // TODO remove cast function and make models specify which region type they accept
