@@ -10,8 +10,8 @@ import synthesis.isPrimaryStudent
 import synthesis.isWorker
 import usecases.AttractivenessModel
 
-class AssignStepBuilder<G>(
-    val zones: List<Zone>,
+class AssignStepBuilder<AREA, G>(
+    val zones: List<AREA>,
     val attractivenessModel: AttractivenessModel
 ) {
     /*
@@ -34,7 +34,7 @@ class AssignStepBuilder<G>(
     }
 
     val steps: MutableList<AssignStep> = mutableListOf()
-    fun forActivity(lambda: AssignStepBuilder<G>.FixedIn.() -> Unit) {
+    fun forActivity(lambda: AssignStepBuilder<AREA, G>.FixedIn.() -> Unit) {
         val element = FixedIn()
         element.apply(lambda)
         steps.add(AssignStep(element.activityType, element.filter, element.assignmentStrategy))
@@ -51,19 +51,19 @@ class AssignStepBuilder<G>(
  * Extension functions if the person has the employment as an attribute, in which case the filter condition does not
  * need to be provided externally
  */
-fun <T : SurveyInfo> AssignStepBuilder<T>.primarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <AREA, T : SurveyInfo> AssignStepBuilder<AREA, T>.primarySchool(lambda: AssignStepBuilder<AREA, T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isPrimaryStudent, element.assignmentStrategy))
 }
 
-fun <T : SurveyInfo> AssignStepBuilder<T>.secondarySchool(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <AREA, T : SurveyInfo> AssignStepBuilder<AREA, T>.secondarySchool(lambda: AssignStepBuilder<AREA, T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isHigherStudent, element.assignmentStrategy))
 }
 
-fun <T : SurveyInfo> AssignStepBuilder<T>.work(lambda: AssignStepBuilder<T>.FixedIn.() -> Unit) {
+fun <AREA, T : SurveyInfo> AssignStepBuilder<AREA, T>.work(lambda: AssignStepBuilder<AREA, T>.FixedIn.() -> Unit) {
     val element = FixedIn()
     element.lambda()
     steps.add(AssignStep(element.activityType, SynthesisPerson<out T>::isWorker, element.assignmentStrategy))
