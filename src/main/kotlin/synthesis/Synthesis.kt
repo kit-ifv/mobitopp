@@ -60,7 +60,7 @@ interface CommuteDistance {
 interface EducationDistance {
     val distanceEducation: Distance
 }
-interface SurveyWithCommute: SurveyInfo, CommuteDistance, EducationDistance
+interface SurveyWithCommute : SurveyInfo, CommuteDistance, EducationDistance
 
 /**
  * If the survey data has information about the employment status of the survey person, this interface should be added

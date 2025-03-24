@@ -69,8 +69,6 @@ class AttractivenessFromCsv(
                 warnedSet.add(activityType)
             }
         }
-
-
 }
 
 private fun activityMapOf(row: Row, activityTypes: Set<ActivityType>) =

@@ -36,7 +36,7 @@ import synthesis.discreteChoice.YesTransitPass
 import synthesis.discreteChoice.transitPassChoiceModel
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
-import synthesis.fixedDestinations.AssignStepBuilder
+import synthesis.fixedDestinations.AssignFixedDestinationBuilder
 import synthesis.fixedDestinations.BandwidthLocator
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.fixedDestinations.communityBased.CommunityBasedGroupLocator
@@ -129,10 +129,15 @@ class SynthesisSteps<AREA, T : Any>(
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
-    fun assignFixedDestinations(lambda: AssignStepBuilder<AREA, T>.() -> Unit) {
-        val stepBuilder = AssignStepBuilder<AREA, T>(zones, attractivenessModel)
-        stepBuilder.apply(lambda)
-        val allFixedDestinations = stepBuilder.steps.flatMap { it.generateFixedDestinations(people) }
+    /**
+     * Within the scope of this step, the fixed destinations for the agents are generated. The structure of the assign
+     * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
+     * frequently assigned fixed destinations.
+     */
+    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<AREA, T>.() -> Unit) {
+        val fixedDestinationBuilder = AssignFixedDestinationBuilder<AREA, T>(attractivenessModel)
+        fixedDestinationBuilder.apply(lambda)
+        val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(people) }
         allFixedDestinations.forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
@@ -143,7 +148,7 @@ class SynthesisSteps<AREA, T : Any>(
         lambda: () -> HouseholdSynthesis<AREA, T>
     ) {
         val generator = lambda()
-        //TODO reenable
+        // TODO reenable
 //        require(randsums.keys.all { it in zones }) {
 //            "Zone Ids: ${
 //                randsums.keys.filter { it !in zones }.map { it.id }
@@ -217,13 +222,14 @@ class PopulationSynthesis<AREA, T : Any>(
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
 
+    @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
     fun generateLocations(
         activityType: ActivityType,
         amount: Int = 10,
         generationFunction: (AREA, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
     ): List<Location> {
         // TODO reenable generation and put more thought into how the locations are generated.
-        val generatedLocations = zones.map { LOCATIONUNKNOWN}
+        val generatedLocations = zones.map { LOCATIONUNKNOWN }
         opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
         return generatedLocations
     }
@@ -293,7 +299,7 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
         surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv"),
-                zones = emptyList<Zone>()
+        zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
 

@@ -1,6 +1,5 @@
 package synthesis.householdgeneration
 
-import domain.data.Zone
 import synthesis.SurveyHousehold
 import synthesis.domain.SynthesisHousehold
 import synthesis.pickWithReplacement
