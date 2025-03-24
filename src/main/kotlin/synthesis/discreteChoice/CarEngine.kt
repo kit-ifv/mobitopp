@@ -3,7 +3,7 @@ package synthesis.discreteChoice
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Sex
-import domain.enums.areatype.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
 import modeling.discreteChoice.AllocatedLogit
@@ -269,9 +269,9 @@ class EngineSituation(
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17()
+    val regionTypeRegioStaR17: RegioStaR17 = household.location.zone?.regionType?.toRegioStaR17()
         ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
-    val regionType = regionTypeRegiostar17.toSizebasedClassification()
+    val regionType = regionTypeRegioStaR17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
     val isParttime = employment == Employment.PARTTIME

@@ -63,7 +63,7 @@ object ActivityOutput : CSVOutput<Activity> {
         return element.run {
             toCSV(
                 "TODO personID",
-                type.encode(),
+                type.code,
                 "TODO observedTripDuration",
                 startTime,
                 duration,

@@ -24,13 +24,13 @@ private const val RURAL_AREA_PERIPHERAL_STR = "Kleinstädtischer, dörflicher Ra
 interface RegioStaRClassification : Encodable, AreaType {
 
     fun toRegioStaR2(): RegioStaR2
-    fun toRegioStaR4(): Regiostar4
-    fun toRegioStaR7(): Regiostar7
-    fun toRegioStaR17(): Regiostar17
-    fun toRegioStaR17Plus(): Regiostar17Plus
+    fun toRegioStaR4(): RegioStaR4
+    fun toRegioStaR7(): RegioStaR7
+    override fun toRegioStaR17(): RegioStaR17
+    fun toRegioStaR17Plus(): RegioStaR17Plus
 
-    fun toRegioStaRGem5(): RegiostarGem5
-    fun toRegioStaRGem7(): RegiostarGem7
+    fun toRegioStaRGem5(): RegioStaRGem5
+    fun toRegioStaRGem7(): RegioStaRGem7
 
     fun <R : RegioStaRClassification> warnCast(selected: R, possible: Set<R>): R {
         print(
@@ -41,8 +41,6 @@ interface RegioStaRClassification : Encodable, AreaType {
         )
         return selected
     }
-
-    fun invalidCodeError() = "There should never be a code $code. That is not a valid ${this::class} encoding."
 }
 
 enum class RegioStaR2(override val code: Int, override val description: String) : RegioStaRClassification {
@@ -56,8 +54,8 @@ enum class RegioStaR2(override val code: Int, override val description: String) 
     override fun toRegioStaR7() = toRegioStaR4().toRegioStaR7()
 
     override fun toRegioStaR17() = when (this) {
-        URBAN -> warnCast(Regiostar17.SMALL_RURAL_AREA_REGIOPOLITAN, Regiostar17.urban2)
-        RURAL -> warnCast(Regiostar17.SMALL_RURAL_AREA_PERIPHERAL, Regiostar17.rural2)
+        URBAN -> warnCast(RegioStaR17.SMALL_RURAL_AREA_REGIOPOLITAN, RegioStaR17.urban2)
+        RURAL -> warnCast(RegioStaR17.SMALL_RURAL_AREA_PERIPHERAL, RegioStaR17.rural2)
     }
 
     override fun toRegioStaR17Plus() = toRegioStaR17().toRegioStaR17Plus()
@@ -65,13 +63,13 @@ enum class RegioStaR2(override val code: Int, override val description: String) 
     override fun toRegioStaRGem7() = toRegioStaR17().toRegioStaRGem7()
 }
 
-enum class Regiostar4(override val code: Int, override val description: String) : RegioStaRClassification {
+enum class RegioStaR4(override val code: Int, override val description: String) : RegioStaRClassification {
     CITY_METROPOLITAN(11, "Metropolitane Stadtregion"),
     CITY_REGIOPOLITAN(12, "Regiopolitane Stadtregion"),
     RURAL_URBAN_AREA(21, "Stadtregionsnahe ländliche Region"),
     RURAL_PERIPHERAL(22, "Periphere ländliche Region");
 
-    companion object : EnumDecodable<Regiostar4>(Regiostar4::class) {
+    companion object : EnumDecodable<RegioStaR4>(RegioStaR4::class) {
         val city = setOf(CITY_METROPOLITAN, CITY_REGIOPOLITAN)
         val rural = setOf(RURAL_URBAN_AREA, RURAL_PERIPHERAL)
     }
@@ -81,22 +79,22 @@ enum class Regiostar4(override val code: Int, override val description: String) 
         RURAL_URBAN_AREA, RURAL_PERIPHERAL -> RegioStaR2.RURAL
     }
 
-    override fun toRegioStaR4(): Regiostar4 = this
-    override fun toRegioStaR7(): Regiostar7 = toRegioStaR17().toRegioStaR7()
+    override fun toRegioStaR4(): RegioStaR4 = this
+    override fun toRegioStaR7(): RegioStaR7 = toRegioStaR17().toRegioStaR7()
 
-    override fun toRegioStaR17(): Regiostar17 = when (this) {
-        CITY_METROPOLITAN -> warnCast(Regiostar17.URBAN_AREA_METRO, Regiostar17.metropolitan4)
-        CITY_REGIOPOLITAN -> warnCast(Regiostar17.SMALL_RURAL_AREA_REGIOPOLITAN, Regiostar17.regiopolitan4)
-        RURAL_URBAN_AREA -> warnCast(Regiostar17.SMALL_RURAL_AREA_NEAR_URBAN, Regiostar17.ruralNearUrban4)
-        RURAL_PERIPHERAL -> warnCast(Regiostar17.SMALL_RURAL_AREA_PERIPHERAL, Regiostar17.ruralPeripheral4)
+    override fun toRegioStaR17(): RegioStaR17 = when (this) {
+        CITY_METROPOLITAN -> warnCast(RegioStaR17.URBAN_AREA_METRO, RegioStaR17.metropolitan4)
+        CITY_REGIOPOLITAN -> warnCast(RegioStaR17.SMALL_RURAL_AREA_REGIOPOLITAN, RegioStaR17.regiopolitan4)
+        RURAL_URBAN_AREA -> warnCast(RegioStaR17.SMALL_RURAL_AREA_NEAR_URBAN, RegioStaR17.ruralNearUrban4)
+        RURAL_PERIPHERAL -> warnCast(RegioStaR17.SMALL_RURAL_AREA_PERIPHERAL, RegioStaR17.ruralPeripheral4)
     }
 
-    override fun toRegioStaR17Plus(): Regiostar17Plus = toRegioStaR17().toRegioStaR17Plus()
-    override fun toRegioStaRGem5(): RegiostarGem5 = toRegioStaR17().toRegioStaRGem5()
-    override fun toRegioStaRGem7(): RegiostarGem7 = toRegioStaR17().toRegioStaRGem7()
+    override fun toRegioStaR17Plus(): RegioStaR17Plus = toRegioStaR17().toRegioStaR17Plus()
+    override fun toRegioStaRGem5(): RegioStaRGem5 = toRegioStaR17().toRegioStaRGem5()
+    override fun toRegioStaRGem7(): RegioStaRGem7 = toRegioStaR17().toRegioStaRGem7()
 }
 
-enum class Regiostar7(override val code: Int, override val description: String) : RegioStaRClassification {
+enum class RegioStaR7(override val code: Int, override val description: String) : RegioStaRClassification {
     METROPOLITAN(71, "Metropolen"),
     REGIOPOLIS_AND_LARGECITIES(72, "Regiopolen und Großstädte"),
     MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION(73, "Mittelstädte, städtischer Raum einer Stadtregion"),
@@ -105,7 +103,7 @@ enum class Regiostar7(override val code: Int, override val description: String) 
     MEDIUM_CITIES_URBAN_AREA(76, "Mittelstädte, städtischer Raum"),
     SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS(77, "Kleinstädtischer, dörflicher Raum einer Ländlichen Region");
 
-    companion object : EnumDecodable<Regiostar7>(Regiostar7::class) {
+    companion object : EnumDecodable<RegioStaR7>(RegioStaR7::class) {
         val mediumGem7 = setOf(MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION, MEDIUM_CITIES_URBAN_AREA)
         val smallGem7 = setOf(SMALL_TOWN_RURAL_AREA_OF_A_CITY_REGION, SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS)
     }
@@ -118,48 +116,48 @@ enum class Regiostar7(override val code: Int, override val description: String) 
         SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS -> RegioStaR2.RURAL
     }
 
-    override fun toRegioStaR4(): Regiostar4 = when (this) {
-        METROPOLITAN -> Regiostar4.CITY_METROPOLITAN
+    override fun toRegioStaR4(): RegioStaR4 = when (this) {
+        METROPOLITAN -> RegioStaR4.CITY_METROPOLITAN
         REGIOPOLIS_AND_LARGECITIES, SMALL_TOWN_RURAL_AREA_OF_A_CITY_REGION ->
-            warnCast(Regiostar4.CITY_REGIOPOLITAN, Regiostar4.city)
-        MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION -> warnCast(Regiostar4.CITY_METROPOLITAN, Regiostar4.city)
+            warnCast(RegioStaR4.CITY_REGIOPOLITAN, RegioStaR4.city)
+        MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION -> warnCast(RegioStaR4.CITY_METROPOLITAN, RegioStaR4.city)
 
         CENTRAL_CITIES_IN_RURAL_REGIONS, MEDIUM_CITIES_URBAN_AREA ->
-            warnCast(Regiostar4.RURAL_URBAN_AREA, Regiostar4.rural)
-        SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS -> warnCast(Regiostar4.RURAL_PERIPHERAL, Regiostar4.rural)
+            warnCast(RegioStaR4.RURAL_URBAN_AREA, RegioStaR4.rural)
+        SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS -> warnCast(RegioStaR4.RURAL_PERIPHERAL, RegioStaR4.rural)
     }
 
     override fun toRegioStaR7() = this
 
     override fun toRegioStaR17() = when (this) {
-        METROPOLITAN -> Regiostar17.METROPOLE
-        REGIOPOLIS_AND_LARGECITIES -> warnCast(Regiostar17.REGIOPOLE, Regiostar17.regiopoleLargeCities7)
+        METROPOLITAN -> RegioStaR17.METROPOLE
+        REGIOPOLIS_AND_LARGECITIES -> warnCast(RegioStaR17.REGIOPOLE, RegioStaR17.regiopoleLargeCities7)
         MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION -> warnCast(
-            Regiostar17.URBAN_AREA_METRO,
-            Regiostar17.mediumCityUrban7
+            RegioStaR17.URBAN_AREA_METRO,
+            RegioStaR17.mediumCityUrban7
         )
         SMALL_TOWN_RURAL_AREA_OF_A_CITY_REGION -> warnCast(
-            Regiostar17.SMALL_RURAL_AREA_REGIOPOLITAN,
-            Regiostar17.smallNearUrban7
+            RegioStaR17.SMALL_RURAL_AREA_REGIOPOLITAN,
+            RegioStaR17.smallNearUrban7
         )
         CENTRAL_CITIES_IN_RURAL_REGIONS -> warnCast(
-            Regiostar17.CENTRAL_CITY_RURAL_NEAR_URBAN,
-            Regiostar17.centralCityRural7
+            RegioStaR17.CENTRAL_CITY_RURAL_NEAR_URBAN,
+            RegioStaR17.centralCityRural7
         )
-        MEDIUM_CITIES_URBAN_AREA -> warnCast(Regiostar17.URBAN_AREA_RURAL_NEAR_URBAN, Regiostar17.mediumCityRural7)
+        MEDIUM_CITIES_URBAN_AREA -> warnCast(RegioStaR17.URBAN_AREA_RURAL_NEAR_URBAN, RegioStaR17.mediumCityRural7)
         SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS -> warnCast(
-            Regiostar17.SMALL_RURAL_AREA_PERIPHERAL,
-            Regiostar17.smallRural7
+            RegioStaR17.SMALL_RURAL_AREA_PERIPHERAL,
+            RegioStaR17.smallRural7
         )
     }
 
     override fun toRegioStaR17Plus() = toRegioStaR17().toRegioStaR17Plus()
-    override fun toRegioStaRGem5(): RegiostarGem5 = toRegioStaR17().toRegioStaRGem5()
-    override fun toRegioStaRGem7(): RegiostarGem7 = toRegioStaR17().toRegioStaRGem7()
+    override fun toRegioStaRGem5(): RegioStaRGem5 = toRegioStaR17().toRegioStaRGem5()
+    override fun toRegioStaRGem7(): RegioStaRGem7 = toRegioStaR17().toRegioStaRGem7()
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-enum class Regiostar17(override val code: Int, override val description: String) : RegioStaRClassification {
+enum class RegioStaR17(override val code: Int, override val description: String) : RegioStaRClassification {
     METROPOLE(111, METROPOLE_STR),
     LARGE_CITY_METRO(112, LARGE_CITY_STR),
     MEDIUM_CITY_METRO(113, MEDIUM_CITY_METRO_STR),
@@ -178,7 +176,7 @@ enum class Regiostar17(override val code: Int, override val description: String)
     URBAN_AREA_RURAL_PERIPHERAL(224, URBAN_AREA_PERIPHERAL_STR),
     SMALL_RURAL_AREA_PERIPHERAL(225, RURAL_AREA_PERIPHERAL_STR);
 
-    companion object : EnumDecodable<Regiostar17>(Regiostar17::class) {
+    companion object : EnumDecodable<RegioStaR17>(RegioStaR17::class) {
         val metropolitan4 = setOf(
             METROPOLE,
             LARGE_CITY_METRO,
@@ -249,56 +247,56 @@ enum class Regiostar17(override val code: Int, override val description: String)
     override fun toRegioStaR2() = toRegioStaR4().toRegioStaR2()
     override fun toRegioStaR4() = when (this) {
         METROPOLE, LARGE_CITY_METRO, MEDIUM_CITY_METRO,
-        URBAN_AREA_METRO, SMALL_RURAL_AREA_METRO -> Regiostar4.CITY_METROPOLITAN
+        URBAN_AREA_METRO, SMALL_RURAL_AREA_METRO -> RegioStaR4.CITY_METROPOLITAN
         REGIOPOLE, MEDIUM_CITY_REGIOPOLITAN,
-        URBAN_AREA_REGIOPOLITAN, SMALL_RURAL_AREA_REGIOPOLITAN -> Regiostar4.CITY_REGIOPOLITAN
+        URBAN_AREA_REGIOPOLITAN, SMALL_RURAL_AREA_REGIOPOLITAN -> RegioStaR4.CITY_REGIOPOLITAN
         CENTRAL_CITY_RURAL_NEAR_URBAN, MEDIUM_CITY_RURAL_NEAR_URBAN,
-        URBAN_AREA_RURAL_NEAR_URBAN, SMALL_RURAL_AREA_NEAR_URBAN -> Regiostar4.RURAL_URBAN_AREA
+        URBAN_AREA_RURAL_NEAR_URBAN, SMALL_RURAL_AREA_NEAR_URBAN -> RegioStaR4.RURAL_URBAN_AREA
         CENTRAL_CITY_RURAL_PERIPHERAL, MEDIUM_CITY_RURAL_PERIPHERAL,
-        URBAN_AREA_RURAL_PERIPHERAL, SMALL_RURAL_AREA_PERIPHERAL -> Regiostar4.RURAL_PERIPHERAL
+        URBAN_AREA_RURAL_PERIPHERAL, SMALL_RURAL_AREA_PERIPHERAL -> RegioStaR4.RURAL_PERIPHERAL
     }
 
     override fun toRegioStaR7() = when (this) {
-        METROPOLE -> Regiostar7.METROPOLITAN
-        LARGE_CITY_METRO, REGIOPOLE -> Regiostar7.REGIOPOLIS_AND_LARGECITIES
+        METROPOLE -> RegioStaR7.METROPOLITAN
+        LARGE_CITY_METRO, REGIOPOLE -> RegioStaR7.REGIOPOLIS_AND_LARGECITIES
         MEDIUM_CITY_METRO, URBAN_AREA_METRO,
-        MEDIUM_CITY_REGIOPOLITAN, URBAN_AREA_REGIOPOLITAN -> Regiostar7.MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION
-        SMALL_RURAL_AREA_METRO, SMALL_RURAL_AREA_REGIOPOLITAN -> Regiostar7.SMALL_TOWN_RURAL_AREA_OF_A_CITY_REGION
-        CENTRAL_CITY_RURAL_NEAR_URBAN, CENTRAL_CITY_RURAL_PERIPHERAL -> Regiostar7.CENTRAL_CITIES_IN_RURAL_REGIONS
+        MEDIUM_CITY_REGIOPOLITAN, URBAN_AREA_REGIOPOLITAN -> RegioStaR7.MEDIUM_CITIES_URBAN_AREA_OF_A_CITY_REGION
+        SMALL_RURAL_AREA_METRO, SMALL_RURAL_AREA_REGIOPOLITAN -> RegioStaR7.SMALL_TOWN_RURAL_AREA_OF_A_CITY_REGION
+        CENTRAL_CITY_RURAL_NEAR_URBAN, CENTRAL_CITY_RURAL_PERIPHERAL -> RegioStaR7.CENTRAL_CITIES_IN_RURAL_REGIONS
         MEDIUM_CITY_RURAL_NEAR_URBAN, URBAN_AREA_RURAL_NEAR_URBAN,
-        MEDIUM_CITY_RURAL_PERIPHERAL, URBAN_AREA_RURAL_PERIPHERAL -> Regiostar7.MEDIUM_CITIES_URBAN_AREA
-        SMALL_RURAL_AREA_NEAR_URBAN, SMALL_RURAL_AREA_PERIPHERAL -> Regiostar7.SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS
+        MEDIUM_CITY_RURAL_PERIPHERAL, URBAN_AREA_RURAL_PERIPHERAL -> RegioStaR7.MEDIUM_CITIES_URBAN_AREA
+        SMALL_RURAL_AREA_NEAR_URBAN, SMALL_RURAL_AREA_PERIPHERAL -> RegioStaR7.SMALL_TOWN_RURAL_AREAS_IN_RURAL_REGIONS
     }
 
     override fun toRegioStaR17() = this
 
     override fun toRegioStaR17Plus() = when (this) {
-        METROPOLE -> warnCast(Regiostar17Plus.METROPOLE_CITY_CENTER_PERIPHERY, Regiostar17Plus.metropole)
-        else -> Regiostar17Plus.decode(code)
+        METROPOLE -> warnCast(RegioStaR17Plus.METROPOLE_CITY_CENTER_PERIPHERY, RegioStaR17Plus.metropole)
+        else -> RegioStaR17Plus.decode(code)
     }
 
     override fun toRegioStaRGem5() = toRegioStaRGem7().toRegioStaRGem5()
     override fun toRegioStaRGem7() = when (this) {
-        METROPOLE -> RegiostarGem7.METROPOLE
-        REGIOPOLE -> RegiostarGem7.REGIOPOLE
-        LARGE_CITY_METRO -> RegiostarGem7.LARGE_CITY
+        METROPOLE -> RegioStaRGem7.METROPOLE
+        REGIOPOLE -> RegioStaRGem7.REGIOPOLE
+        LARGE_CITY_METRO -> RegioStaRGem7.LARGE_CITY
 
         CENTRAL_CITY_RURAL_PERIPHERAL,
-        CENTRAL_CITY_RURAL_NEAR_URBAN -> RegiostarGem7.CENTRAL_CITY
+        CENTRAL_CITY_RURAL_NEAR_URBAN -> RegioStaRGem7.CENTRAL_CITY
 
         MEDIUM_CITY_REGIOPOLITAN, MEDIUM_CITY_RURAL_NEAR_URBAN, MEDIUM_CITY_RURAL_PERIPHERAL,
-        MEDIUM_CITY_METRO -> RegiostarGem7.MEDIUM_CITY
+        MEDIUM_CITY_METRO -> RegioStaRGem7.MEDIUM_CITY
 
         URBAN_AREA_REGIOPOLITAN, URBAN_AREA_RURAL_NEAR_URBAN, URBAN_AREA_RURAL_PERIPHERAL,
-        URBAN_AREA_METRO -> RegiostarGem7.URBAN_AREA
+        URBAN_AREA_METRO -> RegioStaRGem7.URBAN_AREA
 
         SMALL_RURAL_AREA_REGIOPOLITAN, SMALL_RURAL_AREA_NEAR_URBAN, SMALL_RURAL_AREA_PERIPHERAL,
-        SMALL_RURAL_AREA_METRO -> RegiostarGem7.SMALL_TOWN_RURAL_AREA
+        SMALL_RURAL_AREA_METRO -> RegioStaRGem7.SMALL_TOWN_RURAL_AREA
     }
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
-enum class Regiostar17Plus(override val code: Int, override val description: String) : RegioStaRClassification {
+enum class RegioStaR17Plus(override val code: Int, override val description: String) : RegioStaRClassification {
     METROPOLE_CITY_CENTER(1111, "Innenstadt einer Metropole"),
     METROPOLE_CITY_CENTER_PERIPHERY(1112, "Innenstadtrand einer Metropole"),
     METROPOLE_CITY_OUTSKIRTS(1113, "Stadtrand einer Metropole"),
@@ -319,7 +317,7 @@ enum class Regiostar17Plus(override val code: Int, override val description: Str
     URBAN_AREA_RURAL_PERIPHERAL(224, URBAN_AREA_PERIPHERAL_STR),
     SMALL_RURAL_AREA_PERIPHERAL(225, RURAL_AREA_PERIPHERAL_STR);
 
-    companion object : EnumDecodable<Regiostar17Plus>(Regiostar17Plus::class) {
+    companion object : EnumDecodable<RegioStaR17Plus>(RegioStaR17Plus::class) {
         val metropole = setOf(METROPOLE_CITY_CENTER, METROPOLE_CITY_CENTER_PERIPHERY, METROPOLE_CITY_OUTSKIRTS)
     }
 
@@ -328,8 +326,8 @@ enum class Regiostar17Plus(override val code: Int, override val description: Str
     override fun toRegioStaR7() = toRegioStaR17().toRegioStaR7()
 
     override fun toRegioStaR17() = when (this) {
-        METROPOLE_CITY_CENTER, METROPOLE_CITY_CENTER_PERIPHERY, METROPOLE_CITY_OUTSKIRTS -> Regiostar17.METROPOLE
-        else -> Regiostar17.decode(code)
+        METROPOLE_CITY_CENTER, METROPOLE_CITY_CENTER_PERIPHERY, METROPOLE_CITY_OUTSKIRTS -> RegioStaR17.METROPOLE
+        else -> RegioStaR17.decode(code)
     }
 
     override fun toRegioStaR17Plus() = this

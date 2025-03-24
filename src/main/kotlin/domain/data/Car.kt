@@ -103,7 +103,7 @@ fun CarEngine.identical(other: CarEngine): Boolean {
     return type == other.type && range == other.range
 }
 
-enum class EngineType(private val code: Int) : Encodable {
+enum class EngineType(override val code: Int) : Encodable {
     COMBUSTION(1),
     ELECTRIC(2),
     HYBRID(3);
