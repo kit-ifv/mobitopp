@@ -87,7 +87,7 @@ class BinaryHouseholdWriter : BinaryWriter<Household> {
             writeInt(domCode) // 16 Bytes
             writeInt(type) // 20 Bytes
             writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS)) // 28 Bytes
-            writeInt(economicStatus.encode()) // 32 Bytes
+            writeInt(economicStatus.code) // 32 Bytes
             writeLocation(location) // 72 Bytes
         }
     }

@@ -3,8 +3,8 @@ package usecases.steps.binary
 import domain.data.MutableLegacyZone
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.RegionType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import units.DistanceUnit
@@ -13,8 +13,12 @@ import utils.Decodable
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
+
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
+class BinaryZoneReader(
+    val seed: Long,
+    private val regionCode: Decodable<RegionType>
+) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         return path.operateOnMemoryFile {
             val size = this.getInt(0)
@@ -106,8 +110,8 @@ class BinaryZoneWriter : BinaryWriter<Zone> {
             writeLong(visumId)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the reader
             writeChars(name.padEnd(maxNameLength, '.'))
-            writeInt(regionType.encode())
-            writeInt(classification.encode())
+            writeInt(regionType.code)
+            writeInt(classification.code)
             writeInt(parkingPlaces)
             writeBoolean(isDestination)
             writeDouble(relief.toDouble(DistanceUnit.METERS))

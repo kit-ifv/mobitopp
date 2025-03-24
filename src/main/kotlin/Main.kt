@@ -1,7 +1,7 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import modeling.steps.Run
 import synthesis.AssignAroundZoneCentroid
 import units.meters
@@ -67,7 +67,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Regiostar17,
+            regionTypeCodes = RegioStaR17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,

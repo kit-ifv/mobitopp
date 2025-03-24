@@ -1,6 +1,7 @@
 package synthesis.carownership
 
-import domain.enums.SizebasedRegiostarClassification
+import domain.enums.areatype.SizebasedRegiostarClassification
+import domain.enums.areatype.toSizebasedClassification
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.SurveyInfo
@@ -63,7 +64,7 @@ class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
 
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
         val parameterSet =
-            householdBuilder.location.zone?.regionType?.toRegiostar17()?.toSizebasedClassification()?.toParameters()
+            householdBuilder.location.zone?.regionType?.toRegioStaR17()?.toSizebasedClassification()?.toParameters()
                 ?: cityParameters
 
         return model.select({ converter(it, householdBuilder) }, parameterSet)

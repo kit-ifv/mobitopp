@@ -90,15 +90,15 @@ class BinaryPersonWriter : BinaryWriter<Person> {
     private fun DataOutputStream.encodeAttributes(person: Person) {
         person.run {
             writeInt(age) // 4 Bytes
-            writeInt(employment.encode()) // 8 Bytes
-            writeInt(sex.encode()) // 12 Bytes
+            writeInt(employment.code) // 8 Bytes
+            writeInt(sex.code) // 12 Bytes
             writeDouble(income.toDouble(CurrencyUnit.EUROS)) // 20 Bytes
             writeBoolean(hasBike) // 21 Bytes
             writeBoolean(hasCommuterTicket) // 22 Bytes
             writeBoolean(hasLicense) // 23 Bytes
             writeDouble(eMobilityAcceptance.toDouble()) // 31 Bytes
-            writeInt(chargingInfluence.encode()) // 35 Bytes
-            writeInt(graduation.encode()) // 39 Bytes
+            writeInt(chargingInfluence.code) // 35 Bytes
+            writeInt(graduation.code) // 39 Bytes
             // TODO add memberships, they are currently missing
         }
     }
