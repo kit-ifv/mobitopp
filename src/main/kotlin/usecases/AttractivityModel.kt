@@ -56,16 +56,17 @@ class AttractivenessFromCsv(
     }
 
     private val warned: MutableMap<ZoneId, MutableList<ActivityType>> = mutableMapOf()
-
+    private val warnedSet = mutableSetOf<ActivityType>()
     override fun attractivenessFor(zone: ZoneId, activityType: ActivityType): Double =
         attractivenessMap[zone]?.let { it[activityType] } ?: 1.0.also {
             val activities = warned.getOrPut(zone) { mutableListOf() }
-            if (activityType !in activities) {
+            if (activityType !in activities && activityType !in warnedSet) {
                 println(
                     "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
                         "(Source $file)! Using 1.0 instead!"
                 )
                 activities.add(activityType)
+                warnedSet.add(activityType)
             }
         }
 }
