@@ -32,13 +32,13 @@ enum class ZoneAreaType(override val code: Int) : AreaType {
 
     companion object : EnumDecodable<ZoneAreaType>(ZoneAreaType::class)
 
-    fun toRegiostar17(): Regiostar17 {
+    override fun toRegioStaR17(): RegioStaR17 {
         return when (this) {
-            CONURBATION -> Regiostar17.METROPOLE
-            METROPOLITAN -> Regiostar17.LARGE_CITY_METRO
-            CITYOUTSKIRT -> Regiostar17.URBAN_AREA_RURAL_NEAR_URBAN
-            PROVINCIAL -> Regiostar17.MEDIUM_CITY_RURAL_PERIPHERAL
-            RURAL -> Regiostar17.SMALL_RURAL_AREA_PERIPHERAL
+            CONURBATION -> RegioStaR17.METROPOLE
+            METROPOLITAN -> RegioStaR17.LARGE_CITY_METRO
+            CITYOUTSKIRT -> RegioStaR17.URBAN_AREA_RURAL_NEAR_URBAN
+            PROVINCIAL -> RegioStaR17.MEDIUM_CITY_RURAL_PERIPHERAL
+            RURAL -> RegioStaR17.SMALL_RURAL_AREA_PERIPHERAL
             DEFAULT -> throw NoSuchElementException(CONVERSION_ERROR_ZONE_AREA)
         }
     }
@@ -90,26 +90,27 @@ enum class Bbsr17(override val code: Int, override val description: String) : Ar
     ),
     ruralCountiesWithLowerDensityInRuralAreas(17, "Rural counties with lower density in rural areas");
 
-    @Suppress("CyclomaticComplexMethod") // There are more than 14 enum entries.
-    fun toRegiostar17(): Regiostar17 {
+    @Suppress("CyclomaticComplexMethod")
+    override // There are more than 14 enum entries.
+    fun toRegioStaR17(): RegioStaR17 {
         return when (this) {
-            largerCentralCitiesInAgglomerationAreas -> Regiostar17.METROPOLE
-            centralCitiesInAgglomerationAreas -> Regiostar17.LARGE_CITY_METRO
-            highOrderCentresInHighlyAgglomeratedCountiesInAgglomerationAreas -> Regiostar17.MEDIUM_CITY_METRO
-            highlyAgglomeratedCountiesInAgglomerationAreas -> Regiostar17.URBAN_AREA_METRO
-            highOrderCentresInAgglomeratedCountiesInAgglomerationAreas -> Regiostar17.SMALL_RURAL_AREA_METRO
-            agglomeratedCountiesInAgglomerationAreas -> Regiostar17.REGIOPOLE
-            highOrderCentresInRuralCountiesInAgglomerationAreas -> Regiostar17.MEDIUM_CITY_REGIOPOLITAN
-            ruralCountiesInAgglomerationAreas -> Regiostar17.URBAN_AREA_REGIOPOLITAN
-            centralCitiesInUrbanizedAreas -> Regiostar17.SMALL_RURAL_AREA_REGIOPOLITAN
-            highOrderCentresInAgglomeratedCountiesInUrbanizedAreas -> Regiostar17.CENTRAL_CITY_RURAL_NEAR_URBAN
-            agglomeratedCountiesInUrbanizedAreas -> Regiostar17.MEDIUM_CITY_RURAL_NEAR_URBAN
-            highOrderCentresInRuralCountiesInUrbanizedAreas -> Regiostar17.URBAN_AREA_RURAL_NEAR_URBAN
-            ruralCountiesInUrbanizedAreas -> Regiostar17.SMALL_RURAL_AREA_NEAR_URBAN
-            highOrderCentresInRuralCountiesWithHigherDensityInRuralAreas -> Regiostar17.CENTRAL_CITY_RURAL_PERIPHERAL
-            ruralCountiesWithHigherDensityInRuralAreas -> Regiostar17.MEDIUM_CITY_RURAL_PERIPHERAL
-            highOrderCentresInRuralCountiesWithLowerDensityInRuralAreas -> Regiostar17.URBAN_AREA_RURAL_PERIPHERAL
-            ruralCountiesWithLowerDensityInRuralAreas -> Regiostar17.SMALL_RURAL_AREA_PERIPHERAL
+            largerCentralCitiesInAgglomerationAreas -> RegioStaR17.METROPOLE
+            centralCitiesInAgglomerationAreas -> RegioStaR17.LARGE_CITY_METRO
+            highOrderCentresInHighlyAgglomeratedCountiesInAgglomerationAreas -> RegioStaR17.MEDIUM_CITY_METRO
+            highlyAgglomeratedCountiesInAgglomerationAreas -> RegioStaR17.URBAN_AREA_METRO
+            highOrderCentresInAgglomeratedCountiesInAgglomerationAreas -> RegioStaR17.SMALL_RURAL_AREA_METRO
+            agglomeratedCountiesInAgglomerationAreas -> RegioStaR17.REGIOPOLE
+            highOrderCentresInRuralCountiesInAgglomerationAreas -> RegioStaR17.MEDIUM_CITY_REGIOPOLITAN
+            ruralCountiesInAgglomerationAreas -> RegioStaR17.URBAN_AREA_REGIOPOLITAN
+            centralCitiesInUrbanizedAreas -> RegioStaR17.SMALL_RURAL_AREA_REGIOPOLITAN
+            highOrderCentresInAgglomeratedCountiesInUrbanizedAreas -> RegioStaR17.CENTRAL_CITY_RURAL_NEAR_URBAN
+            agglomeratedCountiesInUrbanizedAreas -> RegioStaR17.MEDIUM_CITY_RURAL_NEAR_URBAN
+            highOrderCentresInRuralCountiesInUrbanizedAreas -> RegioStaR17.URBAN_AREA_RURAL_NEAR_URBAN
+            ruralCountiesInUrbanizedAreas -> RegioStaR17.SMALL_RURAL_AREA_NEAR_URBAN
+            highOrderCentresInRuralCountiesWithHigherDensityInRuralAreas -> RegioStaR17.CENTRAL_CITY_RURAL_PERIPHERAL
+            ruralCountiesWithHigherDensityInRuralAreas -> RegioStaR17.MEDIUM_CITY_RURAL_PERIPHERAL
+            highOrderCentresInRuralCountiesWithLowerDensityInRuralAreas -> RegioStaR17.URBAN_AREA_RURAL_PERIPHERAL
+            ruralCountiesWithLowerDensityInRuralAreas -> RegioStaR17.SMALL_RURAL_AREA_PERIPHERAL
             defaultType -> throw NoSuchElementException(CONVERSION_ERROR_BBSR17)
         }
     }
@@ -126,7 +127,7 @@ enum class SizebasedRegiostarClassification {
 }
 
 @Suppress("MagicNumber")
-fun Regiostar17.toSizebasedClassification(): SizebasedRegiostarClassification {
+fun RegioStaR17.toSizebasedClassification(): SizebasedRegiostarClassification {
     return when (code) {
         111, 112, 121, 211 -> SizebasedRegiostarClassification.CITY
         113, 123, 213, 223, 221 -> SizebasedRegiostarClassification.SMALL_TOWN

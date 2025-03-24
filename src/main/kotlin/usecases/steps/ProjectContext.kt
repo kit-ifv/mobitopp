@@ -22,7 +22,7 @@ import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.Mode
 import domain.enums.areatype.AreaType
-import domain.enums.areatype.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
@@ -52,7 +52,7 @@ data class ProjectContext(
     override val scenarioName: String,
     override val demandFolder: File,
 
-    override val areaTypeCodes: CodePlan<AreaType> = Regiostar17,
+    override val areaTypeCodes: CodePlan<AreaType> = RegioStaR17,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus,
     override val sexCodes: CodePlan<Sex> = Sex,
     override val graduationCodes: CodePlan<Graduation> = Graduation,

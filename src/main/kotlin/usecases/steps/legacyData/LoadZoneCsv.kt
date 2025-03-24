@@ -4,7 +4,7 @@ import domain.data.MutableLegacyZone
 import domain.data.ZoneId
 import domain.enums.ZoneClassification
 import domain.enums.areatype.AreaType
-import domain.enums.areatype.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
@@ -74,7 +74,7 @@ fun defaultCsvParser(
     columns: ZoneColumns = ZoneColumns(),
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
-    regionTypeCodePlan: Decodable<AreaType> = Regiostar17,
+    regionTypeCodePlan: Decodable<AreaType> = RegioStaR17,
     seed: Long = 1,
 ): DefaultCsvParser<MutableLegacyZone> {
     val csvParser = CsvParser(errorHandling) { row ->
