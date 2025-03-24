@@ -6,7 +6,7 @@ import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
-import synthesis.RawSurveyInfo
+import synthesis.CommuteDistance
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import units.Currency
@@ -25,8 +25,8 @@ data class CarSegmentChoice(
 ) : ChoiceSituation<CarSegment>()
 
 fun CarSegment.toChoice(
-    person: SynthesisPerson<out RawSurveyInfo>,
-    household: SynthesisHousehold<out RawSurveyInfo>
+    person: SynthesisPerson<out CommuteDistance>,
+    household: SynthesisHousehold<out CommuteDistance>
 ): CarSegmentChoice {
     return CarSegmentChoice(
         this,

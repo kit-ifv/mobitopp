@@ -10,7 +10,7 @@ import modeling.discreteChoice.AllocatedLogit
 import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
-import synthesis.RawSurveyInfo
+import synthesis.SurveyWithCommute
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import units.Distance
@@ -259,8 +259,8 @@ data class EngineSpecificParameters(
 
 class EngineSituation(
     override val choice: EngineType,
-    person: RawSurveyInfo,
-    household: SynthesisHousehold<out RawSurveyInfo>
+    person: SurveyWithCommute,
+    household: SynthesisHousehold<out SurveyWithCommute>
 ) : ChoiceSituation<EngineType>() {
     val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
@@ -284,8 +284,8 @@ class EngineSituation(
 }
 
 fun EngineType.toChoice(
-    person: SynthesisPerson<out RawSurveyInfo>,
-    household: SynthesisHousehold<out RawSurveyInfo>
+    person: SynthesisPerson<out SurveyWithCommute>,
+    household: SynthesisHousehold<out SurveyWithCommute>
 ): EngineSituation {
     return EngineSituation(this, person.info, household)
 }
