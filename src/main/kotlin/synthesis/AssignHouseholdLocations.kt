@@ -29,7 +29,9 @@ fun interface GroupAssignHouseholdLocations<AREA, H> {
     ): List<Pair<H, Location>>
 }
 
-class TrivialGroupStrategy<AREA, H>(val singularStrategy: AssignHouseholdLocations<AREA, H>) : GroupAssignHouseholdLocations<AREA, H> {
+class TrivialGroupStrategy<AREA, H>(
+    val singularStrategy: AssignHouseholdLocations<AREA, H>
+) : GroupAssignHouseholdLocations<AREA, H> {
     override fun generateLocations(
         zone: AREA,
         householdsToLocate: List<H>
@@ -44,11 +46,10 @@ class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHousehol
     }
 }
 
-class JustUseBielefeld<H>: AssignHouseholdLocations<Any, H> {
+class JustUseBielefeld<H> : AssignHouseholdLocations<Any, H> {
     override fun generateLocation(zone: Any, household: H): Location {
         return LOCATIONUNKNOWN
     }
-
 }
 
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means

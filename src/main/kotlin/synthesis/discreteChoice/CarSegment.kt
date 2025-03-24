@@ -7,8 +7,6 @@ import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import modeling.discreteChoice.times
 import synthesis.CommuteDistance
-import synthesis.RawSurveyInfo
-import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import units.Currency

@@ -63,8 +63,6 @@ object TrivialCarGeneration : GenerateCars<Any> {
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
 
-
-
 object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
     private val segmentModel = carSegmentChoiceModel
     override fun generate(householdBuilder: SynthesisHousehold<out SurveyWithCommute>): List<SynthesisCar> {

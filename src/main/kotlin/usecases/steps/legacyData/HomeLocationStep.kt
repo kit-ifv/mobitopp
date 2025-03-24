@@ -25,14 +25,15 @@ interface HomeLocationModelContext : Context {
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
 }
 
-fun  HomeLocationModelContext.householdHomeLocation(
+fun HomeLocationModelContext.householdHomeLocation(
     model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
 ) = runStep {
     HomeLocationStep(this, model)
 }
 
-fun  HomeLocationModelContext.groupedHouseholdHomeLocation(
-    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> = TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
+fun HomeLocationModelContext.groupedHouseholdHomeLocation(
+    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
+        TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
 ) = runStep {
     GroupedHomeLocationsStep(this, model)
 }

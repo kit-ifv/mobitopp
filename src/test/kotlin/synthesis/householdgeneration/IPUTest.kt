@@ -32,7 +32,9 @@ class IPUTest : SynthesisTest() {
         person(10, Sex.MALE) {}
     }
 
-    private val employmentIPU = IPU<Any, Employment>(GenerateHouseholdsFromVector.coerceMaintainingOrder()) { vectors, _ ->
+    private val employmentIPU = IPU<Any, Employment>(
+        GenerateHouseholdsFromVector.coerceMaintainingOrder()
+    ) { vectors, _ ->
         vectors.forEach { it *= 2 }
     }
 
