@@ -1,6 +1,7 @@
 package synthesis
 
 import domain.data.Zone
+import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
@@ -13,33 +14,41 @@ import kotlin.random.Random
 /**
  * Assign a Location to a household with no information other than the household and the zone
  */
-fun interface AssignHouseholdLocations<H> {
-    fun generateLocation(zone: Zone, household: H): Location
+fun interface AssignHouseholdLocations<AREA, H> {
+    fun generateLocation(zone: AREA, household: H): Location
 }
 
 /**
  * Assign a list of locations, because sometimes it makes sense to handle the group as a whole (To avoid location
  * collisions, for example)
  */
-fun interface GroupAssignHouseholdLocations<H> {
+fun interface GroupAssignHouseholdLocations<AREA, H> {
     fun generateLocations(
-        zone: Zone,
+        zone: AREA,
         householdsToLocate: List<H>
     ): List<Pair<H, Location>>
 }
 
-class TrivialGroupStrategy<H>(val singularStrategy: AssignHouseholdLocations<H>) : GroupAssignHouseholdLocations<H> {
+class TrivialGroupStrategy<AREA, H>(
+    val singularStrategy: AssignHouseholdLocations<AREA, H>
+) : GroupAssignHouseholdLocations<AREA, H> {
     override fun generateLocations(
-        zone: Zone,
+        zone: AREA,
         householdsToLocate: List<H>
     ): List<Pair<H, Location>> {
         return householdsToLocate.map { it to singularStrategy.generateLocation(zone, it) }
     }
 }
 
-class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<H> {
+class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<Zone, H> {
     override fun generateLocation(zone: Zone, household: H): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
+    }
+}
+
+class JustUseBielefeld<H> : AssignHouseholdLocations<Any, H> {
+    override fun generateLocation(zone: Any, household: H): Location {
+        return LOCATIONUNKNOWN
     }
 }
 

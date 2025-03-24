@@ -62,9 +62,10 @@ object TrivialCarGeneration : GenerateCars<Any> {
 /**
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
-object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
+
+object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
     private val segmentModel = carSegmentChoiceModel
-    override fun generate(householdBuilder: SynthesisHousehold<out RawSurveyInfo>): List<SynthesisCar> {
+    override fun generate(householdBuilder: SynthesisHousehold<out SurveyWithCommute>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders
