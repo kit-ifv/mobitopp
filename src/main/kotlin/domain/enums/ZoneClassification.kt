@@ -1,7 +1,7 @@
 package domain.enums
 
-import utils.CodePlan
 import utils.Encodable
+import utils.EnumDecodable
 
 /**
  * The ZoneClassification distinguishes different parts of the simulated area:
@@ -14,16 +14,13 @@ import utils.Encodable
  *
  * @property code integer code of zone classification
  */
-enum class ZoneClassification(private val code: Int) : Encodable {
+enum class ZoneClassification(override val code: Int) : Encodable {
     STUDY_AREA(0),
     EXTENDED_STUDY_AREA(1),
     OUTLYING_AREA(2);
 
-    override fun encode() = this.code
+    override val description: String
+        get() = name
 
-    companion object : CodePlan<ZoneClassification> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<ZoneClassification> = ZoneClassification.entries.toSet()
-    }
+    companion object : EnumDecodable<ZoneClassification>(ZoneClassification::class)
 }

@@ -9,7 +9,7 @@ import domain.data.toSchedule
 import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
-import modeling.steps.UpdateStep
+import modeling.steps.UpdateEachStep
 import modeling.steps.validateNotSealed
 import modeling.validation.Warning
 import utils.random.getGaussian
@@ -29,7 +29,7 @@ interface AssignPlannedActivitiesContext : Context {
 
 class AssignPlannedActivities(
     activityRepositoryContext: AssignPlannedActivitiesContext,
-) : UpdateStep<MutablePerson, PersonId>() {
+) : UpdateEachStep<MutablePerson, PersonId>() {
 
     override val name: String = "Assign planned activities to person in bulk."
 

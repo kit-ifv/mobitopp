@@ -1,13 +1,13 @@
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
+import domain.enums.areatype.Bbsr17
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
 import usecases.steps.StationColumns
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignHomeLocations
 import usecases.steps.dummyImpedance
 import usecases.steps.finishSharingStations
 import usecases.steps.legacyData.loadZones
@@ -29,7 +29,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
+            regionTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
@@ -66,7 +66,7 @@ fun main() {
         finishSharingStations()
         loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
         loadTestSet()
-        assignHomeLocations()
+        applyHomeLocationsInSchedule()
         assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())
         simulate()
     }

@@ -34,7 +34,7 @@ interface LoadPlannedActivitiesContext : Context {
         get() = File(demandFolder.path + "\\demand-data\\activity.csv")
 
     fun getPerson(row: Row, personColumn: String) = requireNotNull(
-        personRepository.getById(row.id(personColumn))
+        personRepository[row.id(personColumn)]
     ) {
         "Referenced person id ${row(personColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"

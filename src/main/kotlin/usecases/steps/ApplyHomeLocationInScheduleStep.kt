@@ -6,11 +6,11 @@ import modeling.steps.ForEachStep
 import modeling.steps.Repository
 import modeling.validation.Warning
 
-fun LoadPersonsContext.assignHomeLocations() = runStep {
-    AssignHomeLocationStep(this)
+fun LoadPersonsContext.applyHomeLocationsInSchedule() = runStep {
+    ApplyHomeLocationInScheduleStep(this)
 }
 
-class AssignHomeLocationStep(
+class ApplyHomeLocationInScheduleStep(
     context: LoadPersonsContext,
 ) : ForEachStep<Person, PersonId>() {
     override val name: String = "Assign home location in schedule"
