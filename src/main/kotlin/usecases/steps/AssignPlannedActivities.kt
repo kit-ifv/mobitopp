@@ -6,25 +6,25 @@ import domain.data.MutablePerson
 import domain.data.PersonId
 import domain.data.PlannedActivity
 import domain.data.toSchedule
-import modeling.steps.ModelExecution
+import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
-import modeling.steps.UpdateStep
+import modeling.steps.UpdateEachStep
 import modeling.steps.validateNotSealed
 import modeling.validation.Warning
 
-fun <S, C> S.assignPlannedActivities() where S : ModelExecution<C>, C : AssignPlannedActivitiesContext {
-    this.addStep(AssignPlannedActivities(context))
+fun AssignPlannedActivitiesContext.assignPlannedActivities() = runStep {
+    AssignPlannedActivities(this)
 }
 
-interface AssignPlannedActivitiesContext {
+interface AssignPlannedActivitiesContext : Context {
     val personRepository: MutableRepository<MutablePerson, PersonId>
     val plannedActivityRepository: MutableRepository<PlannedActivity, ActivityId>
 }
 
 class AssignPlannedActivities(
     activityRepositoryContext: AssignPlannedActivitiesContext,
-) : UpdateStep<MutablePerson, PersonId>() {
+) : UpdateEachStep<MutablePerson, PersonId>() {
 
     override val name: String = "Assign planned activities to person in bulk."
 

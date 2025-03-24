@@ -2,17 +2,14 @@ import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 
 plugins {
-    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
-    kotlin("jvm") version "1.9.10"
-    jacoco
-    id("org.barfuin.gradle.jacocolog") version "1.2.4" //This plugin is necessary because gradle eats the console output and gitlab demands to parse the console output for a coverage badge
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
-    kotlin("plugin.serialization") version "1.9.10"
+    alias(libs.plugins.ksp) // id("com.google.devtools.ksp") version "2.0.10-1.0.24" //
+    alias(libs.plugins.kotlin.jvm) // kotlin("jvm") version "2.0.10" //
+    alias(libs.plugins.kover) // id("org.jetbrains.kotlinx.kover") version "0.9.1" //
+    alias(libs.plugins.detekt) // id("io.gitlab.arturbosch.detekt") version "1.23.7" //
+    alias(libs.plugins.kotlin.serialization) // kotlin("plugin.serialization") version "2.0.10" //
     application
     id("maven-publish")
 }
-
-group = "edu.kit.ifv"
 
 repositories {
 
@@ -28,73 +25,73 @@ repositories {
 }
 
 detekt {
-    version = "1.23.1"
+    version = libs.versions.detekt.get() // "1.23.7"
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
 }
+
 dependencies {
 
+    //ifv libs
+    implementation(libs.ifv.units) //"edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
+    implementation(libs.ifv.visum.netparser) //"edu.kit.ifv:visumNetfileParser:0.9.13")
+    implementation(libs.ifv.actitopp) //"edu.kit.ifv.mobitopp:actitopp:1.9+")
 
+    //testing libs
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.1.0")
+    testImplementation(libs.junit.jupiter.params) //5.11.4
 
-    implementation("edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
-    implementation("edu.kit.ifv:visumNetfileParser:0.9.13")
+    // annotation processing libs
     implementation(project(":annotations"))
-//    implementation("edu.kit.ifv:annotations:1.0.0")
-//    testImplementation("edu.kit.ifv:annotations:1.0.0")
     testImplementation(project(":annotations"))
-//    ksp(project(":processor")) // to make KSP work
     ksp(project(":processor")) // to make KSP work
     api(project(":processor")) // to make KSP work
     implementation(project(":annotations"))
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.5.0")
+    testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
 
-    detekt("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.1")
-    detekt("io.gitlab.arturbosch.detekt:detekt-cli:1.23.1")
+    //detekt libs
+    detekt(libs.detekt.formatting) // 1.23.7
+    detekt(libs.detekt.cli) // 1.23.7
 
-    implementation("org.yaml:snakeyaml:2.2") // SnakeYAML dependency
-    implementation("org.apache.commons:commons-compress:1.26.2")
-    implementation("org.tukaani:xz:1.9")
-    implementation("org.jetbrains.kotlinx:kandy-lets-plot:0.6.0")
-    implementation("org.jetbrains.kotlinx:kotlin-statistics-jvm:0.2.1")
-    runtimeOnly("org.jetbrains.kotlinx:kandy-util:0.6.0")
-    implementation("org.jetbrains.kotlinx:kandy-api:0.6.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-    implementation("edu.kit.ifv.mobitopp:actitopp:1.9+")
-    implementation("me.tongfei:progressbar:0.10.1")
-    implementation(kotlin("reflect"))
+    //kandy libs 0.8.0
+    implementation(libs.kandy.lets.plot) //
+    runtimeOnly(libs.kandy.util)//
+    implementation(libs.kandy.api) //
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.5.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:1.5.1")
-    implementation("net.objecthunter:exp4j:0.4.8")
+    //other kotlinx libs
+    implementation(libs.kotlin.reflect) // ??
+    implementation(libs.kotlin.statistics) //0.2.1
+    implementation(libs.kotlinx.coroutines) //1.10.1
+    implementation(libs.kotlinx.serialization.core) //1.8.0
+    implementation(libs.kotlinx.serialization.cbor) //1.8.0
 
+    // other libs
+    implementation(libs.snakeyaml) // SnakeYAML dependency, 2.2
+    implementation(libs.commons.compress) //1.26.2
+    implementation(libs.xz) //1.9
+    implementation(libs.progressbar) //0.10.1
+    implementation(libs.exp4j) //0.4.8
 
 }
 
 tasks.test {
     useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport)
-
 }
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
-    }
 
-
-}
 
 tasks.withType<Detekt>().configureEach {
     reports {
-        html.required.set(true) // observe findings in your browser with structure and code snippets
-        xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
-        txt.required.set(true) // similar to the console output, contains issue signature to manually edit baseline files
-        sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with GitHub Code Scanning
-        md.required.set(true) // simple Markdown format
+        // observe findings in your browser with structure and code snippets
+        html.required.set(true)
+        // checkstyle like format mainly for integrations like Jenkins
+        xml.required.set(true)
+        // similar to the console output, contains issue signature to manually edit baseline files
+        txt.required.set(true)
+        // standardized SARIF format (https://sarifweb.azurewebsites.net/) for integrations with GitHub Code Scanning
+        sarif.required.set(true)
+        // simple Markdown format
+        md.required.set(true)
     }
 }
 tasks.withType<Detekt>().configureEach {
@@ -105,25 +102,9 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
-version = "0.9.11"
-publishing {
-    publications {
-        register("mavenData", MavenPublication::class) {
-            from(components["kotlin"])
-        }
-        repositories {
-            maven {
-                url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/")
-                credentials {
-                    username = project.findProperty("nexusUsername") as String?
-                    password = project.findProperty("nexusPassword") as String?
-                }
-            }
-        }
-    }
-}
+
 application {
     mainClass.set("MainKt")
 }
@@ -145,13 +126,86 @@ tasks.withType<JavaExec>().configureEach {
     )
 }
 
-ksp {
-    arg("incremental", "true")
-    arg("ksp.incremental", "true")
+allprojects {
+    apply(plugin = "maven-publish")
+
+    project.group = "edu.kit.ifv.mobitopp"
+
+    afterEvaluate {
+
+        if (checkProperty("doPublish")) {
+            /* mobiTopp publishing process (see .gitlab-ci.yml)
+             * Parameters such as "doPublish" must be passed in gradle command:
+             *  - ./gradlew <TASKS> publish -PdoPublish=true -Pparam=value...
+             * Lookup of parameters doPublish and isRelease returns true if they are specified and their value reads "true".
+             * Other required parameters must be specified, otherwise an error is thrown.
+             *
+             * The pipeline build version is used as the published artifacts version string.
+             *  - uses parameter: "buildVersion"
+             *
+             * Every merge on main is published to local repo: see deploy-job
+             *  - checks: doPublish=true, isRelease=false
+             *  - requires parameters: "localUrl", "localRepoUser" and "localRepoPassword"
+             *
+             * Public releases must be published manually:
+             *  - checks: doPublish=true, isRelease=true
+             *  - requires parameters: "publicUrl", "publicRepoUser" and "publicRepoPassword"
+             */
+
+            project.version = requireProperty("buildVersion")
+            println("Setup publishing configuration for ${group}:${project.name}:${version}.")
+
+            publishing {
+
+                publications {
+                    register("mavenData", MavenPublication::class) {
+                        from(components["kotlin"]) // For Kotlin projects
+                        groupId = group.toString()
+                        artifactId = project.name
+                        version = project.version.toString()
+                    }
+                }
+
+                repositories {
+                    if (checkProperty("isRelease")) {
+                        println("Activate: publish public release!")
+                        println("WARNING: Public release still deactivated!")
+
+                        //  Keep for first public release of reengineered mobitopp
+                        //maven {
+                        //    name = "PublicRepo"
+                        //    url = uri(requireProperty("publicUrl"))
+                        //    credentials {
+                        //        username = requireProperty("publicRepoUser")
+                        //        password = requireProperty("publicRepoPassword")
+                        //    }
+                        //}
+
+                    } else {
+                        println("Activate: publish local build!")
+                        maven {
+                            name = "LocalRepo"
+                            url = uri(requireProperty("localUrl"))
+                            credentials {
+                                username = requireProperty("localRepoUser")
+                                password = requireProperty("localRepoPassword")
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+    }
+
 }
-//
-//sourceSets {
-//    main {
-//        kotlin.srcDirs += file("build/generated/ksp/main/kotlin")
-//    }
-//}
+
+fun requireProperty(property: String, orElse: String? = null): String =
+    requireNotNull(project.findProperty(property) as? String ?: orElse) {
+        "Could not find property '$property'. Please check the gradle command args. It should contain:\n" +
+            "    ./gradlew ... -P$property=<VALUE> ..."
+    }
+
+fun checkProperty(property: String): Boolean = project.hasProperty(property) && project.property(property) == "true"

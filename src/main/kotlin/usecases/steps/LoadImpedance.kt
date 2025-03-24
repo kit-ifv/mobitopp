@@ -6,8 +6,6 @@ import domain.location.DistanceMetric
 import domain.location.DurationMetric
 import domain.location.Location
 import domain.location.Metrics
-import modeling.steps.Context
-import modeling.steps.ModelExecution
 import modeling.steps.ModelStep
 import modeling.steps.SimulationContext
 import modeling.validation.Warning
@@ -25,7 +23,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 @Suppress("LongParameterList")
-fun <S, C> S.loadImpedance(
+fun SimulationContext.loadImpedance(
     costMatrixConfig: File,
     durationMatrixConfig: File,
     distanceMatrix: File,
@@ -33,18 +31,16 @@ fun <S, C> S.loadImpedance(
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
     betterFormatRoot: InternalMatrixLookup? = null
-) where S : ModelExecution<C>, C : Context, C : SimulationContext {
-    addStep(
-        LoadImpedanceStep(
-            costMatrixConfig,
-            durationMatrixConfig,
-            distanceMatrix,
-            distanceUnit,
-            currencyUnit,
-            durationUnit,
-            context,
-            betterFormatRoot
-        )
+) = runStep {
+    LoadImpedanceStep(
+        costMatrixConfig,
+        durationMatrixConfig,
+        distanceMatrix,
+        distanceUnit,
+        currencyUnit,
+        durationUnit,
+        this,
+        betterFormatRoot
     )
 }
 

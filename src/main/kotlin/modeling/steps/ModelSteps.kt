@@ -6,8 +6,6 @@ import modeling.validation.validateCondition
 import modeling.validation.validateScope
 import utils.ConsoleCaptor
 import utils.Identifiable
-import utils.collections.muteProgressBars
-import utils.collections.unmuteProgressBars
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
 import utils.units.logTime
@@ -21,11 +19,40 @@ import java.io.File
 interface ModelStep {
     val name: String
 
+    /**
+     * Run the model step in the given [ExecutionMode].
+     *
+     * In validation mode: run [validate] and add potential warning as child to the [ExecutionMode.warnings].
+     * In execution mode: run [execute] and log the execution time.
+     *
+     * @param execMode the desired execution mode for this [ModelStep] run.
+     */
+    fun run(execMode: ExecutionMode) {
+        if (execMode.isValidate) {
+            val captor = ConsoleCaptor()
+
+            validate()?.also { warning ->
+                if (warning.containsError()) {
+                    warning.addChild("${this::class.simpleName} '$name' is invalid!", true)
+                }
+                execMode.warnings?.addChild(warning)
+            }
+
+            // No console output during validate
+            captor.getText()
+        } else {
+            println("\nRun $name")
+            logTime("    $name") {
+                execute()
+            }
+        }
+    }
+
     /** Execute this [ModelStep]. */
     fun execute()
 
     /**
-     * Validate this [ModelStep]
+     * Validate this [ModelStep].
      *
      * @return a warning, if the validation discovered warnings or errors
      */
@@ -52,6 +79,27 @@ interface ModelStep {
      */
     val isValid: Boolean
         get() = validate()?.containsError()?.let { !it } ?: true
+}
+
+class ExecutionMode { // Do not make class open!
+    private var validateMode: Warning? = null
+
+    val warnings: Warning?
+        get() = validateMode
+
+    val isValidate: Boolean
+        get() = validateMode != null
+
+    val isExecute: Boolean
+        get() = validateMode == null
+
+    fun setValidate(simulationName: String) {
+        validateMode = Warning("Validate multiple ModelSteps ($simulationName):", false)
+    }
+
+    fun setExecute() {
+        validateMode = null
+    }
 }
 
 interface RepositoryDependentStep : ModelStep {
@@ -135,134 +183,6 @@ abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable
     override fun verifyInput(): Warning? = ValidateCsvMetadata(this@AddCsvStep, resource).validate()
 }
 
-/**
- * A FilterStep is a [ModelStep] that filters the elements of a given [MutableRepository]
- * using a given predicate.
- * This removes elements from the repository if applying the predicates evaluates to false.
- *
- * @param E the generic type of entities to be filtered
- * @param I the generic id type of entities
- */
-abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
-
-    override fun execute() {
-        repository.filterElements(name, this::check)
-    }
-
-    abstract fun check(element: E): Boolean
-}
-
-/**
- * A FilterIdsStep is a [ModelStep] that filters the elements of a given [MutableRepository] by id
- * using a given predicate.
- * This removes elements from the repository if applying the predicates evaluates to false.
- *
- * @param E the generic type of entities
- * @param I the generic id type of entities to be filtered
- */
-abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
-
-    override fun execute() {
-        repository.filterIds(name, this::check)
-    }
-
-    abstract fun check(id: I): Boolean
-}
-
-/**
- * An [UpdateStep] is a [ModelStep] used to modify / update the internal state of elements in a given repository
- * by applying an action to each element in the repository. This action may alter state variables of the element.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- */
-abstract class UpdateStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
-
-    override fun execute() {
-        repository.updateEach(name, this::update)
-    }
-
-    abstract fun update(element: E)
-}
-
-/**
- * An [TransformStep] is a [ModelStep] used to modify / update elements in a given repository
- * by applying a transformation (mapping) to each element in the repository.
- * The transformation might evaluate to null, which removes the element from the repository.
- *
- * Unlike [TransformAllStep] where the new elements are computed from data of all current elements in the repository,
- * [TransformStep] maps each current element to a new element or null.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- */
-abstract class TransformStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
-
-    override fun execute() {
-        repository.transformEach(name, this::transform)
-    }
-
-    abstract fun transform(element: E): E?
-}
-
-/**
- * [TransformAllStep] is a [ModelStep] that replaces all elements of a repository by new / derived elements.
- *
- * Unlike [TransformStep] where each current element is mapped to a new element or null,
- * [TransformAllStep] computes the new elements from data of all current elements in the repository.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @property repository the repository in which all elements should be updated
- */
-abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
-
-    override fun execute() {
-        repository.transformAll(name, this::transformAll)
-    }
-
-    abstract fun transformAll(elements: Collection<E>): Collection<E>
-}
-
-abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
-    abstract override val repository: Repository<E, I>
-
-    override fun execute() {
-        repository.elements.forEach {
-            process(it)
-        }
-    }
-
-    abstract fun process(element: E)
-}
-
-/**
- * A SealStep is a [ModelStep] that seals the given repository denying any future modification.
- *
- * @param E the generic type of entities to be built
- * @param I the generic id type of entities
- * @property repository the repository to be built
- */
-class SealStep<E, I>(
-    override val repository: MutableRepository<E, I>,
-) : MutatingStep<E, I> where E : Identifiable<I> {
-    override val name: String = "seal ${repository.name}"
-
-    override val dependentRepositories: Set<MutableRepository<*, *>> = emptySet()
-
-    override fun execute() {
-        repository.seal()
-        println("Sealed ${repository.name} repo: ${repository.size} elements. This repo can no longer be updated!")
-    }
-
-    override fun verifyInput(): Warning? = null
-
-    override fun mockBehavior(): Warning? = validateScope("Try seal ${repository.name}") {
-        repository.seal()
-        // no print, compared to execute()
-    }
-}
-
 @Suppress("LongParameterList")
 class LoadCsvStep<E, I>(
     file: File,
@@ -280,113 +200,181 @@ class LoadCsvStep<E, I>(
 }
 
 /**
- * A MultiStep is a [ModelStep] that executes multiple steps sequentially.
+ * A FilterStep is a [ModelStep] that filters the elements of a given [MutableRepository]
+ * using a given predicate.
+ * This removes elements from the repository if applying the predicates evaluates to false.
  *
- * @param steps the steps to be executed (in order of execution)
- * @property name the name of the multi step
+ * @param E the generic type of entities to be filtered
+ * @param I the generic id type of entities
  */
-open class MultiStep(
-    override val name: String,
-    vararg steps: ModelStep,
-) : ModelStep {
-    private val steps = steps.toMutableList()
+abstract class FilterStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
-    /**
-     * Add the given step as new last step of the execution order.
-     *
-     * @param step the step to added to this [MultiStep]
-     */
-    fun addStep(step: ModelStep) {
-        steps.add(step)
+    override fun execute() {
+        repository.filterElements(name, this::check)
     }
-
-    override fun execute() = steps.forEach {
-        println("\nRun ${it.name}")
-        logTime("    ${it.name}") {
-            it.execute()
-        }
-    }
-
-    override fun validate(validationPrefix: Warning.() -> Unit) = validateScope(
-        "Validate multiple ModelSteps ($name):"
-    ) {
-        validationPrefix()
-
-        val captor = ConsoleCaptor()
-
-        steps.forEach {
-            it.validate()?.also { warning ->
-                if (warning.containsError()) {
-                    warning.addChild("${it::class.simpleName} '${it.name}' is invalid!", true)
-                }
-                this.addChild(warning)
-            }
-        }
-
-        captor.getText()
-    }?.also {
-        it.printTree()
-    }
-
-    override fun verifyInput(): Warning? =
-        throw UnsupportedOperationException("MultiStep.verifyInput should not be called!")
-
-    override fun mockBehavior(): Warning? =
-        throw UnsupportedOperationException("MultiStep.mockBehavior should not be called!")
+    abstract fun check(element: E): Boolean
 }
 
 /**
- * ModelExecution is a [MultiStep] holding a context object.
- * This can be used e.g. to define the steps of a simulation.
+ * A FilterIdsStep is a [ModelStep] that filters the elements of a given [MutableRepository] by id
+ * using a given predicate.
+ * This removes elements from the repository if applying the predicates evaluates to false.
  *
- * @param C the generic context type
- * @property context the context object for
+ * @param E the generic type of entities
+ * @param I the generic id type of entities to be filtered
  */
-class ModelExecution<C>(
-    val context: C,
-) : MultiStep(context.scenarioName) where C : Context
+abstract class FilterIdsStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.filterIds(name, this::check)
+    }
+    abstract fun check(id: I): Boolean
+}
 
 /**
- * Run allows to specify a simulation configuration in readable kotlin dsl.
- * Users can define a context object and model steps.
- * When executed, all specified [ModelStep]s are validated first.
+ * An [UpdateEachStep] is a [ModelStep] used to modify / update the internal state of elements in a given repository
+ * by applying an action to each element in the repository. This action may alter state variables of the element.
  *
- * @param C the generic context type
- * @property contextFactory a factory to create new context objects
+ *  Unlike [UpdateAllStep] where all current elements in the repository
+ *  are passed as a collection to the [UpdateAllStep.updateAll] function,
+ *  [UpdateEachStep] applies the [update] function to each element individually.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which each element should be updated
  */
-class Run<C>(private val contextFactory: () -> C) where C : Context {
+abstract class UpdateEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
-    /**
-     * Steps
-     *
-     * @param lambda a function executed on the model
-     *      execution object which defines / adds the steps to the [ModelExecution]
-     * @return the context
-     */
-    fun steps(lambda: ModelExecution<C>.() -> Unit): C {
-        println("Validate before run!")
+    override fun execute() {
+        repository.updateEach(name, this::update)
+    }
+    abstract fun update(element: E)
+}
 
-        if (validate(lambda)) {
-            println("\nExecute")
+/**
+ * An [UpdateAllStep] is a [ModelStep] used to modify / update the internal state of all elements in a given repository
+ * by processing all elements in the repository at once. This action may alter state variables of all elements.
+ * This can be used if the stat update of the elements are not isolated but interdependent.
+ *
+ *  Unlike [UpdateEachStep] where the action is applied to each element individually,
+ *  [UpdateAllStep] passes all current elements in the repository as a collection to the [updateAll] function.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be updated
+ */
+abstract class UpdateAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
 
-            val simulation = ModelExecution(context = contextFactory())
-            logTime("    Execution") {
-                simulation.lambda()
-                simulation.execute()
-            }
+    override fun execute() {
+        repository.updateAll(name, this::updateAll)
+    }
+    abstract fun updateAll(element: Collection<E>)
+}
 
-            return simulation.context
-        } else {
-            error("validation failed")
+/**
+ * An [TransformEachStep] is a [ModelStep] used to modify / update elements in a given repository
+ * by applying a transformation (mapping) to each element in the repository.
+ * The transformation might evaluate to null, which removes the element from the repository.
+ *
+ * Unlike [TransformAllStep] where the new elements are computed from data of all current elements in the repository,
+ * [TransformEachStep] maps each current element to a new element or null.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which each element should be transformed
+ */
+abstract class TransformEachStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.transformEach(name, this::transform)
+    }
+    abstract fun transform(element: E): E?
+}
+
+/**
+ * [TransformAllStep] is a [ModelStep] that replaces all elements of a repository by new / derived elements.
+ *
+ * Unlike [TransformEachStep] where each current element is mapped to a new element or null,
+ * [TransformAllStep] computes the new elements from data of all current elements in the repository.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be transformed
+ */
+abstract class TransformAllStep<E, I> : MutatingStep<E, I>, SameValidationBehavior where E : Identifiable<I> {
+
+    override fun execute() {
+        repository.transformAll(name, this::transformAll)
+    }
+    abstract fun transformAll(elements: Collection<E>): Collection<E>
+}
+
+/**
+ * [ForEachStep] is a [ModelStep] that applies a (non mutating) action to each element of the [repository].
+ *
+ * Unlike [ForAllStep] where all current elements of the [repository]
+ * are passed as a collection to the [ForAllStep.processAll] action,
+ * [ForEachStep] applies the [process] action to each current element individually.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which each element should be processed
+ */
+abstract class ForEachStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+
+    abstract override val repository: Repository<E, I>
+
+    override fun execute() {
+        repository.elements.forEach {
+            process(it)
         }
     }
+    abstract fun process(element: E)
+}
 
-    private fun validate(lambda: ModelExecution<C>.() -> Unit) = logTime("    Validation") {
-        muteProgressBars()
-        val validation = ModelExecution(context = contextFactory())
-        validation.lambda()
-        validation.validate().also {
-            unmuteProgressBars()
-        }
-    }?.containsError()?.let { !it } ?: true
+/**
+ * [ForAllStep] is a [ModelStep] that applies a (non mutating) action to all element of the [repository].
+ *
+ * Unlike [ForEachStep] where the action is applied to each current element individually,
+ * [ForAllStep] passes all current elements of the [repository] as a collection to the [processAll] action.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository in which all elements should be processed
+ */
+abstract class ForAllStep<E, I> : SameValidationBehavior, RepositoryDependentStep where E : Identifiable<I> {
+
+    abstract override val repository: Repository<E, I>
+
+    override fun execute() {
+        processAll(repository.elements.toList())
+    }
+    abstract fun processAll(element: Collection<E>)
+}
+
+/**
+ * A SealStep is a [ModelStep] that seals the given repository denying any future modification.
+ *
+ * @param E the generic type of entities to be built
+ * @param I the generic id type of entities
+ * @property repository the repository to be built
+ */
+class SealStep<E, I>(
+    override val repository: MutableRepository<E, I>,
+) : MutatingStep<E, I> where E : Identifiable<I> {
+
+    override val name: String = "seal ${repository.name}"
+
+    override val dependentRepositories: Set<MutableRepository<*, *>> = emptySet()
+
+    override fun execute() {
+        repository.seal()
+        println("Sealed ${repository.name} repo: ${repository.size} elements. This repo can no longer be updated!")
+    }
+
+    override fun verifyInput(): Warning? = null
+    override fun mockBehavior(): Warning? = validateScope("Try seal ${repository.name}") {
+        repository.seal()
+        // no print, compared to execute()
+    }
 }

@@ -27,6 +27,7 @@ import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
+import modeling.steps.ExecutionMode
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
 import modeling.steps.SimulationContext
@@ -35,6 +36,7 @@ import units.DistanceUnit
 import usecases.AttractivenessModel
 import usecases.LegacyActivityType
 import usecases.LegacyMode
+import usecases.steps.legacyData.HomeLocationModelContext
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
@@ -70,7 +72,6 @@ data class ProjectContext(
     override val simulationStart: AbsoluteTime = AbsoluteTime.START,
     override val simulationEnd: AbsoluteTime = AbsoluteTime.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
-
 ) : Context,
     LoadAttractivenessDataContext,
     LoadZonesContext,
@@ -86,7 +87,9 @@ data class ProjectContext(
     RunSimContext,
     WriteTripsCsvContext,
     SimulationContext,
-    RoadNetworkContext {
+    RoadNetworkContext,
+    HomeLocationModelContext {
+    override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
     override val roadNetwork = LateInit<LocatableGraph>("Road Network Graph")

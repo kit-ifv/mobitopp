@@ -1,0 +1,69 @@
+[versions]
+kotlin = "2.0.10"
+ksp = "2.0.10-1.0.24"
+kotlinpoet = "2.0.0"
+kotlin-compile-testing-ksp = "1.5.0"
+detekt = "1.23.7"
+junit = "5.11.4"
+kover = "0.9.1"
+kandy = "0.8.0"
+# kotlinx libs
+kotlinx-coroutines = "1.10.1"
+kotlinx-serialization = "1.8.0"
+kotlin-statistics = "0.2.1"
+# other libs
+snakeyaml = "2.2"
+commons-compress = "1.26.2"
+xz = "1.9"
+progressbar = "0.10.1"
+exp4j = "0.4.8"
+# ifv units
+ifv-units= "1.1.6"
+ifv-visum-netparser = "0.9.13"
+ifv-actitopp = "1.9+"
+
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+
+
+[libraries]
+# ifv libs
+ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
+ifv-visum-netparser = { module = "edu.kit.ifv:visumNetfileParser", version.ref = "ifv-visum-netparser" }
+ifv-actitopp = { module = "edu.kit.ifv.mobitopp:actitopp", version.ref = "ifv-actitopp" }
+
+# testing libs
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+kotlin-compile-testing-ksp = { module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version.ref = "kotlin-compile-testing-ksp" }
+
+# annotation processing libs
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+
+# kandy libs
+kandy-lets-plot = { module = "org.jetbrains.kotlinx:kandy-lets-plot", version.ref = "kandy" }
+kandy-util = { module = "org.jetbrains.kotlinx:kandy-util", version.ref = "kandy" }
+kandy-api = { module = "org.jetbrains.kotlinx:kandy-api", version.ref = "kandy" }
+
+# detekt libs
+detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
+
+# kotlinx libs
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-statistics = { module = "org.jetbrains.kotlinx:kotlin-statistics-jvm", version.ref = "kotlin-statistics" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
+
+# other libs
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commons-compress" }
+xz = { module = "org.tukaani:xz", version.ref = "xz" }
+progressbar = { module = "me.tongfei:progressbar", version.ref = "progressbar" }
+exp4j = { module = "net.objecthunter:exp4j", version.ref = "exp4j" }
