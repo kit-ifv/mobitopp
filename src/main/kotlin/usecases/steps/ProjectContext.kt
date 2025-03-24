@@ -20,9 +20,9 @@ import domain.data.Sex
 import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import domain.enums.AreaType
 import domain.enums.Mode
-import domain.enums.Regiostar17
+import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.RegionType
 import domain.events.PersonBehavior
 import domain.location.Metrics
 import domain.roadnetwork.LocatableGraph
@@ -36,6 +36,7 @@ import units.DistanceUnit
 import usecases.AttractivenessModel
 import usecases.LegacyActivityType
 import usecases.LegacyMode
+import usecases.steps.legacyData.HomeLocationModelContext
 import usecases.steps.legacyData.LoadHouseholdContext
 import usecases.steps.legacyData.LoadPrivateCarsContext
 import usecases.steps.legacyData.LoadZonesContext
@@ -51,7 +52,7 @@ data class ProjectContext(
     override val scenarioName: String,
     override val demandFolder: File,
 
-    override val areaTypeCodes: CodePlan<AreaType> = Regiostar17,
+    override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus,
     override val sexCodes: CodePlan<Sex> = Sex,
     override val graduationCodes: CodePlan<Graduation> = Graduation,
@@ -86,7 +87,8 @@ data class ProjectContext(
     RunSimContext,
     WriteTripsCsvContext,
     SimulationContext,
-    RoadNetworkContext {
+    RoadNetworkContext,
+    HomeLocationModelContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")

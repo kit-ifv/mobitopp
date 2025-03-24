@@ -10,9 +10,11 @@ import utils.units.weeks
 import kotlin.io.path.Path
 
 class EncodableString(private val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
-    override fun encode(): Int {
-        error("Not implemented")
-    }
+    override val code: Int
+        get() = error("Not implemented")
+
+    override val description: String
+        get() = s
 }
 
 class YamlMultiMatrixTest {

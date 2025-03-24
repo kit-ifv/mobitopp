@@ -1,21 +1,24 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import modeling.steps.Run
+import synthesis.AssignAroundZoneCentroid
+import units.meters
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignHomeLocations
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
+import usecases.steps.legacyData.householdHomeLocation
 import usecases.steps.legacyData.loadZones
 import usecases.steps.legacyData.prepareHouseholds
 import usecases.steps.legacyData.preparePrivateCars
@@ -64,7 +67,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Regiostar17,
+            regionTypeCodes = RegioStaR17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
@@ -77,6 +80,10 @@ fun main() {
         val filter = scaleFilter<Row>(0.1.share())
         prepareHouseholds(
             filter = { filter(it) }
+        )
+
+        householdHomeLocation(
+            AssignAroundZoneCentroid(50.meters)
         )
 
 //        scalePopulation(0.1.share())
@@ -112,7 +119,7 @@ fun main() {
         )
 
         loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
-        assignHomeLocations()
+        applyHomeLocationsInSchedule()
         assignFixedDestinations()
         simulate()
     }

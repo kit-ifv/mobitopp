@@ -16,6 +16,7 @@ import synthesis.fixedDestinations.SimpleGroupLocator
 import synthesis.fixedDestinations.UseClosestLocation
 import synthesis.householdgeneration.TrivialSynthesis
 import units.euros
+import units.meters
 import usecases.LegacyActivityType
 import kotlin.io.path.Path
 import kotlin.test.Test
@@ -112,7 +113,7 @@ class PopulationSynthesisKtTest {
             assertFalse(hh2.locationIsAssigned())
             assertFalse(hh3.locationIsAssigned())
             assignLocations {
-                AssignAroundZoneCentroid(100.0)
+                AssignAroundZoneCentroid(100.meters)
             }
             assertEquals(hh1.location.requireZone(), TEST_ZONE)
             assertEquals(hh2.location.requireZone(), TEST_ZONE)

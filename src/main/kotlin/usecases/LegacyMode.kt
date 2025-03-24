@@ -9,7 +9,7 @@ import utils.CodePlan
  *
  * @property code integer code of the mode
  */
-enum class LegacyMode(private val code: Int, private val isFixed: Boolean = false) : Mode {
+enum class LegacyMode(override val code: Int, private val isFixed: Boolean = false) : Mode {
     UNDEFINED(-2),
     UNKNOWN(-1),
     BIKE(0, true),
@@ -30,9 +30,7 @@ enum class LegacyMode(private val code: Int, private val isFixed: Boolean = fals
     PREMIUM_RIDE_HAILING(23),
     ;
 
-    override fun encode(): Int {
-        return this.code
-    }
+    override val description = name
 
     companion object : CodePlan<LegacyMode> {
         override fun decode(i: Int) = entries.first { it.code == i }

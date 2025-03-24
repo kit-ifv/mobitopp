@@ -52,7 +52,7 @@ interface LoadPersonsContext : Context {
         row: Row,
         householdColumn: String
     ) = requireNotNull(
-        householdRepository.getById(row.id(householdColumn))
+        householdRepository[row.id(householdColumn)]
     ) {
         "Referenced household id ${row(householdColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"

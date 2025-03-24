@@ -16,11 +16,11 @@ import domain.data.PersonId
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
 import domain.enums.Mode
-import domain.enums.Regiostar17
-import domain.enums.ZoneAreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.RegionType
+import domain.enums.areatype.ZoneRegionType
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric
@@ -58,7 +58,7 @@ class TestZone(
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "HomeZone",
-    regionType: AreaType = ZoneAreaType.DEFAULT,
+    regionType: RegionType = ZoneRegionType.DEFAULT,
 
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
@@ -72,7 +72,7 @@ class TestZone(
     {
         this.visumId = visumId
         this.name = name
-        this.regionType = Regiostar17.METROPOLE
+        this.regionType = RegioStaR17.METROPOLE
         this.classification = classification
         this.parkingPlaces = parkingPlaces
         this.relief = relief

@@ -27,16 +27,11 @@ import synthesis.SynthesisCar
 import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.activityGeneration.generateActivitiesViaActitopp
-import synthesis.carownership.AssignViaRegionType
 import synthesis.carownership.CarOwnershipAssignStrategy
+import synthesis.carownership.standardAssignmentByRegionSize
 import synthesis.discreteChoice.TicketSituation
 import synthesis.discreteChoice.TransitPassParameters
 import synthesis.discreteChoice.YesTransitPass
-import synthesis.discreteChoice.carChoiceModel
-import synthesis.discreteChoice.carOwnershipCityParameters
-import synthesis.discreteChoice.carOwnershipRuralArea
-import synthesis.discreteChoice.carOwnershipSmallCity
-import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
 import synthesis.discreteChoice.transitPassChoiceModel
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
@@ -56,6 +51,7 @@ import synthesis.randomCoordinate
 import synthesis.toSurveyHouseholds
 import units.CurrencyUnit
 import units.kilometers
+import units.meters
 import units.toCurrency
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
@@ -156,7 +152,7 @@ class SynthesisSteps<T : Any>(
     }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<in T>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<SynthesisHousehold<out T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -166,7 +162,7 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<in T>) {
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<SynthesisHousehold<out T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
@@ -335,7 +331,7 @@ fun examplePopulationSynthesis() {
             }
         }
         assignLocations {
-            AssignAroundZoneCentroid(100.0)
+            AssignAroundZoneCentroid(100.meters)
         }
 
         assignEconomicStatus {
@@ -345,13 +341,7 @@ fun examplePopulationSynthesis() {
         }
 
         assignAmountOfCars {
-            AssignViaRegionType.create {
-                model = carChoiceModel
-                cityParameters = carOwnershipCityParameters
-                smallTownParameters = carOwnershipSmallCity
-                urbanAreaParameters = carOwnershipUrbanAreaParameters
-                ruralAreaParameters = carOwnershipRuralArea
-            }
+            standardAssignmentByRegionSize
         }
 
         assignTransitCardOwnership {
@@ -422,5 +412,5 @@ private fun Collection<Zone>.generateLocations(
 
 @Suppress("MagicNumber") // These magic numbers are ok
 private fun Zone.generateLocations(amount: Int): List<Location> {
-    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.0), this, null) }
+    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters), this, null) }
 }
