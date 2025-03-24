@@ -3,6 +3,7 @@ import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
+import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import modeling.discreteChoice.KnownDiscreteChoiceModel
 import synthesis.ActivityOutput
@@ -113,23 +114,23 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
     }
 }
 
-class SynthesisSteps<T : Any>(
-    val zones: List<Zone>,
+class SynthesisSteps<AREA, T : Any>(
+    val zones: List<AREA>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>
 ) {
 
-    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
+    lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     val activities = listOf<Activity>() // TODO currently there is no generation of activities.
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
-    fun assignFixedDestinations(lambda: AssignStepBuilder<T>.() -> Unit) {
-        val stepBuilder = AssignStepBuilder<T>(zones, attractivenessModel)
+    fun assignFixedDestinations(lambda: AssignStepBuilder<AREA, T>.() -> Unit) {
+        val stepBuilder = AssignStepBuilder<AREA, T>(zones, attractivenessModel)
         stepBuilder.apply(lambda)
         val allFixedDestinations = stepBuilder.steps.flatMap { it.generateFixedDestinations(people) }
         allFixedDestinations.forEach { it.person.fixedDestinations[it.activityType] = it.location }
@@ -138,21 +139,22 @@ class SynthesisSteps<T : Any>(
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<Zone, List<Rule<Any>>>,
-        lambda: () -> HouseholdSynthesis<T>
+        randsums: Map<AREA, List<Rule<Any>>>,
+        lambda: () -> HouseholdSynthesis<AREA, T>
     ) {
         val generator = lambda()
-        require(randsums.keys.all { it in zones }) {
-            "Zone Ids: ${
-                randsums.keys.filter { it !in zones }.map { it.id }
-            } requested by the marginal sums are not found" +
-                "in the configuration. The program will terminate"
-        }
+        //TODO reenable
+//        require(randsums.keys.all { it in zones }) {
+//            "Zone Ids: ${
+//                randsums.keys.filter { it !in zones }.map { it.id }
+//            } requested by the marginal sums are not found" +
+//                "in the configuration. The program will terminate"
+//        }
         householdsByZone = generator.synthesize(surveyHouseholds, randsums)
     }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<SynthesisHousehold<out T>>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<AREA, SynthesisHousehold<out T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -162,7 +164,7 @@ class SynthesisSteps<T : Any>(
         }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<SynthesisHousehold<out T>>) {
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<in AREA, SynthesisHousehold<out T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
@@ -203,33 +205,34 @@ class SynthesisSteps<T : Any>(
     }
 }
 
-class PopulationSynthesis<T : Any>(
+class PopulationSynthesis<AREA, T : Any>(
     private val outputDirectory: Path,
-    val zones: List<Zone>,
+    val zones: List<AREA>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val rules: List<Rule<Any>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
+    fun execute(lambda: SynthesisSteps<AREA, T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
 
     fun generateLocations(
         activityType: ActivityType,
         amount: Int = 10,
-        generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
+        generationFunction: (AREA, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
     ): List<Location> {
-        val generatedLocations = zones.generateLocations(attractivenessModel, activityType, generationFunction)
+        // TODO reenable generation and put more thought into how the locations are generated.
+        val generatedLocations = zones.map { LOCATIONUNKNOWN}
         opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
         return generatedLocations
     }
 
     companion object {
-        class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
+        class SynthesisConfiguration<AREA, T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
-            lateinit var zones: List<Zone>
+            lateinit var zones: List<AREA>
             lateinit var rules: List<Rule<Any>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
@@ -253,15 +256,16 @@ class PopulationSynthesis<T : Any>(
             }
         }
 
-        fun <T : Any> configure(
+        fun <AREA, T : Any> configure(
             surveyPopulation: GenerateArtificialPopulation<T>,
-            lambda: SynthesisConfiguration<T>.() -> Unit
-        ): PopulationSynthesis<T> {
-            val config = SynthesisConfiguration(surveyPopulation).apply(lambda)
+            zones: List<AREA>,
+            lambda: SynthesisConfiguration<AREA, T>.() -> Unit
+        ): PopulationSynthesis<AREA, T> {
+            val config = SynthesisConfiguration<AREA, T>(surveyPopulation).apply(lambda)
 
             return PopulationSynthesis(
                 config.outputDirectory,
-                config.zones,
+                zones,
                 config.surveyHouseholds,
                 config.rules,
                 config.attractivenessModel,
@@ -288,11 +292,11 @@ private val attractivenessModelPath = Path("src/test/resources/synthesis/attract
 ) // I agree that the method is long, but right now I don't know how to simplify without breaking the read flow
 fun examplePopulationSynthesis() {
     val populationSynthesis = PopulationSynthesis.configure(
-        surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv")
-
+        surveyPopulation = GenerateArtificialPopulation.fromFile("src/test/resources/synthesis/SurveyPopulation.csv"),
+                zones = emptyList<Zone>()
     ) {
         outputDirectory = Path("src/test/resources/tempOutput")
-        zones = emptyList()
+
         //        zones = defaultZoneCsvParser(regionTypeCodePlan = Regiostar17).parse("src/test/resources/synthesis/zones.csv")
 //            .toList()
 //            .map { it.build() }
@@ -386,7 +390,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<out SurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<out Any, out SurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

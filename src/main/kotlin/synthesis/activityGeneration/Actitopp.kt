@@ -68,7 +68,7 @@ val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it
 val SynthesisHousehold<out SurveyInfo>.numberOfYouths get() = members.count { it.age in 10..<18 }
 
 @Suppress("MagicNumber") // 1234 is the default number from actitopp example
-fun SynthesisSteps<out SurveyInfo>.generateActivitiesViaActitopp() {
+fun <AREA> SynthesisSteps<AREA, out SurveyInfo>.generateActivitiesViaActitopp() {
     val fileBase = ModelFileBase()
     val randomgenerator = RNGHelper(1234)
     val schedules = people.map {
