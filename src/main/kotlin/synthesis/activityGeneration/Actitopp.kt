@@ -30,8 +30,8 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(household: ActiToppHousehol
         number,
         personId,
         age,
-        employment.encode(),
-        sex.encode()
+        employment.code,
+        sex.code
 
     )
     household.addHouseholdmember(person, number)
@@ -45,8 +45,8 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(): ActitoppPerson {
         0,
         0,
         age,
-        employment.encode(),
-        sex.encode(),
+        employment.code,
+        sex.code,
         -1
     )
 }
@@ -56,7 +56,7 @@ fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold 
         id,
         numberOfChilds,
         numberOfYouths,
-        location.requireZone().regionType.encode(),
+        location.requireZone().regionType.code,
         amountOfCars
     )
     return hh

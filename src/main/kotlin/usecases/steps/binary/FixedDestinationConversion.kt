@@ -52,7 +52,7 @@ class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
     private fun DataOutputStream.encodeElement(act: ActivityLocation) {
         act.run {
             writeLong(person.id.value) //  8 Bytes
-            writeInt(activityType.encode()) // 12 Bytes
+            writeInt(activityType.code) // 12 Bytes
             writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
             writeLocation(location) // 60 Bytes
 

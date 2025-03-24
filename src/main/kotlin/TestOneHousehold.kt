@@ -1,5 +1,5 @@
 import domain.data.EconomicStatus
-import domain.enums.Bbsr17
+import domain.enums.areatype.Bbsr17
 import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
@@ -29,7 +29,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
+            regionTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
