@@ -18,9 +18,9 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.Mode
 import domain.enums.ZoneClassification
-import domain.enums.areatype.AreaType
 import domain.enums.areatype.RegioStaR17
-import domain.enums.areatype.ZoneAreaType
+import domain.enums.areatype.RegionType
+import domain.enums.areatype.ZoneRegionType
 import domain.location.CostMetric
 import domain.location.DistanceMetric
 import domain.location.DurationMetric
@@ -58,7 +58,7 @@ class TestZone(
     visumId: Long = 1L,
     matrixColumn: Int = 0,
     name: String = "HomeZone",
-    regionType: AreaType = ZoneAreaType.DEFAULT,
+    regionType: RegionType = ZoneRegionType.DEFAULT,
 
     classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,

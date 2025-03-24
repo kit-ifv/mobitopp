@@ -4,7 +4,7 @@ import domain.data.MutableLegacyZone
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ZoneClassification
-import domain.enums.areatype.AreaType
+import domain.enums.areatype.RegionType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import units.DistanceUnit
@@ -15,7 +15,10 @@ import java.nio.MappedByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
+class BinaryZoneReader(
+    val seed: Long,
+    private val regionCode: Decodable<RegionType>
+) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         return path.operateOnMemoryFile {
             val size = this.getInt(0)

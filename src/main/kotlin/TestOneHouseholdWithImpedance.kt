@@ -30,7 +30,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Bbsr17,
+            regionTypeCodes = Bbsr17,
             demandFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,

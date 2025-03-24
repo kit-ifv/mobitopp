@@ -2,7 +2,7 @@ package domain.data
 
 import Mutable
 import domain.enums.ZoneClassification
-import domain.enums.areatype.AreaType
+import domain.enums.areatype.RegionType
 import domain.location.Location
 import units.Distance
 import units.GPSCoordinate
@@ -42,7 +42,7 @@ abstract class Zone(
 
     abstract val visumId: Long // TODO not a general property of zone, only here because we use visum
     abstract val name: String
-    abstract val regionType: AreaType // Region type and area type are the same. RegionType is the more adequate name
+    abstract val regionType: RegionType // Region type and area type are the same. RegionType is the more adequate name
     abstract val classification: ZoneClassification
     abstract val parkingPlaces: Int
     abstract val isDestination: Boolean

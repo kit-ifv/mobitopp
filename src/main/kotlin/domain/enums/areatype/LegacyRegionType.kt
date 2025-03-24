@@ -19,7 +19,7 @@ your project. We cannot provide a default conversion for you"
  *
  * @property code integer encoding of the zone area type
  */
-enum class ZoneAreaType(override val code: Int) : AreaType {
+enum class ZoneRegionType(override val code: Int) : RegionType {
     DEFAULT(0),
     RURAL(1),
     PROVINCIAL(2),
@@ -30,7 +30,7 @@ enum class ZoneAreaType(override val code: Int) : AreaType {
     override val description: String
         get() = this.name
 
-    companion object : EnumDecodable<ZoneAreaType>(ZoneAreaType::class)
+    companion object : EnumDecodable<ZoneRegionType>(ZoneRegionType::class)
 
     override fun toRegioStaR17(): RegioStaR17 {
         return when (this) {
@@ -52,7 +52,7 @@ enum class ZoneAreaType(override val code: Int) : AreaType {
  * @property text description of Bbsr17 area type
  */
 @Suppress("EnumNaming", "EnumEntryNameCase")
-enum class Bbsr17(override val code: Int, override val description: String) : AreaType {
+enum class Bbsr17(override val code: Int, override val description: String) : RegionType {
     defaultType(0, "default"),
     largerCentralCitiesInAgglomerationAreas(1, "Larger central cities in agglomeration areas"),
     centralCitiesInAgglomerationAreas(2, "Central cities in agglomeration areas"),
