@@ -6,24 +6,21 @@ import domain.data.HouseholdId
 import domain.data.MutablePrivateCar
 import domain.data.Person
 import domain.data.PersonId
-import modeling.steps.ModelExecution
+import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
-import modeling.steps.TransformStep
+import modeling.steps.TransformEachStep
 import modeling.validation.Warning
 
 private typealias Persons = MutableSet<Person>
 private typealias UnAssignedPersons = Pair<Persons, Persons>
 
 @Suppress("LongParameterList")
-fun <S, C> S.assignCarUsers() where S : ModelExecution<C>, C : AssignCarsContext {
-    this.addStep(
-        AssignCarUserStep(context)
-    )
+fun AssignCarsContext.assignCarUsers() = runStep {
+    AssignCarUserStep(this)
 }
 
-interface AssignCarsContext {
-
+interface AssignCarsContext : Context {
     val personRepository: Repository<Person, PersonId>
     val householdRepository: Repository<Household, HouseholdId>
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
@@ -31,7 +28,7 @@ interface AssignCarsContext {
 
 class AssignCarUserStep(
     context: AssignCarsContext,
-) : TransformStep<MutablePrivateCar, CarId>() {
+) : TransformEachStep<MutablePrivateCar, CarId>() {
 
     override val name: String = "Assign cars to household members as main users."
     override val repository: MutableRepository<MutablePrivateCar, CarId> = context.carRepository

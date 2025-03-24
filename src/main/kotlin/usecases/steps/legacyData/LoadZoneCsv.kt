@@ -9,7 +9,6 @@ import domain.location.Location
 import domain.location.parseRoadPosition
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.SealStep
 import units.DistanceUnit
@@ -49,27 +48,27 @@ data class ZoneColumns(
 )
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun <S, C> S.prepareZones(
-    file: File = context.defaultZoneFile,
+fun LoadZonesContext.prepareZones(
+    file: File = defaultZoneFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
     centroidParser: (String) -> Location = String::parseRoadPosition,
     reliefUnit: DistanceUnit = DistanceUnit.METERS,
-) where S : ModelExecution<C>, C : LoadZonesContext {
+) {
     val csvParser = defaultCsvParser(
         errorHandling,
         columns,
         centroidParser,
         reliefUnit,
-        regionTypeCodePlan = context.areaTypeCodes,
-        seed = context.simulationSeed
+        regionTypeCodePlan = areaTypeCodes,
+        seed = simulationSeed
     )
 
     this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
 }
 
-@Suppress("LongParameterList") // TODO this should actually be refactored
+@Suppress("LongParameterList")
 fun defaultCsvParser(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
@@ -95,24 +94,23 @@ fun defaultCsvParser(
             relief = row.double().distance(columns.reliefColumn, reliefUnit)
         }
     }
+
     return csvParser
 }
 
-fun <S, C> S.prepareZoneFile(
+fun LoadZonesContext.prepareZoneFile(
     parser: CsvParser<MutableLegacyZone>,
-    file: File = context.defaultZoneFile,
+    file: File = defaultZoneFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadZonesContext {
-    this.addStep(
-        LoadCsvStep<MutableLegacyZone, ZoneId>(
-            file = file,
-            name = "Load zones from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.zoneRepository,
-            dependentRepositories = setOf(),
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep<MutableLegacyZone, ZoneId>(
+        file = file,
+        name = "Load zones from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = zoneRepository,
+        dependentRepositories = setOf(),
+        validationMock = listOf() // TODO
     )
 }
 
@@ -120,13 +118,13 @@ fun <S, C> S.prepareZoneFile(
 //    this.addStep(FilterStep("filter zones", context.zoneRepository) { it.visumId == 1L })
 // } //TODO
 
-fun <S, C> S.finishZones() where S : ModelExecution<C>, C : LoadZonesContext {
-    this.addStep(SealStep(context.zoneRepository))
+fun LoadZonesContext.finishZones() = runStep {
+    SealStep(zoneRepository)
 }
 
-fun <S, C> S.loadZones(
+fun LoadZonesContext.loadZones(
     errorHandling: ErrorHandling = ErrorHandling.WARNING
-) where S : ModelExecution<C>, C : LoadZonesContext {
+) {
     this.prepareZones(errorHandling = errorHandling)
 //    this.filterZones()
     this.finishZones()

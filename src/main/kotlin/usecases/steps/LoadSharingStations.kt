@@ -12,7 +12,6 @@ import domain.enums.Mode
 import domain.location.Location
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
@@ -47,15 +46,15 @@ data class StationColumns(
 private var idCounter: Long = 0L
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun <S, C> S.prepareSharingStations(
-    file: File = context.defaultSharingStationFile,
+fun LoadSharingStationsContext.prepareSharingStations(
+    file: File = defaultSharingStationFile,
     columns: StationColumns = StationColumns(),
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     providerName: String,
     mode: Mode,
     coordinateParser: (String) -> Coordinate = String::parseCoordinate,
-) where S : ModelExecution<C>, C : LoadSharingStationsContext {
+) {
     val sharingProvider = MutableSharingProvider {
         name = providerName
         this.mode = mode
@@ -70,10 +69,10 @@ fun <S, C> S.prepareSharingStations(
             uid = row(columns.uidColumn)
             name = row(columns.nameColumn)
             zonesByFoot.addAll(
-                context.prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
+                prepareZonesByFoot(row, columns.zonesByFootColumn).toMutableSet()
             )
             location = Location(
-                zone = context.getZone(row.long(columns.zoneColumn)),
+                zone = getZone(row.long(columns.zoneColumn)),
                 coordinate = coordinateParser(row(columns.coordinatesColumn)),
                 roadAccess = null
             )
@@ -88,32 +87,30 @@ fun <S, C> S.prepareSharingStations(
     this.prepareStationsFile(csvParser, file, delimiter) // TODO
 }
 
-fun <S, C> S.prepareStationsFile(
+fun LoadSharingStationsContext.prepareStationsFile(
     parser: CsvParser<MutableSharingStation>,
-    file: File = context.defaultSharingStationFile,
+    file: File = defaultSharingStationFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadSharingStationsContext {
-    this.addStep(
-        LoadCsvStep(
-            file = file,
-            name = "Load sharing stations from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.sharingStationsRepository,
-            dependentRepositories = setOf(context.zoneRepository),
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep(
+        file = file,
+        name = "Load sharing stations from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = sharingStationsRepository,
+        dependentRepositories = setOf(zoneRepository),
+        validationMock = listOf() // TODO
     )
 }
 
-fun <S, C> S.finishSharingStations() where S : ModelExecution<C>, C : LoadSharingStationsContext {
-    this.addStep(SealStep(context.sharingStationsRepository))
+fun LoadSharingStationsContext.finishSharingStations() = runStep {
+    SealStep(sharingStationsRepository)
 }
 
-fun <S, C> S.loadSharingStations(
+fun LoadSharingStationsContext.loadSharingStations(
     providerName: String,
     mode: Mode,
-) where S : ModelExecution<C>, C : LoadSharingStationsContext {
+) {
     this.prepareSharingStations(providerName = providerName, mode = mode)
     this.finishSharingStations()
 }
@@ -151,7 +148,7 @@ fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : Load
 }
 
 fun <C> C.getZone(id: Long): Zone where C : LoadSharingStationsContext = requireNotNull(
-    this.zoneRepository.getById(ZoneId(id)) ?: zoneColumnIndex[id.toInt()]
+    this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +
         " ${zoneRepository.elements.map { it.id }.toList()}"

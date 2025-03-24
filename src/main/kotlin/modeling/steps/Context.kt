@@ -17,11 +17,12 @@ import kotlin.time.DurationUnit
  * Think carefully about what you put in here!
  */
 interface Context {
+    val execMode: ExecutionMode
+
     val scenarioName: String
 
     // TODO question: Is demand folder actually part of the minimal context?
     val demandFolder: File
-
     val simulationSeed: Long
     val modes: CodePlan<Mode>
 
@@ -31,6 +32,12 @@ interface Context {
     val timeUnit: DurationUnit
     val costUnit: CurrencyUnit
     val distanceUnit: DistanceUnit
+
+    fun runStep(createStep: () -> ModelStep) = runStepObject(createStep())
+
+    fun runStepObject(step: ModelStep) {
+        step.run(execMode)
+    }
 }
 
 interface SimulationContext : Context {
@@ -41,7 +48,7 @@ interface SimulationContext : Context {
     val behavior: LateInit<PersonBehavior>
 }
 
-class LateInit<T>(
+class LateInit<T>( // TODO can we get rid of lateinit? after validation execMode refactoring?
     val name: String,
 ) {
     private var _value: T? = null

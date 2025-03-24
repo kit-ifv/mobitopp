@@ -3,27 +3,31 @@
 import domain.data.EconomicStatus
 import domain.enums.areatype.Regiostar17
 import modeling.steps.Run
+import synthesis.AssignAroundZoneCentroid
+import units.meters
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
 import usecases.steps.ProjectContext
+import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignHomeLocations
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
+import usecases.steps.finishPersons
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
+import usecases.steps.legacyData.householdHomeLocation
 import usecases.steps.legacyData.loadZones
 import usecases.steps.legacyData.prepareHouseholds
 import usecases.steps.legacyData.preparePrivateCars
 import usecases.steps.loadAttractivities
 import usecases.steps.loadChoiceModels
 import usecases.steps.loadImpedance
-import usecases.steps.loadPersons
 import usecases.steps.loadVisumNetwork
 import usecases.steps.prepareActivities
+import usecases.steps.preparePersons
 import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
@@ -78,20 +82,27 @@ fun main() {
             filter = { filter(it) }
         )
 
+        householdHomeLocation(
+            AssignAroundZoneCentroid(50.meters)
+        )
+
 //        scalePopulation(0.1.share())
         finishHouseholds()
 
-        loadPersons()
+        preparePersons()
+
         preparePrivateCars() // file = File("example/car.csv"))
         assignCarUsers()
         finishPrivateCars()
-        prepareActivities(errorHandling = ErrorHandling.WARNING)
-        finishActivities()
 
+        prepareActivities(errorHandling = ErrorHandling.WARNING)
         assignPlannedActivities()
 
+        finishActivities()
+        finishPersons()
+
         loadAttractivities(
-            file = File("$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
+            file = File("data/attractivities.csv"), // "$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
             purposes = legacyChoiceModelPurposes,
         )
 
@@ -108,7 +119,7 @@ fun main() {
         )
 
         loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
-        assignHomeLocations()
+        applyHomeLocationsInSchedule()
         assignFixedDestinations()
         simulate()
     }

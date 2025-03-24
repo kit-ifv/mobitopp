@@ -36,16 +36,14 @@ class ModelStepTest {
     private lateinit var filterStep: FilterStep<TestEntity, TestId>
     private lateinit var filterIdsStep: FilterIdsStep<TestEntity, TestId>
 
-    private lateinit var updateStep: UpdateStep<TestEntity, TestId>
-    private lateinit var transformStep: TransformStep<TestEntity, TestId>
+    private lateinit var updateEachStep: UpdateEachStep<TestEntity, TestId>
+    private lateinit var transformEachStep: TransformEachStep<TestEntity, TestId>
     private lateinit var transformAllStep: TransformAllStep<TestEntity, TestId>
 
     private lateinit var forEachStep: ForEachStep<ImmutableEntity, TestId>
     private lateinit var resultList: MutableList<String>
 
     private lateinit var sealStep: SealStep<TestEntity, TestId>
-
-    private lateinit var multiStep: MultiStep
 
     private val csvFile = File("src/test/resources/test_data.csv")
 
@@ -69,19 +67,13 @@ class ModelStepTest {
 
         filterStep = filterStep("test_filter", ::filterOddIndex, repository)
         filterIdsStep = filterIdStep("test_filter_ids", ::filterOddId, repository)
-        updateStep = updateStep("test_update", ::updateIntAttToStringLength, repository)
-        transformStep = transformStep("test_transform", ::transformOddIdSquared, repository)
+        updateEachStep = updateStep("test_update", ::updateIntAttToStringLength, repository)
+        transformEachStep = transformStep("test_transform", ::transformOddIdSquared, repository)
         transformAllStep = transformAllStep("test_transform_all", ::transformAllCumSumStringLength, repository)
 
         resultList = mutableListOf()
         forEachStep = forEachStep("test_for_each", collectStringsInList(resultList), readOnlyRepository)
         sealStep = SealStep(repository)
-
-        multiStep = MultiStep(
-            name = "TestMultiStep",
-            customValidationStep(repository, name = "SubStep1"),
-            customValidationStep(repository, name = "SubStep2")
-        )
     }
 
     @Test
@@ -139,18 +131,18 @@ class ModelStepTest {
     fun updateIntAttributeToStringLength() {
         initRepositoryForTest()
 
-        updateStep.execute()
+        updateEachStep.execute()
         assertRepoContainsElements(expectedElementsMappedStringLength)
-        assertRepoSource(resource, "update each element:", updateStep)
+        assertRepoSource(resource, "update each element:", updateEachStep)
     }
 
     @Test
     fun transformOddIdSquared() {
         initRepositoryForTest()
 
-        transformStep.execute()
+        transformEachStep.execute()
         assertRepoContainsElements(transformedOddIdSquared)
-        assertRepoSource(resource, "replace each element:", transformStep)
+        assertRepoSource(resource, "replace each element:", transformEachStep)
 
         resource.elements.forEach {
             assertNotContains(repository.elements.toList(), it)
@@ -272,45 +264,6 @@ class ModelStepTest {
 
         assertContains(validationText, "test_repo was sealed")
         assertContains(validationText, "load test_data.csv")
-    }
-
-    @Test
-    fun executeMultiStep() {
-        val captor = ConsoleCaptor()
-        multiStep.execute()
-        val consoleText = captor.getText()
-
-        assertRepoContainsElements(
-            expected = listOf(
-                TestEntity(0, string = "execute_dummy"),
-                TestEntity(1, string = "execute_dummy")
-            )
-        )
-
-        assertContains(consoleText, "Run SubStep1")
-        assertContains(consoleText, "Run SubStep2")
-    }
-
-    @Test
-    fun validateMultistep() {
-        val captor = ConsoleCaptor()
-        val warning = multiStep.validate()
-        val consoleText = captor.getText()
-
-        assertNotNull(warning)
-
-        assertContains(consoleText, multiStep.name)
-        assertContains(consoleText, "SubStep1_Warning")
-        assertContains(consoleText, "SubStep2_Warning")
-        assertContains(consoleText, "Validate step SubStep1 produced warnings")
-        assertContains(consoleText, "Validate step SubStep2 produced warnings")
-
-        assertRepoContainsElements(
-            expected = listOf(
-                TestEntity(0, string = "mock_dummy"),
-                TestEntity(1, string = "mock_dummy")
-            )
-        )
     }
 
     @Test
@@ -466,7 +419,7 @@ private fun updateStep(
     name: String,
     update: (TestEntity) -> Unit,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : UpdateStep<TestEntity, TestId>() {
+) = object : UpdateEachStep<TestEntity, TestId>() {
     override val name = name
     override val repository: MutableRepository<TestEntity, TestId> = repository
     override fun update(element: TestEntity) = update(element)
@@ -478,7 +431,7 @@ private fun transformStep(
     name: String,
     transform: (TestEntity) -> TestEntity?,
     repository: MutableRepository<TestEntity, TestId>,
-) = object : TransformStep<TestEntity, TestId>() {
+) = object : TransformEachStep<TestEntity, TestId>() {
     override val name = name
     override val repository: MutableRepository<TestEntity, TestId> = repository
     override fun transform(element: TestEntity) = transform(element)

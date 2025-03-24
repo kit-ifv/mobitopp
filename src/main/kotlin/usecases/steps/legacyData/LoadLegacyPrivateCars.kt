@@ -12,7 +12,6 @@ import domain.data.PersonId
 import domain.data.buildEngine
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
-import modeling.steps.ModelExecution
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
@@ -43,7 +42,7 @@ interface LoadPrivateCarsContext : Context {
         row: Row,
         ownerColumn: String
     ) = requireNotNull(
-        householdRepository.getById(row.id(ownerColumn))
+        householdRepository[row.id(ownerColumn)]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"
@@ -53,7 +52,7 @@ interface LoadPrivateCarsContext : Context {
         row: Row,
         mainUserColumn: String
     ) = requireNotNull(
-        personRepository.getById(row.id(mainUserColumn))
+        personRepository[row.id(mainUserColumn)]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"
@@ -69,62 +68,56 @@ data class CarColumns(
 )
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun <S, C> S.preparePrivateCars(
-    file: File = context.defaultCarFile,
+fun LoadPrivateCarsContext.preparePrivateCars(
+    file: File = defaultCarFile,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
     carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    filter: CarColumns.(Row, C) -> Boolean = { _, _ -> true }
-) where S : ModelExecution<C>, C : LoadPrivateCarsContext {
+    filter: CarColumns.(Row, LoadPrivateCarsContext) -> Boolean = { _, _ -> true }
+) {
     val csvParser = CsvParser<MutablePrivateCar>(errorHandling) { row ->
 
         MutablePrivateCar(
             id = ID(row.index.toLong()),
-            owner = context.getOwnerHousehold(row, columns.ownerColumn)
+            owner = getOwnerHousehold(row, columns.ownerColumn)
         ) {
             seats = row.int(columns.seatsColumnIndex)
-            mainUser = context.getMainUser(row, columns.mainUserColumn)
-            segment = row.decodeName(columns.segmentColumnIndex, context.carSegmentCodes)
+            mainUser = getMainUser(row, columns.mainUserColumn)
+            segment = row.decodeName(columns.segmentColumnIndex, carSegmentCodes)
             val engineType = row(columns.engineTypeColumn, ::parseEngineType)
             engine = carEngineStatistics.buildEngine(segment, engineType)
             location = owner.location
         }
     }
 
-    this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, context) }, file, delimiter)
+    this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, this) }, file, delimiter)
 }
 
-fun <S, C> S.preparePrivateCarsFile(
+fun LoadPrivateCarsContext.preparePrivateCarsFile(
     parser: CsvParser<MutablePrivateCar>,
-    file: File = context.defaultCarFile,
+    file: File = defaultCarFile,
     delimiter: String = SEMICOLON,
-) where S : ModelExecution<C>, C : LoadPrivateCarsContext {
-    this.addStep(
-        LoadCsvStep<MutablePrivateCar, CarId>(
-            file = file,
-            name = "Load private cars from csv",
-            parser = parser,
-            delimiter = delimiter,
-            repository = context.carRepository,
-            dependentRepositories = context.let {
-                setOf(
-                    it.householdRepository,
-                    it.personRepository
-                )
-            },
-            validationMock = listOf() // TODO
-        )
+) = runStep {
+    LoadCsvStep<MutablePrivateCar, CarId>(
+        file = file,
+        name = "Load private cars from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = carRepository,
+        dependentRepositories = setOf(
+            householdRepository,
+            personRepository
+        ),
+        validationMock = listOf() // TODO
     )
 }
 
-fun <S, C> S.finishPrivateCars() where S : ModelExecution<C>, C : LoadPrivateCarsContext {
-    this.addStep(SealStep(context.carRepository))
+fun LoadPrivateCarsContext.finishPrivateCars() = runStep {
+    SealStep(carRepository)
 }
 
-fun <S, C> S.loadPrivateCars()
-    where S : ModelExecution<C>,
-          C : LoadPrivateCarsContext {
+fun LoadPrivateCarsContext.loadPrivateCars() {
     this.preparePrivateCars()
     this.finishPrivateCars()
 }
