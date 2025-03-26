@@ -22,6 +22,10 @@ import utils.csv.int
 import utils.csv.withFilter
 import utils.units.AbsoluteTime
 import java.io.File
+import kotlin.random.Random
+import kotlin.random.nextInt
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -56,22 +60,26 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ActivitiesColumns = ActivitiesColumns(),
     durationUnit: DurationUnit = timeUnit,
-    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true }
+    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    shiftActivityStartBy: ActivityStartShifter? = QuarterHourShifter
 ) {
-    //    val shiftMap: MutableMap<PersonId, Int> = mutableMapOf()
+    val shiftMap: MutableMap<PersonId, Duration> = mutableMapOf()
+
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
         MutablePlannedActivity(
             id = ActivityId(row.index.toLong()),
             seed = simulationSeed
         ) {
-//            val shift: Duration = shiftMap.computeIfAbsent(person.id) {
-//                random.nextInt(-7, 7)
-//            }.minutes
+            val shift = shiftActivityStartBy?.let { shifter ->
+                shiftMap.computeIfAbsent(person.id) {
+                    shifter(random)
+                }
+            } ?: 0.minutes
 
             person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
-            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) // + shift
+            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
             activityType = row.decode(columns.activityTypeColumn, activityTypeCodes)
         }
@@ -103,4 +111,13 @@ fun LoadPlannedActivitiesContext.finishActivities() = runStep {
 fun LoadPlannedActivitiesContext.loadActivities() {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
+}
+
+fun interface ActivityStartShifter {
+    operator fun invoke(rand: Random): Duration
+}
+
+@Suppress("MagicNumber")
+object QuarterHourShifter : ActivityStartShifter {
+    override operator fun invoke(rand: Random) = rand.nextInt(-7, 7).minutes
 }

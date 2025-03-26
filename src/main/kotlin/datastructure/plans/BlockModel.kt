@@ -215,7 +215,12 @@ class BlockModel(
             it.replaceAll(target, to)
             legBlockList
         } ?: run {
-            target.forEach { remove(it) } //TODO here is a bug: (or exotic behaviour) When deleting all elements within a block, the block is removed from the activity schedule, and the new legs are added to a new leg block which is a completely different object. The LinkTrip holds a reference to the original block and may induce headache when debugging
+            target.forEach {
+                remove(it)
+            } // TODO here is a bug: (or exotic behaviour) When deleting all elements within a block,
+            //  the block is removed from the activity schedule, and the new legs are added to a new leg block which
+            //  is a completely different object. The LinkTrip holds a reference to the
+            //  original block and may induce headache when debugging
             to.forEach { add(it) }
         }
     }

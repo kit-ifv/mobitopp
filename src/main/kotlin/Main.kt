@@ -9,6 +9,7 @@ import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
+import usecases.steps.GaussianActivityDurationRandomizer
 import usecases.steps.ProjectContext
 import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
@@ -28,6 +29,7 @@ import usecases.steps.loadImpedance
 import usecases.steps.loadVisumNetwork
 import usecases.steps.prepareActivities
 import usecases.steps.preparePersons
+import usecases.steps.randomizeActivityDurations
 import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
@@ -95,8 +97,14 @@ fun main() {
         assignCarUsers()
         finishPrivateCars()
 
-        prepareActivities(errorHandling = ErrorHandling.WARNING)
+        prepareActivities(
+            errorHandling = ErrorHandling.WARNING,
+            shiftActivityStartBy = null
+        )
         assignPlannedActivities()
+        randomizeActivityDurations(
+            GaussianActivityDurationRandomizer()
+        )
 
         finishActivities()
         finishPersons()
