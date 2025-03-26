@@ -4,6 +4,7 @@ import datastructure.Activity
 import domain.enums.ActivityType
 import domain.location.LOCATIONUNKNOWN
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
+import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.SurveyInfo
@@ -19,12 +20,27 @@ import kotlin.time.Duration
 ) // 1234 is just a random seed, I took this from actitopp example; there is no thought behind this number
 class ActitoppGenerator(
     val fileBase: ModelFileBase = ModelFileBase(),
-    val randomgenerator: RNGHelper = RNGHelper(1234),
+    val randomgenerator: RNGHelper = RNGHelper(1235),
     val purposes: ChoiceModelPurposes,
 ) : GenerateActivitySchedule<SurveyInfo> {
     override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
         val actitoppPerson = convertToSingularHousehold(person)
-        actitoppPerson.generateSchedule(fileBase, randomgenerator)
+        // Error handling
+        while(true) {
+            var counter = 0
+            try {
+                actitoppPerson.generateSchedule(fileBase, randomgenerator)
+                break
+            } catch(why: InvalidPatternException) {
+                println("Actitopp throws an exception for ${actitoppPerson.persIndex} Iteration $counter")
+                counter++
+            }
+        }
+
+
+        require(actitoppPerson.weekPattern.allActivities.isNotEmpty()) {
+            "Somehow a person managed to be created without activities [${actitoppPerson.persIndex}]"
+        }
 
         return PreliminaryActivitySchedule(
             actitoppPerson.weekPattern.allActivities.map { it.toReengineeredActivity(purposes) }.toMutableList()

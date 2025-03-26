@@ -269,7 +269,7 @@ class EngineSituation(
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegioStaR17: RegioStaR17 = household.location.zone?.regionType?.toRegioStaR17()
+    val regionTypeRegioStaR17: RegioStaR17 = household.location.regionType().toRegioStaR17()
         ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
     val regionType = regionTypeRegioStaR17.toSizebasedClassification()
 

@@ -46,12 +46,6 @@ class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHousehol
     }
 }
 
-class JustUseBielefeld<H> : AssignHouseholdLocations<Any, H> {
-    override fun generateLocation(zone: Any, household: H): Location {
-        return LOCATIONUNKNOWN
-    }
-}
-
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
 fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomizer): Coordinate {
     val lat1 = latitudeRadians.toDouble()

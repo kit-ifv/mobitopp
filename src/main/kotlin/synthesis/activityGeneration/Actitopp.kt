@@ -55,7 +55,7 @@ fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold 
         id,
         numberOfChilds,
         numberOfYouths,
-        location.requireZone().regionType.code,
+        location.regionType().code,
         amountOfCars
     )
     return hh
