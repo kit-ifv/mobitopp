@@ -1,7 +1,6 @@
 package synthesis
 
 import domain.data.Zone
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate

@@ -15,7 +15,7 @@ interface Location {
     val coordinate: Coordinate
     val zone: Zone?
     val roadAccess: RoadAccess?
-    fun regionType() : RegionType = requireZone().regionType
+    fun regionType(): RegionType = requireZone().regionType
     fun zoneID(): ZoneId?
     fun inSameZone(other: Location) = this.zone == other.zone
     fun withZone(zone: Zone): Location {
@@ -36,7 +36,7 @@ interface Location {
         return LocationImpl(coordinate, zone, roadAccess = access)
     }
     fun copy(zone: Zone? = null): Location {
-        return LocationImpl(coordinate, zone?: this.zone, roadAccess)
+        return LocationImpl(coordinate, zone ?: this.zone, roadAccess)
     }
 
     companion object {

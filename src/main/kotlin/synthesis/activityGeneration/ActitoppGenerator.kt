@@ -23,20 +23,20 @@ class ActitoppGenerator(
     val randomgenerator: RNGHelper = RNGHelper(1235),
     val purposes: ChoiceModelPurposes,
 ) : GenerateActivitySchedule<SurveyInfo> {
+    @Suppress("SwallowedException") // TODO sometime someone should fix actitopp.
     override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
         val actitoppPerson = convertToSingularHousehold(person)
         // Error handling
-        while(true) {
+        while (true) {
             var counter = 0
             try {
                 actitoppPerson.generateSchedule(fileBase, randomgenerator)
                 break
-            } catch(why: InvalidPatternException) {
+            } catch (why: InvalidPatternException) {
                 println("Actitopp throws an exception for ${actitoppPerson.persIndex} Iteration $counter")
                 counter++
             }
         }
-
 
         require(actitoppPerson.weekPattern.allActivities.isNotEmpty()) {
             "Somehow a person managed to be created without activities [${actitoppPerson.persIndex}]"
