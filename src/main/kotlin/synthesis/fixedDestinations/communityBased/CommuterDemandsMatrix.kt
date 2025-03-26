@@ -66,7 +66,11 @@ class CommuterDemandsMatrix(
         ): CommuterDemandsMatrix {
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
-                val zoneID = it.requireZone().id
+                val zoneID = it.zoneID()?: run{
+                    println("Bad Zone")
+                    ZoneId(-1)
+                }
+
                 require(match.containsKey(zoneID)) {
                     "Zone id $zoneID cannot be converted to a community number." +
                         " Check that the file: $mappingFile contains the zone ID"
