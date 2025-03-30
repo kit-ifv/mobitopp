@@ -4,7 +4,7 @@ import domain.data.*
 import domain.location.Location
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.file.Path
+
 @Suppress("MagicNumber")
 class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
@@ -12,18 +12,8 @@ class BinaryCarReader(
     private val carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
     private val determineLocation: DataInputStream.(MutablePrivateCar) -> Location
 ) : BinaryReader<MutablePrivateCar> {
-    override fun fromBinary(path: Path): List<MutablePrivateCar> {
-        return createInputStream(path).use { dataStream ->
-            val size = dataStream.readInt()
-            dataStream.readInt() // reading useless max string length. Not required for cars.
-            val cars = Array(size) {
-                dataStream.decodeCar()
-            }
-            cars.toList()
-        }
-    }
 
-    private fun DataInputStream.decodeCar(): MutablePrivateCar {
+    override fun DataInputStream.decode(stringLength: Int): MutablePrivateCar {
         return MutablePrivateCar(
             CarId(readLong()),
             householdConverter(HouseholdId(readLong()))

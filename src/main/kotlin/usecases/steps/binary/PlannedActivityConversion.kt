@@ -29,18 +29,7 @@ class BinaryActivityReader(
     private val contextSimulationSeed: Long
 ) : BinaryReader<MutablePlannedActivity> {
 
-    override fun fromBinary(path: Path): List<MutablePlannedActivity> {
-        return createInputStream(path).use { dataStream ->
-            val size = dataStream.readInt()
-            dataStream.readInt() // reading string length, no strings needed so not saving it.
-            val activities = Array(size) {
-                dataStream.decodeActivity()
-            }
-            activities.toList()
-        }
-    }
-
-    private fun DataInputStream.decodeActivity(): MutablePlannedActivity {
+    override fun DataInputStream.decode(stringLength: Int): MutablePlannedActivity {
         return MutablePlannedActivity(
             ActivityId(readLong()),
             contextSimulationSeed

@@ -9,6 +9,7 @@ import units.DistanceUnit
 import units.toDistance
 import usecases.steps.binary.LocationUtils.decodeLocation
 import utils.Decodable
+import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.file.Path
@@ -19,14 +20,17 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaTyp
             val size = dataStream.readInt()
             val maxStringLength = dataStream.readInt()
             val zones = Array(size) {
-                dataStream.decodeZone(maxStringLength)
+                dataStream.decode(maxStringLength)
             }
             zones.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
             zones.toList()
         }
     }
 
-    private fun DataInputStream.decodeZone(maxStringLength: Int): MutableLegacyZone {
+    private fun createInputStream(path: Path): DataInputStream {
+        return DataInputStream(BufferedInputStream(path.toFile().inputStream()))
+    }
+    override fun DataInputStream.decode(stringLength: Int): MutableLegacyZone {
         return MutableLegacyZone(
             ZoneId(readLong()),
             // Since the zone is not yet built there is no way to map it to the correct zone,
@@ -35,7 +39,7 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaTyp
             seed
         ).apply {
             visumId = readLong()
-            name = readString(maxStringLength)
+            name = readString(stringLength)
             regionType = regionCode.decode(readInt())
             classification = ZoneClassification.decode(readInt())
             parkingPlaces = readInt()
