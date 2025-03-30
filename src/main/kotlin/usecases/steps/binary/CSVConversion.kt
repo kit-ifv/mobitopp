@@ -156,19 +156,4 @@ class CSVBinaryConverter {
             }
         }
     }
-
-    /**
-     * Convenience function. Takes any CSV file and converts it to a binary file.
-     * The binary file is put into the same directory, as the CSV file.
-     * @param mapping Object generator for a row of the csv file.
-     * @param binaryWriter A BinaryWriter, able to write objects of the type [T].
-     */
-    fun <T> makeCSVBinary(csvFile: Path, mapping: (Row) -> T?, binaryWriter: BinaryWriter<T>) {
-        val reader = DefaultCsvParser(mapping = mapping)
-        val outputLocation = Path(csvFile.toString().replace(".csv", ".bin"))
-        binaryWriter.toBinary(
-            outputLocation,
-            reader.parse(csvFile.toFile()).toList()
-        )
-    }
 }
