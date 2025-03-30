@@ -1,12 +1,16 @@
 package utils.binary
 
+import org.jetbrains.kotlin.incremental.storage.writeString
 import org.junit.jupiter.api.Test
 import usecases.steps.binary.CSVBinaryConverter
 import usecases.steps.binary.DataType
+import usecases.steps.binary.readString
 import java.io.DataInputStream
+import java.io.DataOutputStream
 import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class CSVBinaryConverterTest {
     @Test
@@ -65,7 +69,7 @@ class CSVBinaryConverterTest {
                 assertEquals(4, it.readInt())
                 assertEquals(stringLength, it.readInt())
 
-                assertEquals("Hello.", it.readString(stringLength))
+                assertEquals("Hello", it.readString(stringLength))
                 assertEquals(9223372036854775807, it.readLong())
                 assertEquals(2147483647, it.readInt())
                 assertEquals(3.1415926535, it.readDouble())
@@ -75,7 +79,7 @@ class CSVBinaryConverterTest {
                 assertEquals(127, it.readByte())
                 assertEquals('A', it.readChar())
 
-                assertEquals("World.", it.readString(stringLength))
+                assertEquals("World", it.readString(stringLength))
                 assertEquals(1234567890123456789, it.readLong())
                 assertEquals(-42, it.readInt())
                 assertEquals(1.6180339887, it.readDouble())
@@ -85,7 +89,7 @@ class CSVBinaryConverterTest {
                 assertEquals(-128, it.readByte())
                 assertEquals('Z', it.readChar())
 
-                assertEquals("Test..", it.readString(stringLength))
+                assertEquals("Test", it.readString(stringLength))
                 assertEquals(0, it.readLong())
                 assertEquals(0, it.readInt())
                 assertEquals(0.0, it.readDouble())
@@ -95,7 +99,7 @@ class CSVBinaryConverterTest {
                 assertEquals(0, it.readByte())
                 assertEquals('X', it.readChar())
 
-                assertEquals("Data..", it.readString(stringLength))
+                assertEquals("Data", it.readString(stringLength))
                 assertEquals(-9223372036854775807, it.readLong())
                 assertEquals(-2147483648, it.readInt())
                 assertEquals(-2.2250738585072014e-308, it.readDouble())
@@ -167,11 +171,23 @@ class CSVBinaryConverterTest {
         binary.toFile().delete()
     }
 
-    private fun DataInputStream.readString(stringLength: Int): String {
-        var output = ""
-        repeat(stringLength) {
-            output += readChar()
+    @Test
+    fun paddingTest() {
+        val test = Path("src/test/resources/tempOutput/test123.bin")
+        val stringLen = 20
+        test.toFile().outputStream().use { fileOutputStream ->
+            DataOutputStream(fileOutputStream).use { dataOutputStream ->
+                dataOutputStream.writeChars("Hello".padEnd(stringLen, '.'))
+                dataOutputStream.writeChars("World. S".padEnd(stringLen, '.'))
+            }
         }
-        return output
+
+        test.toFile().inputStream().use { fileInputStream ->
+            DataInputStream(fileInputStream).use { dataInputStream ->
+                assertEquals("Hello", dataInputStream.readString(stringLen))
+                assertEquals("World. S", dataInputStream.readString(stringLen))
+            }
+        }
+        assertTrue(test.toFile().delete())
     }
 }

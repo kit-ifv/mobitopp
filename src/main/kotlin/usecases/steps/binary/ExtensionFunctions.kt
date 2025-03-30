@@ -1,6 +1,7 @@
 package usecases.steps.binary
 
 import domain.location.Location
+import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.RandomAccessFile
 import java.nio.MappedByteBuffer
@@ -15,6 +16,28 @@ fun <T> Path.operateOnMemoryFile(run: MappedByteBuffer.() -> T): T {
         buffer.run(run)
     }
 }
+
+/**
+ * Reads [stringLength] many characters from the DataInputStream and converts them to a string.
+ * Padding of '.' at the end is removed.
+ */
+fun DataInputStream.readString(stringLength: Int): String {
+    var output = ""
+    repeat(stringLength) {
+        output += readChar()
+    }
+    return output.replace(Regex("\\.+$"), "")
+}
+
+/**
+ * Writes [stringLength] many characters of the string to the DataOutputStream. If length doesn't match, '.' padding is
+ * added.
+ */
+fun DataOutputStream.writeString(element: String, stringLength: Int) {
+    val scaledString = element.take(stringLength).padEnd(stringLength, '.')
+    writeChars(scaledString)
+}
+
 
 /**
  * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
