@@ -32,8 +32,7 @@ enum class DataType {
          * Writes characters utf8 encoded.
          */
         override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            val scaledString = element.take(stringLength).padEnd(stringLength, '.').toCharArray()
-            scaledString.forEach { dataStream.writeChar(it.code) }
+            dataStream.writeString(element, stringLength)
         }
     },
     FLOAT {

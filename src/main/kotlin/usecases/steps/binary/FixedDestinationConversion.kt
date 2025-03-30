@@ -6,9 +6,10 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import usecases.steps.ActivityLocation
+import usecases.steps.binary.LocationUtils.decodeLocation
 import utils.CodePlan
+import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.MappedByteBuffer
 import java.nio.file.Path
 @Suppress("MagicNumber")
 class FixedDestinationReader(
@@ -17,35 +18,34 @@ class FixedDestinationReader(
     val zoneConverter: (ZoneId) -> Zone
 ) : BinaryReader<ActivityLocation> {
     override fun fromBinary(path: Path): List<ActivityLocation> {
-        return path.operateOnMemoryFile {
-            val size = this.getInt(0)
-            (0 until size).map {
-                extractContent(this, it * elementByteSize + 4)
+        return createInputStream(path).use { dataStream ->
+            val size = dataStream.readInt()
+            dataStream.readInt() // reading string length, no strings needed so not saving it.
+            val destinations = Array(size) {
+                dataStream.decodeActivityLocation()
             }
+            destinations.toList()
         }
     }
 
-    private fun extractContent(buffer: MappedByteBuffer, at: Int): ActivityLocation {
-        return TrackingBuffer(buffer, at).run {
-            val person = personConverter(PersonId(nextLong))
-            val activityType = activityTypeConverter.decode(nextInt)
-            val location = nextLocation(zoneConverter)
+    private fun DataInputStream.decodeActivityLocation(): ActivityLocation {
+        val person = personConverter(PersonId(readLong()))
+        val activityType = activityTypeConverter.decode(readInt())
+        val location = decodeLocation(zoneConverter)
 
-            ActivityLocation(
-                person,
-                activityType,
-                location
-            )
-        }
+        return ActivityLocation(
+            person,
+            activityType,
+            location
+        )
     }
-
-    private val elementByteSize = 60
 }
 
 class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<ActivityLocation>) {
         val size = elements.size
         outStream.writeInt(size) // Write the amount of agents that are expected to be found in this file
+        outStream.writeInt(0) // string length, not needed but required by format
         elements.forEach { outStream.encodeElement(it) }
     }
 
