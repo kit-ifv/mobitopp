@@ -11,7 +11,6 @@ import units.euros
 import usecases.steps.binary.LocationUtils.decodeLocation
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.file.Path
 
 /**
  * Reads a [MutableHousehold] from a binary file. Similar to other readers it firsts reads at position 0 the size,

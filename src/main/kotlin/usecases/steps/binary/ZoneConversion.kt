@@ -30,6 +30,7 @@ class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaTyp
     private fun createInputStream(path: Path): DataInputStream {
         return DataInputStream(BufferedInputStream(path.toFile().inputStream()))
     }
+
     override fun DataInputStream.decode(stringLength: Int): MutableLegacyZone {
         return MutableLegacyZone(
             ZoneId(readLong()),
@@ -70,7 +71,7 @@ class BinaryZoneWriter : BinaryWriter<Zone> {
             writeLong(visumId)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader
-            writeChars(name.padEnd(maxNameLength, '.'))
+            writeString(name, maxNameLength)
             writeInt(regionType.encode())
             writeInt(classification.encode())
             writeInt(parkingPlaces)
