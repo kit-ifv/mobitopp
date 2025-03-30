@@ -1,6 +1,5 @@
 package usecases.steps.binary
 
-import utils.csv.DefaultCsvParser
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
 import java.io.BufferedOutputStream
