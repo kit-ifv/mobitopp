@@ -1,6 +1,6 @@
 package utils.binary
 
-import org.jetbrains.kotlin.incremental.storage.writeString
+
 import org.junit.jupiter.api.Test
 import usecases.steps.binary.CSVBinaryConverter
 import usecases.steps.binary.DataType
@@ -34,13 +34,13 @@ class CSVBinaryConverterTest {
                 assertEquals(true, it.readBoolean())
                 assertEquals(24.7009.toFloat(), it.readFloat())
                 assertEquals(1, it.readInt())
-                assertEquals("a...................", it.readString(stringLength))
+                assertEquals("a", it.readString(stringLength))
                 assertEquals(1234, it.readInt())
 
                 assertEquals(false, it.readBoolean())
                 assertEquals(0.07.toFloat(), it.readFloat())
                 assertEquals(2, it.readInt())
-                assertEquals("Hello; World........", it.readString(stringLength))
+                assertEquals("Hello; World", it.readString(stringLength))
                 assertEquals(432, it.readInt())
             }
         }
@@ -136,7 +136,7 @@ class CSVBinaryConverterTest {
                 assertEquals(4, it.readInt())
                 assertEquals(stringLength, it.readInt())
 
-                assertEquals("Hello.", it.readString(stringLength))
+                assertEquals("Hello", it.readString(stringLength))
                 assertEquals(9223372036854775807, it.readLong())
                 assertEquals(2147483647, it.readInt())
                 assertEquals(3.1415926535, it.readDouble())
@@ -146,7 +146,7 @@ class CSVBinaryConverterTest {
                 assertEquals(127, it.readByte())
                 assertEquals('A', it.readChar())
 
-                assertEquals("World.", it.readString(stringLength))
+                assertEquals("World", it.readString(stringLength))
                 assertEquals(1234567890123456789, it.readLong())
                 assertEquals(-42, it.readInt())
                 assertEquals(1.6180339887, it.readDouble())
@@ -156,7 +156,7 @@ class CSVBinaryConverterTest {
                 assertEquals(-128, it.readByte())
                 assertEquals('Z', it.readChar())
 
-                assertEquals("Test..", it.readString(stringLength))
+                assertEquals("Test", it.readString(stringLength))
                 assertEquals(0, it.readLong())
                 assertEquals(0, it.readInt())
                 assertEquals(0.0, it.readDouble())
