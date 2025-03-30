@@ -1,6 +1,5 @@
 package utils.binary
 
-
 import org.junit.jupiter.api.Test
 import usecases.steps.binary.CSVBinaryConverter
 import usecases.steps.binary.DataType

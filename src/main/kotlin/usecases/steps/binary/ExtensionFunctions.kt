@@ -38,7 +38,6 @@ fun DataOutputStream.writeString(element: String, stringLength: Int) {
     writeChars(scaledString)
 }
 
-
 /**
  * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
  * The method serializes the properties of the `Location` object (zone, coordinate, and road access)
