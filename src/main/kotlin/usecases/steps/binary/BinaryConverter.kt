@@ -1,6 +1,8 @@
 package usecases.steps.binary
 
+import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
+import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
@@ -13,14 +15,18 @@ import java.nio.file.Path
  * Although it is common for the type to be a mutable type (e.g., [MutableHousehold], [MutablePerson]),
  * the interface is flexible and can work with any type, depending on the specific application.
  *
- * @param MUTABLE The type of the objects to be read from the binary file. It is generally recommended to use a mutable type,
- *                but this is not a strict requirement, and any type can be used based on the needs of the application.
+ * @param MUTABLE The type of the objects to be read from the binary file. It is generally recommended to use a mutable
+ * type, but this is not a strict requirement, and any type can be used based on the needs of the application.
  */
 fun interface BinaryReader<out MUTABLE> {
     /**
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
     fun fromBinary(path: Path): List<MUTABLE>
+
+    fun createInputStream(path: Path): DataInputStream {
+        return DataInputStream(BufferedInputStream(Files.newInputStream(path)))
+    }
 }
 
 /**
@@ -62,7 +68,8 @@ fun interface BinaryWriter<in READONLY> {
      * Defines the custom logic for writing a collection of [READONLY] objects to a [DataOutputStream].
      *
      * This function is intended to be implemented by concrete classes to define how the individual objects are written
-     * to the binary stream. The implementation should focus on writing the object data to the provided [DataOutputStream].
+     * to the binary stream. The implementation should focus on writing the object data to the provided
+     * [DataOutputStream].
      *
      * @param outStream The [DataOutputStream] to which the objects should be written.
      * @param elements The collection of read-only objects to be written.
