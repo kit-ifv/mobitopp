@@ -6,23 +6,12 @@ import units.UnitIntervalValue
 import units.euros
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.file.Path
 
 @Suppress("MagicNumber")
 class BinaryPersonReader(val map: (HouseholdId) -> MutableHousehold, private val contextSimulationSeed: Long) :
     BinaryReader<MutablePerson> {
-    override fun fromBinary(path: Path): List<MutablePerson> {
-        return createInputStream(path).use { dataStream ->
-            val size = dataStream.readInt()
-            dataStream.readInt() // reading string length, no strings needed so not saving it.
-            val persons = Array(size) {
-                dataStream.decodePerson()
-            }
-            persons.toList()
-        }
-    }
 
-    private fun DataInputStream.decodePerson(): MutablePerson {
+    override fun DataInputStream.decode(stringLength: Int): MutablePerson {
         return MutablePerson(
             PersonId(readLong()),
             map(HouseholdId(readLong())),

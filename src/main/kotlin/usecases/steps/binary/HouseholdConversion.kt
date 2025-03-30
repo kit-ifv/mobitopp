@@ -25,18 +25,7 @@ import java.nio.file.Path
 class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
     BinaryReader<MutableHousehold> {
 
-    override fun fromBinary(path: Path): List<MutableHousehold> {
-        return createInputStream(path).use { dataStream ->
-            val size = dataStream.readInt()
-            dataStream.readInt() // reading string length, no strings needed so not saving it.
-            val households = Array(size) {
-                dataStream.decodeHousehold()
-            }
-            households.toList()
-        }
-    }
-
-    private fun DataInputStream.decodeHousehold(): MutableHousehold {
+    override fun DataInputStream.decode(stringLength: Int): MutableHousehold {
         return MutableHousehold(
             HouseholdId(readLong()),
             contextSimulationSeed

@@ -22,11 +22,22 @@ fun interface BinaryReader<out MUTABLE> {
     /**
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
-    fun fromBinary(path: Path): List<MUTABLE>
-
-    fun createInputStream(path: Path): DataInputStream {
-        return DataInputStream(BufferedInputStream(Files.newInputStream(path)))
+    fun fromBinary(path: Path): List<MUTABLE> {
+        return Files.newInputStream(path).use { fileStream ->
+            BufferedInputStream(fileStream).use { bufferedStream ->
+                DataInputStream(bufferedStream).use { inputStream ->
+                    val size = inputStream.readInt()
+                    val stringLength = inputStream.readInt()
+                    val elements = List(size) {
+                        inputStream.decode(stringLength)
+                    }
+                    elements
+                }
+            }
+        }
     }
+
+    fun DataInputStream.decode(stringLength: Int): MUTABLE
 }
 
 /**
