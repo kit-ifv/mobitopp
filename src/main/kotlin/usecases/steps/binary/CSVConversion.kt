@@ -49,7 +49,7 @@ enum class DataType {
     },
     CHAR {
         override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeChar(element.toInt())
+            dataStream.writeChar(element.toCharArray().first().code)
         }
     },
     SHORT {
@@ -77,8 +77,7 @@ class CSVBinaryConverter {
 
     /**
      * This function convert csv files to a binary file in a standardized format.
-     * The CSV file needs to contain at least one column with an ID.
-     * The binary file is written to the same location as the csv, unless otherwise specified.
+     * The binary file is written to the same location as the csv, unless otherwise specified through [outputFile].
      *
      * Writes into following format:
      * ```
@@ -86,9 +85,8 @@ class CSVBinaryConverter {
      *
      * Int: maximal length of strings in the binary file in characters.
      *
-     * List<<List<DatatypeForRowElement>>: One row of the csv after another, without the entries of the ID column. The
-     *                                      given sequence of columns is kept. Strings are cut and padded to
-     *                                      max-String-Many-Characters.
+     * List<<List<DatatypeForRowElement>>: One row of the csv after another. The given sequence of columns is kept.
+     *                                      Strings are cut and padded to [stringLength]-many Characters.
      * ```
      *
      * @param csvFile The file to convert.
