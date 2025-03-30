@@ -6,6 +6,7 @@ import domain.location.Location
 import domain.location.RoadAccess
 import units.GPSCoordinate
 import units.share
+import java.io.DataInputStream
 import java.io.DataOutputStream
 
 /**
@@ -32,5 +33,23 @@ object LocationUtils {
         ) // Reading latitude and longitude
         val roadAccess = RoadAccess(buffer.nextLong, buffer.nextDouble.share()) // Reading roadId and position
         return Location(coordinate, converter(zoneId), roadAccess) // Returning a Location object
+    }
+
+    fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
+        val zoneId = ZoneId(readLong()) // Reading zone ID
+        val coordinate = GPSCoordinate.decimalDegree(
+            readDouble(),
+            readDouble()
+        ) // Reading latitude and longitude
+        val roadAccess = RoadAccess(readLong(), readDouble().share()) // Reading roadId and position
+        return Location(coordinate, converter(zoneId), roadAccess)
+    }
+
+    fun DataOutputStream.encodeLocation(location: Location) {
+        writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
+        writeDouble(location.coordinate.latitudeDegrees)
+        writeDouble(location.coordinate.longitudeDegrees)
+        writeLong(location.roadAccess?.roadId ?: Long.MIN_VALUE)
+        writeDouble(location.roadAccess?.position?.toDouble() ?: 0.5)
     }
 }

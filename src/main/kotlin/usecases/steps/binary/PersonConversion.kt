@@ -4,10 +4,8 @@ import domain.data.*
 import units.CurrencyUnit
 import units.UnitIntervalValue
 import units.euros
-import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.file.Files
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
@@ -22,10 +20,6 @@ class BinaryPersonReader(val map: (HouseholdId) -> MutableHousehold, private val
             }
             persons.toList()
         }
-    }
-
-    private fun createInputStream(path: Path): DataInputStream {
-        return DataInputStream(BufferedInputStream(Files.newInputStream(path)))
     }
 
     private fun DataInputStream.decodePerson(): MutablePerson {
