@@ -1,6 +1,14 @@
 package usecases.steps.binary
 
-import domain.data.*
+import domain.data.ChargingInfluence
+import domain.data.Employment
+import domain.data.Graduation
+import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutablePerson
+import domain.data.Person
+import domain.data.PersonId
+import domain.data.Sex
 import units.CurrencyUnit
 import units.UnitIntervalValue
 import units.euros

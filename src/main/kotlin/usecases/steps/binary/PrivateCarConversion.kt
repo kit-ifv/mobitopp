@@ -1,6 +1,16 @@
 package usecases.steps.binary
 
-import domain.data.*
+import domain.data.CarEngineStatistics
+import domain.data.CarId
+import domain.data.CarSegment
+import domain.data.EngineType
+import domain.data.HouseholdId
+import domain.data.MutableHousehold
+import domain.data.MutablePrivateCar
+import domain.data.Person
+import domain.data.PersonId
+import domain.data.PrivateCar
+import domain.data.buildEngine
 import domain.location.Location
 import java.io.DataInputStream
 import java.io.DataOutputStream

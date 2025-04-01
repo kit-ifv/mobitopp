@@ -9,64 +9,43 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
-enum class DataType {
-    INT {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeInt(element.toInt())
-        }
-    },
-    LONG {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeLong(element.toLong())
-        }
-    },
-    BOOLEAN {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeBoolean(element.toBoolean())
-        }
-    },
-    STRING {
-        /**
-         * Scales the [element] to have exactly the length of [stringLength]. If [element] is too short,
-         * it gets padded with '.', if it's too long, it everything after [stringLength] is getting ignored.
-         * Writes characters utf8 encoded.
-         */
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeString(element, stringLength)
-        }
-    },
-    FLOAT {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeFloat(element.toFloat())
-        }
-    },
-    DOUBLE {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeDouble(element.toDouble())
-        }
-    },
-    CHAR {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeChar(element.toCharArray().first().code)
-        }
-    },
-    SHORT {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeShort(element.toInt())
-        }
-    },
-    BYTE {
-        override fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int) {
-            dataStream.writeByte(element.toInt())
-        }
-    };
-
-    /**
-     * Parses element to the datatype and writes it onto the dataStream.
-     * @param stringLength The length of a string written onto the [dataStream]. Only gets used in [STRING].
-     */
-    abstract fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int)
+fun interface WriteStrategy {
+    fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int)
 }
+
+/**
+ * Default WriteStrategies for basic datatypes.
+ */
+@Suppress("ConstructorParameterNaming")
+data class DataType(
+    val INT: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeInt(element.toInt())
+    },
+    val LONG: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeLong(element.toLong())
+    },
+    val BOOLEAN: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeBoolean(element.toBoolean())
+    },
+    val STRING: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeString(element, stringLength)
+    },
+    val FLOAT: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeFloat(element.toFloat())
+    },
+    val DOUBLE: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeDouble(element.toDouble())
+    },
+    val CHAR: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeChar(element.toCharArray().first().code)
+    },
+    val SHORT: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeShort(element.toInt())
+    },
+    val BYTE: WriteStrategy = WriteStrategy { dataStream: DataOutputStream, element: String, stringLength: Int ->
+        dataStream.writeByte(element.toInt())
+    }
+)
 
 /**
  * Converts a CSV files into binary files.
@@ -98,7 +77,7 @@ class CSVBinaryConverter {
      */
     fun makeCSVBinary(
         csvFile: Path,
-        datatypeMapping: Map<(String), DataType>,
+        datatypeMapping: Map<(String), WriteStrategy>,
         stringLength: Int,
         outputFile: Path? = null
     ): Path {
@@ -119,25 +98,24 @@ class CSVBinaryConverter {
             // Write the string length to be expected from this binary file.
             outputStream.writeInt(stringLength)
             // Write elements.
-            writeElements(reader.rows(), reader.columns.toList(), outputStream, datatypeMapping, stringLength)
+            writeElements(reader.rows(), outputStream, datatypeMapping, stringLength)
         }
         return outputLocation
     }
 
     /**
-     * Writes all rows after another onto the dataStream. For each row, only [columnsToWrite] are written.
+     * Writes all rows after another onto the dataStream. Only columns for which [datatypeMapping] has a key are
+     * written.
      */
     private fun writeElements(
         rows: Sequence<Row>,
-        columnsToWrite: List<String>,
         dataStream: DataOutputStream,
-        datatypeMapping: Map<(String), DataType>,
+        datatypeMapping: Map<(String), WriteStrategy>,
         stringLength: Int
     ) {
         rows.forEach { row ->
-            columnsToWrite.forEach { columnName ->
-                val rowElement = row.invoke(columnName)
-                datatypeMapping[columnName]?.writeToStream(dataStream, rowElement, stringLength)
+            datatypeMapping.forEach { (columnName, strategy) ->
+                strategy.writeToStream(dataStream, row.invoke(columnName), stringLength)
             }
         }
     }
