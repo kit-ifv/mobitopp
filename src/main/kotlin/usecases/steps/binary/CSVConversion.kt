@@ -88,7 +88,8 @@ class CSVBinaryConverter {
      * ```
      *
      * @param csvFile The file to convert.
-     * @param datatypeMapping Should map each column-name to it's appropriate datatype.
+     * @param datatypeMapping Should map every column name to be converted to it's appropriate datatype. Column-Names
+     * without mapping get ignored.
      * @param stringLength The number of characters of a string that will be transferred to the binary file. Longer
      * strings will get cut. Shorter strings will get padded with '.'
      * @param outputFile Path to a binary file, where the result of the conversion should be stored. If not specified, a
@@ -105,10 +106,9 @@ class CSVBinaryConverter {
         require(csvFile.toString().endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
 
         val reader = DefaultCsvReader(csvFile.toFile(), showProgressBar = false)
-        val datatypeGivenForAllColumns = reader.columns.all { datatypeMapping.containsKey(it) }
-        if (!datatypeGivenForAllColumns) {
-            val columnsWithoutDatatype = reader.columns.filter { !datatypeMapping.containsKey(it) }
-            throw IllegalArgumentException("No datatype provided for following columns: $columnsWithoutDatatype")
+        require(reader.columns.containsAll(datatypeMapping.keys)) {
+            val wrongNames = datatypeMapping.keys.filter { !reader.columns.contains(it) }
+            "The csv doesn't contain columns with the following names: $wrongNames"
         }
         val numElements = reader.rows().count()
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
