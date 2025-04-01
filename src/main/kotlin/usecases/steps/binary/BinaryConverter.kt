@@ -37,6 +37,13 @@ fun interface BinaryReader<out MUTABLE> {
         }
     }
 
+    /**
+     * Reads one [MUTABLE] object from the [DataInputStream] and returns an instance of that object.
+     * The [DataInputStream] is at the exact location of a new object. All parameters of the object to be created
+     * lie sequentially on the [DataInputStream].
+     * The exact order of the parameters is given by a matching [BinaryWriter] or [CSVBinaryConverter], depending on how
+     * the binary file was created.
+     */
     fun DataInputStream.decode(stringLength: Int): MUTABLE
 }
 
