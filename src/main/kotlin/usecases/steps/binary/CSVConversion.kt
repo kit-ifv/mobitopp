@@ -9,6 +9,9 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
+/**
+ * Functional interface for writing a string encoded element onto a [DataOutputStream].
+ */
 fun interface WriteStrategy {
     fun writeToStream(dataStream: DataOutputStream, element: String, stringLength: Int)
 }
@@ -62,13 +65,14 @@ class CSVBinaryConverter {
      *
      * Int: maximal length of strings in the binary file in characters.
      *
-     * List<<List<DatatypeForRowElement>>: One row of the csv after another. The given sequence of columns is kept.
-     *                                      Strings are cut and padded to [stringLength]-many Characters.
+     * List<<List<DatatypeForRowElement>>: One row of the csv after another. The sequence of columns given by
+     *                                      [datatypeMapping] is kept. Strings are cut and padded to [stringLength]-
+     *                                      many characters.
      * ```
      *
      * @param csvFile The file to convert.
-     * @param datatypeMapping Should map every column name to be converted to it's appropriate datatype. Column-Names
-     * without mapping get ignored.
+     * @param datatypeMapping Maps all columns, which should be converted, to a [WriteStrategy]. Conversions for basic
+     * datatypes are given by [DataType].
      * @param stringLength The number of characters of a string that will be transferred to the binary file. Longer
      * strings will get cut. Shorter strings will get padded with '.'
      * @param outputFile Path to a binary file, where the result of the conversion should be stored. If not specified, a
@@ -105,7 +109,7 @@ class CSVBinaryConverter {
 
     /**
      * Writes all rows after another onto the dataStream. Only columns for which [datatypeMapping] has a key are
-     * written.
+     * written. [datatypeMapping] dictates they order, in which elements of the row are written.
      */
     private fun writeElements(
         rows: Sequence<Row>,
