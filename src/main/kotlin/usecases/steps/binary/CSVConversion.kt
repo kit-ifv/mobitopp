@@ -83,7 +83,7 @@ class CSVBinaryConverter {
         stringLength: Int,
         outputFile: Path? = null
     ): Path {
-        require(csvFile.exists()) { "Can't convert nonexistent csv file does not exist: $csvFile" }
+        require(csvFile.exists()) { "Can't convert nonexistent csv file. $csvFile does not exist." }
         require(csvFile.toString().endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
 
         val reader = DefaultCsvReader(csvFile.toFile(), showProgressBar = false)
