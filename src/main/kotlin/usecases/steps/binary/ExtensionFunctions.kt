@@ -1,6 +1,8 @@
 package usecases.steps.binary
 
 import domain.location.Location
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.RandomAccessFile
@@ -39,13 +41,40 @@ fun DataOutputStream.writeString(element: String, stringLength: Int) {
 }
 
 /**
+ * Creates and closes a DataOutputStream on the file at the path. While open, executes [write] on it.
+ */
+fun Path.bufferedDataOutputStream(write: (dataStream: DataOutputStream) -> Unit) {
+    toFile().outputStream().use { fileStream ->
+        BufferedOutputStream(fileStream).use { bufferedStream ->
+            DataOutputStream(bufferedStream).use { outputStream ->
+                outputStream.run(write)
+            }
+        }
+    }
+}
+
+/**
+ * Creates and closes a DataInputStream on the path. While open, executes [read] on it.
+ */
+fun Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> Unit) {
+    toFile().inputStream().use { fileStream ->
+        BufferedInputStream(fileStream).use { bufferedStream ->
+            DataInputStream(bufferedStream).use { inputStream ->
+                inputStream.run(read)
+            }
+        }
+    }
+}
+
+/**
  * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
  * The method serializes the properties of the `Location` object (zone, coordinate, and road access)
  * into the output stream in a specific format:
  * - The `zone.id` is written as a `Long` (or `Long.MIN_VALUE` if `zone.id` is `null`).
  * - The latitude and longitude of the `coordinate` are written as `Double` values.
  * - The `roadAccess.roadId` is written as a `Long` (or `Long.MIN_VALUE` if `roadAccess.roadId` is `null`).
- * - The position of the `roadAccess` is written as a `Double` (with a default value of `0.5` if `roadAccess.position` is `null`).
+ * - The position of the `roadAccess` is written as a `Double` (with a default value of `0.5` if `roadAccess.position`
+ * is `null`).
  *
  * @param location The `Location` object to write to the `DataOutputStream`.
  */
@@ -70,7 +99,8 @@ fun DataOutputStream.writeLocation(location: Location) {
  * a boolean flag is embedded in an integer value.
  *
  * @param index The position (index) in the [MappedByteBuffer] where the integer representing the boolean is stored.
- * @return The boolean value extracted from the 4-byte integer at the specified index. Returns `true` if the first byte is set (0x01), otherwise `false`.
+ * @return The boolean value extracted from the 4-byte integer at the specified index. Returns `true` if the first byte
+ * is set (0x01), otherwise `false`.
  */
 
 @Suppress("MagicNumber")

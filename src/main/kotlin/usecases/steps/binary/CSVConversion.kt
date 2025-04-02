@@ -2,9 +2,7 @@ package usecases.steps.binary
 
 import utils.csv.DefaultCsvReader
 import utils.csv.Row
-import java.io.BufferedOutputStream
 import java.io.DataOutputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -96,7 +94,7 @@ class CSVBinaryConverter {
         val numElements = reader.rows().count()
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
 
-        handleStream(outputLocation) { outputStream ->
+        outputLocation.bufferedDataOutputStream { outputStream ->
             // Write the amount of elements that are expected to be found in this file.
             outputStream.writeInt(numElements)
             // Write the string length to be expected from this binary file.
@@ -120,19 +118,6 @@ class CSVBinaryConverter {
         rows.forEach { row ->
             datatypeMapping.forEach { (columnName, strategy) ->
                 strategy.writeToStream(dataStream, row.invoke(columnName), stringLength)
-            }
-        }
-    }
-
-    /**
-     * Creates and closes a DataOutputStream to [outputLocation]. While open executes write on it.
-     */
-    private fun handleStream(outputLocation: Path, write: (dataStream: DataOutputStream) -> Unit) {
-        Files.newOutputStream(outputLocation).use { fileStream ->
-            BufferedOutputStream(fileStream).use { bufferedStream ->
-                DataOutputStream(bufferedStream).use { outputStream ->
-                    outputStream.run(write)
-                }
             }
         }
     }
