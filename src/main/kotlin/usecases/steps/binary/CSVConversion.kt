@@ -79,7 +79,7 @@ class CSVBinaryConverter {
      */
     fun makeCSVBinary(
         csvFile: Path,
-        datatypeMapping: Map<(String), WriteStrategy>,
+        datatypeMapping: Map<String, WriteStrategy>,
         stringLength: Int,
         outputFile: Path? = null
     ): Path {
@@ -112,7 +112,7 @@ class CSVBinaryConverter {
     private fun writeElements(
         rows: Sequence<Row>,
         dataStream: DataOutputStream,
-        datatypeMapping: Map<(String), WriteStrategy>,
+        datatypeMapping: Map<String, WriteStrategy>,
         stringLength: Int
     ) {
         rows.forEach { row ->
