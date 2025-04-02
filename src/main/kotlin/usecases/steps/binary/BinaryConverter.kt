@@ -1,10 +1,7 @@
 package usecases.steps.binary
 
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.file.Files
 import java.nio.file.Path
 
 /**
@@ -23,18 +20,15 @@ fun interface BinaryReader<out MUTABLE> {
      * Reads data from a binary file at [path] and returns it as a list of objects of type [MUTABLE].
      */
     fun fromBinary(path: Path): List<MUTABLE> {
-        return Files.newInputStream(path).use { fileStream ->
-            BufferedInputStream(fileStream).use { bufferedStream ->
-                DataInputStream(bufferedStream).use { inputStream ->
-                    val size = inputStream.readInt()
-                    val stringLength = inputStream.readInt()
-                    val elements = List(size) {
-                        inputStream.decode(stringLength)
-                    }
-                    elements
-                }
+        var elements = emptyList<MUTABLE>()
+        path.bufferedDataInputStream { inputStream ->
+            val size = inputStream.readInt()
+            val stringLength = inputStream.readInt()
+            elements = List(size) {
+                inputStream.decode(stringLength)
             }
         }
+        return elements
     }
 
     /**
@@ -43,6 +37,8 @@ fun interface BinaryReader<out MUTABLE> {
      * lie sequentially on the [DataInputStream].
      * The exact order of the parameters is given by a matching [BinaryWriter] or [CSVBinaryConverter], depending on how
      * the binary file was created.
+     * @param stringLength is the expected size of strings, if strings are read. Each string should have the same length
+     * specified at writing the element.
      */
     fun DataInputStream.decode(stringLength: Int): MUTABLE
 }
@@ -73,12 +69,8 @@ fun interface BinaryWriter<in READONLY> {
      * @param elements The collection of read-only objects to be written to the binary file.
      */
     fun toBinary(path: Path, elements: Collection<READONLY>) {
-        Files.newOutputStream(path).use { fileStream ->
-            BufferedOutputStream(fileStream).use { bufferedStream ->
-                DataOutputStream(bufferedStream).use { outputStream ->
-                    operateStream(outputStream, elements)
-                }
-            }
+        path.bufferedDataOutputStream { outputStream ->
+            operateStream(outputStream, elements)
         }
     }
 
