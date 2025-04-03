@@ -17,6 +17,9 @@ import java.io.DataOutputStream
  */
 @Suppress("MagicNumber")
 object LocationUtils {
+    /**
+     * Extension function, that reads a location from a [DataInputStream].
+     */
     fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
         val zoneId = ZoneId(readLong()) // Reading zone ID
         val coordinate = GPSCoordinate.decimalDegree(
@@ -27,6 +30,18 @@ object LocationUtils {
         return Location(coordinate, converter(zoneId), roadAccess)
     }
 
+    /**
+     * Extension function for `DataOutputStream` that writes a `Location` object to the output stream.
+     * The method serializes the properties of the `Location` object (zone, coordinate, and road access)
+     * into the output stream in a specific format:
+     * - The `zone.id` is written as a `Long` (or `Long.MIN_VALUE` if `zone.id` is `null`).
+     * - The latitude and longitude of the `coordinate` are written as `Double` values.
+     * - The `roadAccess.roadId` is written as a `Long` (or `Long.MIN_VALUE` if `roadAccess.roadId` is `null`).
+     * - The position of the `roadAccess` is written as a `Double` (with a default value of `0.5` if
+     * `roadAccess.position` is `null`).
+     *
+     * @param location The `Location` object to write to the `DataOutputStream`.
+     */
     fun DataOutputStream.encodeLocation(location: Location) {
         writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
         writeDouble(location.coordinate.latitudeDegrees)

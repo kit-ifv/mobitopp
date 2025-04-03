@@ -7,6 +7,7 @@ import domain.data.ZoneId
 import domain.enums.ActivityType
 import usecases.steps.ActivityLocation
 import usecases.steps.binary.LocationUtils.decodeLocation
+import usecases.steps.binary.LocationUtils.encodeLocation
 import utils.CodePlan
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -44,7 +45,7 @@ class FixedDestinationWriter : BinaryWriter<ActivityLocation> {
             writeLong(person.id.value) //  8 Bytes
             writeInt(activityType.encode()) // 12 Bytes
             writeLong(location.zone?.id?.value ?: -1) // 20 Bytes
-            writeLocation(location) // 60 Bytes
+            encodeLocation(location) // 60 Bytes
 
             // TODO maybe add lateral distance if needed.
         }
