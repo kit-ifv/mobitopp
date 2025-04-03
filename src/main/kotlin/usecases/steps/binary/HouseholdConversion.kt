@@ -9,6 +9,7 @@ import domain.data.ZoneId
 import units.CurrencyUnit
 import units.euros
 import usecases.steps.binary.LocationUtils.decodeLocation
+import usecases.steps.binary.LocationUtils.encodeLocation
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
@@ -60,7 +61,7 @@ class BinaryHouseholdWriter : BinaryWriter<Household> {
             writeInt(type)
             writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
             writeInt(economicStatus.encode())
-            writeLocation(location)
+            encodeLocation(location)
         }
     }
 }
