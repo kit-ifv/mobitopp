@@ -1,6 +1,7 @@
 package usecases.steps.binary
 
 import domain.location.Location
+import usecases.steps.binary.LocationUtils.encodeLocation
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.DataInputStream
@@ -79,7 +80,7 @@ fun Path.bufferedDataInputStream(read: (dataStream: DataInputStream) -> Unit) {
  * @param location The `Location` object to write to the `DataOutputStream`.
  */
 fun DataOutputStream.writeLocation(location: Location) {
-    LocationUtils.writeLocation(location, this)
+    this.encodeLocation(location)
 }
 
 /**
