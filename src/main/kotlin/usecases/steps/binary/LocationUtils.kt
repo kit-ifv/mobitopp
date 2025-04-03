@@ -17,24 +17,6 @@ import java.io.DataOutputStream
  */
 @Suppress("MagicNumber")
 object LocationUtils {
-    fun writeLocation(location: Location, outputStream: DataOutputStream) {
-        outputStream.writeLong(location.zone?.id?.value ?: Long.MIN_VALUE)
-        outputStream.writeDouble(location.coordinate.latitudeDegrees)
-        outputStream.writeDouble(location.coordinate.longitudeDegrees)
-        outputStream.writeLong(location.roadAccess?.roadId ?: Long.MIN_VALUE)
-        outputStream.writeDouble(location.roadAccess?.position?.toDouble() ?: 0.5)
-    }
-
-    fun readLocation(buffer: TrackingBuffer, converter: (ZoneId) -> Zone?): Location {
-        val zoneId = ZoneId(buffer.nextLong) // Reading zone ID
-        val coordinate = GPSCoordinate.decimalDegree(
-            buffer.nextDouble,
-            buffer.nextDouble
-        ) // Reading latitude and longitude
-        val roadAccess = RoadAccess(buffer.nextLong, buffer.nextDouble.share()) // Reading roadId and position
-        return Location(coordinate, converter(zoneId), roadAccess) // Returning a Location object
-    }
-
     fun DataInputStream.decodeLocation(converter: (ZoneId) -> Zone?): Location {
         val zoneId = ZoneId(readLong()) // Reading zone ID
         val coordinate = GPSCoordinate.decimalDegree(
