@@ -8,6 +8,7 @@ import domain.enums.ZoneClassification
 import units.DistanceUnit
 import units.toDistance
 import usecases.steps.binary.LocationUtils.decodeLocation
+import usecases.steps.binary.LocationUtils.encodeLocation
 import utils.Decodable
 import java.io.BufferedInputStream
 import java.io.DataInputStream
@@ -67,7 +68,7 @@ class BinaryZoneWriter : BinaryWriter<Zone> {
     fun DataOutputStream.encodeZone(zone: Zone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            writeLocation(centroid)
+            encodeLocation(centroid)
             writeLong(visumId)
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader

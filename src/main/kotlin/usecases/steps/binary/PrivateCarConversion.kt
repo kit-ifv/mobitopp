@@ -12,6 +12,7 @@ import domain.data.PersonId
 import domain.data.PrivateCar
 import domain.data.buildEngine
 import domain.location.Location
+import usecases.steps.binary.LocationUtils.encodeLocation
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
@@ -56,7 +57,7 @@ class BinaryCarWriter : BinaryWriter<PrivateCar> {
             writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
             writeInt(segment.encode()) // 16 Bytes
             writeInt(engine.type.encode()) // 20 Bytes
-            writeLocation(location) // 60 Bytes
+            encodeLocation(location) // 60 Bytes
         }
     }
 }
