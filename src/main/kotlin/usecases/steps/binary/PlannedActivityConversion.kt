@@ -8,9 +8,8 @@ import domain.data.PlannedActivity
 import domain.enums.ActivityType
 import utils.CodePlan
 import utils.units.sinceStart
+import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.MappedByteBuffer
-import java.nio.file.Path
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -29,50 +28,19 @@ class BinaryActivityReader(
     private val contextSimulationSeed: Long
 ) : BinaryReader<MutablePlannedActivity> {
 
-    override fun fromBinary(path: Path): List<MutablePlannedActivity> {
-        return path.operateOnMemoryFile {
-            val size = this.getInt(0)
-            val idArray = Array(size) {
-                ActivityId(-1L)
-            }
-
-            for (i in 0 until size) {
-                idArray[i] = extractIds(this, i * idByteSize + 4)
-            }
-            val activities = idArray.map {
-                MutablePlannedActivity(
-                    it,
-                    contextSimulationSeed
-                )
-            }
-            for (i in 0 until size) {
-                extractContent(this, i * attributesByteSize + 4 + size * idByteSize, activities[i])
-            }
-
-            activities
+    override fun DataInputStream.decode(stringLength: Int): MutablePlannedActivity {
+        return MutablePlannedActivity(
+            ActivityId(readLong()),
+            contextSimulationSeed
+        ).apply {
+            val personId = PersonId(readLong())
+            person = personConverter(personId)
+            observedTripDuration = readInt().toDuration(DurationUnit.MINUTES)
+            startTime = readLong().toDuration(DurationUnit.MINUTES).sinceStart
+            duration = readInt().toDuration(DurationUnit.MINUTES)
+            activityType = codeActivity.decode(readInt())
         }
     }
-
-    private fun extractIds(buffer: MappedByteBuffer, at: Int): ActivityId {
-        return ActivityId(buffer.getLong(at))
-    }
-
-    private val idByteSize = 8
-
-    private fun extractContent(buffer: MappedByteBuffer, at: Int, target: MutablePlannedActivity) {
-        TrackingBuffer(buffer, at).run {
-            target.apply {
-                val personId = PersonId(nextLong)
-                person = personConverter(personId)
-                observedTripDuration = nextInt.toDuration(DurationUnit.MINUTES)
-                startTime = nextLong.toDuration(DurationUnit.MINUTES).sinceStart
-                duration = nextInt.toDuration(DurationUnit.MINUTES)
-                activityType = codeActivity.decode(nextInt)
-            }
-        }
-    }
-
-    private val attributesByteSize = 28
 }
 
 /**
@@ -83,20 +51,16 @@ class BinaryActivityWriter : BinaryWriter<PlannedActivity> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<PlannedActivity>) {
         val size = elements.size
         outStream.writeInt(size) // Write the amount of activities that are expected to be found in this file
-
-        elements.forEach { outStream.encodeID(it) } // Write the id of the activity
-        elements.forEach { outStream.encodeAttributes(it) } // write all the other information.
+        outStream.writeInt(0) // Write string length as required by standard format.
+        elements.forEach { outStream.encodeActivity(it) } // Write activities
     }
 
-    private fun DataOutputStream.encodeID(act: PlannedActivity) {
-        writeLong(act.id.value) //  8 Bytes
-    }
-
-    private fun DataOutputStream.encodeAttributes(act: PlannedActivity) {
-        writeLong(act.person.id.value) //  8 Bytes
-        writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES)) // 12 Bytes
-        writeLong(act.startTime.minutesSinceStart) // 20 Bytes
-        writeInt(act.duration.toInt(DurationUnit.MINUTES)) // 24 Bytes
-        writeInt(act.activityType.encode()) // 28 Bytes
+    private fun DataOutputStream.encodeActivity(act: PlannedActivity) {
+        writeLong(act.id.value)
+        writeLong(act.person.id.value)
+        writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES))
+        writeLong(act.startTime.minutesSinceStart)
+        writeInt(act.duration.toInt(DurationUnit.MINUTES))
+        writeInt(act.activityType.encode())
     }
 }

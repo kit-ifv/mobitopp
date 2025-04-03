@@ -8,9 +8,10 @@ import domain.data.Zone
 import domain.data.ZoneId
 import units.CurrencyUnit
 import units.euros
+import usecases.steps.binary.LocationUtils.decodeLocation
+import usecases.steps.binary.LocationUtils.encodeLocation
+import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.MappedByteBuffer
-import java.nio.file.Path
 
 /**
  * Reads a [MutableHousehold] from a binary file. Similar to other readers it firsts reads at position 0 the size,
@@ -24,42 +25,18 @@ import java.nio.file.Path
 class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private val contextSimulationSeed: Long) :
     BinaryReader<MutableHousehold> {
 
-    private val idByteSize = 8
-    override fun fromBinary(path: Path): List<MutableHousehold> {
-        return path.operateOnMemoryFile {
-            val size = getInt(0)
-            val ids = Array(size) {
-                HouseholdId(-1)
-            }
-
-            for (i in 0 until size) {
-                ids[i] = HouseholdId(getLong(i * idByteSize + 4))
-            }
-            val households = ids.map {
-                MutableHousehold(
-                    it,
-                    contextSimulationSeed
-                )
-            }
-            for (i in 0 until size) {
-                extractInfos(this, i * attributesByteSize + 4 + size * idByteSize, households[i])
-            }
-            households
-        }
-    }
-
-    private val attributesByteSize = 72
-    private fun extractInfos(buffer: MappedByteBuffer, at: Int, household: MutableHousehold) {
-        TrackingBuffer(buffer, at).run {
-            household.apply {
-                householdNumber = nextLong
-                surveyYear = nextInt
-                domCode = nextInt
-                type = nextInt
-                incomePerMonth = nextDouble.euros
-                economicStatus = EconomicStatus.decode(nextInt)
-                location = nextLocation(converter = zoneConverter)
-            }
+    override fun DataInputStream.decode(stringLength: Int): MutableHousehold {
+        return MutableHousehold(
+            HouseholdId(readLong()),
+            contextSimulationSeed
+        ).apply {
+            householdNumber = readLong()
+            surveyYear = readInt()
+            domCode = readInt()
+            type = readInt()
+            incomePerMonth = readDouble().euros
+            economicStatus = EconomicStatus.decode(readInt())
+            location = decodeLocation(converter = zoneConverter)
         }
     }
 }
@@ -70,25 +47,21 @@ class BinaryHouseholdReader(private val zoneConverter: (ZoneId) -> Zone, private
 class BinaryHouseholdWriter : BinaryWriter<Household> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<Household>) {
         outStream.writeInt(elements.size) // Write Size as Int in the beginning of the file
-        // Separate the writing to mimic the construction of the object, so first write all the necessary constructor parameters
-        elements.forEach { outStream.writeIDS(it) }
-        // And then write all the secondary attributes that are set afterwards.
-        elements.forEach { outStream.writeHouseholdAttributes(it) }
+        outStream.writeInt(0) // Format requires string size to be specified.
+
+        elements.forEach { outStream.encodeHousehold(it) } // write all elements
     }
 
-    private fun DataOutputStream.writeIDS(element: Household) {
-        writeLong(element.id.value) //  8 Bytes
-    }
-
-    private fun DataOutputStream.writeHouseholdAttributes(element: Household) {
+    private fun DataOutputStream.encodeHousehold(element: Household) {
+        writeLong(element.id.value)
         element.run {
-            writeLong(householdNumber) //  8 Bytes
-            writeInt(surveyYear) // 12 Bytes
-            writeInt(domCode) // 16 Bytes
-            writeInt(type) // 20 Bytes
-            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS)) // 28 Bytes
-            writeInt(economicStatus.encode()) // 32 Bytes
-            writeLocation(location) // 72 Bytes
+            writeLong(householdNumber)
+            writeInt(surveyYear)
+            writeInt(domCode)
+            writeInt(type)
+            writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
+            writeInt(economicStatus.encode())
+            encodeLocation(location)
         }
     }
 }

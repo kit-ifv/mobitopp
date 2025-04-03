@@ -3,6 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+/src/test/resources/tempOutput/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -40,3 +41,4 @@ local.properties
 
 ### Mac OS ###
 .DS_Store
+
