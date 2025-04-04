@@ -60,6 +60,13 @@ unit-test-job:
       - build/reports/kover/*
   coverage: "/application line coverage: ([0-9]+\\.?[0-9]*)%/"
 
+regression-test-job:
+  stage: test
+  trigger:
+    project: kit/ifv/intern/mobitopp/mobitopp-restatt
+    branch: main
+    strategy: depend
+
 code-style:
   stage: test
   needs: ["build-job"]
