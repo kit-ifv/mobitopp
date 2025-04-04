@@ -3,7 +3,7 @@ package usecases
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser

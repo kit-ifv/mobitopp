@@ -4,9 +4,10 @@ import datastructure.LocationKDTree
 import datastructure.WithMetric
 import domain.enums.ActivityType
 import domain.location.Location
-import modeling.discreteChoice.AllocatedLogit
-import modeling.discreteChoice.ChoiceSituation
 import modeling.discreteChoice.DiscreteChoiceModel
+import modeling.discreteChoice.structure.RuleBasedStructure
+import modeling.discreteChoice.utility.openMultinomialLogit
+import modeling.models.ChoiceAlternative
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisPerson
 import units.Distance
@@ -15,15 +16,21 @@ import units.kilometers
 import usecases.AttractivenessModel
 import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.random.Random
 
-val standardBandwidthModel =
-    DiscreteChoiceModel<Location, LocationSituation, BandwidthParameters>(
-        AllocatedLogit.create {
-            ruleForAll {
-                ln(it.attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
-            }
-        }
-    )
+val standardBandwidthModel = RuleBasedStructure<Location, LocationAlternative, BandwidthParameters> {
+    ruleForAll {
+        ln(it.attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
+    }
+}.openMultinomialLogit("DefaultBandwidthLocationSelector")
+
+//    DiscreteChoiceModel<Location, LocationAlternative, BandwidthParameters>(
+//        AllocatedLogit.create {
+//            ruleForAll {
+//                ln(it.attractiveness) / (bDistance * it.distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
+//            }
+//        },
+//    )
 
 /**
  * The bandwidth locator first determines which potential locations are valid targets by filtering the locations which
@@ -31,16 +38,20 @@ val standardBandwidthModel =
  * are within the band around the home location of the agent, all locations are considered valid.
  *
  * As second step a discrete choice model is used to determine the utility of each location individually. The input
- * for the discrete choice model can be found in [LocationSituation]
+ * for the discrete choice model can be found in [LocationAlternative]
  */
 class BandwidthLocator(
     private val potentialLocations: List<Location>,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType,
-    var parameters: BandwidthParameters = BandwidthParameters(),
-    val model: DiscreteChoiceModel<Location, LocationSituation, BandwidthParameters> = standardBandwidthModel,
+    var parameters: BandwidthParameters = BandwidthParameters(), // TODO why variable?
+    var model: DiscreteChoiceModel<Location, LocationAlternative, BandwidthParameters> =
+        standardBandwidthModel.build(parameters),
 ) : SimpleLocator<CommuteDistance> {
     private val locationTree = LocationKDTree(potentialLocations)
+
+    @Suppress("MagicNumber")
+    private val random = Random(42L) // TODO what is random source of opportunities?
 
     override fun locate(
         agent: SynthesisPerson<out CommuteDistance>,
@@ -52,8 +63,8 @@ class BandwidthLocator(
                 .map { WithMetric(it, it.distance(agent.homeLocation)) }
         }
         val converted =
-            validTargets.map { LocationSituation(it.item, it.metric, attractivenessModel, activityType) }.toSet()
-        return model.select(converted, parameters)
+            validTargets.map { LocationAlternative(it.item, it.metric, attractivenessModel, activityType) }.toSet()
+        return model.select(converted, random)
     }
 
     /**
@@ -81,12 +92,12 @@ data class BandwidthParameters(
  * Contains all relevant information for the discrete choice within the [BandwidthLocator] to select a proper target.
  */
 @Suppress("MagicNumber") // The small attractiveness as default seems to cause issues.
-data class LocationSituation(
+data class LocationAlternative(
     override val choice: Location,
     val distance: Distance,
     val attractivenessModel: AttractivenessModel,
     val activityType: ActivityType
-) : ChoiceSituation<Location>() {
+) : ChoiceAlternative<Location>() {
     /**
      * We can extrapolate the attractiveness by simply evaluating the location.
      */
