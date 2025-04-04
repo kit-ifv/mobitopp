@@ -1,7 +1,7 @@
 package usecases
 
 import domain.enums.ActivityType
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import utils.Decodable
 
 /**

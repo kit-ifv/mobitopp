@@ -4,6 +4,8 @@ import modeling.steps.Run
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
+import usecases.models.legacyDestinationChoice
+import usecases.models.legacyModeChoice
 import usecases.steps.ProjectContext
 import usecases.steps.StationColumns
 import usecases.steps.applyHomeLocationsInSchedule
@@ -64,7 +66,7 @@ fun main() {
             columns = StationColumns(vehicleCountColumn = "bikes"),
         )
         finishSharingStations()
-        loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
+        loadChoiceModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
         loadTestSet()
         applyHomeLocationsInSchedule()
         assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())
