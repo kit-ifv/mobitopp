@@ -62,6 +62,9 @@ unit-test-job:
 
 regression-test-job:
   stage: test
+  only:
+    - main
+    - dev
   trigger:
     project: kit/ifv/intern/mobitopp/mobitopp-restatt
     branch: main
