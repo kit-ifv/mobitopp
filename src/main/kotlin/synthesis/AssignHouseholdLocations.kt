@@ -1,8 +1,6 @@
 package synthesis
 
-import LandUseModel
 import LanduseDistributedCoordinates
-import ZoneType
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.data.Zone
@@ -11,7 +9,6 @@ import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate
-import units.Hemisphere
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -80,10 +77,9 @@ fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomi
     return GPSCoordinate.decimalDegree(newLatitude, newLongitude)
 }
 
-
 /**
- * Generates locations using the given [distributor]. Essentially uses the functionality of the [distributor] to distribute
- * coordinates inside [VisumPolyZone]-areas according to a landuse-model.
+ * Generates locations using the given [distributor]. Essentially uses the functionality of the [distributor] to
+ * distribute coordinates inside [VisumPolyZone]-areas according to a landuse-model.
  *
  * @param polyZones The zones used for generating locations.
  * @param distributor A [LanduseDistributedCoordinates]-[CoordinateGenerator] initialized with the land-use-model and
@@ -99,12 +95,12 @@ class ZoneDistributedLocations<T>(
      */
     override fun generateLocation(zone: Zone, household: T): Location {
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
-            ?: error("Polyzone with ID ${zone.id.value} not found")
+            ?: polyzoneNotFound(zone.visumId)
         return Location(distributor.generateOneCoordinate(polyZone), zone, null)
     }
 
     /**
-     * Generates  `householdsToLocate.size` many locations inside the polyzone, which matches the [visumID] of the given
+     * Generates `householdsToLocate.size` many locations inside the polyzone, which matches the [visumID] of the given
      * [zone].
      */
     override fun generateLocations(
@@ -112,7 +108,7 @@ class ZoneDistributedLocations<T>(
         householdsToLocate: List<T>
     ): List<Pair<T, Location>> {
         val polyZone: VisumPolyZone = polyZones[VisumZoneId(zone.visumId.toInt())]
-            ?: error("Polyzone with ID ${zone.id.value} not found")
+            ?: polyzoneNotFound(zone.visumId)
         val generatedLocations =
             distributor.generateCoordinates(polyZone, householdsToLocate.size).map {
                 Location(it, zone, null)
@@ -120,7 +116,11 @@ class ZoneDistributedLocations<T>(
         return householdsToLocate.zip(generatedLocations)
     }
 
-    private fun LanduseDistributedCoordinates.generateOneCoordinate(polyZone: VisumPolyZone) : GPSCoordinate {
+    private fun LanduseDistributedCoordinates.generateOneCoordinate(polyZone: VisumPolyZone): GPSCoordinate {
         return this.generateCoordinates(polyZone, 1).first()
+    }
+
+    private fun polyzoneNotFound(id: Long): Nothing {
+        error("Polyzone with visumID $id not found")
     }
 }

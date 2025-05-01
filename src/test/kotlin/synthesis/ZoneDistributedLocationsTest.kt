@@ -8,7 +8,7 @@ import NetfileParser
 import VisumLocale
 import ZoneType
 import asLocation
-import domain.data.MutableLegacyZone
+import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.AreaType
 import domain.enums.Regiostar17
@@ -25,9 +25,15 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class ZoneDistributedLocationsTest {
+    val leopoldLocale = VisumLocale()
+    init {
+        leopoldLocale.connector {
+            travelTimeCar = "T0_TSYS(BS)"
+        }
+    }
     val netfileParser = NetfileParser(
-        Path(""),
-        locale = VisumLocale(),
+        file = Path("src/test/resources/synthesis/leopoldshafen.net"),
+        locale = leopoldLocale,
         utmZone = 32,
         utmHemisphere = Hemisphere.NORTHERN
     )
@@ -56,11 +62,11 @@ class ZoneDistributedLocationsTest {
     @Test
     fun singleAssign() {
         val generated = distributedLocations.generateLocation(
-            TestZone(visumId = 6113),
+            TestZone(visumId = 1L),
             TestHouseHold("MyHousehold")
         )
 
-        assert(generated.zone?.visumId == 6113.toLong())
+        assert(generated.zone?.visumId == 1L)
         assertNotNull(generated.zone)
         assertNull(generated.roadAccess)
     }
@@ -70,14 +76,14 @@ class ZoneDistributedLocationsTest {
         val size = 20
         val houseHolds = List(size) { TestHouseHold() }
         val generated = distributedLocations.generateLocations(
-            TestZone(visumId = 6113),
+            TestZone(visumId = 35L),
             houseHolds
         )
 
         assert(generated.size == size)
         generated.forEach { pair ->
             assertNotNull(pair.second.zone)
-            assert(pair.second.zone?.visumId == 6113.toLong())
+            assert(pair.second.zone?.visumId == 35L)
             assertNull(pair.second.roadAccess)
             assert(pair.first.name == "TestHouseHold")
         }
@@ -86,36 +92,18 @@ class ZoneDistributedLocationsTest {
 
 @Suppress("LongParameterList")
 private class TestZone(
-    point: GPSCoordinate = GPSCoordinate.decimalDegree(50.0, 9.5),
-    visumId: Long = 6112L,
-    matrixColumn: Int = 0,
-    name: String = "TestZone",
-    regionType: AreaType = Regiostar17.METROPOLE,
-    classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override var parkingPlaces: Int = 1,
-    isDestination: Boolean = true,
-    relief: Distance = 0.meters,
-    id: ZoneId = ZoneId(1L)
-) : MutableLegacyZone(
-    id,
-    point.asLocation(),
-    42L,
-    {
-        this.visumId = visumId
-        this.name = name
-        this.regionType = regionType
-        this.classification = classification
-        this.parkingPlaces = parkingPlaces
-        this.isDestination = isDestination
-        this.relief = relief
-        this.matrixColumn = matrixColumn
-    }
-) {
-
-    override fun toString(): String {
-        return "TestZone$id"
-    }
-}
+    override val visumId: Long = 0L,
+    override val name: String = "TestZone",
+    override val regionType: AreaType = Regiostar17.METROPOLE,
+    override val classification: ZoneClassification = ZoneClassification.STUDY_AREA,
+    override val isDestination: Boolean = true,
+    override val relief: Distance = 0.meters,
+) : Zone(
+    id = ZoneId(visumId),
+    centroid = GPSCoordinate.decimalDegree(50.0, 9.0).asLocation(),
+    seed = 0L
+)
 
 private class TestHouseHold(
     val name: String = "TestHouseHold",
