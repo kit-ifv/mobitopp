@@ -17,8 +17,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
 import spawnDrivers
 import syntheticsim.ControllableImpedance
-import usecases.choicemodels.ModeAvailabilityFilter
+import syntheticsim.testAttractivenessModel
 import usecases.legacyChoiceModelModes
+import usecases.models.SharingAvailabilityFilter
 import utils.units.sinceStart
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
@@ -47,7 +48,7 @@ class CarOnlyScenario {
 
         persons.forEach { it.generateActivitySchedule(10, random) }
         val impedance = ControllableImpedance()
-        val availability = ModeAvailabilityFilter(
+        val availability = SharingAvailabilityFilter(
             legacyModes,
             emptySet(),
             mapOf(),
@@ -64,7 +65,9 @@ class CarOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
-            scopeDispatcher = modeScopeDispatcher
+            scopeDispatcher = modeScopeDispatcher,
+            attractivityModel = testAttractivenessModel,
+            availabilityModel = availability
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)

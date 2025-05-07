@@ -12,7 +12,7 @@ import modeling.validation.validateScope
 import usecases.AttractivenessFromCsv
 import usecases.AttractivenessModel
 import usecases.capitalizeWithUnderscores
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import utils.CodePlan
 import utils.csv.CsvReader
 import java.io.File
