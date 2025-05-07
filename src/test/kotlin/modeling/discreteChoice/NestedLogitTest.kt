@@ -1,20 +1,19 @@
 package modeling.discreteChoice
 
+import modeling.discreteChoice.structure.NestedStructure
+import modeling.discreteChoice.utility.nestedLogit
+import modeling.models.ChoiceAlternative
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class NestedLogitTest {
 
-    private val choiceModel = NestedLogit.build<
-        Options,
-        Situation,
-        RedbusParameters
-        >("Red bus Blue bus choice model") {
+    private val choiceModel = NestedStructure<Options, Alternative, RedbusParameters> {
         option(Options.CAR) {
             0.0
         }
-        nest({ lambdaBus }) {
+        nest("Bus", { lambdaBus }) {
             option(Options.RED_BUS) {
                 0.0
             }
@@ -22,32 +21,30 @@ class NestedLogitTest {
                 0.0
             }
         }
-    }
+    }.nestedLogit("Red bus Blue bus choice model")
 
     @Test
     fun redBusBlueBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, identical)
-        assertEquals(result[Situation(Options.RED_BUS)], 0.25)
-        assertEquals(result[Situation(Options.BLUE_BUS)], 0.25)
-        assertEquals(result[Situation(Options.CAR)], 0.5)
+        val model = choiceModel.build(identical).model
+        val result = model.probabilities(Alternative.ALL_VALID)
+        assertEquals(result[Alternative(Options.RED_BUS)], 0.25)
+        assertEquals(result[Alternative(Options.BLUE_BUS)], 0.25)
+        assertEquals(result[Alternative(Options.CAR)], 0.5)
     }
 
     @Test
     fun invariantRedBus() {
-        val result = choiceModel.calculateProbabilities(Situation.ALL_VALID, different)
-        assertEquals(result[Situation(Options.RED_BUS)], 1.0 / 3)
-        assertEquals(result[Situation(Options.BLUE_BUS)], 1.0 / 3)
-        assertEquals(result[Situation(Options.CAR)], 1.0 / 3)
+        val model = choiceModel.build(different).model
+        val result = model.probabilities(Alternative.ALL_VALID)
+        assertEquals(result[Alternative(Options.RED_BUS)], 1.0 / 3)
+        assertEquals(result[Alternative(Options.BLUE_BUS)], 1.0 / 3)
+        assertEquals(result[Alternative(Options.CAR)], 1.0 / 3)
     }
 
     @Test
-    fun badCreationSchemesAreCaught() {
+    fun duplicateOptionsAreCaught() {
         assertThrows<IllegalArgumentException> {
-            NestedLogit.build<
-                Options,
-                Situation,
-                RedbusParameters
-                > {
+            NestedStructure<Options, Alternative, RedbusParameters> {
                 option(Options.CAR) {
                     1.0
                 }
@@ -59,30 +56,20 @@ class NestedLogitTest {
     }
 
     @Test
-    fun badCreationSchemesAreCaught2() {
+    fun emptyStructuresAreCaught() {
         assertThrows<IllegalArgumentException> {
-            NestedLogit.build<
-                Options,
-                Situation,
-                RedbusParameters
-                > {
-            }
+            NestedStructure<Options, Alternative, RedbusParameters> { }
         }
     }
 
     @Test
-    fun badCreationSchemesAreCaught3() {
+    fun emptyNestsAreCaught() {
         assertThrows<IllegalArgumentException> {
-            NestedLogit.build<
-                Options,
-                Situation,
-                RedbusParameters
-                > {
-                nest(1.0) {
-                    nest(1.0) {
-                        nest(1.0) {
-                            nest(1.0) {
-                            }
+            NestedStructure<Options, Alternative, RedbusParameters> {
+                nest("A") {
+                    nest("B") {
+                        nest("C") {
+                            nest("D") {}
                         }
                     }
                 }
@@ -92,15 +79,14 @@ class NestedLogitTest {
 
     @Test
     fun unassociatedElementsGiveMessage() {
-        assertThrows<NoSuchElementException> {
-            choiceModel.calculateProbabilities(
-                Situation.ALL_VALID + setOf(Situation(Options.OTHER_ILLEGAL_OPTION)),
-                RedbusParameters(1.0)
+        assertThrows<IllegalArgumentException> {
+            choiceModel.build(RedbusParameters(1.0)).model.probabilities(
+                Alternative.ALL_VALID + setOf(Alternative(Options.OTHER_ILLEGAL_OPTION))
             )
         }
     }
 
-    operator fun <X : Any> Map<ChoiceSituation<X>, Double>.get(x: X): Double {
+    operator fun <X : Any> Map<ChoiceAlternative<X>, Double>.get(x: X): Double {
         return entries.first { it.key == x }.value
     }
 
@@ -130,9 +116,9 @@ class NestedLogitTest {
         RED_BUS, BLUE_BUS, CAR, OTHER_ILLEGAL_OPTION
     }
 
-    private class Situation(override val choice: Options) : ChoiceSituation<Options>() {
+    private class Alternative(override val choice: Options) : ChoiceAlternative<Options>() {
         companion object {
-            val ALL_VALID = setOf(Situation(Options.RED_BUS), Situation(Options.BLUE_BUS), Situation(Options.CAR))
+            val ALL_VALID = setOf(Alternative(Options.RED_BUS), Alternative(Options.BLUE_BUS), Alternative(Options.CAR))
         }
     }
 }

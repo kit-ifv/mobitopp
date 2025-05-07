@@ -2,11 +2,11 @@ package synthesis.carownership
 
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
-import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.KnownDiscreteChoiceModel
+import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
+import modeling.models.ChoiceAlternative
+import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo
-import synthesis.discreteChoice.CarOwnershipAttributes
-import synthesis.discreteChoice.carChoiceModel
+import synthesis.discreteChoice.carChoiceUtility
 import synthesis.discreteChoice.carOwnershipCityParameters
 import synthesis.discreteChoice.carOwnershipRuralArea
 import synthesis.discreteChoice.carOwnershipSmallCity
@@ -44,8 +44,8 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>
  * The `converter` function transforms household data into a specific choice situation, using an integer index
  * and the household data, which is necessary to make the decision.
  *
- * @param SIT The type of choice situation that represents a specific car ownership scenario.
- * @param PARAMS The type of parameters used for different region classifications.
+ * @param A The type of choice situation that represents a specific car ownership scenario.
+ * @param P The type of parameters used for different region classifications.
  * @param model The known discrete choice model that is used to make the car ownership assignment decision.
  * @param converter A function that converts a given index and a `SynthesisHousehold` of survey information into a choice situation (SIT).
  * @param cityParameters Parameters for the city region.
@@ -53,24 +53,27 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>
  * @param urbanAreaParameters Parameters for the urban area region.
  * @param ruralAreaParameters Parameters for the rural area region.
  */
-class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
-    val model: KnownDiscreteChoiceModel<Int, SIT, PARAMS>,
-    val converter: (Int, SynthesisHousehold<out SurveyInfo>) -> SIT,
-    private val cityParameters: PARAMS,
-    private val smallTownParameters: PARAMS,
-    private val urbanAreaParameters: PARAMS,
-    private val ruralAreaParameters: PARAMS,
+class AssignBySizebasedClassification<A : ChoiceAlternative<Int>, P>(
+    val model: EnumeratedDiscreteModelBuilder<Int, A, P>,
+    val converter: (SynthesisHousehold<out SurveyInfo>) -> ChoiceSituation<A, Int>,
+    private val cityParameters: P,
+    private val smallTownParameters: P,
+    private val urbanAreaParameters: P,
+    private val ruralAreaParameters: P,
 ) : CarOwnershipAssignStrategy<SurveyInfo> {
 
-    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
-        val parameterSet =
-            householdBuilder.location.zone?.regionType?.toRegioStaR17()?.toSizebasedClassification()?.toParameters()
-                ?: cityParameters
-
-        return model.select({ converter(it, householdBuilder) }, parameterSet)
+    private val models = SizebasedRegiostarClassification.entries.associateWith {
+        model.build(it.toParameters())
     }
 
-    private fun SizebasedRegiostarClassification.toParameters(): PARAMS {
+    override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
+        val region = householdBuilder.location.zone?.regionType?.toRegioStaR17()?.toSizebasedClassification()
+            ?: SizebasedRegiostarClassification.CITY
+
+        return models[region]!!.filterAndSelect(converter(householdBuilder))
+    }
+
+    private fun SizebasedRegiostarClassification.toParameters(): P {
         return when (this) {
             SizebasedRegiostarClassification.CITY -> cityParameters
             SizebasedRegiostarClassification.SMALL_TOWN -> smallTownParameters
@@ -84,26 +87,26 @@ class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
          * A builder class used to construct an instance of `AssignBySizebasedClassification` with the necessary parameters.
          * This builder helps with the setup of the discrete choice model and the regional parameters.
          *
-         * @param SIT The type of choice situation.
-         * @param PARAMS The type of parameters used for the region classification. PARAMS needs to be Any, so that it can
+         * @param A The type of choice situation.
+         * @param P The type of parameters used for the region classification. PARAMS needs to be Any, so that it can
          * be lateinit instead of nullable
          */
-        class AssignViaRegionTypeBuilder<SIT : ChoiceSituation<Int>, PARAMS : Any>(
-            var model: KnownDiscreteChoiceModel<Int, SIT, PARAMS>
+        class AssignViaRegionTypeBuilder<A : ChoiceAlternative<Int>, P : Any>(
+            val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
-            lateinit var converter: (Int, SynthesisHousehold<out SurveyInfo>) -> SIT
-            lateinit var cityParameters: PARAMS
-            lateinit var smallTownParameters: PARAMS
-            lateinit var urbanAreaParameters: PARAMS
-            lateinit var ruralAreaParameters: PARAMS
+            lateinit var converter: (SynthesisHousehold<out SurveyInfo>) -> ChoiceSituation<A, Int>
+            lateinit var cityParameters: P
+            lateinit var smallTownParameters: P
+            lateinit var urbanAreaParameters: P
+            lateinit var ruralAreaParameters: P
 
             /**
              * Builds and returns an instance of `AssignBySizebasedClassification` with the provided parameters.
              *
              * @return The fully constructed `AssignBySizebasedClassification` instance.
              */
-            fun build(): AssignBySizebasedClassification<SIT, PARAMS> {
+            fun build(): AssignBySizebasedClassification<A, P> {
                 return AssignBySizebasedClassification(
                     model,
                     converter,
@@ -123,8 +126,8 @@ class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
          * @param lambda A lambda function to configure the builder.
          * @return The constructed `AssignBySizebasedClassification` instance.
          */
-        fun <SIT : ChoiceSituation<Int>, PARAMS : Any> createUsingModel(
-            model: KnownDiscreteChoiceModel<Int, SIT, PARAMS>,
+        fun <SIT : ChoiceAlternative<Int>, PARAMS : Any> createUsingModel(
+            model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
             lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
         ): AssignBySizebasedClassification<SIT, PARAMS> {
             val builder = AssignViaRegionTypeBuilder(model)
@@ -138,8 +141,8 @@ class AssignBySizebasedClassification<SIT : ChoiceSituation<Int>, PARAMS>(
  * A standard assignment strategy that uses predefined choice models and parameter sets for different region types.
  * This strategy leverages the `AssignBySizebasedClassification` with default parameters for various region types.
  */
-val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsingModel(carChoiceModel) {
-    converter = { i, household -> CarOwnershipAttributes(i, household.toCarOwnershipAttributes()) }
+val standardAssignmentByRegionSize = AssignBySizebasedClassification.createUsingModel(carChoiceUtility) {
+    converter = { it.toCarOwnershipAttributes() }
     cityParameters = carOwnershipCityParameters
     smallTownParameters = carOwnershipSmallCity
     urbanAreaParameters = carOwnershipUrbanAreaParameters

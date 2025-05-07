@@ -13,8 +13,8 @@ import domain.location.Location
 import domain.location.Metrics
 import modeling.events.Agent
 import modeling.events.Event
-import usecases.choicemodels.ModeAvailabilityFilter
-import usecases.choicemodels.TripChoiceSituation
+import usecases.models.ModeChoiceAlternative
+import usecases.models.SharingAvailabilityFilter
 
 /**
  * An event scope spans the event processing of a target entity [T] holding additional information until the
@@ -139,7 +139,7 @@ class CarSelector(private val car: Mode) : ModeScopeSelector {
 
 class SharingVehicleSelector(
     private val sharingMode: Mode,
-    private val modeAvailabilityFilter: ModeAvailabilityFilter,
+    private val modeAvailabilityFilter: SharingAvailabilityFilter,
     private val metrics: Metrics,
     private val footMode: Mode,
 ) : ModeScopeSelector {
@@ -154,7 +154,18 @@ class SharingVehicleSelector(
             val destination = legs.destination
 
             val checkSharing =
-                modeAvailabilityFilter.checkSharing(TripChoiceSituation(person, origin, destination), sharingMode)
+                modeAvailabilityFilter.checkSharing(
+                    ModeChoiceAlternative(
+                        person,
+                        event.time,
+                        origin,
+                        destination,
+                        sharingMode,
+                        metrics,
+                        person.sharedResources()
+                    ),
+                    sharingMode
+                )
 
             val (startStation, endStation) = requireNotNull(checkSharing) {
                 "Wie hast du es geschafft Ridesharing zu wählen ohne ein Stationspaar?"

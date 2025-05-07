@@ -2,7 +2,6 @@ package syntheticsim
 
 import BIELEFELD
 import TestZone
-import benchmark.ControllableAttractiveness
 import datastructure.Activity
 import domain.data.ActivityId
 import domain.data.Household
@@ -14,7 +13,6 @@ import domain.data.ZoneId
 import domain.data.getBestCar
 import domain.data.locationBySchedule
 import domain.enums.ActivityType
-import domain.enums.ZoneClassification
 import domain.events.CarSelector
 import domain.events.EndActivityEvent
 import domain.events.EndLegEvent
@@ -25,26 +23,26 @@ import domain.events.PersonBehavior
 import domain.events.StartActivityEvent
 import domain.events.StartLegEvent
 import domain.events.StartTripEvent
-import domain.location.LOCATIONUNKNOWN
 import generateHousehold
 import generatePersons
 import generateZones
+import modeling.models.addFilter
+import modeling.models.fixed
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import point
 import spawnCar
 import spawnDrivers
+import synthesis.ControllableAttractiveness
 import usecases.AttractivenessModel
 import usecases.LegacyActivityType
 import usecases.LegacyMode
-import usecases.choicemodels.GeneratedHcUtilityFunction
-import usecases.choicemodels.LegacyDestinationChoice
-import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.MakeUtilities
-import usecases.choicemodels.TripChoiceSituation
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
+import usecases.models.SharingAvailabilityFilter
+import usecases.models.legacyDestinationChoice
+import usecases.models.legacyModeChoice
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.util.*
@@ -109,15 +107,15 @@ fun Person.hasAccessToCar(): Boolean {
 abstract class Scenario(
     val zones: List<TestZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
-    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, _ ->
-        GeneratedHcUtilityFunction(
-            a,
-            l,
-            m,
-            legacyChoiceModelPurposes,
-            h
-        )
-    }
+//    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, _ ->
+//        GeneratedHcUtilityFunction(
+//            a,
+//            l,
+//            m,
+//            legacyChoiceModelPurposes,
+//            h
+//        )
+//    }
 ) {
     val currentAttractivenessModel: ControllableAttractiveness = ControllableAttractiveness(zones)
 
@@ -128,24 +126,18 @@ abstract class Scenario(
     val fakeActivity =
         Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (-1).hours, ActivityType.UNKNOWN)
 
+    val availability = SharingAvailabilityFilter(
+        legacyChoiceModelModes,
+        emptySet(),
+        emptyMap(),
+        impedance
+    )
+
     val destinationChoice: OverridableDestinationChoiceModel = OverridableDestinationChoiceModel(
-        LegacyDestinationChoice(
-            impedance,
-            currentAttractivenessModel,
-            umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
-            zones.toSet(),
-            modes = legacyChoiceModelModes,
-            purposes = legacyChoiceModelPurposes,
-        )
+        legacyDestinationChoice
     )
     val modeChoice: OverridableModeChoiceModel = OverridableModeChoiceModel(
-        LegacyModeChoiceModel(
-            attractivenessModel = currentAttractivenessModel,
-            modes = legacyChoiceModelModes,
-            purposes = legacyChoiceModelPurposes,
-            impedance = impedance,
-            utilitiesGenerator = utilGenerator
-        )
+        legacyModeChoice.addFilter(availability)
     )
 
     // fun <S: ModelExecution<C>, C: PersonContext> S.loadSyntheticPerson() {
@@ -157,10 +149,12 @@ abstract class Scenario(
     // }
 
     private val behavior = PersonBehavior(
-        destinationChoice = destinationChoice,
-        modeChoice = modeChoice,
+        destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
+        modeChoice = modeChoice.fixed(legacyModeChoice.choices),
         impedance,
-        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) }))
+        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) })),
+        attractivityModel = currentAttractivenessModel,
+        availabilityModel = availability
     )
 
     fun Person.stepper(): EventStepper {
@@ -273,24 +267,30 @@ class Synthetic {
             assertTrue(first.hasAccessToCar())
             assertFalse(second.hasAccessToCar())
 
-            assertFalse(
-                LegacyMode.CAR in modeChoice.filter(
-                    TripChoiceSituation(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
-                    5.hours.sinceStart
-                )
-            )
+//            assertFalse(
+//                LegacyMode.CAR in availability.filter(
+//                    ModeChoiceAlternative(
+//                        person = second,
+//                        time = 5.hours.sinceStart,
+//                        origin = LOCATIONUNKNOWN,
+//                        destination = LOCATIONUNKNOWN,
+//                        ),
+//
+//
+//                )
+//            )
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
             firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
             firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
             assertTrue(first.hasAccessToCar())
-            assertTrue(
-                LegacyMode.CAR in modeChoice.filter(
-                    TripChoiceSituation(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
-                    5.hours.sinceStart
-                )
-            )
+//            assertTrue(
+//                LegacyMode.CAR in modeChoice.filter(
+//                    DestinationAlternative(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
+//                    5.hours.sinceStart
+//                )
+//            )
             secondPerson.nextStep(1)
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
         }

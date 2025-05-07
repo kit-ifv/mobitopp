@@ -1,12 +1,13 @@
 package utils.units
 
-import usecases.choicemodels.rem
 import java.time.DayOfWeek
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 typealias Time = AbsoluteTime
 
@@ -22,6 +23,9 @@ fun DayOfWeek.encode() = when (this) {
 }
 
 fun DayOfWeek.daysSinceStartOfWeek() = this.encode().days
+
+operator fun Duration.rem(other: Duration): Duration =
+    (this.inWholeSeconds % other.inWholeSeconds).toDuration(DurationUnit.SECONDS)
 
 fun decodeDayOfWeek(s: String): DayOfWeek = when (s.lowercase()) {
     "monday", "montag", "mo", "mo." -> (DayOfWeek.MONDAY)

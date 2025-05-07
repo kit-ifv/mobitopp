@@ -2,7 +2,6 @@ package synthesis
 
 import domain.data.Zone
 import domain.location.Location
-import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate
@@ -41,12 +40,13 @@ class TrivialGroupStrategy<AREA, H>(
 
 class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<Zone, H> {
     override fun generateLocation(zone: Zone, household: H): Location {
-        return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
+        return Location(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
+        // TODO zone rng or hh rng?, if hh rng -> require H: StochasticActor
     }
 }
 
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
-fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomizer): Coordinate {
+fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
     val lat1 = latitudeRadians.toDouble()
     val lon1 = longitudeRadians.toDouble()
 
