@@ -1,5 +1,6 @@
 package usecases.steps
 
+import NetfileParser
 import VisumLocale
 import domain.roadnetwork.LocatableGraph
 import modeling.steps.Context
@@ -8,7 +9,7 @@ import modeling.steps.ModelStep
 import modeling.validation.Warning
 import modeling.validation.validateFileReadAccess
 import modeling.validation.validateScope
-import parseNetwork
+import units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name
 
@@ -41,7 +42,14 @@ class LoadRoadNetworkStep<C>(
     override val name: String = "Load visum road network from ${file.name}"
 
     override fun execute() {
-        context.roadNetwork.value = LocatableGraph(parseNetwork(file, localeLambda))
+        context.roadNetwork.value = LocatableGraph(
+            NetfileParser(
+                file = file,
+                locale = VisumLocale(),
+                utmZone = 32,
+                utmHemisphere = Hemisphere.NORTHERN
+            ).parseNetwork(localeLambda)
+        )
     }
 
     override fun verifyInput(): Warning? = validateScope("Validate visum net file: ${file.name}") {

@@ -11,7 +11,7 @@ import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
-import units.euros
+import units.`€`
 
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,
@@ -155,9 +155,3 @@ val transitPassChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, 
         }
     }
 )
-
-/**
- * Yes this works...
- */
-@Suppress("TopLevelPropertyNaming") // In this instance the exotic naming is deliberate
-private val Number.`€` get() = this.euros
