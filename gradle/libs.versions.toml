@@ -18,8 +18,8 @@ xz = "1.9"
 progressbar = "0.10.1"
 exp4j = "0.4.8"
 # ifv units
-ifv-units= "1.1.6"
-ifv-visum-netparser = "0.9.13"
+ifv-units= "1.2.3"
+ifv-visum-netparser = "0.10.0"
 ifv-actitopp = "1.9+"
 
 
@@ -34,7 +34,7 @@ kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 [libraries]
 # ifv libs
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
-ifv-visum-netparser = { module = "edu.kit.ifv:visumNetfileParser", version.ref = "ifv-visum-netparser" }
+ifv-visum-netparser = { module = "edu.kit.ifv:visumnetfileparser", version.ref = "ifv-visum-netparser" }
 ifv-actitopp = { module = "edu.kit.ifv.mobitopp:actitopp", version.ref = "ifv-actitopp" }
 
 # testing libs

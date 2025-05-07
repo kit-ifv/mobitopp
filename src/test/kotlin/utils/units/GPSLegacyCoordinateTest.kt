@@ -2,10 +2,13 @@ package utils.units
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import units.DistanceUnit
+import units.Distance
 import units.kilometers
 
-class GPSLegcayCoordinateTest {
+class GPSLegacyCoordinateTest {
+    private fun Distance.fuzzyEquals(d: Distance): Boolean {
+        return (this - d) < 1.kilometers
+    }
 
     @Test
     fun distance() {
@@ -13,7 +16,7 @@ class GPSLegcayCoordinateTest {
         val pos2 = Pair(1.0, 0.0).toCoordinate()
         val d = pos1.distance(pos2)
 
-        assertTrue(111.19.kilometers.fuzzyEquals(d, DistanceUnit.KILOMETERS))
+        assertTrue(111.19.kilometers.fuzzyEquals(d))
     }
 
     @Test
@@ -22,6 +25,6 @@ class GPSLegcayCoordinateTest {
         val pos2 = Pair(51, 6).toCoordinate()
         val d = pos1.distance(pos2)
 
-        assertTrue(131.78.kilometers.fuzzyEquals(d, DistanceUnit.KILOMETERS))
+        assertTrue(131.78.kilometers.fuzzyEquals(d))
     }
 }
