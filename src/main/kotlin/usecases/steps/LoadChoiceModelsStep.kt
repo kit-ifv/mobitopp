@@ -5,12 +5,17 @@ import domain.data.SharingStation
 import domain.data.SharingStationId
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.ZoneClassification
+import domain.enums.Mode
 import domain.events.CarSelector
 import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
 import domain.events.SharingVehicleSelector
+import domain.location.Location
+import modeling.models.ChoiceModel
+import modeling.models.FixedChoicesModel
 import modeling.models.RandomChoiceModel
+import modeling.models.addFilter
+import modeling.models.fixed
 import modeling.steps.Context
 import modeling.steps.LateInit
 import modeling.steps.MutableRepository
@@ -21,23 +26,19 @@ import modeling.validation.Warning
 import modeling.validation.validateCondition
 import modeling.validation.validateScope
 import usecases.AttractivenessModel
-import usecases.choicemodels.ChoiceModelModes
-import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.ModeAvailabilityFilter
-import usecases.choicemodels.destinationchoice.ModernizedDestinationChoice
-import usecases.choicemodels.destinationchoice.ParameterObject
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
-import usecases.choicemodels.modechoice.ModeParameters
-import usecases.choicemodels.modechoice.ModernizedModeUtility
-import usecases.models.VehicleTakeAlongModeChoice
+import usecases.models.ChoiceModelModes
+import usecases.models.DestinationAlternative
+import usecases.models.FixedModesFilter
+import usecases.models.ModeAvailabilityFilter
+import usecases.models.ModeChoiceAlternative
+import usecases.models.SharingAvailabilityFilter
 
 fun LoadChoiceModelsContext.loadChoiceModels(
+    destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
+    modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
     modes: ChoiceModelModes,
-    purposes: ChoiceModelPurposes,
-    destinationParameters: ParameterObject = ParameterObject(purposes),
-    modeParameters: (ChoiceModelModes) -> ModeParameters = { ModeParameters(it, purposes) }
 ) = runStep {
-    LoadChoiceModelsStep(this, modes, purposes, destinationParameters, modeParameters(modes))
+    LoadChoiceModelsStep(this, destinationChoiceModel, modeChoiceModel, modes)
 }
 
 interface LoadChoiceModelsContext : Context, SimulationContext {
@@ -49,10 +50,9 @@ interface LoadChoiceModelsContext : Context, SimulationContext {
 
 class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
+    private val destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
+    private val modeChoiceModel: ChoiceModel<ModeChoiceAlternative, Mode>,
     private val modes: ChoiceModelModes,
-    private val purposes: ChoiceModelPurposes,
-    private val parameters: ParameterObject,
-    private val modeParameters: ModeParameters,
 ) : RepositoryDependentStep {
 
     override val name: String = "Load transmove legacy mode and destination choice!"
@@ -65,50 +65,37 @@ class LoadChoiceModelsStep(
     override fun execute() {
         val impedance = context.impedance.value
 
-        val availability = ModeAvailabilityFilter(
-            modes,
-            context.sharingStationsRepository.elements.toSet(),
-            context.sharingStationsRepository.elements.groupBy {
-                it.owner.mode
-            }.mapValues {
-                it.value.map { s -> s.owner }.toSet()
-            },
-            impedance
-        )
-
-        val modeChoice = VehicleTakeAlongModeChoice(
-
-            LegacyModeChoiceModel(
-                attractivenessModel = context.attractivenessModel.value,
-                modes = modes,
-                impedance = context.impedance.value,
-                choiceFilter = availability,
-                utilitiesGenerator = { a, _, m, _, p -> ModernizedModeUtility(m, a, p) },
-                betterParameters = modeParameters,
-                purposes = purposes
+        val availability =
+            SharingAvailabilityFilter( // TODO refactor availability model, as composite of availability rules
+                modes,
+                context.sharingStationsRepository.elements.toSet(),
+                context.sharingStationsRepository.elements.groupBy {
+                    it.owner.mode
+                }.mapValues {
+                    it.value.map { s -> s.owner }.toSet()
+                },
+                impedance
             )
+
+        val modeChoice = modeChoiceModel.addFilter(
+            availability
+        ).addFilter(FixedModesFilter).fixed(context.modes.values())
+        val destinationChoice = destinationChoiceModel.fixed(
+            context.zoneRepository.elements.map { it.centroid }.toSet()
         )
 
         val behavior = PersonBehavior(
-            destinationChoice = ModernizedDestinationChoice(
-                impedance,
-                context.attractivenessModel.value,
-                umlands = { loc -> loc.requireZone().classification == ZoneClassification.OUTLYING_AREA },
-                context.zoneRepository.elements.toSet(),
-                modes = modes,
-                parameterObject = parameters,
-                purposes = purposes
-            ),
-
-            modeChoice = modeChoice,
-
+            destinationChoice,
+            modeChoice,
             impedance,
             ModeScopeDispatcher(
                 modes.car to CarSelector(modes.car),
                 modes.let {
                     it.bikeSharing to SharingVehicleSelector(it.bikeSharing, availability, impedance, it.pedestrian)
                 }
-            )
+            ),
+            context.attractivenessModel.value,
+            availability,
         )
 
         context.behavior.value = behavior
@@ -131,7 +118,13 @@ class LoadChoiceModelsStep(
             destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
             modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
             impedance = impedance,
-            scopeDispatcher = ModeScopeDispatcher(mapOf())
+            scopeDispatcher = ModeScopeDispatcher(mapOf()),
+            context.attractivenessModel.value,
+            DummyAvailability,
         )
     }
+}
+
+object DummyAvailability : ModeAvailabilityFilter {
+    override fun filter(choices: Set<ModeChoiceAlternative>) = choices
 }
