@@ -7,7 +7,7 @@ import datastructure.Leg
 import datastructure.LinkTrip
 import datastructure.StationaryAction
 import datastructure.alternateByImpedance
-import domain.data.Person
+import domain.agent.PersonAgent
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
@@ -27,18 +27,18 @@ import utils.units.Time
 private const val EXPECTED_LEG_BLOCK = "expected leg block"
 
 abstract class ActionBlockEvent(
-    val person: Person,
+    val person: PersonAgent,
     priority: Int,
     time: Time,
     protected val behavior: PersonBehavior,
-) : Event<Person>(
+) : Event<PersonAgent>(
     agent = person,
     priority = priority,
     time = time
 ),
     ActionBlockVisitor<List<Event<*>>> {
 
-    override fun process(entity: Person): List<Event<*>> {
+    override fun process(entity: PersonAgent): List<Event<*>> {
         entity.location = entity.schedule.step()
 //        require(entity.location == entity.locationBySchedule()) {
 //            "Error, mismatch in locations precision."
@@ -49,7 +49,7 @@ abstract class ActionBlockEvent(
 }
 
 class InitPersonEvent(
-    person: Person,
+    person: PersonAgent,
     behavior: PersonBehavior,
 ) : ActionBlockEvent(
     person = person,
@@ -74,14 +74,14 @@ class InitPersonEvent(
         )
     }
 
-    override fun process(entity: Person): List<Event<*>> {
+    override fun process(entity: PersonAgent): List<Event<*>> {
         val block = entity.schedule.nextBlock()
         return block?.accept(this) ?: emptyList()
     }
 }
 
 class StartActivityEvent(
-    person: Person,
+    person: PersonAgent,
     activity: StationaryAction,
     behavior: PersonBehavior,
 ) : ActionBlockEvent(
@@ -107,7 +107,7 @@ class StartActivityEvent(
 }
 
 class EndActivityEvent(
-    person: Person,
+    person: PersonAgent,
     activity: Activity,
     behavior: PersonBehavior,
 ) : ActionBlockEvent(
@@ -138,7 +138,7 @@ class EndActivityEvent(
 }
 
 class StartTripEvent(
-    person: Person,
+    person: PersonAgent,
     time: Time,
     behavior: PersonBehavior,
 ) : ActionBlockEvent(
@@ -197,14 +197,14 @@ class StartTripEvent(
         error(EXPECTED_LEG_BLOCK)
     }
 
-    override fun process(entity: Person): List<Event<*>> {
+    override fun process(entity: PersonAgent): List<Event<*>> {
         val block = entity.schedule.nextBlock()
         return block?.accept(this).orEmpty()
     }
 }
 
 class StartLegEvent(
-    person: Person,
+    person: PersonAgent,
     leg: Leg,
     factory: PersonBehavior,
 ) : ActionBlockEvent(
@@ -229,7 +229,7 @@ class StartLegEvent(
 }
 
 class EndLegEvent(
-    person: Person,
+    person: PersonAgent,
     leg: Leg,
     factory: PersonBehavior,
 ) : ActionBlockEvent(

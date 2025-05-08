@@ -2,41 +2,35 @@ package domain.data
 
 import Mutable
 import domain.location.Location
-import domain.resources.Resource
-import domain.resources.Subscribable
 import units.Currency
 import utils.Encodable
 import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
 import utils.random.SeededActor
+import utils.random.StochasticActor
 
 typealias HouseholdId = ID<Household>
+
+interface IHousehold : Identifiable<HouseholdId>, StochasticActor {
+    val householdNumber: Long
+    val surveyYear: Int
+    val location: Location
+    val domCode: Int
+    val type: Int
+    val incomePerMonth: Currency
+    val economicStatus: EconomicStatus
+    val members: Set<IPerson>
+    val cars: Set<IPrivateCar>
+}
 
 @Mutable
 abstract class Household(
     override val id: HouseholdId,
     seed: Long,
-) : SeededActor<Household>(seed), Identifiable<HouseholdId>, Subscribable<Person>, Resource<Person> {
-
-    abstract val householdNumber: Long
-    abstract val surveyYear: Int
-    abstract val location: Location
-    abstract val domCode: Int
-    abstract val type: Int
-    abstract val incomePerMonth: Currency
-    abstract val economicStatus: EconomicStatus
-    abstract val members: Set<Person>
-    abstract val cars: Set<PrivateCar>
-
-    final override val name: String by lazy { "H_${id}_$householdNumber" }
-
-    final override fun isAvailableFor(agent: Person): Boolean {
-        return (location == agent.location) && !agent.inTransit
-    }
-
-    final override val resources: Set<Resource<Person>>
-        get() = setOf(this)
+) : SeededActor<Household>(seed), IHousehold {
+    abstract override val members: Set<Person>
+    abstract override val cars: Set<PrivateCar>
 }
 
 /**
