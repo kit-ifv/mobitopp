@@ -1,22 +1,23 @@
 package modeling.eval
 
 import datastructure.MovingAction
+import domain.agent.PersonAgent
 import domain.data.Household
-import domain.data.Person
+import domain.data.IPerson
 import usecases.steps.ProjectContext
 import utils.collections.asBins
 import utils.collections.mapToBins
 
-val ProjectContext.persons: List<Person>
+val ProjectContext.persons: List<PersonAgent>
     get() = personRepository.elements.toList()
 
 val ProjectContext.households: List<Household>
     get() = householdRepository.elements.toList()
 
-data class PersonLeg(val person: Person, val leg: MovingAction)
+data class PersonLeg(val person: PersonAgent, val leg: MovingAction)
 
 val ProjectContext.personLegs: List<PersonLeg>
-    get() = personRepository.elements.flatMap { person ->
+    get() = persons.flatMap { person ->
         person.schedule.pastLegs().map { leg -> PersonLeg(person, leg) }
     }.toList()
 
@@ -49,7 +50,7 @@ private val ageBins = listOf(
 ).asBins()
 
 fun <G> ProjectContext.agePlot(
-    groupBy: (Person) -> G,
+    groupBy: (IPerson) -> G,
     label: String = "group",
     order: Ordering<G> = Ordering.Arbitrary(),
     coloring: (G) -> RGB = { _ -> randomColor() }

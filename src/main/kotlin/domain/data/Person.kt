@@ -1,13 +1,6 @@
 package domain.data
 
 import Mutable
-import datastructure.Action
-import datastructure.Schedule
-import domain.enums.Mode
-import domain.location.Location
-import domain.resources.Subscribable
-import modeling.events.Agent
-import modeling.events.Event
 import units.Currency
 import units.UnitIntervalValue
 import utils.Encodable
@@ -15,36 +8,40 @@ import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
 import utils.random.SeededActor
+import utils.random.StochasticActor
 
 typealias PersonId = ID<Person>
 
 const val ADULT_AGE_GER = 18
 
+@Suppress("ComplexInterface")
+interface IPerson : Identifiable<PersonId>, StochasticActor {
+    val household: IHousehold
+    val age: Int
+    val employment: Employment
+    val sex: Sex
+    val graduation: Graduation
+    val income: Currency
+    val hasBike: Boolean
+    val hasCommuterTicket: Boolean
+    val hasLicense: Boolean
+    val sharingMemberships: List<ISharingProvider>
+    val eMobilityAcceptance: UnitIntervalValue
+    val chargingInfluence: ChargingInfluence
+
+    val isAdult: Boolean
+        get() = (age >= ADULT_AGE_GER)
+}
+
 @Mutable
 abstract class Person(
     final override val id: PersonId,
-    val household: MutableHousehold,
+    override val household: MutableHousehold,
     seed: Long,
-) : SeededActor<Person>(seed),
-    Identifiable<PersonId>,
-    Agent<Person> { // TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
+) : SeededActor<Person>(seed), IPerson {
+    // Agent<Person> TODO merge Agent and Stochastic Actor, or agent should just be wrapper in simulation
 
-    abstract val age: Int
-    abstract val employment: Employment
-    abstract val sex: Sex
-    abstract val graduation: Graduation
-    abstract val income: Currency
-    abstract val hasBike: Boolean
-    abstract val hasCommuterTicket: Boolean
-    abstract val hasLicense: Boolean
-    abstract val memberships: Map<Subscribable<Person>, Boolean>
-    abstract val eMobilityAcceptance: UnitIntervalValue
-    abstract val chargingInfluence: ChargingInfluence
-    abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
-
-    var inTransit: Boolean = false // TODO simulation attribute, how to handle?
-
-    final override var location: Location = household.location
+    abstract override val sharingMemberships: List<SharingProvider>
 
     init {
         addAsMember()
@@ -53,43 +50,6 @@ abstract class Person(
     private fun addAsMember() {
         this.household.members.add(this)
     }
-
-    final override var nextEvent: Event<Person>? = null
-    final override val entity: Person by lazy { this }
-
-    // TODO keep for old tests to be functional, remove in the future! ->
-    private val plannedActivityList: MutableList<PlannedActivity> = mutableListOf()
-    val plannedActivities: List<PlannedActivity>
-        get() = plannedActivityList
-
-    fun addActivity(plannedActivity: PlannedActivity) {
-        plannedActivityList.add(plannedActivity)
-
-        schedule.addWithPrecedingLeg(
-            plannedActivity.toActivity()
-        )
-    }
-    // TODO <- remove until here
-
-    val isAdult: Boolean
-        get() = (age >= ADULT_AGE_GER)
-
-    fun sharedResources() = memberships.keys.flatMap { it.availableResourcesFor(this) }.toSet()
-}
-
-fun Person.lastTransportMode(action: Action): Mode? {
-    return schedule.pastLegs().lastOrNull { it < action }?.transportType
-}
-
-fun Schedule.location(): Location? {
-    return present?.startLocation ?: past.lastOrNull()?.endLocation
-}
-
-fun Person.locationBySchedule() = schedule.location() ?: household.location
-
-fun Person.getBestCar(): PrivateCar? {
-    return household.cars.filter { it.state == PrivateCar.CarState.PARKED && (it.location == location) }
-        .maxByOrNull { if (it.mainUser == this) 1 else 0 }
 }
 
 /**
