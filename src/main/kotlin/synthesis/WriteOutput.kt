@@ -88,7 +88,7 @@ object CarOutput : CSVOutput<SynthesisCar> {
                 id, // TODO verify that this is always the car ID
                 "0", // TODO verify that this is acurraty
                 engine.type,
-                location,
+                mainUser?.household?.location ?: "Null",
                 segment,
                 seats,
                 "TODO always 0.0?",

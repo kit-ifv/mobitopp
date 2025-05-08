@@ -3,17 +3,14 @@ package usecases.steps
 import domain.data.ChargingInfluence
 import domain.data.Employment
 import domain.data.Graduation
-import domain.data.Household
 import domain.data.HouseholdId
 import domain.data.MutableHousehold
 import domain.data.MutablePerson
-import domain.data.Person
 import domain.data.PersonId
 import domain.data.Sex
-import domain.data.SharingStation
-import domain.data.SharingStationId
+import domain.data.SharingProvider
+import domain.data.SharingProviderId
 import domain.enums.ActivityType
-import domain.resources.Subscribable
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.MutableRepository
@@ -38,7 +35,7 @@ import java.io.File
 interface LoadPersonsContext : Context {
     val personRepository: MutableRepository<MutablePerson, PersonId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
-    val sharingStationsRepository: Repository<SharingStation, SharingStationId>
+    val sharingProviderRepository: Repository<SharingProvider, SharingProviderId>
     val employmentCodes: CodePlan<Employment>
     val graduationCodes: CodePlan<Graduation>
     val sexCodes: CodePlan<Sex>
@@ -84,8 +81,8 @@ fun LoadPersonsContext.preparePersons(
     incomeUnit: CurrencyUnit = costUnit,
     filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
 ) {
-    val providersByNameFunction: () -> Map<String, Subscribable<Person>> = {
-        sharingStationsRepository.elements.map { it.owner }.distinct().associateBy { it.name.lowercase() }
+    val providersByNameFunction: () -> Map<String, SharingProvider> = {
+        sharingProviderRepository.elements.associateBy { it.name.lowercase() }
     }
 
     val csvParser = CsvParser<MutablePerson>(errorHandling) { row ->
@@ -105,8 +102,8 @@ fun LoadPersonsContext.preparePersons(
             hasLicense = row.boolean(columns.licenseColumn)
             eMobilityAcceptance = row.unitShare(columns.eMobilityAcceptanceColumn)
             chargingInfluence = row.decodeName(columns.chargingInfluenceColumn, ChargingInfluence)
-            memberships.putAll(
-                parseMemberships(row, providersByNameFunction, household)
+            sharingMemberships.addAll(
+                parseMemberships(row, providersByNameFunction)
             )
         }
     }
@@ -126,7 +123,7 @@ fun LoadPersonsContext.preparePersonsFile(
         parser = parser,
         delimiter = delimiter,
         repository = personRepository,
-        dependentRepositories = setOf(householdRepository, sharingStationsRepository),
+        dependentRepositories = setOf(householdRepository, sharingProviderRepository),
         validationMock = listOf() // TODO
     )
 }
@@ -145,18 +142,18 @@ fun LoadPersonsContext.loadPersons(
 
 private fun parseMemberships(
     row: Row,
-    providersByNameFunction: () -> Map<String, Subscribable<Person>>,
-    requestedHousehold: Household
+    providersByNameFunction: () -> Map<String, SharingProvider>,
 ) = row("mobilityProviderCustomership")
     .replace("{", "")
     .replace("}", "")
     .split(", ")
     .map { it.split("=") }
     .filter { it[0].lowercase() in providersByNameFunction() }
-    .associate { membership ->
+    .filter { it[1].toBoolean() }
+    .map { membership ->
         requireNotNull(
             providersByNameFunction()[membership[0].lowercase()]
-        ) to membership[1].toBoolean()
-    }.toMutableMap().apply {
-        put(requestedHousehold, true)
+        ) {
+            "Could not find sharing provider named ${membership[0]}"
+        }
     }

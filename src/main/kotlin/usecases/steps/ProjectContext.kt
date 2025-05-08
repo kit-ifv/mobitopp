@@ -13,10 +13,12 @@ import domain.data.MutableHousehold
 import domain.data.MutableLegacyZone
 import domain.data.MutablePerson
 import domain.data.MutablePrivateCar
+import domain.data.MutableSharingProvider
 import domain.data.MutableSharingStation
 import domain.data.PersonId
 import domain.data.PlannedActivity
 import domain.data.Sex
+import domain.data.SharingProviderId
 import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
@@ -30,6 +32,7 @@ import modeling.steps.Context
 import modeling.steps.ExecutionMode
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
+import modeling.steps.MutableRepository
 import modeling.steps.SimulationContext
 import units.CurrencyUnit
 import units.DistanceUnit
@@ -75,7 +78,7 @@ data class ProjectContext(
 ) : Context,
     LoadAttractivenessDataContext,
     LoadZonesContext,
-    LoadSharingStationsContext,
+    LoadSharingProvidersContext,
     LoadHouseholdContext,
     LoadPersonsContext,
     LoadPrivateCarsContext,
@@ -100,7 +103,8 @@ data class ProjectContext(
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
     override val plannedActivityRepository = MapRepository<PlannedActivity, ActivityId>("planned activities")
-    override val sharingStationsRepository = MapRepository<MutableSharingStation, SharingStationId>("sharing stations")
+    override val sharingProvidersRepository: MutableRepository<MutableSharingProvider, SharingProviderId> =
+        MapRepository<MutableSharingStation, SharingStationId>("sharing stations")
 
     override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
         require(zoneRepository.sealed) {

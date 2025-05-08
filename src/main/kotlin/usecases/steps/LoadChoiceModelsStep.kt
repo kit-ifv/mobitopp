@@ -1,8 +1,8 @@
 package usecases.steps
 
+import domain.agent.SharingProviderAgent
 import domain.data.LegacyZone
-import domain.data.SharingStation
-import domain.data.SharingStationId
+import domain.data.SharingProviderId
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.Mode
@@ -42,7 +42,7 @@ fun LoadChoiceModelsContext.loadChoiceModels(
 }
 
 interface LoadChoiceModelsContext : Context, SimulationContext {
-    val sharingStationsRepository: Repository<SharingStation, SharingStationId>
+    val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
     val attractivenessModel: LateInit<AttractivenessModel>
@@ -59,21 +59,24 @@ class LoadChoiceModelsStep(
     override val repository: MutableRepository<*, *>? = null
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
         context.zoneRepository,
-        context.sharingStationsRepository
+        context.sharingProviderAgents
     )
 
     override fun execute() {
         val impedance = context.impedance.value
 
+        val providers = context.sharingProviderAgents.elements
+        val stations = providers.flatMap {
+            it.stations
+        }
+
         val availability =
             SharingAvailabilityFilter( // TODO refactor availability model, as composite of availability rules
                 modes,
-                context.sharingStationsRepository.elements.toSet(),
-                context.sharingStationsRepository.elements.groupBy {
-                    it.owner.mode
-                }.mapValues {
-                    it.value.map { s -> s.owner }.toSet()
-                },
+                stations.toSet(),
+                providers.groupBy {
+                    it.mode
+                }.mapValues { it.value.toSet() },
                 impedance
             )
 
