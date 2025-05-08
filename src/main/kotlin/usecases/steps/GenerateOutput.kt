@@ -2,7 +2,7 @@ package usecases.steps
 
 import datastructure.Activity
 import datastructure.LinkedLeg
-import domain.data.Person
+import domain.agent.PersonAgent
 import domain.data.PersonId
 import modeling.steps.Context
 import modeling.steps.ModelStep
@@ -20,7 +20,7 @@ fun WriteTripsCsvContext.output(
 }
 
 interface WriteTripsCsvContext : Context {
-    val personRepository: Repository<Person, PersonId>
+    val personAgents: Repository<PersonAgent, PersonId>
 }
 
 private class WriteTripsToCsvStep(
@@ -34,7 +34,7 @@ private class WriteTripsToCsvStep(
 
     override fun execute() {
         val result =
-            context.personRepository.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
+            context.personAgents.elements.filter { it.schedule.pastLegs().isNotEmpty() }.map { person ->
                 val legs = person.schedule.pastLegs()
                 val e = legs as List<LinkedLeg>
                 stringifyLegs(e, person)
@@ -46,7 +46,7 @@ private class WriteTripsToCsvStep(
         println("Demand Simulation written to $file")
     }
 
-    private fun stringifyLegs(e: List<LinkedLeg>, person: Person) =
+    private fun stringifyLegs(e: List<LinkedLeg>, person: PersonAgent) =
         e.joinToString("\n") { leg ->
             val previous = leg.previous
             val next = leg.next

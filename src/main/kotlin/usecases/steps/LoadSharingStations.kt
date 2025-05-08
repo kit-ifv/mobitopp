@@ -3,18 +3,20 @@ package usecases.steps
 import domain.data.LegacyZone
 import domain.data.MutableSharingProvider
 import domain.data.MutableSharingStation
+import domain.data.SharingProviderId
 import domain.data.SharingStationId
-import domain.data.SharingVehicle
-import domain.data.SharingVehicleId
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.Mode
 import domain.location.Location
+import modeling.steps.AddResourceStep
 import modeling.steps.Context
-import modeling.steps.LoadCsvStep
+import modeling.steps.CsvResource
+import modeling.steps.LazyResource
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
 import modeling.steps.SealStep
+import modeling.steps.ValidateCsvMetadata
 import units.Coordinate
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -25,8 +27,8 @@ import utils.csv.long
 import utils.units.toCoordinate
 import java.io.File
 
-interface LoadSharingStationsContext : Context {
-    val sharingStationsRepository: MutableRepository<MutableSharingStation, SharingStationId>
+interface LoadSharingProvidersContext : Context {
+    val sharingProvidersRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
@@ -43,10 +45,11 @@ data class StationColumns(
     val zonesByFootColumn: String = "zone_avail",
 )
 
-private var idCounter: Long = 0L
+private var providerIdCounter = 0L
+private var sharingIdCounter: Long = 0L
 
 @Suppress("LongParameterList", "UnusedParameter")
-fun LoadSharingStationsContext.prepareSharingStations(
+fun LoadSharingProvidersContext.prepareSharingStations(
     file: File = defaultSharingStationFile,
     columns: StationColumns = StationColumns(),
     delimiter: String = SEMICOLON,
@@ -55,7 +58,15 @@ fun LoadSharingStationsContext.prepareSharingStations(
     mode: Mode,
     coordinateParser: (String) -> Coordinate = String::parseCoordinate,
 ) {
-    val sharingProvider = MutableSharingProvider {
+    val sharingProvider: MutableSharingProvider = sharingProvidersRepository.elements.find {
+        it.name == providerName
+    }?.also {
+        require(it.mode == mode) {
+            "Cannot add another sharing provider with same name: $providerName but different mode: ${it.mode}!=$mode"
+        }
+    } ?: MutableSharingProvider(
+        id = SharingProviderId(providerIdCounter++)
+    ) {
         name = providerName
         this.mode = mode
     }
@@ -63,7 +74,7 @@ fun LoadSharingStationsContext.prepareSharingStations(
     val csvParser = CsvParser<MutableSharingStation>(errorHandling) { row ->
 
         MutableSharingStation(
-            id = SharingStationId(idCounter++),
+            id = SharingStationId(sharingIdCounter++),
             owner = sharingProvider,
         ) {
             uid = row(columns.uidColumn)
@@ -76,38 +87,50 @@ fun LoadSharingStationsContext.prepareSharingStations(
                 coordinate = coordinateParser(row(columns.coordinatesColumn)),
                 roadAccess = null
             )
-            addVehicles(
-                sharingProvider.prepareVehicles(
-                    count = row.int(columns.vehicleCountColumn),
-                )
-            )
+            initialVehicleCount = row.int(columns.vehicleCountColumn)
         }
     }
 
-    this.prepareStationsFile(csvParser, file, delimiter) // TODO
+    this.prepareStationsFile(sharingProvider, csvParser, file, delimiter) // TODO
 }
 
-fun LoadSharingStationsContext.prepareStationsFile(
+fun LoadSharingProvidersContext.prepareStationsFile(
+    sharingProvider: MutableSharingProvider,
     parser: CsvParser<MutableSharingStation>,
     file: File = defaultSharingStationFile,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    LoadCsvStep(
-        file = file,
-        name = "Load sharing stations from csv",
-        parser = parser,
-        delimiter = delimiter,
-        repository = sharingStationsRepository,
-        dependentRepositories = setOf(zoneRepository),
-        validationMock = listOf() // TODO
-    )
+    object : AddResourceStep<MutableSharingProvider, SharingProviderId>() {
+        override val name = "Add sharing provider ${sharingProvider.name} and parse its stations from csv: ${file.name}"
+
+        private val csvResource = CsvResource(file, parser, delimiter)
+
+        override val resource = LazyResource<MutableSharingProvider>(
+            csvResource.name,
+            csvResource.source,
+        ) {
+            csvResource.elements.toList()
+
+            if (sharingProvidersRepository.elements.none { it.name == sharingProvider.name }) {
+                sequenceOf(sharingProvider)
+            } else {
+                emptySequence()
+            }
+        }
+
+        override val repository = sharingProvidersRepository
+        override val dependentRepositories = setOf(zoneRepository)
+
+        override fun verifyInput() = ValidateCsvMetadata(this, csvResource).validate()
+        override fun mockElementsForValidation(): List<MutableSharingProvider> = emptyList() // TODO
+    }
 }
 
-fun LoadSharingStationsContext.finishSharingStations() = runStep {
-    SealStep(sharingStationsRepository)
+fun LoadSharingProvidersContext.finishSharingStations() = runStep {
+    SealStep(sharingProvidersRepository)
 }
 
-fun LoadSharingStationsContext.loadSharingStations(
+fun LoadSharingProvidersContext.loadSharingStations(
     providerName: String,
     mode: Mode,
 ) {
@@ -125,17 +148,17 @@ fun String.parseCoordinate(): Coordinate =
                 "Expected format: '<NUMBER>,<NUMBER>'!"
         )
 
-fun MutableSharingProvider.prepareVehicles(count: Int, mode: Mode = this.mode): Set<SharingVehicle> {
-    return (numberOfVehicles until numberOfVehicles + count).map {
-        SharingVehicle(
-            id = SharingVehicleId(it.toLong()),
-            mode = mode,
-            owner = this,
-        )
-    }.toSet()
-}
+// fun MutableSharingProvider.prepareVehicles(count: Int, mode: Mode = this.mode): Set<SharingVehicle> {
+//    return (numberOfVehicles until numberOfVehicles + count).map {
+//        SharingVehicle(
+//            id = SharingVehicleId(it.toLong()),
+//            mode = mode,
+//            owner = this,
+//        )
+//    }.toSet()
+// }
 
-fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : LoadSharingStationsContext {
+fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : LoadSharingProvidersContext {
     return row(column).split(",").map { id ->
 
         id.toLongOrNull()?.let {
@@ -147,7 +170,7 @@ fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : Load
     }.toSet()
 }
 
-fun <C> C.getZone(id: Long): Zone where C : LoadSharingStationsContext = requireNotNull(
+fun <C> C.getZone(id: Long): Zone where C : LoadSharingProvidersContext = requireNotNull(
     this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +

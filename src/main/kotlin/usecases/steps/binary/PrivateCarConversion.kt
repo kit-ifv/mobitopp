@@ -15,6 +15,7 @@ import domain.location.Location
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
+
 @Suppress("MagicNumber")
 class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
@@ -65,12 +66,12 @@ class BinaryCarReader(
                 segment = CarSegment.decode(nextInt)
                 val engineType = EngineType.decode(nextInt)
                 engine = carEngineStatistics.buildEngine(segment, engineType)
-                location = determineLocation(this@run, this)
+//                location = determineLocation(this@run, this)
             }
         }
     }
 
-    private val attributeByteSize = 60
+    private val attributeByteSize = 20 // TODO check, was 60 before removing location below
 }
 
 class BinaryCarWriter : BinaryWriter<PrivateCar> {
@@ -93,7 +94,7 @@ class BinaryCarWriter : BinaryWriter<PrivateCar> {
             writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
             writeInt(segment.code) // 16 Bytes
             writeInt(engine.type.code) // 20 Bytes
-            writeLocation(location) // 60 Bytes
+//            writeLocation(location) // 60 Bytes
         }
     }
 }

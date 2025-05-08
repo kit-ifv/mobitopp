@@ -39,8 +39,9 @@ interface ISharingStation : Identifiable<SharingStationId> {
 abstract class SharingStation(
     final override val id: SharingStationId,
     final override val owner: MutableSharingProvider,
-    val initialVehicleCount: Int,
 ) : ISharingStation { // , Resource<Person>
+
+    abstract val initialVehicleCount: Int
 
     init {
         registerOwner()

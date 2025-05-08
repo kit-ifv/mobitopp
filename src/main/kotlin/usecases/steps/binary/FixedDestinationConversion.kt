@@ -1,15 +1,19 @@
 package usecases.steps.binary
 
+import domain.data.IPerson
 import domain.data.Person
 import domain.data.PersonId
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
-import usecases.steps.ActivityLocation
+import domain.location.Location
 import utils.CodePlan
 import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
+
+data class ActivityLocation(val person: IPerson, val activityType: ActivityType, val location: Location)
+
 @Suppress("MagicNumber")
 class FixedDestinationReader(
     val personConverter: (PersonId) -> Person,

@@ -87,7 +87,7 @@ fun LoadPrivateCarsContext.preparePrivateCars(
             segment = row.decodeName(columns.segmentColumnIndex, carSegmentCodes)
             val engineType = row(columns.engineTypeColumn, ::parseEngineType)
             engine = carEngineStatistics.buildEngine(segment, engineType)
-            location = owner.location
+//            location = owner.location
         }
     }
 
