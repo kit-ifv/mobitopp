@@ -1,7 +1,7 @@
 package usecases
 
 import domain.enums.Mode
-import usecases.choicemodels.ChoiceModelModes
+import usecases.models.ChoiceModelModes
 import utils.CodePlan
 
 /**

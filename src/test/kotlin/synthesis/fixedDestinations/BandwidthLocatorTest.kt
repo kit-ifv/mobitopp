@@ -1,14 +1,15 @@
 package synthesis.fixedDestinations
 
 import TestZone
-import benchmark.ControllableAttractiveness
 import datastructure.discardMetric
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.location.Location
+import modeling.discreteChoice.SelectionFunction
 import org.junit.jupiter.api.Test
 import synthesis.CommuteDistance
+import synthesis.ControllableAttractiveness
 import synthesis.householdgeneration.SynthesisTest
 import units.Distance
 import units.Hemisphere
@@ -30,8 +31,8 @@ class BandwidthLocatorTest : SynthesisTest() {
         return Location(utm.toWGS84(), this, null)
     }
 
-    private fun Location.toSituation(distance: Distance): LocationSituation {
-        return LocationSituation(this, distance, attractivenessModel, myActivityType)
+    private fun Location.toSituation(distance: Distance): LocationAlternative {
+        return LocationAlternative(this, distance, attractivenessModel, myActivityType)
     }
 
     @BeforeTest
@@ -65,15 +66,16 @@ class BandwidthLocatorTest : SynthesisTest() {
         }
         val person = hh[0]
         val person2 = hh[1]
+
         val parameters = BandwidthParameters(
             poleRadius = 1.5.kilometers,
             bDistance = 1.0,
             aDistance = 1.0
         )
         // To avoid randomness, we overwrite the selection function to pick the maximum utility instead.
-        val model = standardBandwidthModel.changeSelectionFunction { options ->
-            options.maxBy { it.value }.key
-        }
+        val model = standardBandwidthModel.build(parameters).copy(
+            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key }
+        )
         val locator = BandwidthLocator(
             listOf(loc1, loc2, loc3, loc4, loc5, loc6, loc7),
             attractivenessModel,
@@ -83,43 +85,50 @@ class BandwidthLocatorTest : SynthesisTest() {
         )
 
         val output = locator.validTargetsForAgent(person).discardMetric()
-
         assertContentEquals(output, listOf(loc2, loc3, loc4))
 
         val location = locator.locate(person)
         assertEquals(location, loc2)
+
         val otherParameters = BandwidthParameters(
             poleRadius = 0.kilometers,
             bDistance = 1.0,
             aDistance = 1.0
         )
+        val model2 = standardBandwidthModel.build(otherParameters).copy(
+            selectionFunction = SelectionFunction { o, _ -> o.maxBy { it.value }.key }
+        )
+
         locator.parameters = otherParameters
+        locator.model = model2
+
         val location2 = locator.locate(person2)
         assertEquals(location2, loc1)
     }
 
     @Test
     fun testBandwidthDiscreteChoiceModel() {
-        val model = standardBandwidthModel
-        val sit1 = testZone.spawnFakeLoc().toSituation(1.kilometers)
-        val sit2 = testZone.spawnFakeLoc().toSituation(2.kilometers)
-        val sit3 = testZone.spawnFakeLoc().toSituation(3.kilometers)
         val parameters = BandwidthParameters(
             poleRadius = 2.5.kilometers,
             bDistance = 1.0,
             aDistance = 1.0
         )
-        assertEquals(1.0, model.utility(sit1, parameters))
-        assertEquals(0.5, model.utility(sit2, parameters))
-        assertEquals(1.0 / 3, model.utility(sit3, parameters))
+        val model = standardBandwidthModel.build(parameters)
+        val sit1 = testZone.spawnFakeLoc().toSituation(1.kilometers)
+        val sit2 = testZone.spawnFakeLoc().toSituation(2.kilometers)
+        val sit3 = testZone.spawnFakeLoc().toSituation(3.kilometers)
+        assertEquals(1.0, model.utility(sit1))
+        assertEquals(0.5, model.utility(sit2))
+        assertEquals(1.0 / 3, model.utility(sit3))
 
         val otherParameters = BandwidthParameters(
             poleRadius = 2.5.kilometers,
             bDistance = 1.5,
             aDistance = 2.0
         )
-        assertEquals(1.0 / 1.5, model.utility(sit1, otherParameters))
-        assertEquals(1.0 / 6.0, model.utility(sit2, otherParameters))
-        assertEquals(1.0 / (1.5 * 9), model.utility(sit3, otherParameters))
+        val model2 = standardBandwidthModel.build(otherParameters)
+        assertEquals(1.0 / 1.5, model2.utility(sit1))
+        assertEquals(1.0 / 6.0, model2.utility(sit2))
+        assertEquals(1.0 / (1.5 * 9), model2.utility(sit3))
     }
 }
