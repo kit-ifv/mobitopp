@@ -2,10 +2,11 @@ package synthesis.discreteChoice
 
 import domain.data.CarSegment
 import domain.data.Sex
-import modeling.discreteChoice.AllocatedLogit
-import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.KnownDiscreteChoiceModel
-import modeling.discreteChoice.times
+import modeling.discreteChoice.structure.DiscreteStructure
+import modeling.discreteChoice.structure.times
+import modeling.discreteChoice.utility.multinomialLogit
+import modeling.models.ChoiceAlternative
+import modeling.models.ChoiceSituation
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
@@ -13,6 +14,16 @@ import units.Currency
 import units.Distance
 import units.euros
 import units.kilometers
+import kotlin.random.Random
+
+data class CarSegmentSituation(
+    val person: SynthesisPerson<out CommuteDistance>,
+    val household: SynthesisHousehold<out CommuteDistance>
+) : ChoiceSituation<CarSegmentChoice, CarSegment> {
+    // TODO delegate to household once merged with default household dataclass
+    override val random: Random = Random(System.currentTimeMillis())
+    override fun with(choice: CarSegment) = choice.toAlternative(person, household)
+}
 
 data class CarSegmentChoice(
     override val choice: CarSegment,
@@ -22,9 +33,9 @@ data class CarSegmentChoice(
     val numberOfCars: Int,
     val sex: Sex,
     val isCommuting: Boolean
-) : ChoiceSituation<CarSegment>()
+) : ChoiceAlternative<CarSegment>()
 
-fun CarSegment.toChoice(
+fun CarSegment.toAlternative(
     person: SynthesisPerson<out CommuteDistance>,
     household: SynthesisHousehold<out CommuteDistance>
 ): CarSegmentChoice {
@@ -164,19 +175,17 @@ data class SimplifiedParameters(
     val female: Double
 )
 
-val carSegmentChoiceModel = KnownDiscreteChoiceModel<CarSegment, CarSegmentChoice, CarSegmentParameters>(
-    AllocatedLogit.create {
-        option(CarSegment.SMALL) {
-            0.0
-        }
-        option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) {
-            defaultUtilityFunction(this, it)
-        }
-        option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) {
-            defaultUtilityFunction(this, it)
-        }
+val carSegmentChoiceModel = DiscreteStructure<CarSegment, CarSegmentChoice, CarSegmentParameters> {
+    option(CarSegment.SMALL) {
+        0.0
     }
-)
+    option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) {
+        defaultUtilityFunction(this, it)
+    }
+    option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) {
+        defaultUtilityFunction(this, it)
+    }
+}.multinomialLogit("ExampleTransitPassModel")
 
 @Suppress("MagicNumber")
 private val defaultUtilityFunction: SimplifiedParameters.(CarSegmentChoice) -> Double =

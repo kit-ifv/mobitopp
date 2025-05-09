@@ -5,7 +5,9 @@ import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.discreteChoice.KnownDiscreteChoiceModel
+import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
+import modeling.models.FixedChoicesModel
+import modeling.models.fixed
 import synthesis.ActivityOutput
 import synthesis.AssignAroundZoneCentroid
 import synthesis.AssignHouseholdLocations
@@ -30,6 +32,7 @@ import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.activityGeneration.generateActivitiesViaActitopp
 import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.carownership.standardAssignmentByRegionSize
+import synthesis.discreteChoice.TicketAlternative
 import synthesis.discreteChoice.TicketSituation
 import synthesis.discreteChoice.TransitPassParameters
 import synthesis.discreteChoice.YesTransitPass
@@ -100,11 +103,18 @@ fun interface AssignTransitCardOwnership<T> {
 }
 
 class AssignByDiscreteChoice(
-    val parameters: TransitPassParameters,
-    val model: KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters> = transitPassChoiceModel
+    val model: FixedChoicesModel<TicketAlternative, Boolean> =
+        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
 ) : AssignTransitCardOwnership<SurveyInfo> {
+
+    constructor(
+        parameters: TransitPassParameters,
+        model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
+            transitPassChoiceModel
+    ) : this(model.build(parameters).fixed(setOf(true, false)))
+
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
-        return model.select({ TicketSituation(it, person.household, person) }, parameters)
+        return model.filterAndSelect(TicketSituation(person.household, person))
     }
 }
 
@@ -422,5 +432,5 @@ private fun Collection<Zone>.generateLocations(
 
 @Suppress("MagicNumber") // These magic numbers are ok
 private fun Zone.generateLocations(amount: Int): List<Location> {
-    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters), this, null) }
+    return (0..<amount).map { Location(centroid.coordinate.randomCoordinate(100.meters, this.random), this, null) }
 }
