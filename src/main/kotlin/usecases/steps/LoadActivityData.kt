@@ -20,10 +20,9 @@ import utils.csv.decode
 import utils.csv.id
 import utils.csv.int
 import utils.csv.withFilter
+import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import java.io.File
-import kotlin.random.Random
-import kotlin.random.nextInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
@@ -61,21 +60,15 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     columns: ActivitiesColumns = ActivitiesColumns(),
     durationUnit: DurationUnit = timeUnit,
     filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
-    shiftActivityStartBy: ActivityStartShifter? = QuarterHourShifter
+    shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 ) {
-    val shiftMap: MutableMap<PersonId, Duration> = mutableMapOf()
-
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
         MutablePlannedActivity(
             id = ActivityId(row.index.toLong()),
             seed = simulationSeed
         ) {
-            val shift = shiftActivityStartBy?.let { shifter ->
-                shiftMap.computeIfAbsent(person.id) {
-                    shifter(random)
-                }
-            } ?: 0.minutes
+            val shift = shiftActivityStart(this)
 
             person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
@@ -114,10 +107,22 @@ fun LoadPlannedActivitiesContext.loadActivities() {
 }
 
 fun interface ActivityStartShifter {
-    operator fun invoke(rand: Random): Duration
+    operator fun invoke(actor: StochasticActor): Duration
+    fun cached() = CachedActivityStartShifter(this)
 }
 
 @Suppress("MagicNumber")
 object QuarterHourShifter : ActivityStartShifter {
-    override operator fun invoke(rand: Random) = rand.nextInt(-7, 7).minutes
+    override operator fun invoke(actor: StochasticActor) = actor.random.nextInt(-7, 7).minutes
+}
+
+object NoActivityStartShifter : ActivityStartShifter {
+    override operator fun invoke(actor: StochasticActor) = Duration.ZERO
+}
+
+class CachedActivityStartShifter(
+    private val shifter: ActivityStartShifter
+) : ActivityStartShifter {
+    private val shifts: MutableMap<StochasticActor, Duration> = mutableMapOf()
+    override operator fun invoke(actor: StochasticActor) = shifts.computeIfAbsent(actor) { shifter(actor) }
 }
