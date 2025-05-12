@@ -5,13 +5,14 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ZoneClassification
 import domain.enums.areatype.RegionType
-import domain.location.LOCATIONUNKNOWN
-import domain.location.Location
 import units.DistanceUnit
 import units.toDistance
+import usecases.steps.binary.LocationUtils.decodeLocation
+import usecases.steps.binary.LocationUtils.encodeLocation
 import utils.Decodable
+import java.io.BufferedInputStream
+import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.MappedByteBuffer
 import java.nio.file.Path
 
 @Suppress("MagicNumber")
@@ -20,96 +21,62 @@ class BinaryZoneReader(
     private val regionCode: Decodable<RegionType>
 ) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
-        return path.operateOnMemoryFile {
-            val size = this.getInt(0)
-            val maxNameLength = this.getInt(4)
-            val idArray = Array(size) {
-                ZoneId(-1L) to LOCATIONUNKNOWN
-            }
-
-            for (i in 0 until size) {
-                idArray[i] = extractIds(this, i * idByteSize + 8) // Since we are reading Size and
-                // (MaxNameLength) we have an offset of 8 bytes and not 4
-            }
-            val zones = idArray.map {
-                MutableLegacyZone(
-                    it.first,
-                    it.second,
-                    seed
-                )
-            }
-            for (i in 0 until size) {
-                extractInfos(
-                    this,
-                    i * (attributeByteSize + maxNameLength * 2) +
-                        8 + size * idByteSize,
-                    zones[i],
-                    maxNameLength = maxNameLength
-                )
+        return createInputStream(path).use { dataStream ->
+            val size = dataStream.readInt()
+            val maxStringLength = dataStream.readInt()
+            val zones = Array(size) {
+                dataStream.decode(maxStringLength)
             }
             zones.withIndex().forEach { (i, zone) -> zone.matrixColumn = i }
-            zones
+            zones.toList()
         }
     }
 
-    // 48 Bytes
-    private fun extractIds(buffer: MappedByteBuffer, at: Int): Pair<ZoneId, Location> {
-        return TrackingBuffer(buffer, at).run {
-            val id = nextLong
-            val centroid = nextLocation {
-                null
-            } // Since the zone is not yet built there is no way to map it to the correct zone, that step happens in the zone constructor.
-            ZoneId(id) to centroid
-        }
+    private fun createInputStream(path: Path): DataInputStream {
+        return DataInputStream(BufferedInputStream(path.toFile().inputStream()))
     }
 
-    private val idByteSize = 48
-
-    // 29 + ???? Bytes (Name is variable in length)
-    private fun extractInfos(buffer: MappedByteBuffer, at: Int, zone: MutableLegacyZone, maxNameLength: Int) {
-        TrackingBuffer(buffer, at).run {
-            zone.apply {
-                visumId = nextLong // 8
-                name = readString(maxNameLength) // ??
-                regionType = regionCode.decode(nextInt) // 12
-                classification = ZoneClassification.decode(nextInt) // 16
-                parkingPlaces = nextInt // 20
-                isDestination = nextBoolean // 21
-                relief = nextDouble.toDistance(DistanceUnit.METERS) // 29
-            }
+    override fun DataInputStream.decode(stringLength: Int): MutableLegacyZone {
+        return MutableLegacyZone(
+            ZoneId(readLong()),
+            // Since the zone is not yet built there is no way to map it to the correct zone,
+            // that step happens in the zone constructor.
+            decodeLocation { null },
+            seed
+        ).apply {
+            visumId = readLong()
+            name = readString(stringLength)
+            regionType = regionCode.decode(readInt())
+            classification = ZoneClassification.decode(readInt())
+            parkingPlaces = readInt()
+            isDestination = readBoolean()
+            relief = readDouble().toDistance(DistanceUnit.METERS)
         }
     }
-
-    private val attributeByteSize = 29
 }
 
 class BinaryZoneWriter : BinaryWriter<Zone> {
     override fun operateStream(outStream: DataOutputStream, elements: Collection<Zone>) {
         val size = elements.size
-        val maxNameLength =
+        val maxStringLength =
             elements.maxOf {
                 it.name.length
-            } // It is idiotic to give the zones a name, it was never used in old mobitopp, and won't be used in new mobitopp
+            }
+        // It is idiotic to give the zones a name, it was never used in old mobitopp,
+        // and won't be used in new mobitopp
         outStream.writeInt(size) // Write the amount of zones found in the simulation
-        outStream.writeInt(maxNameLength)
-        elements.forEach { outStream.encodeID(it) } // Encode constructor arguments of MutableZone
-        elements.forEach {
-            outStream.encodeAttributes(it, maxNameLength)
-        } // Encode Secondary arugments, which are set in the builder
+        outStream.writeInt(maxStringLength)
+        elements.forEach { outStream.encodeZone(it, maxStringLength) }
     }
 
-    private fun DataOutputStream.encodeID(zone: Zone) {
+    fun DataOutputStream.encodeZone(zone: Zone, maxNameLength: Int) {
         zone.run {
             writeLong(id.value)
-            writeLocation(centroid)
-        }
-    }
-
-    private fun DataOutputStream.encodeAttributes(zone: Zone, maxNameLength: Int) {
-        zone.run {
+            encodeLocation(centroid)
             writeLong(visumId)
-            // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the reader
-            writeChars(name.padEnd(maxNameLength, '.'))
+            // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
+            // reader
+            writeString(name, maxNameLength)
             writeInt(regionType.code)
             writeInt(classification.code)
             writeInt(parkingPlaces)
