@@ -11,6 +11,7 @@ import domain.data.toSchedule
 import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository
+import modeling.steps.SimulationContext
 import modeling.steps.UpdateEachStep
 import modeling.steps.validateNotSealed
 import modeling.validation.Warning
@@ -20,7 +21,9 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.times
 
 fun AssignPlannedActivitiesContext.assignPlannedActivities() = runStep {
     AssignPlannedActivities(this)
@@ -96,14 +99,22 @@ abstract class ActivityDurationRandomizer {
 }
 
 @Suppress("MagicNumber")
-class GaussianActivityDurationRandomizer : ActivityDurationRandomizer() {
+class GaussianActivityDurationRandomizer(
+    private val min: Duration = 1.minutes,
+    private val max: Duration = 7.days,
+) : ActivityDurationRandomizer() {
     override fun randomizeDuration(activity: Activity, currentDuration: Duration, rand: Random): Duration {
-        val durMin = currentDuration.inWholeMinutes
-        val deviation = (rand.getGaussian(0.0, 1.0) * durMin / 20.0).roundToInt()
-        return min(max(1.0, (durMin + deviation).toDouble()), 10080.0).minutes
-        // TODO legacy shift algorithm is fixed to one week?!
+
+        val gaussian: Double = rand.getGaussian(0.0, 1.0)
+        val deviation: Duration = (gaussian * currentDuration) / 20.0
+
+        return (currentDuration + deviation).coerceIn(min, max)
     }
 }
+
+fun SimulationContext.gaussianDurationRandomizer() = GaussianActivityDurationRandomizer(
+    max = this.simulationEnd.minus(this.simulationStart),
+)
 
 object NoDurationRandomizer : ActivityDurationRandomizer() {
     override fun randomizeDuration(activity: Activity, currentDuration: Duration, rand: Random) = currentDuration

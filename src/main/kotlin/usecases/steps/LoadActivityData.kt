@@ -113,7 +113,7 @@ fun interface ActivityStartShifter {
 
 @Suppress("MagicNumber")
 object QuarterHourShifter : ActivityStartShifter {
-    override operator fun invoke(actor: StochasticActor) = actor.random.nextInt(-7, 7).minutes
+    override operator fun invoke(actor: StochasticActor) = actor.random.nextDouble(-7.5, 7.5).minutes
 }
 
 object NoActivityStartShifter : ActivityStartShifter {
