@@ -5,8 +5,6 @@ import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ZoneClassification
 import domain.enums.areatype.RegionType
-import domain.location.LOCATIONUNKNOWN
-import domain.location.Location
 import units.DistanceUnit
 import units.toDistance
 import usecases.steps.binary.LocationUtils.decodeLocation
@@ -79,8 +77,8 @@ class BinaryZoneWriter : BinaryWriter<Zone> {
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader
             writeString(name, maxNameLength)
-            writeInt(regionType.encode())
-            writeInt(classification.encode())
+            writeInt(regionType.code)
+            writeInt(classification.code)
             writeInt(parkingPlaces)
             writeBoolean(isDestination)
             writeDouble(relief.toDouble(DistanceUnit.METERS))

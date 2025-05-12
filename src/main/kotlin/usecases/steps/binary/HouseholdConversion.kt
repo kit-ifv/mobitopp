@@ -60,7 +60,7 @@ class BinaryHouseholdWriter : BinaryWriter<Household> {
             writeInt(domCode)
             writeInt(type)
             writeDouble(incomePerMonth.toDouble(CurrencyUnit.EUROS))
-            writeInt(economicStatus.encode())
+            writeInt(economicStatus.code)
             encodeLocation(location)
         }
     }

@@ -12,10 +12,9 @@ import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
-import units.euros
+import units.`€`
 import kotlin.compareTo
 import kotlin.random.Random
-import units.`€`
 
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,
