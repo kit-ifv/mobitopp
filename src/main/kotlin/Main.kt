@@ -8,7 +8,6 @@ import units.meters
 import units.share
 import usecases.LegacyMode
 import usecases.legacyChoiceModelPurposes
-import usecases.steps.GaussianActivityDurationRandomizer
 import usecases.steps.NoActivityStartShifter
 import usecases.steps.ProjectContext
 import usecases.steps.applyHomeLocationsInSchedule

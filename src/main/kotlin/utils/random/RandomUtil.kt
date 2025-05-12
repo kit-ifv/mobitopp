@@ -18,7 +18,7 @@ fun Random.getGaussian(mean: Double = 0.0, stdDev: Double = 1.0): Double {
 
     val multiplier = sqrt(-2.0 * ln(s) / s)
 
-    //TODO Box–Muller polar form algorithm would produce cheap next value: v * multiplier;
+    // TODO Box–Muller polar form algorithm would produce cheap next value: v * multiplier;
     // cannot be stored due to extension method :(
 
     return u * multiplier * stdDev + mean
