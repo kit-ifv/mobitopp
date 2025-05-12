@@ -18,7 +18,6 @@ import modeling.validation.Warning
 import utils.random.getGaussian
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -104,7 +103,6 @@ class GaussianActivityDurationRandomizer(
     private val max: Duration = 7.days,
 ) : ActivityDurationRandomizer() {
     override fun randomizeDuration(activity: Activity, currentDuration: Duration, rand: Random): Duration {
-
         val gaussian: Double = rand.getGaussian(0.0, 1.0)
         val deviation: Duration = (gaussian * currentDuration) / 20.0
 
