@@ -9,7 +9,7 @@ import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import utils.Decodable
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
@@ -42,8 +42,8 @@ class ActitoppGenerator(
                 1,
                 personId,
                 age,
-                employment.encode(),
-                sex.encode(),
+                employment.code,
+                sex.code,
             )
         }
     }

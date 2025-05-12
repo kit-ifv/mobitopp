@@ -2,16 +2,19 @@ package synthesis.discreteChoice
 
 import domain.data.Employment
 import domain.data.Sex
-import modeling.discreteChoice.AllocatedLogit
-import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.KnownDiscreteChoiceModel
-import modeling.discreteChoice.times
+import modeling.discreteChoice.structure.DiscreteStructure
+import modeling.discreteChoice.structure.times
+import modeling.discreteChoice.utility.multinomialLogit
+import modeling.models.ChoiceAlternative
+import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
 import units.`€`
+import kotlin.compareTo
+import kotlin.random.Random
 
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,
@@ -87,12 +90,22 @@ data class TransitPassParameters(
     val numChildsAge6to17: Double
 )
 
-@Suppress("MagicNumber") // These magic numbers are ok
 data class TicketSituation(
+    val household: SynthesisHousehold<out SurveyInfo>,
+    val person: SynthesisPerson<out SurveyInfo>
+) : ChoiceSituation<TicketAlternative, Boolean> {
+    override val random = Random(System.currentTimeMillis())
+
+    // TODO if we could reuse person objects from repository, we can apply persons random
+    override fun with(choice: Boolean) = TicketAlternative(choice, household, person)
+}
+
+@Suppress("MagicNumber") // These magic numbers are ok
+data class TicketAlternative(
     override val choice: Boolean,
     val household: SynthesisHousehold<out SurveyInfo>,
     val person: SynthesisPerson<out SurveyInfo>
-) : ChoiceSituation<Boolean>() {
+) : ChoiceAlternative<Boolean>() {
     val householdSize = household.members.size
     val gender = person.sex
     val age = person.age
@@ -105,53 +118,103 @@ data class TicketSituation(
 }
 
 @Suppress("MagicNumber") // In a utility function everything is magic, so complaining about age in 10..18 is irrelevant
-val transitPassChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketSituation, TransitPassParameters>(
-    AllocatedLogit.create {
-        option(false) {
-            0.0
-        }
-        option(true) {
-            base +
-                (it.householdSize == 2) * twoMembers +
-                (it.householdSize == 3) * threeMembers +
-                (it.householdSize == 4) * fourMembers +
-                (it.householdSize == 5) * fiveMembers +
-                (it.householdSize == 6) * sixMembers +
-                (it.householdSize == 7) * sevenMembers +
-                (it.householdSize in 8..20) * eightToTwentyMembers +
-
-                (it.gender == Sex.FEMALE) * female +
-
-                (it.age in 0..9) * age0to9 +
-                (it.age in 10..17) * age10to17 +
-                (it.age in 30..39) * age30to39 +
-                (it.age in 40..49) * age40to49 +
-                (it.age in 50..59) * age50to59 +
-                (it.age in 60..69) * age60to69 +
-                (it.age in 70..79) * age70to79 +
-                (it.age >= 80) * age80plus +
-
-                (it.hasDrivingLicence) * hasLicence +
-
-                (it.householdNumCars == 1) * oneCar +
-                (it.householdNumCars == 2) * twoCars +
-                (it.householdNumCars == 3) * threeCars +
-                (it.householdNumCars >= 4) * fourOrMoreCars +
-
-                (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
-                (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
-                (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
-                (it.employment == Employment.HOMEKEEPER) * homeKeeper +
-                (it.employment == Employment.PARTTIME) * partTime +
-
-                (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
-                (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
-                (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
-                (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
-                (it.income >= 4000.`€`) * incomeAtLeast4000 +
-
-                (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
-                (it.numAgeInSixToSeventeen) * numChildsAge6to17
-        }
+val transitPassChoiceModel = DiscreteStructure<Boolean, TicketAlternative, TransitPassParameters> {
+    option(false) {
+        0.0
     }
-)
+    option(true) {
+        base +
+            (it.householdSize == 2) * twoMembers +
+            (it.householdSize == 3) * threeMembers +
+            (it.householdSize == 4) * fourMembers +
+            (it.householdSize == 5) * fiveMembers +
+            (it.householdSize == 6) * sixMembers +
+            (it.householdSize == 7) * sevenMembers +
+            (it.householdSize in 8..20) * eightToTwentyMembers +
+
+            (it.gender == Sex.FEMALE) * female +
+
+            (it.age in 0..9) * age0to9 +
+            (it.age in 10..17) * age10to17 +
+            (it.age in 30..39) * age30to39 +
+            (it.age in 40..49) * age40to49 +
+            (it.age in 50..59) * age50to59 +
+            (it.age in 60..69) * age60to69 +
+            (it.age in 70..79) * age70to79 +
+            (it.age >= 80) * age80plus +
+
+            (it.hasDrivingLicence) * hasLicence +
+
+            (it.householdNumCars == 1) * oneCar +
+            (it.householdNumCars == 2) * twoCars +
+            (it.householdNumCars == 3) * threeCars +
+            (it.householdNumCars >= 4) * fourOrMoreCars +
+
+            (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
+            (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
+            (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
+            (it.employment == Employment.HOMEKEEPER) * homeKeeper +
+            (it.employment == Employment.PARTTIME) * partTime +
+
+            (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
+            (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
+            (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
+            (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
+            (it.income >= 4000.`€`) * incomeAtLeast4000 +
+
+            (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
+            (it.numAgeInSixToSeventeen) * numChildsAge6to17
+    }
+}.multinomialLogit("ExampleTransitPassMNL")
+
+// @Suppress("MagicNumber") // In a utility function everything is magic, so complaining about age in 10..18 is irrelevant
+// val transitPassChoiceModel = KnownDiscreteChoiceModel<Boolean, TicketAlternative, TransitPassParameters>(
+//    AllocatedLogit.create {
+//        option(false) {
+//            0.0
+//        }
+//        option(true) {
+//            base +
+//                (it.householdSize == 2) * twoMembers +
+//                (it.householdSize == 3) * threeMembers +
+//                (it.householdSize == 4) * fourMembers +
+//                (it.householdSize == 5) * fiveMembers +
+//                (it.householdSize == 6) * sixMembers +
+//                (it.householdSize == 7) * sevenMembers +
+//                (it.householdSize in 8..20) * eightToTwentyMembers +
+//
+//                (it.gender == Sex.FEMALE) * female +
+//
+//                (it.age in 0..9) * age0to9 +
+//                (it.age in 10..17) * age10to17 +
+//                (it.age in 30..39) * age30to39 +
+//                (it.age in 40..49) * age40to49 +
+//                (it.age in 50..59) * age50to59 +
+//                (it.age in 60..69) * age60to69 +
+//                (it.age in 70..79) * age70to79 +
+//                (it.age >= 80) * age80plus +
+//
+//                (it.hasDrivingLicence) * hasLicence +
+//
+//                (it.householdNumCars == 1) * oneCar +
+//                (it.householdNumCars == 2) * twoCars +
+//                (it.householdNumCars == 3) * threeCars +
+//                (it.householdNumCars >= 4) * fourOrMoreCars +
+//
+//                (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
+//                (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
+//                (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
+//                (it.employment == Employment.HOMEKEEPER) * homeKeeper +
+//                (it.employment == Employment.PARTTIME) * partTime +
+//
+//                (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
+//                (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
+//                (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
+//                (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
+//                (it.income >= 4000.`€`) * incomeAtLeast4000 +
+//
+//                (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
+//                (it.numAgeInSixToSeventeen) * numChildsAge6to17
+//        }
+//    },
+// )

@@ -10,8 +10,8 @@ import modeling.events.Agent
 import modeling.events.Event
 import units.Currency
 import units.UnitIntervalValue
-import utils.Decodable
 import utils.Encodable
+import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
 import utils.random.SeededActor
@@ -96,7 +96,7 @@ fun Person.getBestCar(): PrivateCar? {
  * An enum for the sex of a person. As this class is only applicable to a person the enum resides in the same source
  * code file as the person. (Refactor Idea maybe make an inner class)
  */
-enum class Sex(private val code: Int) : Encodable {
+enum class Sex(override val code: Int) : Encodable {
     MALE(1),
     FEMALE(2);
 
@@ -108,22 +108,16 @@ enum class Sex(private val code: Int) : Encodable {
         return this == MALE
     }
 
-    override fun encode(): Int {
-        return this.code
-    }
+    override val description: String = name
 
-    companion object : Decodable<Sex> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<Sex> = Sex.entries.toSet()
-    }
+    companion object : EnumDecodable<Sex>(Sex::class)
 }
 
 /**
  * An enum for the employment of a person. As this class is only applicable to a person the enum resides in the same
  * source code file as the person. (Refactor Idea maybe make an inner class)
  */
-enum class Employment(private val code: Int) : Encodable {
+enum class Employment(override val code: Int) : Encodable {
     UNKNOWN(-1),
     FULLTIME(1),
     PARTTIME(2),
@@ -139,18 +133,12 @@ enum class Employment(private val code: Int) : Encodable {
     INFANT(8),
     NONE(9);
 
-    override fun encode(): Int {
-        return this.code
-    }
+    override val description: String = name
 
-    companion object : Decodable<Employment> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<Employment> = Employment.entries.toSet()
-    }
+    companion object : EnumDecodable<Employment>(Employment::class)
 }
 
-enum class Graduation(private val code: Int) : Encodable { // TODO split into school and higher education
+enum class Graduation(override val code: Int) : Encodable { // TODO split into school and higher education
     UNDEFINED(-1),
     OTHER(0),
     NOT_HIGH_SCHOOL(1),
@@ -160,25 +148,17 @@ enum class Graduation(private val code: Int) : Encodable { // TODO split into sc
     BACHELOR_DEGREE(5),
     MASTER_DEGREE(6);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<Graduation> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<Graduation> = Graduation.entries.toSet()
-    }
+    companion object : EnumDecodable<Graduation>(Graduation::class)
 }
 
-enum class ChargingInfluence(private val code: Int) : Encodable {
+enum class ChargingInfluence(override val code: Int) : Encodable {
     ALWAYS(0),
     ONLY_WHEN_BATTERY_LOW(1),
     NEVER(2);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<ChargingInfluence> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<ChargingInfluence> = ChargingInfluence.entries.toSet()
-    }
+    companion object : EnumDecodable<ChargingInfluence>(ChargingInfluence::class)
 }

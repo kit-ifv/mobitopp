@@ -9,7 +9,7 @@ import domain.data.EngineType
 import domain.data.Graduation
 import domain.data.Sex
 import domain.data.buildEngine
-import domain.enums.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import generateHousehold
 import generatePerson
 import generatePlannedActivity
@@ -47,7 +47,7 @@ class BinaryConversionTest {
         val writer = BinaryZoneWriter()
         writer.toBinary(path, listOf(testZone, testZone))
 
-        val zones = BinaryZoneReader(1, Regiostar17).fromBinary(path)
+        val zones = BinaryZoneReader(1, RegioStaR17).fromBinary(path)
 
         zones[0].let {
             assertEquals(it.visumId, testZone.visumId)

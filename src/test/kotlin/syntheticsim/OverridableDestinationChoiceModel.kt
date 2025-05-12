@@ -1,31 +1,26 @@
 package syntheticsim
 
-import domain.data.Person
 import domain.location.Location
+import modeling.models.ChoiceFilter
 import modeling.models.ChoiceModel
-import usecases.choicemodels.ChoiceModelModes
-import usecases.choicemodels.LegacyDestinationChoice
-import utils.units.Time
+import modeling.models.noFilter
+import usecases.models.DestinationAlternative
+import kotlin.random.Random
 
 /**
- * Wraps around a LegacyDestinationChoice [original]. The [overrideDestination] parameter will replace the selection
+ * Wraps around a [ChoiceModel] [original] for [DestinationAlternative]. The [overrideDestination] parameter will replace the selection
  * of the original model, if not null. This allows controlling the choice function output.
  */
-class OverridableDestinationChoiceModel(val original: LegacyDestinationChoice) :
-    ChoiceModel<Person, Location> {
+class OverridableDestinationChoiceModel(
+    val original: ChoiceModel<DestinationAlternative, Location>,
+    override var choiceFilter: ChoiceFilter<DestinationAlternative> = noFilter()
+) : ChoiceModel<DestinationAlternative, Location> {
     var overrideDestination: Location? = null
 
-    override fun select(agent: Person, choices: Set<Location>, time: Time): Location {
-        return overrideDestination ?: original.select(agent, choices, time)
+    override fun select(choices: Set<DestinationAlternative>, random: Random): Location {
+        return overrideDestination ?: original.select(choices, random)
     }
 
     override val name: String
         get() = original.name
-
-    override fun choices(agent: Person, time: Time): Set<Location> {
-        return original.choices(agent, time)
-    }
-
-    val modes: ChoiceModelModes
-        get() = original.modes
 }

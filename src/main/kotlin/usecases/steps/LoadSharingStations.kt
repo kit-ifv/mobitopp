@@ -148,7 +148,7 @@ fun <C> C.prepareZonesByFoot(row: Row, column: String): Set<Zone> where C : Load
 }
 
 fun <C> C.getZone(id: Long): Zone where C : LoadSharingStationsContext = requireNotNull(
-    this.zoneRepository.getById(ZoneId(id)) ?: zoneColumnIndex[id.toInt()]
+    this.zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
 ) {
     "Referenced ZoneId $id could not be found in zoneRepo:" +
         " ${zoneRepository.elements.map { it.id }.toList()}"

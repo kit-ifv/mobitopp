@@ -20,8 +20,11 @@ import utils.csv.decode
 import utils.csv.id
 import utils.csv.int
 import utils.csv.withFilter
+import utils.random.StochasticActor
 import utils.units.AbsoluteTime
 import java.io.File
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -34,7 +37,7 @@ interface LoadPlannedActivitiesContext : Context {
         get() = File(demandFolder.path + "\\demand-data\\activity.csv")
 
     fun getPerson(row: Row, personColumn: String) = requireNotNull(
-        personRepository.getById(row.id(personColumn))
+        personRepository[row.id(personColumn)]
     ) {
         "Referenced person id ${row(personColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"
@@ -56,7 +59,8 @@ fun LoadPlannedActivitiesContext.prepareActivities(
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ActivitiesColumns = ActivitiesColumns(),
     durationUnit: DurationUnit = timeUnit,
-    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true }
+    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 ) {
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
@@ -64,9 +68,11 @@ fun LoadPlannedActivitiesContext.prepareActivities(
             id = ActivityId(row.index.toLong()),
             seed = simulationSeed
         ) {
+            val shift = shiftActivityStart(this)
+
             person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
-            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit)
+            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
             activityType = row.decode(columns.activityTypeColumn, activityTypeCodes)
         }
@@ -98,4 +104,25 @@ fun LoadPlannedActivitiesContext.finishActivities() = runStep {
 fun LoadPlannedActivitiesContext.loadActivities() {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
+}
+
+fun interface ActivityStartShifter {
+    operator fun invoke(actor: StochasticActor): Duration
+    fun cached() = CachedActivityStartShifter(this)
+}
+
+@Suppress("MagicNumber")
+object QuarterHourShifter : ActivityStartShifter {
+    override operator fun invoke(actor: StochasticActor) = actor.random.nextDouble(-7.5, 7.5).minutes
+}
+
+object NoActivityStartShifter : ActivityStartShifter {
+    override operator fun invoke(actor: StochasticActor) = Duration.ZERO
+}
+
+class CachedActivityStartShifter(
+    private val shifter: ActivityStartShifter
+) : ActivityStartShifter {
+    private val shifts: MutableMap<StochasticActor, Duration> = mutableMapOf()
+    override operator fun invoke(actor: StochasticActor) = shifts.computeIfAbsent(actor) { shifter(actor) }
 }

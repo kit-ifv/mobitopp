@@ -3,17 +3,19 @@ package synthesis.discreteChoice
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Sex
-import domain.enums.Regiostar17
-import domain.enums.SizebasedRegiostarClassification
-import modeling.discreteChoice.AllocatedLogit
-import modeling.discreteChoice.ChoiceSituation
-import modeling.discreteChoice.KnownDiscreteChoiceModel
-import modeling.discreteChoice.times
-import synthesis.RawSurveyInfo
+import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.SizebasedRegiostarClassification
+import domain.enums.areatype.toSizebasedClassification
+import modeling.discreteChoice.structure.DiscreteStructure
+import modeling.discreteChoice.structure.times
+import modeling.discreteChoice.utility.multinomialLogit
+import modeling.models.ChoiceAlternative
+import modeling.models.ChoiceSituation
+import synthesis.SurveyWithCommute
 import synthesis.domain.SynthesisHousehold
-import synthesis.domain.SynthesisPerson
 import units.Distance
 import units.DistanceUnit
+import kotlin.random.Random
 
 val FatParameters = EngineParameters(
     CONST_BEV = -9.8079,
@@ -256,11 +258,19 @@ data class EngineSpecificParameters(
 
 )
 
-class EngineSituation(
+data class EngineChoiceSituation(
+    val person: SurveyWithCommute,
+    val household: SynthesisHousehold<out SurveyWithCommute>
+) : ChoiceSituation<EngineAlternative, EngineType> {
+    override val random: Random = Random(System.currentTimeMillis()) // TODO replace with household random!
+    override fun with(choice: EngineType) = choice.toAlternative(person, household)
+}
+
+class EngineAlternative(
     override val choice: EngineType,
-    person: RawSurveyInfo,
-    household: SynthesisHousehold<out RawSurveyInfo>
-) : ChoiceSituation<EngineType>() {
+    person: SurveyWithCommute,
+    household: SynthesisHousehold<out SurveyWithCommute>
+) : ChoiceAlternative<EngineType>() {
     val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -268,9 +278,9 @@ class EngineSituation(
     val age: Int = person.age
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
-    val regionTypeRegiostar17: Regiostar17 = household.location.zone?.regionType?.toRegiostar17()
+    val regionTypeRegioStaR17: RegioStaR17 = household.location.zone?.regionType?.toRegioStaR17()
         ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
-    val regionType = regionTypeRegiostar17.toSizebasedClassification()
+    val regionType = regionTypeRegioStaR17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
     val isParttime = employment == Employment.PARTTIME
@@ -282,29 +292,27 @@ class EngineSituation(
     val isRetired = employment == Employment.RETIRED
 }
 
-fun EngineType.toChoice(
-    person: SynthesisPerson<out RawSurveyInfo>,
-    household: SynthesisHousehold<out RawSurveyInfo>
-): EngineSituation {
-    return EngineSituation(this, person.info, household)
+fun EngineType.toAlternative(
+    person: SurveyWithCommute,
+    household: SynthesisHousehold<out SurveyWithCommute>
+): EngineAlternative {
+    return EngineAlternative(this, person, household)
 }
 
-val carEngineChoiceModel = KnownDiscreteChoiceModel<EngineType, EngineSituation, EngineParameters>(
-    AllocatedLogit.create {
-        option(EngineType.COMBUSTION) {
-            0.0
-        }
-        option(EngineType.ELECTRIC, parameters = { electicParameters() }) {
-            defaultUtilityFunction(this, it)
-        }
-        option(EngineType.HYBRID, parameters = { hybridParameters() }) {
-            defaultUtilityFunction(this, it)
-        }
+val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
+    option(EngineType.COMBUSTION) {
+        0.0
     }
-)
+    option(EngineType.ELECTRIC, parameters = { electicParameters() }) {
+        defaultUtilityFunction(this, it)
+    }
+    option(EngineType.HYBRID, parameters = { hybridParameters() }) {
+        defaultUtilityFunction(this, it)
+    }
+}.multinomialLogit("ExampleEngineMNL")
 
 @Suppress("MagicNumber")
-private val defaultUtilityFunction: EngineSpecificParameters.(EngineSituation) -> Double = {
+private val defaultUtilityFunction: EngineSpecificParameters.(EngineAlternative) -> Double = {
     constant +
         it.workDistance.toDouble(DistanceUnit.KILOMETERS) * workDistance +
         it.educationDistance.toDouble(DistanceUnit.KILOMETERS) * educationDistance +

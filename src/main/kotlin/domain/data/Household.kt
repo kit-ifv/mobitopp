@@ -5,8 +5,8 @@ import domain.location.Location
 import domain.resources.Resource
 import domain.resources.Subscribable
 import units.Currency
-import utils.Decodable
 import utils.Encodable
+import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
 import utils.random.SeededActor
@@ -42,23 +42,19 @@ abstract class Household(
 /**
  * The economic status as taken from the original mobiTopp codebase
  */
-enum class EconomicStatus(val code: Int) : Encodable {
+enum class EconomicStatus(override val code: Int) : Encodable {
     VERY_LOW(1),
     LOW(2),
     MIDDLE(3),
     HIGH(4),
     VERY_HIGH(5);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<EconomicStatus> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<EconomicStatus> = EconomicStatus.entries.toSet()
-    }
+    companion object : EnumDecodable<EconomicStatus>(EconomicStatus::class)
 }
 
-enum class HouseholdType(private val code: Int) : Encodable {
+enum class HouseholdType(override val code: Int) : Encodable {
 
     SINGLE_HH_WITH_CHILDREN(1),
     SINGLE_HH(2),
@@ -66,11 +62,7 @@ enum class HouseholdType(private val code: Int) : Encodable {
     COUPLE_WITHOUT_CHILDREN(4),
     OTHER_MULTI_PERSON_HH(5);
 
-    override fun encode() = this.code
+    override val description: String = name
 
-    companion object : Decodable<HouseholdType> {
-        override fun decode(i: Int) = entries.first { it.code == i }
-        override fun decode(s: String) = valueOf(s)
-        override fun values(): Set<HouseholdType> = HouseholdType.entries.toSet()
-    }
+    companion object : EnumDecodable<HouseholdType>(HouseholdType::class)
 }

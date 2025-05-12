@@ -19,8 +19,9 @@ import modeling.steps.asResource
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
 import syntheticsim.ControllableImpedance
-import usecases.choicemodels.ModeAvailabilityFilter
+import syntheticsim.testAttractivenessModel
 import usecases.legacyChoiceModelModes
+import usecases.models.SharingAvailabilityFilter
 import usecases.steps.prepareVehicles
 import utils.units.sinceStart
 import kotlin.random.Random
@@ -49,7 +50,7 @@ class RidesharingOnlyScenario {
         persons.forEach { it.generateActivitySchedule(10, random) }
         persons.forEach { person -> assertTrue(person.sharedResources().any { it is SharingStation }) }
         val impedance = ControllableImpedance()
-        val availability = ModeAvailabilityFilter(
+        val availability = SharingAvailabilityFilter(
             legacyChoiceModelModes,
             stations.toSet(),
             mapOf(bikeSharing to setOf(provider)),
@@ -71,7 +72,9 @@ class RidesharingOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
-            scopeDispatcher = modeScopeDispatcher
+            scopeDispatcher = modeScopeDispatcher,
+            attractivityModel = testAttractivenessModel,
+            availabilityModel = availability
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)

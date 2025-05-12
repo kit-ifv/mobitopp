@@ -10,9 +10,9 @@ import ZoneType
 import asLocation
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
-import domain.enums.Regiostar17
 import domain.enums.ZoneClassification
+import domain.enums.areatype.RegioStaR17
+import domain.enums.areatype.RegionType
 import readPolyZones
 import units.Distance
 import units.GPSCoordinate
@@ -95,7 +95,7 @@ private class TestZone(
     override var parkingPlaces: Int = 1,
     override val visumId: Long = 0L,
     override val name: String = "TestZone",
-    override val regionType: AreaType = Regiostar17.METROPOLE,
+    override val regionType: RegionType = RegioStaR17.METROPOLE,
     override val classification: ZoneClassification = ZoneClassification.STUDY_AREA,
     override val isDestination: Boolean = true,
     override val relief: Distance = 0.meters,
