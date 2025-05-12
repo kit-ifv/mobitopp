@@ -53,15 +53,15 @@ class BinaryPersonWriter : BinaryWriter<Person> {
             writeLong(id.value)
             writeLong(household.id.value)
             writeInt(age)
-            writeInt(employment.encode())
-            writeInt(sex.encode())
+            writeInt(employment.code)
+            writeInt(sex.code)
             writeDouble(income.toDouble(CurrencyUnit.EUROS))
             writeBoolean(hasBike)
             writeBoolean(hasCommuterTicket)
             writeBoolean(hasLicense)
             writeDouble(eMobilityAcceptance.toDouble())
-            writeInt(chargingInfluence.encode())
-            writeInt(graduation.encode())
+            writeInt(chargingInfluence.code)
+            writeInt(graduation.code)
             // TODO add memberships, they are currently missing
         }
     }

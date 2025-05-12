@@ -61,6 +61,6 @@ class BinaryActivityWriter : BinaryWriter<PlannedActivity> {
         writeInt(act.observedTripDuration.toInt(DurationUnit.MINUTES))
         writeLong(act.startTime.minutesSinceStart)
         writeInt(act.duration.toInt(DurationUnit.MINUTES))
-        writeInt(act.activityType.encode())
+        writeInt(act.activityType.code)
     }
 }

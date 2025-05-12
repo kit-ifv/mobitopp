@@ -97,7 +97,7 @@ fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
 class ZoneDistributedLocations<T>(
     private val polyZones: Map<VisumZoneId, VisumPolyZone>,
     private val distributor: LanduseDistributedCoordinates,
-) : AssignHouseholdLocations<T>, GroupAssignHouseholdLocations<T> {
+) : AssignHouseholdLocations<Zone, T>, GroupAssignHouseholdLocations<Zone, T> {
 
     /**
      * Generates one location inside the polyzone, which matches the [visumID] of the given [zone].
