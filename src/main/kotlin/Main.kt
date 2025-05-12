@@ -17,6 +17,7 @@ import usecases.steps.assignFixedDestinations
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons
+import usecases.steps.gaussianDurationRandomizer
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
 import usecases.steps.legacyData.householdHomeLocation
@@ -102,7 +103,7 @@ fun main() {
         )
         assignPlannedActivities()
         randomizeActivityDurations(
-            GaussianActivityDurationRandomizer()
+            gaussianDurationRandomizer()
         )
 
         finishActivities()
