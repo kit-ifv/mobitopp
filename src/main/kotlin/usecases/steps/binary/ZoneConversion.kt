@@ -3,8 +3,10 @@ package usecases.steps.binary
 import domain.data.MutableLegacyZone
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.RegionType
+import domain.location.LOCATIONUNKNOWN
+import domain.location.Location
 import units.DistanceUnit
 import units.toDistance
 import usecases.steps.binary.LocationUtils.decodeLocation
@@ -14,8 +16,12 @@ import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.file.Path
+
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
+class BinaryZoneReader(
+    val seed: Long,
+    private val regionCode: Decodable<RegionType>
+) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         return createInputStream(path).use { dataStream ->
             val size = dataStream.readInt()

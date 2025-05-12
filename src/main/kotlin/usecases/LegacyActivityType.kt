@@ -1,13 +1,13 @@
 package usecases
 
 import domain.enums.ActivityType
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import utils.Decodable
 
 /**
  * The default activity encoding from legacy mobiTopp
  */
-enum class LegacyActivityType(val code: Int) : ActivityType {
+enum class LegacyActivityType(override val code: Int) : ActivityType {
     WORK(1),
     BUSINESS(2),
     EDUCATION(3),
@@ -42,10 +42,6 @@ enum class LegacyActivityType(val code: Int) : ActivityType {
 
     override val description: String
         get() = this.name
-
-    override fun encode(): Int {
-        return this.code
-    }
 
     companion object : Decodable<ActivityType> {
         override fun decode(i: Int) = entries.first { it.code == i }

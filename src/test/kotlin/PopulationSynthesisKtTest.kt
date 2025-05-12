@@ -58,11 +58,10 @@ class PopulationSynthesisKtTest {
         val itzehoe = Location(ITZEHOE, null, null)
         val schweinfurt = Location(SCHWEINFURT, null, null)
         val populationSynthesis = PopulationSynthesis.configure(
-            surveyPopulation = TrivialTestGeneration()
-
+            surveyPopulation = TrivialTestGeneration(),
+            zones = listOf(TEST_ZONE)
         ) {
             outputDirectory = Path("src/test/resources/tempOutput")
-            zones = listOf(TEST_ZONE)
             rules = emptyList()
             surveyHouseholds = surveyPopulation.toSurveyHouseholds()
             // TODO make this a code based attractiveness model instead of parsing a file.

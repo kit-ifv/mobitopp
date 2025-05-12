@@ -10,12 +10,20 @@ plugins {
     application
     id("maven-publish")
 }
+/**
+ * Projects that appear in
+ */
+allprojects {
+    repositories {
+        maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
+    }
+}
 
 repositories {
 
     maven { url = uri("https://repo.osgeo.org/repository/release") }
     maven { url = uri("https://repo.matsim.org/repository/matsim") }
-    maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
+
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
@@ -36,7 +44,7 @@ dependencies {
     //ifv libs
     implementation(libs.ifv.units) //"edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
     implementation(libs.ifv.visum.netparser) //"edu.kit.ifv:visumNetfileParser:0.9.13")
-    implementation(libs.ifv.actitopp) //"edu.kit.ifv.mobitopp:actitopp:1.9+")
+    api(libs.ifv.actitopp) //"edu.kit.ifv.mobitopp:actitopp:1.9+")
 
     //testing libs
     testImplementation(kotlin("test"))

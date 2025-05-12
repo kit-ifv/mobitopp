@@ -63,7 +63,7 @@ object ActivityOutput : CSVOutput<Activity> {
         return element.run {
             toCSV(
                 "TODO personID",
-                type.encode(),
+                type.code,
                 "TODO observedTripDuration",
                 startTime,
                 duration,
@@ -241,6 +241,7 @@ object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
     )
 
     override fun convert(element: SynthesisPerson<out SurveyInfo>): String {
+        element.info
         return element.run {
             toCSV(
                 personId,

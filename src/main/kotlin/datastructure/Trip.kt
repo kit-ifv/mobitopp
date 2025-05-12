@@ -169,16 +169,16 @@ class LinkTrip(
     override fun alternate(lambda: TripBuilder.() -> Unit) {
         val builder = TripBuilder(previousAction, nextAction, legs)
         builder.lambda()
-        val target = builder.output()
+        val newLegs = builder.output()
         // TODO Robin: There should be a better way to force a trip into a block. Also Test this behaviour
-        target.lastOrNull()?.let { leg ->
+        newLegs.lastOrNull()?.let { leg ->
             _nextAction?.let {
                 if (it.startTime < leg.endTime) {
                     it.shiftStartTo(leg.endTime)
                 }
             }
         }
-        dispatcher?.replaceLegs(legs.toSortedSet(), target)
+        dispatcher?.replaceLegs(legs.toSortedSet(), newLegs)
     }
 
     internal fun removeDispatcher() {

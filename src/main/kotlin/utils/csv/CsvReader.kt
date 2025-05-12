@@ -297,7 +297,7 @@ fun <E> ErrorHandling.handleParseValue(
 
     row(column, parser)
 }) { // Error message for parsing errors
-    "Could not parse column '$column' of row ${row.index} in '${row.source}': $row"
+    "Could not parse column '$column' of row ${row.index} (value: ${row(column)}) in '${row.source}': $row"
 }
 
 fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): Int {

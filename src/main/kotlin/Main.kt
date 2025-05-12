@@ -1,14 +1,14 @@
 @file:Suppress("UnusedPrivateProperty")
 
 import domain.data.EconomicStatus
-import domain.enums.Regiostar17
+import domain.enums.areatype.RegioStaR17
 import modeling.steps.Run
 import synthesis.AssignAroundZoneCentroid
 import units.meters
 import units.share
 import usecases.LegacyMode
-import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
+import usecases.steps.NoActivityStartShifter
 import usecases.steps.ProjectContext
 import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
@@ -16,6 +16,7 @@ import usecases.steps.assignFixedDestinations
 import usecases.steps.assignPlannedActivities
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons
+import usecases.steps.gaussianDurationRandomizer
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
 import usecases.steps.legacyData.householdHomeLocation
@@ -23,11 +24,11 @@ import usecases.steps.legacyData.loadZones
 import usecases.steps.legacyData.prepareHouseholds
 import usecases.steps.legacyData.preparePrivateCars
 import usecases.steps.loadAttractivities
-import usecases.steps.loadChoiceModels
 import usecases.steps.loadImpedance
 import usecases.steps.loadVisumNetwork
 import usecases.steps.prepareActivities
 import usecases.steps.preparePersons
+import usecases.steps.randomizeActivityDurations
 import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
@@ -67,7 +68,7 @@ fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
-            areaTypeCodes = Regiostar17,
+            regionTypeCodes = RegioStaR17,
             demandFolder = rootRastatt,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
@@ -95,8 +96,14 @@ fun main() {
         assignCarUsers()
         finishPrivateCars()
 
-        prepareActivities(errorHandling = ErrorHandling.WARNING)
+        prepareActivities(
+            errorHandling = ErrorHandling.WARNING,
+            shiftActivityStart = NoActivityStartShifter
+        )
         assignPlannedActivities()
+        randomizeActivityDurations(
+            gaussianDurationRandomizer()
+        )
 
         finishActivities()
         finishPersons()
@@ -118,7 +125,7 @@ fun main() {
             )
         )
 
-        loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
+        // loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
         applyHomeLocationsInSchedule()
         assignFixedDestinations()
         simulate()

@@ -12,12 +12,11 @@ import edu.kit.ifv.mobitopp.actitopp.InvalidPatternException
 import edu.kit.ifv.mobitopp.actitopp.ModelFileBase
 import edu.kit.ifv.mobitopp.actitopp.RNGHelper
 import synthesis.CSVOutput
-import synthesis.RawSurveyInfo
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.ChoiceModelPurposes
 import usecases.steps.toCSV
 import utils.units.sinceStart
 import kotlin.time.DurationUnit
@@ -30,8 +29,8 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(household: ActiToppHousehol
         number,
         personId,
         age,
-        employment.encode(),
-        sex.encode()
+        employment.code,
+        sex.code
 
     )
     household.addHouseholdmember(person, number)
@@ -45,8 +44,8 @@ fun SynthesisPerson<out SurveyInfo>.toActitoppPerson(): ActitoppPerson {
         0,
         0,
         age,
-        employment.encode(),
-        sex.encode(),
+        employment.code,
+        sex.code,
         -1
     )
 }
@@ -56,7 +55,7 @@ fun SynthesisHousehold<out SurveyInfo>.toActiToppHousehold(): ActiToppHousehold 
         id,
         numberOfChilds,
         numberOfYouths,
-        location.requireZone().regionType.encode(),
+        location.requireZone().regionType.code,
         amountOfCars
     )
     return hh
@@ -69,7 +68,7 @@ val SynthesisHousehold<out SurveyInfo>.numberOfChilds get() = members.count { it
 val SynthesisHousehold<out SurveyInfo>.numberOfYouths get() = members.count { it.age in 10..<18 }
 
 @Suppress("MagicNumber") // 1234 is the default number from actitopp example
-fun SynthesisSteps<RawSurveyInfo>.generateActivitiesViaActitopp() {
+fun <AREA> SynthesisSteps<AREA, out SurveyInfo>.generateActivitiesViaActitopp() {
     val fileBase = ModelFileBase()
     val randomgenerator = RNGHelper(1234)
     val schedules = people.map {
