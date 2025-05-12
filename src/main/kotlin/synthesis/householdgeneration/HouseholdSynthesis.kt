@@ -13,7 +13,7 @@ import synthesis.domain.SynthesisHousehold
  *
  * @param T The type of data associated with the household (e.g., demographic information).
  */
-fun interface HouseholdSynthesis<T> {
+fun interface HouseholdSynthesis<AREA, T> {
     /**
      * Synthesizes households based on the provided survey data and rules for each zone.
      *
@@ -24,19 +24,19 @@ fun interface HouseholdSynthesis<T> {
      */
     fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<Zone, List<Rule<in T>>>
-    ): Map<Zone, List<SynthesisHousehold<out T>>>
+        conditions: Map<AREA, List<Rule<in T>>>
+    ): Map<AREA, List<SynthesisHousehold<out T>>>
 }
 
 /**
  * Create synthesis households by placing a copy of each survey household in each zone. Disregard any conditions that
  * may exist.
  */
-class TrivialSynthesis<T> : HouseholdSynthesis<T> {
+class TrivialSynthesis<AREA, T> : HouseholdSynthesis<AREA, T> {
     override fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<Zone, List<Rule<in T>>>
-    ): Map<Zone, List<SynthesisHousehold<out T>>> {
+        conditions: Map<AREA, List<Rule<in T>>>
+    ): Map<AREA, List<SynthesisHousehold<out T>>> {
         return conditions.keys.associateWith { surveyHouseholds.map { it.toSynthesisHousehold() } }
     }
 }

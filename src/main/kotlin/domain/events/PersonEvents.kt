@@ -8,20 +8,19 @@ import datastructure.LinkTrip
 import datastructure.StationaryAction
 import datastructure.alternateByImpedance
 import domain.data.Person
-import domain.data.Zone
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
 import modeling.events.Event
-import modeling.models.ChoiceModel
+import modeling.models.FixedChoicesModel
 import usecases.AttractivenessModel
-import usecases.choicemodels.ChoiceModelModes
-import usecases.choicemodels.LegacyDestinationChoice
-import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.TripChoiceSituation
-import usecases.choicemodels.destinationchoice.parameters.ChoiceModelPurposes
+import usecases.models.DestinationAlternative
+import usecases.models.ModeAvailabilityFilter
+import usecases.models.ModeChoiceAlternative
+import usecases.models.ModeChoiceSituation
+import usecases.models.TripChoiceSituation
 import utils.concurrent.synchronizeAll
 import utils.units.Time
 
@@ -152,7 +151,19 @@ class StartTripEvent(
         // mode and destination choice
         // TODO Robin last.endlocation is destination?
         if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
-            leg.elements.last().endLocation = behavior.destinationChoice.choose(person, time)
+            leg.elements.last().endLocation = behavior.destinationChoice.filterAndSelect(
+                leg.elements.last().let {
+                    TripChoiceSituation(
+                        person,
+                        time,
+                        it.startLocation,
+                        behavior.impedance,
+                        person.sharedResources(),
+                        behavior.attractivityModel,
+                        behavior.availabilityModel
+                    )
+                }
+            )
             leg.elements.forEach { it.transportType = MODEUNKOWN }
         }
 
@@ -161,9 +172,8 @@ class StartTripEvent(
 
         val sharedResources = person.sharedResources()
         return synchronizeAll(sharedResources) {
-            val mode: Mode = behavior.modeChoice.choose(
-                TripChoiceSituation(person, origin, destination, sharedResources),
-                time
+            val mode: Mode = behavior.modeChoice.filterAndSelect(
+                ModeChoiceSituation(person, time, origin, destination, behavior.impedance, sharedResources),
             )
 
             // TODO move this code snippet to the scope dispatcher maybe?
@@ -254,27 +264,36 @@ class EndLegEvent(
 }
 
 data class PersonBehavior(
-    val destinationChoice: ChoiceModel<Person, Location>,
-    val modeChoice: ChoiceModel<TripChoiceSituation, Mode>,
+    val destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
+    val modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
     val impedance: Metrics,
     val scopeDispatcher: ModeScopeDispatcher,
+    val attractivityModel: AttractivenessModel,
+    val availabilityModel: ModeAvailabilityFilter,
 ) {
     companion object {
         @Suppress("LongParameterList")
         fun from(
             impedance: Metrics,
-            attractivenessModel: AttractivenessModel,
-            umlands: (Location) -> Boolean,
-            zones: Set<Zone>,
-            modes: ChoiceModelModes,
-            purposes: ChoiceModelPurposes,
+            destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
+            modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+//            umlands: (Location) -> Boolean,
+//            zones: Set<Zone>,
+//            modes: ChoiceModelModes,
+//            purposes: ChoiceModelPurposes,
             scopeByMode: Map<Mode, ModeScopeSelector>,
+            attractivenessModel: AttractivenessModel,
+            modeAvailability: ModeAvailabilityFilter,
         ): PersonBehavior {
             return PersonBehavior(
-                LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes, purposes),
-                LegacyModeChoiceModel(attractivenessModel, modes = modes, purposes = purposes, impedance = impedance),
+                destinationChoice,
+                modeChoice,
+//                LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes, purposes),
+//                LegacyModeChoiceModel(attractivenessModel, modes = modes, purposes = purposes, impedance = impedance),
                 impedance,
-                ModeScopeDispatcher(scopeByMode)
+                ModeScopeDispatcher(scopeByMode),
+                attractivenessModel,
+                modeAvailability,
             )
         }
     }

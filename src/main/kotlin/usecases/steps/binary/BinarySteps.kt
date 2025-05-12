@@ -29,7 +29,7 @@ fun LoadHouseholdContext.loadHouseholdFromBinary(path: Path) {
 }
 
 fun LoadZonesContext.loadZonesFromBinary(path: Path) {
-    val converter = BinaryZoneReader(simulationSeed, areaTypeCodes)
+    val converter = BinaryZoneReader(simulationSeed, regionTypeCodes)
     runStep {
         LoadBinaryStep(path, converter, zoneRepository, emptySet())
     }

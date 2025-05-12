@@ -8,16 +8,14 @@ import utils.Encodable
  * hence each project can provide a custom definition of activity types.
  */
 interface ActivityType : Encodable {
-    val description: String
+    override val description: String
 
     companion object {
         val UNKNOWN = object : ActivityType {
             override val description: String = "Unknown"
 
             @Suppress("MagicNumber")
-            override fun encode(): Int {
-                return -2
-            }
+            override val code: Int = -2
         }
     }
 }

@@ -3,8 +3,8 @@ package usecases.steps.binary
 import domain.data.MutableLegacyZone
 import domain.data.Zone
 import domain.data.ZoneId
-import domain.enums.AreaType
 import domain.enums.ZoneClassification
+import domain.enums.areatype.RegionType
 import units.DistanceUnit
 import units.toDistance
 import usecases.steps.binary.LocationUtils.decodeLocation
@@ -14,8 +14,12 @@ import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.file.Path
+
 @Suppress("MagicNumber")
-class BinaryZoneReader(val seed: Long, private val regionCode: Decodable<AreaType>) : BinaryReader<MutableLegacyZone> {
+class BinaryZoneReader(
+    val seed: Long,
+    private val regionCode: Decodable<RegionType>
+) : BinaryReader<MutableLegacyZone> {
     override fun fromBinary(path: Path): List<MutableLegacyZone> {
         return createInputStream(path).use { dataStream ->
             val size = dataStream.readInt()
@@ -73,8 +77,8 @@ class BinaryZoneWriter : BinaryWriter<Zone> {
             // Note that the matrix column field is not written, it is simply an index, and can thus be parsed in the
             // reader
             writeString(name, maxNameLength)
-            writeInt(regionType.encode())
-            writeInt(classification.encode())
+            writeInt(regionType.code)
+            writeInt(classification.code)
             writeInt(parkingPlaces)
             writeBoolean(isDestination)
             writeDouble(relief.toDouble(DistanceUnit.METERS))

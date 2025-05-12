@@ -26,20 +26,21 @@ interface HomeLocationModelContext : Context {
 }
 
 fun HomeLocationModelContext.householdHomeLocation(
-    model: AssignHouseholdLocations<Household> = AssignAroundZoneCentroid(100.meters),
+    model: AssignHouseholdLocations<Zone, Household> = AssignAroundZoneCentroid(100.meters),
 ) = runStep {
     HomeLocationStep(this, model)
 }
 
 fun HomeLocationModelContext.groupedHouseholdHomeLocation(
-    model: GroupAssignHouseholdLocations<MutableHousehold> = TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
+    model: GroupAssignHouseholdLocations<Zone, MutableHousehold> =
+        TrivialGroupStrategy(AssignAroundZoneCentroid(100.meters)),
 ) = runStep {
     GroupedHomeLocationsStep(this, model)
 }
 
 class HomeLocationStep(
     context: HomeLocationModelContext,
-    val model: AssignHouseholdLocations<Household>
+    val model: AssignHouseholdLocations<Zone, Household>
 ) : UpdateEachStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households"
     override val repository = context.householdRepository
@@ -55,7 +56,7 @@ class HomeLocationStep(
 
 class GroupedHomeLocationsStep(
     context: HomeLocationModelContext,
-    val model: GroupAssignHouseholdLocations<MutableHousehold>
+    val model: GroupAssignHouseholdLocations<Zone, MutableHousehold>
 ) : UpdateAllStep<MutableHousehold, HouseholdId>() {
     override val name = "Assign Home Location to Households grouped by zone"
     override val repository = context.householdRepository

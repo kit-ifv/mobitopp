@@ -55,8 +55,8 @@ class BinaryCarWriter : BinaryWriter<PrivateCar> {
             writeLong(owner.id.value) // 16 Bytes
             writeInt(seats) //  4 Bytes
             writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
-            writeInt(segment.encode()) // 16 Bytes
-            writeInt(engine.type.encode()) // 20 Bytes
+            writeInt(segment.code) // 16 Bytes
+            writeInt(engine.type.code) // 20 Bytes
             encodeLocation(location) // 60 Bytes
         }
     }

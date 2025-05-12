@@ -57,6 +57,11 @@ interface CommuteDistance {
     val distanceWork: Distance
 }
 
+interface EducationDistance {
+    val distanceEducation: Distance
+}
+interface SurveyWithCommute : SurveyInfo, CommuteDistance, EducationDistance
+
 /**
  * If the survey data has information about the employment status of the survey person, this interface should be added
  * to the class holding the information block
@@ -93,8 +98,8 @@ data class RawSurveyInfo(
     val hasBicycle: Boolean,
     override val hasLicence: Boolean,
     override val distanceWork: Distance,
-    val distanceEducation: Distance
-) : SurveyInfo, CommuteDistance {
+    override val distanceEducation: Distance
+) : SurveyWithCommute {
     override val age = year - birthyear
 }
 

@@ -15,7 +15,7 @@ interface Repository<out T, I> : Resource<T> where T : Identifiable<I> {
 
     override val elements: Sequence<T>
     fun getById(id: I): T?
-
+    operator fun get(id: I) = getById(id)
     val size: Int
     fun isEmpty(): Boolean
 }

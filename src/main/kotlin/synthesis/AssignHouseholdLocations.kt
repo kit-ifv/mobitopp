@@ -4,8 +4,8 @@ import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.data.Zone
+import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.discreteChoice.GlobalRandomizer
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate
@@ -16,38 +16,47 @@ import kotlin.random.Random
 /**
  * Assign a Location to a household with no information other than the household and the zone
  */
-fun interface AssignHouseholdLocations<H> {
-    fun generateLocation(zone: Zone, household: H): Location
+fun interface AssignHouseholdLocations<AREA, H> {
+    fun generateLocation(zone: AREA, household: H): Location
 }
 
 /**
  * Assign a list of locations, because sometimes it makes sense to handle the group as a whole (To avoid location
  * collisions, for example)
  */
-fun interface GroupAssignHouseholdLocations<H> {
+fun interface GroupAssignHouseholdLocations<AREA, H> {
     fun generateLocations(
-        zone: Zone,
+        zone: AREA,
         householdsToLocate: List<H>
     ): List<Pair<H, Location>>
 }
 
-class TrivialGroupStrategy<H>(val singularStrategy: AssignHouseholdLocations<H>) : GroupAssignHouseholdLocations<H> {
+class TrivialGroupStrategy<AREA, H>(
+    val singularStrategy: AssignHouseholdLocations<AREA, H>
+) : GroupAssignHouseholdLocations<AREA, H> {
     override fun generateLocations(
-        zone: Zone,
+        zone: AREA,
         householdsToLocate: List<H>
     ): List<Pair<H, Location>> {
         return householdsToLocate.map { it to singularStrategy.generateLocation(zone, it) }
     }
 }
 
-class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<H> {
+class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHouseholdLocations<Zone, H> {
     override fun generateLocation(zone: Zone, household: H): Location {
-        return Location(zone.centroid.coordinate.randomCoordinate(radius), zone, null)
+        return Location(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
+        // TODO zone rng or hh rng?, if hh rng -> require H: StochasticActor
+    }
+}
+
+class JustUseBielefeld<H> : AssignHouseholdLocations<Any, H> {
+    override fun generateLocation(zone: Any, household: H): Location {
+        return LOCATIONUNKNOWN
     }
 }
 
 @Suppress("MagicNumber") // Earth radius in meters is relatively safe to assume what it means
-fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomizer): Coordinate {
+fun Coordinate.randomCoordinate(radius: Distance, random: Random): Coordinate {
     val lat1 = latitudeRadians.toDouble()
     val lon1 = longitudeRadians.toDouble()
 
@@ -88,7 +97,7 @@ fun Coordinate.randomCoordinate(radius: Distance, random: Random = GlobalRandomi
 class ZoneDistributedLocations<T>(
     private val polyZones: Map<VisumZoneId, VisumPolyZone>,
     private val distributor: LanduseDistributedCoordinates,
-) : AssignHouseholdLocations<T>, GroupAssignHouseholdLocations<T> {
+) : AssignHouseholdLocations<Zone, T>, GroupAssignHouseholdLocations<Zone, T> {
 
     /**
      * Generates one location inside the polyzone, which matches the [visumID] of the given [zone].

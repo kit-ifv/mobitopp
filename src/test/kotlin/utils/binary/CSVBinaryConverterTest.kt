@@ -245,13 +245,13 @@ class CSVBinaryConverterTest {
             Pair(
                 "employment",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
-                    dataOutputStream.writeInt(Employment.valueOf(element).encode())
+                    dataOutputStream.writeInt(Employment.valueOf(element).code)
                 }
             ),
             Pair(
                 "gender",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
-                    dataOutputStream.writeInt(Sex.valueOf(element).encode())
+                    dataOutputStream.writeInt(Sex.valueOf(element).code)
                 }
             ),
             Pair("income", DataType().DOUBLE),
@@ -262,7 +262,7 @@ class CSVBinaryConverterTest {
             Pair(
                 "chargingInfluencesDestinationChoice",
                 WriteStrategy { dataOutputStream: DataOutputStream, element: String, _ ->
-                    dataOutputStream.writeInt(ChargingInfluence.valueOf(element).encode())
+                    dataOutputStream.writeInt(ChargingInfluence.valueOf(element).code)
                 }
             ),
             Pair("graduation", DataType().INT),

@@ -9,11 +9,13 @@ import domain.data.EngineType
 import domain.data.Person
 import domain.data.buildEngine
 import domain.location.Location
+import modeling.models.fixed
 import synthesis.discreteChoice.CarSegmentParameters
-import synthesis.discreteChoice.FatParameters
+import synthesis.discreteChoice.CarSegmentSituation
+import synthesis.discreteChoice.EngineChoiceSituation
+import synthesis.discreteChoice.EngineParameters
 import synthesis.discreteChoice.carEngineChoiceModel
 import synthesis.discreteChoice.carSegmentChoiceModel
-import synthesis.discreteChoice.toChoice
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 
@@ -62,18 +64,25 @@ object TrivialCarGeneration : GenerateCars<Any> {
 /**
  * Sampling car generation pulls a sample of potential drivers from the household based on the number of licences.
  */
-object SamplingCarGeneration : GenerateCars<RawSurveyInfo> {
-    private val segmentModel = carSegmentChoiceModel
-    override fun generate(householdBuilder: SynthesisHousehold<out RawSurveyInfo>): List<SynthesisCar> {
+
+object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
+    private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters()).fixed(CarSegment.entries.toSet())
+
+    // TODO make parameters customizable!
+    private val engineModel = carEngineChoiceModel.build(EngineParameters()).fixed(EngineType.entries.toSet())
+
+    override fun generate(householdBuilder: SynthesisHousehold<out SurveyWithCommute>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
         val potentialCarUsers = householdBuilder.run {
             if (numberOfDrivingLicences == 0) adults else licenceHolders
         }
         val generationTargets = potentialCarUsers.selectExact(householdBuilder.amountOfCars)
         return generationTargets.map { person ->
-            val segment = segmentModel.select({ it.toChoice(person, householdBuilder) }, CarSegmentParameters())
-            val engineType = carEngineChoiceModel.select({ it.toChoice(person, householdBuilder) }, FatParameters)
+            val segment = segmentModel.filterAndSelect(CarSegmentSituation(person, householdBuilder))
+            val engineType = engineModel.filterAndSelect(EngineChoiceSituation(person.info, householdBuilder))
+
             SynthesisCar(householdBuilder, segment, engineType, segment.toSeats(), person)
+            // TODO there already is a model to determine main user, does selectExact match that definition?
         }
     }
 
