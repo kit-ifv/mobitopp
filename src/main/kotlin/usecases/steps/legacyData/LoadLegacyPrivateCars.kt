@@ -42,7 +42,7 @@ interface LoadPrivateCarsContext : Context {
         row: Row,
         ownerColumn: String
     ) = requireNotNull(
-        householdRepository.getById(row.id(ownerColumn))
+        householdRepository[row.id(ownerColumn)]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"
@@ -52,7 +52,7 @@ interface LoadPrivateCarsContext : Context {
         row: Row,
         mainUserColumn: String
     ) = requireNotNull(
-        personRepository.getById(row.id(mainUserColumn))
+        personRepository[row.id(mainUserColumn)]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"

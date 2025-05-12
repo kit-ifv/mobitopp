@@ -1,6 +1,5 @@
 package synthesis.householdgeneration
 
-import domain.data.Zone
 import synthesis.SurveyHousehold
 import synthesis.domain.SynthesisHousehold
 import synthesis.pickWithReplacement
@@ -33,11 +32,11 @@ import kotlin.random.Random
  * @property algorithm A function that defines the strategy for calculating a solution for the unique vectors and observers.
  *                     This function **mutates** the [ScalableVector] instances to adjust them to better fit the rules.
  */
-class IPU<T>(
+class IPU<AREA, T>(
     val converter: GenerateHouseholdsFromVector<T> = SampleAndCollect(),
     val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit
 ) :
-    HouseholdSynthesis<T> {
+    HouseholdSynthesis<AREA, T> {
 
     /**
      * Synthesizes households for each zone based on the provided survey data and the conditions (rules) defined
@@ -55,8 +54,8 @@ class IPU<T>(
      */
     override fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<Zone, List<Rule<in T>>>
-    ): Map<Zone, List<SynthesisHousehold<out T>>> {
+        conditions: Map<AREA, List<Rule<in T>>>
+    ): Map<AREA, List<SynthesisHousehold<out T>>> {
         return conditions.entries.associate { (zone, rules) ->
             zone to calculate(surveyHouseholds, rules, converter).map { it.toSynthesisHousehold() }
         }

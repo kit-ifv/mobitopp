@@ -1,35 +1,26 @@
 package syntheticsim
 
 import domain.enums.Mode
+import modeling.models.ChoiceFilter
 import modeling.models.ChoiceModel
-import usecases.choicemodels.LegacyModeChoiceModel
-import usecases.choicemodels.TripChoiceSituation
-import utils.units.Time
+import modeling.models.noFilter
+import usecases.models.ModeChoiceAlternative
+import kotlin.random.Random
 
 /**
- * Wraps around a [LegacyModeChoiceModel]. the [overrideMode] parameter will overwrite the selection of the original
+ * Wraps around a [ChoiceModel] for [ModeChoiceAlternative]. the [overrideMode] parameter will overwrite the selection of the original
  * model if and only if it is not null.
  */
-class OverridableModeChoiceModel(val original: LegacyModeChoiceModel) :
-    ChoiceModel<TripChoiceSituation, Mode> {
+class OverridableModeChoiceModel(
+    val original: ChoiceModel<ModeChoiceAlternative, Mode>,
+    override var choiceFilter: ChoiceFilter<ModeChoiceAlternative> = noFilter()
+) : ChoiceModel<ModeChoiceAlternative, Mode> {
     var overrideMode: Mode? = null
-
-    override fun select(agent: TripChoiceSituation, choices: Set<Mode>, time: Time): Mode {
-        return overrideMode ?: original.select(
-            agent,
-            choices,
-            time
-        )
-    }
 
     override val name: String
         get() = original.name
 
-    override fun choices(agent: TripChoiceSituation, time: Time): Set<Mode> {
-        return original.choices(agent, time)
-    }
-
-    override fun filter(agent: TripChoiceSituation, time: Time): Collection<Mode> {
-        return original.filter(agent, time)
+    override fun select(choices: Set<ModeChoiceAlternative>, random: Random): Mode {
+        return overrideMode ?: original.select(choices, random)
     }
 }

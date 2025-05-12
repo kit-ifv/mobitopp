@@ -66,6 +66,7 @@ class ScheduleTest {
         schedule.addAll(a1, a2, a3, a4)
         schedule.addAll(l1, l2, l3)
         repeat(7) { schedule.step() }
+        assertTrue(schedule.past.isNotEmpty())
         schedule.present?.endTime = 24.5.hours.sinceStart
         assertTrue(schedule.actions().hasTimeBoundViolations())
         schedule.applyAt(24.5.hours.sinceStart, SkipToNextHomeActivity(LegacyActivityType.HOME))
