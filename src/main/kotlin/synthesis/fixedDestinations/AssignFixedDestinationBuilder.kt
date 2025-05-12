@@ -4,8 +4,9 @@ import domain.enums.ActivityType
 import synthesis.FixedDestinationElements
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisPerson
-import synthesis.isHigherStudent
 import synthesis.isPrimaryStudent
+import synthesis.isSecondaryStudent
+import synthesis.isTertiaryStudent
 import synthesis.isWorker
 import usecases.AttractivenessModel
 
@@ -85,7 +86,21 @@ fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.secondarySchoo
     steps.add(
         FixedLocationAssignmentStep(
             element.activityType,
-            SynthesisPerson<out T>::isHigherStudent,
+            SynthesisPerson<out T>::isSecondaryStudent,
+            element.assignmentStrategy
+        )
+    )
+}
+
+fun <AREA, T : SurveyInfo> AssignFixedDestinationBuilder<AREA, T>.tertiarySchool(
+    lambda: AssignFixedDestinationBuilder<AREA, T>.FixedLocationConfig.() -> Unit
+) {
+    val element = FixedLocationConfig()
+    element.lambda()
+    steps.add(
+        FixedLocationAssignmentStep(
+            element.activityType,
+            SynthesisPerson<out T>::isTertiaryStudent,
             element.assignmentStrategy
         )
     )
