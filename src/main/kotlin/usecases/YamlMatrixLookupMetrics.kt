@@ -23,16 +23,16 @@ import usecases.steps.InternalMatrixLookup
 import utils.CodePlan
 import utils.units.AbsoluteTime
 import utils.units.Time
-import java.io.File
+import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 @Suppress("LongParameterList")
 class YamlMatrixLookupMetrics(
-    travelTimeMatrixConfig: File,
-    travelCostMatrixConfig: File,
-    distanceMatrix: File,
+    travelTimeMatrixConfig: Path,
+    travelCostMatrixConfig: Path,
+    distanceMatrix: Path,
     durationUnit: DurationUnit,
     currencyUnit: CurrencyUnit,
     distanceUnit: DistanceUnit,
@@ -43,7 +43,7 @@ class YamlMatrixLookupMetrics(
 ) : Metrics {
 
     private val travelTimes: MultiMatrix<Mode, ZoneId, Duration> = YamlMultiMatrix<Mode, ZoneId, Duration>(
-        path = travelTimeMatrixConfig.toPath(),
+        path = travelTimeMatrixConfig,
         parser = { it.toDuration(durationUnit) },
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
@@ -53,7 +53,7 @@ class YamlMatrixLookupMetrics(
     )
 
     private val travelCosts: MultiMatrix<Mode, ZoneId, Currency> = YamlMultiMatrix<Mode, ZoneId, Currency>(
-        path = travelCostMatrixConfig.toPath(),
+        path = travelCostMatrixConfig,
         parser = { it.toCurrency(currencyUnit) },
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
@@ -63,7 +63,7 @@ class YamlMatrixLookupMetrics(
     )
 
     private val distances: Matrix<ZoneId, Distance> = VisumMatrix(
-        path = distanceMatrix.toPath(),
+        path = distanceMatrix,
         converter = { it.toDistance(distanceUnit) }
 
     )

@@ -66,7 +66,7 @@ class PopulationSynthesisKtTest {
             surveyHouseholds = surveyPopulation.toSurveyHouseholds()
             // TODO make this a code based attractiveness model instead of parsing a file.
             attractivenessModel = attractivenessFromFile {
-                file = Path("src/test/resources/synthesis/attractivities.csv")
+                path = Path("src/test/resources/synthesis/attractivities.csv")
                 activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
             }
         }
