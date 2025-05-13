@@ -7,7 +7,7 @@ import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
 import utils.csv.CsvParser
 import utils.csv.TestEntity
-import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -107,7 +107,7 @@ class SequenceResourceTest : ResourceTest<String>() {
 class CsvResourceTest : ResourceTest<TestEntity>() {
 
     override fun init(): Resource<TestEntity> {
-        val file = File("src/test/resources/test_data.csv")
+        val path = Path("src/test/resources/test_data.csv")
         val parser = CsvParser { row ->
             TestEntity(
                 rowIndex = row.index,
@@ -116,7 +116,7 @@ class CsvResourceTest : ResourceTest<TestEntity>() {
         }
 
         return CsvResource(
-            file = file,
+            path = path,
             parser = parser
         )
     }

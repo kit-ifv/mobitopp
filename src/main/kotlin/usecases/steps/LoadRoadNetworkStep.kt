@@ -53,7 +53,7 @@ class LoadRoadNetworkStep<C>(
     }
 
     override fun verifyInput(): Warning? = validateScope("Validate visum net file: ${file.name}") {
-        validateFileReadAccess(file.toFile(), fileDescription = "Visum Net File containing road network data")
+        validateFileReadAccess(file, fileDescription = "Visum Net File containing road network data")
     }
 
     override fun mockBehavior(): Warning? = validateScope("Mock Visum road network data") {

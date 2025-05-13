@@ -10,7 +10,7 @@ import utils.csv.DefaultMapCsvParser
 import utils.csv.Row
 import utils.csv.commaDouble
 import utils.csv.long
-import java.io.File
+import java.nio.file.Path
 import kotlin.math.abs
 
 // TODO Debate with Jelle, There is a more generalized version of attractiveness, which takes in a location, rather than
@@ -33,7 +33,7 @@ fun AttractivenessModel.parkingPressure(target: Zone): Double {
 }
 
 class AttractivenessFromCsv(
-    private val file: File,
+    private val path: Path,
     delimiter: String = ";",
     zoneColumn: String = "zoneId",
     override val purposes: ChoiceModelPurposes,
@@ -52,7 +52,7 @@ class AttractivenessFromCsv(
             }
         )
 
-        attractivenessMap = parser.parseMap(file, separator = delimiter)
+        attractivenessMap = parser.parseMap(path, separator = delimiter)
     }
 
     private val warned: MutableMap<ZoneId, MutableList<ActivityType>> = mutableMapOf()
@@ -63,7 +63,7 @@ class AttractivenessFromCsv(
             if (activityType !in activities && activityType !in warnedSet) {
                 println(
                     "Warning: could not find attractiveness for ZoneId $zone and activity $activityType in lookup " +
-                        "(Source $file)! Using 1.0 instead!"
+                        "(Source $path)! Using 1.0 instead!"
                 )
                 activities.add(activityType)
                 warnedSet.add(activityType)
