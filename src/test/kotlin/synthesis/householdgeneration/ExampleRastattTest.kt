@@ -165,7 +165,7 @@ data class ZoneTarget(
 
                 )
             }
-            return parser.parse(file.toFile())
+            return parser.parse(file)
         }
     }
 }

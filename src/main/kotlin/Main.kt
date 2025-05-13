@@ -33,16 +33,15 @@ import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
 import utils.csv.Row
-import java.io.File
 import kotlin.io.path.Path
 
-private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output"
+private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp/Output"
 
-private val rootRastatt = File("$ROOT_FS\\logiktram_rastatt_long-term-module\\rastatt")
+private val rootRastattPath = Path("$ROOT_FS/logiktram_rastatt_long-term-module/rastatt")
 
-private val rootKarlsruhe = File("$ROOT_FS\\logiktram_karlsruhe_long-term-module\\karlsruhe")
+private val rootKarlsruhePath = Path("$ROOT_FS/logiktram_karlsruhe_long-term-module/karlsruhe")
 
-private val rootHamburg = File("$ROOT_FS\\transmove-synthesis-city-bs\\last-stable")
+private val rootHamburgPath = Path("$ROOT_FS/transmove-synthesis-city-bs/last-stable")
 
 // private val attractivenessTypes = setOf(
 //    LegacyActivityType.BUSINESS,x
@@ -61,15 +60,15 @@ private val rootHamburg = File("$ROOT_FS\\transmove-synthesis-city-bs\\last-stab
 // )
 
 private const val ROOT_TRANSMOVE_ENV =
-    "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input" +
-        "\\transmove\\mobitopp-env\\data\\zone-repository"
+    "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input" +
+        "/transmove/mobitopp-env/data/zone-repository"
 
 fun main() {
     Run {
         ProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = RegioStaR17,
-            demandFolder = rootRastatt,
+            demandFolder = rootRastattPath,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -108,21 +107,19 @@ fun main() {
         finishActivities()
         finishPersons()
 
+        val attractivitiesPath = Path("data/attractivities.csv") // "$ROOT_TRANSMOVE_ENV/attractivities.csv")
         loadAttractivities(
-            file = File("data/attractivities.csv"), // "$ROOT_TRANSMOVE_ENV\\attractivities.csv"),
+            path = attractivitiesPath,
             purposes = legacyChoiceModelPurposes,
         )
 
+        val costMatrixConfigPath = Path("$ROOT_MTX/cost-matrix-configuration_transmove_turbo.yaml")
+        val durationMatrixConfigPath = Path("$ROOT_MTX/time-matrix-configuration_transmove_turbo.yaml")
+        val distanceMatrixPath = Path("$ROOT_MTX/DIS_Car.mtx.bz2")
         loadImpedance(
-            costMatrixConfig = File(
-                "$ROOT_MTX\\cost-matrix-configuration_transmove_turbo.yaml"
-            ),
-            durationMatrixConfig = File(
-                "$ROOT_MTX\\time-matrix-configuration_transmove_turbo.yaml"
-            ),
-            distanceMatrix = File(
-                "$ROOT_MTX\\DIS_Car.mtx.bz2"
-            )
+            costMatrixConfig = costMatrixConfigPath,
+            durationMatrixConfig = durationMatrixConfigPath,
+            distanceMatrix = distanceMatrixPath
         )
 
         // loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)

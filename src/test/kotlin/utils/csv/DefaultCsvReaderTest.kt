@@ -5,13 +5,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class DefaultCsvReaderTest {
-    private val file = File("src/test/resources/test_data.csv")
-    private val reader: DefaultCsvReader = DefaultCsvReader(file)
+    private val file = Path("src/test/resources/test_data.csv")
+    private val reader: DefaultCsvReader = CsvReader.of(file)
 
     @BeforeEach
     fun muteProgress() {
@@ -55,7 +56,7 @@ class DefaultCsvReaderTest {
 }
 
 class DefaultRowTest {
-    private val file = File("src/test/resources/test_data.csv")
+    private val file = Path("src/test/resources/test_data.csv")
     private val reader: DefaultCsvReader = CsvReader.of(file)
 
     @Test

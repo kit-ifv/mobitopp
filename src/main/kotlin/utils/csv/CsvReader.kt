@@ -4,7 +4,7 @@ import utils.ErrorHandling
 import utils.collections.addProgressBar
 import utils.collections.toLazyList
 import utils.files.decompressedBufferedReader
-import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.fileSize
 import kotlin.math.floor
 import kotlin.streams.asSequence
@@ -128,13 +128,13 @@ open class DefaultRow(
 interface CsvReader {
     companion object {
         /**
-         * Create a [CsvReader] for the given [File]
+         * Create a [CsvReader] for the given [Path]
          *
-         * @param file the csv [File] to be read
-         * @return a [CsvReader] for the given file
+         * @param path the csv [Path] to be read
+         * @return a [CsvReader] for the given path
          */
         @Suppress("FunctionMinLength")
-        fun of(file: File, separator: String = SEMICOLON) = DefaultCsvReader(file, separator)
+        fun of(path: Path, separator: String = SEMICOLON) = DefaultCsvReader(path, separator)
     }
 
     /** The column names of the csv file. */
@@ -160,13 +160,13 @@ interface CsvReader {
  * Default implementation of the [CsvReader] interface. Reads the file
  * header upon creation, all other rows are read lazily.
  *
- * @constructor create a [DefaultCsvReader] for the given [File] using the
+ * @constructor create a [DefaultCsvReader] for the given [Path] using the
  *     given separator
- * @property file the file to be read
+ * @property path the path to the csv file to be read
  * @property separator the separator to be used; defaults to ';'
  */
 open class DefaultCsvReader(
-    protected val file: File,
+    protected val path: Path,
     protected val separator: String = SEMICOLON,
     protected val errorHandling: ErrorHandling = ErrorHandling.ERROR,
     protected val showProgressBar: Boolean = true
@@ -174,18 +174,17 @@ open class DefaultCsvReader(
 
     private val columnsIndex: Map<String, Int>
     private val numberOfRows: Int
-    override val name: String = file.name // TODO maybe use path instead?
-
-    override val source: String = file.path
+    override val name: String = path.fileName.toString()
+    override val source: String = path.toString()
     override val rowCount: Int
         get() = numberOfRows
     override val columns: Set<String>
         get() = columnsIndex.keys
 
     init {
-        numberOfRows = estimateRowCount(file)
+        numberOfRows = estimateRowCount(path)
 
-        val reader = file.decompressedBufferedReader()
+        val reader = path.decompressedBufferedReader()
         val header = reader.readLine()
         reader.close()
 
@@ -197,7 +196,7 @@ open class DefaultCsvReader(
     }
 
     override fun rows(): Sequence<Row> {
-        val reader = file.decompressedBufferedReader()
+        val reader = path.decompressedBufferedReader()
         var idCnt = 0
 
         val sequence = reader.lines()
@@ -300,10 +299,10 @@ fun <E> ErrorHandling.handleParseValue(
     "Could not parse column '$column' of row ${row.index} (value: ${row(column)}) in '${row.source}': $row"
 }
 
-fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): Int {
+fun estimateRowCount(path: Path, sampleSize: Int = 10000, scale: Double = 0.9): Int {
     var rows = 0
 
-    val reader = file.decompressedBufferedReader()
+    val reader = path.decompressedBufferedReader()
     val sample = reader.lineSequence()
         .drop(1)
         .take(sampleSize)
@@ -316,7 +315,7 @@ fun estimateRowCount(file: File, sampleSize: Int = 10000, scale: Double = 0.9): 
     }
 
     val bytePerRow = sample.toDouble() / rows.toDouble()
-    val fileSize = file.toPath().fileSize()
+    val fileSize = path.fileSize()
 
     return floor(fileSize.toDouble() * scale / bytePerRow).toInt()
 }

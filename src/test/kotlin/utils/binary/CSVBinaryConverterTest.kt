@@ -273,7 +273,7 @@ class CSVBinaryConverterTest {
         val testBin = binaryConverter.makeCSVBinary(testData, dataTypeMap, maxStringLength, tempOutput)
 
         val binConverted = personConverter.fromBinary(testBin)
-        val directRead = personCSVParser.parse(testData.toFile()).toList()
+        val directRead = personCSVParser.parse(testData).toList()
 
         binConverted.forEachIndexed { index, mutablePerson ->
             assertEquals(mutablePerson.id, directRead[index].id)

@@ -39,7 +39,7 @@ class ZoneDistributedLocationsTest {
     )
 
     val weights: Map<ZoneType, Double> =
-        DefaultCsvReader(Path("src/test/resources/synthesis/opportunity_weights_landuse.csv").toFile())
+        DefaultCsvReader(Path("src/test/resources/synthesis/opportunity_weights_landuse.csv"))
             .rows()
             .filter { it.invoke("activityType") == "Home" }
             .map {
