@@ -1,6 +1,7 @@
 package utils.csv
 
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
 
 /**
  * [MapCsvParser] are [CsvParser] for key-value [Pair]s. They provide
@@ -18,17 +19,17 @@ interface MapCsvParser<K, V> : CsvParser<Pair<K, V>> {
      * @return a map containing the parsed values by key
      */
     fun parseMap(path: String, separator: String = SEMICOLON): Map<K, V> {
-        return parseMap(File(path), separator)
+        return parseMap(Path(path), separator)
     }
 
     /**
-     * Parse the given csv [File] as map.
+     * Parse the given csv [Path] as map.
      *
-     * @param file the csv file to be parsed
+     * @param path the csv path to be parsed
      * @return a map containing the parsed values by key
      */
-    fun parseMap(file: File, separator: String = SEMICOLON): Map<K, V> {
-        val csv = CsvReader.of(file, separator)
+    fun parseMap(path: Path, separator: String = SEMICOLON): Map<K, V> {
+        val csv = CsvReader.of(path, separator)
         return parseMap(csv)
     }
 

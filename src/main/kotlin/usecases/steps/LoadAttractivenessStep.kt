@@ -15,13 +15,15 @@ import usecases.capitalizeWithUnderscores
 import usecases.models.ChoiceModelPurposes
 import utils.CodePlan
 import utils.csv.CsvReader
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.name
+import kotlin.io.path.pathString
 
 fun LoadAttractivenessDataContext.loadAttractivities(
-    file: File,
+    path: Path,
     purposes: ChoiceModelPurposes,
 ) = runStep {
-    LoadAttractivenessStep(this, file, purposes)
+    LoadAttractivenessStep(this, path, purposes)
 }
 
 interface LoadAttractivenessDataContext : Context {
@@ -31,7 +33,7 @@ interface LoadAttractivenessDataContext : Context {
 
 class LoadAttractivenessStep(
     private val context: LoadAttractivenessDataContext,
-    private val file: File,
+    private val path: Path,
     private val purposes: ChoiceModelPurposes,
 ) : ModelStep {
 
@@ -39,23 +41,23 @@ class LoadAttractivenessStep(
 
     override fun execute() {
         context.attractivenessModel.value = AttractivenessFromCsv(
-            file = file,
+            path = path,
             purposes = purposes
         )
     }
 
-    override fun verifyInput(): Warning? = validateScope("Validate attractiveness input data: ${file.name}") {
-        validateFileReadAccess(file, fileDescription = "Csv containing attractiveness data by activity type for zones")
+    override fun verifyInput(): Warning? = validateScope("Validate attractiveness input data: ${path.name}") {
+        validateFileReadAccess(path, fileDescription = "Csv containing attractiveness data by activity type for zones")
 
-        val columns = CsvReader.of(file).columns
+        val columns = CsvReader.of(path).columns
 
         purposes.typesWithAttractivity.forEach { activityType ->
             val expectedColumn = "Attractivity:${activityType.description.capitalizeWithUnderscores()}"
 
             validateCondition(
-                message = "Expected attractivities file (${file.name}) to contains column '$expectedColumn'!\n" +
+                message = "Expected attractivities file (${path.name}) to contains column '$expectedColumn'!\n" +
                     "Found columns: $columns\n" +
-                    "File path: ${file.path}",
+                    "File path: ${path.pathString}",
                 isError = true,
             ) {
                 expectedColumn in columns

@@ -20,9 +20,9 @@ import java.io.BufferedInputStream
 import java.io.BufferedReader
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
+import java.nio.file.Files
 import java.nio.file.Path
 
 private val ISO_8859_1 = charset("ISO-8859-1")
@@ -48,37 +48,21 @@ fun Path.decompressedBufferedReader(charset: Charset = DEFAULT_CHARSET) =
     this.decompressedInputStream().bufferedReader(charset)
 
 /**
- * Create a buffered reader with (potential) file decompression for the receiver [File].
- *
- * @param charset the charset to be used to read the file content
- * @return a [BufferedReader] of the given [File]'s content, decompression all [Compression] file extensions.
- */
-fun File.decompressedBufferedReader(charset: Charset = DEFAULT_CHARSET): BufferedReader =
-    this.decompressedInputStream().bufferedReader(charset)
-
-/**
  * Create an input stream with (potential) file decompression assuming this String to be a file path.
  */
-fun String.decompressedInputStream() = File(this).decompressedInputStream()
+fun String.decompressedInputStream() = Path.of(this).decompressedInputStream()
 
 /**
  * Create an input stream with (potential) file decompression for the receiver [Path].
- *
- * @return an [InputStream] of the given [Path]'s content, decompression all [Compression] file extensions.
- */
-fun Path.decompressedInputStream() = this.toFile().decompressedInputStream()
-
-/**
- * Create an input stream with (potential) file decompression for the receiver [Path].
- * Iteratively applies decompression algorithms if the file extension match one of the [Compression] file extensions.
+ * Iteratively applies decompression algorithms if the file extension matches one of the [Compression] file extensions.
  * Decompression starts with the outermost file extension (right)
  * and moves left until a non-matching file extension is found.
  *
- * @return an [InputStream] of the given [File]'s content, decompression all [Compression] file extensions.
+ * @return an [InputStream] of the given [Path]'s content, decompression all [Compression] file extensions.
  */
-fun File.decompressedInputStream(): InputStream {
-    var inputStream: InputStream = BufferedInputStream(this.inputStream())
-    var currentFileName = name
+fun Path.decompressedInputStream(): InputStream {
+    var inputStream: InputStream = BufferedInputStream(Files.newInputStream(this))
+    var currentFileName = this.fileName.toString()
 
     if (compressionExtension(currentFileName) == null) {
         return inputStream
@@ -90,7 +74,7 @@ fun File.decompressedInputStream(): InputStream {
         if (fileExtension != null) {
             errorScope(
                 ErrorHandling.THROW,
-                message = "Error while decompressing [$fileExtension] file $currentFileName; source: $path"
+                message = "Error while decompressing [$fileExtension] file $currentFileName; source: $this"
             ) {
                 inputStream = fileExtension.decompress(inputStream)
             }
@@ -104,7 +88,7 @@ fun File.decompressedInputStream(): InputStream {
     // This decompresses all compression layers into one buffer
     val array = errorScope(
         ErrorHandling.THROW,
-        message = "Error while executing decompression of file content: $name",
+        message = "Error while executing decompression of file content: ${this.fileName}",
     ) {
         val out = ByteArrayOutputStream()
         inputStream.copyTo(out)

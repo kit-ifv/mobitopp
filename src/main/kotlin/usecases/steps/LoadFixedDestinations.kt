@@ -27,7 +27,7 @@ import utils.csv.decodeName
 import utils.csv.id
 import utils.csv.long
 import utils.csv.withFilter
-import java.io.File
+import java.nio.file.Path
 
 interface LoadFixedDestinationsContext : Context {
     val zoneRepository: Repository<Zone, ZoneId>
@@ -38,8 +38,8 @@ interface LoadFixedDestinationsContext : Context {
 
     val activityTypeCodes: CodePlan<ActivityType>
 
-    val defaultFixedDestinationsFile: File
-        get() = File(demandFolder.path + "\\demand-data\\fixedDestination.csv")
+    val defaultFixedDestinationsPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("fixedDestination.csv")
 
     fun getZone(id: Long) = requireNotNull(
         zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
@@ -59,7 +59,7 @@ data class FixedDestinationColumns(
 data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
 
 fun LoadFixedDestinationsContext.assignFixedDestinations(
-    file: File = defaultFixedDestinationsFile,
+    path: Path = defaultFixedDestinationsPath,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: FixedDestinationColumns = FixedDestinationColumns(),
     filter: FixedDestinationColumns.(Row, LoadFixedDestinationsContext) -> Boolean = { _, _ -> true }
@@ -82,22 +82,21 @@ fun LoadFixedDestinationsContext.assignFixedDestinations(
         }
     }.withFilter(filterWrap)
 
-    prepareFixedDestinationsFile(csvParser, file)
+    prepareFixedDestinationsFile(csvParser, path)
 }
 
 fun LoadFixedDestinationsContext.prepareFixedDestinationsFile(
     parser: CsvParser<ActivityLocation>,
-    file: File = defaultFixedDestinationsFile,
+    path: Path = defaultFixedDestinationsPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    LoadFixedDestinationsStep(this, parser, file, delimiter)
+    LoadFixedDestinationsStep(this, parser, path, delimiter)
 }
 
 class LoadFixedDestinationsStep(
-
     private val context: LoadFixedDestinationsContext,
     private val parser: CsvParser<ActivityLocation>,
-    private val file: File = context.defaultFixedDestinationsFile,
+    private val path: Path = context.defaultFixedDestinationsPath,
     private val delimiter: String = SEMICOLON,
 ) : ModelStep, RepositoryDependentStep {
     override val name: String = "Load and assign fixed destinations in person schedules"
@@ -109,7 +108,7 @@ class LoadFixedDestinationsStep(
     )
 
     override fun execute() {
-        val reader = CsvReader.of(file, delimiter)
+        val reader = CsvReader.of(path, delimiter)
 
         parser.parse(reader).toList().forEach { (person, activityType, location) ->
             val acts = person.schedule.activities().filter { act -> act.type == activityType }

@@ -59,7 +59,7 @@ class OECDAssigner<T : SurveyInfo>(val oecdTranslation: (Double, Currency) -> Ec
                 )
             }
 
-            val map = TreeMap(parser.parse(path.toFile()).associate { it.amount to it.intervals })
+            val map = TreeMap(parser.parse(path).associate { it.amount to it.intervals })
             return OECDAssigner { numPeep, income ->
                 val mapping = map.floorEntry(numPeep).value
                 mapping.first { income in it.first }.second

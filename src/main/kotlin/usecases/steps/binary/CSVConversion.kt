@@ -86,7 +86,7 @@ class CSVBinaryConverter {
         require(csvFile.exists()) { "Can't convert nonexistent csv file. $csvFile does not exist." }
         require(csvFile.toString().endsWith(".csv")) { "Pls enter a csv file: $csvFile" }
 
-        val reader = DefaultCsvReader(csvFile.toFile(), showProgressBar = false)
+        val reader = DefaultCsvReader(csvFile, showProgressBar = false)
         require(reader.columns.containsAll(datatypeMapping.keys)) {
             val wrongNames = datatypeMapping.keys.filter { !reader.columns.contains(it) }
             "The csv doesn't contain columns with the following names: $wrongNames"
