@@ -25,7 +25,7 @@ import utils.csv.decodeName
 import utils.csv.id
 import utils.csv.int
 import utils.csv.withFilter
-import java.io.File
+import java.nio.file.Path
 
 interface LoadPrivateCarsContext : Context {
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
@@ -35,8 +35,8 @@ interface LoadPrivateCarsContext : Context {
     val householdRepository: Repository<MutableHousehold, HouseholdId>
     val personRepository: Repository<Person, PersonId>
 
-    val defaultCarFile: File
-        get() = File(demandFolder.path + "\\demand-data\\car.csv")
+    val defaultCarPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("car.csv")
 
     fun getOwnerHousehold(
         row: Row,
@@ -69,7 +69,7 @@ data class CarColumns(
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadPrivateCarsContext.preparePrivateCars(
-    file: File = defaultCarFile,
+    path: Path = defaultCarPath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: CarColumns = CarColumns(),
@@ -91,16 +91,16 @@ fun LoadPrivateCarsContext.preparePrivateCars(
         }
     }
 
-    this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, this) }, file, delimiter)
+    this.preparePrivateCarsFile(csvParser.withFilter { columns.filter(it, this) }, path, delimiter)
 }
 
 fun LoadPrivateCarsContext.preparePrivateCarsFile(
     parser: CsvParser<MutablePrivateCar>,
-    file: File = defaultCarFile,
+    path: Path = defaultCarPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep<MutablePrivateCar, CarId>(
-        file = file,
+        path = path,
         name = "Load private cars from csv",
         parser = parser,
         delimiter = delimiter,

@@ -23,15 +23,15 @@ import utils.csv.SEMICOLON
 import utils.csv.int
 import utils.csv.long
 import utils.units.toCoordinate
-import java.io.File
+import java.nio.file.Path
 
 interface LoadSharingStationsContext : Context {
     val sharingStationsRepository: MutableRepository<MutableSharingStation, SharingStationId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
-    val defaultSharingStationFile: File
-        get() = File(demandFolder.path + "\\zone-repository\\sharing-stations.csv")
+    val defaultSharingStationPath: Path
+        get() = demandFolder.resolve("zone-repository").resolve("sharing-stations.csv")
 }
 
 data class StationColumns(
@@ -47,7 +47,7 @@ private var idCounter: Long = 0L
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadSharingStationsContext.prepareSharingStations(
-    file: File = defaultSharingStationFile,
+    path: Path = defaultSharingStationPath,
     columns: StationColumns = StationColumns(),
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -84,16 +84,16 @@ fun LoadSharingStationsContext.prepareSharingStations(
         }
     }
 
-    this.prepareStationsFile(csvParser, file, delimiter) // TODO
+    this.prepareStationsFile(csvParser, path, delimiter) // TODO
 }
 
 fun LoadSharingStationsContext.prepareStationsFile(
     parser: CsvParser<MutableSharingStation>,
-    file: File = defaultSharingStationFile,
+    path: Path = defaultSharingStationPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep(
-        file = file,
+        path = path,
         name = "Load sharing stations from csv",
         parser = parser,
         delimiter = delimiter,

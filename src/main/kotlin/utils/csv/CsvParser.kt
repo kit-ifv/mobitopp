@@ -1,37 +1,37 @@
 package utils.csv
 
 import utils.ErrorHandling
-import java.io.File
+import java.nio.file.Path
 
 /**
  * The CsvParser interface defines methods for parsing a csv file and
  * generating a Sequence of entities of generic type E.
  *
- * It provides a default implementation for parsing a file path or File
- * object for convenience.
+ * It provides a default implementation for parsing a file path, File
+ * or Path object for convenience.
  *
  * @param E the generic type of the entities to be parsed
  */
 interface CsvParser<out E> {
 
     /**
-     * Parse the csv file at the given path.
+     * Parse the csv file at the given path string.
      *
-     * @param path the file path of the csv file to be parsed
+     * @param path the file path string of the csv file to be parsed
      * @return a sequence of parsed entities
      */
     fun parse(path: String, separator: String = SEMICOLON): Sequence<E> {
-        return parse(File(path), separator)
+        return parse(Path.of(path), separator)
     }
 
     /**
-     * Parse the given file as csv.
+     * Parse the given path as csv.
      *
-     * @param file the csv file to be parsed
+     * @param path the csv path to be parsed
      * @return a sequence of parsed entities
      */
-    fun parse(file: File, separator: String = SEMICOLON): Sequence<E> {
-        val csv = CsvReader.of(file, separator)
+    fun parse(path: Path, separator: String = SEMICOLON): Sequence<E> {
+        val csv = CsvReader.of(path, separator)
         return parse(csv)
     }
 

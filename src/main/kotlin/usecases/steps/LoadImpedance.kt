@@ -18,15 +18,16 @@ import units.euros
 import units.kilometers
 import usecases.YamlMatrixLookupMetrics
 import utils.units.Time
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.readText
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 @Suppress("LongParameterList")
 fun SimulationContext.loadImpedance(
-    costMatrixConfig: File,
-    durationMatrixConfig: File,
-    distanceMatrix: File,
+    costMatrixConfig: Path,
+    durationMatrixConfig: Path,
+    distanceMatrix: Path,
     distanceUnit: DistanceUnit? = null,
     currencyUnit: CurrencyUnit? = null,
     durationUnit: DurationUnit? = null,
@@ -45,15 +46,15 @@ fun SimulationContext.loadImpedance(
 }
 
 data class InternalMatrixLookup(
-    val originalDirectory: File,
-    val internalDirectory: File
+    val originalDirectory: Path,
+    val internalDirectory: Path,
 )
 
 @Suppress("LongParameterList")
 private class LoadImpedanceStep(
-    private val costMatrixConfig: File,
-    private val durationMatrixConfig: File,
-    private val distanceMatrix: File,
+    private val costMatrixConfig: Path,
+    private val durationMatrixConfig: Path,
+    private val distanceMatrix: Path,
     private val distanceUnit: DistanceUnit? = null,
     private val currencyUnit: CurrencyUnit? = null,
     private val durationUnit: DurationUnit? = null,
@@ -90,8 +91,8 @@ private class LoadImpedanceStep(
 
             context.modes.values().forEach { mode ->
                 val modeLabel = "$mode:"
-                val errorMessage = { file: File ->
-                    "Matrix config ${file.name} does not specify mode $mode"
+                val errorMessage = { path: Path ->
+                    "Matrix config ${path.fileName} does not specify mode $mode"
                 }
 
                 validateCondition(errorMessage(costMatrixConfig), true) {

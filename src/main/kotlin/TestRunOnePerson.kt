@@ -13,16 +13,15 @@ import usecases.steps.prepareActivities
 import usecases.steps.prepareSharingStations
 import usecases.steps.simulate
 import utils.ErrorHandling
-import java.io.File
 import kotlin.io.path.Path
 
-private val rootHamburg = File(
-    "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp\\Output" +
-        "\\transmove-synthesis-city-bs\\last-stable"
+private val rootHamburg = Path(
+    "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp/Output" +
+        "/transmove-synthesis-city-bs/last-stable"
 )
 
 fun main() {
-    val input = "\\\\ifv-fs.ifv.kit.edu\\Forschung\\Projekte_intern\\mobitopp\\Input\\transmove\\mobitopp-env\\data"
+    val input = "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input/transmove/mobitopp-env/data"
     Run {
         ProjectContext(
             scenarioName = "testSteps",
@@ -36,8 +35,8 @@ fun main() {
         loadZones()
         prepareSharingStations(
             errorHandling = ErrorHandling.THROW,
-            file = File(
-                "$input\\zone-repository\\bikesharing_stations.csv"
+            path = Path(
+                "$input/zone-repository/bikesharing_stations.csv"
             ),
             providerName = "StadtMobil",
             mode = LegacyMode.BIKESHARING,
@@ -51,11 +50,11 @@ fun main() {
 }
 
 fun ProjectContext.loadTestSet() {
-    loadHouseholds(Path("src/test/resources/hamburg/household.csv").toFile())
-    loadPersons(Path("src/test/resources/hamburg/person.csv").toFile())
+    loadHouseholds(Path("src/test/resources/hamburg/household.csv"))
+    loadPersons(Path("src/test/resources/hamburg/person.csv"))
     //    preparePrivateCars(file = Path("src/test/resources/hamburg/person.csv").toFile()) // file = File("example/car.csv"))
     //    assignCarUsers()
     //    finishPrivateCars()
-    prepareActivities(file = Path("src/test/resources/hamburg/activity.csv").toFile())
+    prepareActivities(path = Path("src/test/resources/hamburg/activity.csv"))
     finishActivities()
 }

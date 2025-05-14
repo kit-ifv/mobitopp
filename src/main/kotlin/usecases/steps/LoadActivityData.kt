@@ -20,8 +20,11 @@ import utils.csv.decode
 import utils.csv.id
 import utils.csv.int
 import utils.csv.withFilter
+import utils.random.StochasticActor
 import utils.units.AbsoluteTime
-import java.io.File
+import java.nio.file.Path
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -30,8 +33,8 @@ interface LoadPlannedActivitiesContext : Context {
     val personRepository: Repository<Person, PersonId>
     val activityTypeCodes: CodePlan<ActivityType>
 
-    val defaultActivityFile: File
-        get() = File(demandFolder.path + "\\demand-data\\activity.csv")
+    val defaultActivityPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("activity.csv")
 
     fun getPerson(row: Row, personColumn: String) = requireNotNull(
         personRepository[row.id(personColumn)]
@@ -51,12 +54,13 @@ data class ActivitiesColumns(
 
 @Suppress("LongParameterList")
 fun LoadPlannedActivitiesContext.prepareActivities(
-    file: File = defaultActivityFile,
+    path: Path = defaultActivityPath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ActivitiesColumns = ActivitiesColumns(),
     durationUnit: DurationUnit = timeUnit,
-    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true }
+    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
 ) {
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
@@ -64,24 +68,26 @@ fun LoadPlannedActivitiesContext.prepareActivities(
             id = ActivityId(row.index.toLong()),
             seed = simulationSeed
         ) {
+            val shift = shiftActivityStart(this)
+
             person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
-            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit)
+            startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
             activityType = row.decode(columns.activityTypeColumn, activityTypeCodes)
         }
     }
 
-    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, file, delimiter)
+    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
 }
 
 fun LoadPlannedActivitiesContext.prepareActivitiesFile(
     parser: CsvParser<PlannedActivity>,
-    file: File = defaultActivityFile,
+    path: Path = defaultActivityPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep<PlannedActivity, ActivityId>(
-        file = file,
+        path = path,
         name = "Load planned activities from csv",
         parser = parser,
         delimiter = delimiter,
@@ -98,4 +104,25 @@ fun LoadPlannedActivitiesContext.finishActivities() = runStep {
 fun LoadPlannedActivitiesContext.loadActivities() {
     this.prepareActivities(errorHandling = ErrorHandling.THROW)
     this.finishActivities()
+}
+
+fun interface ActivityStartShifter {
+    operator fun invoke(actor: StochasticActor): Duration
+    fun cached() = CachedActivityStartShifter(this)
+}
+
+@Suppress("MagicNumber")
+object QuarterHourShifter : ActivityStartShifter {
+    override operator fun invoke(actor: StochasticActor) = actor.random.nextDouble(-7.5, 7.5).minutes
+}
+
+object NoActivityStartShifter : ActivityStartShifter {
+    override operator fun invoke(actor: StochasticActor) = Duration.ZERO
+}
+
+class CachedActivityStartShifter(
+    private val shifter: ActivityStartShifter
+) : ActivityStartShifter {
+    private val shifts: MutableMap<StochasticActor, Duration> = mutableMapOf()
+    override operator fun invoke(actor: StochasticActor) = shifts.computeIfAbsent(actor) { shifter(actor) }
 }

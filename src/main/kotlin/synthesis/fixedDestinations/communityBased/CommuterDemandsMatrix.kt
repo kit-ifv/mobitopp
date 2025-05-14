@@ -88,7 +88,7 @@ class CommuterDemandsMatrix(
                 )
             }
 
-            return parser.parse(file.toFile()).toMap()
+            return parser.parse(file).toMap()
         }
 
         private fun readCommuters(file: Path, converter: (Location) -> CommunityNumber): CommuterDemandsMatrix {
@@ -101,7 +101,7 @@ class CommuterDemandsMatrix(
 
                 )
             }
-            parser.parse(file.toFile()).forEach { (i, j, value) -> communityDemand[i, j] = value.toDouble() }
+            parser.parse(file).forEach { (i, j, value) -> communityDemand[i, j] = value.toDouble() }
             return communityDemand
         }
     }
