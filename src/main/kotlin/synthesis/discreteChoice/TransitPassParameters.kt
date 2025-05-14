@@ -12,7 +12,7 @@ import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
-import units.euros
+import units.`€`
 import kotlin.compareTo
 import kotlin.random.Random
 
@@ -218,9 +218,3 @@ val transitPassChoiceModel = DiscreteStructure<Boolean, TicketAlternative, Trans
 //        }
 //    },
 // )
-
-/**
- * Yes this works...
- */
-@Suppress("TopLevelPropertyNaming") // In this instance the exotic naming is deliberate
-private val Number.`€` get() = this.euros

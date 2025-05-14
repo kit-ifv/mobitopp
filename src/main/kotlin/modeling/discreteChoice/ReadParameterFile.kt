@@ -2,8 +2,9 @@ package modeling.discreteChoice
 
 import net.objecthunter.exp4j.ExpressionBuilder
 import processor.builder.splitOnce
-import java.io.File
 import java.nio.charset.Charset
+import java.nio.file.Path
+import kotlin.io.path.readText
 
 /**
  * Read a text or a text file as a parameter file. "PARAMETERNAME = 49.42" etc.
@@ -15,7 +16,7 @@ object ReadParameterFile {
         return map
     }
 
-    fun read(file: File, charset: Charset = Charsets.UTF_8): Map<String, Double> {
+    fun read(file: Path, charset: Charset = Charsets.UTF_8): Map<String, Double> {
         return read(file.readText(charset = charset))
     }
 }

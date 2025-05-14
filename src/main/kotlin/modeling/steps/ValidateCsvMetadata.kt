@@ -17,14 +17,14 @@ private const val VALIDATION_MODE_ERROR =
     "Expected parentWarning to be set in validation mode. Make sure to call validate for validation"
 
 /**
- * This validation has some is fuzzy logic: if a csv value cannot be mocked for the parser,
+ * This validation has some fuzzy logic: if a csv value cannot be mocked for the parser,
  * validation is suspended for this parser. We don't know if the csv parser step is valid:
  * the columns after the unmockable one might be invalid. We also don't know if the step is invalid,
- * all columns might be valid but no test string is given. Hence, a warning is printed to the console.
- * In case of 'don't know' we return true, otherwise validation would always fail,
- * if validity of any csv column cannot be decided.
+ * all columns might be valid, but no test string is given. Hence, a warning is printed to the console.
+ * In case of 'don't know' we return true; otherwise validation would always fail if the
+ * validity of any csv column cannot be decided.
  *
- * Validate if csv file exists and can be read, then validate existence of columns required by the csv parser.
+ * Validate if csv file exists and can be read, then validate the existence of columns required by the csv parser.
  */
 class ValidateCsvMetadata<E>(
     private val step: ModelStep,
@@ -62,18 +62,18 @@ class ValidateCsvMetadata<E>(
 
     @Suppress("EmptyCatchBlock", "TooGenericExceptionCaught", "SwallowedException")
     fun validate() = validateScope(
-        "Validate csv metadata of ${csv.file} produced warnings:",
+        "Validate csv metadata of ${csv.path} produced warnings:",
         exceptionsAreErrors = false,
     ) {
         parentWarning = this
 
-        validateFileReadAccess(csv.file)?.also {
+        validateFileReadAccess(csv.path)?.also {
             this.addChild(it)
             return@validateScope
         }
 
         muteProgressBars()
-        reader = DefaultCsvReader(csv.file, errorHandling = ErrorHandling.SILENT)
+        reader = DefaultCsvReader(csv.path, errorHandling = ErrorHandling.SILENT)
         try {
             csv.parser.parse(this@ValidateCsvMetadata).toList()
         } catch (_: Exception) {

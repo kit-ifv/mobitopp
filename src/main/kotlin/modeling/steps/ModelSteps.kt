@@ -9,7 +9,7 @@ import utils.Identifiable
 import utils.csv.CsvParser
 import utils.csv.SEMICOLON
 import utils.units.logTime
-import java.io.File
+import java.nio.file.Path
 
 /**
  * A ModelStep represents an operation performed during the model execution.
@@ -185,16 +185,15 @@ abstract class AddCsvStep<E, I> : AddResourceStep<E, I>() where E : Identifiable
 
 @Suppress("LongParameterList")
 class LoadCsvStep<E, I>(
-    file: File,
-    override val name: String = "load ${file.name}",
+    path: Path,
+    override val name: String = "load ${path.fileName}",
     parser: CsvParser<E>,
     delimiter: String = SEMICOLON,
     override val repository: MutableRepository<E, I>,
     override val dependentRepositories: Set<Repository<*, *>>,
     private val validationMock: List<E>,
 ) : AddCsvStep<E, I>() where E : Identifiable<I> {
-
-    override val resource: CsvResource<E> by lazy { CsvResource(file, parser, delimiter) }
+    override val resource: CsvResource<E> by lazy { CsvResource(path, parser, delimiter) }
 
     override fun mockElementsForValidation(): List<E> = validationMock
 }

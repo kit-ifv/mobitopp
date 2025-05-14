@@ -122,6 +122,14 @@ class LinkedActivity(
             }
             original.endTime = value
         }
+
+    override var duration: Duration
+        get() = original.duration
+        set(value) {
+            // delegate to change of endTime, TODO validate in bounds
+            this.endTime = this.startTime + value
+        }
+
     override var earliestStartTime: AbsoluteTime
         get() = original.earliestStartTime
         set(value) {
