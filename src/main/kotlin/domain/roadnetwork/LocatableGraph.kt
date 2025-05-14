@@ -70,8 +70,8 @@ class LocatableGraph(
     }
 
     fun visumLinkId(location: Location): Long {
-        if (location.roadAccess != null) {
-            return location.roadAccess.roadId
+        location.roadAccess?.let {
+            return it.roadId
         }
 
         return linkIdFor(location)
