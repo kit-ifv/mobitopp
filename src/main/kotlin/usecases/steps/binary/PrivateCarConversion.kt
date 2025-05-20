@@ -16,7 +16,7 @@ import java.io.DataOutputStream
 import java.nio.MappedByteBuffer
 import java.nio.file.Path
 
-@Suppress("MagicNumber")
+@Suppress("MagicNumber", "UnusedPrivateProperty")
 class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
     val personConverter: (PersonId) -> Person,
