@@ -3,7 +3,7 @@ package modeling.steps
 import utils.csv.CsvParser
 import utils.csv.CsvReader
 import utils.csv.SEMICOLON
-import java.io.File
+import java.nio.file.Path
 
 /**
  * A Resource represents a data source for a stream of elements.
@@ -62,28 +62,28 @@ fun <I, E> I.asResource(name: String, source: String): Resource<E> where I : Ite
  *
  * @param E the generic type of entities created from the csv data
  * @constructor Create empty Csv resource
- * @property file the csv file to be parsed
+ * @property path the path to the csv file to be parsed
  * @property parser th parser to be applied
  * @property delimiter the csv delimiter, defaults to ';'
  */
 class CsvResource<E>(
-    val file: File,
+    val path: Path,
     val parser: CsvParser<E>,
     private val delimiter: String = SEMICOLON,
     private val reusable: Boolean = false,
 ) : Resource<E> {
     override val name: String
-        get() = file.name
+        get() = path.fileName.toString()
 
     override val source: String
-        get() = file.path
+        get() = path.toString()
 
     override val elements: Sequence<E>
         get() = rowSequence.elements
 
     private val rowSequence by lazy {
-        parser.parse(CsvReader.of(file, delimiter))
-            .asResource(file.name, file.path).let {
+        parser.parse(CsvReader.of(path, delimiter))
+            .asResource(name, source).let {
                 if (reusable) {
                     it.reusable()
                 } else {

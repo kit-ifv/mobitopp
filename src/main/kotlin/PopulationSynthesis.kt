@@ -62,7 +62,6 @@ import usecases.AttractivenessModel
 import usecases.LegacyActivityType
 import usecases.legacyChoiceModelPurposes
 import utils.csv.DefaultCsvParser
-import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -72,7 +71,7 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 
-fun parseSurvey(file: Path): Sequence<RawSurveyInfo> {
+fun parseSurvey(path: Path): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
         RawSurveyInfo(
             householdId = row("ID").toInt(),
@@ -95,7 +94,7 @@ fun parseSurvey(file: Path): Sequence<RawSurveyInfo> {
         )
     }
 
-    return parser.parse(file.toFile())
+    return parser.parse(path)
 }
 
 fun interface AssignTransitCardOwnership<T> {
@@ -255,11 +254,11 @@ class PopulationSynthesis<AREA, T : Any>(
 
             inner class AttractivenessModelParser {
 
-                var file = attractivenessModelPath
+                var path = attractivenessModelPath
                 var activityTypes: Set<ActivityType> = emptySet()
                 fun build(): AttractivenessModel {
                     return AttractivenessFromCsv(
-                        file = file.toFile(),
+                        path = path,
                         purposes = legacyChoiceModelPurposes
                     )
                 }
@@ -294,7 +293,6 @@ fun interface GenerateArtificialPopulation<T> {
     fun generateArtificialPopulation(): Collection<T>
 
     companion object {
-        fun fromFile(file: File) = fromFile(file.toPath())
         fun fromFile(fileString: String) = fromFile(Path(fileString))
         fun fromFile(file: Path) = GenerateArtificialPopulation { parseSurvey(file).toList() }
     }
@@ -319,7 +317,7 @@ fun examplePopulationSynthesis() {
         surveyHouseholds = surveyPopulation.toSurveyHouseholds()
 //            parseSurvey(Path("src/test/resources/synthesis/SurveyPopulation.csv")).toSurveyHouseholds().values
         attractivenessModel = attractivenessFromFile {
-            file = attractivenessModelPath
+            path = attractivenessModelPath
             activityTypes = setOf(LegacyActivityType.EDUCATION_PRIMARY)
         }
     }

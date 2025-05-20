@@ -25,15 +25,15 @@ import utils.csv.SEMICOLON
 import utils.csv.int
 import utils.csv.long
 import utils.units.toCoordinate
-import java.io.File
+import java.nio.file.Path
 
 interface LoadSharingProvidersContext : Context {
     val sharingProvidersRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
-    val defaultSharingStationFile: File
-        get() = File(demandFolder.path + "\\zone-repository\\sharing-stations.csv")
+    val defaultSharingStationPath: Path
+        get() = demandFolder.resolve("zone-repository").resolve("sharing-stations.csv")
 }
 
 data class StationColumns(
@@ -50,7 +50,7 @@ private var sharingIdCounter: Long = 0L
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadSharingProvidersContext.prepareSharingStations(
-    file: File = defaultSharingStationFile,
+    file: Path = defaultSharingStationFile,
     columns: StationColumns = StationColumns(),
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -97,7 +97,7 @@ fun LoadSharingProvidersContext.prepareSharingStations(
 fun LoadSharingProvidersContext.prepareStationsFile(
     sharingProvider: MutableSharingProvider,
     parser: CsvParser<MutableSharingStation>,
-    file: File = defaultSharingStationFile,
+    path: Path = defaultSharingStationPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     object : AddResourceStep<MutableSharingProvider, SharingProviderId>() {

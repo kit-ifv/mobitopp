@@ -18,14 +18,11 @@ import usecases.steps.loadChoiceModels
 import usecases.steps.prepareSharingStations
 import usecases.steps.simulate
 import utils.ErrorHandling
-import java.io.File
 import kotlin.io.path.Path
 
-private const val ROOT_FS = "\\\\ifv-fs\\Forschung\\Projekte_intern\\mobitopp"
+private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp"
 
-private val rootHamburg = File(
-    "$ROOT_FS\\Output\\transmove-synthesis-city-bs\\last-stable"
-)
+private val rootHamburg = Path("$ROOT_FS/Output/transmove-synthesis-city-bs/last-stable")
 
 fun main() {
     Run {
@@ -42,25 +39,26 @@ fun main() {
         impedance.value = dummyImpedance
 //        loadImpedance(
 //            costMatrixConfig = File(
-//                "$ROOT_MTX\\cost-matrix-configuration_transmove_turbo.yaml"
+//                "$ROOT_MTX/cost-matrix-configuration_transmove_turbo.yaml"
 //            ),
 //            durationMatrixConfig = File(
-//                "$ROOT_MTX\\time-matrix-configuration_transmove_turbo.yaml"
+//                "$ROOT_MTX/time-matrix-configuration_transmove_turbo.yaml"
 //            ),
 //            distanceMatrix = File(
-//                "$ROOT_MTX\\DIS_Car.mtx.bz2"
+//                "$ROOT_MTX/DIS_Car.mtx.bz2"
 //            )
 //        )
 
+        val attractivitiesPath = Path("data/attractivities.csv")
         loadAttractivities(
-            file = File("data/attractivities.csv"),
+            path = attractivitiesPath,
             legacyChoiceModelPurposes,
         )
+        val bikesharingStationsPath =
+            Path("${ROOT_FS}/Input/transmove/mobitopp-env/data/zone-repository/bikesharing_stations.csv")
         prepareSharingStations(
             errorHandling = ErrorHandling.THROW,
-            file = File(
-                "${ROOT_FS}\\Input\\transmove\\mobitopp-env\\data\\zone-repository\\bikesharing_stations.csv"
-            ),
+            path = bikesharingStationsPath,
             providerName = "StadtMobil",
             mode = LegacyMode.BIKESHARING,
             columns = StationColumns(vehicleCountColumn = "bikes"),
@@ -69,7 +67,7 @@ fun main() {
         loadChoiceModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
         loadTestSet()
         applyHomeLocationsInSchedule()
-        assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv").toFile())
+        assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv"))
         simulate()
     }
 }

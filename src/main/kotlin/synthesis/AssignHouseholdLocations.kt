@@ -4,7 +4,6 @@ import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.data.Zone
-import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import units.Coordinate
 import units.Distance
@@ -46,12 +45,6 @@ class AssignAroundZoneCentroid<H>(private val radius: Distance) : AssignHousehol
     override fun generateLocation(zone: Zone, household: H): Location {
         return Location(zone.centroid.coordinate.randomCoordinate(radius, zone.random), zone, null)
         // TODO zone rng or hh rng?, if hh rng -> require H: StochasticActor
-    }
-}
-
-class JustUseBielefeld<H> : AssignHouseholdLocations<Any, H> {
-    override fun generateLocation(zone: Any, household: H): Location {
-        return LOCATIONUNKNOWN
     }
 }
 
