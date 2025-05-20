@@ -4,7 +4,8 @@ import utils.ErrorHandling
 import utils.collections.printAsTree
 import utils.files.requireFileReadAccess
 import utils.files.requireFileWriteAccess
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 /**
  * Warnings can occur during validation of ModelSteps.
@@ -134,16 +135,16 @@ fun Warning.subValidation(scope: Warning.() -> Warning?): Warning {
     return this
 }
 
-fun validateFileReadAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(
-    message = "Validate read access of: ${file.absolutePath}",
+fun validateFileReadAccess(path: Path, isError: Boolean = true, fileDescription: String = "") = validateScope(
+    message = "Validate read access of: ${path.absolutePathString()}",
     exceptionsAreErrors = isError
 ) {
-    requireFileReadAccess(file, messagePrefix = fileDescription, errorLevel = ErrorHandling.THROW_NO_LOG)
+    requireFileReadAccess(path, messagePrefix = fileDescription, errorLevel = ErrorHandling.THROW_NO_LOG)
 }
 
-fun validateFileWriteAccess(file: File, isError: Boolean = true, fileDescription: String = "") = validateScope(
-    message = "Validate write access of: ${file.absolutePath}",
+fun validateFileWriteAccess(path: Path, isError: Boolean = true, fileDescription: String = "") = validateScope(
+    message = "Validate write access of: ${path.absolutePathString()}",
     exceptionsAreErrors = isError
 ) {
-    requireFileWriteAccess(file, messagePrefix = fileDescription)
+    requireFileWriteAccess(path, messagePrefix = fileDescription)
 }

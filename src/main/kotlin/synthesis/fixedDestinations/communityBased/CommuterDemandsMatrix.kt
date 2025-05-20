@@ -66,7 +66,11 @@ class CommuterDemandsMatrix(
         ): CommuterDemandsMatrix {
             val match = readZoneToCommunity(mappingFile)
             return readCommuters(commuterFile) {
-                val zoneID = it.requireZone().id
+                val zoneID = it.zoneID() ?: run {
+                    println("Bad Zone")
+                    ZoneId(-1)
+                }
+
                 require(match.containsKey(zoneID)) {
                     "Zone id $zoneID cannot be converted to a community number." +
                         " Check that the file: $mappingFile contains the zone ID"
@@ -84,7 +88,7 @@ class CommuterDemandsMatrix(
                 )
             }
 
-            return parser.parse(file.toFile()).toMap()
+            return parser.parse(file).toMap()
         }
 
         private fun readCommuters(file: Path, converter: (Location) -> CommunityNumber): CommuterDemandsMatrix {
@@ -97,7 +101,7 @@ class CommuterDemandsMatrix(
 
                 )
             }
-            parser.parse(file.toFile()).forEach { (i, j, value) -> communityDemand[i, j] = value.toDouble() }
+            parser.parse(file).forEach { (i, j, value) -> communityDemand[i, j] = value.toDouble() }
             return communityDemand
         }
     }

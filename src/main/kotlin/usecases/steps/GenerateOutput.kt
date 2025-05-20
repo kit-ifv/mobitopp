@@ -10,11 +10,12 @@ import modeling.steps.Repository
 import modeling.steps.SameValidationBehavior
 import modeling.validation.Warning
 import modeling.validation.validateFileWriteAccess
-import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.writeText
 
 fun WriteTripsCsvContext.output(
-    file: File = Path("results/demandsimulation.csv").toFile()
+    file: Path = Path("results/demandsimulation.csv")
 ) = runStep {
     WriteTripsToCsvStep(file, this)
 }
@@ -24,7 +25,7 @@ interface WriteTripsCsvContext : Context {
 }
 
 private class WriteTripsToCsvStep(
-    private val file: File,
+    private val path: Path,
     private val context: WriteTripsCsvContext,
 ) : ModelStep, SameValidationBehavior {
 
@@ -42,8 +43,8 @@ private class WriteTripsToCsvStep(
 
         val text = result.joinToString("\n", prefix = header)
 
-        file.writeText(text)
-        println("Demand Simulation written to $file")
+        path.writeText(text)
+        println("Demand Simulation written to $path")
     }
 
     private fun stringifyLegs(e: List<LinkedLeg>, person: PersonAgent) =
@@ -74,7 +75,7 @@ private class WriteTripsToCsvStep(
         }
 
     override fun verifyInput(): Warning? =
-        validateFileWriteAccess(file, fileDescription = "result csv for simulated trips")
+        validateFileWriteAccess(path, fileDescription = "result csv for simulated trips")
 }
 
 fun toCSV(vararg elements: Any): String {

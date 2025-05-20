@@ -30,7 +30,7 @@ import utils.csv.id
 import utils.csv.int
 import utils.csv.unitShare
 import utils.csv.withFilter
-import java.io.File
+import java.nio.file.Path
 
 interface LoadPersonsContext : Context {
     val personRepository: MutableRepository<MutablePerson, PersonId>
@@ -42,8 +42,8 @@ interface LoadPersonsContext : Context {
 
     val homeActivityType: ActivityType
 
-    val defaultPersonFile: File
-        get() = File(demandFolder.path + "\\demand-data\\person.csv")
+    val defaultPersonPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("person.csv")
 
     fun getHousehold(
         row: Row,
@@ -74,7 +74,7 @@ data class PersonColumns(
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadPersonsContext.preparePersons(
-    file: File = defaultPersonFile,
+    path: Path = defaultPersonPath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: PersonColumns = PersonColumns(),
@@ -109,16 +109,16 @@ fun LoadPersonsContext.preparePersons(
     }
 
     val internalFilter = { row: Row -> columns.filter(row, this) }
-    this.preparePersonsFile(csvParser.withFilter(internalFilter), file, delimiter)
+    this.preparePersonsFile(csvParser.withFilter(internalFilter), path, delimiter)
 }
 
 fun LoadPersonsContext.preparePersonsFile(
     parser: CsvParser<MutablePerson>,
-    file: File = defaultPersonFile,
+    path: Path = defaultPersonPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep<MutablePerson, PersonId>(
-        file = file,
+        path = path,
         name = "Load persons from csv",
         parser = parser,
         delimiter = delimiter,
@@ -133,10 +133,10 @@ fun LoadPersonsContext.finishPersons() = runStep {
 }
 
 fun LoadPersonsContext.loadPersons(
-    file: File = defaultPersonFile,
+    path: Path = defaultPersonPath,
     filter: PersonColumns.(Row, LoadPersonsContext) -> Boolean = { _, _ -> true }
 ) {
-    this.preparePersons(file = file, filter = filter)
+    this.preparePersons(path = path, filter = filter)
     this.finishPersons()
 }
 

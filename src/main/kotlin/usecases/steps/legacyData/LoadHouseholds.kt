@@ -28,7 +28,7 @@ import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
-import java.io.File
+import java.nio.file.Path
 
 interface LoadHouseholdContext : Context {
     val zoneRepository: Repository<Zone, ZoneId>
@@ -37,8 +37,8 @@ interface LoadHouseholdContext : Context {
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
     val economicalStatusCodes: CodePlan<EconomicStatus>
 
-    val defaultHouseholdFile: File
-        get() = File(demandFolder.path + "\\demand-data\\household.csv")
+    val defaultHouseholdPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("household.csv")
 
     fun getLegacyZone(
         matrixColumn: Int
@@ -68,7 +68,7 @@ data class HouseholdColumns(
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadHouseholdContext.prepareHouseholds(
-    file: File = defaultHouseholdFile,
+    path: Path = defaultHouseholdPath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: HouseholdColumns = HouseholdColumns(),
@@ -97,16 +97,16 @@ fun LoadHouseholdContext.prepareHouseholds(
     }
     val filterWrap: (Row) -> Boolean = { columns.filter(it) }
 
-    this.prepareHouseholdsFile(parser.withFilter(filterWrap), file, delimiter)
+    this.prepareHouseholdsFile(parser.withFilter(filterWrap), path, delimiter)
 }
 
 fun LoadHouseholdContext.prepareHouseholdsFile(
     parser: CsvParser<MutableHousehold>,
-    file: File = defaultHouseholdFile,
+    path: Path = defaultHouseholdPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep(
-        file = file,
+        path = path,
         name = "Load households from csv",
         parser = parser,
         delimiter = delimiter,
@@ -121,13 +121,13 @@ fun LoadHouseholdContext.finishHouseholds() = runStep {
 }
 
 fun LoadHouseholdContext.loadHouseholds(
-    file: File = defaultHouseholdFile,
+    path: Path = defaultHouseholdPath,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     filter: HouseholdColumns.(Row) -> Boolean = {
         true
     }
 ) {
-    this.prepareHouseholds(file = file, errorHandling = errorHandling, filter = filter)
+    this.prepareHouseholds(path = path, errorHandling = errorHandling, filter = filter)
     this.finishHouseholds()
 }
 

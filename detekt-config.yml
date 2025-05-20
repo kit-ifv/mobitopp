@@ -574,8 +574,9 @@ style:
         value: 'TODO:'
     allowedPatterns: ''
   ForbiddenImport:
-    active: false
-    imports: []
+    active: true
+    imports:
+      - "java.io.File"
     forbiddenPatterns: ''
   ForbiddenMethodCall:
     active: false
