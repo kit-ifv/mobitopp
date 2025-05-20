@@ -28,6 +28,7 @@ import usecases.steps.binary.BinaryPersonReader
 import usecases.steps.binary.BinaryPersonWriter
 import usecases.steps.binary.BinaryZoneReader
 import usecases.steps.binary.BinaryZoneWriter
+import usecases.steps.binary.LocationUtils.decodeLocation
 import utils.units.sinceStart
 import java.nio.file.Files
 import java.nio.file.Path
@@ -229,7 +230,7 @@ class BinaryConversionTest {
         val personMap = listOf(p1, p2).associateBy { it.id }
         val zoneMap = listOf(zone).associateBy { it.id }
         val reader = BinaryCarReader(hhMap::getValue, personMap::getValue) {
-            nextLocation(zoneMap::getValue)
+            decodeLocation(zoneMap::getValue)
         }
         val writer = BinaryCarWriter()
         /* TODO similar argument to person test case. The Car is always automatically added to the household which in

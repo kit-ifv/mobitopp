@@ -21,8 +21,8 @@ val SynthesisPerson<out SurveyInfo>.householdIncome get() = info.householdIncome
 val SynthesisPerson<out SurveyInfo>.hasLicence get() = info.hasLicence
 val SynthesisPerson<out SurveyEmployment>.employment get() = info.employment
 fun SynthesisPerson<out SurveyEmployment>.isPrimaryStudent(): Boolean = employment == Employment.STUDENT_PRIMARY
-fun SynthesisPerson<out SurveyEmployment>.isHigherStudent(): Boolean =
-    employment == Employment.STUDENT_SECONDARY || employment == Employment.STUDENT_TERTIARY
+fun SynthesisPerson<out SurveyEmployment>.isSecondaryStudent(): Boolean = employment == Employment.STUDENT_SECONDARY
+fun SynthesisPerson<out SurveyEmployment>.isTertiaryStudent(): Boolean = employment == Employment.STUDENT_TERTIARY
 
 fun SynthesisPerson<out SurveyEmployment>.isWorker(): Boolean {
     return employment == Employment.FULLTIME || employment == Employment.PARTTIME
