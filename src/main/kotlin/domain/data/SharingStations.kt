@@ -23,6 +23,9 @@ abstract class SharingProvider(
     // todo should name and mode also be immutable?
 ) : ISharingProvider {
     abstract override val stations: Set<SharingStation>
+
+    override val numberOfVehicles: Int
+        get() = stations.sumOf { it.initialVehicleCount }
 }
 
 typealias SharingStationId = ID<SharingStation>
@@ -49,6 +52,5 @@ abstract class SharingStation(
 
     private fun registerOwner() {
         owner.stations.add(this)
-        owner.numberOfVehicles += initialVehicleCount
     }
 }

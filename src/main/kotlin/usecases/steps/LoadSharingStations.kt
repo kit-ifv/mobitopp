@@ -28,7 +28,7 @@ import utils.units.toCoordinate
 import java.nio.file.Path
 
 interface LoadSharingProvidersContext : Context {
-    val sharingProvidersRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
+    val sharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
@@ -50,7 +50,7 @@ private var sharingIdCounter: Long = 0L
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadSharingProvidersContext.prepareSharingStations(
-    file: Path = defaultSharingStationFile,
+    path: Path = defaultSharingStationPath,
     columns: StationColumns = StationColumns(),
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
@@ -58,7 +58,7 @@ fun LoadSharingProvidersContext.prepareSharingStations(
     mode: Mode,
     coordinateParser: (String) -> Coordinate = String::parseCoordinate,
 ) {
-    val sharingProvider: MutableSharingProvider = sharingProvidersRepository.elements.find {
+    val sharingProvider: MutableSharingProvider = sharingProviderRepository.elements.find {
         it.name == providerName
     }?.also {
         require(it.mode == mode) {
@@ -91,7 +91,7 @@ fun LoadSharingProvidersContext.prepareSharingStations(
         }
     }
 
-    this.prepareStationsFile(sharingProvider, csvParser, file, delimiter) // TODO
+    this.prepareStationsFile(sharingProvider, csvParser, path, delimiter) // TODO
 }
 
 fun LoadSharingProvidersContext.prepareStationsFile(
@@ -101,9 +101,9 @@ fun LoadSharingProvidersContext.prepareStationsFile(
     delimiter: String = SEMICOLON,
 ) = runStep {
     object : AddResourceStep<MutableSharingProvider, SharingProviderId>() {
-        override val name = "Add sharing provider ${sharingProvider.name} and parse its stations from csv: ${file.name}"
+        override val name = "Add sharing provider ${sharingProvider.name} and parse stations from csv: ${path.fileName}"
 
-        private val csvResource = CsvResource(file, parser, delimiter)
+        private val csvResource = CsvResource(path, parser, delimiter)
 
         override val resource = LazyResource<MutableSharingProvider>(
             csvResource.name,
@@ -111,14 +111,14 @@ fun LoadSharingProvidersContext.prepareStationsFile(
         ) {
             csvResource.elements.toList()
 
-            if (sharingProvidersRepository.elements.none { it.name == sharingProvider.name }) {
+            if (sharingProviderRepository.elements.none { it.name == sharingProvider.name }) {
                 sequenceOf(sharingProvider)
             } else {
                 emptySequence()
             }
         }
 
-        override val repository = sharingProvidersRepository
+        override val repository = sharingProviderRepository
         override val dependentRepositories = setOf(zoneRepository)
 
         override fun verifyInput() = ValidateCsvMetadata(this, csvResource).validate()
@@ -127,7 +127,7 @@ fun LoadSharingProvidersContext.prepareStationsFile(
 }
 
 fun LoadSharingProvidersContext.finishSharingStations() = runStep {
-    SealStep(sharingProvidersRepository)
+    SealStep(sharingProviderRepository)
 }
 
 fun LoadSharingProvidersContext.loadSharingStations(

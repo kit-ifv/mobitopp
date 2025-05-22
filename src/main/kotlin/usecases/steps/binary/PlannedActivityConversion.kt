@@ -1,6 +1,7 @@
 package usecases.steps.binary
 
 import domain.data.ActivityId
+import domain.data.MutablePerson
 import domain.data.MutablePlannedActivity
 import domain.data.Person
 import domain.data.PersonId
@@ -24,17 +25,16 @@ import kotlin.time.toDuration
 @Suppress("MagicNumber")
 class BinaryActivityReader(
     private val codeActivity: CodePlan<ActivityType>,
-    val personConverter: (PersonId) -> Person,
+    val personConverter: (PersonId) -> MutablePerson,
     private val contextSimulationSeed: Long
 ) : BinaryReader<MutablePlannedActivity> {
 
     override fun DataInputStream.decode(stringLength: Int): MutablePlannedActivity {
         return MutablePlannedActivity(
             ActivityId(readLong()),
-            contextSimulationSeed
+            person = personConverter(PersonId(readLong())),
+            seed = contextSimulationSeed,
         ).apply {
-            val personId = PersonId(readLong())
-            person = personConverter(personId)
             observedTripDuration = readInt().toDuration(DurationUnit.MINUTES)
             startTime = readLong().toDuration(DurationUnit.MINUTES).sinceStart
             duration = readInt().toDuration(DurationUnit.MINUTES)

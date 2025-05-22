@@ -9,7 +9,7 @@ import utils.collections.asBins
 import utils.collections.mapToBins
 
 val ProjectContext.persons: List<PersonAgent>
-    get() = personRepository.elements.toList()
+    get() = personAgents.elements.toList()
 
 val ProjectContext.households: List<Household>
     get() = householdRepository.elements.toList()
