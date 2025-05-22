@@ -81,9 +81,7 @@ class RandomizeActivityDuration(
         activityDurationRandomizer.randomizeAll(element.schedule, element.random)
     }
 
-    override fun verifyInput(): Warning? = validate {
-        // TODO validation
-    }
+    override fun verifyInput(): Warning? = null
 }
 
 abstract class ActivityDurationRandomizer {
