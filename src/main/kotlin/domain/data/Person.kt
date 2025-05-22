@@ -7,6 +7,7 @@ import utils.Encodable
 import utils.EnumDecodable
 import utils.ID
 import utils.Identifiable
+import utils.collections.ClearableList
 import utils.random.SeededActor
 import utils.random.StochasticActor
 
@@ -28,10 +29,10 @@ interface IPerson : Identifiable<PersonId>, StochasticActor {
     val sharingMemberships: List<ISharingProvider>
     val eMobilityAcceptance: UnitIntervalValue
     val chargingInfluence: ChargingInfluence
-
-    val isAdult: Boolean
-        get() = (age >= ADULT_AGE_GER)
 }
+
+val IPerson.isAdult: Boolean
+    get() = (age >= ADULT_AGE_GER)
 
 @Mutable
 abstract class Person(
@@ -43,6 +44,13 @@ abstract class Person(
 
     abstract override val sharingMemberships: List<SharingProvider>
 
+    abstract val plannedActivities: ClearableList<PlannedActivity>
+
+//    val plannedActivities: List<PlannedActivity> //public view of activities
+//        get() = plannedActivityList
+//
+//    internal abstract val plannedActivityList: MutableList<PlannedActivity>
+
     init {
         addAsMember()
     }
@@ -50,6 +58,8 @@ abstract class Person(
     private fun addAsMember() {
         this.household.members.add(this)
     }
+
+    fun clearPlannedActivities() = this.plannedActivities.clear()
 }
 
 /**

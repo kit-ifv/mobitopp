@@ -35,7 +35,7 @@ abstract class SharingStationAgent(
     final override val owner: SharingProviderAgent
 ) : ISharingStation, Resource<PersonAgent> {
 
-    // only provide immutable view of vehicle set, since adding/removing vehicles requires additional logic
+    // only provide an immutable view of the vehicle set, since adding/removing vehicles requires additional logic
     val vehicles: Set<SharingVehicleAgent>
         get() = _vehicles
     private val _vehicles: MutableSet<SharingVehicleAgent> = Collections.synchronizedSet(mutableSetOf())

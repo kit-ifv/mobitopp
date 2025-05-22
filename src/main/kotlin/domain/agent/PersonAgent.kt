@@ -20,6 +20,7 @@ abstract class PersonAgent(
     seed: Long,
 ) : SeededActor<Person>(seed), IPerson, Agent<PersonAgent> {
 
+    abstract override val sharingMemberships: List<SharingProviderAgent>
     abstract val memberships: List<Subscribable<PersonAgent>>
     abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
 

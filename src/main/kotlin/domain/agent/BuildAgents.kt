@@ -1,5 +1,6 @@
 package domain.agent
 
+import datastructure.plans.SingularDispatcher
 import domain.data.CarId
 import domain.data.Household
 import domain.data.HouseholdId
@@ -10,9 +11,13 @@ import domain.data.SharingProvider
 import domain.data.SharingProviderId
 import domain.data.SharingStation
 import domain.data.SharingStationId
+import domain.data.toSchedule
+import usecases.models.ActivityDurationRandomizer
+import usecases.models.NoDurationRandomizer
 
 class BuildAgents(
-    val seed: Long
+    val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
+    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer
 ) {
 
     val personsById: MutableMap<PersonId, MutablePersonAgent> = mutableMapOf()
@@ -21,6 +26,30 @@ class BuildAgents(
 
     val sharingProvidersById: MutableMap<SharingProviderId, MutableSharingProviderAgent> = mutableMapOf()
     val sharingStationsById: MutableMap<SharingStationId, MutableSharingStationAgent> = mutableMapOf()
+
+    fun buildPersonAgents(
+        households: List<Household>
+    ): Set<PersonAgent> {
+        households.map { it.toAgent(this) }
+
+        return personsById.values.toSet()
+    }
+
+    fun buildProviderAgents(
+        providers: List<SharingProvider>
+    ): Set<SharingProviderAgent> {
+        providers.map { it.toAgent(this) }
+
+        return sharingProvidersById.values.toSet()
+    }
+
+    fun clear() {
+        personsById.clear()
+        householdsById.clear()
+        carsById.clear()
+        sharingProvidersById.clear()
+        sharingStationsById.clear()
+    }
 }
 
 fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrPut(this.id) {
@@ -59,6 +88,13 @@ fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = househ
             this.sharingMemberships.addAll(
                 data.sharingMemberships.map { it.toAgent(context) }
             )
+
+            this.schedule = data.plannedActivities.toSchedule(SingularDispatcher())
+            data.clearPlannedActivities() // clear to save memory
+            context.durationRandomizer.randomizeAll(this)
+
+            this.memberships.addAll(this.sharingMemberships)
+            this.memberships.add(this.household)
         }
     }
 
@@ -66,7 +102,10 @@ fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.
     context.carsById.getOrPut(this.id) {
         val data = this
         MutablePrivateCarAgent(id, ownerAgent) {
-            // TODO
+            this.segment = data.segment
+            this.seats = data.seats
+            this.engine = data.engine
+            this.mainUser = data.mainUser?.toAgent(context)
         }
     }
 

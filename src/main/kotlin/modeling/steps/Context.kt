@@ -35,6 +35,10 @@ interface Context {
 
     fun runStep(createStep: () -> ModelStep) = runStepObject(createStep())
 
+    fun runMultipleSteps(createStep: () -> List<ModelStep>) = createStep().forEach {
+        runStepObject(it)
+    }
+
     fun runStepObject(step: ModelStep) {
         step.run(execMode)
     }

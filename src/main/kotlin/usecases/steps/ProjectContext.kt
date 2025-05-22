@@ -1,5 +1,7 @@
 package usecases.steps
 
+import domain.agent.PersonAgent
+import domain.agent.SharingProviderAgent
 import domain.data.ActivityId
 import domain.data.CarId
 import domain.data.CarSegment
@@ -12,14 +14,12 @@ import domain.data.LegacyZone
 import domain.data.MutableHousehold
 import domain.data.MutableLegacyZone
 import domain.data.MutablePerson
+import domain.data.MutablePlannedActivity
 import domain.data.MutablePrivateCar
 import domain.data.MutableSharingProvider
-import domain.data.MutableSharingStation
 import domain.data.PersonId
-import domain.data.PlannedActivity
 import domain.data.Sex
 import domain.data.SharingProviderId
-import domain.data.SharingStationId
 import domain.data.ZoneId
 import domain.enums.ActivityType
 import domain.enums.Mode
@@ -32,7 +32,6 @@ import modeling.steps.Context
 import modeling.steps.ExecutionMode
 import modeling.steps.LateInit
 import modeling.steps.MapRepository
-import modeling.steps.MutableRepository
 import modeling.steps.SimulationContext
 import units.CurrencyUnit
 import units.DistanceUnit
@@ -65,8 +64,6 @@ data class ProjectContext(
     override val activityTypeCodes: CodePlan<ActivityType> = LegacyActivityType,
     override val modes: CodePlan<Mode> = LegacyMode,
 
-    override val homeActivityType: ActivityType = LegacyActivityType.HOME,
-
     override val costUnit: CurrencyUnit = CurrencyUnit.EUROS,
     override val distanceUnit: DistanceUnit = DistanceUnit.METERS,
     override val timeUnit: DurationUnit = DurationUnit.MINUTES,
@@ -83,7 +80,6 @@ data class ProjectContext(
     LoadPersonsContext,
     LoadPrivateCarsContext,
     LoadPlannedActivitiesContext,
-    AssignPlannedActivitiesContext,
     LoadFixedDestinationsContext,
     LoadChoiceModelsContext,
     AssignCarsContext,
@@ -91,7 +87,8 @@ data class ProjectContext(
     WriteTripsCsvContext,
     SimulationContext,
     RoadNetworkContext,
-    HomeLocationModelContext {
+    HomeLocationModelContext,
+    BuildAgentsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 
     override val attractivenessModel = LateInit<AttractivenessModel>("Attractiveness Model")
@@ -100,11 +97,12 @@ data class ProjectContext(
 
     override val zoneRepository = MapRepository<MutableLegacyZone, ZoneId>("zones")
     override val householdRepository = MapRepository<MutableHousehold, HouseholdId>("households")
+    override val sharingProviderRepository = MapRepository<MutableSharingProvider, SharingProviderId>(
+        "sharing providers"
+    )
     override val personRepository = MapRepository<MutablePerson, PersonId>("persons")
     override val carRepository = MapRepository<MutablePrivateCar, CarId>("cars")
-    override val plannedActivityRepository = MapRepository<PlannedActivity, ActivityId>("planned activities")
-    override val sharingProvidersRepository: MutableRepository<MutableSharingProvider, SharingProviderId> =
-        MapRepository<MutableSharingStation, SharingStationId>("sharing stations")
+    override val plannedActivityRepository = MapRepository<MutablePlannedActivity, ActivityId>("planned activities")
 
     override val zoneColumnIndex: Map<Int, LegacyZone> by lazy {
         require(zoneRepository.sealed) {
@@ -114,4 +112,9 @@ data class ProjectContext(
     }
 
     override val impedance = LateInit<Metrics>("Impedance")
+
+    override val personAgents = MapRepository<PersonAgent, PersonId>("person agents")
+    override val sharingProviderAgents = MapRepository<SharingProviderAgent, SharingProviderId>(
+        "sharing providers agents"
+    )
 }
