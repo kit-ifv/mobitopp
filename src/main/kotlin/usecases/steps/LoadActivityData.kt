@@ -22,7 +22,7 @@ import utils.csv.int
 import utils.csv.withFilter
 import utils.random.StochasticActor
 import utils.units.AbsoluteTime
-import java.io.File
+import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
@@ -33,8 +33,8 @@ interface LoadPlannedActivitiesContext : Context {
     val personRepository: Repository<Person, PersonId>
     val activityTypeCodes: CodePlan<ActivityType>
 
-    val defaultActivityFile: File
-        get() = File(demandFolder.path + "\\demand-data\\activity.csv")
+    val defaultActivityPath: Path
+        get() = demandFolder.resolve("demand-data").resolve("activity.csv")
 
     fun getPerson(row: Row, personColumn: String) = requireNotNull(
         personRepository[row.id(personColumn)]
@@ -54,7 +54,7 @@ data class ActivitiesColumns(
 
 @Suppress("LongParameterList")
 fun LoadPlannedActivitiesContext.prepareActivities(
-    file: File = defaultActivityFile,
+    path: Path = defaultActivityPath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ActivitiesColumns = ActivitiesColumns(),
@@ -78,16 +78,16 @@ fun LoadPlannedActivitiesContext.prepareActivities(
         }
     }
 
-    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, file, delimiter)
+    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
 }
 
 fun LoadPlannedActivitiesContext.prepareActivitiesFile(
     parser: CsvParser<PlannedActivity>,
-    file: File = defaultActivityFile,
+    path: Path = defaultActivityPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep<PlannedActivity, ActivityId>(
-        file = file,
+        path = path,
         name = "Load planned activities from csv",
         parser = parser,
         delimiter = delimiter,

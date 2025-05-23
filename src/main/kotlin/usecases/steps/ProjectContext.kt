@@ -43,14 +43,14 @@ import usecases.steps.legacyData.LoadZonesContext
 import utils.CodePlan
 import utils.units.AbsoluteTime
 import utils.units.weeks
-import java.io.File
+import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 data class ProjectContext(
     override val scenarioName: String,
-    override val demandFolder: File,
+    override val demandFolder: Path,
 
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus,

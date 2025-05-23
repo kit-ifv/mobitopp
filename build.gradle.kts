@@ -20,15 +20,15 @@ allprojects {
 }
 
 repositories {
-
+    mavenCentral()
     maven { url = uri("https://repo.osgeo.org/repository/release") }
     maven { url = uri("https://repo.matsim.org/repository/matsim") }
 
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-releases/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-central/") }
     maven { url = uri("https://nexus.ifv.kit.edu/repository/maven-snapshots/") }
-    mavenCentral()
-    mavenLocal()
+
+//    mavenLocal()
 
 }
 

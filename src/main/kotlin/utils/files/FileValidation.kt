@@ -2,43 +2,46 @@ package utils.files
 
 import utils.ErrorHandling
 import utils.errorScope
-import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
 
 fun requireFileReadAccess(
-    file: File,
+    path: Path,
     errorLevel: ErrorHandling = ErrorHandling.THROW,
     messagePrefix: String = "",
 ): Boolean =
-    errorScope(errorLevel, "$messagePrefix Error while checking read access to file: '$file'!") {
-        require(file.exists()) {
-            "File does not exist: $file!"
+    errorScope(errorLevel, "$messagePrefix Error while checking read access to file: '$path'!") {
+        require(path.exists()) {
+            "File does not exist: $path!"
         }
 
-        require(file.canRead()) {
-            "Cannot read from file $file! Make sure its a file and access rights are set correctly!"
+        require(path.toFile().canRead()) {
+            "Cannot read from file $path! Make sure its a file and access rights are set correctly!"
         }
 
         true
     } ?: false
 
 fun requireFileWriteAccess(
-    file: File, // TODO path
+    path: Path, // TODO path
     errorLevel: ErrorHandling = ErrorHandling.THROW,
     messagePrefix: String = "",
 ): Boolean =
-    errorScope(errorLevel, "$messagePrefix Error while checking write access to file: '$file'!") {
-        val parentDir = file.parentFile ?: Path("").toFile()
+    errorScope(errorLevel, "$messagePrefix Error while checking write access to file: '$path'!") {
+        val parentDir = path.parent ?: Path("")
 
         if (!parentDir.exists()) {
-            require(parentDir.mkdirs()) {
-                "Failed to create parent directories of ${file.absolutePath}! " +
+            require(parentDir.createDirectories().exists()) {
+                "Failed to create parent directories of ${path.absolutePathString()}! " +
                     "(may have succeeded in creating some of the other necessary parent directories)"
             }
         }
 
-        require(parentDir.canWrite()) {
-            "Cannot write to directory ${parentDir.absolutePath} of $file!"
+        require(parentDir.toFile().canWrite()) {
+            "Cannot write to directory ${parentDir.absolutePathString()} of $path!"
         }
 
         true

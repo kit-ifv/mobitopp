@@ -16,7 +16,8 @@ import utils.csv.TestId
 import utils.csv.expectedElements
 import utils.csv.expectedElementsMappedStringLength
 import utils.csv.float
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -45,7 +46,7 @@ class ModelStepTest {
 
     private lateinit var sealStep: SealStep<TestEntity, TestId>
 
-    private val csvFile = File("src/test/resources/test_data.csv")
+    private val csvFile = Path("src/test/resources/test_data.csv")
 
     @BeforeEach
     fun setUp() {
@@ -58,7 +59,7 @@ class ModelStepTest {
         addResourceStep = addResourceStep("test_add", resource, repository)
         addCsvStep = addCsvStep("test_add_csv", csvResource, repository)
         loadCsvStepWrapper = LoadCsvStep(
-            file = csvFile,
+            path = csvFile,
             parser = parser,
             repository = repository,
             dependentRepositories = emptySet(),
@@ -236,7 +237,7 @@ class ModelStepTest {
         val unsealedDependentRepository = MapRepository<TestEntity, TestId>("UnsealedDependency")
 
         val step = LoadCsvStep<TestEntity, TestId>(
-            file = csvFile,
+            path = csvFile,
             name = "DummyCsvStepWithUnsealedDependent",
             parser = parser,
             repository = repository,
@@ -269,7 +270,7 @@ class ModelStepTest {
     @Test
     fun validateInvalidCsvFilePath() {
         val step = LoadCsvStep<TestEntity, TestId>(
-            file = File("invalid_path.csv"),
+            path = Path("invalid_path.csv"),
             parser = parser,
             repository = repository,
             dependentRepositories = setOf(),
@@ -291,7 +292,7 @@ class ModelStepTest {
     @Test
     fun validateInvalidCsvColumns() {
         val step = LoadCsvStep<TestEntity, TestId>(
-            file = csvFile,
+            path = csvFile,
             parser = invalidParser,
             repository = repository,
             dependentRepositories = setOf(),
@@ -306,7 +307,7 @@ class ModelStepTest {
 
         assertNotNull(warning)
         assertContains(consoleText, "Invalid column 'INVALID_COL' accessed in step 'load test_data.csv' ")
-        assertContains(consoleText, "does not exist in the source csv file: ${csvFile.path}!")
+        assertContains(consoleText, "does not exist in the source csv file: $csvFile!")
         assertContains(consoleText, "Invalid column index '42' accessed in step 'load test_data.csv'")
         assertContains(consoleText, "higher than number of columns (5)")
     }
@@ -314,7 +315,7 @@ class ModelStepTest {
     @Test
     fun validateUnmockableCsvColumn() {
         val step = LoadCsvStep<TestEntity, TestId>(
-            file = csvFile,
+            path = csvFile,
             parser = unmockableParser,
             repository = repository,
             dependentRepositories = setOf(),
