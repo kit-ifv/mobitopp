@@ -64,7 +64,7 @@ regression-test-job:
   stage: test
   only:
     - main
-    - dev
+    # - dev # disable while gitlab runner has not enough ram for regression tests
   trigger:
     project: kit/ifv/intern/mobitopp/mobitopp-restatt
     branch: main
