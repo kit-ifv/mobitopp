@@ -51,7 +51,7 @@ interface LoadChoiceModelsContext : Context, SimulationContext {
 class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
     private val destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
-    private val modeChoiceModel: ChoiceModel<ModeChoiceAlternative, Mode>,
+    private val modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
     private val modes: ChoiceModelModes,
 ) : RepositoryDependentStep {
 
@@ -79,7 +79,8 @@ class LoadChoiceModelsStep(
 
         val modeChoice = modeChoiceModel.addFilter(
             availability
-        ).addFilter(FixedModesFilter).fixed(context.modes.values())
+        ).addFilter(FixedModesFilter)
+
         val destinationChoice = destinationChoiceModel.fixed(
             context.zoneRepository.elements.map { it.centroid }.toSet()
         )

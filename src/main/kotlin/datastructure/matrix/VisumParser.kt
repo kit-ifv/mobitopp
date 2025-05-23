@@ -38,7 +38,7 @@ private fun String.splitByWhitespaceBlock(): List<String> {
 class VisumParser(val path: Path) : IVisumParser {
     private var state: MatrixParseState = MatrixParseState.INIT
     private var lines: Iterator<IndexedValue<String>>? =
-        path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()
+        path.decompressedBufferedReader().lineSequence().withIndex().iterator()
 
     //    private val generateLines = {path.toFile().decompressedBufferedReader().lineSequence().withIndex().iterator()}
     private var numberOfNetworkObjects: Int = 0

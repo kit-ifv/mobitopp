@@ -25,14 +25,14 @@ import utils.csv.double
 import utils.csv.id
 import utils.csv.int
 import utils.csv.long
-import java.io.File
+import java.nio.file.Path
 
 interface LoadZonesContext : Context {
     val zoneRepository: MutableRepository<MutableLegacyZone, ZoneId>
     val regionTypeCodes: CodePlan<RegionType>
 
-    val defaultZoneFile: File
-        get() = File(demandFolder.path + "\\zone-repository\\zones.csv")
+    val defaultZonePath: Path
+        get() = demandFolder.resolve("zone-repository").resolve("zones.csv")
 }
 
 data class ZoneColumns(
@@ -49,7 +49,7 @@ data class ZoneColumns(
 
 @Suppress("LongParameterList", "UnusedParameter")
 fun LoadZonesContext.prepareZones(
-    file: File = defaultZoneFile,
+    path: Path = defaultZonePath,
     delimiter: String = SEMICOLON,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: ZoneColumns = ZoneColumns(),
@@ -65,7 +65,7 @@ fun LoadZonesContext.prepareZones(
         seed = simulationSeed
     )
 
-    this.prepareZoneFile(csvParser, file, delimiter) // TODO filter?
+    this.prepareZoneFile(csvParser, path, delimiter) // TODO filter?
 }
 
 @Suppress("LongParameterList")
@@ -100,11 +100,11 @@ fun defaultCsvParser(
 
 fun LoadZonesContext.prepareZoneFile(
     parser: CsvParser<MutableLegacyZone>,
-    file: File = defaultZoneFile,
+    path: Path = defaultZonePath,
     delimiter: String = SEMICOLON,
 ) = runStep {
     LoadCsvStep<MutableLegacyZone, ZoneId>(
-        file = file,
+        path = path,
         name = "Load zones from csv",
         parser = parser,
         delimiter = delimiter,

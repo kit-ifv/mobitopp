@@ -7,7 +7,7 @@ import units.CurrencyUnit
 import units.DistanceUnit
 import utils.CodePlan
 import utils.units.AbsoluteTime
-import java.io.File
+import java.nio.file.Path
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
@@ -22,7 +22,7 @@ interface Context {
     val scenarioName: String
 
     // TODO question: Is demand folder actually part of the minimal context?
-    val demandFolder: File
+    val demandFolder: Path
     val simulationSeed: Long
     val modes: CodePlan<Mode>
 

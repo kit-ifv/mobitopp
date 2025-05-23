@@ -9,7 +9,6 @@ import utils.ConsoleCaptor
 import utils.ErrorHandling
 import utils.collections.muteProgressBars
 import utils.collections.unmuteProgressBars
-import java.io.File
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.minutes
@@ -28,7 +27,7 @@ class CsvParserTest {
     }
 
     private val path: String = "src/test/resources/test_data.csv"
-    private val file: File = File(path)
+
     val rowToEntity: (Row) -> TestEntity = { row ->
         TestEntity(
             rowIndex = row.index,
@@ -160,7 +159,7 @@ class CsvParserTest {
     fun parseString() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, string = row(STR_COL))
-        }.parse(file)
+        }.parse(path)
             .toList()
 
         val expected = listOf(
@@ -177,8 +176,7 @@ class CsvParserTest {
     fun parseByte() {
         val entities = DefaultCsvParser(ErrorHandling.SILENT) { row ->
             TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
-        }
-            .parse(file)
+        }.parse(path)
             .toList()
 
         assertEquals(TestEntity(2, byte = 23), entities[0])
@@ -192,7 +190,7 @@ class CsvParserTest {
     fun parseShort() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, short = row(INT_COL).toShort())
-        }.parse(file)
+        }.parse(path)
             .toList()
 
         val expected = listOf<Short>(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
@@ -207,7 +205,7 @@ class CsvParserTest {
     fun parseInt() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, int = row(INT_COL).toInt())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
 
@@ -221,7 +219,7 @@ class CsvParserTest {
     fun parseLong() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, long = row(INT_COL).toLong())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf<Long>(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
 
@@ -235,7 +233,7 @@ class CsvParserTest {
     fun parseFloat() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, float = row(FLOAT_COL).toFloat())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf(24.7009f, 0.07f, 4.2f, 3434.0f, -4.5f, 1.11f, 456.67890f, 22.2f, -23.2f, 5.9f)
 
@@ -249,7 +247,7 @@ class CsvParserTest {
     fun parseDouble() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, double = row(FLOAT_COL).toDouble())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf(24.7009, 0.07, 4.2, 3434.0, -4.5, 1.11, 456.67890, 22.2, -23.2, 5.9)
 
@@ -263,7 +261,7 @@ class CsvParserTest {
     fun parseBool() {
         val entities = DefaultCsvParser { row ->
             TestEntity(rowIndex = row.index, bool = row(BOOL_COL).toBoolean())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf(true, false, false, true, true, true, false, true, false, false)
 
@@ -280,7 +278,7 @@ class CsvParserTest {
                 rowIndex = row.index,
                 duration = row(INT_COL).toInt().minutes
             )
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val expected = listOf(1234, 432, 23, 1337, 3434, 42, 17, 0, -2345, -77)
             .map { i -> i.toDuration(DurationUnit.MINUTES) }
@@ -297,7 +295,7 @@ class CsvParserTest {
 
         val entities = DefaultCsvParser(ErrorHandling.SILENT) { row ->
             TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val consoleText = console.getText()
         assertEquals(5, entities.size)
@@ -311,7 +309,7 @@ class CsvParserTest {
 
         val entities = DefaultCsvParser(ErrorHandling.WARNING) { row ->
             TestEntity(rowIndex = row.index, byte = row(INT_COL).toByte())
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val consoleText = console.getText()
         assertEquals(5, entities.size)
@@ -324,7 +322,7 @@ class CsvParserTest {
 
         val entities = DefaultCsvParser(ErrorHandling.ERROR) { row ->
             TestEntity(rowIndex = row.index, byte = row.byte(INT_COL))
-        }.parse(file).toList()
+        }.parse(path).toList()
 
         val consoleText = console.getText()
         assertEquals(5, entities.size)
@@ -375,7 +373,7 @@ class CsvParserTest {
         }
 
         assertThrows<IllegalArgumentException> {
-            parser.parse(file).toList()
+            parser.parse(path).toList()
         }
     }
 }
