@@ -1,10 +1,10 @@
 package synthesis.carownership
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
 import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo
 import synthesis.discreteChoice.carChoiceUtility
 import synthesis.discreteChoice.carOwnershipCityParameters

@@ -1,8 +1,8 @@
 package usecases.models
 
 import datastructure.StationaryAction
+import discreteChoice.models.ChoiceFilter
 import domain.data.Person
-import modeling.models.ChoiceFilter
 
 object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should filters have names for debugging?
 

@@ -1,5 +1,6 @@
 package synthesis
 
+import discreteChoice.models.fixed
 import domain.data.Car
 import domain.data.CarEngine
 import domain.data.CarEngineStatistics
@@ -9,7 +10,6 @@ import domain.data.EngineType
 import domain.data.Person
 import domain.data.buildEngine
 import domain.location.Location
-import modeling.models.fixed
 import synthesis.discreteChoice.CarSegmentParameters
 import synthesis.discreteChoice.CarSegmentSituation
 import synthesis.discreteChoice.EngineChoiceSituation

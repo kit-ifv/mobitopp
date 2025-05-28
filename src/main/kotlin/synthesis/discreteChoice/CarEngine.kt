@@ -1,5 +1,7 @@
 package synthesis.discreteChoice
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
 import discreteChoice.structure.DiscreteStructure
 import discreteChoice.structure.times
 import discreteChoice.utility.multinomialLogit
@@ -9,8 +11,6 @@ import domain.data.Sex
 import domain.enums.areatype.RegioStaR17
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceSituation
 import synthesis.SurveyWithCommute
 import synthesis.domain.SynthesisHousehold
 import units.Distance

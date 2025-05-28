@@ -1,6 +1,8 @@
 package scenarios
 
 import HouseholdSpawnLimits
+import discreteChoice.models.FixedOrderChoiceModel
+import discreteChoice.models.RandomChoiceModel
 import domain.events.CarSelector
 import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
@@ -9,8 +11,6 @@ import generateActivitySchedule
 import generateHouseholds
 import generateZones
 import modeling.events.ParallelSimulator
-import modeling.models.FixedOrderChoiceModel
-import modeling.models.RandomChoiceModel
 import modeling.steps.asRepository
 import modeling.steps.asResource
 import org.junit.jupiter.api.Assertions.assertTrue

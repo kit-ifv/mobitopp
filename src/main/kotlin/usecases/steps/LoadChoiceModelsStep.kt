@@ -1,5 +1,10 @@
 package usecases.steps
 
+import discreteChoice.models.ChoiceModel
+import discreteChoice.models.FixedChoicesModel
+import discreteChoice.models.RandomChoiceModel
+import discreteChoice.models.addFilter
+import discreteChoice.models.fixed
 import domain.data.LegacyZone
 import domain.data.SharingStation
 import domain.data.SharingStationId
@@ -11,11 +16,6 @@ import domain.events.ModeScopeDispatcher
 import domain.events.PersonBehavior
 import domain.events.SharingVehicleSelector
 import domain.location.Location
-import modeling.models.ChoiceModel
-import modeling.models.FixedChoicesModel
-import modeling.models.RandomChoiceModel
-import modeling.models.addFilter
-import modeling.models.fixed
 import modeling.steps.Context
 import modeling.steps.LateInit
 import modeling.steps.MutableRepository

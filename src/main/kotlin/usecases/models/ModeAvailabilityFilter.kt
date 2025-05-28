@@ -1,5 +1,8 @@
 package usecases.models
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceFilter
+import discreteChoice.models.ChoiceSituation
 import domain.data.Person
 import domain.data.PrivateCar
 import domain.data.SharingProvider
@@ -8,9 +11,6 @@ import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
 import domain.resources.Resource
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceFilter
-import modeling.models.ChoiceSituation
 import usecases.AttractivenessModel
 import utils.units.AbsoluteTime
 import kotlin.random.Random

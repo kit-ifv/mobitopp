@@ -1,5 +1,7 @@
 package scenarios
 
+import discreteChoice.models.FixedOrderChoiceModel
+import discreteChoice.models.RandomChoiceModel
 import domain.data.MutableSharingProvider
 import domain.data.SharingStation
 import domain.events.CarSelector
@@ -12,8 +14,6 @@ import generateHouseholds
 import generateSharingStation
 import generateZones
 import modeling.events.ParallelSimulator
-import modeling.models.FixedOrderChoiceModel
-import modeling.models.RandomChoiceModel
 import modeling.steps.asRepository
 import modeling.steps.asResource
 import org.junit.jupiter.api.Assertions.assertTrue
