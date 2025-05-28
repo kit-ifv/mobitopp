@@ -1,9 +1,9 @@
 package usecases.models
 
-import domain.data.Person
-import domain.data.PrivateCar
-import domain.data.SharingProvider
-import domain.data.SharingStation
+import domain.agent.PersonAgent
+import domain.agent.PrivateCarAgent
+import domain.agent.SharingProviderAgent
+import domain.agent.SharingStationAgent
 import domain.enums.Mode
 import domain.location.Location
 import domain.location.Metrics
@@ -16,11 +16,11 @@ import utils.units.AbsoluteTime
 import kotlin.random.Random
 
 data class TripChoiceSituation(
-    val person: Person,
+    val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val impedance: Metrics,
-    val sharedResources: Set<Resource<Person>> = emptySet(),
+    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
     val attractivityModel: AttractivenessModel,
     val modeAvailabilityFilter: ModeAvailabilityFilter,
 ) : ChoiceSituation<DestinationAlternative, Location> {
@@ -42,12 +42,12 @@ data class TripChoiceSituation(
 }
 
 data class DestinationAlternative(
-    val person: Person,
+    val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
     val impedance: Metrics,
-    val sharedResources: Set<Resource<Person>> = emptySet(),
+    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
     val attractivityModel: AttractivenessModel,
     val modeAvailabilityFilter: ModeAvailabilityFilter,
 ) : ChoiceAlternative<Location>() {
@@ -55,12 +55,12 @@ data class DestinationAlternative(
 }
 
 data class ModeChoiceSituation(
-    val person: Person,
+    val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
     val impedance: Metrics,
-    val sharedResources: Set<Resource<Person>> = emptySet(),
+    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
 ) : ChoiceSituation<ModeChoiceAlternative, Mode> {
     override val random: Random get() = person.random
     override fun with(choice: Mode) = ModeChoiceAlternative(
@@ -75,13 +75,13 @@ data class ModeChoiceSituation(
 }
 
 data class ModeChoiceAlternative(
-    val person: Person,
+    val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
     val mode: Mode,
     val impedance: Metrics,
-    val sharedResources: Set<Resource<Person>> = emptySet(),
+    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
 ) : ChoiceAlternative<Mode>() {
     override val choice: Mode get() = mode
 }
@@ -90,8 +90,8 @@ fun interface ModeAvailabilityFilter : ChoiceFilter<ModeChoiceAlternative>
 
 class SharingAvailabilityFilter(
     val modes: ChoiceModelModes,
-    private val sharingStations: Set<SharingStation>,
-    private val providersByMode: Map<Mode, Set<SharingProvider>>,
+    private val sharingStations: Set<SharingStationAgent>,
+    private val providersByMode: Map<Mode, Set<SharingProviderAgent>>,
     private val metrics: Metrics,
 ) : ModeAvailabilityFilter {
 
@@ -125,28 +125,31 @@ class SharingAvailabilityFilter(
         }
     }
 
-    private fun checkBike(person: Person): Boolean {
+    private fun checkBike(person: PersonAgent): Boolean {
         return person.hasBike
     }
 
-    private fun checkPut(person: Person): Boolean {
+    private fun checkPut(person: PersonAgent): Boolean {
         return person.hasCommuterTicket
     }
 
-    private fun checkCar(person: Person): Boolean {
+    private fun checkCar(person: PersonAgent): Boolean {
         return person.hasLicense && person.household.cars.any {
-            (it.location == person.location) && it.state != PrivateCar.CarState.IN_USE &&
+            (it.location == person.location) && it.state != PrivateCarAgent.CarState.IN_USE &&
                 ((it.location == person.household.location) || it.keyHolder == person)
         }
     }
 
-    private fun checkRidepooling(person: Person, mode: Mode): Boolean {
+    private fun checkRidepooling(person: PersonAgent, mode: Mode): Boolean {
         val sharingProviders = providersByMode[mode] ?: emptySet()
         // TODO test this
         return sharingProviders.any { it in person.memberships }
     }
 
-    fun checkSharing(params: ModeChoiceAlternative, sharingMode: Mode): Pair<SharingStation, SharingStation>? {
+    fun checkSharing(
+        params: ModeChoiceAlternative,
+        sharingMode: Mode
+    ): Pair<SharingStationAgent, SharingStationAgent>? {
         val person = params.person
 
         val modeMemberships = providersByMode[sharingMode]?.filter {

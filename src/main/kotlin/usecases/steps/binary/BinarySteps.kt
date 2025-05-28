@@ -39,9 +39,10 @@ fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
     val converter = BinaryCarReader(
         householdRepository.elements.associateBy { it.id }::getValue,
         personRepository.elements.associateBy { it.id }::getValue,
-    ) {
-        it.owner.location
-    }
+    )
+//    { //TODO clean up
+//        it.owner.location
+//    }
     runStep {
         LoadBinaryStep(path, converter, carRepository, emptySet())
     }

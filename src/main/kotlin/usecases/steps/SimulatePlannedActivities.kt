@@ -1,6 +1,6 @@
 package usecases.steps
 
-import domain.data.Person
+import domain.agent.PersonAgent
 import domain.data.PersonId
 import domain.events.InitPersonEvent
 import modeling.events.ParallelSimulator
@@ -14,7 +14,7 @@ fun RunSimContext.simulate() = runStep {
 }
 
 interface RunSimContext : SimulationContext {
-    val personRepository: Repository<Person, PersonId>
+    val personAgents: Repository<PersonAgent, PersonId>
 }
 
 class SimulateStep(
@@ -25,19 +25,17 @@ class SimulateStep(
     override fun execute() {
         val sim = ParallelSimulator(timeStep = context.timeStep)
 
-        sim.addAgents(context.personRepository) { person ->
+        sim.addAgents(context.personAgents) { person ->
             InitPersonEvent(person, context.behavior.value)
         }
         sim.run(context.simulationStart, context.simulationEnd)
     }
 
     override fun verifyInput(): Warning? {
-        // TODO("Not yet implemented")
         return null
     }
 
     override fun mockBehavior(): Warning? {
-        // TODO("Not yet implemented")
         return null
     }
 }
