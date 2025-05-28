@@ -1,12 +1,12 @@
 package synthesis.discreteChoice
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
 import discreteChoice.structure.DiscreteStructure
 import discreteChoice.structure.times
 import discreteChoice.utility.multinomialLogit
 import domain.data.Employment
 import domain.data.Sex
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
