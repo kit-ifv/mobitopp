@@ -78,7 +78,7 @@ class CarOnlyScenario {
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
         val test = resource.asRepository()
-        sim.addAgents(test) { person:PersonAgent ->
+        sim.addAgents(test) { person: PersonAgent ->
             InitPersonEvent(person, syntheticBehavior)
         }
         sim.run(0.days.sinceStart, 7.days.sinceStart)
