@@ -1,14 +1,14 @@
 package synthesis.discreteChoice
 
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.multinomialLogit
 import domain.data.Employment
 import domain.data.EngineType
 import domain.data.Sex
 import domain.enums.areatype.RegioStaR17
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.structure.times
-import modeling.discreteChoice.utility.multinomialLogit
 import modeling.models.ChoiceAlternative
 import modeling.models.ChoiceSituation
 import synthesis.SurveyWithCommute

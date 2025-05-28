@@ -2,12 +2,12 @@
 
 package usecases.models
 
+import discreteChoice.structure.D
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.utility.multinomialLogit
 import domain.data.Employment
 import domain.data.Sex
 import domain.enums.Mode
-import modeling.discreteChoice.structure.D
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.utility.multinomialLogit
 import modeling.models.fixed
 import units.Currency
 import units.CurrencyUnit

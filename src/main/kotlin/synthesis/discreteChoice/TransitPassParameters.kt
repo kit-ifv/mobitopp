@@ -1,10 +1,10 @@
 package synthesis.discreteChoice
 
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.multinomialLogit
 import domain.data.Employment
 import domain.data.Sex
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.structure.times
-import modeling.discreteChoice.utility.multinomialLogit
 import modeling.models.ChoiceAlternative
 import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo
@@ -13,7 +13,6 @@ import synthesis.domain.SynthesisPerson
 import synthesis.employment
 import synthesis.hasLicence
 import units.`€`
-import kotlin.compareTo
 import kotlin.random.Random
 
 val YesTransitPass = TransitPassParameters(

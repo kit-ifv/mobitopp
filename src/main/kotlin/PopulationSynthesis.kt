@@ -1,11 +1,12 @@
 import datastructure.Activity
+import discreteChoice.models.fixed
+import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import modeling.models.FixedChoicesModel
 import modeling.models.fixed
 import synthesis.ActivityOutput
@@ -103,14 +104,14 @@ fun interface AssignTransitCardOwnership<T> {
 
 class AssignByDiscreteChoice(
     val model: FixedChoicesModel<TicketAlternative, Boolean> =
-        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
+        transitPassChoiceModel.build(YesTransitPass).fixed<TicketAlternative, Boolean>(setOf(true, false))
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
             transitPassChoiceModel
-    ) : this(model.build(parameters).fixed(setOf(true, false)))
+    ) : this(model.build(parameters).fixed<TicketAlternative, Boolean>(setOf(true, false)))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
         return model.filterAndSelect(TicketSituation(person.household, person))

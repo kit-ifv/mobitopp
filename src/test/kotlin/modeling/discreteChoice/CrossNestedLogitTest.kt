@@ -1,7 +1,7 @@
 package modeling.discreteChoice
 
-import modeling.discreteChoice.structure.CrossNestedStructure
-import modeling.discreteChoice.utility.crossNestedLogit
+import discreteChoice.structure.CrossNestedStructure
+import discreteChoice.utility.crossNestedLogit
 import modeling.models.ChoiceAlternative
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
