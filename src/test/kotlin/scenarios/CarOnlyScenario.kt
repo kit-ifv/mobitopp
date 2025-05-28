@@ -4,6 +4,7 @@ import HouseholdSpawnLimits
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.agent.BuildAgents
+import domain.agent.PersonAgent
 import domain.events.CarSelector
 import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
@@ -46,9 +47,7 @@ class CarOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
-        val persons = households.flatMap { it.members }
         val car = legacyModes.car
-        assertTrue(persons.all { it.household in it.memberships })
 
         val agents = BuildAgents(seed = 1L).buildPersonAgents(households)
         assertTrue(agents.all { it.household in it.memberships })
@@ -77,9 +76,9 @@ class CarOnlyScenario {
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)
-        val resource = persons.asResource("EO", "none")
+        val resource = agents.asResource("EO", "none")
         val test = resource.asRepository()
-        sim.addAgents(test) { person ->
+        sim.addAgents(test) { person:PersonAgent ->
             InitPersonEvent(person, syntheticBehavior)
         }
         sim.run(0.days.sinceStart, 7.days.sinceStart)

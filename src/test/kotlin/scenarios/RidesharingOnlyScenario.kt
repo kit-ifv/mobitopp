@@ -2,6 +2,9 @@ package scenarios
 
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
+import domain.agent.BuildAgents
+import domain.agent.SharingStationAgent
+import domain.agent.toAgent
 import domain.data.MutableSharingProvider
 import domain.data.SharingProviderId
 import domain.events.CarSelector
