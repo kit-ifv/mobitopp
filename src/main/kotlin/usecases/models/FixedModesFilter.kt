@@ -1,7 +1,7 @@
 package usecases.models
 
 import datastructure.StationaryAction
-import domain.data.Person
+import domain.agent.PersonAgent
 import modeling.models.ChoiceFilter
 
 object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should filters have names for debugging?
@@ -25,7 +25,7 @@ object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should f
         } ?: choices
     }
 
-    private fun isNotAtHome(person: Person, activity: StationaryAction): Boolean {
+    private fun isNotAtHome(person: PersonAgent, activity: StationaryAction): Boolean {
         return person.household.location != activity.location
     }
 }

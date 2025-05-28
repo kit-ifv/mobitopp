@@ -1,8 +1,5 @@
 import datastructure.Activity
 import datastructure.RawActivity
-import datastructure.Schedule
-import datastructure.plans.BlockModel
-import datastructure.plans.TrackableModel
 import domain.data.ActivityId
 import domain.data.CarEngineStatistics
 import domain.data.CarId
@@ -22,13 +19,12 @@ import domain.data.MutablePlannedActivity
 import domain.data.MutablePrivateCar
 import domain.data.MutableSharingProvider
 import domain.data.MutableSharingStation
-import domain.data.Person
 import domain.data.PersonId
 import domain.data.PrivateCar
 import domain.data.Sex
+import domain.data.SharingProvider
 import domain.data.SharingStation
 import domain.data.SharingStationId
-import domain.data.SharingVehicle
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.data.buildEngine
@@ -38,7 +34,6 @@ import domain.enums.areatype.RegioStaR17
 import domain.enums.areatype.RegionType
 import domain.location.Location
 import domain.location.RoadAccess
-import domain.resources.Subscribable
 import units.Distance
 import units.GPSCoordinate
 import units.euros
@@ -99,7 +94,7 @@ fun generateZones(numElements: Int): List<TestZone> {
 
 fun Zone.generateSharingStation(
     sharingProvider: MutableSharingProvider,
-    vehicles: Set<SharingVehicle>
+    vehicles: Int
 ): SharingStation {
     return MutableSharingStation(
         SharingStationId(sharingProvider.numberOfVehicles.toLong()),
@@ -109,7 +104,7 @@ fun Zone.generateSharingStation(
         this.name = "noName"
         this.location = point(BIELEFELD)
         this.zonesByFoot.add(this@generateSharingStation)
-        this.addVehicles(vehicles)
+        this.initialVehicleCount = vehicles
     }
 }
 
@@ -163,17 +158,20 @@ class HouseholdSpawnLimits(
 
 )
 
+@Suppress("LongParameterList")
 fun Zone.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
     personLimits: PersonSpawnLimits = PersonSpawnLimits(),
-    membershipsMap: MutableMap<Subscribable<Person>, Boolean> = mutableMapOf(),
+    memberships: MutableList<SharingProvider> = mutableListOf(),
+    personScope: (MutablePerson) -> Unit = {},
 ): List<Household> {
     return (0..<num).map {
         val h = generateHousehold(it + this@generateHouseholds.id.value * 100) {
             incomePerMonth = 0.euros
             economicStatus = spawnLimits.economicStatus.random(random)
+            // TODO we could use this.random, since household is a stochastic actor
             householdNumber = -1
         }
         repeat(spawnLimits.numCars.random(random)) {
@@ -184,31 +182,33 @@ fun Zone.generateHouseholds(
             spawnLimits.numPersons.random(random),
             random,
             personLimits,
-            membershipsMap = membershipsMap.toMutableMap()
+            memberships,
+            personScope
         )
         h
     }
 }
 
+@Suppress("LongParameterList")
 fun Collection<Zone>.generateHouseholds(
     num: Int,
     random: Random = Random(1),
     spawnLimits: HouseholdSpawnLimits = HouseholdSpawnLimits(),
     personLimits: PersonSpawnLimits = PersonSpawnLimits(),
-    membershipsMap: MutableMap<Subscribable<Person>, Boolean> = mutableMapOf()
+    memberships: MutableList<SharingProvider> = mutableListOf(),
+    personScope: (MutablePerson) -> Unit = {},
 ): List<Household> {
-    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits, membershipsMap.toMutableMap()) }
+    return flatMap { it.generateHouseholds(num, random, spawnLimits, personLimits, memberships, personScope) }
 }
 
 fun MutableHousehold.generatePersons(
     num: Int,
     random: Random = Random(1),
     spawnLimits: PersonSpawnLimits = PersonSpawnLimits(),
-    membershipsMap: MutableMap<Subscribable<Person>, Boolean>,
-): List<Person> {
+    memberships: List<SharingProvider>,
+    personScope: (MutablePerson) -> Unit = {},
+): List<MutablePerson> {
     return (0..<num).map {
-        val map = membershipsMap.toMutableMap()
-        map[this] = true
         generateAndAddPerson(it.toLong() + this@generatePersons.id.value * 100) {
             age = spawnLimits.age.random(random)
             employment = spawnLimits.employment.random(random)
@@ -218,13 +218,14 @@ fun MutableHousehold.generatePersons(
             hasBike = spawnLimits.hasBike.random(random)
             hasCommuterTicket = spawnLimits.hasCommuterTicket.random(random)
             hasLicense = spawnLimits.hasLicense.random(random)
-            memberships.putAll(map)
-            schedule = Schedule(TrackableModel(BlockModel()))
+            sharingMemberships.addAll(memberships)
+
+            personScope(this)
         }
     }
 }
 
-fun Person.generateActivitySchedule(
+fun MutablePerson.generateActivitySchedule(
     num: Int,
     random: Random
 ) {
@@ -232,18 +233,17 @@ fun Person.generateActivitySchedule(
     val targets = List(num) { range.random(random) }.sorted()
 
     targets.zipWithNext { a, b ->
-        addActivity(
-            MutablePlannedActivity(
-                id = ActivityId(-1L),
-                seed = 42L
-            ) {
-                person = this@generateActivitySchedule
-                activityType = LegacyActivityType.entries.random(random)
-                observedTripDuration = 0.minutes
-                startTime = a
-                duration = (b - a) / 2
-            }
-        )
+
+        MutablePlannedActivity(
+            id = ActivityId(-1L),
+            this,
+            seed = 42L
+        ) {
+            activityType = LegacyActivityType.entries.random(random)
+            observedTripDuration = 0.minutes
+            startTime = a
+            duration = (b - a) / 2
+        }
     }
 }
 
@@ -293,11 +293,11 @@ fun MutableHousehold.spawnCar(lambda: MutablePrivateCar.() -> Unit = {}): Privat
 }
 
 fun MutableHousehold.generateAndAddPerson(builder: (Long, MutableHousehold) -> MutablePerson): MutablePerson {
-    val person = builder(members.size + 1L, this).also { it.schedule = Schedule(TrackableModel(BlockModel())) }
+    val person = builder(members.size + 1L, this)
     return person
 }
 
-fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
+fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit): MutablePerson {
     val builder = MutablePerson(
         id = PersonId(id),
         household = this,
@@ -319,18 +319,17 @@ fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit):
     return builder
 }
 
-fun Person.generatePlannedActivity(
+fun MutablePerson.generatePlannedActivity(
     id: Long,
     seed: Long = 1L,
     lambda: MutablePlannedActivity.() -> Unit
 ): MutablePlannedActivity {
-    val mutable = MutablePlannedActivity(ActivityId(id), seed)
+    val mutable = MutablePlannedActivity(ActivityId(id), this, seed)
     mutable.apply(lambda)
-    mutable.person = this
     return mutable
 }
 
-fun MutableHousehold.generateAndAddPerson(id: Long, lambda: MutablePerson.() -> Unit): Person {
+fun MutableHousehold.generateAndAddPerson(id: Long, lambda: MutablePerson.() -> Unit): MutablePerson {
     val person = generatePerson(id, lambda)
 
     members.add(person) // TODO should now be handled in MutablePerson init

@@ -6,17 +6,17 @@ import modeling.steps.Run
 import synthesis.AssignAroundZoneCentroid
 import units.meters
 import units.share
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.legacyChoiceModelPurposes
+import usecases.models.GaussianActivityDurationRandomizer
 import usecases.steps.NoActivityStartShifter
 import usecases.steps.ProjectContext
-import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignCarUsers
 import usecases.steps.assignFixedDestinations
-import usecases.steps.assignPlannedActivities
+import usecases.steps.buildAgents
 import usecases.steps.finishActivities
 import usecases.steps.finishPersons
-import usecases.steps.gaussianDurationRandomizer
 import usecases.steps.legacyData.finishHouseholds
 import usecases.steps.legacyData.finishPrivateCars
 import usecases.steps.legacyData.householdHomeLocation
@@ -28,7 +28,6 @@ import usecases.steps.loadImpedance
 import usecases.steps.loadVisumNetwork
 import usecases.steps.prepareActivities
 import usecases.steps.preparePersons
-import usecases.steps.randomizeActivityDurations
 import usecases.steps.scaleFilter
 import usecases.steps.simulate
 import utils.ErrorHandling
@@ -99,10 +98,6 @@ fun main() {
             errorHandling = ErrorHandling.WARNING,
             shiftActivityStart = NoActivityStartShifter
         )
-        assignPlannedActivities()
-        randomizeActivityDurations(
-            gaussianDurationRandomizer()
-        )
 
         finishActivities()
         finishPersons()
@@ -123,8 +118,11 @@ fun main() {
         )
 
         // loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
-        applyHomeLocationsInSchedule()
-        assignFixedDestinations()
+
+        assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
+
+        buildAgents(GaussianActivityDurationRandomizer())
+
         simulate()
     }
 }

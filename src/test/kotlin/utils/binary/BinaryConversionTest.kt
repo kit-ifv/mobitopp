@@ -28,7 +28,6 @@ import usecases.steps.binary.BinaryPersonReader
 import usecases.steps.binary.BinaryPersonWriter
 import usecases.steps.binary.BinaryZoneReader
 import usecases.steps.binary.BinaryZoneWriter
-import usecases.steps.binary.LocationUtils.decodeLocation
 import utils.units.sinceStart
 import java.nio.file.Files
 import java.nio.file.Path
@@ -113,7 +112,6 @@ class BinaryConversionTest {
         val households = reader.fromBinary(path)
         households[0].let {
             assertEquals(it.householdNumber, hh1.householdNumber)
-            assertEquals(it.name, hh1.name)
             assertEquals(it.type, hh1.type)
             assertEquals(it.domCode, hh1.domCode)
             assertEquals(it.surveyYear, hh1.surveyYear)
@@ -124,7 +122,6 @@ class BinaryConversionTest {
 
         households[1].let {
             assertEquals(it.householdNumber, hh2.householdNumber)
-            assertEquals(it.name, hh2.name)
             assertEquals(it.type, hh2.type)
             assertEquals(it.domCode, hh2.domCode)
             assertEquals(it.surveyYear, hh2.surveyYear)
@@ -228,10 +225,11 @@ class BinaryConversionTest {
         val path = Path("src/test/resources/tempOutput/cars.bin")
         val hhMap = listOf(hh1, hh2).associateBy { it.id }
         val personMap = listOf(p1, p2).associateBy { it.id }
-        val zoneMap = listOf(zone).associateBy { it.id }
-        val reader = BinaryCarReader(hhMap::getValue, personMap::getValue) {
-            decodeLocation(zoneMap::getValue)
-        }
+//        val zoneMap = listOf(zone).associateBy { it.id }
+        val reader = BinaryCarReader(hhMap::getValue, personMap::getValue)
+//        {
+//            decodeLocation(zoneMap::getValue) // TODO clean up
+//        }
         val writer = BinaryCarWriter()
         /* TODO similar argument to person test case. The Car is always automatically added to the household which in
             turn makes this test fail because: Car is present -> Hash Collision -> Object check -> Properties not yet
@@ -244,14 +242,12 @@ class BinaryConversionTest {
 
         cars[0].let {
             assertEquals(it.seats, car1.seats)
-            assertEquals(it.location, car1.location)
             assertEquals(it.engine.type, car1.engine.type)
             assertEquals(it.engine.range, car1.engine.range)
             assertEquals(it.segment, car1.segment)
         }
         cars[1].let {
             assertEquals(it.seats, car2.seats)
-            assertEquals(it.location, car2.location)
             assertEquals(it.engine.type, car2.engine.type)
             assertEquals(it.engine.range, car2.engine.range)
             assertEquals(it.segment, car2.segment)

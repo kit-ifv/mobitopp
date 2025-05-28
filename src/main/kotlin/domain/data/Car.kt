@@ -1,7 +1,6 @@
 package domain.data
 
 import Mutable
-import domain.location.Location
 import units.Distance
 import units.Efficiency
 import units.Energy
@@ -24,28 +23,11 @@ interface Car : Identifiable<CarId> {
     val segment: CarSegment
     val engine: CarEngine
     val seats: Int
+}
 
-    // TODO Debate with Jelle whether CAR should hold information and state or be separated.
-    var location: Location
-    var driver: Person?
-    var passengers: MutableSet<Person>
-    var keyHolder: Person?
-
-    fun addDriver(person: Person) {
-        driver = person
-    }
-
-    fun removeDriver() {
-        driver = null
-    }
-
-    fun addPassenger(person: Person) {
-        passengers.add(person)
-    }
-
-    fun removePassenger(person: Person) {
-        passengers.remove(person)
-    }
+interface IPrivateCar : Car {
+    val owner: IHousehold
+    val mainUser: IPerson?
 }
 
 /**
@@ -54,19 +36,10 @@ interface Car : Identifiable<CarId> {
 @Mutable
 abstract class PrivateCar(
     final override val id: CarId,
-    val owner: MutableHousehold,
-) : Car {
-    abstract val mainUser: Person?
+    override val owner: MutableHousehold,
+) : IPrivateCar {
 
-    // simulation vars -> how to handle with @Mutable?
-    var state: CarState = CarState.PARKED
-    final override var driver: Person? = null
-    final override var passengers: MutableSet<Person> = mutableSetOf()
-    final override var keyHolder: Person? = null
-
-    enum class CarState {
-        PARKED, IN_USE
-    }
+    abstract override val mainUser: Person?
 
     init {
         registerCarOwner()

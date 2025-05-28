@@ -18,7 +18,7 @@ class EventStepper(
     private val eventQueue: Queue<Event<*>> = PriorityQueue(listOf(element))
 
     /**
-     * perform the execution of the first event in the queue. Tests against the expected size of the event queue
+     * Perform the execution of the first event in the queue. Tests against the expected size of the event queue
      * as well as a lambda expression (for assertions such as IsInstance)
      */
     fun nextStep(expectedQueueSize: Int, lambda: (Event<*>) -> Unit = {}) {

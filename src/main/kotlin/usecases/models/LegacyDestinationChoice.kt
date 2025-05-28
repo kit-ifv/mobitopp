@@ -3,6 +3,7 @@
 package usecases.models
 
 import domain.data.Employment
+import domain.data.isAdult
 import domain.enums.ActivityType
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
