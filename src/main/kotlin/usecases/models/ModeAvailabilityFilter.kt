@@ -3,10 +3,6 @@ package usecases.models
 import discreteChoice.models.ChoiceAlternative
 import discreteChoice.models.ChoiceFilter
 import discreteChoice.models.ChoiceSituation
-import domain.data.Person
-import domain.data.PrivateCar
-import domain.data.SharingProvider
-import domain.data.SharingStation
 import domain.agent.PersonAgent
 import domain.agent.PrivateCarAgent
 import domain.agent.SharingProviderAgent

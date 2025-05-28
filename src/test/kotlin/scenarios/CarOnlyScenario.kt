@@ -3,6 +3,7 @@ package scenarios
 import HouseholdSpawnLimits
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
+import domain.agent.BuildAgents
 import domain.events.CarSelector
 import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
@@ -45,9 +46,8 @@ class CarOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
-//        val persons = households.flatMap { it.members }
+        val persons = households.flatMap { it.members }
         val car = legacyModes.car
-        val random = Random(1)
         assertTrue(persons.all { it.household in it.memberships })
 
         val agents = BuildAgents(seed = 1L).buildPersonAgents(households)

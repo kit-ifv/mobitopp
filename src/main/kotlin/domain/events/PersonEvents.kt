@@ -7,9 +7,8 @@ import datastructure.Leg
 import datastructure.LinkTrip
 import datastructure.StationaryAction
 import datastructure.alternateByImpedance
-import domain.agent.PersonAgent
 import discreteChoice.models.FixedChoicesModel
-import domain.data.Person
+import domain.agent.PersonAgent
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
