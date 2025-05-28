@@ -7,6 +7,7 @@ import datastructure.Leg
 import datastructure.LinkTrip
 import datastructure.StationaryAction
 import datastructure.alternateByImpedance
+import discreteChoice.models.FixedChoicesModel
 import domain.data.Person
 import domain.enums.MODEUNKOWN
 import domain.enums.Mode
@@ -14,7 +15,6 @@ import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import domain.location.Metrics
 import modeling.events.Event
-import modeling.models.FixedChoicesModel
 import usecases.AttractivenessModel
 import usecases.models.DestinationAlternative
 import usecases.models.ModeAvailabilityFilter
@@ -152,7 +152,7 @@ class StartTripEvent(
         // TODO Robin last.endlocation is destination?
         if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
             leg.elements.last().endLocation = behavior.destinationChoice.filterAndSelect(
-                leg.elements.last().let {
+                situation = leg.elements.last().let {
                     TripChoiceSituation(
                         person,
                         time,

@@ -1,4 +1,5 @@
 import datastructure.Activity
+import discreteChoice.models.FixedChoicesModel
 import discreteChoice.models.fixed
 import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.data.Employment
@@ -7,8 +8,6 @@ import domain.data.Zone
 import domain.enums.ActivityType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.models.FixedChoicesModel
-import modeling.models.fixed
 import synthesis.ActivityOutput
 import synthesis.AssignAroundZoneCentroid
 import synthesis.AssignHouseholdLocations
@@ -104,7 +103,7 @@ fun interface AssignTransitCardOwnership<T> {
 
 class AssignByDiscreteChoice(
     val model: FixedChoicesModel<TicketAlternative, Boolean> =
-        transitPassChoiceModel.build(YesTransitPass).fixed<TicketAlternative, Boolean>(setOf(true, false))
+        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
