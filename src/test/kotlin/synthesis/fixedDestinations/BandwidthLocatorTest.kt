@@ -2,11 +2,11 @@ package synthesis.fixedDestinations
 
 import TestZone
 import datastructure.discardMetric
+import discreteChoice.SelectionFunction
 import domain.data.Sex
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.location.Location
-import modeling.discreteChoice.SelectionFunction
 import org.junit.jupiter.api.Test
 import synthesis.CommuteDistance
 import synthesis.ControllableAttractiveness

@@ -1,10 +1,10 @@
 package synthesis.discreteChoice
 
+import discreteChoice.structure.NestedStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.nestedLogit
 import domain.data.EconomicStatus
 import domain.data.Employment
-import modeling.discreteChoice.structure.NestedStructure
-import modeling.discreteChoice.structure.times
-import modeling.discreteChoice.utility.nestedLogit
 import modeling.models.ChoiceAlternative
 import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo

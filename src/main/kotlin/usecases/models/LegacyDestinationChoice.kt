@@ -2,14 +2,14 @@
 
 package usecases.models
 
+import discreteChoice.structure.D
+import discreteChoice.structure.RuleBasedStructure
+import discreteChoice.utility.openMultinomialLogit
 import domain.data.Employment
 import domain.enums.ActivityType
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
-import modeling.discreteChoice.structure.D
-import modeling.discreteChoice.structure.RuleBasedStructure
-import modeling.discreteChoice.utility.openMultinomialLogit
 import units.Currency
 import units.Distance
 import units.DistanceUnit

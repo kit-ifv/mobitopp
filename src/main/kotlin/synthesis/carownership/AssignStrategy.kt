@@ -1,8 +1,8 @@
 package synthesis.carownership
 
+import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.enums.areatype.SizebasedRegiostarClassification
 import domain.enums.areatype.toSizebasedClassification
-import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import modeling.models.ChoiceAlternative
 import modeling.models.ChoiceSituation
 import synthesis.SurveyInfo

@@ -2,11 +2,11 @@ package synthesis.fixedDestinations
 
 import datastructure.LocationKDTree
 import datastructure.WithMetric
+import discreteChoice.DiscreteChoiceModel
+import discreteChoice.structure.RuleBasedStructure
+import discreteChoice.utility.openMultinomialLogit
 import domain.enums.ActivityType
 import domain.location.Location
-import modeling.discreteChoice.DiscreteChoiceModel
-import modeling.discreteChoice.structure.RuleBasedStructure
-import modeling.discreteChoice.utility.openMultinomialLogit
 import modeling.models.ChoiceAlternative
 import synthesis.CommuteDistance
 import synthesis.domain.SynthesisPerson

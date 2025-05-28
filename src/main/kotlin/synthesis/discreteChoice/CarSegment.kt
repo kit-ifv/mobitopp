@@ -1,10 +1,10 @@
 package synthesis.discreteChoice
 
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.multinomialLogit
 import domain.data.CarSegment
 import domain.data.Sex
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.structure.times
-import modeling.discreteChoice.utility.multinomialLogit
 import modeling.models.ChoiceAlternative
 import modeling.models.ChoiceSituation
 import synthesis.CommuteDistance
