@@ -2,13 +2,13 @@
 
 package usecases.models
 
+import discreteChoice.models.fixed
 import discreteChoice.structure.D
 import discreteChoice.structure.DiscreteStructure
 import discreteChoice.utility.multinomialLogit
 import domain.data.Employment
 import domain.data.Sex
 import domain.enums.Mode
-import modeling.models.fixed
 import units.Currency
 import units.CurrencyUnit
 import usecases.LegacyMode

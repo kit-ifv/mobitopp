@@ -3,6 +3,8 @@ package syntheticsim
 import BIELEFELD
 import TestZone
 import datastructure.Activity
+import discreteChoice.models.addFilter
+import discreteChoice.models.fixed
 import domain.data.ActivityId
 import domain.data.Household
 import domain.data.MutableHousehold
@@ -26,8 +28,6 @@ import domain.events.StartTripEvent
 import generateHousehold
 import generatePersons
 import generateZones
-import modeling.models.addFilter
-import modeling.models.fixed
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import point

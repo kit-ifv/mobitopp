@@ -1,9 +1,9 @@
 package syntheticsim
 
+import discreteChoice.models.ChoiceFilter
+import discreteChoice.models.ChoiceModel
+import discreteChoice.models.noFilter
 import domain.enums.Mode
-import modeling.models.ChoiceFilter
-import modeling.models.ChoiceModel
-import modeling.models.noFilter
 import usecases.models.ModeChoiceAlternative
 import kotlin.random.Random
 
