@@ -7,7 +7,6 @@ import domain.data.CarEngineStatistics
 import domain.data.CarId
 import domain.data.CarSegment
 import domain.data.EngineType
-import domain.data.Person
 import domain.data.buildEngine
 import domain.location.Location
 import synthesis.discreteChoice.CarSegmentParameters
@@ -32,11 +31,6 @@ class SynthesisCar(
 ) : Car {
 
     override val engine: CarEngine = CarEngineStatistics().buildEngine(segment, engineType)
-
-    override var location: Location = householdBuilder.location
-    override var driver: Person? = null
-    override var passengers: MutableSet<Person> = mutableSetOf()
-    override var keyHolder: Person? = null
     override val id: CarId = CarId(1L)
 }
 

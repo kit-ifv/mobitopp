@@ -28,6 +28,8 @@ import kotlin.time.Duration.Companion.minutes
 class CarOnlyScenario {
     @RepeatedTest(value = 1, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
+        val random = Random(1)
+
         val legacyModes = legacyChoiceModelModes
         val zones = generateZones(2)
 
@@ -39,14 +41,18 @@ class CarOnlyScenario {
 
             ),
             personLimits = spawnDrivers,
-            membershipsMap = mutableMapOf()
+            memberships = mutableListOf(),
+            personScope = { it.generateActivitySchedule(10, random) }
         )
-        val persons = households.flatMap { it.members }
+
+//        val persons = households.flatMap { it.members }
         val car = legacyModes.car
         val random = Random(1)
         assertTrue(persons.all { it.household in it.memberships })
 
-        persons.forEach { it.generateActivitySchedule(10, random) }
+        val agents = BuildAgents(seed = 1L).buildPersonAgents(households)
+        assertTrue(agents.all { it.household in it.memberships })
+
         val impedance = ControllableImpedance()
         val availability = SharingAvailabilityFilter(
             legacyModes,

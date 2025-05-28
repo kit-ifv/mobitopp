@@ -11,8 +11,6 @@ import domain.data.Person
 import domain.data.PersonId
 import domain.data.PrivateCar
 import domain.data.buildEngine
-import domain.location.Location
-import usecases.steps.binary.LocationUtils.encodeLocation
 import java.io.DataInputStream
 import java.io.DataOutputStream
 
@@ -21,7 +19,7 @@ class BinaryCarReader(
     val householdConverter: (HouseholdId) -> MutableHousehold,
     val personConverter: (PersonId) -> Person,
     private val carEngineStatistics: CarEngineStatistics = CarEngineStatistics(),
-    private val determineLocation: DataInputStream.(MutablePrivateCar) -> Location
+//    private val determineLocation: DataInputStream.(MutablePrivateCar) -> Location TODO clean up
 ) : BinaryReader<MutablePrivateCar> {
 
     override fun DataInputStream.decode(stringLength: Int): MutablePrivateCar {
@@ -36,7 +34,7 @@ class BinaryCarReader(
             segment = CarSegment.decode(readInt())
             val engineType = EngineType.decode(readInt())
             engine = carEngineStatistics.buildEngine(segment, engineType)
-            location = determineLocation(this)
+//            location = determineLocation(this)
         }
     }
 }
@@ -57,7 +55,7 @@ class BinaryCarWriter : BinaryWriter<PrivateCar> {
             writeLong(mainUser?.id?.value ?: Long.MIN_VALUE) // 12 Bytes
             writeInt(segment.code) // 16 Bytes
             writeInt(engine.type.code) // 20 Bytes
-            encodeLocation(location) // 60 Bytes
+//            encodeLocation(location) // 60 Bytes
         }
     }
 }

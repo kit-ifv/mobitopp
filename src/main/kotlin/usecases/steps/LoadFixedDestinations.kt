@@ -2,9 +2,9 @@ package usecases.steps
 
 import domain.data.ActivityId
 import domain.data.LegacyZone
+import domain.data.MutablePlannedActivity
 import domain.data.Person
 import domain.data.PersonId
-import domain.data.PlannedActivity
 import domain.data.Zone
 import domain.data.ZoneId
 import domain.enums.ActivityType
@@ -34,7 +34,7 @@ interface LoadFixedDestinationsContext : Context {
     val zoneColumnIndex: Map<Int, LegacyZone> // TODO legacy
 
     val personRepository: MutableRepository<out Person, PersonId>
-    val plannedActivityRepository: Repository<PlannedActivity, ActivityId>
+    val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
 
     val activityTypeCodes: CodePlan<ActivityType>
 
@@ -59,6 +59,7 @@ data class FixedDestinationColumns(
 data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
 
 fun LoadFixedDestinationsContext.assignFixedDestinations(
+    homeActivity: ActivityType,
     path: Path = defaultFixedDestinationsPath,
     errorHandling: ErrorHandling = ErrorHandling.WARNING,
     columns: FixedDestinationColumns = FixedDestinationColumns(),
@@ -82,20 +83,22 @@ fun LoadFixedDestinationsContext.assignFixedDestinations(
         }
     }.withFilter(filterWrap)
 
-    prepareFixedDestinationsFile(csvParser, path)
+    prepareFixedDestinationsFile(csvParser, homeActivity, path)
 }
 
 fun LoadFixedDestinationsContext.prepareFixedDestinationsFile(
     parser: CsvParser<ActivityLocation>,
+    homeActivity: ActivityType,
     path: Path = defaultFixedDestinationsPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    LoadFixedDestinationsStep(this, parser, path, delimiter)
+    LoadFixedDestinationsStep(this, parser, homeActivity, path, delimiter)
 }
 
 class LoadFixedDestinationsStep(
     private val context: LoadFixedDestinationsContext,
     private val parser: CsvParser<ActivityLocation>,
+    private val homeActivity: ActivityType,
     private val path: Path = context.defaultFixedDestinationsPath,
     private val delimiter: String = SEMICOLON,
 ) : ModelStep, RepositoryDependentStep {
@@ -110,9 +113,22 @@ class LoadFixedDestinationsStep(
     override fun execute() {
         val reader = CsvReader.of(path, delimiter)
 
+        // apply fixed destinations
         parser.parse(reader).toList().forEach { (person, activityType, location) ->
-            val acts = person.schedule.activities().filter { act -> act.type == activityType }
-            acts.forEach { it.location = location }
+            applyActivityLocation(person, activityType, location)
+        }
+
+        // apply home locations
+        context.personRepository.elements.forEach { person ->
+            applyActivityLocation(person, homeActivity, person.household.location)
+        }
+    }
+
+    private fun applyActivityLocation(person: Person, activityType: ActivityType, location: Location) {
+        person.plannedActivities.filter {
+            it.activityType == activityType
+        }.forEach {
+            context.plannedActivityRepository.getById(it.id)?.location == location
         }
     }
 

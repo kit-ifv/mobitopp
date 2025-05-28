@@ -3,7 +3,7 @@ package scenarios
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.data.MutableSharingProvider
-import domain.data.SharingStation
+import domain.data.SharingProviderId
 import domain.events.CarSelector
 import domain.events.InitPersonEvent
 import domain.events.ModeScopeDispatcher
@@ -22,38 +22,51 @@ import syntheticsim.ControllableImpedance
 import syntheticsim.testAttractivenessModel
 import usecases.legacyChoiceModelModes
 import usecases.models.SharingAvailabilityFilter
-import usecases.steps.prepareVehicles
 import utils.units.sinceStart
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class RidesharingOnlyScenario {
+
+    @Suppress("LongMethod")
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
+        val random = Random(1)
+
         val car = legacyChoiceModelModes.car
         val bikeSharing = legacyChoiceModelModes.bikeSharing
         val pedestrian = legacyChoiceModelModes.pedestrian
         val zones = generateZones(10)
 
-        val provider = MutableSharingProvider {
+        val provider = MutableSharingProvider(SharingProviderId(1L)) {
             name = "Testprovider"
             mode = bikeSharing
         }
+        zones.map { it.generateSharingStation(provider, 1) }
 
-        val stations = zones.map { it.generateSharingStation(provider, provider.prepareVehicles(1)) }
-        val households = zones.generateHouseholds(10, membershipsMap = mutableMapOf(provider to true))
-        val persons = households.flatMap { it.members }
+        val households = zones.generateHouseholds(
+            10,
+            memberships = mutableListOf(provider),
+            personScope = { it.generateActivitySchedule(10, random) }
+        )
 
-        val random = Random(1)
+        val builder = BuildAgents(seed = 1L)
+        val providerAgent = provider.toAgent(builder)
+        val agents = builder.buildPersonAgents(households)
+        agents.forEach {
+                person ->
+            if (!person.sharedResources().any { it is SharingStationAgent }) {
+                println("err")
+            }
+            assertTrue(person.sharedResources().any { it is SharingStationAgent })
+        }
 
-        persons.forEach { it.generateActivitySchedule(10, random) }
-        persons.forEach { person -> assertTrue(person.sharedResources().any { it is SharingStation }) }
         val impedance = ControllableImpedance()
         val availability = SharingAvailabilityFilter(
             legacyChoiceModelModes,
-            stations.toSet(),
-            mapOf(bikeSharing to setOf(provider)),
+            providerAgent.stations.toSet(),
+            mapOf(bikeSharing to setOf(providerAgent)),
             impedance
         )
 
@@ -78,7 +91,7 @@ class RidesharingOnlyScenario {
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)
-        val resource = persons.asResource("EO", "none")
+        val resource = agents.asResource("EO", "none")
         val test = resource.asRepository()
         sim.addAgents(test) { person ->
             InitPersonEvent(person, syntheticBehavior)
