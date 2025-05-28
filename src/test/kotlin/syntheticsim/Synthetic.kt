@@ -3,14 +3,14 @@ package syntheticsim
 import BIELEFELD
 import TestZone
 import datastructure.Activity
+import discreteChoice.models.addFilter
+import discreteChoice.models.fixed
 import domain.agent.BuildAgents
 import domain.agent.PersonAgent
 import domain.agent.PrivateCarAgent
 import domain.agent.getBestCar
 import domain.agent.locationBySchedule
 import domain.agent.toAgent
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 import domain.data.ActivityId
 import domain.data.Household
 import domain.data.MutableHousehold

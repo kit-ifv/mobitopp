@@ -8,7 +8,6 @@ import domain.data.CarId
 import domain.data.CarSegment
 import domain.data.EngineType
 import domain.data.buildEngine
-import domain.location.Location
 import synthesis.discreteChoice.CarSegmentParameters
 import synthesis.discreteChoice.CarSegmentSituation
 import synthesis.discreteChoice.EngineChoiceSituation

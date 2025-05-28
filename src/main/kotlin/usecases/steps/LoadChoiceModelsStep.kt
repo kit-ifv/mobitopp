@@ -5,6 +5,7 @@ import discreteChoice.models.FixedChoicesModel
 import discreteChoice.models.RandomChoiceModel
 import discreteChoice.models.addFilter
 import discreteChoice.models.fixed
+import domain.agent.SharingProviderAgent
 import domain.data.LegacyZone
 import domain.data.SharingProviderId
 import domain.data.Zone
