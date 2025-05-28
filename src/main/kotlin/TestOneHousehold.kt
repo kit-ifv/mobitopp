@@ -1,6 +1,7 @@
 import domain.data.EconomicStatus
 import domain.enums.areatype.Bbsr17
 import modeling.steps.Run
+import usecases.LegacyActivityType
 import usecases.LegacyMode
 import usecases.legacyChoiceModelModes
 import usecases.legacyChoiceModelPurposes
@@ -8,7 +9,6 @@ import usecases.models.legacyDestinationChoice
 import usecases.models.legacyModeChoice
 import usecases.steps.ProjectContext
 import usecases.steps.StationColumns
-import usecases.steps.applyHomeLocationsInSchedule
 import usecases.steps.assignFixedDestinations
 import usecases.steps.dummyImpedance
 import usecases.steps.finishSharingStations
@@ -66,8 +66,7 @@ fun main() {
         finishSharingStations()
         loadChoiceModels(legacyDestinationChoice, legacyModeChoice, legacyChoiceModelModes)
         loadTestSet()
-        applyHomeLocationsInSchedule()
-        assignFixedDestinations(Path("src/test/resources/debughh/fixedDestination.csv"))
+        assignFixedDestinations(LegacyActivityType.HOME, Path("src/test/resources/debughh/fixedDestination.csv"))
         simulate()
     }
 }

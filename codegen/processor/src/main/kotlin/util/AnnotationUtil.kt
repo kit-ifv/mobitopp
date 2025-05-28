@@ -135,9 +135,26 @@ fun TypeName.isCollectionType(): Boolean {
     return when (this) {
         is ParameterizedTypeName -> {
             when (rawType.toString()) {
+                "utils.collections.ClearableList",
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
                 "kotlin.collections.Map" -> true
+                else -> false // If it's not a known collection, keep it as is
+            }
+
+        }
+        else -> false // Non-parameterized types are returned as-is
+    }
+}
+
+fun TypeName.isMutableCollectionType(): Boolean {
+    return when (this) {
+        is ParameterizedTypeName -> {
+            when (rawType.toString()) {
+                "utils.collections.MutableClearableList",
+                "kotlin.collections.MutableList",
+                "kotlin.collections.MutableSet",
+                "kotlin.collections.MutableMap" -> true
                 else -> false // If it's not a known collection, keep it as is
             }
 
@@ -151,6 +168,7 @@ fun TypeName.toMutableCollectionType(): TypeName {
         is ParameterizedTypeName -> {
             // Check the raw type and convert it
             val mutableRawType = when (rawType.toString()) {
+                "utils.collections.ClearableList" -> ClassName("utils.collections", "MutableClearableList")
                 "kotlin.collections.List" -> ClassName("kotlin.collections", "MutableList")
                 "kotlin.collections.Set" -> ClassName("kotlin.collections", "MutableSet")
                 "kotlin.collections.Map" -> ClassName("kotlin.collections", "MutableMap")
@@ -170,12 +188,14 @@ fun Resolver.getKSTypeByName(fqName: String, generics: List<KSTypeArgument> = em
 
 fun TypeName.getEmptyInitializer(): String {
     return when (this.toString().split("<")[0]) {
+        "utils.collections.ClearableList" -> "utils.collections.mutableClearableListOf()"
         "kotlin.collections.List" -> "mutableListOf()"
         "kotlin.collections.Set" -> "mutableSetOf()"
         "kotlin.collections.Map" -> "mutableMapOf()"
         "kotlin.collections.MutableList" -> "mutableListOf()"
         "kotlin.collections.MutableSet" -> "mutableSetOf()"
         "kotlin.collections.MutableMap" -> "mutableMapOf()"
+        "utils.collections.MutableClearableList" -> "utils.collections.mutableClearableListOf()"
         else -> "TODO()" // Fallback for non-collection types
     }
 }

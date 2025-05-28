@@ -14,6 +14,7 @@ import datastructure.plans.IDispatcher
 import domain.enums.ActivityType
 import domain.enums.MODEUNKOWN
 import domain.location.LOCATIONUNKNOWN
+import domain.location.Location
 import utils.ID
 import utils.Identifiable
 import utils.random.SeededActor
@@ -25,21 +26,30 @@ typealias ActivityId = ID<PlannedActivity>
 @Mutable
 abstract class PlannedActivity(
     final override val id: ActivityId,
+    val person: MutablePerson,
     seed: Long
 ) : SeededActor<PlannedActivity>(seed), Identifiable<ActivityId> {
 
-    abstract val person: Person
+    init {
+        this.addAsActivity()
+    }
+
+    private fun addAsActivity() {
+        this.person.plannedActivities.add(this)
+    }
+
     abstract val activityType: ActivityType
     abstract val observedTripDuration: Duration
     abstract val startTime: AbsoluteTime
     abstract val duration: Duration
+    abstract val location: Location?
 
     val endTime: AbsoluteTime
         get() = startTime + duration
 
     fun toActivity(): Activity {
         return Activity.fromDuration(
-            LOCATIONUNKNOWN,
+            location = location ?: LOCATIONUNKNOWN,
             startTime = startTime,
             duration = duration,
             type = activityType

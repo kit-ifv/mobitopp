@@ -3,17 +3,22 @@ package syntheticsim
 import BIELEFELD
 import TestZone
 import datastructure.Activity
+import domain.agent.BuildAgents
+import domain.agent.PersonAgent
+import domain.agent.PrivateCarAgent
+import domain.agent.getBestCar
+import domain.agent.locationBySchedule
+import domain.agent.toAgent
 import discreteChoice.models.addFilter
 import discreteChoice.models.fixed
 import domain.data.ActivityId
 import domain.data.Household
 import domain.data.MutableHousehold
+import domain.data.MutablePerson
 import domain.data.MutablePlannedActivity
 import domain.data.Person
 import domain.data.PlannedActivity
 import domain.data.ZoneId
-import domain.data.getBestCar
-import domain.data.locationBySchedule
 import domain.enums.ActivityType
 import domain.events.CarSelector
 import domain.events.EndActivityEvent
@@ -54,13 +59,13 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-fun Person.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
+fun MutablePerson.loadActivityPlan(lambda: PlanLoader.() -> Unit) {
     val plan = PlanLoader(this)
     plan.apply(lambda)
-    plan.plannedActivities.forEach { addActivity(it) }
+//    plan.plannedActivities.forEach { addActivity(it) }
 }
 
-class PlanLoader(private val person: Person) {
+class PlanLoader(private val person: MutablePerson) {
     val plannedActivities = mutableListOf<PlannedActivity>()
 
     operator fun Triple<ActivityType, Number, Number>.unaryPlus() {
@@ -68,9 +73,9 @@ class PlanLoader(private val person: Person) {
         plannedActivities.add(
             MutablePlannedActivity(
                 id = ActivityId(-1L),
+                person = person,
                 seed = 42L,
             ) {
-                this.person = p
                 activityType = first
                 observedTripDuration = (-1).minutes
                 startTime = AbsoluteTime(second.toDouble().hours)
@@ -87,9 +92,9 @@ class PlanLoader(private val person: Person) {
 
             MutablePlannedActivity(
                 ActivityId(-1L),
+                person = p,
                 seed = 42L
             ) {
-                this.person = p
                 activityType = this@unaryPlus
                 observedTripDuration = (-1).minutes
                 startTime = start
@@ -100,7 +105,7 @@ class PlanLoader(private val person: Person) {
     }
 }
 
-fun Person.hasAccessToCar(): Boolean {
+fun PersonAgent.hasAccessToCar(): Boolean {
     return getBestCar() != null
 }
 
@@ -157,7 +162,7 @@ abstract class Scenario(
         availabilityModel = availability
     )
 
-    fun Person.stepper(): EventStepper {
+    fun PersonAgent.stepper(): EventStepper {
         return EventStepper(InitPersonEvent(this, behavior = behavior), destinationChoice, modeChoice)
     }
 
@@ -188,10 +193,10 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
     )
     val household = households[0]
     val car = household.spawnCar()
-    override val persons: List<Person> = household.generatePersons(
+    override val persons: List<MutablePerson> = household.generatePersons(
         2,
         spawnLimits = spawnDrivers,
-        membershipsMap = mutableMapOf()
+        memberships = mutableListOf()
     )
     val first = persons[0]
     val second = persons[1]
@@ -208,6 +213,16 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
+
+    private val builder: BuildAgents = BuildAgents(seed = 1L)
+    val firstAgent: PersonAgent
+        get() = first.toAgent(builder)
+
+    val secondAgent: PersonAgent
+        get() = second.toAgent(builder)
+
+    val carAgent: PrivateCarAgent
+        get() = car.toAgent(builder)
 }
 
 class Synthetic {
@@ -231,41 +246,40 @@ class Synthetic {
                 +Triple(LegacyActivityType.HOME, 0, 5)
                 +Triple(LegacyActivityType.WORK, 8, 4)
             }
-            val firstPerson = first.stepper()
-            val secondPerson = second.stepper()
+            val firstPerson = firstAgent.stepper()
+            val secondPerson = secondAgent.stepper()
 
-            firstPerson.nextStep(1) {
-                assertIs<InitPersonEvent>(it)
-            }
+            firstPerson.nextStep(1) { assertIs<InitPersonEvent>(it) }
             secondPerson.nextStep(1) { assertIs<InitPersonEvent>(it) }
 
-            assertNull(first.schedule.present)
-            assertNull(second.schedule.present)
+            assertNull(firstAgent.schedule.present)
+            assertNull(secondAgent.schedule.present)
 
             secondPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
-
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
-            assertTrue(first.hasAccessToCar())
-            assertTrue(second.hasAccessToCar())
-            assertEquals(first.locationBySchedule(), household.location)
-            assertEquals(second.locationBySchedule(), household.location)
-            assertNotNull(first.schedule.present)
-            assertNotNull(second.schedule.present)
+
+            assertTrue(firstAgent.hasAccessToCar())
+            assertTrue(secondAgent.hasAccessToCar())
+
+            assertEquals(firstAgent.locationBySchedule(), household.location)
+            assertEquals(secondAgent.locationBySchedule(), household.location)
+            assertNotNull(firstAgent.schedule.present)
+            assertNotNull(secondAgent.schedule.present)
             secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
 
             firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-            assertEquals(car.location, household.location)
-            assertEquals(car.driver, first)
-            assertFalse(second.hasAccessToCar())
-            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
-            assertEquals(first.locationBySchedule(), household.location)
-            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
-            assertEquals(first.locationBySchedule(), zones[2].point(BIELEFELD))
-            assertEquals(car.driver, null)
-            assertEquals(car.location, first.locationBySchedule())
-            assertTrue(first.hasAccessToCar())
-            assertFalse(second.hasAccessToCar())
+            assertEquals(carAgent.location, household.location)
+            assertEquals(carAgent.driver, firstAgent)
+            assertFalse(secondAgent.hasAccessToCar())
+            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
+            assertEquals(firstAgent.locationBySchedule(), household.location)
+            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
+            assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
+            assertEquals(carAgent.driver, null)
+            assertEquals(carAgent.location, firstAgent.locationBySchedule())
+            assertTrue(firstAgent.hasAccessToCar())
+            assertFalse(secondAgent.hasAccessToCar())
 
 //            assertFalse(
 //                LegacyMode.CAR in availability.filter(
@@ -282,9 +296,9 @@ class Synthetic {
             firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
             firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
             firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, Person>>(it) }
-            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, Person>>(it) }
-            assertTrue(first.hasAccessToCar())
+            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
+            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
+            assertTrue(firstAgent.hasAccessToCar())
 //            assertTrue(
 //                LegacyMode.CAR in modeChoice.filter(
 //                    DestinationAlternative(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),

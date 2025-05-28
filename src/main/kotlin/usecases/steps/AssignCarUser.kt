@@ -6,6 +6,7 @@ import domain.data.HouseholdId
 import domain.data.MutablePrivateCar
 import domain.data.Person
 import domain.data.PersonId
+import domain.data.isAdult
 import modeling.steps.Context
 import modeling.steps.MutableRepository
 import modeling.steps.Repository

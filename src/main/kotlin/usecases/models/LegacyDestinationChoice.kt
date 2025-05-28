@@ -6,6 +6,7 @@ import discreteChoice.structure.D
 import discreteChoice.structure.RuleBasedStructure
 import discreteChoice.utility.openMultinomialLogit
 import domain.data.Employment
+import domain.data.isAdult
 import domain.enums.ActivityType
 import domain.enums.Mode
 import domain.location.LOCATIONUNKNOWN

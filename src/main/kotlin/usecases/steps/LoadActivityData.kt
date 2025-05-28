@@ -1,15 +1,13 @@
 package usecases.steps
 
 import domain.data.ActivityId
+import domain.data.MutablePerson
 import domain.data.MutablePlannedActivity
-import domain.data.Person
 import domain.data.PersonId
-import domain.data.PlannedActivity
 import domain.enums.ActivityType
 import modeling.steps.Context
 import modeling.steps.LoadCsvStep
 import modeling.steps.MutableRepository
-import modeling.steps.Repository
 import modeling.steps.SealStep
 import utils.CodePlan
 import utils.ErrorHandling
@@ -29,8 +27,8 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 interface LoadPlannedActivitiesContext : Context {
-    val plannedActivityRepository: MutableRepository<PlannedActivity, ActivityId>
-    val personRepository: Repository<Person, PersonId>
+    val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
+    val personRepository: MutableRepository<MutablePerson, PersonId>
     val activityTypeCodes: CodePlan<ActivityType>
 
     val defaultActivityPath: Path
@@ -64,13 +62,15 @@ fun LoadPlannedActivitiesContext.prepareActivities(
 ) {
     val parser = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
+        val person = getPerson(row, columns.personColumn)
+
         MutablePlannedActivity(
             id = ActivityId(row.index.toLong()),
+            person = person,
             seed = simulationSeed
         ) {
             val shift = shiftActivityStart(this)
 
-            person = getPerson(row, columns.personColumn)
             observedTripDuration = row.int(columns.tripDurationColumn).toDuration(durationUnit)
             startTime = AbsoluteTime.START + row.int(columns.startColumn).toDuration(durationUnit) + shift
             duration = row.int(columns.durationColumn).toDuration(durationUnit)
@@ -82,11 +82,11 @@ fun LoadPlannedActivitiesContext.prepareActivities(
 }
 
 fun LoadPlannedActivitiesContext.prepareActivitiesFile(
-    parser: CsvParser<PlannedActivity>,
+    parser: CsvParser<MutablePlannedActivity>,
     path: Path = defaultActivityPath,
     delimiter: String = SEMICOLON,
 ) = runStep {
-    LoadCsvStep<PlannedActivity, ActivityId>(
+    LoadCsvStep<MutablePlannedActivity, ActivityId>(
         path = path,
         name = "Load planned activities from csv",
         parser = parser,

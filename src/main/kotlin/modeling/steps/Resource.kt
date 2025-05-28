@@ -35,6 +35,14 @@ data class SequenceResource<out E>(
     override fun toString() = "$name ($source)"
 }
 
+data class LazyResource<out E>(
+    override val name: String,
+    override val source: String,
+    private val lambda: () -> Sequence<E>,
+) : Resource<E> {
+    override val elements by lazy { lambda() }
+}
+
 /**
  * Create a [Resource] containing the elements of the sequence and the given metadata.
  */
