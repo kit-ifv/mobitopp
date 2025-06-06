@@ -5,3 +5,8 @@ plugins {
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    compileOnly(libs.detekt.api)
+    implementation(libs.detekt.rules)
+}

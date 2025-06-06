@@ -53,6 +53,9 @@ kandy-api = { module = "org.jetbrains.kotlinx:kandy-api", version.ref = "kandy" 
 # detekt libs
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
+detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
+detekt-rules = { module = "io.gitlab.arturbosch.detekt:detekt-rules", version.ref = "detekt" }
+
 
 # kotlinx libs
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
