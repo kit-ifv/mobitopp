@@ -1,12 +1,12 @@
 package utils.collections
 
-import domain.data.EconomicStatus
-import domain.data.Household
-import domain.data.HouseholdId
-import domain.data.MutableHousehold
-import domain.data.MutablePerson
-import domain.data.PersonId
-import domain.location.LOCATIONUNKNOWN
+import core.location.LOCATIONUNKNOWN
+import domain.synthesis.data.EconomicStatus
+import domain.synthesis.data.Household
+import domain.synthesis.data.HouseholdId
+import domain.synthesis.data.MutableHousehold
+import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import generateAndAddPerson
 import units.euros
 import kotlin.math.sqrt
