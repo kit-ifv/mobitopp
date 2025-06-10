@@ -28,7 +28,6 @@ class LayeredArchitecture(config: Config): Rule(config) {
     private val transparentLayerAccess: Boolean =
         valueOrDefault("transparentLayerAccess", true)
 
-    override val active: Boolean = config.valueOrDefault("active", true)
 
     override fun visitKtFile(file: KtFile) {
         super.visitKtFile(file)
@@ -45,7 +44,7 @@ class LayeredArchitecture(config: Config): Rule(config) {
 
             val violatesSameLayerRule = !allowSameLayerImports && sameLayer
             val violatesDirectionRule = targetIndex > currentIndex
-            val violatesImportDepth = transparentLayerAccess &&
+            val violatesImportDepth = !transparentLayerAccess &&
                     !sameLayer &&
                     targetIndex != currentIndex - 1
 

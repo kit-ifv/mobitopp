@@ -1,5 +1,5 @@
 
-import domain.location.LOCATIONUNKNOWN
+import core.location.LOCATIONUNKNOWN
 import kotlin.test.asserter
 
 /**

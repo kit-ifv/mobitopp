@@ -5,7 +5,6 @@ import modeling.models.ChoiceFilter
 import modeling.models.ChoiceModel
 import modeling.models.FixedChoicesModel
 import utils.collections.associateWithNotNull
-import kotlin.collections.get
 import kotlin.random.Random
 
 /**
