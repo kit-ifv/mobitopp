@@ -1,11 +1,11 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import OTHER
 import START
 import THIRD
-import core.datastructure.schedule.plans.BlockModel
-import core.datastructure.schedule.plans.addAll
 import domain.simulation.behavior.LegacyActivityType
+import domain.simulation.schedule.plans.BlockModel
+import domain.simulation.schedule.plans.addAll
 import utils.units.sinceStart
 import kotlin.test.BeforeTest
 import kotlin.test.Test

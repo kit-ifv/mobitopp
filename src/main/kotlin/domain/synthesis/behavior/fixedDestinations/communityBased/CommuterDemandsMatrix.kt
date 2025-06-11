@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.fixedDestinations.communityBased
 
-import core.location.Location
+import domain.shared.location.Location
 import domain.synthesis.data.ZoneId
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path

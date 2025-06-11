@@ -1,7 +1,7 @@
 package domain.synthesis.householdgeneration
 
 import TestZone
-import core.location.Location
+import domain.shared.location.Location
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson

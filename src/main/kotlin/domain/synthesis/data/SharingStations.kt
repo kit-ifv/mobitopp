@@ -1,8 +1,8 @@
 package domain.synthesis.data
 
 import Mutable
-import core.location.Location
 import domain.shared.enums.Mode
+import domain.shared.location.Location
 import utils.ID
 import utils.Identifiable
 

@@ -1,7 +1,7 @@
 package domain.synthesis.data
 
 import Mutable
-import core.location.Location
+import domain.shared.location.Location
 import units.Currency
 import utils.Encodable
 import utils.EnumDecodable

@@ -1,4 +1,4 @@
-package core.location
+package domain.shared.location
 
 import domain.shared.enums.Mode
 import units.Currency

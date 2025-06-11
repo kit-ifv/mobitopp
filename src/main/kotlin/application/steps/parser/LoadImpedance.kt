@@ -1,18 +1,19 @@
 package application.steps.parser
 
-import core.location.CostMetric
-import core.location.DistanceMetric
-import core.location.DurationMetric
-import core.location.Location
-import core.location.Metrics
 import core.modelsteps.ModelStep
 import core.modelsteps.SimulationContext
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
+import domain.shared.datastructure.matrix.InternalMatrixLookup
 import domain.shared.datastructure.matrix.YamlMatrixLookupMetrics
 import domain.shared.enums.Mode
+import domain.shared.location.CostMetric
+import domain.shared.location.DistanceMetric
+import domain.shared.location.DurationMetric
+import domain.shared.location.Location
+import domain.shared.location.Metrics
 import units.CurrencyUnit
 import units.DistanceUnit
 import units.euros
@@ -44,11 +45,6 @@ fun SimulationContext.loadImpedance(
         betterFormatRoot
     )
 }
-
-data class InternalMatrixLookup(
-    val originalDirectory: Path,
-    val internalDirectory: Path,
-)
 
 @Suppress("LongParameterList")
 private class LoadImpedanceStep(

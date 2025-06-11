@@ -2,10 +2,10 @@ package domain.synthesis.behavior.activityGeneration
 
 import SynthesisSteps
 import application.steps.results.toCSV
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.RawActivity
-import core.location.LOCATIONUNKNOWN
+import domain.shared.location.LOCATIONUNKNOWN
 import domain.simulation.behavior.ChoiceModelPurposes
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.RawActivity
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson

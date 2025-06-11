@@ -1,7 +1,6 @@
 package application.steps.model
 
 import application.steps.parser.dummyImpedance
-import core.location.Location
 import core.modelsteps.Context
 import core.modelsteps.LateInit
 import core.modelsteps.MutableRepository
@@ -13,6 +12,7 @@ import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.Mode
+import domain.shared.location.Location
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.ChoiceModelModes
 import domain.simulation.behavior.DestinationAlternative

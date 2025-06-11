@@ -1,10 +1,10 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import START
-import core.datastructure.schedule.plans.ActionModel
-import core.datastructure.schedule.plans.PlanModel
-import core.datastructure.schedule.plans.shift
-import core.datastructure.schedule.plans.squeeze
+import domain.simulation.schedule.plans.ActionModel
+import domain.simulation.schedule.plans.PlanModel
+import domain.simulation.schedule.plans.shift
+import domain.simulation.schedule.plans.squeeze
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import utils.units.AbsoluteTime

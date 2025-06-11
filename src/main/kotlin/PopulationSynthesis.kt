@@ -1,11 +1,11 @@
-import core.datastructure.schedule.Activity
-import core.location.LOCATIONUNKNOWN
-import core.location.Location
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
+import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.Location
 import domain.simulation.behavior.LegacyActivityType
 import domain.simulation.behavior.legacyChoiceModelPurposes
+import domain.simulation.schedule.Activity
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus

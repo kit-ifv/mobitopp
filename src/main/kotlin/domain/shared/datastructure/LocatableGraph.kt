@@ -1,10 +1,10 @@
 package domain.shared.datastructure
 
 import core.datastructure.kdtree.ReadOnlyKDTree
-import core.location.Location
-import core.location.toUTM
 import domain.LinkInfo
 import domain.VisumNode
+import domain.shared.location.Location
+import domain.shared.location.toUTM
 import org.jgrapht.Graph
 import units.Coordinate
 import units.Distance

@@ -1,4 +1,4 @@
-package core.location
+package domain.shared.location
 
 import units.Currency
 import units.Distance

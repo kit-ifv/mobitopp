@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.fixedDestinations
 
-import core.location.Location
+import domain.shared.location.Location
 import domain.synthesis.behavior.domain.SynthesisPerson
 
 data class AssignedLocation<T>(

@@ -1,11 +1,11 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
-import core.datastructure.schedule.plans.IDispatcher
-import core.location.LOCATIONUNKNOWN
-import core.location.Location
-import core.location.Metrics
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
+import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.Location
+import domain.shared.location.Metrics
+import domain.simulation.schedule.plans.IDispatcher
 import utils.units.AbsoluteTime
 import java.util.*
 import kotlin.time.Duration

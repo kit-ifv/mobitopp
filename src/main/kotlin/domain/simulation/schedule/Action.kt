@@ -1,9 +1,9 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
-import core.location.Location
 import domain.shared.enums.ActivityType
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
+import domain.shared.location.Location
 import utils.units.AbsoluteTime
 import kotlin.time.Duration
 

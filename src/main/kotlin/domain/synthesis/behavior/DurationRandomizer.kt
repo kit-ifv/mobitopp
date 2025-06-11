@@ -1,8 +1,8 @@
 package domain.synthesis.behavior
 
-import core.datastructure.schedule.Activity
 import core.modelsteps.SimulationContext
 import domain.simulation.agent.PersonAgent
+import domain.simulation.schedule.Activity
 import utils.random.getGaussian
 import kotlin.random.Random
 import kotlin.time.Duration

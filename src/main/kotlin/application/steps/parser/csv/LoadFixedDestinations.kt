@@ -1,7 +1,5 @@
 package application.steps.parser.csv
 
-import core.location.Location
-import core.location.parseRoadPosition
 import core.modelsteps.Context
 import core.modelsteps.ModelStep
 import core.modelsteps.MutableRepository
@@ -10,6 +8,8 @@ import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
+import domain.shared.location.Location
+import domain.shared.location.parseRoadPosition
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.MutablePlannedActivity

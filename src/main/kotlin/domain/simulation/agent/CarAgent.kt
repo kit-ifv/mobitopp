@@ -1,7 +1,7 @@
 package domain.simulation.agent
 
 import Mutable
-import core.location.Location
+import domain.shared.location.Location
 import domain.synthesis.data.Car
 import domain.synthesis.data.CarId
 import domain.synthesis.data.IPrivateCar

@@ -1,7 +1,5 @@
 package application.steps.parser.csv
 
-import core.location.Location
-import core.location.parseRoadPosition
 import core.modelsteps.Context
 import core.modelsteps.FilterIdsStep
 import core.modelsteps.LoadCsvStep
@@ -10,6 +8,8 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
+import domain.shared.location.Location
+import domain.shared.location.parseRoadPosition
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.LegacyZone

@@ -1,15 +1,15 @@
-package core.datastructure.schedule.plans
+package domain.simulation.schedule.plans
 
-import core.datastructure.schedule.Action
-import core.datastructure.schedule.ActionBlock
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.ActivityBlock
-import core.datastructure.schedule.Leg
-import core.datastructure.schedule.LinkTrip
-import core.datastructure.schedule.LinkedAction
-import core.datastructure.schedule.LinkedActivity
-import core.datastructure.schedule.LinkedLeg
-import core.datastructure.schedule.LinkedTrip
+import domain.simulation.schedule.Action
+import domain.simulation.schedule.ActionBlock
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.ActivityBlock
+import domain.simulation.schedule.Leg
+import domain.simulation.schedule.LinkTrip
+import domain.simulation.schedule.LinkedAction
+import domain.simulation.schedule.LinkedActivity
+import domain.simulation.schedule.LinkedLeg
+import domain.simulation.schedule.LinkedTrip
 import utils.collections.addByOrder
 import utils.collections.exactlyOneOrNull
 import java.util.*

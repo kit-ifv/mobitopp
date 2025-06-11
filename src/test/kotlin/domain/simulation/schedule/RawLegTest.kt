@@ -1,4 +1,4 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import OTHER
 import START

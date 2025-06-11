@@ -1,11 +1,11 @@
-package core.datastructure.schedule.plans
+package domain.simulation.schedule.plans
 
-import core.datastructure.schedule.Action
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.Leg
-import core.datastructure.schedule.LinkedAction
-import core.datastructure.schedule.LinkedActivity
-import core.datastructure.schedule.LinkedLeg
+import domain.simulation.schedule.Action
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.Leg
+import domain.simulation.schedule.LinkedAction
+import domain.simulation.schedule.LinkedActivity
+import domain.simulation.schedule.LinkedLeg
 
 class ActionModel(override val dispatcher: IDispatcher) : PlanModel {
     internal val actions = sortedSetOf<LinkedAction>()

@@ -1,7 +1,7 @@
 package core.modelsteps
 
-import core.location.Metrics
 import domain.shared.enums.Mode
+import domain.shared.location.Metrics
 import domain.simulation.events.PersonBehavior
 import units.CurrencyUnit
 import units.DistanceUnit

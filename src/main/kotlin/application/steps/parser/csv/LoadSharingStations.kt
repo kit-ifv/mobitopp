@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.location.Location
 import core.modelsteps.AddResourceStep
 import core.modelsteps.Context
 import core.modelsteps.CsvResource
@@ -10,6 +9,7 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
+import domain.shared.location.Location
 import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation

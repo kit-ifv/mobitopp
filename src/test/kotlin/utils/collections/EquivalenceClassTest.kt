@@ -1,6 +1,6 @@
 package utils.collections
 
-import core.location.LOCATIONUNKNOWN
+import domain.shared.location.LOCATIONUNKNOWN
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId

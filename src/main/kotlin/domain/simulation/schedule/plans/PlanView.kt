@@ -1,9 +1,9 @@
-package core.datastructure.schedule.plans
+package domain.simulation.schedule.plans
 
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.Leg
-import core.datastructure.schedule.LinkedAction
-import core.datastructure.schedule.LinkedActivity
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.Leg
+import domain.simulation.schedule.LinkedAction
+import domain.simulation.schedule.LinkedActivity
 import java.util.*
 
 /**

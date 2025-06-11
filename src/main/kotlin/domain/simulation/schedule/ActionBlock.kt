@@ -1,6 +1,6 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
-import core.datastructure.schedule.plans.IDispatcher
+import domain.simulation.schedule.plans.IDispatcher
 import utils.collections.iterate
 import java.util.*
 

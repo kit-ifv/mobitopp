@@ -1,6 +1,6 @@
 package core.events
 
-import core.location.Location
+import domain.shared.location.Location
 import utils.units.Time
 
 interface Agent<E> {

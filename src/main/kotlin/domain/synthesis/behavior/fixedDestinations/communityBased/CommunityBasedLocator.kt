@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.fixedDestinations.communityBased
 
-import core.location.DistanceMetric
-import core.location.Location
+import domain.shared.location.DistanceMetric
+import domain.shared.location.Location
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.fixedDestinations.AssignedLocation

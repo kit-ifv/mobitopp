@@ -1,7 +1,7 @@
-package core.datastructure.kdtree
+package domain.shared.location
 
-import core.location.Location
-import core.location.toUTM
+import core.datastructure.kdtree.ReadOnlyKDTree
+import core.datastructure.kdtree.WithMetric
 import units.Distance
 import units.DistanceUnit
 import units.toDistance

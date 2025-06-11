@@ -1,7 +1,5 @@
 package application.steps.parser.csv
 
-import core.location.Location
-import core.location.parseRoadPosition
 import core.modelsteps.Context
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
@@ -9,6 +7,8 @@ import core.modelsteps.SealStep
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Location
+import domain.shared.location.parseRoadPosition
 import domain.synthesis.data.MutableLegacyZone
 import domain.synthesis.data.ZoneId
 import units.DistanceUnit

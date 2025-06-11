@@ -1,4 +1,4 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import domain.shared.enums.ActivityType
 import utils.collections.iterate

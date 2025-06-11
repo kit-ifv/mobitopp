@@ -1,14 +1,14 @@
 package application.syntheticsim
 
 import BIELEFELD
-import core.location.ConstantMetric
-import core.location.CostMetric
-import core.location.DistanceMetric
-import core.location.DurationMetric
-import core.location.Location
-import core.location.LocationMetric
-import core.location.Metrics
 import domain.shared.enums.Mode
+import domain.shared.location.ConstantMetric
+import domain.shared.location.CostMetric
+import domain.shared.location.DistanceMetric
+import domain.shared.location.DurationMetric
+import domain.shared.location.Location
+import domain.shared.location.LocationMetric
+import domain.shared.location.Metrics
 import domain.simulation.behavior.LegacyMode
 import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.Zone

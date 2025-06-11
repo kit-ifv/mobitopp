@@ -1,7 +1,7 @@
 package core.results.plots
 
-import core.datastructure.schedule.MovingAction
 import domain.simulation.agent.PersonAgent
+import domain.simulation.schedule.MovingAction
 import domain.synthesis.data.Household
 import domain.synthesis.data.IPerson
 import usecases.steps.ProjectContext

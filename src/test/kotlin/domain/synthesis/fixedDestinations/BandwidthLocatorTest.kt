@@ -2,7 +2,7 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import core.datastructure.kdtree.discardMetric
-import core.location.Location
+import domain.shared.location.Location
 import domain.simulation.behavior.LegacyActivityType
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.behavior.CommuteDistance

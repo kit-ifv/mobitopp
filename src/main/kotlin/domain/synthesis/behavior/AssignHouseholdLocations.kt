@@ -2,9 +2,9 @@ package domain.synthesis.behavior
 
 import CoordinateGenerator
 import LanduseDistributedCoordinates
-import core.location.Location
 import domain.VisumPolyZone
 import domain.VisumZoneId
+import domain.shared.location.Location
 import domain.synthesis.data.Zone
 import units.Coordinate
 import units.Distance
