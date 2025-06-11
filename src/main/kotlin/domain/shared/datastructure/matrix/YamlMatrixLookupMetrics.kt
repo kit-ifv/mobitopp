@@ -1,17 +1,20 @@
 package domain.shared.datastructure.matrix
 
-import application.steps.parser.InternalMatrixLookup
 import core.datastructure.matrix.Matrix
+import core.datastructure.matrix.MatrixFormat
 import core.datastructure.matrix.MultiMatrix
 import core.datastructure.matrix.YamlMultiMatrix
+import core.datastructure.matrix.constantMatrixFormat
 import core.datastructure.matrix.matrixAt
-import core.location.CostMetric
-import core.location.DistanceMetric
-import core.location.DurationMetric
-import core.location.Location
-import core.location.LocationMetric
-import core.location.Metrics
+import domain.shared.datastructure.matrix.visum.VisumMatrix
+import domain.shared.datastructure.matrix.visum.VisumMatrixFormat
 import domain.shared.enums.Mode
+import domain.shared.location.CostMetric
+import domain.shared.location.DistanceMetric
+import domain.shared.location.DurationMetric
+import domain.shared.location.Location
+import domain.shared.location.LocationMetric
+import domain.shared.location.Metrics
 import domain.synthesis.data.ZoneId
 import units.Currency
 import units.CurrencyUnit
@@ -27,6 +30,12 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
+private val zoneMatrixFormats: List<MatrixFormat<ZoneId>> = listOf(
+    constantMatrixFormat(),
+    VisumMatrixFormat,
+    BinaryZoneFloatMatrixFormat,
+)
+
 @Suppress("LongParameterList")
 class YamlMatrixLookupMetrics(
     travelTimeMatrixConfig: Path,
@@ -41,14 +50,17 @@ class YamlMatrixLookupMetrics(
     betterFormat: InternalMatrixLookup? = null
 ) : Metrics {
 
+    private val formats = betterFormat?.let {
+        zoneMatrixFormats.checkBinaryCache<ZoneId>(it)
+    } ?: zoneMatrixFormats
+
     private val travelTimes: MultiMatrix<Mode, ZoneId, Duration> = YamlMultiMatrix<Mode, ZoneId, Duration>(
         path = travelTimeMatrixConfig,
         parser = { it.toDuration(durationUnit) },
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
         simulationEndExclusive = simulationEnd,
-        betterFormat
-
+        formats = formats
     )
 
     private val travelCosts: MultiMatrix<Mode, ZoneId, Currency> = YamlMultiMatrix<Mode, ZoneId, Currency>(
@@ -57,14 +69,13 @@ class YamlMatrixLookupMetrics(
         modeDecoder = modeCodes,
         simulationStartInclusive = simulationStart,
         simulationEndExclusive = simulationEnd,
-        betterFormat
+        formats = formats,
 
     )
 
-    private val distances: Matrix<ZoneId, Distance> = VisumMatrix(
+    private val distances: Matrix<ZoneId, Distance> = VisumMatrix( // TODO apply parser based on file type?
         path = distanceMatrix,
         converter = { it.toDistance(distanceUnit) }
-
     )
 
     override fun costMetric(mode: Mode, time: Time): CostMetric = travelCosts.matrixAt(mode, time).asMetric()

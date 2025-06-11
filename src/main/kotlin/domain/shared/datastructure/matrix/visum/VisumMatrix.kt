@@ -1,9 +1,10 @@
 @file:Suppress("MaximumLineLength")
 
-package domain.shared.datastructure.matrix
+package domain.shared.datastructure.matrix.visum
 
 import core.datastructure.matrix.FloatMatrix
 import core.datastructure.matrix.Matrix
+import core.datastructure.matrix.MatrixFormat
 import core.datastructure.matrix.MatrixParser
 import domain.synthesis.data.ZoneId
 import java.nio.file.Path
@@ -22,7 +23,7 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
         lateinit var matrixData: DoubleArray
         lateinit var indexData: Array<ZoneId>
         val duration = measureTime {
-            val parser = MatrixParser(path)
+            val parser = VisumMatrixParser(path)
             matrixData = parser.getArray()
             indexData = parser.getZoneIds()
         }
@@ -54,7 +55,14 @@ class VisumMatrix<O>(path: Path, private val converter: (Double) -> O) : Matrix<
         return converter(matrix[index])
     }
 
-    fun toFloatMatrix(): FloatMatrix<O> {
+    fun toFloatMatrix(): FloatMatrix<ZoneId, O> {
         return FloatMatrix(indexLookup.size, indexLookup, matrix.map { it.toFloat() }.toFloatArray(), converter)
     }
 }
+
+val VisumMatrixFormat = MatrixFormat(
+    key = "visum_matrix",
+    parser = object : MatrixParser<ZoneId> {
+        override fun <O> getMatrix(path: Path, converter: (Double) -> O) = VisumMatrix(path, converter)
+    },
+)

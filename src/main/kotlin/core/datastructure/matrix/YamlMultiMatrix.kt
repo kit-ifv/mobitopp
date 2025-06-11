@@ -2,21 +2,16 @@
 
 package core.datastructure.matrix
 
-import application.steps.parser.InternalMatrixLookup
-import domain.shared.datastructure.matrix.VisumMatrix
 import me.tongfei.progressbar.ProgressBar
 import org.yaml.snakeyaml.Yaml
 import utils.Decodable
 import utils.Encodable
-import utils.ID
 import utils.collections.defaultProgressBarBuilder
 import utils.collections.stepBy
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import java.time.DayOfWeek
 import java.util.*
-import kotlin.io.path.Path
-import kotlin.io.path.extension
 import kotlin.io.path.pathString
 
 typealias YamlMap = Map<TransportType, WeekMap>
@@ -87,13 +82,14 @@ class YamlMultiMatrixError(
  * modeDecoder: converts the ModeString from the Yaml into a mode
  * path: path of the Yaml file
  */
+@Suppress("LongParameterList")
 class YamlMultiMatrix<M, I, O>(
-    private val path: Path,
+    path: Path,
     parser: (Double) -> O,
     modeDecoder: Decodable<M>,
     simulationStartInclusive: AbsoluteTime,
     simulationEndExclusive: AbsoluteTime,
-    betterFormatFolder: InternalMatrixLookup? = null
+    formats: Collection<MatrixFormat<I>>, // TODO default value?
 ) : MultiMatrix<M, I, O> where M : Encodable {
 
     // a map from Mode to a list of matrices
@@ -106,7 +102,8 @@ class YamlMultiMatrix<M, I, O>(
             modeDecoder,
             simulationStartInclusive,
             simulationEndExclusive,
-            betterFormatFolder
+            formats,
+//            betterFormatFolder
         ).getMatrix()
 
     override operator fun get(mode: M, time: AbsoluteTime): Matrix<I, O> {
@@ -155,16 +152,18 @@ class YamlMultiMatrix<M, I, O>(
  * each transport type. At the end, the transport types and the corresponding list of matrices with timestamps are packed
  * into a map and returned
  */
+@Suppress("LongParameterList")
 private class YamlMultiMatrixParser<M, I, O>(
     private val path: Path,
     private val parser: (Double) -> O,
     private val modeDecoder: Decodable<M>,
     private val simulationStartInclusive: AbsoluteTime,
     private val simulationEndExclusive: AbsoluteTime,
-    private val betterFormatFolder: InternalMatrixLookup? = null
+    private val formats: Collection<MatrixFormat<I>>, // TODO default value?
 ) where M : Encodable {
     private val entryList = mutableListOf<Pair<TransportType, Entry>>()
-    val matrixMapFunny = HashMap<Pair<String, MatrixImpl>, Matrix<I, O>>()
+    val matrixMapCache = HashMap<Pair<String, MatrixFormat<I>>, Matrix<I, O>>()
+
     fun getMatrix(): Map<M, List<Pair<AbsoluteTime, Matrix<I, O>>>> {
         createEntries()
         val entriesMap = entryList.groupBy({ it.first }, { it.second })
@@ -275,7 +274,7 @@ private class YamlMultiMatrixParser<M, I, O>(
                             excludedEndTime = excludedEndTime,
                             level = level,
                             path = path,
-                            parser = MatrixImpl.fromString(parser, path)
+                            parser = formats.fromString(parser, path)
                         )
                     )
                 }
@@ -350,8 +349,8 @@ private class YamlMultiMatrixParser<M, I, O>(
             val entry = currentActiveEntry.entry
             val path = entry.path
             val parser = entry.parser
-            val matrix = matrixMapFunny.getOrPut(path to parser) {
-                parser.getMatrix(Path.of(path), converter, betterFormatFolder)
+            val matrix = matrixMapCache.getOrPut(path to parser) {
+                parser.getMatrix(Path.of(path), converter)
             }
 
             if (matrixList.isEmpty() || matrixList.last().second != matrix) {
@@ -369,20 +368,20 @@ private class YamlMultiMatrixParser<M, I, O>(
         }
         return matrixList
     }
-}
 
-/*
- * The level determines which identifiers can overlay other identifiers. Higher level overrides lower level
- */
-private data class Entry(
-    val includedStartTime: AbsoluteTime,
-    val excludedEndTime: AbsoluteTime,
-    val path: String,
-    val level: Int,
-    val parser: MatrixImpl,
-) : Comparable<Entry> {
-    override fun compareTo(other: Entry): Int {
-        return compareValuesBy(this, other, Entry::includedStartTime, Entry::level)
+    /*
+     * The level determines which identifiers can overlay other identifiers. Higher level overrides lower level
+     */
+    private inner class Entry( // inner class to use type parameter I of container class
+        val includedStartTime: AbsoluteTime,
+        val excludedEndTime: AbsoluteTime,
+        val path: String,
+        val level: Int,
+        val parser: MatrixFormat<I>,
+    ) : Comparable<Entry> {
+        override fun compareTo(other: Entry): Int {
+            return compareValuesBy(this, other, { it.includedStartTime }, { it.level })
+        }
     }
 }
 
@@ -442,66 +441,6 @@ private enum class DayIdentifier {
                 "weekday" -> Weekday
                 "everyday" -> Everyday
                 else -> throw IllegalArgumentException("Unknown day: $value")
-            }
-        }
-    }
-}
-
-private enum class MatrixImpl {
-    VisumMatrix,
-    ConstMatrix,
-    FloatMatrixInternal;
-
-    fun <I, O> getMatrix(
-        path: Path,
-        createId: (Long) -> I,
-        converter: (Double) -> O,
-        betterFormatFolder: InternalMatrixLookup? = null
-    ): Matrix<I, O> where I: ID<*> {
-        val outputPath = betterFormatFolder?.let {
-            Path(
-                path.toString().replace(it.originalDirectory.toString(), it.internalDirectory.toString())
-                    .removeSuffix(path.extension) + "bin"
-            )
-        }
-
-        outputPath?.let {
-            val file = it.toFile()
-            if (file.exists()) {
-                @Suppress("UNCHECKED_CAST")
-                return (FloatMatrix.fromPath(file.toPath(), createId, converter) as? Matrix<I, O>)
-                    ?: throw YamlMultiMatrixError("Bad Matrix", path)
-            }
-        }
-
-        return when (this) {
-            VisumMatrix -> {
-                VisumMatrix(path, converter)
-            }
-
-            ConstMatrix -> {
-                val constant: O = converter(path.toString().toDouble())
-                ConstantMatrix(constant)
-            }
-
-            FloatMatrixInternal -> {
-                FloatMatrix.fromPath(path, converter)
-            }
-        }.let {
-            // The following suppresses the unchecked cast warning because we are unable to verify it at compile time due to the dynamic nature of this cast.
-            // Unfortunately, Kotlin does not provide a more elegant solution for this scenario.
-            @Suppress("UNCHECKED_CAST")
-            (it as? Matrix<I, O>) ?: throw YamlMultiMatrixError("Invalid type for VisumMatrix", path)
-        }
-    }
-
-    companion object {
-        fun fromString(value: String, path: String): MatrixImpl {
-            return when (value.lowercase(Locale.getDefault())) {
-                "visum_matrix" -> VisumMatrix
-                "constant_matrix" -> ConstMatrix
-                "float_matrix" -> FloatMatrixInternal
-                else -> throw YamlMultiMatrixError("Unknown parser: $value", Path.of(path))
             }
         }
     }

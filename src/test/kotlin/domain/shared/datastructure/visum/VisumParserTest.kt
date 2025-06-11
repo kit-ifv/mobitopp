@@ -1,9 +1,9 @@
 @file:Suppress("MaximumLineLength")
 
-package core.datastructure.matrix
+package domain.shared.datastructure.visum
 
-import domain.shared.datastructure.matrix.VisumParseError
-import domain.shared.datastructure.matrix.VisumParser
+import domain.shared.datastructure.matrix.visum.VisumParseError
+import domain.shared.datastructure.matrix.visum.VisumParser
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
