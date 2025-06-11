@@ -1,6 +1,5 @@
-package core.datastructure.matrix
+package domain.shared.datastructure.matrix.visum
 
-import domain.shared.datastructure.matrix.IVisumParser
 import domain.synthesis.data.ZoneId
 import utils.files.decompressedBufferedReader
 import java.io.BufferedReader
@@ -17,7 +16,7 @@ const val OBJ = "* Obj"
  *
  * @param file The path to the file containing the matrix data.
  */
-class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
+class VisumMatrixParser(thoth: () -> BufferedReader) : IVisumParser {
     private var state: MatrixParseState = MatrixParseState.LOCATE_NUMBER
     private lateinit var values: List<MutableList<Double>>
     private val mutableList: MutableList<ZoneId> = ArrayList()
@@ -58,7 +57,7 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
         },
         READ_NUMBER {
 
-            override fun handle(s: String, m: MatrixParser) {
+            override fun handle(s: String, m: VisumMatrixParser) {
                 m.setInitialSize(s.toInt())
             }
 
@@ -80,7 +79,7 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
             }
         },
         READ_ZONE_IDS {
-            override fun handle(s: String, m: MatrixParser) {
+            override fun handle(s: String, m: VisumMatrixParser) {
                 m.addZones(s)
             }
 
@@ -101,7 +100,7 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
             }
         },
         READ_CONTENT_HEADER {
-            override fun handle(s: String, m: MatrixParser) {
+            override fun handle(s: String, m: VisumMatrixParser) {
                 m.increaseIndex()
             }
 
@@ -110,7 +109,7 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
             }
         },
         READ_CONTENT {
-            override fun handle(s: String, m: MatrixParser) {
+            override fun handle(s: String, m: VisumMatrixParser) {
                 m.addContent(s)
             }
 
@@ -123,7 +122,7 @@ class MatrixParser(thoth: () -> BufferedReader) : IVisumParser {
             }
         };
 
-        open fun handle(s: String, m: MatrixParser) {
+        open fun handle(s: String, m: VisumMatrixParser) {
         }
 
         abstract fun nextState(s: String): MatrixParseState

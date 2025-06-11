@@ -1,13 +1,5 @@
 package core.datastructure.matrix
 
-import domain.synthesis.data.ZoneId
-import utils.ID
-import utils.binary.operateOnMemoryFile
-import java.io.BufferedOutputStream
-import java.io.DataOutputStream
-import java.nio.file.Files
-import java.nio.file.Path
-
 /**
  * An abstract class representing a matrix.
  *
@@ -30,58 +22,36 @@ interface IntoMatrix<I, O> {
     fun into()
 }
 
-class ConstantMatrix<O>(val value: O) : Matrix<Any, O> {
-    override fun get(row: Any, column: Any): O = value
+class ConstantMatrix<I, O>(val value: O) : Matrix<I, O> {
+    override fun get(row: I, column: I): O = value
 }
 
-@Suppress("MagicNumber") // 4 is not magic, it is the size of an int/float respectively
-fun <I> Path.getSize(createIndex: (Long) -> I): Triple<Int, Map<I, Int>, FloatArray> where I: ID<*> {
-    return operateOnMemoryFile {
-        val size = this.getInt(0)
-        val mapper = HashMap<I, Int>()
-        val translation = IntArray(size)
-        for (i in 0 until size) {
-            val fileContent = this.getInt((i + 1) * 4)
-            mapper[createIndex(fileContent.toLong())] = i
-            translation[i] = this.getInt((i + 1) * 4)
-        }
-        val floatArray = FloatArray(size * size)
-        for (i in floatArray.indices) {
-            floatArray[i] = this.getFloat((i + 1 + size) * 4)
-        }
-        Triple(size, mapper, floatArray)
+class ArrayMatrix<I, O>(
+    val size: Int,
+    val translation: Map<I, Int>,
+    val values: Array<O>,
+) : Matrix<I, O> {
+
+    override fun get(row: I, column: I): O {
+        val rowIndex =
+            translation[row] ?: throw IllegalArgumentException("Row $row not found in index: $translation")
+        val columnIndex =
+            translation[column] ?: throw IllegalArgumentException("Column $column not found in index: $translation")
+
+        val index = rowIndex * size + columnIndex
+
+        return values[index]
     }
 }
 
 // TODO maybe apply the converter to the elements of the matrix directly,
-//  unless this would waste storage space when <O> is complex
+//  unless this would waste storage space when <O> is complex -> alternative version: ArrayMatrix
 class FloatMatrix<I, O>(
     val size: Int,
-    private val translation: Map<I, Int>,
-    private val floatArray: FloatArray,
+    val translation: Map<I, Int>,
+    val floatArray: FloatArray,
     val converter: (Double) -> O
-) : Matrix<I, O> where I: ID<*> {
-    @Suppress("NestedBlockDepth")
-    fun writeToBinary(path: Path) {
-        Files.newOutputStream(path).use { fileStream ->
-            BufferedOutputStream(fileStream).use { bufferedStream ->
-                DataOutputStream(bufferedStream).use { outputStream ->
-                    // Write the size as an Int
-                    outputStream.writeInt(size)
-
-                    // Write all zoneIds (their corresponding Int values) from the translation map
-                    translation.keys.forEach { idInt ->
-                        outputStream.writeInt(idInt.value.toInt())
-                    }
-
-                    // Write all floats from the floatArray
-                    floatArray.forEach { floatValue ->
-                        outputStream.writeFloat(floatValue)
-                    }
-                }
-            }
-        }
-    }
+) : Matrix<I, O> {
 
     override fun get(row: I, column: I): O {
         val rowIndex =
@@ -93,16 +63,4 @@ class FloatMatrix<I, O>(
 
         return converter(floatArray[index].toDouble())
     }
-
-    companion object {
-        fun <I, O> fromPath(
-            path: Path,
-            createIndex: (Long) -> I,
-            converter: (Double) -> O
-        ): FloatMatrix<I, O> where I: ID<*> {
-            val (size, translation, floatArray) = path.getSize(createIndex)
-            return FloatMatrix(size, translation, floatArray, converter)
-        }
-    }
-
 }

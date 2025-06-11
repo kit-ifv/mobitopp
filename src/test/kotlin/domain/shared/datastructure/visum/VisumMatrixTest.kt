@@ -1,6 +1,6 @@
-package core.datastructure.matrix
+package domain.shared.datastructure.visum
 
-import domain.shared.datastructure.matrix.VisumMatrix
+import domain.shared.datastructure.matrix.visum.VisumMatrix
 import domain.synthesis.data.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

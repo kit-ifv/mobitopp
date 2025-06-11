@@ -1,4 +1,4 @@
-package domain.shared.datastructure.matrix
+package domain.shared.datastructure.matrix.visum
 
 import domain.synthesis.data.ZoneId
 

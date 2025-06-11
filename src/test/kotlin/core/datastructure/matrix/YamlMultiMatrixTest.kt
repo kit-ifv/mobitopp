@@ -1,5 +1,7 @@
 package core.datastructure.matrix
 
+import domain.shared.datastructure.matrix.visum.VisumMatrixFormat
+import domain.synthesis.data.ZoneId
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import utils.Decodable
@@ -41,12 +43,13 @@ class YamlMultiMatrixTest {
         }
 
         // Create an instance of YamlMultiMatrix
-        YamlMultiMatrix<EncodableString, String, Double>(
+        YamlMultiMatrix<EncodableString, ZoneId, Double>(
             yamlFilePath,
             parser,
             modeDecoder,
             AbsoluteTime.START,
-            AbsoluteTime.START + 4.weeks
+            AbsoluteTime.START + 4.weeks,
+            formats = listOf(VisumMatrixFormat)
         )
 
         // Test if parsing the YAML file completes without errors
