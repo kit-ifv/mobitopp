@@ -1,6 +1,5 @@
 package domain.synthesis.results
 
-import application.steps.results.toCSV
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
@@ -33,7 +32,10 @@ fun AttractivenessModel.nullableAttractiveness(zone: Zone?, activityType: Activi
 }
 // End extension functions
 
-interface CSVOutput<T> { // TODO move to utils, maybe use composition of column converters over interface implementation
+interface CSVOutput<T> {
+    // TODO move to utils, maybe use composition of column converters over interface implementation,
+    //  buffered writing might be required if string gets large!
+
     val header: List<String>
     fun convert(element: T): String
     fun generateCSVString(elements: Collection<T>) =
@@ -266,4 +268,8 @@ object PersonOutput : CSVOutput<SynthesisPerson<out SurveyInfo>> {
             )
         }
     }
+}
+
+fun toCSV(vararg elements: Any): String {
+    return elements.joinToString(";") { it.toString() }
 }

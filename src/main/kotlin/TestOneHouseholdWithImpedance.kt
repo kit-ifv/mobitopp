@@ -7,7 +7,7 @@ import application.steps.parser.csv.loadAttractivities
 import application.steps.parser.csv.loadZones
 import application.steps.parser.csv.prepareSharingStations
 import application.steps.parser.loadImpedance
-import application.steps.results.output
+import application.steps.results.writeTripsToCsv
 import core.modelsteps.Run
 import domain.shared.enums.areatype.Bbsr17
 import domain.simulation.behavior.LegacyActivityType
@@ -67,6 +67,6 @@ fun main() {
         loadTestSet()
         assignFixedDestinations(LegacyActivityType.HOME, Path("src/test/resources/debughh/fixedDestination.csv"))
         simulate()
-        output()
+        writeTripsToCsv()
     }
 }

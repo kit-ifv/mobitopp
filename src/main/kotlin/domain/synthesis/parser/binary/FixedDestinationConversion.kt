@@ -1,11 +1,11 @@
 package domain.synthesis.parser.binary
 
-import application.steps.parser.csv.ActivityLocation
 import domain.shared.enums.ActivityType
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Zone
 import domain.synthesis.data.ZoneId
+import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import utils.CodePlan

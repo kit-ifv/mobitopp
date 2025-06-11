@@ -17,6 +17,7 @@ import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
 import domain.synthesis.data.Zone
 import domain.synthesis.data.ZoneId
+import domain.synthesis.parser.ActivityLocation
 import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -55,8 +56,6 @@ data class FixedDestinationColumns(
     val location: String = "location",
     val zone: String = "zoneId",
 )
-
-data class ActivityLocation(val person: Person, val activityType: ActivityType, val location: Location)
 
 fun LoadFixedDestinationsContext.assignFixedDestinations(
     homeActivity: ActivityType,

@@ -1,8 +1,9 @@
-package core.datastructure.matrix
+package domain.shared.datastructure.matrix
 
+import core.datastructure.matrix.YamlMultiMatrix
 import domain.shared.datastructure.matrix.visum.VisumMatrixFormat
 import domain.synthesis.data.ZoneId
-import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import utils.Decodable
 import utils.Encodable
@@ -47,13 +48,13 @@ class YamlMultiMatrixTest {
             yamlFilePath,
             parser,
             modeDecoder,
-            AbsoluteTime.START,
-            AbsoluteTime.START + 4.weeks,
+            AbsoluteTime.Companion.START,
+            AbsoluteTime.Companion.START + 4.weeks,
             formats = listOf(VisumMatrixFormat)
         )
 
         // Test if parsing the YAML file completes without errors
         // If no exceptions are thrown during initialization, the test passes
-        assertTrue(true, "YAML file parsed successfully")
+        Assertions.assertTrue(true, "YAML file parsed successfully")
     }
 }
