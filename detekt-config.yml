@@ -771,7 +771,7 @@ style:
 
 custom-rules:
   LayeredArchitecture:
-    active: false
+    active: true
     layers: # An ordered list of layers from lowest to highest: only allowed to import from lower layers
       - utils
       - core

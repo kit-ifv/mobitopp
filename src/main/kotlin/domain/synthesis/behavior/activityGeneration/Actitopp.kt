@@ -1,7 +1,6 @@
 package domain.synthesis.behavior.activityGeneration
 
 import SynthesisSteps
-import application.steps.results.toCSV
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.simulation.behavior.ChoiceModelPurposes
 import domain.simulation.schedule.Activity
@@ -11,6 +10,7 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
 import domain.synthesis.results.CSVOutput
+import domain.synthesis.results.toCSV
 import edu.kit.ifv.mobitopp.actitopp.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitopp.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitopp.ActivityType

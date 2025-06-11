@@ -10,11 +10,12 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.schedule.Activity
 import domain.simulation.schedule.LinkedLeg
 import domain.synthesis.data.PersonId
+import domain.synthesis.results.toCSV
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.writeText
 
-fun WriteTripsCsvContext.output(
+fun WriteTripsCsvContext.writeTripsToCsv(
     file: Path = Path("results/demandsimulation.csv")
 ) = runStep {
     WriteTripsToCsvStep(file, this)
@@ -24,7 +25,7 @@ interface WriteTripsCsvContext : Context {
     val personAgents: Repository<PersonAgent, PersonId>
 }
 
-private class WriteTripsToCsvStep(
+class WriteTripsToCsvStep(
     private val path: Path,
     private val context: WriteTripsCsvContext,
 ) : ModelStep, SameValidationBehavior {
@@ -76,8 +77,4 @@ private class WriteTripsToCsvStep(
 
     override fun verifyInput(): Warning? =
         validateFileWriteAccess(path, fileDescription = "result csv for simulated trips")
-}
-
-fun toCSV(vararg elements: Any): String {
-    return elements.joinToString(";") { it.toString() }
 }
