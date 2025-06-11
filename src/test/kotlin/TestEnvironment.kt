@@ -1,12 +1,12 @@
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.RawActivity
-import core.location.Location
-import core.location.RoadAccess
 import domain.shared.enums.ActivityType
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Location
+import domain.shared.location.RoadAccess
 import domain.simulation.behavior.LegacyActivityType
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.RawActivity
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId

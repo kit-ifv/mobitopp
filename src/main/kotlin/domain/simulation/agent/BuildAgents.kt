@@ -1,6 +1,6 @@
 package domain.simulation.agent
 
-import core.datastructure.schedule.plans.SingularDispatcher
+import domain.simulation.schedule.plans.SingularDispatcher
 import domain.synthesis.behavior.ActivityDurationRandomizer
 import domain.synthesis.behavior.NoDurationRandomizer
 import domain.synthesis.data.CarId

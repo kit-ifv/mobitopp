@@ -1,4 +1,4 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 interface ActionVisitor<T> {
     fun visitLeg(leg: Leg): T

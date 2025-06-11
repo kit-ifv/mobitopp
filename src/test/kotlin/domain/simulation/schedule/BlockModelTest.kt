@@ -1,9 +1,9 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import OTHER
 import START
-import core.datastructure.schedule.plans.BlockModel
-import core.datastructure.schedule.plans.PlanModel
+import domain.simulation.schedule.plans.BlockModel
+import domain.simulation.schedule.plans.PlanModel
 import utils.collections.isStrictlySorted
 import kotlin.test.BeforeTest
 import kotlin.test.Test

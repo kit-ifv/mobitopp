@@ -2,10 +2,10 @@
 
 package domain.simulation.behavior
 
-import core.location.LOCATIONUNKNOWN
-import core.location.Location
 import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
+import domain.shared.location.LOCATIONUNKNOWN
+import domain.shared.location.Location
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
 import modeling.discreteChoice.structure.D

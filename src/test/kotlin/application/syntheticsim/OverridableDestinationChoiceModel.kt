@@ -1,6 +1,6 @@
 package application.syntheticsim
 
-import core.location.Location
+import domain.shared.location.Location
 import domain.simulation.behavior.DestinationAlternative
 import modeling.models.ChoiceFilter
 import modeling.models.ChoiceModel

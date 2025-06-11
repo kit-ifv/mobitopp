@@ -1,7 +1,7 @@
 package domain.synthesis.behavior.domain
 
-import core.location.Location
 import domain.shared.enums.ActivityType
+import domain.shared.location.Location
 import domain.synthesis.behavior.GLOBAL_PERSON_ID_GENERATOR
 import domain.synthesis.behavior.activityGeneration.PreliminaryActivitySchedule
 import domain.synthesis.data.Sex

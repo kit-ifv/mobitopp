@@ -1,8 +1,8 @@
-package core.datastructure.schedule.plans
+package domain.simulation.schedule.plans
 
-import core.datastructure.schedule.LinkedAction
-import core.datastructure.schedule.MovingAction
-import core.datastructure.schedule.StationaryAction
+import domain.simulation.schedule.LinkedAction
+import domain.simulation.schedule.MovingAction
+import domain.simulation.schedule.StationaryAction
 
 class TrackableModel(private val separablePlanModel: SeparablePlanModel) : SeparablePlanModel by separablePlanModel {
 

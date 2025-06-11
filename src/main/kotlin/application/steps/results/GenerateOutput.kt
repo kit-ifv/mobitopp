@@ -1,7 +1,5 @@
 package application.steps.results
 
-import core.datastructure.schedule.Activity
-import core.datastructure.schedule.LinkedLeg
 import core.modelsteps.Context
 import core.modelsteps.ModelStep
 import core.modelsteps.Repository
@@ -9,6 +7,8 @@ import core.modelsteps.SameValidationBehavior
 import core.modelsteps.Warning
 import core.modelsteps.validateFileWriteAccess
 import domain.simulation.agent.PersonAgent
+import domain.simulation.schedule.Activity
+import domain.simulation.schedule.LinkedLeg
 import domain.synthesis.data.PersonId
 import java.nio.file.Path
 import kotlin.io.path.Path

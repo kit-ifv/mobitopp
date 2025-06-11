@@ -1,12 +1,10 @@
 package domain.simulation.events
 
-import core.datastructure.schedule.LinkTrip
-import core.datastructure.schedule.alternateByImpedance
 import core.events.Agent
 import core.events.Event
-import core.location.Location
-import core.location.Metrics
 import domain.shared.enums.Mode
+import domain.shared.location.Location
+import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.SharingStationAgent
@@ -15,6 +13,8 @@ import domain.simulation.agent.getBestCar
 import domain.simulation.agent.locationBySchedule
 import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.schedule.LinkTrip
+import domain.simulation.schedule.alternateByImpedance
 
 /**
  * An event scope spans the event processing of a target entity [T] holding additional information until the

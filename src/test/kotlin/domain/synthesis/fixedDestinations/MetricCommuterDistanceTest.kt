@@ -1,8 +1,8 @@
 package domain.synthesis.fixedDestinations
 
 import TestZone
-import core.location.DistanceMetric
-import core.location.Location
+import domain.shared.location.DistanceMetric
+import domain.shared.location.Location
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance

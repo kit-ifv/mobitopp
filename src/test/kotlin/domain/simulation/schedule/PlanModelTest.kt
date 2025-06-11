@@ -1,10 +1,10 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import FOURTH
 import OTHER
 import START
 import THIRD
-import core.datastructure.schedule.plans.PlanModel
+import domain.simulation.schedule.plans.PlanModel
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import utils.collections.cartesianProduct

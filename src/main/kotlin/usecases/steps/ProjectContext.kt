@@ -15,7 +15,6 @@ import application.steps.parser.csv.LoadPrivateCarsContext
 import application.steps.parser.csv.LoadSharingProvidersContext
 import application.steps.parser.csv.LoadZonesContext
 import application.steps.results.WriteTripsCsvContext
-import core.location.Metrics
 import core.modelsteps.Context
 import core.modelsteps.ExecutionMode
 import core.modelsteps.LateInit
@@ -27,6 +26,7 @@ import domain.shared.enums.ActivityType
 import domain.shared.enums.Mode
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.LegacyActivityType

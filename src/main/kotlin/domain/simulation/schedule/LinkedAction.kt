@@ -1,7 +1,7 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
-import core.location.Location
 import domain.shared.enums.ActivityType
+import domain.shared.location.Location
 import utils.units.AbsoluteTime
 import utils.units.max
 import kotlin.time.Duration

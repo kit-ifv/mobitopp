@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.fixedDestinations
 
-import core.datastructure.kdtree.LocationKDTree
 import core.datastructure.kdtree.WithMetric
-import core.location.Location
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
+import domain.shared.location.Location
+import domain.shared.location.LocationKDTree
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
 import modeling.discreteChoice.DiscreteChoiceModel

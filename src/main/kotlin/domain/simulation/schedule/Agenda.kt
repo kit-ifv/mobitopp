@@ -1,4 +1,4 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 interface Representative<T> {
     val elements: List<T>

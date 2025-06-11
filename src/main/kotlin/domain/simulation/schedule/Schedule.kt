@@ -1,11 +1,11 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
-import core.datastructure.schedule.plans.PlanView
-import core.datastructure.schedule.plans.SeparablePlanModel
-import core.datastructure.schedule.plans.SingularDispatcher
-import core.datastructure.schedule.plans.TrackableModel
-import core.location.Location
 import domain.shared.enums.MODEUNKOWN
+import domain.shared.location.Location
+import domain.simulation.schedule.plans.PlanView
+import domain.simulation.schedule.plans.SeparablePlanModel
+import domain.simulation.schedule.plans.SingularDispatcher
+import domain.simulation.schedule.plans.TrackableModel
 import utils.units.AbsoluteTime
 import java.util.*
 

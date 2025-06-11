@@ -2,7 +2,6 @@ package application.syntheticsim
 
 import BIELEFELD
 import TestZone
-import core.datastructure.schedule.Activity
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.simulation.agent.BuildAgents
@@ -29,6 +28,7 @@ import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StartActivityEvent
 import domain.simulation.events.StartLegEvent
 import domain.simulation.events.StartTripEvent
+import domain.simulation.schedule.Activity
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.Household

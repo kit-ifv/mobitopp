@@ -1,9 +1,9 @@
 package domain.synthesis.data
 
 import Mutable
-import core.location.Location
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Location
 import units.Distance
 import units.GPSCoordinate
 import utils.ID

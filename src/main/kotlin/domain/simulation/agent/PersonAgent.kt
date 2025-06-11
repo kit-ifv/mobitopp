@@ -1,13 +1,13 @@
 package domain.simulation.agent
 
 import Mutable
-import core.datastructure.schedule.Action
-import core.datastructure.schedule.Schedule
 import core.events.Agent
 import core.events.Event
 import core.events.Subscribable
-import core.location.Location
 import domain.shared.enums.Mode
+import domain.shared.location.Location
+import domain.simulation.schedule.Action
+import domain.simulation.schedule.Schedule
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId

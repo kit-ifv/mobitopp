@@ -1,10 +1,10 @@
 package domain.synthesis.results
 
 import application.steps.results.toCSV
-import core.datastructure.schedule.Activity
-import core.location.Location
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
+import domain.shared.location.Location
+import domain.simulation.schedule.Activity
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.behavior.domain.SynthesisHousehold

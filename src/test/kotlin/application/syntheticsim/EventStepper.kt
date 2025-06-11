@@ -1,8 +1,8 @@
 package application.syntheticsim
 
 import core.events.Event
-import core.location.Location
 import domain.shared.enums.Mode
+import domain.shared.location.Location
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

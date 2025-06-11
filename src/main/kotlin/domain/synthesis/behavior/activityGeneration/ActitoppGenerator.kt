@@ -1,9 +1,9 @@
 package domain.synthesis.behavior.activityGeneration
 
-import core.datastructure.schedule.Activity
-import core.location.LOCATIONUNKNOWN
 import domain.shared.enums.ActivityType
+import domain.shared.location.LOCATIONUNKNOWN
 import domain.simulation.behavior.ChoiceModelPurposes
+import domain.simulation.schedule.Activity
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment

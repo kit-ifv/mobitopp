@@ -1,4 +1,4 @@
-package core.location
+package domain.shared.location
 
 import domain.shared.enums.areatype.RegionType
 import domain.synthesis.data.Zone

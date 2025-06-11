@@ -1,7 +1,7 @@
 package domain.synthesis.parser.binary
 
-import core.location.Location
-import core.location.RoadAccess
+import domain.shared.location.Location
+import domain.shared.location.RoadAccess
 import domain.synthesis.data.Zone
 import domain.synthesis.data.ZoneId
 import units.GPSCoordinate

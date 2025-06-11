@@ -1,6 +1,6 @@
 package domain.synthesis.behavior.domain
 
-import core.location.Location
+import domain.shared.location.Location
 import domain.synthesis.behavior.SynthesisCar
 import domain.synthesis.data.EconomicStatus
 import units.Currency

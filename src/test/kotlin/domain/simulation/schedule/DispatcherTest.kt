@@ -1,13 +1,13 @@
-package core.datastructure.schedule
+package domain.simulation.schedule
 
 import FOURTH
 import OTHER
 import START
 import THIRD
-import core.datastructure.schedule.plans.ActionModel
-import core.datastructure.schedule.plans.BlockModel
-import core.datastructure.schedule.plans.Dispatcher
-import core.datastructure.schedule.plans.shift
+import domain.simulation.schedule.plans.ActionModel
+import domain.simulation.schedule.plans.BlockModel
+import domain.simulation.schedule.plans.Dispatcher
+import domain.simulation.schedule.plans.shift
 import utils.units.sinceStart
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
