@@ -1,4 +1,5 @@
-package domain.shared.datastructure.enums
+package domain.synthesis
+
 import domain.synthesis.data.EconomicStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -6,6 +7,6 @@ import kotlin.test.assertEquals
 class EconomicStatusTest {
     @Test
     fun codeEconomicStatus() {
-        EconomicStatus.entries.forEach { assertEquals(it, EconomicStatus.decode(it.code)) }
+        EconomicStatus.entries.forEach { assertEquals(it, EconomicStatus.Companion.decode(it.code)) }
     }
 }
