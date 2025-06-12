@@ -1,6 +1,5 @@
-package domain.shared.datastructure.enums
+package domain.shared.enums
 
-import domain.shared.enums.LegacyActivityType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 class LegacyPlannedActivityTypeTest {
