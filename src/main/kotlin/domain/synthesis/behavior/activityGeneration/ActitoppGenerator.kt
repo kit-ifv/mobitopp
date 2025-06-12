@@ -1,9 +1,9 @@
 package domain.synthesis.behavior.activityGeneration
 
+import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.location.LOCATIONUNKNOWN
-import domain.simulation.behavior.ChoiceModelPurposes
-import domain.simulation.schedule.Activity
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
@@ -15,6 +15,7 @@ import utils.Decodable
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.time.Duration
+
 @Suppress(
     "MagicNumber"
 ) // 1234 is just a random seed, I took this from actitopp example; there is no thought behind this number
@@ -23,6 +24,7 @@ class ActitoppGenerator(
     val randomgenerator: RNGHelper = RNGHelper(1235),
     val purposes: ChoiceModelPurposes,
 ) : GenerateActivitySchedule<SurveyInfo> {
+
     @Suppress("SwallowedException") // TODO sometime someone should fix actitopp.
     override fun generate(person: SynthesisPerson<out SurveyInfo>): PreliminaryActivitySchedule {
         val actitoppPerson = convertToSingularHousehold(person)

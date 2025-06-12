@@ -1,33 +1,32 @@
 package application.steps.model
 
 import application.steps.parser.dummyImpedance
-import core.modelsteps.Context
 import core.modelsteps.LateInit
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.RepositoryDependentStep
-import core.modelsteps.SimulationContext
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
+import domain.shared.location.LegacyZone
 import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.simulation.agent.SharingProviderAgent
-import domain.simulation.behavior.ChoiceModelModes
 import domain.simulation.behavior.DestinationAlternative
 import domain.simulation.behavior.FixedModesFilter
 import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.config.DemandSimContext
 import domain.simulation.events.CarSelector
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
-import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import modeling.models.ChoiceModel
 import modeling.models.FixedChoicesModel
 import modeling.models.RandomChoiceModel
@@ -42,7 +41,7 @@ fun LoadChoiceModelsContext.loadChoiceModels(
     LoadChoiceModelsStep(this, destinationChoiceModel, modeChoiceModel, modes)
 }
 
-interface LoadChoiceModelsContext : Context, SimulationContext {
+interface LoadChoiceModelsContext : DemandSimContext {
     val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>

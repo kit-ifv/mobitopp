@@ -2,7 +2,7 @@
 
 package domain.shared.datastructure.matrix.visum
 
-import domain.synthesis.data.ZoneId
+import domain.shared.location.ZoneId
 import utils.files.decompressedBufferedReader
 import java.nio.file.Path
 

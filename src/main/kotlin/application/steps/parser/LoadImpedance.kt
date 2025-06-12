@@ -1,7 +1,6 @@
 package application.steps.parser
 
 import core.modelsteps.ModelStep
-import core.modelsteps.SimulationContext
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
@@ -14,6 +13,7 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.simulation.config.DemandSimContext
 import units.CurrencyUnit
 import units.DistanceUnit
 import units.euros
@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
 @Suppress("LongParameterList")
-fun SimulationContext.loadImpedance(
+fun DemandSimContext.loadImpedance(
     costMatrixConfig: Path,
     durationMatrixConfig: Path,
     distanceMatrix: Path,
@@ -54,7 +54,7 @@ private class LoadImpedanceStep(
     private val distanceUnit: DistanceUnit? = null,
     private val currencyUnit: CurrencyUnit? = null,
     private val durationUnit: DurationUnit? = null,
-    private val context: SimulationContext,
+    private val context: DemandSimContext,
     private val betterFormatRoot: InternalMatrixLookup?
 ) : ModelStep {
     override val name: String = "Load matrix impedance from yaml"

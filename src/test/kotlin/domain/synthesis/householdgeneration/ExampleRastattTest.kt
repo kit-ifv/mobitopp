@@ -1,12 +1,12 @@
 package domain.synthesis.householdgeneration
 
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
-import domain.synthesis.data.ZoneId
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import java.util.NoSuchElementException

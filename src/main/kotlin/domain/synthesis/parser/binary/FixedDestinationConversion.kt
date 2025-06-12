@@ -1,10 +1,10 @@
 package domain.synthesis.parser.binary
 
 import domain.shared.enums.ActivityType
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.parser.ActivityLocation
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation

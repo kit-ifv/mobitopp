@@ -1,19 +1,20 @@
 package application.steps.model
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.Context
 import core.modelsteps.LazyResource
 import core.modelsteps.ModelStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.Resource
-import core.modelsteps.SimulationContext
 import core.modelsteps.Warning
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
-import domain.synthesis.behavior.ActivityDurationRandomizer
-import domain.synthesis.behavior.NoDurationRandomizer
+import domain.simulation.behavior.ActivityDurationRandomizer
+import domain.simulation.behavior.NoDurationRandomizer
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
@@ -24,10 +25,8 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.PrivateCar
 import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 
-interface BuildAgentsContext : Context, SimulationContext {
+interface BuildAgentsContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
     val householdRepository: Repository<Household, HouseholdId>
     val carRepository: Repository<PrivateCar, CarId>

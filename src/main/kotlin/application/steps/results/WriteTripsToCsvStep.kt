@@ -1,14 +1,14 @@
 package application.steps.results
 
-import core.modelsteps.Context
 import core.modelsteps.ModelStep
 import core.modelsteps.Repository
 import core.modelsteps.SameValidationBehavior
 import core.modelsteps.Warning
 import core.modelsteps.validateFileWriteAccess
+import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.LinkedLeg
 import domain.simulation.agent.PersonAgent
-import domain.simulation.schedule.Activity
-import domain.simulation.schedule.LinkedLeg
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.PersonId
 import domain.synthesis.results.toCSV
 import java.nio.file.Path
@@ -21,7 +21,7 @@ fun WriteTripsCsvContext.writeTripsToCsv(
     WriteTripsToCsvStep(file, this)
 }
 
-interface WriteTripsCsvContext : Context {
+interface WriteTripsCsvContext : DemandSimContext {
     val personAgents: Repository<PersonAgent, PersonId>
 }
 

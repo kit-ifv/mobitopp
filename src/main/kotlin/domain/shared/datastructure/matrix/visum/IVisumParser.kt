@@ -1,6 +1,6 @@
 package domain.shared.datastructure.matrix.visum
 
-import domain.synthesis.data.ZoneId
+import domain.shared.location.ZoneId
 
 interface IVisumParser {
     // Custom getter are not allowed with lateinit -.- therefore I wrote this. Take that kotlin compiler

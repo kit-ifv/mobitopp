@@ -2,8 +2,8 @@ package domain.synthesis.parser.binary
 
 import domain.shared.location.Location
 import domain.shared.location.RoadAccess
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import units.GPSCoordinate
 import units.share
 import java.io.DataInputStream

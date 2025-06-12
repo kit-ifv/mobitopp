@@ -1,3 +1,4 @@
+import application.config.ExampleProjectContext
 import application.steps.model.loadChoiceModels
 import application.steps.model.simulate
 import application.steps.parser.csv.StationColumns
@@ -8,16 +9,15 @@ import application.steps.parser.csv.loadZones
 import application.steps.parser.csv.prepareSharingStations
 import application.steps.parser.loadImpedance
 import application.steps.results.writeTripsToCsv
-import core.modelsteps.Run
+import core.modelsteps.Simulation
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.areatype.Bbsr17
-import domain.simulation.behavior.LegacyActivityType
-import domain.simulation.behavior.LegacyMode
-import domain.simulation.behavior.legacyChoiceModelModes
-import domain.simulation.behavior.legacyChoiceModelPurposes
+import domain.shared.enums.legacyChoiceModelModes
+import domain.shared.enums.legacyChoiceModelPurposes
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
 import domain.synthesis.data.EconomicStatus
-import usecases.steps.ProjectContext
 import utils.ErrorHandling
 import kotlin.io.path.Path
 
@@ -26,11 +26,11 @@ private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp"
 private val rootHamburg = Path("$ROOT_FS/Output/transmove-synthesis-city-bs/last-stable")
 
 fun main() {
-    Run {
-        ProjectContext(
+    Simulation {
+        ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = Bbsr17,
-            demandFolder = rootHamburg,
+            dataFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,

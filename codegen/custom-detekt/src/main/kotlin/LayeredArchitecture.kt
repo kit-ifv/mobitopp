@@ -16,7 +16,7 @@ class LayeredArchitecture(config: Config): Rule(config) {
         id = LAYERED_ARCHITECTURE,
         severity = Severity.CodeSmell,
         description = "Detects violations of import direction for the specified layered architecture!",
-        debt = Debt.FIVE_MINS,
+        debt = Debt.TEN_MINS,
     )
 
     private val layers: List<String> =
@@ -36,6 +36,9 @@ class LayeredArchitecture(config: Config): Rule(config) {
         val currentIndex = layers.indexOf(currentLayer)
 
         file.importDirectives.forEach { importDirective ->
+            val importedFqName = importDirective.importedFqName
+            val shortName = importedFqName?.shortName()?.asString()
+
             val importPath = importDirective.importPath?.pathStr ?: return@forEach
             val targetLayer = layers.find { importPath.contains(it) } ?: return@forEach
             val targetIndex = layers.indexOf(targetLayer)
@@ -50,6 +53,7 @@ class LayeredArchitecture(config: Config): Rule(config) {
 
             if (violatesSameLayerRule || violatesDirectionRule || violatesImportDepth) {
                 val message = buildViolationMessage(
+                    name = shortName ?: importDirective.toString(),
                     currentLayer = currentLayer,
                     targetLayer = targetLayer,
                     sameLayerViolation = violatesSameLayerRule,
@@ -71,6 +75,7 @@ class LayeredArchitecture(config: Config): Rule(config) {
     }
 
     private fun buildViolationMessage(
+        name: String,
         currentLayer: String,
         targetLayer: String,
         sameLayerViolation: Boolean,
@@ -78,7 +83,7 @@ class LayeredArchitecture(config: Config): Rule(config) {
         depthViolation: Boolean
     ): String {
         return buildString {
-            append("Layer '$currentLayer' is not allowed to import from '$targetLayer'.")
+            append("Layer '$currentLayer' is not allowed to import [$name] from '$targetLayer'.")
             when {
                 directionViolation -> append(" Violates dependency direction.")
                 depthViolation -> append(" Only direct layer imports are allowed.")

@@ -5,7 +5,7 @@ import LanduseDistributedCoordinates
 import domain.VisumPolyZone
 import domain.VisumZoneId
 import domain.shared.location.Location
-import domain.synthesis.data.Zone
+import domain.shared.location.Zone
 import units.Coordinate
 import units.Distance
 import units.GPSCoordinate

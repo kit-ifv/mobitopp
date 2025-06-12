@@ -1,10 +1,10 @@
 package domain.synthesis.behavior.activityGeneration
 
 import SynthesisSteps
+import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.datastructure.schedule.Activity
+import domain.shared.datastructure.schedule.RawActivity
 import domain.shared.location.LOCATIONUNKNOWN
-import domain.simulation.behavior.ChoiceModelPurposes
-import domain.simulation.schedule.Activity
-import domain.simulation.schedule.RawActivity
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson

@@ -5,11 +5,11 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asRepository
 import core.modelsteps.asResource
+import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.toAgent
 import domain.simulation.behavior.SharingAvailabilityFilter
-import domain.simulation.behavior.legacyChoiceModelModes
 import domain.simulation.events.CarSelector
 import domain.simulation.events.InitPersonEvent
 import domain.simulation.events.ModeScopeDispatcher

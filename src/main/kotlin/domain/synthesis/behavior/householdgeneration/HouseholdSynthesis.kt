@@ -1,8 +1,8 @@
 package domain.synthesis.behavior.householdgeneration
 
+import domain.shared.location.Zone
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
-import domain.synthesis.data.Zone
 
 /**
  * A functional interface that synthesizes households for different zones based on the provided [SurveyHousehold] data

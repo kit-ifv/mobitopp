@@ -2,7 +2,7 @@ package domain.shared.datastructure.matrix
 
 import core.datastructure.matrix.YamlMultiMatrix
 import domain.shared.datastructure.matrix.visum.VisumMatrixFormat
-import domain.synthesis.data.ZoneId
+import domain.shared.location.ZoneId
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import utils.Decodable

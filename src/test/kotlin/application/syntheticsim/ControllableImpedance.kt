@@ -1,19 +1,19 @@
 package application.syntheticsim
 
 import BIELEFELD
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.ConstantMetric
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
+import domain.shared.location.LegacyZone
 import domain.shared.location.Location
 import domain.shared.location.LocationMetric
 import domain.shared.location.Metrics
-import domain.simulation.behavior.LegacyMode
-import domain.synthesis.data.LegacyZone
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
-import domain.synthesis.data.point
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
+import domain.shared.location.point
 import generateZones
 import org.junit.jupiter.api.Test
 import units.Currency

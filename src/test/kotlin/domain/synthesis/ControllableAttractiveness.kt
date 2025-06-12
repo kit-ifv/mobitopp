@@ -1,12 +1,12 @@
 package domain.synthesis
 
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.enums.ActivityType
-import domain.simulation.behavior.ChoiceModelPurposes
-import domain.simulation.behavior.LegacyActivityType
-import domain.simulation.behavior.legacyChoiceModelPurposes
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.legacyChoiceModelPurposes
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import utils.collections.cartesianProduct
 
 class ControllableAttractiveness(zones: Collection<Zone>) : AttractivenessModel {

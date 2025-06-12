@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Context
 import core.modelsteps.LateInit
 import core.modelsteps.ModelStep
 import core.modelsteps.Warning
@@ -9,11 +8,11 @@ import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.behavior.capitalizeWithUnderscores
 import domain.shared.enums.ActivityType
-import domain.simulation.behavior.ChoiceModelPurposes
-import domain.synthesis.data.ZoneId
-import utils.CodePlan
+import domain.shared.location.ZoneId
+import domain.simulation.config.DemandSimContext
 import utils.csv.CsvReader
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -26,8 +25,7 @@ fun LoadAttractivenessDataContext.loadAttractivities(
     LoadAttractivenessStep(this, path, purposes)
 }
 
-interface LoadAttractivenessDataContext : Context {
-    val activityTypeCodes: CodePlan<ActivityType>
+interface LoadAttractivenessDataContext : DemandSimContext {
     val attractivenessModel: LateInit<AttractivenessModel>
 }
 

@@ -1,5 +1,5 @@
+import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
-import domain.simulation.behavior.LegacyActivityType
 import domain.synthesis.behavior.AlwaysAssignSameStatus
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.SmallestSurveyPerson

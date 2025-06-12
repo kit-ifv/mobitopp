@@ -2,9 +2,9 @@ package domain.synthesis.parser.binary
 
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
-import domain.synthesis.data.MutableLegacyZone
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
+import domain.shared.location.MutableLegacyZone
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import units.DistanceUnit

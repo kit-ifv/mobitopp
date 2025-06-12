@@ -756,7 +756,7 @@ style:
   UseRequireNotNull:
     active: true
   UseSumOfInsteadOfFlatMapSize:
-    active: false
+    active: true
   UselessCallOnNotNull:
     active: true
   UtilityClassWithPublicConstructor:
@@ -769,13 +769,19 @@ style:
     excludeImports:
       - 'java.util.*'
 
+formatting:
+  Filename:
+    active: false
+
 custom-rules:
   LayeredArchitecture:
     active: true
     layers: # An ordered list of layers from lowest to highest: only allowed to import from lower layers
       - utils
       - core
-      - domain
+      - domain.shared
+      - domain.synthesis
+      - domain.simulation
       - application
     allowSameLayerImports: true # Whether importing within the same layer is allowed
     transparentLayerAccess: true # If true, restricts imports to only the next lower layer
