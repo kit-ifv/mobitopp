@@ -5,6 +5,7 @@ import utils.csv.Row
 import java.io.DataOutputStream
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
 
 /**
@@ -93,6 +94,8 @@ class CSVBinaryConverter {
         }
         val numElements = reader.rows().count()
         val outputLocation: Path = outputFile ?: Path(csvFile.toString().replace(".csv", ".bin"))
+        outputLocation.parent.toFile().mkdirs()
+        outputLocation.createFile()
 
         outputLocation.bufferedDataOutputStream { outputStream ->
             // Write the amount of elements that are expected to be found in this file.
