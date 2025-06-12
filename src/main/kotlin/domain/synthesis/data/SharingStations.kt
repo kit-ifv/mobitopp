@@ -3,6 +3,7 @@ package domain.synthesis.data
 import Mutable
 import domain.shared.enums.Mode
 import domain.shared.location.Location
+import domain.shared.location.Zone
 import utils.ID
 import utils.Identifiable
 

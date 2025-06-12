@@ -1,9 +1,8 @@
 package domain.shared.behavior
 
 import domain.shared.enums.ActivityType
-import domain.simulation.behavior.ChoiceModelPurposes
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.DefaultMapCsvParser

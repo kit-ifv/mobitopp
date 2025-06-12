@@ -1,7 +1,6 @@
 package application.steps.parser.csv
 
 import core.modelsteps.AddResourceStep
-import core.modelsteps.Context
 import core.modelsteps.CsvResource
 import core.modelsteps.LazyResource
 import core.modelsteps.MutableRepository
@@ -9,14 +8,15 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.ValidateCsvMetadata
 import domain.shared.enums.Mode
+import domain.shared.location.LegacyZone
 import domain.shared.location.Location
-import domain.synthesis.data.LegacyZone
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.MutableSharingStation
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStationId
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import units.Coordinate
 import utils.ErrorHandling
 import utils.csv.CsvParser
@@ -27,13 +27,13 @@ import utils.csv.long
 import utils.units.toCoordinate
 import java.nio.file.Path
 
-interface LoadSharingProvidersContext : Context {
+interface LoadSharingProvidersContext : DemandSimContext {
     val sharingProviderRepository: MutableRepository<MutableSharingProvider, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
     val defaultSharingStationPath: Path
-        get() = demandFolder.resolve("zone-repository").resolve("sharing-stations.csv")
+        get() = dataFolder.resolve("zone-repository").resolve("sharing-stations.csv")
 }
 
 data class StationColumns(

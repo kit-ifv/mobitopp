@@ -1,26 +1,35 @@
 package domain.simulation.results
 
+import core.modelsteps.Repository
 import core.results.plots.Ordering
 import core.results.plots.RGB
 import core.results.plots.forData
+import core.results.plots.modeStringColor
 import core.results.plots.randomColor
+import domain.shared.datastructure.schedule.MovingAction
+import domain.shared.enums.Mode
 import domain.simulation.agent.PersonAgent
-import domain.simulation.schedule.MovingAction
 import domain.synthesis.data.Household
+import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.IPerson
-import usecases.steps.ProjectContext
+import domain.synthesis.data.PersonId
 import utils.collections.asBins
 import utils.collections.mapToBins
 
-val ProjectContext.persons: List<PersonAgent>
+interface AgentResultsContext {
+    val personAgents: Repository<PersonAgent, PersonId>
+    val householdRepository: Repository<Household, HouseholdId>
+}
+
+val AgentResultsContext.persons: List<PersonAgent>
     get() = personAgents.elements.toList()
 
-val ProjectContext.households: List<Household>
+val AgentResultsContext.households: List<Household>
     get() = householdRepository.elements.toList()
 
 data class PersonLeg(val person: PersonAgent, val leg: MovingAction)
 
-val ProjectContext.personLegs: List<PersonLeg>
+val AgentResultsContext.personLegs: List<PersonLeg>
     get() = persons.flatMap { person ->
         person.schedule.pastLegs().map { leg -> PersonLeg(person, leg) }
     }.toList()
@@ -53,7 +62,7 @@ private val ageBins = listOf(
     40 to 50, 50 to 60, 60 to 65, 65 to 75, 75 to 80, 80 to 120
 ).asBins()
 
-fun <G> ProjectContext.agePlot(
+fun <G> AgentResultsContext.agePlot(
     groupBy: (IPerson) -> G,
     label: String = "group",
     order: Ordering<G> = Ordering.Arbitrary(),
@@ -73,3 +82,5 @@ fun <G> ProjectContext.agePlot(
         groupLabel = label
         colorMap = coloring
     }
+
+fun modeColor(mode: Mode): RGB = modeStringColor(mode.toString().lowercase())

@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Context
 import core.modelsteps.FilterIdsStep
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
@@ -8,14 +7,15 @@ import core.modelsteps.Repository
 import core.modelsteps.SealStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
+import domain.shared.location.LegacyZone
 import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.HouseholdId
-import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import units.CurrencyUnit
 import utils.CodePlan
 import utils.ErrorHandling
@@ -30,7 +30,7 @@ import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 
-interface LoadHouseholdContext : Context {
+interface LoadHouseholdContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
 
@@ -38,7 +38,7 @@ interface LoadHouseholdContext : Context {
     val economicalStatusCodes: CodePlan<EconomicStatus>
 
     val defaultHouseholdPath: Path
-        get() = demandFolder.resolve("demand-data").resolve("household.csv")
+        get() = dataFolder.resolve("demand-data").resolve("household.csv")
 
     fun getLegacyZone(
         matrixColumn: Int

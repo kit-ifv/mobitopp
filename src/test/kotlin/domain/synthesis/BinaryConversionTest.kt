@@ -1,8 +1,8 @@
 package domain.synthesis
 
 import TEST_ZONE
+import domain.shared.enums.LegacyActivityType
 import domain.shared.enums.areatype.RegioStaR17
-import domain.simulation.behavior.LegacyActivityType
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EconomicStatus

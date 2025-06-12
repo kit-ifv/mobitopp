@@ -6,7 +6,7 @@ import core.datastructure.matrix.FloatMatrix
 import core.datastructure.matrix.Matrix
 import core.datastructure.matrix.MatrixFormat
 import core.datastructure.matrix.MatrixParser
-import domain.synthesis.data.ZoneId
+import domain.shared.location.ZoneId
 import java.nio.file.Path
 import kotlin.time.measureTime
 

@@ -3,9 +3,9 @@ package application.steps.model
 import core.events.ParallelSimulator
 import core.modelsteps.ModelStep
 import core.modelsteps.Repository
-import core.modelsteps.SimulationContext
 import core.modelsteps.Warning
 import domain.simulation.agent.PersonAgent
+import domain.simulation.config.DemandSimContext
 import domain.simulation.events.InitPersonEvent
 import domain.synthesis.data.PersonId
 
@@ -13,7 +13,7 @@ fun RunSimContext.simulate() = runStep {
     SimulateStep(this)
 }
 
-interface RunSimContext : SimulationContext {
+interface RunSimContext : DemandSimContext {
     val personAgents: Repository<PersonAgent, PersonId>
 }
 

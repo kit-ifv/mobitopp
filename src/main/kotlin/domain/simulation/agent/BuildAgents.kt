@@ -1,8 +1,9 @@
 package domain.simulation.agent
 
-import domain.simulation.schedule.plans.SingularDispatcher
-import domain.synthesis.behavior.ActivityDurationRandomizer
-import domain.synthesis.behavior.NoDurationRandomizer
+import domain.shared.datastructure.schedule.plans.SingularDispatcher
+import domain.simulation.behavior.ActivityDurationRandomizer
+import domain.simulation.behavior.NoDurationRandomizer
+import domain.simulation.behavior.toSchedule
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -13,7 +14,6 @@ import domain.synthesis.data.SharingProvider
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStation
 import domain.synthesis.data.SharingStationId
-import domain.synthesis.data.toSchedule
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived

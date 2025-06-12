@@ -2,13 +2,13 @@ package application.steps.parser
 
 import NetfileParser
 import VisumLocale
-import core.modelsteps.Context
 import core.modelsteps.LateInit
 import core.modelsteps.ModelStep
 import core.modelsteps.Warning
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
 import domain.shared.datastructure.LocatableGraph
+import domain.simulation.config.DemandSimContext
 import units.Hemisphere
 import java.nio.file.Path
 import kotlin.io.path.name
@@ -28,7 +28,7 @@ fun RoadNetworkContext.loadVisumNetwork(
 //    )
 }
 
-interface RoadNetworkContext : Context {
+interface RoadNetworkContext : DemandSimContext {
     val roadNetwork: LateInit<LocatableGraph>
 }
 

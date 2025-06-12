@@ -2,6 +2,7 @@ package domain.simulation.behavior
 
 import core.events.Resource
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.shared.location.Metrics

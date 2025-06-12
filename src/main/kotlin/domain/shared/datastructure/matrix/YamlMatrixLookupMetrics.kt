@@ -15,7 +15,7 @@ import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.LocationMetric
 import domain.shared.location.Metrics
-import domain.synthesis.data.ZoneId
+import domain.shared.location.ZoneId
 import units.Currency
 import units.CurrencyUnit
 import units.Distance

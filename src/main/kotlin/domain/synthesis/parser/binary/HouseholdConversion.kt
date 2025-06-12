@@ -1,11 +1,11 @@
 package domain.synthesis.parser.binary
 
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.parser.binary.LocationUtils.decodeLocation
 import domain.synthesis.parser.binary.LocationUtils.encodeLocation
 import units.CurrencyUnit

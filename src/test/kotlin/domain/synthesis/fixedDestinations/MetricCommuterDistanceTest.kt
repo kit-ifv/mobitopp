@@ -3,14 +3,14 @@ package domain.synthesis.fixedDestinations
 import TestZone
 import domain.shared.location.DistanceMetric
 import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MetricCommuterDistance
 import domain.synthesis.behavior.fixedDestinations.communityBased.MutableCommunityDemand
 import domain.synthesis.data.Sex
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.householdgeneration.SynthesisTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

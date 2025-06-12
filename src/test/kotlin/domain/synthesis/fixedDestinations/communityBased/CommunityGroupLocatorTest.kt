@@ -2,13 +2,13 @@ package domain.synthesis.fixedDestinations.communityBased
 
 import TestZone
 import assertNotContains
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityBasedGroupLocator
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
 import domain.synthesis.behavior.fixedDestinations.communityBased.TrivialDemands
 import domain.synthesis.data.Sex
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.fixedDestinations.AsymmetricMockDistance
 import domain.synthesis.householdgeneration.SynthesisTest
 import org.junit.jupiter.api.assertThrows

@@ -1,11 +1,12 @@
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
+import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
-import domain.simulation.behavior.LegacyActivityType
-import domain.simulation.behavior.legacyChoiceModelPurposes
-import domain.simulation.schedule.Activity
+import domain.shared.location.Zone
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.DetermineEconomicStatus
@@ -45,7 +46,6 @@ import domain.synthesis.behavior.randomCoordinate
 import domain.synthesis.behavior.toSurveyHouseholds
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import domain.synthesis.data.Zone
 import domain.synthesis.results.ActivityOutput
 import domain.synthesis.results.CarOutput
 import domain.synthesis.results.FixedDestinationElements

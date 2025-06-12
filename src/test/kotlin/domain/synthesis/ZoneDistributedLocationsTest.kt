@@ -11,9 +11,9 @@ import asLocation
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.ZoneDistributedLocations
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import readPolyZones
 import units.Distance
 import units.GPSCoordinate

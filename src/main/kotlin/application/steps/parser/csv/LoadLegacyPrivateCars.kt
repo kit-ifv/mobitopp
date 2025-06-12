@@ -1,10 +1,10 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Context
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.SealStep
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.CarEngineStatistics
 import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
@@ -27,7 +27,7 @@ import utils.csv.int
 import utils.csv.withFilter
 import java.nio.file.Path
 
-interface LoadPrivateCarsContext : Context {
+interface LoadPrivateCarsContext : DemandSimContext {
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
     val engineCodes: CodePlan<EngineType>
     val carSegmentCodes: CodePlan<CarSegment>
@@ -36,7 +36,7 @@ interface LoadPrivateCarsContext : Context {
     val personRepository: Repository<Person, PersonId>
 
     val defaultCarPath: Path
-        get() = demandFolder.resolve("demand-data").resolve("car.csv")
+        get() = dataFolder.resolve("demand-data").resolve("car.csv")
 
     fun getOwnerHousehold(
         row: Row,

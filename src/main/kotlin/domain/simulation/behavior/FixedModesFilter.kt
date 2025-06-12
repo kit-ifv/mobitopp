@@ -1,7 +1,7 @@
 package domain.simulation.behavior
 
+import domain.shared.datastructure.schedule.StationaryAction
 import domain.simulation.agent.PersonAgent
-import domain.simulation.schedule.StationaryAction
 import modeling.models.ChoiceFilter
 
 object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should filters have names for debugging?

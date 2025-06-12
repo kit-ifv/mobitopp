@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Context
 import core.modelsteps.LoadCsvStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.SealStep
@@ -8,9 +7,10 @@ import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.RegionType
 import domain.shared.location.Location
+import domain.shared.location.MutableLegacyZone
+import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
-import domain.synthesis.data.MutableLegacyZone
-import domain.synthesis.data.ZoneId
+import domain.simulation.config.DemandSimContext
 import units.DistanceUnit
 import utils.CodePlan
 import utils.Decodable
@@ -27,12 +27,12 @@ import utils.csv.int
 import utils.csv.long
 import java.nio.file.Path
 
-interface LoadZonesContext : Context {
+interface LoadZonesContext : DemandSimContext {
     val zoneRepository: MutableRepository<MutableLegacyZone, ZoneId>
     val regionTypeCodes: CodePlan<RegionType>
 
     val defaultZonePath: Path
-        get() = demandFolder.resolve("zone-repository").resolve("zones.csv")
+        get() = dataFolder.resolve("zone-repository").resolve("zones.csv")
 }
 
 data class ZoneColumns(
@@ -87,7 +87,7 @@ fun defaultCsvParser(
             matrixColumn = row.index
             name = row(columns.nameColumn)
             regionType =
-                row.decode(columns.regionTypeColumn, regionTypeCodePlan) // TODO remove either areaType or RegionType
+                row.decode(columns.regionTypeColumn, regionTypeCodePlan)
             classification = row(columns.classificationColumn).toZoneClassification()
             parkingPlaces = row.int(columns.parkingPlacesColumn)
             isDestination = row.boolean(columns.isDestinationColumn)

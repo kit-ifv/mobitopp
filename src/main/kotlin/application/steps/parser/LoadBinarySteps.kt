@@ -50,9 +50,7 @@ fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
         householdRepository.elements.associateBy { it.id }::getValue,
         personRepository.elements.associateBy { it.id }::getValue,
     )
-//    { //TODO clean up
-//        it.owner.location
-//    }
+
     runStep {
         LoadBinaryStep(path, converter, carRepository, emptySet())
     }
@@ -60,7 +58,7 @@ fun LoadPrivateCarsContext.loadCarsFromBinary(path: Path) {
 
 fun LoadPlannedActivitiesContext.loadActivitiesFromBinary(path: Path) {
     val converter = BinaryActivityReader(
-        activityTypeCodes,
+        activityTypes,
         { personRepository.getById(it) ?: throw NoSuchElementException("No person of id $it in personRepository") },
         simulationSeed
     )

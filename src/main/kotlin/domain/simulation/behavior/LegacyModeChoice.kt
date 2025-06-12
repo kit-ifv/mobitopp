@@ -2,6 +2,7 @@
 
 package domain.simulation.behavior
 
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex

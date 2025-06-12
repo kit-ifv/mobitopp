@@ -2,8 +2,10 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import core.datastructure.kdtree.discardMetric
+import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
-import domain.simulation.behavior.LegacyActivityType
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.fixedDestinations.BandwidthLocator
@@ -11,8 +13,6 @@ import domain.synthesis.behavior.fixedDestinations.BandwidthParameters
 import domain.synthesis.behavior.fixedDestinations.LocationAlternative
 import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
 import domain.synthesis.data.Sex
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.householdgeneration.SynthesisTest
 import modeling.discreteChoice.SelectionFunction
 import org.junit.jupiter.api.Test

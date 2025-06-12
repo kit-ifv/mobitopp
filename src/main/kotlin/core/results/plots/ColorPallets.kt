@@ -2,7 +2,6 @@
 
 package core.results.plots
 
-import domain.shared.enums.Mode
 import org.jetbrains.kotlinx.kandy.util.color.Color
 import org.jetbrains.kotlinx.kandy.util.color.StandardColor
 import units.UnitIntervalValue
@@ -58,7 +57,7 @@ fun randomColor() = RandomRGBProvider.next()
 fun boolColor(value: Boolean) = if (value) KIT_GREEN else KIT_BLUE
 
 @Suppress("CyclomaticComplexMethod")
-fun modeColor(mode: Mode) = when (mode.toString().lowercase()) {
+fun modeStringColor(modeString: String): RGB = when (modeString) {
     "bike" -> kitBlueShades[0]
     "e_scooter", "e scooter" -> kitBlueShades[1]
     "pedelec" -> kitBlueShades[2]

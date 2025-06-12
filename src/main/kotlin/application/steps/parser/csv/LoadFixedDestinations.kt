@@ -1,6 +1,5 @@
 package application.steps.parser.csv
 
-import core.modelsteps.Context
 import core.modelsteps.ModelStep
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
@@ -8,17 +7,17 @@ import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
 import core.modelsteps.validateScope
 import domain.shared.enums.ActivityType
+import domain.shared.location.LegacyZone
 import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.shared.location.parseRoadPosition
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.data.ActivityId
-import domain.synthesis.data.LegacyZone
 import domain.synthesis.data.MutablePlannedActivity
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import domain.synthesis.parser.ActivityLocation
-import utils.CodePlan
 import utils.ErrorHandling
 import utils.csv.CsvParser
 import utils.csv.CsvReader
@@ -30,17 +29,15 @@ import utils.csv.long
 import utils.csv.withFilter
 import java.nio.file.Path
 
-interface LoadFixedDestinationsContext : Context {
+interface LoadFixedDestinationsContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone> // TODO legacy
 
     val personRepository: MutableRepository<out Person, PersonId>
     val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
 
-    val activityTypeCodes: CodePlan<ActivityType>
-
     val defaultFixedDestinationsPath: Path
-        get() = demandFolder.resolve("demand-data").resolve("fixedDestination.csv")
+        get() = dataFolder.resolve("demand-data").resolve("fixedDestination.csv")
 
     fun getZone(id: Long) = requireNotNull(
         zoneRepository[ZoneId(id)] ?: zoneColumnIndex[id.toInt()]
@@ -71,7 +68,7 @@ fun LoadFixedDestinationsContext.assignFixedDestinations(
         val p = personRepository[id]
         val activityType = row.decodeName(
             columns.activityType,
-            activityTypeCodes
+            activityTypes
         )
         val zone = getZone(row.long(columns.zone))
 

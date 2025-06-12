@@ -3,9 +3,9 @@ package domain.synthesis.fixedDestinations
 import BIELEFELD
 import TestZone
 import asLocation
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommunityNumber
 import domain.synthesis.behavior.fixedDestinations.communityBased.CommuterDemandsMatrix
-import domain.synthesis.data.ZoneId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import point

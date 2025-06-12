@@ -1,11 +1,13 @@
 package application.steps.model
 
-import core.modelsteps.Context
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.UpdateAllStep
 import core.modelsteps.UpdateEachStep
 import core.modelsteps.Warning
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
+import domain.simulation.config.DemandSimContext
 import domain.synthesis.behavior.AssignAroundZoneCentroid
 import domain.synthesis.behavior.AssignHouseholdLocations
 import domain.synthesis.behavior.GroupAssignHouseholdLocations
@@ -13,11 +15,9 @@ import domain.synthesis.behavior.TrivialGroupStrategy
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import units.meters
 
-interface HomeLocationModelContext : Context {
+interface HomeLocationModelContext : DemandSimContext {
     val zoneRepository: Repository<Zone, ZoneId>
     val householdRepository: MutableRepository<MutableHousehold, HouseholdId>
 }

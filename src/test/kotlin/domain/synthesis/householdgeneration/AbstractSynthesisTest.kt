@@ -2,6 +2,8 @@ package domain.synthesis.householdgeneration
 
 import TestZone
 import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
 import domain.synthesis.behavior.SmallestSurveyPerson
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyPerson
@@ -12,8 +14,6 @@ import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
-import domain.synthesis.data.Zone
-import domain.synthesis.data.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import units.Coordinate

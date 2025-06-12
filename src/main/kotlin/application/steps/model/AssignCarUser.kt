@@ -1,27 +1,24 @@
 package application.steps.model
 
-import core.modelsteps.Context
 import core.modelsteps.MutableRepository
 import core.modelsteps.Repository
 import core.modelsteps.TransformEachStep
 import core.modelsteps.Warning
+import domain.simulation.config.DemandSimContext
+import domain.synthesis.behavior.AssignCarUserModel
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutablePrivateCar
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import domain.synthesis.data.isAdult
-
-private typealias Persons = MutableSet<Person>
-private typealias UnAssignedPersons = Pair<Persons, Persons>
 
 @Suppress("LongParameterList")
 fun AssignCarsContext.assignCarUsers() = runStep {
     AssignCarUserStep(this)
 }
 
-interface AssignCarsContext : Context {
+interface AssignCarsContext : DemandSimContext {
     val personRepository: Repository<Person, PersonId>
     val householdRepository: Repository<Household, HouseholdId>
     val carRepository: MutableRepository<MutablePrivateCar, CarId>
@@ -36,57 +33,11 @@ class AssignCarUserStep(
     override val dependentRepositories: Set<Repository<*, *>> =
         setOf(context.personRepository, context.householdRepository)
 
-    private val hhMembers: MutableMap<HouseholdId, UnAssignedPersons> = mutableMapOf()
+    private val model = AssignCarUserModel()
 
     override fun transform(element: MutablePrivateCar): MutablePrivateCar {
-        return assign(element, hhMembers)
+        return model.assign(element)
     }
 
     override fun verifyInput(): Warning? = null
-}
-
-@Suppress("UnusedPrivateMember")
-private fun assign(car: MutablePrivateCar, hhMembers: MutableMap<HouseholdId, UnAssignedPersons>): MutablePrivateCar {
-    val owner: Household = requireNotNull(
-        car.owner
-    ) { "Cannot assign main user of cars, since owner has not been defined yet!" }
-
-    if (owner.id !in hhMembers.keys) {
-        // assume cars of households appear as sequence of rows in csv
-        hhMembers.clear()
-    }
-
-    val (unassigned, assigned) = hhMembers[owner.id] ?: initDrivers(owner, hhMembers)
-
-    if (unassigned.isEmpty()) {
-        unassigned.addAll(assigned)
-        assigned.clear()
-    }
-
-    require(unassigned.isNotEmpty()) { "Cannot assign main user of car if household has no members!" }
-
-    val user = unassigned.random(owner.random)
-    car.mainUser = user
-
-    unassigned.remove(user)
-    assigned.add(user)
-
-    return car
-}
-
-private fun initDrivers(
-    owner: Household,
-    hhMembers: MutableMap<HouseholdId, UnAssignedPersons>
-): UnAssignedPersons {
-    val res = owner.getDrivers() to mutableSetOf<Person>()
-    hhMembers[owner.id] = res
-    return res
-}
-
-private fun Household.getDrivers(): MutableSet<Person> {
-    require(members.isNotEmpty()) { "Cannot assign main user of cars if household members have not been defined!" }
-
-    return members.filter { it.hasLicense }.toMutableSet().ifEmpty {
-        members.filter { it.isAdult }.toMutableSet()
-    }
 }

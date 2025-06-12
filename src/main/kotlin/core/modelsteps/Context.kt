@@ -1,11 +1,7 @@
 package core.modelsteps
 
-import domain.shared.enums.Mode
-import domain.shared.location.Metrics
-import domain.simulation.events.PersonBehavior
 import units.CurrencyUnit
 import units.DistanceUnit
-import utils.CodePlan
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.time.Duration
@@ -16,18 +12,17 @@ import kotlin.time.DurationUnit
  * This is the minimum interface that all project contexts must implement.
  * Think carefully about what you put in here!
  */
+@Suppress("ComplexInterface")
 interface Context {
     val execMode: ExecutionMode
 
     val scenarioName: String
-
-    // TODO question: Is demand folder actually part of the minimal context?
-    val demandFolder: Path
+    val dataFolder: Path
     val simulationSeed: Long
-    val modes: CodePlan<Mode>
 
-    // TODO question: Is LateInit actually the minimal context, what if I already have an impedance at initialization?
-    val impedance: LateInit<Metrics>
+    val simulationStart: AbsoluteTime
+    val simulationEnd: AbsoluteTime
+    val timeStep: Duration
 
     val timeUnit: DurationUnit
     val costUnit: CurrencyUnit
@@ -42,14 +37,6 @@ interface Context {
     fun runStepObject(step: ModelStep) {
         step.run(execMode)
     }
-}
-
-interface SimulationContext : Context {
-    val simulationStart: AbsoluteTime
-    val simulationEnd: AbsoluteTime
-    val timeStep: Duration
-
-    val behavior: LateInit<PersonBehavior>
 }
 
 class LateInit<T>( // TODO can we get rid of lateinit? after validation execMode refactoring?

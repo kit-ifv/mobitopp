@@ -1,11 +1,11 @@
 @file:Suppress("UnusedPrivateProperty")
 
+import application.config.ExampleProjectContext
 import application.steps.model.assignCarUsers
 import application.steps.model.buildAgents
 import application.steps.model.householdHomeLocation
 import application.steps.model.scaleFilter
 import application.steps.model.simulate
-import application.steps.parser.csv.NoActivityStartShifter
 import application.steps.parser.csv.assignFixedDestinations
 import application.steps.parser.csv.finishActivities
 import application.steps.parser.csv.finishHouseholds
@@ -19,17 +19,17 @@ import application.steps.parser.csv.preparePersons
 import application.steps.parser.csv.preparePrivateCars
 import application.steps.parser.loadImpedance
 import application.steps.parser.loadVisumNetwork
-import core.modelsteps.Run
+import core.modelsteps.Simulation
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.areatype.RegioStaR17
-import domain.simulation.behavior.LegacyActivityType
-import domain.simulation.behavior.LegacyMode
-import domain.simulation.behavior.legacyChoiceModelPurposes
+import domain.shared.enums.legacyChoiceModelPurposes
+import domain.simulation.behavior.GaussianActivityDurationRandomizer
 import domain.synthesis.behavior.AssignAroundZoneCentroid
-import domain.synthesis.behavior.GaussianActivityDurationRandomizer
 import domain.synthesis.data.EconomicStatus
+import domain.synthesis.parser.NoActivityStartShifter
 import units.meters
 import units.share
-import usecases.steps.ProjectContext
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
@@ -63,11 +63,11 @@ private const val ROOT_TRANSMOVE_ENV =
         "/transmove/mobitopp-env/data/zone-repository"
 
 fun main() {
-    Run {
-        ProjectContext(
+    Simulation {
+        ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = RegioStaR17,
-            demandFolder = rootRastattPath,
+            dataFolder = rootRastattPath,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,

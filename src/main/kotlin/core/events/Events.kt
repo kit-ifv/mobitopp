@@ -1,6 +1,5 @@
 package core.events
 
-import domain.shared.location.Location
 import utils.units.Time
 
 interface Agent<E> {
@@ -12,7 +11,7 @@ interface Agent<E> {
         nextEvent = newEvent
     }
 
-    var location: Location
+//    var location: Location
 }
 
 abstract class Event<E>(

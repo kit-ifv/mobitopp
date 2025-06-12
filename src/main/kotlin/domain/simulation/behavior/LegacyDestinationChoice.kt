@@ -3,6 +3,7 @@
 package domain.simulation.behavior
 
 import domain.shared.enums.ActivityType
+import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location

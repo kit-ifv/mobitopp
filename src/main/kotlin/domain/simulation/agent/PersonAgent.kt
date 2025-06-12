@@ -4,10 +4,10 @@ import Mutable
 import core.events.Agent
 import core.events.Event
 import core.events.Subscribable
+import domain.shared.datastructure.schedule.Action
+import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
 import domain.shared.location.Location
-import domain.simulation.schedule.Action
-import domain.simulation.schedule.Schedule
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
@@ -25,7 +25,7 @@ abstract class PersonAgent(
     abstract val schedule: Schedule // = Schedule(TrackableModel(BlockModel()))
 
     var inTransit: Boolean = false
-    final override var location: Location = household.location
+    final var location: Location = household.location
     final override var nextEvent: Event<PersonAgent>? = null
     final override val entity: PersonAgent by lazy { this }
 
