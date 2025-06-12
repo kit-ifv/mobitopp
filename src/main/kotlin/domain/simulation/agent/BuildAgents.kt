@@ -1,7 +1,6 @@
 package domain.simulation.agent
 
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
-import domain.simulation.agent.location
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
@@ -53,7 +52,7 @@ class BuildAgents(
     }
 }
 
-//To prevent recursion cycle, never call toAgent inside scope of getOrPut! Use initAfterPut scope instead
+// To prevent recursion cycle, never call toAgent inside scope of getOrPut! Use initAfterPut scope instead
 private fun <K, V> MutableMap<K, V>.getOrInitAfterPut(
     key: K,
     defaultValue: () -> V,
@@ -72,9 +71,8 @@ private fun <K, V> MutableMap<K, V>.getOrInitAfterPut(
     return result
 }
 
-
 fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAfterPut(
-    key=this.id,
+    key = this.id,
     defaultValue = { MutableHouseholdAgent(id, context.seed) }
 ) { agent ->
     agent.householdNumber = this.householdNumber
@@ -92,11 +90,10 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
     )
 }
 
-
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
-        key=this.id,
-        defaultValue =  { MutablePersonAgent(id, householdAgent, context.seed) }
+        key = this.id,
+        defaultValue = { MutablePersonAgent(id, householdAgent, context.seed) }
     ) { agent ->
 
         agent.age = this.age
@@ -116,16 +113,14 @@ fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = househ
         agent.memberships.addAll(agent.sharingMemberships)
         agent.memberships.add(agent.household)
 
-
         agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
         this.clearPlannedActivities() // clear to save memory
         context.durationRandomizer.randomizeAll(agent)
     }
 
-
 fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.toAgent(context)) =
     context.carsById.getOrInitAfterPut(
-        key=this.id,
+        key = this.id,
         defaultValue = { MutablePrivateCarAgent(id, ownerAgent) }
     ) { agent ->
 
@@ -133,13 +128,13 @@ fun PrivateCar.toAgent(context: BuildAgents, ownerAgent: HouseholdAgent = owner.
         agent.seats = this.seats
         agent.engine = this.engine
         agent.mainUser = this.mainUser?.toAgent(context)
-    //TODO idea to reduce copy: in Agent definition:
-    // pass long term entity for delegation of interface implementation,
-    // only overwrite parts where other agent types are now referenced!
+        // TODO idea to reduce copy: in Agent definition:
+        // pass long term entity for delegation of interface implementation,
+        // only overwrite parts where other agent types are now referenced!
     }
 
 fun SharingProvider.toAgent(context: BuildAgents) = context.sharingProvidersById.getOrInitAfterPut(
-    key=this.id,
+    key = this.id,
     defaultValue = { MutableSharingProviderAgent(id, name, mode) }
 ) { agent ->
     agent.stations.addAll(
