@@ -68,18 +68,19 @@ val Arrive = ArriveMessage::class
 val BoardPersons = BoardPersonsMessage::class
 val Leave = LeaveMessage::class
 
-data class ArriveMessage(override val time: Time, val stop: String) : BusMessage
+data class ArriveMessage(val stop: String) : BusMessage
 fun arrive(time: Time, at: String) = ArriveMessage(time, at)
 
-data class BoardPersonsMessage(override val time: Time, val persons: List<Agent<*>>) : BusMessage
+data class BoardPersonsMessage(val persons: List<Agent<*>>) : BusMessage
 // fun WaitingState.boardPersons(persons: ): List<Agent<*>> = BoardPersons(this)
 
-data class LeaveMessage(override val time: Time, val agent: BusAgent) : BusMessage {
+data class LeaveMessage(val agent: BusAgent) : BusMessage {
     init {
         agent.plannedLeave = this
     }
 }
-fun WaitingState.leave(time: Time) = LeaveMessage(time, agent)
+
+fun WaitingState.leave(time: Time) = LeaveMessage(agent)
 
 
 

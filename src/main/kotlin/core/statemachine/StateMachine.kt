@@ -3,6 +3,13 @@ package core.statemachine
 interface StateMachine {
     val name: String
     fun start(): Events
+
+    fun process(event: Event<*>) {
+        setTime(event.receiveTime)
+        process(event.content)
+    }
+
+    fun setTime(time: Time)
     fun process(message: Message): Events
 }
 
@@ -11,10 +18,9 @@ typealias StateTransition = Pair<Events, State?>
 interface State {
     val name: String
 
+    fun updateTime(time: Time)
     fun enter(): Events
     fun processMessage(message: Message): StateTransition
-
-//    fun checkMessageTransition(message: Message): State?
     fun fallbackTransition(): StateTransition
     fun interrupt(): Events
 }
@@ -32,6 +38,10 @@ data class TransitoryStateMachine(
 
     override fun start(): Events {
         return enter(initial)
+    }
+
+    override fun setTime(time: Time) {
+        currentState.updateTime(time)
     }
 
     override fun process(message: Message): Events {
