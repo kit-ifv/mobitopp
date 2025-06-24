@@ -4,7 +4,7 @@ import core.statemachine.Agent
 import core.statemachine.Message
 import core.statemachine.StateMachineFactory
 import core.statemachine.builder.states.FinalStateBuilder
-import core.statemachine.builder.states.TemporalStateBuilder
+import core.statemachine.builder.states.ReactiveStateBuilder
 import core.statemachine.builder.states.TransitoryStateBuilder
 
 fun stateMachine(name: String, scope: StateMachineBuilder.() -> Unit): StateMachineFactoryBuilder {
@@ -27,7 +27,7 @@ private class StateMachineBuilderImpl(
         require(state !in stateTypes) {
             "state machine $name already has a definition of state: $state"
         }
-        val builder = TemporalStateBuilder<D>(state, onEnter ?: {})
+        val builder = ReactiveStateBuilder<D>(state, onEnter ?: {})
         builders.add(builder)
         stateTypes.add(state)
         return builder
