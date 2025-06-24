@@ -31,7 +31,7 @@ interface MessageResponseBuilder<D> : FallbackTransitionBuilder<D> where D : Sta
     fun <T> transitionOn(message: MessageType<T>, onMessage: TransitionOnMessage<D, T>): MessageResponseBuilder<D> where T : Message
 }
 
-fun <D: StateData, T> MessageResponseBuilder<D>.on(
+fun <D : StateData, T> MessageResponseBuilder<D>.on(
     message: MessageType<T>,
     onMessage: OnMessage<D, T>
 ): MessageResponseBuilder<D> where T : Message {
@@ -40,7 +40,6 @@ fun <D: StateData, T> MessageResponseBuilder<D>.on(
         null
     }
 }
-
 
 interface MandatoryTransitionBuilder<D> where D : StateData {
 

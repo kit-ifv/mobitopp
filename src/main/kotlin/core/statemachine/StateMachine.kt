@@ -23,10 +23,6 @@ interface StateMachineFactory<A : Agent<out Message>> {
     fun create(agent: A): StateMachine
 }
 
-
-
-
-
 data class TransitoryStateMachine(
     override val name: String,
     private val initial: State
