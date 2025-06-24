@@ -1,5 +1,9 @@
-package states_cleaned
+package core.statemachine
 
+import core.statemachine.builder.AnyStateType
+import core.statemachine.builder.BaseStateData
+import core.statemachine.builder.StateType
+import core.statemachine.builder.stateMachine
 import kotlin.math.min
 import kotlin.math.roundToLong
 
@@ -108,7 +112,7 @@ val busStateMachine = stateMachine("BusStateMachine") {
         //send person: boarded
 
         //send self: updated leave
-        val at = message.time + (0.5*persons.size).toULong()
+        val at = message.time + (0.5 * persons.size).toULong()
         send(leave(at), agent)
     }.transitionOn(Leave) { message ->
         if (message == bus.plannedLeave) {

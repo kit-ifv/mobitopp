@@ -1,0 +1,48 @@
+package core.statemachine.builder.states
+
+import core.statemachine.Events
+import core.statemachine.Message
+import core.statemachine.builder.OnEnter
+import core.statemachine.ReusableSender
+import core.statemachine.State
+import core.statemachine.builder.StateBehavior
+import core.statemachine.builder.StateBuilder
+import core.statemachine.builder.StateData
+import core.statemachine.builder.StateResolver
+import core.statemachine.builder.StateType
+
+internal class FinalStateBuilder<D>(
+    override val type: StateType<D>,
+    private val onEnterScope: OnEnter<D>,
+) : StateBuilder<D> where D: StateData {
+
+    override fun build(resolver: StateResolver): StateBehavior<D> = FinalStateBehavior(onEnterScope)
+}
+
+private class FinalStateBehavior<D>(
+    private val onEnterScope: OnEnter<D>,
+): StateBehavior<D> where D: StateData {
+
+    private val sendScope = ReusableSender()
+
+    override fun enter(data: D): Events = sendScope(data) { send ->
+        data.onEnterScope(send)
+    }
+
+    override fun processMessage(data: D, message: Message): Events {
+        throw UnsupportedOperationException("processMessage should not be called on FinalStates")
+    }
+
+    override fun checkMessageTransition(data: D, message: Message): State? {
+        throw UnsupportedOperationException("checkMessageTransition should not be called on FinalState")
+    }
+
+    override fun checkConditionTransition(data: D): State? {
+        throw UnsupportedOperationException("checkConditionTransition should not be called on FinalState")
+    }
+
+    override fun interrupt(data: D): Events {
+        TODO("Not yet implemented")
+    }
+
+}

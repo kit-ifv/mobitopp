@@ -1,48 +1,9 @@
-package states_cleaned
+package core.statemachine.builder
 
+import core.statemachine.Message
+import core.statemachine.MessageType
+import core.statemachine.Send
 
-
-@JvmInline
-value class StateType<D> private constructor(private val id:ULong) {
-    constructor(): this(idCounter++)
-
-    companion object {
-        private var idCounter = 0UL
-    }
-}
-
-typealias AnyStateType = StateType<out StateData>
-
-interface StateData {
-    val type: AnyStateType
-    val time: Time
-    val agent: Agent<*>
-
-    fun advance(time: Time)
-}
-
-abstract class BaseStateData(
-    override val type: AnyStateType,
-    time: Time,
-): StateData {
-    final override var time: Time = time
-        private set
-
-    override fun advance(time: Time) {
-        this.time = time
-    }
-}
-
-
-interface StateMachineFactory<A: Agent<out Message>> {
-    fun create(agent: A) : StateMachine
-}
-
-interface StateMachineFactoryBuilder {
-
-    fun <A> initialState(initializer: (A) -> StateData): StateMachineFactory<A> where A: Agent<out Message>
-
-}
 
 typealias OnEnter<D> = D.(Send) -> Unit
 typealias OnMessage<D, M> = D.(M, Send) -> Unit
@@ -54,7 +15,7 @@ interface StateMachineBuilder {
 
     fun <D> state(state: StateType<D>, onEnter: OnEnter<D>? = null): MessageResponseBuilder<D> where D : StateData
 
-    fun <D> transState(state: StateType<D>, onEnter: (OnEnter<D>)? = null): TransitoryStateBuilder<D> where D : StateData
+    fun <D> transState(state: StateType<D>, onEnter: (OnEnter<D>)? = null): MandatoryTransitionBuilder<D> where D : StateData
 
     fun <D> finState(state: StateType<D>, onEnter: OnEnter<D>? = null) where D: StateData
 
@@ -76,8 +37,10 @@ interface MessageResponseBuilder<D>: StateExitBuilder<D> where D: StateData {
 
 }
 
-interface TransitoryStateBuilder<D> where D: StateData {
+interface MandatoryTransitionBuilder<D> where D: StateData {
 
     fun next(onTransition: TransitionOnNext<D>)
 
 }
+
+
