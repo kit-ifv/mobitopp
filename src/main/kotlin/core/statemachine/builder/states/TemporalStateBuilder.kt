@@ -84,7 +84,6 @@ private class TemporalStateBehavior<D : StateData>(
     }
 
     override fun processMessage(data: D, message: Message): StateTransition = sendScope(data) { send ->
-        data.advance(message.time)
         val onMessage = resolveOnMessage(message)
         onMessage(data, message, send)?.let { stateResolver.resolve(it) }
     }

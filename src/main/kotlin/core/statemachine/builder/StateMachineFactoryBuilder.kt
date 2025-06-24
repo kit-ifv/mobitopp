@@ -5,6 +5,7 @@ import core.statemachine.Message
 import core.statemachine.State
 import core.statemachine.StateMachine
 import core.statemachine.StateMachineFactory
+import core.statemachine.Time
 import core.statemachine.TransitoryStateMachine
 
 interface StateMachineFactoryBuilder {
@@ -44,6 +45,7 @@ private data class StateImpl<D : StateData>(
     private val behavior: StateBehavior<D>,
 ) : State {
     override val name = data::class.simpleName!!
+    override fun updateTime(time: Time) = data.updateTime(time)
 
     override fun enter() = behavior.enter(data)
     override fun processMessage(message: Message) = behavior.processMessage(data, message)

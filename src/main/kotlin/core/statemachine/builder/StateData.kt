@@ -14,7 +14,7 @@ interface StateData {
     val time: Time
     val agent: Agent<*>
 
-    fun advance(time: Time)
+    fun updateTime(time: Time)
 }
 
 abstract class BaseStateData(
@@ -23,7 +23,7 @@ abstract class BaseStateData(
     final override var time: Time = time
         private set
 
-    override fun advance(time: Time) {
+    override fun updateTime(time: Time) {
         this.time = time
     }
 }
