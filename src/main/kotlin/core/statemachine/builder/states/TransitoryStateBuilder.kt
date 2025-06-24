@@ -12,16 +12,16 @@ import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
 import core.statemachine.builder.StateType
-import core.statemachine.builder.TransitionOnNext
+import core.statemachine.builder.TransitionToNext
 
 internal class TransitoryStateBuilder<D>(
     override val type: StateType<D>,
     private val onEnter: OnEnter<D>
 ) : StateBuilder<D>, MandatoryTransitionBuilder<D> where D : StateData {
 
-    private lateinit var nextTransition: TransitionOnNext<D>
+    private lateinit var nextTransition: TransitionToNext<D>
 
-    override fun next(onTransition: TransitionOnNext<D>) {
+    override fun next(onTransition: TransitionToNext<D>) {
         nextTransition = onTransition
     }
 
@@ -34,7 +34,7 @@ internal class TransitoryStateBuilder<D>(
 
 private class TransitoryStateBehavior<D>(
     private val onEnterScope: OnEnter<D>,
-    private val nextStateTransition: TransitionOnNext<D>,
+    private val nextStateTransition: TransitionToNext<D>,
     private val stateResolver: StateResolver,
 ) : StateBehavior<D> where D : StateData {
     private val sendScope = ReusableSender()

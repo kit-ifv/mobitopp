@@ -10,7 +10,7 @@ import core.statemachine.StateTransition
 import core.statemachine.builder.FallbackTransitionBuilder
 import core.statemachine.builder.MessageResponseBuilder
 import core.statemachine.builder.OnEnter
-import core.statemachine.builder.OnOtherwiseTransition
+import core.statemachine.builder.FallbackTransition
 import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
@@ -18,15 +18,15 @@ import core.statemachine.builder.StateResolver
 import core.statemachine.builder.StateType
 import core.statemachine.builder.TransitionOnMessage
 
-internal class TemporalStateBuilder<D> (
+internal class ReactiveStateBuilder<D> (
     override val type: StateType<D>,
     private val onEnter: OnEnter<D>,
 ) : StateBuilder<D>, MessageResponseBuilder<D> where D : StateData {
 
     private val onMessageDispatch: MutableMap<AnyMessageType, OnMessageWrapper<D, out Message>> = mutableMapOf()
-    private var fallbackTransition: OnOtherwiseTransition<D> = { null }
+    private var fallbackTransition: FallbackTransition<D> = { null }
 
-    override fun build(resolver: StateResolver): StateBehavior<D> = TemporalStateBehavior(
+    override fun build(resolver: StateResolver): StateBehavior<D> = ReactiveStateBehavior(
         onEnterScope = onEnter,
         messageDispatcher = onMessageDispatch,
         fallbackTransition = fallbackTransition,
@@ -45,7 +45,7 @@ internal class TemporalStateBuilder<D> (
         return this
     }
 
-    override fun checkTransition(onCheck: OnOtherwiseTransition<D>): FallbackTransitionBuilder<D> {
+    override fun checkTransition(onCheck: FallbackTransition<D>): FallbackTransitionBuilder<D> {
         val previous = fallbackTransition
         fallbackTransition = { send ->
             previous(send) ?: onCheck(send)
@@ -61,10 +61,10 @@ internal class TemporalStateBuilder<D> (
     }
 }
 
-private class TemporalStateBehavior<D : StateData>(
+private class ReactiveStateBehavior<D : StateData>(
     private val onEnterScope: OnEnter<D>,
     private val messageDispatcher: Map<AnyMessageType, OnMessageWrapper<D, out Message>>,
-    private val fallbackTransition: OnOtherwiseTransition<D>,
+    private val fallbackTransition: FallbackTransition<D>,
     private val stateResolver: StateResolver,
 ) : StateBehavior<D> {
     private val sendScope = ReusableSender()
