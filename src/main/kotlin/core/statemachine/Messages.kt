@@ -4,7 +4,7 @@ import core.statemachine.builder.StateData
 
 @JvmInline
 value class MessageType<M> private constructor(private val id: ULong) {
-    constructor(): this(idCounter++)
+    constructor() : this(idCounter++)
     companion object {
         private var idCounter = 0UL
     }
@@ -15,10 +15,9 @@ interface Message {
     val time: Time
 //    val sender: Agent<*>
 //    val receiver: Agent<*>
-
 }
 
-data class Event<M: Message>(
+data class Event<M : Message>(
     val sender: Agent<*>,
     val sendTime: Time,
     val receiver: Agent<M>,
@@ -28,34 +27,32 @@ data class Event<M: Message>(
         get() = content.time
 }
 
-
 typealias Events = Collection<Event<*>>
 
 interface Send {
-    operator fun <M: Message> invoke(message: M, to: Agent<M>)
+    operator fun <M : Message> invoke(message: M, to: Agent<M>)
 }
 
 interface SendScope {
-    operator fun invoke(state: StateData, scope: (Send) -> Unit): Events
+    operator fun <R> invoke(state: StateData, scope: (Send) -> R): Pair<Events, R>
 }
 
-class ReusableSender: SendScope {
+class ReusableSender : SendScope {
     private val events: MutableList<Event<*>> = mutableListOf()
     private lateinit var sender: Agent<*>
     private var sendTime: Time = 0uL
 
-    private val send = object:Send {
+    private val send = object : Send {
         override fun <M : Message> invoke(message: M, to: Agent<M>) {
             events.add(Event<M>(sender, sendTime, to, message))
         }
     }
 
-    override operator fun invoke(state: StateData, scope: (Send) -> Unit): Events {
+    override operator fun <R> invoke(state: StateData, scope: (Send) -> R): Pair<Events, R> {
         events.clear()
         sender = state.agent
         sendTime = state.time
-        scope(send)
-        return events
+        val result = scope(send)
+        return events to result
     }
-
 }

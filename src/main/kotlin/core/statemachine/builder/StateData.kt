@@ -7,8 +7,8 @@ import core.statemachine.State
 import core.statemachine.Time
 
 @JvmInline
-value class StateType<D> private constructor(private val id:ULong) {
-    constructor(): this(idCounter++)
+value class StateType<D> private constructor(private val id: ULong) {
+    constructor() : this(idCounter++)
 
     companion object {
         private var idCounter = 0UL
@@ -28,7 +28,7 @@ interface StateData {
 abstract class BaseStateData(
     override val type: AnyStateType,
     time: Time,
-): StateData {
+) : StateData {
     final override var time: Time = time
         private set
 
@@ -37,10 +37,11 @@ abstract class BaseStateData(
     }
 }
 
-interface StateBehavior<D: StateData> {
+interface StateBehavior<D : StateData> {
     fun enter(data: D): Events
-    fun processMessage(data: D, message: Message): Events
-    fun checkMessageTransition(data: D, message: Message): State?
-    fun checkConditionTransition(data: D): State?
+    fun processMessage(data: D, message: Message): Pair<Events, State?>
+
+//    fun checkMessageTransition(data: D, message: Message): State?
+    fun fallbackTransition(data: D): Pair<Events, State?>
     fun interrupt(data: D): Events
 }

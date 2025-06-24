@@ -6,27 +6,31 @@ interface StateMachine {
     fun process(message: Message): Events
 }
 
+typealias StateTransition = Pair<Events, State?>
 
 interface State {
     val name: String
 
     fun enter(): Events
-    fun processMessage(message: Message): Events
-    fun checkMessageTransition(message: Message): State?
-    fun checkConditionTransition(): State?
+    fun processMessage(message: Message): StateTransition
+
+//    fun checkMessageTransition(message: Message): State?
+    fun fallbackTransition(): StateTransition
     fun interrupt(): Events
 }
 
-
-interface StateMachineFactory<A: Agent<out Message>> {
-    fun create(agent: A) : StateMachine
+interface StateMachineFactory<A : Agent<out Message>> {
+    fun create(agent: A): StateMachine
 }
+
+
+
 
 
 data class TransitoryStateMachine(
     override val name: String,
     private val initial: State
-): StateMachine {
+) : StateMachine {
 
     private lateinit var currentState: State
 
@@ -37,9 +41,14 @@ data class TransitoryStateMachine(
     override fun process(message: Message): Events {
         val result: MutableList<Event<*>> = mutableListOf()
 
-        result += currentState.processMessage(message)
+        val (responses, transitionTo) = currentState.processMessage(message)
+        result += responses
 
-        val nextState = currentState.checkMessageTransition(message) ?: currentState.checkConditionTransition()
+        val nextState = transitionTo ?: run {
+            val (messages, transitionElse) = currentState.fallbackTransition()
+            result += messages
+            transitionElse
+        }
 
         nextState?.let { state ->
             result += enter(state)
@@ -56,13 +65,13 @@ data class TransitoryStateMachine(
         while (nextTransition != null) {
             nextState = nextTransition
             result += nextState.enter()
-            nextTransition = nextState.checkConditionTransition()
+            val (messages, transitionElse) = nextState.fallbackTransition()
+            result += messages
+            nextTransition = transitionElse
         }
 
         currentState = nextState
 
         return result
     }
-
 }
-
