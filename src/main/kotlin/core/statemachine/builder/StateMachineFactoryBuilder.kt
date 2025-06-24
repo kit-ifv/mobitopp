@@ -23,7 +23,7 @@ internal class StateMachineFactoryImpl<A : Agent<out Message>>(
 
     @Suppress("UNCHECKED_CAST")
     override fun <D> resolve(stateData: D): State where D : StateData {
-        val stateType = stateData.type
+        val stateType = stateData::class
         return requireNotNull(states[stateType]) {
             "No state definition found for state data: $stateData"
         }.let {
@@ -48,7 +48,6 @@ private data class StateImpl<D : StateData>(
     override fun enter() = behavior.enter(data)
     override fun processMessage(message: Message) = behavior.processMessage(data, message)
 
-//    override fun checkMessageTransition(message: Message) = behavior.checkMessageTransition(data, message)
     override fun fallbackTransition() = behavior.fallbackTransition(data)
     override fun interrupt() = behavior.interrupt(data)
 }
