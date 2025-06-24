@@ -1,20 +1,13 @@
 package core.statemachine
 
 import core.statemachine.builder.StateData
+import kotlin.reflect.KClass
 
-@JvmInline
-value class MessageType<M> private constructor(private val id: ULong) {
-    constructor() : this(idCounter++)
-    companion object {
-        private var idCounter = 0UL
-    }
-}
+typealias MessageType<T> = KClass<T>
+typealias AnyMessageType = KClass<out Message>
 
 interface Message {
-    val type: MessageType<out Message>
-    val time: Time
-//    val sender: Agent<*>
-//    val receiver: Agent<*>
+    val time: Time // TODO find way to remove time from message interface
 }
 
 data class Event<M : Message>(

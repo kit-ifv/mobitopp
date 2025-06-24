@@ -28,59 +28,58 @@ class BusAgent : Agent<BusMessage> {
     }
 }
 
-typealias AnyMessageType = MessageType<out Message>
-abstract class BusMessage(override val type: AnyMessageType) : Message
+interface BusMessage : Message
 
 abstract class BusState(
-    type: AnyStateType,
     time: Time,
     override val agent: BusAgent
-) : BaseStateData(type, time) {
+) : BaseStateData(time) {
 
-    constructor(state: BusState, type: AnyStateType) : this(type, state.time, state.agent)
+    constructor(state: BusState) : this(state.time, state.agent)
 
     val bus: BusAgent
         get() = agent
 }
 
-val Arriving = StateType<ArrivingState>()
-val Waiting = StateType<WaitingState>()
-val Leaving = StateType<LeavingState>()
-val Driving = StateType<DrivingState>()
-val Finished = StateType<FinishedState>()
+val Arriving = ArrivingState::class
+val Waiting = WaitingState::class
+val Leaving = LeavingState::class
+val Driving = DrivingState::class
+val Finished = FinishedState::class
 
-class ArrivingState(state: BusState, val stop: String, var deboarded: Int = 0) : BusState(state, Arriving)
+class ArrivingState(state: BusState, val stop: String, var deboarded: Int = 0) : BusState(state)
 fun BusState.arriving(stop: String) = ArrivingState(this, stop)
 
-class WaitingState(state: BusState, val stop: String, var transferCount: Int) : BusState(state, Waiting)
+class WaitingState(state: BusState, val stop: String, var transferCount: Int) : BusState(state)
 fun BusState.waiting(stop: String, transfers: Int) = WaitingState(this, stop, transfers)
 
-class LeavingState(state: BusState, val stop: String) : BusState(state, Leaving)
+class LeavingState(state: BusState, val stop: String) : BusState(state)
 fun BusState.leaving(stop: String) = LeavingState(this, stop)
 
-class DrivingState(state: BusState, val nextStop: String) : BusState(state, Driving)
+class DrivingState(state: BusState, val nextStop: String) : BusState(state)
 fun LeavingState.driving(to: String) = DrivingState(this, to)
 
-class FinishedState(state: BusState) : BusState(state, Finished)
+class FinishedState(state: BusState) : BusState(state)
 fun BusState.finished() = FinishedState(this)
 
-val Arrive = MessageType<ArriveMessage>()
-data class ArriveMessage(override val time: Time, val stop: String) : BusMessage(Arrive)
+
+
+val Arrive = ArriveMessage::class
+val BoardPersons = BoardPersonsMessage::class
+val Leave = LeaveMessage::class
+
+data class ArriveMessage(override val time: Time, val stop: String) : BusMessage
 fun arrive(time: Time, at: String) = ArriveMessage(time, at)
 
-val BoardPersons = MessageType<BoardPersonsMessage>()
-data class BoardPersonsMessage(override val time: Time, val persons: List<Agent<*>>) : BusMessage(BoardPersons)
+data class BoardPersonsMessage(override val time: Time, val persons: List<Agent<*>>) : BusMessage
 // fun WaitingState.boardPersons(persons: ): List<Agent<*>> = BoardPersons(this)
 
-val Leave = MessageType<LeaveMessage>()
-data class LeaveMessage(override val time: Time, val agent: BusAgent) : BusMessage(Leave) {
+data class LeaveMessage(override val time: Time, val agent: BusAgent) : BusMessage {
     init {
         agent.plannedLeave = this
     }
 }
 fun WaitingState.leave(time: Time) = LeaveMessage(time, agent)
-
-
 
 
 
@@ -108,6 +107,7 @@ val busStateMachine = stateMachine("BusStateMachine") {
         val waitFor: Double = min(transferCount * 0.5, 2.0)
         val at = time + waitFor.roundToLong().toUInt()
         send(leave(at), agent)
+
     }.on(BoardPersons) { message, send ->
         val persons = message.persons
         // send person: boarded
@@ -120,7 +120,7 @@ val busStateMachine = stateMachine("BusStateMachine") {
         if (message == bus.plannedLeave) {
             leaving(stop)
         } else {
-            waiting(stop, 0) // should not happen, how to invalidate previous leave?
+            null
         }
     }
 
@@ -132,8 +132,9 @@ val busStateMachine = stateMachine("BusStateMachine") {
 
     state(Driving) { send ->
         send(arrive(time + bus.traveltime(nextStop), nextStop), bus)
-
     }.transitionOn(Arrive) { message, send ->
         arriving(message.stop)
     }
+
+    finState(Finished)
 }

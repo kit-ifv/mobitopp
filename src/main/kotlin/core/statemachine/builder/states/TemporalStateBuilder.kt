@@ -1,31 +1,29 @@
 package core.statemachine.builder.states
 
+import core.statemachine.AnyMessageType
 import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.MessageType
 import core.statemachine.ReusableSender
 import core.statemachine.Send
 import core.statemachine.StateTransition
+import core.statemachine.builder.FallbackTransitionBuilder
 import core.statemachine.builder.MessageResponseBuilder
 import core.statemachine.builder.OnEnter
-import core.statemachine.builder.TransitionOnMessage
-
-import core.statemachine.builder.OnMessage
 import core.statemachine.builder.OnOtherwiseTransition
 import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
-import core.statemachine.builder.FallbackTransitionBuilder
 import core.statemachine.builder.StateResolver
 import core.statemachine.builder.StateType
+import core.statemachine.builder.TransitionOnMessage
 
 internal class TemporalStateBuilder<D> (
     override val type: StateType<D>,
     private val onEnter: OnEnter<D>,
 ) : StateBuilder<D>, MessageResponseBuilder<D> where D : StateData {
 
-    private val onMessageDispatch: MutableMap<MessageType<out Message>, OnMessageWrapper<D, out Message>> =
-        mutableMapOf()
+    private val onMessageDispatch: MutableMap<AnyMessageType, OnMessageWrapper<D, out Message>> = mutableMapOf()
     private var fallbackTransition: OnOtherwiseTransition<D> = { null }
 
     override fun build(resolver: StateResolver): StateBehavior<D> = TemporalStateBehavior(
@@ -61,12 +59,11 @@ internal class TemporalStateBuilder<D> (
     ): FallbackTransitionBuilder<D> = checkTransition { send ->
         condition().takeIf { it }?.let { nextState(send) }
     }
-
 }
 
 private class TemporalStateBehavior<D : StateData>(
     private val onEnterScope: OnEnter<D>,
-    private val messageDispatcher: Map<MessageType<out Message>, OnMessageWrapper<D, out Message>>,
+    private val messageDispatcher: Map<AnyMessageType, OnMessageWrapper<D, out Message>>,
     private val fallbackTransition: OnOtherwiseTransition<D>,
     private val stateResolver: StateResolver,
 ) : StateBehavior<D> {
@@ -78,9 +75,9 @@ private class TemporalStateBehavior<D : StateData>(
 
     @Suppress("UNCHECKED_CAST")
     private fun <T : Message> resolveOnMessage(message: T): OnMessageWrapper<D, T> {
-        val messageType = message.type
+        val messageType = message::class
         return requireNotNull(messageDispatcher[messageType]) {
-            "No behavior defined for message: $messageType, $message"
+            "No behavior defined for message ${messageType.simpleName}: $message"
         }.let {
             it as? OnMessageWrapper<D, T>
         }!!
@@ -106,4 +103,3 @@ private class TemporalStateBehavior<D : StateData>(
 private fun interface OnMessageWrapper<D, M> {
     operator fun invoke(data: D, message: M, send: Send): StateData?
 }
-
