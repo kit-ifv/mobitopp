@@ -1,41 +1,25 @@
-package states_cleaned
+package core.statemachine.builder.states
+
+import core.statemachine.Events
+import core.statemachine.Message
+import core.statemachine.builder.MessageResponseBuilder
+import core.statemachine.MessageType
+import core.statemachine.builder.OnEnter
+import core.statemachine.builder.OnMessage
+import core.statemachine.ReusableSender
+import core.statemachine.Send
+import core.statemachine.State
+import core.statemachine.builder.StateBehavior
+import core.statemachine.builder.StateBuilder
+import core.statemachine.builder.StateData
+import core.statemachine.builder.StateExitBuilder
+import core.statemachine.builder.StateResolver
+import core.statemachine.builder.StateType
+import core.statemachine.builder.TransitionOnCheck
+import core.statemachine.builder.TransitionOnMessage
 
 
-interface StateBuilder<D> where D: StateData {
-    val type: StateType<D>
-    fun build(resolver: StateResolver): StateBehavior<D>
-}
-
-fun interface OnMessageWrapper<D, M> {
-    operator fun invoke(data: D, message: M, send: Send)
-}
-
-fun interface MessageTransitionWrapper<D, M> {
-    operator fun invoke(data: D, message: M): StateData
-}
-
-
-class TransitoryStateBuilderImpl<D>(
-    override val type: StateType<D>,
-    private val onEnter: OnEnter<D>
-): StateBuilder<D>, TransitoryStateBuilder<D> where D: StateData {
-
-    private lateinit var nextTransition: TransitionOnNext<D>
-
-    override fun next(onTransition: TransitionOnNext<D>) {
-        nextTransition = onTransition
-    }
-
-    override fun build(resolver: StateResolver) = TransitoryStateBehavior(
-        onEnterScope = onEnter,
-        nextStateTransition = nextTransition,
-        stateResolver = resolver,
-    )
-
-}
-
-
-class StateBuilderImpl<D> (
+internal class TemporalStateBuilder<D> (
     override val type: StateType<D>,
     private val onEnter: OnEnter<D>,
 ) : StateBuilder<D>, MessageResponseBuilder<D> where D: StateData {
@@ -45,7 +29,7 @@ class StateBuilderImpl<D> (
     private val messageTransitionDispatch: MutableMap<MessageType<out Message>, MessageTransitionWrapper<D, out Message>> = mutableMapOf()
     private var conditionalTransition: TransitionOnCheck<D> = { null }
 
-    override fun build(resolver: StateResolver) = StateBehaviorImpl(
+    override fun build(resolver: StateResolver): StateBehavior<D> = TemporalStateBehavior(
         onEnterScope = onEnter,
         messageDispatcher = onMessageDispatch,
         messageTransitionDispatch = messageTransitionDispatch,
@@ -53,7 +37,7 @@ class StateBuilderImpl<D> (
         stateResolver = resolver
     )
 
-    override fun <T : Message> on(message: MessageType<T>,  onMessage: OnMessage<D, T>): MessageResponseBuilder<D> {
+    override fun <T : Message> on(message: MessageType<T>, onMessage: OnMessage<D, T>): MessageResponseBuilder<D> {
         require(message !in onMessageDispatch) {
             "Reaction to message $message already defined! "
         }
@@ -88,50 +72,8 @@ class StateBuilderImpl<D> (
 
 }
 
-//interface ReusableState<D>: State where D: StateData {
-//    var stateData: D
-//}
 
-interface StateBehavior<D: StateData> {
-    fun enter(data: D): Events
-    fun processMessage(data: D, message: Message): Events
-    fun checkMessageTransition(data: D, message: Message): State?
-    fun checkConditionTransition(data: D): State?
-    fun interrupt(data: D): Events
-}
-
-class TransitoryStateBehavior<D>(
-    private val onEnterScope: OnEnter<D>,
-    private val nextStateTransition: TransitionOnNext<D>,
-    private val stateResolver: StateResolver,
-) : StateBehavior<D> where D: StateData {
-    private val sendScope = ReusableSender()
-
-    override fun enter(data: D): Events = sendScope(data) { send ->
-        data.onEnterScope(send)
-    }
-
-    override fun processMessage(data: D, message: Message): Events {
-        throw UnsupportedOperationException("processMessage should not be called on TransitoryState")
-    }
-
-    override fun checkMessageTransition(data: D, message: Message): State? {
-        throw UnsupportedOperationException("checkMessageTransition should not be called on TransitoryState")
-    }
-
-    override fun checkConditionTransition(data: D): State? {
-        val nextState = data.nextStateTransition()
-        return stateResolver.resolve(nextState)
-    }
-
-    override fun interrupt(data: D): Events {
-        TODO("Not yet implemented")
-    }
-
-}
-
-
-class StateBehaviorImpl<D: StateData>(
+private class TemporalStateBehavior<D: StateData>(
     private val onEnterScope: OnEnter<D>,
     private val messageDispatcher: Map<MessageType<out Message>, OnMessageWrapper<D, out Message>>,
     private val messageTransitionDispatch: Map<MessageType<out Message>, MessageTransitionWrapper<D, out Message>>,
@@ -191,30 +133,10 @@ class StateBehaviorImpl<D: StateData>(
     }
 }
 
-class FinalStateBehavior<D>(
-    private val onEnterScope: OnEnter<D>,
-): StateBehavior<D> where D: StateData {
+private fun interface OnMessageWrapper<D, M> {
+    operator fun invoke(data: D, message: M, send: Send)
+}
 
-    private val sendScope = ReusableSender()
-
-    override fun enter(data: D): Events = sendScope(data) { send ->
-        data.onEnterScope(send)
-    }
-
-    override fun processMessage(data: D, message: Message): Events {
-        throw UnsupportedOperationException("processMessage should not be called on FinalStates")
-    }
-
-    override fun checkMessageTransition(data: D, message: Message): State? {
-        throw UnsupportedOperationException("checkMessageTransition should not be called on FinalState")
-    }
-
-    override fun checkConditionTransition(data: D): State? {
-        throw UnsupportedOperationException("checkConditionTransition should not be called on FinalState")
-    }
-
-    override fun interrupt(data: D): Events {
-        TODO("Not yet implemented")
-    }
-
+private fun interface MessageTransitionWrapper<D, M> {
+    operator fun invoke(data: D, message: M): StateData
 }

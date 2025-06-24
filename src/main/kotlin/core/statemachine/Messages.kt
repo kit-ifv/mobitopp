@@ -1,4 +1,6 @@
-package states_cleaned
+package core.statemachine
+
+import core.statemachine.builder.StateData
 
 @JvmInline
 value class MessageType<M> private constructor(private val id: ULong) {
