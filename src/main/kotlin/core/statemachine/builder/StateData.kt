@@ -5,20 +5,12 @@ import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.State
 import core.statemachine.Time
+import kotlin.reflect.KClass
 
-@JvmInline
-value class StateType<D> private constructor(private val id: ULong) {
-    constructor() : this(idCounter++)
-
-    companion object {
-        private var idCounter = 0UL
-    }
-}
-
-typealias AnyStateType = StateType<out StateData>
+typealias AnyStateType = KClass<out StateData>
+typealias StateType<D> = KClass<D>
 
 interface StateData {
-    val type: AnyStateType
     val time: Time
     val agent: Agent<*>
 
@@ -26,7 +18,6 @@ interface StateData {
 }
 
 abstract class BaseStateData(
-    override val type: AnyStateType,
     time: Time,
 ) : StateData {
     final override var time: Time = time
