@@ -15,7 +15,7 @@ fun stateMachine(name: String, scope: StateMachineBuilder.() -> Unit): StateMach
 
 private class StateMachineBuilderImpl(
     private val name: String
-): StateMachineBuilder, StateMachineFactoryBuilder {
+) : StateMachineBuilder, StateMachineFactoryBuilder {
 
     private val builders: MutableList<StateBuilder<out StateData>> = mutableListOf()
     private val stateTypes: MutableSet<AnyStateType> = mutableSetOf()
@@ -46,7 +46,7 @@ private class StateMachineBuilderImpl(
         return builder
     }
 
-    override fun <D: StateData> finState(
+    override fun <D : StateData> finState(
         state: StateType<D>,
         onEnter: OnEnter<D>?
     ) {
@@ -55,8 +55,6 @@ private class StateMachineBuilderImpl(
         stateTypes.add(state)
     }
 
-    override fun <A> initialState(initializer: (A) -> StateData): StateMachineFactory<A> where A: Agent<out Message> =
+    override fun <A> initialState(initializer: (A) -> StateData): StateMachineFactory<A> where A : Agent<out Message> =
         StateMachineFactoryImpl(builders, name, initializer)
-
 }
-
