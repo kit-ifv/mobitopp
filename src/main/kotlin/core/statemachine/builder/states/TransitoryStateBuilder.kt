@@ -1,6 +1,5 @@
 package core.statemachine.builder.states
 
-import core.statemachine.Event
 import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.ReusableSender
@@ -47,9 +46,9 @@ private class TransitoryStateBehavior<D>(
         throw UnsupportedOperationException("processMessage should not be called on TransitoryState")
     }
 
-    override fun fallbackTransition(data: D): StateTransition {
-        val nextState = data.nextStateTransition()
-        return emptyList<Event<*>>() to stateResolver.resolve(nextState)
+    override fun fallbackTransition(data: D): StateTransition = sendScope(data) { send ->
+        val nextState = data.nextStateTransition(send)
+        stateResolver.resolve(nextState)
     }
 
     override fun interrupt(data: D): Events {

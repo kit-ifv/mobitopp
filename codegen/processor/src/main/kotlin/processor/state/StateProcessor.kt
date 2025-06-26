@@ -218,13 +218,14 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
 
         val parameters = constructor.parameters.mapIndexed { index, param ->
             val paramName = param.name?.asString() ?: "param$index"
-            val paramType = parameterTypeOf(param)
+            val (paramKSType, paramTypeName) = parameterTypeOf(param)
+            val receiverType = scopeDeclaration?.asStarProjectedType()
 
             val defaultValue = scopeDeclaration?.let {
-                inferDefaultValue(paramName, paramType, it.toClassName(), getReceiverProperties(it))
+                inferDefaultValue(paramName, paramKSType, paramTypeName, receiverType, getReceiverProperties(it))
             }
 
-            ParameterSpec.builder(paramName, paramType).apply {
+            ParameterSpec.builder(paramName, paramTypeName).apply {
                 defaultValue?.let { defaultValue(it) }
             }.build()
         }
@@ -266,42 +267,48 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
         return funBuilder
     }
 
-    private fun parameterTypeOf(param: KSValueParameter): TypeName {
+    private fun parameterTypeOf(param: KSValueParameter): Pair<KSType?, TypeName> {
         val typeRef = param.type
-        val paramType = try {
-            val resolved = typeRef.resolve()
-            val declaredType = resolved.declaration
-            val isTypeParam = declaredType is KSTypeParameter
 
-            if (isTypeParam) {
-                // Use the declared type variable name as a TypeVariableName
+        val resolvedKSType = try {
+            typeRef.resolve()
+        } catch (_: Exception) {
+            null
+        }
+
+        val typeName = try {
+            val declaredType = resolvedKSType?.declaration
+            if (declaredType is KSTypeParameter) {
                 TypeVariableName(declaredType.name.asString() + TARGET_SUFFIX)
             } else {
-                resolved.toTypeName()
+                resolvedKSType?.toTypeName()
+                    ?: TypeVariableName(typeRef.element?.toString() + TARGET_SUFFIX)
             }
-        } catch (e: Exception) {
-            // Fallback to TypeVariable if it's a raw type parameter
-            val simpleName = typeRef.element.toString() + TARGET_SUFFIX
-            TypeVariableName(simpleName)
+        } catch (_: Exception) {
+            TypeVariableName(typeRef.element?.toString() + TARGET_SUFFIX)
         }
-        return paramType
+
+        return resolvedKSType to typeName
+
     }
 
     fun inferDefaultValue(
         paramName: String,
-        paramType: TypeName,
-        receiverType: TypeName,
-        receiverProps: Map<String, TypeName>
+        paramKSType: KSType?,
+        paramTypeName: TypeName,
+        receiverKSType: KSType?,
+        receiverProps: Map<String, Pair<KSType?, TypeName>>
     ): CodeBlock? {
         return when {
-            // Case 1: param type equals receiver type → use `this`
-            paramType == receiverType -> {
+            // Case 1: receiver is assignable to param
+            paramKSType != null && receiverKSType != null &&
+                    paramKSType.isAssignableFrom(receiverKSType) -> {
                 CodeBlock.of("this")
             }
 
-            // Case 2: param name + type match a receiver property → use `this.<prop>`
-            receiverProps[paramName]?.let { receiverPropType ->
-                receiverPropType == paramType
+            // Case 2: receiver property is assignable to param
+            receiverProps[paramName]?.first?.let { receiverPropType ->
+                paramKSType != null && paramKSType.isAssignableFrom(receiverPropType)
             } == true -> {
                 CodeBlock.of("this.%L", paramName)
             }
@@ -311,16 +318,23 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
     }
 
     private fun getReceiverProperties(scopeDeclaration: KSClassDeclaration?) = scopeDeclaration?.getAllProperties()
-        ?.associate {
-            val name = it.simpleName.asString()
-            val typeName = try {
-                val resolved = it.type.resolve()
-                resolved.toTypeName()
-            } catch (e: Exception) {
-                // fallback to TypeVariable
-                TypeVariableName( "${it.type.element?.toString()}$SCOPE_SUFFIX")
+        ?.associate { prop ->
+            val name = prop.simpleName.asString()
+
+            val ksType = try {
+                prop.type.resolve()
+            } catch (_: Exception) {
+                null
             }
-            name to typeName
+
+            val typeName = try {
+                ksType?.toTypeName()
+                    ?: TypeVariableName("${prop.type.element?.toString()}$SCOPE_SUFFIX")
+            } catch (_: Exception) {
+                TypeVariableName("${prop.type.element?.toString()}$SCOPE_SUFFIX")
+            }
+
+            name to (ksType to typeName)
         } ?: emptyMap()
 
     private fun KSClassDeclaration.toStarParameterizedKClassType(): TypeName {
@@ -356,209 +370,3 @@ class TestMessageProcessor(
     override val annotationType: KClass<MessageCalled>
         get() = MessageCalled::class
 }
-
-//
-//class StateProcessor(
-//    override val logger: KSPLogger,
-//    private val codeGenerator: CodeGenerator,
-//
-//): GroupingProcessor<StateCalled, AnnotationData, KSFile> {
-//
-//    override val annotationType: KClass<StateCalled>
-//        get() = StateCalled::class
-//
-//
-//    override fun castAnnotations(annotation: KSAnnotation) =
-//        AnnotationData(
-//            name = annotation.parameter("name"),
-//            scope = annotation.parameter<KSType>("scope").declaration.toClassName()
-//        )
-//
-//    override fun groupKey(
-//        symbol: KSAnnotated,
-//        annotations: List<AnnotationData>
-//    ): KSFile? = symbol.containingFile
-//
-//    override fun processAnnotatedSymbolGroup(
-//        groupKey: KSFile,
-//        symbolGroup: List<KSAnnotated>,
-//        annotations: Map<KSAnnotated, List<AnnotationData>>,
-//        resolver: Resolver
-//    ): List<KSAnnotated> {
-//
-//        val filePackage = groupKey.packageName.asString()
-//        val originalFileName = groupKey.fileName.removeSuffix(".kt")
-//        val generatedFileName = "${originalFileName}GeneratedStates"
-//        val fileSpecBuilder = FileSpec.builder(filePackage, generatedFileName)
-//
-//        logger.warn("states of file $originalFileName in $filePackage")
-//
-//        for (symbol in symbolGroup) {
-//            val classDecl = symbol as? KSClassDeclaration ?: continue
-//            val state = annotations[symbol]?.firstOrNull() ?: continue
-//
-//            logger.warn("process ${symbol.qualifiedName?.asString()}")
-//            logger.warn("process state $state")
-//
-//
-//            fileSpecBuilder.addProperty(
-//            createStateAliasProperty(classDecl, state)
-//            )
-//
-//            // --- Handle type parameters of message class ---
-//            val messageTypeParams = classDecl.typeParameters.map {
-//                val bounds = it.bounds.map { b -> b.resolve().toTypeName() }.toList()
-//                val name = "${it.name.asString()}_state"
-//                if (bounds.isNotEmpty()) TypeVariableName(name, bounds) else TypeVariableName(name)
-//            }
-//
-//            // --- Handle type parameters of scope class (if any) ---
-//            val scopeKClass = state.scope.takeIf { it != ANY }
-//            val scopeDeclaration = scopeKClass?.let { scopeClassName ->
-//                resolver.getClassDeclarationByName(resolver.getKSNameFromString(scopeClassName.canonicalName))
-//            }
-//            val scopeTypeParams = scopeDeclaration?.also {
-//                fileSpecBuilder.addImport(it.packageName.asString(), it.simpleName.asString())
-//            }?.typeParameters?.map {
-//                val bounds = it.bounds.map { b -> b.resolve().toTypeName() }.toList()
-//                val name = "${it.name.asString()}_scope"
-//                if (bounds.isNotEmpty()) TypeVariableName(name, bounds) else TypeVariableName(name)
-//            } ?: emptyList()
-//
-//            val scopeProps = scopeDeclaration?.getAllProperties()?.associateBy { it.simpleName.asString() }.orEmpty()
-//
-//
-//            val functionName = state.name.replaceFirstChar { it.lowercase() }
-//            val className = classDecl.toClassName()
-//            val returnType = if (messageTypeParams.isEmpty()) {
-//                className
-//            } else {
-//                className.parameterizedBy(messageTypeParams)
-//            }
-//
-//            for (constructor in classDecl.getConstructors()) {
-//                val funBuilder = createInitializeFunction(
-//                    constructor,
-//                    messageTypeParams,
-//                    className,
-//                    functionName,
-//                    returnType,
-//                    scopeDeclaration,
-//                    scopeTypeParams,
-//                    scopeProps
-//                )
-//
-//                fileSpecBuilder.addFunction(funBuilder.build())
-//
-//            }
-//
-//
-//        }
-//
-//        codeGenerator.createNewFile(
-//            dependencies = Dependencies(false, groupKey),
-//            packageName = filePackage,
-//            fileName = generatedFileName
-//        ).bufferedWriter().use { writer ->
-//            fileSpecBuilder.build().writeTo(writer)
-//        }
-//
-//        return emptyList()
-//    }
-//
-//    private fun createInitializeFunction(
-//        constructor: KSFunctionDeclaration,
-//        stateTypeParams: List<TypeVariableName>,
-//        className: ClassName,
-//        functionName: String,
-//        returnType: TypeName,
-//        scopeDeclaration: KSClassDeclaration?,
-//        scopeTypeParams: List<TypeVariableName>,
-//        scopeProps: Map<String, KSPropertyDeclaration>
-//    ): FunSpec.Builder {
-//        val allTypeParams = scopeTypeParams + stateTypeParams
-//
-//        val parameters = constructor.parameters.mapIndexed { index, param ->
-//            val name = param.name?.asString() ?: "param$index"
-//            val type = param.type.resolve()
-//            val typeName = type.toTypeName()
-//
-//            val defaultValue = getDefaultValue(type, scopeDeclaration, scopeProps, name)
-//
-//            ParameterSpec.builder(name, typeName).apply {
-//                defaultValue?.let { defaultValue(it) }
-//            }.build()
-//        }
-//
-//
-//        val constructorCall = if (stateTypeParams.isNotEmpty()) {
-//            val typeArgs = stateTypeParams.joinToString(", ") { it.name }
-//            "$className<$typeArgs>(${parameters.joinToString { it.name }})"
-//        } else {
-//            "$className(${parameters.joinToString { it.name }})"
-//        }
-//
-//        val funBuilder = FunSpec.builder(functionName)
-//            .addParameters(parameters)
-//            .returns(returnType)
-//            .addStatement("return $constructorCall")
-//
-//        if (allTypeParams.isNotEmpty()) {
-//            funBuilder.addTypeVariables(allTypeParams)
-//        }
-//
-//        scopeDeclaration?.let { declaration ->
-//            val receiver = if (scopeTypeParams.isNotEmpty())
-//                scopeDeclaration.toClassName().parameterizedBy(scopeTypeParams)
-//            else
-//                scopeDeclaration.toClassName()
-//
-//            funBuilder.receiver(receiver)
-//        }
-//
-//        return funBuilder
-//    }
-//
-//    private fun getDefaultValue(
-//        type: KSType,
-//        scopeDeclaration: KSClassDeclaration?,
-//        scopeProps: Map<String, KSPropertyDeclaration>,
-//        name: String
-//    ): CodeBlock? = when {
-//        // Case 1: same type as receiver
-//        type == scopeDeclaration?.asStarProjectedType() -> CodeBlock.of("this")
-//        // Case 2: matches property in scope
-//        scopeProps[name]?.type?.resolve()?.isAssignableFrom(type) == true ->
-//            CodeBlock.of("this.$name")
-//
-//        else -> null
-//    }
-//
-//    private fun createStateAliasProperty(
-//        classDecl: KSClassDeclaration,
-//        stateCalled: AnnotationData,
-//    ): PropertySpec {
-//        val className = classDecl.toClassName()
-//        val messageName = stateCalled.name.replaceFirstChar { it.uppercase() }
-//
-//        // Add: val <name> = <Class>::class
-//        val type = classDecl.toStarParameterizedKClassType()
-//        val classValSpec = PropertySpec.builder(messageName, type)
-//            .initializer("$className::class")
-//            .build()
-//
-//        return classValSpec
-//    }
-//
-//
-//
-//    private fun KSClassDeclaration.toStarParameterizedKClassType(): TypeName {
-//        val classType = this.toClassName()
-//        val typeArguments = this.typeParameters.map { STAR }
-//        return KClass::class.asClassName().parameterizedBy(
-//            if (typeArguments.isEmpty()) classType else classType.parameterizedBy(typeArguments)
-//        )
-//    }
-//
-//
-//}

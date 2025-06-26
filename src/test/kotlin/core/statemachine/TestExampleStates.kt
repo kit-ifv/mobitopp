@@ -5,10 +5,19 @@ import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.on
 import core.statemachine.builder.stateMachine
+import java.util.SortedMap
+import kotlin.math.min
+import kotlin.random.Random
+import kotlin.random.nextULong
+import kotlin.test.Test
 
 interface StationMessage : Message
-interface Station : Agent<StationMessage>
-class StationAgent : Station {
+interface Station : Agent<StationMessage>, Comparable<Station> {
+    val name: String
+
+    override fun compareTo(other: Station) = this.name.compareTo(other.name)
+}
+class StationAgent(override val name: String) : Station {
 
     private val currentBusses: MutableList<Bus> = mutableListOf()
     private val waitingPassengersByDestination: MutableMap<Station, MutableList<Passenger>> = mutableMapOf()
@@ -41,8 +50,10 @@ class StationAgent : Station {
 interface PassengerMessage : Message
 interface Passenger : Agent<PassengerMessage> {
     val to: Station
+    val name: String
 }
 class PassengerAgent(
+    override val name: String,
     val from: Station,
     override val to: Station,
     val departure: Time,
@@ -65,9 +76,11 @@ class PassengerAgent(
 
 interface BusMessage : Message
 interface Bus : Agent<BusMessage> {
+    val name: String
     fun willDriveTo(station: Station): Boolean
 }
 class BusAgent(
+    override val name: String,
     val departure: Time,
     private val route: List<Station>,
     private val tripDuration: Map<Station, Time>,
@@ -79,12 +92,16 @@ class BusAgent(
 
     override fun willDriveTo(station: Station) = station in remainingRoute
     fun hasNext() = index < route.size - 1
-    fun next(): Station? = route.getOrNull(++index)
+    fun moveToNext(): Station? = route.getOrNull(++index)
     fun current(): Station = route[index]
 
     private val passengersByDest: MutableMap<Station, MutableList<Passenger>> = mutableMapOf()
 
     fun removeDeboardingPassengers(): List<Passenger> = passengersByDest.remove(current()) ?: emptyList()
+    fun removeAllPassengers(): List<Passenger> = passengersByDest.values.flatten().also {
+        passengersByDest.clear()
+    }
+
     fun boardPassengers(passengers: List<Passenger>) {
         for ((station, group) in passengers.groupBy { it.to }) {
             passengersByDest.getOrPut(station) { mutableListOf() }.addAll(group)
@@ -147,12 +164,12 @@ class EnterStationMessage(val station: Station) : PassengerMessage
 @MessageCalled("BoardBus")
 class BoardBusMessage(val bus: Bus) : PassengerMessage
 
-@MessageCalled("DeboardBus")
+@MessageCalled("DeboardBus", ArrivingState::class)
 class DeboardBusMessage(val station: Station) : PassengerMessage
 
 val passengerStateMachine = stateMachine<PassengerAgent>("PassengerStateMachine") {
 
-    start(
+    start( //TODO autogenerate start extension method if constructor has exactly arguments Time and Agent?
         StartPassenger,
         ::startPassenger
     ) { send ->
@@ -198,7 +215,7 @@ class WaitingPassengerMessage(val passenger: Passenger) : PassengerMessage
 @MessageCalled("StartBoarding", ArrivingState::class)
 class StartBoardingMessage(val bus: Bus) : StationMessage
 
-@MessageCalled("StopBoarding", BoardingState::class)
+@MessageCalled("StopBoarding", ArrivingState::class, LeavingState::class)
 class StopBoardingMessage(val bus: Bus) : StationMessage
 
 val stationStateMachine = stateMachine<StationAgent>("StationAgentStateMachine") {
@@ -221,7 +238,9 @@ val stationStateMachine = stateMachine<StationAgent>("StationAgentStateMachine")
         send.now(boardPassengers(boarding), bus)
         //
     }.on(StopBoarding) { message, send ->
-        agent.removeBus(message.bus)
+        val bus = message.bus
+        agent.removeBus(bus)
+        send.now(confirmLeave(), bus)
         //
     }
 }
@@ -232,10 +251,24 @@ val stationStateMachine = stateMachine<StationAgent>("StationAgentStateMachine")
 class BusStartState(time: Time, bus: BusAgent) : BusState(time, bus)
 
 @StateCalled("Arriving", BusStartState::class, DrivingState::class)
-class ArrivingState(state: BusState) : BusState(state)
+class ArrivingState(state: BusState) : BusState(state) {
+    var deboardingCount: Int = 0
+}
 
 @StateCalled("Boarding", ArrivingState::class)
-class BoardingState(state: BusState) : BusState(state)
+class BoardingState(state: BusState, deboardingCount: Int) : BusState(state) {
+    private val boardingStart: Time = time
+    private var interactionWaitTime: Time = inOutTime(deboardingCount)
+
+    val plannedLeaveTime: Time
+        get() = boardingStart + min(2uL, interactionWaitTime)
+
+    fun updateWaitTime(boardingCount: Int) {
+        interactionWaitTime += inOutTime(boardingCount)
+    }
+
+    private fun inOutTime(deboardingCount: Int): ULong = (deboardingCount * 0.1).toULong()
+}
 
 @StateCalled("Leaving", BoardingState::class)
 class LeavingState(state: BusState) : BusState(state)
@@ -248,15 +281,18 @@ class FinishedState(state: BusState) : BusState(state)
 
 // bus messages
 @MessageCalled("Arrive")
-class ArriveMessage(val station: Station) : BusMessage
+class ArriveMessage : BusMessage
 
 @MessageCalled("BoardPassengers", StationStartState::class)
 data class BoardPassengersMessage(val passengers: List<Agent<*>>) : BusMessage {
     constructor(passenger: Passenger) : this(listOf(passenger))
 }
 
-@MessageCalled("Leave")
+@MessageCalled("Leave", BoardingState::class)
 class LeaveMessage : BusMessage
+
+@MessageCalled("ConfirmLeave", StationStartState::class)
+class ConfirmLeaveMessage : BusMessage
 
 val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
 
@@ -264,63 +300,151 @@ val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
         StartBus,
         ::startBus
     ) { send ->
-        send(arrive(bus.current()), bus, bus.departure)
+        send(arrive(), bus, bus.departure)
         //
     }.on(Arrive) { message, send ->
         arriving()
     }
+
+    transState(
+        Arriving
+    ) { send ->
+        val deboarding = if (bus.hasNext()) {
+            bus.removeDeboardingPassengers()
+        } else {
+            bus.removeAllPassengers()
+        }
+
+        deboarding.forEach {
+            send.now(deboardBus(bus.current()), it)
+            deboardingCount++
+        }
+        //
+    }.next { send ->
+        if (bus.hasNext()) {
+            boarding()
+        } else {
+            send.now(stopBoarding(), bus.current())
+            finished()
+        }
+    }
+
+    state(Boarding) { send ->
+        send(leave(), self, plannedLeaveTime)
+        //
+    }.on(BoardPassengers) { message, send ->
+        message.passengers.forEach {
+            send.now(boardBus(bus), it)
+        }
+
+        updateWaitTime(message.passengers.size)
+        send(leave(), self, plannedLeaveTime)
+        //
+    }.transitionOn(Leave) { message, send ->
+        if (time == plannedLeaveTime) {
+            leaving()
+        } else {
+            null
+        }
+    }
+
+    state(Leaving) { send ->
+        send.now(stopBoarding(), bus.current())
+        //
+    }.on(BoardPassengers) { message, send ->
+        message.passengers.forEach {
+            send.now(boardBus(bus), it)
+        }
+        //
+    }.transitionOn(ConfirmLeave) { message, send ->
+        driving()
+    }
+
+    state(Driving) { send ->
+        bus.moveToNext()
+        val tripDuration = bus.tripDuration()
+        send(arrive(), self, time + tripDuration)
+        //
+    }.transitionOn(Arrive) { message, send ->
+        arriving()
+    }
+
+
 }
 
-// val busStateMachine = stateMachine("BusStateMachine") {
-//
-//    transState(Arriving) { send ->
-//
-//        val deboarding = bus.shouldDeboard(stop)
-//        deboarding.forEach {
-//            println(it)
-//            deboarded++
-//        }
-//    }.next {
-//        if (bus.hasNext(stop)) {
-//            waiting(stop, deboarded)
-//        } else {
-//            finished()
-//        }
-//    }
-//
-//    state(Waiting) { send ->
-//        // send busstop: start boarding
-//
-//        val waitFor: Double = min(transferCount * 0.5, 2.0)
-//        val at = time + waitFor.roundToLong().toUInt()
-//        send(leave(at), agent)
-//    }.on(BoardPersons) { message, send ->
-//        val persons = message.persons
-//        // send person: boarded
-//
-//        // send self: updated leave
-//        val at = bus.plannedLeave!! + (0.5 * persons.size).toULong()
-//
-//        send(leave(bus), agent, at)
-//    }.transitionOn(Leave) { message, send ->
-//        if (time == bus.plannedLeave) {
-//            leaving(stop)
-//        } else {
-//            null
-//        }
-//    }
-//
-//    transState(Leaving) { send ->
-//        // send bus stop: leaving
-//    }.next {
-//        driving(bus.nextStop)
-//    }
-//
-//    state(Driving) { send ->
-//        send(arrive(nextStop), bus, time + bus.traveltime.toULong())
-//    }.transitionOn(Arrive) { message, send ->
-//        arriving(message.stop)
-//    }
-//
-//    finState(Finished)
-// }
+
+
+class TestExampleStates {
+
+    fun createStations(vararg names: String) = names.map {
+        StationAgent(it)
+    }
+
+    fun createBussesBySchedule(
+        departures: Iterable<Time>,
+        travelTimes: SortedMap<Station, Time>
+    ): List<BusAgent> {
+        val route = travelTimes.keys.toList()
+        val start = route.first()
+        val end = route.last()
+
+        return departures.map {
+            BusAgent(
+                "$start > $end at $it",
+                it,
+                route,
+                travelTimes
+            )
+        }
+    }
+
+    fun createRoute(stations: Map<String, Station>, vararg legs: Pair<String, Time>) = sortedMapOf(*legs.map { stations[it.first]!! to it.second }.toTypedArray())
+
+    var idCount = 0L
+    fun createPerson(start: Time, end: Time, stations: List<Station>): PassengerAgent {
+        val id = idCount++
+        val random = Random(id)
+
+        val from = stations.random(random)
+        val to = stations.filter { it != from }.random(random)
+        val departure = random.nextULong(start, end)
+
+        return PassengerAgent("$id", from, to, departure)
+    }
+
+    @Test
+    fun runStateMachines() {
+        val start: Time = 0uL
+        val end: Time = 5uL * 60uL
+
+        val stations = createStations("A", "B", "C", "D", "E").associateBy { it.name }
+
+        val route1 = createRoute(stations, "A" to 0uL, "B" to 3uL, "C" to 5uL, "D" to 6uL, "E" to 4uL) //26 min //every full hour
+        val departures1 = start..end step 60L
+        val bussesRoute1 = createBussesBySchedule(departures1, route1)
+
+        val route2 = createRoute(stations, "E" to 0uL, "D" to 6uL, "C" to 4uL, "B" to 3uL, "A" to 5uL) //26 min //every hour, half past
+        val departures2 = (start + 30uL)..end step 60L
+        val bussesRoute2 = createBussesBySchedule(departures2, route2)
+
+        val route3 = createRoute(stations, "B" to 0uL, "D" to 7uL) //9 min //at 10, 30, 50 past x
+        val departures3 = (start + 10uL)..end step 20L
+        val bussesRoute3 = createBussesBySchedule(departures3, route3)
+
+        val route4 = createRoute(stations, "D" to 0uL, "B" to 7uL) //9 min // at 0, 20, 40 past x
+        val departures4 = start..end step 20L
+        val bussesRoute4 = createBussesBySchedule(departures4, route4)
+
+
+        val stationAgents = stations.values.toList()
+        val busAgents = bussesRoute1 + bussesRoute2 + bussesRoute3 + bussesRoute4
+        val passengerAgents = (0..1000).map { createPerson(start, end, stationAgents) }
+
+
+
+
+
+    }
+
+
+}
