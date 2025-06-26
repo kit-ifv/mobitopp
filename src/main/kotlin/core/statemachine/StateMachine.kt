@@ -26,7 +26,8 @@ interface State {
 }
 
 interface StateMachineFactory<A : Agent<out Message>> {
-    fun create(agent: A): StateMachine
+    fun create(startTime: Time, agent: A): StateMachine
+//    fun <D> create(agent: A, contextData: D): StateMachine
 }
 
 data class TransitoryStateMachine(

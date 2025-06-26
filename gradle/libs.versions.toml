@@ -43,6 +43,7 @@ kotlin-compile-testing-ksp = { module = "com.github.tschuchortdev:kotlin-compile
 
 # annotation processing libs
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
+kotlinpoetksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 symbol-processing-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 
 # kandy libs

@@ -11,7 +11,7 @@ interface Message
 data class Event<M : Message>(
     val sender: Agent<*>,
     val sendTime: Time,
-    val receiver: Agent<M>,
+    val receiver: Agent<out M>,
     val receiveTime: Time,
     val content: M
 )
@@ -19,8 +19,9 @@ data class Event<M : Message>(
 typealias Events = Collection<Event<*>>
 
 interface Send {
-    operator fun <M : Message> invoke(message: M, to: Agent<M>, at: Time)
-    fun <M: Message> now(message: M, to: Agent<M>)
+    operator fun <M : Message> invoke(message: M, to: Agent<out M>, at: Time)
+    fun <M : Message> now(message: M, to: Agent<out M>)
+    // TODO fun self(message: T, at: Time)
 }
 
 interface SendScope {
@@ -33,11 +34,13 @@ class ReusableSender : SendScope {
     private var sendTime: Time = 0uL
 
     private val send = object : Send {
-        override fun <M : Message> invoke(message: M, to: Agent<M>, at: Time) {
+        override fun <M : Message> invoke(message: M, to: Agent<out M>, at: Time) {
             events.add(Event<M>(sender, sendTime, to, at, message))
         }
 
-        override fun <M : Message> now(message: M, to: Agent<M>) = invoke(message, to, sendTime)
+        override fun <M : Message> now(message: M, to: Agent<out M>) = invoke(message, to, sendTime)
+        // TODO override fun self(message: T, at: Time) = invoke(message, sender, at),
+        //  maybe as extension method with receiver context?
     }
 
     override operator fun <R> invoke(state: StateData, scope: (Send) -> R): Pair<Events, R> {

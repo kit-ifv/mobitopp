@@ -8,14 +8,10 @@ import core.statemachine.StateMachineFactory
 import core.statemachine.Time
 import core.statemachine.TransitoryStateMachine
 
-interface StateMachineFactoryBuilder {
-    fun <A> initialState(initializer: (A) -> StateData): StateMachineFactory<A> where A : Agent<out Message>
-}
-
-internal class StateMachineFactoryImpl<A : Agent<out Message>>(
+internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
     builders: List<StateBuilder<out StateData>>,
+    val initialize: (Time, A) -> StateData,
     private val name: String,
-    private val initializer: (A) -> StateData
 ) : StateResolver, StateMachineFactory<A> {
 
     private val states: Map<AnyStateType, StateBehavior<out StateData>> = builders.associate {
@@ -34,10 +30,15 @@ internal class StateMachineFactoryImpl<A : Agent<out Message>>(
         }!!
     }
 
-    override fun create(agent: A): StateMachine = TransitoryStateMachine(
+    override fun create(startTime: Time, agent: A): StateMachine = TransitoryStateMachine(
         name = name,
-        initial = resolve(initializer(agent))
+        initial = resolve(initialize(startTime, agent))
     )
+
+//    override fun <D> create(agent: A, contextData: D) = TransitoryStateMachine(
+//        name = name,
+//        initial = resolve(SubStartState(0uL, agent, contextData))
+//    )
 }
 
 private data class StateImpl<D : StateData>(

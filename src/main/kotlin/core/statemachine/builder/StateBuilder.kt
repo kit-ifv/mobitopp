@@ -3,7 +3,7 @@ package core.statemachine.builder
 import core.statemachine.State
 
 interface StateBuilder<D> where D : StateData {
-    val type: StateType<D>
+    val type: AnyStateType
     fun build(resolver: StateResolver): StateBehavior<D>
 }
 
