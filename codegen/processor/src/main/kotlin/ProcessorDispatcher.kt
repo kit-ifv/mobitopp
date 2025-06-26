@@ -1,19 +1,17 @@
-import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 import processor.builder.BuilderProcessor
 import processor.mutable.MutableProcessor
+import processor.state.TestMessageProcessor
+import processor.state.TestStateProcessor
 import utils.groupByIgnoringNullKey
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 private var roundCounter: Int = 0
 
@@ -33,7 +31,9 @@ class ProcessorDispatcher(
 
     private val processors = listOf<Processor<*, *>>(
         BuilderProcessor(codeGenerator, logger, options),
-        MutableProcessor(logger, codeGenerator)
+        MutableProcessor(logger, codeGenerator),
+        TestStateProcessor(logger, codeGenerator),
+        TestMessageProcessor(logger, codeGenerator),
     )
 
 

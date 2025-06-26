@@ -4,15 +4,15 @@ import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.ReusableSender
 import core.statemachine.StateTransition
+import core.statemachine.builder.AnyStateType
 import core.statemachine.builder.OnEnter
 import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
-import core.statemachine.builder.StateType
 
 internal class FinalStateBuilder<D>(
-    override val type: StateType<D>,
+    override val type: AnyStateType,
     private val onEnterScope: OnEnter<D>,
 ) : StateBuilder<D> where D : StateData {
 
@@ -33,15 +33,11 @@ private class FinalStateBehavior<D>(
         throw UnsupportedOperationException("processMessage should not be called on FinalStates")
     }
 
-//    override fun checkMessageTransition(data: D, message: Message): State? {
-//        throw UnsupportedOperationException("checkMessageTransition should not be called on FinalState")
-//    }
-
     override fun fallbackTransition(data: D): StateTransition {
         throw UnsupportedOperationException("checkConditionTransition should not be called on FinalState")
     }
 
     override fun interrupt(data: D): Events {
-        TODO("Not yet implemented")
+        error("Not implemented")
     }
 }

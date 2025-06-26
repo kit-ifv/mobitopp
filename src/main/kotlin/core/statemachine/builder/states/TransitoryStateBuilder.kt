@@ -5,17 +5,17 @@ import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.ReusableSender
 import core.statemachine.StateTransition
+import core.statemachine.builder.AnyStateType
 import core.statemachine.builder.MandatoryTransitionBuilder
 import core.statemachine.builder.OnEnter
 import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
-import core.statemachine.builder.StateType
 import core.statemachine.builder.TransitionToNext
 
 internal class TransitoryStateBuilder<D>(
-    override val type: StateType<D>,
+    override val type: AnyStateType,
     private val onEnter: OnEnter<D>
 ) : StateBuilder<D>, MandatoryTransitionBuilder<D> where D : StateData {
 
@@ -46,10 +46,6 @@ private class TransitoryStateBehavior<D>(
     override fun processMessage(data: D, message: Message): StateTransition {
         throw UnsupportedOperationException("processMessage should not be called on TransitoryState")
     }
-//
-//    override fun checkMessageTransition(data: D, message: Message): StateTransition {
-//        throw UnsupportedOperationException("checkMessageTransition should not be called on TransitoryState")
-//    }
 
     override fun fallbackTransition(data: D): StateTransition {
         val nextState = data.nextStateTransition()
@@ -57,6 +53,6 @@ private class TransitoryStateBehavior<D>(
     }
 
     override fun interrupt(data: D): Events {
-        TODO("Not yet implemented")
+        error("Not implemented")
     }
 }

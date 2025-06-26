@@ -7,19 +7,19 @@ import core.statemachine.MessageType
 import core.statemachine.ReusableSender
 import core.statemachine.Send
 import core.statemachine.StateTransition
+import core.statemachine.builder.AnyStateType
+import core.statemachine.builder.FallbackTransition
 import core.statemachine.builder.FallbackTransitionBuilder
 import core.statemachine.builder.MessageResponseBuilder
 import core.statemachine.builder.OnEnter
-import core.statemachine.builder.FallbackTransition
 import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
-import core.statemachine.builder.StateType
 import core.statemachine.builder.TransitionOnMessage
 
 internal class ReactiveStateBuilder<D> (
-    override val type: StateType<D>,
+    override val type: AnyStateType,
     private val onEnter: OnEnter<D>,
 ) : StateBuilder<D>, MessageResponseBuilder<D> where D : StateData {
 
@@ -95,7 +95,7 @@ private class ReactiveStateBehavior<D : StateData>(
     }
 
     override fun interrupt(data: D): Events {
-        TODO("Not yet implemented")
+        error("Not implemented")
     }
 }
 

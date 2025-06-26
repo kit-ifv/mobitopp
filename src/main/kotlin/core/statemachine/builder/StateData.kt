@@ -8,7 +8,7 @@ import core.statemachine.Time
 import kotlin.reflect.KClass
 
 typealias AnyStateType = KClass<out StateData>
-typealias StateType<D> = KClass<D>
+typealias StateType<D> = KClass<out D>
 
 interface StateData {
     val time: Time
