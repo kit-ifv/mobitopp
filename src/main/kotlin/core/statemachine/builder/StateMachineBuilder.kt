@@ -10,20 +10,7 @@ typealias OnEnter<D> = D.(Send) -> Unit
 typealias OnMessage<D, M> = D.(M, Send) -> Unit
 typealias TransitionOnMessage<D, M> = D.(M, Send) -> StateData?
 typealias FallbackTransition<D> = D.(Send) -> StateData?
-typealias TransitionToNext<D> = D.() -> StateData
-
-// class StartState<A : Agent<*>>(time: Time, override val agent: A) : BaseStateData(time) {
-//    val self: A
-//        get() = agent
-// }
-// class SubStartState<A : Agent<*>, D>(
-//    time: Time,
-//    override val agent: A,
-//    val contextData: D
-// ) : BaseStateData(time) {
-//    val self: A
-//        get() = agent
-// }
+typealias TransitionToNext<D> = D.(Send) -> StateData
 
 interface StateMachineBuilder<A> where A : Agent<*> {
 
@@ -32,8 +19,6 @@ interface StateMachineBuilder<A> where A : Agent<*> {
         initialize: (Time, A) -> D,
         onEnter: OnEnter<D>? = null
     ): MessageResponseBuilder<D>
-
-//    fun <D> subStart(onEnter: OnEnter<SubStartState<A, D>>? = null): MessageResponseBuilder<SubStartState<A, D>>
 
     fun <D> state(state: StateType<D>, onEnter: OnEnter<D>? = null): MessageResponseBuilder<D> where D : StateData
 
