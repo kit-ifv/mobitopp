@@ -2,6 +2,7 @@ package core.statemachine.builder.states
 
 import core.statemachine.Events
 import core.statemachine.Message
+import core.statemachine.NULL_TRANSITION
 import core.statemachine.ReusableSender
 import core.statemachine.StateTransition
 import core.statemachine.builder.AnyStateType
@@ -33,9 +34,7 @@ private class FinalStateBehavior<D>(
         throw UnsupportedOperationException("processMessage should not be called on FinalStates")
     }
 
-    override fun fallbackTransition(data: D): StateTransition {
-        throw UnsupportedOperationException("checkConditionTransition should not be called on FinalState")
-    }
+    override fun fallbackTransition(data: D): StateTransition = NULL_TRANSITION
 
     override fun interrupt(data: D): Events {
         error("Not implemented")
