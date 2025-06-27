@@ -1,6 +1,7 @@
 package core.statemachine
 
 import core.statemachine.builder.StateData
+import utils.units.AbsoluteTime
 import kotlin.reflect.KClass
 
 typealias MessageType<T> = KClass<T>
@@ -10,17 +11,19 @@ interface Message
 
 data class Event<M : Message>(
     val sender: Agent<*>,
-    val sendTime: Time,
-    val receiver: Agent<out M>,
-    val receiveTime: Time,
+    val sendTime: AbsoluteTime,
+    val receiver: Agent<in M>,
+    val receiveTime: AbsoluteTime,
     val content: M
-)
+) {
+    fun execute(): Events = receiver.processEvent(this)
+}
 
 typealias Events = Collection<Event<*>>
 
 interface Send {
-    operator fun <M : Message> invoke(message: M, to: Agent<out M>, at: Time)
-    fun <M : Message> now(message: M, to: Agent<out M>)
+    operator fun <M : Message> invoke(message: M, to: Agent<in M>, at: AbsoluteTime)
+    fun <M : Message> now(message: M, to: Agent<in M>)
     // TODO fun self(message: T, at: Time)
 }
 
@@ -31,14 +34,14 @@ interface SendScope {
 class ReusableSender : SendScope {
     private val events: MutableList<Event<*>> = mutableListOf()
     private lateinit var sender: Agent<*>
-    private var sendTime: Time = 0uL
+    private var sendTime: AbsoluteTime = AbsoluteTime.START
 
     private val send = object : Send {
-        override fun <M : Message> invoke(message: M, to: Agent<out M>, at: Time) {
+        override fun <M : Message> invoke(message: M, to: Agent<in M>, at: AbsoluteTime) {
             events.add(Event<M>(sender, sendTime, to, at, message))
         }
 
-        override fun <M : Message> now(message: M, to: Agent<out M>) = invoke(message, to, sendTime)
+        override fun <M : Message> now(message: M, to: Agent<in M>) = invoke(message, to, sendTime)
         // TODO override fun self(message: T, at: Time) = invoke(message, sender, at),
         //  maybe as extension method with receiver context?
     }
