@@ -4,7 +4,7 @@ import core.statemachine.Agent
 import core.statemachine.Message
 import core.statemachine.MessageType
 import core.statemachine.Send
-import core.statemachine.Time
+import utils.units.AbsoluteTime
 
 typealias OnEnter<D> = D.(Send) -> Unit
 typealias OnMessage<D, M> = D.(M, Send) -> Unit
@@ -16,7 +16,7 @@ interface StateMachineBuilder<A> where A : Agent<*> {
 
     fun <D : StateData> start(
         state: StateType<D>,
-        initialize: (Time, A) -> D,
+        initialize: (AbsoluteTime, A) -> D,
         onEnter: OnEnter<D>? = null
     ): MessageResponseBuilder<D>
 

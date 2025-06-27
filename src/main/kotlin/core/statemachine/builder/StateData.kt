@@ -4,26 +4,26 @@ import core.statemachine.Agent
 import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.State
-import core.statemachine.Time
+import utils.units.AbsoluteTime
 import kotlin.reflect.KClass
 
 typealias AnyStateType = KClass<out StateData>
 typealias StateType<D> = KClass<out D>
 
 interface StateData {
-    val time: Time
+    val time: AbsoluteTime
     val agent: Agent<*>
 
-    fun updateTime(time: Time)
+    fun updateTime(time: AbsoluteTime)
 }
 
 abstract class BaseStateData(
-    time: Time,
+    time: AbsoluteTime,
 ) : StateData {
-    final override var time: Time = time
+    final override var time: AbsoluteTime = time
         private set
 
-    override fun updateTime(time: Time) {
+    override fun updateTime(time: AbsoluteTime) {
         this.time = time
     }
 }
@@ -31,8 +31,6 @@ abstract class BaseStateData(
 interface StateBehavior<D : StateData> {
     fun enter(data: D): Events
     fun processMessage(data: D, message: Message): Pair<Events, State?>
-
-//    fun checkMessageTransition(data: D, message: Message): State?
     fun fallbackTransition(data: D): Pair<Events, State?>
     fun interrupt(data: D): Events
 }
