@@ -1,24 +1,27 @@
 package core.statemachine
 
+import utils.units.AbsoluteTime
+
 interface StateMachine {
     val name: String
     fun start(): Events
 
-    fun process(event: Event<*>) {
+    fun process(event: Event<*>): Events {
         setTime(event.receiveTime)
-        process(event.content)
+        return process(event.content)
     }
 
-    fun setTime(time: Time)
+    fun setTime(time: AbsoluteTime)
     fun process(message: Message): Events
 }
 
 typealias StateTransition = Pair<Events, State?>
+val NULL_TRANSITION = (emptyList<Event<*>>() to null)
 
 interface State {
     val name: String
 
-    fun updateTime(time: Time)
+    fun updateTime(time: AbsoluteTime)
     fun enter(): Events
     fun processMessage(message: Message): StateTransition
     fun fallbackTransition(): StateTransition
@@ -26,13 +29,12 @@ interface State {
 }
 
 interface StateMachineFactory<A : Agent<out Message>> {
-    fun create(startTime: Time, agent: A): StateMachine
-//    fun <D> create(agent: A, contextData: D): StateMachine
+    fun create(startTime: AbsoluteTime, agent: A): StateMachine
 }
 
 data class TransitoryStateMachine(
     override val name: String,
-    private val initial: State
+    private val initial: State // TODO avoid storing initial state, maybe initialize current state right away?
 ) : StateMachine {
 
     private lateinit var currentState: State
@@ -41,7 +43,7 @@ data class TransitoryStateMachine(
         return enter(initial)
     }
 
-    override fun setTime(time: Time) {
+    override fun setTime(time: AbsoluteTime) {
         currentState.updateTime(time)
     }
 
