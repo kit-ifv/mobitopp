@@ -29,6 +29,7 @@ import synthesis.SurveyInfo
 import synthesis.SynthesisCar
 import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateActivitySchedule
+import synthesis.activityGeneration.GenerateHouseholdActivitySchedule
 import synthesis.activityGeneration.generateActivitiesViaActitopp
 import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.carownership.standardAssignmentByRegionSize
@@ -211,10 +212,20 @@ class SynthesisSteps<AREA, T : Any>(
         cars = households.flatMap { it.cars }
     }
 
-    fun assignActivities(lambda: () -> GenerateActivitySchedule<in T>) {
+//    fun assignActivities(lambda: () -> GenerateActivitySchedule<in T>) {
+//        val strategy = lambda()
+//        people.forEach {
+//            it.plannedActivities = strategy.generate(it)
+//        }
+//    }
+
+    fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
         val strategy = lambda()
-        people.forEach {
-            it.plannedActivities = strategy.generate(it)
+        households.forEach { h ->
+            val output = strategy.generate(h)
+            output.entries.forEach {(k, v) ->
+                k.plannedActivities = v
+            }
         }
     }
 }
