@@ -1,6 +1,5 @@
 package synthesis.activityGeneration
 
-
 import datastructure.RawActivity
 import domain.data.Employment
 import domain.data.Sex
@@ -37,7 +36,9 @@ class ActiToppNGGenerator(
 ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
     val strategy = StandardHouseholdPlanGeneration()
-    override fun generate(household: SynthesisHousehold<out SurveyWithCommute>): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
+    override fun generate(
+        household: SynthesisHousehold<out SurveyWithCommute>,
+    ): Map<SynthesisPerson<out SurveyWithCommute>, PreliminaryActivitySchedule> {
         val (actHH, mapping) = convert(household)
 
         val output = strategy.generateSchedules(actHH)
@@ -46,18 +47,21 @@ class ActiToppNGGenerator(
 
     fun finish(mobilityPlan: MobilityPlan): PreliminaryActivitySchedule {
         val finishedActivities = mobilityPlan.finish()
-        return PreliminaryActivitySchedule(finishedActivities.map {
-            RawActivity(
-                location = LOCATIONUNKNOWN,
-                startTime = it.startTime!!.sinceStart,
-                endTime = it.endTime!!.sinceStart,
+        return PreliminaryActivitySchedule(
+            finishedActivities.map {
+                RawActivity(
+                    location = LOCATIONUNKNOWN,
+                    startTime = it.startTime!!.sinceStart,
+                    endTime = it.endTime!!.sinceStart,
 
-                type = it.activityType.toReengineeredType(purposes)
-            )
-        }.toMutableList())
+                    type = it.activityType.toReengineeredType(purposes)
+                )
+            }.toMutableList()
+        )
     }
 
-    fun convert(household: SynthesisHousehold<out SurveyWithCommute>): Pair<ActitoppHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
+    fun convert(household: SynthesisHousehold<out SurveyWithCommute>):
+        Pair<ActitoppHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
@@ -65,7 +69,6 @@ class ActiToppNGGenerator(
             numberOfCars = household.amountOfCars
         )
         val mapping = household.members.associateBy {
-
             ActitoppPerson(actHousehold, it.actitoppAttributes())
         }
         return actHousehold to mapping
@@ -77,7 +80,7 @@ class ActiToppNGGenerator(
             employment = employment.toActitoppEmployment(),
             age = age,
             commuteDistanceWork = min(info.distanceWork.inKilometers, maxCommute),
-            commuteDistanceEducation = min(info.distanceEducation.inKilometers,maxCommute),
+            commuteDistanceEducation = min(info.distanceEducation.inKilometers, maxCommute),
             isAllowedToWork = true, // TODO cross check with modellierer
         )
     }
@@ -86,10 +89,10 @@ class ActiToppNGGenerator(
         return when (this) {
             Sex.MALE -> Gender.MALE
             Sex.FEMALE -> Gender.FEMALE
-
         }
     }
 
+    @Suppress("CyclomaticComplexMethod") // I would rather have a concise mapping, instead of cutting this down
     private fun Employment.toActitoppEmployment(): ActitoppEmployment {
         return when (this) {
             Employment.UNKNOWN -> ActitoppEmployment.DEFINITELY_UNKNOWN
@@ -108,7 +111,6 @@ class ActiToppNGGenerator(
             Employment.NONE -> ActitoppEmployment.UNOCCUPIED
         }
     }
-
 }
 
 fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.enums.ActivityType {
@@ -119,7 +121,6 @@ fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.enums
         ActivityType.SHOPPING -> purposes.shopping
         ActivityType.TRANSPORT -> purposes.service
         ActivityType.HOME -> purposes.home
-
     }
 }
 

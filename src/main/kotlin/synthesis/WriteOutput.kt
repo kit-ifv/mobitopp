@@ -75,7 +75,6 @@ object ActivityOutput : CSVOutput<Pair<SynthesisPerson<*>, Collection<Activity>>
                 )
             }
         }
-
     }
 }
 
@@ -99,7 +98,7 @@ object CarOutput : CSVOutput<SynthesisCar> {
                 "TODO always 1.0?",
                 "TODO always 1000?",
 
-                )
+            )
         }
     }
 }
