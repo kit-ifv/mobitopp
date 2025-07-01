@@ -3,7 +3,10 @@ package utils
 import kotlin.reflect.KClass
 
 @JvmInline
-value class ID<out E> (val id: Long)
+value class ID<out E> (val id: Long) {
+    override fun toString() = "ID$id"
+}
+
 interface Identifiable<I> {
     val id: I
 }
