@@ -1,23 +1,23 @@
-import domain.data.EconomicStatus
-import domain.enums.areatype.Bbsr17
-import modeling.steps.Run
-import usecases.LegacyActivityType
-import usecases.LegacyMode
-import usecases.legacyChoiceModelModes
-import usecases.legacyChoiceModelPurposes
-import usecases.models.legacyDestinationChoice
-import usecases.models.legacyModeChoice
-import usecases.steps.ProjectContext
-import usecases.steps.StationColumns
-import usecases.steps.assignFixedDestinations
-import usecases.steps.finishSharingStations
-import usecases.steps.legacyData.loadZones
-import usecases.steps.loadAttractivities
-import usecases.steps.loadChoiceModels
-import usecases.steps.loadImpedance
-import usecases.steps.output
-import usecases.steps.prepareSharingStations
-import usecases.steps.simulate
+import application.config.ExampleProjectContext
+import application.steps.model.loadChoiceModels
+import application.steps.model.simulate
+import application.steps.parser.csv.StationColumns
+import application.steps.parser.csv.assignFixedDestinations
+import application.steps.parser.csv.finishSharingStations
+import application.steps.parser.csv.loadAttractivities
+import application.steps.parser.csv.loadZones
+import application.steps.parser.csv.prepareSharingStations
+import application.steps.parser.loadImpedance
+import application.steps.results.writeTripsToCsv
+import core.modelsteps.Simulation
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
+import domain.shared.enums.areatype.Bbsr17
+import domain.shared.enums.legacyChoiceModelModes
+import domain.shared.enums.legacyChoiceModelPurposes
+import domain.simulation.behavior.legacyDestinationChoice
+import domain.simulation.behavior.legacyModeChoice
+import domain.synthesis.data.EconomicStatus
 import utils.ErrorHandling
 import kotlin.io.path.Path
 
@@ -26,11 +26,11 @@ private const val ROOT_FS = "\\\\ifv-fs/Forschung/Projekte_intern/mobitopp"
 private val rootHamburg = Path("$ROOT_FS/Output/transmove-synthesis-city-bs/last-stable")
 
 fun main() {
-    Run {
-        ProjectContext(
+    Simulation {
+        ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = Bbsr17,
-            demandFolder = rootHamburg,
+            dataFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -67,6 +67,6 @@ fun main() {
         loadTestSet()
         assignFixedDestinations(LegacyActivityType.HOME, Path("src/test/resources/debughh/fixedDestination.csv"))
         simulate()
-        output()
+        writeTripsToCsv()
     }
 }
