@@ -1,3 +1,6 @@
+import discreteChoice.models.FixedChoicesModel
+import discreteChoice.models.fixed
+import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -54,9 +57,6 @@ import domain.synthesis.results.HouseholdOutput
 import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
-import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
-import modeling.models.FixedChoicesModel
-import modeling.models.fixed
 import units.CurrencyUnit
 import units.kilometers
 import units.meters
@@ -110,7 +110,7 @@ class AssignByDiscreteChoice(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
             transitPassChoiceModel
-    ) : this(model.build(parameters).fixed(setOf(true, false)))
+    ) : this(model.build(parameters).fixed<TicketAlternative, Boolean>(setOf(true, false)))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
         return model.filterAndSelect(TicketSituation(person.household, person))

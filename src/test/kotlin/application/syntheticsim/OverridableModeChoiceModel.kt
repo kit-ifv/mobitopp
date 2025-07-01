@@ -1,10 +1,10 @@
 package application.syntheticsim
 
+import discreteChoice.models.ChoiceFilter
+import discreteChoice.models.ChoiceModel
+import discreteChoice.models.noFilter
 import domain.shared.enums.Mode
 import domain.simulation.behavior.ModeChoiceAlternative
-import modeling.models.ChoiceFilter
-import modeling.models.ChoiceModel
-import modeling.models.noFilter
 import kotlin.random.Random
 
 /**
