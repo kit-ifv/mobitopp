@@ -23,7 +23,7 @@ import usecases.models.ChoiceModelPurposes
 import utils.units.sinceStart
 import java.lang.Double.min
 
-typealias ActitoppHousehold = Household
+typealias ACTHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
 
 /**
@@ -61,7 +61,7 @@ class ActiToppNGGenerator(
     }
 
     fun convert(household: SynthesisHousehold<out SurveyWithCommute>):
-        Pair<ActitoppHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
+        Pair<ACTHousehold, Map<ActitoppPerson, SynthesisPerson<out SurveyWithCommute>>> {
         val actHousehold = ActiToppHousehold(
             numMinorsUpTo10 = household.numberOfChilds,
             numMinorsBelow18 = household.numberOfYouths,
