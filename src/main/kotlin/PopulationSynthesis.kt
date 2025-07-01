@@ -3,6 +3,7 @@ import domain.data.Employment
 import domain.data.Sex
 import domain.data.Zone
 import domain.enums.ActivityType
+import domain.enums.areatype.ZoneRegionType
 import domain.location.LOCATIONUNKNOWN
 import domain.location.Location
 import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
@@ -27,10 +28,9 @@ import synthesis.SamplingCarGeneration
 import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisCar
+import synthesis.activityGeneration.ActiToppNGGenerator
 import synthesis.activityGeneration.ActitoppGenerator
-import synthesis.activityGeneration.GenerateActivitySchedule
 import synthesis.activityGeneration.GenerateHouseholdActivitySchedule
-import synthesis.activityGeneration.generateActivitiesViaActitopp
 import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.carownership.standardAssignmentByRegionSize
 import synthesis.discreteChoice.TicketAlternative
@@ -412,9 +412,11 @@ fun examplePopulationSynthesis() {
 //        generateCars (TrivialCarGeneration::generateCars)
         generateCars(strategy = SamplingCarGeneration)
         assignActivities {
-            ActitoppGenerator(purposes = legacyChoiceModelPurposes)
+
+            ActiToppNGGenerator(legacyChoiceModelPurposes){
+                ZoneRegionType.DEFAULT
+            }
         }
-        generateActivitiesViaActitopp()
         writeLegacyOutput()
         println("Finished")
     }

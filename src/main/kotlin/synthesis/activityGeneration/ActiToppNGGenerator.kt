@@ -20,8 +20,6 @@ import synthesis.SurveyWithCommute
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
-import units.Distance
-import units.kilometers
 import usecases.models.ChoiceModelPurposes
 import utils.units.sinceStart
 import java.lang.Double.min
