@@ -1,3 +1,6 @@
+import discreteChoice.models.FixedChoicesModel
+import discreteChoice.models.fixed
+import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -54,9 +57,6 @@ import domain.synthesis.results.HouseholdOutput
 import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.fixed
-import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import units.CurrencyUnit
 import units.kilometers
 import units.meters

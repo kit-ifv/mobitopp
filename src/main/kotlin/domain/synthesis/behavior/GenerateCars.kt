@@ -1,5 +1,6 @@
 package domain.synthesis.behavior
 
+import discreteChoice.models.fixed
 import domain.synthesis.behavior.discreteChoice.CarSegmentParameters
 import domain.synthesis.behavior.discreteChoice.CarSegmentSituation
 import domain.synthesis.behavior.discreteChoice.EngineChoiceSituation
@@ -15,7 +16,6 @@ import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.buildEngine
-import discreteChoice.models.fixed
 
 fun interface GenerateCars<T> {
     fun generate(householdBuilder: SynthesisHousehold<out T>): List<SynthesisCar>

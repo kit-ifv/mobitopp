@@ -1,4 +1,4 @@
-package modeling.discreteChoice
+package utils
 
 import net.objecthunter.exp4j.ExpressionBuilder
 import processor.builder.splitOnce

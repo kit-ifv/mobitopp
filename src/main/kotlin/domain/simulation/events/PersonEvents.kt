@@ -1,6 +1,7 @@
 package domain.simulation.events
 
 import core.events.Event
+import discreteChoice.models.FixedChoicesModel
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.ActionBlockVisitor
 import domain.shared.datastructure.schedule.Activity
@@ -20,7 +21,6 @@ import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.ModeChoiceSituation
 import domain.simulation.behavior.TripChoiceSituation
-import discreteChoice.models.FixedChoicesModel
 import utils.concurrent.synchronizeAll
 import utils.units.Time
 

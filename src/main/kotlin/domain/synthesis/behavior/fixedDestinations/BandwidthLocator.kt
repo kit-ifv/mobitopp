@@ -1,16 +1,16 @@
 package domain.synthesis.behavior.fixedDestinations
 
 import core.datastructure.kdtree.WithMetric
+import discreteChoice.DiscreteChoiceModel
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.structure.RuleBasedStructure
+import discreteChoice.utility.openMultinomialLogit
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.enums.ActivityType
 import domain.shared.location.Location
 import domain.shared.location.LocationKDTree
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisPerson
-import discreteChoice.DiscreteChoiceModel
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.structure.RuleBasedStructure
-import discreteChoice.utility.openMultinomialLogit
 import units.Distance
 import units.DistanceUnit
 import units.kilometers

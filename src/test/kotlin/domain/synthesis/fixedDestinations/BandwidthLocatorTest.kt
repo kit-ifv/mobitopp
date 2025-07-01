@@ -2,6 +2,7 @@ package domain.synthesis.fixedDestinations
 
 import TestZone
 import core.datastructure.kdtree.discardMetric
+import discreteChoice.SelectionFunction
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 import domain.shared.location.Zone
@@ -14,7 +15,6 @@ import domain.synthesis.behavior.fixedDestinations.LocationAlternative
 import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
-import discreteChoice.SelectionFunction
 import org.junit.jupiter.api.Test
 import units.Distance
 import units.Hemisphere

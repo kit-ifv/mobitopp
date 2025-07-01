@@ -1,6 +1,9 @@
 package domain.simulation.behavior
 
 import core.events.Resource
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceFilter
+import discreteChoice.models.ChoiceSituation
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -10,9 +13,6 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.agent.SharingStationAgent
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceFilter
-import discreteChoice.models.ChoiceSituation
 import utils.units.AbsoluteTime
 import kotlin.random.Random
 
