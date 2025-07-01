@@ -103,13 +103,13 @@ fun interface AssignTransitCardOwnership<T> {
 
 class AssignByDiscreteChoice(
     val model: FixedChoicesModel<TicketAlternative, Boolean> =
-        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
+        transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false)),
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
-            transitPassChoiceModel
+            transitPassChoiceModel,
     ) : this(model.build(parameters).fixed(setOf(true, false)))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
@@ -128,13 +128,14 @@ class SynthesisSteps<AREA, T : Any>(
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
-    val opportunities: List<OpportunityOutput>
+    val opportunities: List<OpportunityOutput>,
 ) {
 
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
-    var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> = listOf() // TODO currently there is no generation of activities.
+    var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> =
+        listOf()
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
@@ -154,7 +155,7 @@ class SynthesisSteps<AREA, T : Any>(
     // TODO speaking type parameter names
     fun synthesis(
         randsums: Map<AREA, List<Rule<Any>>>,
-        lambda: () -> HouseholdSynthesis<AREA, T>
+        lambda: () -> HouseholdSynthesis<AREA, T>,
     ) {
         val generator = lambda()
         // TODO reenable
@@ -211,18 +212,16 @@ class SynthesisSteps<AREA, T : Any>(
         cars = households.flatMap { it.cars }
     }
 
-
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
         val strategy = lambda()
         households.forEach { h ->
             val output = strategy.generate(h)
-            output.entries.forEach {(k, v) ->
+            output.entries.forEach { (k, v) ->
                 k.plannedActivities = v
             }
         }
 
         activities = households.map { it.members.associateWith { it.plannedActivities } }
-
     }
 }
 
@@ -242,8 +241,11 @@ class PopulationSynthesis<AREA, T : Any>(
     fun generateLocations(
         activityType: ActivityType,
         amount: Int = 10,
-        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location> = { _, _, _ -> listOf(
-            LOCATIONUNKNOWN) }
+        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location> = { _, _, _ ->
+            listOf(
+                LOCATIONUNKNOWN
+            )
+        },
     ): List<Location> {
         // TODO reenable generation and put more thought into how the locations are generated.
         val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
@@ -282,7 +284,7 @@ class PopulationSynthesis<AREA, T : Any>(
         fun <AREA, T : Any> configure(
             surveyPopulation: GenerateArtificialPopulation<T>,
             zones: List<AREA>,
-            lambda: SynthesisConfiguration<AREA, T>.() -> Unit
+            lambda: SynthesisConfiguration<AREA, T>.() -> Unit,
         ): PopulationSynthesis<AREA, T> {
             val config = SynthesisConfiguration<AREA, T>(surveyPopulation).apply(lambda)
 
@@ -303,7 +305,8 @@ fun interface GenerateArtificialPopulation<T> {
     companion object {
         fun fromFile(fileString: String) = fromFile(Path(fileString))
         fun fromFile(file: Path) = GenerateArtificialPopulation {
-            parseSurvey(file).toList() }
+            parseSurvey(file).toList()
+        }
     }
 }
 
@@ -405,8 +408,7 @@ fun examplePopulationSynthesis() {
 //        generateCars (TrivialCarGeneration::generateCars)
         generateCars(strategy = SamplingCarGeneration)
         assignActivities {
-
-            ActiToppNGGenerator(legacyChoiceModelPurposes){
+            ActiToppNGGenerator(legacyChoiceModelPurposes) {
                 ZoneRegionType.DEFAULT
             }
         }
@@ -433,7 +435,7 @@ fun main() {
 private fun Collection<Zone>.generateLocations(
     attractivenessModel: AttractivenessModel,
     activityType: ActivityType,
-    generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 }
+    generationFunction: (Zone, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> 10 },
 ): List<Location> {
     return filter { attractivenessModel.attractivenessFor(it.id, activityType) > 0.0 }.flatMap {
         it.generateLocations(generationFunction(it, attractivenessModel, activityType))

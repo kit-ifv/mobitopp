@@ -7,9 +7,11 @@ import usecases.LegacyActivityType
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours
 
-fun interface GenerateActivitySchedule<T>: GenerateHouseholdActivitySchedule<T> {
+fun interface GenerateActivitySchedule<T> : GenerateHouseholdActivitySchedule<T> {
     fun generate(person: SynthesisPerson<out T>): PreliminaryActivitySchedule
-    override fun generate(household: SynthesisHousehold<out T>): Map<SynthesisPerson<out T>, PreliminaryActivitySchedule> {
+    override fun generate(
+        household: SynthesisHousehold<out T>
+    ): Map<SynthesisPerson<out T>, PreliminaryActivitySchedule> {
         return household.members.associateWith { generate(it) }
     }
 }
