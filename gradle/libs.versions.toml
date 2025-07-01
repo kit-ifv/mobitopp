@@ -21,7 +21,7 @@ exp4j = "0.4.8"
 ifv-units= "1.2.3"
 ifv-visum-netparser = "0.10.0"
 ifv-actitopp = "1.9+"
-ifv-actitopp-NG = "0.9.2"
+ifv-actitopp-NG = "0.9.5"
 
 
 [plugins]

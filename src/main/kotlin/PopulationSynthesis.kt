@@ -135,7 +135,7 @@ class SynthesisSteps<AREA, T : Any>(
     lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
-    val activities = listOf<Activity>() // TODO currently there is no generation of activities.
+    var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> = listOf() // TODO currently there is no generation of activities.
     var cars = listOf<SynthesisCar>()
     var fixedDestinations: List<FixedDestinationElements> = emptyList()
 
@@ -227,6 +227,9 @@ class SynthesisSteps<AREA, T : Any>(
                 k.plannedActivities = v
             }
         }
+
+        activities = households.map { it.members.associateWith { it.plannedActivities } }
+
     }
 }
 
@@ -246,10 +249,11 @@ class PopulationSynthesis<AREA, T : Any>(
     fun generateLocations(
         activityType: ActivityType,
         amount: Int = 10,
-        generationFunction: (AREA, AttractivenessModel, ActivityType) -> Int = { _, _, _ -> amount }
+        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location> = { _, _, _ -> listOf(
+            LOCATIONUNKNOWN) }
     ): List<Location> {
         // TODO reenable generation and put more thought into how the locations are generated.
-        val generatedLocations = zones.map { LOCATIONUNKNOWN }
+        val generatedLocations = zones.flatMap { generationFunction(it, attractivenessModel, activityType) }
         opportunities.addAll(generatedLocations.map { OpportunityOutput(it, attractivenessModel, activityType) })
         return generatedLocations
     }
@@ -305,7 +309,8 @@ fun interface GenerateArtificialPopulation<T> {
 
     companion object {
         fun fromFile(fileString: String) = fromFile(Path(fileString))
-        fun fromFile(file: Path) = GenerateArtificialPopulation { parseSurvey(file).toList() }
+        fun fromFile(file: Path) = GenerateArtificialPopulation {
+            parseSurvey(file).toList() }
     }
 }
 
@@ -419,7 +424,8 @@ fun SynthesisSteps<out Any, out SurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)
-    ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), activities)
+    val flatActivities = activities.flatMap { it.entries.map { it.key to it.value } }
+    ActivityOutput.writeCSVToFile(outputDirectory.resolve("activity.csv"), flatActivities)
     CarOutput.writeCSVToFile(outputDirectory.resolve("car.csv"), cars)
     OpportunitiesOutput.writeCSVToFile(outputDirectory.resolve("opportunities.csv"), opportunities)
 }

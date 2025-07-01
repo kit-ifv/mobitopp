@@ -20,8 +20,11 @@ import synthesis.SurveyWithCommute
 import synthesis.domain.SynthesisHousehold
 import synthesis.domain.SynthesisPerson
 import synthesis.employment
+import units.Distance
+import units.kilometers
 import usecases.models.ChoiceModelPurposes
 import utils.units.sinceStart
+import java.lang.Double.min
 
 typealias ActitoppHousehold = Household
 typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
@@ -30,8 +33,9 @@ typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
  * Actitopp is still using the zone region type numbers :(
  */
 class ActiToppNGGenerator(
-    val converter: (RegionType) -> ZoneRegionType,
     val purposes: ChoiceModelPurposes,
+    val converter: (RegionType) -> ZoneRegionType,
+
 ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
     val strategy = StandardHouseholdPlanGeneration()
@@ -69,13 +73,13 @@ class ActiToppNGGenerator(
         return actHousehold to mapping
     }
 
-    fun SynthesisPerson<out SurveyWithCommute>.actitoppAttributes(): PersonAttributes {
+    fun SynthesisPerson<out SurveyWithCommute>.actitoppAttributes(maxCommute: Double = 150.0): PersonAttributes {
         return PersonAttributes(
             gender = sex.toGender(),
             employment = employment.toActitoppEmployment(),
             age = age,
-            commuteDistanceWork = this.info.distanceWork.inKilometers,
-            commuteDistanceEducation = this.info.distanceEducation.inKilometers,
+            commuteDistanceWork = min(info.distanceWork.inKilometers, maxCommute),
+            commuteDistanceEducation = min(info.distanceEducation.inKilometers,maxCommute),
             isAllowedToWork = true, // TODO cross check with modellierer
         )
     }
