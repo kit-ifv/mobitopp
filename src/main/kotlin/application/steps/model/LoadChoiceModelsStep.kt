@@ -8,6 +8,11 @@ import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
+import discreteChoice.models.ChoiceModel
+import discreteChoice.models.FixedChoicesModel
+import discreteChoice.models.RandomChoiceModel
+import discreteChoice.models.addFilter
+import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -27,11 +32,6 @@ import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
 import domain.synthesis.data.SharingProviderId
-import discreteChoice.models.ChoiceModel
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.RandomChoiceModel
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 
 fun LoadChoiceModelsContext.loadChoiceModels(
     destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,

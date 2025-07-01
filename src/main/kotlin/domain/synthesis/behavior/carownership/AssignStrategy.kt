@@ -1,18 +1,18 @@
 package domain.synthesis.behavior.carownership
 
-import domain.enums.areatype.SizebasedRegiostarClassification
-import domain.enums.areatype.toSizebasedClassification
 import discreteChoice.models.ChoiceAlternative
 import discreteChoice.models.ChoiceSituation
 import discreteChoice.utility.EnumeratedDiscreteModelBuilder
-import synthesis.SurveyInfo
-import synthesis.discreteChoice.carChoiceUtility
-import synthesis.discreteChoice.carOwnershipCityParameters
-import synthesis.discreteChoice.carOwnershipRuralArea
-import synthesis.discreteChoice.carOwnershipSmallCity
-import synthesis.discreteChoice.carOwnershipUrbanAreaParameters
-import synthesis.domain.SynthesisHousehold
-import synthesis.toCarOwnershipAttributes
+import domain.shared.enums.areatype.SizebasedRegiostarClassification
+import domain.shared.enums.areatype.toSizebasedClassification
+import domain.synthesis.behavior.SurveyInfo
+import domain.synthesis.behavior.discreteChoice.carChoiceUtility
+import domain.synthesis.behavior.discreteChoice.carOwnershipCityParameters
+import domain.synthesis.behavior.discreteChoice.carOwnershipRuralArea
+import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
+import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
+import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.behavior.toCarOwnershipAttributes
 
 fun interface CarOwnershipAssignStrategy<T> {
 

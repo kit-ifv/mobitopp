@@ -1,10 +1,10 @@
 package application.syntheticsim
 
-import domain.shared.location.Location
-import domain.simulation.behavior.DestinationAlternative
 import discreteChoice.models.ChoiceFilter
 import discreteChoice.models.ChoiceModel
 import discreteChoice.models.noFilter
+import domain.shared.location.Location
+import domain.simulation.behavior.DestinationAlternative
 import kotlin.random.Random
 
 /**

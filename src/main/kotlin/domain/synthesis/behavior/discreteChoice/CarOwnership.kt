@@ -1,16 +1,16 @@
 package domain.synthesis.behavior.discreteChoice
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
+import discreteChoice.structure.NestedStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.nestedLogit
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.structure.NestedStructure
-import discreteChoice.structure.times
-import discreteChoice.utility.nestedLogit
 import kotlin.random.Random
 
 /**
