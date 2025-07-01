@@ -6,8 +6,11 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asRepository
 import core.modelsteps.asResource
+import discreteChoice.models.FixedOrderChoiceModel
+import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
+import domain.simulation.agent.PersonAgent
 import domain.simulation.behavior.SharingAvailabilityFilter
 import domain.simulation.events.CarSelector
 import domain.simulation.events.InitPersonEvent
@@ -16,8 +19,6 @@ import domain.simulation.events.PersonBehavior
 import generateActivitySchedule
 import generateHouseholds
 import generateZones
-import modeling.models.FixedOrderChoiceModel
-import modeling.models.RandomChoiceModel
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
 import spawnDrivers
@@ -46,7 +47,6 @@ class CarOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
-//        val persons = households.flatMap { it.members }
         val car = legacyModes.car
 
         val agents = BuildAgents(seed = 1L).buildPersonAgents(households)
@@ -78,7 +78,7 @@ class CarOnlyScenario {
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
         val test = resource.asRepository()
-        sim.addAgents(test) { person ->
+        sim.addAgents(test) { person: PersonAgent ->
             InitPersonEvent(person, syntheticBehavior)
         }
         sim.run(0.days.sinceStart, 7.days.sinceStart)
