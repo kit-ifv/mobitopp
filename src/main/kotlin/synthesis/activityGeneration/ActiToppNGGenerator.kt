@@ -117,7 +117,7 @@ fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.enums
         ActivityType.EDUCATION -> purposes.education
         ActivityType.LEISURE -> purposes.leisure
         ActivityType.SHOPPING -> purposes.shopping
-        ActivityType.TRANSPORT -> purposes.leisureTravel // TODO verify what TRANSPORT SHOULD BE
+        ActivityType.TRANSPORT -> purposes.service
         ActivityType.HOME -> purposes.home
 
     }
