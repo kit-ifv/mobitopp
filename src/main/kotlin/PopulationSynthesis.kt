@@ -29,7 +29,6 @@ import synthesis.SurveyHousehold
 import synthesis.SurveyInfo
 import synthesis.SynthesisCar
 import synthesis.activityGeneration.ActiToppNGGenerator
-import synthesis.activityGeneration.ActitoppGenerator
 import synthesis.activityGeneration.GenerateHouseholdActivitySchedule
 import synthesis.carownership.CarOwnershipAssignStrategy
 import synthesis.carownership.standardAssignmentByRegionSize
