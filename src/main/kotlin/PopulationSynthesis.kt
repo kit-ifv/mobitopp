@@ -211,12 +211,6 @@ class SynthesisSteps<AREA, T : Any>(
         cars = households.flatMap { it.cars }
     }
 
-//    fun assignActivities(lambda: () -> GenerateActivitySchedule<in T>) {
-//        val strategy = lambda()
-//        people.forEach {
-//            it.plannedActivities = strategy.generate(it)
-//        }
-//    }
 
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
         val strategy = lambda()
