@@ -52,7 +52,7 @@ interface CSVOutput<T> {
 
 // TODO the synthesis activity will probably not match with the simulation activity.
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
-object ActivityOutput : CSVOutput<Activity> {
+object ActivityOutput : CSVOutput<Pair<SynthesisPerson<*>, Collection<Activity>>> {
     override val header: List<String> = listOf(
         "personId",
         "activityType",
@@ -64,18 +64,21 @@ object ActivityOutput : CSVOutput<Activity> {
         "isSupertour"
     )
 
-    override fun convert(element: Activity): String {
-        return element.run {
-            toCSV(
-                "TODO personID",
-                type.code,
-                "TODO observedTripDuration",
-                startTime,
-                duration,
-                "TODO tournr",
-                "TODO isMainActivity",
-                "TODO isSupertour"
-            )
+    override fun convert(element: Pair<SynthesisPerson<*>, Collection<Activity>>): String {
+        val (person, activities) = element
+        return activities.joinToString(separator = "\n") { activity: Activity ->
+            activity.run {
+                toCSV(
+                    person.personId,
+                    type.code,
+                    "TODO observedTripDuration",
+                    startTime,
+                    duration,
+                    "TODO tournr",
+                    "TODO isMainActivity",
+                    "TODO isSupertour"
+                )
+            }
         }
     }
 }
@@ -108,7 +111,7 @@ object CarOutput : CSVOutput<SynthesisCar> {
 data class FixedDestinationElements(
     val person: SynthesisPerson<*>,
     val activityType: ActivityType,
-    val location: Location
+    val location: Location,
 )
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
@@ -198,7 +201,7 @@ object HouseholdOutput : CSVOutput<SynthesisHousehold<out SurveyInfo>> {
 data class OpportunityOutput(
     val location: Location,
     val attractivenessModel: AttractivenessModel,
-    val activityType: ActivityType
+    val activityType: ActivityType,
 )
 
 @Suppress("StringLiteralDuplication") // Sorry detekt, householdId and other strings may occur more often.
