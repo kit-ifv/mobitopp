@@ -21,6 +21,7 @@ exp4j = "0.4.8"
 ifv-units= "1.2.3"
 ifv-visum-netparser = "0.10.0"
 ifv-actitopp-NG = "0.9.5"
+ifv-discrete-choice = "1.0.0"
 
 
 [plugins]
@@ -36,6 +37,7 @@ kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 ifv-units = { module = "edu.kit.ifv.mobitopp:kotlin-units", version.ref = "ifv-units" }
 ifv-visum-netparser = { module = "edu.kit.ifv:visumnetfileparser", version.ref = "ifv-visum-netparser" }
 ifv-actitoppNG = { module = "edu.kit.ifv.mobitopp:actitoppNG", version.ref = "ifv-actitopp-NG" }
+ifv-discrete-choice = {module = "edu.kit.ifv.mobitopp:discrete-choice", version.ref = "ifv-discrete-choice"}
 
 # testing libs
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
@@ -53,6 +55,9 @@ kandy-api = { module = "org.jetbrains.kotlinx:kandy-api", version.ref = "kandy" 
 # detekt libs
 detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detekt-cli = { module = "io.gitlab.arturbosch.detekt:detekt-cli", version.ref = "detekt" }
+detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
+detekt-rules = { module = "io.gitlab.arturbosch.detekt:detekt-rules", version.ref = "detekt" }
+
 
 # kotlinx libs
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
