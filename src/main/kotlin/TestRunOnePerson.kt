@@ -1,17 +1,17 @@
-import domain.data.EconomicStatus
-import domain.enums.areatype.Bbsr17
-import modeling.steps.Run
-import usecases.LegacyMode
-import usecases.steps.ProjectContext
-import usecases.steps.StationColumns
-import usecases.steps.finishActivities
-import usecases.steps.finishSharingStations
-import usecases.steps.legacyData.loadHouseholds
-import usecases.steps.legacyData.loadZones
-import usecases.steps.loadPersons
-import usecases.steps.prepareActivities
-import usecases.steps.prepareSharingStations
-import usecases.steps.simulate
+import application.config.ExampleProjectContext
+import application.steps.model.simulate
+import application.steps.parser.csv.StationColumns
+import application.steps.parser.csv.finishActivities
+import application.steps.parser.csv.finishSharingStations
+import application.steps.parser.csv.loadHouseholds
+import application.steps.parser.csv.loadPersons
+import application.steps.parser.csv.loadZones
+import application.steps.parser.csv.prepareActivities
+import application.steps.parser.csv.prepareSharingStations
+import core.modelsteps.Simulation
+import domain.shared.enums.LegacyMode
+import domain.shared.enums.areatype.Bbsr17
+import domain.synthesis.data.EconomicStatus
 import utils.ErrorHandling
 import kotlin.io.path.Path
 
@@ -22,11 +22,11 @@ private val rootHamburg = Path(
 
 fun main() {
     val input = "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input/transmove/mobitopp-env/data"
-    Run {
-        ProjectContext(
+    Simulation {
+        ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = Bbsr17,
-            demandFolder = rootHamburg,
+            dataFolder = rootHamburg,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -49,7 +49,7 @@ fun main() {
     }
 }
 
-fun ProjectContext.loadTestSet() {
+fun ExampleProjectContext.loadTestSet() {
     loadHouseholds(Path("src/test/resources/hamburg/household.csv"))
     loadPersons(Path("src/test/resources/hamburg/person.csv"))
     //    preparePrivateCars(file = Path("src/test/resources/hamburg/person.csv").toFile()) // file = File("example/car.csv"))

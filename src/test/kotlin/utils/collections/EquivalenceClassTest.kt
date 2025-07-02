@@ -1,74 +1,65 @@
 package utils.collections
 
-import domain.data.EconomicStatus
-import domain.data.Household
-import domain.data.HouseholdId
-import domain.data.MutableHousehold
-import domain.data.MutablePerson
-import domain.data.PersonId
-import domain.location.LOCATIONUNKNOWN
-import generateAndAddPerson
-import units.euros
 import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 
-class Generator {
-
-    private var householdId = HouseholdId(0L)
-    private var personId = PersonId(0L)
-    fun nextHouseholdId() = householdId.also { householdId = householdId.next() }
-    fun nextPersonId() = personId.also { personId = personId.next() }
-    var householdChanges: MutableHousehold.() -> Unit = {
-    }
-    val personChanges: MutableList<MutablePerson.() -> Unit> = mutableListOf()
-
-    /**
-     * In case the information of the household needs adaption.
-     *
-     * @param lambda
-     * @receiver
-     */
-    fun information(lambda: MutableHousehold.() -> Unit) {
-        householdChanges = lambda
-    }
-
-    fun person(lambda: MutablePerson.() -> Unit) {
-        personChanges.add(lambda)
-    }
-
-    fun clear() {
-        householdChanges = {}
-        personChanges.clear()
-    }
-
-    fun household(lambda: Generator.() -> Unit): Household {
-        return householdFromIdGenerator(this, lambda)
-    }
-}
-
-fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit): Household {
-    generator.lambda()
-    val household = MutableHousehold(id = generator.nextHouseholdId(), seed = 1).apply {
-        householdNumber = 1
-        surveyYear = 2024
-        domCode = 1
-        type = 1
-        incomePerMonth = 0.euros
-        economicStatus = EconomicStatus.MIDDLE
-        location = LOCATIONUNKNOWN
-        apply(generator.householdChanges)
-    }
-    // TODO rework this to work tomorrow
-
-    generator.personChanges.forEach {
-        household.generateAndAddPerson(generator.nextPersonId().value, it)
-    }
-    generator.clear()
-    return household
-}
+// class Generator {
+//
+//    private var householdId = HouseholdId(0L)
+//    private var personId = PersonId(0L)
+//    fun nextHouseholdId() = householdId.also { householdId = householdId.next() }
+//    fun nextPersonId() = personId.also { personId = personId.next() }
+//    var householdChanges: MutableHousehold.() -> Unit = {
+//    }
+//    val personChanges: MutableList<MutablePerson.() -> Unit> = mutableListOf()
+//
+//    /**
+//     * In case the information of the household needs adaption.
+//     *
+//     * @param lambda
+//     * @receiver
+//     */
+//    fun information(lambda: MutableHousehold.() -> Unit) {
+//        householdChanges = lambda
+//    }
+//
+//    fun person(lambda: MutablePerson.() -> Unit) {
+//        personChanges.add(lambda)
+//    }
+//
+//    fun clear() {
+//        householdChanges = {}
+//        personChanges.clear()
+//    }
+//
+//    fun household(lambda: Generator.() -> Unit): Household {
+//        return householdFromIdGenerator(this, lambda)
+//    }
+// }
+//
+// fun householdFromIdGenerator(generator: Generator, lambda: Generator.() -> Unit): Household {
+//    generator.lambda()
+//    val household = MutableHousehold(id = generator.nextHouseholdId(), seed = 1).apply {
+//        householdNumber = 1
+//        surveyYear = 2024
+//        domCode = 1
+//        type = 1
+//        incomePerMonth = 0.euros
+//        economicStatus = EconomicStatus.MIDDLE
+//        location = LOCATIONUNKNOWN
+//        apply(generator.householdChanges)
+//    }
+//    // TODO rework this to work tomorrow
+//
+//    generator.personChanges.forEach {
+//        household.generateAndAddPerson(generator.nextPersonId().value, it)
+//    }
+//    generator.clear()
+//    return household
+// }
 
 class EquivalenceClassTest {
 

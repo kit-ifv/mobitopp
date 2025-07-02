@@ -1,36 +1,35 @@
 @file:Suppress("UnusedPrivateProperty")
 
-import domain.data.EconomicStatus
-import domain.enums.areatype.RegioStaR17
-import modeling.steps.Run
-import synthesis.AssignAroundZoneCentroid
+import application.config.ExampleProjectContext
+import application.steps.model.assignCarUsers
+import application.steps.model.buildAgents
+import application.steps.model.householdHomeLocation
+import application.steps.model.scaleFilter
+import application.steps.model.simulate
+import application.steps.parser.csv.assignFixedDestinations
+import application.steps.parser.csv.finishActivities
+import application.steps.parser.csv.finishHouseholds
+import application.steps.parser.csv.finishPersons
+import application.steps.parser.csv.finishPrivateCars
+import application.steps.parser.csv.loadAttractivities
+import application.steps.parser.csv.loadZones
+import application.steps.parser.csv.prepareActivities
+import application.steps.parser.csv.prepareHouseholds
+import application.steps.parser.csv.preparePersons
+import application.steps.parser.csv.preparePrivateCars
+import application.steps.parser.loadImpedance
+import application.steps.parser.loadVisumNetwork
+import core.modelsteps.Simulation
+import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.LegacyMode
+import domain.shared.enums.areatype.RegioStaR17
+import domain.shared.enums.legacyChoiceModelPurposes
+import domain.simulation.behavior.GaussianActivityDurationRandomizer
+import domain.synthesis.behavior.AssignAroundZoneCentroid
+import domain.synthesis.data.EconomicStatus
+import domain.synthesis.parser.NoActivityStartShifter
 import units.meters
 import units.share
-import usecases.LegacyMode
-import usecases.legacyChoiceModelPurposes
-import usecases.steps.NoActivityStartShifter
-import usecases.steps.ProjectContext
-import usecases.steps.applyHomeLocationsInSchedule
-import usecases.steps.assignCarUsers
-import usecases.steps.assignFixedDestinations
-import usecases.steps.assignPlannedActivities
-import usecases.steps.finishActivities
-import usecases.steps.finishPersons
-import usecases.steps.gaussianDurationRandomizer
-import usecases.steps.legacyData.finishHouseholds
-import usecases.steps.legacyData.finishPrivateCars
-import usecases.steps.legacyData.householdHomeLocation
-import usecases.steps.legacyData.loadZones
-import usecases.steps.legacyData.prepareHouseholds
-import usecases.steps.legacyData.preparePrivateCars
-import usecases.steps.loadAttractivities
-import usecases.steps.loadImpedance
-import usecases.steps.loadVisumNetwork
-import usecases.steps.prepareActivities
-import usecases.steps.preparePersons
-import usecases.steps.randomizeActivityDurations
-import usecases.steps.scaleFilter
-import usecases.steps.simulate
 import utils.ErrorHandling
 import utils.csv.Row
 import kotlin.io.path.Path
@@ -64,11 +63,11 @@ private const val ROOT_TRANSMOVE_ENV =
         "/transmove/mobitopp-env/data/zone-repository"
 
 fun main() {
-    Run {
-        ProjectContext(
+    Simulation {
+        ExampleProjectContext(
             scenarioName = "testSteps",
             regionTypeCodes = RegioStaR17,
-            demandFolder = rootRastattPath,
+            dataFolder = rootRastattPath,
             economicalStatusCodes = EconomicStatus,
             simulationSeed = 42,
             modes = LegacyMode,
@@ -99,10 +98,6 @@ fun main() {
             errorHandling = ErrorHandling.WARNING,
             shiftActivityStart = NoActivityStartShifter
         )
-        assignPlannedActivities()
-        randomizeActivityDurations(
-            gaussianDurationRandomizer()
-        )
 
         finishActivities()
         finishPersons()
@@ -123,8 +118,11 @@ fun main() {
         )
 
         // loadChoiceModels(legacyChoiceModelModes, legacyChoiceModelPurposes)
-        applyHomeLocationsInSchedule()
-        assignFixedDestinations()
+
+        assignFixedDestinations(homeActivity = LegacyActivityType.HOME)
+
+        buildAgents(GaussianActivityDurationRandomizer())
+
         simulate()
     }
 }

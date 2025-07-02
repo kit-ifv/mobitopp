@@ -1,0 +1,77 @@
+package application.steps.parser.csv
+
+import core.modelsteps.LoadCsvStep
+import core.modelsteps.MutableRepository
+import core.modelsteps.SealStep
+import domain.simulation.config.DemandSimContext
+import domain.synthesis.data.ActivityId
+import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.MutablePlannedActivity
+import domain.synthesis.data.PersonId
+import domain.synthesis.parser.ActivitiesColumns
+import domain.synthesis.parser.ActivityStartShifter
+import domain.synthesis.parser.QuarterHourShifter
+import domain.synthesis.parser.activityCsvParser
+import utils.ErrorHandling
+import utils.csv.CsvParser
+import utils.csv.Row
+import utils.csv.SEMICOLON
+import utils.csv.withFilter
+import java.nio.file.Path
+import kotlin.time.DurationUnit
+
+@Suppress("LongParameterList")
+fun LoadPlannedActivitiesContext.prepareActivities(
+    path: Path = defaultActivityPath,
+    delimiter: String = SEMICOLON,
+    errorHandling: ErrorHandling = ErrorHandling.WARNING,
+    columns: ActivitiesColumns = ActivitiesColumns(),
+    durationUnit: DurationUnit = timeUnit,
+    filter: ActivitiesColumns.(Row, LoadPlannedActivitiesContext) -> Boolean = { _, _ -> true },
+    shiftActivityStart: ActivityStartShifter = QuarterHourShifter.cached(),
+) {
+    val parser = activityCsvParser(errorHandling, columns, shiftActivityStart, durationUnit) {
+        getPerson(it)
+    }
+    this.prepareActivitiesFile(parser.withFilter { columns.filter(it, this) }, path, delimiter)
+}
+
+fun LoadPlannedActivitiesContext.prepareActivitiesFile(
+    parser: CsvParser<MutablePlannedActivity>,
+    path: Path = defaultActivityPath,
+    delimiter: String = SEMICOLON,
+) = runStep {
+    LoadCsvStep<MutablePlannedActivity, ActivityId>(
+        path = path,
+        name = "Load planned activities from csv",
+        parser = parser,
+        delimiter = delimiter,
+        repository = plannedActivityRepository,
+        dependentRepositories = setOf(personRepository),
+        validationMock = listOf() // TODO
+    )
+}
+
+fun LoadPlannedActivitiesContext.finishActivities() = runStep {
+    SealStep(plannedActivityRepository)
+}
+
+fun LoadPlannedActivitiesContext.loadActivities() {
+    this.prepareActivities(errorHandling = ErrorHandling.THROW)
+    this.finishActivities()
+}
+
+interface LoadPlannedActivitiesContext : DemandSimContext {
+    val plannedActivityRepository: MutableRepository<MutablePlannedActivity, ActivityId>
+    val personRepository: MutableRepository<MutablePerson, PersonId>
+
+    val defaultActivityPath: Path
+        get() = dataFolder.resolve("demand-data").resolve("activity.csv")
+
+    fun getPerson(personId: PersonId) = requireNotNull(
+        personRepository[personId]
+    ) {
+        "Referenced person id $personId could not be found in personRepo:" +
+            " ${personRepository.elements.map { it.id }.toList()}"
+    }
+}
