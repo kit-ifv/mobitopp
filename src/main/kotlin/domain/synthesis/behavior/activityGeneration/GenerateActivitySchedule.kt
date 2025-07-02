@@ -2,6 +2,7 @@ package domain.synthesis.behavior.activityGeneration
 
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
+import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import utils.Decodable
 import kotlin.time.Duration.Companion.hours

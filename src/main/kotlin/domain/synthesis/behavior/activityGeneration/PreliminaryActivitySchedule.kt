@@ -1,7 +1,7 @@
-package synthesis.activityGeneration
+package domain.synthesis.behavior.activityGeneration
 
-import datastructure.Activity
-import domain.enums.ActivityType
+import domain.shared.datastructure.schedule.Activity
+import domain.shared.enums.ActivityType
 import utils.Decodable
 import kotlin.time.Duration
 
