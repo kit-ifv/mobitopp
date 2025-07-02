@@ -81,6 +81,8 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
             second.seconds
     )
 
+    val sinceStart get() = offset
+
     val daysSinceStart get() = offset.inWholeDays
     val hoursSinceStart get() = offset.inWholeHours
     val minutesSinceStart get() = offset.inWholeMinutes

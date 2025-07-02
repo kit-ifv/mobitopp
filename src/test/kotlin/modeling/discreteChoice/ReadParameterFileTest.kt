@@ -1,5 +1,6 @@
 package modeling.discreteChoice
 
+import utils.ReadParameterFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

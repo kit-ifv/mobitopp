@@ -25,6 +25,7 @@ import com.squareup.kotlinpoet.*
 import util.getEmptyInitializer
 import util.isCollectionType
 import util.isInlineClass
+import util.isMutableCollectionType
 import util.resolveGenerics
 import util.toMutableCollectionType
 import java.io.File
@@ -198,7 +199,9 @@ class MutableProcessor(
         if (property.canBeVar()) {
 
             val propertyBuilder: PropertySpec.Builder =
-                if (propertyType.isCollectionType()) {
+                if (propertyType.isMutableCollectionType()) {
+                    mutableCollectionPropertyBuilder(propertyType, propertyName) // Initialize with an empty collection
+                } else if (propertyType.isCollectionType()) {
                     collectionPropertyBuilder(propertyType, propertyName) // Initialize with an empty collection
                 } else {
                     nonCollectionPropertyBuilder(propertyName, propertyType, property)
@@ -237,6 +240,18 @@ class MutableProcessor(
             propertySpec.delegate("Delegates.notNull()")
 //            propertySpec.initializer("TODO()")
         }
+        return propertySpec
+    }
+
+    private fun mutableCollectionPropertyBuilder(
+        propertyType: TypeName,
+        propertyName: String
+    ): PropertySpec.Builder {
+
+        // Initialize with an empty collection
+        val propertySpec = PropertySpec.builder(propertyName, propertyType, KModifier.OVERRIDE)
+            .mutable(false)
+            .initializer(propertyType.getEmptyInitializer())
         return propertySpec
     }
 
