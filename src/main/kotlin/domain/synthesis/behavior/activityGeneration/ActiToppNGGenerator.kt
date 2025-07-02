@@ -34,7 +34,7 @@ class ActiToppNGGenerator(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
-    ) :
+) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
     val strategy = StandardHouseholdPlanGeneration()
     override fun generate(
@@ -114,8 +114,7 @@ class ActiToppNGGenerator(
     }
 }
 
-fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes):
-        domain.shared.enums.ActivityType {
+fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.shared.enums.ActivityType {
     return when (this) {
         ActivityType.WORK -> purposes.work
         ActivityType.EDUCATION -> purposes.education
