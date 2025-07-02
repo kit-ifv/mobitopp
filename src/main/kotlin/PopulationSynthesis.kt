@@ -6,6 +6,7 @@ import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyActivityType
+import domain.shared.enums.areatype.ZoneRegionType
 import domain.shared.enums.legacyChoiceModelPurposes
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
@@ -21,9 +22,8 @@ import domain.synthesis.behavior.SamplingCarGeneration
 import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.SynthesisCar
-import domain.synthesis.behavior.activityGeneration.ActitoppGenerator
-import domain.synthesis.behavior.activityGeneration.GenerateActivitySchedule
-import domain.synthesis.behavior.activityGeneration.generateActivitiesViaActitopp
+import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
+import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
 import domain.synthesis.behavior.carownership.CarOwnershipAssignStrategy
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
 import domain.synthesis.behavior.discreteChoice.TicketAlternative

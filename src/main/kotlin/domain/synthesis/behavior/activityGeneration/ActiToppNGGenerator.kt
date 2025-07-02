@@ -1,11 +1,16 @@
-package synthesis.activityGeneration
+package domain.synthesis.behavior.activityGeneration
 
-import datastructure.RawActivity
-import domain.data.Employment
-import domain.data.Sex
-import domain.enums.areatype.RegionType
-import domain.enums.areatype.ZoneRegionType
-import domain.location.LOCATIONUNKNOWN
+import domain.shared.behavior.ChoiceModelPurposes
+import domain.shared.datastructure.schedule.RawActivity
+import domain.shared.enums.areatype.RegionType
+import domain.shared.enums.areatype.ZoneRegionType
+import domain.shared.location.LOCATIONUNKNOWN
+import domain.synthesis.behavior.SurveyWithCommute
+import domain.synthesis.behavior.domain.SynthesisHousehold
+import domain.synthesis.behavior.domain.SynthesisPerson
+import domain.synthesis.behavior.employment
+import domain.synthesis.data.Employment
+import domain.synthesis.data.Sex
 import edu.kit.ifv.mobitopp.actitoppNG.ActiToppHousehold
 import edu.kit.ifv.mobitopp.actitoppNG.ActitoppPerson
 import edu.kit.ifv.mobitopp.actitoppNG.Household
@@ -15,11 +20,6 @@ import edu.kit.ifv.mobitopp.actitoppNG.enums.ActivityType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.AreaType
 import edu.kit.ifv.mobitopp.actitoppNG.enums.Gender
 import edu.kit.ifv.mobitopp.actitoppNG.modernization.plan.MobilityPlan
-import synthesis.SurveyWithCommute
-import synthesis.domain.SynthesisHousehold
-import synthesis.domain.SynthesisPerson
-import synthesis.employment
-import usecases.models.ChoiceModelPurposes
 import utils.units.sinceStart
 import java.lang.Double.min
 
@@ -28,12 +28,13 @@ typealias ActitoppEmployment = edu.kit.ifv.mobitopp.actitoppNG.enums.Employment
 
 /**
  * Actitopp is still using the zone region type numbers :(
+ * @param converter A converter to get from the region type to the zone region type used by actitopp.
  */
 class ActiToppNGGenerator(
     val purposes: ChoiceModelPurposes,
     val converter: (RegionType) -> ZoneRegionType,
 
-) :
+    ) :
     GenerateHouseholdActivitySchedule<SurveyWithCommute> {
     val strategy = StandardHouseholdPlanGeneration()
     override fun generate(
@@ -113,7 +114,8 @@ class ActiToppNGGenerator(
     }
 }
 
-fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes): domain.enums.ActivityType {
+fun ActivityType.toReengineeredType(purposes: ChoiceModelPurposes):
+        domain.shared.enums.ActivityType {
     return when (this) {
         ActivityType.WORK -> purposes.work
         ActivityType.EDUCATION -> purposes.education

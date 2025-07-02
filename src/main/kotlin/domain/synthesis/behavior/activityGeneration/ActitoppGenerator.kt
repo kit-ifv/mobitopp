@@ -1,8 +1,8 @@
-package synthesis.activityGeneration
+package domain.synthesis.behavior.activityGeneration
 
-import datastructure.Activity
-import domain.enums.ActivityType
-import domain.location.LOCATIONUNKNOWN
+import domain.shared.datastructure.schedule.Activity
+import domain.shared.enums.ActivityType
+import domain.shared.location.LOCATIONUNKNOWN
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import kotlin.time.Duration
