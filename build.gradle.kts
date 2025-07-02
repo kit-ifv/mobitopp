@@ -47,7 +47,9 @@ dependencies {
     implementation(libs.ifv.units) //"edu.kit.ifv.mobitopp:kotlin-units:1.1.6")
     implementation(libs.ifv.visum.netparser) //"edu.kit.ifv:visumNetfileParser:0.9.13")
     implementation(libs.ifv.discrete.choice) //"edu.kit.ifv.mobitopp:discrete-choice:1.0.0
-    api(libs.ifv.actitopp) //"edu.kit.ifv.mobitopp:actitopp:1.9+")
+    api(libs.ifv.actitoppNG)
+
+
 
     //testing libs
     testImplementation(kotlin("test"))
