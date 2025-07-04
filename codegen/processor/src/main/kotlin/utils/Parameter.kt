@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSValueParameter
 import processor.builder.splitDefaults
+import util.toTypeName
 
 /**
  * An adapter class, altering a [KSValueParameter] or [KSPropertyDeclaration] to a unified type.
@@ -79,6 +80,7 @@ class Parameter(
                 if(inner.type.toString() in templateParameters) {
                     inner.type.toString()
                 } else {
+                    // Das hier ist der generator mit dem Kommentar /* Klassenname */ d.h. die brackets davor werden schon an einer anderen Stelle generiert
                     (asString?.substring(0, (asString.lastIndexOf(".") + 1)) ?: "") +inner.type.toString() + "/* ${inner.type.toString() } $templateParameters */"
                 }
                 }
@@ -133,8 +135,8 @@ class Parameter(
      * Map -> Mutable Map primarily
      */
     fun overrideableType(override: Boolean = true): String {
-        if(!override && state.name != "OBJECT") return type.toString()
-        return state.typeOverride ?: type.toString()
+        if(!override && state.name != "OBJECT") return type.simpleTypeName
+        return state.typeOverride ?: type.simpleTypeName
     }
 
     /**
@@ -327,8 +329,7 @@ enum class PotentialStates : ParameterInfos {
     }
     companion object {
         fun parse(type: KSTypeReference, templateParameters: List<String> = emptyList()): PotentialStates {
-            val s = type.toString()
-
+            val s = type.simpleTypeName
             return when (s) {
                 "List" -> UNMODIFIABLE_LIST
                 "Map" -> UNMODIFIABLE_MAP
@@ -343,6 +344,8 @@ enum class PotentialStates : ParameterInfos {
         }
     }
 }
+
+private val KSTypeReference.simpleTypeName: String get() = this.resolve().declaration.simpleName.asString()
 
 /**
  * Wraps around the [PotentialStates] class and overwrites the typeOverride to be the qualified name, if one is set
