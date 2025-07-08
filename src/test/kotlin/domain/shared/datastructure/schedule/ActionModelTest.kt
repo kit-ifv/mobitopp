@@ -109,7 +109,7 @@ class ActionModelTest : PlanModelTest() {
         model.add(activity(4, 1, earliestStartTime = 4.hours.sinceStart, latestEndTime = 7.hours.sinceStart))
         model.add(activity(6, 1))
         val target = assertThrows<IllegalStateException> { model.squeeze(activity(1.5, 4.0)) }
-        assertContains(target.message!!, "endTime=${5.hours}")
+        assertContains(target.message!!, "endTime=5h")
         assertContains(target.message!!, "necessaryShift=2h 30m")
         assertContains(target.message!!, "latestEndTime=${7.hours}")
         assertContentEquals(
