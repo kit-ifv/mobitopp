@@ -173,7 +173,7 @@ interface Activity : StationaryAction {
             duration: Duration,
             earliestStartTime: AbsoluteTime,
             latestEndTime: AbsoluteTime,
-            activityType: ActivityType = ActivityType.UNKNOWN
+            activityType: ActivityType = ActivityType.UNKNOWN,
         ): Activity {
             return RawActivity(
                 location = location,
@@ -210,7 +210,7 @@ data class RawActivity(
     override var endTime: AbsoluteTime,
     override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
-    override var type: ActivityType = ActivityType.UNKNOWN
+    override var type: ActivityType = ActivityType.UNKNOWN,
 
 ) : Activity {
     override val duration get() = endTime - startTime
@@ -228,8 +228,12 @@ data class RawActivity(
         return result
     }
 
-    override fun toString() : String {
-        return "${type.description.first()}(${type.code}) [$startTime, $endTime] location = ${location.zoneID()} "
+    override fun toString(): String {
+        val earlyStartTime =
+            if (earliestStartTime == AbsoluteTime.MINUS_INFINITY) "" else "earliestStartTime=$earliestStartTime"
+        val latestEndTime = if (latestEndTime == AbsoluteTime.INFINITY) "" else "latestEndTime=$latestEndTime"
+        return "${type.description.first()}(${type.code}) $earlyStartTime[startTime=$startTime, endTime=$endTime]" +
+            "$latestEndTime location = ${location.zoneID()} "
     }
 }
 
@@ -280,7 +284,7 @@ interface Leg : MovingAction {
             duration: Duration,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = MODEUNKOWN
+            mode: Mode = MODEUNKOWN,
         ): Leg {
             return RawLeg(
                 startTime = startTime,
@@ -307,7 +311,7 @@ interface Leg : MovingAction {
             endTime: AbsoluteTime,
             startLocation: Location,
             endLocation: Location,
-            mode: Mode = MODEUNKOWN
+            mode: Mode = MODEUNKOWN,
         ): Leg {
             return RawLeg(
                 startTime = startTime,
@@ -336,7 +340,7 @@ data class RawLeg(
     override var endTime: AbsoluteTime,
     override var earliestStartTime: AbsoluteTime = AbsoluteTime.MINUS_INFINITY,
     override var latestEndTime: AbsoluteTime = AbsoluteTime.INFINITY,
-    override var transportType: Mode
+    override var transportType: Mode,
 
 ) : Leg {
     override val duration: Duration get() = endTime - startTime
