@@ -69,7 +69,7 @@ class CachedBinaryMatrixParser(
         }
 
         outputPath.let {
-            if(it.exists()) {
+            if (it.exists()) {
                 return BinaryZoneFloatMatrixFormat.getMatrix(it, converter)
             }
         }

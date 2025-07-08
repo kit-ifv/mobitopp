@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.minutes
 fun List<PlannedActivity>.toSchedule(
     dispatcher: IDispatcher,
     repairStrategy: (Activity, LinkedActivity) -> Unit = { prev, broken ->
-        //TODO check and inform if triggered.
+        // TODO check and inform if triggered.
         broken.shiftStartTo(prev.endTime + 1.minutes)
     },
 ): Schedule {
