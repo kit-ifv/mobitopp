@@ -74,7 +74,7 @@ fun generatePairings(items: IntArray, start: Int, itemcount: Int = items.size): 
             }
         }
 
-        sequenceOf(res)
+        listOf(res).asSequence()
     } else {
         // For the next pair, choose the first element in the list for the
         // first item in the pair (meaning we don't have to do anything

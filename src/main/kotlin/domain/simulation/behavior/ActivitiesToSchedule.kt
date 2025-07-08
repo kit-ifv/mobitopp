@@ -13,8 +13,15 @@ import domain.shared.datastructure.schedule.plans.IDispatcher
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.synthesis.data.PlannedActivity
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
-fun List<PlannedActivity>.toSchedule(dispatcher: IDispatcher): Schedule {
+fun List<PlannedActivity>.toSchedule(
+    dispatcher: IDispatcher,
+    repairStrategy: (Activity, LinkedActivity) -> Unit = { prev, broken ->
+        broken.startTime = prev.endTime + 1.minutes
+    },
+): Schedule {
     val linkedActivities = map { LinkedActivity(it.toActivity()) }
 
     require(isNotEmpty()) { "Cannot use an empty list to generate a schedule, at least a home activity is required" }
@@ -22,10 +29,21 @@ fun List<PlannedActivity>.toSchedule(dispatcher: IDispatcher): Schedule {
     val filteredActivities = mutableListOf(linkedActivities.first())
     for (i in 1 until size) {
         val linkedActivity = linkedActivities[i]
-        if (filteredActivities.last().endTime <= linkedActivity.startTime) filteredActivities.add(linkedActivity)
+        val previous = filteredActivities.last()
+        if (previous.endTime > linkedActivity.startTime) {
+            repairStrategy(previous, linkedActivity)
+        }
+        filteredActivities.add(linkedActivity)
+        require(linkedActivity.duration >= Duration.ZERO) {
+            "Duration must be positive, $linkedActivity has a negative duration." +
+                " The repair strategy may have corrected too strongly"
+        }
+        require(previous.endTime <= linkedActivity.startTime) {
+            "Activity $linkedActivity starts before predecessor ends pred=$previous"
+        }
     }
 
-    require(filteredActivities.isConsistent()) {
+    require(filteredActivities.isConsistent() && filteredActivities.size == this.size) {
         "Cannot build a schedule from inconsistent data, please fix"
     }
 
@@ -57,7 +75,7 @@ fun List<PlannedActivity>.toSchedule(dispatcher: IDispatcher): Schedule {
 }
 
 fun PlannedActivity.toActivity(): Activity {
-    return Activity.Companion.fromDuration(
+    return Activity.fromDuration(
         location = location ?: LOCATIONUNKNOWN,
         startTime = startTime,
         duration = duration,
