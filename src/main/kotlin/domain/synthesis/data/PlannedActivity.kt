@@ -34,4 +34,8 @@ abstract class PlannedActivity(
 
     val endTime: AbsoluteTime
         get() = startTime + duration
+
+    override fun toString(): String {
+        return "${activityType.description.first()}(${activityType.code}) start=$startTime duration=$duration"
+    }
 }
