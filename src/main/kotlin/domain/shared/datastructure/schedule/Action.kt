@@ -227,6 +227,10 @@ data class RawActivity(
         result = 31 * result + endTime.hashCode()
         return result
     }
+
+    override fun toString() : String {
+        return "${type.description.first()}(${type.code}) [$startTime, $endTime] location = ${location.zoneID()} "
+    }
 }
 
 /**
