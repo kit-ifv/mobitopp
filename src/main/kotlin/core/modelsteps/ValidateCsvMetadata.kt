@@ -59,7 +59,7 @@ class ValidateCsvMetadata<E>(
     @Suppress("EmptyCatchBlock", "TooGenericExceptionCaught", "SwallowedException")
     fun validate() = validateScope(
         "Validate csv metadata of ${csv.path} produced warnings:",
-        exceptionsAreErrors = false,
+        exceptionsAreErrors = true,
     ) {
         parentWarning = this
 
@@ -81,7 +81,7 @@ class ValidateCsvMetadata<E>(
     }
 
     override fun rows(): Sequence<Row> {
-        return sequenceOf(this)
+        return listOf(this).asSequence()
     }
 
     override operator fun <T> invoke(column: String, converter: (String) -> T): T {
