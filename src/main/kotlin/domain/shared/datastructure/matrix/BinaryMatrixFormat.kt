@@ -11,6 +11,7 @@ import java.io.DataOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.extension
 
 @Suppress("MagicNumber") // 4 is not magic, it is the size of an int/float respectively
@@ -68,9 +69,8 @@ class CachedBinaryMatrixParser(
         }
 
         outputPath.let {
-            val file = it.toFile()
-            if (file.exists()) {
-                return BinaryZoneFloatMatrixFormat.getMatrix(path, converter)
+            if(it.exists()) {
+                return BinaryZoneFloatMatrixFormat.getMatrix(it, converter)
             }
         }
 
