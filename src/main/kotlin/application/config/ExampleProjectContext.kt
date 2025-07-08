@@ -61,7 +61,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
-interface StandardContext : LoadAttractivenessDataContext,
+interface StandardContext :
+    LoadAttractivenessDataContext,
     LoadZonesContext,
     LoadSharingProvidersContext,
     LoadHouseholdContext,
@@ -76,8 +77,6 @@ interface StandardContext : LoadAttractivenessDataContext,
     RunSimContext,
     RoadNetworkContext,
     BuildAgentsContext
-
-
 
 data class ExampleProjectContext(
     override val scenarioName: String,
