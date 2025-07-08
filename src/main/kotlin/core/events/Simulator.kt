@@ -1,6 +1,8 @@
 package core.events
 
 import core.modelsteps.Repository
+import core.statemachine.Agent
+import core.statemachine.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,11 +25,11 @@ abstract class Simulator(
         queue.addAll(initEvents)
     }
 
-    fun <E> addAgents(agents: Repository<E, *>, init: (E) -> Event<E>?) where E : Identifiable<*>, E : Agent<E> {
+    fun <E> addAgents(agents: Repository<E, *>) where E : Identifiable<*>, E : Agent<E> {
         queue.addAll(
             agents.elements.map {
-                init(it)?.also { e -> it.updateNextEvent(e) }
-            }.filterNotNull().toList()
+                it.init()
+            }.flatten().toList()
         )
     }
 
@@ -67,7 +69,7 @@ class ParallelSimulator(
 
     override fun getFutureEvents(now: Time): Collection<Event<*>> {
         val currentEvents = queue.popEventsUntil(now)
-        val (present, future) = currentEvents.partition { it.time <= now }.let {
+        val (present, future) = currentEvents.partition { it.receiveTime <= now }.let {
             it.first.toMutableList() to it.second.toMutableList()
         }
 
@@ -80,7 +82,7 @@ class ParallelSimulator(
 
                     val newEvents = deferredNewEvents.awaitAll().flatten()
 
-                    val (newInstantEvents, newFutureEvents) = newEvents.partition { it.time <= now }
+                    val (newInstantEvents, newFutureEvents) = newEvents.partition { it.receiveTime <= now }
 
                     present.clear()
                     present.addAll(newInstantEvents)
