@@ -3,12 +3,14 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspWithCompilation
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class GeneratorTest {
 
 
+    @OptIn(ExperimentalCompilerApi::class)
     fun `test simple compilation`() {
         val source = SourceFile.kotlin("Hello.kt", TEST1)
 //        lateinit var output: File
