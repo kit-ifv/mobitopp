@@ -112,7 +112,7 @@ fun LoadSharingProvidersContext.prepareStationsFile(
             csvResource.elements.toList()
 
             if (sharingProviderRepository.elements.none { it.name == sharingProvider.name }) {
-                sequenceOf(sharingProvider)
+                listOf(sharingProvider).asSequence()
             } else {
                 emptySequence()
             }
