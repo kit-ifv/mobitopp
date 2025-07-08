@@ -73,14 +73,14 @@ class RidesharingOnlyScenario {
             impedance
         )
 
-        val modeScopeDispatcher = ModeScopeDispatcher(
-            car to CarSelector(car),
-            bikeSharing.let {
-                it to SharingVehicleSelector(
-                    it, availability, impedance, pedestrian
-                )
-            }
-        )
+//        val modeScopeDispatcher = ModeScopeDispatcher(
+//            car to CarSelector(car),
+//            bikeSharing.let {
+//                it to SharingVehicleSelector(
+//                    it, availability, impedance, pedestrian
+//                )
+//            }
+//        )
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
@@ -88,7 +88,7 @@ class RidesharingOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
-            scopeDispatcher = modeScopeDispatcher,
+//            scopeDispatcher = modeScopeDispatcher,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability
         )
@@ -96,9 +96,9 @@ class RidesharingOnlyScenario {
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
         val test = resource.asRepository()
-        sim.addAgents(test) { person ->
-            InitPersonEvent(person, syntheticBehavior)
-        }
+//        sim.addAgents(test) { person ->
+//            InitPersonEvent(person, syntheticBehavior)
+//        }
         sim.run(0.days.sinceStart, 7.days.sinceStart)
     }
 }

@@ -60,9 +60,9 @@ class CarOnlyScenario {
             impedance
         )
 
-        val modeScopeDispatcher = ModeScopeDispatcher(
-            car to CarSelector(car),
-        )
+//        val modeScopeDispatcher = ModeScopeDispatcher(
+//            car to CarSelector(car),
+//        )
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
@@ -70,7 +70,7 @@ class CarOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
-            scopeDispatcher = modeScopeDispatcher,
+//            scopeDispatcher = modeScopeDispatcher,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability
         )

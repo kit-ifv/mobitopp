@@ -157,7 +157,7 @@ abstract class Scenario(
         destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),
         impedance,
-        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) })),
+//        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) })),
         attractivityModel = currentAttractivenessModel,
         availabilityModel = availability
     )

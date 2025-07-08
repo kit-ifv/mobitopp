@@ -92,12 +92,12 @@ class LoadChoiceModelsStep(
             destinationChoice,
             modeChoice,
             impedance,
-            ModeScopeDispatcher(
-                modes.car to CarSelector(modes.car),
-                modes.let {
-                    it.bikeSharing to SharingVehicleSelector(it.bikeSharing, availability, impedance, it.pedestrian)
-                }
-            ),
+//            ModeScopeDispatcher(
+//                modes.car to CarSelector(modes.car),
+//                modes.let {
+//                    it.bikeSharing to SharingVehicleSelector(it.bikeSharing, availability, impedance, it.pedestrian)
+//                }
+//            ),
             context.attractivenessModel.value,
             availability,
         )
@@ -122,7 +122,7 @@ class LoadChoiceModelsStep(
             destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
             modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
             impedance = impedance,
-            scopeDispatcher = ModeScopeDispatcher(mapOf()),
+//            scopeDispatcher = ModeScopeDispatcher(mapOf()),
             context.attractivenessModel.value,
             DummyAvailability,
         )
