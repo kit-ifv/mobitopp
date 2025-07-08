@@ -20,7 +20,6 @@ fun List<PlannedActivity>.toSchedule(
     dispatcher: IDispatcher,
     repairStrategy: (Activity, LinkedActivity) -> Unit = { prev, broken ->
         broken.startTime = prev.endTime + 1.minutes
-
     },
 ): Schedule {
     val linkedActivities = map { LinkedActivity(it.toActivity()) }
@@ -33,12 +32,12 @@ fun List<PlannedActivity>.toSchedule(
         val previous = filteredActivities.last()
         if (previous.endTime > linkedActivity.startTime) {
             repairStrategy(previous, linkedActivity)
-
         }
         filteredActivities.add(linkedActivity)
-        require(linkedActivity.duration > Duration.ZERO) {
+        require(linkedActivity.duration >= Duration.ZERO) {
             "Duration must be positive, $linkedActivity has a negative duration." +
-                    " The repair strategy may have corrected too strongly" }
+                " The repair strategy may have corrected too strongly"
+        }
         require(previous.endTime <= linkedActivity.startTime) {
             "Activity $linkedActivity starts before predecessor ends pred=$previous"
         }
