@@ -62,7 +62,7 @@ unit-test-job:
 
 regression-test-job:
   stage: test
-  needs: ["build-job"]
+  needs: [ "unit-test-job" ]
   only:
     - main
     # - dev # disable while gitlab runner has not enough ram for regression tests
