@@ -62,6 +62,7 @@ unit-test-job:
 
 regression-test-job:
   stage: test
+  needs: ["build-job"]
   only:
     - main
     # - dev # disable while gitlab runner has not enough ram for regression tests
@@ -82,7 +83,7 @@ deploy-job:
   stage: deploy
   only:
     - main
-  needs: [ "build-job" ]
+  needs: [ "unit-test-job" ]
   image: amazoncorretto:21
   resource_group: production #only one deploy job at a time
   script:
