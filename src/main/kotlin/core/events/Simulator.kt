@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 
 abstract class Simulator(
     initEvents: Collection<Event<*>> = emptyList(),
-    protected val queue: MapEventQueue = MapEventQueue(),
+    protected val queue: EventQueue = MapEventQueue(),
     val timeStep: Duration = 1.minutes
 ) {
 
