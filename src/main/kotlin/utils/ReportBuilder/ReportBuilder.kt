@@ -67,33 +67,37 @@ private class Normal(name: String, message: String): Card(name, message, ReportT
 
 /**
  * This class provides the functionality to log messages and print a html report out of them.
- */
+ *
+ * Add cards and messages to the output via the add[...](...) functions.
+ *
+ * Create the report via the printReport(...) function.
+ * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
     private val log: MutableList<Card> = mutableListOf()
 
     /**
-     * Adds a warning message to the report.
+     * Adds a warning card to the report.
      */
     fun addWarning(title: String, message: String) {
         log.add(Warning(title, message))
     }
 
     /**
-     * Adds a success message to the report.
+     * Adds a success card to the report.
      */
     fun addSuccess(title: String, message: String) {
         log.add(Success(title, message))
     }
 
     /**
-     * Adds a normal (non highlighted) message to the report.
+     * Adds a normal (non highlighted) card to the report.
      */
     fun addNormalMessage(title: String, message: String) {
         log.add(Normal(title, message))
     }
 
     /**
-     * Adds an error message to the report.
+     * Adds an error card to the report.
      */
     fun addError(title: String, message: String) {
         log.add(Error(title, message))
@@ -145,8 +149,8 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     }
 }
 
-const val RED = "\u001B[31m"
-const val GREEN = "\u001B[32m"
-const val BLUE = "\u001B[34m"
-const val BOLD = "\u001B[1m"
-const val RESET = "\u001B[0m"
+private const val RED = "\u001B[31m"
+private const val GREEN = "\u001B[32m"
+private const val BLUE = "\u001B[34m"
+private const val BOLD = "\u001B[1m"
+private const val RESET = "\u001B[0m"
