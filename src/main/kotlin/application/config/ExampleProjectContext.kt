@@ -61,6 +61,23 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 
+interface StandardContext :
+    LoadAttractivenessDataContext,
+    LoadZonesContext,
+    LoadSharingProvidersContext,
+    LoadHouseholdContext,
+    LoadPersonsContext,
+    LoadPrivateCarsContext,
+    LoadPlannedActivitiesContext,
+    LoadFixedDestinationsContext,
+    LoadChoiceModelsContext,
+    AssignCarsContext,
+
+    WriteTripsCsvContext,
+    RunSimContext,
+    RoadNetworkContext,
+    BuildAgentsContext
+
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
@@ -84,21 +101,9 @@ data class ExampleProjectContext(
     override val simulationEnd: AbsoluteTime = AbsoluteTime.Companion.START + 1.weeks,
     override val timeStep: Duration = 1.minutes,
 ) : DemandSimContext,
-    LoadAttractivenessDataContext,
-    LoadZonesContext,
-    LoadSharingProvidersContext,
-    LoadHouseholdContext,
-    LoadPersonsContext,
-    LoadPrivateCarsContext,
-    LoadPlannedActivitiesContext,
-    LoadFixedDestinationsContext,
-    LoadChoiceModelsContext,
-    AssignCarsContext,
-    RunSimContext,
-    WriteTripsCsvContext,
-    RoadNetworkContext,
+    StandardContext,
     HomeLocationModelContext,
-    BuildAgentsContext,
+
     AgentResultsContext {
     override val execMode: ExecutionMode = ExecutionMode()
 

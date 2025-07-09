@@ -1,5 +1,8 @@
 package domain.synthesis.behavior.carownership
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
+import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
 import domain.synthesis.behavior.SurveyInfo
@@ -10,9 +13,6 @@ import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
 import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.toCarOwnershipAttributes
-import modeling.discreteChoice.utility.EnumeratedDiscreteModelBuilder
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceSituation
 
 fun interface CarOwnershipAssignStrategy<T> {
 

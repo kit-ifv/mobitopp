@@ -1,15 +1,15 @@
 package domain.synthesis.behavior.discreteChoice
 
+import discreteChoice.models.ChoiceAlternative
+import discreteChoice.models.ChoiceSituation
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.structure.times
+import discreteChoice.utility.multinomialLogit
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.Sex
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.structure.times
-import modeling.discreteChoice.utility.multinomialLogit
-import modeling.models.ChoiceAlternative
-import modeling.models.ChoiceSituation
 import units.Currency
 import units.Distance
 import units.euros
