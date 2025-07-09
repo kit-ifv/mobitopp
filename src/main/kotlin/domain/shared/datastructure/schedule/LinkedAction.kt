@@ -13,8 +13,10 @@ import kotlin.time.Duration
  */
 abstract class LinkedAction : Action {
     abstract val original: Action
-    internal abstract var previous: LinkedAction?
-    internal abstract var next: LinkedAction?
+    abstract var previous: LinkedAction?
+        internal set
+    abstract var next: LinkedAction?
+        internal set
 
     abstract override var startLocation: Location
     abstract override var endLocation: Location

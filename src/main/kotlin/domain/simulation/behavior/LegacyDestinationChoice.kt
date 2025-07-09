@@ -2,6 +2,9 @@
 
 package domain.simulation.behavior
 
+import discreteChoice.structure.D
+import discreteChoice.structure.RuleBasedStructure
+import discreteChoice.utility.openMultinomialLogit
 import domain.shared.enums.ActivityType
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
@@ -9,9 +12,6 @@ import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
 import domain.synthesis.data.Employment
 import domain.synthesis.data.isAdult
-import modeling.discreteChoice.structure.D
-import modeling.discreteChoice.structure.RuleBasedStructure
-import modeling.discreteChoice.utility.openMultinomialLogit
 import units.Currency
 import units.Distance
 import units.DistanceUnit

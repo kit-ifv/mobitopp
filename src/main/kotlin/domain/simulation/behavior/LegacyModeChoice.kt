@@ -2,14 +2,14 @@
 
 package domain.simulation.behavior
 
+import discreteChoice.models.fixed
+import discreteChoice.structure.D
+import discreteChoice.structure.DiscreteStructure
+import discreteChoice.utility.multinomialLogit
 import domain.shared.enums.LegacyMode
 import domain.shared.enums.Mode
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
-import modeling.discreteChoice.structure.D
-import modeling.discreteChoice.structure.DiscreteStructure
-import modeling.discreteChoice.utility.multinomialLogit
-import modeling.models.fixed
 import units.Currency
 import units.CurrencyUnit
 import kotlin.time.Duration
