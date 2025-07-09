@@ -4,6 +4,10 @@ body {
     background-color: #f7f7f7;
 }
 
+html {
+    font-size: 18px;
+}
+
 .title {
     margin-bottom: 2rem;
 }
