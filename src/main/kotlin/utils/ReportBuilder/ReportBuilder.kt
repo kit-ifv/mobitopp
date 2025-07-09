@@ -10,12 +10,17 @@ import kotlinx.html.html
 import kotlinx.html.id
 import kotlinx.html.onClick
 import kotlinx.html.p
+import kotlinx.html.pre
 import kotlinx.html.script
 import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.title
 import kotlinx.html.unsafe
+import org.jetbrains.kotlinx.dataframe.api.toPath
+import java.awt.Desktop
+import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
@@ -48,7 +53,7 @@ private abstract class Card (
                 }
                 div("content") {
                     id = contentID
-                    p { +message }
+                    pre { +message }
                 }
             }
         }
@@ -60,26 +65,46 @@ private class Error(name: String, message: String): Card(name, message, ReportTy
 private class Success(name: String, message: String): Card(name, message, ReportType.SUCCESS)
 private class Normal(name: String, message: String): Card(name, message, ReportType.NORMAL)
 
+/**
+ * This class provides the functionality to log messages and print a html report out of them.
+ */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
     private val log: MutableList<Card> = mutableListOf()
 
+    /**
+     * Adds a warning message to the report.
+     */
     fun addWarning(title: String, message: String) {
         log.add(Warning(title, message))
     }
 
+    /**
+     * Adds a success message to the report.
+     */
     fun addSuccess(title: String, message: String) {
         log.add(Success(title, message))
     }
 
+    /**
+     * Adds a normal (non highlighted) message to the report.
+     */
     fun addNormalMessage(title: String, message: String) {
         log.add(Normal(title, message))
     }
 
+    /**
+     * Adds an error message to the report.
+     */
     fun addError(title: String, message: String) {
         log.add(Error(title, message))
     }
 
-    fun printReport() {
+    /**
+     * Creates outputDir, if not already existing. Writes a [reportTitle].html file into that directory and prints it's
+     * location onto the console.
+     * The created report includes all events added up to this point.
+     */
+    fun printReport(outputDir: Path) {
         val html = createHTML().html {
             head {
                 title(reportTitle)
@@ -106,25 +131,14 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                 for (t in log) {
                     unsafe { +t.getHtml() }
                 }
-
-//                repeat(3) { index ->
-//                    div("section") {
-//                        val contentId = "section-content-$index"
-//                        span("toggle-button") {
-//                            onClick = "toggle('$contentId')"
-//                            +"Toggle Section ${index + 1}"
-//                        }
-//                        div("content") {
-//                            id = contentId
-//                            p { +"This is the content of section ${index + 1}." }
-//                        }
-//                    }
-//                }
             }
         }
 
-        Path("src/test/resources/report.html").parent.createDirectories()
-        Path("src/test/resources/report.html").writeText(html)
-        println("Open report: ${Path("src/test/resources/report.html").absolutePathString()}")
+        outputDir.createDirectories()
+
+        val outputFile = outputDir.resolve("$reportTitle.html")
+        outputFile.writeText(html)
+        val absolutePath = "file://" + outputFile.absolutePathString()
+        println("Open report: " + absolutePath)
     }
 }

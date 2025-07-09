@@ -1,6 +1,7 @@
 package utils
 
 import utils.ReportBuilder.ReportBuilder
+import kotlin.io.path.Path
 import kotlin.test.Test
 
 class ReportBuilderTest {
@@ -13,7 +14,7 @@ class ReportBuilderTest {
             art)
         builder.addError("Error","oh noooo we failed")
         builder.addNormalMessage("Nothing happened", "Not even here")
-        builder.printReport()
+        builder.printReport(Path("src/test/resources/"))
     }
 }
 
