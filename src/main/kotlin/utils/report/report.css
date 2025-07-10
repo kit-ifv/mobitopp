@@ -8,6 +8,17 @@ html {
     font-size: 18px;
 }
 
+svg {
+    width: 20px;
+    background: transparent;
+    color: inherit;
+}
+
+.inline {
+    display: flex;
+    flex-direction: row;
+}
+
 .title {
     margin-bottom: 2rem;
 }
@@ -43,7 +54,6 @@ html {
 .toggle-button {
     font-weight: bold;
     margin-bottom: 0.5em;
-    display: block;
 }
 .content {
     max-height: 0;
