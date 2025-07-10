@@ -4,6 +4,7 @@ import kotlinx.html.AreaShape
 import kotlinx.html.Entities
 import kotlinx.html.SVG
 import kotlinx.html.body
+import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h5
@@ -30,7 +31,7 @@ import kotlin.io.path.writeText
 import kotlin.random.Random
 
 private enum class ReportType(val cssClass: String) {
-    NORMAL(""),
+    NORMAL("normal"),
     SUCCESS("success"),
     WARNING("warning"),
     ERROR("error")
@@ -44,25 +45,34 @@ private abstract class Card(
         val contentID = Random.nextInt().toString()
 
         return createHTML().span {
-            div("section " + type.cssClass) {
-                onClick = "toggle('$contentID')"
+            div("card " + type.cssClass) {
+                onClick = "toggleCard('$contentID'); toggle('arrow ' + $contentID, 'rotate')"
                 @Suppress("UnusedPrivateProperty")
-                val contentId = "section-content-$contentID"
-                span("toggle-button inline") {
-                    unsafe {
-                        +"""
-                        <svg width="10" height="6" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" fill="none" stroke-width="1.5">
-                          <path d="M1 1 L5 5 L9 1" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        """.trimIndent()
+                val contentId = "card-content-$contentID"
+                span("card-top inline") {
+                    svg (classes = "rotatable"){
+                        id = "arrow " + contentID
+                        attributes["stroke"] = "currentColor"
+                        attributes["fill"] = "none"
+                        attributes["width"] = "25"
+                        attributes["height"] = "25"
+                        attributes["viewbox"] = "0 0 20 12"
+                        attributes["stroke-width"] = "3.0"
+                        unsafe {
+                            +"""
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3 L10 10 L17 3"></path>
+                            """.trimIndent()
+                        }
                     }
-                    h5 {
-                        +name
+                    h5("card-title"){
+                        pre {
+                            +name
+                        }
                     }
                 }
-                div("content") {
+                div("card-body") {
                     id = contentID
-                    pre { +message }
+                    pre("content") { +message }
                 }
             }
         }
@@ -80,14 +90,26 @@ private class Normal(name: String, message: String) : Card(name, message, Report
  * Add cards and messages to the output via the add[...](...) functions.
  *
  * Create the report via the printReport(...) function.
+ *
+ * The output will be sorted by recency, and the following order:
+ * 1. Errors
+ * 2. Successes
+ * 3. Warnings
+ * 4. Normal-Logs
  * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
+
+    private val warnings: MutableList<Warning> = mutableListOf()
+    private val errors: MutableList<Error> = mutableListOf()
+    private val success: MutableList<Success> = mutableListOf()
+    private val normals: MutableList<Normal> = mutableListOf()
     private val log: MutableList<Card> = mutableListOf()
 
     /**
      * Adds a warning card to the report.
      */
     fun addWarning(title: String, message: String) {
+        warnings.add(Warning(title, message))
         log.add(Warning(title, message))
     }
 
@@ -95,6 +117,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * Adds a success card to the report.
      */
     fun addSuccess(title: String, message: String) {
+        success.add(Success(title, message))
         log.add(Success(title, message))
     }
 
@@ -102,6 +125,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * Adds a normal (non highlighted) card to the report.
      */
     fun addNormalMessage(title: String, message: String) {
+        normals.add(Normal(title, message))
         log.add(Normal(title, message))
     }
 
@@ -109,6 +133,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * Adds an error card to the report.
      */
     fun addError(title: String, message: String) {
+        errors.add(Error(title, message))
         log.add(Error(title, message))
     }
 
@@ -128,21 +153,42 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                 }
                 script {
                     unsafe {
-                        +"""
-                        function toggle(id) {
-                            const content = document.getElementById(id);
-                            content.classList.toggle('show');
-                        }
-                        """.trimIndent()
+                        +Path("src/main/kotlin/utils/report/report.JS").readText()
                     }
                 }
             }
             body {
-                h1("title") {
-                    +reportTitle
+                div ("main") {
+                    h1("title") {
+                        +reportTitle
+                    }
+                    for (t in errors) {
+                        unsafe { +t.getHtml() }
+                    }
+                    for (t in success) {
+                        unsafe { +t.getHtml() }
+                    }
+                    for (t in warnings) {
+                        unsafe { +t.getHtml() }
+                    }
+                    for (t in normals) {
+                        unsafe { +t.getHtml() }
+                    }
                 }
-                for (t in log) {
-                    unsafe { +t.getHtml() }
+                button (classes = "darkmode-toggle"){
+                    onClick = "toggleDarkMode()"
+                    svg {
+                        attributes["fill"] = "none"
+                        attributes["stroke"] = "currentColor"
+                        attributes["width"] = "30"
+                        attributes["height"] = "30"
+                        attributes["viewbox"] = "0 0 24 24"
+                        unsafe {
+                            +"""
+                            <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            """.trimIndent()
+                        }
+                    }
                 }
             }
         }
@@ -152,9 +198,9 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         val outputFile = outputDir.resolve("$reportTitle.html")
         outputFile.writeText(html)
         val absolutePath = "file://" + outputFile.absolutePathString()
-        print("\n\n")
+        print("\n")
         println(BOLD + BLUE + "OPEN RUN REPORT (ctrl + lmb): " + absolutePath + RESET)
-        print("\n\n")
+        print("\n")
     }
 }
 
