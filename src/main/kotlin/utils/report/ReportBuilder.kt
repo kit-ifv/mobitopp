@@ -93,8 +93,8 @@ private class Normal(name: String, message: String) : Card(name, message, Report
  *
  * The output will be sorted by recency, and the following order:
  * 1. Errors
- * 2. Successes
- * 3. Warnings
+ * 2. Warnings
+ * 3. Successes
  * 4. Normal-Logs
  * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
@@ -165,10 +165,10 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                     for (t in errors) {
                         unsafe { +t.getHtml() }
                     }
-                    for (t in success) {
+                    for (t in warnings) {
                         unsafe { +t.getHtml() }
                     }
-                    for (t in warnings) {
+                    for (t in success) {
                         unsafe { +t.getHtml() }
                     }
                     for (t in normals) {
