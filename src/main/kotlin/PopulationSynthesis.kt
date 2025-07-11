@@ -71,26 +71,52 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 
-fun parseSurvey(path: Path): Sequence<RawSurveyInfo> {
+data class SurveyColumns(
+    var ID: String = "ID",
+    var year: String = "year",
+    var areatype: String = "areatype",
+    var size: String = "size",
+    var personnumber: String = "personnumber",
+    var sex: String = "sex",
+    var birthyear: String = "birthyear",
+    var employmenttype: String = "employmenttype",
+    var commuterticket: String = "commuterticket",
+    var hhincome: String = "hhincome",
+    var hhincome_class: String = "hhincome_class",
+    var type: String = "type",
+    var cars: String = "cars",
+    var bicycle: String = "bicycle",
+    var licence: String = "licence",
+    var distance_work: String = "distance_work",
+    var distance_education: String = "distance_education",
+)
+
+fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInfo>  {
+    val surveyColumns = SurveyColumns()
+    surveyColumns.apply(lambda)
+    return parseSurvey(path, surveyColumns).toList()
+}
+
+fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
         RawSurveyInfo(
-            householdId = row("ID").toInt(),
-            year = row("year").toInt(),
-            areaType = row("areatype").toInt(),
-            householdSize = row("size").toInt(),
-            personNumber = row("personnumber").toInt(),
-            sex = row("sex") { Sex.decode(it.toInt()) },
-            birthyear = row("birthyear").toInt(),
-            employment = row("employmenttype") { Employment.decode(it.toInt()) },
-            hasCommuterTicket = row("commuterticket").toBooleanNumeric(),
-            householdIncome = row("hhincome") { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-            householdIncomeClass = row("hhincome_class").toInt(),
-            type = row("type").toInt(),
-            cars = row("cars").toInt(),
-            hasBicycle = row("bicycle").toBooleanNumeric(),
-            hasLicence = row("licence").toBooleanNumeric(),
-            distanceWork = row("distance_work") { it.toDouble().kilometers },
-            distanceEducation = row("distance_education") { it.toDouble().kilometers },
+            householdId = row(surveyColumns.ID).toInt(),
+            year = row(surveyColumns.year).toInt(),
+            areaType = row(surveyColumns.areatype).toInt(),
+            householdSize = row(surveyColumns.size).toInt(),
+            personNumber = row(surveyColumns.personnumber).toInt(),
+            sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
+            birthyear = row(surveyColumns.birthyear).toInt(),
+            employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
+            hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
+            householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
+            householdIncomeClass = row(surveyColumns.hhincome_class).toInt(),
+            type = row(surveyColumns.type).toInt(),
+            cars = row(surveyColumns.cars).toInt(),
+            hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
+            hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
+            distanceWork = row(surveyColumns.distance_work) { it.toDouble().kilometers },
+            distanceEducation = row(surveyColumns.distance_education) { it.toDouble().kilometers },
         )
     }
 
