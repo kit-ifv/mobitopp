@@ -1,8 +1,5 @@
 package utils.report
 
-import kotlinx.html.AreaShape
-import kotlinx.html.Entities
-import kotlinx.html.SVG
 import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
@@ -11,7 +8,6 @@ import kotlinx.html.h5
 import kotlinx.html.head
 import kotlinx.html.html
 import kotlinx.html.id
-import kotlinx.html.img
 import kotlinx.html.onClick
 import kotlinx.html.pre
 import kotlinx.html.script
@@ -21,7 +17,6 @@ import kotlinx.html.style
 import kotlinx.html.svg
 import kotlinx.html.title
 import kotlinx.html.unsafe
-import org.jetbrains.kotlinx.kandy.letsplot.style.LayoutParameters.Companion.line
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -47,15 +42,17 @@ private abstract class Card(
         return createHTML().span {
             div("card " + type.cssClass) {
                 onClick = "toggleCard('$contentID'); toggle('arrow ' + $contentID, 'rotate')"
-                @Suppress("UnusedPrivateProperty")
-                val contentId = "card-content-$contentID"
                 span("card-top inline") {
-                    svg (classes = "rotatable"){
-                        id = "arrow " + contentID
+                    svg(classes = "rotatable") {
+                        id = "arrow $contentID"
+                        @Suppress("StringLiteralDuplication")
                         attributes["stroke"] = "currentColor"
                         attributes["fill"] = "none"
+                        @Suppress("StringLiteralDuplication")
                         attributes["width"] = "25"
+                        @Suppress("StringLiteralDuplication")
                         attributes["height"] = "25"
+                        @Suppress("StringLiteralDuplication")
                         attributes["viewbox"] = "0 0 20 12"
                         attributes["stroke-width"] = "3.0"
                         unsafe {
@@ -64,7 +61,7 @@ private abstract class Card(
                             """.trimIndent()
                         }
                     }
-                    h5("card-title"){
+                    h5("card-title") {
                         pre {
                             +name
                         }
@@ -142,6 +139,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      * location onto the console.
      * The created report includes all events added up to this point.
      */
+    @Suppress("CognitiveComplexMethod")
     fun printReport(outputDir: Path) {
         val html = createHTML().html {
             head {
@@ -158,7 +156,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                 }
             }
             body {
-                div ("main") {
+                div("main") {
                     h1("title") {
                         +reportTitle
                     }
@@ -175,7 +173,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                         unsafe { +t.getHtml() }
                     }
                 }
-                button (classes = "darkmode-toggle"){
+                button(classes = "darkmode-toggle") {
                     onClick = "toggleDarkMode()"
                     svg {
                         attributes["fill"] = "none"
@@ -184,6 +182,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                         attributes["height"] = "30"
                         attributes["viewbox"] = "0 0 24 24"
                         unsafe {
+                            @Suppress("MaximumLineLength")
                             +"""
                             <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             """.trimIndent()
