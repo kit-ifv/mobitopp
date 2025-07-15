@@ -198,7 +198,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         outputFile.writeText(html)
         val absolutePath = "file://" + outputFile.absolutePathString()
         print("\n")
-        println(BOLD + BLUE + "OPEN RUN REPORT (ctrl + lmb): " + absolutePath + RESET)
+        println(BOLD + BLUE + "RUN REPORT: " + absolutePath + RESET)
         print("\n")
     }
 }
