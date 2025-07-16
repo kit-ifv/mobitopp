@@ -3,7 +3,7 @@ body {
     margin: 2rem;
     background-color: #f7f7f7;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-content: center;
 
@@ -15,6 +15,7 @@ body {
     --error-color: #d30000;
     --normal-background: #ececec;
     --normal-color: #272727;
+    --muted-color: rgba(0, 0, 0, 0.15);
     --shadow: rgba(0, 0, 0, 0.1);
 }
 
@@ -37,24 +38,29 @@ body.dark {
     background-color: #191919;
     color: #f0f0f0;
     --success-background: #465c42;
-    --success-color: #a6d5a0;
+    --success-color: #91e886;
     --warning-background: #605034;
-    --warning-color: #d5c9b2;
+    --warning-color: #e6c689;
     --error-background: #4e3636;
-    --error-color: #d0a6a6;
+    --error-color: #e68a8a;
     --normal-background: #373737;
-    --normal-color: #bebfc1;
+    --normal-color: #d5d5d6;
+    --muted-color: rgba(255, 255, 255, 0.15);
     --shadow: rgba(0, 0, 0, 0.8);
 }
 
 html {
     font-size: 18px;
 }
- .main {
-     display: flex;
-     flex-direction: column;
-     gap: 2rem;
- }
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 100rem;
+    min-width: 40rem;
+}
+
 pre {
     margin: 0;
 }
@@ -121,6 +127,13 @@ svg {
     transition: max-height 0.2s ease;
 }
 
+.step {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 4rem;
+}
+
 .rotatable {
     rotate: -90deg;
     transition: rotate 0.2s ease-out;
@@ -136,7 +149,7 @@ svg {
 }
 
 .darkmode-toggle {
-    position: absolute;
+    position: fixed;
     top: 2rem;
     right: 2rem;
     border-radius: 10px;
@@ -146,6 +159,25 @@ svg {
     background: var(--normal-background);
 }
 
+.line {
+    height: 3px;
+    flex: 1 0 0;
+    min-width: 0;
+    border-radius: 4px;
+    background-color: var(--muted-color);
+}
+
+.flex_row_centered {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.dot {
+    min-width: fit-content;
+}
 h1 {
     font-size: 2.986rem;
     margin: 0;

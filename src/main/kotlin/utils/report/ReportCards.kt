@@ -1,14 +1,19 @@
 package utils.report
 
 import kotlinx.html.div
+import kotlinx.html.h3
 import kotlinx.html.h5
 import kotlinx.html.id
 import kotlinx.html.onClick
 import kotlinx.html.pre
 import kotlinx.html.span
 import kotlinx.html.stream.createHTML
+import kotlinx.html.style
 import kotlinx.html.svg
+import kotlinx.html.title
 import kotlinx.html.unsafe
+import kotlin.io.path.Path
+import kotlin.io.path.readText
 import kotlin.random.Random
 
 internal enum class ReportType(val cssClass: String) {
@@ -28,7 +33,7 @@ internal abstract class ReportStandardCard(
 
         return createHTML().span {
             div("card " + type.cssClass) {
-                onClick = "toggleCard('$contentID'); toggle('arrow ' + $contentID, 'rotate')"
+                onClick = "toggleCard('$contentID'); toggle('arrow $contentID', 'rotate')"
                 span("card-top inline") {
                     svg(classes = "rotatable") {
                         id = "arrow $contentID"
@@ -109,41 +114,122 @@ class OverviewCard() {
         val contentID = Random.nextInt().toString()
 
         return createHTML().span {
-            div("card show " + ReportType.NORMAL.cssClass) {
-                onClick = "toggleCard('$contentID'); toggle('arrow ' + $contentID, 'rotate')"
-                span("card-top inline") {
-                    svg(classes = "rotatable") {
-                        id = "arrow $contentID"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["stroke"] = "currentColor"
-                        attributes["fill"] = "none"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["width"] = "25"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["height"] = "25"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["viewbox"] = "0 0 20 12"
-                        attributes["stroke-width"] = "3.0"
-                        unsafe {
-                            +"""
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3 L10 10 L17 3"></path>
-                            """.trimIndent()
-                        }
-                    }
-                    h5("card-title") {
-                        pre {
-                            +name
-                        }
+            div("card " + ReportType.NORMAL.cssClass) {
+                h3("card-title") {
+                    pre {
+                        +name
                     }
                 }
-                div("card-body") {
+                div {
                     id = contentID
-                    pre("content") { + "thjis is the content..."}
+                    div("content") {
+                        stepRegister.forEachIndexed { index, step ->
+                            if (index == 1 && stepRegister.size == 1) {
+                                unsafe {
+                                    +step.getSingleStepHTML()
+                                }
+                            } else if (index == 1) {
+                                unsafe {
+                                    +step.getFirstStepHTML()
+                                }
+                            } else if (index == stepRegister.lastIndex) {
+                                unsafe {
+                                    +step.getLastStepHTML()
+                                }
+                            } else {
+                                unsafe {
+                                    + step.getIntermediateStepHTML()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-    companion object {
+}
 
+internal fun StatusStep.getSingleStepHTML(): String {
+    return createHTML().div ("step") {
+        attributes["title"] = hoverInformation
+        span("flex_row_centered") {
+            unsafe {
+                +dotSVG
+            }
+            h5 {
+                style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; overflow-inline: auto;"
+                +name
+            }
+            div ("line")
+            when (status) {
+                CardStatus.SUCCESS ->
+                    span {
+                        style = "color: var(--success-color)"
+                        unsafe {
+                            + Path("src/main/kotlin/utils/report/assets/Success.svg").readText()
+                        }
+                    }
+                CardStatus.WARNING ->
+                    span {
+                        style = "color: var(--warning-color)"
+                        unsafe {
+                            +Path("src/main/kotlin/utils/report/assets/Warning.svg").readText()
+                        }
+                    }
+                CardStatus.FAILURE ->
+                    span {
+                        style = "color: var(--error-color);"
+                        unsafe {
+                            +Path("src/main/kotlin/utils/report/assets/Failure.svg").readText()
+                        }
+                    }
+            }
+        }
+    }
+}
+
+internal fun StatusStep.getFirstStepHTML(): String {
+    return getSingleStepHTML()
+}
+
+internal fun StatusStep.getLastStepHTML(): String {
+    return getSingleStepHTML()
+}
+
+internal fun StatusStep.getIntermediateStepHTML(): String {
+    return getSingleStepHTML()
+}
+
+
+
+private val connectorSVG = createHTML().svg(classes = "dot") {
+    @Suppress("StringLiteralDuplication")
+    attributes["fill"] = "var(--normal-color)"
+    @Suppress("StringLiteralDuplication")
+    attributes["width"] = "20"
+    @Suppress("StringLiteralDuplication")
+    attributes["height"] = "20"
+    @Suppress("StringLiteralDuplication")
+    attributes["viewbox"] = "0 0 40 40"
+    unsafe {
+        +"""
+        <ellipse cx="20" cy="20" rx="20" ry="20" stroke="none" pointer-events="all"/>
+        """.trimIndent()
+    }
+}
+
+private val dotSVG = createHTML().svg(classes = "dot") {
+    @Suppress("StringLiteralDuplication")
+    attributes["fill"] = "var(--normal-color)"
+    @Suppress("StringLiteralDuplication")
+    attributes["width"] = "20"
+    @Suppress("StringLiteralDuplication")
+    attributes["height"] = "20"
+    @Suppress("StringLiteralDuplication")
+    attributes["viewbox"] = "0 0 40 40"
+    unsafe {
+        +"""
+        <ellipse cx="20" cy="20" rx="20" ry="20" stroke="none" pointer-events="all"/>
+        """.trimIndent()
     }
 }
