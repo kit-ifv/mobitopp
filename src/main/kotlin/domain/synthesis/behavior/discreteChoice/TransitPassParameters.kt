@@ -13,7 +13,6 @@ import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
 import units.`€`
-import kotlin.compareTo
 import kotlin.random.Random
 
 val YesTransitPass = TransitPassParameters(

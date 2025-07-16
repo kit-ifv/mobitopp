@@ -58,7 +58,6 @@ import spawnCar
 import spawnDrivers
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
-import java.util.*
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
