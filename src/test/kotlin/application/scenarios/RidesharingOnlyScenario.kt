@@ -3,7 +3,6 @@ package application.scenarios
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.events.SequentialSimulator
 import core.modelsteps.asResource
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel

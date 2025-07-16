@@ -1,5 +1,6 @@
 package processor.builder
 
+import Buildable
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import utils.Parameter
@@ -8,6 +9,7 @@ import utils.allProperties
 import utils.builderNameWithResolvedGenerics
 import utils.builderWithGenerics
 import utils.defaultableParameters
+import utils.invoke
 import utils.mimic
 import utils.name
 import utils.nameWithGenerics
@@ -15,7 +17,6 @@ import utils.nonDefaultableParameters
 import utils.parameters
 import utils.resolvedGenerics
 import utils.simpleGenerics
-import utils.invoke
 
 /**
  * This file contains the code to generate a builder class for an [Buildable]-Annotated target class. There may be
