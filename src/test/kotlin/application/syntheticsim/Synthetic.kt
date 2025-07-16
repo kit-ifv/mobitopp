@@ -143,7 +143,6 @@ abstract class Scenario(
         legacyModeChoice.addFilter(availability)
     )
 
-
     protected val behavior = PersonBehavior(
         destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),

@@ -217,7 +217,6 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
                 else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
             }
         }
-
     }
 
     transState(StartingCarTrip).next {

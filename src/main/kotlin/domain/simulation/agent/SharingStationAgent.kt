@@ -22,7 +22,6 @@ abstract class SharingProviderAgent(
 
     override val numberOfVehicles: Int
         get() = ownedVehicles.size
-
 }
 
 @Mutable
@@ -75,8 +74,6 @@ abstract class SharingStationAgent(
 
     val hasAvailableVehicles: Boolean
         get() = _vehicles.isNotEmpty()
-
-
 }
 
 typealias SharingVehicleId = ID<SharingVehicleAgent>

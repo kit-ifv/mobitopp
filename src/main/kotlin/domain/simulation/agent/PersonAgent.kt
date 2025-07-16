@@ -37,7 +37,6 @@ abstract class PersonAgent(
 
     var inTransit: Boolean = false
     var location: Location = household.location
-
 }
 
 fun PersonAgent.lastTransportMode(action: Action): Mode? {
