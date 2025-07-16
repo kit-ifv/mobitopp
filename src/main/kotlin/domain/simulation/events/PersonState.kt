@@ -75,6 +75,8 @@ abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, 
 
     val person: PersonAgent
         get() = self
+
+    override fun toString() = "P" + person.id.value.toString()
 }
 
 abstract class ActivityState(val agenda: Agenda, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) : PersonState(
@@ -134,18 +136,16 @@ class StartingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, st
 @StateCalled(
     "PerformLeg",
     StartingTripState::class,
-    StartingCarTripState::class,
-    StartingBikeSharingTripState::class,
     PerformLegState::class
 )
 class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLegAction, state: PersonState) :
     TripState(trip, state, doStep = true)
 
-@StateCalled("StartingCarTrip", StartingTripState::class)
-class StartingCarTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
-
-@StateCalled("StartingBikeSharingTrip", StartingTripState::class)
-class StartingBikeSharingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
+// @StateCalled("StartingCarTrip", StartingTripState::class)
+// class StartingCarTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
+//
+// @StateCalled("StartingBikeSharingTrip", StartingTripState::class)
+// class StartingBikeSharingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
 
 @StateCalled("FinishedPerson", PerformLegState::class, PerformingActivityState::class)
 class FinishedPersonState(state: PersonState) : PersonState(state.time, state.agent, doStep = false)
@@ -198,7 +198,6 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
     }.next { send ->
         val (_, sharedResources) = modeAvailability.situativeAvailability(person)
 
-        println(sharedResources)
         synchronizeAll(sharedResources) {
             val mode: Mode = modeChoice.filterAndSelect(
                 ModeChoiceSituation(person, time, origin, destination, impedance),
@@ -219,57 +218,57 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         }
     }
 
-    transState(StartingCarTrip).next {
-        val car = person.getBestCar()
-
-        car.keyHolder = person
-        car.addDriver(person)
-        car.state = PrivateCarAgent.CarState.IN_USE
-
-        var returned = false
-        val checkEndOfCarTrip = AfterLegAction { a, t ->
-            if (a.locationBySchedule() == destination && !returned) {
-                car.location = a.location
-                car.removeDriver()
-                car.state = PrivateCarAgent.CarState.PARKED
-                if (a.locationBySchedule() == a.household.location) { // TODO check
-                    car.keyHolder = null
-                    returned = true
-                }
-            }
-        }
-
-        performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
-    }
-
-    transState(StartingBikeSharingTrip).next { send ->
-        val maybeBikesharing = bikeSharingConnections.findConnection(
-            ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
-        )
-        val (startStation, endStation) = requireNotNull(maybeBikesharing) {
-            "How did you manage to select bikesharing if no connection available?\n" +
-                " - check availability model: ${modeAvailability::class.simpleName}\n" +
-                " - check connection model: ${bikeSharingConnections::class.simpleName}"
-        }
-
-        trip.alternateByImpedance(impedance) {
-            taking(modes.pedestrian to startStation.location)
-            taking(modes.bikeSharing to endStation.location)
-            taking(modes.pedestrian to destination)
-        }
-
-        val vehicle = startStation.takeAny()
-
-        var returned = false
-        val checkBikeReturn = AfterLegAction { a, t ->
-            if (a.location == endStation.location && !returned) {
-                vehicle.returnTo(endStation)
-                returned = true
-            }
-        }
-
-        performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
-    }
+//    transState(StartingCarTrip).next {
+//        val car = person.getBestCar()
+//
+//        car.keyHolder = person
+//        car.addDriver(person)
+//        car.state = PrivateCarAgent.CarState.IN_USE
+//
+//        var returned = false
+//        val checkEndOfCarTrip = AfterLegAction { a, t ->
+//            if (a.locationBySchedule() == destination && !returned) {
+//                car.location = a.location
+//                car.removeDriver()
+//                car.state = PrivateCarAgent.CarState.PARKED
+//                if (a.locationBySchedule() == a.household.location) { // TODO check
+//                    car.keyHolder = null
+//                    returned = true
+//                }
+//            }
+//        }
+//
+//        performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
+//    }
+//
+//    transState(StartingBikeSharingTrip).next { send ->
+//        val maybeBikesharing = bikeSharingConnections.findConnection(
+//            ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
+//        )
+//        val (startStation, endStation) = requireNotNull(maybeBikesharing) {
+//            "How did you manage to select bikesharing if no connection available?\n" +
+//                " - check availability model: ${modeAvailability::class.simpleName}\n" +
+//                " - check connection model: ${bikeSharingConnections::class.simpleName}"
+//        }
+//
+//        trip.alternateByImpedance(impedance) {
+//            taking(modes.pedestrian to startStation.location)
+//            taking(modes.bikeSharing to endStation.location)
+//            taking(modes.pedestrian to destination)
+//        }
+//
+//        val vehicle = startStation.takeAny()
+//
+//        var returned = false
+//        val checkBikeReturn = AfterLegAction { a, t ->
+//            if (a.location == endStation.location && !returned) {
+//                vehicle.returnTo(endStation)
+//                returned = true
+//            }
+//        }
+//
+//        performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
+//    }
 
     state(PerformLeg) { send ->
         send(endLeg(), self, leg.endTime)
@@ -297,4 +296,56 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
     }
 
     finState(FinishedPerson)
+}
+
+fun StartingTripState.startingCarTrip(): PerformLegState {
+    val car = person.getBestCar()
+
+    car.keyHolder = person
+    car.addDriver(person)
+    car.state = PrivateCarAgent.CarState.IN_USE
+
+    var returned = false
+    val checkEndOfCarTrip = AfterLegAction { a, t ->
+        if (a.locationBySchedule() == destination && !returned) {
+            car.location = a.location
+            car.removeDriver()
+            car.state = PrivateCarAgent.CarState.PARKED
+            if (a.locationBySchedule() == a.household.location) { // TODO check
+                car.keyHolder = null
+                returned = true
+            }
+        }
+    }
+
+    return performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
+}
+
+fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
+    val maybeBikesharing = bikeSharingConnections.findConnection(
+        ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
+    )
+    val (startStation, endStation) = requireNotNull(maybeBikesharing) {
+        "How did you manage to select bikesharing if no connection available?\n" +
+            " - check availability model: ${modeAvailability::class.simpleName}\n" +
+            " - check connection model: ${bikeSharingConnections::class.simpleName}"
+    }
+
+    trip.alternateByImpedance(impedance) {
+        taking(modes.pedestrian to startStation.location)
+        taking(modes.bikeSharing to endStation.location)
+        taking(modes.pedestrian to destination)
+    }
+
+    val vehicle = startStation.takeAny()
+
+    var returned = false
+    val checkBikeReturn = AfterLegAction { a, t ->
+        if (a.location == endStation.location && !returned) {
+            vehicle.returnTo(endStation)
+            returned = true
+        }
+    }
+
+    return performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
 }

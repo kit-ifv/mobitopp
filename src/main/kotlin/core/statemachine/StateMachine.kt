@@ -76,8 +76,10 @@ open class TransitoryStateMachine(
         while (nextTransition != null) {
             nextState = nextTransition
             result += nextState.enter()
-            val (messages, transitionElse) = nextState.fallbackTransition()
-            result += messages
+
+            val (instantTransitionResponse, transitionElse) = nextState.fallbackTransition()
+            result += instantTransitionResponse
+
             nextTransition = transitionElse
         }
 

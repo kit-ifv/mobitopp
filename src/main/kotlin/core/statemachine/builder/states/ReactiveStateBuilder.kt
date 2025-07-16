@@ -4,7 +4,6 @@ import core.statemachine.AnyMessageType
 import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.MessageType
-import core.statemachine.ReusableSender
 import core.statemachine.Send
 import core.statemachine.StateTransition
 import core.statemachine.builder.AnyStateType
@@ -17,6 +16,7 @@ import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
 import core.statemachine.builder.TransitionOnMessage
+import core.statemachine.sendScope
 
 internal class ReactiveStateBuilder<D> (
     override val type: AnyStateType,
@@ -67,7 +67,6 @@ private class ReactiveStateBehavior<D : StateData>(
     private val fallbackTransition: FallbackTransition<D>,
     private val stateResolver: StateResolver,
 ) : StateBehavior<D> {
-    private val sendScope = ReusableSender()
 
     override fun enter(data: D): Events = sendScope(data) { send ->
         data.onEnterScope(send)

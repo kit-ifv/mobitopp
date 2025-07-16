@@ -3,7 +3,6 @@ package core.statemachine.builder.states
 import core.statemachine.Events
 import core.statemachine.Message
 import core.statemachine.NULL_TRANSITION
-import core.statemachine.ReusableSender
 import core.statemachine.StateTransition
 import core.statemachine.builder.AnyStateType
 import core.statemachine.builder.OnEnter
@@ -11,6 +10,7 @@ import core.statemachine.builder.StateBehavior
 import core.statemachine.builder.StateBuilder
 import core.statemachine.builder.StateData
 import core.statemachine.builder.StateResolver
+import core.statemachine.sendScope
 
 internal class FinalStateBuilder<D>(
     override val type: AnyStateType,
@@ -23,8 +23,6 @@ internal class FinalStateBuilder<D>(
 private class FinalStateBehavior<D>(
     private val onEnterScope: OnEnter<D>,
 ) : StateBehavior<D> where D : StateData {
-
-    private val sendScope = ReusableSender()
 
     override fun enter(data: D): Events = sendScope(data) { send ->
         data.onEnterScope(send)
