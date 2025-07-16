@@ -100,14 +100,13 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     private val errors: MutableList<Error> = mutableListOf()
     private val success: MutableList<Success> = mutableListOf()
     private val normals: MutableList<Normal> = mutableListOf()
-    private val log: MutableList<Card> = mutableListOf()
+
 
     /**
      * Adds a warning card to the report.
      */
     fun addWarning(title: String, message: String) {
         warnings.add(Warning(title, message))
-        log.add(Warning(title, message))
     }
 
     /**
@@ -115,7 +114,6 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      */
     fun addSuccess(title: String, message: String) {
         success.add(Success(title, message))
-        log.add(Success(title, message))
     }
 
     /**
@@ -123,7 +121,6 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      */
     fun addNormalMessage(title: String, message: String) {
         normals.add(Normal(title, message))
-        log.add(Normal(title, message))
     }
 
     /**
@@ -131,7 +128,6 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
      */
     fun addError(title: String, message: String) {
         errors.add(Error(title, message))
-        log.add(Error(title, message))
     }
 
     /**
