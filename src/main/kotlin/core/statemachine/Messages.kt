@@ -19,6 +19,8 @@ data class Event<M : Message>(
     fun execute(): Events = receiver.processEvent(this)
 
     override fun compareTo(other: Event<*>) = receiveTime.compareTo(other.receiveTime)
+
+    override fun toString() = "[$receiveTime, ${content::class.simpleName}]"
 }
 
 typealias Events = Collection<Event<*>>
@@ -26,33 +28,35 @@ typealias Events = Collection<Event<*>>
 interface Send {
     operator fun <M : Message> invoke(message: M, to: Agent<in M>, at: AbsoluteTime)
     fun <M : Message> now(message: M, to: Agent<in M>)
-    // TODO fun self(message: T, at: Time)
 }
 
 interface SendScope {
-    operator fun <R> invoke(state: StateData, scope: (Send) -> R): Pair<Events, R>
+    operator fun <R> invoke(scope: (Send) -> R): Pair<Events, R>
 }
 
-class ReusableSender : SendScope {
+fun <R> sendScope(data: StateData, scope: (Send) -> R): Pair<Events, R> =
+    SingleUseSendScope(data).invoke(scope)
+
+private class SingleUseSendScope(
+    private val sendTime: AbsoluteTime,
+    private val sender: Agent<*>,
+) : Send, SendScope {
+
+    constructor(data: StateData) : this(data.time, data.agent)
+
     private val events: MutableList<Event<*>> = mutableListOf()
-    private lateinit var sender: Agent<*>
-    private var sendTime: AbsoluteTime = AbsoluteTime.START
 
-    private val send = object : Send {
-        override fun <M : Message> invoke(message: M, to: Agent<in M>, at: AbsoluteTime) {
-            events.add(Event<M>(sender, sendTime, to, at, message))
-        }
-
-        override fun <M : Message> now(message: M, to: Agent<in M>) = invoke(message, to, sendTime)
-        // TODO override fun self(message: T, at: Time) = invoke(message, sender, at),
-        //  maybe as extension method with receiver context?
+    override fun <R> invoke(scope: (Send) -> R): Pair<Events, R> {
+        events.clear()
+        val result = scope(this)
+        return events to result
     }
 
-    override operator fun <R> invoke(state: StateData, scope: (Send) -> R): Pair<Events, R> {
-        events.clear()
-        sender = state.agent
-        sendTime = state.time
-        val result = scope(send)
-        return events to result
+    override fun <M : Message> invoke(message: M, to: Agent<in M>, at: AbsoluteTime) {
+        events.add(Event<M>(sender, sendTime, to, at, message))
+    }
+
+    override fun <M : Message> now(message: M, to: Agent<in M>) {
+        events.add(Event<M>(sender, sendTime, to, sendTime, message))
     }
 }

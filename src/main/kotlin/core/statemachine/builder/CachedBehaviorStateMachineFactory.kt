@@ -52,5 +52,5 @@ private data class StateImpl<D : StateData>(
     override fun fallbackTransition() = behavior.fallbackTransition(data)
     override fun interrupt() = behavior.interrupt(data)
 
-    override fun toString() = data::class.simpleName!! + "[$data]"
+    override fun toString() = "[${data.time}] " + data::class.simpleName!! + "($data)"
 }

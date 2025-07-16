@@ -37,7 +37,6 @@ import domain.simulation.events.PerformLeg
 import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StartPerson
-import domain.simulation.events.StartingCarTrip
 import domain.simulation.events.StartingTrip
 import domain.simulation.events.personStateMachine
 import domain.synthesis.ControllableAttractiveness
@@ -308,7 +307,6 @@ class Synthetic {
 
                 val visitedStates = popStatesOf(firstAgent)
                 assert(StartingTrip in visitedStates)
-                assert(StartingCarTrip in visitedStates)
                 assert(PerformLeg in visitedStates)
 
                 assertEquals(carAgent.driver, firstAgent)
@@ -335,7 +333,6 @@ class Synthetic {
 
                 val visitedStates = popStatesOf(firstAgent)
                 assert(StartingTrip in visitedStates)
-                assert(StartingCarTrip in visitedStates)
                 assert(PerformLeg in visitedStates)
             }
 

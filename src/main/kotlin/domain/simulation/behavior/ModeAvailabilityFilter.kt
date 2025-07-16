@@ -182,8 +182,8 @@ class AvailabilityModelWithSharing(
             val staticAvailability = staticAvailability(person)
             staticAvailability.forEach { //Apply cached long-term choice set here
                 when(it) {
-                    modes.car -> choiceSet.addIf(::isCarAvailable, modes.car)
-                    modes.bikeSharing -> choiceSet.addCollectionIf(::isBikeSharingAvailable, modes.bikeSharing)
+                    modes.car -> choiceSet.addResourceIf(::isCarAvailable, modes.car)
+                    modes.bikeSharing -> choiceSet.addResourceSetIf(::isBikeSharingAvailable, modes.bikeSharing)
                     else -> when {
                         it.requiresVehicleTakeAlong -> choiceSet.addIf(it::isFixedModeAvailable, it)
                         else -> choiceSet.addIf(::isFlexModeAvailable, it)
@@ -299,8 +299,15 @@ class AvailabilityModelWithSharing(
         }
     }
 
+    private context(person: PersonAgent)
+    fun MutableSet<Mode>.addIf(condition: (PersonAgent) -> Boolean, mode: Mode) {
+        if (condition(person)) {
+            this.add(mode)
+        }
+    }
+
     private context(person: PersonAgent, resources: MutableSet<Any>)
-    fun <X: Any> MutableSet<Mode>.addIf(condition: (PersonAgent) -> X?, mode: Mode, adder: (MutableSet<Any>, X) -> Unit = MutableSet<Any>::add) {
+    fun <X: Any> MutableSet<Mode>.addResourceIf(condition: (PersonAgent) -> X?, mode: Mode, adder: (MutableSet<Any>, X) -> Unit = MutableSet<Any>::add) {
 
         condition(person)?.let {
             this.add(mode)
@@ -310,8 +317,8 @@ class AvailabilityModelWithSharing(
     }
 
     private context(person: PersonAgent, resources: MutableSet<Any>)
-    fun MutableSet<Mode>.addCollectionIf(condition: (PersonAgent) -> Collection<Any>?, mode: Mode) =
-        this.addIf(condition, mode, MutableSet<Any>::addAll)
+    fun MutableSet<Mode>.addResourceSetIf(condition: (PersonAgent) -> Collection<Any>?, mode: Mode) =
+        this.addResourceIf(condition, mode, MutableSet<Any>::addAll)
 
 }
 
