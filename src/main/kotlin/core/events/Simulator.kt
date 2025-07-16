@@ -12,7 +12,6 @@ import utils.Identifiable
 import utils.collections.addProgressBar
 import utils.units.AbsoluteTime
 import utils.units.Time
-import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
@@ -107,7 +106,6 @@ class ParallelSimulator(
     timeStep: Duration = 1.minutes
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
-
     override fun executePresentEvents(present: Events): Events = runBlocking {
         coroutineScope {
             val deferredNewEvents = present.map {
@@ -117,7 +115,6 @@ class ParallelSimulator(
             deferredNewEvents.awaitAll().flatten()
         }
     }
-
 }
 
 class SequentialSimulator(
@@ -128,5 +125,4 @@ class SequentialSimulator(
 ) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
     override fun executePresentEvents(present: Events): Events = present.map { it.execute() }.flatten()
-
 }
