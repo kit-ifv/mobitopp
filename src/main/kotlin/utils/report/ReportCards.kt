@@ -3,6 +3,7 @@ package utils.report
 import kotlinx.html.div
 import kotlinx.html.h3
 import kotlinx.html.h5
+import kotlinx.html.h6
 import kotlinx.html.id
 import kotlinx.html.onClick
 import kotlinx.html.pre
@@ -92,7 +93,6 @@ enum class CardStatus {
  * The Overview cards can visualize several steps and their status.
  */
 class OverviewCard() {
-    private val name = "Overview"
     private val stepRegister: MutableList<StatusStep> = mutableListOf()
     /**
      * Adds a new item to the list of steps.
@@ -113,10 +113,11 @@ class OverviewCard() {
         val contentID = Random.nextInt().toString()
 
         return createHTML().span {
-            div("overview-card " + ReportType.NORMAL.cssClass) {
+            div("overview-card") {
                 h3("card-title") {
+                    style = "color: var(--normal-color)"
                     pre {
-                        +name
+                        +"Overview"
                     }
                 }
                 div {
@@ -144,18 +145,24 @@ internal fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
     return createHTML().div ("step") {
         attributes["title"] = hoverInformation
         span("flex_row_centered") {
-            unsafe {
-                +dotSVG
-            }
-            if (connectorEnabled) {
-                span {
-                    style = "width: 0;color: var(--normal-color);position: relative; top: -28px;left: -30.5px;"
-                    unsafe {
-                        +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
+            span {
+                style = "color: var(--highlight-color);"
+                unsafe {
+                    +dotSVG
+                }
+                if (connectorEnabled) {
+                    span {
+                        style = "position: absolute;width: 0;"
+                        span {
+                            style = "position: relative; top: -56px;left: -12.5px;"
+                            unsafe {
+                                +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
+                            }
+                        }
                     }
                 }
             }
-            h5 {
+            h6 {
                 style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; overflow-inline: auto;"
                 +name
             }
@@ -193,7 +200,7 @@ fun statusIcon(status: CardStatus): String {
 }
 private val dotSVG = createHTML().svg(classes = "dot") {
     @Suppress("StringLiteralDuplication")
-    attributes["fill"] = "var(--normal-color)"
+    attributes["fill"] = "currentColor"
     @Suppress("StringLiteralDuplication")
     attributes["width"] = "20"
     @Suppress("StringLiteralDuplication")
