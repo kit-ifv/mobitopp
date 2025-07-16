@@ -2,6 +2,13 @@ package application.syntheticsim
 
 import BIELEFELD
 import TestZone
+import core.statemachine.Agent
+import core.statemachine.Message
+import core.statemachine.RecordingStateMachine
+import core.statemachine.State
+import core.statemachine.StateMachine
+import core.statemachine.StateMachineFactory
+import core.statemachine.builder.StateData
 import discreteChoice.models.addFilter
 import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
@@ -16,22 +23,23 @@ import domain.shared.location.ZoneId
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
-import domain.simulation.agent.getBestCar
+import domain.simulation.agent.getBestCarOrNull
 import domain.simulation.agent.locationBySchedule
 import domain.simulation.agent.toAgent
-import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.legacyDestinationChoice
 import domain.simulation.behavior.legacyModeChoice
-import domain.simulation.events.CarSelector
-import domain.simulation.events.EndActivityEvent
-import domain.simulation.events.EndLegEvent
-import domain.simulation.events.EventWithScope
-import domain.simulation.events.InitPersonEvent
-import domain.simulation.events.ModeScopeDispatcher
+import domain.simulation.events.EndActivityMessage
+import domain.simulation.events.EndLegMessage
+import domain.simulation.events.FinishedPerson
+import domain.simulation.events.FirstActivityMessage
+import domain.simulation.events.PerformLeg
+import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.StartActivityEvent
-import domain.simulation.events.StartLegEvent
-import domain.simulation.events.StartTripEvent
+import domain.simulation.events.StartPerson
+import domain.simulation.events.StartingCarTrip
+import domain.simulation.events.StartingTrip
+import domain.simulation.events.personStateMachine
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.Household
@@ -51,6 +59,7 @@ import spawnDrivers
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.util.*
+import kotlin.reflect.KClass
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -106,21 +115,12 @@ class PlanLoader(private val person: MutablePerson) {
 }
 
 fun PersonAgent.hasAccessToCar(): Boolean {
-    return getBestCar() != null
+    return getBestCarOrNull() != null
 }
 
 abstract class Scenario(
     val zones: List<TestZone>,
     val impedance: ControllableImpedance = ControllableImpedance(),
-//    utilGenerator: MakeUtilities = MakeUtilities { a, l, m, h, _ ->
-//        GeneratedHcUtilityFunction(
-//            a,
-//            l,
-//            m,
-//            legacyChoiceModelPurposes,
-//            h
-//        )
-//    }
 ) {
     val currentAttractivenessModel: ControllableAttractiveness = ControllableAttractiveness(zones)
 
@@ -131,9 +131,8 @@ abstract class Scenario(
     val fakeActivity =
         Activity.fromDuration(zones[0].point(BIELEFELD), (-1).hours.sinceStart, (-1).hours, ActivityType.UNKNOWN)
 
-    val availability = SharingAvailabilityFilter(
+    val availability = AvailabilityModelWithSharing(
         legacyChoiceModelModes,
-        emptySet(),
         emptyMap(),
         impedance
     )
@@ -145,25 +144,20 @@ abstract class Scenario(
         legacyModeChoice.addFilter(availability)
     )
 
-    // fun <S: ModelExecution<C>, C: PersonContext> S.loadSyntheticPerson() {
-    //    context.personRepository.addBuilders(sequenceOf())
-    //    addStep(BuildStep(
-    //        "finish people",
-    //        context.personRepository
-    //    ))
-    // }
 
-    private val behavior = PersonBehavior(
+    protected val behavior = PersonBehavior(
         destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),
         impedance,
-//        ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) })),
         attractivityModel = currentAttractivenessModel,
-        availabilityModel = availability
+        availabilityModel = availability,
+        bikeSharingConnectionSelector = availability,
+        choiceModelModes = legacyChoiceModelModes,
     )
 
     fun PersonAgent.stepper(): EventStepper {
-        return EventStepper(InitPersonEvent(this, behavior = behavior), destinationChoice, modeChoice)
+        val initEvent = this.init().takeIf { it.size == 1 }!!.take(1)[0]
+        return EventStepper(initEvent, destinationChoice, modeChoice)
     }
 
     fun EventStepper.stepOverFirstActivity() {
@@ -213,8 +207,16 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
+    val stateMachine = StateMachineFactoryWithTracker(personStateMachine)
 
-    private val builder: BuildAgents = BuildAgents(seed = 1L)
+    fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
+    fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
+        sm.history.toList().also {
+            sm.clearHistory()
+        }
+    }
+
+    private val builder: BuildAgents = BuildAgents(seed = 1L, stateMachine, behavior)
     val firstAgent: PersonAgent
         get() = first.toAgent(builder)
 
@@ -223,6 +225,33 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 
     val carAgent: PrivateCarAgent
         get() = car.toAgent(builder)
+}
+
+class StateMachineFactoryWithTracker<A>(
+    private val factory: StateMachineFactory<A>,
+) : StateMachineFactory<A> where A : Agent<out Message> {
+    private val registry = mutableMapOf<A, RecordingStateMachine>()
+
+    override fun create(startTime: AbsoluteTime, agent: A): StateMachine =
+        create(initialState(startTime, agent)).also {
+            registry[agent] = it
+        }
+
+    override fun create(initialState: State): RecordingStateMachine {
+        return RecordingStateMachine("Test", initialState)
+    }
+
+    override fun initialState(startTime: AbsoluteTime, agent: A): State =
+        factory.initialState(startTime, agent)
+
+    fun of(agent: A) = registry[agent]
+}
+
+operator fun Collection<State>.contains(stateClass: KClass<out StateData>): Boolean = any {
+    when {
+        it.name == stateClass.simpleName -> true
+        else -> false
+    }
 }
 
 class Synthetic {
@@ -249,37 +278,103 @@ class Synthetic {
             val firstPerson = firstAgent.stepper()
             val secondPerson = secondAgent.stepper()
 
-            firstPerson.nextStep(1) { assertIs<InitPersonEvent>(it) }
-            secondPerson.nextStep(1) { assertIs<InitPersonEvent>(it) }
+            firstPerson.inspect(1) {
+                assert(StartPerson in popStatesOf(firstAgent))
+            }
+            secondPerson.inspect(1) {
+                assert(StartPerson in popStatesOf(secondAgent))
+            }
 
             assertNull(firstAgent.schedule.present)
             assertNull(secondAgent.schedule.present)
+            assertEquals(firstAgent.locationBySchedule(), household.location)
+            assertEquals(secondAgent.locationBySchedule(), household.location)
 
-            secondPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
-            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+            firstPerson.nextStep(1) {
+                // it is the event to be processed; lambda is now checked AFTER execute!
+                assertIs<FirstActivityMessage>(it.content)
+                assert(PerformingActivity in popStatesOf(firstAgent))
+            }
+            secondPerson.nextStep(1) {
+                assertIs<FirstActivityMessage>(it.content)
+                assert(PerformingActivity in popStatesOf(secondAgent))
+            }
 
             assertTrue(firstAgent.hasAccessToCar())
             assertTrue(secondAgent.hasAccessToCar())
-
-            assertEquals(firstAgent.locationBySchedule(), household.location)
-            assertEquals(secondAgent.locationBySchedule(), household.location)
             assertNotNull(firstAgent.schedule.present)
             assertNotNull(secondAgent.schedule.present)
-            secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
 
-            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-            assertEquals(carAgent.location, household.location)
-            assertEquals(carAgent.driver, firstAgent)
-            assertFalse(secondAgent.hasAccessToCar())
-            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
-            assertEquals(firstAgent.locationBySchedule(), household.location)
-            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
-            assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
-            assertEquals(carAgent.driver, null)
-            assertEquals(carAgent.location, firstAgent.locationBySchedule())
-            assertTrue(firstAgent.hasAccessToCar())
-            assertFalse(secondAgent.hasAccessToCar())
+            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) {
+                assertIs<EndActivityMessage>(it.content)
+
+                val visitedStates = popStatesOf(firstAgent)
+                assert(StartingTrip in visitedStates)
+                assert(StartingCarTrip in visitedStates)
+                assert(PerformLeg in visitedStates)
+
+                assertEquals(carAgent.driver, firstAgent)
+                assertEquals(carAgent.location, household.location)
+                assertEquals(firstAgent.locationBySchedule(), household.location)
+                assertFalse(secondAgent.hasAccessToCar())
+            }
+
+            firstPerson.nextStep(1) {
+                assertIs<EndLegMessage>(it.content)
+
+                val states = popStatesOf(firstAgent)
+                assert(PerformingActivity in states) { "PerformingActivity is expected in $states" }
+
+                assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
+                assertEquals(carAgent.driver, null)
+                assertEquals(carAgent.location, firstAgent.locationBySchedule())
+                assertTrue(firstAgent.hasAccessToCar())
+                assertFalse(secondAgent.hasAccessToCar())
+            }
+
+            firstPerson.nextStep(1, household.location, LegacyMode.CAR) {
+                assertIs<EndActivityMessage>(it.content)
+
+                val visitedStates = popStatesOf(firstAgent)
+                assert(StartingTrip in visitedStates)
+                assert(StartingCarTrip in visitedStates)
+                assert(PerformLeg in visitedStates)
+            }
+
+            firstPerson.nextStep(1) {
+                assertIs<EndLegMessage>(it.content)
+                assert(PerformingActivity in popStatesOf(firstAgent))
+
+                assertTrue(firstAgent.hasAccessToCar())
+                assertTrue(secondAgent.hasAccessToCar())
+            }
+
+            firstPerson.nextStep(0) {
+                assertIs<EndActivityMessage>(it.content)
+                assert(FinishedPerson in popStatesOf(firstAgent))
+            }
+
+//            secondPerson.nextStep(1) {
+//                assertIs<EndActivityMessage>(it.content)
+//            }
+
+            // TODO secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+//            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+
+//            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
+//            assertEquals(carAgent.location, household.location)
+//            assertEquals(carAgent.driver, firstAgent)
+//            assertFalse(secondAgent.hasAccessToCar())
+
+//            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
+//            assertEquals(firstAgent.locationBySchedule(), household.location)
+
+//            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
+//            assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
+//            assertEquals(carAgent.driver, null)
+//            assertEquals(carAgent.location, firstAgent.locationBySchedule())
+//            assertTrue(firstAgent.hasAccessToCar())
+//            assertFalse(secondAgent.hasAccessToCar())
 
 //            assertFalse(
 //                LegacyMode.CAR in availability.filter(
@@ -293,20 +388,20 @@ class Synthetic {
 //
 //                )
 //            )
-            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
-            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-            firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
-            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
-            assertTrue(firstAgent.hasAccessToCar())
+//            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+//            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
+//            firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
+//            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
+//            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
+//            assertTrue(firstAgent.hasAccessToCar())
 //            assertTrue(
 //                LegacyMode.CAR in modeChoice.filter(
 //                    DestinationAlternative(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
 //                    5.hours.sinceStart
 //                )
 //            )
-            secondPerson.nextStep(1)
-            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
+//            secondPerson.nextStep(1)
+//            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
         }
     }
 }
