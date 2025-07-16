@@ -1,5 +1,6 @@
 package utils
 
+import utils.report.CardStatus
 import utils.report.ReportBuilder
 import kotlin.io.path.Path
 
@@ -25,6 +26,13 @@ fun main() {
     builder.addNormalMessage("Nothing happened", "Not even here")
     builder.addNormalMessage("Nothing happened", "Not even here")
     builder.addNormalMessage("Nothing happened", "Not even here")
+    val overview = builder.addOverview()
+    overview.addStepStatus("Load step", CardStatus.SUCCESS)
+    overview.addStepStatus("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
+    overview.addStepStatus("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
+    overview.addStepStatus("Load step", CardStatus.SUCCESS)
+    overview.addStepStatus("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
+    overview.addStepStatus("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
 
     builder.printReport(Path("src/test/resources/tempOutput/"))
 }

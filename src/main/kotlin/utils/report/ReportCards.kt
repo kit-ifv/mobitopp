@@ -68,8 +68,43 @@ internal class Error(name: String, message: String) : ReportStandardCard(name, m
 internal class Success(name: String, message: String) : ReportStandardCard(name, message, ReportType.SUCCESS)
 internal class Normal(name: String, message: String) : ReportStandardCard(name, message, ReportType.NORMAL)
 
+internal data class StatusStep (
+    val name: String,
+    val status: CardStatus,
+    val hoverInformation: String
+)
+
+/**
+ * Generic status enum used in the ReportBuilder framework.
+ */
+enum class CardStatus {
+    SUCCESS,
+    WARNING,
+    FAILURE
+}
+
+
+/**
+ * The Overview cards can visualize several steps and their status.
+ */
 class OverviewCard() {
     private val name = "Overview"
+    private val stepRegister: MutableList<StatusStep> = mutableListOf()
+    /**
+     * Adds a new item to the list of steps.
+     * @param name The name of the step.
+     * @param status Whether the step succeeded, failed or produced a warning.
+     * @param hoverInformation Any information that should be displayed, when hovering over this step. Useful for
+     * giving a brief explanation for what went wrong in a step.
+     */
+    fun addStepStatus(name: String, status: CardStatus, hoverInformation: String = "") {
+        stepRegister.add(StatusStep(name, status, hoverInformation))
+    }
+
+
+    /**
+     * @return the html string of this card.
+     */
     fun getHtml(): String {
         val contentID = Random.nextInt().toString()
 
@@ -107,5 +142,8 @@ class OverviewCard() {
                 }
             }
         }
+    }
+    companion object {
+
     }
 }
