@@ -30,10 +30,13 @@ internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
         }!!
     }
 
-    override fun create(startTime: AbsoluteTime, agent: A): StateMachine = TransitoryStateMachine(
+    override fun create(initialState: State): StateMachine = TransitoryStateMachine(
         name = name,
-        initial = resolve(initialize(startTime, agent))
+        initial = initialState
     )
+
+    override fun initialState(startTime: AbsoluteTime, agent: A): State =
+        resolve(initialize(startTime, agent))
 }
 
 private data class StateImpl<D : StateData>(

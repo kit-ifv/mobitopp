@@ -109,9 +109,12 @@ tasks.withType<Detekt>().configureEach {
 }
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "1.8"
+    exclude("**/ModeAvailabilityFilter.kt")
 }
+
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
+    exclude("**/ModeAvailabilityFilter.kt")
 }
 
 kotlin {
@@ -137,6 +140,12 @@ tasks.withType<JavaExec>().configureEach {
         "-XX:HeapDumpPath=./heapdumps",           // Specify the directory for heap dumps
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }
 
 allprojects {

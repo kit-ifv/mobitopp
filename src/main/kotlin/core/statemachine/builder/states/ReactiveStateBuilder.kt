@@ -74,17 +74,17 @@ private class ReactiveStateBehavior<D : StateData>(
     }.first
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T : Message> resolveOnMessage(message: T): OnMessageWrapper<D, T> {
+    private fun <T : Message> resolveOnMessage(data: StateData, message: T): OnMessageWrapper<D, T> {
         val messageType = message::class
         return requireNotNull(messageDispatcher[messageType]) {
-            "No behavior defined for message ${messageType.simpleName}: $message"
+            "No behavior defined in state $data for message ${messageType.simpleName}: $message"
         }.let {
             it as? OnMessageWrapper<D, T>
         }!!
     }
 
     override fun processMessage(data: D, message: Message): StateTransition = sendScope(data) { send ->
-        val onMessage = resolveOnMessage(message)
+        val onMessage = resolveOnMessage(data, message)
         onMessage(data, message, send)?.let { stateResolver.resolve(it) }
     }
 

@@ -29,19 +29,21 @@ interface State {
 }
 
 interface StateMachineFactory<A : Agent<out Message>> {
-    fun create(startTime: AbsoluteTime, agent: A): StateMachine
+    fun create(startTime: AbsoluteTime, agent: A): StateMachine =
+        create(initialState(startTime, agent))
+
+    fun create(initialState: State): StateMachine
+    fun initialState(startTime: AbsoluteTime, agent: A): State
 }
 
-data class TransitoryStateMachine(
+open class TransitoryStateMachine(
     override val name: String,
     private val initial: State // TODO avoid storing initial state, maybe initialize current state right away?
 ) : StateMachine {
 
-    private lateinit var currentState: State
+    protected lateinit var currentState: State
 
-    override fun start(): Events {
-        return enter(initial)
-    }
+    override fun start(): Events = findNonTransitoryState(initial)
 
     override fun setTime(time: AbsoluteTime) {
         currentState.updateTime(time)
@@ -60,13 +62,13 @@ data class TransitoryStateMachine(
         }
 
         nextState?.let { state ->
-            result += enter(state)
+            result += findNonTransitoryState(state)
         }
 
         return result
     }
 
-    private fun enter(state: State): Events {
+    protected open fun findNonTransitoryState(state: State): Events {
         val result: MutableList<Event<*>> = mutableListOf()
 
         var nextState: State = state
@@ -74,6 +76,39 @@ data class TransitoryStateMachine(
         while (nextTransition != null) {
             nextState = nextTransition
             result += nextState.enter()
+            val (messages, transitionElse) = nextState.fallbackTransition()
+            result += messages
+            nextTransition = transitionElse
+        }
+
+        currentState = nextState
+
+        return result
+    }
+}
+
+class RecordingStateMachine(
+    name: String,
+    initial: State
+) : TransitoryStateMachine(name, initial) {
+
+    val history: List<State>
+        get() = stateHistory
+    private val stateHistory = mutableListOf<State>()
+
+    fun clearHistory() {
+        stateHistory.clear()
+    }
+
+    override fun findNonTransitoryState(state: State): Events {
+        val result: MutableList<Event<*>> = mutableListOf()
+
+        var nextState: State = state
+        var nextTransition: State? = state
+        while (nextTransition != null) {
+            nextState = nextTransition
+            result += nextState.enter()
+            stateHistory += nextState
             val (messages, transitionElse) = nextState.fallbackTransition()
             result += messages
             nextTransition = transitionElse

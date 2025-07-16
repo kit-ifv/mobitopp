@@ -15,8 +15,10 @@ data class Event<M : Message>(
     val receiver: Agent<in M>,
     val receiveTime: AbsoluteTime,
     val content: M
-) {
+) : Comparable<Event<*>> {
     fun execute(): Events = receiver.processEvent(this)
+
+    override fun compareTo(other: Event<*>) = receiveTime.compareTo(other.receiveTime)
 }
 
 typealias Events = Collection<Event<*>>

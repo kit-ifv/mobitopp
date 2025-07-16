@@ -5,30 +5,40 @@ import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.stateMachine
 import discreteChoice.models.FixedChoicesModel
+import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.Agenda
 import domain.shared.datastructure.schedule.Leg
 import domain.shared.datastructure.schedule.LinkTrip
 import domain.shared.datastructure.schedule.LinkedAction
 import domain.shared.datastructure.schedule.Representative
 import domain.shared.datastructure.schedule.StationaryAction
-import domain.shared.datastructure.schedule.Trip
 import domain.shared.datastructure.schedule.alternateByImpedance
 import domain.shared.enums.MODEUNKOWN
 import domain.shared.enums.Mode
 import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
+import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PersonMessage
+import domain.simulation.agent.PrivateCarAgent
+import domain.simulation.agent.getBestCar
+import domain.simulation.agent.locationBySchedule
+import domain.simulation.behavior.BikeSharingConnectionSelector
+import domain.simulation.behavior.DestinationAlternative
+import domain.simulation.behavior.ModeAvailabilityFilter
+import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.ModeChoiceSituation
 import domain.simulation.behavior.TripChoiceSituation
-import domain.synthesis.data.Person
 import utils.concurrent.synchronizeAll
 import utils.units.AbsoluteTime
 
-abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean = true) : BaseStateData(time) {
+abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean) : BaseStateData(
+    time
+) {
 
     init {
-        if(doStep) {
+        if (doStep) {
             person.schedule.step()
         }
     }
@@ -36,18 +46,29 @@ abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, 
     val block: Representative<out LinkedAction>?
         get() = person.schedule.nextBlock()
 
-    val agenda: Agenda
-        get() = block as? Agenda ?: error(
-            "Expected current block in state ${this::class.simpleName} to be Agenda, but got: $block"
-        )
-
-    val trip: LinkTrip
-        get() = block as? LinkTrip ?: error(
-            "Expected current block in state ${this::class.simpleName} to be LinkTrip, but got: $block"
-        )
-
     val behavior: PersonBehavior
         get() = person.behavior
+
+    val impedance: Metrics
+        get() = behavior.impedance
+
+    val modeAvailability: ModeAvailabilityFilter
+        get() = behavior.availabilityModel
+
+    val modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>
+        get() = behavior.modeChoice
+
+    val destinationChoice: FixedChoicesModel<DestinationAlternative, Location>
+        get() = behavior.destinationChoice
+
+    val modes: ChoiceModelModes
+        get() = behavior.choiceModelModes
+
+    val attractivity: AttractivenessModel
+        get() = behavior.attractivityModel
+
+    val bikeSharingConnections: BikeSharingConnectionSelector
+        get() = behavior.bikeSharingConnectionSelector
 
     val self: PersonAgent
         get() = agent
@@ -56,16 +77,42 @@ abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, 
         get() = self
 }
 
+abstract class ActivityState(val agenda: Agenda, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) : PersonState(
+    time,
+    agent,
+    doStep
+) {
+    constructor(agenda: Agenda, state: PersonState, doStep: Boolean) : this(agenda, state.time, state.agent, doStep)
+}
+
+abstract class TripState(val trip: LinkTrip, time: AbsoluteTime, agent: PersonAgent, doStep: Boolean) : PersonState(
+    time,
+    agent,
+    doStep
+) {
+    constructor(trip: LinkTrip, state: PersonState, doStep: Boolean) : this(trip, state.time, state.agent, doStep)
+
+    val origin: Location
+        get() = trip.origin
+
+    val destination: Location
+        get() = trip.destination
+}
+
+// typealias AfterLegAction = (PersonAgent, AbsoluteTime) -> Unit
+fun interface AfterLegAction {
+    fun execute(person: PersonAgent, time: AbsoluteTime)
+}
+
 // Person Messages
 @MessageCalled("FirstActivity", PersonStartState::class)
-data class FirstActivityMessage(val activity: StationaryAction): PersonMessage
+data class FirstActivityMessage(val activity: StationaryAction) : PersonMessage
 
 @MessageCalled("EndActivity", PerformingActivityState::class)
-data class EndActivityMessage(val activity: StationaryAction): PersonMessage
+data class EndActivityMessage(val activity: StationaryAction) : PersonMessage
 
 @MessageCalled("EndLeg", PerformLegState::class)
-data class EndLegMessage(val leg: Leg): PersonMessage
-
+data class EndLegMessage(val leg: Leg) : PersonMessage
 
 // Person States
 @StateCalled("StartPerson")
@@ -73,31 +120,35 @@ class PersonStartState(time: AbsoluteTime, agent: PersonAgent) : PersonState(tim
 
 @StateCalled("PerformingActivity", PersonStartState::class, PerformingActivityState::class, PerformLegState::class)
 class PerformingActivityState(
+    agenda: Agenda,
     val activity: StationaryAction,
     state: PersonState
-) : PersonState(activity.startTime, state.agent) {
+) : ActivityState(agenda, activity.startTime, state.agent, doStep = true) {
     val location: Location
         get() = activity.location
 }
 
-abstract class TripState(time: AbsoluteTime, agent: PersonAgent, doStep: Boolean = true): PersonState(time, agent, doStep) {
-    val origin: Location
-        get() = trip.origin
-
-    val destination : Location
-        get() = trip.destination
-}
-
 @StateCalled("StartingTrip", PerformingActivityState::class)
-class StartingTripState(state: PersonState) : TripState(state.time, state.agent, doStep=false)
+class StartingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
 
-@StateCalled("PerformLeg", StartingTripState::class, PerformLegState::class)
-class PerformLegState(val leg: Leg, state: PersonState) : TripState(state.time, state.agent)
+@StateCalled(
+    "PerformLeg",
+    StartingTripState::class,
+    StartingCarTripState::class,
+    StartingBikeSharingTripState::class,
+    PerformLegState::class
+)
+class PerformLegState(trip: LinkTrip, val leg: Leg, val afterLegAction: AfterLegAction, state: PersonState) :
+    TripState(trip, state, doStep = true)
+
+@StateCalled("StartingCarTrip", StartingTripState::class)
+class StartingCarTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
+
+@StateCalled("StartingBikeSharingTrip", StartingTripState::class)
+class StartingBikeSharingTripState(trip: LinkTrip, state: PersonState) : TripState(trip, state, doStep = false)
 
 @StateCalled("FinishedPerson", PerformLegState::class, PerformingActivityState::class)
-class FinishedPersonState(state: PersonState) : PersonState(state.time, state.agent)
-
-
+class FinishedPersonState(state: PersonState) : PersonState(state.time, state.agent, doStep = false)
 
 val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
 
@@ -105,11 +156,11 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         val target = person.schedule.activities().first()
         target.location = person.household.location
 
-        val firstActivity = agenda.elements[0]
+        val firstActivity = (block as Agenda).elements[0]
         send(firstActivity(firstActivity), self, firstActivity.startTime)
         //
     }.transitionOn(FirstActivity) { message, send ->
-        performingActivity(message.activity)
+        performingActivity((block as Agenda), message.activity)
     }
 
     state(PerformingActivity) { send ->
@@ -117,74 +168,134 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         //
     }.transitionOn(EndActivity) { message, send ->
         person.schedule.step()
-        when(block) {
-            is Agenda -> performingActivity(agenda.elements[0])
-            is LinkTrip -> startingTrip()
+        when (block) {
+            is Agenda -> performingActivity(block as Agenda, agenda.elements[0])
+            is LinkTrip -> startingTrip(block as LinkTrip)
             null -> finishedPerson()
-            else -> error("")
+            else -> error("Expected next block in schedule to be agenda, trip or null but git: $block")
         }
     }
 
-    transState(StartingTripState::class) {
-        val leg = trip
+    transState(StartingTrip) {
 
         // mode and destination choice
         // TODO Robin last.endlocation is destination?
-        if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
-            leg.elements.last().endLocation = behavior.destinationChoice.filterAndSelect(
-                leg.elements.last().let {
+        if (trip.elements.last().endLocation == LOCATIONUNKNOWN) {
+            trip.elements.last().endLocation = destinationChoice.filterAndSelect(
+                trip.elements.last().let {
                     TripChoiceSituation(
                         person,
                         time,
                         it.startLocation,
-                        behavior.impedance,
-                        person.sharedResources(),
-                        behavior.attractivityModel,
-                        behavior.availabilityModel
+                        impedance,
+                        attractivity,
+                        modeAvailability
                     )
                 }
             )
-            leg.elements.forEach { it.transportType = MODEUNKOWN }
+            trip.elements.forEach { it.transportType = MODEUNKOWN }
         }
-
     }.next { send ->
-        val sharedResources = person.sharedResources()
+        val (_, sharedResources) = modeAvailability.situativeAvailability(person)
 
+        println(sharedResources)
         synchronizeAll(sharedResources) {
-            val mode: Mode = behavior.modeChoice.filterAndSelect(
-                ModeChoiceSituation(person, time, origin, destination, behavior.impedance, sharedResources),
+            val mode: Mode = modeChoice.filterAndSelect(
+                ModeChoiceSituation(person, time, origin, destination, impedance),
             )
 
-            trip.alternateByImpedance(behavior.impedance) {
+            trip.alternateByImpedance(impedance) {
                 taking(mode to destination)
             }
 
             person.inTransit = true
-            performLeg(trip.elements[0])
 
-//TODO
-//behavior.scopeDispatcher.pickScope(startLegEvent, mode, person, leg).also {
-//  person.inTransit = true
-//}
+            val noAction = AfterLegAction { a, t -> Unit }
+            when (mode) {
+                modes.car -> startingCarTrip()
+                modes.bikeSharing -> startingBikeSharingTrip()
+                else -> performLeg(leg = trip.elements[0], afterLegAction = noAction)
+            }
         }
+
+    }
+
+    transState(StartingCarTrip).next {
+        val car = person.getBestCar()
+
+        car.keyHolder = person
+        car.addDriver(person)
+        car.state = PrivateCarAgent.CarState.IN_USE
+
+        var returned = false
+        val checkEndOfCarTrip = AfterLegAction { a, t ->
+            if (a.locationBySchedule() == destination && !returned) {
+                car.location = a.location
+                car.removeDriver()
+                car.state = PrivateCarAgent.CarState.PARKED
+                if (a.locationBySchedule() == a.household.location) { // TODO check
+                    car.keyHolder = null
+                    returned = true
+                }
+            }
+        }
+
+        performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
+    }
+
+    transState(StartingBikeSharingTrip).next { send ->
+        val maybeBikesharing = bikeSharingConnections.findConnection(
+            ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
+        )
+        val (startStation, endStation) = requireNotNull(maybeBikesharing) {
+            "How did you manage to select bikesharing if no connection available?\n" +
+                " - check availability model: ${modeAvailability::class.simpleName}\n" +
+                " - check connection model: ${bikeSharingConnections::class.simpleName}"
+        }
+
+        trip.alternateByImpedance(impedance) {
+            taking(modes.pedestrian to startStation.location)
+            taking(modes.bikeSharing to endStation.location)
+            taking(modes.pedestrian to destination)
+        }
+
+        val vehicle = startStation.takeAny()
+
+        var returned = false
+        val checkBikeReturn = AfterLegAction { a, t ->
+            if (a.location == endStation.location && !returned) {
+                vehicle.returnTo(endStation)
+                returned = true
+            }
+        }
+
+        performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
     }
 
     state(PerformLeg) { send ->
         send(endLeg(), self, leg.endTime)
         //
     }.transitionOn(EndLeg) { message, send ->
-        when(block) {
+        person.location = leg.endLocation
+        person.schedule.step()
+        afterLegAction.execute(person, time)
+
+        when (block) {
             null -> finishedPerson()
-            is LinkTrip -> performLeg(trip.legs[0])
-            is Agenda -> agenda.elements.firstOrNull()?.let {
-                performingActivity(agenda.elements[0])
-            } ?:  finishedPerson()
-            else -> error("")
+            is LinkTrip -> performLeg(block as LinkTrip, leg = trip.legs[0])
+            is Agenda -> {
+                val agenda = block as Agenda
+                agenda.elements.firstOrNull()?.let {
+                    performingActivity(agenda, agenda.elements[0])
+                } ?: finishedPerson()
+            }
+            else -> error(
+                "Cannot process EndLeg: '$message' ins PerformLeg state: $this!" +
+                    " Current schedule block should be Agenda or LinkTrip but is of type " +
+                    "${block?.let {it::class.simpleName} ?: "null"}: '$block'"
+            )
         }
     }
 
     finState(FinishedPerson)
-
-
-
 }
