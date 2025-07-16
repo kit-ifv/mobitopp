@@ -20,17 +20,17 @@ import domain.shared.location.LegacyZone
 import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
+import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
+import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.behavior.DestinationAlternative
 import domain.simulation.behavior.FixedModesFilter
 import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.behavior.SituativeAvailability
 import domain.simulation.config.DemandSimContext
-import domain.simulation.events.CarSelector
-import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.SharingVehicleSelector
+import domain.synthesis.data.IPerson
 import domain.synthesis.data.SharingProviderId
 
 fun LoadChoiceModelsContext.loadChoiceModels(
@@ -65,18 +65,14 @@ class LoadChoiceModelsStep(
     override fun execute() {
         val impedance = context.impedance.value
 
-        val providers = context.sharingProviderAgents.elements
-        val stations = providers.flatMap {
-            it.stations
-        }
+        val providers = context.sharingProviderAgents.elements.associateBy { it.id }
 
         val availability =
-            SharingAvailabilityFilter( // TODO refactor availability model, as composite of availability rules
+            AvailabilityModelWithSharing( // TODO refactor availability model, as composite of availability rules
                 modes,
-                stations.toSet(),
-                providers.groupBy {
+                providers.values.groupBy {
                     it.mode
-                }.mapValues { it.value.toSet() },
+                }.mapValues { it.value.map { p -> p.id }.toSet() },
                 impedance
             )
 
@@ -88,18 +84,13 @@ class LoadChoiceModelsStep(
             context.zoneRepository.elements.map { it.centroid }.toSet()
         )
 
-        val behavior = PersonBehavior(
+        val behavior = PersonBehavior.from(
+            impedance,
             destinationChoice,
             modeChoice,
-            impedance,
-//            ModeScopeDispatcher(
-//                modes.car to CarSelector(modes.car),
-//                modes.let {
-//                    it.bikeSharing to SharingVehicleSelector(it.bikeSharing, availability, impedance, it.pedestrian)
-//                }
-//            ),
             context.attractivenessModel.value,
             availability,
+            modes,
         )
 
         context.behavior.value = behavior
@@ -122,13 +113,17 @@ class LoadChoiceModelsStep(
             destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
             modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
             impedance = impedance,
-//            scopeDispatcher = ModeScopeDispatcher(mapOf()),
             context.attractivenessModel.value,
-            DummyAvailability,
+            DummyAvailability(modes.options),
+            { null },
+            choiceModelModes = modes
         )
     }
 }
 
-object DummyAvailability : ModeAvailabilityFilter {
+data class DummyAvailability(val modes: Set<Mode>) : ModeAvailabilityFilter {
     override fun filter(choices: Set<ModeChoiceAlternative>) = choices
+    override fun staticAvailability(person: IPerson) = modes
+    override fun situativeAvailability(person: PersonAgent) = SituativeAvailability(modes, emptySet())
+    override fun alternativeDependentAvailability(alternative: ModeChoiceAlternative) = true
 }

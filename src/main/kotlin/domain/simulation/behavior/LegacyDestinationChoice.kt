@@ -236,7 +236,7 @@ val DestinationAlternative.travelCostFixedCar: Currency
 val DestinationAlternative.availableModes: Set<Mode>
     get() = modeAvailabilityFilter.filter(
         LegacyMode.entries.map {
-            ModeChoiceAlternative(person, time, origin, destination, it, impedance, person.sharedResources())
+            ModeChoiceAlternative(person, time, origin, destination, it, impedance)
         }.toSet(),
     ).map {
         it.choice

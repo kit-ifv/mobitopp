@@ -1,9 +1,11 @@
 package domain.simulation.agent
 
+import core.statemachine.StateMachineFactory
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
+import domain.simulation.events.PersonBehavior
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -17,7 +19,9 @@ import domain.synthesis.data.SharingStationId
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
-    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer
+    val personStateMachine: StateMachineFactory<PersonAgent>,
+    val personBehavior: PersonBehavior,
+    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
 
     val personsById: MutableMap<PersonId, MutablePersonAgent> = mutableMapOf()
@@ -93,7 +97,7 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
         key = this.id,
-        defaultValue = { MutablePersonAgent(id, householdAgent, context.seed) }
+        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) }
     ) { agent ->
 
         agent.age = this.age
@@ -110,8 +114,10 @@ fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = househ
         agent.sharingMemberships.addAll(
             this.sharingMemberships.map { it.toAgent(context) }
         )
-        agent.memberships.addAll(agent.sharingMemberships)
-        agent.memberships.add(agent.household)
+
+        agent.behavior = context.personBehavior
+//        agent.memberships.addAll(agent.sharingMemberships)
+//        agent.memberships.add(agent.household)
 
         agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
         this.clearPlannedActivities() // clear to save memory
