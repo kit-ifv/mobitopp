@@ -43,6 +43,17 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     private var quickOverview: OverviewCard? = null
 
     /**
+     * Add overview items to the returned card. Only one overview card is possible.
+     * @return the OverviewCard associated with this report. There can only be one card.
+     */
+    fun addOverview(): OverviewCard {
+        if (quickOverview == null) {
+            quickOverview = OverviewCard()
+        }
+        return quickOverview!!
+    }
+
+    /**
      * Adds a warning card to the report.
      */
     fun addWarning(title: String, message: String) {
