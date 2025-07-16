@@ -114,7 +114,7 @@ class OverviewCard() {
         val contentID = Random.nextInt().toString()
 
         return createHTML().span {
-            div("card " + ReportType.NORMAL.cssClass) {
+            div("overview-card " + ReportType.NORMAL.cssClass) {
                 h3("card-title") {
                     pre {
                         +name
@@ -124,21 +124,13 @@ class OverviewCard() {
                     id = contentID
                     div("content") {
                         stepRegister.forEachIndexed { index, step ->
-                            if (index == 1 && stepRegister.size == 1) {
+                            if (index == 0) {
                                 unsafe {
-                                    +step.getSingleStepHTML()
-                                }
-                            } else if (index == 1) {
-                                unsafe {
-                                    +step.getFirstStepHTML()
-                                }
-                            } else if (index == stepRegister.lastIndex) {
-                                unsafe {
-                                    +step.getLastStepHTML()
+                                    +step.getSingleStepHTML(false)
                                 }
                             } else {
                                 unsafe {
-                                    + step.getIntermediateStepHTML()
+                                    + step.getSingleStepHTML(true)
                                 }
                             }
                         }
@@ -149,12 +141,20 @@ class OverviewCard() {
     }
 }
 
-internal fun StatusStep.getSingleStepHTML(): String {
+internal fun StatusStep.getSingleStepHTML(connector: Boolean): String {
     return createHTML().div ("step") {
         attributes["title"] = hoverInformation
         span("flex_row_centered") {
             unsafe {
                 +dotSVG
+            }
+            if (connector) {
+                span {
+                    style = "color: var(--normal-color);position: relative; top: -28px;left: -30.5px;"
+                    unsafe {
+                        +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
+                    }
+                }
             }
             h5 {
                 style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; overflow-inline: auto;"
@@ -185,36 +185,6 @@ internal fun StatusStep.getSingleStepHTML(): String {
                     }
             }
         }
-    }
-}
-
-internal fun StatusStep.getFirstStepHTML(): String {
-    return getSingleStepHTML()
-}
-
-internal fun StatusStep.getLastStepHTML(): String {
-    return getSingleStepHTML()
-}
-
-internal fun StatusStep.getIntermediateStepHTML(): String {
-    return getSingleStepHTML()
-}
-
-
-
-private val connectorSVG = createHTML().svg(classes = "dot") {
-    @Suppress("StringLiteralDuplication")
-    attributes["fill"] = "var(--normal-color)"
-    @Suppress("StringLiteralDuplication")
-    attributes["width"] = "20"
-    @Suppress("StringLiteralDuplication")
-    attributes["height"] = "20"
-    @Suppress("StringLiteralDuplication")
-    attributes["viewbox"] = "0 0 40 40"
-    unsafe {
-        +"""
-        <ellipse cx="20" cy="20" rx="20" ry="20" stroke="none" pointer-events="all"/>
-        """.trimIndent()
     }
 }
 
