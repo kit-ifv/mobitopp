@@ -4,14 +4,11 @@ import kotlinx.html.body
 import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.h1
-import kotlinx.html.h5
+import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.html
-import kotlinx.html.id
 import kotlinx.html.onClick
-import kotlinx.html.pre
 import kotlinx.html.script
-import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.svg
@@ -23,63 +20,6 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.createDirectories
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
-import kotlin.random.Random
-
-private enum class ReportType(val cssClass: String) {
-    NORMAL("normal"),
-    SUCCESS("success"),
-    WARNING("warning"),
-    ERROR("error")
-}
-private abstract class Card(
-    val name: String,
-    val message: String,
-    val type: ReportType
-) {
-    fun getHtml(): String {
-        val contentID = Random.nextInt().toString()
-
-        return createHTML().span {
-            div("card " + type.cssClass) {
-                onClick = "toggleCard('$contentID'); toggle('arrow ' + $contentID, 'rotate')"
-                span("card-top inline") {
-                    svg(classes = "rotatable") {
-                        id = "arrow $contentID"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["stroke"] = "currentColor"
-                        attributes["fill"] = "none"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["width"] = "25"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["height"] = "25"
-                        @Suppress("StringLiteralDuplication")
-                        attributes["viewbox"] = "0 0 20 12"
-                        attributes["stroke-width"] = "3.0"
-                        unsafe {
-                            +"""
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3 L10 10 L17 3"></path>
-                            """.trimIndent()
-                        }
-                    }
-                    h5("card-title") {
-                        pre {
-                            +name
-                        }
-                    }
-                }
-                div("card-body") {
-                    id = contentID
-                    pre("content") { +message }
-                }
-            }
-        }
-    }
-}
-
-private class Warning(name: String, message: String) : Card(name, message, ReportType.WARNING)
-private class Error(name: String, message: String) : Card(name, message, ReportType.ERROR)
-private class Success(name: String, message: String) : Card(name, message, ReportType.SUCCESS)
-private class Normal(name: String, message: String) : Card(name, message, ReportType.NORMAL)
 
 /**
  * This class provides the functionality to log messages and print a html report out of them.
@@ -100,7 +40,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     private val errors: MutableList<Error> = mutableListOf()
     private val success: MutableList<Success> = mutableListOf()
     private val normals: MutableList<Normal> = mutableListOf()
-
+    private var quickOverview: OverviewCard? = null
 
     /**
      * Adds a warning card to the report.
@@ -156,6 +96,10 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                     h1("title") {
                         +reportTitle
                     }
+                    if (quickOverview!= null) unsafe { +quickOverview!!.getHtml() }
+                    h3("logs heading") {
+                        +"Logs"
+                    }
                     for (t in errors) {
                         unsafe { +t.getHtml() }
                     }
@@ -178,10 +122,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                         attributes["height"] = "30"
                         attributes["viewbox"] = "0 0 24 24"
                         unsafe {
-                            @Suppress("MaximumLineLength")
-                            +"""
-                            <path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            """.trimIndent()
+                           +darkmodeMoonSVG.trimIndent()
                         }
                     }
                 }
@@ -204,3 +145,5 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
 private const val BLUE = "\u001B[34m"
 private const val BOLD = "\u001B[1m"
 private const val RESET = "\u001B[0m"
+@Suppress("MaximumLineLength")
+private const val darkmodeMoonSVG = """<path d="M3.32031 11.6835C3.32031 16.6541 7.34975 20.6835 12.3203 20.6835C16.1075 20.6835 19.3483 18.3443 20.6768 15.032C19.6402 15.4486 18.5059 15.6834 17.3203 15.6834C12.3497 15.6834 8.32031 11.654 8.32031 6.68342C8.32031 5.50338 8.55165 4.36259 8.96453 3.32996C5.65605 4.66028 3.32031 7.89912 3.32031 11.6835Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>"""
