@@ -118,7 +118,6 @@ private fun KSNode?.symbolErrorMessage(expectedClass: String) =
     "Expected symbol to be a $expectedClass but was ${this?.let { it::class.simpleName }}\n   Symbol: $this"
 
 fun KSType.isInlineClass(): Boolean {
-    println("Hello: checking ${this.declaration.simpleName.asString()}")
     // Get the class declaration associated with this type
     val classDeclaration = this.declaration as? KSClassDeclaration ?: return false
 
