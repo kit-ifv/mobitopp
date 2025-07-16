@@ -2,6 +2,7 @@ package core.events
 
 import core.statemachine.Agent
 import core.statemachine.Event
+import core.statemachine.Events
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -11,17 +12,27 @@ import utils.Identifiable
 import utils.collections.addProgressBar
 import utils.units.AbsoluteTime
 import utils.units.Time
+import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 abstract class Simulator(
     initEvents: Collection<Event<*>> = emptyList(),
+    eventListeners: Collection<EventListener> = emptyList(),
     protected val queue: EventQueue = MapEventQueue(),
     val timeStep: Duration = 1.minutes
 ) {
 
     init {
         queue.addAll(initEvents)
+    }
+
+    private val listeners = mutableListOf<EventListener>().apply {
+        addAll(eventListeners)
+    }
+
+    fun addListener(listener: EventListener) {
+        listeners.add(listener)
     }
 
     fun <E> addAgents(agents: Collection<E>) where E : Identifiable<*>, E : Agent<*> {
@@ -38,7 +49,32 @@ abstract class Simulator(
         }
     }
 
-    protected abstract fun getFutureEvents(now: Time): Collection<Event<*>>
+    protected fun getFutureEvents(now: Time): Collection<Event<*>> {
+        val currentEvents = queue.popEventsUntil(now)
+        val (present, future) = currentEvents.partition { it.receiveTime <= now }.let {
+            it.first.toMutableList() to it.second.toMutableList()
+        }
+
+        while (present.isNotEmpty()) {
+            val newEvents = executePresentEvents(present)
+            val (newInstantEvents, newFutureEvents) = newEvents.partition { it.receiveTime <= now }
+
+            present.forEach(::notifyListeners)
+            present.clear()
+            present.addAll(newInstantEvents)
+            future.addAll(newFutureEvents)
+        }
+
+        return future
+    }
+
+    protected abstract fun executePresentEvents(present: Events): Events
+
+    private fun notifyListeners(event: Event<*>) {
+        listeners.forEach {
+            it.notify(event)
+        }
+    }
 
     private fun progressClock(start: AbsoluteTime, timeStep: Duration, end: AbsoluteTime): Sequence<AbsoluteTime> {
         val seq = clock(start, timeStep, end)
@@ -60,61 +96,37 @@ abstract class Simulator(
     }
 }
 
+interface EventListener {
+    fun notify(event: Event<*>)
+}
+
 class ParallelSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
+    eventListeners: Collection<EventListener> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
     timeStep: Duration = 1.minutes
-) : Simulator(initEvents, queue, timeStep) {
+) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
-    override fun getFutureEvents(now: Time): Collection<Event<*>> {
-        val currentEvents = queue.popEventsUntil(now)
-        val (present, future) = currentEvents.partition { it.receiveTime <= now }.let {
-            it.first.toMutableList() to it.second.toMutableList()
-        }
 
-        runBlocking {
-            while (present.isNotEmpty()) {
-                coroutineScope {
-                    val deferredNewEvents = present.map {
-                        async(Dispatchers.Default) { it.execute() }
-                    }
-
-                    val newEvents = deferredNewEvents.awaitAll().flatten()
-
-                    val (newInstantEvents, newFutureEvents) = newEvents.partition { it.receiveTime <= now }
-
-                    present.clear()
-                    present.addAll(newInstantEvents)
-                    future.addAll(newFutureEvents)
-                }
+    override fun executePresentEvents(present: Events): Events = runBlocking {
+        coroutineScope {
+            val deferredNewEvents = present.map {
+                async(Dispatchers.Default) { it.execute() }
             }
-        }
 
-        return future
+            deferredNewEvents.awaitAll().flatten()
+        }
     }
+
 }
 
 class SequentialSimulator(
     initEvents: Collection<Event<*>> = emptyList(),
+    eventListeners: Collection<EventListener> = emptyList(),
     queue: MapEventQueue = MapEventQueue(),
     timeStep: Duration = 1.minutes
-) : Simulator(initEvents, queue, timeStep) {
+) : Simulator(initEvents, eventListeners, queue, timeStep) {
 
-    override fun getFutureEvents(now: Time): Collection<Event<*>> {
-        val currentEvents = queue.popEventsUntil(now)
-        val (present, future) = currentEvents.partition { it.receiveTime <= now }.let {
-            it.first.toMutableList() to it.second.toMutableList()
-        }
+    override fun executePresentEvents(present: Events): Events = present.map { it.execute() }.flatten()
 
-        while (present.isNotEmpty()) {
-            val newEvents = present.map { it.execute() }.flatten()
-            val (newInstantEvents, newFutureEvents) = newEvents.partition { it.receiveTime <= now }
-
-            present.clear()
-            present.addAll(newInstantEvents)
-            future.addAll(newFutureEvents)
-        }
-
-        return future
-    }
 }
