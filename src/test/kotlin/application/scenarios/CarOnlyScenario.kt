@@ -4,22 +4,18 @@ import HouseholdSpawnLimits
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asRepository
+import core.events.SequentialSimulator
 import core.modelsteps.asResource
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
-import domain.simulation.agent.PersonAgent
-import domain.simulation.behavior.SharingAvailabilityFilter
-import domain.simulation.events.CarSelector
-import domain.simulation.events.InitPersonEvent
-import domain.simulation.events.ModeScopeDispatcher
+import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.personStateMachine
 import generateActivitySchedule
 import generateHouseholds
 import generateZones
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.RepeatedTest
 import spawnDrivers
 import utils.units.sinceStart
@@ -47,22 +43,14 @@ class CarOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
-        val car = legacyModes.car
-
-        val agents = BuildAgents(seed = 1L).buildPersonAgents(households)
-        assertTrue(agents.all { it.household in it.memberships })
-
         val impedance = ControllableImpedance()
-        val availability = SharingAvailabilityFilter(
+        val availability = AvailabilityModelWithSharing(
             legacyModes,
-            emptySet(),
             mapOf(),
             impedance
         )
 
-//        val modeScopeDispatcher = ModeScopeDispatcher(
-//            car to CarSelector(car),
-//        )
+        val car = legacyModes.car
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
@@ -70,17 +58,18 @@ class CarOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
-//            scopeDispatcher = modeScopeDispatcher,
             attractivityModel = testAttractivenessModel,
-            availabilityModel = availability
+            availabilityModel = availability,
+            bikeSharingConnectionSelector = availability,
+            choiceModelModes = legacyChoiceModelModes
         )
+
+        val agents = BuildAgents(seed = 1L, personStateMachine, syntheticBehavior).buildPersonAgents(households)
 
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
-        val test = resource.asRepository()
-        sim.addAgents(test) { person: PersonAgent ->
-            InitPersonEvent(person, syntheticBehavior)
-        }
+        val testAgents = resource.elements.toList()
+        sim.addAgents(testAgents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
     }
 }
