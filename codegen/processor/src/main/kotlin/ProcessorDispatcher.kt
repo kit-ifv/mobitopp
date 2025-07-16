@@ -23,10 +23,10 @@ class ProcessorDispatcher(
 ) : SymbolProcessor {
 
     init {
-        logger.warn("Processor options: $options")
-        logger.warn("Api version: ${environment.apiVersion}")
-        logger.warn("Kotlin version: ${environment.kotlinVersion}")
-        logger.warn("Compiler version: ${environment.compilerVersion}")
+        logger.info("Processor options: $options")
+        logger.info("Api version: ${environment.apiVersion}")
+        logger.info("Kotlin version: ${environment.kotlinVersion}")
+        logger.info("Compiler version: ${environment.compilerVersion}")
     }
 
     private val processors = listOf<Processor<*, *>>(
@@ -39,13 +39,13 @@ class ProcessorDispatcher(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         roundCounter++
-        logger.warn("Processing round: $roundCounter")
+        logger.info("Processing round: $roundCounter")
 
         val deferred = mutableListOf<KSAnnotated>()
 
         processors.forEach { processor ->
             val symbols = resolver.getSymbolsWithAnnotation(processor.annotationName, inDepth = true).toList()
-            logger.warn("Round $roundCounter - Found ${symbols.size} symbols annotated by @${processor.annotationName}: $symbols")
+            logger.info(" - Found ${symbols.size} symbols annotated by @${processor.annotationName}: $symbols")
 
             if (symbols.isEmpty()) {
                 deferred += emptyList()
@@ -53,23 +53,11 @@ class ProcessorDispatcher(
 
             var newDeferred = processor.processAnnotatedSymbolList(symbols, resolver)
             if (newDeferred.isNotEmpty()) {
-                logger.warn("Round $roundCounter - RETRY processor: ${processor::class.simpleName}")
+                logger.info(" - RETRY processor: ${processor::class.simpleName}")
                 newDeferred = processor.processAnnotatedSymbolList(newDeferred, resolver)
             }
             deferred += newDeferred
         }
-
-        logger.warn("Round $roundCounter - New files: ${resolver.getNewFiles().toList()}")
-
-//        if (deferred.isNotEmpty()) {
-//            logger.warn("Round $roundCounter - Deferred symbols ${deferred.size}: ${deferred.map { it.toString() }}")
-//            val marker = codeGenerator.createNewFile(Dependencies.ALL_FILES, "generated", "Marker_$roundCounter")
-//            marker.write("// Marker file $roundCounter to force next round\n".toByteArray())
-//            marker.close()
-//
-//        }
-
-
 
         return deferred
     }
@@ -103,11 +91,11 @@ interface SuccessiveProcessor<A,D>: Processor<A,D> where  A: Annotation {
             try {
                 if(!symbol.validate()) {
                     deferred.add(symbol)
-                    logger.warn("Deferred $symbol as it is not valid !!")
+                    logger.info(" - Deferred $symbol as it is not valid !!")
                 } else {
                     annotations += castAnnotations(symbol)
                     deferred += processAnnotatedSymbol(symbol, annotations, resolver)
-                    logger.warn(
+                    logger.info(
                         "Processed $symbol, ${symbol.annotations.toList()}"
                     )
                 }
@@ -143,8 +131,8 @@ interface GroupingProcessor<A,D,G>: Processor<A,D> where  A: Annotation {
             val annotationsOfGroup = groupedSymbols.associateWith { annotationsBySymbol[it]!! }
             try {
                 result += processAnnotatedSymbolGroup(key, groupedSymbols, annotationsOfGroup, resolver)
-                logger.warn(
-                    "Processed group ${key.toString()}:\n  $groupedSymbols\nwith annotations: \n  $annotationsOfGroup"
+                logger.info(
+                    " - Processed group ${key.toString()}:\n  $groupedSymbols\nwith annotations: \n  $annotationsOfGroup"
                 )
 
             } catch (exception: Exception) {
