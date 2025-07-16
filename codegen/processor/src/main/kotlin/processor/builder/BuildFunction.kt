@@ -159,7 +159,7 @@ abstract class BuildFunction(val classDeclaration: KSClassDeclaration) {
                 +"val autoGenMap = $map"
                 +"val autoGenControl = autoGenMap.filter{it.value == false}.keys"
                 +"require(autoGenControl.isEmpty())" {
-                    +"\"The following attributes need to be set \${autoGenControl}\""
+                    +$$"\"The following attributes need to be set ${autoGenControl}\""
                 }
             }
         }.makeText()
@@ -237,7 +237,7 @@ open class ClassBuilder(classDeclaration: KSClassDeclaration) : BuildFunction(cl
             }"
 
             +"require(autoGenRequiredParameters.all { autoGenDefaultables[it.name]?.invoke() != null })" {
-                +"\"The following attributes are not set and required \${autoGenRequiredParameters.filter { autoGenDefaultables[it.name]?.invoke() == null }.map{it.name}}\""
+                +$$"\"The following attributes are not set and required ${autoGenRequiredParameters.filter { autoGenDefaultables[it.name]?.invoke() == null }.map{it.name}}\""
             }
             +"val autoGenParamMap = autoGenTargetConstructor.parameters.map { it to autoGenDefaultables[it.name]?.invoke() }.filter { it.second != null }.toMap()"
             +"return autoGenTargetConstructor.callBy(autoGenParamMap)"
