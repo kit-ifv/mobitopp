@@ -105,23 +105,27 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
             body {
                 div("main") {
                     h1("title") {
+                        style = "color: var(--highlight-color)"
                         +reportTitle
                     }
                     if (quickOverview!= null) unsafe { +quickOverview!!.getHtml() }
-                    h3("logs heading") {
-                        +"Logs"
-                    }
-                    for (t in errors) {
-                        unsafe { +t.getHtml() }
-                    }
-                    for (t in warnings) {
-                        unsafe { +t.getHtml() }
-                    }
-                    for (t in success) {
-                        unsafe { +t.getHtml() }
-                    }
-                    for (t in normals) {
-                        unsafe { +t.getHtml() }
+                    div("logs-card") {
+                        h3("logs heading") {
+                            style = "color: var(--normal-color)"
+                            +"Logs"
+                        }
+                        for (t in errors) {
+                            unsafe { +t.getHtml() }
+                        }
+                        for (t in warnings) {
+                            unsafe { +t.getHtml() }
+                        }
+                        for (t in success) {
+                            unsafe { +t.getHtml() }
+                        }
+                        for (t in normals) {
+                            unsafe { +t.getHtml() }
+                        }
                     }
                 }
                 button(classes = "darkmode-toggle") {

@@ -31,8 +31,9 @@ fun main() {
     overview.addStepStatus("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
     overview.addStepStatus("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
     overview.addStepStatus("Load step", CardStatus.SUCCESS)
-    overview.addStepStatus("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
-    overview.addStepStatus("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
+    overview.addStepStatus("Success step", CardStatus.SUCCESS)
+    overview.addStepStatus("Family interpolation step", CardStatus.SUCCESS)
+    overview.addStepStatus("Zone distribution plan", CardStatus.SUCCESS)
 
     builder.printReport(Path("src/test/resources/tempOutput/"))
 }
