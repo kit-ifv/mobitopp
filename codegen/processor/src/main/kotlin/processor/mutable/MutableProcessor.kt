@@ -86,7 +86,7 @@ class MutableProcessor(
     ) {
         val mutClassType = ClassName(packageName, mutableClassName)
 
-        logger.warn("Generate mutable class $packageName.$mutableClassName: $className (${mutClassType.canonicalName})")
+        logger.info("Generate mutable class $packageName.$mutableClassName: $className (${mutClassType.canonicalName})")
         val mutClassBuilder = TypeSpec.classBuilder(mutableClassName)
                                         .addModifiers(KModifier.PUBLIC, KModifier.OPEN)
         if (symbol.classKind != ClassKind.INTERFACE) {
@@ -158,7 +158,7 @@ class MutableProcessor(
         val constructorSpec = FunSpec.constructorBuilder()
 
         if (constructorParams.isNotEmpty()) {
-            logger.warn(
+            logger.info(
                 "Generate (super)constructor params: ${constructorParams.map { it.name?.getShortName() + ": " + it.type.resolve().toString() }}"
             )
 

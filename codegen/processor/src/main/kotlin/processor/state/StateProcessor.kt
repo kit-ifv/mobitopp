@@ -77,9 +77,6 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
         val generatedFileName = "${originalFileName}$fileNameSuffix"
         val fileSpecBuilder = FileSpec.builder(filePackage, generatedFileName)
 
-
-        logger.warn("  states of file $originalFileName in $filePackage")
-
         for (symbol in symbolGroup) {
             try {
                 processSingleClass(symbol, annotations, fileSpecBuilder, resolver)
@@ -113,23 +110,15 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
         val classDecl = symbol as? KSClassDeclaration ?: return
         val data = annotations[symbol]?.firstOrNull() ?: return
 
-        logger.warn("  process ${symbol.qualifiedName?.asString()}")
-        logger.warn("  process symbol $data")
-
         fileSpecBuilder.addProperty(
             createKClassAliasProperty(classDecl, data)
         )
 
-        logger.warn("    resolve message type params ${classDecl.typeParameters}")
         val targetTypeParams = getTargetTypeParameters(classDecl)
-        logger.warn("      > result $targetTypeParams")
-
 
         for (scope in data.scopes) {
             val scopeDeclaration = getScopeDeclaration(scope, resolver)
-            logger.warn("    resolve scope type params ${scopeDeclaration?.typeParameters}")
             val scopeTypeParams = getScopeTypeParameters(scopeDeclaration, fileSpecBuilder)
-            logger.warn("      > result $scopeTypeParams")
 
             val functionName = data.name.replaceFirstChar { it.lowercase() }
             val className = classDecl.toClassName()
@@ -138,7 +127,6 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
             } else {
                 className.parameterizedBy(targetTypeParams)
             }
-            logger.warn("    return type $returnType")
 
             for (constructor in classDecl.getConstructors()) {
                 val funBuilder = createInitializeFunction(
@@ -150,8 +138,6 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
                     scopeDeclaration,
                     scopeTypeParams
                 )
-
-                logger.warn("    add function ${funBuilder.build().name}: ${funBuilder.build()}")
 
                 fileSpecBuilder.addFunction(funBuilder.build())
             }
@@ -213,8 +199,6 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
     ): FunSpec.Builder {
         val allTypeParams = scopeTypeParams + targetTypeParameters
 
-        logger.warn("    resolve parameters ${constructor.parameters}")
-
         val parameters = constructor.parameters.mapIndexed { index, param ->
             val paramName = param.name?.asString() ?: "param$index"
             val (paramKSType, paramTypeName) = parameterTypeOf(param)
@@ -229,17 +213,12 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
             }.build()
         }
 
-        logger.warn("      > resulting parameters $parameters")
-
-
         val constructorCall = if (targetTypeParameters.isNotEmpty()) {
             val typeArgs = targetTypeParameters.joinToString(", ") { it.name }
             "$className<$typeArgs>(${parameters.joinToString { it.name }})"
         } else {
             "$className(${parameters.joinToString { it.name }})"
         }
-
-        logger.warn("    constructor call $constructorCall")
 
         val funBuilder = FunSpec.builder(functionName)
             .addParameters(parameters)
@@ -250,15 +229,12 @@ abstract class TypeReferenceAndScopedConstructorProcessor<A: Annotation>(
             funBuilder.addTypeVariables(allTypeParams)
         }
 
-        logger.warn("    add receiver $scopeDeclaration")
         scopeDeclaration?.let { declaration ->
             val receiver = if (scopeTypeParams.isNotEmpty()) {
                 scopeDeclaration.toClassName().parameterizedBy(scopeTypeParams)
             } else {
                 scopeDeclaration.toClassName()
             }
-
-            logger.warn("      > resulting receiver $receiver")
 
             funBuilder.receiver(receiver)
         }
