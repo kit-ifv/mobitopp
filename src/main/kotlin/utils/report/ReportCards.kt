@@ -10,7 +10,6 @@ import kotlinx.html.span
 import kotlinx.html.stream.createHTML
 import kotlinx.html.style
 import kotlinx.html.svg
-import kotlinx.html.title
 import kotlinx.html.unsafe
 import kotlin.io.path.Path
 import kotlin.io.path.readText
@@ -141,16 +140,16 @@ class OverviewCard() {
     }
 }
 
-internal fun StatusStep.getSingleStepHTML(connector: Boolean): String {
+internal fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
     return createHTML().div ("step") {
         attributes["title"] = hoverInformation
         span("flex_row_centered") {
             unsafe {
                 +dotSVG
             }
-            if (connector) {
+            if (connectorEnabled) {
                 span {
-                    style = "color: var(--normal-color);position: relative; top: -28px;left: -30.5px;"
+                    style = "width: 0;color: var(--normal-color);position: relative; top: -28px;left: -30.5px;"
                     unsafe {
                         +Path("src/main/kotlin/utils/report/assets/Connector.svg").readText()
                     }
@@ -161,33 +160,37 @@ internal fun StatusStep.getSingleStepHTML(connector: Boolean): String {
                 +name
             }
             div ("line")
-            when (status) {
-                CardStatus.SUCCESS ->
-                    span {
-                        style = "color: var(--success-color)"
-                        unsafe {
-                            + Path("src/main/kotlin/utils/report/assets/Success.svg").readText()
-                        }
-                    }
-                CardStatus.WARNING ->
-                    span {
-                        style = "color: var(--warning-color)"
-                        unsafe {
-                            +Path("src/main/kotlin/utils/report/assets/Warning.svg").readText()
-                        }
-                    }
-                CardStatus.FAILURE ->
-                    span {
-                        style = "color: var(--error-color);"
-                        unsafe {
-                            +Path("src/main/kotlin/utils/report/assets/Failure.svg").readText()
-                        }
-                    }
+            unsafe {
+                +statusIcon(status)
             }
         }
     }
 }
 
+fun statusIcon(status: CardStatus): String {
+    return createHTML().span {
+        when (status) {
+            CardStatus.SUCCESS -> {
+                style = "color: var(--success-color)"
+                unsafe {
+                    + Path("src/main/kotlin/utils/report/assets/Success.svg").readText()
+                }
+            }
+            CardStatus.WARNING -> {
+                style = "color: var(--warning-color)"
+                unsafe {
+                    +Path("src/main/kotlin/utils/report/assets/Warning.svg").readText()
+                }
+            }
+            CardStatus.FAILURE -> {
+                style = "color: var(--error-color);"
+                unsafe {
+                    +Path("src/main/kotlin/utils/report/assets/Failure.svg").readText()
+                }
+            }
+        }
+    }
+}
 private val dotSVG = createHTML().svg(classes = "dot") {
     @Suppress("StringLiteralDuplication")
     attributes["fill"] = "var(--normal-color)"
