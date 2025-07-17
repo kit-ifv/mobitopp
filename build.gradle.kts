@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines) //1.10.1
     implementation(libs.kotlinx.serialization.core) //1.8.0
     implementation(libs.kotlinx.serialization.cbor) //1.8.0
+    implementation(libs.kotlinx.html) //0.12.0
 
     // other libs
     implementation(libs.snakeyaml) // SnakeYAML dependency, 2.2
@@ -85,7 +86,6 @@ dependencies {
     implementation(libs.xz) //1.9
     implementation(libs.progressbar) //0.10.1
     implementation(libs.exp4j) //0.4.8
-
 }
 
 tasks.test {
