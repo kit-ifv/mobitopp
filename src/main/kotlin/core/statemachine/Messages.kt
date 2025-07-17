@@ -123,8 +123,7 @@ interface SendScope {
 fun <R> sendScope(data: StateData, scope: (Send) -> R): Pair<Events, R> =
     SingleUseSendScope(data).invoke(scope)
 
-//TODO maybe move to builder subpackage as it depends on StateData, a concept not known at this package level?
-
+// TODO maybe move to builder subpackage as it depends on StateData, a concept not known at this package level?
 
 /**
  * Implementation of [Send] and [SendScope] that collects events generated within a scope.
