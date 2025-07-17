@@ -106,9 +106,7 @@ internal class ReactiveStateBuilder<D> (
         nextState: D.(Send) -> StateData,
     ): FallbackTransitionBuilder<D> = checkTransition { send ->
         condition().takeIf { it }?.let { nextState(send) }
-    } //TODO extract as extension method on FallbackTransitionBuilder, similar to MessageResponseBuilder.on
-
-
+    } // TODO extract as extension method on FallbackTransitionBuilder, similar to MessageResponseBuilder.on
 }
 
 /**
@@ -206,7 +204,6 @@ private class ReactiveStateBehavior<D : StateData>(
  */
 private fun interface OnMessageWrapper<D, M> {
     /**
-     * TODO: Review generated KDoc
      * Invokes the message handler with the given data, message, and send function.
      *
      * @param data The state data for this state

@@ -60,7 +60,7 @@ abstract class BaseStateData(
         private set
 
     override fun updateTime(time: AbsoluteTime) {
-        //TODO require time only increases?
+        // TODO require time only increases?
         this.time = time
     }
 }

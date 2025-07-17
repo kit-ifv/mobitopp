@@ -97,7 +97,7 @@ interface StateMachineBuilder<A> where A : Agent<*> {
         state: StateType<D>,
         onEnter: OnEnter<D>? = null
     ): MandatoryTransitionBuilder<D> where D : StateData
-    //TODO actually there is no need for an onEnter function in transStates,
+    // TODO actually there is no need for an onEnter function in transStates,
     // the onEnter logic can always be prepended to the next transition code block
     // maybe only for structuring purposes
 
