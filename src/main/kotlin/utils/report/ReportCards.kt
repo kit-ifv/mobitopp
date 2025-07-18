@@ -39,6 +39,7 @@ internal abstract class ReportStandardCard(
                     unsafe {
                         +rotatableArrow("arrow $contentID")
                     }
+                    @Suppress("StringLiteralDuplication")
                     h5("card-title") {
                         pre {
                             +name
@@ -47,7 +48,7 @@ internal abstract class ReportStandardCard(
                 }
                 div("card-body") {
                     id = contentID
-                    pre{
+                    pre {
                         style = "margin-bottom: 0.5em"
                         +message
                     }
@@ -176,7 +177,8 @@ private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
                 }
             }
             h6 {
-                style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; overflow-inline: auto;"
+                style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; " +
+                    "overflow-inline: auto;"
                 +name
             }
             div("line")
