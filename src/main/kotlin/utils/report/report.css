@@ -138,8 +138,9 @@ svg {
     font-weight: bold;
 }
 
-.content {
-    padding-top: 0.5em;
+.big-card-body {
+    overflow: hidden;
+    max-height: min-content;
 }
 
 .card-body {
@@ -189,7 +190,7 @@ svg {
     background-color: var(--muted-color);
 }
 
-.flex_row_centered {
+.flex-row-centered {
     display: flex;
     flex-direction: row;
     align-items: center;

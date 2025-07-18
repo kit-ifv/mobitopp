@@ -87,7 +87,7 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     fun addErrorLog(title: String, message: String) {
         errors.add(Error(title, message))
     }
-    
+
     /**
      * Creates outputDir, if not already existing. Writes a [reportTitle].html file into that directory and prints it's
      * location onto the console.

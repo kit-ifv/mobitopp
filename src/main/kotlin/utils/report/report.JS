@@ -35,7 +35,6 @@ function toggleCard(id) {
 
     if (isOpen) {
         // collapse
-        body.style.maxHeight = `${body.scrollHeight}px`;
         requestAnimationFrame(() => {
             body.style.maxHeight = '0';
             body.classList.remove('show');
@@ -43,7 +42,6 @@ function toggleCard(id) {
     } else {
         // expand
         body.classList.add('show');
-        body.style.maxHeight = '0';
         requestAnimationFrame(() => {
             body.style.maxHeight = `${body.scrollHeight}px`;
         });

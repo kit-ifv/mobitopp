@@ -22,16 +22,13 @@ fun main() {
         veryLongText
     )
     builder.addNormalLog("Nothing happened", "Not even here")
-    builder.addNormalLog("Nothing happened", "Not even here")
-    builder.addNormalLog("Nothing happened", "Not even here")
-    builder.addNormalLog("Nothing happened", "Not even here")
-    builder.addNormalLog("Nothing happened", "Not even here")
     builder.addOverviewItem("Load step", CardStatus.SUCCESS)
     builder.addOverviewItem("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
     builder.addOverviewItem("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
-    var t = 15;
+    var t = 1
     while (t-- > 0) {
-        builder.addOverviewItem("Load step: person.csv, car.csv, public_transport.csv, config.toml", CardStatus.SUCCESS)
+        builder.addOverviewItem("Load step: person.csv, car.csv, public_transport.csv, config.toml",
+            CardStatus.SUCCESS, "Some entries were erroneous")
     }
     builder.printReport(Path("src/test/resources/tempOutput/"))
 }
