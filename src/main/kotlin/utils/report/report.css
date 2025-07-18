@@ -108,8 +108,24 @@ svg {
 .card {
     cursor: pointer;
     border-radius: 10px;
-    padding: 1em;
+    padding-inline: 1em;
+    padding-top: 1em;
+    padding-bottom: 0.5em;
     box-shadow: var(--shadow);
+}
+
+.card-top {
+    margin-bottom: 0.5em;
+}
+.card-title {
+    font-weight: bold;
+}
+
+.card-body {
+    max-height: 0;
+    overflow: hidden;
+    overflow-inline: auto;
+    transition: max-height 0.2s ease;
 }
 
 .overview-card {
@@ -133,21 +149,9 @@ svg {
     box-shadow: var(--shadow);
 }
 
-
-.card-title {
-    font-weight: bold;
-}
-
 .big-card-body {
     overflow: hidden;
     max-height: min-content;
-}
-
-.card-body {
-    max-height: 0;
-    overflow: hidden;
-    overflow-inline: auto;
-    transition: max-height 0.2s ease;
 }
 
 .step {

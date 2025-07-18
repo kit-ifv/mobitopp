@@ -47,7 +47,10 @@ internal abstract class ReportStandardCard(
                 }
                 div("card-body") {
                     id = contentID
-                    pre("content") { +message }
+                    pre{
+                        style = "margin-bottom: 0.5em"
+                        +message
+                    }
                 }
             }
         }
@@ -59,7 +62,7 @@ internal abstract class ReportStandardCard(
  * @param classname additional css classnames, if needed.
  * @param contentID a, in the context of the document, unique identifier.
  */
-fun rotatableArrow(contentID: String, classname:String = ""): String {
+fun rotatableArrow(contentID: String, classname: String = ""): String {
     return createHTML().svg(classes = "rotatable $classname") {
         id = contentID
         @Suppress("StringLiteralDuplication")
@@ -85,7 +88,7 @@ internal class Error(name: String, message: String) : ReportStandardCard(name, m
 internal class Success(name: String, message: String) : ReportStandardCard(name, message, ReportType.SUCCESS)
 internal class Normal(name: String, message: String) : ReportStandardCard(name, message, ReportType.NORMAL)
 
-internal data class StatusStep (
+internal data class StatusStep(
     val name: String,
     val status: CardStatus,
     val hoverInformation: String
@@ -100,12 +103,11 @@ enum class CardStatus {
     FAILURE
 }
 
-
 /**
  * The Overview cards can visualize several steps and their status.
  * It is collapsable, however it is open by default.
  */
-internal class OverviewCard() {
+internal class OverviewCard {
     private val stepRegister: MutableList<StatusStep> = mutableListOf()
 
     /**
@@ -123,7 +125,7 @@ internal class OverviewCard() {
      * @return the html string of this card.
      */
     fun getHtml(): String {
-        if(stepRegister.isEmpty()) {
+        if (stepRegister.isEmpty()) {
             return ""
         }
         val contentID = Random.nextInt().toString()
@@ -143,7 +145,7 @@ internal class OverviewCard() {
                         }
                     } else {
                         unsafe {
-                            + step.getSingleStepHTML(true)
+                            +step.getSingleStepHTML(true)
                         }
                     }
                 }
@@ -153,7 +155,7 @@ internal class OverviewCard() {
 }
 
 private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
-    return createHTML().div ("step") {
+    return createHTML().div("step") {
         attributes["title"] = hoverInformation
         span("flex-row-centered") {
             span {
@@ -177,7 +179,7 @@ private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
                 style = "width: min-content;max-width: 80%; white-space: normal; text-wrap: nowrap; overflow:hidden; overflow-inline: auto;"
                 +name
             }
-            div ("line")
+            div("line")
             unsafe {
                 +statusIcon(status)
             }
@@ -191,7 +193,7 @@ private fun statusIcon(status: CardStatus): String {
             CardStatus.SUCCESS -> {
                 style = "color: var(--success-color)"
                 unsafe {
-                    + Path("src/main/kotlin/utils/report/assets/Success_V3.svg").readText()
+                    +Path("src/main/kotlin/utils/report/assets/Success_V3.svg").readText()
                 }
             }
             CardStatus.WARNING -> {
