@@ -24,15 +24,19 @@ import kotlin.io.path.writeText
 /**
  * This class provides the functionality to log messages and print a html report out of them.
  *
- * Add cards and messages to the output via the add[...](...) functions.
+ * Add items to the overview card at the top with `addOverviewItem`
  *
- * Create the report via the printReport(...) function.
+ * Add logs and messages to the output via the `add[...]Log(...)` functions.
  *
- * The output will be sorted by recency, and the following order:
+ * Create the report via the `printReport(...)` function.
+ *
+ * The Logs will be sorted by recency, and the following order:
  * 1. Errors
  * 2. Warnings
  * 3. Successes
  * 4. Normal-Logs
+ *
+ * The overview items are sorted by recency.
  * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
 
@@ -43,44 +47,47 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     private var quickOverview: OverviewCard? = null
 
     /**
-     * Add overview items to the returned card. Only one overview card is possible.
-     * @return the OverviewCard associated with this report. There can only be one card.
+     * Adds a new item to the overview list at the top.
+     * @param name The name of the item.
+     * @param status Whether the item succeeded, failed or produced a warning.
+     * @param hoverInformation Any information that should be displayed, when hovering over this item. Useful for
+     * giving a brief explanation for what went wrong in a step.
      */
-    fun addOverview(): OverviewCard {
+    fun addOverviewItem(name: String, status: CardStatus, hoverInformation: String = "") {
         if (quickOverview == null) {
             quickOverview = OverviewCard()
         }
-        return quickOverview!!
+        quickOverview!!.addOverviewItem(name, status, hoverInformation)
     }
 
     /**
-     * Adds a warning card to the report.
+     * Adds a warning card to the log section of the report.
      */
-    fun addWarning(title: String, message: String) {
+    fun addWarningLog(title: String, message: String) {
         warnings.add(Warning(title, message))
     }
 
     /**
-     * Adds a success card to the report.
+     * Adds a success card to the log section of the report.
      */
-    fun addSuccess(title: String, message: String) {
+    fun addSuccessLog(title: String, message: String) {
         success.add(Success(title, message))
     }
 
     /**
-     * Adds a normal (non highlighted) card to the report.
+     * Adds a normal (non highlighted) card to the log section of the report.
      */
-    fun addNormalMessage(title: String, message: String) {
+    fun addNormalLog(title: String, message: String) {
         normals.add(Normal(title, message))
     }
 
     /**
-     * Adds an error card to the report.
+     * Adds an error card to the log section of the report.
      */
-    fun addError(title: String, message: String) {
+    fun addErrorLog(title: String, message: String) {
         errors.add(Error(title, message))
     }
-
+    
     /**
      * Creates outputDir, if not already existing. Writes a [reportTitle].html file into that directory and prints it's
      * location onto the console.

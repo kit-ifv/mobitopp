@@ -92,26 +92,27 @@ enum class CardStatus {
 /**
  * The Overview cards can visualize several steps and their status.
  */
-class OverviewCard() {
+internal class OverviewCard() {
     private val stepRegister: MutableList<StatusStep> = mutableListOf()
+
     /**
-     * Adds a new item to the list of steps.
-     * @param name The name of the step.
-     * @param status Whether the step succeeded, failed or produced a warning.
-     * @param hoverInformation Any information that should be displayed, when hovering over this step. Useful for
+     * Adds a new item to this card.
+     * @param name The name of the item.
+     * @param status Whether the item succeeded, failed or produced a warning.
+     * @param hoverInformation Any information that should be displayed, when hovering over this item. Useful for
      * giving a brief explanation for what went wrong in a step.
      */
-    fun addStepStatus(name: String, status: CardStatus, hoverInformation: String = "") {
+    fun addOverviewItem(name: String, status: CardStatus, hoverInformation: String = "") {
         stepRegister.add(StatusStep(name, status, hoverInformation))
     }
-
 
     /**
      * @return the html string of this card.
      */
     fun getHtml(): String {
-        val contentID = Random.nextInt().toString()
-
+        if(stepRegister.isEmpty()) {
+            return ""
+        }
         return createHTML().span {
             div("overview-card") {
                 h3("card-title") {
@@ -120,18 +121,15 @@ class OverviewCard() {
                         +"Overview"
                     }
                 }
-                div {
-                    id = contentID
-                    div("content") {
-                        stepRegister.forEachIndexed { index, step ->
-                            if (index == 0) {
-                                unsafe {
-                                    +step.getSingleStepHTML(false)
-                                }
-                            } else {
-                                unsafe {
-                                    + step.getSingleStepHTML(true)
-                                }
+                div("content") {
+                    stepRegister.forEachIndexed { index, step ->
+                        if (index == 0) {
+                            unsafe {
+                                +step.getSingleStepHTML(false)
+                            }
+                        } else {
+                            unsafe {
+                                + step.getSingleStepHTML(true)
                             }
                         }
                     }
@@ -141,7 +139,7 @@ class OverviewCard() {
     }
 }
 
-internal fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
+private fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
     return createHTML().div ("step") {
         attributes["title"] = hoverInformation
         span("flex_row_centered") {
@@ -174,7 +172,7 @@ internal fun StatusStep.getSingleStepHTML(connectorEnabled: Boolean): String {
     }
 }
 
-fun statusIcon(status: CardStatus): String {
+private fun statusIcon(status: CardStatus): String {
     return createHTML().span {
         when (status) {
             CardStatus.SUCCESS -> {
