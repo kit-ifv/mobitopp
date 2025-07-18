@@ -32,19 +32,19 @@ import kotlin.io.path.writeText
  *
  * The Logs will be sorted by recency, and the following order:
  * 1. Errors
- * 2. Warnings
- * 3. Successes
+ * 2. Successes
+ * 3. Warnings
  * 4. Normal-Logs
  *
  * The overview items are sorted by recency.
  * */
 class ReportBuilder(val reportTitle: String = "Run-Report") {
 
-    private val warnings: MutableList<Warning> = mutableListOf()
+    private var quickOverview: OverviewCard? = null
     private val errors: MutableList<Error> = mutableListOf()
     private val success: MutableList<Success> = mutableListOf()
+    private val warnings: MutableList<Warning> = mutableListOf()
     private val normals: MutableList<Normal> = mutableListOf()
-    private var quickOverview: OverviewCard? = null
 
     /**
      * Adds a new item to the overview list at the top.
@@ -60,11 +60,12 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
         quickOverview!!.addOverviewItem(name, status, hoverInformation)
     }
 
+
     /**
-     * Adds a warning card to the log section of the report.
+     * Adds an error card to the log section of the report.
      */
-    fun addWarningLog(title: String, message: String) {
-        warnings.add(Warning(title, message))
+    fun addErrorLog(title: String, message: String) {
+        errors.add(Error(title, message))
     }
 
     /**
@@ -75,17 +76,17 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
     }
 
     /**
+     * Adds a warning card to the log section of the report.
+     */
+    fun addWarningLog(title: String, message: String) {
+        warnings.add(Warning(title, message))
+    }
+
+    /**
      * Adds a normal (non highlighted) card to the log section of the report.
      */
     fun addNormalLog(title: String, message: String) {
         normals.add(Normal(title, message))
-    }
-
-    /**
-     * Adds an error card to the log section of the report.
-     */
-    fun addErrorLog(title: String, message: String) {
-        errors.add(Error(title, message))
     }
 
     /**
@@ -124,10 +125,10 @@ class ReportBuilder(val reportTitle: String = "Run-Report") {
                         for (t in errors) {
                             unsafe { +t.getHtml() }
                         }
-                        for (t in warnings) {
+                        for (t in success) {
                             unsafe { +t.getHtml() }
                         }
-                        for (t in success) {
+                        for (t in warnings) {
                             unsafe { +t.getHtml() }
                         }
                         for (t in normals) {
