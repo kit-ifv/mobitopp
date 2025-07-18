@@ -18,7 +18,7 @@ body {
     --normal-color: #272727;
     --huge-card: #eeeded;
     --muted-color: rgba(0, 0, 0, 0.15);
-    --shadow: rgba(0, 0, 0, 0.25);
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
 }
 
 .rotatable,
@@ -49,7 +49,7 @@ body.dark {
     --normal-color: #d5d5d6;
     --huge-card: #242424;
     --muted-color: rgba(255, 255, 255, 0.15);
-    --shadow: rgba(0, 0, 0, 0.8);
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
 }
 
 html {
@@ -109,7 +109,7 @@ svg {
     cursor: pointer;
     border-radius: 10px;
     padding: 1em;
-    box-shadow: 0 2px 5px var(--shadow);
+    box-shadow: var(--shadow);
 }
 
 .overview-card {
@@ -118,7 +118,7 @@ svg {
     padding-top: 1em;
     background-color: var(--huge-card);
     color: var(--normal-color);
-    box-shadow: 0 2px 5px var(--shadow);
+    box-shadow: var(--shadow);
 }
 
 .logs-card {
@@ -130,7 +130,7 @@ svg {
     gap: 1rem;
     color: var(--normal-color);
     background-color: var(--huge-card);
-    box-shadow: 0 2px 5px var(--shadow);
+    box-shadow: var(--shadow);
 }
 
 
