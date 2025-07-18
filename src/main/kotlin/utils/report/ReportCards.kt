@@ -191,19 +191,19 @@ private fun statusIcon(status: CardStatus): String {
             CardStatus.SUCCESS -> {
                 style = "color: var(--success-color)"
                 unsafe {
-                    + Path("src/main/kotlin/utils/report/assets/Success.svg").readText()
+                    + Path("src/main/kotlin/utils/report/assets/Success_V3.svg").readText()
                 }
             }
             CardStatus.WARNING -> {
                 style = "color: var(--warning-color)"
                 unsafe {
-                    +Path("src/main/kotlin/utils/report/assets/Warning.svg").readText()
+                    +Path("src/main/kotlin/utils/report/assets/Warning_V3.svg").readText()
                 }
             }
             CardStatus.FAILURE -> {
                 style = "color: var(--error-color);"
                 unsafe {
-                    +Path("src/main/kotlin/utils/report/assets/Failure.svg").readText()
+                    +Path("src/main/kotlin/utils/report/assets/Failure_V3.svg").readText()
                 }
             }
         }
