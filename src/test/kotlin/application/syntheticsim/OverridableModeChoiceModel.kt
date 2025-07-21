@@ -1,10 +1,13 @@
 package application.syntheticsim
 
-import discreteChoice.models.ChoiceFilter
-import discreteChoice.models.ChoiceModel
-import discreteChoice.models.noFilter
 import domain.shared.enums.Mode
 import domain.simulation.behavior.ModeChoiceAlternative
+import domain.simulation.behavior.ModeChoiceSituation
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
+import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
+
+
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 import kotlin.random.Random
 
 /**
@@ -12,15 +15,36 @@ import kotlin.random.Random
  * model if and only if it is not null.
  */
 class OverridableModeChoiceModel(
-    val original: ChoiceModel<ModeChoiceAlternative, Mode>,
-    override var choiceFilter: ChoiceFilter<ModeChoiceAlternative> = noFilter()
-) : ChoiceModel<ModeChoiceAlternative, Mode> {
+    val original: UtilityBasedChoiceModel< Mode, ModeChoiceSituation>,
+) : UtilityBasedChoiceModel<Mode, ModeChoiceSituation, >  {
     var overrideMode: Mode? = null
+    override val name: String = original.name
 
-    override val name: String
-        get() = original.name
 
-    override fun select(choices: Set<ModeChoiceAlternative>, random: Random): Mode {
-        return overrideMode ?: original.select(choices, random)
+    context(_: ModeChoiceSituation, _: Random)
+    override fun select(choices: Set<Mode>): Mode {
+        return overrideMode ?: original.select(choices)
     }
+
+    context(_: ModeChoiceSituation)
+    override fun utility(alternative: Mode): Double {
+        TODO("Not yet implemented")
+    }
+
+    override fun probabilities(utilities: Map<Mode, Double>): Map<Mode, Double> {
+        TODO("Not yet implemented")
+    }
+
+    override fun addFilter(filter: ChoiceFilter<Mode, ModeChoiceSituation>): FilteredChoiceModel<Mode, ModeChoiceSituation> {
+        return original.addFilter(filter)
+    }
+
+    context(_: ModeChoiceSituation, random: Random)
+    override fun selectInjected(
+        choices: Set<Mode>,
+        injections: Map<Mode, (Double) -> Double>,
+    ): Mode {
+        TODO("Not yet implemented")
+    }
+
 }

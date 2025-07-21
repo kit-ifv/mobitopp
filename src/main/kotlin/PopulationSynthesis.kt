@@ -1,6 +1,4 @@
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.fixed
-import discreteChoice.utility.EnumeratedDiscreteModelBuilder
+
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -57,6 +55,9 @@ import domain.synthesis.results.HouseholdOutput
 import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import units.CurrencyUnit
 import units.kilometers
 import units.meters
@@ -64,6 +65,7 @@ import units.toCurrency
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.random.Random
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
@@ -128,7 +130,7 @@ fun interface AssignTransitCardOwnership<T> {
 }
 
 class AssignByDiscreteChoice(
-    val model: FixedChoicesModel<TicketAlternative, Boolean> =
+    val model: FixedChoiceModel< Boolean, TicketAlternative> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
@@ -136,10 +138,13 @@ class AssignByDiscreteChoice(
         parameters: TransitPassParameters,
         model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
             transitPassChoiceModel
-    ) : this(model.build(parameters).fixed<TicketAlternative, Boolean>(setOf(true, false)))
+    ) : this(model.build(parameters))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
-        return model.filterAndSelect(TicketSituation(person.household, person))
+        return context(TicketAlternative(person.household, person), Random(person.personId)) {
+            model.select()
+        }
+
     }
 }
 

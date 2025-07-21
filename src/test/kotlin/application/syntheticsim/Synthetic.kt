@@ -2,8 +2,6 @@ package application.syntheticsim
 
 import BIELEFELD
 import TestZone
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.Activity

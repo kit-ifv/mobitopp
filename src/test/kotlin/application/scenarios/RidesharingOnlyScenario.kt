@@ -5,8 +5,6 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asRepository
 import core.modelsteps.asResource
-import discreteChoice.models.FixedOrderChoiceModel
-import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
@@ -19,6 +17,8 @@ import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
 import generateHouseholds
 import generateSharingStation

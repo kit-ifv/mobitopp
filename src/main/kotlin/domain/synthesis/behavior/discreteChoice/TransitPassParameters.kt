@@ -1,10 +1,5 @@
 package domain.synthesis.behavior.discreteChoice
 
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.structure.DiscreteStructure
-import discreteChoice.structure.times
-import discreteChoice.utility.multinomialLogit
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
@@ -12,8 +7,11 @@ import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Sex
+import edu.kit.ifv.mobitopp.actitoppNG.utils.times
+import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import units.`€`
-import kotlin.compareTo
+
 import kotlin.random.Random
 
 val YesTransitPass = TransitPassParameters(
@@ -93,19 +91,18 @@ data class TransitPassParameters(
 data class TicketSituation(
     val household: SynthesisHousehold<out SurveyInfo>,
     val person: SynthesisPerson<out SurveyInfo>
-) : ChoiceSituation<TicketAlternative, Boolean> {
-    override val random = Random(System.currentTimeMillis())
+)  {
+    val random = Random(System.currentTimeMillis())
 
     // TODO if we could reuse person objects from repository, we can apply persons random
-    override fun with(choice: Boolean) = TicketAlternative(choice, household, person)
+    fun with(choice: Boolean) = TicketAlternative( household, person)
 }
 
 @Suppress("MagicNumber") // These magic numbers are ok
 data class TicketAlternative(
-    override val choice: Boolean,
     val household: SynthesisHousehold<out SurveyInfo>,
     val person: SynthesisPerson<out SurveyInfo>
-) : ChoiceAlternative<Boolean>() {
+) {
     val householdSize = household.members.size
     val gender = person.sex
     val age = person.age
@@ -122,48 +119,48 @@ val transitPassChoiceModel = DiscreteStructure<Boolean, TicketAlternative, Trans
     option(false) {
         0.0
     }
-    option(true) {
+    option(true) { _, it ->
         base +
-            (it.householdSize == 2) * twoMembers +
-            (it.householdSize == 3) * threeMembers +
-            (it.householdSize == 4) * fourMembers +
-            (it.householdSize == 5) * fiveMembers +
-            (it.householdSize == 6) * sixMembers +
-            (it.householdSize == 7) * sevenMembers +
-            (it.householdSize in 8..20) * eightToTwentyMembers +
+                (it.householdSize == 2) * twoMembers +
+                (it.householdSize == 3) * threeMembers +
+                (it.householdSize == 4) * fourMembers +
+                (it.householdSize == 5) * fiveMembers +
+                (it.householdSize == 6) * sixMembers +
+                (it.householdSize == 7) * sevenMembers +
+                (it.householdSize in 8..20) * eightToTwentyMembers +
 
-            (it.gender == Sex.FEMALE) * female +
+                (it.gender == Sex.FEMALE) * female +
 
-            (it.age in 0..9) * age0to9 +
-            (it.age in 10..17) * age10to17 +
-            (it.age in 30..39) * age30to39 +
-            (it.age in 40..49) * age40to49 +
-            (it.age in 50..59) * age50to59 +
-            (it.age in 60..69) * age60to69 +
-            (it.age in 70..79) * age70to79 +
-            (it.age >= 80) * age80plus +
+                (it.age in 0..9) * age0to9 +
+                (it.age in 10..17) * age10to17 +
+                (it.age in 30..39) * age30to39 +
+                (it.age in 40..49) * age40to49 +
+                (it.age in 50..59) * age50to59 +
+                (it.age in 60..69) * age60to69 +
+                (it.age in 70..79) * age70to79 +
+                (it.age >= 80) * age80plus +
 
-            (it.hasDrivingLicence) * hasLicence +
+                (it.hasDrivingLicence) * hasLicence +
 
-            (it.householdNumCars == 1) * oneCar +
-            (it.householdNumCars == 2) * twoCars +
-            (it.householdNumCars == 3) * threeCars +
-            (it.householdNumCars >= 4) * fourOrMoreCars +
+                (it.householdNumCars == 1) * oneCar +
+                (it.householdNumCars == 2) * twoCars +
+                (it.householdNumCars == 3) * threeCars +
+                (it.householdNumCars >= 4) * fourOrMoreCars +
 
-            (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
-            (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
-            (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
-            (it.employment == Employment.HOMEKEEPER) * homeKeeper +
-            (it.employment == Employment.PARTTIME) * partTime +
+                (it.employment == Employment.STUDENT_PRIMARY) * studentPrimary +
+                (it.employment == Employment.STUDENT_SECONDARY) * studentSecondary +
+                (it.employment == Employment.STUDENT_TERTIARY) * studentTertiary +
+                (it.employment == Employment.HOMEKEEPER) * homeKeeper +
+                (it.employment == Employment.PARTTIME) * partTime +
 
-            (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
-            (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
-            (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
-            (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
-            (it.income >= 4000.`€`) * incomeAtLeast4000 +
+                (it.income in 750.`€`..<1500.`€`) * incomeIn750to1499 +
+                (it.income in 1500.`€`..<2250.`€`) * incomeIn1500to2249 +
+                (it.income in 2250.`€`..<3000.`€`) * incomeIn2250to2999 +
+                (it.income in 3000.`€`..<4000.`€`) * incomeIn3000to3999 +
+                (it.income >= 4000.`€`) * incomeAtLeast4000 +
 
-            (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
-            (it.numAgeInSixToSeventeen) * numChildsAge6to17
+                (it.numChildsAgeFiveOrLess) * numChildsAge0to5 +
+                (it.numAgeInSixToSeventeen) * numChildsAge6to17
     }
 }.multinomialLogit("ExampleTransitPassMNL")
 

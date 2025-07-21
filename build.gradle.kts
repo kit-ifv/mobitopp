@@ -116,6 +116,9 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }
 
 application {

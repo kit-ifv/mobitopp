@@ -1,7 +1,6 @@
 package domain.simulation.events
 
 import core.events.Event
-import discreteChoice.models.FixedChoicesModel
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.ActionBlockVisitor
 import domain.shared.datastructure.schedule.Activity
@@ -21,6 +20,7 @@ import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceAlternative
 import domain.simulation.behavior.ModeChoiceSituation
 import domain.simulation.behavior.TripChoiceSituation
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.concurrent.synchronizeAll
 import utils.units.Time
 
@@ -151,19 +151,18 @@ class StartTripEvent(
         // mode and destination choice
         // TODO Robin last.endlocation is destination?
         if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
-            leg.elements.last().endLocation = behavior.destinationChoice.filterAndSelect(
-                leg.elements.last().let {
-                    TripChoiceSituation(
-                        person,
-                        time,
-                        it.startLocation,
-                        behavior.impedance,
-                        person.sharedResources(),
-                        behavior.attractivityModel,
-                        behavior.availabilityModel
-                    )
-                }
-            )
+            context(                    TripChoiceSituation(
+                person,
+                time,
+                leg.elements.last().startLocation,
+                behavior.impedance,
+                person.sharedResources(),
+                behavior.attractivityModel,
+                behavior.availabilityModel
+            ), person.random) {
+                leg.elements.last().endLocation = behavior.destinationChoice.select()
+            }
+
             leg.elements.forEach { it.transportType = MODEUNKOWN }
         }
 
@@ -172,10 +171,12 @@ class StartTripEvent(
 
         val sharedResources = person.sharedResources()
         return synchronizeAll(sharedResources) {
-            val mode: Mode = behavior.modeChoice.filterAndSelect(
-                ModeChoiceSituation(person, time, origin, destination, behavior.impedance, sharedResources),
-            )
 
+
+
+            val mode: Mode = context(ModeChoiceSituation(person, time, origin, destination, behavior.impedance, sharedResources), person.random) {
+                behavior.modeChoice.select()
+            }
             // TODO move this code snippet to the scope dispatcher maybe?
 
             leg.alternateByImpedance(behavior.impedance) {
@@ -264,8 +265,8 @@ class EndLegEvent(
 }
 
 data class PersonBehavior(
-    val destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
-    val modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    val destinationChoice: FixedChoiceModel< Location, TripChoiceSituation>,
+    val modeChoice: FixedChoiceModel<Mode, ModeChoiceSituation>,
     val impedance: Metrics,
     val scopeDispatcher: ModeScopeDispatcher,
     val attractivityModel: AttractivenessModel,
@@ -275,8 +276,8 @@ data class PersonBehavior(
         @Suppress("LongParameterList")
         fun from(
             impedance: Metrics,
-            destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
-            modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+            destinationChoice: FixedChoiceModel<Location, TripChoiceSituation>,
+            modeChoice: FixedChoiceModel<Mode, ModeChoiceSituation>,
 //            umlands: (Location) -> Boolean,
 //            zones: Set<Zone>,
 //            modes: ChoiceModelModes,
