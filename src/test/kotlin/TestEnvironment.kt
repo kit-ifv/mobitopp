@@ -297,7 +297,7 @@ fun MutableHousehold.generateAndAddPerson(builder: (Long, MutableHousehold) -> M
     return person
 }
 
-fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit): MutablePerson {
+fun MutableHousehold.generatePerson(id: Long, lambda: MutablePerson.() -> Unit = {}): MutablePerson {
     val builder = MutablePerson(
         id = PersonId(id),
         household = this,
@@ -356,12 +356,13 @@ fun Zone.generateHouseholdBuilder(
         incomePerMonth = 0.euros
         economicStatus = EconomicStatus.MIDDLE
         location = roadIndex.toRoadPositionInZone(this@generateHouseholdBuilder)
+        householdNumber = -1
     }
 
     builder.apply(lambda)
     return builder
 }
 
-fun Zone.generateHousehold(id: Long, roadIndex: Long = -1L, lambda: MutableHousehold.() -> Unit): MutableHousehold {
+fun Zone.generateHousehold(id: Long, roadIndex: Long = -1L, lambda: MutableHousehold.() -> Unit = {}): MutableHousehold {
     return generateHouseholdBuilder(id, roadIndex, lambda)
 }

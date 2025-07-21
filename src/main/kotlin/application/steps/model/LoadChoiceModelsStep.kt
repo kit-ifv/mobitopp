@@ -8,11 +8,6 @@ import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
-import discreteChoice.models.ChoiceModel
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.RandomChoiceModel
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -25,17 +20,23 @@ import domain.simulation.behavior.DestinationAlternative
 import domain.simulation.behavior.FixedModesFilter
 import domain.simulation.behavior.ModeAvailabilityFilter
 import domain.simulation.behavior.ModeChoiceAlternative
+import domain.simulation.behavior.ModeChoiceSituation
 import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.behavior.TripChoiceSituation
 import domain.simulation.config.DemandSimContext
 import domain.simulation.events.CarSelector
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
 import domain.synthesis.data.SharingProviderId
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+
 
 fun LoadChoiceModelsContext.loadChoiceModels(
-    destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
-    modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    destinationChoiceModel: UtilityBasedChoiceModel<Location, TripChoiceSituation >,
+    modeChoiceModel: FixedChoiceModel< Mode, ModeChoiceSituation>,
     modes: ChoiceModelModes,
 ) = runStep {
     LoadChoiceModelsStep(this, destinationChoiceModel, modeChoiceModel, modes)
@@ -50,8 +51,8 @@ interface LoadChoiceModelsContext : DemandSimContext {
 
 class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
-    private val destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
-    private val modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    private val destinationChoiceModel: UtilityBasedChoiceModel< Location, TripChoiceSituation>,
+    private val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceSituation>,
     private val modes: ChoiceModelModes,
 ) : RepositoryDependentStep {
 
@@ -130,5 +131,6 @@ class LoadChoiceModelsStep(
 }
 
 object DummyAvailability : ModeAvailabilityFilter {
-    override fun filter(choices: Set<ModeChoiceAlternative>) = choices
+    context(_: ModeChoiceSituation)
+    override fun filter(choices: Set<Mode>) = choices
 }

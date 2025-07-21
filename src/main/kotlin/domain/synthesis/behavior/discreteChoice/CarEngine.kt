@@ -1,10 +1,5 @@
 package domain.synthesis.behavior.discreteChoice
 
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.structure.DiscreteStructure
-import discreteChoice.structure.times
-import discreteChoice.utility.multinomialLogit
 import domain.shared.enums.areatype.RegioStaR17
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
@@ -13,6 +8,9 @@ import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.data.Employment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.Sex
+import edu.kit.ifv.mobitopp.actitoppNG.utils.times
+import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import units.Distance
 import units.DistanceUnit
 import kotlin.random.Random
@@ -261,16 +259,14 @@ data class EngineSpecificParameters(
 data class EngineChoiceSituation(
     val person: SurveyWithCommute,
     val household: SynthesisHousehold<out SurveyWithCommute>
-) : ChoiceSituation<EngineAlternative, EngineType> {
-    override val random: Random = Random(System.currentTimeMillis()) // TODO replace with household random!
-    override fun with(choice: EngineType) = choice.toAlternative(person, household)
+)  {
+    fun with(choice: EngineType) = choice.toAlternative(person, household)
 }
 
 class EngineAlternative(
-    override val choice: EngineType,
     person: SurveyWithCommute,
     household: SynthesisHousehold<out SurveyWithCommute>
-) : ChoiceAlternative<EngineType>() {
+) {
     val workDistance: Distance = person.distanceWork // Distance to pole zone
     val educationDistance: Distance = person.distanceEducation
     val sex: Sex = person.sex
@@ -279,7 +275,6 @@ class EngineAlternative(
     val householdNumberOfCars: Int = household.amountOfCars
     val householdSize: Int = household.size
     val regionTypeRegioStaR17: RegioStaR17 = household.location.regionType().toRegioStaR17()
-        ?: throw NoSuchElementException("${household.location} zone does not have a proper regiostar type")
     val regionType = regionTypeRegioStaR17.toSizebasedClassification()
 
     val isWorking = employment == Employment.FULLTIME
@@ -296,17 +291,17 @@ fun EngineType.toAlternative(
     person: SurveyWithCommute,
     household: SynthesisHousehold<out SurveyWithCommute>
 ): EngineAlternative {
-    return EngineAlternative(this, person, household)
+    return EngineAlternative( person, household)
 }
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
     option(EngineType.COMBUSTION) {
         0.0
     }
-    option(EngineType.ELECTRIC, parameters = { electicParameters() }) {
+    option(EngineType.ELECTRIC, parameters = { electicParameters() }) {_, it ->
         defaultUtilityFunction(this, it)
     }
-    option(EngineType.HYBRID, parameters = { hybridParameters() }) {
+    option(EngineType.HYBRID, parameters = { hybridParameters() }) {_, it ->
         defaultUtilityFunction(this, it)
     }
 }.multinomialLogit("ExampleEngineMNL")

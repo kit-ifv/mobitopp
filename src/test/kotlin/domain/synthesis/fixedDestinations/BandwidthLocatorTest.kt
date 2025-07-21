@@ -1,8 +1,8 @@
 package domain.synthesis.fixedDestinations
 
 import TestZone
+import core.datastructure.kdtree.WithMetric
 import core.datastructure.kdtree.discardMetric
-import discreteChoice.SelectionFunction
 import domain.shared.enums.LegacyActivityType
 import domain.shared.location.Location
 import domain.shared.location.Zone
@@ -15,6 +15,8 @@ import domain.synthesis.behavior.fixedDestinations.LocationAlternative
 import domain.synthesis.behavior.fixedDestinations.standardBandwidthModel
 import domain.synthesis.data.Sex
 import domain.synthesis.householdgeneration.SynthesisTest
+import edu.kit.ifv.mobitopp.discretechoice.selection.SelectionFunction
+
 import org.junit.jupiter.api.Test
 import units.Distance
 import units.Hemisphere
@@ -36,7 +38,7 @@ class BandwidthLocatorTest : SynthesisTest() {
     }
 
     private fun Location.toSituation(distance: Distance): LocationAlternative {
-        return LocationAlternative(this, distance, attractivenessModel, myActivityType)
+        return LocationAlternative(  attractivenessModel, myActivityType)
     }
 
     @BeforeTest
@@ -118,12 +120,16 @@ class BandwidthLocatorTest : SynthesisTest() {
             aDistance = 1.0
         )
         val model = standardBandwidthModel.build(parameters)
-        val sit1 = testZone.spawnFakeLoc().toSituation(1.kilometers)
-        val sit2 = testZone.spawnFakeLoc().toSituation(2.kilometers)
-        val sit3 = testZone.spawnFakeLoc().toSituation(3.kilometers)
-        assertEquals(1.0, model.utility(sit1))
-        assertEquals(0.5, model.utility(sit2))
-        assertEquals(1.0 / 3, model.utility(sit3))
+        val sit1 = WithMetric(
+            testZone.spawnFakeLoc(), 1.kilometers)
+            val sit2 = WithMetric(testZone.spawnFakeLoc(),2.kilometers)
+        val sit3 = WithMetric(testZone.spawnFakeLoc(),3.kilometers)
+        context(LocationAlternative(  attractivenessModel, myActivityType)) {
+            assertEquals(1.0, model.utility(sit1))
+            assertEquals(0.5, model.utility(sit2))
+            assertEquals(1.0 / 3, model.utility(sit3))
+        }
+
 
         val otherParameters = BandwidthParameters(
             poleRadius = 2.5.kilometers,
@@ -131,8 +137,10 @@ class BandwidthLocatorTest : SynthesisTest() {
             aDistance = 2.0
         )
         val model2 = standardBandwidthModel.build(otherParameters)
-        assertEquals(1.0 / 1.5, model2.utility(sit1))
-        assertEquals(1.0 / 6.0, model2.utility(sit2))
-        assertEquals(1.0 / (1.5 * 9), model2.utility(sit3))
+        context(LocationAlternative(  attractivenessModel, myActivityType)) {
+            assertEquals(1.0 / 1.5, model2.utility(sit1))
+            assertEquals(1.0 / 6.0, model2.utility(sit2))
+            assertEquals(1.0 / (1.5 * 9), model2.utility(sit3))
+        }
     }
 }
