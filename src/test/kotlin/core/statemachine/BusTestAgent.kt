@@ -5,6 +5,7 @@ import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.on
 import core.statemachine.builder.stateMachine
+import core.statemachine.usage.withRecording
 import utils.units.AbsoluteTime
 import utils.units.max
 import kotlin.time.Duration
@@ -211,4 +212,4 @@ val busStateMachine = stateMachine<BusAgent>("BusStateMachine") {
             )
         }
     }
-}
+}.withRecording()

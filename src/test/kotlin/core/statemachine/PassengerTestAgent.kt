@@ -4,6 +4,7 @@ import MessageCalled
 import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.stateMachine
+import core.statemachine.usage.withRecording
 import utils.units.AbsoluteTime
 
 interface PassengerMessage : Message
@@ -120,4 +121,4 @@ val passengerStateMachine = stateMachine<PassengerAgent>("PassengerStateMachine"
     finState(Arrived) {
         self.setArrived(station)
     }
-}
+}.withRecording()

@@ -5,6 +5,7 @@ import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.on
 import core.statemachine.builder.stateMachine
+import core.statemachine.usage.withRecording
 import utils.units.AbsoluteTime
 
 interface StationMessage : Message
@@ -111,4 +112,4 @@ val stationStateMachine = stateMachine<StationAgent>("StationAgentStateMachine")
         send.now(confirmLeave(), bus)
         //
     }
-}
+}.withRecording()

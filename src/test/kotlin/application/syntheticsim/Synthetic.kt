@@ -2,13 +2,9 @@ package application.syntheticsim
 
 import BIELEFELD
 import TestZone
-import core.statemachine.Agent
-import core.statemachine.Message
-import core.statemachine.RecordingStateMachine
 import core.statemachine.State
-import core.statemachine.StateMachine
-import core.statemachine.StateMachineFactory
 import core.statemachine.builder.StateData
+import core.statemachine.usage.RecordingStateMachineFactory
 import discreteChoice.models.addFilter
 import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
@@ -204,7 +200,7 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 //        difficultAccess(zones[2], zones[2])
 //
 //    }
-    val stateMachine = StateMachineFactoryWithTracker(personStateMachine)
+    val stateMachine = RecordingStateMachineFactory(personStateMachine)
 
     fun statesOf(agent: PersonAgent) = stateMachine.of(agent)!!.history
     fun popStatesOf(agent: PersonAgent) = stateMachine.of(agent)!!.let { sm ->
@@ -222,26 +218,6 @@ class OneHouseholdTwoPersons : Scenario(generateZones(3)) {
 
     val carAgent: PrivateCarAgent
         get() = car.toAgent(builder)
-}
-
-class StateMachineFactoryWithTracker<A>(
-    private val factory: StateMachineFactory<A>,
-) : StateMachineFactory<A> where A : Agent<out Message> {
-    private val registry = mutableMapOf<A, RecordingStateMachine>()
-
-    override fun create(startTime: AbsoluteTime, agent: A): StateMachine =
-        create(initialState(startTime, agent)).also {
-            registry[agent] = it
-        }
-
-    override fun create(initialState: State): RecordingStateMachine {
-        return RecordingStateMachine("Test", initialState)
-    }
-
-    override fun initialState(startTime: AbsoluteTime, agent: A): State =
-        factory.initialState(startTime, agent)
-
-    fun of(agent: A) = registry[agent]
 }
 
 operator fun Collection<State>.contains(stateClass: KClass<out StateData>): Boolean = any {

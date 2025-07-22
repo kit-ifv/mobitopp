@@ -5,6 +5,8 @@ import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asResource
+import core.statemachine.usage.RecordingStateMachine
+import core.statemachine.usage.renderAsPlantUmlFiles
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
@@ -23,7 +25,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class CarOnlyScenario {
-    @RepeatedTest(value = 1, name = RepeatedTest.LONG_DISPLAY_NAME)
+    @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
         val random = Random(1)
 
@@ -63,12 +65,18 @@ class CarOnlyScenario {
             choiceModelModes = legacyChoiceModelModes
         )
 
-        val agents = BuildAgents(seed = 1L, personStateMachine, syntheticBehavior).buildPersonAgents(households)
+        val agents = BuildAgents(
+            seed = 1L,
+            personStateMachine, // .withRecording(),
+            syntheticBehavior
+        ).buildPersonAgents(households)
 
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
         val testAgents = resource.elements.toList()
         sim.addAgents(testAgents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
+
+        RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
     }
 }
