@@ -218,58 +218,6 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
         }
     }
 
-//    transState(StartingCarTrip).next {
-//        val car = person.getBestCar()
-//
-//        car.keyHolder = person
-//        car.addDriver(person)
-//        car.state = PrivateCarAgent.CarState.IN_USE
-//
-//        var returned = false
-//        val checkEndOfCarTrip = AfterLegAction { a, t ->
-//            if (a.locationBySchedule() == destination && !returned) {
-//                car.location = a.location
-//                car.removeDriver()
-//                car.state = PrivateCarAgent.CarState.PARKED
-//                if (a.locationBySchedule() == a.household.location) { // TODO check
-//                    car.keyHolder = null
-//                    returned = true
-//                }
-//            }
-//        }
-//
-//        performLeg(leg = trip.elements[0], afterLegAction = checkEndOfCarTrip)
-//    }
-//
-//    transState(StartingBikeSharingTrip).next { send ->
-//        val maybeBikesharing = bikeSharingConnections.findConnection(
-//            ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
-//        )
-//        val (startStation, endStation) = requireNotNull(maybeBikesharing) {
-//            "How did you manage to select bikesharing if no connection available?\n" +
-//                " - check availability model: ${modeAvailability::class.simpleName}\n" +
-//                " - check connection model: ${bikeSharingConnections::class.simpleName}"
-//        }
-//
-//        trip.alternateByImpedance(impedance) {
-//            taking(modes.pedestrian to startStation.location)
-//            taking(modes.bikeSharing to endStation.location)
-//            taking(modes.pedestrian to destination)
-//        }
-//
-//        val vehicle = startStation.takeAny()
-//
-//        var returned = false
-//        val checkBikeReturn = AfterLegAction { a, t ->
-//            if (a.location == endStation.location && !returned) {
-//                vehicle.returnTo(endStation)
-//                returned = true
-//            }
-//        }
-//
-//        performLeg(leg = trip.elements[0], afterLegAction = checkBikeReturn)
-//    }
-
     state(PerformLeg) { send ->
         send(endLeg(), self, leg.endTime)
         //

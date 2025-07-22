@@ -1,11 +1,13 @@
 package core.statemachine
 
+import core.statemachine.usage.RecordingStateMachine
+import core.statemachine.usage.renderAsPlantUmlFiles
+import org.junit.jupiter.api.Test
 import random
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import java.util.*
 import kotlin.random.Random
-import kotlin.test.Test
 import kotlin.test.assertNull
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
@@ -56,8 +58,8 @@ class TestExampleStates {
     @Test
     fun runStateMachines() {
         val start: AbsoluteTime = AbsoluteTime.START
-        val endDemand: AbsoluteTime = 4.hours.sinceStart
-        val end: AbsoluteTime = 5.hours.sinceStart
+        val endDemand: AbsoluteTime = 11.hours.sinceStart
+        val end: AbsoluteTime = 12.hours.sinceStart
 
         val stations = createStations("A", "B", "C", "D", "E").associateBy { it.name }
 
@@ -93,7 +95,7 @@ class TestExampleStates {
 
         val stationAgents = stations.values.toList()
         val busAgents = bussesRoute1 + bussesRoute2 + bussesRoute3 + bussesRoute4
-        val passengerAgents = (0..1000).map { createPerson(start, endDemand, stationAgents) }
+        val passengerAgents = (0..10000).map { createPerson(start, endDemand, stationAgents) }
 
         val initEvents = (stationAgents + busAgents + passengerAgents).flatMap {
             it.init()
@@ -121,6 +123,8 @@ class TestExampleStates {
 
         val busByFinishedStatus = busAgents.groupingBy { it.isFinished() }.eachCount()
         assertNull(busByFinishedStatus[false])
+
+        RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
     }
 }
 

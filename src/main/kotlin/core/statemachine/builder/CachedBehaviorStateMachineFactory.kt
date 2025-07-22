@@ -20,7 +20,7 @@ import utils.units.AbsoluteTime
 internal class CachedBehaviorStateMachineFactory<A : Agent<out Message>>(
     builders: List<StateBuilder<out StateData>>,
     val initialize: (AbsoluteTime, A) -> StateData,
-    private val name: String,
+    override val name: String,
 ) : StateResolver, StateMachineFactory<A> {
 
     /**
@@ -75,6 +75,7 @@ private data class StateImpl<D : StateData>(
 ) : State {
 
     override val name = data::class.simpleName!!
+    override val time: AbsoluteTime get() = data.time
 
     override fun updateTime(time: AbsoluteTime) = data.updateTime(time)
 
