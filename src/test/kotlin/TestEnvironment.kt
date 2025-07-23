@@ -363,6 +363,11 @@ fun Zone.generateHouseholdBuilder(
     return builder
 }
 
-fun Zone.generateHousehold(id: Long, roadIndex: Long = -1L, lambda: MutableHousehold.() -> Unit = {}): MutableHousehold {
+fun Zone.generateHousehold(
+    id: Long,
+    roadIndex: Long = -1L,
+    lambda: MutableHousehold.() -> Unit = {
+    }
+): MutableHousehold {
     return generateHouseholdBuilder(id, roadIndex, lambda)
 }

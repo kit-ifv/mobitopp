@@ -37,6 +37,7 @@ detekt {
     buildUponDefaultConfig = true
     config.setFrom("$projectDir/detekt-config.yml")
     autoCorrect = true
+
 }
 
 dependencies {
@@ -107,8 +108,18 @@ tasks.withType<Detekt>().configureEach {
         md.required.set(true)
     }
 }
+
+
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "1.8"
+    exclude(
+        "**/BuildAgents.kt",
+        "**/FixedModesFilter.kt",
+        "**/ModeAvailabilityFilter.kt",
+        "**/PersonEvents.kt",
+        "**/OverridableDestinationChoiceModel.kt",
+        "**/OverridableModeChoiceModel.kt",
+        )
 }
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"

@@ -13,8 +13,7 @@ import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.SharingVehicleAgent
 import domain.simulation.agent.getBestCar
 import domain.simulation.agent.locationBySchedule
-import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.ModeChoiceSituation
+import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.SharingAvailabilityFilter
 
 /**
@@ -171,7 +170,7 @@ class SharingVehicleSelector(
 
             val checkSharing =
                 modeAvailabilityFilter.checkSharing(
-                    ModeChoiceSituation(
+                    ModeChoiceCharacteristics(
                         person,
                         event.time,
                         origin,

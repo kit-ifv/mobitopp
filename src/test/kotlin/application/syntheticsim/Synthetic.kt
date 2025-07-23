@@ -27,6 +27,8 @@ import domain.simulation.events.EventWithScope
 import domain.simulation.events.InitPersonEvent
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
 import domain.simulation.events.StartActivityEvent
 import domain.simulation.events.StartLegEvent
 import domain.simulation.events.StartTripEvent
@@ -157,7 +159,9 @@ abstract class Scenario(
         impedance,
         ModeScopeDispatcher(mapOf(LegacyMode.CAR.let { it to CarSelector(it) })),
         attractivityModel = currentAttractivenessModel,
-        availabilityModel = availability
+        availabilityModel = availability,
+        spawnDestinationCharacteristics = StandardDestinationImplementation,
+        spawnModeCharacteristics = StandardModeImplementation
     )
 
     fun PersonAgent.stepper(): EventStepper {

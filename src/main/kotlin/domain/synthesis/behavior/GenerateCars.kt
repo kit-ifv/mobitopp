@@ -1,11 +1,8 @@
 package domain.synthesis.behavior
 
-import domain.synthesis.behavior.SurveyWithCommute
 import domain.synthesis.behavior.discreteChoice.CarSegmentChoice
 import domain.synthesis.behavior.discreteChoice.CarSegmentParameters
-import domain.synthesis.behavior.discreteChoice.CarSegmentSituation
 import domain.synthesis.behavior.discreteChoice.EngineAlternative
-import domain.synthesis.behavior.discreteChoice.EngineChoiceSituation
 import domain.synthesis.behavior.discreteChoice.EngineParameters
 import domain.synthesis.behavior.discreteChoice.carEngineChoiceModel
 import domain.synthesis.behavior.discreteChoice.carSegmentChoiceModel
@@ -18,7 +15,6 @@ import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.buildEngine
-
 import kotlin.random.Random
 
 fun interface GenerateCars<T> {
@@ -79,7 +75,6 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
             val random = Random(person.personId)
             val segment = context(CarSegmentChoice(person, householdBuilder), random) {
                 segmentModel.select()
-
             }
             val engineType = context(EngineAlternative(person.info, householdBuilder), random) {
                 engineModel.select()

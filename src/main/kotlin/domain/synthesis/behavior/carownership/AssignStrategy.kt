@@ -92,7 +92,7 @@ class AssignBySizebasedClassification<A, P>(
          * @param P The type of parameters used for the region classification. PARAMS needs to be Any, so that it can
          * be lateinit instead of nullable
          */
-        class AssignViaRegionTypeBuilder<A , P : Any>(
+        class AssignViaRegionTypeBuilder<A, P : Any>(
             val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
@@ -127,7 +127,7 @@ class AssignBySizebasedClassification<A, P>(
          * @param lambda A lambda function to configure the builder.
          * @return The constructed `AssignBySizebasedClassification` instance.
          */
-        fun <SIT , PARAMS : Any> createUsingModel(
+        fun <SIT, PARAMS : Any> createUsingModel(
             model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
             lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
         ): AssignBySizebasedClassification<SIT, PARAMS> {
