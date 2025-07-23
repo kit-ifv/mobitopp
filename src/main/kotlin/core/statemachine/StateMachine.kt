@@ -68,6 +68,7 @@ interface State {
 
     val name: String
     val time: AbsoluteTime
+    val agent: Agent<*>
 
     /**
      * Updates the current time of the state.

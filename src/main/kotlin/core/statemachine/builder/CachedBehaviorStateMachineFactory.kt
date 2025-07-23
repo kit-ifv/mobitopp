@@ -76,6 +76,7 @@ private data class StateImpl<D : StateData>(
 
     override val name = data::class.simpleName!!
     override val time: AbsoluteTime get() = data.time
+    override val agent: Agent<*> get() = data.agent
 
     override fun updateTime(time: AbsoluteTime) = data.updateTime(time)
 
