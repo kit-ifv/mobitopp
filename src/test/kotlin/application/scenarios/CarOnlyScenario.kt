@@ -7,6 +7,7 @@ import core.events.ParallelSimulator
 import core.modelsteps.asResource
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPlantUmlFiles
+import core.statemachine.usage.renderAsPlantUmlTimingDiagram
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
@@ -71,6 +72,8 @@ class CarOnlyScenario {
             syntheticBehavior
         ).buildPersonAgents(households)
 
+        RecordingStateMachine.recordInteractions()
+
         val sim = ParallelSimulator(timeStep = 1.minutes)
         val resource = agents.asResource("EO", "none")
         val testAgents = resource.elements.toList()
@@ -78,5 +81,6 @@ class CarOnlyScenario {
         sim.run(0.days.sinceStart, 7.days.sinceStart)
 
         RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
+        RecordingStateMachine.interactionRecorder.renderAsPlantUmlTimingDiagram(testAgents[0])
     }
 }

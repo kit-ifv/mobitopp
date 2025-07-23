@@ -2,6 +2,8 @@ package core.statemachine
 
 import core.statemachine.usage.RecordingStateMachine
 import core.statemachine.usage.renderAsPlantUmlFiles
+import core.statemachine.usage.renderAsPlantUmlTimingDiagram
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import random
 import utils.units.AbsoluteTime
@@ -55,8 +57,12 @@ class TestExampleStates {
         return PassengerAgent("$id", from, to, departure)
     }
 
-    @Test
-    fun runStateMachines() {
+    private lateinit var stationAgents: List<StationAgent>
+    private lateinit var busAgents: List<BusAgent>
+    private lateinit var passengerAgents: List<PassengerAgent>
+
+    @BeforeEach
+    fun setUp() {
         val start: AbsoluteTime = AbsoluteTime.START
         val endDemand: AbsoluteTime = 11.hours.sinceStart
         val end: AbsoluteTime = 12.hours.sinceStart
@@ -93,9 +99,14 @@ class TestExampleStates {
         val departures4 = start..end step 20.minutes
         val bussesRoute4 = createBussesBySchedule(departures4, route4)
 
-        val stationAgents = stations.values.toList()
-        val busAgents = bussesRoute1 + bussesRoute2 + bussesRoute3 + bussesRoute4
-        val passengerAgents = (0..10000).map { createPerson(start, endDemand, stationAgents) }
+        stationAgents = stations.values.toList()
+        busAgents = bussesRoute1 + bussesRoute2 + bussesRoute3 + bussesRoute4
+        passengerAgents = (0..10000).map { createPerson(start, endDemand, stationAgents) }
+    }
+
+    @Test
+    fun runStateMachines() {
+        RecordingStateMachine.recordInteractions()
 
         val initEvents = (stationAgents + busAgents + passengerAgents).flatMap {
             it.init()
@@ -125,7 +136,8 @@ class TestExampleStates {
         assertNull(busByFinishedStatus[false])
 
         RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
+        RecordingStateMachine.interactionRecorder.renderAsPlantUmlTimingDiagram(passengerAgents[1])
     }
 }
 
-fun Agent<*>.tag() = (this::class.simpleName ?: "Agent") + "[$this]"
+private fun Agent<*>.tag() = (this::class.simpleName ?: "Agent") + "[$this]"

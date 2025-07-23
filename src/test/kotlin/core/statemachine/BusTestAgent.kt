@@ -8,6 +8,7 @@ import core.statemachine.builder.stateMachine
 import core.statemachine.usage.withRecording
 import utils.units.AbsoluteTime
 import utils.units.max
+import utils.units.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -84,15 +85,16 @@ class DeboardingState(state: BusState) : BusState(state) {
 class BoardingState(state: BusState, deboardingCount: Int) : BusState(state) {
     private val boardingStart: AbsoluteTime = time
     private var interactionWaitTime: Duration = inOutTime(deboardingCount)
-    private val minWaitTime = 2.minutes
+    private val minWaitTime = 1.minutes
+    private val maxWaitTime = 3.minutes
 
     val plannedLeaveTime: AbsoluteTime
-        get() = boardingStart + max(minWaitTime, interactionWaitTime)
+        get() = boardingStart + min(max(minWaitTime, interactionWaitTime), maxWaitTime)
 
     fun updateWaitTime(boardingCount: Int): Boolean {
+        val before = plannedLeaveTime
         interactionWaitTime += inOutTime(boardingCount)
-        val leaveTimeChanged = interactionWaitTime > minWaitTime
-        return leaveTimeChanged
+        return plannedLeaveTime != before
     }
 
     private fun inOutTime(deboardingCount: Int): Duration = 10.seconds * deboardingCount

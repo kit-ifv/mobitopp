@@ -159,5 +159,10 @@ class RecordingStateMachine(
     companion object {
         val stateMachineUsage: GlobalStateMachineUsage get() = globalUsage
         private val globalUsage = GlobalStateMachineUsageRecorder()
+
+        val interactionRecorder: AgentInteractions get() = globalUsage.interactions
+
+        fun recordInteractions() = globalUsage.recordInteractions()
+        fun stopRecordingInteractions() = globalUsage.stopRecordingInteractions()
     }
 }

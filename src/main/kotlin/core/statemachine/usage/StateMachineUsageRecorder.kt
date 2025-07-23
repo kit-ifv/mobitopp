@@ -14,10 +14,25 @@ import kotlin.time.Duration.Companion.seconds
  *  - register an "enter state" event: [registerEnter]
  *  - register a transition on message: [registerTransitionOnMessage]
  *  - register a fallback transition: [registerFallbackTransition]
+ *
+ *  Also allows recording agent interactions: [recordInteractions], [stopRecordingInteractions]
  */
 class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
     override val usageByStateMachine: Map<String, StateMachineUsageRecorder> get() = usage
     private val usage = mutableMapOf<String, StateMachineUsageRecorder>()
+
+    val interactions: AgentInteractions get() = interactionRecorder
+    private var interactionRecorder: AgentInteractions = NullInteractionRecorder
+
+    /** Creates new interaction recorder and returns previous interactions. */
+    fun recordInteractions(): AgentInteractions = interactionRecorder.also {
+        interactionRecorder = SimpleInteractionRecorder()
+    }
+
+    /** Removes current interaction recorder and returns previous interactions. */
+    fun stopRecordingInteractions(): AgentInteractions = interactionRecorder.also {
+        interactionRecorder = NullInteractionRecorder
+    }
 
     fun registerStateMachine(stateMachine: StateMachine, initialState: State): Unit = synchronized(this) {
         usage.getOrPut(stateMachine.name) {
@@ -28,6 +43,8 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
     fun registerEnter(stateMachine: StateMachine, enteredState: State, response: Events) {
         getStateMachineUsage(stateMachine).registerStateEnter(enteredState.name)
         register(stateMachine, enteredState, null, null, response, null)
+
+        interactionRecorder.registerEnter(enteredState, response)
     }
 
     @Suppress("LongParameterList")
@@ -52,6 +69,8 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
             response,
             message
         )
+
+        interactionRecorder.registerTransition(currentState, nextState, response)
     }
 
     fun registerFallbackTransition(
@@ -78,6 +97,8 @@ class GlobalStateMachineUsageRecorder : GlobalStateMachineUsage {
             response,
             null
         )
+
+        interactionRecorder.registerTransition(currentState, nextState, response)
     }
 
     @Suppress("LongParameterList")
