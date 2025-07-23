@@ -17,7 +17,7 @@ import kotlin.random.Random
 data class CarSegmentSituation(
     val person: SynthesisPerson<out CommuteDistance>,
     val household: SynthesisHousehold<out CommuteDistance>
-)  {
+) {
     // TODO delegate to household once merged with default household dataclass
     val random: Random = Random(System.currentTimeMillis())
     fun with(choice: CarSegment) = choice.toAlternative(person, household)
@@ -32,15 +32,17 @@ data class CarSegmentChoice(
     val sex: Sex,
     val isCommuting: Boolean
 ) {
-    constructor(    person: SynthesisPerson<out CommuteDistance>,
-                    household: SynthesisHousehold<out CommuteDistance>): this(
+    constructor(
+        person: SynthesisPerson<out CommuteDistance>,
+        household: SynthesisHousehold<out CommuteDistance>
+    ) : this(
         person.info.distanceWork,
         household.size,
         household.income,
         household.amountOfCars,
         person.sex,
         false
-                    )
+    )
 }
 
 fun CarSegment.toAlternative(
@@ -186,11 +188,11 @@ val carSegmentChoiceModel = DiscreteStructure<CarSegment, CarSegmentChoice, CarS
     option(CarSegment.SMALL) {
         0.0
     }
-    option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) {_, it ->
-        defaultUtilityFunction(this, it)
+    option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
-    option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) {_, it ->
-        defaultUtilityFunction(this, it)
+    option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
 }.multinomialLogit("ExampleTransitPassModel")
 

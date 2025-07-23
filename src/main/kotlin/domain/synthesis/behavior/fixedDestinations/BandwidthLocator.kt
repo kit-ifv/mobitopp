@@ -17,10 +17,15 @@ import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.random.Random
 
-val standardBandwidthModel = RuleBasedStructure<WithMetric<Location, Distance>, LocationAlternative, BandwidthParameters> {
-    ruleForAll { option, it ->
+val standardBandwidthModel = RuleBasedStructure<
+    WithMetric<Location, Distance>,
+    LocationAlternative,
+    BandwidthParameters
+    > {
+    ruleForAll { option, characteristics ->
         val (loc, distance) = option
-        ln(it.attractiveness(loc)) / (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
+        ln(characteristics.attractiveness(loc)) /
+            (bDistance * distance.toDouble(DistanceUnit.KILOMETERS).pow(aDistance))
     }
 }.openMultinomialLogit("DefaultBandwidthLocationSelector")
 
@@ -62,7 +67,6 @@ class BandwidthLocator(
             validTargets = potentialLocations.sortedBy { it.distance(agent.homeLocation) }
                 .map { WithMetric(it, it.distance(agent.homeLocation)) }.toSet()
         }
-
 
         return context(LocationAlternative(attractivenessModel, activityType), random) {
             model.select(validTargets).item

@@ -11,9 +11,11 @@ import domain.synthesis.data.Employment
 import units.Currency
 
 fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipAttributes {
-    return CarOwnershipAttributes(CarOwnershipFactors(
-        this,
-    ))
+    return CarOwnershipAttributes(
+        CarOwnershipFactors(
+            this,
+        )
+    )
 }
 
 val SynthesisPerson<out SurveyInfo>.householdId get() = info.householdId

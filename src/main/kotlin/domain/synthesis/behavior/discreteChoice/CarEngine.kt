@@ -13,7 +13,6 @@ import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import units.Distance
 import units.DistanceUnit
-import kotlin.random.Random
 
 val FatParameters = EngineParameters(
     CONST_BEV = -9.8079,
@@ -259,7 +258,7 @@ data class EngineSpecificParameters(
 data class EngineChoiceSituation(
     val person: SurveyWithCommute,
     val household: SynthesisHousehold<out SurveyWithCommute>
-)  {
+) {
     fun with(choice: EngineType) = choice.toAlternative(person, household)
 }
 
@@ -291,18 +290,18 @@ fun EngineType.toAlternative(
     person: SurveyWithCommute,
     household: SynthesisHousehold<out SurveyWithCommute>
 ): EngineAlternative {
-    return EngineAlternative( person, household)
+    return EngineAlternative(person, household)
 }
 
 val carEngineChoiceModel = DiscreteStructure<EngineType, EngineAlternative, EngineParameters> {
     option(EngineType.COMBUSTION) {
         0.0
     }
-    option(EngineType.ELECTRIC, parameters = { electicParameters() }) {_, it ->
-        defaultUtilityFunction(this, it)
+    option(EngineType.ELECTRIC, parameters = { electicParameters() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
-    option(EngineType.HYBRID, parameters = { hybridParameters() }) {_, it ->
-        defaultUtilityFunction(this, it)
+    option(EngineType.HYBRID, parameters = { hybridParameters() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
 }.multinomialLogit("ExampleEngineMNL")
 

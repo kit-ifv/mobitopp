@@ -15,6 +15,8 @@ import domain.simulation.events.InitPersonEvent
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
@@ -90,7 +92,9 @@ class RidesharingOnlyScenario {
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
             scopeDispatcher = modeScopeDispatcher,
             attractivityModel = testAttractivenessModel,
-            availabilityModel = availability
+            availabilityModel = availability,
+            spawnDestinationCharacteristics = StandardDestinationImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)

@@ -2,7 +2,7 @@ package application.syntheticsim
 
 import domain.shared.enums.Mode
 import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.ModeChoiceSituation
+import domain.simulation.behavior.ModeChoiceCharacteristics
 import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.mobitopp.discretechoice.models.FilteredChoiceModel
 
@@ -15,18 +15,18 @@ import kotlin.random.Random
  * model if and only if it is not null.
  */
 class OverridableModeChoiceModel(
-    val original: UtilityBasedChoiceModel< Mode, ModeChoiceSituation>,
-) : UtilityBasedChoiceModel<Mode, ModeChoiceSituation, >  {
+    val original: UtilityBasedChoiceModel< Mode, ModeChoiceCharacteristics>,
+) : UtilityBasedChoiceModel<Mode, ModeChoiceCharacteristics, >  {
     var overrideMode: Mode? = null
     override val name: String = original.name
 
 
-    context(_: ModeChoiceSituation, _: Random)
+    context(_: ModeChoiceCharacteristics, _: Random)
     override fun select(choices: Set<Mode>): Mode {
         return overrideMode ?: original.select(choices)
     }
 
-    context(_: ModeChoiceSituation)
+    context(_: ModeChoiceCharacteristics)
     override fun utility(alternative: Mode): Double {
         TODO("Not yet implemented")
     }
@@ -35,11 +35,11 @@ class OverridableModeChoiceModel(
         TODO("Not yet implemented")
     }
 
-    override fun addFilter(filter: ChoiceFilter<Mode, ModeChoiceSituation>): FilteredChoiceModel<Mode, ModeChoiceSituation> {
+    override fun addFilter(filter: ChoiceFilter<Mode, ModeChoiceCharacteristics>): FilteredChoiceModel<Mode, ModeChoiceCharacteristics> {
         return original.addFilter(filter)
     }
 
-    context(_: ModeChoiceSituation, random: Random)
+    context(_: ModeChoiceCharacteristics, random: Random)
     override fun selectInjected(
         choices: Set<Mode>,
         injections: Map<Mode, (Double) -> Double>,
