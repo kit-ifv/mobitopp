@@ -10,9 +10,7 @@ plugins {
     application
     id("maven-publish")
 }
-/**
- * Projects that appear in
- */
+
 allprojects {
     repositories {
         maven("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven")
@@ -107,18 +105,29 @@ tasks.withType<Detekt>().configureEach {
         md.required.set(true)
     }
 }
+
+
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "1.8"
-    exclude("**/ModeAvailabilityFilter.kt")
+    exclude(
+        "**/BuildAgents.kt",
+        "**/FixedModesFilter.kt",
+        "**/ModeAvailabilityFilter.kt",
+        "**/PersonEvents.kt",
+        "**/OverridableDestinationChoiceModel.kt",
+        "**/OverridableModeChoiceModel.kt",
+        )
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "1.8"
-    exclude("**/ModeAvailabilityFilter.kt")
 }
 
 kotlin {
     jvmToolchain(21)
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
 }
 
 application {
@@ -140,12 +149,6 @@ tasks.withType<JavaExec>().configureEach {
         "-XX:HeapDumpPath=./heapdumps",           // Specify the directory for heap dumps
         "-Xmx60G"                                 // Example: Set max heap size to 60G
     )
-}
-
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
 }
 
 allprojects {

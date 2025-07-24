@@ -35,6 +35,11 @@ import domain.simulation.events.PersonBehavior
 import domain.simulation.events.StartPerson
 import domain.simulation.events.StartingTrip
 import domain.simulation.events.personStateMachine
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
+import domain.simulation.events.StartActivityEvent
+import domain.simulation.events.StartLegEvent
+import domain.simulation.events.StartTripEvent
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.Household
@@ -146,6 +151,9 @@ abstract class Scenario(
         availabilityModel = availability,
         bikeSharingConnectionSelector = availability,
         choiceModelModes = legacyChoiceModelModes,
+        availabilityModel = availability,
+        spawnDestinationCharacteristics = StandardDestinationImplementation,
+        spawnModeCharacteristics = StandardModeImplementation
     )
 
     fun PersonAgent.stepper(): EventStepper {

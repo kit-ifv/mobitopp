@@ -3,6 +3,7 @@ package domain.simulation.behavior
 import discreteChoice.models.ChoiceAlternative
 import discreteChoice.models.ChoiceFilter
 import discreteChoice.models.ChoiceSituation
+import core.events.Resource
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -16,6 +17,7 @@ import domain.simulation.agent.lastTransportMode
 import domain.synthesis.data.IPerson
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.sharingMembershipIds
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import utils.units.AbsoluteTime
 import kotlin.random.Random
 
@@ -27,43 +29,108 @@ data class TripChoiceSituation(
     val attractivityModel: AttractivenessModel,
     val modeAvailabilityFilter: ModeAvailabilityFilter,
 ) : ChoiceSituation<DestinationAlternative, Location> {
+interface DestinationChoiceCharacteristics {
+    val person: PersonAgent
+    val time: AbsoluteTime
+    val origin: Location
+    val impedance: Metrics
+    val attractivityModel: AttractivenessModel
+    val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>
 
-    override fun with(choice: Location) =
-        DestinationAlternative(
-            person,
-            time,
-            origin,
-            choice,
-            impedance,
-            attractivityModel,
-            modeAvailabilityFilter
-        )
+    companion object {
+        operator fun invoke(
+            person: PersonAgent,
+            time: AbsoluteTime,
+            origin: Location,
+            impedance: Metrics,
+            attractivityModel: AttractivenessModel,
+            modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+        ): DestinationChoiceCharacteristics {
+            return DestinationChoiceCharacteristicsImpl(
+                person,
+                time,
+                origin,
+                impedance,
+                attractivityModel,
+                modeAvailabilityFilter,
+            )
+        }
+    }
+}
 
-    override val random: Random
+fun DestinationChoiceCharacteristics.with(choice: Location): DestinationAlternative {
+
+    return DestinationAlternative(
+        this,
+        choice
+    )
+
+}
+
+data class DestinationChoiceCharacteristicsImpl(
+    override val person: PersonAgent,
+    override val time: AbsoluteTime,
+    override val origin: Location,
+    override val impedance: Metrics,
+    override val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
+    override val attractivityModel: AttractivenessModel,
+    override val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+) : DestinationChoiceCharacteristics {
+
+
+    val random: Random
         get() = person.random
 }
 
 data class DestinationAlternative(
-    val person: PersonAgent,
-    val time: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
-    val impedance: Metrics,
-    val attractivityModel: AttractivenessModel,
-    val modeAvailabilityFilter: ModeAvailabilityFilter,
-) : ChoiceAlternative<Location>() {
-    override val choice: Location get() = destination
+    val original: DestinationChoiceCharacteristics,
+    val choice: Location,
+) : DestinationChoiceCharacteristics by original {
+
+
 }
 
-data class ModeChoiceSituation(
-    val person: PersonAgent,
-    val time: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
-    val impedance: Metrics,
-) : ChoiceSituation<ModeChoiceAlternative, Mode> {
-    override val random: Random get() = person.random
-    override fun with(choice: Mode) = ModeChoiceAlternative(
+/**
+ * Provide an interface, that way projects can actually implement additional conditions onto the characteristics.
+ * These should be the minimum available characteristics during mode choice, so maybe impedance and sharedResources
+ * need to be dropped for a more generic implementation.
+ */
+interface ModeChoiceCharacteristics {
+    val person: PersonAgent
+    val time: AbsoluteTime
+    val origin: Location
+    val destination: Location
+    val impedance: Metrics
+
+    companion object {
+        operator fun invoke(
+            person: PersonAgent,
+            time: AbsoluteTime,
+            origin: Location,
+            destination: Location,
+            impedance: Metrics,
+        ): ModeChoiceCharacteristics = ModeChoiceCharacteristicsImpl(
+            person,
+            time,
+            origin,
+            destination,
+            impedance,
+        )
+    }
+}
+
+/**
+ * Characteristics are invariant within a discrete choice situation.
+ */
+data class ModeChoiceCharacteristicsImpl(
+    override val person: PersonAgent,
+    override val time: AbsoluteTime,
+    override val origin: Location,
+    override val destination: Location,
+    override val impedance: Metrics,
+) : ModeChoiceCharacteristics {
+    val random: Random get() = person.random
+    fun with(choice: Mode) = ModeChoiceAlternative(
         person,
         time,
         origin,
@@ -73,16 +140,16 @@ data class ModeChoiceSituation(
     )
 }
 
-data class ModeChoiceAlternative(
+data class ModeChoiceAlternative( //TODO check if this can be deleted?
     val person: PersonAgent,
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
-    val mode: Mode,
+    val choice: Mode,
     val impedance: Metrics,
-) : ChoiceAlternative<Mode>() {
-    override val choice: Mode get() = mode
-}
+)
+
+fun interface ModeAvailabilityFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics>
 
 data class SituativeAvailability(val modes: Set<Mode>, val resources: Set<Any>)
 
