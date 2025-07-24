@@ -1,9 +1,6 @@
 package domain.simulation.behavior
 
 import core.events.Resource
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceFilter
-import discreteChoice.models.ChoiceSituation
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -13,63 +10,123 @@ import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.agent.SharingStationAgent
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import utils.units.AbsoluteTime
 import kotlin.random.Random
 
-data class TripChoiceSituation(
-    val person: PersonAgent,
-    val time: AbsoluteTime,
-    val origin: Location,
-    val impedance: Metrics,
-    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
-    val attractivityModel: AttractivenessModel,
-    val modeAvailabilityFilter: ModeAvailabilityFilter,
-) : ChoiceSituation<DestinationAlternative, Location> {
+interface DestinationChoiceCharacteristics {
+    val person: PersonAgent
+    val time: AbsoluteTime
+    val origin: Location
+    val impedance: Metrics
+    val sharedResources: Set<Resource<PersonAgent>>
+    val attractivityModel: AttractivenessModel
+    val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>
 
-    override fun with(choice: Location) =
-        DestinationAlternative(
-            person,
-            time,
-            origin,
-            choice,
-            impedance,
-            sharedResources,
-            attractivityModel,
-            modeAvailabilityFilter
-        )
+    companion object {
+        operator fun invoke(
+            person: PersonAgent,
+            time: AbsoluteTime,
+            origin: Location,
+            impedance: Metrics,
+            sharedResources: Set<Resource<PersonAgent>>,
+            attractivityModel: AttractivenessModel,
+            modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+        ): DestinationChoiceCharacteristics {
+            return DestinationChoiceCharacteristicsImpl(
+                person,
+                time,
+                origin,
+                impedance,
+                sharedResources,
+                attractivityModel,
+                modeAvailabilityFilter,
+            )
+        }
+    }
+}
 
-    override val random: Random
+fun DestinationChoiceCharacteristics.with(choice: Location): DestinationAlternative {
+
+    return DestinationAlternative(
+        this,
+        choice
+    )
+
+}
+
+data class DestinationChoiceCharacteristicsImpl(
+    override val person: PersonAgent,
+    override val time: AbsoluteTime,
+    override val origin: Location,
+    override val impedance: Metrics,
+    override val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
+    override val attractivityModel: AttractivenessModel,
+    override val modeAvailabilityFilter: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+) : DestinationChoiceCharacteristics {
+
+
+    val random: Random
         get() = person.random
 }
 
 data class DestinationAlternative(
-    val person: PersonAgent,
-    val time: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
-    val impedance: Metrics,
-    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
-    val attractivityModel: AttractivenessModel,
-    val modeAvailabilityFilter: ModeAvailabilityFilter,
-) : ChoiceAlternative<Location>() {
-    override val choice: Location get() = destination
+    val original: DestinationChoiceCharacteristics,
+    val choice: Location,
+) : DestinationChoiceCharacteristics by original {
+
+
 }
 
-data class ModeChoiceSituation(
-    val person: PersonAgent,
-    val time: AbsoluteTime,
-    val origin: Location,
-    val destination: Location,
-    val impedance: Metrics,
-    val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
-) : ChoiceSituation<ModeChoiceAlternative, Mode> {
-    override val random: Random get() = person.random
-    override fun with(choice: Mode) = ModeChoiceAlternative(
+/**
+ * Provide an interface, that way projects can actually implement additional conditions onto the characteristics.
+ * These should be the minimum available characteristics during mode choice, so maybe impedance and sharedResources
+ * need to be dropped for a more generic implementation.
+ */
+interface ModeChoiceCharacteristics {
+    val person: PersonAgent
+    val time: AbsoluteTime
+    val origin: Location
+    val destination: Location
+    val impedance: Metrics
+    val sharedResources: Set<Resource<PersonAgent>>
+
+    companion object {
+        operator fun invoke(
+            person: PersonAgent,
+            time: AbsoluteTime,
+            origin: Location,
+            destination: Location,
+            impedance: Metrics,
+            sharedResources: Set<Resource<PersonAgent>>,
+        ): ModeChoiceCharacteristics = ModeChoiceCharacteristicsImpl(
+            person,
+            time,
+            origin,
+            destination,
+            impedance,
+            sharedResources,
+        )
+    }
+}
+
+/**
+ * Characteristics are invariant within a discrete choice situation.
+ */
+data class ModeChoiceCharacteristicsImpl(
+    override val person: PersonAgent,
+    override val time: AbsoluteTime,
+    override val origin: Location,
+    override val destination: Location,
+    override val impedance: Metrics,
+    override val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
+) : ModeChoiceCharacteristics {
+    val random: Random get() = person.random
+    fun with(choice: Mode) = ModeChoiceAlternative(
         person,
         time,
         origin,
         destination,
-        choice,
         impedance,
         sharedResources
     )
@@ -80,14 +137,13 @@ data class ModeChoiceAlternative(
     val time: AbsoluteTime,
     val origin: Location,
     val destination: Location,
-    val mode: Mode,
     val impedance: Metrics,
     val sharedResources: Set<Resource<PersonAgent>> = emptySet(),
-) : ChoiceAlternative<Mode>() {
-    override val choice: Mode get() = mode
+) {
+
 }
 
-fun interface ModeAvailabilityFilter : ChoiceFilter<ModeChoiceAlternative>
+fun interface ModeAvailabilityFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics>
 
 class SharingAvailabilityFilter(
     val modes: ChoiceModelModes,
@@ -96,24 +152,16 @@ class SharingAvailabilityFilter(
     private val metrics: Metrics,
 ) : ModeAvailabilityFilter {
 
-//    private val cache = PerpetualCache<List<Byte>, Set<Mode>>()
+    //    private val cache = PerpetualCache<List<Byte>, Set<Mode>>()
+    context(characteristics: ModeChoiceCharacteristics)
+    override fun filter(alternative: Mode): Boolean {
 
-    override fun filter(choices: Set<ModeChoiceAlternative>): Set<ModeChoiceAlternative> {
-        return choices.filter { determineAvailability(it.choice, it) }.toSet()
+        return determineAvailability(alternative, characteristics)
 
-//        val modeList = choices.map { it.choice }
-//        val set = BitSet(modeList.size)
-//        set.flip(0, modeList.size)
-//        choices.withIndex().forEach {
-//            set[it.index] = determineAvailability(it.value.choice, it.value)
-//        }
-//        return cache.getOrPut(set.toByteArray().toList()) {
-//            modeList.filterBy(set).toSet()
-//        }
     }
 
     // TODO insert check for sharing stations and find missing resources
-    private fun determineAvailability(mode: Mode, params: ModeChoiceAlternative): Boolean {
+    private fun determineAvailability(mode: Mode, params: ModeChoiceCharacteristics): Boolean {
         return when (mode) {
             modes.car -> checkCar(params.person)
             modes.bike -> checkBike(params.person)
@@ -131,13 +179,14 @@ class SharingAvailabilityFilter(
     }
 
     private fun checkPut(person: PersonAgent): Boolean {
+        // TODO this is bugged, commuterticket has nothing to do with availability
         return person.hasCommuterTicket
     }
 
     private fun checkCar(person: PersonAgent): Boolean {
         return person.hasLicense && person.household.cars.any {
             (it.location == person.location) && it.state != PrivateCarAgent.CarState.IN_USE &&
-                ((it.location == person.household.location) || it.keyHolder == person)
+                    ((it.location == person.household.location) || it.keyHolder == person)
         }
     }
 
@@ -148,8 +197,8 @@ class SharingAvailabilityFilter(
     }
 
     fun checkSharing(
-        params: ModeChoiceAlternative,
-        sharingMode: Mode
+        params: ModeChoiceCharacteristics,
+        sharingMode: Mode,
     ): Pair<SharingStationAgent, SharingStationAgent>? {
         val person = params.person
 
