@@ -9,11 +9,21 @@ function toggle(id, className) {
 }
 
 /**
- * Toggles the 'dark' class on the body.
+ * Toggles the 'dark' class on the body and persists the mode.
  */
 function toggleDarkMode() {
-    document.body.classList.toggle('dark')
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
 }
+
+/**
+ * Applies the persisted dark mode state on page load.
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark');
+    }
+});
 
 /**
  * Animates a card to open smoothly.
@@ -25,7 +35,6 @@ function toggleCard(id) {
 
     if (isOpen) {
         // collapse
-        body.style.maxHeight = `${body.scrollHeight}px`;
         requestAnimationFrame(() => {
             body.style.maxHeight = '0';
             body.classList.remove('show');
@@ -33,7 +42,6 @@ function toggleCard(id) {
     } else {
         // expand
         body.classList.add('show');
-        body.style.maxHeight = '0';
         requestAnimationFrame(() => {
             body.style.maxHeight = `${body.scrollHeight}px`;
         });
