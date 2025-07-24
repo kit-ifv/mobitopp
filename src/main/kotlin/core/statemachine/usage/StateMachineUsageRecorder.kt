@@ -208,7 +208,7 @@ class SendMessageUsageRecorder(
 class TransitionUsageRecorder(
     override val key: TransitionKey,
 ) : TransitionUsage {
-    override val count get() = 0
+    override val count get() = occurrences
     private var occurrences = 0
 
     override val avgTimeSinceEnter get() = avgTime

@@ -14,7 +14,7 @@ import kotlin.time.Duration
  *
  * @param dir directory where the .puml files are saved. Defaults to "/docs" inside the working directory.
  */
-fun GlobalStateMachineUsage.renderAsPlantUmlFiles(dir: Path = Path("docs/state_machines")) =
+fun GlobalStateMachineUsage.renderAsPumlStateCharts(dir: Path = Path("docs/state_machines")) =
     usageByStateMachine.values.forEach {
         it.apply {
             dir.createDirectories()

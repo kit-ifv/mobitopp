@@ -146,15 +146,16 @@ class SimpleInteractionRecorder : AgentInteractions {
 val Agent<*>.instanceName get() =
     this::class.simpleName!!.replace("agent", "", ignoreCase = true) + "_" + this.hashCode()
 
-sealed interface Action {
-    val time: AbsoluteTime
-    val instance: String
+sealed class Action {
+    val index: Int = indexCounter++
+    abstract val time: AbsoluteTime
+    abstract val instance: String
 
     data class ChangeState(
         override val time: AbsoluteTime,
         override val instance: String,
         val newState: String,
-    ) : Action
+    ) : Action()
 
     data class SendMessage(
         val from: String,
@@ -162,8 +163,12 @@ sealed interface Action {
         val to: String,
         val receiveTime: AbsoluteTime,
         val message: String,
-    ) : Action {
+    ) : Action() {
         override val instance: String get() = from
         override val time: AbsoluteTime get() = sendTime
+    }
+
+    companion object {
+        private var indexCounter = 0
     }
 }
