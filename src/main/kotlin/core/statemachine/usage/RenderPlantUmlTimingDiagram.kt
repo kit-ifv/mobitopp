@@ -9,10 +9,10 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 
-fun AgentInteractions.renderAsPlantUmlTimingDiagram(
+fun AgentInteractions.renderAsPumlTimingDiagram(
     agent: Agent<*>,
     file: Path = Path(
-        "docs/timing/${agent.instanceName}.puml"
+        "docs/timing/${agent::class.simpleName ?: agent.instanceName}.puml"
     ),
     maxDepth: Int = 1
 ) {
@@ -22,7 +22,7 @@ fun AgentInteractions.renderAsPlantUmlTimingDiagram(
     )
 }
 
-private fun List<Action>.getAgents() = map {
+fun List<Action>.getAgents() = map {
     when (it) {
         is Action.SendMessage -> listOf(it.from, it.to)
         is Action.ChangeState -> listOf(it.instance)
@@ -64,7 +64,7 @@ private val colors = listOf(
     "#A7822E", // brown
 )
 
-private fun assignColors(agents: List<String>) = agents.mapIndexed { index, instance ->
+fun assignColors(agents: List<String>) = agents.mapIndexed { index, instance ->
     instance to colors[index % colors.size]
 }.toMap()
 

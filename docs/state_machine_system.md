@@ -23,6 +23,9 @@ This document explains the agent/event/state machine system in mobiTopp and prov
   - [StateCalled Annotation](#statecalled-annotation)
   - [MessageCalled Annotation](#messagecalled-annotation)
   - [Using Generated Code](#using-generated-code)
+- [PlantUML Diagrams](#plantuml-diagrams)
+  - [Record StateMachineUsage and AgentInteractions](#record-statemachineusage-and-agentinteractions)
+  - [Render PlantUML diagrams](#render-plantuml-diagrams)
 - [Examples](#examples)
   - [Basic State Machine](#basic-state-machine)
   - [Complex State Machine](#complex-state-machine)
@@ -319,6 +322,107 @@ This approach provides several benefits:
 - Type safety: The compiler ensures that the correct types are used
 - Readability: The code is more concise and expressive
 - Maintainability: Changes to state or message classes are automatically reflected in the generated code
+
+
+## PlantUML Diagrams
+To visualize the configured dynamic agent behavior, the visited states visited and messages sent during the simulation 
+can be recorded using a `RecordingStateMachine`. This is a special implementation of the `StateMachine` interface
+that records every "enter state", "transition on message" and "fallback transition" event 
+as well as all produced response messages.
+
+### Record StateMachineUsage and AgentInteractions
+To create a `RecordingStateMachine` a `RecordingStateMachineFactory` can be used. 
+This factory wraps an arbitrary `StateMachineFactory` and reuses the logic for creating the initial state.
+An existing `StateMachineFactory` can be wrapped using the extension function `withRecording`:
+
+```kotlin
+val recordingFactory = personStateMachineFactory.withRecording()
+```
+
+The `StateMachineUsage` is recorded globally in a static object: `RecordingStateMachine.stateMachineUsage` 
+which collects aggregated usage statistics per unique state machine name.
+Additionally `AgentInteractions` can be recorded, which consist of all individual state changes and messages of all agents.
+Since this disaggregated form of recording is memory-heavy, it can optionally be activated and deactivated.
+Activation and deactivation returns the recorded `AgentInteractions` since the previous record toggle 
+or an empty `NullInteractionRecorder`.
+
+```kotlin
+RecordingStateMachine.recordInteractions()
+
+// simulate here
+
+val recordedInteraction = RecordingStateMachine.stopRecordingInteractions()
+```
+
+### Render PlantUML diagrams
+After recording the `StateMachineUsage` or `AgentInteractions` of a simulation, 
+the data can be rendered as PlantUML diagrams:
+
+ - **State charts:** `StateMachineUsage` can be rendered as state charts. The default file path is `docs/state_machines/<NAME>.puml`. 
+    ```kotlin
+    RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+    ```
+
+    <details>
+     <summary>State charts semantics:</summary>
+     Each diagram consists of a frame stating the name and number of observed instances of a state machine. 
+     It contains all the observed states of the state machine. 
+     Each state displays the various messages it sends in response to "enter state" and received messages.
+     Also, the self-transitions are displayed as text in the state body instead of arrows, as they tend to overlap.
+     A self-transition occurs when the state processes an event/message but does not transition to a new state 
+     (`nextState == null`). It is possible that a state produces a new state object of the same type, 
+     which does **not** constitute a self-transition. 
+     Additionally to states, the diagrams contain arrows which represent state transitions. 
+     They are labeled with the message that triggered the transition or "-" for fallback transitions 
+     (e.g., in case of transitory states). Sent messages and transitions are labeled with the total number of occurrences 
+     and the average number of occurrences per instance of the state machine (mostly = number of agents) `#420 | 0.42`.
+     Transitions from non-transitory states are also labeled with the average time spent in the previous state 
+     before the transition occurred:
+   
+     ![image](example_statemachine.png)
+    </details>
+
+- **Timing diagram:** `AgentInteractions` can be filtered for a specific agent and rendered as timing diagrams. 
+  The interaction filter recursively traverses the graph of agent-nodes and message vertices 
+  up to a specified maximum recursion depth `maxDepth` starting at the given agent node.
+  E.g., a `maxDepth` of `1` will plot all the agents the given agent sends/receives messages to/from.
+  The default result file path is `docs/timing/<AGENT_NAME>.puml`.
+  ```kotlin
+  RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(agents[0], maxDepth=1)
+  ```
+  
+  <details>
+    <summary>Timing diagram semantics:</summary>
+    Each agent is displayed in a separate row with a different color showing its state changes over time.
+    Self messages are shown as "constraints (<->)" within the row, "<" marking the send time,
+    ">" marking the receive time.
+    Messages between agents are shown as arrows between the rows.
+    
+    ![image](example_timing_diagram.png)
+  </details>
+
+
+- **Sequence diagram:** `AgentInteractions` can also be rendered as sequence diagrams. 
+  Similar to timing diagrams, the interactions are filtered with a maximum interaction depth 
+  starting from a given agent. The default result file path is `docs/sequence/<AGENT_NAME>.puml`.
+  ```kotlin
+  RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(agents[0], maxDepth=1)
+  ```
+  
+  <details>
+  <summary>Sequence diagram semantics:</summary>
+    Each agent is displayed as a column, activation/deactivation of its lifeline denotes entering / exiting a state. 
+    The state name is displayed as a label on the arrow entering activating the state.
+    Instantaneous messages are displayed as labeled arrows with the prefix "send".
+    Delayed messages are displayed as dotted arrows with a "later" label prefix.
+    At receive time of the delayed message the receiver has an addition dotted self-arrow with a "recv" label prefix.
+    To identify which delayed send and receive belong together, they are marked with an index "[7]".
+    
+    ![image](example_sequence_diagram.png)
+  </details>
+  
+
+
 
 ## Examples
 

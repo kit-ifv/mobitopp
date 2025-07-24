@@ -6,8 +6,9 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asResource
 import core.statemachine.usage.RecordingStateMachine
-import core.statemachine.usage.renderAsPlantUmlFiles
-import core.statemachine.usage.renderAsPlantUmlTimingDiagram
+import core.statemachine.usage.renderAsPumlStateCharts
+import core.statemachine.usage.renderAsPumlTimingDiagram
+import core.statemachine.usage.withRecording
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
@@ -68,7 +69,7 @@ class CarOnlyScenario {
 
         val agents = BuildAgents(
             seed = 1L,
-            personStateMachine, // .withRecording(),
+            personStateMachine.withRecording(),
             syntheticBehavior
         ).buildPersonAgents(households)
 
@@ -80,7 +81,7 @@ class CarOnlyScenario {
         sim.addAgents(testAgents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
 
-        RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
-        RecordingStateMachine.interactionRecorder.renderAsPlantUmlTimingDiagram(testAgents[0])
+        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(testAgents[0])
     }
 }

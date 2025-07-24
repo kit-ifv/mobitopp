@@ -5,7 +5,10 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asResource
 import core.statemachine.usage.RecordingStateMachine
-import core.statemachine.usage.renderAsPlantUmlFiles
+import core.statemachine.usage.renderAsPumlSequenceDiagram
+import core.statemachine.usage.renderAsPumlStateCharts
+import core.statemachine.usage.renderAsPumlTimingDiagram
+import core.statemachine.usage.withRecording
 import discreteChoice.models.FixedOrderChoiceModel
 import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
@@ -32,6 +35,8 @@ class RidesharingOnlyScenario {
     @Suppress("LongMethod")
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
+        RecordingStateMachine.recordInteractions()
+
         val random = Random(1)
 
         val car = legacyChoiceModelModes.car
@@ -73,7 +78,7 @@ class RidesharingOnlyScenario {
 
         val builder = BuildAgents(
             seed = 1L,
-            personStateMachine, // .withRecording(),
+            personStateMachine.withRecording(),
             syntheticBehavior
         )
         val agents = builder.buildPersonAgents(households)
@@ -89,6 +94,8 @@ class RidesharingOnlyScenario {
         sim.addAgents(testAgents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
 
-        RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
+        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(agents.toList()[0])
+        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(agents.toList()[0])
     }
 }

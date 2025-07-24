@@ -1,8 +1,9 @@
 package core.statemachine
 
 import core.statemachine.usage.RecordingStateMachine
-import core.statemachine.usage.renderAsPlantUmlFiles
-import core.statemachine.usage.renderAsPlantUmlTimingDiagram
+import core.statemachine.usage.renderAsPumlSequenceDiagram
+import core.statemachine.usage.renderAsPumlStateCharts
+import core.statemachine.usage.renderAsPumlTimingDiagram
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import random
@@ -135,8 +136,9 @@ class TestExampleStates {
         val busByFinishedStatus = busAgents.groupingBy { it.isFinished() }.eachCount()
         assertNull(busByFinishedStatus[false])
 
-        RecordingStateMachine.stateMachineUsage.renderAsPlantUmlFiles()
-        RecordingStateMachine.interactionRecorder.renderAsPlantUmlTimingDiagram(passengerAgents[1])
+        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(passengerAgents[1])
+        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(passengerAgents[1])
     }
 }
 
