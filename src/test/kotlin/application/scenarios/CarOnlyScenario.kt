@@ -16,6 +16,10 @@ import domain.simulation.agent.BuildAgents
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.personStateMachine
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
 import generateHouseholds
 import generateZones
@@ -65,6 +69,10 @@ class CarOnlyScenario {
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
             choiceModelModes = legacyChoiceModelModes
+            availabilityModel = availability,
+            spawnDestinationCharacteristics = StandardDestinationImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
+
         )
 
         val agents = BuildAgents(

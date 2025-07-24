@@ -79,13 +79,7 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
     key = this.id,
     defaultValue = { MutableHouseholdAgent(id, context.seed) }
 ) { agent ->
-    agent.householdNumber = this.householdNumber
-    agent.surveyYear = this.surveyYear
-    agent.location = this.location
-    agent.domCode = this.domCode
-    agent.type = this.type
-    agent.incomePerMonth = this.incomePerMonth
-    agent.economicStatus = this.economicStatus
+    agent.loadAttributes(this)
     agent.members.addAll(
         this.members.map { it.toAgent(context, agent) }
     )
@@ -93,24 +87,47 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
         this.cars.map { it.toAgent(context, agent) }
     )
 }
-
+context(seed: Long)
+fun Household.toAgent(): HouseholdAgent {
+    val agent = MutableHouseholdAgent(id, seed)
+    agent.loadAttributes(this)
+    return agent
+}
+fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
+    householdNumber = attributes.householdNumber
+    surveyYear = attributes.surveyYear
+    location = attributes.location
+    domCode = attributes.domCode
+    type = attributes.type
+    incomePerMonth = attributes.incomePerMonth
+    economicStatus = attributes.economicStatus
+}
+context(household: Household, seed: Long)
+fun Person.toAgent(): PersonAgent{
+    val hhAgent = household.toAgent()
+    val personAgent = MutablePersonAgent(id, hhAgent, seed)
+    personAgent.loadAttributes(this)
+    return personAgent
+}
+fun MutablePersonAgent.loadAttributes(attributes: Person) {
+    age = attributes.age
+    employment = attributes.employment
+    sex = attributes.sex
+    graduation = attributes.graduation
+    income = attributes.income
+    hasBike = attributes.hasBike
+    hasCommuterTicket = attributes.hasCommuterTicket
+    hasLicense = attributes.hasLicense
+    eMobilityAcceptance = attributes.eMobilityAcceptance
+    chargingInfluence = attributes.chargingInfluence
+}
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
         key = this.id,
         defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) }
     ) { agent ->
 
-        agent.age = this.age
-        agent.employment = this.employment
-        agent.sex = this.sex
-        agent.graduation = this.graduation
-        agent.income = this.income
-        agent.hasBike = this.hasBike
-        agent.hasCommuterTicket = this.hasCommuterTicket
-        agent.hasLicense = this.hasLicense
-        agent.eMobilityAcceptance = this.eMobilityAcceptance
-        agent.chargingInfluence = this.chargingInfluence
-
+        agent.loadAttributes(this)
         agent.sharingMemberships.addAll(
             this.sharingMemberships.map { it.toAgent(context) }
         )
