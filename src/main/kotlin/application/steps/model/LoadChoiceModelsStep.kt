@@ -8,11 +8,6 @@ import core.modelsteps.RepositoryDependentStep
 import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateScope
-import discreteChoice.models.ChoiceModel
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.RandomChoiceModel
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
@@ -21,24 +16,53 @@ import domain.shared.location.Location
 import domain.shared.location.Zone
 import domain.shared.location.ZoneId
 import domain.simulation.agent.SharingProviderAgent
-import domain.simulation.behavior.DestinationAlternative
+import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.FixedModesFilter
-import domain.simulation.behavior.ModeAvailabilityFilter
-import domain.simulation.behavior.ModeChoiceAlternative
+import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.SharingAvailabilityFilter
 import domain.simulation.config.DemandSimContext
 import domain.simulation.events.CarSelector
+import domain.simulation.events.GenerateDestinationCharacteristics
+import domain.simulation.events.GenerateModeCharacteristics
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
 import domain.simulation.events.SharingVehicleSelector
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
 import domain.synthesis.data.SharingProviderId
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
 fun LoadChoiceModelsContext.loadChoiceModels(
-    destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
-    modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
+) = this.loadChoiceModels(
+    destinationChoiceModel,
+    modeChoiceModel,
+    modes,
+    StandardDestinationImplementation,
+    StandardModeImplementation
+
+)
+
+fun LoadChoiceModelsContext.loadChoiceModels(
+    destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    modes: ChoiceModelModes,
+    spawnDestinationChoiceCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
+    spawnModeChoiceCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ) = runStep {
-    LoadChoiceModelsStep(this, destinationChoiceModel, modeChoiceModel, modes)
+    LoadChoiceModelsStep(
+        this,
+        destinationChoiceModel,
+        modeChoiceModel,
+        modes,
+        spawnDestinationChoiceCharacteristics,
+        spawnModeChoiceCharacteristics
+    )
 }
 
 interface LoadChoiceModelsContext : DemandSimContext {
@@ -50,9 +74,12 @@ interface LoadChoiceModelsContext : DemandSimContext {
 
 class LoadChoiceModelsStep(
     private val context: LoadChoiceModelsContext,
-    private val destinationChoiceModel: ChoiceModel<DestinationAlternative, Location>,
-    private val modeChoiceModel: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    private val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    private val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     private val modes: ChoiceModelModes,
+    private val spawnDestinationChoiceCharacteristics:
+    GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
+    private val spawnModeChoiceCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ) : RepositoryDependentStep {
 
     override val name: String = "Load transmove legacy mode and destination choice!"
@@ -80,9 +107,7 @@ class LoadChoiceModelsStep(
                 impedance
             )
 
-        val modeChoice = modeChoiceModel.addFilter(
-            availability
-        ).addFilter(FixedModesFilter)
+        val modeChoice = modeChoiceModel.addFilter(availability).addFilter(FixedModesFilter)
 
         val destinationChoice = destinationChoiceModel.fixed(
             context.zoneRepository.elements.map { it.centroid }.toSet()
@@ -100,6 +125,8 @@ class LoadChoiceModelsStep(
             ),
             context.attractivenessModel.value,
             availability,
+            spawnDestinationChoiceCharacteristics,
+            spawnModeChoiceCharacteristics,
         )
 
         context.behavior.value = behavior
@@ -124,11 +151,9 @@ class LoadChoiceModelsStep(
             impedance = impedance,
             scopeDispatcher = ModeScopeDispatcher(mapOf()),
             context.attractivenessModel.value,
-            DummyAvailability,
+            ChoiceFilter.noFilter,
+            StandardDestinationImplementation,
+            StandardModeImplementation
         )
     }
-}
-
-object DummyAvailability : ModeAvailabilityFilter {
-    override fun filter(choices: Set<ModeChoiceAlternative>) = choices
 }

@@ -13,7 +13,7 @@ import domain.simulation.agent.SharingStationAgent
 import domain.simulation.agent.SharingVehicleAgent
 import domain.simulation.agent.getBestCar
 import domain.simulation.agent.locationBySchedule
-import domain.simulation.behavior.ModeChoiceAlternative
+import domain.simulation.behavior.ModeChoiceCharacteristics
 import domain.simulation.behavior.SharingAvailabilityFilter
 
 /**
@@ -134,7 +134,8 @@ class CarSelector(private val car: Mode) : ModeScopeSelector {
         legs: LinkTrip
     ): List<Event<PersonAgent>> {
         return if (mode == car) {
-            val vehicle = requireNotNull(person.getBestCar()) {
+            val potentialCar = person.getBestCar()
+            val vehicle = requireNotNull(potentialCar) {
                 "No vehicle is available for this person ${person.id}." +
                     " Household at ${person.household.location} contains vehicles: " +
                     "${person.household.cars.map { "${it.id} ${it.state} ${it.keyHolder?.id} ${it.location}" }}\n\n"
@@ -169,12 +170,11 @@ class SharingVehicleSelector(
 
             val checkSharing =
                 modeAvailabilityFilter.checkSharing(
-                    ModeChoiceAlternative(
+                    ModeChoiceCharacteristics(
                         person,
                         event.time,
                         origin,
                         destination,
-                        sharingMode,
                         metrics,
                         person.sharedResources()
                     ),
