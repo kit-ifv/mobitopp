@@ -1,36 +1,43 @@
 package utils
 
+import utils.report.CardStatus
 import utils.report.ReportBuilder
 import kotlin.io.path.Path
 
 fun main() {
     val builder = ReportBuilder()
-    builder.addWarning("Warning", "You overused the number of calls...")
-    builder.addWarning(
+    builder.addWarningLog("Warning", "You overused the number of calls...")
+    builder.addWarningLog(
         "Too many parsing faults",
         "It occured, that class XYZ had too many parsing faults during execution of the long-term-module."
     )
-    builder.addSuccess(
+    builder.addSuccessLog(
         "Successfully completed the number of calls.",
         Art
     )
-    builder.addError("Error", "oh noooo we failed")
-    builder.addNormalMessage("Nothing happened", "Not even here")
-    builder.addNormalMessage(
+    builder.addErrorLog("Error", "oh noooo we failed")
+    builder.addNormalLog("Nothing happened", "Not even here")
+    builder.addNormalLog(
         "Very long test case. Even the Title is hilariously long.\n Multiple lines even",
         veryLongText
     )
-    builder.addNormalMessage("Nothing happened", "Not even here")
-    builder.addNormalMessage("Nothing happened", "Not even here")
-    builder.addNormalMessage("Nothing happened", "Not even here")
-    builder.addNormalMessage("Nothing happened", "Not even here")
-    builder.addNormalMessage("Nothing happened", "Not even here")
-
+    builder.addNormalLog("Nothing happened", "Not even here")
+    builder.addOverviewItem("Load step", CardStatus.SUCCESS)
+    builder.addOverviewItem("Person CSV Parsing", CardStatus.WARNING, "Some entries were erroneous")
+    builder.addOverviewItem("Simulation step: 1 Week; Rastatt central; Summer;", CardStatus.FAILURE)
+    var t = 1
+    while (t-- > 0) {
+        builder.addOverviewItem(
+            "Load step: person.csv, car.csv, public_transport.csv, config.toml",
+            CardStatus.SUCCESS,
+            "Some entries were erroneous"
+        )
+    }
     builder.printReport(Path("src/test/resources/tempOutput/"))
 }
 
 @Suppress("TopLevelPropertyNaming")
-const val Art = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
+private const val Art = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
     "⣷⣶⣾⣿⣷⣶⣤⣬⣟⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿\n" +
     "⣿⣟⣱⡿⠿⠿⠿⣮⣻⣿⣿⣿⣿⣏⢿⣿⡿⢁⢀⣀⣀⣀⣬⣉⣙⠋⠛⠿⢿⣿\n" +
     "⣟⣛⣡⣤⣤⣁⣀⣄⣉⣻⣿⣿⣿⣿⠛⡿⠻⠛⠭⠿⡿⠯⣭⣟⡻⢿⣶⣦⣀⢙\n" +
@@ -47,7 +54,7 @@ const val Art = "⡿⡿⠟⠓⠛⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
     "⠀⡹⣿⡆⠈⣠⣿⣷⣿⣿⣿⣿⣿⣿⣿⣷⣬⡛⣻⣿⣿⣿⣿⣹⢖⠝⠁⡳⣾⣾"
 
 @Suppress("TopLevelPropertyNaming", "MaximumLineLength", "Indentation")
-const val veryLongText = "w: [ksp] Deferred SharingStation as it is not valid !!\n" +
+private const val veryLongText = "w: [ksp] Deferred SharingStation as it is not valid !!\n" +
     "w: [ksp] Round 1 - RETRY processor: MutableProcessor\n" +
     "w: [ksp] Deferred PrivateCar as it is not valid !!\n" +
     "w: [ksp] Deferred Person as it is not valid !!\n" +
