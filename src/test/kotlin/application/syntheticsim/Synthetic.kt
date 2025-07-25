@@ -5,8 +5,6 @@ import TestZone
 import core.statemachine.State
 import core.statemachine.builder.StateData
 import core.statemachine.usage.RecordingStateMachineFactory
-import discreteChoice.models.addFilter
-import discreteChoice.models.fixed
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.Activity
@@ -32,14 +30,11 @@ import domain.simulation.events.FirstActivityMessage
 import domain.simulation.events.PerformLeg
 import domain.simulation.events.PerformingActivity
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
 import domain.simulation.events.StartPerson
 import domain.simulation.events.StartingTrip
 import domain.simulation.events.personStateMachine
-import domain.simulation.events.StandardDestinationImplementation
-import domain.simulation.events.StandardModeImplementation
-import domain.simulation.events.StartActivityEvent
-import domain.simulation.events.StartLegEvent
-import domain.simulation.events.StartTripEvent
 import domain.synthesis.ControllableAttractiveness
 import domain.synthesis.data.ActivityId
 import domain.synthesis.data.Household
@@ -146,12 +141,11 @@ abstract class Scenario(
     protected val behavior = PersonBehavior(
         destinationChoice = destinationChoice.fixed(zones.map { it.centroid }.toSet()),
         modeChoice = modeChoice.fixed(legacyModeChoice.choices),
+        modes = legacyChoiceModelModes,
         impedance,
         attractivityModel = currentAttractivenessModel,
         availabilityModel = availability,
         bikeSharingConnectionSelector = availability,
-        choiceModelModes = legacyChoiceModelModes,
-        availabilityModel = availability,
         spawnDestinationCharacteristics = StandardDestinationImplementation,
         spawnModeCharacteristics = StandardModeImplementation
     )
@@ -332,55 +326,6 @@ class Synthetic {
                 assertIs<EndActivityMessage>(it.content)
                 assert(FinishedPerson in popStatesOf(firstAgent))
             }
-
-//            secondPerson.nextStep(1) {
-//                assertIs<EndActivityMessage>(it.content)
-//            }
-
-            // TODO secondPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-//            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-
-//            firstPerson.nextStep(1, zones[2].point(BIELEFELD), LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-//            assertEquals(carAgent.location, household.location)
-//            assertEquals(carAgent.driver, firstAgent)
-//            assertFalse(secondAgent.hasAccessToCar())
-
-//            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
-//            assertEquals(firstAgent.locationBySchedule(), household.location)
-
-//            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
-//            assertEquals(firstAgent.locationBySchedule(), zones[2].point(BIELEFELD))
-//            assertEquals(carAgent.driver, null)
-//            assertEquals(carAgent.location, firstAgent.locationBySchedule())
-//            assertTrue(firstAgent.hasAccessToCar())
-//            assertFalse(secondAgent.hasAccessToCar())
-
-//            assertFalse(
-//                LegacyMode.CAR in availability.filter(
-//                    ModeChoiceAlternative(
-//                        person = second,
-//                        time = 5.hours.sinceStart,
-//                        origin = LOCATIONUNKNOWN,
-//                        destination = LOCATIONUNKNOWN,
-//                        ),
-//
-//
-//                )
-//            )
-//            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
-//            firstPerson.nextStep(1) { assertIs<EndActivityEvent>(it) }
-//            firstPerson.nextStep(1, household.location, LegacyMode.CAR) { assertIs<StartTripEvent>(it) }
-//            firstPerson.nextStep(1) { assertIs<EventWithScope<StartLegEvent, PersonAgent>>(it) }
-//            firstPerson.nextStep(1) { assertIs<EventWithScope<EndLegEvent, PersonAgent>>(it) }
-//            assertTrue(firstAgent.hasAccessToCar())
-//            assertTrue(
-//                LegacyMode.CAR in modeChoice.filter(
-//                    DestinationAlternative(second, LOCATIONUNKNOWN, LOCATIONUNKNOWN),
-//                    5.hours.sinceStart
-//                )
-//            )
-//            secondPerson.nextStep(1)
-//            firstPerson.nextStep(1) { assertIs<StartActivityEvent>(it) }
         }
     }
 }

@@ -11,7 +11,6 @@ import edu.kit.ifv.mobitopp.actitoppNG.utils.times
 import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import units.`€`
-import kotlin.random.Random
 
 val YesTransitPass = TransitPassParameters(
     base = -0.312173681653899,
