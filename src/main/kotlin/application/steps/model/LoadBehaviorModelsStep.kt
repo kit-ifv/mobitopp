@@ -11,6 +11,7 @@ import core.modelsteps.validateScope
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.enums.Mode
+import domain.shared.enums.legacyChoiceModelModes
 import domain.shared.location.LegacyZone
 import domain.shared.location.Location
 import domain.shared.location.Zone
@@ -18,51 +19,44 @@ import domain.shared.location.ZoneId
 import domain.simulation.agent.PersonAgent
 import domain.simulation.agent.SharingProviderAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
-import domain.simulation.behavior.DestinationAlternative
+import domain.simulation.behavior.BikeSharingConnectionSelector
 import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.FixedModesFilter
 import domain.simulation.behavior.ModeAvailabilityFilter
-import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.SituativeAvailability
 import domain.simulation.behavior.ModeChoiceCharacteristics
-import domain.simulation.behavior.SharingAvailabilityFilter
+import domain.simulation.behavior.available
 import domain.simulation.config.DemandSimContext
-import domain.simulation.events.CarSelector
 import domain.simulation.events.GenerateDestinationCharacteristics
 import domain.simulation.events.GenerateModeCharacteristics
-import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
-import domain.synthesis.data.IPerson
-import domain.simulation.events.SharingVehicleSelector
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.synthesis.data.IPerson
 import domain.synthesis.data.SharingProviderId
-import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
 
-fun LoadChoiceModelsContext.loadChoiceModels(
+fun LoadBehaviorModelsContext.loadBehaviorModels(
     destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
-) = this.loadChoiceModels(
+) = this.loadBehaviorModels(
     destinationChoiceModel,
     modeChoiceModel,
     modes,
     StandardDestinationImplementation,
     StandardModeImplementation
-
 )
 
-fun LoadChoiceModelsContext.loadChoiceModels(
+fun LoadBehaviorModelsContext.loadBehaviorModels(
     destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
     modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     modes: ChoiceModelModes,
-    spawnDestinationChoiceCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
-    spawnModeChoiceCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
+    spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
+    spawnModeChoiceCharacteristics: NewModeCharacteristics,
 ) = runStep {
-    LoadChoiceModelsStep(
+    LoadBehaviorModelsStep(
         this,
         destinationChoiceModel,
         modeChoiceModel,
@@ -72,28 +66,28 @@ fun LoadChoiceModelsContext.loadChoiceModels(
     )
 }
 
-interface LoadChoiceModelsContext : DemandSimContext {
+interface LoadBehaviorModelsContext : DemandSimContext {
     val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
     val zoneRepository: Repository<Zone, ZoneId>
     val zoneColumnIndex: Map<Int, LegacyZone>
     val attractivenessModel: LateInit<AttractivenessModel>
 }
 
-class LoadChoiceModelsStep(
-    private val context: LoadChoiceModelsContext,
+typealias NewDestinationCharacteristics = GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
+typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharacteristics>
+class LoadBehaviorModelsStep(
+    private val context: LoadBehaviorModelsContext,
     private val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
     private val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     private val modes: ChoiceModelModes,
-    private val spawnDestinationChoiceCharacteristics:
-    GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
-    private val spawnModeChoiceCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
+    private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
+    private val spawnModeChoiceCharacteristics: NewModeCharacteristics,
 ) : RepositoryDependentStep {
 
-    override val name: String = "Load transmove legacy mode and destination choice!"
+    override val name: String = "Load behavior models!"
     override val repository: MutableRepository<*, *>? = null
     override val dependentRepositories: Set<Repository<*, *>> = setOf(
-        context.zoneRepository,
-        context.sharingProviderAgents
+        context.zoneRepository, context.sharingProviderAgents
     )
 
     override fun execute() {
@@ -101,14 +95,14 @@ class LoadChoiceModelsStep(
 
         val providers = context.sharingProviderAgents.elements.associateBy { it.id }
 
-        val availability =
-            AvailabilityModelWithSharing( // TODO refactor availability model, as composite of availability rules
-                modes,
-                providers.values.groupBy {
-                    it.mode
-                }.mapValues { it.value.map { p -> p.id }.toSet() },
-                impedance
-            )
+        val providersByMode = providers.values.groupBy {
+            it.mode
+        }.mapValues {
+            it.value.map { p -> p.id }.toSet()
+        }
+
+        // TODO refactor availability model, as composite of availability rules
+        val availability = AvailabilityModelWithSharing(modes, providersByMode, impedance)
 
         val modeChoice = modeChoiceModel.addFilter(availability).addFilter(FixedModesFilter)
 
@@ -116,13 +110,14 @@ class LoadChoiceModelsStep(
             context.zoneRepository.elements.map { it.centroid }.toSet()
         )
 
-        val behavior = PersonBehavior.from(
-            impedance,
+        val behavior = PersonBehavior(
             destinationChoice,
             modeChoice,
+            modes,
+            impedance,
             context.attractivenessModel.value,
             availability,
-            modes,
+            availability,
             spawnDestinationChoiceCharacteristics,
             spawnModeChoiceCharacteristics,
         )
@@ -146,21 +141,23 @@ class LoadChoiceModelsStep(
         context.behavior.value = PersonBehavior(
             destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
             modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
+            modes = legacyChoiceModelModes,
             impedance = impedance,
             context.attractivenessModel.value,
-            DummyAvailability(modes.options),
-            { null },
-            choiceModelModes = modes
-            ChoiceFilter.noFilter,
+            DummyAvailability,
+            BikeSharingConnectionSelector { null },
             StandardDestinationImplementation,
             StandardModeImplementation
         )
     }
+
 }
 
-data class DummyAvailability(val modes: Set<Mode>) : ModeAvailabilityFilter {
-    override fun filter(choices: Set<ModeChoiceAlternative>) = choices
-    override fun staticAvailability(person: IPerson) = modes
-    override fun situativeAvailability(person: PersonAgent) = SituativeAvailability(modes, emptySet())
-    override fun alternativeDependentAvailability(alternative: ModeChoiceAlternative) = true
+object DummyAvailability : ModeAvailabilityFilter {
+
+    context(person: IPerson) override fun staticAvailability(mode: Mode) = true
+
+    context(agent: PersonAgent) override fun currentAvailability(mode: Mode) = available(mode)
+
+    context(characteristics: ModeChoiceCharacteristics) override fun choiceAvailability(mode: Mode) = true
 }

@@ -9,17 +9,15 @@ import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
 import core.statemachine.usage.renderAsPumlTimingDiagram
 import core.statemachine.usage.withRecording
-import discreteChoice.models.FixedOrderChoiceModel
-import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
 import domain.simulation.behavior.AvailabilityModelWithSharing
+import domain.simulation.behavior.currentlyAffectedResources
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.personStateMachine
-import domain.simulation.events.SharingVehicleSelector
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.simulation.events.personStateMachine
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
@@ -61,6 +59,7 @@ class RidesharingOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
+        // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
         val impedance = ControllableImpedance()
         val availability = AvailabilityModelWithSharing(
             legacyChoiceModelModes,
@@ -74,12 +73,11 @@ class RidesharingOnlyScenario {
                 zones.map { it.centroid }.toSet()
             ),
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
+            modes = legacyChoiceModelModes,
             impedance = impedance,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
-            choiceModelModes = legacyChoiceModelModes,
-            availabilityModel = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
             spawnModeCharacteristics = StandardModeImplementation
         )
@@ -92,7 +90,8 @@ class RidesharingOnlyScenario {
         val agents = builder.buildPersonAgents(households)
 
         agents.forEach { person ->
-            val (_, sharedResources) = availability.situativeAvailability(person)
+            val sharedResources =
+                context(person) { availability.currentlyAffectedResources(legacyChoiceModelModes.options) }
             assertTrue(sharedResources.any { it is SharingStationAgent })
         }
 

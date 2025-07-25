@@ -62,8 +62,8 @@ dependencies {
     testImplementation(libs.kotlin.compile.testing.ksp) //1.5.0
 
     //detekt libs
-    detekt(libs.detekt.formatting) // 1.23.7
-    detekt(libs.detekt.cli) // 1.23.7
+    detekt(libs.detekt.formatting)
+    detekt(libs.detekt.cli)
 
     //kandy libs 0.8.0
     implementation(libs.kandy.lets.plot) //
@@ -116,7 +116,8 @@ tasks.withType<Detekt>().configureEach {
         "**/PersonEvents.kt",
         "**/OverridableDestinationChoiceModel.kt",
         "**/OverridableModeChoiceModel.kt",
-        )
+        "**/LoadBehaviorModelsStep.kt",
+    )
 }
 
 tasks.withType<DetektCreateBaselineTask>().configureEach {

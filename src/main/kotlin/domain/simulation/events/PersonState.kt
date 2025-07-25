@@ -4,7 +4,6 @@ import MessageCalled
 import StateCalled
 import core.statemachine.builder.BaseStateData
 import core.statemachine.builder.stateMachine
-import discreteChoice.models.FixedChoicesModel
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.behavior.ChoiceModelModes
 import domain.shared.datastructure.schedule.Agenda
@@ -25,17 +24,19 @@ import domain.simulation.agent.PrivateCarAgent
 import domain.simulation.agent.getBestCar
 import domain.simulation.agent.locationBySchedule
 import domain.simulation.behavior.BikeSharingConnectionSelector
-import domain.simulation.behavior.DestinationAlternative
+import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeAvailabilityFilter
-import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.ModeChoiceSituation
-import domain.simulation.behavior.TripChoiceSituation
+import domain.simulation.behavior.ModeChoiceCharacteristics
+import domain.simulation.behavior.flatten
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.concurrent.synchronizeAll
 import utils.units.AbsoluteTime
 
-abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, doStep: Boolean) : BaseStateData(
-    time
-) {
+abstract class PersonState(
+    time: AbsoluteTime,
+    override val agent: PersonAgent,
+    doStep: Boolean
+) : BaseStateData(time) {
 
     init {
         if (doStep) {
@@ -55,14 +56,15 @@ abstract class PersonState(time: AbsoluteTime, override val agent: PersonAgent, 
     val modeAvailability: ModeAvailabilityFilter
         get() = behavior.availabilityModel
 
-    val modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>
+    val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>
         get() = behavior.modeChoice
 
-    val destinationChoice: FixedChoicesModel<DestinationAlternative, Location>
+    val destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>
         get() = behavior.destinationChoice
 
+    // TODO modes only necessary here until dispatch: mode > nested state machine can be defined outside of PersonStates
     val modes: ChoiceModelModes
-        get() = behavior.choiceModelModes
+        get() = behavior.modes
 
     val attractivity: AttractivenessModel
         get() = behavior.attractivityModel
@@ -180,28 +182,26 @@ val personStateMachine = stateMachine<PersonAgent>("PersonsStateMachine") {
 
         // mode and destination choice
         // TODO Robin last.endlocation is destination?
+
         if (trip.elements.last().endLocation == LOCATIONUNKNOWN) {
-            trip.elements.last().endLocation = destinationChoice.filterAndSelect(
-                trip.elements.last().let {
-                    TripChoiceSituation(
-                        person,
-                        time,
-                        it.startLocation,
-                        impedance,
-                        attractivity,
-                        modeAvailability
-                    )
-                }
-            )
+            val situation = behavior.spawnDestinationCharacteristics(person, time, behavior, trip)
+            context(situation, person.random) {
+                trip.elements.last().endLocation = behavior.destinationChoice.select()
+            }
             trip.elements.forEach { it.transportType = MODEUNKOWN }
         }
     }.next { send ->
-        val (_, sharedResources) = modeAvailability.situativeAvailability(person)
+        // TODO add version of ModeAvailabilityFilter with fixed global choice set
+        val (_, sharedResources) = context(person) {
+            modes.options.map { modeAvailability.currentAvailability(it) }
+        }.flatten()
 
-        synchronizeAll(sharedResources) {
-            val mode: Mode = modeChoice.filterAndSelect(
-                ModeChoiceSituation(person, time, origin, destination, impedance),
-            )
+        synchronizeAll(sharedResources.distinct().toSet()) {
+
+            val modeSituation = behavior.spawnModeCharacteristics(person, time, behavior, origin, destination)
+            val mode: Mode = context(modeSituation, person.random) {
+                modeChoice.select()
+            }
 
             trip.alternateByImpedance(impedance) {
                 taking(mode to destination)
@@ -271,7 +271,7 @@ fun StartingTripState.startingCarTrip(): PerformLegState {
 
 fun StartingTripState.startingBikeSharingTrip(): PerformLegState {
     val maybeBikesharing = bikeSharingConnections.findConnection(
-        ModeChoiceAlternative(person, time, origin, destination, modes.bikeSharing, impedance),
+        behavior.spawnModeCharacteristics(person, time, behavior, origin, destination)
     )
     val (startStation, endStation) = requireNotNull(maybeBikesharing) {
         "How did you manage to select bikesharing if no connection available?\n" +

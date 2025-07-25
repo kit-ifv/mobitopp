@@ -6,18 +6,17 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asResource
 import core.statemachine.usage.RecordingStateMachine
+import core.statemachine.usage.renderAsPumlSequenceDiagram
 import core.statemachine.usage.renderAsPumlStateCharts
 import core.statemachine.usage.renderAsPumlTimingDiagram
 import core.statemachine.usage.withRecording
-import discreteChoice.models.FixedOrderChoiceModel
-import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.behavior.AvailabilityModelWithSharing
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.personStateMachine
 import domain.simulation.events.StandardDestinationImplementation
 import domain.simulation.events.StandardModeImplementation
+import domain.simulation.events.personStateMachine
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
@@ -65,11 +64,10 @@ class CarOnlyScenario {
             ),
             impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
+            modes = legacyChoiceModelModes,
             attractivityModel = testAttractivenessModel,
             availabilityModel = availability,
             bikeSharingConnectionSelector = availability,
-            choiceModelModes = legacyChoiceModelModes
-            availabilityModel = availability,
             spawnDestinationCharacteristics = StandardDestinationImplementation,
             spawnModeCharacteristics = StandardModeImplementation
 
@@ -91,5 +89,6 @@ class CarOnlyScenario {
 
         RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
         RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(testAgents[0])
+        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(testAgents[0])
     }
 }
