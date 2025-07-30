@@ -6,6 +6,7 @@ import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import domain.synthesis.data.Graduation
 import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.parser.binary.BinaryPersonReader
 import generateHousehold
@@ -32,7 +33,7 @@ class PersonBinaryCsvConversionTest {
     val columns = PersonColumns()
     val personCSVParser = CsvParser.Companion { row ->
         MutablePerson(
-            id = row.id(columns.idColumn),
+            id = PersonId(row.invoke(columns.idColumn).toLong()),
             household = hh1,
             1,
         ) {
