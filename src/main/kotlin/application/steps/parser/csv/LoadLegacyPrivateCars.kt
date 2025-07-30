@@ -51,7 +51,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         mainUserColumn: String
     ) = requireNotNull(
-        personRepository[row.id(mainUserColumn)]
+        personRepository[PersonId(row.invoke(mainUserColumn).toLong())]
     ) {
         "Referenced person id ${row(mainUserColumn)} could not be found in personRepo:" +
             " ${personRepository.elements.map { it.id }.toList()}"

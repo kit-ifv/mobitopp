@@ -64,7 +64,7 @@ fun LoadFixedDestinationsContext.assignFixedDestinations(
     val filterWrap: (Row) -> Boolean = { columns.filter(it, this) }
 
     val csvParser = CsvParser(errorHandling) { row ->
-        val id: PersonId = row.id(columns.personOid)
+        val id: PersonId = PersonId(row.invoke(columns.personOid).toLong())
         val p = personRepository[id]
         val activityType = row.decodeName(
             columns.activityType,

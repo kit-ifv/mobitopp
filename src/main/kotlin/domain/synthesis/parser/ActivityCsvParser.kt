@@ -23,7 +23,7 @@ fun SynthesisContext.activityCsvParser(
     personProvider: (PersonId) -> MutablePerson,
 ): DefaultCsvParser<MutablePlannedActivity> = CsvParser<MutablePlannedActivity>(errorHandling) { row ->
 
-    val person = personProvider(row.id(columns.personColumn))
+    val person = personProvider(PersonId(row.invoke(columns.personColumn).toLong()))
 
     MutablePlannedActivity(
         id = ActivityId(row.index.toLong()),
