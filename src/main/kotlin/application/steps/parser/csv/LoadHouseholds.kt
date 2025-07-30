@@ -24,7 +24,6 @@ import utils.csv.Row
 import utils.csv.SEMICOLON
 import utils.csv.currency
 import utils.csv.decode
-import utils.csv.id
 import utils.csv.int
 import utils.csv.long
 import utils.csv.withFilter
