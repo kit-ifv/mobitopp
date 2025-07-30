@@ -8,7 +8,7 @@ import domain.synthesis.data.ISharingProvider
 import domain.synthesis.data.ISharingStation
 import domain.synthesis.data.SharingProviderId
 import domain.synthesis.data.SharingStationId
-import utils.ID
+import kotlinx.serialization.Serializable
 import utils.Identifiable
 import java.util.*
 
@@ -88,7 +88,28 @@ abstract class SharingStationAgent(
     }
 }
 
-typealias SharingVehicleId = ID<SharingVehicleAgent>
+@Serializable
+@JvmInline
+value class SharingVehicleId(val value: Long) {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    fun compareTo(other: SharingVehicleId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): SharingVehicleId {
+        return SharingVehicleId(value + 1)
+    }
+}
 
 class SharingVehicleAgent(
     override val id: SharingVehicleId,
