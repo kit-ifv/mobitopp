@@ -3,13 +3,35 @@ package domain.shared.location
 import Mutable
 import domain.shared.enums.ZoneClassification
 import domain.shared.enums.areatype.RegionType
+import kotlinx.serialization.Serializable
 import units.Distance
 import units.GPSCoordinate
-import utils.ID
 import utils.Identifiable
-import utils.random.SeededActor
+import utils.random.StochasticActor
+import kotlin.random.Random
 
-typealias ZoneId = ID<Zone>
+@Serializable
+@JvmInline
+value class ZoneId(val value: Long) {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    fun compareTo(other: ZoneId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): ZoneId {
+        return ZoneId(value + 1)
+    }
+}
 
 /**
  * Zone - a traffic assignment zone in a transport model.
@@ -35,7 +57,9 @@ abstract class Zone(
     override val id: ZoneId,
     centroid: Location,
     seed: Long,
-) : SeededActor<Zone>(seed), Identifiable<ZoneId> {
+) : StochasticActor, Identifiable<ZoneId> {
+
+    final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract val visumId: Long // TODO not a general property of zone, only here because we use visum
     abstract val name: String
