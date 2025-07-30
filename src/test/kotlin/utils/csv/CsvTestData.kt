@@ -1,6 +1,6 @@
 package utils.csv
 
-import utils.ID
+import kotlinx.serialization.Serializable
 import utils.Identifiable
 import kotlin.time.Duration
 
@@ -12,7 +12,25 @@ const val STR_COL = "str"
 
 val COLUMNS = listOf(INDEX_COL, BOOL_COL, INT_COL, FLOAT_COL, STR_COL)
 
-typealias TestId = ID<TestEntity>
+@Serializable
+@JvmInline
+value class TestId(val value: Long) {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    fun compareTo(other: TestId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * @return the next higher id.
+     */
+    fun next(): TestId {
+        return TestId(value + 1)
+    }
+}
 
 interface ImmutableEntity : Identifiable<TestId> {
     val rowIndex: Int
@@ -41,8 +59,8 @@ data class TestEntity(
     override var bool: Boolean = false,
     override var duration: Duration? = null,
 ) : Identifiable<TestId>, ImmutableEntity {
-    override val id: ID<TestEntity>
-        get() = ID(rowIndex.toLong())
+    override val id: TestId
+        get() = TestId(rowIndex.toLong())
 }
 
 val expectedElements: List<TestEntity>
