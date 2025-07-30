@@ -9,16 +9,17 @@ import domain.shared.datastructure.schedule.Schedule
 import domain.shared.enums.Mode
 import domain.shared.location.Location
 import domain.synthesis.data.IPerson
-import domain.synthesis.data.Person
 import domain.synthesis.data.PersonId
-import utils.random.SeededActor
+import kotlin.random.Random
 
 @Mutable
 abstract class PersonAgent(
     final override val id: PersonId,
     override val household: HouseholdAgent,
     seed: Long,
-) : SeededActor<Person>(seed), IPerson, Agent<PersonAgent> {
+) : IPerson, Agent<PersonAgent> {
+
+    final override val random: Random by lazy { Random(id.value + seed) }
 
     abstract override val sharingMemberships: List<SharingProviderAgent>
     abstract val memberships: List<Subscribable<PersonAgent>>

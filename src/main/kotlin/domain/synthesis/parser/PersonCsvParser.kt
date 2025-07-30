@@ -7,6 +7,7 @@ import domain.synthesis.data.Graduation
 import domain.synthesis.data.HouseholdId
 import domain.synthesis.data.MutableHousehold
 import domain.synthesis.data.MutablePerson
+import domain.synthesis.data.PersonId
 import domain.synthesis.data.Sex
 import domain.synthesis.data.SharingProvider
 import units.CurrencyUnit
@@ -32,7 +33,7 @@ fun PersonCsvContext.personCsvParser(
     val csvParser = CsvParser.Companion<MutablePerson>(errorHandling) { row ->
 
         MutablePerson(
-            id = row.id(columns.idColumn),
+            id = PersonId(row.invoke(columns.idColumn).toLong()),
             household = householdProvider(HouseholdId(row.invoke(columns.householdColumn).toLong())),
             simulationSeed,
         ) {
