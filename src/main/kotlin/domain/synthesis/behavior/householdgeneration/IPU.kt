@@ -56,8 +56,15 @@ class IPU<AREA, T>(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
         conditions: Map<AREA, List<Rule<in T>>>
     ): Map<AREA, List<SynthesisHousehold<out T>>> {
+        return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
+    }
+
+    fun generate(
+        surveyHouseholds: Collection<SurveyHousehold<out T>>,
+        conditions: Map<AREA, List<Rule<in T>>>
+    ): Map<AREA, List<SurveyHousehold<out T>>> {
         return conditions.entries.associate { (zone, rules) ->
-            zone to calculate(surveyHouseholds, rules, converter).map { it.toSynthesisHousehold() }
+            zone to calculate(surveyHouseholds, rules, converter)
         }
     }
 

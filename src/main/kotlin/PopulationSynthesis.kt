@@ -1,6 +1,4 @@
-import discreteChoice.models.FixedChoicesModel
-import discreteChoice.models.fixed
-import discreteChoice.utility.EnumeratedDiscreteModelBuilder
+
 import domain.shared.behavior.AttractivenessFromCsv
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.Activity
@@ -26,8 +24,7 @@ import domain.synthesis.behavior.activityGeneration.ActiToppNGGenerator
 import domain.synthesis.behavior.activityGeneration.GenerateHouseholdActivitySchedule
 import domain.synthesis.behavior.carownership.CarOwnershipAssignStrategy
 import domain.synthesis.behavior.carownership.standardAssignmentByRegionSize
-import domain.synthesis.behavior.discreteChoice.TicketAlternative
-import domain.synthesis.behavior.discreteChoice.TicketSituation
+import domain.synthesis.behavior.discreteChoice.TicketCharacteristics
 import domain.synthesis.behavior.discreteChoice.TransitPassParameters
 import domain.synthesis.behavior.discreteChoice.YesTransitPass
 import domain.synthesis.behavior.discreteChoice.transitPassChoiceModel
@@ -57,6 +54,8 @@ import domain.synthesis.results.HouseholdOutput
 import domain.synthesis.results.OpportunitiesOutput
 import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
 import units.CurrencyUnit
 import units.kilometers
 import units.meters
@@ -64,6 +63,7 @@ import units.toCurrency
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.random.Random
 
 fun String.toBooleanNumeric(): Boolean = when (this) {
     "1" -> true
@@ -71,26 +71,52 @@ fun String.toBooleanNumeric(): Boolean = when (this) {
     else -> throw IllegalArgumentException("Invalid binary string for Boolean conversion: $this")
 }
 
-fun parseSurvey(path: Path): Sequence<RawSurveyInfo> {
+data class SurveyColumns(
+    var ID: String = "ID",
+    var year: String = "year",
+    var areatype: String = "areatype",
+    var size: String = "size",
+    var personnumber: String = "personnumber",
+    var sex: String = "sex",
+    var birthyear: String = "birthyear",
+    var employmenttype: String = "employmenttype",
+    var commuterticket: String = "commuterticket",
+    var hhincome: String = "hhincome",
+    var hhincomeClass: String = "hhincome_class",
+    var type: String = "type",
+    var cars: String = "cars",
+    var bicycle: String = "bicycle",
+    var licence: String = "licence",
+    var distanceWork: String = "distance_work",
+    var distanceEducation: String = "distance_education",
+)
+
+fun parseSurvey(path: Path, lambda: SurveyColumns.() -> Unit): List<RawSurveyInfo> {
+    val surveyColumns = SurveyColumns()
+    surveyColumns.apply(lambda)
+    return parseSurvey(path, surveyColumns).toList()
+}
+
+fun parseSurvey(path: Path, surveyColumns: SurveyColumns = SurveyColumns()): Sequence<RawSurveyInfo> {
     val parser = DefaultCsvParser { row ->
         RawSurveyInfo(
-            householdId = row("ID").toInt(),
-            year = row("year").toInt(),
-            areaType = row("areatype").toInt(),
-            householdSize = row("size").toInt(),
-            personNumber = row("personnumber").toInt(),
-            sex = row("sex") { Sex.decode(it.toInt()) },
-            birthyear = row("birthyear").toInt(),
-            employment = row("employmenttype") { Employment.decode(it.toInt()) },
-            hasCommuterTicket = row("commuterticket").toBooleanNumeric(),
-            householdIncome = row("hhincome") { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
-            householdIncomeClass = row("hhincome_class").toInt(),
-            type = row("type").toInt(),
-            cars = row("cars").toInt(),
-            hasBicycle = row("bicycle").toBooleanNumeric(),
-            hasLicence = row("licence").toBooleanNumeric(),
-            distanceWork = row("distance_work") { it.toDouble().kilometers },
-            distanceEducation = row("distance_education") { it.toDouble().kilometers },
+            householdId = row(surveyColumns.ID).toInt(),
+            year = row(surveyColumns.year).toInt(),
+            areaType = row(surveyColumns.areatype).toInt(),
+            householdSize = row(surveyColumns.size).toInt(),
+            personNumber = row(surveyColumns.personnumber).toInt(),
+            sex = row(surveyColumns.sex) { Sex.decode(it.toInt()) },
+            birthyear = row(surveyColumns.birthyear).toInt(),
+            employment = row(surveyColumns.employmenttype) { Employment.decode(it.toInt()) },
+            hasCommuterTicket = row(surveyColumns.commuterticket).toBooleanNumeric(),
+            householdIncome = row(surveyColumns.hhincome) { it.toDouble().toCurrency(CurrencyUnit.EUROS) },
+            householdIncomeClass = row(surveyColumns.hhincomeClass).toInt(),
+            type = row(surveyColumns.type).toInt(),
+            cars = row(surveyColumns.cars).toInt(),
+            hasBicycle = row(surveyColumns.bicycle).toBooleanNumeric(),
+            hasLicence = row(surveyColumns.licence).toBooleanNumeric(),
+            distanceWork = row(surveyColumns.distanceWork) { it.toDouble().kilometers },
+            distanceEducation = row(surveyColumns.distanceEducation) { it.toDouble().kilometers },
         )
     }
 
@@ -102,18 +128,20 @@ fun interface AssignTransitCardOwnership<T> {
 }
 
 class AssignByDiscreteChoice(
-    val model: FixedChoicesModel<TicketAlternative, Boolean> =
+    val model: FixedChoiceModel<Boolean, TicketCharacteristics> =
         transitPassChoiceModel.build(YesTransitPass).fixed(setOf(true, false))
 ) : AssignTransitCardOwnership<SurveyInfo> {
 
     constructor(
         parameters: TransitPassParameters,
-        model: EnumeratedDiscreteModelBuilder<Boolean, TicketAlternative, TransitPassParameters> =
+        model: EnumeratedDiscreteModelBuilder<Boolean, TicketCharacteristics, TransitPassParameters> =
             transitPassChoiceModel
-    ) : this(model.build(parameters).fixed<TicketAlternative, Boolean>(setOf(true, false)))
+    ) : this(model.build(parameters))
 
     override fun assignFor(person: SynthesisPerson<out SurveyInfo>): Boolean {
-        return model.filterAndSelect(TicketSituation(person.household, person))
+        return context(TicketCharacteristics(person.household, person), Random(person.personId)) {
+            model.select()
+        }
     }
 }
 

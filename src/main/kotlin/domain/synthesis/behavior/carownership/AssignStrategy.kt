@@ -1,8 +1,5 @@
 package domain.synthesis.behavior.carownership
 
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.utility.EnumeratedDiscreteModelBuilder
 import domain.shared.enums.areatype.SizebasedRegiostarClassification
 import domain.shared.enums.areatype.toSizebasedClassification
 import domain.synthesis.behavior.SurveyInfo
@@ -13,6 +10,8 @@ import domain.synthesis.behavior.discreteChoice.carOwnershipSmallCity
 import domain.synthesis.behavior.discreteChoice.carOwnershipUrbanAreaParameters
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.toCarOwnershipAttributes
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
+import kotlin.random.Random
 
 fun interface CarOwnershipAssignStrategy<T> {
 
@@ -53,9 +52,9 @@ class AlwaysAssignFixedNumber(val amount: Int) : CarOwnershipAssignStrategy<Any>
  * @param urbanAreaParameters Parameters for the urban area region.
  * @param ruralAreaParameters Parameters for the rural area region.
  */
-class AssignBySizebasedClassification<A : ChoiceAlternative<Int>, P>(
+class AssignBySizebasedClassification<A, P>(
     val model: EnumeratedDiscreteModelBuilder<Int, A, P>,
-    val converter: (SynthesisHousehold<out SurveyInfo>) -> ChoiceSituation<A, Int>,
+    val converter: (SynthesisHousehold<out SurveyInfo>) -> A,
     private val cityParameters: P,
     private val smallTownParameters: P,
     private val urbanAreaParameters: P,
@@ -69,8 +68,10 @@ class AssignBySizebasedClassification<A : ChoiceAlternative<Int>, P>(
     override fun determineNumberOfCars(householdBuilder: SynthesisHousehold<out SurveyInfo>): Int {
         val region = householdBuilder.location.zone?.regionType?.toRegioStaR17()?.toSizebasedClassification()
             ?: SizebasedRegiostarClassification.CITY
-
-        return models[region]!!.filterAndSelect(converter(householdBuilder))
+        // TODO check where the randomness for this dcm should come from
+        return context(converter(householdBuilder), Random(householdBuilder.id)) {
+            models[region]!!.select()
+        }
     }
 
     private fun SizebasedRegiostarClassification.toParameters(): P {
@@ -91,11 +92,11 @@ class AssignBySizebasedClassification<A : ChoiceAlternative<Int>, P>(
          * @param P The type of parameters used for the region classification. PARAMS needs to be Any, so that it can
          * be lateinit instead of nullable
          */
-        class AssignViaRegionTypeBuilder<A : ChoiceAlternative<Int>, P : Any>(
+        class AssignViaRegionTypeBuilder<A, P : Any>(
             val model: EnumeratedDiscreteModelBuilder<Int, A, P>
         ) {
 
-            lateinit var converter: (SynthesisHousehold<out SurveyInfo>) -> ChoiceSituation<A, Int>
+            lateinit var converter: (SynthesisHousehold<out SurveyInfo>) -> A
             lateinit var cityParameters: P
             lateinit var smallTownParameters: P
             lateinit var urbanAreaParameters: P
@@ -126,7 +127,7 @@ class AssignBySizebasedClassification<A : ChoiceAlternative<Int>, P>(
          * @param lambda A lambda function to configure the builder.
          * @return The constructed `AssignBySizebasedClassification` instance.
          */
-        fun <SIT : ChoiceAlternative<Int>, PARAMS : Any> createUsingModel(
+        fun <SIT, PARAMS : Any> createUsingModel(
             model: EnumeratedDiscreteModelBuilder<Int, SIT, PARAMS>,
             lambda: AssignViaRegionTypeBuilder<SIT, PARAMS>.() -> Unit
         ): AssignBySizebasedClassification<SIT, PARAMS> {

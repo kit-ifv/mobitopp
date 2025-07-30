@@ -1,9 +1,8 @@
 package domain.synthesis.behavior
 
-import discreteChoice.models.fixed
+import domain.synthesis.behavior.discreteChoice.CarSegmentChoice
 import domain.synthesis.behavior.discreteChoice.CarSegmentParameters
-import domain.synthesis.behavior.discreteChoice.CarSegmentSituation
-import domain.synthesis.behavior.discreteChoice.EngineChoiceSituation
+import domain.synthesis.behavior.discreteChoice.EngineAlternative
 import domain.synthesis.behavior.discreteChoice.EngineParameters
 import domain.synthesis.behavior.discreteChoice.carEngineChoiceModel
 import domain.synthesis.behavior.discreteChoice.carSegmentChoiceModel
@@ -16,6 +15,7 @@ import domain.synthesis.data.CarId
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.EngineType
 import domain.synthesis.data.buildEngine
+import kotlin.random.Random
 
 fun interface GenerateCars<T> {
     fun generate(householdBuilder: SynthesisHousehold<out T>): List<SynthesisCar>
@@ -59,10 +59,10 @@ object TrivialCarGeneration : GenerateCars<Any> {
  */
 
 object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
-    private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters()).fixed(CarSegment.entries.toSet())
+    private val segmentModel = carSegmentChoiceModel.build(CarSegmentParameters())
 
     // TODO make parameters customizable!
-    private val engineModel = carEngineChoiceModel.build(EngineParameters()).fixed(EngineType.entries.toSet())
+    private val engineModel = carEngineChoiceModel.build(EngineParameters())
 
     override fun generate(householdBuilder: SynthesisHousehold<out SurveyWithCommute>): List<SynthesisCar> {
         // If no licence is found all adults are considered as potential owners for the generation purposes
@@ -71,8 +71,14 @@ object SamplingCarGeneration : GenerateCars<SurveyWithCommute> {
         }
         val generationTargets = potentialCarUsers.selectExact(householdBuilder.amountOfCars)
         return generationTargets.map { person ->
-            val segment = segmentModel.filterAndSelect(CarSegmentSituation(person, householdBuilder))
-            val engineType = engineModel.filterAndSelect(EngineChoiceSituation(person.info, householdBuilder))
+
+            val random = Random(person.personId)
+            val segment = context(CarSegmentChoice(person, householdBuilder), random) {
+                segmentModel.select()
+            }
+            val engineType = context(EngineAlternative(person.info, householdBuilder), random) {
+                engineModel.select()
+            }
 
             SynthesisCar(householdBuilder, segment, engineType, segment.toSeats(), person)
             // TODO there already is a model to determine main user, does selectExact match that definition?
