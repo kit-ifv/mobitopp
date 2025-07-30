@@ -33,7 +33,7 @@ fun PersonCsvContext.personCsvParser(
 
         MutablePerson(
             id = row.id(columns.idColumn),
-            household = householdProvider(row.id(columns.householdColumn)),
+            household = householdProvider(HouseholdId(row.invoke(columns.householdColumn).toLong())),
             simulationSeed,
         ) {
             age = row.int(columns.ageColumn)

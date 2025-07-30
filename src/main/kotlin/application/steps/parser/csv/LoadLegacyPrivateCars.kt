@@ -41,7 +41,7 @@ interface LoadPrivateCarsContext : DemandSimContext {
         row: Row,
         ownerColumn: String
     ) = requireNotNull(
-        householdRepository[row.id(ownerColumn)]
+        householdRepository[HouseholdId(row.invoke(ownerColumn).toLong())]
     ) {
         "Referenced household id ${row(ownerColumn)} could not be found in householdRepo:" +
             " ${householdRepository.elements.map { it.id }.toList()}"

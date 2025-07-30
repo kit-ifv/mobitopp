@@ -2,15 +2,36 @@ package domain.synthesis.data
 
 import Mutable
 import domain.shared.location.Location
+import kotlinx.serialization.Serializable
 import units.Currency
 import utils.Encodable
 import utils.EnumDecodable
-import utils.ID
 import utils.Identifiable
-import utils.random.SeededActor
 import utils.random.StochasticActor
+import kotlin.random.Random
 
-typealias HouseholdId = ID<Household>
+@Serializable
+@JvmInline
+value class HouseholdId(val value: Long) {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    fun compareTo(other: HouseholdId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): HouseholdId {
+        return HouseholdId(value + 1)
+    }
+}
 
 interface IHousehold : Identifiable<HouseholdId>, StochasticActor {
     val householdNumber: Long
@@ -28,7 +49,10 @@ interface IHousehold : Identifiable<HouseholdId>, StochasticActor {
 abstract class Household(
     override val id: HouseholdId,
     seed: Long,
-) : SeededActor<Household>(seed), IHousehold {
+) : IHousehold {
+
+    final override val random: Random by lazy { Random(id.value + seed) }
+
     abstract override val members: Set<Person>
     abstract override val cars: Set<PrivateCar>
 }
