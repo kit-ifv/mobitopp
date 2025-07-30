@@ -23,9 +23,6 @@ value class ActivityId(val value: Long) {
     }
 
     /**
-     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
-     * in the test cases
-     *
      * @return the next higher id.
      */
     fun next(): ActivityId {
