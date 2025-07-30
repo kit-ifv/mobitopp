@@ -14,13 +14,13 @@ val COLUMNS = listOf(INDEX_COL, BOOL_COL, INT_COL, FLOAT_COL, STR_COL)
 
 @Serializable
 @JvmInline
-value class TestId(val value: Long) {
+value class TestId(val value: Long): Comparable<TestId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: TestId): Int {
+    override fun compareTo(other: TestId): Int {
         return value.compareTo(other.value)
     }
 

@@ -13,13 +13,13 @@ import utils.Identifiable
 
 @Serializable
 @JvmInline
-value class CarId(val value: Long) {
+value class CarId(val value: Long): Comparable<CarId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: CarId): Int {
+    override fun compareTo(other: CarId): Int {
         return value.compareTo(other.value)
     }
 

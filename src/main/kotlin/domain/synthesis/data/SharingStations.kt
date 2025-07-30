@@ -9,13 +9,13 @@ import utils.Identifiable
 
 @Serializable
 @JvmInline
-value class SharingProviderId(val value: Long) {
+value class SharingProviderId(val value: Long): Comparable<SharingProviderId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: SharingProviderId): Int {
+    override fun compareTo(other: SharingProviderId): Int {
         return value.compareTo(other.value)
     }
 
@@ -52,13 +52,13 @@ abstract class SharingProvider(
 
 @Serializable
 @JvmInline
-value class SharingStationId(val value: Long) {
+value class SharingStationId(val value: Long): Comparable<SharingStationId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: SharingStationId): Int {
+    override fun compareTo(other: SharingStationId): Int {
         return value.compareTo(other.value)
     }
 

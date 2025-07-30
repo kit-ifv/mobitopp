@@ -12,13 +12,13 @@ import kotlin.random.Random
 
 @Serializable
 @JvmInline
-value class HouseholdId(val value: Long) {
+value class HouseholdId(val value: Long): Comparable<HouseholdId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: HouseholdId): Int {
+    override fun compareTo(other: HouseholdId): Int {
         return value.compareTo(other.value)
     }
 

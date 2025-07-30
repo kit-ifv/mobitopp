@@ -12,20 +12,17 @@ import kotlin.random.Random
 
 @Serializable
 @JvmInline
-value class ZoneId(val value: Long) {
+value class ZoneId(val value: Long): Comparable<ZoneId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
      * if it's greater than [other].
      */
-    fun compareTo(other: ZoneId): Int {
+    override fun compareTo(other: ZoneId): Int {
         return value.compareTo(other.value)
     }
 
     /**
-     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
-     * in the test cases
-     *
      * @return the next higher id.
      */
     fun next(): ZoneId {
