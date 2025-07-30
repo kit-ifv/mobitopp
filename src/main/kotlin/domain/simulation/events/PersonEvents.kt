@@ -1,7 +1,6 @@
 package domain.simulation.events
 
 import core.events.Event
-import discreteChoice.models.FixedChoicesModel
 import domain.shared.behavior.AttractivenessModel
 import domain.shared.datastructure.schedule.ActionBlockVisitor
 import domain.shared.datastructure.schedule.Activity
@@ -16,11 +15,11 @@ import domain.shared.location.LOCATIONUNKNOWN
 import domain.shared.location.Location
 import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
-import domain.simulation.behavior.DestinationAlternative
+import domain.simulation.behavior.DestinationChoiceCharacteristics
 import domain.simulation.behavior.ModeAvailabilityFilter
-import domain.simulation.behavior.ModeChoiceAlternative
-import domain.simulation.behavior.ModeChoiceSituation
-import domain.simulation.behavior.TripChoiceSituation
+import domain.simulation.behavior.ModeChoiceCharacteristics
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import utils.concurrent.synchronizeAll
 import utils.units.Time
 
@@ -90,7 +89,7 @@ class StartActivityEvent(
     time = activity.startTime,
     behavior = behavior,
 
-) {
+    ) {
     override fun visitTrip(leg: LinkTrip): List<Event<*>> {
         error("expected activity block")
     }
@@ -149,21 +148,19 @@ class StartTripEvent(
 ) {
     override fun visitTrip(leg: LinkTrip): List<Event<*>> {
         // mode and destination choice
-        // TODO Robin last.endlocation is destination?
         if (leg.elements.last().endLocation == LOCATIONUNKNOWN) {
-            leg.elements.last().endLocation = behavior.destinationChoice.filterAndSelect(
-                leg.elements.last().let {
-                    TripChoiceSituation(
-                        person,
-                        time,
-                        it.startLocation,
-                        behavior.impedance,
-                        person.sharedResources(),
-                        behavior.attractivityModel,
-                        behavior.availabilityModel
-                    )
-                }
-            )
+
+            context(
+                behavior.spawnDestinationCharacteristics.spawnDestinationCharacteristics(
+                    person,
+                    time,
+                    behavior,
+                    leg
+                ), person.random
+            ) {
+                leg.elements.last().endLocation = behavior.destinationChoice.select()
+            }
+
             leg.elements.forEach { it.transportType = MODEUNKOWN }
         }
 
@@ -172,10 +169,13 @@ class StartTripEvent(
 
         val sharedResources = person.sharedResources()
         return synchronizeAll(sharedResources) {
-            val mode: Mode = behavior.modeChoice.filterAndSelect(
-                ModeChoiceSituation(person, time, origin, destination, behavior.impedance, sharedResources),
-            )
 
+
+            val mode: Mode = context(
+                behavior.spawnModeCharacteristics.spawnModeCharacteristics(person, time, behavior, origin, destination), person.random
+            ) {
+                behavior.modeChoice.select()
+            }
             // TODO move this code snippet to the scope dispatcher maybe?
 
             leg.alternateByImpedance(behavior.impedance) {
@@ -263,38 +263,82 @@ class EndLegEvent(
     }
 }
 
+fun interface GenerateDestinationCharacteristics<out T> {
+    fun spawnDestinationCharacteristics(
+        person: PersonAgent,
+        time: Time,
+        behavior: PersonBehavior,
+        legs: LinkTrip,
+    ): T
+}
+
+fun interface GenerateModeCharacteristics<out T> {
+    fun spawnModeCharacteristics(
+        person: PersonAgent,
+        time: Time,
+        behavior: PersonBehavior,
+        origin: Location,
+        destination: Location,
+    ): T
+}
+
+val StandardDestinationImplementation =
+    GenerateDestinationCharacteristics<DestinationChoiceCharacteristics> { person, time, behavior, legs ->
+        DestinationChoiceCharacteristics(
+            person,
+            time,
+            legs.elements.last().startLocation,
+            behavior.impedance,
+            person.sharedResources(),
+            behavior.attractivityModel,
+            behavior.availabilityModel
+        )
+    }
+
+val StandardModeImplementation =
+    GenerateModeCharacteristics<ModeChoiceCharacteristics> { person, time, behavior, origin, destination ->
+        ModeChoiceCharacteristics(
+            person,
+            time,
+            origin,
+            destination,
+            behavior.impedance,
+            person.sharedResources()
+        )
+    }
+
 data class PersonBehavior(
-    val destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
-    val modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
+    val destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    val modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
     val impedance: Metrics,
     val scopeDispatcher: ModeScopeDispatcher,
     val attractivityModel: AttractivenessModel,
-    val availabilityModel: ModeAvailabilityFilter,
+    val availabilityModel: ChoiceFilter<Mode, ModeChoiceCharacteristics>,
+    val spawnDestinationCharacteristics: GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>,
+    val spawnModeCharacteristics: GenerateModeCharacteristics<ModeChoiceCharacteristics>,
 ) {
     companion object {
         @Suppress("LongParameterList")
         fun from(
             impedance: Metrics,
-            destinationChoice: FixedChoicesModel<DestinationAlternative, Location>,
-            modeChoice: FixedChoicesModel<ModeChoiceAlternative, Mode>,
-//            umlands: (Location) -> Boolean,
-//            zones: Set<Zone>,
-//            modes: ChoiceModelModes,
-//            purposes: ChoiceModelPurposes,
+            destinationChoice: FixedChoiceModel<Location, DestinationChoiceCharacteristics>,
+            modeChoice: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
             scopeByMode: Map<Mode, ModeScopeSelector>,
             attractivenessModel: AttractivenessModel,
             modeAvailability: ModeAvailabilityFilter,
-        ): PersonBehavior {
+        ): PersonBehavior{
             return PersonBehavior(
                 destinationChoice,
                 modeChoice,
-//                LegacyDestinationChoice(impedance, attractivenessModel, umlands, zones, modes, purposes),
-//                LegacyModeChoiceModel(attractivenessModel, modes = modes, purposes = purposes, impedance = impedance),
+
                 impedance,
                 ModeScopeDispatcher(scopeByMode),
                 attractivenessModel,
                 modeAvailability,
-            )
+                StandardDestinationImplementation,
+                StandardModeImplementation,
+
+                )
         }
     }
 }
