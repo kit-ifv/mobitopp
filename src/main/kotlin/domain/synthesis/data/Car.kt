@@ -1,6 +1,7 @@
 package domain.synthesis.data
 
 import Mutable
+import kotlinx.serialization.Serializable
 import units.Distance
 import units.Efficiency
 import units.Energy
@@ -8,10 +9,30 @@ import units.Volume
 import units.kilometers
 import utils.Encodable
 import utils.EnumDecodable
-import utils.ID
 import utils.Identifiable
 
-typealias CarId = ID<Car>
+@Serializable
+@JvmInline
+value class CarId(val value: Long) {
+    /**
+     * Compares this object with the specified object for order. Returns zero if this object is equal
+     * to the specified [other] object, a negative number if it's less than [other], or a positive number
+     * if it's greater than [other].
+     */
+    fun compareTo(other: CarId): Int {
+        return value.compareTo(other.value)
+    }
+
+    /**
+     * Robin: I added a method to iterate over ids, I want to use this feature for generating autoincrementing ids
+     * in the test cases
+     *
+     * @return the next higher id.
+     */
+    fun next(): CarId {
+        return CarId(value + 1)
+    }
+}
 
 /**
  * The generic interface for a car.

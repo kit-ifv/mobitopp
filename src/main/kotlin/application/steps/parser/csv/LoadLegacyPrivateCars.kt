@@ -17,7 +17,6 @@ import domain.synthesis.data.PersonId
 import domain.synthesis.data.buildEngine
 import utils.CodePlan
 import utils.ErrorHandling
-import utils.ID
 import utils.csv.CsvParser
 import utils.csv.Row
 import utils.csv.SEMICOLON
@@ -79,7 +78,7 @@ fun LoadPrivateCarsContext.preparePrivateCars(
     val csvParser = CsvParser<MutablePrivateCar>(errorHandling) { row ->
 
         MutablePrivateCar(
-            id = ID(row.index.toLong()),
+            id = CarId(row.index.toLong()),
             owner = getOwnerHousehold(row, columns.ownerColumn)
         ) {
             seats = row.int(columns.seatsColumnIndex)
