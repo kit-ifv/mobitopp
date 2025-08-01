@@ -60,6 +60,7 @@ import units.CurrencyUnit
 import units.kilometers
 import units.meters
 import units.toCurrency
+import utils.collections.addProgressBar
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
 import kotlin.io.path.Path
@@ -151,15 +152,15 @@ object AlwaysAssignTransitPass : AssignTransitCardOwnership<Any> {
     }
 }
 
-class SynthesisSteps<AREA, T : Any>(
-    val zones: List<AREA>,
+class SynthesisSteps<T : Any>(
+    val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val attractivenessModel: AttractivenessModel,
     val outputDirectory: Path,
     val opportunities: List<OpportunityOutput>
 ) {
 
-    lateinit var householdsByZone: Map<AREA, List<SynthesisHousehold<out T>>>
+    lateinit var householdsByZone: Map<Zone, List<SynthesisHousehold<out T>>>
     val households get() = householdsByZone.flatMap { it.value }
     val people get() = households.flatMap { it.members }
     var activities: List<Map<SynthesisPerson<*>, Collection<Activity>>> =
@@ -172,18 +173,18 @@ class SynthesisSteps<AREA, T : Any>(
      * strategy is created in the [AssignFixedDestinationBuilder] class, which provides some convenience methods for
      * frequently assigned fixed destinations.
      */
-    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<AREA, T>.() -> Unit) {
-        val fixedDestinationBuilder = AssignFixedDestinationBuilder<AREA, T>(attractivenessModel)
+    fun assignFixedDestinations(lambda: AssignFixedDestinationBuilder<Zone, T>.() -> Unit) {
+        val fixedDestinationBuilder = AssignFixedDestinationBuilder<Zone, T>(attractivenessModel)
         fixedDestinationBuilder.apply(lambda)
         val allFixedDestinations = fixedDestinationBuilder.steps.flatMap { it.generateFixedDestinations(people) }
-        allFixedDestinations.forEach { it.person.fixedDestinations[it.activityType] = it.location }
+        allFixedDestinations.addProgressBar("Assign Fixed Destinations").forEach { it.person.fixedDestinations[it.activityType] = it.location }
         fixedDestinations = allFixedDestinations
     }
 
     // TODO speaking type parameter names
     fun synthesis(
-        randsums: Map<AREA, List<Rule<Any>>>,
-        lambda: () -> HouseholdSynthesis<AREA, T>
+        randsums: Map<Zone, List<Rule<Any>>>,
+        lambda: () -> HouseholdSynthesis<Zone, T>
     ) {
         val generator = lambda()
         // TODO reenable
@@ -197,7 +198,7 @@ class SynthesisSteps<AREA, T : Any>(
     }
 
     // TODO refactor, use or discard this method
-    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<AREA, SynthesisHousehold<out T>>) {
+    fun assignLocationsForAll(lambda: () -> GroupAssignHouseholdLocations<Zone, SynthesisHousehold<out T>>) {
         val strategy = lambda()
 
         householdsByZone.entries.forEach { (zone, households) ->
@@ -207,7 +208,7 @@ class SynthesisSteps<AREA, T : Any>(
         }
     }
 
-    fun assignLocations(lambda: () -> AssignHouseholdLocations<in AREA, SynthesisHousehold<out T>>) {
+    fun assignLocations(lambda: () -> AssignHouseholdLocations<in Zone, SynthesisHousehold<out T>>) {
         val strategy = lambda()
         householdsByZone.entries.forEach { (zone, households) ->
             households.forEach {
@@ -223,12 +224,12 @@ class SynthesisSteps<AREA, T : Any>(
 
     fun assignAmountOfCars(lambda: () -> CarOwnershipAssignStrategy<in T>) {
         val strategy = lambda()
-        households.forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
+        households.addProgressBar("Assign car amount").forEach { household -> household.amountOfCars = strategy.determineNumberOfCars(household) }
     }
 
     fun assignTransitCardOwnership(lambda: () -> AssignTransitCardOwnership<in T>) {
         val strategy = lambda()
-        households.forEach { hh ->
+        households.addProgressBar("assign Transit Car").forEach { hh ->
             hh.members.forEach {
                 it.hasTransitPass = strategy.assignFor(it)
             }
@@ -236,13 +237,13 @@ class SynthesisSteps<AREA, T : Any>(
     }
 
     fun generateCars(strategy: GenerateCars<in T>) {
-        households.forEach { it.cars += strategy.generate(it) }
+        households.addProgressBar("Generate Cars").forEach { it.cars += strategy.generate(it) }
         cars = households.flatMap { it.cars }
     }
 
     fun assignActivities(lambda: () -> GenerateHouseholdActivitySchedule<in T>) {
         val strategy = lambda()
-        households.forEach { h ->
+        households.addProgressBar("Generate Activities").forEach { h ->
             val output = strategy.generate(h)
             output.entries.forEach { (k, v) ->
                 k.plannedActivities = v
@@ -253,26 +254,24 @@ class SynthesisSteps<AREA, T : Any>(
     }
 }
 
-class PopulationSynthesis<AREA, T : Any>(
+class PopulationSynthesis<T : Any>(
     private val outputDirectory: Path,
-    val zones: List<AREA>,
+    val zones: List<Zone>,
     val surveyHouseholds: Collection<SurveyHousehold<T>>,
     val rules: List<Rule<Any>>,
     val attractivenessModel: AttractivenessModel,
 ) {
     val opportunities: MutableList<OpportunityOutput> = mutableListOf()
-    fun execute(lambda: SynthesisSteps<AREA, T>.() -> Unit) {
+    fun execute(lambda: SynthesisSteps<T>.() -> Unit) {
         SynthesisSteps(zones, surveyHouseholds, attractivenessModel, outputDirectory, opportunities).apply(lambda)
     }
 
     @Suppress("UnusedParameter") // TODO reenable the parameter once a fix is found to accept the more generic AREA type
     fun generateLocations(
         activityType: ActivityType,
-        amount: Int = 10,
-        generationFunction: (AREA, AttractivenessModel, ActivityType) -> List<Location> = { _, _, _ ->
-            listOf(
-                LOCATIONUNKNOWN
-            )
+        amount: Int = 1,
+        generationFunction: (Zone, AttractivenessModel, ActivityType) -> List<Location> = { zone, _, _ ->
+            zone.generateLocations(amount)
         },
     ): List<Location> {
         // TODO reenable generation and put more thought into how the locations are generated.
@@ -282,10 +281,10 @@ class PopulationSynthesis<AREA, T : Any>(
     }
 
     companion object {
-        class SynthesisConfiguration<AREA, T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
+        class SynthesisConfiguration<T>(surveyPopulationGenerator: GenerateArtificialPopulation<T>) {
             val surveyPopulation = surveyPopulationGenerator.generateArtificialPopulation()
             lateinit var outputDirectory: Path
-            lateinit var zones: List<AREA>
+            lateinit var zones: List<Zone>
             lateinit var rules: List<Rule<Any>>
             lateinit var surveyHouseholds: Collection<SurveyHousehold<T>>
             lateinit var attractivenessModel: AttractivenessModel
@@ -309,12 +308,12 @@ class PopulationSynthesis<AREA, T : Any>(
             }
         }
 
-        fun <AREA, T : Any> configure(
+        fun < T : Any> configure(
             surveyPopulation: GenerateArtificialPopulation<T>,
-            zones: List<AREA>,
-            lambda: SynthesisConfiguration<AREA, T>.() -> Unit,
-        ): PopulationSynthesis<AREA, T> {
-            val config = SynthesisConfiguration<AREA, T>(surveyPopulation).apply(lambda)
+            zones: List<Zone>,
+            lambda: SynthesisConfiguration<T>.() -> Unit,
+        ): PopulationSynthesis<T> {
+            val config = SynthesisConfiguration<T>(surveyPopulation).apply(lambda)
 
             return PopulationSynthesis(
                 config.outputDirectory,
@@ -445,7 +444,7 @@ fun examplePopulationSynthesis() {
     }
 }
 
-fun SynthesisSteps<out Any, out SurveyInfo>.writeLegacyOutput() {
+fun SynthesisSteps<out RawSurveyInfo>.writeLegacyOutput() {
     HouseholdOutput.writeCSVToFile(outputDirectory.resolve("household.csv"), households)
     PersonOutput.writeCSVToFile(outputDirectory.resolve("person.csv"), people)
     FixedDestinationOutput.writeCSVToFile(outputDirectory.resolve("fixeddestination.csv"), fixedDestinations)

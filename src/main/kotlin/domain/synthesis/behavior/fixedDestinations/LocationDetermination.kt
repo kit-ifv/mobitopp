@@ -2,6 +2,7 @@ package domain.synthesis.behavior.fixedDestinations
 
 import domain.shared.location.Location
 import domain.synthesis.behavior.domain.SynthesisPerson
+import utils.collections.addProgressBar
 
 data class AssignedLocation<T>(
     val targetPerson: SynthesisPerson<out T>,
@@ -56,9 +57,8 @@ fun interface SimpleLocator<T> : AdjustableAgentLocator<T>, SimpleGroupLocator<T
     fun locate(agent: SynthesisPerson<out T>): Location
     override fun locate(agent: SynthesisPerson<out T>, locations: Collection<Location>) = locate(agent)
     override fun match(agents: Collection<SynthesisPerson<out T>>): List<AssignedLocation<T>> {
-        return agents.map { AssignedLocation(it, locate(it)) }
+        return agents.addProgressBar("Running Fixed Destination Locator").map { AssignedLocation(it, locate(it)) }
     }
-
     override fun match(
         agents: Collection<SynthesisPerson<out T>>,
         potentialLocations: Collection<Location>

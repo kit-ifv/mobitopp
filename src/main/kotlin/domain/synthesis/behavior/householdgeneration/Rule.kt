@@ -19,6 +19,8 @@ interface Rule<T> {
     val target: Int
     val description: String
 
+    val logic: NamedCountRule<T>
+
     /**
      * Evaluates the extent to which a given [surveyHousehold] satisfies the condition defined by the rule.
      * For example:
@@ -30,6 +32,8 @@ interface Rule<T> {
      */
     fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int
 
+
+    fun evaluate(households: Collection<SurveyHousehold<out T>>): Int  = households.sumOf { evaluate(it) }
     /**
      * Determines whether a given [surveyHousehold] contributes to the rule's target.
      *
@@ -61,6 +65,7 @@ interface Rule<T> {
 
     fun descriptiveText() = "[$description] expected = $target"
 }
+
 
 /*
    I really wanted to be able to specify rules as numeric rules and boolean rules. To avoid JVM-overload ambiguity different
@@ -94,15 +99,27 @@ fun interface CountRule<T> {
  * Represents a rule that evaluates a household's contribution to a target using a boolean condition.
  * The contribution is 1 if the condition is met, otherwise 0.
  */
-fun interface CheckRule<T> {
+fun interface CheckRule<T> : CountRule<T> {
     /**
      * Checks whether the given [surveyHousehold] meets the condition defined by the rule.
      *
      * @param surveyHousehold The household to evaluate.
      * @return `true` if the condition is met; `false` otherwise.
      */
-    fun matches(surveyHousehold: SurveyHousehold<out T>): Boolean
+    fun fits(surveyHousehold: SurveyHousehold<out T>): Boolean
+    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+        return if (fits(surveyHousehold)) 1 else 0
+    }
 }
+
+class NamedCheckRule<T>( ruleDescription: String, override val logic: CheckRule<T>) : NamedCountRule<T>(ruleDescription, logic), CheckRule<T> by logic {
+    override fun matches(surveyHousehold: SurveyHousehold<out T>): Int {
+        return super<NamedCountRule>.matches(surveyHousehold)
+    }
+
+}
+
+open class NamedCountRule<T>(val ruleDescription: String, open val logic: CountRule<T>) : CountRule<T> by logic
 
 /**
  * A named implementation of the [Rule] interface, using a [CountRule] to calculate a household's contribution to
@@ -110,21 +127,23 @@ fun interface CheckRule<T> {
  *
  * @property description A descriptive name for the rule.
  * @property target The numeric target for the rule.
- * @property matcher The [CountRule] implementation defining the logic for evaluating households.
+ * @property logic The [CountRule] implementation defining the logic for evaluating households.
  */
 class ZoneRule<T>(
-    override val description: String,
+    override val description: String = logic.ruleDescription,
     override val target: Int,
-    private val matcher: CountRule<T>
+    override val logic: NamedCountRule<T>,
 ) : Rule<T> {
-
+    constructor(description: String, target: Int, logic: CountRule<T>): this(description, target, NamedCountRule("Unnamed rule", logic))
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
-        return matcher.matches(surveyHousehold)
+        return logic.matches(surveyHousehold)
     }
 
     override fun toString(): String {
         return descriptiveText()
     }
+
+
 }
 
 /**
@@ -133,15 +152,20 @@ class ZoneRule<T>(
  *
  * @property description A descriptive name for the rule.
  * @property target The numeric target for the rule.
- * @property matcher The [CheckRule] implementation defining the logic for evaluating households.
+ * @property logic The [CheckRule] implementation defining the logic for evaluating households.
  */
 class ZoneCheckRule<T>(
-    override val description: String,
+    override val description: String= logic.ruleDescription,
     override val target: Int,
-    private val matcher: CheckRule<T>
+    override val logic: NamedCheckRule<T>,
 ) : Rule<T> {
+    constructor(description: String, target: Int, logic: CheckRule<T>) : this(
+        description,
+        target,
+        NamedCheckRule("Unnamed rule", logic)
+    )
     override fun evaluate(surveyHousehold: SurveyHousehold<out T>): Int {
-        return matcher.matches(surveyHousehold).toInt()
+        return logic.matches(surveyHousehold)
     }
 
     override fun toString(): String {
@@ -149,4 +173,3 @@ class ZoneCheckRule<T>(
     }
 }
 
-private fun Boolean.toInt() = if (this) 1 else 0

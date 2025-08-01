@@ -32,6 +32,24 @@ fun <I, T> I.addProgressBar(
     }
 }
 
+fun <T> Collection<T>.addProgressBar(label: String, visible: Boolean = true) = this.addProgressBar(label, size, visible)
+fun <T> Iterable<T>.addProgressBar(
+    label: String,
+    expectedCount: Int,
+    visible: Boolean = true
+) = this.addProgressBar(label, expectedCount.toLong(), visible)
+fun <T> Iterable<T>.addProgressBar(
+    label: String,
+    expectedCount: Long,
+    visible: Boolean = true
+): Iterable<T> {
+    return if (!MUTE_PROGRESSBAR && visible) {
+        val pbb = defaultProgressBarBuilder(label, expectedCount)
+        ProgressBar.wrap(this, pbb)
+    } else {
+        this
+    }
+}
 @Suppress("MagicNumber")
 fun defaultProgressBarBuilder(
     label: String,
