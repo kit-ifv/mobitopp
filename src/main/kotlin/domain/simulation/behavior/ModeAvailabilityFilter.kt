@@ -281,7 +281,8 @@ class AvailabilityModelWithSharing(
 
     // Current availability
     private fun isCarCurrentlyAvailable(person: PersonAgent): ResourceAvailability =
-        person.getBestCarOrNull()?.let { available(modes.car, setOf(it)) } ?: notAvailable
+        takeIf { isHome(person) || (person.lastTransportMode() == this) }
+            ?.let { person.getBestCarOrNull() }?.let { available(modes.car, setOf(it)) } ?: notAvailable
     //availability definition in other file :(
 
     private fun isBikeSharingCurrentlyAvailable(person: PersonAgent): ResourceAvailability =

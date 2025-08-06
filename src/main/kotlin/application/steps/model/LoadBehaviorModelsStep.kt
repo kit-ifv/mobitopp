@@ -104,7 +104,7 @@ class LoadBehaviorModelsStep(
         // TODO refactor availability model, as composite of availability rules
         val availability = AvailabilityModelWithSharing(modes, providersByMode, impedance)
 
-        val modeChoice = modeChoiceModel.addFilter(availability).addFilter(FixedModesFilter)
+        val modeChoice = modeChoiceModel.addFilter(availability)//.addFilter(FixedModesFilter)
 
         val destinationChoice = destinationChoiceModel.fixed(
             context.zoneRepository.elements.map { it.centroid }.toSet()
