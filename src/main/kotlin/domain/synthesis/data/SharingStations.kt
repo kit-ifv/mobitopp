@@ -9,7 +9,7 @@ import utils.Identifiable
 
 @Serializable
 @JvmInline
-value class SharingProviderId(val value: Long): Comparable<SharingProviderId> {
+value class SharingProviderId(val value: Long) : Comparable<SharingProviderId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
@@ -52,7 +52,7 @@ abstract class SharingProvider(
 
 @Serializable
 @JvmInline
-value class SharingStationId(val value: Long): Comparable<SharingStationId> {
+value class SharingStationId(val value: Long) : Comparable<SharingStationId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number

@@ -12,7 +12,7 @@ import kotlin.time.Duration
 
 @Serializable
 @JvmInline
-value class ActivityId(val value: Long): Comparable<ActivityId> {
+value class ActivityId(val value: Long) : Comparable<ActivityId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
