@@ -13,7 +13,7 @@ import utils.Identifiable
 
 @Serializable
 @JvmInline
-value class CarId(val value: Long): Comparable<CarId> {
+value class CarId(val value: Long) : Comparable<CarId> {
     /**
      * Compares this object with the specified object for order. Returns zero if this object is equal
      * to the specified [other] object, a negative number if it's less than [other], or a positive number
