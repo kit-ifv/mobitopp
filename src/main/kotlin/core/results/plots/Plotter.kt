@@ -1,24 +1,42 @@
 package core.results.plots
 
 import core.modelsteps.Resource
+import core.results.plots.Plotter.DataPoint
 import org.jetbrains.kotlinx.dataframe.AnyFrame
+import org.jetbrains.kotlinx.dataframe.DataFrame
+import org.jetbrains.kotlinx.dataframe.DataRow
+import org.jetbrains.kotlinx.dataframe.api.JoinType
 import org.jetbrains.kotlinx.dataframe.api.add
 import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
 import org.jetbrains.kotlinx.dataframe.api.gather
 import org.jetbrains.kotlinx.dataframe.api.groupBy
 import org.jetbrains.kotlinx.dataframe.api.into
+import org.jetbrains.kotlinx.dataframe.api.join
+import org.jetbrains.kotlinx.dataframe.api.map
+import org.jetbrains.kotlinx.dataframe.api.remove
+import org.jetbrains.kotlinx.dataframe.api.rows
+import org.jetbrains.kotlinx.dataframe.api.select
 import org.jetbrains.kotlinx.dataframe.api.toColumn
 import org.jetbrains.kotlinx.kandy.dsl.categorical
+import org.jetbrains.kotlinx.kandy.dsl.continuous
 import org.jetbrains.kotlinx.kandy.dsl.plot
 import org.jetbrains.kotlinx.kandy.ir.Plot
 import org.jetbrains.kotlinx.kandy.letsplot.export.save
 import org.jetbrains.kotlinx.kandy.letsplot.feature.Position
 import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.feature.position
-import org.jetbrains.kotlinx.kandy.letsplot.layers.bars
+import org.jetbrains.kotlinx.kandy.letsplot.layers.barsH
+import org.jetbrains.kotlinx.kandy.letsplot.layers.boxes
 import org.jetbrains.kotlinx.kandy.letsplot.layers.line
+import org.jetbrains.kotlinx.kandy.letsplot.layers.points
+import org.jetbrains.kotlinx.kandy.letsplot.settings.LineType
+import org.jetbrains.kotlinx.kandy.letsplot.settings.Symbol
+import org.jetbrains.kotlinx.kandy.letsplot.y
+import org.jetbrains.kotlinx.kandy.util.color.Color
 import units.UnitIntervalValue
 import units.share
+import kotlin.collections.map
+import kotlin.math.abs
 import kotlin.math.floor
 
 /**
@@ -80,7 +98,7 @@ abstract class Plotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>(
      * @property y the y-axis value
      * @property c the color-axis value
      */
-    protected data class DataPoint<X, Y, C>(val x: X, val y: Y, val c: C)
+    protected data class DataPoint<X, Y, C>(val x: X, val y: Y, val c: C, val arranged: Boolean = false)
 
     /**
      * Plot the data given in the [PlotDataSpecification].
@@ -102,7 +120,7 @@ abstract class Plotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>(
 
                 val xValues = elements.map { xAttribute(it) to it }
 
-                Trace(
+                val trace = Trace(
                     key = group,
                     dataPoints = aggregation.aggregate(
                         yAttribute = yAttribute,
@@ -112,17 +130,19 @@ abstract class Plotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>(
                         DataPoint(x, y, c)
                     }
                 )
+                trace
             }
         }
         return traces
     }
 
     private fun coloringForGroup(group: GROUPING): (ENTITY?, X_AXIS, Y_AXIS) -> COLOR_ATT = { e, x, y ->
-        values.colorBy(e, group, x, y)
+        val color = values.colorBy(e, group, x, y)
+        color
     }
 
     private fun comparisonTraces() = comparisonData?.let { comparison ->
-        comparison.rawData().groupBy { it.first }.entries.map { (group, rawDataPoints) ->
+        comparison.rawData().groupBy { it.first /*GROUPING*/ }.entries.map { (group, rawDataPoints) ->
             Trace(
                 key = group,
                 dataPoints = rawDataPoints.map {
@@ -141,6 +161,17 @@ abstract class Plotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>(
         traces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>,
         comparisonTraces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>? = null,
     )
+
+    protected fun<LIST> mapTraces(
+        traces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>,
+        comparisonTraces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>?,
+        mapping: (DataPoint<X_AXIS, Y_AXIS, COLOR_ATT>) -> LIST
+    ): List<LIST> {
+        return traces.flatMap {
+            it.dataPoints.map(mapping)
+        } + (comparisonTraces?.flatMap { it.dataPoints.map(mapping)} ?: emptyList())
+    }
+
 }
 
 /**
@@ -176,7 +207,7 @@ data class ComparisonDataSpecification<in T, GROUPING, X_AXIS, Y_AXIS>(
     val yAxis: (T) -> Y_AXIS,
     val labelPrefix: String = "Expected:"
 ) {
-
+    val name: String = resource.name
     fun rawData(): List<Triple<GROUPING, X_AXIS, Y_AXIS>> = resource.elements.map {
         Triple(groupBy(it), xAxis(it), yAxis(it))
     }.toList()
@@ -314,6 +345,24 @@ sealed class Ordering<T> {
  * @param O the generic output type of the y-axis values after aggregation
  */
 sealed class Aggregation<I, O> {
+
+//    class ToDouble<A, Y>(private val delegate: Aggregation<A, Y>): Aggregation<A, Double>() where Y: Number {
+//
+//        override fun <E, X, C> aggregate(
+//            yAttribute: (E) -> A,
+//            elementValues: List<Pair<X, E>>,
+//            colorBy: (E?, X, Double) -> C
+//        ): List<Triple<X, Double, C>> {
+//            val colorWrap: (E?, X, Y) -> C = { e, x, n -> colorBy(e, x, n.toDouble())}
+//            return delegate.aggregate(yAttribute, elementValues, colorWrap).map {
+//                Triple(it.first, it.second.toDouble(), it.third)
+//            }
+//        }
+//
+//        override fun <X> aggregateCluster(x: X, values: List<A>): Double =
+//            delegate.aggregateCluster(x, values).toDouble()
+//
+//    }
 
     /**
      * AllValues aggregation returns all y-values as is.
@@ -524,6 +573,63 @@ sealed class Aggregation<I, O> {
     abstract fun <X> aggregateCluster(x: X, values: List<I>): O
 }
 
+abstract class ScalablePlotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS: Number, COLOR_ATT>(
+    style: PlotStyling<GROUPING, X_AXIS, COLOR_ATT>,
+    values: PlotDataSpecification<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>,
+    comparisonData: ComparisonDataSpecification<Nothing, GROUPING, X_AXIS, Y_AXIS>? = null,
+    protected val relative: Boolean = true,
+    protected val normalize: Boolean = true
+) : Plotter<ENTITY, GROUPING, X_AXIS, Y_ATT, Y_AXIS, COLOR_ATT>(style, values, comparisonData) {
+
+    protected fun valueSpaceTransformation(traces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>): (Pair<X_AXIS, Y_AXIS>) -> Double {
+        val normalized: (Pair<X_AXIS, Number>) -> Double = if (normalize) {
+            val xCounts = traces.flatMap {
+                it.dataPoints
+            }.groupBy({ it.x }, { it.y }).map { (x, y) ->
+                x to y.sumOf { abs(it.toDouble()) }
+            }.toMap()
+
+            val func  = ({ (x, y):  Pair<X_AXIS, Number> -> y.toDouble() / (xCounts[x] ?: 1.0) })
+            func
+        }  else {
+            { (_, y) -> y.toDouble() }
+        }
+
+        val transformY = if (relative) {
+            val totalYSum = traces.sumOf { it.dataPoints.sumOf { p -> abs(p.y.toDouble()) } }
+            val relative = ({ (_, y): Pair<X_AXIS, Number> -> y.toDouble() / totalYSum })
+            {(x, y): Pair<X_AXIS, Number> -> relative(Pair(x,normalized(Pair(x, y)))) }
+            //relative
+        } else {
+            normalized
+        }
+        return transformY
+    }
+
+    protected fun arrangeTraces(
+        xValues: List<X_AXIS>,
+        traces: List<Trace<GROUPING, X_AXIS, Y_AXIS, COLOR_ATT>>,
+        defaultValue: Y_AXIS
+    ) = style.groupOrder.arrangeBy(traces) { it.key }.map { trace ->
+            val valuesByX = trace.dataPoints.associateBy { it.x }
+            val transformY: (Pair<X_AXIS, Y_AXIS>) -> Double = valueSpaceTransformation(traces)
+
+            val transformedTrace = Trace(
+                key = trace.key,
+                dataPoints = xValues.map { x ->
+                    val point = valuesByX[x]
+                    val mappedPoint = point?.let {
+                        DataPoint(x, transformY(x to it.y), it.c)
+                    } ?: DataPoint(x, 0.0, values.colorBy(null, trace.key, x, defaultValue), arranged = true)
+                    mappedPoint
+                }
+            )
+            transformedTrace
+        }
+
+}
+
+
 /**
  * CountPlotter is an abstract [Plotter] for creating plots that count occurrences of values.
  *
@@ -547,12 +653,14 @@ abstract class CountPlotter<E, G, X, C>(
     style: PlotStyling<G, X, C>,
     values: PlotDataSpecification<E, G, X, Unit, Int, C>,
     comparisonData: ComparisonDataSpecification<Nothing, G, X, Int>? = null,
-    protected val relative: Boolean = true,
-    protected val normalize: Boolean = true,
-) : Plotter<E, G, X, Unit, Int, C>(
+    relative: Boolean = true,
+    normalize: Boolean = true,
+) : ScalablePlotter<E, G, X, Unit, Int, C>(
     style = style,
     values = values,
-    comparisonData = comparisonData
+    comparisonData = comparisonData,
+    relative = relative,
+    normalize = normalize
 ) {
 
     protected val yLabel: String = when (relative to normalize) {
@@ -569,22 +677,9 @@ abstract class CountPlotter<E, G, X, C>(
             style.xOrder.arrange(it)
         }
 
-        val transformedTraces = arrangeTraces(xValues, traces)
-//            style.groupOrder.arrangeBy(traces) { it.key }.map { trace ->
-//            val valuesByX = trace.dataPoints.associateBy { it.x }
-//
-//            Trace(
-//                key = trace.key,
-//                dataPoints = xValues.map { x ->
-//                    val point = valuesByX[x]
-//                    point?.let {
-//                        DataPoint(x, transformY(x to it.y), it.c)
-//                    } ?: DataPoint(x, 0.0, values.colorBy(null, trace.key, x, 0))
-//                }
-//            )
-//        }
+        val transformedTraces = arrangeTraces(xValues, traces, 0)
 
-        val arrangedComparisonData = comparisonTraces?.let { arrangeTraces(xValues, it) }
+        val arrangedComparisonData = comparisonTraces?.let { arrangeTraces(xValues, it, 0) }
 
         plot(xValues, transformedTraces, arrangedComparisonData).save(
             "${name.replace(" ", "_")}.png",
@@ -592,55 +687,37 @@ abstract class CountPlotter<E, G, X, C>(
         )
     }
 
-    private fun arrangeTraces(
-        xValues: List<X>,
-        traces: List<Trace<G, X, Int, C>>
-    ) =
-        style.groupOrder.arrangeBy(traces) { it.key }.map { trace ->
-            val valuesByX = trace.dataPoints.associateBy { it.x }
-            val transformY: (Pair<X, Int>) -> Double = valueSpaceTransformation(traces)
-
-            Trace(
-                key = trace.key,
-                dataPoints = xValues.map { x ->
-                    val point = valuesByX[x]
-                    point?.let {
-                        DataPoint(x, transformY(x to it.y), it.c)
-                    } ?: DataPoint(x, 0.0, values.colorBy(null, trace.key, x, 0))
-                }
-            )
-        }
-
-    private fun valueSpaceTransformation(traces: List<Trace<G, X, Int, C>>): (Pair<X, Int>) -> Double {
-        val transformY: (Pair<X, Number>) -> Double = if (normalize) {
-            val xCounts = traces.flatMap {
-                it.dataPoints
-            }.groupBy({ it.x }, { it.y }).map { (x, y) ->
-                x to y.sumOf(Number::toDouble)
-            }.toMap()
-
-            ({ (x, y) -> y.toDouble() / (xCounts[x] ?: 1.0) })
-        } else if (relative) {
-            val totalYSum = traces.sumOf { it.dataPoints.sumOf { p -> p.y.toDouble() } }
-            ({ (_, y) -> y.toDouble() / totalYSum })
-        } else {
-            { (_, y) -> y.toDouble() }
-        }
-        return transformY
-    }
-
     protected fun colorScale(
-        transformedTraces: List<Trace<G, X, Double, C>>,
+        transformedTraces: List<Trace<G, X, Double, C>>?,
         comparisonTraces: List<Trace<G, X, Double, C>>?
-    ): List<Pair<String, RGB>> =
-        transformedTraces.map {
-            it.key.toString() to style.colorMap(it.dataPoints[0].c)
-        } + (
-            comparisonTraces?.map {
-                comparisonData?.labelPrefix + it.key.toString() to
-                    style.colorMap(it.dataPoints[0].c) // .scaleLightness(1.5)
+    ): List<Pair<String, RGB>> {
+
+        val colorValueOf = {trace: Trace<G, X, Double, C> ->
+            trace.dataPoints.find {!it.arranged}?.c ?: trace.dataPoints[0].c
+        }
+
+        val colors = transformedTraces?.map {
+            val key = it.key.toString()
+            // as only one color is chosen per trace, the color of the trace is the color of the data point with the highest y-value,
+            // corresponding to the highest count is chosen.
+            val dataPointColor = colorValueOf(it)
+            val colorMap = style.colorMap
+            val color = colorMap(dataPointColor)
+            val pair: Pair<String, RGB> = key to color
+            pair
+        } ?: emptyList()
+
+        val comparisonColors = comparisonTraces?.map {
+                val key = comparisonData?.labelPrefix + it.key.toString()
+                val dataPointColor = colorValueOf(it)
+                val colorMap = style.colorMap
+                val color = colorMap(dataPointColor)
+                val pair = key to color.scaleLightness(0.8)
+                pair
             } ?: emptyList()
-            )
+        val allColors = colors + comparisonColors
+        return allColors
+    }
 
     /**
      * Plots the data on a graph.
@@ -658,10 +735,17 @@ abstract class CountPlotter<E, G, X, C>(
 
 private const val GROUP_COL = "group"
 private const val SHARE_COL = "share"
+private const val X_COL = "x"
+private const val Y_COL = "y"
+private const val COLOR_COL = "color"
+private const val ORIGINAL_COL = "original"
+private const val COMPARISON_COL = "comparison"
+private const val TYPE_COL = "type"
 
 /**
  * HistogramPlotter is a plotter for creating histogram plots.
  *
+ * @param T the type of the comparison data
  * @param E the type of elements in the data set
  * @param G the type of the group key
  * @param X the type of the x-axis values
@@ -671,10 +755,10 @@ private const val SHARE_COL = "share"
  * @param relative indicates if the count should be relative to the total count
  * @param normalize indicates if the counts should be normalized per x-value
  */
-class HistogramPlotter<E, G, X, C>(
+class HistogramPlotter<T, E, G, X, C>(
     style: PlotStyling<G, X, C>,
     values: PlotDataSpecification<E, G, X, Unit, Int, C>,
-    comparisonData: ComparisonDataSpecification<Any, G, X, Int>? = null,
+    comparisonData: ComparisonDataSpecification<T, G, X, Int>? = null,
     relative: Boolean = true,
     normalize: Boolean = true,
 ) : CountPlotter<E, G, X, C>(
@@ -698,86 +782,118 @@ class HistogramPlotter<E, G, X, C>(
         transformedTraces: List<Trace<G, X, Double, C>>,
         comparisonTraces: List<Trace<G, X, Double, C>>?,
     ): Plot {
+
         val xValues = addXValueIfCompared(comparisonTraces, sortedXValues)
+        val includesComparison = xValues.size > sortedXValues.size
+        val gatheredTraceDf = gather(xValues, transformedTraces, includesComparison, isComparison = false)
+        val datasetTrace = gatheredTraceDf.add(List(gatheredTraceDf.rowsCount()) { ORIGINAL_COL }.toColumn(TYPE_COL))
 
-        var df = dataFrameOf(
-            "x" to xValues
-        )
+        val compCol = comparisonData?.name ?: COMPARISON_COL
+        val gatheredCompDf = gather(xValues, comparisonTraces, includesComparison, isComparison = true)
+        val datasetComp = gatheredCompDf.add(List(gatheredCompDf.rowsCount()) { compCol }.toColumn(TYPE_COL))
 
-        df = if (comparisonTraces == null) {
-            addNoComparisonTracesAsColums(transformedTraces, df)
-        } else {
-            addDataAndComparisonTracesToDf(transformedTraces, df, comparisonTraces)
-        }
+        val combinedDataset = datasetTrace.join(datasetComp, X_COL, GROUP_COL, SHARE_COL, TYPE_COL, type = JoinType.Full)
 
-        @Suppress("SpreadOperator")
-        val groupColumns = setOf(
-            *transformedTraces.toTypedArray(),
-            *comparisonTraces?.toTypedArray() ?: emptyArray(),
-        )
+        return createPlot(combinedDataset, transformedTraces, comparisonTraces)
+    }
 
-        @Suppress("SpreadOperator")
-        val dataset = df.gather(*groupColumns.map { it.key.toString() }.toTypedArray()).into(
-            GROUP_COL,
-            SHARE_COL
-        )
-
-        return dataset.plot {
-            bars {
+    private fun createPlot(dataset: AnyFrame,
+                           transformedTraces: List<Trace<G, X, Double, C>>,
+                           comparisonTraces: List<Trace<G, X, Double, C>>?): Plot {
+        val colors = colorScale(transformedTraces, comparisonTraces).map {
+            it.first to it.second.toColor()
+        }.toTypedArray()
+        return dataset.groupBy(TYPE_COL).plot {
+            barsH {
                 alpha = 0.8
 
-                x("x") {
+                y(X_COL) {
                     axis.name = style.xLabel
                 }
 
-                y(SHARE_COL) {
+                x(SHARE_COL) {
                     axis.name = yLabel
                 }
 
-                if (transformedTraces.size > 1) {
-                    fillColor(GROUP_COL) {
-                        @Suppress("SpreadOperator")
+                fillColor(GROUP_COL) {
+                    @Suppress("SpreadOperator")
+                    scale = categorical(
+                        *colors
+                    )
+                    legend.name = style.groupLabel
+                }
+                // When writing this, borderLine.type only made it solid. Could
+                // not get it to be dashed for the comparison data.
+                if (comparisonData != null) {
+                    borderLine.color(TYPE_COL) {
                         scale = categorical(
-                            *colorScale(transformedTraces, comparisonTraces).map {
-                                it.first to it.second.toColor()
-                            }.toTypedArray()
+                            COMPARISON_COL to Color.GREY,
+                            ORIGINAL_COL to Color.BLACK
                         )
-
-                        legend.name = style.groupLabel
-                        position = Position.stack()
+                        legend.name = TYPE_COL
                     }
                 }
-            }
 
+                position = Position.stack()
+            }
             layout.title = name
-        }
+            layout.size = 1200 to 600
+          }
     }
 
-    private fun addDataAndComparisonTracesToDf(
-        transformedTraces: List<Trace<G, X, Double, C>>,
-        df: AnyFrame,
-        comparisonTraces: List<Trace<G, X, Double, C>>?
-    ): AnyFrame {
-        var df1 = df
-        transformedTraces.forEach { trace ->
-            val column = trace.dataPoints.flatMap {
-                listOf(it.y, 0.0)
-            }.toColumn(trace.key.toString())
+    private fun gather(xValues: List<Any?>, traces:  List<Trace<G, X, Double, C>>?, includesComparison: Boolean, isComparison: Boolean): AnyFrame {
 
-            df1 = df1.add(column)
+        val df = dataFrameOf(
+            X_COL to xValues
+        )
+
+        val dataframe =
+            if( includesComparison) {
+                traces?.let{ addComparisonTracesAsColumns(it, df, isComparison)}
+            }
+        else {
+            traces?.let{ addNoComparisonTracesAsColumns(it, df)}
         }
 
-        comparisonTraces?.forEach { compTrace ->
-            val column = compTrace.dataPoints.flatMap {
-                listOf(0.0, it.y)
-            }.toColumn(compTrace.key.toString())
+        val columns = setOf(
+            *traces?.toTypedArray() ?: emptyArray(),
+        ).map { it.key.toString() }.toTypedArray()
 
+        val gathered =  dataframe?.gather(*columns)?.into(
+            keyColumn = GROUP_COL,
+            valueColumn = SHARE_COL
+        )?.select(X_COL, SHARE_COL, GROUP_COL)
+
+        val remapped = if (isComparison && gathered != null) {
+            val remappedGroup = gathered[GROUP_COL].map { comparisonData?.labelPrefix + it.toString() }
+            gathered.remove(GROUP_COL).add(remappedGroup)
+        } else {
+            gathered
+        }
+
+
+        return remapped ?:
+            DataFrame.empty()
+            .add(emptyList<Any>().toColumn(X_COL))
+            .add(emptyList<Any>().toColumn(SHARE_COL))
+            .add(emptyList<Any>().toColumn(GROUP_COL))
+    }
+
+    private fun addComparisonTracesAsColumns(
+        transformedTraces: List<Trace<G, X, Double, C>>,
+        df: AnyFrame,
+        isComparison: Boolean
+    ): AnyFrame {
+        var df1 = df
+        val mapping = {dp: DataPoint<X, Double, C> -> if (isComparison) listOf(0, dp.y) else listOf(dp.y, 0)}
+        transformedTraces.forEach { trace ->
+            val column = trace.dataPoints.flatMap(mapping).toColumn(trace.key.toString())
             df1 = df1.add(column)
         }
         return df1
     }
 
-    private fun addNoComparisonTracesAsColums(
+    private fun addNoComparisonTracesAsColumns(
         transformedTraces: List<Trace<G, X, Double, C>>,
         df: AnyFrame
     ): AnyFrame {
@@ -803,7 +919,7 @@ class HistogramPlotter<E, G, X, C>(
                     (comparisonData?.labelPrefix) + it.toString()
                 )
             }
-        }
+        }.toSet().toList()
     } ?: sortedXValues
 }
 
@@ -871,24 +987,318 @@ class TimeChartPlotter<E, G, X, C>(
                 y("y") {
                     axis.name = yLabel
                 }
+                color(GROUP_COL) {
+                    legend.name = style.groupLabel
 
-                if (transformedTraces.size > 1) {
-                    color(GROUP_COL) {
-                        legend.name = style.groupLabel
-
-                        @Suppress("SpreadOperator")
-                        scale = categorical(
-                            *colorScale(transformedTraces, comparisonTraces).map {
-                                it.first to it.second.toColor()
-                            }.toTypedArray()
-                        )
-
-                        if (normalize) {
-                            position = Position.stack()
-                        }
-                    }
+                    @Suppress("SpreadOperator")
+                    scale = categorical(
+                        *colorScale(transformedTraces, comparisonTraces).map {
+                            it.first to it.second.toColor()
+                        }.toTypedArray()
+                    )
                 }
             }
         }
     }
+}
+
+open class LineChartPlotter<E, G, X, A, Y, C>(
+    style: PlotStyling<G, X, C>,
+    values: PlotDataSpecification<E, G, X, A, Y, C>,
+    comparisonData: ComparisonDataSpecification<Nothing, G, X, Y>? = null,
+    val pointSize: Double = 0.0
+) : Plotter<E, G, X, A, Y, C>(
+    style = style,
+    values = values,
+    comparisonData = comparisonData
+) {
+    /**
+     * Plot the given traces.
+     *
+     * @param traces the traces to be plotted.
+     */
+    override fun plotTraces(traces: List<Trace<G, X, Y, C>>, comparisonTraces: List<Trace<G, X, Y, C>>?) {
+        val yAxis = mapTraces(traces, comparisonTraces) { it.y }
+
+        val dataset = dataFrameOf(
+            X_COL to mapTraces(traces, comparisonTraces) { it.x},
+
+            Y_COL to yAxis,
+            GROUP_COL to traces.flatMap { trace -> List(trace.dataPoints.size) { trace.key } } + (
+                comparisonTraces?.flatMap { trace ->
+                    List(trace.dataPoints.size) { "${comparisonData?.labelPrefix} ${trace.key}" }
+                } ?: emptyList()
+                ),
+            COLOR_COL to mapTraces(traces, comparisonTraces) { it.c },
+            TYPE_COL to traces.flatMap { List(it.dataPoints.size) { ORIGINAL_COL } } + (comparisonTraces?.flatMap { List(it.dataPoints.size) { COMPARISON_COL } } ?: emptyList())
+        )
+
+        val traceColors = traces.flatMap { trace -> trace.dataPoints.map { p -> p.c } }
+        val compColors = comparisonTraces?.flatMap { it.dataPoints.map { p -> p.c } } ?: emptyList()
+
+        // Using associateBy caused a collapse of groups, if two groups had the same color.
+        val colorList = traceColors.associateWith { style.colorMap(it) }.toList() +
+                (compColors.associateWith { style.colorMap(it).scaleLightness(0.5) }.toList())
+        val typeList = mapOf(
+            ORIGINAL_COL to LineType.SOLID,
+            COMPARISON_COL to LineType.DASHED)
+            .toList().toTypedArray()
+
+        // group the dataset by the group column
+        val groupsMap: MutableMap<String, List<DataRow<Any?>>> = mutableMapOf<String, List<DataRow<Any?>>>().withDefault { emptyList() }
+        dataset.rows().forEach { row ->
+            val group = row[GROUP_COL].toString()
+            groupsMap[group] = groupsMap.getValue(group) + row
+        }
+        plot {
+
+            groupsMap.forEach { (_, rows) ->
+
+                val xValues = rows.map { it[X_COL] }
+
+                val yValues = rows.map { it[Y_COL] }
+
+                val colorValue = rows.map { it[COLOR_COL] }
+
+                val typeValue = rows.map { it[TYPE_COL] }
+
+                line {
+
+                    x(xValues)
+
+                    y(yValues)
+                    // Only plot if C is not of type Unit
+                    if (colorList.first().first !is Unit) {
+                        color(colorValue) {
+                            legend.name = GROUP_COL
+                            scale = categorical(
+                                *colorList.map {
+                                    it.first to it.second.toColor()
+                                }.toTypedArray()
+                            )
+
+                        }
+                    }
+                    if (comparisonTraces != null){
+                        type(typeValue) {
+                            legend.name = TYPE_COL
+                            scale = categorical(*typeList)
+                        }
+                    }
+
+
+                }
+                points {
+                    x(xValues)
+                    y(yValues)
+                    size = pointSize
+                    if (colorList.first().first !is Unit) {
+                        color(colorValue) {
+                            scale = categorical(
+                                *colorList.map {
+                                    it.first to it.second.toColor()
+                                }.toTypedArray()
+                            )
+                        }
+                    }
+                }
+            }
+    }.save(
+            "${name.replace(" ", "_")}.png",
+            path = "results")
+    }
+
+}
+
+class ScalableSortableLineChartPlotter<E, G, X: Comparable<X>, A, C>(
+    style: PlotStyling<G, X, C>,
+    values: PlotDataSpecification<E, G, X, A, Double, C>,
+    comparisonData: ComparisonDataSpecification<Nothing, G, X, Double>? = null,
+    relative: Boolean = true,
+    normalize: Boolean = true,
+) : ScalablePlotter<E, G, X, A, Double, C>(
+    style = style,
+    values = values,
+    comparisonData = comparisonData,
+    relative = relative,
+    normalize = normalize
+) {
+
+    // TODO Currently, the only way to combine the two plotter classes is to create an inner class.
+    // This is due to the fact that the plotTraces method is protected in the Plotter class.
+    // It also cannot be changed to inner, as Trace is a protected class, which cannot be made public,
+    // as it used DataPoint, which is also protected.
+    private inner class InnerLineChartPlotter(
+        style: PlotStyling<G, X, C>,
+        values: PlotDataSpecification<E, G, X, A, Double, C>,
+        comparisonData: ComparisonDataSpecification<Nothing, G, X, Double>? = null
+    ): LineChartPlotter<E, G, X, A, Double, C>(style, values, comparisonData) {
+
+        override fun plotTraces(traces: List<Trace<G, X, Double, C>>, comparisonTraces: List<Trace<G, X, Double, C>>?) {
+            val xValues = traces.flatMap { trace -> trace.dataPoints.map { it.x } }.distinct().let {
+                style.xOrder.arrange(it)
+            }
+
+            val transformedTraces = arrangeTraces(xValues, traces, 0.0)
+
+            val arrangedComparisonData = comparisonTraces?.let { arrangeTraces(xValues, it, 0.0) }
+            super.plotTraces(transformedTraces, arrangedComparisonData)
+        }
+
+        fun plot(traces: List<Trace<G, X, Double, C>>, comparisonTraces: List<Trace<G, X, Double, C>>?) {
+            this.plotTraces(traces, comparisonTraces)
+        }
+
+    }
+
+    /**
+     * Plot the given traces. The traces are plotted as lines.
+     * The color of the lines is determined by the color attribute.
+     * The lines are scaled with regard to the relative and normalize
+     * flag.
+     *
+     * @param traces the traces to be plotted.
+     */
+    override fun plotTraces(traces: List<Trace<G, X, Double, C>>, comparisonTraces: List<Trace<G, X, Double, C>>?) {
+        InnerLineChartPlotter(style, values, comparisonData).plot(traces, comparisonTraces)
+    }
+
+}
+
+
+
+
+class BoxPlotter<E, G, X, A: Number, Y: Summary<A>, C>(
+    style: PlotStyling<G, X, C>,
+    values: PlotDataSpecification<E, G, X, A, Y, C>,
+    comparisonData: ComparisonDataSpecification<Nothing, G, X, Y>? = null
+): Plotter<E, G, X, A, Y, C>(
+    style, values, comparisonData
+) {
+
+    /**
+     * Plot the given traces. The traces are plotted as box plots.
+     * The color of the boxes is determined by the color attribute.
+     *
+     * @param traces the traces to be plotted.
+     * @param comparisonTraces the comparison traces to be plotted.
+     */
+    override fun plotTraces(traces: List<Trace<G, X, Y, C>>, comparisonTraces: List<Trace<G, X, Y, C>>?) {
+
+
+        val typeList = traces.flatMap {
+            List(it.dataPoints.size) { ORIGINAL_COL }
+        } + (comparisonTraces?.flatMap { List(it.dataPoints.size) { COMPARISON_COL } } ?: emptyList())
+
+        val colorList = mapTraces(traces, comparisonTraces) { it.c }
+        val colorMap = colorList.associateWith { style.colorMap(it).toColor() }
+        val maxList = mapTraces(traces, comparisonTraces) { it.y.max }
+
+        val dataset = dataFrameOf(
+            "min" to mapTraces(traces, comparisonTraces) { it.y.min },
+            "lower" to mapTraces(traces, comparisonTraces) { it.y.lowerQuart },
+            "median" to mapTraces(traces, comparisonTraces) { it.y.median },
+            "upperQuart" to mapTraces(traces, comparisonTraces) { it.y.upperQuart },
+            "max" to maxList,
+            COLOR_COL to colorList,
+            TYPE_COL to typeList,
+            X_COL to mapTraces(traces, comparisonTraces) { it.x }
+        )
+
+        dataset.groupBy(TYPE_COL).plot {
+            y {
+                scale = continuous(0.0..maxList.maxOf { it.toDouble() })
+                axis.name = style.yLabel
+            }
+            boxes {
+                x(X_COL) {
+                    axis.name = style.xLabel
+                }
+                yMin("min")
+                lower("lower")
+                middle("median")
+                upper("upperQuart")
+                yMax("max")
+                borderLine.color(COLOR_COL) {
+                    scale = categorical(
+                        *colorList.map { it to colorMap[it]!! }.toTypedArray()
+                    )
+                }
+                fillColor = Color.WHITE
+                if (comparisonTraces != null){
+                    borderLine.type(TYPE_COL) {
+                        scale = categorical(
+                            ORIGINAL_COL to LineType.SOLID,
+                            COMPARISON_COL to LineType.LONGDASH
+                        )
+                    }
+                }
+            }
+
+        }.save(
+            "${name.replace(" ", "_")}.png",
+            path = "results"
+        )
+    }
+}
+
+class ScatterPlotter<E, G, X: Number, A, Y: Number, C>(
+    style: PlotStyling<G, X, C>,
+    values: PlotDataSpecification<E, G, X, A, Y, C>,
+    comparisonData: ComparisonDataSpecification<Nothing, G, X, Y>? = null
+): Plotter<E, G, X, A, Y, C>(
+style, values, comparisonData
+){
+    /**
+     * Plot the given traces. The traces are plotted as points.
+     * The color of the points is determined by the color attribute.
+     * The color attribute is mapped to a color using the colorMap.
+     * The colorMap is used to create a color scale for the plot.
+     *
+     * @param traces the traces to be plotted.
+     * @param comparisonTraces the comparison traces to be plotted.
+     */
+    override fun plotTraces(traces: List<Trace<G, X, Y, C>>, comparisonTraces: List<Trace<G, X, Y, C>>?) {
+        val xList = mapTraces(traces, comparisonTraces) { it.x }
+        val yList = mapTraces(traces, comparisonTraces) { it.y }
+
+        val typeList = traces.flatMap { List(it.dataPoints.size) { ORIGINAL_COL } } + (comparisonTraces?.flatMap { List(it.dataPoints.size) { COMPARISON_COL } } ?: emptyList())
+
+        val colorList = mapTraces(traces, comparisonTraces) { it.c }
+        val colorMap = colorList.associateWith { style.colorMap(it).toColor() }
+        val colors = colorList.associateWith { colorMap[it]!! }.toList().toTypedArray()
+
+        val dataset = dataFrameOf(
+            X_COL to xList,
+            Y_COL to yList,
+            COLOR_COL to colorList,
+            TYPE_COL to typeList
+        )
+
+        dataset.groupBy(TYPE_COL).plot {
+            points {
+                x(X_COL) {
+                    axis.name = style.xLabel
+                }
+                y(Y_COL) {
+                    axis.name = style.yLabel
+                }
+                color(COLOR_COL) {
+                    scale = categorical(
+                        *colors
+                    )
+                }
+                symbol(TYPE_COL) {
+                    scale = categorical(
+                        ORIGINAL_COL to Symbol.CIRCLE,
+                        COMPARISON_COL to Symbol.CROSS
+                    )
+                }
+            }
+        }.save(
+            "${name.replace(" ", "_")}.png",
+            path = "results"
+        )
+    }
+
 }
