@@ -407,6 +407,26 @@ sealed class Aggregation<I, O> {
     }
 
     /**
+     * Count aggregation the occurrences of each x-value as double type.
+     * The y-attribute is omitted.
+     */
+    data object CountD : Aggregation<Unit, Double>() {
+
+        override fun <E, X, C> aggregate(
+            yAttribute: (E) -> Unit,
+            elementValues: List<Pair<X, E>>,
+            colorBy: (E?, X, Double) -> C,
+        ): List<Triple<X, Double, C>> {
+            return elementValues.groupingBy { it.first }.eachCount().toList().map {
+                Triple(it.first, it.second.toDouble(), colorBy(null, it.first, it.second.toDouble()))
+            }
+        }
+
+        override fun <X> aggregateCluster(x: X, values: List<Unit>): Double =
+            throw UnsupportedOperationException("aggregateCluster should not be called on Count!")
+    }
+
+    /**
      * Sum aggregation sums up the y-values.
      */
     data object Sum : Aggregation<Number, Double>() {

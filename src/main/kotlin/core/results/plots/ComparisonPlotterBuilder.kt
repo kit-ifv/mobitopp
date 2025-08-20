@@ -39,6 +39,9 @@ data class PlotterBuilderWithComparison<T, E, G, X, A, Y, C>(
     )
 }
 
+fun <T, E, X, A, Y, C> PlotterBuilderWithComparison<T, E, Unit, X, A, Y, C>.plot(comparisonAttribute: (T) -> Y) =
+    PlotterBuilderWithComparisonY(style, values, resource, noGrouping(), comparisonAttribute)
+
 data class PlotterBuilderWithComparisonGrouping<T, E, G, X, A, Y, C>(
     val style: PlotStyling<G, X, C>,
     val values: PlotDataSpecification<E, G, X, A, Y, C>,
@@ -55,7 +58,22 @@ data class PlotterBuilderWithComparisonY<T, E, G, X, A, Y, C>(
     val values: PlotDataSpecification<E, G, X, A, Y, C>,
     val resource: Resource<T>,
     val comparisonGrouping: (T) -> G,
-    val comparisonAttribute: (T) -> Y){
+    val comparisonAttribute: (T) -> Y
+){
+    fun over(labelPrefix: String = "expected:", mapping: (T) -> X) =
+        ComparisonPlotterBuilder(
+            style = style,
+            values = values,
+            comparisonData =
+                ComparisonDataSpecification(
+                    resource = resource,
+                    groupBy = comparisonGrouping,
+                    xAxis = {x: T -> mapping(x)},
+                    yAxis = comparisonAttribute,
+                    labelPrefix = labelPrefix
+                )
+        )
+
 
     fun <X2> over(xAttribute: (T) -> X2, mapping: (X2) -> X, labelPrefix: String = "expected:") =
         ComparisonPlotterBuilder(
@@ -73,8 +91,8 @@ data class PlotterBuilderWithComparisonY<T, E, G, X, A, Y, C>(
 }
 
 fun <B, T : Any, E, G : Any, X : Any, C> B.asHistogram(
-    normalize: Boolean = true,
-    relative: Boolean = true,
+    normalize: Boolean = false,
+    relative: Boolean = false,
 ) where B : ComparisonPlotterBuilder<T, E, G, X, Unit, Int, C> = HistogramPlotter(
     style,
     values,
@@ -90,8 +108,8 @@ fun <B, T, E, G , X, A, Y, C> B.asLineChart() where B : ComparisonPlotterBuilder
 )
 
 fun <B, T, E, G, X: Comparable<X>, A, C> B.asScalableSortableLineChart(
-    relative: Boolean = true,
-    normalize: Boolean = true,
+    relative: Boolean = false,
+    normalize: Boolean = false,
 ) where B: ComparisonPlotterBuilder<T, E, G, X, A, Double, C> =
     ScalableSortableLineChartPlotter(
         style,
