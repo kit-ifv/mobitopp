@@ -218,14 +218,15 @@ data class PlotStyleBuilder<G, X, C>(
 fun <B, E, G, X, C> B.asHistogram(
     normalize: Boolean = true,
     relative: Boolean = true,
-) where B : PlotterBuilder<E, G, X, Unit, Int, C> = HistogramPlotter(
+) where B : PlotterBuilder<E, G, X, Unit, Int, C> = HistogramPlotter<Any, E, G, X, C>(
     style,
     values,
+    comparisonData = null,
     normalize = normalize,
     relative = relative,
 )
 
-fun <B, E, G, X, C> B.asLineChart(
+fun <B, E, G, X, C> B.asTimeChart(
     normalize: Boolean = true,
     relative: Boolean = true,
     compareTo: ComparisonDataSpecification<Nothing, G, X, Int>? = null,
@@ -236,3 +237,46 @@ fun <B, E, G, X, C> B.asLineChart(
     normalize = normalize,
     relative = relative,
 )
+
+
+//fun <B, E, G, X, A, Y, C> B.yToDouble(): PlotterBuilder<E, G, X, A, Double, C> where B: PlotterBuilder<E, G, X, A, Y, C>, Y: Number {
+//    val colorWrap: (E?, G, X, Double) -> C = { e, g, x, y -> this.values.colorBy(e,g,x,y) }
+//
+//    return PlotterBuilder<E, G, X, A, Double, C>(
+//        this.style,
+//        PlotDataSpecification<E, G, X, A, Double, C>(
+//            entities = this.values.entities,
+//            xAttribute = this.values.xAttribute,
+//            yAttribute = this.values.yAttribute,
+//            aggregation = Aggregation.ToDouble(this.values.aggregation),
+//            groupBy = this.values.groupBy,
+//            colorBy = this.values.colorBy,
+//        )
+//    )
+//}
+
+
+fun <B, E, G, X, A, Y, C> B.asLineChart(
+    compareTo: ComparisonDataSpecification<Any, G, X, Y>? = null,
+    pointSize: Double = 0.0
+) where B: PlotterBuilder<E, G, X, A, Y, C> =
+    LineChartPlotter(style, values, comparisonData = compareTo, pointSize = pointSize)
+
+fun <B, E, G, X: Comparable<X>, A, C> B.asScalableSortableLineChart(
+    compareTo: ComparisonDataSpecification<Any, G, X, Double>? = null,
+    relative: Boolean = true,
+    normalize: Boolean = true,
+) where B: PlotterBuilder<E, G, X, A, Double, C> =
+    ScalableSortableLineChartPlotter(style, values,
+        comparisonData = compareTo, relative = relative,
+        normalize = normalize)
+
+fun <B, E, G, X, A: Number, Y: Summary<A>, C> B.asBoxPlot(
+    compareTo: ComparisonDataSpecification<Any, G, X, Y>? = null,
+) where B: PlotterBuilder<E, G, X, A, Y, C> =
+    BoxPlotter(style, values, comparisonData = compareTo)
+
+fun <B, E, G, X: Number, A, Y: Number, C> B.asScatterPlot(
+    compareTo: ComparisonDataSpecification<Any, G, X, Y>? = null,
+) where B: PlotterBuilder<E, G, X, A, Y, C> =
+    ScatterPlotter(style, values, comparisonData = compareTo)
