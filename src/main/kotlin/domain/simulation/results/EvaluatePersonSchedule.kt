@@ -8,6 +8,7 @@ import core.results.plots.modeStringColor
 import core.results.plots.randomColor
 import domain.shared.datastructure.schedule.MovingAction
 import domain.shared.enums.Mode
+import domain.shared.location.Metrics
 import domain.simulation.agent.PersonAgent
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -33,6 +34,13 @@ val AgentResultsContext.personLegs: List<PersonLeg>
     get() = persons.flatMap { person ->
         person.schedule.pastLegs().map { leg -> PersonLeg(person, leg) }
     }.toList()
+
+
+
+fun PersonLeg.distance(impedance: Metrics) =
+    impedance.distance(leg.startLocation, leg.endLocation, leg.transportType)
+
+
 
 @Suppress("MagicNumber")
 private val ageGroups = listOf(

@@ -29,12 +29,14 @@ fun Context.addPlot(setup: () -> Plotter<*, *, *, *, *, *>) = runStep {
 
 fun <E> forData(entities: () -> List<E>) = PlotterBuilderWithEntities(entities)
 
+fun <E> noGrouping(): (E) -> Unit = { _ -> }
+
 @Suppress("TooManyFunctions")
 data class PlotterBuilderWithEntities<E>(
     val entities: () -> List<E>,
 ) {
 
-    private fun <E> noGrouping(): (E) -> Unit = { _ -> }
+
 
     fun <G> groupBy(groupBy: (E) -> G) = PlotterBuilderWithGrouping(entities, groupBy)
 
@@ -56,6 +58,8 @@ data class PlotterBuilderWithEntities<E>(
     fun <Y : Comparable<Y>> summarize(yAttribute: (E) -> Y) = this.groupBy(noGrouping()).summarize(yAttribute)
 
     fun <X> count(xAttribute: (E) -> X) = this.groupBy(noGrouping()).count(xAttribute)
+
+    fun <X> countD(xAttribute: (E) -> X) = this.groupBy(noGrouping()).countD(xAttribute)
 
     fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) =
         this.groupBy(noGrouping()).aggregateBy(yAttribute, aggregation)
@@ -133,6 +137,14 @@ data class PlotterBuilderWithGrouping<E, G>(
         xAttribute
     )
 
+    fun <X> countD(xAttribute: (E) -> X) = PlotterBuilderWithXAxis(
+        entities,
+        groupBy,
+        noYAtt(),
+        Aggregation.CountD,
+        xAttribute
+    )
+
     fun <A, Y> aggregateBy(yAttribute: (E) -> A, aggregation: Aggregation<A, Y>) = PlotterBuilderWithYAxis(
         entities,
         groupBy,
@@ -185,7 +197,7 @@ data class PlotterBuilderWithXAxis<E, G, X, A, Y>(
     fun colorByY() = colorBy { _, _, _, y -> y }
 }
 
-private fun <E, G, X, Y> noColoring(): (E?, G, X, Y) -> Unit = { _, _, _, _ -> }
+fun <E, G, X, Y> noColoring(): (E?, G, X, Y) -> Unit = { _, _, _, _ -> }
 
 data class PlotterBuilderWithColor<E, G, X, A, Y, C>(
     val values: PlotDataSpecification<E, G, X, A, Y, C>
@@ -200,9 +212,9 @@ data class PlotterBuilderWithColor<E, G, X, A, Y, C>(
     }
 }
 
-fun <B, E, G, X> B.withStyle(
+fun <B, E, G, X, Y> B.withStyle(
     lambda: PlotStyleBuilder<G, X, Unit>.() -> Unit
-) where B : PlotterBuilderWithXAxis<E, G, X, Unit, Int> = colorBy(noColoring()).withStyle(lambda)
+) where B : PlotterBuilderWithXAxis<E, G, X, Unit, Y> = colorBy(noColoring()).withStyle(lambda)
 
 data class PlotStyleBuilder<G, X, C>(
     override var name: String = "plot",
@@ -216,8 +228,8 @@ data class PlotStyleBuilder<G, X, C>(
 ) : PlotStyling<G, X, C>
 
 fun <B, E, G, X, C> B.asHistogram(
-    normalize: Boolean = true,
-    relative: Boolean = true,
+    normalize: Boolean = false,
+    relative: Boolean = false,
 ) where B : PlotterBuilder<E, G, X, Unit, Int, C> = HistogramPlotter<Any, E, G, X, C>(
     style,
     values,
@@ -227,8 +239,8 @@ fun <B, E, G, X, C> B.asHistogram(
 )
 
 fun <B, E, G, X, C> B.asTimeChart(
-    normalize: Boolean = true,
-    relative: Boolean = true,
+    normalize: Boolean = false,
+    relative: Boolean = false,
     compareTo: ComparisonDataSpecification<Nothing, G, X, Int>? = null,
 ) where B : PlotterBuilder<E, G, X, Unit, Int, C> = TimeChartPlotter(
     style,
@@ -264,8 +276,8 @@ fun <B, E, G, X, A, Y, C> B.asLineChart(
 
 fun <B, E, G, X: Comparable<X>, A, C> B.asScalableSortableLineChart(
     compareTo: ComparisonDataSpecification<Any, G, X, Double>? = null,
-    relative: Boolean = true,
-    normalize: Boolean = true,
+    relative: Boolean = false,
+    normalize: Boolean = false,
 ) where B: PlotterBuilder<E, G, X, A, Double, C> =
     ScalableSortableLineChartPlotter(style, values,
         comparisonData = compareTo, relative = relative,
