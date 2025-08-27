@@ -1,9 +1,9 @@
 package core.results.plots.render
 
 import core.results.plots.KIT_GREEN
-import core.results.plots.RGB
 import core.results.plots.PlotLayout
 import core.results.plots.PlotRenderer
+import core.results.plots.RGB
 import core.results.plots.data.PlotData
 import org.jetbrains.kotlinx.kandy.dsl.plot
 import org.jetbrains.kotlinx.kandy.ir.Plot
@@ -53,11 +53,11 @@ class HistogramRenderer<G, X, Y : Number>(
         return df.plot {
             layout {
                 title = style.name
-                size = 1200 to 600
+                size = DEFAULT_PLOT_SIZE
             }
 
             bars {
-                alpha = 0.8
+                alpha = DEFAULT_ALPHA
 
                 x(keyCol) {
                     axis.name = style.xAxisLabel

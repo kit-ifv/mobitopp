@@ -54,6 +54,7 @@ data class PlotDataBuilderWithGrouping<E, G>(
     override val groupBy: (E) -> G,
 ) : PlotDataGroupingProvider<E, G>
 
+@Suppress("TooManyFunctions")
 interface PlotDataGroupingProvider<E, G> {
     val entities: () -> List<E>
     val groupBy: (E) -> G
