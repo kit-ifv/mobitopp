@@ -1,9 +1,12 @@
 package domain.simulation.agent
 
+import core.statemachine.StateMachineFactory
 import domain.shared.datastructure.schedule.plans.SingularDispatcher
 import domain.simulation.behavior.ActivityDurationRandomizer
 import domain.simulation.behavior.NoDurationRandomizer
 import domain.simulation.behavior.toSchedule
+import domain.simulation.events.PersonBehavior
+import domain.simulation.events.personStateMachine
 import domain.synthesis.data.CarId
 import domain.synthesis.data.Household
 import domain.synthesis.data.HouseholdId
@@ -17,7 +20,9 @@ import domain.synthesis.data.SharingStationId
 
 class BuildAgents(
     val seed: Long, // TODO discuss if original seed is needed (same as data entity?) or could be different/derived
-    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer
+    val personStateMachine: StateMachineFactory<PersonAgent>,
+    val personBehavior: PersonBehavior,
+    val durationRandomizer: ActivityDurationRandomizer = NoDurationRandomizer,
 ) {
 
     val personsById: MutableMap<PersonId, MutablePersonAgent> = mutableMapOf()
@@ -75,13 +80,7 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
     key = this.id,
     defaultValue = { MutableHouseholdAgent(id, context.seed) }
 ) { agent ->
-    agent.householdNumber = this.householdNumber
-    agent.surveyYear = this.surveyYear
-    agent.location = this.location
-    agent.domCode = this.domCode
-    agent.type = this.type
-    agent.incomePerMonth = this.incomePerMonth
-    agent.economicStatus = this.economicStatus
+    agent.loadAttributes(this)
     agent.members.addAll(
         this.members.map { it.toAgent(context, agent) }
     )
@@ -90,28 +89,58 @@ fun Household.toAgent(context: BuildAgents) = context.householdsById.getOrInitAf
     )
 }
 
+context(seed: Long)
+fun Household.toAgent(): HouseholdAgent {
+    val agent = MutableHouseholdAgent(id, seed)
+    agent.loadAttributes(this)
+    return agent
+}
+
+fun MutableHouseholdAgent.loadAttributes(attributes: Household) {
+    householdNumber = attributes.householdNumber
+    surveyYear = attributes.surveyYear
+    location = attributes.location
+    domCode = attributes.domCode
+    type = attributes.type
+    incomePerMonth = attributes.incomePerMonth
+    economicStatus = attributes.economicStatus
+}
+
+context(household: Household, seed: Long)
+fun Person.toAgent(context: BuildAgents): PersonAgent{
+    val hhAgent = household.toAgent()
+    val personAgent = MutablePersonAgent(id, hhAgent, context.personStateMachine, seed)
+    personAgent.loadAttributes(this)
+    return personAgent
+}
+
+fun MutablePersonAgent.loadAttributes(attributes: Person) {
+    age = attributes.age
+    employment = attributes.employment
+    sex = attributes.sex
+    graduation = attributes.graduation
+    income = attributes.income
+    hasBike = attributes.hasBike
+    hasCommuterTicket = attributes.hasCommuterTicket
+    hasLicense = attributes.hasLicense
+    eMobilityAcceptance = attributes.eMobilityAcceptance
+    chargingInfluence = attributes.chargingInfluence
+}
+
 fun Person.toAgent(context: BuildAgents, householdAgent: HouseholdAgent = household.toAgent(context)) =
     context.personsById.getOrInitAfterPut(
         key = this.id,
-        defaultValue = { MutablePersonAgent(id, householdAgent, context.seed) }
+        defaultValue = { MutablePersonAgent(id, householdAgent, context.personStateMachine, context.seed) }
     ) { agent ->
 
-        agent.age = this.age
-        agent.employment = this.employment
-        agent.sex = this.sex
-        agent.graduation = this.graduation
-        agent.income = this.income
-        agent.hasBike = this.hasBike
-        agent.hasCommuterTicket = this.hasCommuterTicket
-        agent.hasLicense = this.hasLicense
-        agent.eMobilityAcceptance = this.eMobilityAcceptance
-        agent.chargingInfluence = this.chargingInfluence
-
+        agent.loadAttributes(this)
         agent.sharingMemberships.addAll(
             this.sharingMemberships.map { it.toAgent(context) }
         )
-        agent.memberships.addAll(agent.sharingMemberships)
-        agent.memberships.add(agent.household)
+
+        agent.behavior = context.personBehavior
+//        agent.memberships.addAll(agent.sharingMemberships)
+//        agent.memberships.add(agent.household)
 
         agent.schedule = this.plannedActivities.toSchedule(SingularDispatcher())
         this.clearPlannedActivities() // clear to save memory

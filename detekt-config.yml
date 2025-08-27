@@ -23,7 +23,6 @@ processors:
   # - 'ProjectLOCProcessor'
   # - 'ProjectSLOCProcessor'
   # - 'LicenseHeaderLoaderExtension'
-
 console-reports:
   active: true
   exclude:
@@ -305,8 +304,8 @@ naming:
     classPattern: '[A-Z][a-zA-Z0-9]*'
   ConstructorParameterNaming:
     active: true
-    parameterPattern: '[a-z][A-Za-z0-9]*'
-    privateParameterPattern: '[a-z][A-Za-z0-9]*'
+    parameterPattern: '[a-z][A-Za-z0-9]*|ID'
+    privateParameterPattern: '[a-z][A-Za-z0-9]*|ID'
     excludeClassPattern: '$^'
   EnumNaming:
     active: true
@@ -772,6 +771,7 @@ style:
 formatting:
   Filename:
     active: false
+
 
 custom-rules:
   LayeredArchitecture:

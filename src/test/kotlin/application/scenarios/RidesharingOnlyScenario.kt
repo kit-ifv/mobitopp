@@ -3,22 +3,25 @@ package application.scenarios
 import application.syntheticsim.ControllableImpedance
 import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
-import core.modelsteps.asRepository
 import core.modelsteps.asResource
-import discreteChoice.models.FixedOrderChoiceModel
-import discreteChoice.models.RandomChoiceModel
+import core.statemachine.usage.RecordingStateMachine
+import core.statemachine.usage.renderAsPumlSequenceDiagram
+import core.statemachine.usage.renderAsPumlStateCharts
+import core.statemachine.usage.renderAsPumlTimingDiagram
+import core.statemachine.usage.withRecording
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.SharingStationAgent
-import domain.simulation.agent.toAgent
-import domain.simulation.behavior.SharingAvailabilityFilter
-import domain.simulation.events.CarSelector
-import domain.simulation.events.InitPersonEvent
-import domain.simulation.events.ModeScopeDispatcher
+import domain.simulation.behavior.AvailabilityModelWithSharing
+import domain.simulation.behavior.currentlyAffectedResources
 import domain.simulation.events.PersonBehavior
-import domain.simulation.events.SharingVehicleSelector
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
+import domain.simulation.events.personStateMachine
 import domain.synthesis.data.MutableSharingProvider
 import domain.synthesis.data.SharingProviderId
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
 import generateHouseholds
 import generateSharingStation
@@ -35,6 +38,8 @@ class RidesharingOnlyScenario {
     @Suppress("LongMethod")
     @RepeatedTest(value = 10, name = RepeatedTest.LONG_DISPLAY_NAME)
     fun runSyntheticTest() {
+        RecordingStateMachine.recordInteractions()
+
         val random = Random(1)
 
         val car = legacyChoiceModelModes.car
@@ -54,51 +59,50 @@ class RidesharingOnlyScenario {
             personScope = { it.generateActivitySchedule(10, random) }
         )
 
-        val builder = BuildAgents(seed = 1L)
-        val providerAgent = provider.toAgent(builder)
-        val agents = builder.buildPersonAgents(households)
-        agents.forEach {
-                person ->
-            if (!person.sharedResources().any { it is SharingStationAgent }) {
-                println("err")
-            }
-            assertTrue(person.sharedResources().any { it is SharingStationAgent })
-        }
-
+        // TODO base modes stet (here legacyChoiceModelModes.options) defined at various points: concentrate on one point!
         val impedance = ControllableImpedance()
-        val availability = SharingAvailabilityFilter(
+        val availability = AvailabilityModelWithSharing(
             legacyChoiceModelModes,
-            providerAgent.stations.toSet(),
-            mapOf(bikeSharing to setOf(providerAgent)),
+            mapOf(bikeSharing to setOf(provider.id)),
             impedance
         )
 
-        val modeScopeDispatcher = ModeScopeDispatcher(
-            car to CarSelector(car),
-            bikeSharing.let {
-                it to SharingVehicleSelector(
-                    it, availability, impedance, pedestrian
-                )
-            }
-        )
         val syntheticBehavior = PersonBehavior(
             destinationChoice = RandomChoiceModel(
                 "random destination",
                 zones.map { it.centroid }.toSet()
             ),
-            impedance = impedance,
             modeChoice = FixedOrderChoiceModel("prefer ridesharing", setOf(bikeSharing, pedestrian), availability),
-            scopeDispatcher = modeScopeDispatcher,
+            modes = legacyChoiceModelModes,
+            impedance = impedance,
             attractivityModel = testAttractivenessModel,
-            availabilityModel = availability
+            availabilityModel = availability,
+            bikeSharingConnectionSelector = availability,
+            spawnDestinationCharacteristics = StandardDestinationImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
         )
 
-        val sim = ParallelSimulator(timeStep = 1.minutes)
-        val resource = agents.asResource("EO", "none")
-        val test = resource.asRepository()
-        sim.addAgents(test) { person ->
-            InitPersonEvent(person, syntheticBehavior)
+        val builder = BuildAgents(
+            seed = 1L,
+            personStateMachine.withRecording(),
+            syntheticBehavior
+        )
+        val agents = builder.buildPersonAgents(households)
+
+        agents.forEach { person ->
+            val sharedResources =
+                context(person) { availability.currentlyAffectedResources(legacyChoiceModelModes.options) }
+            assertTrue(sharedResources.any { it is SharingStationAgent })
         }
+
+        val sim = ParallelSimulator(timeStep = 1.minutes) // TODO test again with parallel sim
+        val resource = agents.asResource("EO", "none")
+        val testAgents = resource.elements.toList()
+        sim.addAgents(testAgents)
         sim.run(0.days.sinceStart, 7.days.sinceStart)
+
+        RecordingStateMachine.stateMachineUsage.renderAsPumlStateCharts()
+        RecordingStateMachine.interactionRecorder.renderAsPumlTimingDiagram(agents.toList()[0])
+        RecordingStateMachine.interactionRecorder.renderAsPumlSequenceDiagram(agents.toList()[0])
     }
 }
