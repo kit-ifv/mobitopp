@@ -152,20 +152,20 @@ class DataFrameBuilder<G, X, Y>(
     fun colorByX(map: (X) -> RGB) = colorBy(map, X_COL, rawXs)
     fun colorByY(map: (Y) -> RGB) = colorBy(map, Y_COL, rawYs)
 
-    fun combineCompAndXLabel(newColumnName: String, toCompLabel: (Any) -> String = { "[$it]" }) =
+    fun combineCompAndXLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(X_COL, xWasUsed, newColumnName, toCompLabel)
 
-    fun combineCompAndGroupLabel(newColumnName: String, toCompLabel: (Any) -> String = { "[$it]" }) =
+    fun combineCompAndGroupLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(GROUP_COL, groupWasUsed, newColumnName, toCompLabel)
 
-    fun combineCompAndYLabel(newColumnName: String, toCompLabel: (Any) -> String = { "[$it]" }) =
+    fun combineCompAndYLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(Y_COL, yWasUsed, newColumnName, toCompLabel)
 
     private fun combineCompAndColLabel(
         keyColumn: String,
         checkColumn: Boolean,
         newColumnName: String,
-        toCompLabel: (Any) -> String = { "[$it]" }
+        toCompLabel: (Any) -> String = ::compLabelWrapper
     ): DataFrameBuilder<G, X, Y> {
         require(checkColumn) {
             "Cannot combine $IS_COMP_COL with $keyColumn since the latter was not yet created for plot: $name!" +
@@ -215,6 +215,8 @@ class DataFrameBuilder<G, X, Y>(
 
         return this
     }
+
+    private fun compLabelWrapper(value: Any) = "[$value]"
 
     // TODO x, y, group to any basic type + time (with converter lambda) so we can hide the raw data list
 }

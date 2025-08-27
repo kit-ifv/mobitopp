@@ -16,7 +16,13 @@ import java.nio.file.Path
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
-fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, legendTitle: String = "color") {
+@Suppress("MagicNumber")
+val DEFAULT_PLOT_SIZE = 1200 to 600
+
+const val DEFAULT_ALPHA = 0.8
+private const val COLOR_LABEL = "color"
+
+fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, legendTitle: String = COLOR_LABEL) {
     fillColor(colorColumn) {
         applyScale(colorMap, legendTitle)
     }
@@ -24,7 +30,7 @@ fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, le
 
 fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     colorMap: ColorScale,
-    legendTitle: String = "color"
+    legendTitle: String = COLOR_LABEL
 ) {
     if (colorMap.range.size <= 1) {
         legend.type = LegendType.None
