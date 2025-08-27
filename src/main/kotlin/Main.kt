@@ -70,6 +70,7 @@ private const val ROOT_TRANSMOVE_ENV =
     "\\\\ifv-fs.ifv.kit.edu/Forschung/Projekte_intern/mobitopp/Input" +
         "/transmove/mobitopp-env/data/zone-repository"
 
+@Suppress("LongMethod")
 fun main() {
     Simulation {
         ExampleProjectContext(
