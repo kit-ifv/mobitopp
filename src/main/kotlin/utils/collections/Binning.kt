@@ -60,7 +60,7 @@ fun <T> T.toBins(
     return this.toDouble().mapToBins(bins)
 }
 
-interface Bin<T>: Comparable<Bin<T>> where T: Comparable<T> {
+interface Bin<T> : Comparable<Bin<T>> where T : Comparable<T> {
     val lower: T
     val upper: T
 
@@ -73,7 +73,6 @@ interface Bin<T>: Comparable<Bin<T>> where T: Comparable<T> {
     }.thenComparing { b: Bin<T> ->
         b.upper
     }.compare(this, other)
-
 }
 
 class BaseBin<T>(
@@ -106,7 +105,7 @@ class BaseBin<T>(
     override fun toString() = "[$lower, $upper)"
 }
 
-class OpenBin<T>(override val lower: T): Bin<T> where T: Comparable<T> {
+class OpenBin<T>(override val lower: T) : Bin<T> where T : Comparable<T> {
     override val upper: T
         get() = lower
 
@@ -131,7 +130,6 @@ class OpenBin<T>(override val lower: T): Bin<T> where T: Comparable<T> {
     override fun toString() = "$lower+"
 }
 
-
 fun <C, T> C.asBins(appendOpenBin: Boolean = false) where C : Collection<Pair<T, T>>, T : Comparable<T> = map {
     BaseBin(it.first, it.second)
 }.distinct().sorted().let {
@@ -142,8 +140,7 @@ fun <C, T> C.asBins(appendOpenBin: Boolean = false) where C : Collection<Pair<T,
     }
 }
 
-
-fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T: Comparable<T>, S: Comparable<S> =
+fun <S, T> List<Bin<S>>.mapBounds(transform: (S) -> T): List<Bin<T>> where T : Comparable<T>, S : Comparable<S> =
     map {
         BaseBin(transform(it.lower), transform(it.upper))
     }

@@ -57,6 +57,7 @@ import utils.CodePlan
 import utils.units.AbsoluteTime
 import utils.units.weeks
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
@@ -81,6 +82,8 @@ interface StandardContext :
 data class ExampleProjectContext(
     override val scenarioName: String,
     override val dataFolder: Path,
+
+    override val resultDir: Path = Path("results"),
 
     override val regionTypeCodes: CodePlan<RegionType> = RegioStaR17.Companion,
     override val economicalStatusCodes: CodePlan<EconomicStatus> = EconomicStatus.Companion,
