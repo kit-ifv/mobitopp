@@ -49,7 +49,7 @@ enum class ZoneRegionType(override val code: Int) : RegionType {
  * https://bmdv.bund.de/SharedDocs/DE/Artikel/G/regionalstatistische-raumtypologie.html
  *
  * @property code integer code of Bbsr17 area type
- * @property text description of Bbsr17 area type
+ * @property description description of Bbsr17 area type
  */
 @Suppress("EnumNaming", "EnumEntryNameCase")
 enum class Bbsr17(override val code: Int, override val description: String) : RegionType {

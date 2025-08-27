@@ -1,9 +1,9 @@
 
 import utils.INDENT
 import utils.inline
+import utils.invoke
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import utils.invoke
 
 
 class TextBuilderTest {

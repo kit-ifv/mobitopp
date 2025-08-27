@@ -1,16 +1,14 @@
 package domain.synthesis.behavior.discreteChoice
 
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.structure.NestedStructure
-import discreteChoice.structure.times
-import discreteChoice.utility.nestedLogit
 import domain.synthesis.behavior.SurveyInfo
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.employment
 import domain.synthesis.behavior.hasLicence
 import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
+import edu.kit.ifv.mobitopp.actitoppNG.utils.times
+import edu.kit.ifv.mobitopp.discretechoice.structure.NestedStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.nestedLogit
 import kotlin.random.Random
 
 /**
@@ -22,7 +20,7 @@ import kotlin.random.Random
 class CarOwnershipFactors(
     val household: SynthesisHousehold<out SurveyInfo>,
     employmentSorter: EmploymentSorter = DefaultEmploymentSorter,
-) : ChoiceSituation<CarOwnershipAttributes, Int> {
+) {
     val size = household.members.size
     val economicStatus: EconomicStatus = household.economicStatus
     val numDrivingLicence: Int = household.members.count { it.hasLicence }
@@ -33,8 +31,7 @@ class CarOwnershipFactors(
     val amountOfChildren = household.members.count { it.age < 10 }
     val amountOfYouth = household.members.count { it.age in 10..17 }
 
-    override val random: Random = Random.Default
-    override fun with(choice: Int) = CarOwnershipAttributes(choice, this)
+    val random: Random = Random.Default
 }
 
 /**
@@ -220,7 +217,7 @@ class CarOwnershipParameters(
     /**
      * @property oneCar this property uses the conversion functionality of new mobiTopp to generate a different parameter
      * object for the utility function. In this instance an object of type [CarParameters] is created and used in the
-     * utility functions. This property is used later in the [NestedLogitBuilder.option] call, where the translation is
+     * utility functions. This property is used later in the 'option' call, where the translation is
      * set to [oneCar]. The benefit is that only the fields of [CarParameters] are visible. Meaning that the auto completion
      * only suggests valid parameters defined in the Car Parameters.
      *
@@ -367,9 +364,8 @@ class CarOwnershipParameters(
  *  to determine unemployment.
  */
 class CarOwnershipAttributes(
-    override val choice: Int,
     infos: CarOwnershipFactors
-) : ChoiceAlternative<Int>() {
+) {
     val randomNumber = 0.0
     val size = infos.size
     val economicStatus = infos.economicStatus
@@ -495,28 +491,28 @@ private inline val EconomicStatus.rich get(): Boolean = this == EconomicStatus.H
  * mobitopp. Used later in the discrete choice model definition.
  */
 @Suppress("MagicNumber") // These magic numbers are ok, the content of the function should still be understandable
-private val standardFunction: CarParameters.(CarOwnershipAttributes) -> Double = {
+private val standardFunction: CarParameters.(Int, CarOwnershipAttributes) -> Double = { _, characteristics ->
     mu +
-        sigma * it.randomNumber +
-        (it.size == 1) * oneMember +
-        (it.size == 2) * twoMembers +
-        (it.size >= 4) * fourOrMoreMembers +
+        sigma * characteristics.randomNumber +
+        (characteristics.size == 1) * oneMember +
+        (characteristics.size == 2) * twoMembers +
+        (characteristics.size >= 4) * fourOrMoreMembers +
 
-        (it.economicStatus.poor) * lowIncome +
-        (it.economicStatus.rich) * highIncome +
-        (it.amountOfChildren >= 1) * childrenFactor +
-        (it.amountOfYouth >= 1) * youthFactor +
-        (it.amountOfWorkers == 1) * oneWorker +
-        (it.amountOfWorkers == 2) * twoWorkers +
+        (characteristics.economicStatus.poor) * lowIncome +
+        (characteristics.economicStatus.rich) * highIncome +
+        (characteristics.amountOfChildren >= 1) * childrenFactor +
+        (characteristics.amountOfYouth >= 1) * youthFactor +
+        (characteristics.amountOfWorkers == 1) * oneWorker +
+        (characteristics.amountOfWorkers == 2) * twoWorkers +
 
-        (it.amountOfLicences == 1) * oneLicence +
-        (it.amountOfLicences == 2) * twoLicences +
-        (it.amountOfLicences == 3) * threeLicences +
-        (it.amountOfLicences >= 4) * fourOrMoreLicences +
+        (characteristics.amountOfLicences == 1) * oneLicence +
+        (characteristics.amountOfLicences == 2) * twoLicences +
+        (characteristics.amountOfLicences == 3) * threeLicences +
+        (characteristics.amountOfLicences >= 4) * fourOrMoreLicences +
 
-        (it.isWg) * isFlat +
-        (it.isOnlyRetired) * isRetired +
-        (it.isOnlyUnemployed) * isUnemployed
+        (characteristics.isWg) * isFlat +
+        (characteristics.isOnlyRetired) * isRetired +
+        (characteristics.isOnlyUnemployed) * isUnemployed
 }
 
 /**
@@ -569,38 +565,38 @@ val carChoiceUtility = NestedStructure<Int, CarOwnershipAttributes, CarOwnership
         Also, you don't need to explicitly write parameters = {...}, the curly brackets are automatically assumed
         to be the parameter translation.
          */
-        option(2, { twoCar }) {
+        option(2, { twoCar }) { _, characteristics ->
             mu +
-                sigma * it.randomNumber +
-                when (it.size) {
+                sigma * characteristics.randomNumber +
+                when (characteristics.size) {
                     1 -> oneMember
                     2 -> twoMembers
                     in 4..Int.MAX_VALUE -> fourOrMoreMembers
                     else -> 0.0
                 } +
-                when (it.economicStatus) {
+                when (characteristics.economicStatus) {
                     EconomicStatus.LOW, EconomicStatus.VERY_LOW -> lowIncome
                     EconomicStatus.HIGH, EconomicStatus.VERY_HIGH -> highIncome
                     EconomicStatus.MIDDLE -> 0.0
                 } +
-                (it.amountOfChildren >= 1) * childrenFactor +
+                (characteristics.amountOfChildren >= 1) * childrenFactor +
 
-                (it.amountOfYouth >= 1) * youthFactor +
-                when (it.amountOfWorkers) {
+                (characteristics.amountOfYouth >= 1) * youthFactor +
+                when (characteristics.amountOfWorkers) {
                     1 -> oneWorker
                     2 -> twoWorkers
                     else -> 0.0
                 } +
-                when (it.amountOfLicences) {
+                when (characteristics.amountOfLicences) {
                     1 -> oneLicence
                     2 -> twoLicences
                     3 -> threeLicences
                     in 4..Int.MAX_VALUE -> fourOrMoreLicences
                     else -> 0.0
                 } +
-                (it.isWg) * isFlat +
-                (it.isOnlyRetired) * isRetired +
-                (it.isOnlyUnemployed) * isUnemployed
+                (characteristics.isWg) * isFlat +
+                (characteristics.isOnlyRetired) * isRetired +
+                (characteristics.isOnlyUnemployed) * isUnemployed
         }
 
         /*
@@ -609,29 +605,29 @@ val carChoiceUtility = NestedStructure<Int, CarOwnershipAttributes, CarOwnership
         is not intended to be used in the utility function for 3 cars. (You can also very easily mistype and mess up
         the utility function, so be moderately careful)
          */
-        option(3) {
+        option(3) { _, characteristics ->
             asc_3_mu +
-                asc_3_sig * it.randomNumber +
-                (it.size == 1) * b_hh_size_1_on_3 +
-                (it.size == 2) * b_hh_size_2_on_3 +
-                (it.size >= 4) * b_hh_size_4_on_3 +
+                asc_3_sig * characteristics.randomNumber +
+                (characteristics.size == 1) * b_hh_size_1_on_3 +
+                (characteristics.size == 2) * b_hh_size_2_on_3 +
+                (characteristics.size >= 4) * b_hh_size_4_on_3 +
 
-                (it.economicStatus.poor) * b_income_low_on_3 +
-                (it.economicStatus.rich) * b_income_high_on_3 +
-                (it.amountOfChildren >= 1) * b_person_age_0_9_on_3 +
+                (characteristics.economicStatus.poor) * b_income_low_on_3 +
+                (characteristics.economicStatus.rich) * b_income_high_on_3 +
+                (characteristics.amountOfChildren >= 1) * b_person_age_0_9_on_3 +
 
-                (it.amountOfYouth >= 1) * b_person_age_10_17_on_3 +
-                (it.amountOfWorkers == 1) * b_person_working_1_on_3 +
-                (it.amountOfWorkers == 2) * b_person_working_2_on_3 +
+                (characteristics.amountOfYouth >= 1) * b_person_age_10_17_on_3 +
+                (characteristics.amountOfWorkers == 1) * b_person_working_1_on_3 +
+                (characteristics.amountOfWorkers == 2) * b_person_working_2_on_3 +
 
-                (it.amountOfLicences == 1) * b_license_1_on_3 +
-                (it.amountOfLicences == 2) * b_license_2_on_3 +
-                (it.amountOfLicences == 3) * b_license_3_on_3 +
-                (it.amountOfLicences >= 4) * b_license_4_on_3 +
+                (characteristics.amountOfLicences == 1) * b_license_1_on_3 +
+                (characteristics.amountOfLicences == 2) * b_license_2_on_3 +
+                (characteristics.amountOfLicences == 3) * b_license_3_on_3 +
+                (characteristics.amountOfLicences >= 4) * b_license_4_on_3 +
 
-                (it.isWg) * b_shared_flat_on_3 +
-                (it.isOnlyRetired) * b_hh_retired_on_3 +
-                (it.isOnlyUnemployed) * b_hh_unemployed_on_3
+                (characteristics.isWg) * b_shared_flat_on_3 +
+                (characteristics.isOnlyRetired) * b_hh_retired_on_3 +
+                (characteristics.isOnlyUnemployed) * b_hh_unemployed_on_3
         }
 
         /*
@@ -643,9 +639,9 @@ val carChoiceUtility = NestedStructure<Int, CarOwnershipAttributes, CarOwnership
          Sadly the invocation of standardFunction(this, it) is a bit cryptic, but necessary if you intend to use the
          amendment approach.
          */
-        option(4, parameters = { fourCar }) {
-            standardFunction(this, it) +
-                it.isWg * 0.0
+        option(4, parameters = { fourCar }) { option, characteristics ->
+            standardFunction(this, option, characteristics) +
+                characteristics.isWg * 0.0
         }
     }
 }.nestedLogit("ExampleNestedNumberOfCarsModel")

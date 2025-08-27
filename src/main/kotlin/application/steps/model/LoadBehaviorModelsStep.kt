@@ -1,0 +1,163 @@
+package application.steps.model
+
+import application.steps.parser.dummyImpedance
+import core.modelsteps.LateInit
+import core.modelsteps.MutableRepository
+import core.modelsteps.Repository
+import core.modelsteps.RepositoryDependentStep
+import core.modelsteps.Warning
+import core.modelsteps.validateCondition
+import core.modelsteps.validateScope
+import domain.shared.behavior.AttractivenessModel
+import domain.shared.behavior.ChoiceModelModes
+import domain.shared.enums.Mode
+import domain.shared.enums.legacyChoiceModelModes
+import domain.shared.location.LegacyZone
+import domain.shared.location.Location
+import domain.shared.location.Zone
+import domain.shared.location.ZoneId
+import domain.simulation.agent.PersonAgent
+import domain.simulation.agent.SharingProviderAgent
+import domain.simulation.behavior.AvailabilityModelWithSharing
+import domain.simulation.behavior.BikeSharingConnectionSelector
+import domain.simulation.behavior.DestinationChoiceCharacteristics
+import domain.simulation.behavior.FixedModesFilter
+import domain.simulation.behavior.ModeAvailabilityFilter
+import domain.simulation.behavior.ModeChoiceCharacteristics
+import domain.simulation.behavior.available
+import domain.simulation.config.DemandSimContext
+import domain.simulation.events.GenerateDestinationCharacteristics
+import domain.simulation.events.GenerateModeCharacteristics
+import domain.simulation.events.PersonBehavior
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
+import domain.synthesis.data.IPerson
+import domain.synthesis.data.SharingProviderId
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.UtilityBasedChoiceModel
+
+fun LoadBehaviorModelsContext.loadBehaviorModels(
+    destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    modes: ChoiceModelModes,
+) = this.loadBehaviorModels(
+    destinationChoiceModel,
+    modeChoiceModel,
+    modes,
+    StandardDestinationImplementation,
+    StandardModeImplementation
+)
+
+fun LoadBehaviorModelsContext.loadBehaviorModels(
+    destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    modes: ChoiceModelModes,
+    spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
+    spawnModeChoiceCharacteristics: NewModeCharacteristics,
+) = runStep {
+    LoadBehaviorModelsStep(
+        this,
+        destinationChoiceModel,
+        modeChoiceModel,
+        modes,
+        spawnDestinationChoiceCharacteristics,
+        spawnModeChoiceCharacteristics
+    )
+}
+
+interface LoadBehaviorModelsContext : DemandSimContext {
+    val sharingProviderAgents: Repository<SharingProviderAgent, SharingProviderId>
+    val zoneRepository: Repository<Zone, ZoneId>
+    val zoneColumnIndex: Map<Int, LegacyZone>
+    val attractivenessModel: LateInit<AttractivenessModel>
+}
+
+typealias NewDestinationCharacteristics = GenerateDestinationCharacteristics<DestinationChoiceCharacteristics>
+typealias NewModeCharacteristics = GenerateModeCharacteristics<ModeChoiceCharacteristics>
+class LoadBehaviorModelsStep(
+    private val context: LoadBehaviorModelsContext,
+    private val destinationChoiceModel: UtilityBasedChoiceModel<Location, DestinationChoiceCharacteristics>,
+    private val modeChoiceModel: FixedChoiceModel<Mode, ModeChoiceCharacteristics>,
+    private val modes: ChoiceModelModes,
+    private val spawnDestinationChoiceCharacteristics: NewDestinationCharacteristics,
+    private val spawnModeChoiceCharacteristics: NewModeCharacteristics,
+) : RepositoryDependentStep {
+
+    override val name: String = "Load behavior models!"
+    override val repository: MutableRepository<*, *>? = null
+    override val dependentRepositories: Set<Repository<*, *>> = setOf(
+        context.zoneRepository, context.sharingProviderAgents
+    )
+
+    override fun execute() {
+        val impedance = context.impedance.value
+
+        val providers = context.sharingProviderAgents.elements.associateBy { it.id }
+
+        val providersByMode = providers.values.groupBy {
+            it.mode
+        }.mapValues {
+            it.value.map { p -> p.id }.toSet()
+        }
+
+        // TODO refactor availability model, as composite of availability rules
+        val availability = AvailabilityModelWithSharing(modes, providersByMode, impedance)
+
+        val modeChoice = modeChoiceModel.addFilter(availability)//.addFilter(FixedModesFilter)
+
+        val destinationChoice = destinationChoiceModel.fixed(
+            context.zoneRepository.elements.map { it.centroid }.toSet()
+        )
+
+        val behavior = PersonBehavior(
+            destinationChoice,
+            modeChoice,
+            modes,
+            impedance,
+            context.attractivenessModel.value,
+            availability,
+            availability,
+            spawnDestinationChoiceCharacteristics,
+            spawnModeChoiceCharacteristics,
+        )
+
+        context.behavior.value = behavior
+    }
+
+    override fun verifyInput(): Warning? = validateScope("Validate impedance is initialized:") {
+        validateCondition("Cannot access impedance, as it has not been loaded yet!") {
+            context.impedance.isSet
+        }
+    }
+
+    override fun mockBehavior(): Warning? = validateScope("Mock choice models for validation:") {
+        val impedance = if (context.impedance.isSet) {
+            context.impedance.value
+        } else {
+            dummyImpedance
+        }
+
+        context.behavior.value = PersonBehavior(
+            destinationChoice = RandomChoiceModel("Dummy destination choice for validation", setOf()),
+            modeChoice = RandomChoiceModel("Dummy mode choice for validation", context.modes.values()),
+            modes = legacyChoiceModelModes,
+            impedance = impedance,
+            context.attractivenessModel.value,
+            DummyAvailability,
+            BikeSharingConnectionSelector { null },
+            StandardDestinationImplementation,
+            StandardModeImplementation
+        )
+    }
+
+}
+
+object DummyAvailability : ModeAvailabilityFilter {
+
+    context(person: IPerson) override fun staticAvailability(mode: Mode) = true
+
+    context(agent: PersonAgent) override fun currentAvailability(mode: Mode) = available(mode)
+
+    context(characteristics: ModeChoiceCharacteristics) override fun choiceAvailability(mode: Mode) = true
+}
