@@ -49,7 +49,7 @@ fun Resource<Row>.legs(
     MidLegRow(purposes, modes, it)
 }.asResource(name, source)
 
-data class MidLegRow(
+public data class MidLegRow(
     private val purposes: ChoiceModelPurposes,
     private val modes: ChoiceModelModes,
     private val row: Row
