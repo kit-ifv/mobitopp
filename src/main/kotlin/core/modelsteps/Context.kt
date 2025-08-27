@@ -20,6 +20,8 @@ interface Context {
     val dataFolder: Path
     val simulationSeed: Long
 
+    val resultDir: Path
+
     val simulationStart: AbsoluteTime
     val simulationEnd: AbsoluteTime
     val timeStep: Duration

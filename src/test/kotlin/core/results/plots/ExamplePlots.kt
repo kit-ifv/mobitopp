@@ -1,23 +1,23 @@
 package core.results.plots
 //
-//import domain.data.Sex
-//import modeling.eval.mapping.DemandSimulationResultMapping
-//import modeling.eval.mapping.HouseholdMapping
-//import modeling.eval.mapping.PersonMapping
-//import modeling.steps.asResource
-//import usecases.LegacyMode
-//import utils.collections.addLabel
-//import utils.collections.asBins
-//import utils.collections.mapToBins
-//import utils.collections.toBins
-//import utils.units.sinceStart
-//import java.io.File
-//import kotlin.math.PI
-//import kotlin.math.sin
-//import kotlin.test.Test
-//import kotlin.time.Duration.Companion.minutes
+// import domain.data.Sex
+// import modeling.eval.mapping.DemandSimulationResultMapping
+// import modeling.eval.mapping.HouseholdMapping
+// import modeling.eval.mapping.PersonMapping
+// import modeling.steps.asResource
+// import usecases.LegacyMode
+// import utils.collections.addLabel
+// import utils.collections.asBins
+// import utils.collections.mapToBins
+// import utils.collections.toBins
+// import utils.units.sinceStart
+// import java.io.File
+// import kotlin.math.PI
+// import kotlin.math.sin
+// import kotlin.test.Test
+// import kotlin.time.Duration.Companion.minutes
 //
-//class ExamplePlots {
+// class ExamplePlots {
 //    val resultFile = File("src/test/resources/Rastatt_data/demandsimulationResult.csv")
 //    val resultData = DemandSimulationResultMapping(resultFile)
 //    val results by lazy { resultData.rows.take(50_000).toList()}
@@ -302,13 +302,13 @@ package core.results.plots
 //        }.asHistogram().plot()
 //    }
 //
-//}
-//private val ageBins = listOf(
+// }
+// private val ageBins = listOf(
 //    0 to 7, 7 to 11, 11 to 14, 14 to 18, 18 to 30, 30 to 40,
 //    40 to 50, 50 to 60, 60 to 65, 65 to 75, 75 to 80, 80 to 120
-//).asBins()
-///*
-//forData {
+// ).asBins()
+// /*
+// forData {
 //                personLegs
 //
 //            }.count {
@@ -339,7 +339,7 @@ package core.results.plots
 //            )
 //
 //
-//forData {
+// forData {
 //                personLegs
 //            }.groupBy {
 //                it.leg.transportType
@@ -357,7 +357,7 @@ package core.results.plots
 //            )
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.employment
@@ -372,7 +372,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.age.mapToBins(ageBins)
@@ -386,7 +386,7 @@ package core.results.plots
 //            }.asHistogram()
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.sex
@@ -406,7 +406,7 @@ package core.results.plots
 //            }.asLineChart()
 //
 //
-//forData {
+// forData {
 //                households
 //            }.count {
 //                it.cars.size
@@ -421,7 +421,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                households
 //            }.groupBy {
 //                it.cars.size
@@ -452,7 +452,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                households
 //            }.groupBy {
 //                it.cars.size
@@ -468,7 +468,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.count {
 //                it.hasCommuterTicket
@@ -481,7 +481,7 @@ package core.results.plots
 //            )
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.hasCommuterTicket
@@ -497,7 +497,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.hasCommuterTicket
@@ -513,7 +513,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.hasCommuterTicket
@@ -530,7 +530,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.hasCommuterTicket
@@ -546,7 +546,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                it.hasCommuterTicket
@@ -563,7 +563,7 @@ package core.results.plots
 //
 //
 //
-//forData {
+// forData {
 //                persons
 //            }.groupBy {
 //                personMemberships(it)
@@ -575,4 +575,4 @@ package core.results.plots
 //                groupLabel = "memberships"
 //                xOrder = Ordering.Ascending()
 //            }.asHistogram()
-//* */
+// * */
