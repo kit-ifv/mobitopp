@@ -5,7 +5,7 @@ import java.nio.file.Path
 private val matrixFormatKeyRegex = Regex("^[A-Za-z_]+$")
 
 interface MatrixParser<I> {
-    fun <O> getMatrix(path: Path, converter: (Double) -> O): Matrix<I, O>
+    fun getMatrix(path: Path): IndexedDoubleMatrix<I>
 }
 
 data class MatrixFormat<I>(
@@ -25,8 +25,8 @@ fun <I> Collection<MatrixFormat<I>>.fromString(value: String, path: String) =
 
 class ConstantMatrixParser<I> : MatrixParser<I> {
 
-    override fun <O> getMatrix(path: Path, converter: (Double) -> O): Matrix<I, O> {
-        val constant: O = converter(path.toString().toDouble())
+    override fun getMatrix(path: Path): IndexedDoubleMatrix<I> {
+        val constant = path.toString().toDouble()
         return ConstantMatrix(constant)
     }
 }

@@ -5,8 +5,8 @@ import core.modelsteps.Warning
 import core.modelsteps.validateCondition
 import core.modelsteps.validateFileReadAccess
 import core.modelsteps.validateScope
+import domain.shared.datastructure.matrix.BigNewHolder
 import domain.shared.datastructure.matrix.InternalMatrixLookup
-import domain.shared.datastructure.matrix.YamlMatrixLookupMetrics
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
@@ -60,17 +60,11 @@ private class LoadImpedanceStep(
     override val name: String = "Load matrix impedance from yaml"
 
     override fun execute() {
-        val impedance = YamlMatrixLookupMetrics(
-            travelCostMatrixConfig = costMatrixConfig,
-            travelTimeMatrixConfig = durationMatrixConfig,
-            distanceMatrix = distanceMatrix,
-            distanceUnit = distanceUnit ?: context.distanceUnit,
-            currencyUnit = currencyUnit ?: context.costUnit,
-            durationUnit = durationUnit ?: context.timeUnit,
-            modeCodes = context.modes,
-            simulationStart = context.simulationStart,
-            simulationEnd = context.simulationEnd,
-            betterFormat = betterFormatRoot
+        val impedance = BigNewHolder.fromPaths(
+            travelTimeYamlPath = durationMatrixConfig,
+            travelCostsYamlPath = costMatrixConfig,
+            travelDistanceMatrixPath = distanceMatrix,
+            decoder = context.modes
         )
 
         context.impedance.value = (impedance)

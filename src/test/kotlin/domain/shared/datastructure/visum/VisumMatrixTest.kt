@@ -9,7 +9,7 @@ import java.nio.file.Paths
 class VisumMatrixTest {
     @Test
     fun `test matrix returns correct values`() {
-        val matrix = VisumMatrix(Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx")) { x -> x }
+        val matrix = VisumMatrix(Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx"))
 
         // Assertion for zoneIds
         val zoneIds = arrayOf(

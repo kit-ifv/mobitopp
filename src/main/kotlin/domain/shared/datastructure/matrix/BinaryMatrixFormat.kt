@@ -1,14 +1,11 @@
 package domain.shared.datastructure.matrix
 
 import core.datastructure.matrix.FloatMatrix
-import core.datastructure.matrix.Matrix
 import core.datastructure.matrix.MatrixFormat
 import core.datastructure.matrix.MatrixParser
+import core.datastructure.matrix.IndexedDoubleMatrix
 import domain.shared.location.ZoneId
 import utils.binary.operateOnMemoryFile
-import java.io.BufferedOutputStream
-import java.io.DataOutputStream
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -36,9 +33,9 @@ fun Path.getSize(): Triple<Int, Map<ZoneId, Int>, FloatArray> {
 val BinaryZoneFloatMatrixFormat = MatrixFormat(
     key = "float_matrix",
     parser = object : MatrixParser<ZoneId> {
-        override fun <O> getMatrix(path: Path, converter: (Double) -> O): Matrix<ZoneId, O> {
+        override fun  getMatrix(path: Path): IndexedDoubleMatrix<ZoneId> {
             val (size, translation, floatArray) = path.getSize()
-            return FloatMatrix(size, translation, floatArray, converter)
+            return FloatMatrix(size, translation, floatArray)
         }
     }
 )
@@ -53,10 +50,9 @@ class CachedBinaryMatrixParser(
     private val betterFormatFolder: InternalMatrixLookup
 ) : MatrixParser<ZoneId> {
 
-    override fun <O> getMatrix(
+    override fun getMatrix(
         path: Path,
-        converter: (Double) -> O
-    ): Matrix<ZoneId, O> {
+    ): IndexedDoubleMatrix<ZoneId> {
         val outputPath = betterFormatFolder.let {
             Path(
                 path.toString().replace(
@@ -70,11 +66,11 @@ class CachedBinaryMatrixParser(
 
         outputPath.let {
             if (it.exists()) {
-                return BinaryZoneFloatMatrixFormat.getMatrix(it, converter)
+                return BinaryZoneFloatMatrixFormat.getMatrix(it)
             }
         }
 
-        return delegate.getMatrix(path, converter)
+        return delegate.getMatrix(path)
     }
 }
 
@@ -84,24 +80,24 @@ fun <I> Collection<MatrixFormat<ZoneId>>.checkBinaryCache(
     MatrixFormat(it.key, CachedBinaryMatrixParser(it.parser, betterFormatFolder))
 }
 
-@Suppress("NestedBlockDepth")
-fun <O> FloatMatrix<ZoneId, O>.writeToBinary(path: Path) {
-    Files.newOutputStream(path).use { fileStream ->
-        BufferedOutputStream(fileStream).use { bufferedStream ->
-            DataOutputStream(bufferedStream).use { outputStream ->
-                // Write the size as an Int
-                outputStream.writeInt(size)
-
-                // Write all zoneIds (their corresponding Int values) from the translation map
-                translation.keys.forEach { idInt ->
-                    outputStream.writeInt(idInt.value.toInt())
-                }
-
-                // Write all floats from the floatArray
-                floatArray.forEach { floatValue ->
-                    outputStream.writeFloat(floatValue)
-                }
-            }
-        }
-    }
-}
+//@Suppress("NestedBlockDepth")
+//fun <O> FloatMatrix<ZoneId, O>.writeToBinary(path: Path) {
+//    Files.newOutputStream(path).use { fileStream ->
+//        BufferedOutputStream(fileStream).use { bufferedStream ->
+//            DataOutputStream(bufferedStream).use { outputStream ->
+//                // Write the size as an Int
+//                outputStream.writeInt(size)
+//
+//                // Write all zoneIds (their corresponding Int values) from the translation map
+//                translation.keys.forEach { idInt ->
+//                    outputStream.writeInt(idInt.value.toInt())
+//                }
+//
+//                // Write all floats from the floatArray
+//                floatArray.forEach { floatValue ->
+//                    outputStream.writeFloat(floatValue)
+//                }
+//            }
+//        }
+//    }
+//}
