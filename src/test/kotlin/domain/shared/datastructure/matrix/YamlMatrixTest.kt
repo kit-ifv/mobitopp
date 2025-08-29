@@ -252,15 +252,16 @@ private class MutableWeeksLookupBuilder<T> {
     fun week(number: Int, lambda: MutableWeekLookupBuilder<T>.() -> Unit) {
         val builder = MutableWeekLookupBuilder<T>()
         builder.apply(lambda)
-        val lookup = builder.build()
-        allWeeks[number] = lookup
+        allWeeks[number] = listOf(WeekLookupOperation {
+            lambda
+        })
     }
 
     fun allWeeks(lambda: MutableWeekLookupBuilder<T>.() -> Unit) {
         val builder = MutableWeekLookupBuilder<T>()
         builder.apply(lambda)
         val lookup = builder.build()
-        allWeeks.setDefault(lookup)
+        allWeeks.applyDefaultInstructions(listOf(WeekLookupOperation {lookup}))
     }
 
     fun build(): CalendarWeekLookup<T> {
@@ -273,18 +274,18 @@ private class MutableWeekLookupBuilder<T> {
 
     fun day(day: DayOfWeek, lambda: DayLookupBuilder<T>.() -> Unit) {
         val timeLookup = buildLookup(lambda)
-        thisWeek[day] = timeLookup
+        thisWeek[day] = TimeLookupOperation{timeLookup.build()}
 
     }
 
     fun default(lambda: DayLookupBuilder<T>.() -> Unit) {
         val timeLookup = buildLookup(lambda)
-        thisWeek.setDefault(timeLookup)
+        thisWeek.setDefault(TimeLookupOperation{timeLookup.build()})
     }
 
     fun workdays(lambda: DayLookupBuilder<T>.() -> Unit) {
         val timeLookup = buildLookup(lambda)
-        thisWeek.setWorkdays(timeLookup)
+        thisWeek.setWorkdays(TimeLookupOperation{timeLookup.build()})
     }
 
     private fun buildLookup(lambda: DayLookupBuilder<T>.() -> Unit): DayLookupBuilder<T> {

@@ -40,21 +40,21 @@ class WeekLookupBuilder<T>(
     )
 
     /**
-     * Inserts the given [default] builder into all days at **default** level.
+     * Inserts the given [instruction] builder into all days at **default** level.
      *
      * Days already marked at a higher level (`WORKDAYS` or `SPECIFIC`)
      * will not accept these segments.
      */
-    fun setDefault(default: DayLookupBuilder<T>) = applyToDays(DayOfWeek.entries, Level.DEFAULT, default)
+    fun setDefault(instruction: TimeLookupOperation<T>) = applyToDays(DayOfWeek.entries, Level.DEFAULT, instruction)
 
     /**
-     * Inserts the given [time] builder into all **workdays** (Mon–Fri).
+     * Inserts the given [instruction] builder into all **workdays** (Mon–Fri).
      *
      * Days already marked as `SPECIFIC` will not accept these segments.
      * Partial definitions at `WORKDAYS` can still fall back to segments
      * from `DEFAULT`.
      */
-    fun setWorkdays(time: DayLookupBuilder<T>) = applyToDays(workdays, Level.WORKDAYS, time)
+    fun setWorkdays(instruction: TimeLookupOperation<T>) = applyToDays(workdays, Level.WORKDAYS, instruction)
 
 
     /**
@@ -63,13 +63,17 @@ class WeekLookupBuilder<T>(
      * Marks that day as `SPECIFIC`. Once specific, the day will no longer
      * accept insertions from `WORKDAYS` or `DEFAULT`.
      */
-    operator fun set(dayOfWeek: DayOfWeek, day: DayLookupBuilder<T>) = applyToDays(listOf(dayOfWeek), Level.SPECIFIC, day)
+    operator fun set(dayOfWeek: DayOfWeek, day: TimeLookupOperation<T>) = applyToDays(listOf(dayOfWeek), Level.SPECIFIC, day)
 
-    private fun applyToDays(days: Iterable<DayOfWeek>, level: Level, source: DayLookupBuilder<T>) {
+    private fun applyToDays(days: Iterable<DayOfWeek>, level: Level, source: TimeLookupOperation<T>) {
         for (day in days) {
             if (levels[day]!! <= level) {
                 levels[day] = level
-                dayLookups.getValue(day).insertAll(source.segments())
+                val value = dayLookups.getValue(day)
+                source.run{
+                    value.apply()
+                }
+
             }
         }
     }
