@@ -1,5 +1,6 @@
 package domain.synthesis.behavior
 
+import domain.synthesis.behavior.discreteChoice.CarOwnershipAttributes
 import domain.synthesis.behavior.discreteChoice.CarOwnershipFactors
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
@@ -9,9 +10,11 @@ import domain.synthesis.data.EconomicStatus
 import domain.synthesis.data.Employment
 import units.Currency
 
-fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipFactors {
-    return CarOwnershipFactors(
-        this,
+fun SynthesisHousehold<out SurveyInfo>.toCarOwnershipAttributes(): CarOwnershipAttributes {
+    return CarOwnershipAttributes(
+        CarOwnershipFactors(
+            this,
+        )
     )
 }
 
@@ -42,7 +45,7 @@ class SurveyHousehold<T>(
     lateinit var economicStatus: EconomicStatus
     val size get() = members.size
     fun toScalableVector(rules: List<Rule<in T>>): ScalableVector {
-        return ScalableVector.Companion.createFrom(this, rules)
+        return ScalableVector.createFrom(this, rules)
     }
 
     fun toSynthesisHousehold(): SynthesisHousehold<T> {

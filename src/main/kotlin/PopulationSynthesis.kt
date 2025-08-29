@@ -56,24 +56,13 @@ import domain.synthesis.results.OpportunityOutput
 import domain.synthesis.results.PersonOutput
 import edu.kit.ifv.mobitopp.discretechoice.models.FixedChoiceModel
 import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.EnumeratedDiscreteModelBuilder
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import units.CurrencyUnit
 import units.kilometers
 import units.meters
 import units.toCurrency
 import utils.collections.addProgressBar
-import utils.collections.defaultProgressBarBuilder
-import utils.collections.stepBy
 import utils.csv.DefaultCsvParser
 import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.Path
 import kotlin.random.Random
 

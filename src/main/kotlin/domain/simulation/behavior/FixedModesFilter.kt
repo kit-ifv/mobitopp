@@ -1,13 +1,14 @@
 package domain.simulation.behavior
 
-import discreteChoice.models.ChoiceFilter
 import domain.shared.datastructure.schedule.StationaryAction
+import domain.shared.enums.Mode
 import domain.simulation.agent.PersonAgent
+import edu.kit.ifv.mobitopp.discretechoice.models.ChoiceFilter
 
-object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should filters have names for debugging?
-
-    override fun filter(choices: Set<ModeChoiceAlternative>): Set<ModeChoiceAlternative> {
-        val person = choices.first().person
+object FixedModesFilter : ChoiceFilter<Mode, ModeChoiceCharacteristics> { // TODO should filters have names for debugging?
+    context(characteristics: ModeChoiceCharacteristics)
+    override fun filter(alternative: Mode): Boolean {
+        val person = characteristics.person
         // TODO accessing first to get parameters is not elegant,
         // and assumes that alternatives only differ in Mode/choice
         val lastActivity = person.schedule.pastActivities().lastOrNull()
@@ -17,12 +18,13 @@ object FixedModesFilter : ChoiceFilter<ModeChoiceAlternative> { // TODO should f
 
             lastMode?.let {
                 if (it.requiresVehicleTakeAlong) {
-                    choices.filter { it.choice == lastMode }.toSet()
+                    alternative == lastMode
+
                 } else {
-                    choices.filter { !it.choice.requiresVehicleTakeAlong }.toSet()
+                    !alternative.requiresVehicleTakeAlong
                 }
             }
-        } ?: choices
+        } ?: true
     }
 
     private fun isNotAtHome(person: PersonAgent, activity: StationaryAction): Boolean {

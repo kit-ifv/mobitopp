@@ -4,6 +4,7 @@ import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.pickWithReplacement
 import domain.synthesis.behavior.selectExact
+import utils.collections.addProgressBar
 import utils.collections.invertMap
 import kotlin.random.Random
 
@@ -34,7 +35,7 @@ import kotlin.random.Random
  */
 class IPU<AREA, T>(
     val converter: GenerateHouseholdsFromVector<T> = SampleAndCollect(),
-    val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit
+    val algorithm: (vectors: Collection<ScalableVector>, Collection<RuleObserver>) -> Unit,
 ) :
     HouseholdSynthesis<AREA, T> {
 
@@ -54,19 +55,43 @@ class IPU<AREA, T>(
      */
     override fun synthesize(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>
+        conditions: Map<AREA, List<Rule<in T>>>,
     ): Map<AREA, List<SynthesisHousehold<out T>>> {
         return generate(surveyHouseholds, conditions).mapValues { it.value.map { it.toSynthesisHousehold() } }
     }
 
     fun generate(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
-        conditions: Map<AREA, List<Rule<in T>>>
+        conditions: Map<AREA, List<Rule<in T>>>,
     ): Map<AREA, List<SurveyHousehold<out T>>> {
-        return conditions.entries.associate { (zone, rules) ->
-            zone to calculate(surveyHouseholds, rules, converter)
-        }
+        return conditions.entries
+            .addProgressBar(
+                label = "IPU generation",
+                expectedCount = conditions.size.toLong()
+            ).associate { (zone, rules) ->
+                zone to converter.run {
+                    val ipu = calculate(surveyHouseholds, rules)
+                    ipu.extract()
+                }
+            }
     }
+
+    fun calculateGrouped(
+        surveyHouseholds: Collection<SurveyHousehold<out T>>,
+        conditions: Map<AREA, List<Rule<in T>>>,
+    ): Map<AREA, Map<ScalableVector, List<SurveyHousehold<out T>>>> {
+        return conditions.entries
+            .addProgressBar(
+                label = "IPU generation",
+                expectedCount = conditions.size.toLong()
+            ).associate { (zone, rules) ->
+                zone to calculate(surveyHouseholds, rules)
+
+            }
+    }
+
+
+
 
     /**
      * Calculates the synthetic household population for a set of survey households, based on the provided rules
@@ -81,11 +106,11 @@ class IPU<AREA, T>(
      * @param conversion The strategy used to convert the grouped vectors back into households.
      * @return A list of survey households that meet the conditions specified by the rules.
      */
-    private fun calculate(
+    fun calculate(
         surveyHouseholds: Collection<SurveyHousehold<out T>>,
         rules: List<Rule<in T>>,
-        conversion: GenerateHouseholdsFromVector<T>
-    ): List<SurveyHousehold<out T>> {
+
+        ): Map<ScalableVector, List<SurveyHousehold<out T>>> {
         val vectorMapping = surveyHouseholds.associateWith { it.toScalableVector(rules) }
         val inverseMap = vectorMapping.invertMap()
         val uniqueVectors = inverseMap.keys
@@ -93,11 +118,24 @@ class IPU<AREA, T>(
             RuleObserver.fromRule(it.value, it.index, uniqueVectors)
         }
         algorithm(uniqueVectors, ruleObservers)
-        return conversion.run {
-            inverseMap.extract()
+        return inverseMap
+
+    }
+
+    fun calculateConverter(
+        surveyHouseholds: Collection<SurveyHousehold<out T>>,
+        rules: List<Rule<in T>>,
+    ): List<SurveyHousehold<out T>> {
+        val output = calculate(surveyHouseholds, rules)
+        return converter.run {
+            output.extract()
         }
     }
 }
+
+data class IPUOutput<T>(
+    private val result: Map<ScalableVector, List<SurveyHousehold<out T>>>
+)
 
 /**
  * There may be different strategies to pick a certain amount of survey households from a scalable vector. This

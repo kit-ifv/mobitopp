@@ -6,8 +6,6 @@ import application.syntheticsim.testAttractivenessModel
 import core.events.ParallelSimulator
 import core.modelsteps.asRepository
 import core.modelsteps.asResource
-import discreteChoice.models.FixedOrderChoiceModel
-import discreteChoice.models.RandomChoiceModel
 import domain.shared.enums.legacyChoiceModelModes
 import domain.simulation.agent.BuildAgents
 import domain.simulation.agent.PersonAgent
@@ -16,6 +14,10 @@ import domain.simulation.events.CarSelector
 import domain.simulation.events.InitPersonEvent
 import domain.simulation.events.ModeScopeDispatcher
 import domain.simulation.events.PersonBehavior
+import domain.simulation.events.StandardDestinationImplementation
+import domain.simulation.events.StandardModeImplementation
+import edu.kit.ifv.mobitopp.discretechoice.models.FixedOrderChoiceModel
+import edu.kit.ifv.mobitopp.discretechoice.models.RandomChoiceModel
 import generateActivitySchedule
 import generateHouseholds
 import generateZones
@@ -72,7 +74,10 @@ class CarOnlyScenario {
             modeChoice = FixedOrderChoiceModel("prefer car", setOf(car, legacyModes.pedestrian), availability),
             scopeDispatcher = modeScopeDispatcher,
             attractivityModel = testAttractivenessModel,
-            availabilityModel = availability
+            availabilityModel = availability,
+            spawnDestinationCharacteristics = StandardDestinationImplementation,
+            spawnModeCharacteristics = StandardModeImplementation
+
         )
 
         val sim = ParallelSimulator(timeStep = 1.minutes)

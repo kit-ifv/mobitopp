@@ -4,6 +4,7 @@ import domain.synthesis.behavior.SurveyHousehold
 import domain.synthesis.behavior.householdgeneration.Rule
 import domain.synthesis.behavior.householdgeneration.RuleObserver
 import domain.synthesis.behavior.householdgeneration.ScalableVector
+import domain.synthesis.behavior.householdgeneration.TargetNumberObserver
 import domain.synthesis.behavior.householdgeneration.ZoneCheckRule
 import domain.synthesis.behavior.householdgeneration.ZoneRule
 import domain.synthesis.data.Sex
@@ -114,6 +115,6 @@ class RuleObserverTest : SynthesisTest() {
  * @param encodedHouseholds A collection of [ScalableVector]s representing encoded households.
  * @return A new [RuleObserver] instance.
  */
-fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): RuleObserver {
+fun Rule<*>.createObserver(index: Int, encodedHouseholds: Collection<ScalableVector>): TargetNumberObserver {
     return RuleObserver.fromRule(this, index, encodedHouseholds)
 }

@@ -8,6 +8,7 @@ import domain.synthesis.behavior.fixedDestinations.AssignedLocation
 import domain.synthesis.behavior.fixedDestinations.SimpleGroupLocator
 import units.Distance
 import units.abs
+import utils.collections.addProgressBar
 
 /**
  * A community based locator groups the agents based on the community number of their home location, defined by the
@@ -27,7 +28,7 @@ class CommunityBasedGroupLocator<T>(
         verifyDemand(targets.keys)
         verifyLocationsPresent(targets.keys)
 
-        return targets.flatMap { (communityNumber, agents) ->
+        return targets.entries.addProgressBar("Assigning demands for communities").flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
             val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
             strategy.assign(agents, demandsForCommunity, locationsInTargetCommunities)
@@ -101,8 +102,9 @@ data class CommunityDemandPlaner<T>(
     ): List<AssignedLocation<T>> {
         val size = agents.size
         if (size > demand.total) {
+
             System.err.println(
-                "The amount of agents ($size) to be assigned in community ${demand.communityID} " +
+                "\nThe amount of agents ($size) to be assigned in community ${demand.communityID} " +
                     "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"
             )
         }

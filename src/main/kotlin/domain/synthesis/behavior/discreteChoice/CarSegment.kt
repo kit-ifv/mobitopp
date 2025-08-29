@@ -1,15 +1,13 @@
 package domain.synthesis.behavior.discreteChoice
 
-import discreteChoice.models.ChoiceAlternative
-import discreteChoice.models.ChoiceSituation
-import discreteChoice.structure.DiscreteStructure
-import discreteChoice.structure.times
-import discreteChoice.utility.multinomialLogit
 import domain.synthesis.behavior.CommuteDistance
 import domain.synthesis.behavior.domain.SynthesisHousehold
 import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.data.CarSegment
 import domain.synthesis.data.Sex
+import edu.kit.ifv.mobitopp.actitoppNG.utils.times
+import edu.kit.ifv.mobitopp.discretechoice.structure.DiscreteStructure
+import edu.kit.ifv.mobitopp.discretechoice.utilityassignment.multinomialLogit
 import units.Currency
 import units.Distance
 import units.euros
@@ -19,28 +17,39 @@ import kotlin.random.Random
 data class CarSegmentSituation(
     val person: SynthesisPerson<out CommuteDistance>,
     val household: SynthesisHousehold<out CommuteDistance>
-) : ChoiceSituation<CarSegmentChoice, CarSegment> {
+) {
     // TODO delegate to household once merged with default household dataclass
-    override val random: Random = Random(System.currentTimeMillis())
-    override fun with(choice: CarSegment) = choice.toAlternative(person, household)
+    val random: Random = Random(System.currentTimeMillis())
+    fun with(choice: CarSegment) = choice.toAlternative(person, household)
 }
 
 data class CarSegmentChoice(
-    override val choice: CarSegment,
+
     val commuterDistance: Distance,
     val householdSize: Int,
     val householdIncome: Currency,
     val numberOfCars: Int,
     val sex: Sex,
     val isCommuting: Boolean
-) : ChoiceAlternative<CarSegment>()
+) {
+    constructor(
+        person: SynthesisPerson<out CommuteDistance>,
+        household: SynthesisHousehold<out CommuteDistance>
+    ) : this(
+        person.info.distanceWork,
+        household.size,
+        household.income,
+        household.amountOfCars,
+        person.sex,
+        false
+    )
+}
 
 fun CarSegment.toAlternative(
     person: SynthesisPerson<out CommuteDistance>,
     household: SynthesisHousehold<out CommuteDistance>
 ): CarSegmentChoice {
     return CarSegmentChoice(
-        this,
         person.info.distanceWork,
         household.size,
         household.income,
@@ -179,11 +188,11 @@ val carSegmentChoiceModel = DiscreteStructure<CarSegment, CarSegmentChoice, CarS
     option(CarSegment.SMALL) {
         0.0
     }
-    option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) {
-        defaultUtilityFunction(this, it)
+    option(CarSegment.MIDSIZE, parameters = { toMidsizeParameterSet() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
-    option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) {
-        defaultUtilityFunction(this, it)
+    option(CarSegment.LARGE, parameters = { toLargeParameterSet() }) { _, characteristics ->
+        defaultUtilityFunction(this, characteristics)
     }
 }.multinomialLogit("ExampleTransitPassModel")
 
