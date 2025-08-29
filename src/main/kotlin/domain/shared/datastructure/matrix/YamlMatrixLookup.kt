@@ -4,7 +4,6 @@ import core.datastructure.matrix.DayMap
 import core.datastructure.matrix.TimeMap
 import core.datastructure.matrix.WeekMap
 import core.datastructure.matrix.YamlMap
-import domain.shared.datastructure.matrix.YamlParsingLogic
 import org.yaml.snakeyaml.Yaml
 import utils.Decodable
 import utils.Encodable
@@ -12,6 +11,7 @@ import utils.WithExpiration
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.io.path.inputStream
+
 /**
  * A [MatrixLookup] backed by a YAML configuration file.
  *
@@ -66,6 +66,7 @@ class YamlMatrixLookup<M : Encodable>(
         val calendarWeekLookupBuilder = CalendarWeekLookupBuilder<YamlInfo>()
         weekMap.forEach { (t, u) ->
             val function = yamlParsingLogic.parseWeekSpecifier(t)
+
             function.run {
                 calendarWeekLookupBuilder.apply(buildWeek(u))
             }
@@ -74,29 +75,22 @@ class YamlMatrixLookup<M : Encodable>(
         return build
     }
 
-    private fun buildWeek(dayMap: DayMap): WeekLookup<YamlInfo> {
-        val dayLookup = WeekLookupBuilder<YamlInfo>()
-        dayMap.forEach { (t, u) ->
-            val function = yamlParsingLogic.parseDaySpecifier(t)
-            function.run {
-                dayLookup.apply(buildDay(u))
-            }
+    private fun buildWeek(dayMap: DayMap): Collection<WeekLookupOperation<YamlInfo>> {
+        return dayMap.map { (t, u) ->
+            val buildDay = buildDay(u)
+            val function = yamlParsingLogic.parseDaySpecifier(t, buildDay)
+
+            function
+
         }
-        return dayLookup.build()
     }
 
-    private fun buildDay(timeMap: TimeMap): DayLookupBuilder<YamlInfo> {
-        val timeLookup = DayLookupBuilder<YamlInfo>()
-        timeMap.forEach { (t, u) ->
+    private fun buildDay(timeMap: TimeMap): Collection<TimeLookupOperation<YamlInfo>> {
+        return timeMap.map { (t, u) ->
             val (key, value) = u.entries.first()
-            val function = yamlParsingLogic.parseTimeSpecifier(t, key to value as String)
+            yamlParsingLogic.parseTimeSpecifier(t, key to value as String)
 
-            function.run {
-                timeLookup.apply()
-            }
         }
-
-        return timeLookup
     }
 
 
