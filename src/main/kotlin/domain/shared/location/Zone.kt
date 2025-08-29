@@ -7,9 +7,13 @@ import units.Distance
 import units.GPSCoordinate
 import utils.ID
 import utils.Identifiable
-import utils.random.SeededActor
+import utils.random.StochasticActor
+import kotlin.random.Random
 
-typealias ZoneId = ID<Zone>
+
+@JvmInline
+value class ZoneId(val value: Long)
+//typealias ZoneId = ID<Zone>
 
 /**
  * Zone - a traffic assignment zone in a transport model.
@@ -35,7 +39,7 @@ abstract class Zone(
     override val id: ZoneId,
     centroid: Location,
     seed: Long,
-) : SeededActor<Zone>(seed), Identifiable<ZoneId> {
+) : StochasticActor, Identifiable<ZoneId> {
 
     abstract val visumId: Long // TODO not a general property of zone, only here because we use visum
     abstract val name: String
@@ -46,7 +50,7 @@ abstract class Zone(
     abstract val relief: Distance
 
     val centroid: Location = centroid.copy(zone = this)
-
+    override val random: Random by lazy { Random(id.value + seed) }
     operator fun contains(location: Location): Boolean = location.zone == this
 }
 

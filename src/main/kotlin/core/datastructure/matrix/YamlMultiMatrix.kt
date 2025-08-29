@@ -2,6 +2,9 @@
 
 package core.datastructure.matrix
 
+import domain.shared.datastructure.matrix.YamlInfo
+import domain.shared.datastructure.matrix.visum.VisumMatrix
+import domain.shared.location.ZoneId
 import me.tongfei.progressbar.ProgressBar
 import org.yaml.snakeyaml.Yaml
 import utils.Decodable
@@ -11,7 +14,8 @@ import utils.collections.stepBy
 import utils.units.AbsoluteTime
 import java.nio.file.Path
 import java.time.DayOfWeek
-import java.util.*
+import java.util.Locale
+import java.util.PriorityQueue
 import kotlin.io.path.pathString
 
 typealias YamlMap = Map<TransportType, WeekMap>
@@ -28,8 +32,43 @@ typealias ParserSpecifier = String
 class YamlMultiMatrixError(
     message: String,
     path: Path,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception("Error in matrix configuration yaml file ${path.fileName} $message.\nSource: $path", cause)
+
+//class YamlMatrixWrapper<M : Encodable>(
+//    private val original: YamlMultiMatrix<M, ZoneId>,
+//) : ZoneMatrixLookup<M> {
+//    override fun get(mode: M, time: AbsoluteTime): ZoneIdMatrix {
+//        return original[mode, time].toConcreteMatrix()
+//    }
+//}
+//
+//
+
+fun interface MatrixCreationInstruction<I> {
+    fun createMatrix(yamlInfo: YamlInfo): IndexedDoubleMatrix<I>
+}
+
+fun interface ZoneMatrixCreation : MatrixCreationInstruction<ZoneId> {
+    override fun createMatrix(yamlInfo: YamlInfo): ZoneIdMatrix
+}
+
+val VISUM_PARSE = ZoneMatrixCreation {
+    VisumMatrix(it.path)
+}
+
+val DEFAULT_PARSE = ZoneMatrixCreation {
+    when(it.parserDescription) {
+        "visum_matrix" -> VisumMatrix(it.path)
+        "constant_matrix" -> ConstantZoneIdMatrix(it.path.toString().toDouble())
+        else -> throw NoSuchElementException()
+    }
+}
+
+abstract class MatrixYamlStructure<M> {
+    abstract fun getInstructions(mode: M, time: AbsoluteTime): Path
+}
+
 
 /**
  * A concrete implementation of the MultiMatrix, which gets its matrices from a Yaml file. The Yaml file must look like this:
@@ -83,22 +122,20 @@ class YamlMultiMatrixError(
  * path: path of the Yaml file
  */
 @Suppress("LongParameterList")
-class YamlMultiMatrix<M, I, O>(
+class YamlMultiMatrix<M, I>(
     path: Path,
-    parser: (Double) -> O,
     modeDecoder: Decodable<M>,
     simulationStartInclusive: AbsoluteTime,
     simulationEndExclusive: AbsoluteTime,
     formats: Collection<MatrixFormat<I>>, // TODO default value?
-) : MultiMatrix<M, I, O> where M : Encodable {
+) : MatrixLookup<M, I> where M : Encodable {
 
     // a map from Mode to a list of matrices
     // The list of matrices are sorted in time, each pair consisting of the start time and the matrix valid from
     // this time valid matrix. As soon as the next entry begins, the previous one ends
-    private val matrixMap: Map<M, List<Pair<AbsoluteTime, Matrix<I, O>>>> =
-        YamlMultiMatrixParser<M, I, O>(
+    private val matrixMap: Map<M, List<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>>> =
+        YamlMultiMatrixParser<M, I>(
             path,
-            parser,
             modeDecoder,
             simulationStartInclusive,
             simulationEndExclusive,
@@ -106,14 +143,14 @@ class YamlMultiMatrix<M, I, O>(
 //            betterFormatFolder
         ).getMatrix()
 
-    override operator fun get(mode: M, time: AbsoluteTime): Matrix<I, O> {
+    override operator fun get(mode: M, time: AbsoluteTime): IndexedDoubleMatrix<I> {
         return cache.evaluate(mode, time)
     }
 
     private val cache = MatrixCache()
 
     private inner class MatrixCache {
-        private val rangeList: Map<M, Map<OpenEndRange<AbsoluteTime>, Matrix<I, O>>> = matrixMap.map { (k, v) ->
+        private val rangeList: Map<M, Map<OpenEndRange<AbsoluteTime>, IndexedDoubleMatrix<I>>> = matrixMap.map { (k, v) ->
             k to v.zipWithNext { a, b ->
                 val (start, matrix) = a
                 val (secondStart, secondMatrix) = b
@@ -121,15 +158,15 @@ class YamlMultiMatrix<M, I, O>(
             }.associate { it.first to it.second }
         }.associate { it.first to it.second }
 
-        private val cache: MutableMap<M, Triple<AbsoluteTime, AbsoluteTime, Matrix<I, O>>> = mutableMapOf()
+        private val cache: MutableMap<M, Triple<AbsoluteTime, AbsoluteTime, IndexedDoubleMatrix<I>>> = mutableMapOf()
 
-        fun evaluate(mode: M, time: AbsoluteTime): Matrix<I, O> {
+        fun evaluate(mode: M, time: AbsoluteTime): IndexedDoubleMatrix<I> {
             val currentMatrix = cache[mode]?.takeIf { it.second > time }?.third ?: update(mode, time)
 
             return currentMatrix
         }
 
-        fun update(mode: M, time: AbsoluteTime): Matrix<I, O> {
+        fun update(mode: M, time: AbsoluteTime): IndexedDoubleMatrix<I> {
             val allMatricesForMode = requireNotNull(rangeList[mode]) {
                 "The mode $mode has no matrices"
             }
@@ -145,6 +182,7 @@ class YamlMultiMatrix<M, I, O>(
     }
 }
 
+
 /**
  * The parser of the Yaml files is done in three phases. In the first, the file is converted into a structure of nested maps
  * using an external parser. Then, in the second phase, a list of entries is generated from the nested maps. In the third
@@ -153,22 +191,21 @@ class YamlMultiMatrix<M, I, O>(
  * into a map and returned
  */
 @Suppress("LongParameterList")
-private class YamlMultiMatrixParser<M, I, O>(
+private class YamlMultiMatrixParser<M, I>(
     private val path: Path,
-    private val parser: (Double) -> O,
     private val modeDecoder: Decodable<M>,
     private val simulationStartInclusive: AbsoluteTime,
     private val simulationEndExclusive: AbsoluteTime,
     private val formats: Collection<MatrixFormat<I>>, // TODO default value?
 ) where M : Encodable {
     private val entryList = mutableListOf<Pair<TransportType, Entry>>()
-    val matrixMapCache = HashMap<Pair<String, MatrixFormat<I>>, Matrix<I, O>>()
+    val matrixMapCache = HashMap<Pair<String, MatrixFormat<I>>, IndexedDoubleMatrix<I>>()
 
-    fun getMatrix(): Map<M, List<Pair<AbsoluteTime, Matrix<I, O>>>> {
+    fun getMatrix(): Map<M, List<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>>> {
         createEntries()
         val entriesMap = entryList.groupBy({ it.first }, { it.second })
 
-        val matrixMap = mutableMapOf<M, List<Pair<AbsoluteTime, Matrix<I, O>>>>()
+        val matrixMap = mutableMapOf<M, List<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>>>()
 
         // Process each entry list, show progress on progress bar
         val progressBar = progressBar(entriesMap)
@@ -176,9 +213,9 @@ private class YamlMultiMatrixParser<M, I, O>(
         entriesMap.forEach { (key, entries) ->
             val mode = modeDecoder.decode(key)
 
-            val matrixList: List<Pair<AbsoluteTime, Matrix<I, O>>>
+            val matrixList: List<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>>
             try {
-                matrixList = processEntries(entries, mode, parser)
+                matrixList = processEntries(entries, mode)
             } catch (e: java.lang.IllegalArgumentException) {
                 throw YamlMultiMatrixError(e.message ?: "", path, e)
             }
@@ -234,10 +271,10 @@ private class YamlMultiMatrixParser<M, I, O>(
             var (days, level) = DayIdentifier.fromString(daySpecifier).getDays()
             // increase the level by half a step if the entry should only apply in certain weeks so that it can overwrite an entry that applies in all weeks
             @Suppress("MagicNumber")
-            level *= 10
+            level *= 10// TODO can be inlined into dayIdentifier
             if (increaseLevel) {
                 @Suppress("MagicNumber")
-                level += 5
+                level += 5 // TODO Can also be inlined into the weekspec if it were an enum instead of a raw string.
             }
 
             createEntries(transportType, days, weeks, level, timeMap)
@@ -249,7 +286,7 @@ private class YamlMultiMatrixParser<M, I, O>(
         days: List<DayOfWeek>,
         weeks: List<Int>,
         level: Int,
-        timeMap: TimeMap
+        timeMap: TimeMap,
     ) {
         timeMap.forEach { (timeSpecifier, details) ->
             val (startTime, endTime) = timeSpecifier.split(" to ")
@@ -303,11 +340,10 @@ private class YamlMultiMatrixParser<M, I, O>(
     private fun processEntries(
         entries: List<Entry>,
         mode: M,
-        converter: (Double) -> O
-    ): List<Pair<AbsoluteTime, Matrix<I, O>>> {
+    ): List<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>> {
         class EntryWrapper<C>(
             val entry: Entry,
-            val keyExtract: (Entry) -> C
+            val keyExtract: (Entry) -> C,
         ) : Comparable<EntryWrapper<C>> where C : Comparable<C> {
             fun getC(): C {
                 return keyExtract(entry)
@@ -325,7 +361,7 @@ private class YamlMultiMatrixParser<M, I, O>(
             futureEntries.add(EntryWrapper(entry) { it.includedStartTime })
         }
 
-        val matrixList = ArrayList<Pair<AbsoluteTime, Matrix<I, O>>>()
+        val matrixList = ArrayList<Pair<AbsoluteTime, IndexedDoubleMatrix<I>>>()
 
         var currentTime = simulationStartInclusive
         // iterate over the entries to find the one that is active at a given time
@@ -350,7 +386,7 @@ private class YamlMultiMatrixParser<M, I, O>(
             val path = entry.path
             val parser = entry.parser
             val matrix = matrixMapCache.getOrPut(path to parser) {
-                parser.getMatrix(Path.of(path), converter)
+                parser.getMatrix(Path.of(path))
             }
 
             if (matrixList.isEmpty() || matrixList.last().second != matrix) {
@@ -372,7 +408,8 @@ private class YamlMultiMatrixParser<M, I, O>(
     /*
      * The level determines which identifiers can overlay other identifiers. Higher level overrides lower level
      */
-    private inner class Entry( // inner class to use type parameter I of container class
+    private inner class Entry(
+        // inner class to use type parameter I of container class
         val includedStartTime: AbsoluteTime,
         val excludedEndTime: AbsoluteTime,
         val path: String,
@@ -385,7 +422,7 @@ private class YamlMultiMatrixParser<M, I, O>(
     }
 }
 
-private enum class DayIdentifier {
+enum class DayIdentifier {
     Monday,
     Tuesday,
     Wednesday,
