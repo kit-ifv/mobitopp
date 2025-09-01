@@ -1,11 +1,14 @@
 package domain.shared.datastructure.matrix
 
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestFactory
 import utils.Decodable
 import utils.Encodable
 import utils.WithExpiration
 import utils.units.sinceStart
+import utils.units.weeks
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.test.assertEquals
@@ -13,13 +16,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
-class EncodableString(private val s: String) : Encodable, Comparable<String> by s, CharSequence by s {
-    override val code: Int
-        get() = error("Not implemented")
-
-    override val description: String
-        get() = s
-}
 
 private enum class PotentialModes(override val code: Int, override val description: String) :
     Encodable {
@@ -43,16 +39,38 @@ class YamlMultiMatrixTest {
     private val yamlFilePath = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
     private val yamlLookup = YamlMatrixLookup(yamlFilePath, PotentialModes.Companion)
 
+    private val repetitivePath = Path("src/test/resources/multi_matrix_parser/repetitive_configuration.yaml")
+    private val repetitiveYamlLookup = YamlMatrixLookup(repetitivePath, PotentialModes.Companion)
     @Test
     fun testWeekZero() {
         // path to a YAML file
 
-        yamlLookup["bs", 4.hours].test(fourth, 5.days)
-        yamlLookup["bs", 0.hours].test(fourth, 5.days)
+        yamlLookup["bs", 4.hours].test(second, 12.hours)
+        yamlLookup["bs", 0.hours].test(second, 12.hours)
         yamlLookup["bs", 13.hours].test(fourth, 5.days)
         yamlLookup["bs", 25.hours].test(fourth, 5.days)
+        yamlLookup["bs", 5.days].test(third, 6.days)
+        yamlLookup["bs", 6.days].test(first, 7.days)
 
 
+    }
+    @Test
+    fun testWeekOne() {
+        yamlLookup["bs", 1.weeks + 4.hours].test(second, 1.weeks + 12.hours)
+        yamlLookup["bs", 1.weeks + 6.days].test(fifth, 2.weeks)
+    }
+
+    @TestFactory
+    fun testRepetitiveness(): List<DynamicTest> {
+        val days = 7
+        val intervals = 4
+        return (0..<days * intervals).map {
+            DynamicTest.dynamicTest("duplicates don't expire $it") {
+                repetitiveYamlLookup["bs", it.days / intervals].test(first, Duration.INFINITE)
+                repetitiveYamlLookup["car", it.days / intervals].test(second, Duration.INFINITE)
+                repetitiveYamlLookup["cs", it.days / intervals].test(third, Duration.INFINITE)
+            }
+        }
     }
 
     private operator fun MatrixLookup<PotentialModes>.get(

@@ -2,6 +2,7 @@ package domain.shared.datastructure.matrix
 
 import kotlinx.datetime.DayOfWeek
 import utils.units.AbsoluteTime
+import utils.units.daysSinceStartOfWeek
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
@@ -60,7 +61,7 @@ class WeekLookup<T>(private val dayLookups: Map<DayOfWeek, DayTimeLookup<T>>) {
      */
     private fun TimeLookup<T>.findNextChange(element: T, absoluteTime: AbsoluteTime): Duration? {
         val currentWeekDay = absoluteTime.weekDay
-        val currentDayChange = findNextChangeInDay(element, skipUntil = absoluteTime)
+        val currentDayChange = findNextChangeInDay(element, skipUntil = absoluteTime)?.plus(currentWeekDay.daysSinceStartOfWeek())
         val nextDaysChange = findNextChangeInLaterDays(element, skipUntil = currentWeekDay.next())
 
         return currentDayChange ?: nextDaysChange

@@ -120,6 +120,10 @@ open class DayLookupBuilder<T>(private val modulus: Duration? = null) {
         )
     }
 
+    override fun toString(): String {
+        return segments.toString()
+    }
+
 }
 
 /**
