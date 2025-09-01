@@ -8,9 +8,9 @@ import kotlin.time.Duration.Companion.minutes
 
 
 /**
- * Contract for parsing the YAML layout that defines matrix availability in the simulation.
+ * Contract for parsing the YAML layout that defines matrix availability.
  *
- * A YAML matrix configuration contains hierarchical specifiers:
+ * A YAML matrix configuration is hierarchical:
  * - **Week specifiers** (e.g. `"all weeks"`, `"week 23"`, `"week 12, 13"`)
  * - **Day specifiers** (e.g. `"Monday"`, `"Weekday"`, `"Everyday"`)
  * - **Time specifiers** (e.g. `"08:00 to 12:00"`) with details `(parserName, path)`
@@ -23,9 +23,9 @@ import kotlin.time.Duration.Companion.minutes
  * - [ParseDaySpecifier] → [WeekLookupOperation]
  * - [ParseTimeSpecifier] → [TimeLookupOperation]
  *
- * These operations can then be applied to the builder hierarchy
+ * These operations can then be applied in sequence to the builder hierarchy
  * ([CalendarWeekLookupBuilder] → [WeekLookupBuilder] → [DayLookupBuilder]),
- * constructing the full [MatrixLookup] structure from the YAML specification.
+ * layering definitions with priority-based overrides.
  *
  * A default implementation is provided by [YamlParsingLogicImpl], accessible
  * via [YamlParsingLogic.default].
@@ -46,96 +46,70 @@ interface YamlParsingLogic : ParseWeekSpecifier<YamlInfo>, ParseDaySpecifier<Yam
 /**
  * Default implementation of [YamlParsingLogic].
  *
- * This class performs the actual string parsing and path resolution logic
+ * This class provides the concrete string parsing and path resolution logic
  * for week, day, and time specifiers in the YAML matrix configuration.
  *
- * Responsibilities delegated from [YamlParsingLogic]:
- * - Splits and normalizes specifier strings.
- * - Resolves relative paths (entries starting with `"$"`) against the
- *   parent directory of the provided YAML file.
- * - Produces the corresponding operation objects
- *   ([CalendarLookupOperation], [WeekLookupOperation], [TimeLookupOperation])
- *   that can be applied to the builder hierarchy.
+ * Responsibilities:
+ * - Parse week specifiers into [CalendarLookupOperation]s.
+ * - Parse day specifiers into [WeekLookupOperation]s, bundling a collection of
+ *   [TimeLookupOperation]s.
+ * - Parse time specifiers into [TimeLookupOperation]s with explicit priorities.
+ * - Resolve relative paths (entries starting with `"$"`) against the parent
+ *   directory of the given YAML file.
  *
- * Typically accessed through [YamlParsingLogic.default].
+ * Normally accessed through [YamlParsingLogic.default].
  */
 internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
     override fun parseWeekSpecifier(string: String): CalendarLookupOperation<YamlInfo> {
+        val setAsDefaultFunction: CalendarLookupOperation<YamlInfo> = {
+            applyDefaultInstructions(it)
+        }
+        val setForSpecificWeeks: CalendarLookupOperation<YamlInfo> = { day ->
+            val weeks = string.split(",").map { it.trim().removePrefix("week ").toInt() }
+            weeks.forEach {
+                this[it] = day
+            }
+
+        }
         return when (string) {
-            "all weeks" -> CalendarLookupOperation {
-                applyDefaultInstructions(it)
-
-
-            }
-
-            else -> CalendarLookupOperation { day ->
-                val weeks = string.split(",").map { it.trim().removePrefix("week ").toInt() }
-                weeks.forEach {
-                    this[it] = day
-                }
-            }
+            "all weeks" -> setAsDefaultFunction
+            else -> setForSpecificWeeks
         }
     }
 
-    override fun parseDaySpecifier(string: String, dayOperations: Collection<TimeLookupOperation<YamlInfo>>): WeekLookupOperation<YamlInfo>{
+    override fun parseDaySpecifier(
+        string: String,
+        dayOperations: Collection<TimeLookupOperation<YamlInfo>>,
+    ): WeekLookupOperation<YamlInfo> {
         val dayIdentifier = DayIdentifier.fromString(string)
         val day = dayIdentifier.getDays().first.first()
+
         return when (dayIdentifier) {
-            DayIdentifier.Weekday ->  WeekLookupOperation{
+            DayIdentifier.Weekday -> aggregateOperations(dayOperations, WeekLookupBuilder<YamlInfo>::setWorkdays)
+            DayIdentifier.Everyday -> aggregateOperations(dayOperations, WeekLookupBuilder<YamlInfo>::setDefault)
+            else -> aggregateOperations(dayOperations) { this[day] = it }
 
-                dayOperations.forEach { instruction ->
-                    setWorkdays(instruction)
-                }
-
-            }
-            DayIdentifier.Everyday ->  WeekLookupOperation{
-
-                dayOperations.forEach { instruction ->
-                    setDefault(instruction)
-                }
-            }
-            else -> WeekLookupOperation{
-
-                dayOperations.forEach { instruction ->
-                    this.set(day, instruction)
-
-                }
-            }
 
         }
 
+
     }
 
-//    override fun parseDaySpecifier(string: String, builder: DayLookupBuilder<YamlInfo>): WeekLookupOperation<YamlInfo> {
-//        val dayIdentifier = DayIdentifier.fromString(string)
-//        return when (dayIdentifier) {
-//            DayIdentifier.Weekday ->  {a: WeekLookupBuilder<YamlInfo> ->
-//                a.setWorkdays(builder)
-//                setWorkdays(it)
-//            }
-//
-//            DayIdentifier.Everyday ->  {e : WeekLookupBuilder<YamlInfo>->
-//
-//                e.setDefault()
-//                setDefault(it)
-//            }
-//
-//            else -> WeekLookupOperation {
-//                this[dayIdentifier.getDays().first.first()] = it
-//            }
-//        }
-//    }
+
+    private fun aggregateOperations(
+        dayOperations: Collection<TimeLookupOperation<YamlInfo>>,
+        action: WeekLookupBuilder<YamlInfo>.(TimeLookupOperation<YamlInfo>) -> Unit,
+    ): WeekLookupOperation<YamlInfo> = { dayOperations.forEach { action(it) } }
 
     override fun parseTimeSpecifier(string: String, details: Pair<String, String>): TimeLookupOperation<YamlInfo> {
-        return TimeLookupOperation {
+        return { priority ->
             val (startTime, endTime) = string.split(" to ")
             val (startHour, startMinute) = startTime.split(":").map { it.toInt() }
             val (endHour, endMinute) = endTime.split(":").map { it.toInt() }
-
             this[startHour.hours + startMinute.minutes, endHour.hours + endMinute.minutes] = YamlInfo(
                 details.first,
                 resolvePathIfRelative(details.second)
-            )
+            ) to priority
 
 
         }
@@ -152,16 +126,13 @@ internal class YamlParsingLogicImpl(private val path: Path) : YamlParsingLogic {
 }
 
 /**
- * Parses a **week specifier** from a YAML entry and produces a [CalendarLookupOperation].
+ * Parses a **week specifier** string from a YAML entry and produces a [CalendarLookupOperation].
  *
- * A week specifier string (e.g. `"all weeks"`, `"week 23"`, `"week 12, 13"`) determines
- * which calendar weeks should be affected by subsequent definitions.
+ * A week specifier string (e.g. `"all weeks"`, `"week 23"`, `"week 12, 13"`)
+ * determines which calendar weeks should be targeted.
  *
- * The result is a [CalendarLookupOperation], which applies day-level definitions to the selected weeks.
- *
- * Interaction with other classes:
- * - Operates at the top level of the builder chain.
- * - Works with [CalendarWeekLookupBuilder] to insert [WeekLookup] definitions.
+ * The result is a [CalendarLookupOperation], which applies a collection of
+ * [WeekLookupOperation]s to the selected weeks.
  */
 fun interface ParseWeekSpecifier<T> {
     fun parseWeekSpecifier(string: String): CalendarLookupOperation<T>
@@ -170,22 +141,23 @@ fun interface ParseWeekSpecifier<T> {
 /**
  * Represents an operation at the **calendar-week level**.
  *
- * A [CalendarLookupOperation] defines how a given input [WeekLookupBuilder] should be handled in the parsing process
+ * A [CalendarLookupOperation] describes how to apply a set of [WeekLookupOperation]s
+ * to a [CalendarWeekLookupBuilder].
  *
- * Interaction:
- * - Operates on [CalendarWeekLookupBuilder].
- * - Inserts or updates week-level definitions with the provided [WeekLookupBuilder].
+ * Typical usage: produced by parsing a week specifier, then applied to a
+ * [CalendarWeekLookupBuilder] during YAML processing.
  */
-fun interface CalendarLookupOperation<T> {
+fun interface CalerndarLookupOperation<T> {
     fun CalendarWeekLookupBuilder<T>.apply(instructions: Collection<WeekLookupOperation<T>>)
 }
+typealias CalendarLookupOperation<T> = CalendarWeekLookupBuilder<T>.(Collection<WeekLookupOperation<T>>) -> Unit
 
 /**
  * Parses a **day specifier** string (e.g. `"Monday"`, `"Weekday"`, `"Everyday"`)
  * and produces a [WeekLookupOperation].
  *
- * The resulting [WeekLookupOperation] applies day-level definitions to one
- * or more days in a [WeekLookupBuilder].
+ * A day specifier determines which days of the week should receive
+ * the provided [TimeLookupOperation]s.
  */
 fun interface ParseDaySpecifier<T> {
     fun parseDaySpecifier(string: String, dayOperations: Collection<TimeLookupOperation<T>>): WeekLookupOperation<T>
@@ -194,43 +166,51 @@ fun interface ParseDaySpecifier<T> {
 /**
  * Represents an operation at the **week level**.
  *
- * A [WeekLookupOperation] defines how a given input [DayLookupBuilder] should be incorporated in the
- * [WeekLookup]
- * It is typically created by parsing a **day specifier**.
+ * A [WeekLookupOperation] defines how to insert one or more [TimeLookupOperation]s
+ * into a [WeekLookupBuilder].
  *
- * Interaction:
- * - Operates on [WeekLookupBuilder].
- * - Configures day schedules using one or more [DayLookupBuilder]s.
+ * Typically produced by parsing a day specifier.
  */
-fun interface WeekLookupOperation<T> {
-    fun WeekLookupBuilder<T>.apply()
+fun interface WeekLookupOsperation<T> {
+    fun apply(to: WeekLookupBuilder<T>)
 
 }
-
+typealias WeekLookupOperation<T> = WeekLookupBuilder<T>.() -> Unit
+typealias TimeLookupOperation<T> = DayLookupBuilder<T>.(Int) -> Unit
 
 /**
- * Parses a **time specifier** string (e.g. `"08:00 to 12:00"`) and accompanying details
- * (e.g. `(parser name, path)`), producing a [TimeLookupOperation].
+ * Parses a **time specifier** string (e.g. `"08:00 to 12:00"`) and details `(parserName, path)`,
+ * producing a [TimeLookupOperation].
  *
- * The resulting [TimeLookupOperation] applies a time interval to a [DayLookupBuilder].
+ * The resulting [TimeLookupOperation] applies a time interval with an element of type [T]
+ * to a [DayLookupBuilder], respecting the given priority.
  */
 fun interface ParseTimeSpecifier<T> {
     fun parseTimeSpecifier(string: String, details: Pair<String, String>): TimeLookupOperation<T>
 }
 
 /**
- * Represents an operation at the **time level**. This interface operates on Yaml Info fields in particular, As
- * in "parser instruction": "path"
+ * Represents an operation at the **time level**.
  *
- * A [TimeLookupOperation] applies a single time-interval definition to a [DayLookupBuilder].
- * It is typically created by parsing a **time specifier**.
+ * A [TimeLookupOperation] applies a single time-interval definition
+ * to a [DayLookupBuilder], together with a priority.
+ *
+ * Priority determines how overlapping intervals are resolved: higher-priority
+ * definitions override lower-priority ones, but lower-priority definitions
+ * still fill uncovered gaps.
  *
  * Example:
  * ```
  * "08:00 to 12:00" with details ("Visum Matrix", "dummy.mtx.bz2")
  * ```
- * inserts a segment for the morning with the element `("Visum Matrix", "dummy.mtx.bz2")`.
+ * inserts a segment from 08:00–12:00 with the element `("Visum Matrix", "dummy.mtx.bz2")`
+ * at the given priority.
  */
-fun interface TimeLookupOperation<T> {
-    fun DayLookupBuilder<T>.apply()
+fun interface AAAAA<T> {
+    fun applyTo(dayBuilder: DayLookupBuilder<T>, priority: Int)
 }
+
+data class PrioritizedOperation<T>(
+    val operation: TimeLookupOperation<T>,
+    val priority: Int,
+)

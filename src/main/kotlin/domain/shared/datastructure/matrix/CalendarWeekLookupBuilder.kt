@@ -48,20 +48,17 @@ class CalendarWeekLookupBuilder<T>(private val weekLookups: MutableMap<Int, Muta
             val builder = WeekLookupBuilder<T>()
             builder.applyAllDefaultRules()
             weekBuilder.forEach { instruction ->
-                instruction.run {
-                    builder.apply()
-                }
+                builder.instruction()
             }
             builder
         }
-        return CalendarWeekLookup(weekBuilders.mapValues { it.value.build() }.withDefault { defaultWeek.build()})
+        val build = defaultWeek.build()
+        return CalendarWeekLookup(weekBuilders.mapValues { it.value.build() }.withDefault { build })
     }
 
     private fun WeekLookupBuilder<T>.applyAllDefaultRules() {
         defaultWeekLookupInstructions.forEach { function ->
-            function.run {
-
-            }
+            this.apply(function)
         }
     }
 }

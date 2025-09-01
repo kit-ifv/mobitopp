@@ -54,6 +54,7 @@ class YamlMatrixTest {
             }
             return structure
         }
+
     @Test
     fun defaultForAllEntries() {
         val structure = createStructure {
@@ -72,7 +73,6 @@ class YamlMatrixTest {
         }
 
     }
-
 
 
     @Test
@@ -101,8 +101,6 @@ class YamlMatrixTest {
         }
 
 
-
-
     }
 
     @Test
@@ -121,7 +119,6 @@ class YamlMatrixTest {
         }
 
     }
-
 
 
     @Test
@@ -237,31 +234,30 @@ class YamlMatrixTest {
         return get((week.weeks + day.days + hour.toDouble().hours).sinceStart)
     }
 
-    private operator fun <T> DayLookupBuilder<T>.set(a: Number, b: Number, element: T) = set(a.toDouble().hours, b.toDouble().hours, element)
+    private operator fun <T> DayLookupBuilder<T>.set(a: Number, b: Number, element: T) =
+        set(a.toDouble().hours, b.toDouble().hours, element)
 }
 
 
-private fun <T> createStructure(lambda: MutableWeeksLookupBuilder<T>.() -> Unit): CalendarWeekLookup<T> {
-    val builder = MutableWeeksLookupBuilder<T>()
+private fun <T> createStructure(lambda: MutableCalendarLookupBuilder<T>.() -> Unit): CalendarWeekLookup<T> {
+    val builder = MutableCalendarLookupBuilder<T>()
     builder.apply(lambda)
     return builder.build()
 }
 
-private class MutableWeeksLookupBuilder<T> {
+private class MutableCalendarLookupBuilder<T> {
     private val allWeeks = CalendarWeekLookupBuilder<T>()
     fun week(number: Int, lambda: MutableWeekLookupBuilder<T>.() -> Unit) {
         val builder = MutableWeekLookupBuilder<T>()
         builder.apply(lambda)
-        allWeeks[number] = listOf(WeekLookupOperation {
-            lambda
-        })
+        allWeeks[number] = builder.build()
     }
 
     fun allWeeks(lambda: MutableWeekLookupBuilder<T>.() -> Unit) {
         val builder = MutableWeekLookupBuilder<T>()
         builder.apply(lambda)
         val lookup = builder.build()
-        allWeeks.applyDefaultInstructions(listOf(WeekLookupOperation {lookup}))
+        allWeeks.applyDefaultInstructions(lookup)
     }
 
     fun build(): CalendarWeekLookup<T> {
@@ -270,31 +266,29 @@ private class MutableWeeksLookupBuilder<T> {
 }
 
 private class MutableWeekLookupBuilder<T> {
-    private val thisWeek: WeekLookupBuilder<T> = WeekLookupBuilder()
+    private val thisWeek: MutableList<WeekLookupOperation<T>> = mutableListOf()
 
-    fun day(day: DayOfWeek, lambda: DayLookupBuilder<T>.() -> Unit) {
-        val timeLookup = buildLookup(lambda)
-        thisWeek[day] = TimeLookupOperation{timeLookup.build()}
+    fun day(day: DayOfWeek, lambda: TimeLookupOperation<T>) {
+        thisWeek.add {
+            this[day] = lambda
+        }
+
 
     }
 
-    fun default(lambda: DayLookupBuilder<T>.() -> Unit) {
-        val timeLookup = buildLookup(lambda)
-        thisWeek.setDefault(TimeLookupOperation{timeLookup.build()})
+    fun default(lambda: TimeLookupOperation<T>) {
+        thisWeek.add {
+            this.setDefault(lambda)
+        }
     }
 
-    fun workdays(lambda: DayLookupBuilder<T>.() -> Unit) {
-        val timeLookup = buildLookup(lambda)
-        thisWeek.setWorkdays(TimeLookupOperation{timeLookup.build()})
+    fun workdays(lambda:TimeLookupOperation<T>) {
+        thisWeek.add{
+            this.setWorkdays(lambda)
+        }
     }
 
-    private fun buildLookup(lambda: DayLookupBuilder<T>.() -> Unit): DayLookupBuilder<T> {
-        val timeLookup = DayLookupBuilder<T>(modulus = 1.days)
-        timeLookup.apply(lambda)
-        return timeLookup
-    }
-
-    fun build(): WeekLookup<T> {
-        return thisWeek.build()
+    fun build(): Collection<WeekLookupOperation<T>> {
+        return thisWeek
     }
 }

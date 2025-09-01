@@ -28,20 +28,21 @@ class MutableTimeLookupTest {
 
     @Test
     fun moduloLooping() {
-        val dayLookup = DayLookupBuilder<Int>()
+        val dayLookup = DayTimeLookupBuilder<Int>()
         dayLookup[0.minutes, 30.minutes] = 1
         dayLookup[30.minutes, 99999999.minutes] = 2
         val output = dayLookup.build()
+        assertEquals(1, output[1.days + 15.minutes])
         assertEquals(1, output[0.minutes])
         assertEquals(1, output[15.minutes])
-        assertEquals(1, output[1.days + 15.minutes])
+
         assertEquals(2, output[1.days + 30.minutes])
         assertEquals(2, output[30.minutes])
     }
 
     @Test
     fun negativeTimes() {
-        val dayLookup = DayLookupBuilder<Int>()
+        val dayLookup = DayTimeLookupBuilder<Int>()
         dayLookup[0.minutes, 30.minutes] = 1
         dayLookup[30.minutes, 99999999.minutes] = 2
         val output = dayLookup.build()

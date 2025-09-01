@@ -66,10 +66,7 @@ class YamlMatrixLookup<M : Encodable>(
         val calendarWeekLookupBuilder = CalendarWeekLookupBuilder<YamlInfo>()
         weekMap.forEach { (t, u) ->
             val function = yamlParsingLogic.parseWeekSpecifier(t)
-
-            function.run {
-                calendarWeekLookupBuilder.apply(buildWeek(u))
-            }
+            calendarWeekLookupBuilder.function(buildWeek(u))
         }
         val build = calendarWeekLookupBuilder.build()
         return build

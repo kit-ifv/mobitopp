@@ -5,32 +5,31 @@ import kotlinx.datetime.DayOfWeek
 /**
  * Builder for constructing a [WeekLookup] from daily [DayTimeLookupBuilder]s.
  *
- * Definitions can be provided at three levels of specificity:
+ * Definitions can be inserted at three priority levels:
  *
- * 1. **Default** — applies to all days of the week.
- * 2. **Workdays** — applies to Monday through Friday.
- * 3. **Specific** — applies to a single [kotlinx.datetime.DayOfWeek].
+ * 1. **Default** — applies to all days of the week, priority 0.
+ * 2. **Workdays** — applies to Monday through Friday, priority 1.
+ * 3. **Specific** — applies to a single [kotlinx.datetime.DayOfWeek], priority 2.
  *
  * **Resolution rules:**
- * - Each [kotlinx.datetime.DayOfWeek] has an internal "level" marker, starting at `DEFAULT`.
- * - Segments from definitions at the current level or higher are accepted
- *   into that day's [DayTimeLookupBuilder].
- * - Once a day has been promoted to a higher level (e.g. `SPECIFIC`),
- *   definitions at lower levels will no longer be applied.
+ * - Each day accumulates operations from all applicable priority levels, up to the maximum
+ *   that has been applied for that day.
+ * - When definitions overlap in time, higher-priority instructions override lower-priority ones.
+ * - Lower-priority instructions are not discarded: they still apply in time ranges
+ *   that are not covered by higher-priority instructions.
  *
+ * The result is a [WeekLookup] where each day is composed from one or more definitions,
+ * layered by priority. This allows partial definitions at higher levels to fall back
+ * to lower-level definitions when needed.
+ *
+ * The generic type [T] represents the element associated with each time interval
+ * and is not restricted to any particular domain.
  */
 class WeekLookupBuilder<T>(
     private val dayLookups: Map<DayOfWeek, DayTimeLookupBuilder<T>> =
         DayOfWeek.entries.associateWith { DayTimeLookupBuilder() },
 ) {
 
-    private enum class Level : Comparable<Level> {
-        DEFAULT, WORKDAYS, SPECIFIC;
-    }
-
-    private val levels: MutableMap<DayOfWeek, Level> = DayOfWeek.entries
-        .associateWith { Level.DEFAULT }
-        .toMutableMap()
     private val workdays: List<DayOfWeek> = listOf(
         DayOfWeek.MONDAY,
         DayOfWeek.TUESDAY,
@@ -40,41 +39,37 @@ class WeekLookupBuilder<T>(
     )
 
     /**
-     * Inserts the given [instruction] builder into all days at **default** level.
+     * Inserts the given [instruction] into all days with **priority 0** (default).
      *
-     * Days already marked at a higher level (`WORKDAYS` or `SPECIFIC`)
-     * will not accept these segments.
+     * These segments apply universally, but can be overridden by higher-priority
+     * definitions where overlaps occur.
      */
-    fun setDefault(instruction: TimeLookupOperation<T>) = applyToDays(DayOfWeek.entries, Level.DEFAULT, instruction)
+    fun setDefault(instruction: TimeLookupOperation<T>) = applyToDays(DayOfWeek.entries, instruction, 0)
 
     /**
-     * Inserts the given [instruction] builder into all **workdays** (Mon–Fri).
+     * Inserts the given [instruction] into all workdays (Mon–Fri) with **priority 1**.
      *
-     * Days already marked as `SPECIFIC` will not accept these segments.
-     * Partial definitions at `WORKDAYS` can still fall back to segments
-     * from `DEFAULT`.
+     * These segments override defaults where they overlap, but may still fall back
+     * to default definitions for uncovered time ranges.
      */
-    fun setWorkdays(instruction: TimeLookupOperation<T>) = applyToDays(workdays, Level.WORKDAYS, instruction)
+    fun setWorkdays(instruction: TimeLookupOperation<T>) = applyToDays(workdays, instruction, 1)
 
 
     /**
-     * Inserts the given [day] builder into a specific [dayOfWeek] day.
+     * Inserts the given [day] into the specified [dayOfWeek] with **priority 2**.
      *
-     * Marks that day as `SPECIFIC`. Once specific, the day will no longer
-     * accept insertions from `WORKDAYS` or `DEFAULT`.
+     * These segments override both workday and default definitions where they overlap,
+     * but still fall back to lower-priority definitions where they do not provide coverage.
      */
-    operator fun set(dayOfWeek: DayOfWeek, day: TimeLookupOperation<T>) = applyToDays(listOf(dayOfWeek), Level.SPECIFIC, day)
-
-    private fun applyToDays(days: Iterable<DayOfWeek>, level: Level, source: TimeLookupOperation<T>) {
+    operator fun set(dayOfWeek: DayOfWeek, day: TimeLookupOperation<T>) =
+        applyToDays(listOf(dayOfWeek), day, 2)
+    private fun applyToDays(days: Iterable<DayOfWeek>, source: TimeLookupOperation<T>, priority: Int) =
+        applyToDays(days, PrioritizedOperation(source, priority))
+    private fun applyToDays(days: Iterable<DayOfWeek>, source: PrioritizedOperation<T>) {
         for (day in days) {
-            if (levels[day]!! <= level) {
-                levels[day] = level
-                val value = dayLookups.getValue(day)
-                source.run{
-                    value.apply()
-                }
-
-            }
+            val dayBuilder = dayLookups.getValue(day)
+            val (operation, priority) = source
+            dayBuilder.operation(priority)
         }
     }
 
@@ -86,5 +81,9 @@ class WeekLookupBuilder<T>(
      */
     fun build(): WeekLookup<T> {
         return WeekLookup(dayLookups.mapValues { it.value.build() })
+    }
+
+    override fun toString(): String {
+        return dayLookups.toString()
     }
 }

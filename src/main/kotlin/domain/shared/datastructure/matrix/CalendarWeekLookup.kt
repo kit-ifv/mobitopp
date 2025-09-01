@@ -34,7 +34,7 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
     operator fun get(absoluteTime: AbsoluteTime): WithExpiration<T> {
         val weekNumber = absoluteTime.week
         val (element, nextChangeThisWeek) = weekLookup.getValue(weekNumber)[absoluteTime]
-        val absoluteNextChangeTime = nextChangeThisWeek?.sinceStart ?: findNextAbsoluteChange(absoluteTime, element)
+        val absoluteNextChangeTime = nextChangeThisWeek?.plus(weekNumber.weeks)?.sinceStart ?: findNextAbsoluteChange(absoluteTime, element)
 
         return element.withExpiration(absoluteNextChangeTime)
     }
@@ -55,7 +55,9 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
             .firstNotNullOfOrNull { it.value.findFirstChangeInWeek(element)?.plus(it.key.weeks) }
 
 
-        val changeTime = potentialDuration ?: getFallbackWeek()?.findFirstChangeInWeek(element) ?: Duration.Companion.INFINITE
+        val changeTime = potentialDuration ?:
+        getFallbackWeek()?.findFirstChangeInWeek(element)?.plus(ceilingWeekNumber.weeks)
+        ?: Duration.Companion.INFINITE
 
         return changeTime.sinceStart
     }
@@ -65,6 +67,13 @@ class CalendarWeekLookup<T>(private val weekLookup: Map<Int, WeekLookup<T>>) {
      */
     private fun getFallbackWeek(): WeekLookup<T>? {
         if (weekLookup.isEmpty()) return null
-        return weekLookup[weekLookup.keys.max() + 1]
+        return weekLookup.getValue(ceilingWeekNumber)
     }
+
+    /**
+     * The highest number of a week not found in the lookup.
+     */
+
+
+    val ceilingWeekNumber: Int = if(weekLookup.isEmpty()) 0 else (weekLookup.keys.max() + 1)
 }
