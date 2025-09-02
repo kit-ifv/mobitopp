@@ -16,8 +16,8 @@ import java.nio.file.Path
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
-@Suppress("MagicNumber")
 /** Default plot width and height in pixels. */
+@Suppress("MagicNumber")
 val DEFAULT_PLOT_SIZE = 1200 to 600
 
 /** Default alpha/opacity used for filled geometries. */

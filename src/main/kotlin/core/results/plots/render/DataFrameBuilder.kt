@@ -15,10 +15,13 @@ import org.jetbrains.kotlinx.kandy.util.color.Color
 
 /** Column flag indicating a row belongs to comparison data. */
 const val IS_COMP_COL = "is_comp"
+
 /** Column containing group labels. */
 const val GROUP_COL = "group"
+
 /** Column containing x values (string or numeric depending on builder). */
 const val X_COL = "x"
+
 /** Column containing y values (numeric). */
 const val Y_COL = "y"
 
@@ -165,8 +168,10 @@ class DataFrameBuilder<G, X, Y>(
     // hence this should not update the data was used flags
     /** Build a categorical color scale from group raw values and add no column. */
     fun colorByGroup(map: (G) -> RGB) = colorBy(map, GROUP_COL, rawGroups)
+
     /** Build a categorical color scale from x raw values and add no column. */
     fun colorByX(map: (X) -> RGB) = colorBy(map, X_COL, rawXs)
+
     /** Build a categorical color scale from y raw values and add no column. */
     fun colorByY(map: (Y) -> RGB) = colorBy(map, Y_COL, rawYs)
 
