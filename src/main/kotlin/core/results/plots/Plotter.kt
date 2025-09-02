@@ -71,6 +71,6 @@ data class Plotter<G, X, Y>(
             outPng = path,
         )
 
-        //TODO overlay time, seed, sim name
+        // TODO overlay time, seed, sim name
     }
 }
