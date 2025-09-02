@@ -20,6 +20,7 @@ interface PlotRenderer<G, X, V> {
 interface PlotLayout {
     val name: String
     val comparisonLabel: (Any) -> String
+        get() = { "*$it" }
 }
 
 data class Plotter<G, X, Y>(

@@ -295,3 +295,55 @@ class MidComparisonLegPlotBuilder<G>(
             Ordering.AscendingBy { it.hashCode() }
         }
 }
+
+fun ActivityType.simplifyMID(purposes: ChoiceModelPurposes) =
+    this.simplifyEducationMID(purposes)
+        .simplifyLeisureMID(purposes)
+        .simplifyShoppingMID(purposes)
+        .simplifyBusinessMID(purposes)
+
+fun ActivityType.simplifyEducationMID(purposes: ChoiceModelPurposes) =
+    if (this in purposes.educationTypes) {
+        purposes.education
+    } else {
+        this
+    }
+
+fun ActivityType.simplifyLeisureMID(purposes: ChoiceModelPurposes) =
+    if (this in purposes.leisureTypes) {
+        purposes.leisure
+    } else {
+        this
+    }
+
+fun ActivityType.simplifyShoppingMID(purposes: ChoiceModelPurposes) =
+    if (this in purposes.shoppingTypes) {
+        purposes.shopping
+    } else {
+        this
+    }
+
+fun ActivityType.simplifyBusinessMID(purposes: ChoiceModelPurposes) =
+    if (this in purposes.businessTypes) {
+        purposes.business
+    } else {
+        this
+    }
+
+fun Employment.simplifyEmploymentMID() = when (this) {
+    Employment.STUDENT_PRIMARY -> Employment.STUDENT
+    Employment.STUDENT_SECONDARY -> Employment.STUDENT
+    Employment.STUDENT_TERTIARY -> Employment.STUDENT
+    Employment.PARTTIME -> Employment.FULLTIME
+    Employment.MARGINAL -> Employment.FULLTIME
+    Employment.FULLTIME,
+    Employment.STUDENT,
+    Employment.RETIRED,
+    Employment.HOMEKEEPER -> this
+
+    Employment.UNEMPLOYED,
+    Employment.EDUCATION,
+    Employment.INFANT,
+    Employment.NONE,
+    Employment.UNKNOWN -> Employment.UNKNOWN
+}

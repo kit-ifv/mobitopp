@@ -27,7 +27,6 @@ data class LinePlotLayoutBuilder<G>(
     override var groupAxisLabel: String = "group",
     override var groupLabel: (G) -> String = { it.toString() },
     override var coloring: (G) -> RGB = { KIT_GREEN },
-    override var comparisonLabel: (Any) -> String = { "*$it" }
 ) : LinePlotLayout<G>
 
 class LinePlotRenderer<G, X, Y : Number>(

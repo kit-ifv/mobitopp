@@ -6,7 +6,6 @@ import core.modelsteps.LateInit
 import core.modelsteps.Repository
 import core.results.plots.RGB
 import core.results.plots.modeStringColor
-import domain.shared.behavior.ChoiceModelPurposes
 import domain.shared.datastructure.schedule.LinkedActivity
 import domain.shared.datastructure.schedule.LinkedLeg
 import domain.shared.datastructure.schedule.MovingAction
@@ -76,40 +75,6 @@ fun PersonLeg.distance(impedance: Metrics) = try {
 //    )
     0.kilometers
 }
-
-fun ActivityType.simplify(purposes: ChoiceModelPurposes) =
-    this.simplifyEducation(purposes)
-        .simplifyLeisure(purposes)
-        .simplifyShopping(purposes)
-        .simplifyBusiness(purposes)
-
-fun ActivityType.simplifyEducation(purposes: ChoiceModelPurposes) =
-    if (this in purposes.educationTypes) {
-        purposes.education
-    } else {
-        this
-    }
-
-fun ActivityType.simplifyLeisure(purposes: ChoiceModelPurposes) =
-    if (this in purposes.leisureTypes) {
-        purposes.leisure
-    } else {
-        this
-    }
-
-fun ActivityType.simplifyShopping(purposes: ChoiceModelPurposes) =
-    if (this in purposes.shoppingTypes) {
-        purposes.shopping
-    } else {
-        this
-    }
-
-fun ActivityType.simplifyBusiness(purposes: ChoiceModelPurposes) =
-    if (this in purposes.businessTypes) {
-        purposes.business
-    } else {
-        this
-    }
 
 @Suppress("MagicNumber")
 private val ageGroups = listOf(

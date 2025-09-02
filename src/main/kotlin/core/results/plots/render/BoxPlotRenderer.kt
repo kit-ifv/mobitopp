@@ -27,7 +27,6 @@ data class BoxPlotLayoutBuilder<G, X>(
     override var groupLabel: (G) -> String = { it.toString() },
     override var xLabel: (X) -> String = { it.toString() },
     override var coloring: (G) -> RGB = { KIT_GREEN },
-    override val comparisonLabel: (Any) -> String = { "*$it" }
 ) : BoxPlotLayout<G, X>
 
 class BoxPlotRenderer<G, X, Y : Number>(
