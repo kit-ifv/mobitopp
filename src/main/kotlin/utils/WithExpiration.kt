@@ -1,6 +1,10 @@
 package utils
 
 import utils.units.AbsoluteTime
+
+/**
+ * An expiring lookup takes a key, and returns the mapped value in addition to an expiration time.
+ */
 fun interface ExpiringLookup<K, V> {
     operator fun get(mode: K, time: AbsoluteTime): WithExpiration<V>
 }
