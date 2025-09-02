@@ -1,4 +1,4 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
 
 import utils.WithExpiration
 import utils.units.AbsoluteTime

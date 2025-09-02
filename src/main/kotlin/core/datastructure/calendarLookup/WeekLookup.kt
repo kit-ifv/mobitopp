@@ -1,4 +1,4 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
 
 import kotlinx.datetime.DayOfWeek
 import utils.units.AbsoluteTime

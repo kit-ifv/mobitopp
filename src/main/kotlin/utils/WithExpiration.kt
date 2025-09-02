@@ -1,7 +1,9 @@
 package utils
 
 import utils.units.AbsoluteTime
-
+fun interface ExpiringLookup<K, V> {
+    operator fun get(mode: K, time: AbsoluteTime): WithExpiration<V>
+}
 /**
  * Wraps around an element, tracking the expiration time.
  */

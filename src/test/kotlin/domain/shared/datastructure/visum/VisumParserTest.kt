@@ -3,7 +3,7 @@
 package domain.shared.datastructure.visum
 
 import domain.shared.datastructure.matrix.visum.VisumParseError
-import domain.shared.datastructure.matrix.visum.VisumParser
+import domain.shared.datastructure.matrix.visum.DebugVisumParser
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ class VisumParserTest {
     @Test
     fun `test parsing valid Visum file`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
         val zoneIds = parser.getZoneIds()
 
         assertEquals(16, zoneIds.size)
@@ -72,8 +72,8 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with non-numeric network object number`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_non_numeric_net_object_number.mtx")
-        val parser = VisumParser(path)
-
+        val parser = DebugVisumParser(path)
+        parser.getArray()
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
         }
@@ -89,7 +89,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with unexpected network object numbers line`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_network_object_numbers_line.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -109,7 +109,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with too few ZoneIds`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_mismatched_number_of_zone_ids.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -133,7 +133,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with non-parsable ZoneId`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_non_parsable_zone_id.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -153,7 +153,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with too many ZoneIds`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_mismatched_zone_ids.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -173,7 +173,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with unexpected line before network object names`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_unexpected_line_before_names.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -193,7 +193,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with unexpected format in matrix row header`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_unexpected_format_in_row_header.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -213,7 +213,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with non-parsable ZoneId number`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_non_parsable_zone_id_number.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -237,7 +237,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with more values than declared in matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_more_values_than_declared_in_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -258,7 +258,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with non-parsable Double value in matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_non_parsable_double_value_in_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -283,7 +283,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with element unable to be added to matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_element_unable_to_add_to_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -305,7 +305,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with NaN value in matrix`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_nan_value_in_matrix.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -320,7 +320,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with too many elements in matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_too_many_elements_in_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -341,7 +341,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with too few elements in matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_too_few_elements_in_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -366,7 +366,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with unexpected zone ID in matrix row`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_unexpected_zone_id_in_row.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -389,7 +389,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with more rows than declared`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_more_rows_than_declared.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -412,7 +412,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid Visum file with duplicate zone IDs`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_duplicate_zone_ids.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
@@ -431,7 +431,7 @@ class VisumParserTest {
     @Test
     fun `test parsing invalid short Visum file`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_short_matrix.mtx")
-        val parser = VisumParser(path)
+        val parser = DebugVisumParser(path)
 
         val exception = assertThrows<VisumParseError> {
             parser.getArray()

@@ -1,4 +1,6 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
+
+import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
 
 /**
  * A mutable builder for creating a [CalendarWeekLookup].

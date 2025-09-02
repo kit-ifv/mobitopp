@@ -1,5 +1,8 @@
 package domain.shared.datastructure.matrix
 
+import core.datastructure.calendarLookup.TimeLookupBuilder
+import core.datastructure.calendarLookup.DayTimeLookupBuilder
+import core.datastructure.calendarLookup.TimeLookup
 import org.junit.jupiter.api.Assertions.assertEquals
 import utils.units.sinceStart
 import utils.units.toAbsoluteHours
@@ -13,7 +16,7 @@ class MutableTimeLookupTest {
 
     @Test
     fun correctConstruction() {
-        val timeLookupBuilder = DayLookupBuilder<Int>(modulus = 1.days)
+        val timeLookupBuilder = TimeLookupBuilder<Int>(modulus = 1.days)
         timeLookupBuilder[0, 4] = 1
         timeLookupBuilder[1, 3] = 2
 
@@ -52,7 +55,7 @@ class MutableTimeLookupTest {
 
     @Test
     fun priorityOverrides() {
-        val dayLookup = DayLookupBuilder<Int>()
+        val dayLookup = TimeLookupBuilder<Int>()
         dayLookup.setDefault(15 to -5) // Extremly low priority
 
         dayLookup[0.minutes, 120.minutes] = 42 to 5 // High priority
@@ -66,7 +69,7 @@ class MutableTimeLookupTest {
 
     @Test
     fun directSetting() {
-        val dayLookup = DayLookupBuilder<Boolean>()
+        val dayLookup = TimeLookupBuilder<Boolean>()
         dayLookup.setDefault(false)
         dayLookup.setDuration(18.hours..<6.hours, true)
         val output = dayLookup.build()
@@ -78,6 +81,6 @@ class MutableTimeLookupTest {
 
     private operator fun <T> TimeLookup<T>.get(number: Duration) = get(number.sinceStart)
 
-    private operator fun  DayLookupBuilder<Int>.set(a: Number, b: Number, path: Int) = set(a.toAbsoluteHours()..<b.toAbsoluteHours(), path)
+    private operator fun TimeLookupBuilder<Int>.set(a: Number, b: Number, path: Int) = set(a.toAbsoluteHours()..<b.toAbsoluteHours(), path)
 
 }

@@ -1,5 +1,6 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
 
+import core.datastructure.calendarLookup.TimeSegment
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import utils.units.toAbsoluteMinutes
@@ -10,7 +11,7 @@ import kotlin.time.Duration.Companion.hours
 /**
  * Builder for creating a [TimeLookup] from interval definitions.
  *
- * This class manages a set of [Segment]s, where each segment associates an element [T]
+ * This class manages a set of [TimeSegment]s, where each segment associates an element [T]
  * with a half-open time interval. Segments may overlap, and overlaps are resolved according to:
  *
  * 1. **Priority** — the segment with the higher priority wins.
@@ -19,15 +20,15 @@ import kotlin.time.Duration.Companion.hours
  * If [modulus] is provided, all intervals are clamped to the range `[0, modulus)`, making the
  * lookup cyclic. Without a modulus, intervals are treated as absolute times.
  */
-open class DayLookupBuilder<T>(private val modulus: Duration? = null) {
+open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
 
-    protected val segments = mutableListOf<Segment<T>>()
+    protected val segments = mutableListOf<TimeSegment<T>>()
 
 
     /**
      * Returns a read-only view of the current list of segments.
      */
-    fun segments(): List<Segment<T>> {
+    fun segments(): List<TimeSegment<T>> {
         return segments.toList()
     }
 
@@ -54,27 +55,27 @@ open class DayLookupBuilder<T>(private val modulus: Duration? = null) {
         } ?: rawRange
         if (range.isEmpty()) return
 
-        val newSegment = Segment(range, path, priority)
+        val newSegment = TimeSegment(range, path, priority)
 
         val overlappedSegments = segments.filter { it.intersects(range) }
         segments.removeAll(overlappedSegments)
         val (higher, lower) = overlappedSegments.partition { it.priority > newSegment.priority }
-        segments.addAll(lower.flatMap { it.splice(range) })
+        segments.addAll(lower.flatMap { it.subtract(range) })
         segments.add(newSegment)
         // Recursively add segments with higher priority, so that the current element is spliced accordingly
         higher.forEach {
-            set(it.range, it.element, it.priority)
+            set(it.range, it.value, it.priority)
         }
         segments.sortBy { it.range.start }
     }
 
-    fun set(segment: Segment<T>) = set(segment.range, segment.element, segment.priority)
+    fun set(segment: TimeSegment<T>) = set(segment.range, segment.value, segment.priority)
 
     /**
      * Adds a collection of segments.
      * Equivalent to calling [set] for each segment in the collection.
      */
-    fun insertAll(segments: Collection<Segment<T>>) {
+    fun insertAll(segments: Collection<TimeSegment<T>>) {
         segments.forEach(::set)
     }
 
@@ -115,7 +116,7 @@ open class DayLookupBuilder<T>(private val modulus: Duration? = null) {
     open fun build(): TimeLookup<T> {
         return TimeLookup(
             segments.map { it.range.start.sinceStart }.toTypedArray(),
-            segments.map { it.element },
+            segments.map { it.value },
             modulus
         )
     }
@@ -127,13 +128,13 @@ open class DayLookupBuilder<T>(private val modulus: Duration? = null) {
 }
 
 /**
- * A [DayLookupBuilder] is a [DayLookupBuilder] with the modulus already fixed to 1 Day
+ * A [TimeLookupBuilder] is a [TimeLookupBuilder] with the modulus already fixed to 1 Day
  */
-class DayTimeLookupBuilder<T> : DayLookupBuilder<T>(modulus = 1.days) {
+class DayTimeLookupBuilder<T> : TimeLookupBuilder<T>(modulus = 1.days) {
     override fun build(): DayTimeLookup<T> {
         return DayTimeLookup(
             segments.map { it.range.start.sinceStart }.toTypedArray(),
-            segments.map { it.element },
+            segments.map { it.value },
         )
     }
 }

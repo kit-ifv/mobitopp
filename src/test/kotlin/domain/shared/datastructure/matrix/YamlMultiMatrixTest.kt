@@ -1,6 +1,8 @@
 package domain.shared.datastructure.matrix
 
-import org.junit.jupiter.api.Assertions
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
+import domain.shared.datastructure.matrix.yaml.YamlInfo
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookupImpl
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -37,10 +39,10 @@ class YamlMultiMatrixTest {
     private val fifth = Path("src/test/resources/multi_matrix_parser/good_case_matrix_4.mtx")
 
     private val yamlFilePath = Path("src/test/resources/multi_matrix_parser/cost_matrix_configuration.yaml")
-    private val yamlLookup = YamlMatrixLookup(yamlFilePath, PotentialModes.Companion)
+    private val yamlLookup = YamlMatrixLookupImpl(yamlFilePath, PotentialModes.Companion)
 
     private val repetitivePath = Path("src/test/resources/multi_matrix_parser/repetitive_configuration.yaml")
-    private val repetitiveYamlLookup = YamlMatrixLookup(repetitivePath, PotentialModes.Companion)
+    private val repetitiveYamlLookup = YamlMatrixLookupImpl(repetitivePath, PotentialModes.Companion)
     @Test
     fun testWeekZero() {
         // path to a YAML file
@@ -73,7 +75,7 @@ class YamlMultiMatrixTest {
         }
     }
 
-    private operator fun MatrixLookup<PotentialModes>.get(
+    private operator fun YamlMatrixLookup<PotentialModes>.get(
         abbreviation: String,
         duration: Duration,
     ): WithExpiration<YamlInfo> {
