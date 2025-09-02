@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package application.steps.results
 
 import core.modelsteps.Resource
