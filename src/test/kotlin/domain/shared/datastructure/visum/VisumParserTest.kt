@@ -73,7 +73,6 @@ class VisumParserTest {
     fun `test parsing invalid Visum file with non-numeric network object number`() {
         val path: Path = Paths.get("src/test/resources/visum_parser/invalid_non_numeric_net_object_number.mtx")
         val parser = DebugVisumParser(path)
-        parser.getArray()
         val exception = assertThrows<VisumParseError> {
             parser.getArray()
         }

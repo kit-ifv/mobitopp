@@ -11,7 +11,10 @@ import domain.shared.location.DistanceMetric
 import domain.shared.location.DurationMetric
 import domain.shared.location.Location
 import domain.shared.location.Metrics
+import domain.shared.location.ZoneId
+import units.Currency
 import units.CurrencyUnit
+import units.Distance
 import units.DistanceUnit
 import units.euros
 import units.kilometers
@@ -20,6 +23,7 @@ import units.toDistance
 import utils.Decodable
 import utils.units.Time
 import java.nio.file.Path
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -68,6 +72,32 @@ class MatrixMetrics(
         }
     }
 
+    fun cost(
+        from: ZoneId,
+        to: ZoneId,
+        mode: Mode,
+        time: Time,
+    ): Currency {
+        return currencyConverter.from(travelCosts[mode, time][from, to])
+    }
+
+    fun distance(
+        from: ZoneId,
+        to: ZoneId,
+        mode: Mode,
+    ): Distance {
+        return distanceConverter.from(travelDistance[from, to])
+    }
+
+    fun duration(
+        from: ZoneId,
+        to: ZoneId,
+        mode: Mode,
+        time: Time,
+    ): Duration {
+        return timeConverter.from(travelTimes[mode, time][from, to])
+    }
+
     companion object {
         fun loadFromPaths(
             travelTimeYamlPath: Path,
@@ -75,7 +105,7 @@ class MatrixMetrics(
             travelDistanceMatrixPath: Path,
             decoder: Decodable<Mode>,
             matrixFactory: ZoneMatrixCreation = DefaultZoneMatrixCreation,
-            converter: UnitConverter,
+            converter: UnitConverter = UnitConverter(),
         ): MatrixMetrics {
             val travelTimeMultiMatrix = YamlMatrixLookupImpl(
                 travelTimeYamlPath,

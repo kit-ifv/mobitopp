@@ -1,7 +1,11 @@
 package core.datastructure.matrix
-
-import domain.shared.datastructure.matrix.yaml.YamlInfo
-
-fun interface MatrixCreationInstruction<I> {
-    fun createMatrix(yamlInfo: YamlInfo): TranslatedDoubleMatrix<I>
+/**
+ * Generic instruction for creating a [TranslatedDoubleMatrix].
+ *
+ * @param I the type of row/column keys
+ * @param C the type of configuration or context object used during creation
+ *          (e.g. [YamlInfo], a file path, or any other metadata)
+ */
+fun interface MatrixCreationInstruction<I, C> {
+    fun createMatrix(config: C): TranslatedDoubleMatrix<I>
 }
