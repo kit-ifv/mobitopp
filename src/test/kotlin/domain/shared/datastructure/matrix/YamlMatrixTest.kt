@@ -1,5 +1,10 @@
 package domain.shared.datastructure.matrix
 
+import core.datastructure.calendarLookup.CalendarWeekLookup
+import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
+import core.datastructure.calendarLookup.TimeLookupBuilder
+import domain.shared.datastructure.matrix.yaml.TimeLookupOperation
+import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
 import kotlinx.datetime.DayOfWeek
 import org.junit.jupiter.api.assertThrows
 import utils.WithExpiration
@@ -234,7 +239,7 @@ class YamlMatrixTest {
         return get((week.weeks + day.days + hour.toDouble().hours).sinceStart)
     }
 
-    private operator fun <T> DayLookupBuilder<T>.set(a: Number, b: Number, element: T) =
+    private operator fun <T> TimeLookupBuilder<T>.set(a: Number, b: Number, element: T) =
         set(a.toDouble().hours, b.toDouble().hours, element)
 }
 
@@ -282,7 +287,7 @@ private class MutableWeekLookupBuilder<T> {
         }
     }
 
-    fun workdays(lambda:TimeLookupOperation<T>) {
+    fun workdays(lambda: TimeLookupOperation<T>) {
         thisWeek.add{
             this.setWorkdays(lambda)
         }

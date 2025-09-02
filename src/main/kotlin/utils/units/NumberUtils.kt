@@ -11,6 +11,10 @@ fun Double.round(decimals: Int): Double {
     return kotlin.math.round(this * multiplier) / multiplier
 }
 
+/**
+ * Convenience function to get an [AbsoluteTime] from a number, by converting to Double -> Duration in Hours ->
+ * Absolute Time.
+ */
 fun Number.toAbsoluteHours(): AbsoluteTime {
     return toDouble().hours.sinceStart
 }

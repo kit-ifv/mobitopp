@@ -1,9 +1,7 @@
-package domain.shared.datastructure.matrix
+package domain.shared.datastructure.matrix.yaml
 
-import core.datastructure.matrix.DayMap
-import core.datastructure.matrix.TimeMap
-import core.datastructure.matrix.WeekMap
-import core.datastructure.matrix.YamlMap
+import core.datastructure.calendarLookup.CalendarWeekLookup
+import core.datastructure.calendarLookup.CalendarWeekLookupBuilder
 import org.yaml.snakeyaml.Yaml
 import utils.Decodable
 import utils.Encodable
@@ -12,17 +10,28 @@ import utils.units.AbsoluteTime
 import java.nio.file.Path
 import kotlin.io.path.inputStream
 
+typealias YamlMap = Map<TransportType, WeekMap>
+typealias TransportType = String
+typealias WeekMap = Map<WeekSpecifier, DayMap>
+typealias WeekSpecifier = String
+typealias DayMap = Map<DaySpecifier, TimeMap>
+typealias DaySpecifier = String
+typealias TimeMap = Map<TimeSpecifier, ParserMap>
+typealias TimeSpecifier = String
+typealias ParserMap = Map<ParserSpecifier, Any>
+typealias ParserSpecifier = String
+
 /**
- * A [MatrixLookup] backed by a YAML configuration file.
+ * A [YamlMatrixLookup] backed by a YAML configuration file.
  *
  * The YAML file defines, for each transport mode, which matrix file is valid
  * at a given absolute time. This class reads that file and constructs the
  * lookup hierarchy:
  *
  * - **Mode dimension**: the top-level map is keyed by mode (decoded via [modeDecoder]).
- * - **Week dimension**: each mode contains a [CalendarWeekLookup] of week lookups.
- * - **Day dimension**: each week contains a [WeekLookup] of day lookups.
- * - **Time dimension**: each day contains a [DayTimeLookup] giving the corresponding parsing instructions
+ * - **Week dimension**: each mode contains a [core.datastructure.calendarLookup.CalendarWeekLookup] of week lookups.
+ * - **Day dimension**: each week contains a [core.datastructure.calendarLookup.WeekLookup] of day lookups.
+ * - **Time dimension**: each day contains a [core.datastructure.calendarLookup.DayTimeLookup] giving the corresponding parsing instructions
  * bundlea as [YamlInfo].
  *
  * @param M the type representing modes (decoded from YAML keys via [modeDecoder])
@@ -31,15 +40,12 @@ import kotlin.io.path.inputStream
  * @param yamlParsingLogic the parsing logic to use for interpreting specifiers.
  *  Defaults to [YamlParsingLogicImpl] via [YamlParsingLogic.default]
  */
-class YamlMatrixLookup<M : Encodable>(
+class YamlMatrixLookupImpl<M : Encodable>(
     private val yamlPath: Path,
     private val modeDecoder: Decodable<M>,
     private val yamlParsingLogic: YamlParsingLogic = YamlParsingLogic.default(yamlPath),
-) : MatrixLookup<M> {
-    private val modeLookup: Map<M, CalendarWeekLookup<YamlInfo>>
-
-    init {
-        // Create a YAML instance
+) : YamlMatrixLookup<M> {
+    private val modeLookup: Map<M, CalendarWeekLookup<YamlInfo>> by lazy {
         val yaml = Yaml()
 
         // Read the YAML file into a Map
@@ -47,14 +53,11 @@ class YamlMatrixLookup<M : Encodable>(
             yamlPath.inputStream()
         )
 
-        modeLookup = yamlMap.entries.associate { (transportType, weekMap) ->
+        yamlMap.entries.associate { (transportType, weekMap) ->
             val mode = modeDecoder.decode(transportType)
             mode to buildCalendarWeeks(weekMap)
         }
-
-
     }
-
     override operator fun get(mode: M, time: AbsoluteTime): WithExpiration<YamlInfo> {
         return modeLookup.getValue(mode)[time]
     }
@@ -65,30 +68,25 @@ class YamlMatrixLookup<M : Encodable>(
         // can avoid creating wild structures to handle specifications.
         val calendarWeekLookupBuilder = CalendarWeekLookupBuilder<YamlInfo>()
         weekMap.forEach { (t, u) ->
-            val function = yamlParsingLogic.parseWeekSpecifier(t)
-            calendarWeekLookupBuilder.function(buildWeek(u))
+            val apply = yamlParsingLogic.parseCalendarLookupOperation(t)
+            calendarWeekLookupBuilder.apply(parseWeekLookups(u))
         }
         val build = calendarWeekLookupBuilder.build()
         return build
     }
 
-    private fun buildWeek(dayMap: DayMap): Collection<WeekLookupOperation<YamlInfo>> {
+    private fun parseWeekLookups(dayMap: DayMap): Collection<WeekLookupOperation<YamlInfo>> {
         return dayMap.map { (t, u) ->
-            val buildDay = buildDay(u)
-            val function = yamlParsingLogic.parseDaySpecifier(t, buildDay)
-
-            function
-
+            val timeOperations = parseTimeLookups(u)
+            yamlParsingLogic.parseWeekLookupOperation(t, timeOperations)
         }
     }
 
-    private fun buildDay(timeMap: TimeMap): Collection<TimeLookupOperation<YamlInfo>> {
+    private fun parseTimeLookups(timeMap: TimeMap): Collection<TimeLookupOperation<YamlInfo>> {
         return timeMap.map { (t, u) ->
             val (key, value) = u.entries.first()
-            yamlParsingLogic.parseTimeSpecifier(t, key to value as String)
+            yamlParsingLogic.parseTimeLookupOperation(t, key to value as String)
 
         }
     }
-
-
 }

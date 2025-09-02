@@ -1,4 +1,4 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
 
 import edu.kit.ifv.mobitopp.actitoppNG.utils.smallerIndex
 import utils.units.AbsoluteTime

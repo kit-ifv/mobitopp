@@ -3,13 +3,10 @@
 package domain.shared.datastructure.matrix.visum
 
 import core.datastructure.matrix.DoubleMatrix
-import core.datastructure.matrix.Indexer
-import core.datastructure.matrix.MatrixFormat
-import core.datastructure.matrix.MatrixParser
-import core.datastructure.matrix.ZoneIdMatrix
+import core.datastructure.matrix.IndexEncoder
+import domain.shared.datastructure.matrix.ZoneIdMatrix
 import domain.shared.location.ZoneId
 import java.nio.file.Path
-import kotlin.time.measureTime
 
 /**
  * Represents a matrix of values parsed from a Visum file.
@@ -20,21 +17,13 @@ import kotlin.time.measureTime
 class VisumMatrix(path: Path) : ZoneIdMatrix {
 
     private val data by lazy {
-        println("Starting parsing of $path")
-        lateinit var matrixData: DoubleArray
-        lateinit var indexData: Array<ZoneId>
-        val duration = measureTime {
-            val parser = VisumMatrixParser(path)
-            matrixData = parser.getArray()
-            indexData = parser.getZoneIds()
-        }
-        println("Parsing of $path took $duration")
+        val (matrixData, indexData) = VisumMatrixParser(path)
         matrixData to indexData.withIndex().associate { (index, zoneId) -> zoneId to index }
     }
 
-    private val indexLookup by lazy {data.second  }
-    override val matrix by lazy { DoubleMatrix(data.first, indexLookup.size) }
-    override val converter = Indexer<ZoneId>{
+    private val indexLookup by lazy { data.second }
+    val matrix by lazy { DoubleMatrix(data.first, indexLookup.size) }
+    val converter = IndexEncoder<ZoneId> {
         indexLookup[it] ?: throw IllegalArgumentException("Column $it not found in index lookup")
     }
 
@@ -46,10 +35,3 @@ class VisumMatrix(path: Path) : ZoneIdMatrix {
     }
 
 }
-
-val VisumMatrixFormat = MatrixFormat(
-    key = "visum_matrix",
-    parser = object : MatrixParser<ZoneId> {
-        override fun getMatrix(path: Path) = VisumMatrix(path)
-    },
-)

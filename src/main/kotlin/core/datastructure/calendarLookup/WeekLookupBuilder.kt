@@ -1,5 +1,7 @@
-package domain.shared.datastructure.matrix
+package core.datastructure.calendarLookup
 
+import domain.shared.datastructure.matrix.yaml.PrioritizedOperation
+import domain.shared.datastructure.matrix.yaml.TimeLookupOperation
 import kotlinx.datetime.DayOfWeek
 
 /**
@@ -9,7 +11,7 @@ import kotlinx.datetime.DayOfWeek
  *
  * 1. **Default** — applies to all days of the week, priority 0.
  * 2. **Workdays** — applies to Monday through Friday, priority 1.
- * 3. **Specific** — applies to a single [kotlinx.datetime.DayOfWeek], priority 2.
+ * 3. **Specific** — applies to a single [DayOfWeek], priority 2.
  *
  * **Resolution rules:**
  * - Each day accumulates operations from all applicable priority levels, up to the maximum
@@ -76,7 +78,7 @@ class WeekLookupBuilder<T>(
     /**
      * Finalizes the builder and produces a [WeekLookup].
      *
-     * Each [DayLookupBuilder] is built into a [DayTimeLookup],
+     * Each [TimeLookupBuilder] is built into a [DayTimeLookup],
      * preserving the precedence rules that were applied.
      */
     fun build(): WeekLookup<T> {
