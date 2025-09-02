@@ -28,7 +28,6 @@ data class HistogramLayoutBuilder<G, X>(
     override var groupLabel: (G) -> String = { it.toString() },
     override var xLabel: (X) -> String = { it.toString() },
     override var coloring: (G) -> RGB = { KIT_GREEN },
-    override var comparisonLabel: (Any) -> String = { "*$it" }
 ) : HistogramLayout<G, X>
 
 class HistogramRenderer<G, X, Y : Number>(
