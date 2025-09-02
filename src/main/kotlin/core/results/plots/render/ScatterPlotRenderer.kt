@@ -12,6 +12,7 @@ import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.layers.points
 import org.jetbrains.kotlinx.kandy.letsplot.settings.Symbol
 
+/** Layout contract for a scatter plot. */
 interface ScatterLayout<G> : PlotLayout {
     override val name: String
     val xAxisLabel: String
@@ -21,6 +22,7 @@ interface ScatterLayout<G> : PlotLayout {
     val coloring: (G) -> RGB
 }
 
+/** Mutable builder for Scatter plot layout options. */
 data class ScatterLayoutBuilder<G>(
     override var name: String = "plot",
     override var xAxisLabel: String = "x",
@@ -31,6 +33,7 @@ data class ScatterLayoutBuilder<G>(
     override val comparisonLabel: (Any) -> String = { "error" }
 ) : ScatterLayout<G>
 
+/** Renderer producing a scatter plot using the Lets-Plot backend. */
 class ScatterPlotRenderer<G, X : Number, Y : Number>(
     override val style: ScatterLayout<G>,
 ) : PlotRenderer<G, X, Y> {

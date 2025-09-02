@@ -13,17 +13,26 @@ import org.jetbrains.kotlinx.dataframe.api.toColumn
 import org.jetbrains.kotlinx.dataframe.size
 import org.jetbrains.kotlinx.kandy.util.color.Color
 
+/** Column flag indicating a row belongs to comparison data. */
 const val IS_COMP_COL = "is_comp"
+/** Column containing group labels. */
 const val GROUP_COL = "group"
+/** Column containing x values (string or numeric depending on builder). */
 const val X_COL = "x"
+/** Column containing y values (numeric). */
 const val Y_COL = "y"
 
+/** Column names for summary statistics. */
 const val MIN_COL = "min"
 const val LOWER_QUART_COL = "lower_quart"
 const val MEDIAN_COL = "median"
 const val UPPER_QUART_COL = "upper_quart"
 const val MAX_COL = "max"
 
+/**
+ * Utility to convert PlotData traces into a tabular DataFrame used by renderers.
+ * Manages raw columns and supports adding derived columns and color scales.
+ */
 class DataFrameBuilder<G, X, Y>(
     private val name: String,
     data: PlotData<G, X, Y>,
@@ -40,6 +49,7 @@ class DataFrameBuilder<G, X, Y>(
     private var xWasUsed: Boolean = false
     private var yWasUsed: Boolean = false
 
+    /** Access the raw group values; warns if already consumed for a column. */
     fun getRawGroupData(): List<G> {
         if (groupWasUsed) {
             println("WARNING: Group data was already used for column creation for plot $name!")
@@ -48,6 +58,7 @@ class DataFrameBuilder<G, X, Y>(
         return rawGroups
     }
 
+    /** Access the raw x values; warns if already consumed for a column. */
     fun getRawXData(): List<X> {
         if (xWasUsed) {
             println("WARNING: X data was already used for column creation for plot $name!")
@@ -56,6 +67,7 @@ class DataFrameBuilder<G, X, Y>(
         return rawXs
     }
 
+    /** Access the raw y values; warns if already consumed for a column. */
     fun getRawYData(): List<Y> {
         if (yWasUsed) {
             println("WARNING: Y column was already used for column creation for plot $name!")
@@ -98,6 +110,7 @@ class DataFrameBuilder<G, X, Y>(
         dataFrame = dataFrame.add(isCompList.toColumn(IS_COMP_COL))
     }
 
+    /** Finalize and return the DataFrame; warns if some raw data was never used. */
     fun build(): DataFrame<*> {
         if (!groupWasUsed) {
             println("WARNING: group data was not used for dataframe creation for plot: $name")
@@ -114,11 +127,13 @@ class DataFrameBuilder<G, X, Y>(
         return dataFrame
     }
 
+    /** Add a string group column derived from raw group values. */
     fun groupAsString(toString: (G) -> String = { it.toString() }): DataFrameBuilder<G, X, Y> {
         dataFrame = dataFrame.add(getRawGroupData().map(toString).toColumn(GROUP_COL))
         return this
     }
 
+    /** Add a string x column derived from raw x values. */
     fun xAsString(toString: (X) -> String = { it.toString() }): DataFrameBuilder<G, X, Y> {
         dataFrame = dataFrame.add(getRawXData().map(toString).toColumn(X_COL))
         return this
@@ -148,16 +163,22 @@ class DataFrameBuilder<G, X, Y>(
 
     // access to raw data here without getter, since creation of color map does not add a column to dataframe
     // hence this should not update the data was used flags
+    /** Build a categorical color scale from group raw values and add no column. */
     fun colorByGroup(map: (G) -> RGB) = colorBy(map, GROUP_COL, rawGroups)
+    /** Build a categorical color scale from x raw values and add no column. */
     fun colorByX(map: (X) -> RGB) = colorBy(map, X_COL, rawXs)
+    /** Build a categorical color scale from y raw values and add no column. */
     fun colorByY(map: (Y) -> RGB) = colorBy(map, Y_COL, rawYs)
 
+    /** Create a key column combining comparison flag and X label for legend-free stacking. */
     fun combineCompAndXLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(X_COL, xWasUsed, newColumnName, toCompLabel)
 
+    /** Create a key column combining comparison flag and group label. */
     fun combineCompAndGroupLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(GROUP_COL, groupWasUsed, newColumnName, toCompLabel)
 
+    /** Create a key column combining comparison flag and Y label. */
     fun combineCompAndYLabel(newColumnName: String, toCompLabel: (Any) -> String = ::compLabelWrapper) =
         combineCompAndColLabel(Y_COL, yWasUsed, newColumnName, toCompLabel)
 
@@ -221,23 +242,28 @@ class DataFrameBuilder<G, X, Y>(
     // TODO x, y, group to any basic type + time (with converter lambda) so we can hide the raw data list
 }
 
+/** Domain and range values for a categorical color mapping. */
 data class ColorScale(val domain: List<Any>, val range: List<Color>)
 
+/** Add a numeric y column from raw Y values by converting Number to Double. */
 fun <G, X, Y : Number> DataFrameBuilder<G, X, Y>.yAsDouble(): DataFrameBuilder<G, X, Y> {
     dataFrame = dataFrame.add(getRawYData().map { it.toDouble() }.toColumn(Y_COL))
     return this
 }
 
+/** Add an integer x column from raw Int values. */
 fun <G, Y> DataFrameBuilder<G, Int, Y>.xAsInt(): DataFrameBuilder<G, Int, Y> {
     dataFrame = dataFrame.add(getRawXData().toColumn(X_COL))
     return this
 }
 
+/** Add a numeric x column from raw Number values by converting to Double. */
 fun <G, X : Number, Y> DataFrameBuilder<G, X, Y>.xAsDouble(): DataFrameBuilder<G, X, Y> {
     dataFrame = dataFrame.add(getRawXData().map { it.toDouble() }.toColumn(X_COL))
     return this
 }
 
+/** Decompose Summary<Y> into separate numeric columns used for box plots. */
 fun <G, X, Y : Number> DataFrameBuilder<G, X, Summary<Y>>.yAsDoubleSummary(): DataFrameBuilder<G, X, Summary<Y>> {
     val rows = dataFrame.size().nrow
 

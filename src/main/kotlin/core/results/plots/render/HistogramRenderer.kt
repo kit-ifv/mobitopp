@@ -12,6 +12,7 @@ import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.feature.position
 import org.jetbrains.kotlinx.kandy.letsplot.layers.bars
 
+/** Layout contract for a stacked histogram. */
 interface HistogramLayout<G, X> : PlotLayout {
     override val name: String
     val stackAxisLabel: String
@@ -21,6 +22,7 @@ interface HistogramLayout<G, X> : PlotLayout {
     val coloring: (G) -> RGB
 }
 
+/** Mutable builder used to configure a HistogramLayout. */
 data class HistogramLayoutBuilder<G, X>(
     override var name: String = "plot",
     override var stackAxisLabel: String = "stack",
@@ -30,6 +32,7 @@ data class HistogramLayoutBuilder<G, X>(
     override var coloring: (G) -> RGB = { KIT_GREEN },
 ) : HistogramLayout<G, X>
 
+/** Renderer producing a stacked histogram using the Lets-Plot backend. */
 class HistogramRenderer<G, X, Y : Number>(
     override val style: HistogramLayout<G, X>,
 ) : PlotRenderer<G, X, Y> {

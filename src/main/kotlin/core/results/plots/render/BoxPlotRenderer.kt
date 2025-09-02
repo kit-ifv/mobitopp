@@ -11,6 +11,7 @@ import org.jetbrains.kotlinx.kandy.ir.Plot
 import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.layers.boxes
 
+/** Layout contract for a box plot of summary statistics per group/x. */
 interface BoxPlotLayout<G, X> : PlotLayout {
     override val name: String
     val xAxisLabel: String
@@ -20,6 +21,7 @@ interface BoxPlotLayout<G, X> : PlotLayout {
     val coloring: (G) -> RGB
 }
 
+/** Mutable builder for BoxPlot layout options. */
 data class BoxPlotLayoutBuilder<G, X>(
     override var name: String = "plot",
     override var xAxisLabel: String = "x",
@@ -29,6 +31,7 @@ data class BoxPlotLayoutBuilder<G, X>(
     override var coloring: (G) -> RGB = { KIT_GREEN },
 ) : BoxPlotLayout<G, X>
 
+/** Renderer producing a box plot using the Lets-Plot backend. */
 class BoxPlotRenderer<G, X, Y : Number>(
     override val style: BoxPlotLayout<G, X>,
 ) : PlotRenderer<G, X, Summary<Y>> {

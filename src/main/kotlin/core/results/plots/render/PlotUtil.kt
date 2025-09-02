@@ -17,17 +17,23 @@ import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
 @Suppress("MagicNumber")
+/** Default plot width and height in pixels. */
 val DEFAULT_PLOT_SIZE = 1200 to 600
 
+/** Default alpha/opacity used for filled geometries. */
 const val DEFAULT_ALPHA = 0.8
 private const val COLOR_LABEL = "color"
 
+/**
+ * Helper to apply a categorical color scale to a fillColor mapping from a prepared ColorScale.
+ */
 fun WithFillColor.fillColorFromMap(colorColumn: String, colorMap: ColorScale, legendTitle: String = COLOR_LABEL) {
     fillColor(colorColumn) {
         applyScale(colorMap, legendTitle)
     }
 }
 
+/** Apply the provided ColorScale to a non-positional color mapping and name its legend. */
 fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     colorMap: ColorScale,
     legendTitle: String = COLOR_LABEL
@@ -43,6 +49,7 @@ fun LetsPlotNonPositionalMappingParametersContinuous<Any?, Color>.applyScale(
     )
 }
 
+/** Build a Boolean categorical scale mapping true/false to two values. */
 fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
     positive: RangeType,
     negative: RangeType
@@ -51,12 +58,14 @@ fun <RangeType> NonPositionalMappingParameters<*, *>.booleanScale(
     false to negative,
 )
 
+/** Convenience for a Boolean color scale mapping to two Color values. */
 fun NonPositionalMappingParameters<*, *>.booleanColorScale(
     positive: Color = Color.Companion.RED,
     negative: Color = Color.Companion.BLACK
 ) =
     booleanScale(positive, negative)
 
+/** Provides the mobiTopp logo lazily from classpath. */
 object LogoProvider {
     val logo: BufferedImage by lazy {
         val stream: InputStream = LogoProvider::class.java.getResourceAsStream("/logo/mobiTopp_logo.png")

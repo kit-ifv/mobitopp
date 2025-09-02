@@ -1,6 +1,8 @@
 package core.results.plots.data
 
+/** Single data point at x with value y. */
 data class Point<X, Y>(val x: X, val y: Y)
+/** A grouped series of points belonging to a single group/category. */
 data class Trace<G, X, Y>(val group: G, val points: List<Point<X, Y>>)
 
 /**

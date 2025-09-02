@@ -11,6 +11,7 @@ import org.jetbrains.kotlinx.kandy.letsplot.feature.layout
 import org.jetbrains.kotlinx.kandy.letsplot.layers.line
 import org.jetbrains.kotlinx.kandy.letsplot.settings.LineType
 
+/** Layout contract for a line plot. */
 interface LinePlotLayout<G> : PlotLayout {
     override val name: String
     val xAxisLabel: String
@@ -20,6 +21,7 @@ interface LinePlotLayout<G> : PlotLayout {
     val coloring: (G) -> RGB
 }
 
+/** Mutable builder for LinePlot layout options. */
 data class LinePlotLayoutBuilder<G>(
     override var name: String = "plot",
     override var xAxisLabel: String = "x",
@@ -29,6 +31,7 @@ data class LinePlotLayoutBuilder<G>(
     override var coloring: (G) -> RGB = { KIT_GREEN },
 ) : LinePlotLayout<G>
 
+/** Renderer producing a line plot using the Lets-Plot backend. */
 class LinePlotRenderer<G, X, Y : Number>(
     override val style: LinePlotLayout<G>,
 ) : PlotRenderer<G, X, Y> {
