@@ -1,7 +1,5 @@
 package utils
 
-import edu.kit.ifv.mobitopp.actitoppNG.utils.indexOfSearch
-
 /**
  * If the binary search reveals anything, then return the index number, but if not, then the preceding index is - 2 of
  * the result. Since the standard behavior of binary search returns the insertion point, the converted index of
@@ -13,4 +11,8 @@ import edu.kit.ifv.mobitopp.actitoppNG.utils.indexOfSearch
  */
 fun Int.smallerIndex(): Int {
     return if (this < 0) -this - 2 else this
+}
+
+fun Int.indexOfSearch(): Int {
+    return if (this < 0) -this - 1 else this
 }
