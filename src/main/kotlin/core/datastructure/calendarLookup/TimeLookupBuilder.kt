@@ -1,6 +1,5 @@
 package core.datastructure.calendarLookup
 
-import core.datastructure.calendarLookup.TimeSegment
 import utils.units.AbsoluteTime
 import utils.units.sinceStart
 import utils.units.toAbsoluteMinutes
@@ -24,14 +23,12 @@ open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
 
     protected val segments = mutableListOf<TimeSegment<T>>()
 
-
     /**
      * Returns a read-only view of the current list of segments.
      */
     fun segments(): List<TimeSegment<T>> {
         return segments.toList()
     }
-
 
     /**
      * Adds a time interval to the builder.
@@ -124,7 +121,6 @@ open class TimeLookupBuilder<T>(private val modulus: Duration? = null) {
     override fun toString(): String {
         return segments.toString()
     }
-
 }
 
 /**

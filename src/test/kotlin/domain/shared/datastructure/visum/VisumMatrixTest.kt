@@ -1,6 +1,6 @@
 package domain.shared.datastructure.visum
 
-import domain.shared.datastructure.matrix.visum.VisumMatrix
+import domain.shared.datastructure.matrix.StandardMatrix
 import domain.shared.location.ZoneId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -9,7 +9,9 @@ import java.nio.file.Paths
 class VisumMatrixTest {
     @Test
     fun `test matrix returns correct values`() {
-        val matrix = VisumMatrix(Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx"))
+        val matrix = StandardMatrix.parseAsVisumMatrix(
+            Paths.get("src/test/resources/visum_parser/good_case_matrix.mtx")
+        )
 
         // Assertion for zoneIds
         val zoneIds = arrayOf(

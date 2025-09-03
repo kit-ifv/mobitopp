@@ -13,7 +13,6 @@ import domain.synthesis.behavior.domain.SynthesisPerson
 import domain.synthesis.behavior.employment
 import java.nio.file.Path
 import kotlin.io.path.bufferedWriter
-import kotlin.io.path.writeText
 
 //
 // Extension functions on existing classes.
@@ -49,7 +48,7 @@ interface CSVOutput<T> {
 
     fun writeCSVToFile(path: Path, elements: Collection<T>) {
         path.bufferedWriter().use { writer ->
-            writer.write(header.joinToString(separator = ";",) {it  })
+            writer.write(header.joinToString(separator = ";",) { it })
             writer.newLine()
             elements.forEach { element ->
                 writer.write(convert(element))

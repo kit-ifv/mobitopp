@@ -50,6 +50,7 @@ fun <T> Iterable<T>.addProgressBar(
         this
     }
 }
+
 @Suppress("MagicNumber")
 fun defaultProgressBarBuilder(
     label: String,

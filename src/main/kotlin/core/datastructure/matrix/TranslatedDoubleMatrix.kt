@@ -10,5 +10,4 @@ package core.datastructure.matrix
  */
 interface TranslatedDoubleMatrix<I> {
     operator fun get(row: I, column: I): Double
-
 }

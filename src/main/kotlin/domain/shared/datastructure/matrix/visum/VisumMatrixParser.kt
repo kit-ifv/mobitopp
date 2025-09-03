@@ -15,6 +15,7 @@ private val AS_ZONE_ID: (String) -> ZoneId = { ZoneId(it.toLong()) }
 private fun String.splitByWhitespace(): List<String> {
     return this.trim().split(Regex("\\s+"))
 }
+
 /**
  * The `MatrixParser` class is responsible for parsing a matrix from a file and converting it into a `Matrix` object.
  *
@@ -161,7 +162,3 @@ class VisumMatrixParser(thoth: () -> BufferedReader) : VisumParser {
         return values.flatten().toDoubleArray()
     }
 }
-
-
-
-

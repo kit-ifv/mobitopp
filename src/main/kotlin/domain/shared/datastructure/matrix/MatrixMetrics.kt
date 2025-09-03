@@ -3,8 +3,7 @@ package domain.shared.datastructure.matrix
 import domain.shared.datastructure.matrix.optimized.DoubleToCurrency
 import domain.shared.datastructure.matrix.optimized.DoubleToDistance
 import domain.shared.datastructure.matrix.optimized.DoubleToDuration
-import domain.shared.datastructure.matrix.visum.VisumMatrix
-import domain.shared.datastructure.matrix.yaml.YamlMatrixLookupImpl
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.Mode
 import domain.shared.location.CostMetric
 import domain.shared.location.DistanceMetric
@@ -47,7 +46,7 @@ class MatrixMetrics(
     unitConverters: UnitConverter
 ) : Metrics {
     private val currencyConverter = unitConverters.currencyConverter
-    private val timeConverter     = unitConverters.timeConverter
+    private val timeConverter = unitConverters.timeConverter
     private val distanceConverter = unitConverters.distanceConverter
 
     override fun costMetric(mode: Mode, time: Time): CostMetric {
@@ -66,7 +65,6 @@ class MatrixMetrics(
         mode: Mode,
         time: Time,
     ): DurationMetric {
-
         return DurationMetric { o: Location, d: Location ->
             timeConverter.from(travelTimes[mode, time][o, d])
         }
@@ -84,7 +82,6 @@ class MatrixMetrics(
     fun distance(
         from: ZoneId,
         to: ZoneId,
-        mode: Mode,
     ): Distance {
         return distanceConverter.from(travelDistance[from, to])
     }
@@ -104,20 +101,20 @@ class MatrixMetrics(
             travelCostsYamlPath: Path,
             travelDistanceMatrixPath: Path,
             decoder: Decodable<Mode>,
-            matrixFactory: ZoneMatrixCreation = DefaultZoneMatrixCreation,
+            matrixFactory: ZoneMatrixCreation = KeyBasedMatrixCreation,
             converter: UnitConverter = UnitConverter(),
         ): MatrixMetrics {
-            val travelTimeMultiMatrix = YamlMatrixLookupImpl(
+            val travelTimeMultiMatrix = YamlMatrixLookup.default(
                 travelTimeYamlPath,
                 decoder,
             ).cached(matrixFactory)
 
-            val travelCostMultiMatrix = YamlMatrixLookupImpl(
+            val travelCostMultiMatrix = YamlMatrixLookup.default(
                 travelCostsYamlPath,
                 decoder,
             ).cached(matrixFactory)
 
-            val travelDistanceMatrix = VisumMatrix(travelDistanceMatrixPath)
+            val travelDistanceMatrix = matrixFactory.createMatrix(travelDistanceMatrixPath)
             return MatrixMetrics(
                 travelTimeMultiMatrix,
                 travelCostMultiMatrix,
@@ -127,6 +124,7 @@ class MatrixMetrics(
         }
     }
 }
+
 /**
  * Collects conversion functions for the 3 main types of matrices found in the simulation.
  *
@@ -136,24 +134,23 @@ class MatrixMetrics(
  * - currency in euros
  */
 data class UnitConverter(
-    val timeConverter: DoubleToDuration = DoubleToDuration{it.minutes},
-    val distanceConverter: DoubleToDistance = DoubleToDistance{it.kilometers},
-    val currencyConverter: DoubleToCurrency = DoubleToCurrency{it.euros},
+    val timeConverter: DoubleToDuration = DoubleToDuration { it.minutes },
+    val distanceConverter: DoubleToDistance = DoubleToDistance { it.kilometers },
+    val currencyConverter: DoubleToCurrency = DoubleToCurrency { it.euros },
 
-    ) {
+) {
 
     companion object {
         fun fromUnits(
             distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
             currencyUnit: CurrencyUnit = CurrencyUnit.EUROS,
             timeUnit: DurationUnit = DurationUnit.MINUTES,
-        ) : UnitConverter {
+        ): UnitConverter {
             return UnitConverter(
-                {it.toDuration(timeUnit)},
+                { it.toDuration(timeUnit) },
                 { it.toDistance(distanceUnit) },
-                {it.toCurrency(currencyUnit)},
+                { it.toCurrency(currencyUnit) },
             )
         }
     }
-
 }

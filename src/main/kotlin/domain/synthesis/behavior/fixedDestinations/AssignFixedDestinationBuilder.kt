@@ -9,7 +9,6 @@ import domain.synthesis.behavior.isSecondaryStudent
 import domain.synthesis.behavior.isTertiaryStudent
 import domain.synthesis.behavior.isWorker
 import domain.synthesis.results.FixedDestinationElements
-import utils.collections.addProgressBar
 
 /**
  * This class provides the syntax to build the fixed destinations of agents.

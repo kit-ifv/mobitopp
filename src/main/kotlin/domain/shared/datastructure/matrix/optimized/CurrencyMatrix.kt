@@ -10,7 +10,6 @@ fun interface DoubleToCurrency {
     fun from(x: Double): Currency
 }
 
-
 class CurrencyMatrix(
     private val translatedMatrix: ZoneIdMatrix,
     private val converter: DoubleToCurrency,

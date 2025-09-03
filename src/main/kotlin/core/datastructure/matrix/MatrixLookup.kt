@@ -14,4 +14,3 @@ import utils.units.AbsoluteTime
 interface MatrixLookup<M, I> {
     operator fun get(mode: M, time: AbsoluteTime): TranslatedDoubleMatrix<I>
 }
-

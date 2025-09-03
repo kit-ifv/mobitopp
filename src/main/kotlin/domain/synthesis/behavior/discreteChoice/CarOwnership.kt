@@ -645,5 +645,3 @@ val carChoiceUtility = NestedStructure<Int, CarOwnershipAttributes, CarOwnership
         }
     }
 }.nestedLogit("ExampleNestedNumberOfCarsModel")
-
-

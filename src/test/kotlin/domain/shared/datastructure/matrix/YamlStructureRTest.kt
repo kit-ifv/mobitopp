@@ -1,8 +1,8 @@
 package domain.shared.datastructure.matrix
 
-import domain.shared.datastructure.matrix.yaml.YamlMatrixLookupImpl
+import domain.shared.datastructure.matrix.yaml.YamlMatrixLookup
 import domain.shared.enums.LegacyMode
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import utils.units.sinceStart
 import kotlin.io.path.Path
 import kotlin.test.Test
@@ -11,8 +11,8 @@ import kotlin.time.Duration.Companion.hours
 
 class YamlStructureRTest {
     @Test
-    fun parsingOfYaml(){
-        val yaml = YamlMatrixLookupImpl<LegacyMode>(
+    fun parsingOfYaml() {
+        val yaml = YamlMatrixLookup.default(
             yamlPath = Path("data/matrix/cost-matrix-configuration_transmove_turbo.yaml"),
             modeDecoder = LegacyMode.Companion,
         )
@@ -21,8 +21,5 @@ class YamlStructureRTest {
 
         assertEquals(out.expiration, Duration.INFINITE.sinceStart)
         assertEquals(out2.expiration, Duration.INFINITE.sinceStart)
-
     }
-
-
 }

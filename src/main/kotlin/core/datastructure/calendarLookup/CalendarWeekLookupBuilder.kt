@@ -15,25 +15,28 @@ import domain.shared.datastructure.matrix.yaml.WeekLookupOperation
  *
  * Once populated, [build] finalizes the structure into an immutable [CalendarWeekLookup].
  */
-class CalendarWeekLookupBuilder<T>(private val weekLookups: MutableMap<Int, MutableList<WeekLookupOperation<T>>> = mutableMapOf()) {
+class CalendarWeekLookupBuilder<T>(
+    private val weekLookups: MutableMap<Int, MutableList<WeekLookupOperation<T>>> = mutableMapOf()
+) {
     private var defaultWeekLookupInstructions: MutableList<WeekLookupOperation<T>> = mutableListOf()
+
     /**
      * Sets the [default] week lookup, which is used for all week numbers
      * not explicitly present in [weekLookups].
      */
     fun applyDefaultInstructions(default: Collection<WeekLookupOperation<T>>) {
-
         defaultWeekLookupInstructions.addAll(default)
     }
+
     /**
      * Adds or replaces a [WeekLookup] for the given calendar week [weekNumber].
      */
-    operator fun set(weekNumber: Int, day:  Collection<WeekLookupOperation<T>>) {
+    operator fun set(weekNumber: Int, day: Collection<WeekLookupOperation<T>>) {
         val currentWeek = weekLookups.getOrPut(weekNumber) { mutableListOf() }
 
         currentWeek.addAll(day)
-
     }
+
     /**
      * Finalizes the builder and returns a [CalendarWeekLookup].
      *
@@ -43,7 +46,6 @@ class CalendarWeekLookupBuilder<T>(private val weekLookups: MutableMap<Int, Muta
      */
 
     fun build(): CalendarWeekLookup<T> {
-
         val defaultWeek = WeekLookupBuilder<T>()
         defaultWeek.applyAllDefaultRules()
         val weekBuilders = weekLookups.mapValues { (_, weekBuilder) ->

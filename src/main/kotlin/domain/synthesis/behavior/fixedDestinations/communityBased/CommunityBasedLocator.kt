@@ -28,7 +28,9 @@ class CommunityBasedGroupLocator<T>(
         verifyDemand(targets.keys)
         verifyLocationsPresent(targets.keys)
 
-        return targets.entries.addProgressBar("Assigning demands for communities").flatMap { (communityNumber, agents) ->
+        return targets.entries.addProgressBar(
+            "Assigning demands for communities"
+        ).flatMap { (communityNumber, agents) ->
             val demandsForCommunity = demands[communityNumber]
             val locationsInTargetCommunities = potentialLocations.filter { it.toCommunity() in demandsForCommunity }
             strategy.assign(agents, demandsForCommunity, locationsInTargetCommunities)
@@ -102,7 +104,6 @@ data class CommunityDemandPlaner<T>(
     ): List<AssignedLocation<T>> {
         val size = agents.size
         if (size > demand.total) {
-
             System.err.println(
                 "\nThe amount of agents ($size) to be assigned in community ${demand.communityID} " +
                     "exceeds the the total demand ${demand.total}. There will be inaccuracies in assignment"

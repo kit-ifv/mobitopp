@@ -30,7 +30,6 @@ fun DayOfWeek.daysSinceStartOfWeek() = this.encode().days
 operator fun Duration.rem(other: Duration): Duration =
     (this.inWholeSeconds % other.inWholeSeconds).toDuration(DurationUnit.SECONDS)
 
-
 fun Duration.floorRem(other: Duration): Duration {
     val result = this % other
     return if (result < Duration.ZERO) result + other else result
@@ -85,9 +84,9 @@ value class AbsoluteTime(private val offset: Duration) : Comparable<AbsoluteTime
         week: Int,
     ) : this(
         (week * DAYS_PER_WEEK).days +
-                weekday.daysSinceStartOfWeek() +
-                hour.hours + minute.minutes +
-                second.seconds
+            weekday.daysSinceStartOfWeek() +
+            hour.hours + minute.minutes +
+            second.seconds
     )
 
     val sinceStart get() = offset
